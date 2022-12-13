@@ -1,0 +1,105 @@
+Genio files
+================================================================================
+
+|  --Credits.............................Credits file
+|  --Genio.rdef..........................Resources file (text)
+|  --License.md..........................License
+|  --Makefile............................Makefile
+|  --Readme.files........................This file
+|  --Readme.md...........................Readme file
+|  --Roadmap.............................Rough roadmap + features + bugs
+|
+|  --app.................................Application binary storage
+|	+
+|	|  --Genio...........................(Empty until compilation)
+|
+|  --data
+|	+ 
+|	|  --screenshot......................Screenshot images
+|	|	+
+|	|	|  --screenshot-0.0.6-ita.png....
+|	|	|  --screenshot-0.0.9-eng.png....
+|	|	|  --screenshot-0.2.0-ita.png....
+|	|	|  --screenshot-0.5.0-eng.png....
+|	|	|  --screenshot-0.5.2-eng.png....
+|	|	|  --screenshot-0.6.1-eng.png....
+|	|	|  --screenshot-0.6.2-eng.png....
+|	|	|  --screenshot-0.7.4-eng.png....
+|
+|  --locales.............................Localization files
+|	+
+|	|  --en.catkeys......................English locales
+|	|  --it.catkeys......................Italian locales
+|
+|  --src
+|	+ 
+|	|  --GenioApp.cpp....................Main Application class
+|	|  --GenioApp.h......................
+|	|  --GenioCommon.cpp.................Global functions
+|	|  --GenioCommon.h...................
+|	|  --GenioNamespace.cpp..............Global namespace
+|	|  --GenioNamespace.h................
+|	|
+|	|  --helpers.........................Helper classes
+|	|	+
+|	|	|  --ShellView.cpp...............Shell view class (obsoleted)
+|	|	|  --ShellView.h.................
+|	|	|  --TitleItem.h.................OutlineListView title class
+|	|	|  --TPreferences.cpp............Settings storage helper class
+|	|	|  --TPreferences.h..............
+|	|	|  --keywords.h..................Keywords for syntax highlighting
+|	|	|
+|	|	|  --class_parser................Class parser class
+|	|	|	+
+|	|	|	|  --ClassesView.cpp.........Class parser visual class
+|	|	|	|  --ClassesView.h...........
+|	|	|
+|	|	|  --console_io..................Console I/O classes
+|	|	|	+
+|	|	|	|  --ConsoleIOThread.cpp.....Console I/O worker class
+|	|	|	|  --ConsoleIOThread.h.......
+|	|	|	|  --ConsoleIOView.cpp.......Console I/O visual class
+|	|	|	|  --ConsoleIOView.h.........
+|	|	|	|  --GenericThread.cpp.......Generic Thread class
+|	|	|	|  --GenericThread.h.........
+|	|
+|	|	|  --tabview.....................Tabview classes
+|	|	|	+
+|	|	|	|  --TabContainerView.cpp....Tab container class
+|	|	|	|  --TabContainerView.h......
+|	|	|	|  --TabManager.cpp..........Tab manager class
+|	|	|	|  --TabManager.h............
+|	|	|	|  --TabView.cpp.............Tab view class
+|	|	|	|  --TabView.h...............
+|	|
+|	|  --project.........................Project classes
+|	|	+
+|	|	|  --AddToProjectWindow.cpp......Project adding items class
+|	|	|  --AddToProjectWindow.h........
+|	|	|  --NewProjectWindow.cpp........Project creation window class
+|	|	|  --NewProjectWindow.h..........
+|	|	|  --Project.cpp.................Project class
+|	|	|  --Project.h...................
+|	|	|  --ProjectParser.cpp...........Project files parser class
+|	|	|  --ProjectParser.h.............
+|	|	|  --ProjectTitleItem.h..........Project Title class
+|	|
+|	|  --ui..............................Graphical user interface classes
+|	|	+
+|	|	|  --DefaultSettingsKeys.h.......Settings Keys default values
+|	|	|  --Editor.cpp..................Scintilla editor class
+|	|	|  --Editor.h....................
+|	|	|  --GenioWindow.cpp.............Main window class
+|	|	|  --GenioWindow.h...............
+|	|	|  --SettingsWindow.cpp..........General settings window class
+|	|	|  --SettingsWindow.h............
+
+
+/boot/home/config/settings/Genio
+--------------------------------------------------------------------------------
+files_to_reopen.settings    : Files to reopen at startup
+projects_to_reopen.settings : Projects to reopen at startup
+Genio.settings              : Genio preferences
+ui.settings                 : Window position at startup
+
+<Project name>.idmpro       : <Project name> project file

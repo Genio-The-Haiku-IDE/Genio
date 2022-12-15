@@ -31,6 +31,8 @@ using namespace GenioNames;
 #define UNSET 0
 #define UNUSED 0
 
+#include "FileWrapper.h"
+
 //#define USE_LINEBREAKS_ATTRS
 
 Editor::Editor(entry_ref* ref, const BMessenger& target)
@@ -70,6 +72,11 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 
 // SendMessage(SCI_SETYCARETPOLICY, CARET_SLOP | CARET_STRICT | CARET_JUMPS, 20);
 // CARET_SLOP  CARET_STRICT  CARET_JUMPS  CARET_EVEN
+	std::string s = "file://";
+	s += BPath(&fFileRef).Path();//.String();
+	fFileWrapper = new FileWrapper(s.c_str());
+	
+	fFirstLoad = true;
 }
 
 Editor::~Editor()
@@ -624,6 +631,9 @@ Editor::LoadFromFile()
 	StartMonitoring();
 
 	fFileType = Genio::file_type(fFileName.String());
+	
+
+	fFileWrapper->didOpen(buffer, len);
 
 	return B_OK;
 }
@@ -672,22 +682,27 @@ Editor::NotificationReceived(SCNotification* notification)
 			foldLevelNow	The new fold level applied to the line or 0 if this field is unused.
 			foldLevelPrev	The previous folding level of the line or 0 if this field is unused.
 			*/
-			if (notification->modificationType & SC_MOD_INSERTTEXT || notification->modificationType & SC_MOD_DELETETEXT) {
-				printf("SCN_MODIFIED\nmodificationType:%x\ntext[%*.*s][%ld]\n",notification->modificationType, (int)notification->length, (int)notification->length, notification->text, notification->length);
+			if (!fFirstLoad && notification->modificationType & SC_MOD_INSERTTEXT /*|| notification->modificationType & SC_MOD_DELETETEXT*/) {
+				fprintf(stderr, "** SCN_MODIFIED\nmodificationType:%x\ntext[%*.*s][%ld]\n",notification->modificationType, (int)notification->length, (int)notification->length, notification->text, notification->length);
+
 				Sci_Position pos = notification->position;
-				int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
-				int lineStart = SendMessage(SCI_POSITIONFROMLINE, line, 0);
-				int fixedColu = SendMessage(SCI_COUNTCHARACTERS, lineStart, pos);				
-				printf("---> Start line[%d]column[%d] - FIX\n", line, fixedColu);
+				
+				int s_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
+				int s_char = SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);				
+				fprintf(stderr,"---> Start s_line[%d]s_char[%d] - FIX\n", s_line, s_char);
 				
 				pos += notification->length;
-				line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
-				lineStart = SendMessage(SCI_POSITIONFROMLINE, line, 0);
-				fixedColu = SendMessage(SCI_COUNTCHARACTERS, lineStart, pos);
-				printf("---> END   line[%d]column[%d] - FIX\n", line, fixedColu);				
+				int e_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				int end_pos_end = SendMessage(SCI_POSITIONFROMLINE, e_line, 0);
+				int e_char = SendMessage(SCI_COUNTCHARACTERS, end_pos_end, pos);
+				fprintf(stderr,"---> END   e_line[%d]e_char[%d] - FIX\n", e_line, e_char);				
 				
-								
-			}			
+				fFileWrapper->didChange(notification->text, notification->length, s_line, s_char, e_line, e_char);
+				
+			} else if (fFirstLoad && notification->modificationType & SC_MOD_INSERTTEXT)	{
+					fFirstLoad = false;
+				}
 			if (notification->linesAdded != 0)
 				if (Settings.show_linenumber == true)
 					_RedrawNumberMargin();

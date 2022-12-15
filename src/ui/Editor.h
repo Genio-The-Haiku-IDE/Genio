@@ -13,6 +13,8 @@
 
 #include <string>
 
+class FileWrapper;
+
 enum {
 	EDITOR_FIND_COUNT				= 'Efco',
 	EDITOR_FIND_NEXT_MISS			= 'Efnm',
@@ -175,6 +177,10 @@ private:
 
 			int					fCurrentLine;
 			int					fCurrentColumn;
+			
+			FileWrapper*		fFileWrapper;
+			
+			bool				fFirstLoad;
 };
 
 #endif // EDITOR_H

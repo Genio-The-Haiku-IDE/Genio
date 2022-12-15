@@ -662,6 +662,32 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_MODIFIED: {
+			/*
+			modificationType	A set of flags that identify the change(s) made. See the next table.
+			position	Start position of a text or styling change. Set to 0 if not used.
+			length	Length of the change in bytes when the text or styling changes. Set to 0 if not used.
+			linesAdded	Number of added lines. If negative, the number of deleted lines. Set to 0 if not used or no lines added or deleted.
+			text	Valid for text changes, not for style changes. If we are collecting undo information this holds a pointer to the text that is handed to the Undo system, otherwise it is zero. For user performed SC_MOD_BEFOREDELETE the text field is 0.
+			line	The line number at which a fold level or marker change occurred. This is 0 if unused and may be -1 if more than one line changed.
+			foldLevelNow	The new fold level applied to the line or 0 if this field is unused.
+			foldLevelPrev	The previous folding level of the line or 0 if this field is unused.
+			*/
+			if (notification->modificationType & SC_MOD_INSERTTEXT || notification->modificationType & SC_MOD_DELETETEXT) {
+				printf("SCN_MODIFIED\nmodificationType:%x\ntext[%*.*s][%ld]\n",notification->modificationType, (int)notification->length, (int)notification->length, notification->text, notification->length);
+				Sci_Position pos = notification->position;
+				int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				int lineStart = SendMessage(SCI_POSITIONFROMLINE, line, 0);
+				int fixedColu = SendMessage(SCI_COUNTCHARACTERS, lineStart, pos);				
+				printf("---> Start line[%d]column[%d] - FIX\n", line, fixedColu);
+				
+				pos += notification->length;
+				line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				lineStart = SendMessage(SCI_POSITIONFROMLINE, line, 0);
+				fixedColu = SendMessage(SCI_COUNTCHARACTERS, lineStart, pos);
+				printf("---> END   line[%d]column[%d] - FIX\n", line, fixedColu);				
+				
+								
+			}			
 			if (notification->linesAdded != 0)
 				if (Settings.show_linenumber == true)
 					_RedrawNumberMargin();

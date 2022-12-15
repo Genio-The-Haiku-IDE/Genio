@@ -651,6 +651,9 @@ Editor::LoadFromFile()
 	StartMonitoring();
 
 	fFileType = Genio::file_type(fFileName.String());
+	
+
+	fFileWrapper->didOpen(buffer, len);
 
 	
 	return B_OK;
@@ -691,6 +694,7 @@ Editor::NotificationReceived(SCNotification* notification)
 				_CommentLine(notification->position);
 			break;
 		}
+<<<<<<< HEAD
 		case SCN_AUTOCSELECTION: {
 			fFileWrapper->SelectedCompletion(notification->text);
 			break;
@@ -721,6 +725,43 @@ Editor::NotificationReceived(SCNotification* notification)
 		}
 		case SCN_DWELLEND: {
 			fFileWrapper->EndHover();
+=======
+		case SCN_MODIFIED: {
+			/*
+			modificationType	A set of flags that identify the change(s) made. See the next table.
+			position	Start position of a text or styling change. Set to 0 if not used.
+			length	Length of the change in bytes when the text or styling changes. Set to 0 if not used.
+			linesAdded	Number of added lines. If negative, the number of deleted lines. Set to 0 if not used or no lines added or deleted.
+			text	Valid for text changes, not for style changes. If we are collecting undo information this holds a pointer to the text that is handed to the Undo system, otherwise it is zero. For user performed SC_MOD_BEFOREDELETE the text field is 0.
+			line	The line number at which a fold level or marker change occurred. This is 0 if unused and may be -1 if more than one line changed.
+			foldLevelNow	The new fold level applied to the line or 0 if this field is unused.
+			foldLevelPrev	The previous folding level of the line or 0 if this field is unused.
+			*/
+			if (!fFirstLoad && notification->modificationType & SC_MOD_INSERTTEXT /*|| notification->modificationType & SC_MOD_DELETETEXT*/) {
+				fprintf(stderr, "** SCN_MODIFIED\nmodificationType:%x\ntext[%*.*s][%ld]\n",notification->modificationType, (int)notification->length, (int)notification->length, notification->text, notification->length);
+
+				Sci_Position pos = notification->position;
+				
+				int s_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
+				int s_char = SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);				
+				fprintf(stderr,"---> Start s_line[%d]s_char[%d] - FIX\n", s_line, s_char);
+				
+				pos += notification->length;
+				int e_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				int end_pos_end = SendMessage(SCI_POSITIONFROMLINE, e_line, 0);
+				int e_char = SendMessage(SCI_COUNTCHARACTERS, end_pos_end, pos);
+				fprintf(stderr,"---> END   e_line[%d]e_char[%d] - FIX\n", e_line, e_char);				
+				
+				fFileWrapper->didChange(notification->text, notification->length, s_line, s_char, e_line, e_char);
+				
+			} else if (fFirstLoad && notification->modificationType & SC_MOD_INSERTTEXT)	{
+					fFirstLoad = false;
+				}
+			if (notification->linesAdded != 0)
+				if (Settings.show_linenumber == true)
+					_RedrawNumberMargin();
+>>>>>>> 2f17c2f (first raw integration between Genio and LSP client)
 			break;
 		}
 		case SCN_SAVEPOINTLEFT: {

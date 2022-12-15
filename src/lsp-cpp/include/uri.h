@@ -113,27 +113,28 @@ inline uint8_t FromHex(const char n1, const char n2) {
 struct URIForFile {
     std::string file;
     static std::string UriEncode(string_ref ref) {
-        static const char *hexs = "0123456789ABCDEF";
-        static const char *symbol = "._-*/:";
-        std::string result;
-        for (uint8_t ch : ref) {
-            if (ch == '\\') {
-                ch = '/';
-            }
-            if (std::isalnum(ch) || strchr(symbol, ch)) {
-                if (ch == '/' && result.back() == '/') {
-                    continue;
-                }
-                result += ch;
-            } else if (ch == ' ') {
-                result += '+';
-            } else {
-                result += '%';
-                result += hexs[ch >> 4];
-                result += hexs[ch & 0xF];
-            }
-        }
-        return std::move(result);
+//        static const char *hexs = "0123456789ABCDEF";
+//        static const char *symbol = "._-*/:";
+//        std::string result;
+//        for (uint8_t ch : ref) {
+//            if (ch == '\\') {
+//                ch = '/';
+//            }
+//            if (std::isalnum(ch) || strchr(symbol, ch)) {
+//                if (ch == '/' && result.back() == '/') {
+//                    continue;
+//                }
+//                result += ch;
+//            } else if (ch == ' ') {
+//                result += '+';
+//            } else {
+//                result += '%';
+//                result += hexs[ch >> 4];
+//                result += hexs[ch & 0xF];
+//            }
+//        }
+//        return std::move(result);
+return "";
     }
     explicit operator bool() const { return !file.empty(); }
     friend bool operator==(const URIForFile &LHS, const URIForFile &RHS) {
@@ -174,7 +175,7 @@ public:
         return res;
     }
     static std::string Decode(sview input) {
-        static const char *reserved = ":/?#[]@!$&'()*+,;=";
+        //static const char *reserved = ":/?#[]@!$&'()*+,;=";
         std::string res;
         res.reserve(input.size());
         for (auto iter = input.begin(), end = input.end(); iter != end; ++iter) {

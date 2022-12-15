@@ -17,11 +17,17 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
 
+#include "FileWrapper.h"
 
 GenioApp::GenioApp()
 	:
 	BApplication(GenioNames::kApplicationSignature)
 {
+	
+		//init clangd
+	
+	FileWrapper::Initialize();
+	
 	BRect frame;
 
 	// Load UI settings
@@ -137,6 +143,8 @@ GenioApp::ReadyToRun()
 	_CheckSettingsVersion();
 
 	std::cerr << GenioNames::GetSignature() << std::endl;
+	
+
 }
 
 void

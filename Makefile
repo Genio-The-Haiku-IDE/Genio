@@ -52,6 +52,7 @@ SRCS +=  src/helpers/console_io/GenericThread.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
+SRCS +=  src/lsp-cpp/src/FileWrapper.cpp
 
 
 RDEFS := Genio.rdef
@@ -95,7 +96,8 @@ CXXFLAGS := -std=c++14 -fPIC
 
 LOCALES := en it
 
-DEBUGGER := false
+DEBUGGER := TRUE
+
 
 ## Include the Makefile-Engine
 ENGINE_DIRECTORY := $(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)

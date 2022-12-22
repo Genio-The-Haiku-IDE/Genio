@@ -179,8 +179,7 @@ private:
 			int					fCurrentColumn;
 			
 			FileWrapper*		fFileWrapper;
-			
-			bool				fFirstLoad;
+
 };
 
 #endif // EDITOR_H

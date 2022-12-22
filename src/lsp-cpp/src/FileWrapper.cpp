@@ -5,7 +5,7 @@
 
 
 #include "FileWrapper.h"
-#include "lsp-cpp/include/client.h"
+#include "client.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <thread>
@@ -18,7 +18,7 @@ MapMessageHandler my;
 
 std::thread thread;
 
-void FileWrapper::Initialize() {
+void FileWrapper::Initialize(const char* rootURI) {
 	
 	client = new ProcessLanguageClient("clangd");
 
@@ -30,7 +30,8 @@ void FileWrapper::Initialize() {
         initialized = true;
 	});
 
-	client->Initialize();
+	string_ref uri = rootURI;
+	client->Initialize(uri);
 	
 	while(!initialized)
 	{
@@ -45,16 +46,38 @@ FileWrapper::FileWrapper(std::string filenameURI)
 }
 
 void	
-FileWrapper::didOpen(const char* text, long len) {
+FileWrapper::didOpen(const char* text) {
 	if (!initialized)
 		return;
 		
-	client->DidOpen(fFilenameURI.c_str(), text);
+	client->DidOpen(fFilenameURI.c_str(), text, "cpp");
     client->Sync();
+}
+
+void	
+FileWrapper::didClose() {
+	if (!initialized)
+		return;
+		
+	client->DidClose(fFilenameURI.c_str());
+}
+
+void
+FileWrapper::Dispose()
+{
+	if (!initialized)
+		return;
+		
+    client->Exit();
+    thread.detach();
+    delete client;
+    client = NULL;
+    initialized = false;
 }
 
 void
 FileWrapper::didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char) {
+	printf("didChange[%ld][%.*s]\n",len, (int)len,text);
 	if (!initialized)
 		return;
 	

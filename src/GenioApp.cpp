@@ -23,9 +23,6 @@ GenioApp::GenioApp()
 	:
 	BApplication(GenioNames::kApplicationSignature)
 {
-	
-		//init clangd
-	
 	FileWrapper::Initialize();
 	
 	BRect frame;
@@ -45,6 +42,7 @@ GenioApp::GenioApp()
 
 GenioApp::~GenioApp()
 {
+	FileWrapper::Dispose();
 }
 
 void

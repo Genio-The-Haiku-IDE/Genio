@@ -1,71 +1,50 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
-#include "client.h"
-
+#include "FileWrapper.h"
+#include<unistd.h> 
 
 int main() {
 	
-	bool initialized = false;
+	
 	
 	std::string lDir  = "/boot/data/genio/pipe/data/";
-	std::string lFile = "app.cpp";
+	
 
-	std::string strRootUri = std::string("file://") + lDir ;
-	std::string fullFile = std::string("file://") + lDir + lFile;
-	
-	string_ref rootUri = strRootUri.c_str();
-    string_ref file    = fullFile.c_str();
-    
-	ProcessLanguageClient client("clangd");
-	
-    MapMessageHandler my;
-    
-     
-    std::thread thread([&] {
-        client.loop(my);
-    });
-	my.bindResponse("initialize", [&](json& j){
-		
-		std::ifstream f((lDir + lFile).c_str());
-		std::stringstream buffer;
-		buffer << f.rdbuf();
-		fprintf(stderr, "********* INIT ******\n"); 
-		client.DidOpen(file, buffer.str());
-        client.Sync();
-        initialized = true;
-	});
-    
-	client.Initialize(rootUri);
+	std::string strRootUri = std::string("file://") + lDir ;    
+   
+
+	FileWrapper::Initialize(strRootUri.c_str());
     
     int res;
     while (scanf("%d", &res)) {
-    	if (!initialized)
-    		continue;
 
         if (res == 1) {
-            client.Exit();
-            thread.detach();
-            return 0;
+			
+            break;
         }
-//        if (res == 2) {
-//            client.Initialize();
-//        }
-//        if (res == 3) {
-//            client.DidOpen(file, text);
-//            client.Sync();
-//        }
-        if (res == 4) {
-            client.Formatting(file);
-        }
-		if (res == 5) {
-			Position pos;
-			pos.line = 2;
-			pos.character = 4;
-			CompletionContext context;
 
-			client.Completion(file, pos, context);
+		if (res == 2) {
+			
+			std::string file = strRootUri + "simple.cpp";
+			FileWrapper	fW(file.c_str());
+			fW.didOpen("");
+			std::string content = "int x = 1";
+			fW.didChange(content.c_str(), content.length(), 0, 0, 0, 0);
+			sleep(1);
+			fW.didChange("0", 1, 0, 9, 0, 9);
+			sleep(1);
+			fW.didChange(";", 1, 0, 10, 0, 10);
+			sleep(1);
+			fW.didChange("\n", 1, 0, 11, 0, 11);
+			sleep(1);	
+			fW.didChange("int y=1;", 8, 1, 0, 1, 0);
+			sleep(1);		
+			fW.didClose();
 		}
     }
+    
+    FileWrapper::Dispose();
+    
     return 0;
 }

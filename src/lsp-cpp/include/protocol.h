@@ -489,11 +489,11 @@ struct TextDocumentContentChangeEvent {
     option<Range> range;
 
     /// The length of the range that got replaced.
-    option<int> rangeLength;
+    //xed option<int> rangeLength;
     /// The new text of the range/document.
     std::string text;
 };
-JSON_SERIALIZE(TextDocumentContentChangeEvent, MAP_JSON(MAP_KEY(range), MAP_KEY(rangeLength), MAP_KEY(text)), {});
+JSON_SERIALIZE(TextDocumentContentChangeEvent, MAP_JSON(MAP_KEY(range)/*, MAP_KEY(rangeLength)*/, MAP_KEY(text)), {});
 
 struct DidChangeTextDocumentParams {
     /// The document that did change. The version number points

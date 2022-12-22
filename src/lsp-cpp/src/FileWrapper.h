@@ -13,10 +13,12 @@ class FileWrapper {
 public:
 		FileWrapper(std::string fileURI);
 		
-		void	didOpen(const char* text, long len);
+		void	didOpen(const char* text);
 		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
-		
-	static void Initialize();
+		void	didClose();
+
+	static void Initialize(const char* rootURI = "");
+	static void Dispose();
 	
 private:
 

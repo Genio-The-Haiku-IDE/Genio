@@ -11,7 +11,9 @@
 #include <Control.h>
 #include <NodeMonitor.h>
 #include <Path.h>
+#include <ILexer.h>
 #include <SciLexer.h>
+#include <Lexilla.h>
 #include <Volume.h>
 
 #include <iostream>
@@ -76,7 +78,6 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	s += BPath(&fFileRef).Path();//.String();
 	fFileWrapper = new FileWrapper(s.c_str());
 	
-	fFirstLoad = true;
 }
 
 Editor::~Editor()
@@ -92,6 +93,8 @@ Editor::~Editor()
 			node.WriteAttr("be:caret_position", B_INT32_TYPE, 0, &pos, sizeof(pos));
 		}
 	}
+	
+	fFileWrapper->didClose();
 }
 
 void
@@ -184,6 +187,9 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12);
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	}
+	
+	//xed
+	SendMessage(SCI_SETZOOM, 5, 0);
 }
 
 void
@@ -597,6 +603,8 @@ Editor::LoadFromFile()
 
 	off_t size;
 	file.GetSize(&size);
+	
+		
 
 	char* buffer = new char[size + 1];
 
@@ -604,6 +612,7 @@ Editor::LoadFromFile()
 
 	buffer[size] = '\0';
 
+	fFileWrapper->didOpen("");
 	SendMessage(SCI_SETTEXT, 0, (sptr_t) buffer);
 
 	// Check the first newline only
@@ -633,8 +642,8 @@ Editor::LoadFromFile()
 	fFileType = Genio::file_type(fFileName.String());
 	
 
-	fFileWrapper->didOpen(buffer, len);
 
+	
 	return B_OK;
 }
 
@@ -682,8 +691,21 @@ Editor::NotificationReceived(SCNotification* notification)
 			foldLevelNow	The new fold level applied to the line or 0 if this field is unused.
 			foldLevelPrev	The previous folding level of the line or 0 if this field is unused.
 			*/
-			if (!fFirstLoad && notification->modificationType & SC_MOD_INSERTTEXT /*|| notification->modificationType & SC_MOD_DELETETEXT*/) {
-				fprintf(stderr, "** SCN_MODIFIED\nmodificationType:%x\ntext[%*.*s][%ld]\n",notification->modificationType, (int)notification->length, (int)notification->length, notification->text, notification->length);
+			if (notification->modificationType & SC_MOD_INSERTTEXT) {
+				fprintf(stderr, "** SC_MOD_INSERTTEXT text[%.*s][%ld]\n", (int)notification->length, notification->text, notification->length);
+
+				Sci_Position pos = notification->position;
+				
+				int s_line  = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
+				int s_char  = SendMessage(SCI_COUNTCHARACTERS,  end_pos, pos);				
+				fprintf(stderr,"---> Start s_line[%d]s_char[%d]\n", s_line, s_char);				
+			
+				fFileWrapper->didChange(notification->text, notification->length, s_line, s_char, s_line, s_char);
+				
+			} 
+			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
+				fprintf(stderr, "** SC_MOD_BEFOREDELETE text[%.*s][%ld]\n", (int)notification->length, notification->text, notification->length);
 
 				Sci_Position pos = notification->position;
 				
@@ -698,11 +720,10 @@ Editor::NotificationReceived(SCNotification* notification)
 				int e_char = SendMessage(SCI_COUNTCHARACTERS, end_pos_end, pos);
 				fprintf(stderr,"---> END   e_line[%d]e_char[%d] - FIX\n", e_line, e_char);				
 				
-				fFileWrapper->didChange(notification->text, notification->length, s_line, s_char, e_line, e_char);
+				fFileWrapper->didChange("", 0, s_line, s_char, e_line, e_char);
 				
-			} else if (fFirstLoad && notification->modificationType & SC_MOD_INSERTTEXT)	{
-					fFirstLoad = false;
-				}
+			}
+			
 			if (notification->linesAdded != 0)
 				if (Settings.show_linenumber == true)
 					_RedrawNumberMargin();
@@ -1185,7 +1206,7 @@ Editor::_ApplyExtensionSettings()
 		fBracingAvailable = true;
 		fParsingAvailable = true;
 		fCommenter = "//";
-		SendMessage(SCI_SETLEXER, SCLEX_CPP, UNSET);
+		SendMessage(SCI_SETILEXER, 0, (sptr_t)CreateLexer("cpp"));
 		SendMessage(SCI_SETKEYWORDS, 0, (sptr_t)cppKeywords);
 		SendMessage(SCI_SETKEYWORDS, 1, (sptr_t)haikuClasses);
 	} else if (fFileType == "rust") {
@@ -1193,13 +1214,13 @@ Editor::_ApplyExtensionSettings()
 		fFoldingAvailable = true;
 		fBracingAvailable = true;
 		fCommenter = "//";
-		SendMessage(SCI_SETLEXER, SCLEX_RUST, UNSET);
+		SendMessage(SCI_SETILEXER, 0, (sptr_t)CreateLexer("rust"));
 		SendMessage(SCI_SETKEYWORDS, 0, (sptr_t)rustKeywords);
 	} else if (fFileType == "make") {
 		fSyntaxAvailable = true;
 		fBracingAvailable = true;
 		fCommenter = "#";
-		SendMessage(SCI_SETLEXER, SCLEX_MAKEFILE, UNSET);
+		SendMessage(SCI_SETILEXER, 0, (sptr_t)CreateLexer("make"));
 	}
 }
 

@@ -612,7 +612,7 @@ Editor::LoadFromFile()
 
 	buffer[size] = '\0';
 
-	fFileWrapper->didOpen("");
+	fFileWrapper->didOpen("", this);
 	SendMessage(SCI_SETTEXT, 0, (sptr_t) buffer);
 
 	// Check the first newline only
@@ -669,6 +669,19 @@ Editor::NotificationReceived(SCNotification* notification)
 					SendMessage(SCI_GETEOLMODE, UNSET, UNSET) == SC_EOL_CR)) {
 				_AutoIndentLine(); // TODO asociate extensions?
 			}
+					//quick logic to trigger autocompletition.
+			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT &&
+			    notification->ch == '.')
+			{
+				//let's request the autocompletition to LSP..
+				Sci_Position pos = SendMessage(SCI_GETCURRENTPOS,0,0);
+				
+				int s_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
+				int s_char = SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);				
+				fprintf(stderr,"---> SCN_CHARADDED s_line[%d]s_char[%d]\n", s_line, s_char);
+				fFileWrapper->Completion(s_line, s_char);
+			}
 			break;
 		}
 		case SCN_MARGINCLICK: {
@@ -680,6 +693,7 @@ Editor::NotificationReceived(SCNotification* notification)
 				_CommentLine(notification->position);
 			break;
 		}
+
 		case SCN_MODIFIED: {
 			/*
 			modificationType	A set of flags that identify the change(s) made. See the next table.
@@ -723,6 +737,8 @@ Editor::NotificationReceived(SCNotification* notification)
 				fFileWrapper->didChange("", 0, s_line, s_char, e_line, e_char);
 				
 			}
+			
+			
 			
 			if (notification->linesAdded != 0)
 				if (Settings.show_linenumber == true)

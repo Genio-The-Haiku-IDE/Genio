@@ -23,7 +23,6 @@ GenioApp::GenioApp()
 	:
 	BApplication(GenioNames::kApplicationSignature)
 {
-	FileWrapper::Initialize();
 	
 	BRect frame;
 

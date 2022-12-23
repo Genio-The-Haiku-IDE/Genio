@@ -10,6 +10,8 @@
 
 #include "GenioNamespace.h"
 
+#include "FileWrapper.h"
+
 Project::Project(BString const& name)
 	:
 	fExtensionedName(name)
@@ -94,6 +96,9 @@ Project::Open(bool activate)
 
 	if (idmproFile.FindBool("run_in_terminal", &fRunInTerminal) != B_OK)
 		fRunInTerminal = false;
+		
+	std::string rootURI = "file://" + std::string(fProjectDirectory.String());
+	FileWrapper::Initialize(rootURI.c_str());
 
 	return B_OK;
 }

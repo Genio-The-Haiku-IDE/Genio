@@ -669,12 +669,15 @@ Editor::NotificationReceived(SCNotification* notification)
 					SendMessage(SCI_GETEOLMODE, UNSET, UNSET) == SC_EOL_CR)) {
 				_AutoIndentLine(); // TODO asociate extensions?
 			}
-					//quick logic to trigger autocompletition.
+			
+			Sci_Position pos = SendMessage(SCI_GETCURRENTPOS,0,0);
+			char prevChar = SendMessage(SCI_GETCHARAT, pos - 2, 0);
+			printf("prevChar %c\n", prevChar);
+			//quick logic to trigger autocompletition.
 			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT &&
-			    notification->ch == '.')
+			   (notification->ch == '.' || (notification->ch == '>' && prevChar == '-')))
 			{
 				//let's request the autocompletition to LSP..
-				Sci_Position pos = SendMessage(SCI_GETCURRENTPOS,0,0);
 				
 				int s_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);

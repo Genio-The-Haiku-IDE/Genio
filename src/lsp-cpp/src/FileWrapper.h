@@ -8,14 +8,16 @@
 
 #include <SupportDefs.h>
 
+class Editor;
 
 class FileWrapper {
 public:
 		FileWrapper(std::string fileURI);
 		
-		void	didOpen(const char* text);
+		void	didOpen(const char* text, Editor* editor);
 		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
 		void	didClose();
+		void	Completion(int _line, int _char);
 
 	static void Initialize(const char* rootURI = "");
 	static void Dispose();
@@ -23,6 +25,7 @@ public:
 private:
 
 	std::string fFilenameURI;
+	Editor*		fEditor;
 
 };
 

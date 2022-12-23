@@ -121,10 +121,7 @@ FileWrapper::Completion(int _line, int _char){
 	position.line = _line;
 	position.character = _char;
 	CompletionContext context;
-	//std::string fake("bene male malissimo"); fEditor->Window()->MoveTo(11,11);
-	//fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)fake.c_str());
-	
-	
+
 	my.bindResponse("textDocument/completion", [&](json& params){
 		auto items = params["items"];
 		std::string list;
@@ -135,7 +132,7 @@ FileWrapper::Completion(int _line, int _char){
 			list += (*it)["insertText"].get<std::string>();
 			
 		}
-		if (fEditor)
+		if (list.length() > 0 && fEditor)
 			fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)list.c_str());
 	});
 	client->Completion(fFilenameURI.c_str(), position, context);

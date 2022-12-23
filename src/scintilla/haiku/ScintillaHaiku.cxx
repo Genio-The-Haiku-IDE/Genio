@@ -37,6 +37,7 @@
 #include <SupportDefs.h>
 #include <View.h>
 #include <Window.h>
+#include <Autolock.h>
 
 #include "ScintillaTypes.h"
 #include "ScintillaMessages.h"
@@ -976,6 +977,7 @@ sptr_t BScintillaView::SendMessage(unsigned int iMessage, uptr_t wParam, sptr_t 
 }
 
 sptr_t BScintillaView::SendMessage(Scintilla::Message iMessage, uptr_t wParam, sptr_t lParam) {
+	BAutolock autolock(Window());
 	return p->sciControl->WndProc(iMessage, wParam, lParam);
 }
 

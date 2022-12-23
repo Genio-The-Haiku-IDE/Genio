@@ -1,2 +1,3 @@
 app/Genio
 objects.*
+*.o

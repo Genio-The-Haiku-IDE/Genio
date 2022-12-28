@@ -156,8 +156,8 @@ public:
 			
 			void				SetProject(Project*);
 			Project*			GetProject() { return fProject; }
-			
 			void				SetZoom(int32 zoom);
+			void				Format();
 
 
 private:

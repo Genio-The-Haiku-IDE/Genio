@@ -74,4 +74,88 @@ FileWrapper::didChange(const char* text, long len, int s_line, int s_char, int e
 //		changes[0] = event;
 	
 	client->DidChange(fFilenameURI.c_str(), changes, true);
+
 }
+
+
+void
+FileWrapper::Format()
+{
+	if (!initialized)
+		return;
+	my.bindResponse("textDocument/formatting", [&](json& params){
+		
+		if (!fEditor)
+			return;
+			
+		auto items = params;
+		for (json::reverse_iterator it = items.rbegin(); it != items.rend(); ++it) {
+
+
+				int e_line = (*it)["range"]["end"]["line"].get<int>();
+				int s_line = (*it)["range"]["start"]["line"].get<int>();
+				int e_char = (*it)["range"]["end"]["character"].get<int>();
+				int s_char = (*it)["range"]["start"]["character"].get<int>();
+				
+				printf("NewText: [%s] [%d,%d]->[%d,%d]\n", (*it)["newText"].get<std::string>().c_str(), s_line, s_char, e_line, e_char);
+				
+				if (e_line == s_line && e_char == s_char)
+				{
+					int pos = fEditor->SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
+					pos += s_char;
+					//printf("NewText:\t pos[%d]\n", pos);
+					
+					fEditor->SendMessage(SCI_INSERTTEXT, pos, (sptr_t)((*it)["newText"].get<std::string>().c_str()));
+				}
+				else
+				{
+					//This is a replacement.
+					int s_pos = fEditor->SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
+					s_pos += s_char;
+					
+					int e_pos = fEditor->SendMessage(SCI_POSITIONFROMLINE, e_line, 0);
+					e_pos += e_char;
+					
+					printf("Replace:\t s_pos[%d] -> e_pos[%d]\n", s_pos, e_pos);
+					
+					fEditor->SendMessage(SCI_SETTARGETRANGE, s_pos, e_pos); 
+					fEditor->SendMessage(SCI_REPLACETARGET, -1, (sptr_t)((*it)["newText"].get<std::string>().c_str())); 
+					
+					//SCI_SETTARGETRANGE(position start, position end)
+					//SCI_REPLACETARGET(position length, const char *text) → position
+
+				}
+					
+
+				
+		}
+	});
+	client->Formatting(fFilenameURI.c_str());	
+}
+
+
+void	
+FileWrapper::Completion(int _line, int _char){
+	if (!initialized)
+		return;
+	Position position;
+	position.line = _line;
+	position.character = _char;
+	CompletionContext context;
+
+	my.bindResponse("textDocument/completion", [&](json& params){
+		auto items = params["items"];
+		std::string list;
+		for (json::iterator it = items.begin(); it != items.end(); ++it) {
+			fprintf(stderr, "completion: [%s]\n", (*it)["insertText"].get<std::string>().c_str());
+			if (list.length() > 0)
+				list += " ";
+			list += (*it)["insertText"].get<std::string>();
+			
+		}
+		if (list.length() > 0 && fEditor)
+			fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)list.c_str());
+	});
+	client->Completion(fFilenameURI.c_str(), position, context);
+}
+

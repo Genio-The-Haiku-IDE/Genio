@@ -103,6 +103,9 @@ enum {
 	MSG_VIEW_ZOOMIN				= 'zoin',
 	MSG_VIEW_ZOOMOUT			= 'zoou',
 	MSG_VIEW_ZOOMRESET			= 'zore',
+	
+	MSG_FORMAT					= 'form',
+
 
 	// Search menu & group
 	MSG_FIND_GROUP_SHOW			= 'figs',
@@ -900,6 +903,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			fEditor->Completion();
 			break;
 		}
+
 		case MSG_FORMAT: {
 			int32 index = fTabManager->SelectedTabIndex();
 			if (index < 0 || index >= fTabManager->CountTabs())
@@ -949,6 +953,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			
 			break; 
 		}
+
 		case MSG_LINE_TO_GOTO: {
 			int32 index = fTabManager->SelectedTabIndex();
 

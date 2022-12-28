@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Your Name <your@email.address>
+ * Copyright 2022, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -162,6 +162,7 @@ FileWrapper::Format()
 		if (!fEditor)
 			return;
 			
+		fEditor->SendMessage(SCI_BEGINUNDOACTION, 0, 0);
 		auto items = params;
 		for (json::reverse_iterator it = items.rbegin(); it != items.rend(); ++it) {
 
@@ -171,7 +172,7 @@ FileWrapper::Format()
 				int e_char = (*it)["range"]["end"]["character"].get<int>();
 				int s_char = (*it)["range"]["start"]["character"].get<int>();
 				
-				printf("NewText: [%s] [%d,%d]->[%d,%d]\n", (*it)["newText"].get<std::string>().c_str(), s_line, s_char, e_line, e_char);
+				//printf("NewText: [%s] [%d,%d]->[%d,%d]\n", (*it)["newText"].get<std::string>().c_str(), s_line, s_char, e_line, e_char);
 				
 				if (e_line == s_line && e_char == s_char)
 				{
@@ -190,7 +191,7 @@ FileWrapper::Format()
 					int e_pos = fEditor->SendMessage(SCI_POSITIONFROMLINE, e_line, 0);
 					e_pos += e_char;
 					
-					printf("Replace:\t s_pos[%d] -> e_pos[%d]\n", s_pos, e_pos);
+					//printf("Replace:\t s_pos[%d] -> e_pos[%d]\n", s_pos, e_pos);
 					
 					fEditor->SendMessage(SCI_SETTARGETRANGE, s_pos, e_pos); 
 					fEditor->SendMessage(SCI_REPLACETARGET, -1, (sptr_t)((*it)["newText"].get<std::string>().c_str())); 
@@ -199,10 +200,8 @@ FileWrapper::Format()
 					//SCI_REPLACETARGET(position length, const char *text) → position
 
 				}
-					
-
-				
 		}
+		fEditor->SendMessage(SCI_ENDUNDOACTION, 0, 0);
 	});
 	client->Formatting(fFilenameURI.c_str());	
 }

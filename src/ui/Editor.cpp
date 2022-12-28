@@ -1215,6 +1215,11 @@ Editor::Undo()
 	SendMessage(SCI_UNDO, UNSET, UNSET);
 }
 
+void
+Editor::Format()
+{
+	fFileWrapper->Format();
+}
 
 void
 Editor::_ApplyExtensionSettings()

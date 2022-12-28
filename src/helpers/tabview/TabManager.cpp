@@ -905,7 +905,7 @@ TabManager::CloseTab(int32 tabIndex)
 
 
 void
-TabManager::AddTab(BView* view, const char* label, int32 index)
+TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line)
 {
 	fTabContainerView->AddTab(label, index);
 #if defined DIRTY_HACK
@@ -916,6 +916,7 @@ TabManager::AddTab(BView* view, const char* label, int32 index)
 	// Assuming nothing went wrong ...
 	BMessage message(TABMANAGER_TAB_NEW_OPENED);
 	message.AddInt32("index", index);
+	message.AddInt32("be:line", be_line);
 	fTarget.SendMessage(&message);
 }
 

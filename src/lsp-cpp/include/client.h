@@ -124,7 +124,7 @@ public:
     RequestID SwitchSourceHeader(DocumentUri uri) {
         TextDocumentIdentifier params;
         params.uri = std::move(uri);
-        return SendRequest("textDocument/references", std::move(params));
+        return SendRequest("textDocument/switchSourceHeader", std::move(params));
     }
     RequestID Rename(DocumentUri uri, Position position, string_ref newName) {
         RenameParams params;

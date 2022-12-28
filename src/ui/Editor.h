@@ -158,6 +158,9 @@ public:
 			Project*			GetProject() { return fProject; }
 			void				SetZoom(int32 zoom);
 			void				Format();
+			void				GoToDefinition();
+			void				GoToDeclaration();
+			void				SwitchSourceHeader();
 
 
 private:

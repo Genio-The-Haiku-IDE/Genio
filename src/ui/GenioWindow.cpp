@@ -105,6 +105,9 @@ enum {
 	MSG_VIEW_ZOOMRESET			= 'zore',
 	
 	MSG_FORMAT					= 'form',
+	MSG_GOTODEFINITION			= 'gode',
+	MSG_GOTODECLARATION			= 'gocl',
+	MSG_SWITCHSOURCE			= 'swit',
 
 
 	// Search menu & group
@@ -953,7 +956,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			
 			break; 
 		}
-
 		case MSG_LINE_TO_GOTO: {
 			int32 index = fTabManager->SelectedTabIndex();
 
@@ -2485,6 +2487,7 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
 	
 	menu->AddSeparatorItem();	
+
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Autocompletion"), new BMessage(MSG_AUTOCOMPLETION), B_SPACE));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Format"), new BMessage(MSG_FORMAT)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION)));
@@ -2492,6 +2495,7 @@ GenioWindow::_InitMenu()
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to implentation"), new BMessage(MSG_GOTOIMPLEMENTATION)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Switch Source Header"), new BMessage(MSG_SWITCHSOURCE), B_TAB));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Signature Help"), new BMessage(MSG_SIGNATUREHELP), '?'));
+
 
 	menu->AddSeparatorItem();
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));

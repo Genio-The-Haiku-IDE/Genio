@@ -651,9 +651,6 @@ Editor::LoadFromFile()
 	StartMonitoring();
 
 	fFileType = Genio::file_type(fFileName.String());
-	
-
-	fFileWrapper->didOpen(buffer, len);
 
 	
 	return B_OK;
@@ -1253,6 +1250,26 @@ Editor::SetZoom(int32 zoom)
 Editor::Format()
 {
 	fFileWrapper->Format();
+}
+
+
+void
+Editor::GoToDefinition()
+{
+	fFileWrapper->GoToDefinition();
+}
+
+void
+Editor::GoToDeclaration()
+{
+	fFileWrapper->GoToDeclaration();
+}
+
+
+void
+Editor::SwitchSourceHeader()
+{
+	fFileWrapper->SwitchSourceHeader();
 }
 
 

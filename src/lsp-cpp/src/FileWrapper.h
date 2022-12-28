@@ -19,6 +19,9 @@ public:
 		void	didClose();
 		void	Completion(int _line, int _char);
 		void	Format();
+		void	GoToDefinition();
+		void	GoToDeclaration();
+		void	SwitchSourceHeader();
 
 	static void Initialize(const char* rootURI = "");
 	static void Dispose();

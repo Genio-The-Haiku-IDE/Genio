@@ -145,6 +145,9 @@ public:
 			void				ToggleWhiteSpaces();
 			void				Undo();
 			void				Format();
+			void				GoToDefinition();
+			void				GoToDeclaration();
+			void				SwitchSourceHeader();
 
 private:
 			void				_ApplyExtensionSettings();

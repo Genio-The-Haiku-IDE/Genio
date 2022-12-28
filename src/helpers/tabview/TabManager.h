@@ -56,7 +56,7 @@ public:
 			int32				SelectedTabIndex() const;
 			void				CloseTab(int32 tabIndex);
 
-			void				AddTab(BView* view, const char* label, int32 index = -1);
+			void				AddTab(BView* view, const char* label, int32 index = -1, int32 be_line = -1);
 			BView*				RemoveTab(int32 index);
 			int32				CountTabs() const;
 

@@ -92,6 +92,9 @@ enum {
 	MSG_EOL_SET_TO_MAC			= 'estm',
 	
 	MSG_FORMAT					= 'form',
+	MSG_GOTODEFINITION			= 'gode',
+	MSG_GOTODECLARATION			= 'gocl',
+	MSG_SWITCHSOURCE			= 'swit',
 
 	// Search menu & group
 	MSG_FIND_GROUP_SHOW			= 'figs',
@@ -874,6 +877,37 @@ GenioWindow::MessageReceived(BMessage* message)
 			fEditor->Format();
 			break;
 		}
+
+		case MSG_GOTODEFINITION: {
+			int32 index = fTabManager->SelectedTabIndex();
+			if (index < 0 || index >= fTabManager->CountTabs())
+				break;
+			
+			fEditor = fEditorObjectList->ItemAt(index);
+			fEditor->GoToDefinition();
+			
+			break; 
+		}
+		case MSG_GOTODECLARATION: {
+			int32 index = fTabManager->SelectedTabIndex();
+			if (index < 0 || index >= fTabManager->CountTabs())
+				break;
+			
+			fEditor = fEditorObjectList->ItemAt(index);
+			fEditor->GoToDeclaration();
+			
+			break; 
+		}
+		case MSG_SWITCHSOURCE: {
+			int32 index = fTabManager->SelectedTabIndex();
+			if (index < 0 || index >= fTabManager->CountTabs())
+				break;
+			
+			fEditor = fEditorObjectList->ItemAt(index);
+			fEditor->SwitchSourceHeader();	
+			
+			break; 
+		}
 		case MSG_LINE_TO_GOTO: {
 			int32 index = fTabManager->SelectedTabIndex();
 
@@ -1165,10 +1199,14 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case TABMANAGER_TAB_NEW_OPENED: {
 			int32 index;
+			int32 be_line = message->GetInt32("be:line", -1);
 			if (message->FindInt32("index", &index) == B_OK) {
 // std::cerr << "TABMANAGER_TAB_NEW_OPENED" << " index: " << index << std::endl;
 				fEditor = fEditorObjectList->ItemAt(index);
-				fEditor->SetSavedCaretPosition();
+				if (be_line < 0)
+					fEditor->SetSavedCaretPosition();
+				else
+					fEditor->GoToLine(be_line);
 			}
 			break;
 		}
@@ -1248,7 +1286,7 @@ GenioWindow::QuitRequested()
 
 
 status_t
-GenioWindow::_AddEditorTab(entry_ref* ref, int32 index)
+GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line)
 {
 	// Check existence
 	BEntry entry(ref);
@@ -1261,7 +1299,7 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index)
 	if (fEditor == nullptr)
 		return B_ERROR;
 
-	fTabManager->AddTab(fEditor, ref->name, index);
+	fTabManager->AddTab(fEditor, ref->name, index, be_line);
 
 	bool added = fEditorObjectList->AddItem(fEditor);
 
@@ -1515,7 +1553,11 @@ GenioWindow::_FileOpen(BMessage* msg)
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
-		nextIndex = fTabManager->CountTabs();
+		nextIndex = fTabManager->CountTabs();		
+		
+	int32 be_line   = msg->GetInt32("be:line",    -1);
+	//int32 be_column = msg->FindInt32("be:column",  0);
+
 
 	while (msg->FindRef("refs", refsCount, &ref) == B_OK) {
 
@@ -1530,15 +1572,20 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		// Do not reopen an already opened file
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
-			if (openedIndex != fTabManager->SelectedTabIndex())
+			if (openedIndex != fTabManager->SelectedTabIndex()) {
 				fTabManager->SelectTab(openedIndex);
+			}				
+			
+			if (be_line > -1)
+				fEditorObjectList->ItemAt(openedIndex)->GoToLine(be_line);
+			
 			continue;
 		}
 
 		int32 index = fTabManager->CountTabs();
 // std::cerr << __PRETTY_FUNCTION__ << " index: " << index << std::endl;
 
-		if (_AddEditorTab(&ref, index) != B_OK)
+		if (_AddEditorTab(&ref, index, be_line) != B_OK)
 			continue;
 
 		assert(index >= 0);
@@ -1570,12 +1617,15 @@ GenioWindow::_FileOpen(BMessage* msg)
 			<< " [" << fTabManager->CountTabs() - 1 << "]";
 		_SendNotification(notification, "FILE_OPEN");
 		notification.SetTo("");
+		
 	}
 
 	// If at least 1 item or more were added select the first
 	// of them.
 	if (nextIndex < fTabManager->CountTabs())
 		fTabManager->SelectTab(nextIndex);
+		
+	
 
 	return status;
 }
@@ -2354,8 +2404,13 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_WHITE_SPACES_TOGGLE)));
 	menu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
-		
+	
+	menu->AddSeparatorItem();	
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Format"), new BMessage(MSG_FORMAT)));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION)));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to declaration"), new BMessage(MSG_GOTODECLARATION)));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Switch Source Header"), new BMessage(MSG_SWITCHSOURCE), B_TAB));
+	
 
 	menu->AddSeparatorItem();
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));

@@ -640,8 +640,6 @@ Editor::LoadFromFile()
 	StartMonitoring();
 
 	fFileType = Genio::file_type(fFileName.String());
-	
-
 
 	
 	return B_OK;
@@ -709,33 +707,33 @@ Editor::NotificationReceived(SCNotification* notification)
 			foldLevelPrev	The previous folding level of the line or 0 if this field is unused.
 			*/
 			if (notification->modificationType & SC_MOD_INSERTTEXT) {
-				fprintf(stderr, "** SC_MOD_INSERTTEXT text[%.*s][%ld]\n", (int)notification->length, notification->text, notification->length);
+				//fprintf(stderr, "** SC_MOD_INSERTTEXT text[%.*s][%ld]\n", (int)notification->length, notification->text, notification->length);
 
 				Sci_Position pos = notification->position;
 				
 				int s_line  = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
 				int s_char  = SendMessage(SCI_COUNTCHARACTERS,  end_pos, pos);				
-				fprintf(stderr,"---> Start s_line[%d]s_char[%d]\n", s_line, s_char);				
+				//fprintf(stderr,"---> Start s_line[%d]s_char[%d]\n", s_line, s_char);				
 			
 				fFileWrapper->didChange(notification->text, notification->length, s_line, s_char, s_line, s_char);
 				
 			} 
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
-				fprintf(stderr, "** SC_MOD_BEFOREDELETE text[%.*s][%ld]\n", (int)notification->length, notification->text, notification->length);
+				//fprintf(stderr, "** SC_MOD_BEFOREDELETE text[%.*s][%ld]\n", (int)notification->length, notification->text, notification->length);
 
 				Sci_Position pos = notification->position;
 				
 				int s_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
 				int s_char = SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);				
-				fprintf(stderr,"---> Start s_line[%d]s_char[%d] - FIX\n", s_line, s_char);
+				//fprintf(stderr,"---> Start s_line[%d]s_char[%d] - FIX\n", s_line, s_char);
 				
 				pos += notification->length;
 				int e_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 				int end_pos_end = SendMessage(SCI_POSITIONFROMLINE, e_line, 0);
 				int e_char = SendMessage(SCI_COUNTCHARACTERS, end_pos_end, pos);
-				fprintf(stderr,"---> END   e_line[%d]e_char[%d] - FIX\n", e_line, e_char);				
+				//fprintf(stderr,"---> END   e_line[%d]e_char[%d] - FIX\n", e_line, e_char);				
 				
 				fFileWrapper->didChange("", 0, s_line, s_char, e_line, e_char);
 				
@@ -1220,6 +1218,26 @@ Editor::Format()
 {
 	fFileWrapper->Format();
 }
+
+void
+Editor::GoToDefinition()
+{
+	fFileWrapper->GoToDefinition();
+}
+
+void
+Editor::GoToDeclaration()
+{
+	fFileWrapper->GoToDeclaration();
+}
+
+
+void
+Editor::SwitchSourceHeader()
+{
+	fFileWrapper->SwitchSourceHeader();
+}
+
 
 void
 Editor::_ApplyExtensionSettings()

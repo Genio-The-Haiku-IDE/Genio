@@ -11,6 +11,7 @@
 #include <thread>
 #include <debugger.h>
 #include "Editor.h"
+#include <Application.h>
 
 ProcessLanguageClient* client = NULL;
 
@@ -19,6 +20,42 @@ bool initialized = false;
 MapMessageHandler my;
 
 std::thread thread;
+
+//utility
+void
+GetCurrentLSPPosition(Editor* editor, Position& position)
+{
+	Sci_Position pos   = editor->SendMessage(SCI_GETCURRENTPOS,0,0);
+	position.line      = editor->SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+	int end_pos        = editor->SendMessage(SCI_POSITIONFROMLINE, position.line, 0);
+	position.character = editor->SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);
+}
+
+void
+OpenFile(std::string& uri, int32 line = -1)
+{
+	//fixe me if (uri.find("file://") == 0)
+	{
+		uri.erase(uri.begin(), uri.begin()+7);
+
+		BEntry entry(uri.c_str());
+		entry_ref ref;
+		if (entry.Exists()) {
+			BMessage	refs(B_REFS_RECEIVED);
+			if (entry.GetRef(&ref) == B_OK)
+			{
+				refs.AddRef("refs", &ref);
+				if (line != -1)
+					refs.AddInt32("be:line", line + 1);
+				be_app->PostMessage(&refs);
+			}
+			
+		}
+
+	}
+}
+		
+//end - utility
 
 void FileWrapper::Initialize(const char* rootURI) {
 	
@@ -119,6 +156,7 @@ FileWrapper::Format()
 {
 	if (!initialized)
 		return;
+		
 	my.bindResponse("textDocument/formatting", [&](json& params){
 		
 		if (!fEditor)
@@ -169,6 +207,66 @@ FileWrapper::Format()
 	client->Formatting(fFilenameURI.c_str());	
 }
 
+void
+FileWrapper::GoToDefinition() {
+	if (!initialized || !fEditor)
+		return;
+
+	Position position;
+	GetCurrentLSPPosition(fEditor, position);
+	
+	my.bindResponse("textDocument/definition", [&](json& items){
+		if (!items.empty())
+		{
+			//TODO if more than one match??
+			auto first=items[0];
+			std::string uri = first["uri"].get<std::string>();
+			
+			int32 s_line = first["range"]["start"]["line"].get<int>();
+			
+			OpenFile(uri, s_line);	
+		}
+	});
+	
+	client->GoToDefinition(fFilenameURI.c_str(), position);
+}
+
+void
+FileWrapper::GoToDeclaration() {
+	if (!initialized || !fEditor)
+		return;
+
+	Position position;
+	GetCurrentLSPPosition(fEditor, position);
+	
+	my.bindResponse("textDocument/declaration", [&](json& items){
+		if (!items.empty())
+		{
+			//TODO if more than one match??
+			auto first=items[0];
+			std::string uri = first["uri"].get<std::string>();
+			
+			int32 s_line = first["range"]["start"]["line"].get<int>();
+			
+			OpenFile(uri, s_line);	
+		}
+	});
+	
+	client->GoToDeclaration(fFilenameURI.c_str(), position);
+}
+
+void
+FileWrapper::SwitchSourceHeader() {
+	if (!initialized)
+		return;
+		
+	my.bindResponse("textDocument/switchSourceHeader", [&](json& result){		
+		std::string uri = result.get<std::string>();
+		OpenFile(uri);		
+	});
+	
+	client->SwitchSourceHeader(fFilenameURI.c_str());
+}
 
 void	
 FileWrapper::Completion(int _line, int _char){

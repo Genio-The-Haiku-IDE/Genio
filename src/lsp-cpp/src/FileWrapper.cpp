@@ -25,7 +25,7 @@ std::thread thread;
 void
 GetCurrentLSPPosition(Editor* editor, Position& position)
 {
-	Sci_Position pos   = editor->SendMessage(SCI_GETCURRENTPOS,0,0);
+	Sci_Position pos   = editor->SendMessage(SCI_GETSELECTIONSTART, 0, 0); //SCI_GETCURRENTPOS,0,0);
 	position.line      = editor->SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 	int end_pos        = editor->SendMessage(SCI_POSITIONFROMLINE, position.line, 0);
 	position.character = editor->SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);

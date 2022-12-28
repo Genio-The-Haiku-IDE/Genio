@@ -144,6 +144,7 @@ public:
 			void				ToggleLineEndings();
 			void				ToggleWhiteSpaces();
 			void				Undo();
+			void				Format();
 
 private:
 			void				_ApplyExtensionSettings();

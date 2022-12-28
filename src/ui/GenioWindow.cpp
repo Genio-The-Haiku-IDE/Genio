@@ -90,7 +90,8 @@ enum {
 	MSG_EOL_SET_TO_UNIX			= 'estu',
 	MSG_EOL_SET_TO_DOS			= 'estd',
 	MSG_EOL_SET_TO_MAC			= 'estm',
-
+	
+	MSG_FORMAT					= 'form',
 
 	// Search menu & group
 	MSG_FIND_GROUP_SHOW			= 'figs',
@@ -862,6 +863,15 @@ GenioWindow::MessageReceived(BMessage* message)
 				fEditor = fEditorObjectList->ItemAt(index);
 				fEditor->ToggleLineEndings();
 			}
+			break;
+		}
+		case MSG_FORMAT: {
+			int32 index = fTabManager->SelectedTabIndex();
+			if (index < 0 || index >= fTabManager->CountTabs())
+				break;
+				
+			fEditor = fEditorObjectList->ItemAt(index);
+			fEditor->Format();
 			break;
 		}
 		case MSG_LINE_TO_GOTO: {
@@ -2344,6 +2354,8 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_WHITE_SPACES_TOGGLE)));
 	menu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
+		
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Format"), new BMessage(MSG_FORMAT)));
 
 	menu->AddSeparatorItem();
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));

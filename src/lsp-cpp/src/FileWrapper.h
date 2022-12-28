@@ -18,6 +18,7 @@ public:
 		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
 		void	didClose();
 		void	Completion(int _line, int _char);
+		void	Format();
 
 	static void Initialize(const char* rootURI = "");
 	static void Dispose();

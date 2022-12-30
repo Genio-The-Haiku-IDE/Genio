@@ -162,13 +162,12 @@ Editor::ApplySettings()
 	SendMessage(SCI_SETMARGINS, 4, UNSET);
 	SendMessage(SCI_STYLESETBACK, STYLE_LINENUMBER, kLineNumberBack);
 
+	//xed
+	SendMessage(SCI_SETZOOM, 5, 0);
+	
 	// Line numbers
 	if (Settings.show_linenumber == true) {
-		// Margin width
-		int pixelWidth = SendMessage(SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "9");
-		fLinesLog10 = log10(SendMessage(SCI_GETLINECOUNT, UNSET, UNSET));
-		fLinesLog10 += 2;
-		SendMessage(SCI_SETMARGINWIDTHN, sci_NUMBER_MARGIN, pixelWidth * fLinesLog10);
+		_RedrawNumberMargin(true);
 	}
 
 	// Bookmark margin
@@ -187,9 +186,6 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12);
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	}
-	
-	//xed
-	SendMessage(SCI_SETZOOM, 5, 0);
 }
 
 void
@@ -695,28 +691,14 @@ Editor::NotificationReceived(SCNotification* notification)
 		}
 		case SCN_MODIFIED: {
 			if (notification->modificationType & SC_MOD_INSERTTEXT) {
-				/*//fprintf(stderr, "** SC_MOD_INSERTTEXT text[%.*s][%ld]\n", (int)notification->length, notification->text, notification->length);
-
-				Sci_Position pos = notification->position;
-				
-				int s_line  = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
-				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
-				int s_char  = SendMessage(SCI_COUNTCHARACTERS,  end_pos, pos);				
-				//fprintf(stderr,"---> Start s_line[%d]s_char[%d]\n", s_line, s_char);				
-			
-				fFileWrapper->didChange(notification->text, notification->length, s_line, s_char, s_line, s_char);*/
 				fFileWrapper->didChange(notification->text, notification->length, notification->position, 0);
-				
 			} 
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
 				fFileWrapper->didChange("", 0, notification->position, notification->length);
-			}
-			
-			
-			
+			}			
 			if (notification->linesAdded != 0)
 				if (Settings.show_linenumber == true)
-					_RedrawNumberMargin();
+					_RedrawNumberMargin(false);
 			break;
 		}
 	// case SCN_NEEDSHOWN: {
@@ -1548,14 +1530,15 @@ Editor::_IsBrace(char character)
 }
 
 void
-Editor::_RedrawNumberMargin()
+Editor::_RedrawNumberMargin(bool forced)
 {
 	int linesLog10 = log10(SendMessage(SCI_GETLINECOUNT, UNSET, UNSET));
 	linesLog10 += 2;
 
-	if (linesLog10 != fLinesLog10) {
+	if (linesLog10 != fLinesLog10 || forced) {
 		fLinesLog10 = linesLog10;
-		int pixelWidth = SendMessage(SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "9");
+		float zoom = 1 + ((float)SendMessage(SCI_GETZOOM)/100.0); 
+		int pixelWidth = SendMessage(SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "9") * zoom;
 		SendMessage(SCI_SETMARGINWIDTHN, sci_NUMBER_MARGIN, pixelWidth * fLinesLog10);
 	}
 }

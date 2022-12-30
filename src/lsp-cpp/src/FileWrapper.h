@@ -22,6 +22,8 @@ public:
 		void	GoToDefinition();
 		void	GoToDeclaration();
 		void	SwitchSourceHeader();
+		
+
 
 	static void Initialize(const char* rootURI = "");
 	static void Dispose();
@@ -32,7 +34,11 @@ private:
 	Editor*		fEditor;
 	nlohmann::json		fCurrentCompletion;
 	Sci_Position		fCompletionPosition;
+	//Range				fLastRangeFormatting;
 
+private:
+	//callbacks:
+	void	_DoFormat(nlohmann::json& params);
 };
 
 

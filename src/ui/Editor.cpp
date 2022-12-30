@@ -163,14 +163,8 @@ Editor::ApplySettings()
 	SendMessage(SCI_SETMARGINS, 4, UNSET);
 	SendMessage(SCI_STYLESETBACK, STYLE_LINENUMBER, kLineNumberBack);
 
-	//xed
-	SendMessage(SCI_SETZOOM, 5, 0);
 	SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 	
-	// Line numbers
-	if (Settings.show_linenumber == true) {
-		_RedrawNumberMargin(true);
-	}
 
 	// Bookmark margin
 	SendMessage(SCI_SETMARGINTYPEN, sci_BOOKMARK_MARGIN, SC_MARGIN_SYMBOL);

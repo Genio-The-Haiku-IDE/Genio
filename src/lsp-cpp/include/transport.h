@@ -61,7 +61,7 @@ public:
           	fprintf(stderr, "JsonTransport:onNotify -> %s\n", method.str().c_str());
     }
     void onResponse(value &ID, value &result) override {
-        for (int i = 0; i < m_requests.size(); ++i) {
+        for (std::vector<std::pair<RequestID, std::function<void(value &)>>>::size_type i = 0; i < m_requests.size(); ++i) {
             if (ID == m_requests[i].first) {
                 m_requests[i].second(result);
                 m_requests.erase(m_requests.begin() + i);
@@ -116,7 +116,7 @@ public:
                     }
                 }
             } catch (std::exception &e) {
-				if (VERBOSE)
+				//if (VERBOSE)
                 	fprintf(stderr, "JsonTransport:loop exception -> %s\n", e.what());
             }
         }

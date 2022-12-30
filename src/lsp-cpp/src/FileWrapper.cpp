@@ -156,21 +156,7 @@ FileWrapper::didChange(const char* text, long len, Sci_Position start_pos, Sci_P
 {
   if (!initialized || !fEditor)
     return;
-  
-  /*
-  				Sci_Position pos = notification->position;
-				
-				int s_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
-				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
-				int s_char = SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);				
-				//fprintf(stderr,"---> Start s_line[%d]s_char[%d] - FIX\n", s_line, s_char);
-				
-				pos += notification->length;
-				int e_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
-				int end_pos_end = SendMessage(SCI_POSITIONFROMLINE, e_line, 0);
-				int e_char = SendMessage(SCI_COUNTCHARACTERS, end_pos_end, pos);
-				//fprintf(stderr,"---> END   e_line[%d]e_char[%d] - FIX\n", e_line, e_char);
-  */
+
   Sci_Position end_pos =
       fEditor->SendMessage(SCI_POSITIONRELATIVE, start_pos, poslength);
 

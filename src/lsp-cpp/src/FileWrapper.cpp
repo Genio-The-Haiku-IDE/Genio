@@ -23,12 +23,22 @@ std::thread thread;
 // utility
 void FromSciPositionToLSPPosition(Editor *editor, const Sci_Position &pos,
                                   Position &lsp_position) {
-  lsp_position.line = editor->SendMessage(SCI_LINEFROMPOSITION, pos, 0);
-  Sci_Position end_pos =
-      editor->SendMessage(SCI_POSITIONFROMLINE, lsp_position.line, 0);
-  lsp_position.character =
-      editor->SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);
+	                                  
+  lsp_position.line      = editor->SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+  Sci_Position end_pos   = editor->SendMessage(SCI_POSITIONFROMLINE, lsp_position.line, 0);
+  lsp_position.character = editor->SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);
 }
+
+Sci_Position 
+FromLSPPositionToSciPosition(Editor *editor, const Position& lsp_position) {
+	
+  Sci_Position  sci_position;
+  sci_position = editor->SendMessage(SCI_POSITIONFROMLINE, lsp_position.line, 0);
+  sci_position = editor->SendMessage(SCI_POSITIONRELATIVE, sci_position, lsp_position.character);
+  return sci_position;
+
+}
+
 void GetCurrentLSPPosition(Editor *editor, Position &lsp_position) {
   const Sci_Position pos = editor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
   FromSciPositionToLSPPosition(editor, pos, lsp_position);
@@ -53,13 +63,6 @@ void OpenFile(std::string &uri, int32 line = -1) {
   }
 }
 
-Sci_Position PositionFromDuple(Editor *editor, int line, int character) {
-  Sci_Position pos = 0;
-  pos = editor->SendMessage(SCI_POSITIONFROMLINE, line, 0);
-  pos = editor->SendMessage(SCI_POSITIONRELATIVE, pos, character);
-  return pos;
-}
-
 void FromSciPositionToRange(Editor *editor, Sci_Position s_start,
                             Sci_Position s_end, Range &range) {
   FromSciPositionToLSPPosition(editor, s_start, range.start);
@@ -67,14 +70,12 @@ void FromSciPositionToRange(Editor *editor, Sci_Position s_start,
 }
 
 Sci_Position ApplyTextEdit(Editor *editor, json &textEdit) {
-  int e_line = textEdit["range"]["end"]["line"].get<int>();
-  int s_line = textEdit["range"]["start"]["line"].get<int>();
-  int e_char = textEdit["range"]["end"]["character"].get<int>();
-  int s_char = textEdit["range"]["start"]["character"].get<int>();
-  Sci_Position s_pos = PositionFromDuple(editor, s_line, s_char);
-  Sci_Position e_pos = PositionFromDuple(editor, e_line, e_char);
+	
+  Sci_Position s_pos = FromLSPPositionToSciPosition(editor, textEdit["range"]["start"].get<Position>());
+  Sci_Position e_pos = FromLSPPositionToSciPosition(editor, textEdit["range"]["end"].get<Position>());
 
   editor->SendMessage(SCI_SETTARGETRANGE, s_pos, e_pos);
+  
   Sci_Position replaced = editor->SendMessage(
       SCI_REPLACETARGET, -1,
       (sptr_t)(textEdit["newText"].get<std::string>().c_str()));
@@ -150,7 +151,42 @@ void FileWrapper::Dispose() {
     sleep(1);
   }
 }
+void
+FileWrapper::didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength)
+{
+  if (!initialized || !fEditor)
+    return;
+  
+  /*
+  				Sci_Position pos = notification->position;
+				
+				int s_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
+				int s_char = SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);				
+				//fprintf(stderr,"---> Start s_line[%d]s_char[%d] - FIX\n", s_line, s_char);
+				
+				pos += notification->length;
+				int e_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+				int end_pos_end = SendMessage(SCI_POSITIONFROMLINE, e_line, 0);
+				int e_char = SendMessage(SCI_COUNTCHARACTERS, end_pos_end, pos);
+				//fprintf(stderr,"---> END   e_line[%d]e_char[%d] - FIX\n", e_line, e_char);
+  */
+  Sci_Position end_pos =
+      fEditor->SendMessage(SCI_POSITIONRELATIVE, start_pos, poslength);
 
+  TextDocumentContentChangeEvent event;
+  Range range;
+  FromSciPositionToLSPPosition(fEditor, start_pos, range.start);
+  FromSciPositionToLSPPosition(fEditor, end_pos, range.end);
+
+  event.range = range;
+  event.text.assign(text, len);
+
+  std::vector<TextDocumentContentChangeEvent> changes{event};
+
+  client->DidChange(fFilenameURI.c_str(), changes, false);
+}
+	
 void FileWrapper::didChange(const char *text, long len, int s_line, int s_char,
                             int e_line, int e_char) {
   // printf("didChange[%ld][%.*s]\n",len, (int)len,text);

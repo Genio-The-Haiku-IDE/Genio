@@ -144,6 +144,7 @@ public:
 			void				ToggleLineEndings();
 			void				ToggleWhiteSpaces();
 			void				Undo();
+			void				Completion();
 			void				Format();
 			void				GoToDefinition();
 			void				GoToDeclaration();

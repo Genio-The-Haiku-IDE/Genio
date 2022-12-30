@@ -91,10 +91,12 @@ enum {
 	MSG_EOL_SET_TO_DOS			= 'estd',
 	MSG_EOL_SET_TO_MAC			= 'estm',
 	
+	MSG_AUTOCOMPLETION			= 'auto',	
 	MSG_FORMAT					= 'form',
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
 	MSG_SWITCHSOURCE			= 'swit',
+
 
 	// Search menu & group
 	MSG_FIND_GROUP_SHOW			= 'figs',
@@ -866,6 +868,15 @@ GenioWindow::MessageReceived(BMessage* message)
 				fEditor = fEditorObjectList->ItemAt(index);
 				fEditor->ToggleLineEndings();
 			}
+			break;
+		}
+		case MSG_AUTOCOMPLETION: {
+			int32 index = fTabManager->SelectedTabIndex();
+			if (index < 0 || index >= fTabManager->CountTabs())
+				break;
+				
+			fEditor = fEditorObjectList->ItemAt(index);
+			fEditor->Completion();
 			break;
 		}
 		case MSG_FORMAT: {
@@ -2406,6 +2417,7 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
 	
 	menu->AddSeparatorItem();	
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Autocompletion"), new BMessage(MSG_AUTOCOMPLETION), B_SPACE));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Format"), new BMessage(MSG_FORMAT)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to declaration"), new BMessage(MSG_GOTODECLARATION)));

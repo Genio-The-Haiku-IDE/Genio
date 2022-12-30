@@ -5,10 +5,9 @@
 #ifndef FileWrapper_H
 #define FileWrapper_H
 #include <iostream>
-
+#include "json.hpp"
 #include <SupportDefs.h>
-
-class Editor;
+#include "Editor.h"
 
 class FileWrapper {
 public:
@@ -17,7 +16,8 @@ public:
 		void	didOpen(const char* text, Editor* editor);
 		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
 		void	didClose();
-		void	Completion(int _line, int _char);
+		void	StartCompletion();
+		void	SelectedCompletion(const char* text);
 		void	Format();
 		void	GoToDefinition();
 		void	GoToDeclaration();
@@ -30,6 +30,8 @@ private:
 
 	std::string fFilenameURI;
 	Editor*		fEditor;
+	nlohmann::json		fCurrentCompletion;
+	Sci_Position		fCompletionPosition;
 
 };
 

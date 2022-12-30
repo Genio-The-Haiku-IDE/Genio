@@ -670,18 +670,13 @@ Editor::NotificationReceived(SCNotification* notification)
 			
 			Sci_Position pos = SendMessage(SCI_GETCURRENTPOS,0,0);
 			char prevChar = SendMessage(SCI_GETCHARAT, pos - 2, 0);
-			printf("prevChar %c\n", prevChar);
+			//printf("prevChar %c\n", prevChar);
 			//quick logic to trigger autocompletition.
 			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT &&
 			   (notification->ch == '.' || (notification->ch == '>' && prevChar == '-')))
 			{
-				//let's request the autocompletition to LSP..
-				
-				int s_line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
-				int end_pos = SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
-				int s_char = SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);				
-				fprintf(stderr,"---> SCN_CHARADDED s_line[%d]s_char[%d]\n", s_line, s_char);
-				fFileWrapper->Completion(s_line, s_char);
+				//let's request the autocompletion to LSP..
+				fFileWrapper->StartCompletion();
 			}
 			break;
 		}
@@ -694,18 +689,11 @@ Editor::NotificationReceived(SCNotification* notification)
 				_CommentLine(notification->position);
 			break;
 		}
-
+		case SCN_AUTOCSELECTION: {
+			fFileWrapper->SelectedCompletion(notification->text);
+			break;
+		}
 		case SCN_MODIFIED: {
-			/*
-			modificationType	A set of flags that identify the change(s) made. See the next table.
-			position	Start position of a text or styling change. Set to 0 if not used.
-			length	Length of the change in bytes when the text or styling changes. Set to 0 if not used.
-			linesAdded	Number of added lines. If negative, the number of deleted lines. Set to 0 if not used or no lines added or deleted.
-			text	Valid for text changes, not for style changes. If we are collecting undo information this holds a pointer to the text that is handed to the Undo system, otherwise it is zero. For user performed SC_MOD_BEFOREDELETE the text field is 0.
-			line	The line number at which a fold level or marker change occurred. This is 0 if unused and may be -1 if more than one line changed.
-			foldLevelNow	The new fold level applied to the line or 0 if this field is unused.
-			foldLevelPrev	The previous folding level of the line or 0 if this field is unused.
-			*/
 			if (notification->modificationType & SC_MOD_INSERTTEXT) {
 				//fprintf(stderr, "** SC_MOD_INSERTTEXT text[%.*s][%ld]\n", (int)notification->length, notification->text, notification->length);
 
@@ -1213,6 +1201,12 @@ Editor::Undo()
 	SendMessage(SCI_UNDO, UNSET, UNSET);
 }
 
+void
+Editor::Completion()
+{
+	fFileWrapper->StartCompletion();
+}
+		
 void
 Editor::Format()
 {

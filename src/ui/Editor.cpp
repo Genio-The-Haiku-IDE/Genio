@@ -1247,6 +1247,12 @@ Editor::SetZoom(int32 zoom)
 	_RedrawNumberMargin(true);
 }
 
+Editor::Completion()
+{
+	fFileWrapper->StartCompletion();
+}
+		
+void
 Editor::Format()
 {
 	fFileWrapper->Format();

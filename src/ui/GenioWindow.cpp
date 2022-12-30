@@ -104,6 +104,7 @@ enum {
 	MSG_VIEW_ZOOMOUT			= 'zoou',
 	MSG_VIEW_ZOOMRESET			= 'zore',
 	
+	MSG_AUTOCOMPLETION			= 'auto',	
 	MSG_FORMAT					= 'form',
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
@@ -906,7 +907,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			fEditor->Completion();
 			break;
 		}
-
 		case MSG_FORMAT: {
 			int32 index = fTabManager->SelectedTabIndex();
 			if (index < 0 || index >= fTabManager->CountTabs())

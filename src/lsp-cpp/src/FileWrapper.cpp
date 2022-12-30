@@ -296,6 +296,38 @@ void FileWrapper::GoToDeclaration() {
   client->GoToDeclaration(fFilenameURI.c_str(), position);
 }
 
+#include <ToolTip.h>
+#include <Autolock.h>
+BTextToolTip* tippi = NULL;
+
+void FileWrapper::StartHover(Sci_Position sci_position) {
+  
+  /*			void				SetToolTip(const char* text);
+			void				SetToolTip(BToolTip* tip);
+			BToolTip*			ToolTip() const;
+
+			void				ShowToolTip(BToolTip* tip = NULL);*/
+  if (!initialized)
+		return;
+    
+    Position position;
+    FromSciPositionToLSPPosition(fEditor, sci_position, position);
+    
+    my.bindResponse("textDocument/hover", [&](json &result) {
+			if (!tippi)
+				tippi = new BTextToolTip("");
+				//TODO, FIXME: result could be null!!
+				//TODO: manage also the StopHover..
+			std::string tip = result["contents"]["value"].get<std::string>();
+			tippi->SetText(tip.c_str());
+			BAutolock x(fEditor->Looper());
+			fEditor->ShowToolTip(tippi);
+	});
+  
+	client->Hover(fFilenameURI.c_str(), position);
+}
+
+
 void FileWrapper::SwitchSourceHeader() {
   if (!initialized)
     return;

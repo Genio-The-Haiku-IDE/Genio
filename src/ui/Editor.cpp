@@ -164,6 +164,7 @@ Editor::ApplySettings()
 
 	//xed
 	SendMessage(SCI_SETZOOM, 5, 0);
+	SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 	
 	// Line numbers
 	if (Settings.show_linenumber == true) {
@@ -701,10 +702,13 @@ Editor::NotificationReceived(SCNotification* notification)
 					_RedrawNumberMargin(false);
 			break;
 		}
-	// case SCN_NEEDSHOWN: {
-// std::cerr << "SCN_NEEDSHOWN " << std::endl;
-		// break;
-		// }
+		case SCN_DWELLSTART: {
+			fFileWrapper->StartHover(notification->position);
+			break;
+		}
+		case SCN_DWELLEND: {
+			break;
+		}
 		case SCN_SAVEPOINTLEFT: {
 			fModified = true;
 			BMessage message(EDITOR_SAVEPOINT_LEFT);

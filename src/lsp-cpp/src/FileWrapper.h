@@ -23,7 +23,7 @@ public:
 		void	GoToDefinition();
 		void	GoToDeclaration();
 		void	SwitchSourceHeader();
-		
+		void	StartHover(Sci_Position sci_position);
 
 
 	static void Initialize(const char* rootURI = "");

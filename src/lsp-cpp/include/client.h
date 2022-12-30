@@ -109,6 +109,14 @@ public:
         params.position = position;
         return SendRequest("textDocument/definition", std::move(params));
     }
+    
+    RequestID GoToImplementation(DocumentUri uri, Position position) {
+        TextDocumentPositionParams params;
+        params.textDocument.uri = std::move(uri);
+        params.position = position;
+        return SendRequest("textDocument/implementation", std::move(params));
+	}
+    
     RequestID GoToDeclaration(DocumentUri uri, Position position) {
         TextDocumentPositionParams params;
         params.textDocument.uri = std::move(uri);
@@ -191,6 +199,7 @@ public:
         params.settings = std::move(settings);
         return SendRequest("workspace/didChangeConfiguration", std::move(params));
     }
+
 public:
     RequestID SendRequest(string_ref method, value params = json()) {
         RequestID id = method.str();
@@ -233,8 +242,32 @@ public:
 				close(inPipe[WRITE_END]);
 				dup2(outPipe[READ_END], STDIN_FILENO);
 				close(outPipe[READ_END]);
-				execlp(program, program, "--log=verbose", NULL);
+				execlp(program, program, "--log=verbose","--offset-encoding=utf-8","--pretty", NULL);
 				fprintf(stderr, "ERROR in exec\n");
+				sleep(2);
+				//printf("{\"id\": \"initialize\",\"jsonrpc\": \"2.0\", \"result\":\"error\" }");
+				//while(true) { sleep(1);}
+				json response;
+				response["id"] = "initialize";
+				response["jsonrpc"] = "2.0";
+				response["result"] = "error";
+				
+				std::string content = response.dump();
+				std::string header = "Content-Length: " + std::to_string(content.length()) + "\r\n\r\n" + content;
+				//if (VERBOSE)
+				//	fprintf(stderr, "Client: - snd \n%s\n", content.c_str());
+				int hasWritten;
+				int writeSize = 0;
+				int totalSize = header.length();
+				while (( hasWritten = write(inPipe[WRITE_END], &header[writeSize],totalSize)) != -1) {
+					writeSize += hasWritten;
+					if (writeSize >= totalSize) {
+						break;
+					}
+				}
+				fprintf(stderr,"FORK - [%s]\n", header.c_str());
+				//printf("%s",header.c_str()); 
+				while(true) { sleep(1);}
                 exit(0);
         }
 		else
@@ -249,7 +282,6 @@ public:
     ~ProcessLanguageClient() override {
 		close(outPipe[WRITE_END]);
 		close(inPipe[READ_END]);
-
     }
     void SkipLine() {
 		char xread;

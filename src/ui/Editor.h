@@ -157,6 +157,8 @@ public:
 			void				SetProject(Project*);
 			Project*			GetProject() { return fProject; }
 			void				SetZoom(int32 zoom);
+			void				Undo();
+			void				Completion();
 			void				Format();
 			void				GoToDefinition();
 			void				GoToDeclaration();

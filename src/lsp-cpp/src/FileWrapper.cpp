@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <thread>
 #include <debugger.h>
-#include "Editor.h"
+
 #include <Application.h>
 
 ProcessLanguageClient* client = NULL;
@@ -54,6 +54,32 @@ OpenFile(std::string& uri, int32 line = -1)
 
 	}
 }
+
+int
+PositionFromDuple(Editor* editor, int line, int character)
+{
+	int pos = 0;
+	pos = editor->SendMessage(SCI_POSITIONFROMLINE, line, 0);
+	pos = editor->SendMessage(SCI_POSITIONRELATIVE, pos,  character);
+	return pos;
+}
+		
+
+int
+ApplyTextEdit(Editor* editor, json& textEdit)
+{
+		int e_line = textEdit["range"]["end"]["line"].get<int>();
+		int s_line = textEdit["range"]["start"]["line"].get<int>();
+		int e_char = textEdit["range"]["end"]["character"].get<int>();
+		int s_char = textEdit["range"]["start"]["character"].get<int>();
+		int s_pos  = PositionFromDuple(editor, s_line, s_char);
+		int e_pos  = PositionFromDuple(editor, e_line, e_char);
+		
+		editor->SendMessage(SCI_SETTARGETRANGE, s_pos, e_pos); 
+		int replaced = editor->SendMessage(SCI_REPLACETARGET, -1, (sptr_t)(textEdit["newText"].get<std::string>().c_str()));
+		
+		return s_pos + replaced;
+}
 		
 //end - utility
 
@@ -65,7 +91,7 @@ void FileWrapper::Initialize(const char* rootURI) {
         client->loop(my);
     });
     
-	my.bindResponse("initialize", [&](json& j){		
+	my.bindResponse("initialize", [&](json& j){
         initialized = true;
 	});
 
@@ -92,6 +118,37 @@ FileWrapper::didOpen(const char* text, long len) {
     client->Sync();
 }
 
+
+void	
+FileWrapper::didClose() {
+	if (!initialized)
+		return;
+		
+	client->DidClose(fFilenameURI.c_str());
+	fEditor = NULL;
+}
+
+void
+FileWrapper::Dispose()
+{
+	my.bindResponse("shutdown", [&](json& j){
+		initialized = false;
+		thread.detach();
+        //client->Exit();
+        delete client;
+		client = NULL;
+	});
+	
+	if (initialized) {
+		client->Shutdown();
+		//client->Exit();
+	}
+		
+    while(client!=NULL){sleep(1);}
+    
+
+}
+
 void
 FileWrapper::didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char) {
 	if (!initialized)
@@ -112,8 +169,7 @@ FileWrapper::didChange(const char* text, long len, int s_line, int s_char, int e
 	std::vector<TextDocumentContentChangeEvent> changes{event};
 //		changes[0] = event;
 	
-	client->DidChange(fFilenameURI.c_str(), changes, true);
-
+	client->DidChange(fFilenameURI.c_str(), changes, false);
 }
 
 
@@ -130,48 +186,37 @@ FileWrapper::Format()
 			
 		auto items = params;
 		for (json::reverse_iterator it = items.rbegin(); it != items.rend(); ++it) {
-
-
-				int e_line = (*it)["range"]["end"]["line"].get<int>();
-				int s_line = (*it)["range"]["start"]["line"].get<int>();
-				int e_char = (*it)["range"]["end"]["character"].get<int>();
-				int s_char = (*it)["range"]["start"]["character"].get<int>();
-				
-				printf("NewText: [%s] [%d,%d]->[%d,%d]\n", (*it)["newText"].get<std::string>().c_str(), s_line, s_char, e_line, e_char);
-				
-				if (e_line == s_line && e_char == s_char)
-				{
-					int pos = fEditor->SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
-					pos += s_char;
-					//printf("NewText:\t pos[%d]\n", pos);
-					
-					fEditor->SendMessage(SCI_INSERTTEXT, pos, (sptr_t)((*it)["newText"].get<std::string>().c_str()));
-				}
-				else
-				{
-					//This is a replacement.
-					int s_pos = fEditor->SendMessage(SCI_POSITIONFROMLINE, s_line, 0);
-					s_pos += s_char;
-					
-					int e_pos = fEditor->SendMessage(SCI_POSITIONFROMLINE, e_line, 0);
-					e_pos += e_char;
-					
-					printf("Replace:\t s_pos[%d] -> e_pos[%d]\n", s_pos, e_pos);
-					
-					fEditor->SendMessage(SCI_SETTARGETRANGE, s_pos, e_pos); 
-					fEditor->SendMessage(SCI_REPLACETARGET, -1, (sptr_t)((*it)["newText"].get<std::string>().c_str())); 
-					
-					//SCI_SETTARGETRANGE(position start, position end)
-					//SCI_REPLACETARGET(position length, const char *text) → position
-
-				}
-					
-
-				
+				ApplyTextEdit(fEditor, (*it));
 		}
 	});
 	client->Formatting(fFilenameURI.c_str());	
 }
+
+/* Working.. just need some UI
+void
+FileWrapper::GoToImplementation() {
+	if (!initialized || !fEditor)
+		return;
+
+	Position position;
+	GetCurrentLSPPosition(fEditor, position);
+	
+	my.bindResponse("textDocument/implementation", [&](json& items){
+		if (!items.empty())
+		{
+			//TODO if more than one match??
+			auto first=items[0];
+			std::string uri = first["uri"].get<std::string>();
+			
+			int32 s_line = first["range"]["start"]["line"].get<int>();
+			
+			OpenFile(uri, s_line);	
+		}
+	});
+	
+	client->GoToImplementation(fFilenameURI.c_str(), position);
+}
+*/
 
 void
 FileWrapper::GoToDefinition() {
@@ -235,26 +280,93 @@ FileWrapper::SwitchSourceHeader() {
 }
 
 void	
-FileWrapper::Completion(int _line, int _char){
-	if (!initialized)
+FileWrapper::SelectedCompletion(const char* text){
+	if (!initialized || !fEditor)
+		return;	
+	
+
+	//int cur = fEditor->SendMessage(SCI_AUTOCGETCURRENT, 0, 0);
+	//printf("SelectedCompletion([%s]) - [%s] - cur[%d]\n", text, fCurrentCompletion.dump().c_str(),cur);
+	
+	if (this->fCurrentCompletion != json({}))
+	{
+		auto items = fCurrentCompletion;
+		std::string list;
+		for (json::iterator it = items.begin(); it != items.end(); ++it) {
+			
+			if ((*it)["label"].get<std::string>().compare(std::string(text)) == 0)
+			{
+				//first let's clean the text entered until the combo is selected:
+				Sci_Position pos = fEditor->SendMessage(SCI_GETCURRENTPOS,0,0);
+				
+				 if (pos > fCompletionPosition) {
+					fEditor->SendMessage(SCI_SETTARGETRANGE, fCompletionPosition, pos); 
+					fEditor->SendMessage(SCI_REPLACETARGET, -1, (sptr_t)"");
+				}
+				
+				int endpos = ApplyTextEdit(fEditor, (*it)["textEdit"]);
+				fEditor->SendMessage(SCI_SETEMPTYSELECTION, endpos, 0);
+				fEditor->SendMessage(SCI_SCROLLCARET, 0 ,0);
+				break;
+			}
+			
+		}		
+	}
+	fEditor->SendMessage(SCI_AUTOCCANCEL, 0, 0);
+	this->fCurrentCompletion = json({});
+}
+
+// trim from start (in place)
+static inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+void	
+FileWrapper::StartCompletion(){
+	if (!initialized || !fEditor)
 		return;
+		
+	//let's check if a completion is ongoing
+	
+	if (this->fCurrentCompletion != json({}))
+	{
+		//let's close the current Scintilla listbox
+		fEditor->SendMessage(SCI_AUTOCCANCEL, 0, 0);
+		//let's cancel any previous request running on clangd
+		// --> TODO: cancel previous clangd request!
+		
+		//let's clean-up current request details:
+		this->fCurrentCompletion = json({});
+	}
+	
 	Position position;
-	position.line = _line;
-	position.character = _char;
+	GetCurrentLSPPosition(fEditor, position);
 	CompletionContext context;
+	
+	this->fCompletionPosition = fEditor->SendMessage(SCI_GETCURRENTPOS,0,0);
 
 	my.bindResponse("textDocument/completion", [&](json& params){
 		auto items = params["items"];
 		std::string list;
 		for (json::iterator it = items.begin(); it != items.end(); ++it) {
-			fprintf(stderr, "completion: [%s]\n", (*it)["insertText"].get<std::string>().c_str());
+			std::string label = (*it)["label"].get<std::string>();
+			ltrim(label);
+			fprintf(stderr, "completion: [%s]\n", label.c_str());
 			if (list.length() > 0)
-				list += " ";
-			list += (*it)["insertText"].get<std::string>();
+				list += "@";
+			list += label;
+			(*it)["label"] = label;
 			
 		}
-		if (list.length() > 0 && fEditor)
+		if (list.length() > 0) {
+			this->fCurrentCompletion = items;
+			fEditor->SendMessage(SCI_AUTOCSETSEPARATOR, (int)'@', 0);
 			fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)list.c_str());
+			//printf("Dump([%s])\n", fCurrentCompletion.dump().c_str());
+		}
+			
 	});
 	client->Completion(fFilenameURI.c_str(), position, context);
 }

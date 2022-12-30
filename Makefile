@@ -97,7 +97,7 @@ endif
 endif
 
 
-CFLAGS := -Wall -Werror -Wno-error=sign-compare
+CFLAGS := -Wall -Werror
 
 CXXFLAGS := -std=c++14 -fPIC
 

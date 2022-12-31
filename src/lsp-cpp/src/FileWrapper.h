@@ -7,6 +7,8 @@
 #include <iostream>
 #include "json.hpp"
 #include <SupportDefs.h>
+#include <ToolTip.h>
+#include <Autolock.h>
 #include "Editor.h"
 
 class FileWrapper {
@@ -24,7 +26,7 @@ public:
 		void	GoToDeclaration();
 		void	SwitchSourceHeader();
 		void	StartHover(Sci_Position sci_position);
-
+		void	EndHover();
 
 	static void Initialize(const char* rootURI = "");
 	static void Dispose();
@@ -35,7 +37,7 @@ private:
 	Editor*		fEditor;
 	nlohmann::json		fCurrentCompletion;
 	Sci_Position		fCompletionPosition;
-	//Range				fLastRangeFormatting;
+	BTextToolTip* 		fToolTip;
 
 private:
 	//callbacks:

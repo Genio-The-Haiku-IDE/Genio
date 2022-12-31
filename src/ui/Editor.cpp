@@ -707,6 +707,8 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_DWELLEND: {
+			printf("************ END ***********\n");
+			fFileWrapper->EndHover();
 			break;
 		}
 		case SCN_SAVEPOINTLEFT: {

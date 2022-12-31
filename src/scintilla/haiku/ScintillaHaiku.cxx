@@ -872,6 +872,7 @@ void ScintillaHaiku::ScrollTo(BPoint p) {
 	} else if (p.y == 0) {
 		Editor::HorizontalScrollTo(p.x - 1);
 	}
+	DwellEnd(false);
 }
 
 void ScintillaHaiku::_Activate() {

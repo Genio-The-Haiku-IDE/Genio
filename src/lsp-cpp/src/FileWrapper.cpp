@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2022, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
@@ -19,7 +19,7 @@ bool initialized = false;
 MapMessageHandler my;
 
 std::thread thread;
-
+//
 // utility
 void FromSciPositionToLSPPosition(Editor *editor, const Sci_Position &pos,
                                   Position &lsp_position) {
@@ -85,7 +85,7 @@ Sci_Position ApplyTextEdit(Editor *editor, json &textEdit) {
 
 // end - utility
 
-void FileWrapper::Initialize(const char *rootURI) {
+void FileWrapper::Initialize(const char *rootURI /*root folder*/) {
 
   client = new ProcessLanguageClient("clangd");
 
@@ -114,6 +114,7 @@ void FileWrapper::Initialize(const char *rootURI) {
 
 FileWrapper::FileWrapper(std::string filenameURI) {
   fFilenameURI = filenameURI;
+  fToolTip = NULL;
 }
 
 void FileWrapper::didOpen(const char *text, Editor *editor) {
@@ -296,17 +297,9 @@ void FileWrapper::GoToDeclaration() {
   client->GoToDeclaration(fFilenameURI.c_str(), position);
 }
 
-#include <ToolTip.h>
-#include <Autolock.h>
-BTextToolTip* tippi = NULL;
+
 
 void FileWrapper::StartHover(Sci_Position sci_position) {
-  
-  /*			void				SetToolTip(const char* text);
-			void				SetToolTip(BToolTip* tip);
-			BToolTip*			ToolTip() const;
-
-			void				ShowToolTip(BToolTip* tip = NULL);*/
   if (!initialized)
 		return;
     
@@ -314,19 +307,33 @@ void FileWrapper::StartHover(Sci_Position sci_position) {
     FromSciPositionToLSPPosition(fEditor, sci_position, position);
     
     my.bindResponse("textDocument/hover", [&](json &result) {
-			if (!tippi)
-				tippi = new BTextToolTip("");
-				//TODO, FIXME: result could be null!!
-				//TODO: manage also the StopHover..
+			
+			if (result == nlohmann::detail::value_t::null){
+				EndHover();
+				return;
+			}
+							
 			std::string tip = result["contents"]["value"].get<std::string>();
-			tippi->SetText(tip.c_str());
-			BAutolock x(fEditor->Looper());
-			fEditor->ShowToolTip(tippi);
+			
+			if (!fToolTip)
+				fToolTip = new BTextToolTip(tip.c_str());
+				
+			fToolTip->SetText(tip.c_str());
+			if(fEditor->Looper()->Lock()) {
+				fEditor->ShowToolTip(fToolTip);
+				fEditor->Looper()->Unlock();
+			}
 	});
   
 	client->Hover(fFilenameURI.c_str(), position);
 }
 
+void FileWrapper::EndHover() {
+	BAutolock l(fEditor->Looper());
+	if(l.IsLocked()) {
+		fEditor->HideToolTip();
+	}
+}
 
 void FileWrapper::SwitchSourceHeader() {
   if (!initialized)

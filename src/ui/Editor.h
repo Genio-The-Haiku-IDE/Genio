@@ -149,6 +149,7 @@ public:
 			void				GoToDefinition();
 			void				GoToDeclaration();
 			void				SwitchSourceHeader();
+			void				SignatureHelp();
 
 private:
 			void				_ApplyExtensionSettings();

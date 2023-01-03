@@ -91,7 +91,7 @@ void FileWrapper::Initialize(const char *rootURI /*root folder*/) {
 
   thread = std::thread([&] { client->loop(my); });
 
-  my.bindResponse("initialize", [&](json &j) { initialized = true; });
+  my.bindResponse("initialize", [&](json &j) { initialized = true; client->Initialized();});
 
   my.bindNotify("textDocument/publishDiagnostics", [](json &params) {
     // iterate the array
@@ -132,6 +132,13 @@ void FileWrapper::didClose() {
 
   client->DidClose(fFilenameURI.c_str());
   fEditor = NULL;
+}
+
+void FileWrapper::didSave() {
+  if (!initialized)
+    return;
+
+  client->DidSave(fFilenameURI.c_str());
 }
 
 void FileWrapper::Dispose() {
@@ -339,6 +346,23 @@ void FileWrapper::EndHover() {
 	}
 }
 
+void	
+FileWrapper::SignatureHelp()
+{
+	if (!initialized)
+    return;
+
+  my.bindResponse("textDocument/signatureHelp", [&](json &result) {
+    //std::string uri = result.get<std::string>();
+    //OpenFile(uri);
+  });
+  
+  Position position;
+  GetCurrentLSPPosition(fEditor, position);
+  client->SignatureHelp(fFilenameURI.c_str(), position);
+}
+
+
 void FileWrapper::SwitchSourceHeader() {
   if (!initialized)
     return;
@@ -360,7 +384,7 @@ void FileWrapper::SelectedCompletion(const char *text) {
     std::string list;
     for (json::iterator it = items.begin(); it != items.end(); ++it) {
 
-      if ((*it)["label"].get<std::string>().compare(std::string(text)) == 0) {
+      if ((*it)["label_sci"].get<std::string>().compare(std::string(text)) == 0) {
         // first let's clean the text entered until the combo is selected:
         Sci_Position pos = fEditor->SendMessage(SCI_GETCURRENTPOS, 0, 0);
 
@@ -419,7 +443,7 @@ void FileWrapper::StartCompletion() {
       if (list.length() > 0)
         list += "@";
       list += label;
-      (*it)["label"] = label;
+      (*it)["label_sci"] = label;
     }
     if (list.length() > 0) {
       this->fCurrentCompletion = items;

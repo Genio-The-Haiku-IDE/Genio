@@ -96,6 +96,7 @@ enum {
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
 	MSG_SWITCHSOURCE			= 'swit',
+	MSG_SIGNATUREHELP			= 'sihe',
 
 
 	// Search menu & group
@@ -868,6 +869,15 @@ GenioWindow::MessageReceived(BMessage* message)
 				fEditor = fEditorObjectList->ItemAt(index);
 				fEditor->ToggleLineEndings();
 			}
+			break;
+		}
+		case MSG_SIGNATUREHELP: {
+			int32 index = fTabManager->SelectedTabIndex();
+			if (index < 0 || index >= fTabManager->CountTabs())
+				break;
+				
+			fEditor = fEditorObjectList->ItemAt(index);
+			fEditor->SignatureHelp();			
 			break;
 		}
 		case MSG_AUTOCOMPLETION: {
@@ -2422,7 +2432,7 @@ GenioWindow::_InitMenu()
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to declaration"), new BMessage(MSG_GOTODECLARATION)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Switch Source Header"), new BMessage(MSG_SWITCHSOURCE), B_TAB));
-	
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Signature Help"), new BMessage(MSG_SIGNATUREHELP), '?'));
 
 	menu->AddSeparatorItem();
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));

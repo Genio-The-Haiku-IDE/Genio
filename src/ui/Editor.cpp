@@ -972,6 +972,8 @@ Editor::SaveToFile()
 	delete[] buffer;
 
 	SendMessage(SCI_SETSAVEPOINT, UNSET, UNSET);
+	
+	fFileWrapper->didSave();
 
 	return bytes;
 }
@@ -1204,6 +1206,11 @@ Editor::SwitchSourceHeader()
 	fFileWrapper->SwitchSourceHeader();
 }
 
+void
+Editor::SignatureHelp()
+{
+	fFileWrapper->SignatureHelp();
+}
 
 void
 Editor::_ApplyExtensionSettings()

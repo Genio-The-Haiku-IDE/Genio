@@ -484,6 +484,12 @@ struct DidCloseTextDocumentParams {
 };
 JSON_SERIALIZE(DidCloseTextDocumentParams, MAP_JSON(MAP_KEY(textDocument)), {});
 
+struct DidSaveTextDocumentParams {
+  /// The document that was saved.
+  TextDocumentIdentifier textDocument;
+};
+JSON_SERIALIZE(DidSaveTextDocumentParams, MAP_JSON(MAP_KEY(textDocument)), {});
+
 struct TextDocumentContentChangeEvent {
     /// The range of the document that changed.
     option<Range> range;

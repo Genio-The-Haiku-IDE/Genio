@@ -54,6 +54,13 @@ public:
         params.wantDiagnostics = wantDiagnostics;
         SendNotify("textDocument/didChange", params);
     }
+    //xed
+    void DidSave(DocumentUri uri) {
+		DidSaveTextDocumentParams params;
+		params.textDocument.uri = std::move(uri);
+		SendNotify("textDocument/didSave", params);
+	}
+    
     RequestID RangeFomatting(DocumentUri uri, Range range) {
         DocumentRangeFormattingParams params;
         params.textDocument.uri = std::move(uri);

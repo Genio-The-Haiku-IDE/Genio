@@ -18,6 +18,7 @@ public:
 		void	didOpen(const char* text, Editor* editor);
 		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
 		void	didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength);
+		void	didSave();
 		void	didClose();
 		void	StartCompletion();
 		void	SelectedCompletion(const char* text);
@@ -27,6 +28,9 @@ public:
 		void	SwitchSourceHeader();
 		void	StartHover(Sci_Position sci_position);
 		void	EndHover();
+		
+		void	SignatureHelp();
+		
 
 	static void Initialize(const char* rootURI = "");
 	static void Dispose();

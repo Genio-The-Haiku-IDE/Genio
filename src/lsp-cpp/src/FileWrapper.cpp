@@ -135,22 +135,26 @@ void FileWrapper::didClose() {
 }
 
 void FileWrapper::Dispose() {
-  my.bindResponse("shutdown", [&](json &j) {
-    initialized = false;
-    thread.detach();
-    // client->Exit();
-    delete client;
-    client = NULL;
-  });
-
-  if (initialized) {
-    client->Shutdown();
-    // client->Exit();
-  }
-
-  while (client != NULL) {
-    sleep(1);
-  }
+	if (!initialized)
+    	return;
+    	
+    my.bindResponse("shutdown", [&](json &j) {
+          	fprintf(stderr, "Shutdown received\n");
+    		initialized = false;
+	});
+	
+	client->Shutdown();
+	
+	while (initialized) {
+		fprintf(stderr, "Waiting for shutdown...\n");
+		sleep(1);
+	}
+	
+  	thread.detach();
+  	client->Exit();
+  	delete client;
+  	client = NULL;
+ 	return;    		
 }
 void
 FileWrapper::didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength)

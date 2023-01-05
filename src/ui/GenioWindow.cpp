@@ -1233,7 +1233,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			int32 be_line = message->GetInt32("be:line",  -1);
 			int32 lsp_char = message->GetInt32("lsp:character", -1);
 			
-			message->PrintToStream();
+			//message->PrintToStream();
 			if (message->FindInt32("index", &index) == B_OK) {
 
 				fEditor = fEditorObjectList->ItemAt(index);
@@ -1592,8 +1592,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
 		nextIndex = fTabManager->CountTabs();		
 		
-	int32 be_line   = msg->GetInt32("be:line", -1);
-	int32 lsp_char	= msg->GetInt32("lsp:character", -1);
+	const int32 be_line   = msg->GetInt32("be:line", -1);
+	const int32 lsp_char	= msg->GetInt32("lsp:character", -1);
 
 
 	while (msg->FindRef("refs", refsCount, &ref) == B_OK) {

@@ -58,7 +58,7 @@ void OpenFile(std::string &uri, int32 line = -1, int32 character = -1) {
 	    {
 		  refs.AddInt32("be:line", line);
 		  if (character != -1)
-			refs.AddInt32("lsp:character", line);
+			refs.AddInt32("lsp:character", character);
         }  
         be_app->PostMessage(&refs);
       }
@@ -241,7 +241,7 @@ FileWrapper::GoTo(FileWrapper::GoToType type)
 		event += "implementation";
 	break;
   };
-  
+
   my.bindResponse(event.c_str(), [&](json &items) {
     if (!items.empty()) {
       // TODO if more than one match??

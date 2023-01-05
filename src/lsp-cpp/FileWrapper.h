@@ -1,10 +1,15 @@
 /*
+<<<<<<< HEAD
  * Copyright 2023, Andrea Anzani 
+=======
+ * Copyright 2018, Your Name 
+>>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #ifndef FileWrapper_H
 #define FileWrapper_H
 #include <iostream>
+<<<<<<< HEAD
 #include "LSPTextDocument.h"
 #include <SupportDefs.h>
 #include <ToolTip.h>
@@ -15,6 +20,13 @@
 class LSPClientWrapper;
 
 class FileWrapper : public LSPTextDocument {
+=======
+#include "json.hpp"
+#include <SupportDefs.h>
+#include "Editor.h"
+
+class FileWrapper {
+>>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
 	
 public:
 	enum GoToType {
@@ -24,6 +36,7 @@ public:
 	};
 	
 public:
+<<<<<<< HEAD
 				FileWrapper(std::string fileURI, Editor* fEditor);
 		void	ApplySettings();
 		void	SetLSPClient(LSPClientWrapper* cW);
@@ -37,11 +50,23 @@ public:
 		void	didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength);
 		void	didSave();
 
+=======
+		FileWrapper(std::string fileURI);
+		
+		void	didOpen(const char* text, long len);
+		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
+
+		void	didClose();
+>>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
 		void	StartCompletion();
 		void	SelectedCompletion(const char* text);
 		void	Format();
 		void	GoTo(FileWrapper::GoToType type);
 		void	SwitchSourceHeader();
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
 		void	StartHover(Sci_Position sci_position);
 		void	EndHover();
 		
@@ -61,6 +86,7 @@ public:
 		int 	maxCalltip = 0;
 		std::string functionDefinition;
 		/************************/
+<<<<<<< HEAD
 public:
 		//still experimental
 		//std::string		fID;
@@ -105,6 +131,25 @@ private:
 	Sci_Position 	ApplyTextEdit(json &textEdit);
 	void			OpenFile(std::string &uri, int32 line = -1, int32 character = -1);
 	std::string 	GetCurrentLine();                            
+=======
+
+
+	static void Initialize(const char* rootURI = "");
+	static void Dispose();
+
+	
+
+	
+private:
+
+	std::string fFilenameURI;
+
+	Editor*		fEditor;
+	nlohmann::json		fCurrentCompletion;
+	Sci_Position		fCompletionPosition;
+
+
+>>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
 };
 
 

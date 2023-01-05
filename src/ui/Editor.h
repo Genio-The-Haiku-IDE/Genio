@@ -162,6 +162,7 @@ public:
 			void				Format();
 			void				GoToDefinition();
 			void				GoToDeclaration();
+			void				GoToImplementation();
 			void				SwitchSourceHeader();
 
 

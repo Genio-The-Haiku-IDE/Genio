@@ -72,7 +72,7 @@ public:
           	fprintf(stderr, "JsonTransport:onRequest -> %s\n", result.dump().c_str());
     }
     void onError(value &ID, value &error) override {
-	     if (VERBOSE)
+	    // if (VERBOSE)
            	fprintf(stderr, "JsonTransport:onError -> %s\n", error.dump().c_str());
     }
     

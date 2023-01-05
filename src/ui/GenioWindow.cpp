@@ -95,6 +95,7 @@ enum {
 	MSG_FORMAT					= 'form',
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
+	MSG_GOTOIMPLEMENTATION		= 'goim',
 	MSG_SWITCHSOURCE			= 'swit',
 	MSG_SIGNATUREHELP			= 'sihe',
 
@@ -919,6 +920,15 @@ GenioWindow::MessageReceived(BMessage* message)
 			
 			break; 
 		}
+		case MSG_GOTOIMPLEMENTATION: {
+			int32 index = fTabManager->SelectedTabIndex();
+			if (index < 0 || index >= fTabManager->CountTabs())
+				break;
+			
+			fEditor = fEditorObjectList->ItemAt(index);
+			fEditor->GoToImplementation();			
+			break;
+		}
 		case MSG_SWITCHSOURCE: {
 			int32 index = fTabManager->SelectedTabIndex();
 			if (index < 0 || index >= fTabManager->CountTabs())
@@ -1220,14 +1230,20 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case TABMANAGER_TAB_NEW_OPENED: {
 			int32 index;
-			int32 be_line = message->GetInt32("be:line", -1);
+			int32 be_line = message->GetInt32("be:line",  -1);
+			int32 lsp_char = message->GetInt32("lsp:character", -1);
+			
+			message->PrintToStream();
 			if (message->FindInt32("index", &index) == B_OK) {
-// std::cerr << "TABMANAGER_TAB_NEW_OPENED" << " index: " << index << std::endl;
+
 				fEditor = fEditorObjectList->ItemAt(index);
-				if (be_line < 0)
-					fEditor->SetSavedCaretPosition();
+				if (lsp_char >= 0 && be_line > 0)
+					fEditor->GoToLSPPosition(be_line - 1, lsp_char);
 				else
+				if (be_line > 0)
 					fEditor->GoToLine(be_line);
+				else
+					fEditor->SetSavedCaretPosition();					
 			}
 			break;
 		}
@@ -1307,7 +1323,7 @@ GenioWindow::QuitRequested()
 
 
 status_t
-GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line)
+GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int lsp_char)
 {
 	// Check existence
 	BEntry entry(ref);
@@ -1320,7 +1336,7 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line)
 	if (fEditor == nullptr)
 		return B_ERROR;
 
-	fTabManager->AddTab(fEditor, ref->name, index, be_line);
+	fTabManager->AddTab(fEditor, ref->name, index, be_line, lsp_char);
 
 	bool added = fEditorObjectList->AddItem(fEditor);
 
@@ -1576,8 +1592,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
 		nextIndex = fTabManager->CountTabs();		
 		
-	int32 be_line   = msg->GetInt32("be:line",    -1);
-	//int32 be_column = msg->FindInt32("be:column",  0);
+	int32 be_line   = msg->GetInt32("be:line", -1);
+	int32 lsp_char	= msg->GetInt32("lsp:character", -1);
 
 
 	while (msg->FindRef("refs", refsCount, &ref) == B_OK) {
@@ -1597,6 +1613,9 @@ GenioWindow::_FileOpen(BMessage* msg)
 				fTabManager->SelectTab(openedIndex);
 			}				
 			
+			if (lsp_char >= 0 && be_line > -1)
+				fEditorObjectList->ItemAt(openedIndex)->GoToLSPPosition(be_line - 1, lsp_char);
+			else
 			if (be_line > -1)
 				fEditorObjectList->ItemAt(openedIndex)->GoToLine(be_line);
 			
@@ -1606,7 +1625,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		int32 index = fTabManager->CountTabs();
 // std::cerr << __PRETTY_FUNCTION__ << " index: " << index << std::endl;
 
-		if (_AddEditorTab(&ref, index, be_line) != B_OK)
+		if (_AddEditorTab(&ref, index, be_line, lsp_char) != B_OK)
 			continue;
 
 		assert(index >= 0);
@@ -2431,6 +2450,7 @@ GenioWindow::_InitMenu()
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Format"), new BMessage(MSG_FORMAT)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to declaration"), new BMessage(MSG_GOTODECLARATION)));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to implentation"), new BMessage(MSG_GOTOIMPLEMENTATION)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Switch Source Header"), new BMessage(MSG_SWITCHSOURCE), B_TAB));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Signature Help"), new BMessage(MSG_SIGNATUREHELP), '?'));
 

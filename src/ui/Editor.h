@@ -99,6 +99,7 @@ public:
 			int					FindPrevious(const BString& search, int flags, bool wrap);
 			int32				GetCurrentPosition();
 			void				GoToLine(int32 line);
+			void				GoToLSPPosition(int32 line, int character);
 			void				GrabFocus();
 			bool				IsFoldingAvailable() { return fFoldingAvailable; }
 			bool				IsModified() { return fModified; }
@@ -148,6 +149,7 @@ public:
 			void				Format();
 			void				GoToDefinition();
 			void				GoToDeclaration();
+			void				GoToImplementation();
 			void				SwitchSourceHeader();
 			void				SignatureHelp();
 

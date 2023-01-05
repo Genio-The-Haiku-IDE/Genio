@@ -249,7 +249,7 @@ public:
 				close(inPipe[WRITE_END]);
 				dup2(outPipe[READ_END], STDIN_FILENO);
 				close(outPipe[READ_END]);
-				execlp(program, program, "--log=error","--offset-encoding=utf-8","--pretty", NULL);
+				execlp(program, program, "--log=verbose","--offset-encoding=utf-8","--pretty", NULL);
 				
 				//execlp("clangdx", "clangdx", "--log=error","--offset-encoding=utf-8","--pretty", NULL);
 				//attempt to provide a fallback in case clangd is not available.

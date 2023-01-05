@@ -52,7 +52,7 @@ SRCS +=  src/helpers/console_io/GenericThread.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
-SRCS +=  src/lsp-cpp/src/FileWrapper.cpp
+SRCS +=  src/lsp-cpp/FileWrapper.cpp
 
 
 

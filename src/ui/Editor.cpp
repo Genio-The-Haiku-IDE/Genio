@@ -1256,15 +1256,20 @@ Editor::Format()
 void
 Editor::GoToDefinition()
 {
-	fFileWrapper->GoToDefinition();
+	fFileWrapper->GoTo(FileWrapper::GOTO_DEFINITION);
 }
 
 void
 Editor::GoToDeclaration()
 {
-	fFileWrapper->GoToDeclaration();
+	fFileWrapper->GoTo(FileWrapper::GOTO_DECLARATION);
 }
 
+void
+Editor::GoToImplementation()
+{
+	fFileWrapper->GoTo(FileWrapper::GOTO_IMPLEMENTATION);
+}
 
 void
 Editor::SwitchSourceHeader()

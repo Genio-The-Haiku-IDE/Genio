@@ -108,6 +108,7 @@ enum {
 	MSG_FORMAT					= 'form',
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
+	MSG_GOTOIMPLEMENTATION		= 'goim',
 	MSG_SWITCHSOURCE			= 'swit',
 
 
@@ -1250,11 +1251,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			int32 be_line = message->GetInt32("be:line",  -1);
 			int32 lsp_char = message->GetInt32("lsp:character", -1);
 			
-			//message->PrintToStream();
+
+			message->PrintToStream();
 			if (message->FindInt32("index", &index) == B_OK) {
 
 				fEditor = fEditorObjectList->ItemAt(index);
-				
 
 				if (lsp_char >= 0 && be_line > 0)
 					fEditor->GoToLSPPosition(be_line - 1, lsp_char);
@@ -1617,7 +1618,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 	// otherwise use default behaviour (see below)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
 		nextIndex = fTabManager->CountTabs();		
-		
+
 	const int32 be_line   = msg->GetInt32("be:line", -1);
 	const int32 lsp_char	= msg->GetInt32("lsp:character", -1);
 

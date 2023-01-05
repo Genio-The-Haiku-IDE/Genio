@@ -10,6 +10,14 @@
 #include "Editor.h"
 
 class FileWrapper {
+	
+public:
+	enum GoToType {
+		GOTO_DEFINITION,
+		GOTO_DECLARATION,
+		GOTO_IMPLEMENTATION
+	};
+	
 public:
 		FileWrapper(std::string fileURI);
 		
@@ -20,12 +28,34 @@ public:
 		void	StartCompletion();
 		void	SelectedCompletion(const char* text);
 		void	Format();
-		void	GoToDefinition();
-		void	GoToDeclaration();
+		void	GoTo(FileWrapper::GoToType type);
 		void	SwitchSourceHeader();
+
+		void	StartHover(Sci_Position sci_position);
+		void	EndHover();
+		
+		void	SignatureHelp();
+		
+		/* experimental */
+		void	CharAdded(const char ch /*utf-8?*/);
+		bool	StartCallTip();
+		void	ContinueCallTip();
+		void	UpdateCallTip(int deltaPos);
+		int 	braceCount = 0;
+		int 	startCalltipWord;
+		Sci_Position calltipPosition;
+		Sci_Position calltipStartPosition;
+		nlohmann::json 	lastCalltip;
+		int 	currentCalltip = 0;
+		int 	maxCalltip = 0;
+		std::string functionDefinition;
+		/************************/
+
 
 	static void Initialize(const char* rootURI = "");
 	static void Dispose();
+
+	
 
 	
 private:

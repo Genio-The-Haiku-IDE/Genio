@@ -528,6 +528,15 @@ Editor::GoToLine(int32 line)
 }
 
 void
+Editor::GoToLSPPosition(int32 line, int character)
+{
+  Sci_Position  sci_position;
+  sci_position = SendMessage(SCI_POSITIONFROMLINE, line, 0);
+  sci_position = SendMessage(SCI_POSITIONRELATIVE, sci_position, character);
+  SendMessage(SCI_SETSEL, sci_position, sci_position);
+}
+
+void
 Editor::GrabFocus()
 {
 	SendMessage(SCI_GRABFOCUS, UNSET, UNSET);
@@ -664,17 +673,8 @@ Editor::NotificationReceived(SCNotification* notification)
 					SendMessage(SCI_GETEOLMODE, UNSET, UNSET) == SC_EOL_CR)) {
 				_AutoIndentLine(); // TODO asociate extensions?
 			}
-			
-			Sci_Position pos = SendMessage(SCI_GETCURRENTPOS,0,0);
-			char prevChar = SendMessage(SCI_GETCHARAT, pos - 2, 0);
-			//printf("prevChar %c\n", prevChar);
-			//quick logic to trigger autocompletition.
-			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT &&
-			   (notification->ch == '.' || (notification->ch == '>' && prevChar == '-')))
-			{
-				//let's request the autocompletion to LSP..
-				fFileWrapper->StartCompletion();
-			}
+			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT)
+				fFileWrapper->CharAdded(notification->ch);
 			break;
 		}
 		case SCN_MARGINCLICK: {
@@ -696,10 +696,18 @@ Editor::NotificationReceived(SCNotification* notification)
 			} 
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
 				fFileWrapper->didChange("", 0, notification->position, notification->length);
-			}			
+			}
+			if (notification->modificationType & SC_MOD_DELETETEXT && notification->length == 1) {
+				if (SendMessage(SCI_CALLTIPACTIVE))
+					fFileWrapper->ContinueCallTip();
+			}
 			if (notification->linesAdded != 0)
 				if (Settings.show_linenumber == true)
 					_RedrawNumberMargin(false);
+			break;
+		}
+		case SCN_CALLTIPCLICK: {
+			fFileWrapper->UpdateCallTip(notification->position);
 			break;
 		}
 		case SCN_DWELLSTART: {
@@ -716,7 +724,7 @@ Editor::NotificationReceived(SCNotification* notification)
 			message.AddRef("ref", &fFileRef);
 			fTarget.SendMessage(&message);
 			break;
-		}
+		}	
 		case SCN_SAVEPOINTREACHED: {
 			fModified = false;
 			BMessage message(EDITOR_SAVEPOINT_REACHED);
@@ -1190,15 +1198,20 @@ Editor::Format()
 void
 Editor::GoToDefinition()
 {
-	fFileWrapper->GoToDefinition();
+	fFileWrapper->GoTo(FileWrapper::GOTO_DEFINITION);
 }
 
 void
 Editor::GoToDeclaration()
 {
-	fFileWrapper->GoToDeclaration();
+	fFileWrapper->GoTo(FileWrapper::GOTO_DECLARATION);
 }
 
+void
+Editor::GoToImplementation()
+{
+	fFileWrapper->GoTo(FileWrapper::GOTO_IMPLEMENTATION);
+}
 
 void
 Editor::SwitchSourceHeader()

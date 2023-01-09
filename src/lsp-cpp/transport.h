@@ -114,7 +114,9 @@ public:
                             handler.onNotify(value["method"].get<std::string>(), value["params"]);
                         }
                     }
-                }
+                } else {
+					return -1;
+	          }
             } catch (std::exception &e) {
 				//if (VERBOSE)
                 	fprintf(stderr, "JsonTransport:loop exception -> %s\n", e.what());

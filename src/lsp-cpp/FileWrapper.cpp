@@ -90,11 +90,27 @@ Sci_Position ApplyTextEdit(Editor *editor, json &textEdit) {
 
 void FileWrapper::Initialize(const char *rootURI /*root folder*/) {
 
-  client = new ProcessLanguageClient("clangd");
+  client = new ProcessLanguageClient();
+  
+  client->Init("clangd");
+  bool valid = true;
+  
+  thread = std::thread([&] { 
+								if (client->loop(my) == -1) //closed pipe
+								{
+									fprintf(stderr, "Client loop ended!\n");
+									valid = false;
+									initialized = false; //quick and dirty!
+									//while(true) sleep(1000000);
+								} 
+						    });
 
-  thread = std::thread([&] { client->loop(my); });
-
-  my.bindResponse("initialize", [&](json &j) { initialized = true; client->Initialized();});
+  my.bindResponse("initialize", [&](json &j) 
+  { 
+	initialized = true; 
+	client->Initialized();
+	
+  });
 
   my.bindNotify("textDocument/publishDiagnostics", [](json &params) {
     // iterate the array
@@ -109,7 +125,7 @@ void FileWrapper::Initialize(const char *rootURI /*root folder*/) {
   string_ref uri = rootURI;
   client->Initialize(uri);
 
-  while (!initialized) {
+  while (!initialized && valid) {
     fprintf(stderr, "Waiting for clangd initialization.. %d\n", initialized);
     usleep(500000);
   }

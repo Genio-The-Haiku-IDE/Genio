@@ -3,17 +3,21 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #include "LSPClientWrapper.h"
+<<<<<<< HEAD
 #include "Log.h"
 #include <map>
 #include "LSPTextDocument.h"
 
 
+=======
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 
 
 LSPClientWrapper::LSPClientWrapper()
 {
 	initialized.store(false);
 }
+<<<<<<< HEAD
 #define X(A) std::to_string((size_t)A)
 void
 LSPClientWrapper::RegisterTextDocument(LSPTextDocument* fw)
@@ -32,6 +36,11 @@ LSPClientWrapper::UnregisterTextDocument(LSPTextDocument* fw)
 
 bool	
 LSPClientWrapper::Create(const char *uri)
+=======
+
+bool	
+LSPClientWrapper::Initialize(const char *uri)
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 {
   client = new ProcessLanguageClient();
   client->Init("clangd");
@@ -41,17 +50,29 @@ LSPClientWrapper::Create(const char *uri)
   readerThread = std::thread([&] {
 	if (client->loop(*this) == -1)
 	{
+<<<<<<< HEAD
+=======
+		printf("loop ended!\n");
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 		on_error.store(true);
 		initialized.store(false);
 	}
   });
   
   rootURI = uri;
+<<<<<<< HEAD
   Initialize(rootURI);
 
   while (!initialized.load() && !on_error.load()) {
     LogDebug("Waiting for clangd initialization.. \n");
     usleep(500000);
+=======
+  client->Initialize(rootURI);
+
+  while (!initialized.load() && !on_error.load()) {
+    fprintf(stderr, "Waiting for clangd initialization.. \n");
+    usleep(500);
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
   }
   return on_error.load();
 }
@@ -61,6 +82,7 @@ LSPClientWrapper::Dispose()
 {
 	if (!initialized)
     	return true;
+<<<<<<< HEAD
 
     for(auto& m: fTextDocs)
 		LogError("LSPClientWrapper::Dispose() still textDocument registered! [%s]", m.second->GetFilenameURI().c_str());
@@ -74,6 +96,18 @@ LSPClientWrapper::Dispose()
 	
   	readerThread.detach();
   	Exit();
+=======
+    		
+	client->Shutdown();
+	
+	while (initialized.load()) {
+		fprintf(stderr, "Waiting for shutdown...\n");
+		usleep(500);
+	}
+	
+  	readerThread.detach();
+  	client->Exit();
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
   	delete client;
   	client = NULL;
 	return true;
@@ -82,6 +116,7 @@ LSPClientWrapper::Dispose()
 		
 
 void 
+<<<<<<< HEAD
 LSPClientWrapper::onNotify(std::string method, value &params)
 {
 	if (method.compare("textDocument/publishDiagnostics") == 0)
@@ -119,6 +154,19 @@ LSPClientWrapper::onResponse(RequestID id, value &result)
 	{
 		initialized.store(true); 
 		Initialized();
+=======
+LSPClientWrapper::onNotify(string_ref method, value &params)
+{
+}
+void
+LSPClientWrapper::onResponse(value &ID, value &result)
+{
+	auto id = ID.get<std::string>();
+	if (id.compare("initialize") == 0)
+	{
+		initialized.store(true); 
+		client->Initialized();
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 		return;
 	}
 	if (id.compare("shutdown") == 0)
@@ -127,6 +175,7 @@ LSPClientWrapper::onResponse(RequestID id, value &result)
        initialized.store(false);
        return; 
 	}
+<<<<<<< HEAD
 	
 
 	auto search = fTextDocs.find(key);
@@ -362,3 +411,14 @@ RequestID LSPClientWrapper::SendRequest(RequestID id, string_ref method, value p
 void LSPClientWrapper::SendNotify(string_ref method, value params) {
 	client->notify(method, params);
 }
+=======
+}
+void 
+LSPClientWrapper::onError(value &ID, value &error)
+{
+}
+void 
+LSPClientWrapper::onRequest(string_ref method, value &params, value &ID)
+{
+}
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Your Name 
+ * Copyright 2023, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #ifndef FileWrapper_H

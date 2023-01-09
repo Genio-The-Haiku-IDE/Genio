@@ -1,8 +1,8 @@
- /*
- * Copyright 2022, Andrea Anzani 
+/*
+ * Copyright 2023, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-
+ 
 #include "FileWrapper.h"
 #include "client.h"
 #include <debugger.h>

@@ -111,7 +111,7 @@ void FileWrapper::Initialize(const char *rootURI /*root folder*/) {
 
   while (!initialized) {
     fprintf(stderr, "Waiting for clangd initialization.. %d\n", initialized);
-    usleep(500);
+    usleep(500000);
   }
 }
 
@@ -157,7 +157,7 @@ void FileWrapper::Dispose() {
 	
 	while (initialized) {
 		fprintf(stderr, "Waiting for shutdown...\n");
-		usleep(500);
+		usleep(500000);
 	}
 	
   	thread.detach();

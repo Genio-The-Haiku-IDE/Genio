@@ -38,10 +38,12 @@ public:
 class LanguageClient : public JsonTransport {
 public:
     virtual ~LanguageClient() = default;
+protected:
+		pid_t   childpid;
 public:
     RequestID Initialize(option<DocumentUri> rootUri = {}) {
         InitializeParams params;
-        params.processId = 2022; //xed GetCurrentProcessId();
+        params.processId = childpid;
         params.rootUri = rootUri;
         return SendRequest("initialize", params);
     }
@@ -244,10 +246,14 @@ public:
 class ProcessLanguageClient : public LanguageClient {
 public:
         int     outPipe[2], inPipe[2];
-        pid_t   childpid;
+        explicit ProcessLanguageClient(){};
         
+<<<<<<< HEAD
     explicit ProcessLanguageClient(const char *program, const char *arguments = "") {
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+        void Init(const char *program, const char *arguments = "") {
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 
 		pipe(outPipe);
 		pipe(inPipe);
@@ -259,6 +265,9 @@ public:
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
         if (childpid == 0) {
 	        
           setpgid(childpid, childpid);
@@ -266,6 +275,7 @@ public:
           close(outPipe[WRITE_END]);
           close(inPipe[READ_END]);
           // close(inPipe[WRITE_END]);
+<<<<<<< HEAD
 
           dup2(inPipe[WRITE_END], STDOUT_FILENO);
           close(inPipe[WRITE_END]);
@@ -351,7 +361,22 @@ public:
 				//close(inPipe[READ_END]);
 				close(inPipe[WRITE_END]);
 		}
+=======
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 
+          dup2(inPipe[WRITE_END], STDOUT_FILENO);
+          close(inPipe[WRITE_END]);
+          dup2(outPipe[READ_END], STDIN_FILENO);
+          close(outPipe[READ_END]);
+          execlp(program, program, "--log=verbose", "--offset-encoding=utf-8", "--pretty", NULL);
+          exit(1);
+        } else {
+	        
+          close(outPipe[READ_END]);
+          // close(outPipe[WRITE_END]);
+          // close(inPipe[READ_END]);
+          close(inPipe[WRITE_END]);
+        }
     }
     ~ProcessLanguageClient() override {
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
@@ -373,11 +398,17 @@ public:
 		while ( ( hasRead = read(inPipe[READ_END], &szReadBuffer[length], 1)) != -1)
 		{
 <<<<<<< HEAD
+<<<<<<< HEAD
 			if (hasRead == 0 || length >= 254) // pipe eof or protection
 				return 0;
 				
 =======
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+			if (hasRead == 0 || length >= 254) // pipe eof or protection
+				return 0;
+				
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 			if (szReadBuffer[length] == '\n') {
                 break;
             }
@@ -386,27 +417,40 @@ public:
 		return atoi(szReadBuffer + 16);
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     int Read(int length, std::string &out) {
 =======
     void Read(int length, std::string &out) {
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+    int Read(int length, std::string &out) {
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 		int readSize = 0;
 		int hasRead;
 		out.resize(length);
 		while (( hasRead = read(inPipe[READ_END], &out[readSize],length)) != -1) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 			
 			if (hasRead == 0) // pipe eof
 				return 0;
 				
+<<<<<<< HEAD
 =======
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
             readSize += hasRead;
             if (readSize >= length) {
                 break;
             }
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
         
         return readSize;
     }
@@ -428,6 +472,7 @@ public:
 			writeLock.Unlock();
         }
         return (hasWritten != 0);
+<<<<<<< HEAD
 =======
     }
     bool Write(std::string &in) {
@@ -442,10 +487,13 @@ public:
         }
         return true;
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
     }
     bool readJson(json &json) override {
         json.clear();
         int length = ReadLength();
+<<<<<<< HEAD
 <<<<<<< HEAD
         if (length == 0)
 	        return false;
@@ -458,14 +506,23 @@ public:
         } catch (std::exception &e) {
            return false;
 =======
+=======
+        if (length == 0)
+	        return false;
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
         SkipLine();
         std::string read;
-        Read(length, read);
+        if (Read(length, read) == 0)
+	        return false;
         try {
             json = json::parse(read);
         } catch (std::exception &e) {
+<<<<<<< HEAD
             //printf("read error -> %s\nread -> %s\n ", e.what(), read.c_str());
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+           return false;
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
         }
         if (VERBOSE)
 	        fprintf(stderr, "Client - rcv %d:\n%s\n", length, read.c_str());
@@ -479,6 +536,7 @@ public:
         return Write(header);
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     
 
     
@@ -486,6 +544,11 @@ public:
 		BLocker	writeLock;
 =======
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+    
+    private:
+		BLocker	writeLock;
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 };
 
 #endif //LSP_CLIENT_H

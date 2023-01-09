@@ -268,9 +268,55 @@ void FileWrapper::Initialize(const char* rootURI) {
 	}
 }
 
+<<<<<<< HEAD
 FileWrapper::FileWrapper(std::string filenameURI)
 {
 	fFilenameURI = filenameURI;
+=======
+// end - utility
+
+void FileWrapper::Initialize(const char *rootURI /*root folder*/) {
+
+  client = new ProcessLanguageClient();
+  
+  client->Init("clangd");
+  bool valid = true;
+  
+  thread = std::thread([&] { 
+								if (client->loop(my) == -1) //closed pipe
+								{
+									fprintf(stderr, "Client loop ended!\n");
+									valid = false;
+									initialized = false; //quick and dirty!
+									//while(true) sleep(1000000);
+								} 
+						    });
+
+  my.bindResponse("initialize", [&](json &j) 
+  { 
+	initialized = true; 
+	client->Initialized();
+	
+  });
+
+  my.bindNotify("textDocument/publishDiagnostics", [](json &params) {
+    // iterate the array
+    auto j = params["diagnostics"];
+    for (json::iterator it = j.begin(); it != j.end(); ++it) {
+      // std::cout << *it << '\n';
+      const auto msg = (*it)["message"].get<std::string>();
+      fprintf(stderr, "Diagnostic: [%s]\n", msg.c_str());
+    }
+  });
+
+  string_ref uri = rootURI;
+  client->Initialize(uri);
+
+  while (!initialized && valid) {
+    fprintf(stderr, "Waiting for clangd initialization.. %d\n", initialized);
+    usleep(500000);
+  }
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 }
 
 void	

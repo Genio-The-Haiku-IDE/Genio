@@ -11,12 +11,16 @@
 #include <atomic>
 #include <thread>
 
+<<<<<<< HEAD
 class LSPTextDocument;
+=======
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 
 class LSPClientWrapper : public MessageHandler {
 	
 public:
 			LSPClientWrapper();
+<<<<<<< HEAD
 	virtual ~LSPClientWrapper() = default;
 		
 	bool	Create(const char* uri);
@@ -78,6 +82,20 @@ private:
 
 	MapFile	fTextDocs;
 
+=======
+		
+	bool	Initialize(const char* uri);
+	bool	Dispose();
+
+    void onNotify(string_ref method, value &params);
+    void onResponse(value &ID, value &result);
+    void onError(value &ID, value &error);
+    void onRequest(string_ref method, value &params, value &ID);
+    
+
+private:
+
+>>>>>>> 677ef97 (improved read and write from  pipe to handle eof)
 	ProcessLanguageClient *client = NULL;
 
 	std::atomic<bool> initialized;

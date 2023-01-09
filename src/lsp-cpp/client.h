@@ -12,10 +12,12 @@
 class LanguageClient : public JsonTransport {
 public:
     virtual ~LanguageClient() = default;
+protected:
+		pid_t   childpid;
 public:
     RequestID Initialize(option<DocumentUri> rootUri = {}) {
         InitializeParams params;
-        params.processId = 2022; //xed GetCurrentProcessId();
+        params.processId = childpid;
         params.rootUri = rootUri;
         return SendRequest("initialize", params);
     }
@@ -225,9 +227,9 @@ public:
 class ProcessLanguageClient : public LanguageClient {
 public:
         int     outPipe[2], inPipe[2];
-        pid_t   childpid;
+        explicit ProcessLanguageClient(){};
         
-    explicit ProcessLanguageClient(const char *program, const char *arguments = "") {
+        void Init(const char *program, const char *arguments = "") {
 
 		pipe(outPipe);
 		pipe(inPipe);
@@ -238,42 +240,27 @@ public:
                 exit(1);
         }
 
-        if(childpid == 0)
-        {
-				//close(outPipe[READ_END]);
-				close(outPipe[WRITE_END]);
-				close(inPipe[READ_END]);
-				//close(inPipe[WRITE_END]);				
-				
-				dup2(inPipe[WRITE_END], STDOUT_FILENO);
-				close(inPipe[WRITE_END]);
-				dup2(outPipe[READ_END], STDIN_FILENO);
-				close(outPipe[READ_END]);
-				execlp(program, program, "--log=verbose","--offset-encoding=utf-8","--pretty", NULL);
-				
-				//execlp("clangdx", "clangdx", "--log=error","--offset-encoding=utf-8","--pretty", NULL);
-				//attempt to provide a fallback in case clangd is not available.
-				json response;
-				response["id"] = "initialize";
-				response["jsonrpc"] = "2.0";
-				response["error"] = "Can't open clangd!";
-				
-				std::string content = response.dump();
-				std::string header = "Content-Length: " + std::to_string(content.length()) + "\r\n\r\n" + content;
-				
-				execlp("echo", "echo" , header.c_str(), NULL);
-				
-				
-                exit(1);
-        }
-		else
-		{
-				close(outPipe[READ_END]);
-				//close(outPipe[WRITE_END]);
-				//close(inPipe[READ_END]);
-				close(inPipe[WRITE_END]);
-		}
+        if (childpid == 0) {
+	        
+          setpgid(childpid, childpid);
+          // close(outPipe[READ_END]);
+          close(outPipe[WRITE_END]);
+          close(inPipe[READ_END]);
+          // close(inPipe[WRITE_END]);
 
+          dup2(inPipe[WRITE_END], STDOUT_FILENO);
+          close(inPipe[WRITE_END]);
+          dup2(outPipe[READ_END], STDIN_FILENO);
+          close(outPipe[READ_END]);
+          execlp(program, program, "--log=verbose", "--offset-encoding=utf-8", "--pretty", NULL);
+          exit(1);
+        } else {
+	        
+          close(outPipe[READ_END]);
+          // close(outPipe[WRITE_END]);
+          // close(inPipe[READ_END]);
+          close(inPipe[WRITE_END]);
+        }
     }
     ~ProcessLanguageClient() override {
 		close(outPipe[WRITE_END]);
@@ -293,6 +280,9 @@ public:
 		int length  = 0;
 		while ( ( hasRead = read(inPipe[READ_END], &szReadBuffer[length], 1)) != -1)
 		{
+			if (hasRead == 0 || length >= 254) // pipe eof or protection
+				return 0;
+				
 			if (szReadBuffer[length] == '\n') {
                 break;
             }
@@ -300,46 +290,55 @@ public:
 		}
 		return atoi(szReadBuffer + 16);
     }
-    void Read(int length, std::string &out) {
+    int Read(int length, std::string &out) {
 		int readSize = 0;
 		int hasRead;
 		out.resize(length);
 		while (( hasRead = read(inPipe[READ_END], &out[readSize],length)) != -1) {
+			
+			if (hasRead == 0) // pipe eof
+				return 0;
+				
             readSize += hasRead;
             if (readSize >= length) {
                 break;
             }
         }
+        
+        return readSize;
     }
     #include <Locker.h>
     bool Write(std::string &in) {
-		int hasWritten;
+	    
+		int hasWritten = 0;
 		int writeSize = 0;
-        int totalSize = in.length();
-        static BLocker	writeLock("Pipe write lock");
+        int totalSize = in.length();        
         
         if (writeLock.Lock()) // for production code: WithTimeout(1000000) == B_OK)
-	    {    
+	    {
 			while (( hasWritten = write(outPipe[WRITE_END], &in[writeSize],totalSize)) != -1) {
 				writeSize += hasWritten;
-				if (writeSize >= totalSize) {
+				if (writeSize >= totalSize || hasWritten == 0) {
 					break;
 				}
 			}
 			writeLock.Unlock();
         }
-        return true;
+        return (hasWritten != 0);
     }
     bool readJson(json &json) override {
         json.clear();
         int length = ReadLength();
+        if (length == 0)
+	        return false;
         SkipLine();
         std::string read;
-        Read(length, read);
+        if (Read(length, read) == 0)
+	        return false;
         try {
             json = json::parse(read);
         } catch (std::exception &e) {
-            //printf("read error -> %s\nread -> %s\n ", e.what(), read.c_str());
+           return false;
         }
         if (VERBOSE)
 	        fprintf(stderr, "Client - rcv %d:\n%s\n", length, read.c_str());
@@ -352,6 +351,9 @@ public:
 	        fprintf(stderr, "Client: - snd \n%s\n", content.c_str());
         return Write(header);
     }
+    
+    private:
+		BLocker	writeLock;
 };
 
 #endif //LSP_CLIENT_H

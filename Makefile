@@ -53,7 +53,7 @@ SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
 SRCS +=  src/lsp-cpp/FileWrapper.cpp
-
+SRCS +=  src/lsp-cpp/LSPClientWrapper.cpp
 
 
 RDEFS := Genio.rdef

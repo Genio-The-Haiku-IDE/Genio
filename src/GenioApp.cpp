@@ -51,12 +51,11 @@ GenioApp::AboutRequested()
 	const char* authors[] = {
 		"Nexus6",
 		"A. Anzani",
-		"S. Ceccherini",
-		"...",
+		"A. Mosca",
 		NULL
 	}; 
 
-	window->AddCopyright(2022, "...");
+	window->AddCopyright(2023, "...");
 	window->AddAuthors(authors);
 
 	BString extraInfo;
@@ -68,7 +67,7 @@ GenioApp::AboutRequested()
 	extraInfo << "\n\nScintilla for Haiku";
 	extraInfo << "\nCopyright 2011 by Andrea Anzani ";
 	extraInfo << "\nCopyright 2014-2015 by Kacper Kasper \n\n";
-	extraInfo << B_TRANSLATE("See Credits for a complete list.");
+	extraInfo << B_TRANSLATE("See Credits for a complete list.\n\n");
 	extraInfo << B_TRANSLATE("Made with love in Italy");
 
 	window->AddExtraInfo(extraInfo);

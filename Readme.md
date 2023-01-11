@@ -25,8 +25,10 @@ Top priority goals after the first initial commit include:
 *Source file and project management*
 * refactor the source file and project management module by implementing a Workspace Manager and Project folders
 * remove support for project files outside of source tree (.idmpro)
+	
 *Editor*
 * implement the Language Server Protocol via clangd to get autocompletion and jump to definition/instance
+
 *Fixes and improvements*
 * Bug fixing (find/replace focus capture)
 * Find in files
@@ -36,8 +38,8 @@ Branches
 ------------------
 Currently there are 3 branches on the Github repository:
 * main - is functionally equivalent to the latest version of Ideam (v.0.7.9) at the time we forked it, except it is fully rebranded
-* workspace - this is the branch where the development on the workspace manager and project folders happen
-* experimental/lsp-client - this is the branch where the development of the Language Server Protocol and related features happen (e.g. autocompletion)
+* workspace - this is the branch where the development on the workspace manager and project folders happens
+* experimental/lsp-client - this is the branch where the development of the Language Server Protocol and related features happens (e.g. autocompletion)
 	
 Contributions
 ------------------

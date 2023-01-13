@@ -1237,6 +1237,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (message->FindInt32("index", &index) == B_OK) {
 
 				fEditor = fEditorObjectList->ItemAt(index);
+				
+
 				if (lsp_char >= 0 && be_line > 0)
 					fEditor->GoToLSPPosition(be_line - 1, lsp_char);
 				else
@@ -1640,6 +1642,19 @@ GenioWindow::_FileOpen(BMessage* msg)
 			return B_ERROR;
 		}
 
+		/* quick-hack waiting for a proper FolderProject Manager				
+			here we try to assign the right "LSPClientWrapper" to the Editor..					
+		*/
+		
+		// Check if already open
+		BString baseDir("");
+		for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
+			Project * project = fProjectObjectList->ItemAt(index);
+			if (fEditor->FilePath().StartsWith(project->BasePath())) {
+				fEditor->SetProject(project);
+			}
+		}
+	
 		status = fEditor->LoadFromFile();
 
 		if (status != B_OK) {

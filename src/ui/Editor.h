@@ -10,7 +10,7 @@
 #include <Messenger.h>
 #include <ScintillaView.h>
 #include <String.h>
-
+#include "Project.h"
 #include <string>
 
 class FileWrapper;
@@ -65,6 +65,7 @@ constexpr auto kBraceMatch = 1;
 constexpr auto kBraceBad = 2;
 
 class Editor : public BScintillaView {
+	
 public:
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
@@ -152,6 +153,8 @@ public:
 			void				GoToImplementation();
 			void				SwitchSourceHeader();
 			void				SignatureHelp();
+			
+			void				SetProject(Project*);
 
 private:
 			void				_ApplyExtensionSettings();
@@ -187,6 +190,7 @@ private:
 			int					fCurrentColumn;
 			
 			FileWrapper*		fFileWrapper;
+			Project*			fProject;
 
 };
 

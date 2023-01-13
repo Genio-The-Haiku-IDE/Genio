@@ -9,17 +9,10 @@
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-
+#include "LSPClientWrapper.h"
 #include <Application.h>
 
-ProcessLanguageClient *client = NULL;
 
-bool initialized = false;
-
-MapMessageHandler my;
-
-std::thread thread;
-//
 // utility
 void FromSciPositionToLSPPosition(Editor *editor, const Sci_Position &pos,
                                   Position &lsp_position) {
@@ -88,52 +81,21 @@ Sci_Position ApplyTextEdit(Editor *editor, json &textEdit) {
 
 // end - utility
 
-void FileWrapper::Initialize(const char *rootURI /*root folder*/) {
-
-  client = new ProcessLanguageClient();
-  
-  client->Init("clangd");
-  bool valid = true;
-  
-  thread = std::thread([&] { 
-								if (client->loop(my) == -1) //closed pipe
-								{
-									fprintf(stderr, "Client loop ended!\n");
-									valid = false;
-									initialized = false; //quick and dirty!
-									//while(true) sleep(1000000);
-								} 
-						    });
-
-  my.bindResponse("initialize", [&](json &j) 
-  { 
-	initialized = true; 
-	client->Initialized();
-	
-  });
-
-  my.bindNotify("textDocument/publishDiagnostics", [](json &params) {
-    // iterate the array
-    auto j = params["diagnostics"];
-    for (json::iterator it = j.begin(); it != j.end(); ++it) {
-      // std::cout << *it << '\n';
-      const auto msg = (*it)["message"].get<std::string>();
-      fprintf(stderr, "Diagnostic: [%s]\n", msg.c_str());
-    }
-  });
-
-  string_ref uri = rootURI;
-  client->Initialize(uri);
-
-  while (!initialized && valid) {
-    fprintf(stderr, "Waiting for clangd initialization.. %d\n", initialized);
-    usleep(500000);
-  }
-}
 
 FileWrapper::FileWrapper(std::string filenameURI) {
   fFilenameURI = filenameURI;
   fToolTip = NULL;
+}
+
+void	
+FileWrapper::SetLSPClient(LSPClientWrapper* cW) {
+	
+	assert(!initialized);
+	fLSPClientWrapper = cW;
+	if (fLSPClientWrapper) {
+		fLSPClientWrapper->RegisterMessageHandler(this);
+	}
+	initialized = true;
 }
 
 void FileWrapper::didOpen(const char *text, Editor *editor) {
@@ -141,15 +103,15 @@ void FileWrapper::didOpen(const char *text, Editor *editor) {
     return;
 
   fEditor = editor;
-  client->DidOpen(fFilenameURI.c_str(), text, "cpp");
-  client->Sync();
+  fLSPClientWrapper->DidOpen(this, fFilenameURI.c_str(), text, "cpp");
+  fLSPClientWrapper->Sync();
 }
 
 void FileWrapper::didClose() {
   if (!initialized)
     return;
 
-  client->DidClose(fFilenameURI.c_str());
+  fLSPClientWrapper->DidClose(this, fFilenameURI.c_str());
   fEditor = NULL;
 }
 
@@ -157,31 +119,9 @@ void FileWrapper::didSave() {
   if (!initialized)
     return;
 
-  client->DidSave(fFilenameURI.c_str());
+  fLSPClientWrapper->DidSave(this, fFilenameURI.c_str());
 }
 
-void FileWrapper::Dispose() {
-	if (!initialized)
-    	return;
-    	
-    my.bindResponse("shutdown", [&](json &j) {
-          	fprintf(stderr, "Shutdown received\n");
-    		initialized = false;
-	});
-	
-	client->Shutdown();
-	
-	while (initialized) {
-		fprintf(stderr, "Waiting for shutdown...\n");
-		usleep(500000);
-	}
-	
-  	thread.detach();
-  	client->Exit();
-  	delete client;
-  	client = NULL;
- 	return;    		
-}
 void
 FileWrapper::didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength)
 {
@@ -201,7 +141,7 @@ FileWrapper::didChange(const char* text, long len, Sci_Position start_pos, Sci_P
 
   std::vector<TextDocumentContentChangeEvent> changes{event};
 
-  client->DidChange(fFilenameURI.c_str(), changes, false);
+  fLSPClientWrapper->DidChange(this, fFilenameURI.c_str(), changes, false);
   
 
 }
@@ -228,11 +168,9 @@ void FileWrapper::Format() {
   if (s_start < s_end) {
     Range range;
     FromSciPositionToRange(fEditor, s_start, s_end, range);
-    my.bindResponse("textDocument/rangeFormatting", std::bind(&FileWrapper::_DoFormat, this, std::placeholders::_1));
-    client->RangeFomatting(fFilenameURI.c_str(), range);
+    fLSPClientWrapper->RangeFomatting(this, fFilenameURI.c_str(), range);
   } else {
-    my.bindResponse("textDocument/formatting", std::bind(&FileWrapper::_DoFormat, this, std::placeholders::_1));
-    client->Formatting(fFilenameURI.c_str());
+    fLSPClientWrapper->Formatting(this, fFilenameURI.c_str());
    }
 }
 
@@ -245,40 +183,15 @@ FileWrapper::GoTo(FileWrapper::GoToType type)
   Position position;
   GetCurrentLSPPosition(fEditor, position);
   
-  std::string event("textDocument/");
   switch(type) {
 	case GOTO_DEFINITION:
-		event += "definition";
+		fLSPClientWrapper->GoToDefinition(this, fFilenameURI.c_str(), position);
 	break;
 	case GOTO_DECLARATION:
-		event += "declaration";
+		fLSPClientWrapper->GoToDeclaration(this, fFilenameURI.c_str(), position);
 	break;
 	case GOTO_IMPLEMENTATION:
-		event += "implementation";
-	break;
-  };
-
-  my.bindResponse(event.c_str(), [&](json &items) {
-    if (!items.empty()) {
-      // TODO if more than one match??
-      auto first = items[0];
-      std::string uri = first["uri"].get<std::string>();      
-     
-      Position pos = first["range"]["start"].get<Position>();
-
-      OpenFile(uri, pos.line + 1, pos.character);
-    }
-  });
-  
-  switch(type) {
-	case GOTO_DEFINITION:
-		client->GoToDefinition(fFilenameURI.c_str(), position);
-	break;
-	case GOTO_DECLARATION:
-		client->GoToDeclaration(fFilenameURI.c_str(), position);
-	break;
-	case GOTO_IMPLEMENTATION:
-		client->GoToImplementation(fFilenameURI.c_str(), position);
+		fLSPClientWrapper->GoToImplementation(this, fFilenameURI.c_str(), position);
 	break;
   };
   
@@ -292,27 +205,7 @@ void FileWrapper::StartHover(Sci_Position sci_position) {
     
     Position position;
     FromSciPositionToLSPPosition(fEditor, sci_position, position);
-    
-    my.bindResponse("textDocument/hover", [&](json &result) {
-			
-			if (result == nlohmann::detail::value_t::null){
-				EndHover();
-				return;
-			}
-							
-			std::string tip = result["contents"]["value"].get<std::string>();
-			
-			if (!fToolTip)
-				fToolTip = new BTextToolTip(tip.c_str());
-				
-			fToolTip->SetText(tip.c_str());
-			if(fEditor->Looper()->Lock()) {
-				fEditor->ShowToolTip(fToolTip);
-				fEditor->Looper()->Unlock();
-			}
-	});
-  
-	client->Hover(fFilenameURI.c_str(), position);
+ 	fLSPClientWrapper->Hover(this, fFilenameURI.c_str(), position);
 }
 
 void FileWrapper::EndHover() {
@@ -330,31 +223,15 @@ FileWrapper::SignatureHelp()
 
   Position position;
   GetCurrentLSPPosition(fEditor, position);
-  
-  my.bindResponse("textDocument/signatureHelp", [&](json &result) {
 
-		if (result["signatures"][0] != nlohmann::detail::value_t::null) {
-			 const Sci_Position pos = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
-			 auto str = result["signatures"][0]["label"].get<std::string>();
-			fEditor->SendMessage(SCI_CALLTIPSHOW, pos, (sptr_t)(str.c_str()));
-		}
-  });
-  
-
-  client->SignatureHelp(fFilenameURI.c_str(), position);
+  fLSPClientWrapper->SignatureHelp(this, fFilenameURI.c_str(), position);
 }
 
 
 void FileWrapper::SwitchSourceHeader() {
   if (!initialized)
     return;
-
-  my.bindResponse("textDocument/switchSourceHeader", [&](json &result) {
-    std::string uri = result.get<std::string>();
-    OpenFile(uri);
-  });
-
-  client->SwitchSourceHeader(fFilenameURI.c_str());
+  fLSPClientWrapper->SwitchSourceHeader(this, fFilenameURI.c_str());
 }
 
 void FileWrapper::SelectedCompletion(const char *text) {
@@ -414,27 +291,7 @@ void FileWrapper::StartCompletion() {
   CompletionContext context;
 
   this->fCompletionPosition = fEditor->SendMessage(SCI_GETCURRENTPOS, 0, 0);
-
-  my.bindResponse("textDocument/completion", [&](json &params) {
-    auto items = params["items"];
-    std::string list;
-    for (json::iterator it = items.begin(); it != items.end(); ++it) {
-      std::string label = (*it)["label"].get<std::string>();
-      ltrim(label);
-      // fprintf(stderr, "completion: [%s]\n", label.c_str());
-      if (list.length() > 0)
-        list += "\n";
-      list += label;
-      (*it)["label_sci"] = label;
-    }
-    if (list.length() > 0) {
-      this->fCurrentCompletion = items;
-      fEditor->SendMessage(SCI_AUTOCSETSEPARATOR, (int)'\n', 0);
-      fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)list.c_str());
-      // printf("Dump([%s])\n", fCurrentCompletion.dump().c_str());
-    }
-  });
-  client->Completion(fFilenameURI.c_str(), position, context);
+  fLSPClientWrapper->Completion(this, fFilenameURI.c_str(), position, context);
 }
 
 // TODO move these, check if they are all used.. and move to a config section
@@ -515,25 +372,7 @@ FileWrapper::StartCallTip()
 	
 	line.at(current + 1) = '\0';
 	
-	// printf("StartCallTip %d - %ld - [%s]\n", startCalltipWord, calltipPosition, line.c_str());
-
-  my.bindResponse("textDocument/signatureHelp", [&](json &result) {
-
-	    auto array = result["signatures"];
-	    lastCalltip = array;
-	    maxCalltip = array.size();
-	    currentCalltip = -1;
-	    
-	    if (array.empty()) {
-			fEditor->SendMessage(SCI_CALLTIPCANCEL);
-			return;
-		}	
-
-		currentCalltip = 0;
-		UpdateCallTip(0);
-  });
-  
-  client->SignatureHelp(fFilenameURI.c_str(), position);
+  fLSPClientWrapper->SignatureHelp(this, fFilenameURI.c_str(), position);
   return true;
 }
 
@@ -660,3 +499,105 @@ FileWrapper::CharAdded(const char ch /*utf-8?*/)
 		}
 	}
 }
+
+void 
+FileWrapper::_DoHover(nlohmann::json& result)
+{
+	if (result == nlohmann::detail::value_t::null){
+				EndHover();
+				return;
+	}
+					
+	std::string tip = result["contents"]["value"].get<std::string>();
+	
+	if (!fToolTip)
+		fToolTip = new BTextToolTip(tip.c_str());
+		
+	fToolTip->SetText(tip.c_str());
+	if(fEditor->Looper()->Lock()) {
+		fEditor->ShowToolTip(fToolTip);
+		fEditor->Looper()->Unlock();
+	}
+}
+
+void 
+FileWrapper::_DoGoTo(nlohmann::json& items){
+    if (!items.empty()) {
+      // TODO if more than one match??
+      auto first = items[0];
+      std::string uri = first["uri"].get<std::string>();      
+     
+      Position pos = first["range"]["start"].get<Position>();
+
+      OpenFile(uri, pos.line + 1, pos.character);
+    }
+};
+  
+void
+FileWrapper::_DoSignatureHelp(json &result) {
+	if (result["signatures"][0] != nlohmann::detail::value_t::null) {
+		 const Sci_Position pos = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
+		 auto str = result["signatures"][0]["label"].get<std::string>();
+		fEditor->SendMessage(SCI_CALLTIPSHOW, pos, (sptr_t)(str.c_str()));
+	}
+};
+
+void	
+FileWrapper::_DoSwitchSourceHeader(json &result) {
+	std::string url = result.get<std::string>();
+    OpenFile(url);
+};
+
+void	
+FileWrapper::_DoCompletion(json &params) {
+    auto items = params["items"];
+    std::string list;
+    for (json::iterator it = items.begin(); it != items.end(); ++it) {
+      std::string label = (*it)["label"].get<std::string>();
+      ltrim(label);
+      if (list.length() > 0)
+        list += "\n";
+      list += label;
+      (*it)["label_sci"] = label;
+    }
+    if (list.length() > 0) {
+      this->fCurrentCompletion = items;
+      fEditor->SendMessage(SCI_AUTOCSETSEPARATOR, (int)'\n', 0);
+      fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)list.c_str());
+    }
+}
+#include "Log.h"
+
+#define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
+	
+void 
+FileWrapper::onNotify(std::string method, value &params)
+{
+	//LogError("onNotify not implemented! [%s] [%s]", params.dump().c_str(), method.c_str());
+}
+void
+FileWrapper::onResponse(RequestID id, value &result)
+{
+	IF_ID("textDocument/hover", _DoHover);
+	IF_ID("textDocument/rangeFormatting", _DoFormat);
+	IF_ID("textDocument/formatting", _DoFormat);
+	IF_ID("textDocument/definition", _DoGoTo);
+	IF_ID("textDocument/declaration", _DoGoTo);
+	IF_ID("textDocument/implementation", _DoGoTo);
+	IF_ID("textDocument/signatureHelp", _DoSignatureHelp);
+	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
+	
+	LogError("FileWrapper::onResponse not handled! [%s]", id.c_str());
+
+}
+void 
+FileWrapper::onError(RequestID id, value &error)
+{ 
+	LogError("onError not implemented! [%s] [%s]", error.dump().c_str(), id.c_str());
+}
+void 
+FileWrapper::onRequest(std::string method, value &params, value &ID)
+{
+	//LogError("onRequest not implemented! [%s] [%s] [%s]", method.c_str(), params.dump().c_str(), ID.dump().c_str());
+}
+

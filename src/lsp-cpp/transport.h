@@ -5,24 +5,12 @@
 #ifndef LSP_TRANSPORT_H
 #define LSP_TRANSPORT_H
 
-#include "uri.h"
+#include "MessageHandler.h"
 #include <functional>
 #include <utility>
 
 #define VERBOSE 0
-
-using value = json;
-using RequestID = std::string;
-
-class MessageHandler {
-public:
-    MessageHandler() = default;
-    virtual void onNotify(string_ref method, value &params) {}
-    virtual void onResponse(value &ID, value &result) {}
-    virtual void onError(value &ID, value &error) {}
-    virtual void onRequest(string_ref method, value &params, value &ID) {}
-
-};
+/*
 class MapMessageHandler : public MessageHandler {
 public:
     std::map<std::string, std::function<void(value &, RequestID)>> m_calls;
@@ -85,7 +73,7 @@ public:
           	fprintf(stderr, "JsonTransport:onRequest -> %s\n", method.str().c_str());
     }
 };
-
+*/
 class Transport {
 public:
     virtual void notify(string_ref method, value &params) = 0;
@@ -105,9 +93,9 @@ public:
                         if (value.contains("method")) {
                             handler.onRequest(value["method"].get<std::string>(), value["params"], value["id"]);
                         } else if (value.contains("result")) {
-                            handler.onResponse(value["id"], value["result"]);
+                            handler.onResponse(value["id"].get<std::string>(), value["result"]);
                         } else if (value.contains("error")) {
-                            handler.onError(value["id"], value["error"]);
+                            handler.onError(value["id"].get<std::string>(), value["error"]);
                         }
                     } else if (value.contains("method")) {
                         if (value.contains("params")) {

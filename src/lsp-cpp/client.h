@@ -38,6 +38,7 @@ public:
 class LanguageClient : public JsonTransport {
 public:
     virtual ~LanguageClient() = default;
+<<<<<<< HEAD
 protected:
 		pid_t   childpid;
 public:
@@ -227,16 +228,11 @@ public:
         params.settings = std::move(settings);
         return SendRequest("workspace/didChangeConfiguration", std::move(params));
     }
+=======
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 
-public:
-    RequestID SendRequest(string_ref method, value params = json()) {
-        RequestID id = method.str();
-        request(method, params, id);
-        return id;
-    }
-    void SendNotify(string_ref method, value params = json()) {
-        notify(method, params);
-    }
+
+
 };
 
 #define READ_END  0
@@ -244,7 +240,9 @@ public:
 #include <unistd.h>
 
 class ProcessLanguageClient : public LanguageClient {
+	
 public:
+		pid_t   childpid;
         int     outPipe[2], inPipe[2];
         explicit ProcessLanguageClient(){};
         
@@ -537,6 +535,8 @@ public:
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+    
+
     
 
     

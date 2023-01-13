@@ -56,6 +56,7 @@ SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/lsp-cpp/FileWrapper.cpp
 SRCS +=  src/lsp-cpp/LSPClientWrapper.cpp
 SRCS += src/helpers/console_io/WordTextView.cpp
+SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/lsp-cpp/FileWrapper.cpp
 SRCS +=  src/lsp-cpp/LSPClientWrapper.cpp
 

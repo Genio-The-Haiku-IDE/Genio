@@ -11,6 +11,7 @@
 #include <thread>
 #include <unistd.h>
 #include "LSPClientWrapper.h"
+<<<<<<< HEAD
 #include <Application.h>
 
 
@@ -172,6 +173,18 @@ GetCurrentLSPPosition(Editor* editor, Position& position)
 	position.line      = editor->SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 	int end_pos        = editor->SendMessage(SCI_POSITIONFROMLINE, position.line, 0);
 	position.character = editor->SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);
+=======
+#include <Application.h>
+
+
+// utility
+void FromSciPositionToLSPPosition(Editor *editor, const Sci_Position &pos,
+                                  Position &lsp_position) {
+	                                  
+  lsp_position.line      = editor->SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+  Sci_Position end_pos   = editor->SendMessage(SCI_POSITIONFROMLINE, lsp_position.line, 0);
+  lsp_position.character = editor->SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 }
 
 void
@@ -275,6 +288,7 @@ FileWrapper::FileWrapper(std::string filenameURI)
 =======
 // end - utility
 
+<<<<<<< HEAD
 void FileWrapper::Initialize(const char *rootURI /*root folder*/) {
 
   client = new ProcessLanguageClient();
@@ -359,6 +373,48 @@ FileWrapper::Dispose()
 
 }
 
+=======
+
+FileWrapper::FileWrapper(std::string filenameURI) {
+  fFilenameURI = filenameURI;
+  fToolTip = NULL;
+}
+
+void	
+FileWrapper::SetLSPClient(LSPClientWrapper* cW) {
+	
+	assert(!initialized);
+	fLSPClientWrapper = cW;
+	if (fLSPClientWrapper) {
+		fLSPClientWrapper->RegisterMessageHandler(this);
+	}
+	initialized = true;
+}
+
+void FileWrapper::didOpen(const char *text, Editor *editor) {
+  if (!initialized)
+    return;
+
+  fEditor = editor;
+  fLSPClientWrapper->DidOpen(this, fFilenameURI.c_str(), text, "cpp");
+  fLSPClientWrapper->Sync();
+}
+
+void FileWrapper::didClose() {
+  if (!initialized)
+    return;
+
+  fLSPClientWrapper->DidClose(this, fFilenameURI.c_str());
+  fEditor = NULL;
+}
+
+void FileWrapper::didSave() {
+  if (!initialized)
+    return;
+
+  fLSPClientWrapper->DidSave(this, fFilenameURI.c_str());
+}
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 
 void
 FileWrapper::didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char) {
@@ -387,6 +443,7 @@ FileWrapper::didChange(const char* text, long len, int s_line, int s_char, int e
 void
 FileWrapper::Format()
 {
+<<<<<<< HEAD
 	if (!initialized)
 		return;
 		
@@ -402,6 +459,55 @@ FileWrapper::Format()
 	});
 	client->Formatting(fFilenameURI.c_str());	
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+  if (!initialized || !fEditor)
+    return;
+
+  Sci_Position end_pos =
+      fEditor->SendMessage(SCI_POSITIONRELATIVE, start_pos, poslength);
+
+  TextDocumentContentChangeEvent event;
+  Range range;
+  FromSciPositionToLSPPosition(fEditor, start_pos, range.start);
+  FromSciPositionToLSPPosition(fEditor, end_pos, range.end);
+
+  event.range = range;
+  event.text.assign(text, len);
+
+  std::vector<TextDocumentContentChangeEvent> changes{event};
+
+  fLSPClientWrapper->DidChange(this, fFilenameURI.c_str(), changes, false);
+  
+
+}
+
+
+void FileWrapper::_DoFormat(json &params) {
+
+  fEditor->SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+  auto items = params;
+  for (json::reverse_iterator it = items.rbegin(); it != items.rend(); ++it) {
+    ApplyTextEdit(fEditor, (*it));
+  }
+  fEditor->SendMessage(SCI_ENDUNDOACTION, 0, 0);
+}
+
+void FileWrapper::Format() {
+  if (!initialized || !fEditor)
+    return;
+
+  // format a range or format the whole doc?
+  Sci_Position s_start = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
+  Sci_Position s_end = fEditor->SendMessage(SCI_GETSELECTIONEND, 0, 0);
+
+  if (s_start < s_end) {
+    Range range;
+    FromSciPositionToRange(fEditor, s_start, s_end, range);
+    fLSPClientWrapper->RangeFomatting(this, fFilenameURI.c_str(), range);
+  } else {
+    fLSPClientWrapper->Formatting(this, fFilenameURI.c_str());
+   }
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 }
 
 void	
@@ -426,15 +532,15 @@ FileWrapper::GoTo(FileWrapper::GoToType type)
 =======
   GetCurrentLSPPosition(fEditor, position);
   
-  std::string event("textDocument/");
   switch(type) {
 	case GOTO_DEFINITION:
-		event += "definition";
+		fLSPClientWrapper->GoToDefinition(this, fFilenameURI.c_str(), position);
 	break;
 	case GOTO_DECLARATION:
-		event += "declaration";
+		fLSPClientWrapper->GoToDeclaration(this, fFilenameURI.c_str(), position);
 	break;
 	case GOTO_IMPLEMENTATION:
+<<<<<<< HEAD
 		event += "implementation";
 	break;
   };
@@ -461,6 +567,9 @@ FileWrapper::GoTo(FileWrapper::GoToType type)
 	case GOTO_IMPLEMENTATION:
 		client->GoToImplementation(fFilenameURI.c_str(), position);
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+		fLSPClientWrapper->GoToImplementation(this, fFilenameURI.c_str(), position);
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 	break;
   };
   
@@ -471,6 +580,7 @@ FileWrapper::GoTo(FileWrapper::GoToType type)
 void FileWrapper::StartHover(Sci_Position sci_position) {
   if (!initialized)
 		return;
+<<<<<<< HEAD
 <<<<<<< HEAD
   if (fEditor->SendMessage(SCI_INDICATORVALUEAT, 0, sci_position) == 1)
   {
@@ -489,6 +599,12 @@ void FileWrapper::StartHover(Sci_Position sci_position) {
   Position position;
   FromSciPositionToLSPPosition(sci_position, position);
   fLSPClientWrapper->Hover(this, fFilenameURI.c_str(), position);
+=======
+    
+    Position position;
+    FromSciPositionToLSPPosition(fEditor, sci_position, position);
+ 	fLSPClientWrapper->Hover(this, fFilenameURI.c_str(), position);
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 }
 
 void FileWrapper::EndHover() {
@@ -607,9 +723,8 @@ FileWrapper::SelectedCompletion(const char* text){
 =======
   Position position;
   GetCurrentLSPPosition(fEditor, position);
-  
-  my.bindResponse("textDocument/signatureHelp", [&](json &result) {
 
+<<<<<<< HEAD
 		if (result["signatures"][0] != nlohmann::detail::value_t::null) {
 			 const Sci_Position pos = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
 			 auto str = result["signatures"][0]["label"].get<std::string>();
@@ -620,12 +735,16 @@ FileWrapper::SelectedCompletion(const char* text){
 
   client->SignatureHelp(fFilenameURI.c_str(), position);
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+  fLSPClientWrapper->SignatureHelp(this, fFilenameURI.c_str(), position);
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 }
 
 
 void FileWrapper::SwitchSourceHeader() {
   if (!initialized)
     return;
+<<<<<<< HEAD
 <<<<<<< HEAD
   fLSPClientWrapper->SwitchSourceHeader(this, fFilenameURI.c_str());
 =======
@@ -637,6 +756,9 @@ void FileWrapper::SwitchSourceHeader() {
 
   client->SwitchSourceHeader(fFilenameURI.c_str());
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+  fLSPClientWrapper->SwitchSourceHeader(this, fFilenameURI.c_str());
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 }
 
 void FileWrapper::SelectedCompletion(const char *text) {
@@ -769,6 +891,7 @@ FileWrapper::StartCompletion(){
   CompletionContext context;
 
   this->fCompletionPosition = fEditor->SendMessage(SCI_GETCURRENTPOS, 0, 0);
+<<<<<<< HEAD
 
   my.bindResponse("textDocument/completion", [&](json &params) {
     auto items = params["items"];
@@ -791,6 +914,9 @@ FileWrapper::StartCompletion(){
   });
   client->Completion(fFilenameURI.c_str(), position, context);
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+  fLSPClientWrapper->Completion(this, fFilenameURI.c_str(), position, context);
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 }
 
 // TODO move these, check if they are all used.. and move to a config section
@@ -889,6 +1015,7 @@ FileWrapper::StartCallTip()
 	
 	line.at(current + 1) = '\0';
 	
+<<<<<<< HEAD
 	// printf("StartCallTip %d - %ld - [%s]\n", startCalltipWord, calltipPosition, line.c_str());
 
   my.bindResponse("textDocument/signatureHelp", [&](json &result) {
@@ -909,6 +1036,9 @@ FileWrapper::StartCallTip()
   
   client->SignatureHelp(fFilenameURI.c_str(), position);
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+  fLSPClientWrapper->SignatureHelp(this, fFilenameURI.c_str(), position);
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
   return true;
 }
 
@@ -1042,6 +1172,7 @@ FileWrapper::CharAdded(const char ch /*utf-8?*/)
 	}
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 void
 FileWrapper::_ShowToolTip(const char* text)
@@ -1055,6 +1186,9 @@ FileWrapper::_ShowToolTip(const char* text)
 		fEditor->Looper()->Unlock();
 	}
 }
+=======
+
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 void 
 FileWrapper::_DoHover(nlohmann::json& result)
 {
@@ -1065,7 +1199,18 @@ FileWrapper::_DoHover(nlohmann::json& result)
 					
 	std::string tip = result["contents"]["value"].get<std::string>();
 	
+<<<<<<< HEAD
 	_ShowToolTip(tip.c_str());
+=======
+	if (!fToolTip)
+		fToolTip = new BTextToolTip(tip.c_str());
+		
+	fToolTip->SetText(tip.c_str());
+	if(fEditor->Looper()->Lock()) {
+		fEditor->ShowToolTip(fToolTip);
+		fEditor->Looper()->Unlock();
+	}
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 }
 
 void 
@@ -1114,6 +1259,7 @@ FileWrapper::_DoCompletion(json &params) {
       fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)list.c_str());
     }
 }
+<<<<<<< HEAD
 
 void
 FileWrapper::_RemoveAllDiagnostics()
@@ -1155,6 +1301,16 @@ FileWrapper::onNotify(std::string id, value &result)
 	IF_ID("textDocument/publishDiagnostics", _DoDiagnostics);
 	
 	LogError("FileWrapper::onNotify not handled! [%s]", id.c_str());
+=======
+#include "Log.h"
+
+#define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
+	
+void 
+FileWrapper::onNotify(std::string method, value &params)
+{
+	//LogError("onNotify not implemented! [%s] [%s]", params.dump().c_str(), method.c_str());
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 }
 void
 FileWrapper::onResponse(RequestID id, value &result)
@@ -1167,7 +1323,10 @@ FileWrapper::onResponse(RequestID id, value &result)
 	IF_ID("textDocument/implementation", _DoGoTo);
 	IF_ID("textDocument/signatureHelp", _DoSignatureHelp);
 	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
+<<<<<<< HEAD
 	IF_ID("textDocument/completion", _DoCompletion);
+=======
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 	
 	LogError("FileWrapper::onResponse not handled! [%s]", id.c_str());
 
@@ -1183,6 +1342,7 @@ FileWrapper::onRequest(std::string method, value &params, value &ID)
 	//LogError("onRequest not implemented! [%s] [%s] [%s]", method.c_str(), params.dump().c_str(), ID.dump().c_str());
 }
 
+<<<<<<< HEAD
 // utility
 void 
 FileWrapper::FromSciPositionToLSPPosition(const Sci_Position &pos,
@@ -1267,3 +1427,5 @@ FileWrapper::GetCurrentLine() {
 =======
 >>>>>>> efcf8e5 (experimental calltip, GoTo supporting character position)
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)

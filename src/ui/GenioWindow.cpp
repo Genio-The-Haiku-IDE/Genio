@@ -1616,11 +1616,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 	// otherwise use default behaviour (see below)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
 		nextIndex = fTabManager->CountTabs();		
-<<<<<<< HEAD
 
-=======
-		
->>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
 	const int32 be_line   = msg->GetInt32("be:line", -1);
 	const int32 lsp_char	= msg->GetInt32("lsp:character", -1);
 

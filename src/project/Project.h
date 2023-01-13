@@ -11,6 +11,8 @@
 #include "ProjectTitleItem.h"
 #include "TPreferences.h"
 
+class LSPClientWrapper;
+
 class Project {
 public:
 								Project(BString const& name);
@@ -34,6 +36,8 @@ public:
 			BString	const	 	Target();
 			ProjectTitleItem*	Title() const { return fProjectTitle; }
 			BString				Type() const { return fType; }
+			
+			LSPClientWrapper*	GetLSPClient() { return fLSPClientWrapper; }
 
 private:
 
@@ -47,6 +51,7 @@ private:
 			ProjectTitleItem*	fProjectTitle;
 		std::vector<BString>	fFilesList;
 		std::vector<BString>	fSourcesList;
+			LSPClientWrapper*	fLSPClientWrapper;
 
 };
 

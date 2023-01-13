@@ -18,6 +18,7 @@
 #define B_TRANSLATION_CONTEXT "GenioApp"
 
 #include "FileWrapper.h"
+#include "Log.h"
 
 GenioApp::GenioApp()
 	:
@@ -41,7 +42,7 @@ GenioApp::GenioApp()
 
 GenioApp::~GenioApp()
 {
-	FileWrapper::Dispose();
+
 }
 
 void
@@ -217,9 +218,43 @@ GenioApp::_CheckSettingsVersion()
 	}
 }
 
+void CheckLogLevel(char level) {
+	
+	switch(level){
+		case 'o':
+			Logger::SetLevel(LOG_LEVEL_OFF);
+			printf("Log level set to OFF\n");
+		break;
+		case 'e':
+			Logger::SetLevel(LOG_LEVEL_ERROR);
+			printf("Log level set to ERROR\n");
+		break;
+		case 'i':
+			Logger::SetLevel(LOG_LEVEL_INFO);
+			printf("Log level set to INFO\n");
+		break;
+		case 'd':
+			Logger::SetLevel(LOG_LEVEL_DEBUG);
+			printf("Log level set to DEBUG\n");
+		break;
+		case 't':
+			Logger::SetLevel(LOG_LEVEL_TRACE);
+			printf("Log level set to TRACE\n");
+		break;
+		default:
+			LogFatal("Invalid log level, valid levels are: o, e, i, d, t");
+		break;
+	}
+}
+
 int
 main(int argc, char* argv[])
 {
+	if (argc > 1) 
+		CheckLogLevel(argv[1][0]);
+	else
+		CheckLogLevel('e'); //Default log level: ERROR
+		
 	try {
 		GenioApp *app = new GenioApp();
 

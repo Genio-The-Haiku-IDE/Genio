@@ -1279,6 +1279,13 @@ Editor::SwitchSourceHeader()
 
 
 void
+Editor::SetProject(Project* proj)
+{
+	fProject = proj;
+	fFileWrapper->SetLSPClient(proj ? proj->GetLSPClient() : NULL);
+}
+
+void
 Editor::_ApplyExtensionSettings()
 {
 	if (fFileType == "c++") {

@@ -10,7 +10,11 @@
 #define FileWrapper_H
 #include <iostream>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "LSPTextDocument.h"
+=======
+#include "MessageHandler.h"
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 #include <SupportDefs.h>
 #include <ToolTip.h>
 #include <Autolock.h>
@@ -25,8 +29,14 @@ class FileWrapper : public LSPTextDocument {
 #include <SupportDefs.h>
 #include "Editor.h"
 
+<<<<<<< HEAD
 class FileWrapper {
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+class LSPClientWrapper;
+
+class FileWrapper : public MessageHandler {
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 	
 public:
 	enum GoToType {
@@ -37,6 +47,7 @@ public:
 	
 public:
 <<<<<<< HEAD
+<<<<<<< HEAD
 				FileWrapper(std::string fileURI, Editor* fEditor);
 		void	ApplySettings();
 		void	SetLSPClient(LSPClientWrapper* cW);
@@ -46,6 +57,13 @@ private:
 public:
 		void	didClose();
 				
+=======
+				FileWrapper(std::string fileURI);
+				
+		void	SetLSPClient(LSPClientWrapper* cW);
+		
+		void	didOpen(const char* text, Editor* editor);
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
 		void	didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength);
 		void	didSave();
@@ -87,15 +105,22 @@ public:
 		std::string functionDefinition;
 		/************************/
 <<<<<<< HEAD
+<<<<<<< HEAD
 public:
 		//still experimental
 		//std::string		fID;
+=======
+public:
+		//still experimental
+		std::string		fID;
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 		void onNotify(std::string method, value &params);
 		void onResponse(RequestID ID, value &result);
 		void onError(RequestID ID, value &error);
 		void onRequest(std::string method, value &params, value &ID);
 		
 		
+<<<<<<< HEAD
 private:
 
 	Editor*		fEditor;
@@ -140,6 +165,9 @@ private:
 	
 
 	
+=======
+    
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 private:
 
 	std::string fFilenameURI;
@@ -147,9 +175,24 @@ private:
 	Editor*		fEditor;
 	nlohmann::json		fCurrentCompletion;
 	Sci_Position		fCompletionPosition;
+<<<<<<< HEAD
 
 
 >>>>>>> 4ca1733 (simplified files structure and fixed a bug in GoTo lsp position)
+=======
+	BTextToolTip* 		fToolTip;
+	LSPClientWrapper*	fLSPClientWrapper;
+	bool				initialized = false; //to be removed
+private:
+	//callbacks:
+	void	_DoFormat(nlohmann::json& params);
+	void 	_DoHover(nlohmann::json& params);
+	void	_DoGoTo(nlohmann::json& params);
+	void	_DoSignatureHelp(nlohmann::json& params);
+	void	_DoOpenFile(nlohmann::json& params);
+	void	_DoSwitchSourceHeader(nlohmann::json& params);
+	void	_DoCompletion(nlohmann::json& params);
+>>>>>>> 6868452 (major (raw) refactor to split between a lsp textDocument and a lsp project)
 };
 
 

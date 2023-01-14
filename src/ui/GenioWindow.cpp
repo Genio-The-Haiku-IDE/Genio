@@ -26,6 +26,7 @@
 #include <string>
 
 #include "AddToProjectWindow.h"
+#include "exceptions/Exceptions.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "NewProjectWindow.h"
@@ -68,6 +69,7 @@ enum {
 	MSG_PROJECT_OPEN			= 'prop',
 	MSG_PROJECT_SET_ACTIVE		= 'psac',	// TODO
 	MSG_PROJECT_SETTINGS		= 'prse',
+	MSG_PROJECT_FOLDER_OPEN		= 'pfop',
 
 	// File menu
 	MSG_FILE_NEW				= 'fine',
@@ -268,6 +270,8 @@ GenioWindow::~GenioWindow()
 
 	delete fOpenPanel;
 	delete fSavePanel;
+	delete fOpenProjectFolderPanel;
+	delete fOpenProjectPanel;
 }
 
 void
@@ -973,7 +977,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_OPEN: {
-			fOpenProjectPanel->Show();
+			fOpenProjectFolderPanel->Show();
 			break;
 		}
 		case MSG_PROJECT_SETTINGS: {
@@ -982,6 +986,10 @@ GenioWindow::MessageReceived(BMessage* message)
 				name = fActiveProject->ExtensionedName();
 			ProjectSettingsWindow *window = new ProjectSettingsWindow(name);
 			window->Show();
+			break;
+		}
+		case MSG_PROJECT_FOLDER_OPEN: {
+			_ProjectFolderOpen(message);
 			break;
 		}
 		case MSG_REPLACE_GROUP_SHOW:
@@ -2745,7 +2753,12 @@ GenioWindow::_InitWindow()
 
 	fOpenPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), &ref, B_FILE_NODE, true);
 	fSavePanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this), &ref, B_FILE_NODE, false);
-
+	
+	BMessage *openProjectFolderMessage = new BMessage(MSG_PROJECT_FOLDER_OPEN);
+	fOpenProjectFolderPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), 
+												&ref, B_DIRECTORY_NODE, false,
+												openProjectFolderMessage);
+							
 	BPath path;
 	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
 	path.Append(GenioNames::kApplicationName);
@@ -2753,6 +2766,7 @@ GenioWindow::_InitWindow()
 	entry.GetRef(&ref);
 	fOpenProjectPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), &ref, B_FILE_NODE,
 							false, nullptr, new ProjectRefFilter());
+
 }
 
 BIconButton*
@@ -3551,6 +3565,67 @@ GenioWindow::_ProjectRemoveDir(const BString& dirPath)
 	}
 
 	return startEntry.Remove();
+}
+
+// Project Folders
+void
+GenioWindow::_ProjectFolderClose()
+{
+
+}
+
+void
+GenioWindow::_ProjectFolderNew(BMessage *message)
+{
+
+}
+
+void
+GenioWindow::_ProjectFolderOpen(BMessage *message)
+{
+	entry_ref ref;
+	
+	status_t status = message->FindRef("refs", &ref);
+	if (status != B_OK)
+		throw BException("Invalid project folder",0,status);
+		
+	BPath path(&ref);
+	
+	ProjectFolder* currentProject = new ProjectFolder(path.Path());
+
+	// Check if already open
+	for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
+		Project * pProject = fProjectObjectList->ItemAt(index);
+		if (pProject->Path() == currentProject->Path())
+				return;
+	}
+
+	if (currentProject->Open(activate) != B_OK) {
+		BString notification;
+		notification
+			<< B_TRANSLATE("Project open fail:")
+			<< "  "  << projectName;
+		_SendNotification( notification.String(), "PROJ_OPEN_FAIL");
+		delete currentProject;
+
+		return;
+	}
+
+	fProjectObjectList->AddItem(currentProject);
+
+	BString opened(B_TRANSLATE("Project open:"));
+	if (activate == true) {
+		_ProjectActivate(projectName);
+		opened = B_TRANSLATE("Active project open:");
+	}
+
+	_ProjectOutlinePopulate(currentProject);
+
+	BString notification;
+	notification << opened << "  " << projectName;
+	_SendNotification(notification, "PROJ_OPEN");	
+	
+	_SendNotification(path.Path(),	"PROJ_OPEN");		
 }
 
 int

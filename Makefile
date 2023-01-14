@@ -4,7 +4,7 @@ arch := $(shell getarch)
 platform := $(shell uname -p)
 
 ## clang build flag ############################################################
-BUILD_WITH_CLANG := 1
+BUILD_WITH_CLANG := 0
 ################################################################################
 
 ifeq ($(BUILD_WITH_CLANG), 0)		# gcc build
@@ -42,8 +42,10 @@ SRCS +=  src/project/NewProjectWindow.cpp
 SRCS +=  src/project/Project.cpp
 SRCS +=  src/project/ProjectParser.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
+SRCS +=  src/project/ProjectFolder.cpp
 SRCS +=  src/helpers/GenioCommon.cpp
 SRCS +=  src/helpers/TPreferences.cpp
+SRCS +=  src/helpers/GSettings.cpp
 # SRCS +=  src/helpers/class_parser/ClassParser.cpp
 # SRCS +=  src/helpers/class_parser/ClassesView.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
@@ -96,7 +98,7 @@ CXXFLAGS := -std=c++14 -fPIC
 
 LOCALES := en it
 
-DEBUGGER := false
+DEBUGGER := TRUE
 
 ## Include the Makefile-Engine
 ENGINE_DIRECTORY := $(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)

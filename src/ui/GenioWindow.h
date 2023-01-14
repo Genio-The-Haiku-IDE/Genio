@@ -118,6 +118,12 @@ private:
 			Project*			_ProjectPointerFromName(BString const& projectName);
 			void				_ProjectRescan(BString const& projectName);
 			status_t			_ProjectRemoveDir(const BString& dirPath);
+
+			// Project Folders
+			void				_ProjectFolderClose();
+			void 				_ProjectFolderNew(BMessage *message);
+			void 				_ProjectFolderOpen(BMessage *message);
+			
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
 			void				_ReplaceGroupShow();
@@ -268,6 +274,7 @@ private:
 			BFilePanel*			fOpenPanel;
 			BFilePanel*			fSavePanel;
 			BFilePanel*			fOpenProjectPanel;
+			BFilePanel*			fOpenProjectFolderPanel;
 
 			// Bottom panels
 			BTabView*			fOutputTabView;

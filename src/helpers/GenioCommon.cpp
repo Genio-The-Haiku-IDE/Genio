@@ -79,7 +79,7 @@ std::string const file_type(const std::string& filename)
 
 	std::string extension = filename.substr(filename.find_last_of('.') + 1);
 	if (extension == "cpp" || extension == "cxx" || extension == "cc"
-			 || extension == "h" || extension == "c")
+			 || extension == "h" || extension == "hpp" || extension == "c")
 		return "c++";
 	else if (extension == "rs")
 		return "rust";

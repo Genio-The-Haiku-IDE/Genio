@@ -23,6 +23,7 @@ public:
 	bool	Dispose();
 	
 	void	RegisterMessageHandler(MessageHandler* fw);
+	void	UnregisterMessageHandler(MessageHandler* fw);
 
     void onNotify(std::string method, value &params);
     void onResponse(RequestID ID, value &result);

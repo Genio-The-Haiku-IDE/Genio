@@ -87,14 +87,25 @@ FileWrapper::FileWrapper(std::string filenameURI) {
   fToolTip = NULL;
 }
 
+void
+FileWrapper::UnsetLSPClient()
+{
+	if (!fLSPClientWrapper)
+		return;
+	
+	initialized = false;
+	fLSPClientWrapper->UnregisterMessageHandler(this);
+	fLSPClientWrapper = NULL;
+}
+
 void	
 FileWrapper::SetLSPClient(LSPClientWrapper* cW) {
+
+	assert(cW);
 	
-	assert(!initialized);
 	fLSPClientWrapper = cW;
-	if (fLSPClientWrapper) {
-		fLSPClientWrapper->RegisterMessageHandler(this);
-	}
+	fLSPClientWrapper->RegisterMessageHandler(this);
+
 	initialized = true;
 }
 
@@ -104,7 +115,7 @@ void FileWrapper::didOpen(const char *text, Editor *editor) {
 
   fEditor = editor;
   fLSPClientWrapper->DidOpen(this, fFilenameURI.c_str(), text, "cpp");
-  fLSPClientWrapper->Sync();
+  //fLSPClientWrapper->Sync();
 }
 
 void FileWrapper::didClose() {
@@ -209,6 +220,8 @@ void FileWrapper::StartHover(Sci_Position sci_position) {
 }
 
 void FileWrapper::EndHover() {
+  if (!initialized)
+		return;
 	BAutolock l(fEditor->Looper());
 	if(l.IsLocked()) {
 		fEditor->HideToolTip();
@@ -586,6 +599,7 @@ FileWrapper::onResponse(RequestID id, value &result)
 	IF_ID("textDocument/implementation", _DoGoTo);
 	IF_ID("textDocument/signatureHelp", _DoSignatureHelp);
 	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
+	IF_ID("textDocument/completion", _DoCompletion);
 	
 	LogError("FileWrapper::onResponse not handled! [%s]", id.c_str());
 

@@ -95,6 +95,7 @@ Editor::~Editor()
 	}
 	
 	fFileWrapper->didClose();
+	fFileWrapper->UnsetLSPClient();
 }
 
 void
@@ -1229,7 +1230,10 @@ void
 Editor::SetProject(Project* proj)
 {
 	fProject = proj;
-	fFileWrapper->SetLSPClient(proj ? proj->GetLSPClient() : NULL);
+	if (proj)
+		fFileWrapper->SetLSPClient(proj->GetLSPClient());
+	else
+		fFileWrapper->UnsetLSPClient();
 }
 
 void

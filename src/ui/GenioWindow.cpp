@@ -1299,6 +1299,12 @@ GenioWindow::QuitRequested()
 			}
 		}
 	}
+	
+	//xeD: remove link between editor and project
+	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
+		fEditor = fEditorObjectList->ItemAt(index);
+		fEditor->SetProject(NULL);
+	}
 
 	// Projects to reopen
 	if (GenioNames::Settings.reopen_projects == true) {

@@ -26,6 +26,7 @@ public:
 				FileWrapper(std::string fileURI);
 				
 		void	SetLSPClient(LSPClientWrapper* cW);
+		void	UnsetLSPClient();
 		
 		void	didOpen(const char* text, Editor* editor);
 		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
@@ -58,14 +59,15 @@ public:
 		/************************/
 public:
 		//still experimental
-		std::string		fID;
+		//std::string		fID;
 		void onNotify(std::string method, value &params);
 		void onResponse(RequestID ID, value &result);
 		void onError(RequestID ID, value &error);
 		void onRequest(std::string method, value &params, value &ID);
 		
 		
-    
+		std::string	GetFilenameURI() { return fFilenameURI; }
+		
 private:
 
 	std::string fFilenameURI;

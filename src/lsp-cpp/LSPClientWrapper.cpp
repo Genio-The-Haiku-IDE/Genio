@@ -21,13 +21,14 @@ void
 LSPClientWrapper::RegisterMessageHandler(MessageHandler* fw)
 {
 	//protect access? who should call this?
-	std::string newID;//("id_");
-	newID += std::to_string((size_t)fw);
+	globalMap[X(fw)] = fw;
+}
 
-	globalMap[newID] = fw;
-	//X(fw) = newID;
-	
-	//LogInfo("Registering MessageHandler with id [%s]", X(fw).c_str());
+void
+LSPClientWrapper::UnregisterMessageHandler(MessageHandler* fw)
+{
+	//protect access? who should call this?
+	globalMap.erase(X(fw));
 }
 
 bool	
@@ -50,8 +51,8 @@ LSPClientWrapper::Create(const char *uri)
   Initialize(rootURI);
 
   while (!initialized.load() && !on_error.load()) {
-    fprintf(stderr, "Waiting for clangd initialization.. \n");
-    usleep(500);
+    LogDebug("Waiting for clangd initialization.. \n");
+    usleep(500000);
   }
   return on_error.load();
 }
@@ -61,12 +62,22 @@ LSPClientWrapper::Dispose()
 {
 	if (!initialized)
     	return true;
+    	
+    //just to debug a bit..
+    assert(globalMap.size() == 0);
+    if(globalMap.size())
+	{
+		LogError("globalMap is not empty as it should!");
+		for (auto& x: globalMap) {
+			LogError("Key [%s]", x.first.c_str()); 
+		}
+	}
     		
 	Shutdown();
 	
 	while (initialized.load()) {
-		fprintf(stderr, "Waiting for shutdown...\n");
-		usleep(500);
+		LogDebug("Waiting for shutdown...\n");
+		usleep(500000);
 	}
 	
   	readerThread.detach();
@@ -81,7 +92,13 @@ LSPClientWrapper::Dispose()
 void 
 LSPClientWrapper::onNotify(std::string method, value &params)
 {
-	LogError("onNotify not implemented! [%s] [%s]", params.dump().c_str(), method.c_str());
+	if (method.compare("textDocument/publishDiagnostics") == 0)
+	{
+		LogDebug("Diagnostics: [%s]", params.dump().c_str());
+		return;
+	}
+	
+	LogError("LSPClientWrapper::onNotify not implemented! [%s]", method.c_str());
 }
 void
 LSPClientWrapper::onResponse(RequestID id, value &result)
@@ -111,7 +128,7 @@ LSPClientWrapper::onResponse(RequestID id, value &result)
 	if (search != globalMap.end())
         search->second->onResponse(id, result);
     else    
-		LogError("onResponse not handled! [%s][%s]", key.c_str(), id.c_str());
+		LogError("LSPClientWrapper::onResponse not handled! [%s][%s] for [%s]", key.c_str(), id.c_str(), key.c_str());
 
 }
 void 
@@ -128,12 +145,12 @@ LSPClientWrapper::onError(RequestID id, value &error)
 	if (search != globalMap.end())
         search->second->onError(id, error);
     else    
-		LogError("onError not handled! [%s][%s]", key.c_str(), id.c_str());
+		LogError("LSPClientWrapper::onError not handled! [%s][%s] for [%s]", key.c_str(), id.c_str(), key.c_str());
 }
 void 
 LSPClientWrapper::onRequest(std::string method, value &params, value &ID)
 {
-	LogError("onRequest not implemented! [%s] [%s] [%s]", method.c_str(), params.dump().c_str(), ID.dump().c_str());
+	LogError("LSPClientWrapper::onRequest not implemented! [%s] [%s]", method.c_str(), ID.dump().c_str());
 }
 
 
@@ -175,7 +192,7 @@ void LSPClientWrapper::DidChange(MessageHandler* fw, DocumentUri uri, std::vecto
 	DidChangeTextDocumentParams params;
 	params.textDocument.uri = std::move(uri);
 	params.contentChanges = std::move(changes);
-	params.wantDiagnostics = wantDiagnostics;
+	//params.wantDiagnostics = wantDiagnostics;
 	SendNotify("textDocument/didChange", params);
 }
 //xed

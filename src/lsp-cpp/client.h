@@ -1,27 +1,22 @@
 //
-// Created by Alex on 2020/1/28.
+//	Andrea Anzani 
+// 	Original source code by Alex on 2020/1/28.
 //
 
 #ifndef LSP_CLIENT_H
 #define LSP_CLIENT_H
+
+#include <unistd.h>
+
 #include "transport.h"
 #include "protocol.h"
-
-
-
-class LanguageClient : public JsonTransport {
-public:
-    virtual ~LanguageClient() = default;
-
-
-
-};
+#include "Log.h"
 
 #define READ_END  0
 #define WRITE_END 1
-#include <unistd.h>
 
-class ProcessLanguageClient : public LanguageClient {
+
+class ProcessLanguageClient : public JsonTransport {
 	
 public:
 		pid_t   childpid;
@@ -51,7 +46,23 @@ public:
           close(inPipe[WRITE_END]);
           dup2(outPipe[READ_END], STDIN_FILENO);
           close(outPipe[READ_END]);
-          execlp(program, program, "--log=verbose", "--offset-encoding=utf-8", "--pretty", NULL);
+
+          std::string logLevel("--log=");
+          switch (Logger::Level())
+          {
+				case LOG_LEVEL_OFF:
+				case LOG_LEVEL_ERROR:
+					logLevel += "error"; // Error messages only
+					break;
+				case LOG_LEVEL_INFO:
+					logLevel += "info";  // High level execution tracing
+					break;
+				case LOG_LEVEL_DEBUG:
+				case LOG_LEVEL_TRACE:
+					logLevel += "verbose"; // Low level details
+					break;
+	      };
+		  execlp(program, program, logLevel.c_str(), "--offset-encoding=utf-8", "--pretty", NULL);
           exit(1);
         } else {
 	        
@@ -61,7 +72,7 @@ public:
           close(inPipe[WRITE_END]);
         }
     }
-    ~ProcessLanguageClient() override {
+    virtual ~ProcessLanguageClient()  {
 		close(outPipe[WRITE_END]);
 		close(inPipe[READ_END]);
     }

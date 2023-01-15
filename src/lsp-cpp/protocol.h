@@ -514,9 +514,9 @@ struct DidChangeTextDocumentParams {
     /// version of the file. If not set, diagnostics are eventually consistent:
     /// either they will be provided for this version or some subsequent one.
     /// This is a clangd extension.
-    option<bool> wantDiagnostics;
+    //option<bool> wantDiagnostics;
 };
-JSON_SERIALIZE(DidChangeTextDocumentParams, MAP_JSON(MAP_KEY(textDocument), MAP_KEY(contentChanges), MAP_KEY(wantDiagnostics)), {});
+JSON_SERIALIZE(DidChangeTextDocumentParams, MAP_JSON(MAP_KEY(textDocument), MAP_KEY(contentChanges)/*, MAP_KEY(wantDiagnostics)*/), {});
 
 enum class FileChangeType {
     /// The file got created.

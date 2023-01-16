@@ -11,7 +11,7 @@
 #include <atomic>
 #include <thread>
 
-
+class LSPTextDocument;
 
 class LSPClientWrapper : public MessageHandler {
 	
@@ -22,8 +22,8 @@ public:
 	bool	Create(const char* uri);
 	bool	Dispose();
 	
-	void	RegisterMessageHandler(MessageHandler* fw);
-	void	UnregisterMessageHandler(MessageHandler* fw);
+	void	RegisterTextDocument(LSPTextDocument* fw);
+	void	UnregisterTextDocument(LSPTextDocument* fw);
 
     void onNotify(std::string method, value &params);
     void onResponse(RequestID ID, value &result);
@@ -73,6 +73,10 @@ public:
     void 		SendNotify(string_ref method, value params = json());
 
 private:
+
+	typedef std::map<std::string, LSPTextDocument*> MapFile;
+
+	MapFile	fTextDocs;
 
 	ProcessLanguageClient *client = NULL;
 

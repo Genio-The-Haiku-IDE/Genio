@@ -155,6 +155,7 @@ public:
 			void				SignatureHelp();
 			
 			void				SetProject(Project*);
+			Project*			GetProject() { return fProject; }
 
 private:
 			void				_ApplyExtensionSettings();

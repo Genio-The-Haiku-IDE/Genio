@@ -3251,7 +3251,7 @@ GenioWindow::_ProjectActivate(BString const& projectName)
 	tooltip << "cwd: " << fActiveProject->BasePath();
 	fRunConsoleProgramText->SetToolTip(tooltip);
 }
-
+#include "Log.h"
 void
 GenioWindow::_ProjectClose()
 {
@@ -3274,7 +3274,16 @@ GenioWindow::_ProjectClose()
 	}
 	_ProjectOutlineDepopulate(project);
 	fProjectObjectList->RemoveItem(project);
-//			delete project; // scan-build claims as released
+	
+	//xed
+	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
+		fEditor = fEditorObjectList->ItemAt(index);
+		if (fEditor->GetProject() == project)
+		{
+			fEditor->SetProject(NULL);
+		}
+	}
+	delete project;
 
 	BString notification;
 	notification << closed << " "  << name;
@@ -3552,6 +3561,15 @@ GenioWindow::_ProjectOpen(BString const& projectName, bool activate)
 
 		return;
 	}
+	
+	//xed let's check if any open editor is related to this project
+	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
+		fEditor = fEditorObjectList->ItemAt(index);
+		if (fEditor->GetProject() == NULL) //should always be true..
+		{
+			fEditor->SetProject(currentProject);
+		}
+	}	
 
 	fProjectObjectList->AddItem(currentProject);
 

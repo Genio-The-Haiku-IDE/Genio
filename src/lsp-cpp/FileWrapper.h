@@ -5,7 +5,7 @@
 #ifndef FileWrapper_H
 #define FileWrapper_H
 #include <iostream>
-#include "MessageHandler.h"
+#include "LSPTextDocument.h"
 #include <SupportDefs.h>
 #include <ToolTip.h>
 #include <Autolock.h>
@@ -13,7 +13,7 @@
 
 class LSPClientWrapper;
 
-class FileWrapper : public MessageHandler {
+class FileWrapper : public LSPTextDocument {
 	
 public:
 	enum GoToType {
@@ -66,11 +66,8 @@ public:
 		void onRequest(std::string method, value &params, value &ID);
 		
 		
-		std::string	GetFilenameURI() { return fFilenameURI; }
-		
 private:
 
-	std::string fFilenameURI;
 	Editor*		fEditor;
 	nlohmann::json		fCurrentCompletion;
 	Sci_Position		fCompletionPosition;
@@ -86,6 +83,7 @@ private:
 	void	_DoOpenFile(nlohmann::json& params);
 	void	_DoSwitchSourceHeader(nlohmann::json& params);
 	void	_DoCompletion(nlohmann::json& params);
+	void	_DoDiagnostics(nlohmann::json& params);
 };
 
 

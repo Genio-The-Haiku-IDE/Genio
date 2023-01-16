@@ -5,12 +5,10 @@
 #include "LSPClientWrapper.h"
 #include "Log.h"
 #include <map>
-#include "MessageHandler.h"
+#include "LSPTextDocument.h"
 
-typedef std::map<std::string, MessageHandler*> MapFile;
 
-MapFile	globalMap;
-char g_counter = 'a';
+
 
 LSPClientWrapper::LSPClientWrapper()
 {
@@ -18,17 +16,17 @@ LSPClientWrapper::LSPClientWrapper()
 }
 #define X(A) std::to_string((size_t)A)
 void
-LSPClientWrapper::RegisterMessageHandler(MessageHandler* fw)
+LSPClientWrapper::RegisterTextDocument(LSPTextDocument* fw)
 {
 	//protect access? who should call this?
-	globalMap[X(fw)] = fw;
+	fTextDocs[X(fw)] = fw;
 }
 
 void
-LSPClientWrapper::UnregisterMessageHandler(MessageHandler* fw)
+LSPClientWrapper::UnregisterTextDocument(LSPTextDocument* fw)
 {
 	//protect access? who should call this?
-	globalMap.erase(X(fw));
+	fTextDocs.erase(X(fw));
 }
 
 bool	
@@ -62,17 +60,10 @@ LSPClientWrapper::Dispose()
 {
 	if (!initialized)
     	return true;
-    	
-    //just to debug a bit..
-    assert(globalMap.size() == 0);
-    if(globalMap.size())
-	{
-		LogError("globalMap is not empty as it should!");
-		for (auto& x: globalMap) {
-			LogError("Key [%s]", x.first.c_str()); 
-		}
-	}
-    		
+
+    for(auto& m: fTextDocs)
+		LogError("LSPClientWrapper::Dispose() still textDocument registered! [%s]", m.second->GetFilenameURI().c_str());
+    
 	Shutdown();
 	
 	while (initialized.load()) {
@@ -94,7 +85,20 @@ LSPClientWrapper::onNotify(std::string method, value &params)
 {
 	if (method.compare("textDocument/publishDiagnostics") == 0)
 	{
-		LogDebug("Diagnostics: [%s]", params.dump().c_str());
+		LSPTextDocument* doc = NULL;
+		auto uri = params["uri"].get<std::string>();
+		for (auto& x: fTextDocs) {
+			//LogDebug("comparing [%s] vs [%s]", uri.c_str(), x.second->GetFilenameURI().c_str());
+			if(x.second->GetFilenameURI().compare(uri) == 0)
+			{
+				doc = x.second;
+				break;
+			}	
+		}
+		
+		if (doc)
+			doc->onNotify(method, params);
+			
 		return;
 	}
 	
@@ -124,8 +128,8 @@ LSPClientWrapper::onResponse(RequestID id, value &result)
 	}
 	
 
-	auto search = globalMap.find(key);
-	if (search != globalMap.end())
+	auto search = fTextDocs.find(key);
+	if (search != fTextDocs.end())
         search->second->onResponse(id, result);
     else    
 		LogError("LSPClientWrapper::onResponse not handled! [%s][%s] for [%s]", key.c_str(), id.c_str(), key.c_str());
@@ -141,8 +145,8 @@ LSPClientWrapper::onError(RequestID id, value &error)
 		id = id.substr(found + 1);
 	}
 	
-	auto search = globalMap.find(key);
-	if (search != globalMap.end())
+	auto search = fTextDocs.find(key);
+	if (search != fTextDocs.end())
         search->second->onError(id, error);
     else    
 		LogError("LSPClientWrapper::onError not handled! [%s][%s] for [%s]", key.c_str(), id.c_str(), key.c_str());

@@ -82,8 +82,7 @@ Sci_Position ApplyTextEdit(Editor *editor, json &textEdit) {
 // end - utility
 
 
-FileWrapper::FileWrapper(std::string filenameURI) {
-  fFilenameURI = filenameURI;
+FileWrapper::FileWrapper(std::string filenameURI):LSPTextDocument(filenameURI) {
   fToolTip = NULL;
 }
 
@@ -94,7 +93,7 @@ FileWrapper::UnsetLSPClient()
 		return;
 	
 	initialized = false;
-	fLSPClientWrapper->UnregisterMessageHandler(this);
+	fLSPClientWrapper->UnregisterTextDocument(this);
 	fLSPClientWrapper = NULL;
 }
 
@@ -104,7 +103,7 @@ FileWrapper::SetLSPClient(LSPClientWrapper* cW) {
 	assert(cW);
 	
 	fLSPClientWrapper = cW;
-	fLSPClientWrapper->RegisterMessageHandler(this);
+	fLSPClientWrapper->RegisterTextDocument(this);
 
 	initialized = true;
 }
@@ -579,14 +578,31 @@ FileWrapper::_DoCompletion(json &params) {
       fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)list.c_str());
     }
 }
+
+void	
+FileWrapper::_DoDiagnostics(nlohmann::json& params)
+{
+	auto dias = params["diagnostics"];
+	for (auto d: dias)
+	{
+		if (d["range"] != nlohmann::detail::value_t::null)
+		{
+			Range r = d["range"].get<Range>();
+			LogDebug("* %s %d,%d", d.dump().c_str(), r.start.line, r.start.character);
+		}
+	}
+}
+		
 #include "Log.h"
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
-	
+
 void 
-FileWrapper::onNotify(std::string method, value &params)
+FileWrapper::onNotify(std::string id, value &result)
 {
-	//LogError("onNotify not implemented! [%s] [%s]", params.dump().c_str(), method.c_str());
+	IF_ID("textDocument/publishDiagnostics", _DoDiagnostics);
+	
+	LogError("FileWrapper::onNotify not handled! [%s]", id.c_str());
 }
 void
 FileWrapper::onResponse(RequestID id, value &result)

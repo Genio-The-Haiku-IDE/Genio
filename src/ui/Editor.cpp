@@ -50,6 +50,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCommenter("")
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
+	, fProject(NULL)
 {
 	fFileName = BString(ref->name);
 	SetTarget(target);

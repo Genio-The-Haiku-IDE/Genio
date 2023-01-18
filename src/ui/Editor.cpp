@@ -77,7 +77,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 // CARET_SLOP  CARET_STRICT  CARET_JUMPS  CARET_EVEN
 	std::string s = "file://";
 	s += BPath(&fFileRef).Path();//.String();
-	fFileWrapper = new FileWrapper(s.c_str());
+	fFileWrapper = new FileWrapper(s.c_str(), this);
 	
 }
 
@@ -189,6 +189,8 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12);
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	}
+	
+	fFileWrapper->ApplySettings();
 }
 
 void
@@ -620,7 +622,7 @@ Editor::LoadFromFile()
 
 	buffer[size] = '\0';
 
-	fFileWrapper->didOpen("", this);
+	//fFileWrapper->didOpen(this, false);
 	SendMessage(SCI_SETTEXT, 0, (sptr_t) buffer);
 
 	// Check the first newline only
@@ -1430,6 +1432,9 @@ Editor::_CommentLine(int32 position)
 
 	// Calculate offset of first non-space
 	std::size_t offset = line.find_first_not_of("\t ");
+	
+	if (offset == std::string::npos)
+		return; 
 
 	if (line.substr(offset, fCommenter.length()) != fCommenter) {
 		// Not starting with a comment, comment out

@@ -82,8 +82,22 @@ Sci_Position ApplyTextEdit(Editor *editor, json &textEdit) {
 // end - utility
 
 
-FileWrapper::FileWrapper(std::string filenameURI):LSPTextDocument(filenameURI) {
+FileWrapper::FileWrapper(std::string filenameURI, Editor* editor):LSPTextDocument(filenameURI), fEditor(editor) {
   fToolTip = NULL;
+}
+
+void
+FileWrapper::ApplySettings()
+{
+  fEditor->SendMessage(SCI_SETINDICATORCURRENT, 0);
+  fEditor->SendMessage(SCI_INDICSETFORE, 0, (255 | (0 << 8) | (0 << 16)));
+  // int margins = fEditor->SendMessage(SCI_GETMARGINS);
+  // fEditor->SendMessage(SCI_SETMARGINS, margins + 1);
+  // fEditor->SendMessage(SCI_SETMARGINTYPEN, margins, SC_MARGIN_SYMBOL);
+  // fEditor->SendMessage(SCI_SETMARGINWIDTHN,margins, 50);
+  // fEditor->SendMessage(SCI_SETMARGINMASKN, margins, 1 << 2);
+  // fEditor->SendMessage(SCI_MARKERSETBACK, margins, kMarkerForeColor);
+  // fEditor->SendMessage(SCI_MARKERADD, 1, 2);
 }
 
 void
@@ -92,6 +106,7 @@ FileWrapper::UnsetLSPClient()
 	if (!fLSPClientWrapper)
 		return;
 	
+	didClose();
 	initialized = false;
 	fLSPClientWrapper->UnregisterTextDocument(this);
 	fLSPClientWrapper = NULL;
@@ -101,27 +116,33 @@ void
 FileWrapper::SetLSPClient(LSPClientWrapper* cW) {
 
 	assert(cW);
+	assert(!initialized);
 	
 	fLSPClientWrapper = cW;
 	fLSPClientWrapper->RegisterTextDocument(this);
 
 	initialized = true;
+	didOpen();
 }
 
-void FileWrapper::didOpen(const char *text, Editor *editor) {
+void FileWrapper::didOpen() {
   if (!initialized)
     return;
-
-  fEditor = editor;
+  const char* text = (const char*)fEditor->SendMessage(SCI_GETCHARACTERPOINTER);
+	  	
   fLSPClientWrapper->DidOpen(this, fFilenameURI.c_str(), text, "cpp");
   //fLSPClientWrapper->Sync();
+  
 }
 
 void FileWrapper::didClose() {
   if (!initialized)
     return;
 
+  //_RemoveAllDiagnostics();
+  
   fLSPClientWrapper->DidClose(this, fFilenameURI.c_str());
+  
   fEditor = NULL;
 }
 
@@ -212,10 +233,23 @@ FileWrapper::GoTo(FileWrapper::GoToType type)
 void FileWrapper::StartHover(Sci_Position sci_position) {
   if (!initialized)
 		return;
-    
-    Position position;
-    FromSciPositionToLSPPosition(fEditor, sci_position, position);
- 	fLSPClientWrapper->Hover(this, fFilenameURI.c_str(), position);
+  if (fEditor->SendMessage(SCI_INDICATORVALUEAT, 0, sci_position) == 1)
+  {
+	  for (auto& d: fLastDiagnostics) {
+		Sci_Position from = FromLSPPositionToSciPosition(fEditor, d.range.start);
+		Sci_Position to   = FromLSPPositionToSciPosition(fEditor, d.range.end);
+			
+		if (sci_position > from && sci_position <= to){
+			_ShowToolTip(d.message.c_str());
+			break;
+		}	
+	  }
+	  return;
+  }
+  
+  Position position;
+  FromSciPositionToLSPPosition(fEditor, sci_position, position);
+  fLSPClientWrapper->Hover(this, fFilenameURI.c_str(), position);
 }
 
 void FileWrapper::EndHover() {
@@ -512,6 +546,18 @@ FileWrapper::CharAdded(const char ch /*utf-8?*/)
 	}
 }
 
+void
+FileWrapper::_ShowToolTip(const char* text)
+{
+	if (!fToolTip)
+		fToolTip = new BTextToolTip(text);
+		
+	fToolTip->SetText(text);
+	if(fEditor->Looper()->Lock()) {
+		fEditor->ShowToolTip(fToolTip);
+		fEditor->Looper()->Unlock();
+	}
+}
 void 
 FileWrapper::_DoHover(nlohmann::json& result)
 {
@@ -522,14 +568,7 @@ FileWrapper::_DoHover(nlohmann::json& result)
 					
 	std::string tip = result["contents"]["value"].get<std::string>();
 	
-	if (!fToolTip)
-		fToolTip = new BTextToolTip(tip.c_str());
-		
-	fToolTip->SetText(tip.c_str());
-	if(fEditor->Looper()->Lock()) {
-		fEditor->ShowToolTip(fToolTip);
-		fEditor->Looper()->Unlock();
-	}
+	_ShowToolTip(tip.c_str());
 }
 
 void 
@@ -579,18 +618,34 @@ FileWrapper::_DoCompletion(json &params) {
     }
 }
 
+void
+FileWrapper::_RemoveAllDiagnostics()
+{
+	// remove all the indicators..
+	fEditor->SendMessage(SCI_INDICATORCLEARRANGE, 0, fEditor->SendMessage(SCI_GETTEXTLENGTH));
+	fLastDiagnostics.clear();	
+}
+
 void	
 FileWrapper::_DoDiagnostics(nlohmann::json& params)
 {
-	auto dias = params["diagnostics"];
-	for (auto d: dias)
+	//auto dias = params["diagnostics"];
+	auto vect = params["diagnostics"].get<std::vector<Diagnostic>>();
+	
+	// remove all the indicators..
+	fEditor->SendMessage(SCI_INDICATORCLEARRANGE, 0, fEditor->SendMessage(SCI_GETTEXTLENGTH));
+	fLastDiagnostics.clear();
+
+	for (auto &v: vect)
 	{
-		if (d["range"] != nlohmann::detail::value_t::null)
-		{
-			Range r = d["range"].get<Range>();
-			LogDebug("* %s %d,%d", d.dump().c_str(), r.start.line, r.start.character);
-		}
+		Range &r = v.range;
+		Sci_Position from = FromLSPPositionToSciPosition(fEditor, r.start);
+		Sci_Position to   = FromLSPPositionToSciPosition(fEditor, r.end);
+
+		LogTrace("Diagnostics [%ld->%ld] [%s]", from, to, v.message.c_str());
+		fEditor->SendMessage(SCI_INDICATORFILLRANGE, from, to-from);
 	}
+	fLastDiagnostics = vect;
 }
 		
 #include "Log.h"

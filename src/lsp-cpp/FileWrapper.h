@@ -10,7 +10,8 @@
 #include <ToolTip.h>
 #include <Autolock.h>
 #include "Editor.h"
-
+#include <vector>
+#include "protocol.h"
 class LSPClientWrapper;
 
 class FileWrapper : public LSPTextDocument {
@@ -23,16 +24,19 @@ public:
 	};
 	
 public:
-				FileWrapper(std::string fileURI);
-				
+				FileWrapper(std::string fileURI, Editor* fEditor);
+		void	ApplySettings();
 		void	SetLSPClient(LSPClientWrapper* cW);
 		void	UnsetLSPClient();
-		
-		void	didOpen(const char* text, Editor* editor);
+private:
+		void	didOpen();
+public:
+		void	didClose();
+				
 		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
 		void	didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength);
 		void	didSave();
-		void	didClose();
+
 		void	StartCompletion();
 		void	SelectedCompletion(const char* text);
 		void	Format();
@@ -73,7 +77,14 @@ private:
 	Sci_Position		fCompletionPosition;
 	BTextToolTip* 		fToolTip;
 	LSPClientWrapper*	fLSPClientWrapper;
-	bool				initialized = false; //to be removed
+	bool				initialized = false; //to be removed, use LSPClientWrapper pointer..
+	
+
+	std::vector<Diagnostic>		fLastDiagnostics;
+	
+	void				_ShowToolTip(const char* text);
+	void				_RemoveAllDiagnostics();
+	
 private:
 	//callbacks:
 	void	_DoFormat(nlohmann::json& params);

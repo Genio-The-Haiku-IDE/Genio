@@ -26,7 +26,8 @@ void
 LSPClientWrapper::UnregisterTextDocument(LSPTextDocument* fw)
 {
 	//protect access? who should call this?
-	fTextDocs.erase(X(fw));
+	if (fTextDocs.find(X(fw)) != fTextDocs.end())
+		fTextDocs.erase(X(fw));
 }
 
 bool	

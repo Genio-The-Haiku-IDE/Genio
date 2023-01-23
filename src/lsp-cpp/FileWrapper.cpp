@@ -84,6 +84,7 @@ Sci_Position ApplyTextEdit(Editor *editor, json &textEdit) {
 
 FileWrapper::FileWrapper(std::string filenameURI, Editor* editor):LSPTextDocument(filenameURI), fEditor(editor) {
   fToolTip = NULL;
+  fLSPClientWrapper = NULL;
 }
 
 void
@@ -91,13 +92,15 @@ FileWrapper::ApplySettings()
 {
   fEditor->SendMessage(SCI_SETINDICATORCURRENT, 0);
   fEditor->SendMessage(SCI_INDICSETFORE, 0, (255 | (0 << 8) | (0 << 16)));
+  
   // int margins = fEditor->SendMessage(SCI_GETMARGINS);
   // fEditor->SendMessage(SCI_SETMARGINS, margins + 1);
   // fEditor->SendMessage(SCI_SETMARGINTYPEN, margins, SC_MARGIN_SYMBOL);
-  // fEditor->SendMessage(SCI_SETMARGINWIDTHN,margins, 50);
+  // fEditor->SendMessage(SCI_SETMARGINWIDTHN,margins, 16);
   // fEditor->SendMessage(SCI_SETMARGINMASKN, margins, 1 << 2);
   // fEditor->SendMessage(SCI_MARKERSETBACK, margins, kMarkerForeColor);
   // fEditor->SendMessage(SCI_MARKERADD, 1, 2);
+  
 }
 
 void

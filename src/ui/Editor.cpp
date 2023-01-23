@@ -95,7 +95,6 @@ Editor::~Editor()
 		}
 	}
 	
-	fFileWrapper->didClose();
 	fFileWrapper->UnsetLSPClient();
 }
 
@@ -179,6 +178,7 @@ Editor::ApplySettings()
 	SendMessage(SCI_MARKERDEFINE, sci_BOOKMARK, SC_MARK_BOOKMARK);
 	SendMessage(SCI_MARKERSETFORE, sci_BOOKMARK, kMarkerForeColor);
 	SendMessage(SCI_MARKERSETBACK, sci_BOOKMARK, kMarkerBackColor);
+ 	SendMessage(SCI_SETMARGINMASKN, sci_BOOKMARK_MARGIN, (1 << sci_BOOKMARK));
 
 	// Folding
 	if (Settings.enable_folding == B_CONTROL_ON)

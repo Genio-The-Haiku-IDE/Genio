@@ -142,6 +142,8 @@ public:
 			void				ToggleLineEndings();
 			void				ToggleWhiteSpaces();
 			void				Undo();
+			
+			void				SetZoom(int32 zoom);
 
 private:
 			void				_ApplyExtensionSettings();

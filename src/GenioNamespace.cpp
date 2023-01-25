@@ -91,6 +91,41 @@ GetVersionInfo()
 SettingsVars Settings;
 
 status_t
+SaveSettingsVars()
+{
+	status_t status;
+	TPreferences file(kSettingsFileName, kApplicationName, 'IDSE');
+
+	if ((status = file.InitCheck()) != B_OK)
+		return status;
+		
+	status += file.SetString("projects_directory",	Settings.projects_directory);
+	status += file.SetInt32("fullpath_title", Settings.fullpath_title);
+	status += file.SetInt32("reopen_projects", Settings.reopen_projects);
+	status += file.SetInt32("reopen_files", Settings.reopen_files);
+	status += file.SetInt32("show_projects", Settings.show_projects);
+	status += file.SetInt32("show_output", Settings.show_output);
+	status += file.SetInt32("show_toolbar", Settings.show_toolbar);
+	status += file.SetInt32("edit_fontsize", Settings.edit_fontsize);
+	status += file.SetInt32("syntax_highlight", Settings.syntax_highlight);
+	status += file.SetInt32("tab_width", Settings.tab_width);
+	status += file.SetInt32("brace_match", Settings.brace_match);
+	status += file.SetInt32("save_caret", Settings.save_caret);
+	status += file.SetInt32("show_linenumber", Settings.show_linenumber);
+	status += file.SetInt32("show_commentmargin", Settings.show_commentmargin);
+	status += file.SetInt32("mark_caretline", Settings.mark_caretline);
+	status += file.SetInt32("show_edgeline", Settings.show_edgeline);
+	status += file.SetString("edgeline_column", Settings.edgeline_column);
+	status += file.SetInt32("enable_folding", Settings.enable_folding);
+	status += file.SetInt32("enable_notifications", Settings.enable_notifications);
+	status += file.SetInt32("wrap_console", Settings.wrap_console);
+	status += file.SetInt32("console_banner", Settings.console_banner);
+	status += file.SetInt32("editor_zoom", Settings.editor_zoom);	
+	
+	return status;
+}
+		
+status_t
 LoadSettingsVars()
 {
 	status_t status;
@@ -120,6 +155,7 @@ LoadSettingsVars()
 	status += file.FindInt32("enable_notifications", &Settings.enable_notifications);
 	status += file.FindInt32("wrap_console", &Settings.wrap_console);
 	status += file.FindInt32("console_banner", &Settings.console_banner);
+	status += file.FindInt32("editor_zoom", &Settings.editor_zoom);
 
 	return status;
 }
@@ -187,6 +223,9 @@ UpdateSettingsFile()
 		settings.SetInt32("wrap_console", kSKWrapConsole);
 	if (settings.FindInt32("console_banner", &intVal) != B_OK)
 		settings.SetInt32("console_banner", kSKConsoleBanner);
+	
+	if (settings.FindInt32("editor_zoom", &intVal) != B_OK)
+		settings.SetInt32("editor_zoom", kSKEditorZoom);
 
 	// Managed to get here without errors, reset counter and app version
 	settings.SetInt64("last_used", real_time_clock());

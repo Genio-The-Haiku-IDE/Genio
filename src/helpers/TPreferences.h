@@ -42,6 +42,7 @@ public:
 	status_t		SetMessage(const char *name, const BMessage *message);
 	status_t		SetFlat(const char *name, const BFlattenable *obj);
 	
+	
 private:
 	
 	BPath			fPath;

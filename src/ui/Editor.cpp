@@ -1134,6 +1134,13 @@ Editor::Undo()
 	SendMessage(SCI_UNDO, UNSET, UNSET);
 }
 
+void
+Editor::SetZoom(int32 zoom)
+{
+	SendMessage(SCI_SETZOOM, zoom, 0);
+}
+
+
 
 void
 Editor::_ApplyExtensionSettings()

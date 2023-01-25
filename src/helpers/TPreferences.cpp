@@ -166,3 +166,4 @@ status_t TPreferences::SetFlat(const char *name, const BFlattenable *obj) {
 	}
 	return AddFlat(name, (BFlattenable *) obj);
 }
+

@@ -1240,6 +1240,14 @@ Editor::SetProject(Project* proj)
 }
 
 void
+Editor::SetZoom(int32 zoom)
+{
+	SendMessage(SCI_SETZOOM, zoom, 0);
+}
+
+
+
+void
 Editor::_ApplyExtensionSettings()
 {
 	if (fFileType == "c++") {

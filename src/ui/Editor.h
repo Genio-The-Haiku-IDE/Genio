@@ -156,6 +156,9 @@ public:
 			
 			void				SetProject(Project*);
 			Project*			GetProject() { return fProject; }
+			
+			void				SetZoom(int32 zoom);
+
 
 private:
 			void				_ApplyExtensionSettings();

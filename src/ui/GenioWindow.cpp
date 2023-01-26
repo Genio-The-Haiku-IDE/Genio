@@ -18,6 +18,7 @@
 #include <Resources.h>
 #include <Roster.h>
 #include <SeparatorView.h>
+#include <StringItem.h>
 
 #include <cassert>
 #include <fstream>
@@ -31,6 +32,9 @@
 #include "GenioNamespace.h"
 #include "NewProjectWindow.h"
 #include "ProjectSettingsWindow.h"
+#include "ProjectFolder.h"
+#include "ProjectItem.h"
+// #include "SourceFile.h"
 #include "SettingsWindow.h"
 #include "TPreferences.h"
 
@@ -1387,6 +1391,7 @@ GenioWindow::_CleanProject()
 /*static*/ int
 GenioWindow::_CompareListItems(const BListItem* a, const BListItem* b)
 {
+	std::cerr << __PRETTY_FUNCTION__ << std::endl;
 	if (a == b)
 		return 0;
 
@@ -2673,6 +2678,10 @@ GenioWindow::_InitSideSplit()
 	fProjectsScroll = new BScrollView(B_TRANSLATE("Projects"),
 		fProjectsOutline, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsScroll);
+	fProjectsFolderOutline = new BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST);
+	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("ProjectFolders"),
+		fProjectsFolderOutline, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
+	fProjectsTabView->AddTab(fProjectsFolderScroll);
 
 #if defined CLASSES_VIEW
 	// Classes View
@@ -2681,6 +2690,9 @@ GenioWindow::_InitSideSplit()
 #endif
 	fProjectsOutline->SetSelectionMessage(new BMessage(MSG_PROJECT_MENU_ITEM_CHOSEN));
 	fProjectsOutline->SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+	
+	fProjectsFolderOutline->SetSelectionMessage(new BMessage(MSG_PROJECT_MENU_ITEM_CHOSEN));
+	fProjectsFolderOutline->SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 
 	fProjectMenu = new BPopUpMenu("ProjectMenu", false, false);
 
@@ -2715,6 +2727,7 @@ GenioWindow::_InitSideSplit()
 
 	// Project list
 	fProjectObjectList = new BObjectList<Project>();
+	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
 }
 
 void
@@ -3270,17 +3283,20 @@ GenioWindow::_ProjectFileExclude()
 BString const
 GenioWindow::_ProjectFileFullPath()
 {
-	BString	selectedFileFullpath;
+	// BString	selectedFileFullpath;
 
-	Project* project = _ProjectPointerFromName(fSelectedProjectName);
-	if (project == nullptr)
-		return "";
+	// Project* project = _ProjectPointerFromName(fSelectedProjectName);
+	// if (project == nullptr)
+		// return "";
 
-	selectedFileFullpath = project->BasePath();
-	selectedFileFullpath.Append("/");
-	selectedFileFullpath.Append(fSelectedProjectItem->Text());
+	// selectedFileFullpath = project->BasePath();
+	// selectedFileFullpath.Append("/");
+	// selectedFileFullpath.Append(fSelectedProjectItem->Text());
 
-	return selectedFileFullpath;
+	// return selectedFileFullpath;
+	int32 selection = fProjectsFolderOutline->CurrentSelection();
+	ProjectItem *itemSelected = dynamic_cast<ProjectItem *>(fProjectsFolderOutline->ItemAt(selection));
+	return itemSelected->GetSourceItem()->Path();
 }
 
 void
@@ -3293,6 +3309,7 @@ GenioWindow::_ProjectFileOpen(const BString& filePath)
 	msg.AddRef("refs", &ref);
 	_FileOpen(&msg);
 }
+
 
 void
 GenioWindow::_ProjectFileRemoveItem(bool addToParseless)
@@ -3587,45 +3604,130 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 	
 	status_t status = message->FindRef("refs", &ref);
 	if (status != B_OK)
-		throw BException("Invalid project folder",0,status);
+		throw BException(B_TRANSLATE("Invalid project folder"),0,status);
 		
 	BPath path(&ref);
 	
-	ProjectFolder* currentProject = new ProjectFolder(path.Path());
+	ProjectFolder* newProject = new ProjectFolder(path.Path());
 
 	// Check if already open
-	for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
-		Project * pProject = fProjectObjectList->ItemAt(index);
-		if (pProject->Path() == currentProject->Path())
-				return;
+	bool activate = false;
+	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
+		ProjectFolder * pProject =(ProjectFolder*)fProjectFolderObjectList->ItemAt(index);
+		if (pProject->Name() == newProject->Name())
+			return;
 	}
 
-	if (currentProject->Open(activate) != B_OK) {
+
+	if (newProject->Open() != B_OK) {
 		BString notification;
 		notification
 			<< B_TRANSLATE("Project open fail:")
-			<< "  "  << projectName;
+			<< "  "  << newProject->Name();
 		_SendNotification( notification.String(), "PROJ_OPEN_FAIL");
-		delete currentProject;
+		delete newProject;
 
 		return;
 	}
 
-	fProjectObjectList->AddItem(currentProject);
+	fProjectFolderObjectList->AddItem(newProject);
 
 	BString opened(B_TRANSLATE("Project open:"));
 	if (activate == true) {
-		_ProjectActivate(projectName);
+		_ProjectActivate(newProject->Name());
 		opened = B_TRANSLATE("Active project open:");
 	}
 
-	_ProjectOutlinePopulate(currentProject);
+	_ProjectFolderOutlinePopulate(newProject);
 
 	BString notification;
-	notification << opened << "  " << projectName;
-	_SendNotification(notification, "PROJ_OPEN");	
+	notification << opened << "  " << newProject->Name() << " " << B_TRANSLATE("at") << " " << newProject->Path();
+	_SendNotification(notification, "PROJ_OPEN");		
+}
+
+void
+GenioWindow::_ProjectFolderOutlineDepopulate(ProjectFolder* project)
+{
+	ProjectItem* item = new ProjectItem(project);
+	int32 index = fProjectsFolderOutline->IndexOf(item);
+	fProjectsFolderOutline->RemoveItem(index);
+}
+
+void
+GenioWindow::_ProjectFolderOutlinePopulate(ProjectFolder* project)
+{
+	ProjectItem *projectItem = NULL;
+	_ProjectFolderScan(projectItem, project->Path(), project);
+	project->Active(true);
+	fProjectsFolderOutline->SortItemsUnder(projectItem, false, GenioWindow::_CompareProjectItems);
+}
+
+void
+GenioWindow::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder)
+{
+	char name[B_FILE_NAME_LENGTH];
+	BEntry nextEntry;
+	BEntry entry(path);
+	entry.GetName(name);	
+			
+	ProjectItem *newItem;
+
+	if (item!=NULL) {
+		newItem = new ProjectItem(new SourceItem(path));
+		fProjectsFolderOutline->AddUnder(newItem,item);
+		fProjectsFolderOutline->Collapse(newItem);
+	} else {
+		newItem = item = new ProjectItem(projectFolder);
+		fProjectsFolderOutline->AddItem(newItem);
+	}
 	
-	_SendNotification(path.Path(),	"PROJ_OPEN");		
+	if (entry.IsDirectory())
+	{
+		BPath _currentPath;
+		BDirectory dir(&entry);
+		while(dir.GetNextEntry(&nextEntry, false)!=B_ENTRY_NOT_FOUND)
+		{
+			nextEntry.GetPath(&_currentPath);
+			_ProjectFolderScan(newItem,_currentPath.Path());
+		}
+	}
+}
+
+int
+GenioWindow::_CompareProjectItems(const BListItem* a, const BListItem* b)
+{
+	if (a == b)
+		return 0;
+
+	const ProjectItem* A = dynamic_cast<const ProjectItem*>(a);
+	const ProjectItem* B = dynamic_cast<const ProjectItem*>(b);
+	const char* nameA = A->Text();
+	SourceItem *itemA = A->GetSourceItem();
+	const char* nameB = B->Text();
+	SourceItem *itemB = B->GetSourceItem();
+	
+	if (itemA->Type()==SourceItemType::FolderItem && itemB->Type()==SourceItemType::FileItem) {
+		return -1;
+	}
+	
+	if (itemA->Type()==SourceItemType::FileItem && itemB->Type()==SourceItemType::FolderItem) {
+		return 1;
+	}
+		
+	if (nameA == NULL) {
+		return 1;
+	}
+		
+	if (nameB == NULL) {
+		return -1;
+	}
+
+	// Or use strcasecmp?
+	if (nameA != NULL && nameB != NULL) {
+		return strcmp(nameA, nameB);
+	}
+		
+	return 0;
 }
 
 int

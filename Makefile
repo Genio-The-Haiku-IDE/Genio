@@ -43,6 +43,7 @@ SRCS +=  src/project/Project.cpp
 SRCS +=  src/project/ProjectParser.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp
+SRCS +=  src/project/ProjectItem.cpp
 SRCS +=  src/helpers/GenioCommon.cpp
 SRCS +=  src/helpers/TPreferences.cpp
 SRCS +=  src/helpers/GSettings.cpp

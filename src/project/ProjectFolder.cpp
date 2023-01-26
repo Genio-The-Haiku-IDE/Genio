@@ -1,49 +1,50 @@
 /*
- * Copyright 2018, Your Name <your@email.address>
+ * Copyright 2023, Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
+
+#include <OutlineListView.h>
+#include <Directory.h>
+#include <Entry.h>
+#include <Path.h>
 
 #include <stdexcept>
 
 #include "ProjectFolder.h"
 
-SourceFile::SourceFile(const char *path) 
+
+SourceItem::SourceItem(BString const& path) 
 {
 	fPath = path;
+	BPath _path(path);
+	fName = _path.Leaf();
+	
+	BEntry entry(path);
+	if (entry.IsDirectory())
+		fType = SourceItemType::FolderItem;
+	else
+		fType = SourceItemType::FileItem;
 }
 
-SourceFile::~SourceFile()
+SourceItem::~SourceItem()
 {
 }
 
-BString	
-SourceFile::GetPath()
-{
-	return fPath;
-}
-
-ProjectFolder *
-SourceFile::GetProjectFolder()
-{ 
-	return fProjectFolder;
-}
-
-
-ProjectFolder::ProjectFolder(BString const& name)
-{
-	fName = name;
+ProjectFolder::ProjectFolder(BString const& path)
+	: SourceItem(path)
+{	
+	fType = SourceItemType::ProjectFolderItem;
+	fProjectFolder = this;
+	
+	// _ScanFolder(fPath);
 }
 
 ProjectFolder::~ProjectFolder()
 {
 }
 
-template <class T>
-T							
-ProjectFolder::GetConfig(GENIO_SETTINGS_KEY key) {
-}
-
-template <class T>
-void						
-ProjectFolder::SetConfig(GENIO_SETTINGS_KEY key, T value) {
+status_t
+ProjectFolder::Open()
+{
+	return B_OK;
 }

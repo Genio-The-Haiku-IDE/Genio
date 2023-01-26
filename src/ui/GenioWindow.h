@@ -30,6 +30,8 @@
 #include "ConsoleIOView.h"
 #include "Editor.h"
 #include "Project.h"
+#include "ProjectFolder.h"
+#include "ProjectItem.h"
 #include "ProjectParser.h"
 #include "TabManager.h"
 #include "TPreferences.h"
@@ -68,6 +70,8 @@ private:
 			status_t			_CargoNew(BString args);
 			status_t			_CleanProject();
 	static	int					_CompareListItems(const BListItem* a,
+									const BListItem* b);
+	static	int					_CompareProjectItems(const BListItem* a,
 									const BListItem* b);
 
 			status_t			_DebugProject();
@@ -123,6 +127,9 @@ private:
 			void				_ProjectFolderClose();
 			void 				_ProjectFolderNew(BMessage *message);
 			void 				_ProjectFolderOpen(BMessage *message);
+			void				_ProjectFolderOutlineDepopulate(ProjectFolder* project);
+			void				_ProjectFolderOutlinePopulate(ProjectFolder* project);
+			void				_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 			
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
@@ -231,6 +238,8 @@ private:
 			BTabView*	  		fProjectsTabView;
 			BOutlineListView*	fProjectsOutline;
 			BScrollView*		fProjectsScroll;
+			BOutlineListView*	fProjectsFolderOutline;
+			BScrollView*		fProjectsFolderScroll;
 			// ClassesView*		fClassesView;
 			BPopUpMenu*			fProjectMenu;
 			BMenuItem*			fCloseProjectMenuItem;
@@ -247,13 +256,14 @@ private:
 			BString				fSelectedProjectName;
 			BStringItem*		fSelectedProjectItem;
 			BString				fSelectedProjectItemName;
-		BObjectList<Project>*	fProjectObjectList;
+			BObjectList<Project>*	fProjectObjectList;
+			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
 			BStringItem*		fSourcesItem;
 			BStringItem*		fFilesItem;
 
 			// Editor group
 			TabManager*			fTabManager;
-		BObjectList<Editor>*	fEditorObjectList;
+			BObjectList<Editor>*	fEditorObjectList;
 			Editor*				fEditor;
 
 			BGroupLayout*		fFindGroup;

@@ -1243,6 +1243,7 @@ void
 Editor::SetZoom(int32 zoom)
 {
 	SendMessage(SCI_SETZOOM, zoom, 0);
+	_RedrawNumberMargin(true);
 }
 
 

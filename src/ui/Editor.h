@@ -170,7 +170,7 @@ private:
 			void				_HighlightBraces();
 			void				_HighlightFile();
 			bool				_IsBrace(char character);
-			void				_RedrawNumberMargin(bool forced);
+			void				_RedrawNumberMargin(bool forced = false);
 			void				_SetFoldMargin();
 
 private:

@@ -91,6 +91,10 @@ enum {
 	MSG_EOL_SET_TO_DOS			= 'estd',
 	MSG_EOL_SET_TO_MAC			= 'estm',
 
+	// view
+	MSG_VIEW_ZOOMIN				= 'zoin',
+	MSG_VIEW_ZOOMOUT			= 'zoou',
+	MSG_VIEW_ZOOMRESET			= 'zore',
 
 	// Search menu & group
 	MSG_FIND_GROUP_SHOW			= 'figs',
@@ -811,6 +815,31 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_SAVE_ALL:
 			_FileSaveAll();
 			break;
+		case MSG_VIEW_ZOOMIN:
+			if (GenioNames::Settings.editor_zoom < 20) {
+				GenioNames::Settings.editor_zoom++;
+				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+					fEditor = fEditorObjectList->ItemAt(index);
+					fEditor->SetZoom(GenioNames::Settings.editor_zoom);
+				}				
+			}			
+		break;
+		case MSG_VIEW_ZOOMOUT:
+			if (GenioNames::Settings.editor_zoom > -10) {
+				GenioNames::Settings.editor_zoom--;
+				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+					fEditor = fEditorObjectList->ItemAt(index);
+					fEditor->SetZoom(GenioNames::Settings.editor_zoom);
+				}				
+			}			
+		break;
+		case MSG_VIEW_ZOOMRESET:
+			GenioNames::Settings.editor_zoom = 0;
+			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+				fEditor = fEditorObjectList->ItemAt(index);
+				fEditor->SetZoom(GenioNames::Settings.editor_zoom);
+			}
+		break;
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow();
 			break;
@@ -1231,7 +1260,8 @@ GenioWindow::QuitRequested()
 			delete project;
 		}
 	}
-
+	
+	GenioNames::SaveSettingsVars();
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;
 }
@@ -1550,6 +1580,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		}
 
 		fEditor->ApplySettings();
+		fEditor->SetZoom(GenioNames::Settings.editor_zoom);
 
 		// First tab gets selected by tabview
 		if (index > 0)
@@ -2374,7 +2405,13 @@ GenioWindow::_InitMenu()
 
 	menu->AddItem(fLineEndingsMenu);
 	fMenuBar->AddItem(menu);
-
+	
+	menu = new BMenu(B_TRANSLATE("View"));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom In"), new BMessage(MSG_VIEW_ZOOMIN), '+'));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Out"), new BMessage(MSG_VIEW_ZOOMOUT), '-'));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Reset"), new BMessage(MSG_VIEW_ZOOMRESET), '0'));
+	fMenuBar->AddItem(menu);
+	
 	menu = new BMenu(B_TRANSLATE("Search"));
 
 	menu->AddItem(fFindItem = new BMenuItem(B_TRANSLATE("Find"),

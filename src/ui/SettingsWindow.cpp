@@ -1177,7 +1177,7 @@ SettingsWindow::_StoreToFile(BControl* control)
 		status = fWindowSettingsFile->SetInt32("wrap_console", fWrapConsoleEnabled->Value());
 	else if (control == fConsoleBannerEnabled)
 		status = fWindowSettingsFile->SetInt32("console_banner", fConsoleBannerEnabled->Value());
-
+	
 	return status;
 }
 
@@ -1227,6 +1227,7 @@ SettingsWindow::_StoreToFileDefaults()
 	// Build Page
 	fWindowSettingsFile->SetInt32("wrap_console", kSKWrapConsole);
 	fWindowSettingsFile->SetInt32("console_banner", kSKConsoleBanner);
+	fWindowSettingsFile->SetInt32("editor_zoom", kSKEditorZoom);
 	
 	return B_OK;
 }

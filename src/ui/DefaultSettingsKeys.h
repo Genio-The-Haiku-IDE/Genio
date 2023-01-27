@@ -35,5 +35,6 @@ const int32 kSKEnableNotifications = B_CONTROL_ON;	// "enable_notifications"
 
 const int32 kSKWrapConsole = B_CONTROL_OFF;			// "wrap_console"
 const int32 kSKConsoleBanner = B_CONTROL_ON;		// "console_banner"
+const int32 kSKEditorZoom = 0;						// "editor_zoom"
 
 #endif // DEFAULT_SETTINGS_KEYS_H

@@ -1138,6 +1138,7 @@ void
 Editor::SetZoom(int32 zoom)
 {
 	SendMessage(SCI_SETZOOM, zoom, 0);
+	_RedrawNumberMargin(true);
 }
 
 
@@ -1472,14 +1473,15 @@ Editor::_IsBrace(char character)
 }
 
 void
-Editor::_RedrawNumberMargin()
+Editor::_RedrawNumberMargin(bool forced)
 {
 	int linesLog10 = log10(SendMessage(SCI_GETLINECOUNT, UNSET, UNSET));
 	linesLog10 += 2;
 
-	if (linesLog10 != fLinesLog10) {
+	if (linesLog10 != fLinesLog10 || forced) {
 		fLinesLog10 = linesLog10;
-		int pixelWidth = SendMessage(SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "9");
+		float zoom = 1 + ((float)SendMessage(SCI_GETZOOM)/100.0); 
+		int pixelWidth = SendMessage(SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "9") * zoom;
 		SendMessage(SCI_SETMARGINWIDTHN, sci_NUMBER_MARGIN, pixelWidth * fLinesLog10);
 	}
 }

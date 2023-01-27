@@ -155,7 +155,7 @@ private:
 			void				_HighlightBraces();
 			void				_HighlightFile();
 			bool				_IsBrace(char character);
-			void				_RedrawNumberMargin();
+			void				_RedrawNumberMargin(bool forced = false);
 			void				_SetFoldMargin();
 
 private:

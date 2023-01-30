@@ -18,7 +18,7 @@
 #include <LayoutBuilder.h>
 #include <ScrollView.h>
 #include <String.h>
-#include <TextView.h>
+#include "WordTextView.h"
 
 #include <AutoDeleter.h>
 
@@ -207,7 +207,7 @@ ConsoleIOView::_Init()
 {
 	fPendingOutput = new OutputInfoList(1, true);
 
-	fConsoleIOText = new BTextView("console_io");
+	fConsoleIOText = new WordTextView("console_io");
 	fConsoleIOText->SetStylable(true);
 	fConsoleIOText->SetDoesUndo(false);
 	fConsoleIOText->MakeEditable(false);

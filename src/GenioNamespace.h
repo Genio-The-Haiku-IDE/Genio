@@ -29,6 +29,7 @@ namespace GenioNames
 	BString GetSignature();
 	BString GetVersionInfo();
 	status_t LoadSettingsVars();
+	status_t SaveSettingsVars();
 	status_t UpdateSettingsFile();
 
 	typedef struct {
@@ -53,6 +54,7 @@ namespace GenioNames
 		int32 enable_notifications;
 		int32 wrap_console;
 		int32 console_banner;
+		int32 editor_zoom;
 
 	} SettingsVars;
 

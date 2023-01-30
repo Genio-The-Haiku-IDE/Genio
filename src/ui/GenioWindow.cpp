@@ -97,6 +97,10 @@ enum {
 	MSG_EOL_SET_TO_DOS			= 'estd',
 	MSG_EOL_SET_TO_MAC			= 'estm',
 
+	// view
+	MSG_VIEW_ZOOMIN				= 'zoin',
+	MSG_VIEW_ZOOMOUT			= 'zoou',
+	MSG_VIEW_ZOOMRESET			= 'zore',
 
 	// Search menu & group
 	MSG_FIND_GROUP_SHOW			= 'figs',
@@ -819,6 +823,31 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_SAVE_ALL:
 			_FileSaveAll();
 			break;
+		case MSG_VIEW_ZOOMIN:
+			if (GenioNames::Settings.editor_zoom < 20) {
+				GenioNames::Settings.editor_zoom++;
+				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+					fEditor = fEditorObjectList->ItemAt(index);
+					fEditor->SetZoom(GenioNames::Settings.editor_zoom);
+				}				
+			}			
+		break;
+		case MSG_VIEW_ZOOMOUT:
+			if (GenioNames::Settings.editor_zoom > -10) {
+				GenioNames::Settings.editor_zoom--;
+				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+					fEditor = fEditorObjectList->ItemAt(index);
+					fEditor->SetZoom(GenioNames::Settings.editor_zoom);
+				}				
+			}			
+		break;
+		case MSG_VIEW_ZOOMRESET:
+			GenioNames::Settings.editor_zoom = 0;
+			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+				fEditor = fEditorObjectList->ItemAt(index);
+				fEditor->SetZoom(GenioNames::Settings.editor_zoom);
+			}
+		break;
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow();
 			break;
@@ -1167,10 +1196,16 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case TABMANAGER_TAB_NEW_OPENED: {
 			int32 index;
+			int32 be_line = message->GetInt32("be:line",  -1);		
+			
+			message->PrintToStream();
+					
 			if (message->FindInt32("index", &index) == B_OK) {
-// std::cerr << "TABMANAGER_TAB_NEW_OPENED" << " index: " << index << std::endl;
 				fEditor = fEditorObjectList->ItemAt(index);
-				fEditor->SetSavedCaretPosition();
+				if (be_line > 0)
+					fEditor->GoToLine(be_line);
+				else
+					fEditor->SetSavedCaretPosition();
 			}
 			break;
 		}
@@ -1243,14 +1278,15 @@ GenioWindow::QuitRequested()
 			delete project;
 		}
 	}
-
+	
+	GenioNames::SaveSettingsVars();
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;
 }
 
 
 status_t
-GenioWindow::_AddEditorTab(entry_ref* ref, int32 index)
+GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line)
 {
 	// Check existence
 	BEntry entry(ref);
@@ -1263,7 +1299,7 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index)
 	if (fEditor == nullptr)
 		return B_ERROR;
 
-	fTabManager->AddTab(fEditor, ref->name, index);
+	fTabManager->AddTab(fEditor, ref->name, index, be_line);
 
 	bool added = fEditorObjectList->AddItem(fEditor);
 
@@ -1519,6 +1555,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 	// otherwise use default behaviour (see below)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
 		nextIndex = fTabManager->CountTabs();
+		
+	const int32 be_line   = msg->GetInt32("be:line", -1);
 
 	while (msg->FindRef("refs", refsCount, &ref) == B_OK) {
 
@@ -1535,13 +1573,16 @@ GenioWindow::_FileOpen(BMessage* msg)
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
 			if (openedIndex != fTabManager->SelectedTabIndex())
 				fTabManager->SelectTab(openedIndex);
+			if (be_line > -1) 
+				fEditorObjectList->ItemAt(openedIndex)->GoToLine(be_line);
+			
 			continue;
 		}
 
 		int32 index = fTabManager->CountTabs();
 // std::cerr << __PRETTY_FUNCTION__ << " index: " << index << std::endl;
 
-		if (_AddEditorTab(&ref, index) != B_OK)
+		if (_AddEditorTab(&ref, index, be_line) != B_OK)
 			continue;
 
 		assert(index >= 0);
@@ -1563,6 +1604,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		}
 
 		fEditor->ApplySettings();
+		fEditor->SetZoom(GenioNames::Settings.editor_zoom);
 
 		// First tab gets selected by tabview
 		if (index > 0)
@@ -2387,7 +2429,13 @@ GenioWindow::_InitMenu()
 
 	menu->AddItem(fLineEndingsMenu);
 	fMenuBar->AddItem(menu);
-
+	
+	menu = new BMenu(B_TRANSLATE("View"));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom In"), new BMessage(MSG_VIEW_ZOOMIN), '+'));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Out"), new BMessage(MSG_VIEW_ZOOMOUT), '-'));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Reset"), new BMessage(MSG_VIEW_ZOOMRESET), '0'));
+	fMenuBar->AddItem(menu);
+	
 	menu = new BMenu(B_TRANSLATE("Search"));
 
 	menu->AddItem(fFindItem = new BMenuItem(B_TRANSLATE("Find"),

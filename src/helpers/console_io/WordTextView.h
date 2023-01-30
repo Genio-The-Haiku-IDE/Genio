@@ -15,18 +15,24 @@ class WordTextView : public BTextView {
 public:
 	WordTextView(const char* name):BTextView(name){}
 	
-	void	MouseMoved (BPoint where, uint32 code, const BMessage *dragMessage);
-	
-	virtual void	OnWord(BString& newWord);
+	void	MouseMoved (BPoint where, uint32 code, const BMessage *dragMessage);	
+	void 	MouseDown (BPoint where);
+	void    OnWord(BString& newWord);
 	
 private:
 
 	void	_Reset();
 	bool	_GetHyperLinkAt(BPoint where, const int32 pointPosition, BString& _link, int32& _start, int32& _end);
 	void	_SetStyle(bool underline);
+	
+	bool	_EntryExists(const BString& path, BString& _actualPath) const;
+	
 	int32	fStartPosition = -1;
 	int32	fStopPosition = -1;
 	BString fLastWord = "";
+	BString fCurrentPath = "";
+	int32	fCurrentPositions[2];
+	BString fCurrentDirectory;
 	
 	char	fBuffer[MAX_WORD_SIZE + 1];
 	

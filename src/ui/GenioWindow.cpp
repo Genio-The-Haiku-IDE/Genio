@@ -1274,7 +1274,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (be_line > 0)
 					fEditor->GoToLine(be_line);
 				else
-					fEditor->SetSavedCaretPosition();					
+					fEditor->SetSavedCaretPosition();
 			}
 			break;
 		}

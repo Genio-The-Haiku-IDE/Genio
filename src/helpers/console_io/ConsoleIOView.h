@@ -16,7 +16,7 @@
 
 class BButton;
 class BCheckBox;
-class BTextView;
+class WordTextView;
 
 
 class ConsoleIOView : public BGroupView {
@@ -50,7 +50,7 @@ private:
 			BCheckBox*			fStderrEnabled;
 			BCheckBox*			fWrapEnabled;
 			BCheckBox*			fBannerEnabled;
-			BTextView*			fConsoleIOText;
+			WordTextView*		fConsoleIOText;
 			BButton*			fClearButton;
 			BButton*			fStopButton;
 			BString				fCmdType;

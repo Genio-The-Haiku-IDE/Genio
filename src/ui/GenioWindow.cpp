@@ -1196,9 +1196,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case TABMANAGER_TAB_NEW_OPENED: {
 			int32 index;
-			int32 be_line = message->GetInt32("be:line",  -1);		
-			
-			message->PrintToStream();
+			int32 be_line = message->GetInt32("be:line",  -1);
 					
 			if (message->FindInt32("index", &index) == B_OK) {
 				fEditor = fEditorObjectList->ItemAt(index);

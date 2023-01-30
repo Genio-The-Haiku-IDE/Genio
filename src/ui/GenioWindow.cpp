@@ -1184,10 +1184,16 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case TABMANAGER_TAB_NEW_OPENED: {
 			int32 index;
+			int32 be_line = message->GetInt32("be:line",  -1);		
+			
+			message->PrintToStream();
+					
 			if (message->FindInt32("index", &index) == B_OK) {
-// std::cerr << "TABMANAGER_TAB_NEW_OPENED" << " index: " << index << std::endl;
 				fEditor = fEditorObjectList->ItemAt(index);
-				fEditor->SetSavedCaretPosition();
+				if (be_line > 0)
+					fEditor->GoToLine(be_line);
+				else
+					fEditor->SetSavedCaretPosition();
 			}
 			break;
 		}
@@ -1268,7 +1274,7 @@ GenioWindow::QuitRequested()
 
 
 status_t
-GenioWindow::_AddEditorTab(entry_ref* ref, int32 index)
+GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line)
 {
 	// Check existence
 	BEntry entry(ref);
@@ -1281,7 +1287,7 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index)
 	if (fEditor == nullptr)
 		return B_ERROR;
 
-	fTabManager->AddTab(fEditor, ref->name, index);
+	fTabManager->AddTab(fEditor, ref->name, index, be_line);
 
 	bool added = fEditorObjectList->AddItem(fEditor);
 
@@ -1536,6 +1542,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 	// otherwise use default behaviour (see below)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
 		nextIndex = fTabManager->CountTabs();
+		
+	const int32 be_line   = msg->GetInt32("be:line", -1);
 
 	while (msg->FindRef("refs", refsCount, &ref) == B_OK) {
 
@@ -1552,13 +1560,16 @@ GenioWindow::_FileOpen(BMessage* msg)
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
 			if (openedIndex != fTabManager->SelectedTabIndex())
 				fTabManager->SelectTab(openedIndex);
+			if (be_line > -1) 
+				fEditorObjectList->ItemAt(openedIndex)->GoToLine(be_line);
+			
 			continue;
 		}
 
 		int32 index = fTabManager->CountTabs();
 // std::cerr << __PRETTY_FUNCTION__ << " index: " << index << std::endl;
 
-		if (_AddEditorTab(&ref, index) != B_OK)
+		if (_AddEditorTab(&ref, index, be_line) != B_OK)
 			continue;
 
 		assert(index >= 0);

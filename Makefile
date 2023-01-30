@@ -55,6 +55,8 @@ SRCS +=  src/helpers/tabview/TabView.cpp
 SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/lsp-cpp/FileWrapper.cpp
 SRCS +=  src/lsp-cpp/LSPClientWrapper.cpp
+SRCS += src/helpers/console_io/WordTextView.cpp
+
 
 
 RDEFS := Genio.rdef

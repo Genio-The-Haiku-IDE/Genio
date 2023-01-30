@@ -916,6 +916,7 @@ TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line, i
 	// Assuming nothing went wrong ...
 	BMessage message(TABMANAGER_TAB_NEW_OPENED);
 	message.AddInt32("index", index);
+
 	
 	if (be_line > 0)
 		message.AddInt32("be:line", be_line);
@@ -923,6 +924,7 @@ TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line, i
 	if (lsp_char >= 0)
 		message.AddInt32("lsp:character", lsp_char);
 	
+
 	fTarget.SendMessage(&message);
 }
 

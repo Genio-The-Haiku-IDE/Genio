@@ -1,5 +1,8 @@
 /*
  * Copyright 2023, Andrea Anzani 
+ * 
+ * Freely derived and inspired from the Haiku Terminal application. 
+ * 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -12,6 +15,13 @@
 #include "storage/FindDirectory.h"
 #include <Window.h>
 
+//// TODO: move these function in a common TextUtilities class..
+
+std::string numericChars("1234567890");
+std::string kDefaultAdditionalWordCharacters(":@-+./_~");
+std::string wordCharacters("1234567890_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+
 bool Contains(std::string const &s, char ch) noexcept {
 	return s.find(ch) != std::string::npos;
 }
@@ -20,13 +30,10 @@ constexpr bool IsASpace(int ch) noexcept {
 	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
 
-std::string numericChars("1234567890");
-std::string kDefaultAdditionalWordCharacters(":@-+./_~");
-std::string wordCharacters("1234567890_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
 
 bool
-Classify(char c)
+WordTextView::_Classify(char c)
 {
 	if (IsASpace(c))
 		return false;
@@ -58,7 +65,7 @@ WordTextView::_SetStyle(bool underline)
 }
 
 void	
-WordTextView::_Reset() 
+WordTextView::_ResetStyle() 
 {
 	if (fStopPosition == -1 && fStartPosition == -1)
 		return;
@@ -101,28 +108,20 @@ WordTextView::MouseMoved (BPoint where, uint32 code, const BMessage *dragMessage
 	fCurrentPath = "";
 	fCurrentPositions[0] = fCurrentPositions[1] = 0;
 	
-	_Reset();
-	bool found = _GetHyperLinkAt(where, pointPosition, word, startPosition, stopPosition);
+	_ResetStyle();
+	bool found = _GetFileAt(where, pointPosition, word, startPosition, stopPosition);
 	
 	fStopPosition  = stopPosition;
 	fStartPosition = startPosition;
 	fLastWord = word;
 	
 	if (found)
-		OnWord(fLastWord);
-	
-}
-
-void	
-WordTextView::OnWord(BString& newWord)
-{
-	//printf("New path: %s line[%d] column[%d]\n", fCurrentPath.String(), fCurrentPositions[0], fCurrentPositions[1]);
-	_SetStyle(true);
+		_SetStyle(true);
 	
 }
 
 bool
-WordTextView::_GetHyperLinkAt(BPoint where, const int32 pointPosition, BString& word, int32& startPosition, int32& stopPosition)
+WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word, int32& startPosition, int32& stopPosition)
 {
 	int32 line = LineAt(where);
 	if (line >= CountLines())
@@ -136,7 +135,7 @@ WordTextView::_GetHyperLinkAt(BPoint where, const int32 pointPosition, BString& 
 	
 	//backward:
 	for(;;) {
-		if (Classify(ByteAt(startPosition))) {
+		if (_Classify(ByteAt(startPosition))) {
 			if (startLine == startPosition){
 				break;
 			}
@@ -150,7 +149,7 @@ WordTextView::_GetHyperLinkAt(BPoint where, const int32 pointPosition, BString& 
 	
 	//forward:
 	for(;;) {
-		if (Classify(ByteAt(stopPosition))) {
+		if (_Classify(ByteAt(stopPosition))) {
 			if (maxPosition == stopPosition) {
 				break;
 			}

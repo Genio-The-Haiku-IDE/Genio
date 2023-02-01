@@ -515,6 +515,7 @@ Editor::GoToLine(int32 line)
 	line -= 1;
 	SendMessage(SCI_ENSUREVISIBLEENFORCEPOLICY, line, UNSET);
 	SendMessage(SCI_GOTOLINE, line, UNSET);
+	GrabFocus();
 }
 
 void

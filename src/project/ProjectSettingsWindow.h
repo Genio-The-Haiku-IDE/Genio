@@ -15,32 +15,30 @@
 #include <Window.h>
 #include <vector>
 
-#include "Project.h"
-#include "TPreferences.h"
+#include "ProjectFolder.h"
 
 
 class ProjectSettingsWindow : public BWindow
 {
 public:
-								ProjectSettingsWindow(BString name);
+								ProjectSettingsWindow(ProjectFolder *project);
 	virtual						~ProjectSettingsWindow();
 
 	virtual void				MessageReceived(BMessage* message);
 	virtual	bool				QuitRequested();
 private:
 			void				_CloseProject();
-			int32				_GetProjects();
 			void				_InitWindow();
-			void				_LoadProject(BString name);
+			void				_LoadProject();
 			void				_SaveChanges();
 
-			BString				fName;
-			int32				fProjectsCount;
+			ProjectFolder		*fProject;
+			// int32				fProjectsCount;
 			BBox* 				fProjectBox;
 			BString		 		fProjectBoxLabel;
 			BString		 		fProjectBoxProjectLabel;
 
-			BBox* 				fEditablesBox;
+			BBox* 				fBuildCommandsBox;
 			BMenuField*			fProjectMenuField;
 			BTextControl* 		fProjectTargetText;
 			BTextControl* 		fBuildCommandText;
@@ -55,12 +53,12 @@ private:
 			BBox* 				fRuntimeBox;
 			BTextControl* 		fRunArgsText;
 			BString				fRunArgsString;
-			BBox* 				fProjectParselessBox;
-			BStringView*		fProjectParselessBoxLabel;
-			BTextView*			fParselessText;
-			BScrollView*		fParselessScroll;
-		std::vector<BString>	fParselessList;
-			TPreferences*		fIdmproFile;
+			// BBox* 				fProjectParselessBox;
+			// BStringView*		fProjectParselessBoxLabel;
+			// BTextView*			fParselessText;
+			// BScrollView*		fParselessScroll;
+		// std::vector<BString>	fParselessList;
+			// TPreferences*		fIdmproFile;
 };
 
 

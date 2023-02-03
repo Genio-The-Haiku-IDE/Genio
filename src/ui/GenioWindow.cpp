@@ -995,11 +995,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_SETTINGS: {
-			BString name("");
-			if (fActiveProject != nullptr)
-				name = fActiveProject->Name();
-			ProjectSettingsWindow *window = new ProjectSettingsWindow(name);
-			window->Show();
+			if (fActiveProject != nullptr) {
+				ProjectSettingsWindow *window = new ProjectSettingsWindow(fActiveProject);
+				window->Show();
+			}
 			break;
 		}
 		case MSG_PROJECT_FOLDER_OPEN: {
@@ -3312,18 +3311,11 @@ GenioWindow::_ProjectFileExclude()
  */
 BString const
 GenioWindow::_ProjectFileFullPath()
-{
-	// TODO: Old Project Logic - REMOVE
-	// BString	selectedFileFullpath;
-	// Project* project = _ProjectPointerFromName(fSelectedProjectName);
-	// if (project == nullptr)
-		// return "";
-	// selectedFileFullpath = project->BasePath();
-	// selectedFileFullpath.Append("/");
-	// selectedFileFullpath.Append(fSelectedProjectItem->Text());
-	// return selectedFileFullpath;
-	
-	return _GetProjectFromCurrentItem()->Path();
+{	
+	if (fSelectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
+		return fSelectedProjectItem->GetSourceItem()->Path();
+	else
+		return "";
 }
 
 void

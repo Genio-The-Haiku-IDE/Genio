@@ -21,10 +21,10 @@
 
 class GSettings : public BMessage {
 public:
-					GSettings(const BString& path, uint32 command);
+					GSettings(const BString& folderPath, const BString& fileName, uint32 command);
 					~GSettings();
 	
-	BString 		GetUserSettingsFolder();
+	static BString 	GetUserSettingsFolder();
 
 	void			SetBool(const char *key, bool value);
 	void			SetInt8(const char *key, int8 value);
@@ -37,7 +37,6 @@ public:
 	void			SetBString(const char* key, const BString& value);
 	void			SetPoint(const char *key, BPoint value);
 	void			SetRect(const char *key, BRect value);
-	void			SetMessage(const char *key, const BMessage *value);
 	void			SetFlat(const char *key, const BFlattenable *value);
 	
 private:

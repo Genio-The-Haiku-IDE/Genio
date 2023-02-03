@@ -26,6 +26,7 @@
 #include <Roster.h>
 #include <SeparatorView.h>
 #include <StringItem.h>
+#include <NodeInfo.h>
 
 #include "AddToProjectWindow.h"
 #include "exceptions/Exceptions.h"
@@ -1428,6 +1429,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 	int32 openedIndex;
 	int32 nextIndex;
 	BString notification;
+	
 
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
@@ -1436,7 +1438,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		
 	const int32 be_line   = msg->GetInt32("be:line", -1);
 
-	while (msg->FindRef("refs", refsCount, &ref) == B_OK) {
+	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
 
 		if (!_FileIsSupported(&ref)) {
 			_FileOpenWithPreferredApp(&ref); //TODO make this optional?
@@ -1518,6 +1520,7 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 		return true;
 	
 	BNodeInfo info(&entry);
+
 	if (info.InitCheck() == B_OK) {
 		char mime[B_MIME_TYPE_LENGTH + 1];
 		mime[0]='\0';

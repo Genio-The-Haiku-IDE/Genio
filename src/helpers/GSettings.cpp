@@ -33,8 +33,11 @@ GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 
 		throw BException("File system error: error while opening file", 0, status);
 		
 	status = Unflatten(&fFile);
-	if (status != B_OK)
-		throw BException("File system error: error while unflattening file", 0, status);
+	if (status != B_OK) {
+		status = Flatten(&fFile);
+		if (status != B_OK)
+			throw BException("File system error: error while flattening file", 0, status);
+	}
 }
 
 BString

@@ -8,7 +8,6 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
-#include <map>
 #include <sstream>
 #include <string>
 
@@ -2639,7 +2638,7 @@ GenioWindow::_InitSideSplit()
 {
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
-	
+
 	fProjectsFolderOutline = new BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST);
 	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
 		fProjectsFolderOutline, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);

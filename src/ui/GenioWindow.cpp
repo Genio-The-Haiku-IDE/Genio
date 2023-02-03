@@ -355,36 +355,17 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_ABOUT_REQUESTED:
 			be_app->PostMessage(B_ABOUT_REQUESTED);
 			break;
-		case B_COPY: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				fEditor = fEditorObjectList->ItemAt(index);
-				fEditor->Copy();
-			}
+			
+		case B_COPY:
+		case B_CUT:
+		case B_PASTE:
+		case B_SELECT_ALL:
+			if (CurrentFocus())
+				CurrentFocus()->MessageReceived(message);
 			break;
-		}
-		case B_CUT: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				fEditor = fEditorObjectList->ItemAt(index);
-				fEditor->Cut();
-			}
-			break;
-		}
 		case B_NODE_MONITOR:
 			_HandleNodeMonitorMsg(message);
 			break;
-		case B_PASTE: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				fEditor = fEditorObjectList->ItemAt(index);
-				fEditor->Paste();
-			}
-			break;
-		}
 		case B_REDO: {
 			int32 index =  fTabManager->SelectedTabIndex();
 
@@ -403,7 +384,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_SAVE_REQUESTED:
 			_FileSaveAs(fTabManager->SelectedTabIndex(), message);
 			break;
-		case B_SELECT_ALL: {
+		/*case B_SELECT_ALL: {
 			int32 index = fTabManager->SelectedTabIndex();
 
 			if (index > -1 && index < fTabManager->CountTabs()) {
@@ -411,7 +392,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				fEditor->SelectAll();
 			}
 			break;
-		}
+		}*/
 		case B_UNDO: {
 			int32 index =  fTabManager->SelectedTabIndex();
 
@@ -2299,6 +2280,7 @@ GenioWindow::_InitCentralSplit()
 		.Add(fTabManager->ContainerView())
 		.Add(fStatusBar)
 	;
+
 }
 
 void

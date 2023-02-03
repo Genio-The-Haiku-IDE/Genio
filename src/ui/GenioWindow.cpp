@@ -19,6 +19,7 @@
 #include <Roster.h>
 #include <SeparatorView.h>
 #include <StringItem.h>
+#include <NodeInfo.h>
 
 #include <cassert>
 #include <fstream>
@@ -1485,6 +1486,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 	int32 openedIndex;
 	int32 nextIndex;
 	BString notification;
+	
 
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
@@ -1493,9 +1495,11 @@ GenioWindow::_FileOpen(BMessage* msg)
 		
 	const int32 be_line   = msg->GetInt32("be:line", -1);
 
-	while (msg->FindRef("refs", refsCount, &ref) == B_OK) {
+	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
 
-		refsCount++;
+		if (!_FileIsSupported(&ref)) {
+			continue;
+		}	
 
 		// Do not reopen an already opened file
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
@@ -1551,6 +1555,38 @@ GenioWindow::_FileOpen(BMessage* msg)
 		fTabManager->SelectTab(nextIndex);
 
 	return status;
+}
+
+bool
+GenioWindow::_FileIsSupported(const entry_ref* ref)
+{
+	//what files are supported?
+	//a bit of heuristic!
+	
+	BNode entry(ref);
+	if (entry.InitCheck() != B_OK || entry.IsDirectory())
+		return false;
+	
+
+	std::string fileType = Genio::file_type(BPath(ref).Path());
+
+	if (fileType != "")
+		return true;
+	
+	BNodeInfo	info(&entry);
+	if (info.InitCheck() == B_OK) {
+		char mime[B_MIME_TYPE_LENGTH + 1];
+		mime[0]='\0';
+		info.GetType(mime);
+		if (mime[0] == '\0' && update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_NO_FORCE) == B_OK)
+		{
+			info.GetType(mime);
+		}
+		
+		if (strncmp(mime, "text/", 5) == 0)
+			return true;
+	}
+	return false;
 }
 
 status_t
@@ -2656,12 +2692,12 @@ GenioWindow::_InitSideSplit()
 {
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
-	
+
 	fProjectsFolderOutline = new BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST);
 	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("ProjectFolders"),
 		fProjectsFolderOutline, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
-
+	
 #if defined CLASSES_VIEW
 	// Classes View
 	fClassesView = ClassesView::Create(BMessenger(this));

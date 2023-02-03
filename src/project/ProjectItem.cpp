@@ -78,21 +78,15 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 	}
 
-	float height, width;
-	width = height = fIcon.Bounds().bottom-fIcon.Bounds().top;
-	BPoint p(bounds.left + width/2, bounds.top+height/2);
-	BRect iconBounds(p.x - width/2, p.y - height/2, p.x + width/2, p.y + 
-		height/2);
-	
-	// Draw bitmap
-	// TODO: the bitmap is aligned at the top of the bounding rectangle but it 
-	// should be at the center, instead
+	float size = fIcon.Bounds().Height();
+	BPoint p(bounds.left + 4.0f, bounds.top  + (bounds.Height() - size) / 2.0f);	
+
 	owner->SetDrawingMode(B_OP_ALPHA);
-	owner->DrawBitmap(&fIcon, iconBounds);
+	owner->DrawBitmap(&fIcon, p);
 	
 	// Draw string at the right of the icon
 	owner->SetDrawingMode(B_OP_COPY);
-	owner->MovePenTo(iconBounds.right + be_control_look->DefaultLabelSpacing(),
+	owner->MovePenTo(p.x + size + be_control_look->DefaultLabelSpacing(),
 		bounds.top + BaselineOffset());
 	owner->DrawString(Text());
 }

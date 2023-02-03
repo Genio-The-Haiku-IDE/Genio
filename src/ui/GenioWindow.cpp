@@ -1968,7 +1968,7 @@ GenioWindow::_GetFocusAndSelection(BTextControl* control)
 	fEditor = fEditorObjectList->ItemAt(fTabManager->SelectedTabIndex());
 	if (fEditor->IsTextSelected()) {
 		int32 size = fEditor->SendMessage(SCI_GETSELTEXT, 0, 0);
-		char text[size];
+		char text[size + 1];
 		fEditor->SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text);
 		control->SetText(text);
 	}

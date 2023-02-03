@@ -1006,7 +1006,7 @@ const BString
 Editor::Selection()
 {
 	int32 size = SendMessage(SCI_GETSELTEXT, 0, 0);
-	char text[size];
+	char text[size + 1];
 	SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text);
 	return text;
 }

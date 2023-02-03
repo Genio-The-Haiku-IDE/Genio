@@ -95,6 +95,16 @@ private:
 	void	_DoSwitchSourceHeader(nlohmann::json& params);
 	void	_DoCompletion(nlohmann::json& params);
 	void	_DoDiagnostics(nlohmann::json& params);
+	
+private:
+	//utils
+	void 			FromSciPositionToLSPPosition(const Sci_Position &pos, Position &lsp_position);
+	Sci_Position 	FromLSPPositionToSciPosition(const Position& lsp_position);
+	void 			GetCurrentLSPPosition(Position &lsp_position);
+	void 			FromSciPositionToRange(Sci_Position s_start, Sci_Position s_end, Range &range);
+	Sci_Position 	ApplyTextEdit(json &textEdit);
+	void			OpenFile(std::string &uri, int32 line = -1, int32 character = -1);
+	std::string 	GetCurrentLine();                            
 };
 
 

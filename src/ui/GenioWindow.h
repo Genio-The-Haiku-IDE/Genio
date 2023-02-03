@@ -130,6 +130,8 @@ private:
 			void				_ProjectFolderOutlineDepopulate(ProjectFolder* project);
 			void				_ProjectFolderOutlinePopulate(ProjectFolder* project);
 			void				_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
+			void				_ShowProjectItemPopupMenu();
+			ProjectFolder *		_GetProjectFromCurrentItem();
 			
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
@@ -251,10 +253,11 @@ private:
 			BMenuItem*			fDeleteFileProjectMenuItem;
 			BMenuItem*			fOpenFileProjectMenuItem;
 
-			Project*			fActiveProject;
+			// Project*			fActiveProject;
+			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
 			BString				fSelectedProjectName;
-			BStringItem*		fSelectedProjectItem;
+			ProjectItem*		fSelectedProjectItem;
 			BString				fSelectedProjectItemName;
 			BObjectList<Project>*	fProjectObjectList;
 			BObjectList<ProjectFolder>*	fProjectFolderObjectList;

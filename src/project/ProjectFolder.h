@@ -8,6 +8,8 @@
 #include <ObjectList.h>
 #include <String.h>
 
+#include "GSettings.h"
+
 enum GENIO_SETTINGS_KEY {
 	RELEASE_BUILD_COMMAND,
 	DEBUG_BUILD_COMMAND,
@@ -27,6 +29,11 @@ enum SourceItemType {
 	ProjectFolderItem
 };
 
+enum BuildMode {
+	ReleaseMode,
+	DebugMode
+};
+
 class ProjectFolder;
 
 class SourceItem {
@@ -38,16 +45,13 @@ public:
 	BString	const				Name() { return fName; };
 	SourceItemType				Type() { return fType; };
 	
-	bool						Active() const { return fActive; }
-	void						Active(bool status) { fActive = status; }
-	
 	ProjectFolder				*GetProjectFolder()	{ return fProjectFolder; }
+	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
 								
 protected:
 	BString						fPath;
 	BString						fName;
 	SourceItemType				fType;
-	bool						fActive;
 	ProjectFolder				*fProjectFolder;
 };
 
@@ -63,10 +67,41 @@ public:
 	void						InitConfig();
 	void						ResetConfig();
 
+	bool						Active() const { return fActive; }
+	void						Active(bool status) { fActive = status; }	
+	
+	void						SetBuildMode(BuildMode mode);
+	BuildMode					GetBuildMode() const;
+	
+	void						SetCleanCommand(BString const& command, BuildMode mode);
+	BString const				GetCleanCommand();
+	
+	void						SetBuildCommand(BString const& command, BuildMode mode);
+	BString const				GetBuildCommand();
+	
+	void						SetExecuteArgs(BString const& args, BuildMode mode);
+	BString const				GetExecuteArgs();
+	
+	void						SetTarget(BString const& path, BuildMode mode);
+	BString const				GetTarget();
+	
+	void						RunInTerminal(bool enabled);
+	bool						RunInTerminal();
+	
+	void						Git(bool enabled);
+	bool						Git();
+
 private:
 
 	bool						fHasConfig;
-
+	bool						fActive;
+	bool						fRunInTerminal;
+	bool						fGitEnabled;
+	BuildMode					fBuildMode;
+	BString						fTarget;
+	BString						fBuildCommand;
+	
+	GSettings					fSettings;
 };
 
 #endif // PROJECT_FOLDER_H

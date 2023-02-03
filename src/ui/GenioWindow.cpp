@@ -635,7 +635,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BUILD_MODE_DEBUG: {
 			// fBuildModeButton->SetEnabled(true);
 			fBuildModeButton->SetToolTip(B_TRANSLATE("Build mode: Debug"));
-			fActiveProject->SetReleaseMode(false);
+			fActiveProject->SetBuildMode(BuildMode::DebugMode);
 			_MakefileSetBuildMode(false);
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
@@ -643,7 +643,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BUILD_MODE_RELEASE: {
 			// fBuildModeButton->SetEnabled(false);
 			fBuildModeButton->SetToolTip(B_TRANSLATE("Build mode: Release"));
-			fActiveProject->SetReleaseMode(true);
+			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
 			_MakefileSetBuildMode(true);
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
@@ -970,7 +970,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_MENU_ITEM_CHOSEN: {
-			_ProjectItemChosen();
+			_ShowProjectItemPopupMenu();
 			break;
 		}
 		case MSG_PROJECT_MENU_OPEN_FILE: {
@@ -997,7 +997,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_SETTINGS: {
 			BString name("");
 			if (fActiveProject != nullptr)
-				name = fActiveProject->ExtensionedName();
+				name = fActiveProject->Name();
 			ProjectSettingsWindow *window = new ProjectSettingsWindow(name);
 			window->Show();
 			break;
@@ -1307,24 +1307,25 @@ GenioWindow::_BuildProject()
 	_ShowLog(kBuildLog);
 
 	BString text;
-	text << "Build started: "  << fActiveProject->ExtensionedName();
+	text << "Build started: "  << fActiveProject->Name();
 	_SendNotification(text, "PROJ_BUILD");
 
 	BString command;
-	command	<< fActiveProject->BuildCommand();
+	command	<< fActiveProject->GetBuildCommand();
 
+	// TODO: remove support for Cargo/Rust
 	// Honour build mode for cargo projects
-	if (fActiveProject->Type() == "cargo") {
-		if (fActiveProject->ReleaseModeEnabled() == true)
-			command << " --release";
-	}
+	// if (fActiveProject->Type() == "cargo") {
+		// if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
+			// command << " --release";
+	// }
 
 	BMessage message;
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", "build");
 
 	// Go to appropriate directory
-	chdir(fActiveProject->BasePath());
+	chdir(fActiveProject->Path());
 
 	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
 		BMessenger(fBuildLogView));
@@ -1384,11 +1385,11 @@ GenioWindow::_CleanProject()
 
 	BString notification;
 	notification << B_TRANSLATE("Clean started:")
-		 << " " << fActiveProject->ExtensionedName();
+		 << " " << fActiveProject->Name();
 	_SendNotification(notification, "PROJ_BUILD");
 
 	BString command;
-	command << fActiveProject->CleanCommand();
+	command << fActiveProject->GetCleanCommand();
 
 	fIsBuilding = true;
 
@@ -1397,7 +1398,7 @@ GenioWindow::_CleanProject()
 	message.AddString("cmd_type", "clean");
 
 	// Go to appropriate directory
-	chdir(fActiveProject->BasePath());
+	chdir(fActiveProject->Path());
 
 	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
 		BMessenger(fBuildLogView));
@@ -1438,11 +1439,11 @@ GenioWindow::_DebugProject()
 		return B_ERROR;
 
 	// Release mode enabled, should not happen
-	if (fActiveProject->ReleaseModeEnabled() == true)
+	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
 	// TODO: args
-	const char *args[] = { fActiveProject->Target(), 0};
+	const char *args[] = { fActiveProject->GetTarget(), 0};
 
 	return be_roster->Launch("application/x-vnd.Haiku-Debugger",
 						1,
@@ -1915,7 +1916,8 @@ GenioWindow::_Git(const BString& git_command)
 	message.AddString("cmd_type", command);
 
 	// Go to appropriate directory
-	chdir(fActiveProject->BasePath());
+	chdir(fActiveProject->
+	Path());
 
 	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
 		BMessenger(fConsoleIOView));
@@ -2724,9 +2726,10 @@ GenioWindow::_InitSideSplit()
 	fClassesView = ClassesView::Create(BMessenger(this));
 	fProjectsTabView->AddTab(fClassesView);
 #endif
+
 	fProjectsOutline->SetSelectionMessage(new BMessage(MSG_PROJECT_MENU_ITEM_CHOSEN));
 	fProjectsOutline->SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
-	
+
 	fProjectsFolderOutline->SetSelectionMessage(new BMessage(MSG_PROJECT_MENU_ITEM_CHOSEN));
 	fProjectsFolderOutline->SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 
@@ -2734,30 +2737,20 @@ GenioWindow::_InitSideSplit()
 
 	fCloseProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"),
 		new BMessage(MSG_PROJECT_MENU_CLOSE));
-	fDeleteProjectMenuItem = new BMenuItem(B_TRANSLATE("Delete project"),
-		new BMessage(MSG_PROJECT_MENU_DELETE));
 	fSetActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set Active"),
 		new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
 	fRescanProjectMenuItem = new BMenuItem(B_TRANSLATE("Rescan"),
 		new BMessage(MSG_PROJECT_MENU_RESCAN));
-	fAddProjectMenuItem = new BMenuItem(B_TRANSLATE("Add to Project"),
-		new BMessage(MSG_PROJECT_MENU_ADD_ITEM));
 	fDeleteFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Delete file"),
 		new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
-	fExcludeFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Exclude file"),
-		new BMessage(MSG_PROJECT_MENU_EXCLUDE_FILE));
 	fOpenFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
 		new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 
 	fProjectMenu->AddItem(fCloseProjectMenuItem);
-	fProjectMenu->AddItem(fDeleteProjectMenuItem);
 	fProjectMenu->AddItem(fSetActiveProjectMenuItem);
 	fProjectMenu->AddItem(fRescanProjectMenuItem);
 	fProjectMenu->AddSeparatorItem();
-	fProjectMenu->AddItem(fAddProjectMenuItem);
-	fProjectMenu->AddItem(fExcludeFileProjectMenuItem);
 	fProjectMenu->AddItem(fOpenFileProjectMenuItem);
-	fProjectMenu->AddSeparatorItem();
 	fProjectMenu->AddItem(fDeleteFileProjectMenuItem);
 	fProjectMenu->SetTargetForItems(this);
 
@@ -2865,7 +2858,7 @@ GenioWindow::_MakeBindcatalogs()
 	message.AddString("cmd_type", "bindcatalogs");
 
 	// Go to appropriate directory
-	chdir(fActiveProject->BasePath());
+	chdir(fActiveProject->Path());
 
 	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
 		BMessenger(fBuildLogView));
@@ -2888,7 +2881,7 @@ GenioWindow::_MakeCatkeys()
 	message.AddString("cmd_type", "catkeys");
 
 	// Go to appropriate directory
-	chdir(fActiveProject->BasePath());
+	chdir(fActiveProject->Path());
 
 	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
 		BMessenger(fBuildLogView));
@@ -2910,7 +2903,7 @@ GenioWindow::_MakefileSetBuildMode(bool isReleaseMode)
 	if (fActiveProject == nullptr)
 		return;
 
-	BDirectory dir(fActiveProject->BasePath());
+	BDirectory dir(fActiveProject->Path());
 	BEntry entry;
 	BPath path;
 	entry_ref ref;
@@ -3159,21 +3152,22 @@ GenioWindow::_MakefileSetBuildMode(bool isReleaseMode)
 void
 GenioWindow::_ProjectActivate(BString const& projectName)
 {
-	Project* project = _ProjectPointerFromName(projectName);
+	// ProjectFolder* project = _ProjectPointerFromName(projectName);
+	ProjectFolder* project = _GetProjectFromCurrentItem();
 	if (project == nullptr)
 		return;
 
 	// There is no active project
 	if (fActiveProject == nullptr) {
 		fActiveProject = project;
-		project->Activate();
+		project->Active(true);
 		_UpdateProjectActivation(true);
 	}
 	else {
 		// There was an active project already
-		fActiveProject->Deactivate();
+		fActiveProject->Active(false);
 		fActiveProject = project;
-		project->Activate();
+		project->Active(true);
 		_UpdateProjectActivation(true);
 	}
 
@@ -3181,14 +3175,15 @@ GenioWindow::_ProjectActivate(BString const& projectName)
 
 	// Update run command working directory tooltip too
 	BString tooltip;
-	tooltip << "cwd: " << fActiveProject->BasePath();
+	tooltip << "cwd: " << fActiveProject->Path();
 	fRunConsoleProgramText->SetToolTip(tooltip);
 }
 
 void
 GenioWindow::_ProjectClose()
 {
-	Project* project = _ProjectPointerFromName(fSelectedProjectName);
+	// Project* project = _ProjectPointerFromName(fSelectedProjectName);
+	ProjectFolder *project = _GetProjectFromCurrentItem();
 	if (project == nullptr)
 		return;
 
@@ -3205,9 +3200,8 @@ GenioWindow::_ProjectClose()
 		tooltip << "cwd: " << GenioNames::Settings.projects_directory;
 		fRunConsoleProgramText->SetToolTip(tooltip);
 	}
-	_ProjectOutlineDepopulate(project);
-	fProjectObjectList->RemoveItem(project);
-//			delete project; // scan-build claims as released
+	_ProjectFolderOutlineDepopulate(project);
+	fProjectFolderObjectList->RemoveItem(project);
 
 	BString notification;
 	notification << closed << " "  << name;
@@ -3319,20 +3313,17 @@ GenioWindow::_ProjectFileExclude()
 BString const
 GenioWindow::_ProjectFileFullPath()
 {
+	// TODO: Old Project Logic - REMOVE
 	// BString	selectedFileFullpath;
-
 	// Project* project = _ProjectPointerFromName(fSelectedProjectName);
 	// if (project == nullptr)
 		// return "";
-
 	// selectedFileFullpath = project->BasePath();
 	// selectedFileFullpath.Append("/");
 	// selectedFileFullpath.Append(fSelectedProjectItem->Text());
-
 	// return selectedFileFullpath;
-	int32 selection = fProjectsFolderOutline->CurrentSelection();
-	ProjectItem *itemSelected = dynamic_cast<ProjectItem *>(fProjectsFolderOutline->ItemAt(selection));
-	return itemSelected->GetSourceItem()->Path();
+	
+	return _GetProjectFromCurrentItem()->Path();
 }
 
 void
@@ -3389,9 +3380,11 @@ GenioWindow::_ProjectFileRemoveItem(bool addToParseless)
 	}
 }
 
+// TODO: Old Project Logic - REMOVE
+
 void
 GenioWindow::_ProjectItemChosen()
-{
+{/*
 	fCloseProjectMenuItem->SetEnabled(false);
 	fDeleteProjectMenuItem->SetEnabled(false);
 	fSetActiveProjectMenuItem->SetEnabled(false);
@@ -3464,9 +3457,10 @@ GenioWindow::_ProjectItemChosen()
 		fProjectMenu->Go(fProjectsScroll->ConvertToScreen(where), true);
 	}
 
-	fProjectsOutline->Invalidate();
+	fProjectsOutline->Invalidate();*/
 }
 
+// TODO: Old Project Logic - REMOVE
 void
 GenioWindow::_ProjectOpen(BString const& projectName, bool activate)
 {
@@ -3505,12 +3499,14 @@ GenioWindow::_ProjectOpen(BString const& projectName, bool activate)
 	_SendNotification(notification, "PROJ_OPEN");
 }
 
+// TODO: Old Project Logic - REMOVE
 void
 GenioWindow::_ProjectOutlineDepopulate(Project* project)
 {
 	fProjectsOutline->RemoveItem(project->Title());
 }
 
+// TODO: Old Project Logic - REMOVE
 void
 GenioWindow::_ProjectOutlinePopulate(Project* project)
 {
@@ -3549,6 +3545,7 @@ GenioWindow::_ProjectOutlinePopulate(Project* project)
 	fProjectsOutline->SortItemsUnder(fFilesItem, true, GenioWindow::_CompareListItems);
 }
 
+// TODO: Old Project Logic - REMOVE
 Project*
 GenioWindow::_ProjectPointerFromName(BString const& projectName)
 {
@@ -3654,7 +3651,6 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 			return;
 	}
 
-
 	if (newProject->Open() != B_OK) {
 		BString notification;
 		notification
@@ -3709,7 +3705,9 @@ GenioWindow::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectF
 	ProjectItem *newItem;
 
 	if (item!=NULL) {
-		newItem = new ProjectItem(new SourceItem(path));
+		SourceItem *sourceItem = new SourceItem(path);
+		sourceItem->SetProjectFolder(projectFolder);
+		newItem = new ProjectItem(sourceItem);
 		fProjectsFolderOutline->AddUnder(newItem,item);
 		fProjectsFolderOutline->Collapse(newItem);
 	} else {
@@ -3724,9 +3722,84 @@ GenioWindow::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectF
 		while(dir.GetNextEntry(&nextEntry, false)!=B_ENTRY_NOT_FOUND)
 		{
 			nextEntry.GetPath(&_currentPath);
-			_ProjectFolderScan(newItem,_currentPath.Path());
+			_ProjectFolderScan(newItem,_currentPath.Path(), projectFolder);
 		}
 	}
+}
+
+ProjectFolder *
+GenioWindow::_GetProjectFromCurrentItem()
+{
+	int32 selection = fProjectsFolderOutline->CurrentSelection();
+	if (selection < 0)
+		return nullptr;
+	fSelectedProjectItem = dynamic_cast<ProjectItem*>(fProjectsFolderOutline->ItemAt(selection));
+	fSelectedProjectItemName = fSelectedProjectItem->Text();
+	
+	ProjectFolder *project;
+	if (fSelectedProjectItem->GetSourceItem()->Type() == 
+		SourceItemType::ProjectFolderItem)
+	{
+		project = (ProjectFolder *)fSelectedProjectItem->GetSourceItem();
+		fSelectedProjectName = fSelectedProjectItemName;
+	} else {
+		project = (ProjectFolder *)fSelectedProjectItem->GetSourceItem()->GetProjectFolder();
+		fSelectedProjectName = project->Name();
+	}
+	
+	return project;
+}
+
+void
+GenioWindow::_ShowProjectItemPopupMenu()
+{
+	fCloseProjectMenuItem->SetEnabled(false);
+	fSetActiveProjectMenuItem->SetEnabled(false);
+	fRescanProjectMenuItem->SetEnabled(false);
+	fDeleteFileProjectMenuItem->SetEnabled(false);
+	fOpenFileProjectMenuItem->SetEnabled(false);
+
+	// int32 selection = fProjectsFolderOutline->CurrentSelection();
+	// if (selection < 0)
+		// return;
+	// fSelectedProjectItem = dynamic_cast<ProjectItem*>(fProjectsFolderOutline->ItemAt(selection));
+	// fSelectedProjectItemName = fSelectedProjectItem->Text();
+	
+	ProjectFolder *project = _GetProjectFromCurrentItem();
+	if (project==nullptr)
+		return;
+	
+	if (fSelectedProjectItem->GetSourceItem()->Type() == 
+		SourceItemType::ProjectFolderItem)
+	{
+		// project = (ProjectFolder *)fSelectedProjectItem->GetSourceItem();
+		fSelectedProjectName = fSelectedProjectItemName;
+		fCloseProjectMenuItem->SetEnabled(true);
+		fRescanProjectMenuItem->SetEnabled(true);
+		if (!project->Active()) {
+			fSetActiveProjectMenuItem->SetEnabled(true);
+		} else {
+			// Active building project: return
+			if (fIsBuilding)
+				return;
+		}
+
+	} else {
+		// project = (ProjectFolder *)fSelectedProjectItem->GetSourceItem()->GetProjectFolder();
+		fSelectedProjectName = project->Name();
+		fDeleteFileProjectMenuItem->SetEnabled(true);
+		fOpenFileProjectMenuItem->SetEnabled(true);
+	}
+
+	BPoint where;
+	uint32 buttons;
+	fProjectsScroll->GetMouse(&where, &buttons);
+
+	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
+		fProjectMenu->Go(fProjectsScroll->ConvertToScreen(where), true);
+	}
+
+	fProjectsFolderOutline->Invalidate();
 }
 
 int
@@ -3892,7 +3965,7 @@ GenioWindow::_RunInConsole(const BString& command)
 	if (fActiveProject == nullptr)
 		chdir(GenioNames::Settings.projects_directory);
 	else
-		chdir(fActiveProject->BasePath());
+		chdir(fActiveProject->Path());
 
 	_ShowLog(kOutputLog);
 
@@ -3919,14 +3992,12 @@ GenioWindow::_RunTarget()
 	// If there's no app just return, should not happen
 	// Cargo projects can build & run in one pass,
 	// so fake target to project directory to do the same
-	BEntry entry(fActiveProject->Target());
+	BEntry entry(fActiveProject->GetTarget());
 	if (!entry.Exists())
 		return;
 
 	// Check if run args present
-	BString args("");
-	TPreferences prefs(fActiveProject->ExtensionedName(), GenioNames::kApplicationName, 'LOPR');
-	prefs.FindString("project_run_args", &args);
+	BString args = fActiveProject->GetExecuteArgs();
 
 	// Differentiate terminal projects from window ones
 	if (fActiveProject->RunInTerminal() == true) {
@@ -3938,27 +4009,28 @@ GenioWindow::_RunTarget()
 
 		BString command;
 
+		// TODO: Remove support for Cargo/Rust
 		// Is it a cargo project?
-		if (fActiveProject->Type() == "cargo") {
+		// if (fActiveProject->Type() == "cargo") {
 			// Check architecture
-			if (!strcmp(get_primary_architecture(), "x86_gcc2"))
-				command << "cargo-x86 run";
-			else
-				command << "cargo run";
+			// if (!strcmp(get_primary_architecture(), "x86_gcc2"))
+				// command << "cargo-x86 run";
+			// else
+				// command << "cargo run";
 			// Honour run mode for cargo projects
-			if (fActiveProject->ReleaseModeEnabled() == true)
-				command << " --release";
+			// if (fActiveProject->ReleaseModeEnabled() == true)
+				// command << " --release";
 			// Go to appropriate directory
-			chdir(fActiveProject->BasePath());
+			// chdir(fActiveProject->BasePath());
 
-		} else { // here type != "cargo"
+		// } else { // here type != "cargo"
 
-			command << fActiveProject->Target();
+			command << fActiveProject->GetTarget();
 			if (!args.IsEmpty())
 				command << " " << args;
 			// TODO: Go to appropriate directory
 			// chdir(...);
-		}
+		// }
 
 		BMessage message;
 		message.AddString("cmd", command);
@@ -3973,7 +4045,7 @@ GenioWindow::_RunTarget()
 	} else {
 	// TODO: run args
 		entry_ref ref;
-		entry.SetTo(fActiveProject->Target());
+		entry.SetTo(fActiveProject->GetTarget());
 		entry.GetRef(&ref);
 		be_roster->Launch(&ref, 1, NULL);
 	}
@@ -4055,29 +4127,30 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fBuildButton->SetEnabled(true);
 
 		// Is this a git project?
-		if (fActiveProject->Scm() == "git")
+		if (fActiveProject->Git())
 			fGitMenu->SetEnabled(true);
 		else
 			fGitMenu->SetEnabled(false);
+		// TODO: Remove support for Cargo/Rust
 		// cargo projects
-		if (fActiveProject->Type() == "cargo") {
-			fRunItem->SetEnabled(true);
-			fDebugItem->SetEnabled(false);
-			fMakeCatkeysItem->SetEnabled(false);
-			fMakeBindcatalogsItem->SetEnabled(false);
-			fRunButton->SetEnabled(true);
-			fDebugButton->SetEnabled(false);
-			return;
-		}
+		// if (fActiveProject->Type() == "cargo") {
+			// fRunItem->SetEnabled(true);
+			// fDebugItem->SetEnabled(false);
+			// fMakeCatkeysItem->SetEnabled(false);
+			// fMakeBindcatalogsItem->SetEnabled(false);
+			// fRunButton->SetEnabled(true);
+			// fDebugButton->SetEnabled(false);
+			// return;
+		// }
 		// Build mode
-		bool releaseMode = fActiveProject->ReleaseModeEnabled();
+		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
 		// Build mode menu
 		fBuildModeButton->SetEnabled(!releaseMode);
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 
 		// Target exists: enable run button
-		BEntry entry(fActiveProject->Target());
+		BEntry entry(fActiveProject->GetTarget());
 		if (entry.Exists()) {
 			fRunItem->SetEnabled(true);
 			fRunButton->SetEnabled(true);

@@ -115,12 +115,7 @@ private:
 			BString	const		_ProjectFileFullPath();
 			void				_ProjectFileOpen(const BString& filePath);
 			void				_ProjectFileRemoveItem(bool addToParseless);
-			void				_ProjectItemChosen();
-			void				_ProjectOpen(BString const& projectName, bool activate);
-			void				_ProjectOutlineDepopulate(Project* project);
-			void				_ProjectOutlinePopulate(Project* project);
-			Project*			_ProjectPointerFromName(BString const& projectName);
-			void				_ProjectRescan(BString const& projectName);
+			
 			status_t			_ProjectRemoveDir(const BString& dirPath);
 
 			// Project Folders
@@ -238,8 +233,7 @@ private:
 
 			// Left panels
 			BTabView*	  		fProjectsTabView;
-			BOutlineListView*	fProjectsOutline;
-			BScrollView*		fProjectsScroll;
+
 			BOutlineListView*	fProjectsFolderOutline;
 			BScrollView*		fProjectsFolderScroll;
 			// ClassesView*		fClassesView;
@@ -247,13 +241,11 @@ private:
 			BMenuItem*			fCloseProjectMenuItem;
 			BMenuItem*			fDeleteProjectMenuItem;
 			BMenuItem*			fSetActiveProjectMenuItem;
-			BMenuItem*			fRescanProjectMenuItem;
 			BMenuItem*			fAddProjectMenuItem;
 			BMenuItem*			fExcludeFileProjectMenuItem;
 			BMenuItem*			fDeleteFileProjectMenuItem;
 			BMenuItem*			fOpenFileProjectMenuItem;
 
-			// Project*			fActiveProject;
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
 			BString				fSelectedProjectName;

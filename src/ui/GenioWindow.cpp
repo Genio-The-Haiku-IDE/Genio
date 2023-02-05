@@ -231,8 +231,8 @@ GenioWindow::GenioWindow(BRect frame)
 		if (GenioNames::Settings.show_toolbar == false)
 			fToolBar->View()->Hide();
 	}
-	// Reopen projects
-	// TODO reopen folders
+
+	// Load workspace - reopen projects
 	if (GenioNames::Settings.reopen_projects == true) {
 		TPreferences projects(GenioNames::kSettingsProjectsToReopen,
 								GenioNames::kApplicationName, 'PRRE');
@@ -245,7 +245,7 @@ GenioWindow::GenioWindow(BRect frame)
 					_ProjectFolderOpen(projectName, projectName == activeProject);
 		}
 	}
-	
+
 	// Reopen files
 	if (GenioNames::Settings.reopen_files == true) {
 		TPreferences files(GenioNames::kSettingsFilesToReopen,
@@ -1088,7 +1088,6 @@ GenioWindow::MessageReceived(BMessage* message)
 
 			break;
 		}
-
 		case TABMANAGER_TAB_SELECTED: {
 			int32 index;
 			if (message->FindInt32("index", &index) == B_OK) {

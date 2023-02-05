@@ -13,9 +13,7 @@
 #include "LSPClientWrapper.h"
 <<<<<<< HEAD
 #include <Application.h>
-
-
-
+#include "TextUtils.h"
 
 
 FileWrapper::FileWrapper(std::string filenameURI, Editor* editor):
@@ -926,16 +924,8 @@ std::string calltipParametersEnd(")");
 std::string calltipParametersStart("(");
 std::string autoCompleteStartCharacters(".>");
 std::string calltipWordCharacters("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-std::string wordCharacters ("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 std::string calltipParametersSeparators(",");
 
-bool Contains(std::string const &s, char ch) noexcept {
-	return s.find(ch) != std::string::npos;
-}
-
-constexpr bool IsASpace(int ch) noexcept {
-	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
-}
 
 <<<<<<< HEAD
 

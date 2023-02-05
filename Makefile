@@ -59,11 +59,15 @@ SRCS += src/helpers/console_io/WordTextView.cpp
 SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/lsp-cpp/FileWrapper.cpp
 SRCS +=  src/lsp-cpp/LSPClientWrapper.cpp
+SRCS += src/helpers/TextUtils.cpp
 
 RDEFS := Genio.rdef
 
 LIBS = be shared translation localestub $(STDCPPLIBS)
 LIBS += scintilla columnlistview tracker
+LIBS += src/scintilla/bin/libscintilla.a
+LIBS += src/lexilla/bin/liblexilla.a
+
 
 # LIBPATHS = $(shell findpaths -a $(platform) B_FIND_PATH_DEVELOP_LIB_DIRECTORY)
 # LIBPATHS  = /boot/home/config/non-packaged/lib
@@ -71,8 +75,12 @@ LIBS += scintilla columnlistview tracker
 
 SYSTEM_INCLUDE_PATHS  = $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
 SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/shared)
-SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY scintilla)
+#SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY scintilla)
 
+SYSTEM_INCLUDE_PATHS  +=  src/scintilla/include
+SYSTEM_INCLUDE_PATHS  +=  src/scintilla/haiku
+SYSTEM_INCLUDE_PATHS  +=  src/lexilla/include
+LOCAL_INCLUDE_PATHS  +=  src/lsp-cpp/include
 
 ################################################################################
 ## clang++ headers hack

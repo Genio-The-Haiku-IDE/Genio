@@ -14,21 +14,14 @@
 #include <Path.h>
 #include "storage/FindDirectory.h"
 #include <Window.h>
+#include "TextUtils.h"
 
 //// TODO: move these function in a common TextUtilities class..
 
 std::string numericChars("1234567890");
 std::string kDefaultAdditionalWordCharacters(":@-+./_~");
-std::string wordCharacters("1234567890_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
 
-bool Contains(std::string const &s, char ch) noexcept {
-	return s.find(ch) != std::string::npos;
-}
-
-constexpr bool IsASpace(int ch) noexcept {
-	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
-}
 
 
 

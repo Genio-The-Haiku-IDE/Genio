@@ -145,13 +145,7 @@ public:
 			void				ToggleFolding();
 			void				ToggleLineEndings();
 			void				ToggleWhiteSpaces();
-			void				Undo();
-			void				Completion();
-			void				Format();
-			void				GoToDefinition();
-			void				GoToDeclaration();
-			void				GoToImplementation();
-			void				SwitchSourceHeader();
+
 			void				SignatureHelp();
 			
 			void				SetProject(Project*);

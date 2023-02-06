@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 D. Alfano
+ * Copyright 2022 Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  * 
  * Parts are taken from 

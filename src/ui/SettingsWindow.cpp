@@ -1229,6 +1229,10 @@ SettingsWindow::_StoreToFileDefaults()
 	fWindowSettingsFile->SetInt32("console_banner", kSKConsoleBanner);
 	fWindowSettingsFile->SetInt32("editor_zoom", kSKEditorZoom);
 	
+	fWindowSettingsFile->SetBool("find_wrap", kSKFindWrap);
+	fWindowSettingsFile->SetBool("find_whole_word", kSKFindWholeWord);
+	fWindowSettingsFile->SetBool("find_match_case", kSKFindMatchCase);
+	
 	return B_OK;
 }
 

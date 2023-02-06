@@ -55,6 +55,9 @@ namespace GenioNames
 		int32 wrap_console;
 		int32 console_banner;
 		int32 editor_zoom;
+		bool  find_wrap;
+		bool  find_whole_word;
+		bool  find_match_case;
 
 	} SettingsVars;
 

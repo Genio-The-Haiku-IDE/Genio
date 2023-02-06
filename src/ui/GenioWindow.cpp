@@ -103,13 +103,7 @@ enum {
 	MSG_VIEW_ZOOMIN				= 'zoin',
 	MSG_VIEW_ZOOMOUT			= 'zoou',
 	MSG_VIEW_ZOOMRESET			= 'zore',
-	
-	MSG_AUTOCOMPLETION			= 'auto',	
-	MSG_FORMAT					= 'form',
-	MSG_GOTODEFINITION			= 'gode',
-	MSG_GOTODECLARATION			= 'gocl',
-	MSG_GOTOIMPLEMENTATION		= 'goim',
-	MSG_SWITCHSOURCE			= 'swit',
+
 
 
 	// Search menu & group

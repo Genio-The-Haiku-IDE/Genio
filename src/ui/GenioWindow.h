@@ -108,7 +108,7 @@ private:
 			void				_MakeBindcatalogs();
 			void				_MakeCatkeys();
 			void				_MakefileSetBuildMode(bool isReleaseMode);
-			void				_ProjectActivate(BString const& projectName);
+
 			void				_ProjectClose();
 			void				_ProjectDelete(BString name, bool sourcesToo);
 			void				_ProjectFileDelete();
@@ -126,6 +126,7 @@ private:
 			void				_ProjectFolderOutlineDepopulate(ProjectFolder* project);
 			void				_ProjectFolderOutlinePopulate(ProjectFolder* project);
 			void				_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
+			void				_ProjectFolderActivate(ProjectFolder* project);
 			void				_ShowProjectItemPopupMenu();
 			ProjectFolder *		_GetProjectFromCurrentItem();
 			

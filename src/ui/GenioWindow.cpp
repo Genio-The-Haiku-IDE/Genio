@@ -942,7 +942,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_MENU_SET_ACTIVE: {
-			_ProjectActivate(fSelectedProjectName);
+			_ProjectFolderActivate(_GetProjectFromCurrentItem());
 			break;
 		}
 		case MSG_PROJECT_NEW: {
@@ -1264,13 +1264,6 @@ GenioWindow::_BuildProject()
 
 	BString command;
 	command	<< fActiveProject->GetBuildCommand();
-
-	// TODO: remove support for Cargo/Rust
-	// Honour build mode for cargo projects
-	// if (fActiveProject->Type() == "cargo") {
-		// if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
-			// command << " --release";
-	// }
 
 	BMessage message;
 	message.AddString("cmd", command);
@@ -1896,8 +1889,7 @@ GenioWindow::_Git(const BString& git_command)
 	message.AddString("cmd_type", command);
 
 	// Go to appropriate directory
-	chdir(fActiveProject->
-	Path());
+	chdir(fActiveProject->Path());
 
 	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
 		BMessenger(fConsoleIOView));
@@ -3121,9 +3113,8 @@ GenioWindow::_MakefileSetBuildMode(bool isReleaseMode)
  * Activation could be set in projects outline context menu.
  */
 void
-GenioWindow::_ProjectActivate(BString const& projectName)
+GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 {
-	ProjectFolder* project = _GetProjectFromCurrentItem();
 	if (project == nullptr)
 		return;
 
@@ -3399,10 +3390,9 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 	ProjectFolder* newProject = new ProjectFolder(path.Path());
 
 	// Check if already open
-	bool activate = false;
 	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
 		ProjectFolder * pProject =(ProjectFolder*)fProjectFolderObjectList->ItemAt(index);
-		if (pProject->Name() == newProject->Name())
+		if (pProject->Path() == newProject->Path())
 			return;
 	}
 
@@ -3420,8 +3410,8 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 	fProjectFolderObjectList->AddItem(newProject);
 
 	BString opened(B_TRANSLATE("Project open:"));
-	if (activate == true) {
-		_ProjectActivate(newProject->Name());
+	if (fProjectFolderObjectList->CountItems() == 1) {
+		_ProjectFolderActivate(newProject);
 		opened = B_TRANSLATE("Active project open:");
 	}
 
@@ -3445,7 +3435,7 @@ GenioWindow::_ProjectFolderOutlinePopulate(ProjectFolder* project)
 {
 	ProjectItem *projectItem = NULL;
 	_ProjectFolderScan(projectItem, project->Path(), project);
-	project->Active(true);
+	// project->Active(true);
 	fProjectsFolderOutline->SortItemsUnder(projectItem, false, GenioWindow::_CompareProjectItems);
 }
 
@@ -3512,12 +3502,6 @@ GenioWindow::_ShowProjectItemPopupMenu()
 	fSetActiveProjectMenuItem->SetEnabled(false);
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
-
-	// int32 selection = fProjectsFolderOutline->CurrentSelection();
-	// if (selection < 0)
-		// return;
-	// fSelectedProjectItem = dynamic_cast<ProjectItem*>(fProjectsFolderOutline->ItemAt(selection));
-	// fSelectedProjectItemName = fSelectedProjectItem->Text();
 	
 	ProjectFolder *project = _GetProjectFromCurrentItem();
 	if (project==nullptr)
@@ -3526,7 +3510,6 @@ GenioWindow::_ShowProjectItemPopupMenu()
 	if (fSelectedProjectItem->GetSourceItem()->Type() == 
 		SourceItemType::ProjectFolderItem)
 	{
-		// project = (ProjectFolder *)fSelectedProjectItem->GetSourceItem();
 		fSelectedProjectName = fSelectedProjectItemName;
 		fCloseProjectMenuItem->SetEnabled(true);
 		if (!project->Active()) {
@@ -3538,22 +3521,19 @@ GenioWindow::_ShowProjectItemPopupMenu()
 		}
 
 	} else {
-		// project = (ProjectFolder *)fSelectedProjectItem->GetSourceItem()->GetProjectFolder();
 		fSelectedProjectName = project->Name();
 		fDeleteFileProjectMenuItem->SetEnabled(true);
 		fOpenFileProjectMenuItem->SetEnabled(true);
 	}
 
-	/*BPoint where;
+	BPoint where;
 	uint32 buttons;
 	
-	fProjectsScroll->GetMouse(&where, &buttons);
+	fProjectsFolderScroll->GetMouse(&where, &buttons);
 
 	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
-		fProjectMenu->Go(fProjectsScroll->ConvertToScreen(where), true);
-	}*/
-
-	fProjectsFolderOutline->Invalidate(); //?
+		fProjectMenu->Go(fProjectsFolderScroll->ConvertToScreen(where), true);
+	}
 }
 
 int

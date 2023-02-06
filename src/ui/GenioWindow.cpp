@@ -1667,7 +1667,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 		BString baseDir("");
 		for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
 			Project * project = fProjectObjectList->ItemAt(index);
-			if (fEditor->FilePath().StartsWith(project->BasePath())) {
+			BString projectPath = project->BasePath().Append("/");
+			if (fEditor->FilePath().StartsWith(projectPath)) {
 				fEditor->SetProject(project);
 			}
 		}

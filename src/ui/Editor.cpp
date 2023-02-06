@@ -1241,50 +1241,6 @@ Editor::SetZoom(int32 zoom)
 	_RedrawNumberMargin(true);
 }
 
-void
-Editor::Completion()
-{
-	fFileWrapper->StartCompletion();
-}
-		
-void
-Editor::Format()
-{
-	fFileWrapper->Format();
-}
-
-
-void
-Editor::GoToDefinition()
-{
-	fFileWrapper->GoTo(FileWrapper::GOTO_DEFINITION);
-}
-
-void
-Editor::GoToDeclaration()
-{
-	fFileWrapper->GoTo(FileWrapper::GOTO_DECLARATION);
-}
-
-void
-Editor::GoToImplementation()
-{
-	fFileWrapper->GoTo(FileWrapper::GOTO_IMPLEMENTATION);
-}
-
-void
-Editor::SwitchSourceHeader()
-{
-	fFileWrapper->SwitchSourceHeader();
-}
-
-
-void
-Editor::SetProject(Project* proj)
-{
-	fProject = proj;
-	fFileWrapper->SetLSPClient(proj ? proj->GetLSPClient() : NULL);
-}
 
 void
 Editor::_ApplyExtensionSettings()

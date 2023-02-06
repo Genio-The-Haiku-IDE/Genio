@@ -1246,6 +1246,10 @@ GenioWindow::QuitRequested()
 		}
 	}
 	
+	GenioNames::Settings.find_wrap = (bool)fFindWrapCheck->Value();
+	GenioNames::Settings.find_whole_word = (bool)fFindWholeWordCheck->Value();
+	GenioNames::Settings.find_match_case = (bool)fFindCaseSensitiveCheck->Value();
+	
 	GenioNames::SaveSettingsVars();
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;
@@ -2190,7 +2194,11 @@ GenioWindow::_InitCentralSplit()
 	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE("Match case"));
 	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"));
 	fFindWrapCheck = new BCheckBox(B_TRANSLATE("Wrap"));
-
+	
+	fFindWrapCheck->SetValue((int32)GenioNames::Settings.find_wrap);
+	fFindWholeWordCheck->SetValue((int32)GenioNames::Settings.find_whole_word);
+	fFindCaseSensitiveCheck->SetValue((int32)GenioNames::Settings.find_match_case);
+	
 	fFindGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
 		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 			.Add(fFindMenuField)

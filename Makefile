@@ -4,7 +4,7 @@ arch := $(shell getarch)
 platform := $(shell uname -p)
 
 ## clang build flag ############################################################
-BUILD_WITH_CLANG := 1
+BUILD_WITH_CLANG := 0
 ################################################################################
 
 ifeq ($(BUILD_WITH_CLANG), 0)		# gcc build

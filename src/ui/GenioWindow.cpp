@@ -2641,7 +2641,7 @@ GenioWindow::_InitSideSplit()
 {
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
-
+	
 	fProjectsFolderOutline = new BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST);
 	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
 		fProjectsFolderOutline, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
@@ -3423,7 +3423,7 @@ void
 GenioWindow::_ShowProjectItemPopupMenu()
 {
 	fCloseProjectMenuItem->SetEnabled(false);
-	fSetActiveProjectMenuItem->SetEnabled(false);
+	fSetActiveProjectMenuItem->SetEnabled(true);
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
 	

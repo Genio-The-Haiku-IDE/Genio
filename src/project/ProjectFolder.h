@@ -71,7 +71,7 @@ public:
 	void						Active(bool status) { fActive = status; }	
 	
 	void						SetBuildMode(BuildMode mode);
-	BuildMode					GetBuildMode() const;
+	BuildMode					GetBuildMode();
 	
 	void						SetCleanCommand(BString const& command, BuildMode mode);
 	BString const				GetCleanCommand();
@@ -90,6 +90,9 @@ public:
 	
 	void						Git(bool enabled);
 	bool						Git();
+	
+	void						ExcludeSettingsOnGit(bool enabled);
+	bool						ExcludeSettingsOnGit();
 
 private:
 
@@ -101,7 +104,7 @@ private:
 	BString						fTarget;
 	BString						fBuildCommand;
 	
-	GSettings					fSettings;
+	// GSettings					fSettings;
 };
 
 #endif // PROJECT_FOLDER_H

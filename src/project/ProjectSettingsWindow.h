@@ -5,6 +5,9 @@
 #ifndef PROJECT_SETTINGS_WINDOW_H
 #define PROJECT_SETTINGS_WINDOW_H
 
+#include <memory>
+#include <vector>
+
 #include <Box.h>
 #include <Button.h>
 #include <CheckBox.h>
@@ -13,7 +16,6 @@
 #include <StringView.h>
 #include <TextControl.h>
 #include <Window.h>
-#include <vector>
 
 #include "ProjectFolder.h"
 
@@ -33,32 +35,36 @@ private:
 			void				_SaveChanges();
 
 			ProjectFolder		*fProject;
-			// int32				fProjectsCount;
 			BBox* 				fProjectBox;
 			BString		 		fProjectBoxLabel;
 			BString		 		fProjectBoxProjectLabel;
 
 			BBox* 				fBuildCommandsBox;
-			BMenuField*			fProjectMenuField;
-			BTextControl* 		fProjectTargetText;
-			BTextControl* 		fBuildCommandText;
-			BTextControl* 		fCleanCommandText;
+			BMenuField*			fBuildModeMenuField;
+			BTextControl* 		fReleaseProjectTargetText;
+			BTextControl* 		fDebugProjectTargetText;
+			BTextControl* 		fReleaseBuildCommandText;
+			BTextControl* 		fDebugBuildCommandText;
+			BTextControl* 		fReleaseCleanCommandText;
+			BTextControl* 		fDebugCleanCommandText;
+			BTextControl* 		fReleaseExecuteArgsText;
+			BTextControl* 		fDebugExecuteArgsText;
 			BTextControl* 		fProjectScmText;
 			BTextControl* 		fProjectTypeText;
 			BString				fTargetString;
 			BString				fBuildString;
 			BString				fCleanString;
-			BString				fProjectScmString;
-			BString				fProjectTypeString;
-			BBox* 				fRuntimeBox;
-			BTextControl* 		fRunArgsText;
+			BBox* 				fTargetBox;
+			BCheckBox*			fRunInTerminal;
+			BCheckBox*			fEnableGit;
+			BCheckBox*			fExcludeSettingsGit;
+			BBox*				fSourceControlBox;
+			
 			BString				fRunArgsString;
-			// BBox* 				fProjectParselessBox;
-			// BStringView*		fProjectParselessBoxLabel;
-			// BTextView*			fParselessText;
-			// BScrollView*		fParselessScroll;
-		// std::vector<BString>	fParselessList;
-			// TPreferences*		fIdmproFile;
+			
+			
+			
+			BuildMode			fBuildMode;
 };
 
 

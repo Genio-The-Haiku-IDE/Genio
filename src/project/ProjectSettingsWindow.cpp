@@ -22,7 +22,8 @@
 
 enum
 {
-	MSG_EXIT_CLICKED				= 'excl',
+	MSG_CANCEL_CLICKED				= 'canc',
+	MSG_SAVE_CLICKED				= 'save',
 	MSG_BUILD_MODE_SELECTED			= 'bmse',
 };
 
@@ -51,9 +52,7 @@ ProjectSettingsWindow::~ProjectSettingsWindow()
 bool
 ProjectSettingsWindow::QuitRequested()
 {
-	_CloseProject();
 	Quit();
-
 	return true;
 }
 
@@ -61,7 +60,12 @@ void
 ProjectSettingsWindow::MessageReceived(BMessage *msg)
 {
 	switch (msg->what) {
-		case MSG_EXIT_CLICKED: {
+		case MSG_CANCEL_CLICKED: {
+			PostMessage(B_QUIT_REQUESTED);
+			break;
+		}
+		case MSG_SAVE_CLICKED: {
+			_CloseProject();
 			PostMessage(B_QUIT_REQUESTED);
 			break;
 		}
@@ -159,9 +163,12 @@ ProjectSettingsWindow::_InitWindow()
 	.AddGlue(0, 7, 4)
 	;
 
-	// Exit button
-	BButton* exitButton = new BButton("exit",
-		B_TRANSLATE("Exit"), new BMessage(MSG_EXIT_CLICKED));
+	// Cancel button
+	BButton* cancelButton = new BButton("cancel",
+		B_TRANSLATE("Cancel"), new BMessage(MSG_CANCEL_CLICKED));
+	// Save button
+	BButton* saveButton = new BButton("save",
+		B_TRANSLATE("Save"), new BMessage(MSG_SAVE_CLICKED));
 
 	// Window layout
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
@@ -171,7 +178,8 @@ ProjectSettingsWindow::_InitWindow()
 				.Add(fProjectBox)
 				.AddGroup(B_HORIZONTAL)
 					.AddGlue()
-					.Add(exitButton)
+					.Add(cancelButton)
+					.Add(saveButton)
 					.AddGlue()
 				.End()
 			.End()

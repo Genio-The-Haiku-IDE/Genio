@@ -1343,13 +1343,10 @@ GenioWindow::_DebugProject()
 		return B_ERROR;
 
 	// TODO: args
-	const char *args[] = { fActiveProject->GetTarget(), 0};
+	const char *argv[] = { fActiveProject->GetTarget().String(), NULL};
+	return be_roster->Launch("application/x-vnd.Haiku-Debugger", 1,	argv);
 
-	return be_roster->Launch("application/x-vnd.Haiku-Debugger",
-						1,
-						const_cast<char**>(args));
-
-	return B_OK;
+	// return B_OK;
 }
 
 /*

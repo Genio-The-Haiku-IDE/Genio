@@ -40,7 +40,6 @@ private:
 			BString		 		fProjectBoxProjectLabel;
 
 			BBox* 				fBuildCommandsBox;
-
 			BMenuField*			fBuildModeMenuField;
 			BTextControl* 		fReleaseProjectTargetText;
 			BTextControl* 		fDebugProjectTargetText;
@@ -62,6 +61,7 @@ private:
 			BBox*				fSourceControlBox;
 			
 			BString				fRunArgsString;
+
 			BuildMode			fBuildMode;
 };
 

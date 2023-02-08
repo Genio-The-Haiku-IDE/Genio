@@ -1,7 +1,14 @@
-## Genio - The Haiku IDE Makefile ########################################################
+## Genio - The Haiku IDE Makefile ##############################################
 
 arch := $(shell getarch)
 platform := $(shell uname -p)
+
+debug ?= 0
+ifeq ($(debug), 0)
+	DEBUGGER :=
+else
+	DEBUGGER := TRUE
+endif
 
 ## clang build flag ############################################################
 BUILD_WITH_CLANG := 0
@@ -24,7 +31,12 @@ else								# clang build
 	endif 
 endif
 
-NAME := Genio
+ifeq ($(debug), 0)
+	NAME := Genio
+else
+	NAME := Genio_debug
+endif
+
 
 TARGET_DIR := app
 
@@ -98,8 +110,6 @@ CFLAGS := -Wall -Werror
 CXXFLAGS := -std=c++14 -fPIC
 
 LOCALES := en it
-
-DEBUGGER := TRUE
 
 ## Include the Makefile-Engine
 ENGINE_DIRECTORY := $(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)

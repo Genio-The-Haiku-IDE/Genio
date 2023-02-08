@@ -13,35 +13,28 @@
 #ifndef GSETTINGS_H
 #define GSETTINGS_H
 
+#include <memory>
+
 #include <Path.h>
 #include <File.h>
 #include <FindDirectory.h>
 
-#define TYPE_COMPARE(t1,t2) (typeid(t1)==typeid(t2))
+using namespace std;
 
 class GSettings : public BMessage {
 public:
-					GSettings(const BString& folderPath, const BString& fileName, uint32 command);
-					~GSettings();
+						GSettings(const BString& folderPath, const BString& fileName, uint32 command);
+						~GSettings();
+						
+	void				Save();
+						
+	status_t			GetStatus() const { return fStatus; }
 	
-	static BString 	GetUserSettingsFolder();
-
-	void			SetBool(const char *key, bool value);
-	void			SetInt8(const char *key, int8 value);
-	void			SetInt16(const char *key, int16 value);
-	void			SetInt32(const char *key, int32 value);
-	void			SetInt64(const char *key, int64 value);
-	void			SetFloat(const char *key, float value);
-	void			SetDouble(const char *key, double value);
-	void			SetString(const char *key, const char *value);
-	void			SetBString(const char* key, const BString& value);
-	void			SetPoint(const char *key, BPoint value);
-	void			SetRect(const char *key, BRect value);
-	void			SetFlat(const char *key, const BFlattenable *value);
+	static BString 		GetUserSettingsFolder();
 	
 private:
-	BPath			fPath;
-	BFile			fFile;
+	BPath				fPath;
+	status_t			fStatus;
 };
 
 #endif // GSETTINGS_H

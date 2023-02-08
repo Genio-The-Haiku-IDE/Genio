@@ -3,7 +3,7 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-#include "GenioWindow.h"
+#include "GenioWindow.h" 
 
 #include <Alert.h>
 #include <Application.h>
@@ -128,7 +128,6 @@ enum {
 	MSG_RUN_TARGET				= 'ruta',
 	MSG_BUILD_MODE_RELEASE		= 'bmre',
 	MSG_BUILD_MODE_DEBUG		= 'bmde',
-	MSG_CARGO_UPDATE			= 'caup',
 	MSG_DEBUG_PROJECT			= 'depr',
 	MSG_MAKE_CATKEYS			= 'maca',
 	MSG_MAKE_BINDCATALOGS		= 'mabi',
@@ -636,7 +635,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			// fBuildModeButton->SetEnabled(true);
 			fBuildModeButton->SetToolTip(B_TRANSLATE("Build mode: Debug"));
 			fActiveProject->SetBuildMode(BuildMode::DebugMode);
-			_MakefileSetBuildMode(false);
+			// _MakefileSetBuildMode(false);
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
@@ -644,16 +643,12 @@ GenioWindow::MessageReceived(BMessage* message)
 			// fBuildModeButton->SetEnabled(false);
 			fBuildModeButton->SetToolTip(B_TRANSLATE("Build mode: Release"));
 			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
-			_MakefileSetBuildMode(true);
+			// _MakefileSetBuildMode(true);
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case MSG_BUILD_PROJECT: {
 			_BuildProject();
-			break;
-		}
-		case MSG_CARGO_UPDATE: {
-			// TODO
 			break;
 		}
 		case MSG_CLEAN_PROJECT: {
@@ -1092,12 +1087,6 @@ GenioWindow::MessageReceived(BMessage* message)
 
 			break;
 		}
-		case GenioNames::NEWPROJECTWINDOW_PROJECT_CARGO_NEW: {
-			BString args;
-			if (message->FindString("cargo_new_string", &args) == B_OK)
-				_CargoNew(args);
-			break;
-		}
 
 		case TABMANAGER_TAB_SELECTED: {
 			int32 index;
@@ -1275,40 +1264,6 @@ GenioWindow::_BuildProject()
 	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
 		BMessenger(fBuildLogView));
 
-	status = fConsoleIOThread->Start();
-
-	return status;
-}
-
-status_t
-GenioWindow::_CargoNew(BString args)
-{
-	status_t status;
-
-	fBuildLogView->Clear();
-	_ShowLog(kBuildLog);
-
-	// Dirty hack (getenv broken?)
-	setenv("USER", "user", true);
-
-	BString command;
-
-	if (!strcmp(get_primary_architecture(), "x86_gcc2"))
-		command << "cargo-x86 new " << args;
-	else
-		command << "cargo new " << args;
-
-	BMessage message;
-	message.AddString("cmd", command);
-	message.AddString("cmd_type", "cargo_new");
-
-	// Go to appropriate directory
-	chdir(GenioNames::Settings.projects_directory);
-
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fBuildLogView));
-
-	// TODO: Collapse Projects Outline to make new active project visible?
 	status = fConsoleIOThread->Start();
 
 	return status;
@@ -2289,8 +2244,6 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
 		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
-//	menu->AddItem(fProjectCloseMenuItem = new BMenuItem(B_TRANSLATE("Close"),
-//		new BMessage(MSG_PROJECT_CLOSE), 'C', B_OPTION_KEY));
 	menu->AddSeparatorItem();
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Settings"),
 		new BMessage(MSG_PROJECT_SETTINGS)));
@@ -2444,12 +2397,6 @@ GenioWindow::_InitMenu()
 	menu->AddItem(fBuildModeItem);
 	menu->AddSeparatorItem();
 
-	fCargoMenu = new BMenu(B_TRANSLATE("Cargo"));
-	fCargoMenu->AddItem(fCargoUpdateItem = new BMenuItem(B_TRANSLATE("update"),
-		new BMessage(MSG_CARGO_UPDATE)));
-	menu->AddItem(fCargoMenu);
-	menu->AddSeparatorItem();
-
 	menu->AddItem(fDebugItem = new BMenuItem (B_TRANSLATE("Debug Project"),
 		new BMessage(MSG_DEBUG_PROJECT)));
 	menu->AddSeparatorItem();
@@ -2462,7 +2409,6 @@ GenioWindow::_InitMenu()
 	fCleanItem->SetEnabled(false);
 	fRunItem->SetEnabled(false);
 	fBuildModeItem->SetEnabled(false);
-	fCargoMenu->SetEnabled(false);
 	fDebugItem->SetEnabled(false);
 	fMakeCatkeysItem->SetEnabled(false);
 	fMakeBindcatalogsItem->SetEnabled(false);
@@ -2684,9 +2630,9 @@ GenioWindow::_InitSideSplit()
 {
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
-
+	
 	fProjectsFolderOutline = new BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST);
-	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("ProjectFolders"),
+	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
 		fProjectsFolderOutline, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 	
@@ -3499,7 +3445,7 @@ void
 GenioWindow::_ShowProjectItemPopupMenu()
 {
 	fCloseProjectMenuItem->SetEnabled(false);
-	fSetActiveProjectMenuItem->SetEnabled(false);
+	fSetActiveProjectMenuItem->SetEnabled(true);
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
 	
@@ -3724,8 +3670,6 @@ GenioWindow::_RunTarget()
 		return;
 
 	// If there's no app just return, should not happen
-	// Cargo projects can build & run in one pass,
-	// so fake target to project directory to do the same
 	BEntry entry(fActiveProject->GetTarget());
 	if (!entry.Exists())
 		return;
@@ -3742,22 +3686,6 @@ GenioWindow::_RunTarget()
 		_ShowLog(kOutputLog);
 
 		BString command;
-
-		// TODO: Remove support for Cargo/Rust
-		// Is it a cargo project?
-		// if (fActiveProject->Type() == "cargo") {
-			// Check architecture
-			// if (!strcmp(get_primary_architecture(), "x86_gcc2"))
-				// command << "cargo-x86 run";
-			// else
-				// command << "cargo run";
-			// Honour run mode for cargo projects
-			// if (fActiveProject->ReleaseModeEnabled() == true)
-				// command << " --release";
-			// Go to appropriate directory
-			// chdir(fActiveProject->BasePath());
-
-		// } else { // here type != "cargo"
 
 			command << fActiveProject->GetTarget();
 			if (!args.IsEmpty())

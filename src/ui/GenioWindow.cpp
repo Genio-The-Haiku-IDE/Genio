@@ -1345,6 +1345,7 @@ GenioWindow::_DebugProject()
 
 	const char *argv[] = { fActiveProject->GetTarget().String(), NULL};
 	return be_roster->Launch("application/x-vnd.Haiku-Debugger", 1,	argv);
+
 }
 
 /*

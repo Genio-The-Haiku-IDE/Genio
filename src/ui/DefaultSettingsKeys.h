@@ -36,5 +36,9 @@ const int32 kSKEnableNotifications = B_CONTROL_ON;	// "enable_notifications"
 const int32 kSKWrapConsole = B_CONTROL_OFF;			// "wrap_console"
 const int32 kSKConsoleBanner = B_CONTROL_ON;		// "console_banner"
 const int32 kSKEditorZoom = 0;						// "editor_zoom"
+const int32 kSKFindWrap = false;					// "find_wrap"
+const int32 kSKFindWholeWord = false;				// "find_whole_word"
+const int32 kSKFindMatchCase = false;				// "find_match_case"
+
 
 #endif // DEFAULT_SETTINGS_KEYS_H

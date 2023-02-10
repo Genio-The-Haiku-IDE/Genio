@@ -81,6 +81,7 @@ private:
 			void				_FileCloseAll();
 			status_t			_FileOpen(BMessage* msg);
 			bool				_FileIsSupported(const entry_ref* ref);
+			status_t			_FileOpenWithPreferredApp(const entry_ref* ref);
 			status_t			_FileSave(int32	index);
 			void				_FileSaveAll();
 			status_t			_FileSaveAs(int32 selection, BMessage* message);

@@ -1103,4 +1103,38 @@ struct FileStatus {
     // FIXME: add detail messages.
 };
 
+// Parameters for the document link request.
+struct DocumentLinkParams {
+  /// The document to provide document links for.
+  TextDocumentIdentifier textDocument;
+};
+JSON_SERIALIZE(DocumentLinkParams, MAP_JSON(MAP_KEY(textDocument)), {});
+
+
+
+// A range in a text document that links to an internal or external resource,
+// like another text document or a web site.
+struct DocumentLink {
+  // The range this link applies to.
+  Range range;
+
+  // The uri this link points to. If missing a resolve request is sent later.
+  std::string target;
+
+  // TODO(forster): The following optional fields defined by the language
+  // server protocol are unsupported:
+  //
+  // data?: any - A data entry field that is preserved on a document link
+  //              between a DocumentLinkRequest and a
+  //              DocumentLinkResolveRequest.
+  friend bool operator==(const DocumentLink &LHS, const DocumentLink &RHS) {
+    return LHS.range == RHS.range && LHS.target == RHS.target;
+  }
+
+  friend bool operator!=(const DocumentLink &LHS, const DocumentLink &RHS) {
+    return !(LHS == RHS);
+  }
+};
+JSON_SERIALIZE(DocumentLink, MAP_JSON(MAP_KEY(range), MAP_KEY(target)), {FROM_KEY(range);FROM_KEY(target);});
+
 #endif //LSP_PROTOCOL_H

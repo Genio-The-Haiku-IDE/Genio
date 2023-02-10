@@ -13,6 +13,9 @@
 #include <Application.h>
 #include "TextUtils.h"
 
+#define IND_DIAG 0
+#define IND_LINK 1
+
 FileWrapper::FileWrapper(std::string filenameURI, Editor* editor):
 						 LSPTextDocument(filenameURI), 
 						 fEditor(editor) {
@@ -23,8 +26,12 @@ FileWrapper::FileWrapper(std::string filenameURI, Editor* editor):
 void
 FileWrapper::ApplySettings()
 {
-  fEditor->SendMessage(SCI_SETINDICATORCURRENT, 0);
-  fEditor->SendMessage(SCI_INDICSETFORE, 0, (255 | (0 << 8) | (0 << 16)));
+
+  fEditor->SendMessage(SCI_INDICSETFORE, IND_DIAG, (255 | (0 << 8) | (0 << 16)));  
+
+  fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
+  fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
+  
   
   // int margins = fEditor->SendMessage(SCI_GETMARGINS);
   // fEditor->SendMessage(SCI_SETMARGINS, margins + 1);
@@ -109,6 +116,7 @@ FileWrapper::didChange(const char* text, long len, Sci_Position start_pos, Sci_P
   std::vector<TextDocumentContentChangeEvent> changes{event};
 
   fLSPClientWrapper->DidChange(this, fFilenameURI.c_str(), changes, false);
+  fLSPClientWrapper->DocumentLink(this, fFilenameURI.c_str());
 }
 
 
@@ -167,16 +175,14 @@ FileWrapper::GoTo(FileWrapper::GoToType type)
 void FileWrapper::StartHover(Sci_Position sci_position) {
   if (!initialized)
 		return;
-  if (fEditor->SendMessage(SCI_INDICATORVALUEAT, 0, sci_position) == 1)
+		
+  if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_DIAG, sci_position) == 1)
   {
-	  for (auto& d: fLastDiagnostics) {
-		Sci_Position from = FromLSPPositionToSciPosition(d.range.start);
-		Sci_Position to   = FromLSPPositionToSciPosition(d.range.end);
-			
-		if (sci_position > from && sci_position <= to){
-			_ShowToolTip(d.message.c_str());
+	  for (auto& ir: fLastDiagnostics) {			
+		if (sci_position > ir.from && sci_position <= ir.to){
+			_ShowToolTip(ir.info.c_str());
 			break;
-		}	
+		}
 	  }
 	  return;
   }
@@ -462,6 +468,28 @@ FileWrapper::CharAdded(const char ch /*utf-8?*/)
 	}
 }
 
+void	
+FileWrapper::IndicatorClick(Sci_Position sci_position)
+{
+  Sci_Position s_start = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
+  Sci_Position s_end = fEditor->SendMessage(SCI_GETSELECTIONEND, 0, 0);
+  if (s_start != s_end)
+	  return; 
+	  
+
+  if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_LINK, sci_position) == 1)
+  {
+	  for (auto& ir: fLastDocumentLinks) {			
+		if (sci_position > ir.from && sci_position <= ir.to){
+			LogTrace("Opening file: [%s]", ir.info.c_str());
+			OpenFileURI(ir.info);
+			break;
+		}
+	  }
+	  return;
+  }
+}
+
 void
 FileWrapper::_ShowToolTip(const char* text)
 {
@@ -496,7 +524,7 @@ FileWrapper::_DoGoTo(nlohmann::json& items){
      
       Position pos = first["range"]["start"].get<Position>();
 
-      OpenFile(uri, pos.line + 1, pos.character);
+      OpenFileURI(uri, pos.line + 1, pos.character);
     }
 };
   
@@ -512,7 +540,7 @@ FileWrapper::_DoSignatureHelp(json &result) {
 void	
 FileWrapper::_DoSwitchSourceHeader(json &result) {
 	std::string url = result.get<std::string>();
-    OpenFile(url);
+    OpenFileURI(url);
 };
 
 void	
@@ -538,6 +566,7 @@ void
 FileWrapper::_RemoveAllDiagnostics()
 {
 	// remove all the indicators..
+	fEditor->SendMessage(SCI_SETINDICATORCURRENT, IND_DIAG);
 	fEditor->SendMessage(SCI_INDICATORCLEARRANGE, 0, fEditor->SendMessage(SCI_GETTEXTLENGTH));
 	fLastDiagnostics.clear();	
 }
@@ -548,21 +577,45 @@ FileWrapper::_DoDiagnostics(nlohmann::json& params)
 	//auto dias = params["diagnostics"];
 	auto vect = params["diagnostics"].get<std::vector<Diagnostic>>();
 	
-	// remove all the indicators..
-	fEditor->SendMessage(SCI_INDICATORCLEARRANGE, 0, fEditor->SendMessage(SCI_GETTEXTLENGTH));
-	fLastDiagnostics.clear();
+	_RemoveAllDiagnostics();
 
 	for (auto &v: vect)
 	{
 		Range &r = v.range;
-		Sci_Position from = FromLSPPositionToSciPosition(r.start);
-		Sci_Position to   = FromLSPPositionToSciPosition(r.end);
-
-		LogTrace("Diagnostics [%ld->%ld] [%s]", from, to, v.message.c_str());
-		fEditor->SendMessage(SCI_INDICATORFILLRANGE, from, to-from);
+		InfoRange ir;
+		ir.from = FromLSPPositionToSciPosition(r.start);
+		ir.to   = FromLSPPositionToSciPosition(r.end);
+		ir.info = v.message;
+		
+		LogTrace("Diagnostics [%ld->%ld] [%s]", ir.from, ir.to, ir.info.c_str());
+		fEditor->SendMessage(SCI_INDICATORFILLRANGE, ir.from, ir.to-ir.from);
+		fLastDiagnostics.push_back(ir);
 	}
-	fLastDiagnostics = vect;
 }
+
+void 
+FileWrapper::_DoDocumentLink(nlohmann::json& result)
+{
+	auto links = result.get<std::vector<DocumentLink>>();
+	
+	// remove all the indicators..
+	fEditor->SendMessage(SCI_SETINDICATORCURRENT, IND_LINK);
+	fEditor->SendMessage(SCI_INDICATORCLEARRANGE, 0, fEditor->SendMessage(SCI_GETTEXTLENGTH));
+	fLastDocumentLinks.clear();
+
+	for (auto &l: links) {
+		Range &r = l.range;
+		InfoRange ir;
+		ir.from = FromLSPPositionToSciPosition(r.start);
+		ir.to   = FromLSPPositionToSciPosition(r.end);
+		ir.info = l.target;
+		
+		LogTrace("DocumentLink [%ld->%ld] [%s]", ir.from, ir.to, l.target.c_str());
+		fEditor->SendMessage(SCI_INDICATORFILLRANGE, ir.from, ir.to-ir.from);
+		fLastDocumentLinks.push_back(ir);
+	}
+}
+
 		
 #include "Log.h"
 
@@ -587,6 +640,7 @@ FileWrapper::onResponse(RequestID id, value &result)
 	IF_ID("textDocument/signatureHelp", _DoSignatureHelp);
 	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
 	IF_ID("textDocument/completion", _DoCompletion);
+	IF_ID("textDocument/documentLink", _DoDocumentLink);
 	
 	LogError("FileWrapper::onResponse not handled! [%s]", id.c_str());
 
@@ -651,8 +705,8 @@ FileWrapper::ApplyTextEdit(json &textEdit) {
 }
 
 void 
-FileWrapper::OpenFile(std::string &uri, int32 line, int32 character) {
-  // fixe me if (uri.find("file://") == 0)
+FileWrapper::OpenFileURI(std::string uri, int32 line, int32 character) {
+  if (uri.find("file://") == 0)
   {
     uri.erase(uri.begin(), uri.begin() + 7);
     BEntry entry(uri.c_str());

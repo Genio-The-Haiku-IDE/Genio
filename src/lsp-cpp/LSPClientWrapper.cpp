@@ -330,6 +330,13 @@ RequestID LSPClientWrapper::TypeHierarchy(MessageHandler* fw, DocumentUri uri, P
 	params.resolve = resolve;
 	return SendRequest(X(fw), "textDocument/typeHierarchy", std::move(params));
 }
+
+RequestID LSPClientWrapper::DocumentLink(MessageHandler* fw, DocumentUri uri) {
+	DocumentLinkParams params;
+	params.textDocument.uri = std::move(uri);
+	return SendRequest(X(fw), "textDocument/documentLink", std::move(params));
+}
+
 RequestID LSPClientWrapper::WorkspaceSymbol(MessageHandler* fw, string_ref query) {
 	WorkspaceSymbolParams params;
 	params.query = query;
@@ -353,11 +360,15 @@ RequestID LSPClientWrapper::DidChangeConfiguration(MessageHandler* fw, Configura
 	return SendRequest(X(fw), "workspace/didChangeConfiguration", std::move(params));
 }
 
+
+
 RequestID LSPClientWrapper::SendRequest(RequestID id, string_ref method, value params) {
 	id.append("_").append(method);
 	client->request(method, params, id);
 	return id;
 }
+
+
 
 void LSPClientWrapper::SendNotify(string_ref method, value params) {
 	client->notify(method, params);

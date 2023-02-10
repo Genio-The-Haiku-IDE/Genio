@@ -717,6 +717,10 @@ Editor::NotificationReceived(SCNotification* notification)
 			fFileWrapper->EndHover();
 			break;
 		}
+		case SCN_INDICATORRELEASE: {
+			fFileWrapper->IndicatorClick(notification->position);
+			break;
+		}
 		case SCN_SAVEPOINTLEFT: {
 			fModified = true;
 			BMessage message(EDITOR_SAVEPOINT_LEFT);

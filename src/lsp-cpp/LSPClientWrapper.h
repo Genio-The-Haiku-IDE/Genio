@@ -63,6 +63,7 @@ public:
     RequestID DocumentHighlight(MessageHandler*, DocumentUri uri, Position position);
     RequestID SymbolInfo(MessageHandler*, DocumentUri uri, Position position);
     RequestID TypeHierarchy(MessageHandler*, DocumentUri uri, Position position, TypeHierarchyDirection direction, int resolve);
+    RequestID DocumentLink(MessageHandler* fw, DocumentUri uri);
     RequestID WorkspaceSymbol(MessageHandler*, string_ref query);
     RequestID ExecuteCommand(MessageHandler*, string_ref cmd, option<TweakArgs> tweakArgs = {}, option<WorkspaceEdit> workspaceEdit = {});
     RequestID DidChangeWatchedFiles(MessageHandler*, std::vector<FileEvent> &changes);

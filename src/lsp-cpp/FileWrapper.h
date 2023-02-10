@@ -11,7 +11,8 @@
 #include <Autolock.h>
 #include "Editor.h"
 #include <vector>
-#include "protocol.h"
+#include "protocol.h" // remove to make compilation faster..
+
 class LSPClientWrapper;
 
 class FileWrapper : public LSPTextDocument {
@@ -47,6 +48,9 @@ public:
 		
 		void	SignatureHelp();
 		
+		void	IndicatorClick(Sci_Position position);
+		
+		
 		/* experimental */
 		void	CharAdded(const char ch /*utf-8?*/);
 		bool	StartCallTip();
@@ -72,6 +76,12 @@ public:
 		
 private:
 
+	struct InfoRange {
+		Sci_Position	from;
+		Sci_Position	to;
+		std::string		info;
+	};
+
 	Editor*		fEditor;
 	nlohmann::json		fCurrentCompletion;
 	Sci_Position		fCompletionPosition;
@@ -80,7 +90,8 @@ private:
 	bool				initialized = false; //to be removed, use LSPClientWrapper pointer..
 	
 
-	std::vector<Diagnostic>		fLastDiagnostics;
+	std::vector<InfoRange>		fLastDiagnostics;
+	std::vector<InfoRange>		fLastDocumentLinks;
 	
 	void				_ShowToolTip(const char* text);
 	void				_RemoveAllDiagnostics();
@@ -95,6 +106,7 @@ private:
 	void	_DoSwitchSourceHeader(nlohmann::json& params);
 	void	_DoCompletion(nlohmann::json& params);
 	void	_DoDiagnostics(nlohmann::json& params);
+	void	_DoDocumentLink(nlohmann::json& params);
 	
 private:
 	//utils
@@ -103,7 +115,7 @@ private:
 	void 			GetCurrentLSPPosition(Position &lsp_position);
 	void 			FromSciPositionToRange(Sci_Position s_start, Sci_Position s_end, Range &range);
 	Sci_Position 	ApplyTextEdit(json &textEdit);
-	void			OpenFile(std::string &uri, int32 line = -1, int32 character = -1);
+	void			OpenFileURI(std::string uri, int32 line = -1, int32 character = -1);
 	std::string 	GetCurrentLine();                            
 };
 

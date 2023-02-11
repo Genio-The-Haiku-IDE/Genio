@@ -1512,6 +1512,7 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	BNode entry(ref);
 	if (entry.InitCheck() != B_OK || entry.IsDirectory())
 		return false;
+	
 
 	std::string fileType = Genio::file_type(BPath(ref).Path());
 
@@ -1531,12 +1532,11 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 		
 		if (strncmp(mime, "text/", 5) == 0)
 			return true;
-		
 	}
 	return false;
 }
 
-status_t                  
+status_t                       
 GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 {
        BNode entry(ref);

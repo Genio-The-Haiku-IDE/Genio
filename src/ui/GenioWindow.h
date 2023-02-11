@@ -5,6 +5,8 @@
 #ifndef GenioWINDOW_H
 #define GenioWINDOW_H
 
+#include <map>
+
 #include <Bitmap.h>
 #include <CheckBox.h>
 #include <ColumnListView.h>
@@ -109,8 +111,6 @@ private:
 			void				_MakeCatkeys();
 			void				_MakefileSetBuildMode(bool isReleaseMode);
 
-			void				_ProjectClose();
-			void				_ProjectDelete(BString name, bool sourcesToo);
 			void				_ProjectFileDelete();
 			void				_ProjectFileExclude();
 			BString	const		_ProjectFileFullPath();
@@ -120,15 +120,17 @@ private:
 			status_t			_ProjectRemoveDir(const BString& dirPath);
 
 			// Project Folders
-			void				_ProjectFolderClose();
+			void				_ProjectFolderClose(ProjectFolder *project);
 			void 				_ProjectFolderNew(BMessage *message);
 			void 				_ProjectFolderOpen(BMessage *message);
+			void				_ProjectFolderOpen(const BString& folder, bool activate = false);
 			void				_ProjectFolderOutlineDepopulate(ProjectFolder* project);
 			void				_ProjectFolderOutlinePopulate(ProjectFolder* project);
 			void				_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 			void				_ProjectFolderActivate(ProjectFolder* project);
 			void				_ShowProjectItemPopupMenu();
-			ProjectFolder *		_GetProjectFromCurrentItem();
+			ProjectFolder*		_GetProjectFromCurrentItem();
+			ProjectItem*		_GetProjectItem(ProjectFolder *project);
 			
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
@@ -253,8 +255,10 @@ private:
 			BString				fSelectedProjectName;
 			ProjectItem*		fSelectedProjectItem;
 			BString				fSelectedProjectItemName;
+			
 			BObjectList<Project>*	fProjectObjectList;
 			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
+			
 			BStringItem*		fSourcesItem;
 			BStringItem*		fFilesItem;
 

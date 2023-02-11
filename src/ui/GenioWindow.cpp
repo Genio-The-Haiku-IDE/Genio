@@ -5,6 +5,13 @@
 
 #include "GenioWindow.h" 
 
+#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
+
 #include <Alert.h>
 #include <Application.h>
 #include <Architecture.h>
@@ -20,12 +27,6 @@
 #include <SeparatorView.h>
 #include <StringItem.h>
 #include <NodeInfo.h>
-
-#include <cassert>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
 
 #include "AddToProjectWindow.h"
 #include "exceptions/Exceptions.h"
@@ -233,7 +234,7 @@ GenioWindow::GenioWindow(BRect frame)
 	}
 	// Reopen projects
 	// TODO reopen folders
-	/*if (GenioNames::Settings.reopen_projects == true) {
+	if (GenioNames::Settings.reopen_projects == true) {
 		TPreferences projects(GenioNames::kSettingsProjectsToReopen,
 								GenioNames::kApplicationName, 'PRRE');
 		if (!projects.IsEmpty()) {
@@ -242,9 +243,10 @@ GenioWindow::GenioWindow(BRect frame)
 			projects.FindString("active_project", &activeProject);
 			for (auto count = 0; projects.FindString("project_to_reopen",
 										count, &projectName) == B_OK; count++)
-					_ProjectOpen(projectName, projectName == activeProject);
+					_ProjectFolderOpen(projectName, projectName == activeProject);
 		}
-	}*/
+	}
+	
 	// Reopen files
 	if (GenioNames::Settings.reopen_files == true) {
 		TPreferences files(GenioNames::kSettingsFilesToReopen,
@@ -907,11 +909,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_CLOSE: {
-			_ProjectClose();
+			_ProjectFolderClose(fActiveProject);
 			break;
 		}
 		case MSG_PROJECT_MENU_CLOSE: {
-			_ProjectClose();
+			_ProjectFolderClose(_GetProjectFromCurrentItem());
 			break;
 		}
 		case MSG_PROJECT_MENU_ADD_ITEM: {
@@ -1188,11 +1190,11 @@ GenioWindow::QuitRequested()
 
 		projects.MakeEmpty();
 
-		for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
-			Project * project = fProjectObjectList->ItemAt(index);
-			projects.AddString("project_to_reopen", project->ExtensionedName());
-			if (project->IsActive())
-				projects.AddString("active_project", project->ExtensionedName());
+		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
+			ProjectFolder *project = fProjectFolderObjectList->ItemAt(index);
+			projects.AddString("project_to_reopen", project->Path());
+			if (project->Active())
+				projects.AddString("active_project", project->Path());
 			// Avoiding leaks
 			//TODO:---> _ProjectOutlineDepopulate(project);
 			delete project;
@@ -1342,11 +1344,8 @@ GenioWindow::_DebugProject()
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	// TODO: args
 	const char *argv[] = { fActiveProject->GetTarget().String(), NULL};
 	return be_roster->Launch("application/x-vnd.Haiku-Debugger", 1,	argv);
-
-	// return B_OK;
 }
 
 /*
@@ -2707,13 +2706,13 @@ GenioWindow::_InitWindow()
 												&ref, B_DIRECTORY_NODE, false,
 												openProjectFolderMessage);
 							
-	BPath path;
-	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
-	path.Append(GenioNames::kApplicationName);
-	entry.SetTo(path.Path());
-	entry.GetRef(&ref);
-	fOpenProjectPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), &ref, B_FILE_NODE,
-							false, nullptr, new ProjectRefFilter());
+	// BPath path;
+	// find_directory(B_USER_SETTINGS_DIRECTORY, &path);
+	// path.Append(GenioNames::kApplicationName);
+	// entry.SetTo(path.Path());
+	// entry.GetRef(&ref);
+	// fOpenProjectPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), &ref, B_FILE_NODE,
+							// false, nullptr, new ProjectRefFilter());
 
 }
 
@@ -3074,87 +3073,11 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		project->Active(true);
 		_UpdateProjectActivation(true);
 	}
-
-
+	
 	// Update run command working directory tooltip too
 	BString tooltip;
 	tooltip << "cwd: " << fActiveProject->Path();
 	fRunConsoleProgramText->SetToolTip(tooltip);
-}
-
-void
-GenioWindow::_ProjectClose()
-{
-	ProjectFolder *project = _GetProjectFromCurrentItem();
-	if (project == nullptr)
-		return;
-
-	BString closed(B_TRANSLATE("Project close:"));
-	BString name = fSelectedProjectName;
-
-	// Active project closed
-	if (project == fActiveProject) {
-		fActiveProject = nullptr;
-		closed = B_TRANSLATE("Active project close:");
-		_UpdateProjectActivation(false);
-		// Update run command working directory tooltip too
-		BString tooltip;
-		tooltip << "cwd: " << GenioNames::Settings.projects_directory;
-		fRunConsoleProgramText->SetToolTip(tooltip);
-	}
-	_ProjectFolderOutlineDepopulate(project);
-	fProjectFolderObjectList->RemoveItem(project);
-
-	BString notification;
-	notification << closed << " "  << name;
-	_SendNotification(notification, "PROJ_CLOSE");
-}
-
-void
-GenioWindow::_ProjectDelete(BString name, bool sourcesToo)
-{
-
-	BPath projectPath;
-
-	if ((find_directory(B_USER_SETTINGS_DIRECTORY, &projectPath)) != B_OK) {
-		BString text;
-		text << B_TRANSLATE("ERROR: Settings directory not found");
-		_SendNotification( text.String(), "PROJ_DELETE");
-		return;
-	}
-
-	// Get base directory for removal
-	BString baseDir("");
-	for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
-		Project * project = fProjectObjectList->ItemAt(index);
-		if (project->ExtensionedName() == fSelectedProjectName) {
-			baseDir.SetTo(project->BasePath());
-		}
-	}
-
-	_ProjectClose();
-
-	projectPath.Append(GenioNames::kApplicationName);
-	projectPath.Append(name);
-	BEntry entry(projectPath.Path());
-
-	if (entry.Exists()) {
-		BString notification;
-		entry.Remove();
-		notification << B_TRANSLATE("Project delete:") << "  "  << name.String();
-		_SendNotification(notification, "PROJ_DELETE");
-	}
-
-	if (sourcesToo == true) {
-		if (!baseDir.IsEmpty()) {
-			if (_ProjectRemoveDir(baseDir) == B_OK) {
-				BString notification;
-				notification << B_TRANSLATE("Project delete:") << "  "
-					<< B_TRANSLATE("removed") << " " << baseDir;
-				_SendNotification(notification, "PROJ_DELETE");
-			}
-		}
-	}
 }
 
 void
@@ -3308,9 +3231,29 @@ GenioWindow::_ProjectRemoveDir(const BString& dirPath)
 
 // Project Folders
 void
-GenioWindow::_ProjectFolderClose()
+GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 {
+	if (project == nullptr)
+		return;
 
+	BString closed(B_TRANSLATE("Project close:"));
+	BString name = fSelectedProjectName;
+
+	// Active project closed
+	if (project == fActiveProject) {
+		fActiveProject = nullptr;
+		closed = B_TRANSLATE("Active project close:");
+		_UpdateProjectActivation(false);
+		// Update run command working directory tooltip too
+		BString tooltip;
+		tooltip << "cwd: " << GenioNames::Settings.projects_directory;
+		fRunConsoleProgramText->SetToolTip(tooltip);
+	}
+	_ProjectFolderOutlineDepopulate(project);
+	
+	BString notification;
+	notification << closed << " "  << name;
+	_SendNotification(notification, "PROJ_CLOSE");
 }
 
 void
@@ -3329,6 +3272,15 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 		throw BException(B_TRANSLATE("Invalid project folder"),0,status);
 		
 	BPath path(&ref);
+	
+	_ProjectFolderOpen(path.Path());
+}
+
+void
+GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
+{
+		
+	BPath path(folder);
 	
 	ProjectFolder* newProject = new ProjectFolder(path.Path());
 
@@ -3350,15 +3302,14 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 		return;
 	}
 
+	_ProjectFolderOutlinePopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
 
 	BString opened(B_TRANSLATE("Project open:"));
-	if (fProjectFolderObjectList->CountItems() == 1) {
+	if (fProjectFolderObjectList->CountItems() == 1 || activate == true) {
 		_ProjectFolderActivate(newProject);
 		opened = B_TRANSLATE("Active project open:");
 	}
-
-	_ProjectFolderOutlinePopulate(newProject);
 
 	BString notification;
 	notification << opened << "  " << newProject->Name() << " " << B_TRANSLATE("at") << " " << newProject->Path();
@@ -3367,10 +3318,10 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 
 void
 GenioWindow::_ProjectFolderOutlineDepopulate(ProjectFolder* project)
-{
-	ProjectItem* item = new ProjectItem(project);
-	int32 index = fProjectsFolderOutline->IndexOf(item);
-	fProjectsFolderOutline->RemoveItem(index);
+{	
+	fProjectsFolderOutline->RemoveItem(fSelectedProjectItem);
+	fProjectsFolderOutline->Invalidate();
+	fProjectFolderObjectList->RemoveItem(project);
 }
 
 void
@@ -3378,8 +3329,8 @@ GenioWindow::_ProjectFolderOutlinePopulate(ProjectFolder* project)
 {
 	ProjectItem *projectItem = NULL;
 	_ProjectFolderScan(projectItem, project->Path(), project);
-	// project->Active(true);
 	fProjectsFolderOutline->SortItemsUnder(projectItem, false, GenioWindow::_CompareProjectItems);
+	fProjectsFolderOutline->Invalidate();
 }
 
 void
@@ -3436,6 +3387,21 @@ GenioWindow::_GetProjectFromCurrentItem()
 	}
 	
 	return project;
+}
+
+ProjectItem*
+GenioWindow::_GetProjectItem(ProjectFolder *project)
+{
+	ProjectItem *projectItem = nullptr;
+	for (int32 index = 0; index < fProjectsFolderOutline->CountItems(); index++) {
+		ProjectItem *pitem  = (ProjectItem*)fProjectsFolderOutline->FullListItemAt(index);
+		SourceItem *sitem = pitem->GetSourceItem();
+		if (sitem->Type()==SourceItemType::ProjectFolderItem && sitem->Path() == project->Path()) {
+			projectItem = pitem;
+			break;
+		}
+	}
+	return projectItem;
 }
 
 void
@@ -3827,6 +3793,8 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fDebugButton->SetEnabled(false);
 		fBuildModeButton->SetEnabled(false);
 	}
+	
+	fProjectsFolderOutline->Invalidate();
 }
 
 void

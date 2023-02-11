@@ -34,7 +34,10 @@ GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 
 		if (fStatus!=B_OK)
 			throw BException("File system error: can't read settings from file", 0, fStatus);
 	} else {
-		throw BException("File system error: can't open settings file", 0, fStatus);
+		fStatus = fFile.SetTo(fPath.Path(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
+		fStatus = Flatten(&fFile);
+		if (fStatus!=B_OK)
+			throw BException("File system error: can't open settings file", 0, fStatus);
 	}
 }
 

@@ -107,7 +107,7 @@ endif
 
 CFLAGS := -Wall -Werror
 
-CXXFLAGS := -std=c++14 -fPIC
+CXXFLAGS := -std=c++17 -fPIC
 
 LOCALES := en it
 

@@ -11,8 +11,9 @@
 #include <Autolock.h>
 #include "Editor.h"
 #include <vector>
-#include "protocol.h" // remove to make compilation faster..
 
+class Position;
+class Range;
 class LSPClientWrapper;
 
 class FileWrapper : public LSPTextDocument {
@@ -111,10 +112,10 @@ private:
 	
 private:
 	//utils
-	void 			FromSciPositionToLSPPosition(const Sci_Position &pos, Position &lsp_position);
-	Sci_Position 	FromLSPPositionToSciPosition(const Position& lsp_position);
-	void 			GetCurrentLSPPosition(Position &lsp_position);
-	void 			FromSciPositionToRange(Sci_Position s_start, Sci_Position s_end, Range &range);
+	void 			FromSciPositionToLSPPosition(const Sci_Position &pos, Position *lsp_position);
+	Sci_Position 	FromLSPPositionToSciPosition(const Position* lsp_position);
+	void 			GetCurrentLSPPosition(Position *lsp_position);
+	void 			FromSciPositionToRange(Sci_Position s_start, Sci_Position s_end, Range *range);
 	Sci_Position 	ApplyTextEdit(json &textEdit);
 	void			OpenFileURI(std::string uri, int32 line = -1, int32 character = -1);
 	std::string 	GetCurrentLine();                            

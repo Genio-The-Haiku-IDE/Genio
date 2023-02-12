@@ -12,7 +12,10 @@
 #include "LSPClientWrapper.h"
 #include <Application.h>
 #include "TextUtils.h"
+#include "protocol.h"
+#include "Log.h"
 
+#define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 #define IND_DIAG 0
 #define IND_LINK 1
 
@@ -107,8 +110,8 @@ FileWrapper::didChange(const char* text, long len, Sci_Position start_pos, Sci_P
 
   TextDocumentContentChangeEvent event;
   Range range;
-  FromSciPositionToLSPPosition(start_pos, range.start);
-  FromSciPositionToLSPPosition(end_pos, range.end);
+  FromSciPositionToLSPPosition(start_pos, &range.start);
+  FromSciPositionToLSPPosition(end_pos, &range.end);
 
   event.range = range;
   event.text.assign(text, len);
@@ -140,7 +143,7 @@ void FileWrapper::Format() {
 
   if (s_start < s_end) {
     Range range;
-    FromSciPositionToRange(s_start, s_end, range);
+    FromSciPositionToRange(s_start, s_end, &range);
     fLSPClientWrapper->RangeFomatting(this, fFilenameURI.c_str(), range);
   } else {
     fLSPClientWrapper->Formatting(this, fFilenameURI.c_str());
@@ -154,7 +157,7 @@ FileWrapper::GoTo(FileWrapper::GoToType type)
     return;
   
   Position position;
-  GetCurrentLSPPosition(position);
+  GetCurrentLSPPosition(&position);
   
   switch(type) {
 	case GOTO_DEFINITION:
@@ -188,7 +191,7 @@ void FileWrapper::StartHover(Sci_Position sci_position) {
   }
   
   Position position;
-  FromSciPositionToLSPPosition(sci_position, position);
+  FromSciPositionToLSPPosition(sci_position, &position);
   fLSPClientWrapper->Hover(this, fFilenameURI.c_str(), position);
 }
 
@@ -208,7 +211,7 @@ FileWrapper::SignatureHelp()
     return;
 
   Position position;
-  GetCurrentLSPPosition(position);
+  GetCurrentLSPPosition(&position);
 
   fLSPClientWrapper->SignatureHelp(this, fFilenameURI.c_str(), position);
 }
@@ -273,7 +276,7 @@ void FileWrapper::StartCompletion() {
   }
 
   Position position;
-  GetCurrentLSPPosition(position);
+  GetCurrentLSPPosition(&position);
   CompletionContext context;
 
   this->fCompletionPosition = fEditor->SendMessage(SCI_GETCURRENTPOS, 0, 0);
@@ -298,7 +301,7 @@ FileWrapper::StartCallTip()
 	std::string line = GetCurrentLine();
 	
 	Position position;
-	GetCurrentLSPPosition(position);
+	GetCurrentLSPPosition(&position);
 	
 	Sci_Position current = position.character;
 	Sci_Position pos = fEditor->SendMessage(SCI_GETCURRENTPOS);
@@ -336,7 +339,7 @@ FileWrapper::StartCallTip()
 	Position newPos;
 	newPos.line = position.line;
 	newPos.character = startCalltipWord;
-	calltipPosition = FromLSPPositionToSciPosition(newPos);
+	calltipPosition = FromLSPPositionToSciPosition(&newPos);
 	
 	line.at(current + 1) = '\0';
 	
@@ -375,7 +378,7 @@ FileWrapper::ContinueCallTip()
 {
 	std::string line = GetCurrentLine();
 	Position position;
-	GetCurrentLSPPosition(position);
+	GetCurrentLSPPosition(&position);
 	
 	Sci_Position current = position.character;
 
@@ -583,8 +586,8 @@ FileWrapper::_DoDiagnostics(nlohmann::json& params)
 	{
 		Range &r = v.range;
 		InfoRange ir;
-		ir.from = FromLSPPositionToSciPosition(r.start);
-		ir.to   = FromLSPPositionToSciPosition(r.end);
+		ir.from = FromLSPPositionToSciPosition(&r.start);
+		ir.to   = FromLSPPositionToSciPosition(&r.end);
 		ir.info = v.message;
 		
 		LogTrace("Diagnostics [%ld->%ld] [%s]", ir.from, ir.to, ir.info.c_str());
@@ -606,8 +609,8 @@ FileWrapper::_DoDocumentLink(nlohmann::json& result)
 	for (auto &l: links) {
 		Range &r = l.range;
 		InfoRange ir;
-		ir.from = FromLSPPositionToSciPosition(r.start);
-		ir.to   = FromLSPPositionToSciPosition(r.end);
+		ir.from = FromLSPPositionToSciPosition(&r.start);
+		ir.to   = FromLSPPositionToSciPosition(&r.end);
 		ir.info = l.target;
 		
 		LogTrace("DocumentLink [%ld->%ld] [%s]", ir.from, ir.to, l.target.c_str());
@@ -617,9 +620,7 @@ FileWrapper::_DoDocumentLink(nlohmann::json& result)
 }
 
 		
-#include "Log.h"
 
-#define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 
 void 
 FileWrapper::onNotify(std::string id, value &result)
@@ -648,7 +649,7 @@ FileWrapper::onResponse(RequestID id, value &result)
 void 
 FileWrapper::onError(RequestID id, value &error)
 { 
-	LogError("onError not implemented! [%s] [%s]", error.dump().c_str(), id.c_str());
+	LogError("onError [%s] [%s]",  id.c_str(), error.dump().c_str());
 }
 void 
 FileWrapper::onRequest(std::string method, value &params, value &ID)
@@ -659,41 +660,42 @@ FileWrapper::onRequest(std::string method, value &params, value &ID)
 // utility
 void 
 FileWrapper::FromSciPositionToLSPPosition(const Sci_Position &pos,
-                                  Position &lsp_position) {
+                                  Position *lsp_position) {
 	                                  
-  lsp_position.line      = fEditor->SendMessage(SCI_LINEFROMPOSITION, pos, 0);
-  Sci_Position end_pos   = fEditor->SendMessage(SCI_POSITIONFROMLINE, lsp_position.line, 0);
-  lsp_position.character = fEditor->SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);
+  lsp_position->line      = fEditor->SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+  Sci_Position end_pos   = fEditor->SendMessage(SCI_POSITIONFROMLINE, lsp_position->line, 0);
+  lsp_position->character = fEditor->SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);
 }
 
 Sci_Position 
-FileWrapper::FromLSPPositionToSciPosition(const Position& lsp_position) {
+FileWrapper::FromLSPPositionToSciPosition(const Position* lsp_position) {
 	
   Sci_Position  sci_position;
-  sci_position = fEditor->SendMessage(SCI_POSITIONFROMLINE, lsp_position.line, 0);
-  sci_position = fEditor->SendMessage(SCI_POSITIONRELATIVE, sci_position, lsp_position.character);
+  sci_position = fEditor->SendMessage(SCI_POSITIONFROMLINE, lsp_position->line, 0);
+  sci_position = fEditor->SendMessage(SCI_POSITIONRELATIVE, sci_position, lsp_position->character);
   return sci_position;
 
 }
 
 void 
-FileWrapper::GetCurrentLSPPosition(Position &lsp_position) {
+FileWrapper::GetCurrentLSPPosition(Position *lsp_position) {
   const Sci_Position pos = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
   FromSciPositionToLSPPosition(pos, lsp_position);
 }
 
 void 
 FileWrapper::FromSciPositionToRange(Sci_Position s_start,
-                            Sci_Position s_end, Range &range) {
-  FromSciPositionToLSPPosition(s_start, range.start);
-  FromSciPositionToLSPPosition(s_end, range.end);
+                            Sci_Position s_end, Range *range) {
+  FromSciPositionToLSPPosition(s_start, &range->start);
+  FromSciPositionToLSPPosition(s_end, &range->end);
 }
 
 Sci_Position 
 FileWrapper::ApplyTextEdit(json &textEdit) {
-	
-  Sci_Position s_pos = FromLSPPositionToSciPosition(textEdit["range"]["start"].get<Position>());
-  Sci_Position e_pos = FromLSPPositionToSciPosition(textEdit["range"]["end"].get<Position>());
+
+  Range range = textEdit["range"].get<Range>();
+  Sci_Position s_pos = FromLSPPositionToSciPosition(&range.start);
+  Sci_Position e_pos = FromLSPPositionToSciPosition(&range.end);
 
   fEditor->SendMessage(SCI_SETTARGETRANGE, s_pos, e_pos);
   

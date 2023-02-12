@@ -1534,7 +1534,7 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	return false;
 }
 
-status_t                       
+status_t                  
 GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 {
        BNode entry(ref);
@@ -3421,7 +3421,7 @@ void
 GenioWindow::_ShowProjectItemPopupMenu()
 {
 	fCloseProjectMenuItem->SetEnabled(false);
-	fSetActiveProjectMenuItem->SetEnabled(true);
+	fSetActiveProjectMenuItem->SetEnabled(false);
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
 	

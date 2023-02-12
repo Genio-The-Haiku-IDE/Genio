@@ -33,8 +33,31 @@ LSPClientWrapper::UnregisterTextDocument(LSPTextDocument* fw)
 bool	
 LSPClientWrapper::Create(const char *uri)
 {
+  /** configuration for clangd */
+  std::string logLevel("--log=");
+  switch (Logger::Level())
+  {
+		case LOG_LEVEL_OFF:
+		case LOG_LEVEL_ERROR:
+			logLevel += "error"; // Error messages only
+			break;
+		case LOG_LEVEL_INFO:
+			logLevel += "info";  // High level execution tracing
+			break;
+		case LOG_LEVEL_DEBUG:
+		case LOG_LEVEL_TRACE:
+			logLevel += "verbose"; // Low level details
+			break;
+  };
+  const char* argv[] = { "clangd", 
+						 logLevel.c_str(), 
+						 "--offset-encoding=utf-8", 
+						 "--pretty", 
+						 NULL 
+					   };
+  
   client = new ProcessLanguageClient();
-  client->Init("clangd");
+  client->Init((char**)argv);
 
   std::atomic<bool> on_error;
   on_error.store(false);

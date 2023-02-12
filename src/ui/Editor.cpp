@@ -96,6 +96,8 @@ Editor::~Editor()
 	}
 	
 	fFileWrapper->UnsetLSPClient();
+	delete fFileWrapper;
+	fFileWrapper = NULL;
 }
 
 void

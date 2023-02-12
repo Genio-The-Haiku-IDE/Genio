@@ -26,6 +26,7 @@ public:
 	
 public:
 				FileWrapper(std::string fileURI, Editor* fEditor);
+		virtual	~FileWrapper() {};
 		void	ApplySettings();
 		void	SetLSPClient(LSPClientWrapper* cW);
 		void	UnsetLSPClient();

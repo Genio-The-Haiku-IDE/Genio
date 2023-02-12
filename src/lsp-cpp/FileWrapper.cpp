@@ -21,6 +21,7 @@ FileWrapper::FileWrapper(std::string filenameURI, Editor* editor):
 						 fEditor(editor) {
   fToolTip = NULL;
   fLSPClientWrapper = NULL;
+  assert(fEditor);
 }
 
 void
@@ -60,6 +61,7 @@ FileWrapper::SetLSPClient(LSPClientWrapper* cW) {
 
 	assert(cW);
 	assert(!initialized);
+	assert(fEditor);
 	
 	fLSPClientWrapper = cW;
 	fLSPClientWrapper->RegisterTextDocument(this);
@@ -85,8 +87,6 @@ void FileWrapper::didClose() {
   //_RemoveAllDiagnostics();
   
   fLSPClientWrapper->DidClose(this, fFilenameURI.c_str());
-  
-  fEditor = NULL;
 }
 
 void FileWrapper::didSave() {

@@ -23,7 +23,7 @@ public:
         int     outPipe[2], inPipe[2];
         explicit ProcessLanguageClient(){};
         
-        void Init(const char *program, const char *arguments = "") {
+        void Init(char* argv[]) {
 
 		pipe(outPipe);
 		pipe(inPipe);
@@ -47,22 +47,7 @@ public:
           dup2(outPipe[READ_END], STDIN_FILENO);
           close(outPipe[READ_END]);
 
-          std::string logLevel("--log=");
-          switch (Logger::Level())
-          {
-				case LOG_LEVEL_OFF:
-				case LOG_LEVEL_ERROR:
-					logLevel += "error"; // Error messages only
-					break;
-				case LOG_LEVEL_INFO:
-					logLevel += "info";  // High level execution tracing
-					break;
-				case LOG_LEVEL_DEBUG:
-				case LOG_LEVEL_TRACE:
-					logLevel += "verbose"; // Low level details
-					break;
-	      };
-		  execlp(program, program, logLevel.c_str(), "--offset-encoding=utf-8", "--pretty", NULL);
+		  execvp(argv[0], argv);
           exit(1);
         } else {
 	        

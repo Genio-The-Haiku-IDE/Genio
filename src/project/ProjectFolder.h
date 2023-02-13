@@ -8,6 +8,7 @@
 #include <ObjectList.h>
 #include <String.h>
 
+#include "GenioNamespace.h"
 #include "GSettings.h"
 
 enum GENIO_SETTINGS_KEY {
@@ -103,8 +104,6 @@ private:
 	BuildMode					fBuildMode;
 	BString						fTarget;
 	BString						fBuildCommand;
-	
-	// GSettings					fSettings;
 };
 
 #endif // PROJECT_FOLDER_H

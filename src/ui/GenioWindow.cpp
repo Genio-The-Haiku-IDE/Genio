@@ -142,13 +142,14 @@ enum {
 	MSG_TOGGLE_TOOLBAR			= 'toto',
 
 	// Projects outline
-	MSG_PROJECT_MENU_ITEM_CHOSEN	= 'pmic',
-	MSG_PROJECT_MENU_CLOSE			= 'pmcl',
-	MSG_PROJECT_MENU_SET_ACTIVE		= 'pmsa',
-	MSG_PROJECT_MENU_ADD_ITEM		= 'pmai',
-	MSG_PROJECT_MENU_DELETE_FILE	= 'pmdf',
-	MSG_PROJECT_MENU_EXCLUDE_FILE	= 'pmef',
-	MSG_PROJECT_MENU_OPEN_FILE		= 'pmof',
+	MSG_PROJECT_MENU_ITEM_CHOSEN		= 'pmic',
+	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
+	MSG_PROJECT_MENU_SET_ACTIVE			= 'pmsa',
+	MSG_PROJECT_MENU_ADD_ITEM			= 'pmai',
+	MSG_PROJECT_MENU_DELETE_FILE		= 'pmdf',
+	MSG_PROJECT_MENU_EXCLUDE_FILE		= 'pmef',
+	MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
+	MSG_PROJECT_MENU_SHOW_IN_TRACKER	= 'pmst',
 
 	// Toolbar
 	MSG_BUFFER_LOCK					= 'bulo',
@@ -936,6 +937,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_MENU_OPEN_FILE: {
 			_ProjectFileOpen(_ProjectFileFullPath());
+			break;
+		}
+		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
+			_ShowCurrentItemInTracker();
 			break;
 		}
 		case MSG_PROJECT_MENU_SET_ACTIVE: {
@@ -2666,12 +2671,15 @@ GenioWindow::_InitSideSplit()
 		new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
 	fOpenFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
 		new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+	fShowInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
+		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
 
 	fProjectMenu->AddItem(fCloseProjectMenuItem);
 	fProjectMenu->AddItem(fSetActiveProjectMenuItem);
 	fProjectMenu->AddSeparatorItem();
 	fProjectMenu->AddItem(fOpenFileProjectMenuItem);
 	fProjectMenu->AddItem(fDeleteFileProjectMenuItem);
+	fProjectMenu->AddItem(fShowInTrackerProjectMenuItem);
 	fProjectMenu->SetTargetForItems(this);
 
 	// Project list
@@ -3381,6 +3389,38 @@ GenioWindow::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectF
 	}
 }
 
+status_t
+GenioWindow::_ShowCurrentItemInTracker()
+{
+	BString commandLine, itemPath, notification;
+	status_t returnStatus;
+	
+	int32 selection = fProjectsFolderOutline->CurrentSelection();
+	if (selection < 0)
+		return B_BAD_VALUE;
+	fSelectedProjectItem = dynamic_cast<ProjectItem*>(fProjectsFolderOutline->ItemAt(selection));
+	itemPath = fSelectedProjectItem->GetSourceItem()->Path();
+	
+	BEntry itemEntry(itemPath);
+	BEntry parentDirectory;
+	
+	if (itemEntry.GetParent(&parentDirectory) == B_OK) {
+		BPath directoryPath;
+		if (parentDirectory.GetPath(&directoryPath) == B_OK) {
+			commandLine.SetToFormat("/bin/open %s", directoryPath.Path());
+			returnStatus = system(commandLine);
+		} else {
+			notification << "An error occurred while showing item in Tracker:" << directoryPath.Path();
+			_SendNotification(notification, "PROJ_SHOW");	
+		}
+	} else {
+		notification << "An error occurred while retrieving parent directory of " << itemPath;
+		_SendNotification(notification, "PROJ_SHOW");	
+	}
+	return returnStatus == 0 ? B_OK : errno;
+}
+
+
 ProjectFolder *
 GenioWindow::_GetProjectFromCurrentItem()
 {
@@ -3426,6 +3466,7 @@ GenioWindow::_ShowProjectItemPopupMenu()
 	fSetActiveProjectMenuItem->SetEnabled(false);
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
+	fShowInTrackerProjectMenuItem->SetEnabled(true);
 	
 	ProjectFolder *project = _GetProjectFromCurrentItem();
 	if (project==nullptr)

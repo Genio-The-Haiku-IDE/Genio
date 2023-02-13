@@ -132,6 +132,7 @@ private:
 			void				_ShowProjectItemPopupMenu();
 			ProjectFolder*		_GetProjectFromCurrentItem();
 			ProjectItem*		_GetProjectItem(ProjectFolder *project);
+			status_t			_ShowCurrentItemInTracker();
 			
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
@@ -250,6 +251,7 @@ private:
 			BMenuItem*			fExcludeFileProjectMenuItem;
 			BMenuItem*			fDeleteFileProjectMenuItem;
 			BMenuItem*			fOpenFileProjectMenuItem;
+			BMenuItem*			fShowInTrackerProjectMenuItem;
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;

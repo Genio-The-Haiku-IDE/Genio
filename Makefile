@@ -67,6 +67,7 @@ SRCS +=  src/helpers/console_io/GenericThread.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
+SRCS +=  src/helpers/Logger.cpp
 SRCS += src/helpers/console_io/WordTextView.cpp
 
 

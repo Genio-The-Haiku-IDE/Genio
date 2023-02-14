@@ -17,7 +17,7 @@
 class BButton;
 class BCheckBox;
 class WordTextView;
-
+class BTextView;
 
 class ConsoleIOView : public BGroupView {
 public:
@@ -34,6 +34,8 @@ public:
 			void				ConsoleOutputReceived(
 									int32 fd, const BString& output);
 			void				EnableStopButton(bool doIt);
+			
+			BTextView*			TextView();
 
 private:
 			struct OutputInfo;

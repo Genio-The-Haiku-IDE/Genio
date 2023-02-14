@@ -824,6 +824,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow();
 			break;
+		case MSG_FIND_IN_FILES: {
+			_FindInFiles();
+			break;
+		}
 		case MSG_FIND_MARK_ALL: {
 			BString textToFind(fFindTextControl->Text());
 
@@ -1807,6 +1811,39 @@ GenioWindow::_FindNext(const BString& strToFind, bool backwards)
 	_UpdateFindMenuItems(strToFind);
 }
 
+void
+GenioWindow::_FindInFiles()
+{
+	  if (!fActiveProject)
+		return;
+
+	  BString text(fFindTextControl->Text());
+	  if (text.IsEmpty())
+		return;
+
+	  fConsoleIOView->TextView()->ScrollTo(
+		  0, fConsoleIOView->TextView()->Bounds().bottom);
+
+	  // convert checkboxes to grep parameters..
+	  BString extraParameters;
+	  if ((bool)fFindWholeWordCheck->Value())
+		extraParameters += "w";
+
+	  if ((bool)fFindCaseSensitiveCheck->Value() == false)
+		extraParameters += "i";
+
+	  text.CharacterEscape("\'\\ \n\"", '\\');
+
+	  BString grepCommand("grep -IHrn");
+	  grepCommand += extraParameters;
+	  grepCommand += " -- \"";
+	  grepCommand += text;
+	  grepCommand += "\" ";
+	  grepCommand += fActiveProject->BasePath();
+
+	  _RunInConsole(grepCommand);
+}
+
 int32
 GenioWindow::_GetEditorIndex(entry_ref* ref)
 {
@@ -2199,6 +2236,9 @@ GenioWindow::_InitCentralSplit()
 	fFindWholeWordCheck->SetValue((int32)GenioNames::Settings.find_whole_word);
 	fFindCaseSensitiveCheck->SetValue((int32)GenioNames::Settings.find_match_case);
 	
+	fFindinFilesButton = _LoadIconButton("FindinFiles", MSG_FIND_IN_FILES, 201, true,
+						B_TRANSLATE("Find in files"));
+	
 	fFindGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
 		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 			.Add(fFindMenuField)
@@ -2209,6 +2249,7 @@ GenioWindow::_InitCentralSplit()
 			.Add(fFindWholeWordCheck)
 			.Add(fFindCaseSensitiveCheck)
 			.Add(fFindMarkAllButton)
+			.Add(fFindinFilesButton)
 			.AddGlue()
 		)
 		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER))
@@ -2586,8 +2627,6 @@ GenioWindow::_InitToolbar()
 	fReplaceButton = _LoadIconButton("Replace", MSG_REPLACE_GROUP_TOGGLED, 200, false,
 						B_TRANSLATE("Replace toggle (leaves Find bar open)"));
 
-	fFindinFilesButton = _LoadIconButton("FindinFiles", MSG_FIND_IN_FILES, 201, false,
-						B_TRANSLATE("Find in files"));
 
 	fFoldButton = _LoadIconButton("Fold", MSG_FILE_FOLD_TOGGLE, 213, false,
 						B_TRANSLATE("Fold toggle"));
@@ -2646,7 +2685,6 @@ GenioWindow::_InitToolbar()
 			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
 			.Add(fFindButton)
 			.Add(fReplaceButton)
-			.Add(fFindinFilesButton)
 			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
 			.Add(fConsoleButton)
 			.AddGlue()

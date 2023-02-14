@@ -150,7 +150,8 @@ enum {
 	MSG_PROJECT_MENU_EXCLUDE_FILE		= 'pmef',
 	MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
 	MSG_PROJECT_MENU_SHOW_IN_TRACKER	= 'pmst',
-
+	MSG_PROJECT_MENU_OPEN_TERMINAL		= 'pmot',
+	
 	// Toolbar
 	MSG_BUFFER_LOCK					= 'bulo',
 	MSG_BUILD_MODE					= 'bumo',
@@ -941,6 +942,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
 			_ShowCurrentItemInTracker();
 			break;
+		}
+		case MSG_PROJECT_MENU_OPEN_TERMINAL: {
+			_OpenTerminalWorkingDirectory();
 		}
 		case MSG_PROJECT_MENU_SET_ACTIVE: {
 			_ProjectFolderActivate(_GetProjectFromCurrentItem());
@@ -2672,13 +2676,17 @@ GenioWindow::_InitSideSplit()
 		new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 	fShowInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
 		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
+	fOpenTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open Terminal"),
+		new BMessage(MSG_PROJECT_MENU_OPEN_TERMINAL));
 
 	fProjectMenu->AddItem(fCloseProjectMenuItem);
 	fProjectMenu->AddItem(fSetActiveProjectMenuItem);
 	fProjectMenu->AddSeparatorItem();
 	fProjectMenu->AddItem(fOpenFileProjectMenuItem);
 	fProjectMenu->AddItem(fDeleteFileProjectMenuItem);
+	fProjectMenu->AddSeparatorItem();
 	fProjectMenu->AddItem(fShowInTrackerProjectMenuItem);
+	fProjectMenu->AddItem(fOpenTerminalProjectMenuItem);
 	fProjectMenu->SetTargetForItems(this);
 
 	// Project list
@@ -3380,6 +3388,32 @@ GenioWindow::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectF
 	}
 }
 
+// TODO: _OpenTerminalWorkingDirectory(), _ShowCurrentItemInTracker() and
+// _FileOpenWithPreferredApp(const entry_ref* ref) share almost the same code
+// They should be refactored to use a common base method e.g. _OpenWith() 
+status_t
+GenioWindow::_OpenTerminalWorkingDirectory()
+{
+	BString commandLine, itemPath, notification;
+	status_t returnStatus;
+	
+	int32 selection = fProjectsFolderOutline->CurrentSelection();
+	if (selection < 0)
+		return B_BAD_VALUE;
+	fSelectedProjectItem = dynamic_cast<ProjectItem*>(fProjectsFolderOutline->ItemAt(selection));
+	itemPath = fSelectedProjectItem->GetSourceItem()->Path();
+	
+	commandLine.SetToFormat("Terminal & -w \"%s\"", itemPath.String());
+	returnStatus = system(commandLine);
+	if (returnStatus != B_OK)
+		notification << B_TRANSLATE("An error occurred while opening Terminal and setting working directory to:") << itemPath;
+	else
+		notification << B_TRANSLATE("Terminal succesfully opened with working directory:") << itemPath;
+	_SendNotification(notification, "PROJ_TERM");
+	return returnStatus == 0 ? B_OK : errno;
+}
+
+
 status_t
 GenioWindow::_ShowCurrentItemInTracker()
 {
@@ -3398,7 +3432,7 @@ GenioWindow::_ShowCurrentItemInTracker()
 	if (itemEntry.GetParent(&parentDirectory) == B_OK) {
 		BPath directoryPath;
 		if (parentDirectory.GetPath(&directoryPath) == B_OK) {
-			commandLine.SetToFormat("/bin/open %s", directoryPath.Path());
+			commandLine.SetToFormat("/bin/open \"%s\"", directoryPath.Path());
 			returnStatus = system(commandLine);
 		} else {
 			notification << "An error occurred while showing item in Tracker:" << directoryPath.Path();
@@ -3406,7 +3440,7 @@ GenioWindow::_ShowCurrentItemInTracker()
 		}
 	} else {
 		notification << "An error occurred while retrieving parent directory of " << itemPath;
-		_SendNotification(notification, "PROJ_SHOW");	
+		_SendNotification(notification, "PROJ_TRACK");	
 	}
 	return returnStatus == 0 ? B_OK : errno;
 }
@@ -3458,10 +3492,15 @@ GenioWindow::_ShowProjectItemPopupMenu()
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
 	fShowInTrackerProjectMenuItem->SetEnabled(true);
+	fOpenTerminalProjectMenuItem->SetEnabled(false);
 	
 	ProjectFolder *project = _GetProjectFromCurrentItem();
 	if (project==nullptr)
 		return;
+	
+	if (fSelectedProjectItem->GetSourceItem()->Type() != 
+		SourceItemType::FileItem)
+		fOpenTerminalProjectMenuItem->SetEnabled(true);
 	
 	if (fSelectedProjectItem->GetSourceItem()->Type() == 
 		SourceItemType::ProjectFolderItem)

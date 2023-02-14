@@ -277,3 +277,7 @@ ConsoleIOView::_HandleConsoleOutput(OutputInfo* info)
 	}
 }
 
+BTextView*			
+ConsoleIOView::TextView() { 
+	return fConsoleIOText;
+}

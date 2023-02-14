@@ -3419,8 +3419,8 @@ status_t
 GenioWindow::_ShowCurrentItemInTracker()
 {
 	BString commandLine, itemPath, notification;
-	status_t returnStatus;
-	
+	int returnStatus = -1;
+		
 	int32 selection = fProjectsFolderOutline->CurrentSelection();
 	if (selection < 0)
 		return B_BAD_VALUE;

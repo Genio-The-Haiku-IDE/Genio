@@ -49,8 +49,6 @@ private:
 			BTextControl* 		fDebugCleanCommandText;
 			BTextControl* 		fReleaseExecuteArgsText;
 			BTextControl* 		fDebugExecuteArgsText;
-			BTextControl* 		fProjectScmText;
-			BTextControl* 		fProjectTypeText;
 			BString				fTargetString;
 			BString				fBuildString;
 			BString				fCleanString;

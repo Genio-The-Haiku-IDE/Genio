@@ -281,7 +281,6 @@ GenioWindow::~GenioWindow()
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
-	delete fOpenProjectPanel;
 }
 
 void
@@ -1549,7 +1548,7 @@ GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
                return false;
                
        BString commandLine;
-       commandLine.SetToFormat("/bin/open %s", BPath(ref).Path());
+       commandLine.SetToFormat("/bin/open \"%s\"", BPath(ref).Path());
        return system(commandLine) == 0 ? B_OK : errno;
 }
 
@@ -2728,14 +2727,6 @@ GenioWindow::_InitWindow()
 	fOpenProjectFolderPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), 
 												&ref, B_DIRECTORY_NODE, false,
 												openProjectFolderMessage);
-							
-	// BPath path;
-	// find_directory(B_USER_SETTINGS_DIRECTORY, &path);
-	// path.Append(GenioNames::kApplicationName);
-	// entry.SetTo(path.Path());
-	// entry.GetRef(&ref);
-	// fOpenProjectPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), &ref, B_FILE_NODE,
-							// false, nullptr, new ProjectRefFilter());
 
 }
 

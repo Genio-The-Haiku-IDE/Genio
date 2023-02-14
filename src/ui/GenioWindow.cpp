@@ -824,35 +824,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow();
 			break;
-		case MSG_FIND_IN_FILES: {			
-			
-			if (!fActiveProject)
-				return;
-			
-			BString text(fFindTextControl->Text());
-			if (text.IsEmpty())
-					return;
-					
-			fConsoleIOView->TextView()->ScrollTo(0, fConsoleIOView->TextView()->Bounds().bottom);
-
-			//convert checkboxes to grep parameters..			
-			BString extraParameters;
-			if ((bool)fFindWholeWordCheck->Value() )
-				extraParameters += "w";
-			
-			if((bool)fFindCaseSensitiveCheck->Value() == false)
-				extraParameters += "i";
-			
-			text.CharacterEscape("\'\\ \n\"", '\\');
-			
-			BString grepCommand("grep -IHrn");
-			grepCommand += extraParameters;
-			grepCommand += " -- \"";
-			grepCommand += text;
-			grepCommand += "\" ";
-			grepCommand += fActiveProject->BasePath();
-	
-			_RunInConsole(grepCommand);
+		case MSG_FIND_IN_FILES: {
+			_FindInFiles();
 			break;
 		}
 		case MSG_FIND_MARK_ALL: {
@@ -1836,6 +1809,39 @@ GenioWindow::_FindNext(const BString& strToFind, bool backwards)
 		fEditor->FindPrevious(strToFind, flags, wrap);
 
 	_UpdateFindMenuItems(strToFind);
+}
+
+void
+GenioWindow::_FindInFiles()
+{
+	  if (!fActiveProject)
+		return;
+
+	  BString text(fFindTextControl->Text());
+	  if (text.IsEmpty())
+		return;
+
+	  fConsoleIOView->TextView()->ScrollTo(
+		  0, fConsoleIOView->TextView()->Bounds().bottom);
+
+	  // convert checkboxes to grep parameters..
+	  BString extraParameters;
+	  if ((bool)fFindWholeWordCheck->Value())
+		extraParameters += "w";
+
+	  if ((bool)fFindCaseSensitiveCheck->Value() == false)
+		extraParameters += "i";
+
+	  text.CharacterEscape("\'\\ \n\"", '\\');
+
+	  BString grepCommand("grep -IHrn");
+	  grepCommand += extraParameters;
+	  grepCommand += " -- \"";
+	  grepCommand += text;
+	  grepCommand += "\" ";
+	  grepCommand += fActiveProject->BasePath();
+
+	  _RunInConsole(grepCommand);
 }
 
 int32

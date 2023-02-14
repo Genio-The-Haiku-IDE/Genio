@@ -945,6 +945,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_MENU_OPEN_TERMINAL: {
 			_OpenTerminalWorkingDirectory();
+			break;
 		}
 		case MSG_PROJECT_MENU_SET_ACTIVE: {
 			_ProjectFolderActivate(_GetProjectFromCurrentItem());

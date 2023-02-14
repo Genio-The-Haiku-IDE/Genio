@@ -145,7 +145,7 @@ ProjectSettingsWindow::_InitWindow()
 	BLayoutBuilder::Grid<>(fSourceControlBox)
 	.SetInsets(10.0f, 24.0f, 10.0f, 10.0f)
 	.Add(fEnableGit, 0, 0)
-	.Add(fExcludeSettingsGit, 0, 1)
+	// .Add(fExcludeSettingsGit, 0, 1)
 	.AddGlue(0,2,4)
 	.End();
 

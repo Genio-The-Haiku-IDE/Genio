@@ -1801,7 +1801,7 @@ GenioWindow::_FindInFiles()
 	  grepCommand += " -- \"";
 	  grepCommand += text;
 	  grepCommand += "\" ";
-	  grepCommand += fActiveProject->BasePath();
+	  grepCommand += fActiveProject->Path();
 
 	  _RunInConsole(grepCommand);
 }

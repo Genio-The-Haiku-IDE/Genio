@@ -133,6 +133,7 @@ private:
 			ProjectFolder*		_GetProjectFromCurrentItem();
 			ProjectItem*		_GetProjectItem(ProjectFolder *project);
 			status_t			_ShowCurrentItemInTracker();
+			status_t			_OpenTerminalWorkingDirectory();
 			
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
@@ -252,6 +253,7 @@ private:
 			BMenuItem*			fDeleteFileProjectMenuItem;
 			BMenuItem*			fOpenFileProjectMenuItem;
 			BMenuItem*			fShowInTrackerProjectMenuItem;
+			BMenuItem*			fOpenTerminalProjectMenuItem;
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;

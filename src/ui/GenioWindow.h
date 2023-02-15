@@ -5,6 +5,8 @@
 #ifndef GenioWINDOW_H
 #define GenioWINDOW_H
 
+#include <map>
+
 #include <Bitmap.h>
 #include <CheckBox.h>
 #include <ColumnListView.h>
@@ -30,6 +32,8 @@
 #include "ConsoleIOView.h"
 #include "Editor.h"
 #include "Project.h"
+#include "ProjectFolder.h"
+#include "ProjectItem.h"
 #include "ProjectParser.h"
 #include "TabManager.h"
 #include "TPreferences.h"
@@ -69,11 +73,15 @@ private:
 			status_t			_CleanProject();
 	static	int					_CompareListItems(const BListItem* a,
 									const BListItem* b);
+	static	int					_CompareProjectItems(const BListItem* a,
+									const BListItem* b);
 
 			status_t			_DebugProject();
 			status_t			_FileClose(int32 index, bool ignoreModifications = false);
 			void				_FileCloseAll();
 			status_t			_FileOpen(BMessage* msg);
+			bool				_FileIsSupported(const entry_ref* ref);
+			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
 			status_t			_FileSave(int32	index);
 			void				_FileSaveAll();
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
@@ -104,21 +112,30 @@ private:
 			void				_MakeBindcatalogs();
 			void				_MakeCatkeys();
 			void				_MakefileSetBuildMode(bool isReleaseMode);
-			void				_ProjectActivate(BString const& projectName);
-			void				_ProjectClose();
-			void				_ProjectDelete(BString name, bool sourcesToo);
+
 			void				_ProjectFileDelete();
 			void				_ProjectFileExclude();
 			BString	const		_ProjectFileFullPath();
 			void				_ProjectFileOpen(const BString& filePath);
 			void				_ProjectFileRemoveItem(bool addToParseless);
-			void				_ProjectItemChosen();
-			void				_ProjectOpen(BString const& projectName, bool activate);
-			void				_ProjectOutlineDepopulate(Project* project);
-			void				_ProjectOutlinePopulate(Project* project);
-			Project*			_ProjectPointerFromName(BString const& projectName);
-			void				_ProjectRescan(BString const& projectName);
+			
 			status_t			_ProjectRemoveDir(const BString& dirPath);
+
+			// Project Folders
+			void				_ProjectFolderClose(ProjectFolder *project);
+			void 				_ProjectFolderNew(BMessage *message);
+			void 				_ProjectFolderOpen(BMessage *message);
+			void				_ProjectFolderOpen(const BString& folder, bool activate = false);
+			void				_ProjectFolderOutlineDepopulate(ProjectFolder* project);
+			void				_ProjectFolderOutlinePopulate(ProjectFolder* project);
+			void				_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
+			void				_ProjectFolderActivate(ProjectFolder* project);
+			void				_ShowProjectItemPopupMenu();
+			ProjectFolder*		_GetProjectFromCurrentItem();
+			ProjectItem*		_GetProjectItem(ProjectFolder *project);
+			status_t			_ShowCurrentItemInTracker();
+			status_t			_OpenTerminalWorkingDirectory();
+			
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
 			void				_ReplaceGroupShow();
@@ -224,31 +241,36 @@ private:
 
 			// Left panels
 			BTabView*	  		fProjectsTabView;
-			BOutlineListView*	fProjectsOutline;
-			BScrollView*		fProjectsScroll;
+
+			BOutlineListView*	fProjectsFolderOutline;
+			BScrollView*		fProjectsFolderScroll;
 			// ClassesView*		fClassesView;
 			BPopUpMenu*			fProjectMenu;
 			BMenuItem*			fCloseProjectMenuItem;
 			BMenuItem*			fDeleteProjectMenuItem;
 			BMenuItem*			fSetActiveProjectMenuItem;
-			BMenuItem*			fRescanProjectMenuItem;
 			BMenuItem*			fAddProjectMenuItem;
 			BMenuItem*			fExcludeFileProjectMenuItem;
 			BMenuItem*			fDeleteFileProjectMenuItem;
 			BMenuItem*			fOpenFileProjectMenuItem;
+			BMenuItem*			fShowInTrackerProjectMenuItem;
+			BMenuItem*			fOpenTerminalProjectMenuItem;
 
-			Project*			fActiveProject;
+			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
 			BString				fSelectedProjectName;
-			BStringItem*		fSelectedProjectItem;
+			ProjectItem*		fSelectedProjectItem;
 			BString				fSelectedProjectItemName;
-		BObjectList<Project>*	fProjectObjectList;
+			
+			BObjectList<Project>*	fProjectObjectList;
+			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
+			
 			BStringItem*		fSourcesItem;
 			BStringItem*		fFilesItem;
 
 			// Editor group
 			TabManager*			fTabManager;
-		BObjectList<Editor>*	fEditorObjectList;
+			BObjectList<Editor>*	fEditorObjectList;
 			Editor*				fEditor;
 
 			BGroupLayout*		fFindGroup;
@@ -269,6 +291,7 @@ private:
 			BFilePanel*			fOpenPanel;
 			BFilePanel*			fSavePanel;
 			BFilePanel*			fOpenProjectPanel;
+			BFilePanel*			fOpenProjectFolderPanel;
 
 			// Bottom panels
 			BTabView*			fOutputTabView;

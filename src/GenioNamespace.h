@@ -21,9 +21,10 @@ namespace GenioNames
 	const BString kApplicationSignature("application/x-vnd.Genio");
 	const BString kSettingsFileName("Genio.settings");
 	const BString kSettingsFilesToReopen("files_to_reopen.settings");
-	const BString kSettingsProjectsToReopen("projects_to_reopen.settings");
+	const BString kSettingsProjectsToReopen("workspace.settings");
 	const BString kUISettingsFileName("ui.settings");
-	BString const kProjectExtension(".idmpro");
+	const BString kProjectExtension(".idmpro");
+	const BString kProjectSettingsFile(".genio");
 
 	int32 CompareVersion(const BString appVersion, const BString fileVersion);
 	BString GetSignature();

@@ -98,8 +98,11 @@ Genio files
 /boot/home/config/settings/Genio
 --------------------------------------------------------------------------------
 files_to_reopen.settings    : Files to reopen at startup
-projects_to_reopen.settings : Projects to reopen at startup
+workspace.settings 			: Projects to reopen at startup
 Genio.settings              : Genio preferences
 ui.settings                 : Window position at startup
 
-<Project name>.idmpro       : <Project name> project file
+Project folder
+--------------------------------------------------------------------------------
+.genio				        : This contains the project settings and is located 
+								inside the root folder of the project

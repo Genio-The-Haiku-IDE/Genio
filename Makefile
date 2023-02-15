@@ -1,10 +1,17 @@
-## Genio - The Haiku IDE Makefile ########################################################
+## Genio - The Haiku IDE Makefile ##############################################
 
 arch := $(shell getarch)
 platform := $(shell uname -p)
 
+debug ?= 0
+ifeq ($(debug), 0)
+	DEBUGGER :=
+else
+	DEBUGGER := TRUE
+endif
+
 ## clang build flag ############################################################
-BUILD_WITH_CLANG := 1
+BUILD_WITH_CLANG := 0
 ################################################################################
 
 ifeq ($(BUILD_WITH_CLANG), 0)		# gcc build
@@ -24,7 +31,12 @@ else								# clang build
 	endif 
 endif
 
-NAME := Genio
+ifeq ($(debug), 0)
+	NAME := Genio
+else
+	NAME := Genio_debug
+endif
+
 
 TARGET_DIR := app
 
@@ -42,8 +54,11 @@ SRCS +=  src/project/NewProjectWindow.cpp
 SRCS +=  src/project/Project.cpp
 SRCS +=  src/project/ProjectParser.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
+SRCS +=  src/project/ProjectFolder.cpp
+SRCS +=  src/project/ProjectItem.cpp
 SRCS +=  src/helpers/GenioCommon.cpp
 SRCS +=  src/helpers/TPreferences.cpp
+SRCS +=  src/helpers/GSettings.cpp
 # SRCS +=  src/helpers/class_parser/ClassParser.cpp
 # SRCS +=  src/helpers/class_parser/ClassesView.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
@@ -52,6 +67,7 @@ SRCS +=  src/helpers/console_io/GenericThread.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
+SRCS +=  src/helpers/Logger.cpp
 SRCS += src/helpers/console_io/WordTextView.cpp
 
 
@@ -92,11 +108,9 @@ endif
 
 CFLAGS := -Wall -Werror
 
-CXXFLAGS := -std=c++14 -fPIC
+CXXFLAGS := -std=c++17 -fPIC
 
 LOCALES := en it
-
-DEBUGGER := false
 
 ## Include the Makefile-Engine
 ENGINE_DIRECTORY := $(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)

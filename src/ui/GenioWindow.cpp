@@ -242,7 +242,7 @@ GenioWindow::GenioWindow(BRect frame)
 		if (!projects.IsEmpty()) {
 			BString projectName, activeProject = "";
 
-			projects.FindString("active_project", &activeProject);
+			activeProject = projects.GetString("active_project");
 			for (auto count = 0; projects.FindString("project_to_reopen",
 										count, &projectName) == B_OK; count++)
 					_ProjectFolderOpen(projectName, projectName == activeProject);
@@ -1206,7 +1206,7 @@ GenioWindow::QuitRequested()
 			ProjectFolder *project = fProjectFolderObjectList->ItemAt(index);
 			projects.AddString("project_to_reopen", project->Path());
 			if (project->Active())
-				projects.AddString("active_project", project->Path());
+				projects.SetString("active_project", project->Path());
 			// Avoiding leaks
 			//TODO:---> _ProjectOutlineDepopulate(project);
 			delete project;

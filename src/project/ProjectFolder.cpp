@@ -39,6 +39,7 @@ ProjectFolder::ProjectFolder(BString const& path)
 {	
 	fType = SourceItemType::ProjectFolderItem;
 	fProjectFolder = this;
+	fActive = false;
 }
 
 ProjectFolder::~ProjectFolder()

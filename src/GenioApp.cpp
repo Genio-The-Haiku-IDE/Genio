@@ -56,7 +56,7 @@ GenioApp::AboutRequested()
 		NULL
 	}; 
 
-	window->AddCopyright(2023, "...");
+	window->AddCopyright(2023, "The Genio Team");
 	window->AddAuthors(authors);
 
 	BString extraInfo;

@@ -2301,8 +2301,12 @@ GenioWindow::_InitMenu()
 	fMenuBar = new BMenuBar("menubar");
 
 	BMenu* menu = new BMenu(B_TRANSLATE("Project"));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("New"),
-		new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
+	// TODO: As a temporary measure we disable New menu item until we merge
+	// the project-folders branch into main and implement a brand new system
+	// to create new projects. This will likely be based on the "template" or 
+	// "stationery" concept as found in Paladin or BeIDE
+	// menu->AddItem(new BMenuItem(B_TRANSLATE("New"),
+		// new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
 		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
 	menu->AddSeparatorItem();

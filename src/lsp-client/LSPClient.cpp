@@ -38,7 +38,7 @@ void LSPClient::Init(char *argv[]) {
   }
 }
 
-LSPClient::~ProcessLanguageClient() {
+LSPClient::~LSPClient() {
   close(outPipe[WRITE_END]);
   close(inPipe[READ_END]);
 }
@@ -126,3 +126,4 @@ bool LSPClient::writeJson(json &json) {
   return Write(header);
 }
 LSPClient::LSPClient(){};
+pid_t LSPClient::GetChildPid() { return childpid; }

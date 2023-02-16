@@ -29,6 +29,8 @@ public:
   bool readJson(json &json) override;
   bool writeJson(json &json) override;
 
+  pid_t GetChildPid();
+
 private:
   BLocker writeLock;
   pid_t childpid;

@@ -184,7 +184,7 @@ LSPClientWrapper::onRequest(std::string method, value &params, value &ID)
 
 RequestID LSPClientWrapper::Initialize(option<DocumentUri> rootUri) {
 	InitializeParams params;
-	params.processId = client->childpid;
+	params.processId = client->GetChildPid();
 	params.rootUri = rootUri;
 	return SendRequest("client", "initialize", params);
 }

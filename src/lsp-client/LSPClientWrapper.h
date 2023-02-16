@@ -7,7 +7,7 @@
 
 #include <SupportDefs.h>
 #include <Locker.h>
-#include "client.h"
+#include "LSPClient.h"
 #include <atomic>
 #include <thread>
 
@@ -79,7 +79,7 @@ private:
 
 	MapFile	fTextDocs;
 
-	ProcessLanguageClient *client = NULL;
+	LSPClient *client = NULL;
 
 	std::atomic<bool> initialized;
 

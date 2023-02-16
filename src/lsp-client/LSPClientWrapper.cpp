@@ -56,7 +56,7 @@ LSPClientWrapper::Create(const char *uri)
 						 NULL 
 					   };
   
-  client = new ProcessLanguageClient();
+  client = new LSPClient();
   client->Init((char**)argv);
 
   std::atomic<bool> on_error;

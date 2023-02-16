@@ -8,7 +8,7 @@
 
 
 #include "uri.h"
-#include "json.hpp"
+#include "json_fwd.hpp"
 #include <string>
 
 using value = json;

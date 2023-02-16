@@ -19,7 +19,7 @@ public:
   explicit LSPClient();
 
   void Init(char *argv[]);
-  virtual ~ProcessLanguageClient();
+  virtual ~LSPClient();
 
   void SkipLine();
   int ReadLength();

@@ -13,7 +13,7 @@
 
 class LSPTextDocument;
 
-class LSPClientWrapper : public MessageHandler {
+class LSPClientWrapper : public MessageHandler, public LSPClient {
 	
 public:
 			LSPClientWrapper();
@@ -79,15 +79,9 @@ private:
 
 	MapFile	fTextDocs;
 
-	LSPClient *client = NULL;
-
 	std::atomic<bool> initialized;
 
-	//MapMessageHandler my;
-
 	std::thread readerThread;
-	
-	 string_ref rootURI;
 };
 
 

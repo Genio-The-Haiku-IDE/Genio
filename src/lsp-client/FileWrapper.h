@@ -4,17 +4,19 @@
  */
 #ifndef FileWrapper_H
 #define FileWrapper_H
+
 #include <iostream>
-#include "LSPTextDocument.h"
 #include <SupportDefs.h>
 #include <ToolTip.h>
 #include <Autolock.h>
-#include "Editor.h"
 #include <vector>
+
+#include "LSPTextDocument.h"
 
 class Position;
 class Range;
 class LSPClientWrapper;
+class Editor;
 
 class FileWrapper : public LSPTextDocument {
 	
@@ -84,7 +86,7 @@ private:
 		std::string		info;
 	};
 
-	Editor*		fEditor;
+	Editor*				fEditor;
 	nlohmann::json		fCurrentCompletion;
 	Sci_Position		fCompletionPosition;
 	BTextToolTip* 		fToolTip;

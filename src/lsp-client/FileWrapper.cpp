@@ -4,7 +4,7 @@
  */
  
 #include "FileWrapper.h"
-#include "client.h"
+#include "LSPClient.h"
 #include <debugger.h>
 #include <stdio.h>
 #include <thread>

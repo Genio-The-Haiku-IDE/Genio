@@ -52,8 +52,8 @@ SRCS +=  src/helpers/console_io/GenericThread.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
-SRCS +=  src/lsp-cpp/FileWrapper.cpp
-SRCS +=  src/lsp-cpp/LSPClientWrapper.cpp
+SRCS +=  src/lsp-client/FileWrapper.cpp
+SRCS +=  src/lsp-client/LSPClientWrapper.cpp
 SRCS +=  src/helpers/console_io/WordTextView.cpp
 SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/helpers/TextUtils.cpp
@@ -77,7 +77,7 @@ SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY priva
 SYSTEM_INCLUDE_PATHS  +=  src/scintilla/include
 SYSTEM_INCLUDE_PATHS  +=  src/scintilla/haiku
 SYSTEM_INCLUDE_PATHS  +=  src/lexilla/include
-LOCAL_INCLUDE_PATHS  +=  src/lsp-cpp/include
+LOCAL_INCLUDE_PATHS  +=  src/lsp-client/include
 
 ################################################################################
 ## clang++ headers hack

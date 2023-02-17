@@ -35,7 +35,7 @@ public:
     RequestID Shutdown();
     RequestID Sync();
     void Exit();
-    void Initialized();
+    void Initialized(json& result);
     
     RequestID RegisterCapability();
     void DidOpen(MessageHandler*, DocumentUri uri, string_ref text, string_ref languageId = "cpp");
@@ -72,6 +72,9 @@ public:
 
     RequestID 	SendRequest(RequestID id, string_ref method, value params = json());
     void 		SendNotify(string_ref method, value params = json());
+    
+    std::string&	allCommitCharacters() { return fAllCommitCharacters; }
+    std::string&	triggerCharacters() { return fTriggerCharacters; }
 
 private:
 
@@ -87,7 +90,10 @@ private:
 
 	std::thread readerThread;
 	
-	 string_ref rootURI;
+	string_ref rootURI;
+	
+	std::string fAllCommitCharacters;
+	std::string fTriggerCharacters;
 };
 
 

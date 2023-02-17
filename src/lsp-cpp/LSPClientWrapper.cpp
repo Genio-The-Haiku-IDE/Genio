@@ -54,7 +54,7 @@ LSPClientWrapper::Create(const char *uri)
 						 "--offset-encoding=utf-8", 
 						 "--pretty", 
 						 NULL 
-					   };
+						};
   
   client = new ProcessLanguageClient();
   client->Init((char**)argv);
@@ -141,7 +141,7 @@ LSPClientWrapper::onResponse(RequestID id, value &result)
 	if (id.compare("initialize") == 0)
 	{
 		initialized.store(true); 
-		Initialized();
+		Initialized(result);
 		return;
 	}
 	if (id.compare("shutdown") == 0)
@@ -197,7 +197,33 @@ RequestID LSPClientWrapper::Sync() {
 void LSPClientWrapper::Exit() {
 	SendNotify("exit");
 }
-void LSPClientWrapper::Initialized() {
+void LSPClientWrapper::Initialized(json& result) {
+	auto &capas = result["capabilities"];
+	if (capas != value::value_t::null) {
+		auto& completionProvider = capas["completionProvider"];
+		if (completionProvider != value::value_t::null) {
+			auto& allCommitCharacters = completionProvider["allCommitCharacters"];
+			if (allCommitCharacters != value::value_t::null) {
+				fAllCommitCharacters.clear();
+				for (auto &c : allCommitCharacters)
+				{
+					fAllCommitCharacters.append(c.get<std::string>().c_str());
+				}
+				LogDebug("allCommitCharacters [%s]", this->allCommitCharacters().c_str());
+			}
+			auto& triggerCharacters = completionProvider["triggerCharacters"];
+			if (triggerCharacters != value::value_t::null) {
+				fTriggerCharacters.clear();
+				for (auto &c : triggerCharacters)
+				{
+					fTriggerCharacters.append(c.get<std::string>().c_str());
+				}
+				LogDebug("triggerCharacters [%s]", this->triggerCharacters().c_str());
+			}
+			
+		}
+	}
+	
 	SendNotify("initialized");
 }
 RequestID LSPClientWrapper::RegisterCapability() { //?

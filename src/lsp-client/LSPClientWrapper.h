@@ -7,13 +7,14 @@
 
 #include <SupportDefs.h>
 #include <Locker.h>
-#include "client.h"
+#include "LSPClient.h"
+#include "protocol.h"
 #include <atomic>
 #include <thread>
 
 class LSPTextDocument;
 
-class LSPClientWrapper : public MessageHandler {
+class LSPClientWrapper : public MessageHandler, public LSPClient {
 	
 public:
 			LSPClientWrapper();
@@ -82,18 +83,13 @@ private:
 
 	MapFile	fTextDocs;
 
-	ProcessLanguageClient *client = NULL;
-
 	std::atomic<bool> initialized;
-
-	//MapMessageHandler my;
 
 	std::thread readerThread;
 	
-	string_ref rootURI;
-	
 	std::string fAllCommitCharacters;
 	std::string fTriggerCharacters;
+
 };
 
 

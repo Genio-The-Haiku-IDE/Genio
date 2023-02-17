@@ -47,7 +47,7 @@ public:
     LSPError(std::string Message, ErrorCode Code)
             : Message(std::move(Message)), Code(Code) {}
 };
-JSON_SERIALIZE(URIForFile, {j = value.file;}, {value.file = j.get<std::string>();});
+
 struct TextDocumentIdentifier {
     /// The text document's URI.
     DocumentUri uri;
@@ -528,7 +528,7 @@ enum class FileChangeType {
 };
 struct FileEvent {
     /// The file's URI.
-    URIForFile uri;
+    DocumentUri uri;
     /// The change type.
     FileChangeType type = FileChangeType::Created;
 };

@@ -52,11 +52,13 @@ SRCS +=  src/helpers/console_io/GenericThread.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
-SRCS +=  src/lsp-client/FileWrapper.cpp
-SRCS +=  src/lsp-client/LSPClientWrapper.cpp
 SRCS +=  src/helpers/console_io/WordTextView.cpp
 SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/helpers/TextUtils.cpp
+SRCS +=  src/lsp-client/FileWrapper.cpp
+SRCS +=  src/lsp-client/LSPClientWrapper.cpp
+SRCS +=  src/lsp-client/LSPClient.cpp
+SRCS +=  src/lsp-client/Transport.cpp
 
 RDEFS := Genio.rdef
 

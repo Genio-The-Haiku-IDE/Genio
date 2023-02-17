@@ -68,7 +68,7 @@ LSPClientWrapper::Create(const char *uri)
 	}
   });
   
-  Initialize(rootURI);
+  Initialize(string_ref(uri));
 
   while (!initialized.load() && !on_error.load()) {
     LogDebug("Waiting for clangd initialization.. \n");
@@ -95,8 +95,6 @@ LSPClientWrapper::Dispose()
 	
   	readerThread.detach();
   	Exit();
-  	delete client;
-  	client = NULL;
 	return true;
 }
 		

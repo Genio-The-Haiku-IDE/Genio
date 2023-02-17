@@ -1,4 +1,5 @@
 #include "Transport.h"
+#include "Log.h"
 
 int JsonTransport::loop(MessageHandler &handler) {
   while (true) {

@@ -8,6 +8,7 @@
 #include <SupportDefs.h>
 #include <Locker.h>
 #include "LSPClient.h"
+#include "protocol.h"
 #include <atomic>
 #include <thread>
 

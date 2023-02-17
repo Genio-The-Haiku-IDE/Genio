@@ -10,7 +10,7 @@
 #include <ToolTip.h>
 #include <Autolock.h>
 #include <vector>
-
+#include "Sci_Position.h"
 #include "LSPTextDocument.h"
 
 class Position;

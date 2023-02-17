@@ -119,3 +119,13 @@ include $(ENGINE_DIRECTORY)/etc/makefile-engine
 $(OBJ_DIR)/%.o : %.cpp
 	$(CXX) -c $< $(INCLUDES) $(CFLAGS) $(CXXFLAGS) -o "$@"
 
+deps:
+	$(MAKE) -C src/lexilla/src
+	$(MAKE) -C src/scintilla/haiku	
+
+.PHONY: clean deps
+cleanall: clean
+	$(MAKE) clean -C src/lexilla/src
+	$(MAKE) clean -C src/scintilla/haiku
+	
+$(TARGET): deps

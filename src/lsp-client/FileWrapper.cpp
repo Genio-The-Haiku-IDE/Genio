@@ -4,7 +4,7 @@
  */
  
 #include "FileWrapper.h"
-#include "client.h"
+#include "LSPClient.h"
 #include <debugger.h>
 #include <stdio.h>
 #include <thread>
@@ -14,6 +14,7 @@
 #include "TextUtils.h"
 #include "protocol.h"
 #include "Log.h"
+#include "Editor.h"
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 #define IND_DIAG 0

@@ -56,21 +56,19 @@ LSPClientWrapper::Create(const char *uri)
 						 NULL 
 						};
   
-  client = new ProcessLanguageClient();
-  client->Init((char**)argv);
+  Init((char**)argv);
 
   std::atomic<bool> on_error;
   on_error.store(false);
   readerThread = std::thread([&] {
-	if (client->loop(*this) == -1)
+	if (loop(*this) == -1)
 	{
 		on_error.store(true);
 		initialized.store(false);
 	}
   });
   
-  rootURI = uri;
-  Initialize(rootURI);
+  Initialize(string_ref(uri));
 
   while (!initialized.load() && !on_error.load()) {
     LogDebug("Waiting for clangd initialization.. \n");
@@ -97,8 +95,6 @@ LSPClientWrapper::Dispose()
 	
   	readerThread.detach();
   	Exit();
-  	delete client;
-  	client = NULL;
 	return true;
 }
 		
@@ -184,7 +180,7 @@ LSPClientWrapper::onRequest(std::string method, value &params, value &ID)
 
 RequestID LSPClientWrapper::Initialize(option<DocumentUri> rootUri) {
 	InitializeParams params;
-	params.processId = client->childpid;
+	params.processId = GetChildPid();
 	params.rootUri = rootUri;
 	return SendRequest("client", "initialize", params);
 }
@@ -413,12 +409,12 @@ RequestID LSPClientWrapper::DidChangeConfiguration(MessageHandler* fw, Configura
 
 RequestID LSPClientWrapper::SendRequest(RequestID id, string_ref method, value params) {
 	id.append("_").append(method);
-	client->request(method, params, id);
+	request(method, params, id);
 	return id;
 }
 
 
 
 void LSPClientWrapper::SendNotify(string_ref method, value params) {
-	client->notify(method, params);
+	notify(method, params);
 }

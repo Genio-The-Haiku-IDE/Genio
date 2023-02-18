@@ -64,17 +64,24 @@ SRCS +=  src/helpers/GSettings.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOThread.cpp
 SRCS +=  src/helpers/console_io/GenericThread.cpp
+SRCS +=  src/helpers/console_io/WordTextView.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
 SRCS +=  src/helpers/Logger.cpp
-SRCS += src/helpers/console_io/WordTextView.cpp
-
+SRCS +=  src/helpers/TextUtils.cpp
+SRCS +=  src/lsp-client/FileWrapper.cpp
+SRCS +=  src/lsp-client/LSPClientWrapper.cpp
+SRCS +=  src/lsp-client/LSPClient.cpp
+SRCS +=  src/lsp-client/Transport.cpp
 
 RDEFS := Genio.rdef
 
 LIBS = be shared translation localestub $(STDCPPLIBS)
 LIBS += scintilla columnlistview tracker
+LIBS += src/scintilla/bin/libscintilla.a
+LIBS += src/lexilla/bin/liblexilla.a
+
 
 # LIBPATHS = $(shell findpaths -a $(platform) B_FIND_PATH_DEVELOP_LIB_DIRECTORY)
 # LIBPATHS  = /boot/home/config/non-packaged/lib
@@ -82,8 +89,12 @@ LIBS += scintilla columnlistview tracker
 
 SYSTEM_INCLUDE_PATHS  = $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
 SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/shared)
-SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY scintilla)
+#SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY scintilla)
 
+SYSTEM_INCLUDE_PATHS  +=  src/scintilla/include
+SYSTEM_INCLUDE_PATHS  +=  src/scintilla/haiku
+SYSTEM_INCLUDE_PATHS  +=  src/lexilla/include
+LOCAL_INCLUDE_PATHS  +=  src/lsp-client/include
 
 ################################################################################
 ## clang++ headers hack
@@ -120,3 +131,13 @@ include $(ENGINE_DIRECTORY)/etc/makefile-engine
 $(OBJ_DIR)/%.o : %.cpp
 	$(CXX) -c $< $(INCLUDES) $(CFLAGS) $(CXXFLAGS) -o "$@"
 
+deps:
+	$(MAKE) -C src/lexilla/src
+	$(MAKE) -C src/scintilla/haiku	
+
+.PHONY: clean deps
+cleanall: clean
+	$(MAKE) clean -C src/lexilla/src
+	$(MAKE) clean -C src/scintilla/haiku
+	
+$(TARGET): deps

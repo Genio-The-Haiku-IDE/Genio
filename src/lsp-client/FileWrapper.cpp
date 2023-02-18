@@ -88,7 +88,10 @@ void FileWrapper::didClose() {
   if (!initialized)
     return;
 
-  //_RemoveAllDiagnostics();
+	if (fEditor) {
+		_RemoveAllDiagnostics();
+		_RemoveAllDocumentLinks();
+	}
   
   fLSPClientWrapper->DidClose(this, fFilenameURI.c_str());
 }
@@ -534,9 +537,11 @@ FileWrapper::_DoGoTo(nlohmann::json& items){
   
 void
 FileWrapper::_DoSignatureHelp(json &result) {
-	if (result["signatures"][0] != nlohmann::detail::value_t::null) {
+	lastCalltip    = result["signatures"];
+	currentCalltip = 0;
+	if (lastCalltip[currentCalltip] != nlohmann::detail::value_t::null) {
 		 const Sci_Position pos = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
-		 auto str = result["signatures"][0]["label"].get<std::string>();
+		 auto str = lastCalltip[currentCalltip]["label"].get<std::string>();
 		fEditor->SendMessage(SCI_CALLTIPSHOW, pos, (sptr_t)(str.c_str()));
 	}
 };
@@ -598,15 +603,21 @@ FileWrapper::_DoDiagnostics(nlohmann::json& params)
 	}
 }
 
+void
+FileWrapper::_RemoveAllDocumentLinks()
+{
+	// remove all the indicators..
+	fEditor->SendMessage(SCI_SETINDICATORCURRENT, IND_LINK);
+	fEditor->SendMessage(SCI_INDICATORCLEARRANGE, 0, fEditor->SendMessage(SCI_GETTEXTLENGTH));
+	fLastDocumentLinks.clear();
+}
+
 void 
 FileWrapper::_DoDocumentLink(nlohmann::json& result)
 {
 	auto links = result.get<std::vector<DocumentLink>>();
 	
-	// remove all the indicators..
-	fEditor->SendMessage(SCI_SETINDICATORCURRENT, IND_LINK);
-	fEditor->SendMessage(SCI_INDICATORCLEARRANGE, 0, fEditor->SendMessage(SCI_GETTEXTLENGTH));
-	fLastDocumentLinks.clear();
+	_RemoveAllDocumentLinks();
 
 	for (auto &l: links) {
 		Range &r = l.range;

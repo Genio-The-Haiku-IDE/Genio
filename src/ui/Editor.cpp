@@ -22,6 +22,7 @@
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "keywords.h"
+#include "ProjectFolder.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -50,7 +51,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCommenter("")
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
-	, fProject(NULL)
+	, fProjectFolder(NULL)
 {
 	fFileName = BString(ref->name);
 	SetTarget(target);
@@ -1232,9 +1233,9 @@ Editor::SignatureHelp()
 }
 
 void
-Editor::SetProject(Project* proj)
+Editor::SetProjectFolder(ProjectFolder* proj)
 {
-	fProject = proj;
+	fProjectFolder = proj;
 	if (proj)
 		fFileWrapper->SetLSPClient(proj->GetLSPClient());
 	else

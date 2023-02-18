@@ -1,5 +1,6 @@
 //
-// Created by Alex on 2020/1/28.
+// Created by Alex on 2020/1/28. (https://github.com/microsoft/language-server-protocol)
+// Additional changes by Andrea Anzani <andrea.anzani@gmail.com>
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.

@@ -284,7 +284,6 @@ GenioWindow::~GenioWindow()
 	delete fEditorObjectList;
 	delete fTabManager;
 
-	delete fProjectObjectList;
 	delete fProjectMenu;
 
 	delete fOpenPanel;
@@ -1275,10 +1274,10 @@ GenioWindow::QuitRequested()
 		}
 	}
 	
-	//xeD: remove link between editor and project
+	// remove link between all editors and all projects
 	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
 		fEditor = fEditorObjectList->ItemAt(index);
-		fEditor->SetProject(NULL);
+		fEditor->SetProjectFolder(NULL);
 	}
 
 	// Projects to reopen
@@ -1581,18 +1580,19 @@ GenioWindow::_FileOpen(BMessage* msg)
 			_SendNotification(notification, "FILE_ERR");
 			return B_ERROR;
 		}
-
-		/* quick-hack waiting for a proper FolderProject Manager				
+		
+		/*		
 			here we try to assign the right "LSPClientWrapper" to the Editor..					
 		*/
 		
 		// Check if already open
 		BString baseDir("");
-		for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
-			Project * project = fProjectObjectList->ItemAt(index);
-			BString projectPath = project->BasePath().Append("/");
+		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
+			ProjectFolder * project = fProjectFolderObjectList->ItemAt(index);
+			BString projectPath = project->Path();
+			projectPath = projectPath.Append("/");
 			if (fEditor->FilePath().StartsWith(projectPath)) {
-				fEditor->SetProject(project);
+				fEditor->SetProjectFolder(project);
 			}
 		}
 	
@@ -2855,7 +2855,6 @@ GenioWindow::_InitSideSplit()
 	fProjectMenu->SetTargetForItems(this);
 
 	// Project list
-	fProjectObjectList = new BObjectList<Project>();
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
 }
 
@@ -3470,218 +3469,6 @@ GenioWindow::_ProjectFileRemoveItem(bool addToParseless)
 		index++;
 	}*/
 }
-/*
-
-void
-GenioWindow::_ProjectItemChosen()
-{
-	fCloseProjectMenuItem->SetEnabled(false);
-	fDeleteProjectMenuItem->SetEnabled(false);
-	fSetActiveProjectMenuItem->SetEnabled(false);
-	fRescanProjectMenuItem->SetEnabled(false);
-	fAddProjectMenuItem->SetEnabled(false);
-	fDeleteFileProjectMenuItem->SetEnabled(false);
-	fExcludeFileProjectMenuItem->SetEnabled(false);
-	fOpenFileProjectMenuItem->SetEnabled(false);
-
-	int32 selection = fProjectsOutline->CurrentSelection();
-
-	if (selection < 0)
-		return;
-
-	fSelectedProjectItem = dynamic_cast<BStringItem*>(fProjectsOutline->ItemAt(selection));
-	fSelectedProjectItemName = fSelectedProjectItem->Text();
-
-	bool isProject = fSelectedProjectItemName.EndsWith(GenioNames::kProjectExtension);
-
-	// If a project was chosen fill string name otherwise do some calculations
-	if (isProject) {
-		fSelectedProjectName = fSelectedProjectItemName;
-	} else if (fSelectedProjectItemName == B_TRANSLATE("Project Files")
-			|| fSelectedProjectItemName == B_TRANSLATE("Project Sources")) {
-		// Nothing to do
-		return;
-	}  else {
-		// Find the project selected file belongs to
-		BListItem *item = fSelectedProjectItem, *parent;
-
-		while ((parent = fProjectsOutline->Superitem(item)) != nullptr)
-			item = parent;
-		BStringItem *projectItem = dynamic_cast<BStringItem*>(item);
-		// Project name
-		fSelectedProjectName = projectItem->Text();
-	}
-
-	bool isActive = (fActiveProject != nullptr
-				  && fSelectedProjectItem == fActiveProject->Title());
-
-	// Context menu conditional enabling
-	if (isProject) {
-		fCloseProjectMenuItem->SetEnabled(true);
-		fDeleteProjectMenuItem->SetEnabled(true);
-		if (!isActive)
-			fSetActiveProjectMenuItem->SetEnabled(true);
-		else {
-			// Active building project: return
-			if (fIsBuilding)
-				return;
-		}
-		fRescanProjectMenuItem->SetEnabled(true);
-		fAddProjectMenuItem->SetEnabled(true);
-	} else if (fSelectedProjectName == B_TRANSLATE("Project Files")
-			|| fSelectedProjectName == B_TRANSLATE("Project Sources")) {
-		// Not getting here but leave it
-		;
-	} else {
-		fAddProjectMenuItem->SetEnabled(true);
-		fDeleteFileProjectMenuItem->SetEnabled(true);
-		fExcludeFileProjectMenuItem->SetEnabled(true);
-		fOpenFileProjectMenuItem->SetEnabled(true);
-	}
-
-	BPoint where;
-	uint32 buttons;
-	fProjectsScroll->GetMouse(&where, &buttons);
-
-	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
-		fProjectMenu->Go(fProjectsScroll->ConvertToScreen(where), true);
-	}
-
-	fProjectsOutline->Invalidate();
-}
-
-void
-GenioWindow::_ProjectOpen(BString const& projectName, bool activate)
-{
-	Project* currentProject = new Project(projectName);
-
-	// Check if already open
-	for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
-		Project * pProject = fProjectObjectList->ItemAt(index);
-		if (pProject->ExtensionedName() == currentProject->ExtensionedName())
-				return;
-	}
-
-	if (currentProject->Open(activate) != B_OK) {
-		BString notification;
-		notification
-			<< B_TRANSLATE("Project open fail:")
-			<< "  "  << projectName;
-		_SendNotification( notification.String(), "PROJ_OPEN_FAIL");
-		delete currentProject;
-
-		return;
-	}
-	
-	//xed let's check if any open editor is related to this project
-	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
-		fEditor = fEditorObjectList->ItemAt(index);
-		if (fEditor->GetProject() == NULL) //should always be true..
-		{
-			fEditor->SetProject(currentProject);
-		}
-	}	
-
-	fProjectObjectList->AddItem(currentProject);
-
-	BString opened(B_TRANSLATE("Project open:"));
-	if (activate == true) {
-		_ProjectActivate(projectName);
-		opened = B_TRANSLATE("Active project open:");
-	}
-
-	_ProjectOutlinePopulate(currentProject);
-
-	BString notification;
-	notification << opened << "  " << projectName;
-	_SendNotification(notification, "PROJ_OPEN");
-}
-
-void
-GenioWindow::_ProjectOutlineDepopulate(Project* project)
-{
-	fProjectsOutline->RemoveItem(project->Title());
-}
-
-void
-GenioWindow::_ProjectOutlinePopulate(Project* project)
-{
-	BString basepath(project->BasePath());
-	basepath.Append("/");
-	BString cutpath;
-	int32 count;
-
-	fProjectsOutline->AddItem(project->Title());
-
-	// WARNING: names used in context menu file exclusion
-	fSourcesItem = new BStringItem(B_TRANSLATE("Project Sources"), 1, false);
-	fProjectsOutline->AddUnder(fSourcesItem, project->Title());
-
-	fFilesItem = new BStringItem(B_TRANSLATE("Project Files"), 1, false);
-	fProjectsOutline->AddUnder(fFilesItem, project->Title());
-
-
-	count = project->SourcesList().size();
-	for (int32 index = count - 1; index >= 0 ; index--) {
-		cutpath = project->SourcesList().at(index);
-		cutpath.RemoveFirst(basepath);
-
-		BStringItem* item = new BStringItem(cutpath);
-		fProjectsOutline->AddUnder(item, fSourcesItem);
-	}
-	count = project->FilesList().size();
-	for (int32 index = count - 1; index >= 0 ; index--) {
-		cutpath = project->FilesList().at(index);
-		cutpath.RemoveFirst(basepath);
-		BStringItem* item = new BStringItem(cutpath);
-		fProjectsOutline->AddUnder(item, fFilesItem);
-	}
-
-	fProjectsOutline->SortItemsUnder(fSourcesItem, true, GenioWindow::_CompareListItems);
-	fProjectsOutline->SortItemsUnder(fFilesItem, true, GenioWindow::_CompareListItems);
-}
-
-Project*
-GenioWindow::_ProjectPointerFromName(BString const& projectName)
-{
-	for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
-		Project* project = fProjectObjectList->ItemAt(index);
-		if (project->ExtensionedName() == projectName)
-			return project;
-	}
-	return nullptr;
-}
-
-void
-GenioWindow::_ProjectRescan(BString const& projectName)
-{
-	Project* project = _ProjectPointerFromName(projectName);
-	if (project == nullptr)
-		return;
-
-	BString projectDirectory("");
-	projectDirectory.SetTo(project->BasePath());
-
-	TPreferences* prefs = new TPreferences(projectName,
-		GenioNames::kApplicationName, 'LOPR');
-	ProjectParser parser(prefs);
-	parser.ParseProjectFiles(projectDirectory.String());
-	delete prefs;
-
-	// If active project was git inited (or git removed) and then rescaned
-	// set Git menu accordingly
-	if (project->IsActive()) {
-		if (project->Scm() == "git")
-			fGitMenu->SetEnabled(true);
-		else
-			fGitMenu->SetEnabled(false);
-	}
-
-	_ProjectOutlineDepopulate(project);
-	_ProjectOutlinePopulate(project);
-	fProjectsOutline->Invalidate();
-}
- */
 
 status_t
 GenioWindow::_ProjectRemoveDir(const BString& dirPath)
@@ -3733,11 +3520,24 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		tooltip << "cwd: " << GenioNames::Settings.projects_directory;
 		fRunConsoleProgramText->SetToolTip(tooltip);
 	}
+
+	BString projectPath = project->Path();
+	projectPath = projectPath.Append("/");
+
+	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
+		fEditor = fEditorObjectList->ItemAt(index);
+		if (fEditor->GetProjectFolder() == project) {
+			fEditor->SetProjectFolder(NULL);
+		}
+	}	
+	
 	_ProjectFolderOutlineDepopulate(project);
 	
 	BString notification;
 	notification << closed << " "  << name;
 	_SendNotification(notification, "PROJ_CLOSE");
+	
+
 }
 
 void
@@ -3771,8 +3571,10 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	// Check if already open
 	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
 		ProjectFolder * pProject =(ProjectFolder*)fProjectFolderObjectList->ItemAt(index);
-		if (pProject->Path() == newProject->Path())
+		if (pProject->Path() == newProject->Path()) {
+			delete newProject;
 			return;
+		}	
 	}
 
 	if (newProject->Open() != B_OK) {
@@ -3798,6 +3600,19 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	BString notification;
 	notification << opened << "  " << newProject->Name() << " " << B_TRANSLATE("at") << " " << newProject->Path();
 	_SendNotification(notification, "PROJ_OPEN");		
+	
+	//let's check if any open editor is related to this project
+	BString projectPath = newProject->Path();
+	projectPath = projectPath.Append("/");
+
+	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
+		fEditor = fEditorObjectList->ItemAt(index);
+		//LogError("Open project [%s] vs editor project [%s]", projectPath.String(), fEditor->FilePath().String());
+		if (fEditor->GetProjectFolder() == NULL &&
+		    fEditor->FilePath().StartsWith(projectPath)) {
+			fEditor->SetProjectFolder(newProject);
+		}
+	}	
 }
 
 void

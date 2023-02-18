@@ -10,10 +10,10 @@
 #include <Messenger.h>
 #include <ScintillaView.h>
 #include <String.h>
-#include "Project.h"
 #include <string>
 
 class FileWrapper;
+class ProjectFolder;
 
 enum {
 	EDITOR_FIND_COUNT				= 'Efco',
@@ -148,8 +148,8 @@ public:
 
 			void				SignatureHelp();
 			
-			void				SetProject(Project*);
-			Project*			GetProject() { return fProject; }
+			void				SetProjectFolder(ProjectFolder*);
+			ProjectFolder*		GetProjectFolder() { return fProjectFolder; }
 			void				SetZoom(int32 zoom);
 			void				Undo();
 			void				Completion();
@@ -193,7 +193,7 @@ private:
 			int					fCurrentColumn;
 			
 			FileWrapper*		fFileWrapper;
-			Project*			fProject;
+			ProjectFolder*		fProjectFolder;
 
 };
 

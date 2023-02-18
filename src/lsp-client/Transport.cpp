@@ -1,3 +1,6 @@
+// Created by Alex on 2020/1/28. (https://github.com/microsoft/language-server-protocol)
+// Additional changes by Andrea Anzani <andrea.anzani@gmail.com>
+
 #include "Transport.h"
 #include "Log.h"
 

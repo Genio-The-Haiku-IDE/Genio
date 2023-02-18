@@ -99,6 +99,7 @@ private:
 	
 	void				_ShowToolTip(const char* text);
 	void				_RemoveAllDiagnostics();
+	void				_RemoveAllDocumentLinks();
 	
 private:
 	//callbacks:

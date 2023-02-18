@@ -51,7 +51,6 @@ SRCS +=  src/ui/GenioWindow.cpp
 SRCS +=  src/ui/SettingsWindow.cpp
 SRCS +=  src/project/AddToProjectWindow.cpp
 SRCS +=  src/project/NewProjectWindow.cpp
-SRCS +=  src/project/Project.cpp
 SRCS +=  src/project/ProjectParser.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp

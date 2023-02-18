@@ -31,7 +31,6 @@
 #include "ConsoleIOThread.h"
 #include "ConsoleIOView.h"
 #include "Editor.h"
-#include "Project.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "ProjectParser.h"
@@ -263,7 +262,6 @@ private:
 			ProjectItem*		fSelectedProjectItem;
 			BString				fSelectedProjectItemName;
 			
-			BObjectList<Project>*	fProjectObjectList;
 			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
 			
 			BStringItem*		fSourcesItem;

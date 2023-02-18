@@ -60,6 +60,7 @@ namespace GenioNames
 		bool  find_whole_word;
 		bool  find_match_case;
 
+
 	} SettingsVars;
 
 	extern SettingsVars Settings;

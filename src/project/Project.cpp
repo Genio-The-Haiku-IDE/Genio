@@ -10,14 +10,21 @@
 
 #include "GenioNamespace.h"
 
+#include "FileWrapper.h"
+#include "LSPClientWrapper.h"
+
+
 Project::Project(BString const& name)
 	:
 	fExtensionedName(name)
 {
+	fLSPClientWrapper = new LSPClientWrapper();
 }
 
 Project::~Project()
 {
+	fLSPClientWrapper->Dispose();
+	delete fLSPClientWrapper;
 	delete fProjectTitle;
 }
 
@@ -94,7 +101,10 @@ Project::Open(bool activate)
 
 	if (idmproFile.FindBool("run_in_terminal", &fRunInTerminal) != B_OK)
 		fRunInTerminal = false;
-
+		
+	std::string rootURI = "file://" + std::string(fProjectDirectory.String());
+	fLSPClientWrapper->Create(rootURI.c_str());
+	
 	return B_OK;
 }
 

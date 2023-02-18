@@ -19,6 +19,7 @@ class BCheckBox;
 class WordTextView;
 class BTextView;
 
+
 class ConsoleIOView : public BGroupView {
 public:
 								ConsoleIOView(const BString& name, const BMessenger& target);

@@ -66,7 +66,8 @@ public:
 
 private:
 
-			status_t			_AddEditorTab(entry_ref* ref, int32 index, int32 be_line);
+			status_t			_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int32 sci_pos);
+
 			void				_BuildDone(BMessage* msg);
 			status_t			_BuildProject();
 			status_t			_CargoNew(BString args);

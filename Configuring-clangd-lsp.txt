@@ -1,0 +1,50 @@
+For more advanced IDE feateures, Genio implements the LSP protocol. (https://microsoft.github.io/language-server-protocol/)
+One of the most advanged C and C++ lsp server is 'clangd' included in the clang compiler suite. (more info https://clangd.llvm.org/)
+
+First pre-requisite is to install the latest LLVM (clang) package (at the time of writing is version 12).
+
+Once installed you should have the command 'clangd' ready to be used by Genio.
+The clangd tool interacts with the IDE to provide all the advanced features like autocompletion, function signature information, diagnostic errors, jump to header, etc..
+To obtain the best from the tool you need to configure it and your project.
+At the moment this configurations must be done manually but we aim to improve Genio in order to manage these configs in a more automatic and user-friendly way.
+
+Keep in mind that clangd tries to compile and index a set of files to provide the best information and diagnostics results.
+
+Two main configuration point:
+
+1) The compilier itself.
+	The most relevant configuration here are the include paths.
+	Inside the file "/boot/home/config/settings/clangd/config.yaml", a good configuration could be something like
+	
+	CompileFlags:
+  		Add: [-I/boot/system/develop/tools/lib/gcc/x86_64-unknown-haiku/11.2.0/include/c++, -I/boot/system/develop/tools/lib/gcc/x86_64-unknown-haiku/11.2.0/include/c++/x86_64-unknown-haiku, -I/boot/system/develop/headers/private/interface, -I/boot/system/develop/headers/private/shared]
+	
+	* please note this config in valid for a x86_64 system with gcc 11.2.0 *
+	
+	More info -> https://clangd.llvm.org/config
+	
+
+2) The project.
+	To let understand clangd how you want each file to be compiled, you should provide a compile database file (compile_commands.json).
+	The file contains, for each file of the project, the list off all the flags and include paths your compiler needs.
+	There are usefull tools to let you create the compile_commands.json file automatically from a building tool like make, jam or cmake.
+	
+	For make building tool
+		The best tool so far tested is the python program called 'compiledb'. Run it as "compiledb make -Bnwk" to produce the database.
+		Another available tool is 'bear'. The syntax should be similar to "bear -- make -Bnwk"
+		compiledb: https://github.com/nickdiego/compiledb  (pip3 install compiledb)
+		bear: https://github.com/rizsotto/Bear (bear can be found on HaikuDepot)
+	
+	For cmake building tool
+		cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ...
+		or
+		add set(CMAKE_EXPORT_COMPILE_COMMANDS ON) in CMakeLists.txt 
+		
+	For Jam (haiku version) building tool
+		jam -c 
+		More info: https://www.freelists.org/post/haiku-development/linting-and-autocomplete-How-to-generate-compile-commandsjson-alternatives	
+	
+	More info https://clang.llvm.org/docs/JSONCompilationDatabase.html
+	
+	
+Andrea

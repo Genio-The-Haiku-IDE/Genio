@@ -37,8 +37,6 @@ private:
 		void	didOpen();
 public:
 		void	didClose();
-				
-		void	didChange(const char* text, long len, int s_line, int s_char, int e_line, int e_char);
 		void	didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength);
 		void	didSave();
 

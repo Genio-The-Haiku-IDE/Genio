@@ -567,9 +567,12 @@ FileWrapper::_DoCompletion(json &params) {
     if (list.length() > 0) {
       this->fCurrentCompletion = items;
       fEditor->SendMessage(SCI_AUTOCSETSEPARATOR, (int)'\n', 0);
+      fEditor->SendMessage(SCI_AUTOCSETIGNORECASE, true);
+      fEditor->SendMessage(SCI_AUTOCGETCANCELATSTART, false);
       fEditor->SendMessage(SCI_AUTOCSETORDER, SC_ORDER_CUSTOM, 0);
       fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)list.c_str());
     }
+    
 }
 
 void

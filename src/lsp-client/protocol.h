@@ -1036,7 +1036,7 @@ struct DocumentHighlight {
         return LHS.kind == RHS.kind && LHS.range == RHS.range;
     }
 };
-enum class TypeHierarchyDirection { Children = 0, Parents = 1, Both = 2 };
+enum class TypeHierarchyDirection: int { Children = 0, Parents = 1, Both = 2 };
 
 struct TypeHierarchyParams : public TextDocumentPositionParams {
     /// The hierarchy levels to resolve. `0` indicates no level.

@@ -53,7 +53,8 @@ LSPClientWrapper::Create(const char *uri)
 						 logLevel.c_str(), 
 						 "--offset-encoding=utf-8", 
 						 "--pretty", 
-						 NULL 
+						 "--header-insertion-decorators=false",
+						 NULL
 						};
   
   Init((char**)argv);

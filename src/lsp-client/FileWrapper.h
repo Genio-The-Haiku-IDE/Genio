@@ -52,12 +52,17 @@ public:
 		
 		void	IndicatorClick(Sci_Position position);
 		
-		
-		/* experimental */
 		void	CharAdded(const char ch /*utf-8?*/);
-		bool	StartCallTip();
+		
+		/* experimental */	
 		void	ContinueCallTip();
 		void	UpdateCallTip(int deltaPos);
+private:
+		/* experimental section */	
+		bool	StartCallTip();
+		
+		
+		
 		int 	braceCount = 0;
 		int 	startCalltipWord;
 		Sci_Position calltipPosition;

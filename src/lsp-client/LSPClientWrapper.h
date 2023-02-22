@@ -8,11 +8,23 @@
 #include <SupportDefs.h>
 #include <Locker.h>
 #include "LSPClient.h"
-#include "protocol.h"
+#include "json_fwd.hpp"
 #include <atomic>
 #include <thread>
+#include <optional>
 
-class LSPTextDocument;
+class  LSPTextDocument;
+struct TextDocumentContentChangeEvent;
+struct Range;
+struct Position;
+struct CodeActionContext;
+struct CompletionContext;
+struct TweakArgs;
+struct WorkspaceEdit;
+struct FileEvent;
+struct WorkspaceEdit;
+struct ConfigurationSettings;
+enum class TypeHierarchyDirection: int;
 
 class LSPClientWrapper : public MessageHandler, public LSPClient {
 	
@@ -50,7 +62,7 @@ public:
     RequestID OnTypeFormatting(MessageHandler*, DocumentUri uri, Position position, string_ref ch);
     RequestID Formatting(MessageHandler*, DocumentUri uri);
     RequestID CodeAction(MessageHandler*, DocumentUri uri, Range range, CodeActionContext context);
-    RequestID Completion(MessageHandler*, DocumentUri uri, Position position, option<CompletionContext> context = {});
+    RequestID Completion(MessageHandler*, DocumentUri uri, Position position, CompletionContext& context);
     RequestID SignatureHelp(MessageHandler*, DocumentUri uri, Position position);
     RequestID GoToDefinition(MessageHandler*, DocumentUri uri, Position position);    
     RequestID GoToImplementation(MessageHandler*, DocumentUri uri, Position position);    
@@ -66,7 +78,7 @@ public:
     RequestID TypeHierarchy(MessageHandler*, DocumentUri uri, Position position, TypeHierarchyDirection direction, int resolve);
     RequestID DocumentLink(MessageHandler* fw, DocumentUri uri);
     RequestID WorkspaceSymbol(MessageHandler*, string_ref query);
-    RequestID ExecuteCommand(MessageHandler*, string_ref cmd, option<TweakArgs> tweakArgs = {}, option<WorkspaceEdit> workspaceEdit = {});
+    //RequestID ExecuteCommand(MessageHandler*, string_ref cmd, option<TweakArgs> tweakArgs = {}, option<WorkspaceEdit> workspaceEdit = {});
     RequestID DidChangeWatchedFiles(MessageHandler*, std::vector<FileEvent> &changes);
     RequestID DidChangeConfiguration(MessageHandler*, ConfigurationSettings &settings);
  

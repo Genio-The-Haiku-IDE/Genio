@@ -6,7 +6,7 @@
 #include "Log.h"
 #include <map>
 #include "LSPTextDocument.h"
-
+#include "protocol.h"
 
 
 
@@ -288,11 +288,11 @@ RequestID LSPClientWrapper::CodeAction(MessageHandler* fw, DocumentUri uri, Rang
 	params.context = std::move(context);
 	return SendRequest(X(fw), "textDocument/codeAction", std::move(params));
 }
-RequestID LSPClientWrapper::Completion(MessageHandler* fw, DocumentUri uri, Position position, option<CompletionContext> context) {
+RequestID LSPClientWrapper::Completion(MessageHandler* fw, DocumentUri uri, Position position, CompletionContext& context) {
 	CompletionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
-	params.context = context;
+	params.context = option<CompletionContext>(context);
 	return SendRequest(X(fw), "textDocument/completion", params);
 }
 RequestID LSPClientWrapper::SignatureHelp(MessageHandler* fw, DocumentUri uri, Position position) {
@@ -387,13 +387,14 @@ RequestID LSPClientWrapper::WorkspaceSymbol(MessageHandler* fw, string_ref query
 	params.query = query;
 	return SendRequest(X(fw), "workspace/symbol", std::move(params));
 }
+/*
 RequestID LSPClientWrapper::ExecuteCommand(MessageHandler* fw, string_ref cmd, option<TweakArgs> tweakArgs, option<WorkspaceEdit> workspaceEdit) {
 	ExecuteCommandParams params;
 	params.tweakArgs = tweakArgs;
 	params.workspaceEdit = workspaceEdit;
 	params.command = cmd;
 	return SendRequest(X(fw), "workspace/executeCommand", std::move(params));
-}
+}*/
 RequestID LSPClientWrapper::DidChangeWatchedFiles(MessageHandler* fw, std::vector<FileEvent> &changes) {
 	DidChangeWatchedFilesParams params;
 	params.changes = std::move(changes);

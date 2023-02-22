@@ -665,7 +665,7 @@ FileWrapper::onResponse(RequestID id, value &result)
 void 
 FileWrapper::onError(RequestID id, value &error)
 { 
-	LogError("onError [%s] [%s]",  id.c_str(), error.dump().c_str());
+	LogError("onError [%s] [%s]",  GetFilenameURI().c_str(), error.dump().c_str());
 }
 void 
 FileWrapper::onRequest(std::string method, value &params, value &ID)

@@ -636,12 +636,18 @@ FileWrapper::_DoDocumentLink(nlohmann::json& result)
 }
 
 		
-
+void	
+FileWrapper::_DoFileStatus(nlohmann::json& params)
+{
+	auto state = params["state"].get<std::string>();	
+	LogInfo("FileStatus [%s] [%s]",  GetFilenameURI().c_str(), state.c_str());
+}
 
 void 
 FileWrapper::onNotify(std::string id, value &result)
 {
 	IF_ID("textDocument/publishDiagnostics", _DoDiagnostics);
+	IF_ID("textDocument/clangd.fileStatus",  _DoFileStatus);
 	
 	LogError("FileWrapper::onNotify not handled! [%s]", id.c_str());
 }
@@ -664,7 +670,7 @@ FileWrapper::onResponse(RequestID id, value &result)
 }
 void 
 FileWrapper::onError(RequestID id, value &error)
-{ 
+{
 	LogError("onError [%s] [%s]",  GetFilenameURI().c_str(), error.dump().c_str());
 }
 void 
@@ -707,9 +713,10 @@ FileWrapper::FromSciPositionToRange(Sci_Position s_start,
 }
 
 Sci_Position 
-FileWrapper::ApplyTextEdit(json &textEdit) {
+FileWrapper::ApplyTextEdit(json &textEditJson) {
 
-  Range range = textEdit["range"].get<Range>();
+  TextEdit textEdit = textEditJson.get<TextEdit>();
+  Range range = textEdit.range;
   Sci_Position s_pos = FromLSPPositionToSciPosition(&range.start);
   Sci_Position e_pos = FromLSPPositionToSciPosition(&range.end);
 
@@ -717,7 +724,7 @@ FileWrapper::ApplyTextEdit(json &textEdit) {
   
   Sci_Position replaced = fEditor->SendMessage(
       SCI_REPLACETARGET, -1,
-      (sptr_t)(textEdit["newText"].get<std::string>().c_str()));
+      (sptr_t)(textEdit.newText.c_str()));
 
   return s_pos + replaced;
 }

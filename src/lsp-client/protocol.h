@@ -288,7 +288,7 @@ struct ClientCapabilities {
 
     /// Client supports snippets as insert text.
     /// textDocument.completion.completionItem.snippetSupport
-    bool CompletionSnippets = false;
+    bool CompletionSnippets = true;
 
     bool CompletionDeprecated = true;
 
@@ -410,7 +410,7 @@ struct InitializationOptions {
     std::vector<TextType> fallbackFlags;
 
     /// Clients supports show file status for textDocument/clangd.fileStatus.
-    bool clangdFileStatus = false;
+    bool clangdFileStatus = true;
 };
 JSON_SERIALIZE(InitializationOptions, MAP_JSON(
                 MAP_KEY(configSettings),

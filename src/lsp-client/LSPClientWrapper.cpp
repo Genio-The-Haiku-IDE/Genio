@@ -99,24 +99,29 @@ LSPClientWrapper::Dispose()
 	return true;
 }
 		
-		
+LSPTextDocument*	
+LSPClientWrapper::_DocumentByURI(const std::string& uri)
+{
+	LSPTextDocument* doc = nullptr;
+	for (auto& x: fTextDocs) {
+		if(x.second->GetFilenameURI().compare(uri) == 0)
+		{
+			doc = x.second;
+			break;
+		}	
+	}
+	
+	return doc;
+}
 
 void 
 LSPClientWrapper::onNotify(std::string method, value &params)
 {
-	if (method.compare("textDocument/publishDiagnostics") == 0)
-	{
-		LSPTextDocument* doc = NULL;
+	if (method.compare("textDocument/publishDiagnostics") == 0 ||
+		method.compare("textDocument/clangd.fileStatus")  == 0 )
+	{		
 		auto uri = params["uri"].get<std::string>();
-		for (auto& x: fTextDocs) {
-			//LogDebug("comparing [%s] vs [%s]", uri.c_str(), x.second->GetFilenameURI().c_str());
-			if(x.second->GetFilenameURI().compare(uri) == 0)
-			{
-				doc = x.second;
-				break;
-			}	
-		}
-		
+		LSPTextDocument* doc = _DocumentByURI(uri);		
 		if (doc)
 			doc->onNotify(method, params);
 			

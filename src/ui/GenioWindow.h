@@ -31,12 +31,12 @@
 #include "ConsoleIOThread.h"
 #include "ConsoleIOView.h"
 #include "Editor.h"
-#include "Project.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "ProjectParser.h"
 #include "TabManager.h"
 #include "TPreferences.h"
+#include "ProjectsFolderBrowser.h"
 
 enum {
 	kProjectsOutline = 0,
@@ -63,6 +63,7 @@ public:
 	virtual void				DispatchMessage(BMessage* message, BHandler* handler);
 	virtual void				MessageReceived(BMessage* message);
 	virtual bool				QuitRequested();
+	
 
 private:
 
@@ -130,8 +131,6 @@ private:
 			void				_ProjectFolderOutlinePopulate(ProjectFolder* project);
 			void				_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 			void				_ProjectFolderActivate(ProjectFolder* project);
-			void				_ShowProjectItemPopupMenu();
-			ProjectFolder*		_GetProjectFromCurrentItem();
 			ProjectItem*		_GetProjectItem(ProjectFolder *project);
 			status_t			_ShowCurrentItemInTracker();
 			status_t			_OpenTerminalWorkingDirectory();
@@ -242,36 +241,19 @@ private:
 			// Left panels
 			BTabView*	  		fProjectsTabView;
 
-			BOutlineListView*	fProjectsFolderOutline;
+			ProjectsFolderBrowser*	fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 			// ClassesView*		fClassesView;
-			BPopUpMenu*			fProjectMenu;
-			BMenuItem*			fCloseProjectMenuItem;
-			BMenuItem*			fDeleteProjectMenuItem;
-			BMenuItem*			fSetActiveProjectMenuItem;
-			BMenuItem*			fAddProjectMenuItem;
-			BMenuItem*			fExcludeFileProjectMenuItem;
-			BMenuItem*			fDeleteFileProjectMenuItem;
-			BMenuItem*			fOpenFileProjectMenuItem;
-			BMenuItem*			fShowInTrackerProjectMenuItem;
-			BMenuItem*			fOpenTerminalProjectMenuItem;
+
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
-			BString				fSelectedProjectName;
-			ProjectItem*		fSelectedProjectItem;
-			BString				fSelectedProjectItemName;
 			
-			BObjectList<Project>*	fProjectObjectList;
 			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
 			
-			BStringItem*		fSourcesItem;
-			BStringItem*		fFilesItem;
-
 			// Editor group
-			TabManager*			fTabManager;
+			TabManager*				fTabManager;
 			BObjectList<Editor>*	fEditorObjectList;
-			Editor*				fEditor;
 
 			BGroupLayout*		fFindGroup;
 			BGroupLayout*		fReplaceGroup;

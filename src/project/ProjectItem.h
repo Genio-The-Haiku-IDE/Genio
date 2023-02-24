@@ -8,6 +8,7 @@
 #include <Font.h>
 #include <StringItem.h>
 #include <View.h>
+#include <Bitmap.h>
 
 class SourceItem;
 

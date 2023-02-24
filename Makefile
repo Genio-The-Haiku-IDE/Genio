@@ -51,7 +51,6 @@ SRCS +=  src/ui/GenioWindow.cpp
 SRCS +=  src/ui/SettingsWindow.cpp
 SRCS +=  src/project/AddToProjectWindow.cpp
 SRCS +=  src/project/NewProjectWindow.cpp
-SRCS +=  src/project/Project.cpp
 SRCS +=  src/project/ProjectParser.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp
@@ -68,7 +67,8 @@ SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
 SRCS +=  src/helpers/Logger.cpp
-SRCS += src/helpers/console_io/WordTextView.cpp
+SRCS +=  src/helpers/console_io/WordTextView.cpp
+SRCS +=  src/ui/ProjectsFolderBrowser.cpp
 
 
 RDEFS := Genio.rdef

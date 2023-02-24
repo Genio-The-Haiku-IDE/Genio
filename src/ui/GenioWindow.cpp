@@ -3402,7 +3402,9 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetCurrentProjectItem();
 	itemPath = selectedProjectItem->GetSourceItem()->Path();
 	
-	commandLine.SetToFormat("Terminal -w \"%s\" &", itemPath.String());
+
+	commandLine.SetToFormat("Terminal -w \"%s\"  &", itemPath.String());
+
 	returnStatus = system(commandLine);
 	if (returnStatus != B_OK)
 		notification << B_TRANSLATE("An error occurred while opening Terminal and setting working directory to:") << itemPath;

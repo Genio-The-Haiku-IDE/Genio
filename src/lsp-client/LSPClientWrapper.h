@@ -91,6 +91,8 @@ public:
 
 private:
 
+	LSPTextDocument*	_DocumentByURI(const std::string& uri);
+
 	typedef std::map<std::string, LSPTextDocument*> MapFile;
 
 	MapFile	fTextDocs;

@@ -115,6 +115,7 @@ private:
 	void	_DoCompletion(nlohmann::json& params);
 	void	_DoDiagnostics(nlohmann::json& params);
 	void	_DoDocumentLink(nlohmann::json& params);
+	void	_DoFileStatus(nlohmann::json& params);
 	
 private:
 	//utils

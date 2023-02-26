@@ -49,10 +49,6 @@ Genio files
 |	|	|  --TPreferences.h..............
 |	|	|  --keywords.h..................Keywords for syntax highlighting
 |	|	|
-|	|	|  --class_parser................Class parser class
-|	|	|	+
-|	|	|	|  --ClassesView.cpp.........Class parser visual class
-|	|	|	|  --ClassesView.h...........
 |	|	|
 |	|	|  --console_io..................Console I/O classes
 |	|	|	+

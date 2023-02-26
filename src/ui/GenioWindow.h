@@ -25,9 +25,7 @@
 #include <TextControl.h>
 #include <Window.h>
 
-#if defined CLASSES_VIEW
-#include "ClassesView.h"
-#endif
+
 #include "ConsoleIOThread.h"
 #include "ConsoleIOView.h"
 #include "Editor.h"
@@ -40,7 +38,6 @@
 
 enum {
 	kProjectsOutline = 0,
-	kClassesOutline,
 };
 enum {
 	kTimeColumn = 0,
@@ -244,7 +241,7 @@ private:
 
 			BOutlineListView*	fProjectsFolderOutline;
 			BScrollView*		fProjectsFolderScroll;
-			// ClassesView*		fClassesView;
+
 			BPopUpMenu*			fProjectMenu;
 			BMenuItem*			fCloseProjectMenuItem;
 			BMenuItem*			fDeleteProjectMenuItem;

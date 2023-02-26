@@ -2682,11 +2682,6 @@ GenioWindow::_InitSideSplit()
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 	
-#if defined CLASSES_VIEW
-	// Classes View
-	fClassesView = ClassesView::Create(BMessenger(this));
-	fProjectsTabView->AddTab(fClassesView);
-#endif
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
@@ -3897,9 +3892,8 @@ GenioWindow::_UpdateStatusBarTrailing(int32 index)
 	fStatusBar->SetTrailingText(trailing.String());
 }
 
-// Updating menu, toolbar, title, classes.
+// Updating menu, toolbar, title.
 // Also cleaning Status bar if no open files
-// and Classes view if class parsing not available
 void
 GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 {
@@ -3945,10 +3939,7 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 		fReplaceItem->SetEnabled(false);
 		fGoToLineItem->SetEnabled(false);
 		fBookmarksMenu->SetEnabled(false);
-#if defined CLASSES_VIEW
-		// Clean class view
-		fClassesView->Clear();
-#endif
+
 		// Clean Status bar
 		fStatusBar->Reset();
 
@@ -4021,13 +4012,7 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 	fFileSaveAllButton->SetEnabled(filesNeedSave);
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
-#if defined CLASSES_VIEW
-	// Update class view
-	if (editor->IsParsingAvailable())
-		fClassesView->ParseFile(editor->FileRef());
-	else
-		fClassesView->Clear();
-#endif
+
 
 std::cerr << __PRETTY_FUNCTION__ << " called by: " << caller << " :"<< index << std::endl;
 

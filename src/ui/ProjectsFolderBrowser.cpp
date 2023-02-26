@@ -93,9 +93,6 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 void
 ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 {
-	//test
-	LogError("target: %p this: %p", BInvoker::Target(), this);
-	//test
 	ProjectItem*  projectItem = GetCurrentProjectItem();
 		
 	if (!projectItem)

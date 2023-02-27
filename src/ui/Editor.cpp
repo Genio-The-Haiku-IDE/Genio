@@ -23,6 +23,7 @@
 #include "GenioNamespace.h"
 #include "keywords.h"
 #include "ProjectFolder.h"
+#include "EditorContextMenu.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -188,6 +189,9 @@ Editor::ApplySettings()
 	}
 	
 	fFileWrapper->ApplySettings();
+	
+	//custom ContextMenu!
+	SendMessage(SCI_USEPOPUP, SC_POPUP_NEVER, 0);
 }
 
 void
@@ -1249,7 +1253,11 @@ Editor::SetZoom(int32 zoom)
 	_RedrawNumberMargin(true);
 }
 
-
+void
+Editor::ContextMenu(BPoint point)
+{
+	EditorContextMenu::Show(this, point);
+}
 
 void
 Editor::_ApplyExtensionSettings()

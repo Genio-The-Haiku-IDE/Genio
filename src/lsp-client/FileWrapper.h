@@ -57,6 +57,8 @@ public:
 		/* experimental */	
 		void	ContinueCallTip();
 		void	UpdateCallTip(int deltaPos);
+		
+		const BString&	GetFileStatus(){ return fFileStatus;}
 private:
 		/* experimental section */	
 		bool	StartCallTip();
@@ -94,8 +96,8 @@ private:
 	Sci_Position		fCompletionPosition;
 	BTextToolTip* 		fToolTip;
 	LSPClientWrapper*	fLSPClientWrapper;
-	bool				initialized = false; //to be removed, use LSPClientWrapper pointer..
-	
+	bool				initialized = false; //use LSPClientWrapper pointer?
+	BString				fFileStatus;
 
 	std::vector<InfoRange>		fLastDiagnostics;
 	std::vector<InfoRange>		fLastDocumentLinks;
@@ -110,7 +112,6 @@ private:
 	void 	_DoHover(nlohmann::json& params);
 	void	_DoGoTo(nlohmann::json& params);
 	void	_DoSignatureHelp(nlohmann::json& params);
-	void	_DoOpenFile(nlohmann::json& params);
 	void	_DoSwitchSourceHeader(nlohmann::json& params);
 	void	_DoCompletion(nlohmann::json& params);
 	void	_DoDiagnostics(nlohmann::json& params);

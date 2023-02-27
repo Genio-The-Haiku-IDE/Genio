@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
+#include <algorithm>
 #include "LSPClientWrapper.h"
 #include <Application.h>
 #include "TextUtils.h"
@@ -56,6 +57,7 @@ FileWrapper::UnsetLSPClient()
 	
 	didClose();
 	initialized = false;
+	fFileStatus = "";
 	fLSPClientWrapper->UnregisterTextDocument(this);
 	fLSPClientWrapper = NULL;
 }
@@ -232,28 +234,63 @@ void FileWrapper::SelectedCompletion(const char *text) {
     return;
 
   if (this->fCurrentCompletion != json({})) {
-    auto items = fCurrentCompletion;
-    std::string list;
-    for (json::iterator it = items.begin(); it != items.end(); ++it) {
 
-      if ((*it)["label_sci"].get<std::string>().compare(std::string(text)) == 0) {
-        // first let's clean the text entered until the combo is selected:
-        Sci_Position pos = fEditor->SendMessage(SCI_GETCURRENTPOS, 0, 0);
+	for (auto& item: fCurrentCompletion) {
 
-        if (pos > fCompletionPosition) {
-          fEditor->SendMessage(SCI_SETTARGETRANGE, fCompletionPosition, pos);
-          fEditor->SendMessage(SCI_REPLACETARGET, -1, (sptr_t) "");
-        }
+      if (item["label_sci"].get<std::string>().compare(std::string(text)) == 0) {
 
-        int endpos = ApplyTextEdit((*it)["textEdit"]);
-        fEditor->SendMessage(SCI_SETEMPTYSELECTION, endpos, 0);
+
+		TextEdit textEdit = item["textEdit"].get<TextEdit>();
+		
+		const Sci_Position s_pos = FromLSPPositionToSciPosition(&textEdit.range.start);
+		const Sci_Position e_pos = FromLSPPositionToSciPosition(&textEdit.range.end);
+		const Sci_Position   pos = fEditor->SendMessage(SCI_GETCURRENTPOS);
+		Sci_Position cursorPos = e_pos;
+        
+        std::string textToAdd = textEdit.newText;
+        
+        // algo to remove the ${} stuff
+        size_t dollarPos = textToAdd.find_first_of('$');
+        
+        if (dollarPos != std::string::npos) {
+	        size_t lastPos = dollarPos;
+			//single value case: check the case is $0
+			if (dollarPos < textToAdd.length() - 1 && textToAdd.at(dollarPos+1) == '0')
+			{
+				lastPos += 2;
+				
+			} else {
+				size_t endMarket = textToAdd.find_last_of('}');
+				if (endMarket != std::string::npos)
+					lastPos = endMarket + 1;
+			}
+			textToAdd.erase(dollarPos, lastPos - dollarPos);		
+			
+			cursorPos = s_pos + dollarPos;
+	    } else {
+			cursorPos = s_pos + textToAdd.length();
+		}
+	    
+        fEditor->SendMessage(SCI_SETTARGETRANGE, s_pos, std::max(pos, std::max(e_pos, fCompletionPosition)));
+        fEditor->SendMessage(SCI_REPLACETARGET, -1, (sptr_t) "");
+        fEditor->SendMessage(SCI_INSERTTEXT, s_pos, (sptr_t)textToAdd.c_str());
+
+        fEditor->SendMessage(SCI_SETCURRENTPOS, cursorPos, 0);
+        fEditor->SendMessage(SCI_SETANCHOR,     cursorPos, 0);
+        
         fEditor->SendMessage(SCI_SCROLLCARET, 0, 0);
+        
+        if (dollarPos!= std::string::npos && dollarPos > 0) {
+	        char posChar = textToAdd.at(dollarPos-1);
+			CharAdded(posChar);
+        }
+        
         break;
       }
     }
   }
   fEditor->SendMessage(SCI_AUTOCCANCEL, 0, 0);
-  this->fCurrentCompletion = json({});
+  fCurrentCompletion = json({});
 }
 
 // trim from start (in place)
@@ -556,21 +593,29 @@ void
 FileWrapper::_DoCompletion(json &params) {
     auto items = params["items"];
     std::string list;
-    for (json::iterator it = items.begin(); it != items.end(); ++it) {
-      std::string label = (*it)["label"].get<std::string>();
+    for (auto& item: items) {
+      std::string label = item["label"].get<std::string>();
       ltrim(label);
       if (list.length() > 0)
         list += "\n";
       list += label;
-      (*it)["label_sci"] = label;
+      item["label_sci"] = label;
     }
+    
     if (list.length() > 0) {
       this->fCurrentCompletion = items;
       fEditor->SendMessage(SCI_AUTOCSETSEPARATOR, (int)'\n', 0);
       fEditor->SendMessage(SCI_AUTOCSETIGNORECASE, true);
       fEditor->SendMessage(SCI_AUTOCGETCANCELATSTART, false);
-      fEditor->SendMessage(SCI_AUTOCSETORDER, SC_ORDER_CUSTOM, 0);
-      fEditor->SendMessage(SCI_AUTOCSHOW, 0, (sptr_t)list.c_str());
+      fEditor->SendMessage(SCI_AUTOCSETORDER, SC_ORDER_CUSTOM, 0);      
+      
+      //whats' the text already selected so far?
+      const Position start = items[0]["textEdit"]["range"]["start"].get<Position>();
+      const Sci_Position s_pos = FromLSPPositionToSciPosition(&start);
+	  Sci_Position len = fCompletionPosition - s_pos;
+	  if (len <  0)
+		  len = 0;
+	  fEditor->SendMessage(SCI_AUTOCSHOW, len, (sptr_t)list.c_str());
     }
     
 }
@@ -639,8 +684,9 @@ FileWrapper::_DoDocumentLink(nlohmann::json& result)
 void	
 FileWrapper::_DoFileStatus(nlohmann::json& params)
 {
-	auto state = params["state"].get<std::string>();	
-	LogInfo("FileStatus [%s] [%s]",  GetFilenameURI().c_str(), state.c_str());
+	auto state = params["state"].get<std::string>();
+	LogTrace("FileStatus [%s] [%s]",  GetFilenameURI().c_str(), state.c_str());
+	fFileStatus = state.c_str();
 }
 
 void 

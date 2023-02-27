@@ -39,6 +39,7 @@
 #include "SettingsWindow.h"
 #include "TPreferences.h"
 #include "Log.h"
+#include "GenioWindowMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -65,118 +66,7 @@ static float kOutputWeight  = 0.4f;
 
 BRect dirtyFrameHack;
 
-// Self enum names begin with MSG_ and values are all lowercase
-// External enum names begin with MODULENAME_ and values are Capitalized
-// 'NOTI' temporary
-enum {
-	// Project menu
-	MSG_PROJECT_CLOSE			= 'prcl',
-	MSG_PROJECT_NEW				= 'prne',
-	MSG_PROJECT_OPEN			= 'prop',
-	MSG_PROJECT_SET_ACTIVE		= 'psac',	// TODO
-	MSG_PROJECT_SETTINGS		= 'prse',
-	MSG_PROJECT_FOLDER_OPEN		= 'pfop',
 
-	// File menu
-	MSG_FILE_NEW				= 'fine',
-	MSG_FILE_OPEN				= 'fiop',
-	MSG_FILE_SAVE				= 'fisa',
-	MSG_FILE_SAVE_AS			= 'fsas',
-	MSG_FILE_SAVE_ALL			= 'fsal',
-	MSG_FILE_CLOSE				= 'ficl',
-	MSG_FILE_CLOSE_ALL			= 'fcal',
-	MSG_FILE_FOLD_TOGGLE		= 'fifo',
-
-	// Edit menu
-	MSG_TEXT_DELETE				= 'tede',
-	MSG_TEXT_OVERWRITE			= 'teov',
-	MSG_WHITE_SPACES_TOGGLE		= 'whsp',
-	MSG_LINE_ENDINGS_TOGGLE		= 'lien',
-	MSG_EOL_CONVERT_TO_UNIX		= 'ectu',
-	MSG_EOL_CONVERT_TO_DOS		= 'ectd',
-	MSG_EOL_CONVERT_TO_MAC		= 'ectm',
-	MSG_EOL_SET_TO_UNIX			= 'estu',
-	MSG_EOL_SET_TO_DOS			= 'estd',
-	MSG_EOL_SET_TO_MAC			= 'estm',
-	
-	MSG_AUTOCOMPLETION			= 'auto',	
-	MSG_FORMAT					= 'form',
-	MSG_GOTODEFINITION			= 'gode',
-	MSG_GOTODECLARATION			= 'gocl',
-	MSG_GOTOIMPLEMENTATION		= 'goim',
-	MSG_SWITCHSOURCE			= 'swit',
-	MSG_SIGNATUREHELP			= 'sihe',
-
-	// view
-	MSG_VIEW_ZOOMIN				= 'zoin',
-	MSG_VIEW_ZOOMOUT			= 'zoou',
-	MSG_VIEW_ZOOMRESET			= 'zore',
-
-	// Search menu & group
-	MSG_FIND_GROUP_SHOW			= 'figs',
-	MSG_FIND_MENU_SELECTED		= 'fmse',
-	MSG_FIND_PREVIOUS			= 'fipr',
-	MSG_FIND_MARK_ALL			= 'fmal',
-	MSG_FIND_NEXT				= 'fite',
-	MSG_REPLACE_GROUP_SHOW		= 'regs',
-	MSG_REPLACE_MENU_SELECTED 	= 'rmse',
-	MSG_REPLACE_ONE				= 'reon',
-	MSG_REPLACE_NEXT			= 'rene',
-	MSG_REPLACE_PREVIOUS		= 'repr',
-	MSG_REPLACE_ALL				= 'real',
-	MSG_GOTO_LINE				= 'goli',
-	MSG_BOOKMARK_CLEAR_ALL		= 'bcal',
-	MSG_BOOKMARK_GOTO_NEXT		= 'bgne',
-	MSG_BOOKMARK_GOTO_PREVIOUS	= 'bgpr',
-	MSG_BOOKMARK_TOGGLE			= 'book',
-
-	// Build menu
-	MSG_BUILD_PROJECT			= 'bupr',
-	MSG_BUILD_PROJECT_STOP		= 'bpst',
-	MSG_CLEAN_PROJECT			= 'clpr',
-	MSG_RUN_TARGET				= 'ruta',
-	MSG_BUILD_MODE_RELEASE		= 'bmre',
-	MSG_BUILD_MODE_DEBUG		= 'bmde',
-	MSG_DEBUG_PROJECT			= 'depr',
-	MSG_MAKE_CATKEYS			= 'maca',
-	MSG_MAKE_BINDCATALOGS		= 'mabi',
-
-	// Scm menu
-	MSG_GIT_COMMAND				= 'gitc',
-	MSG_HG_COMMAND				= 'hgco',
-
-	// Window menu
-	MSG_WINDOW_SETTINGS			= 'wise',
-	MSG_TOGGLE_TOOLBAR			= 'toto',
-
-	// Projects outline
-	MSG_PROJECT_MENU_ITEM_CHOSEN		= 'pmic',
-	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
-	MSG_PROJECT_MENU_SET_ACTIVE			= 'pmsa',
-	MSG_PROJECT_MENU_ADD_ITEM			= 'pmai',
-	MSG_PROJECT_MENU_DELETE_FILE		= 'pmdf',
-	MSG_PROJECT_MENU_EXCLUDE_FILE		= 'pmef',
-	MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
-	MSG_PROJECT_MENU_SHOW_IN_TRACKER	= 'pmst',
-	MSG_PROJECT_MENU_OPEN_TERMINAL		= 'pmot',
-	
-	// Toolbar
-	MSG_BUFFER_LOCK					= 'bulo',
-	MSG_BUILD_MODE					= 'bumo',
-	MSG_FILE_MENU_SHOW				= 'fmsh',
-	MSG_FILE_NEXT_SELECTED			= 'fnse',
-	MSG_FILE_PREVIOUS_SELECTED		= 'fpse',
-	MSG_FIND_GROUP_TOGGLED			= 'figt',
-	MSG_FIND_IN_FILES				= 'fifi',
-	MSG_RUN_CONSOLE_PROGRAM_SHOW	= 'rcps',
-	MSG_RUN_CONSOLE_PROGRAM			= 'rcpr',
-	MSG_LINE_TO_GOTO				= 'ltgt',
-	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
-	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
-	MSG_SHOW_HIDE_OUTPUT			= 'shou',
-
-	MSG_SELECT_TAB				= 'seta'
-};
 
 class ProjectRefFilter : public BRefFilter {
 

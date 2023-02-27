@@ -158,6 +158,8 @@ public:
 			void				GoToDeclaration();
 			void				GoToImplementation();
 			void				SwitchSourceHeader();
+			
+			void 				ContextMenu(BPoint point);
 
 private:
 			void				_ApplyExtensionSettings();

@@ -66,6 +66,7 @@ LSPClientWrapper::Create(const char *uri)
 	{
 		on_error.store(true);
 		initialized.store(false);
+		LogError("Unexpected termination of LSPClient");
 	}
   });
   

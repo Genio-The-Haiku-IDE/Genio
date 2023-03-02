@@ -13,7 +13,7 @@
 #include "GenioNamespace.h"
 #include "GSettings.h"
 #include "ProjectFolder.h"
-
+#include "LSPClientWrapper.h"
 
 SourceItem::SourceItem(BString const& path) 
 {
@@ -40,15 +40,20 @@ ProjectFolder::ProjectFolder(BString const& path)
 	fType = SourceItemType::ProjectFolderItem;
 	fProjectFolder = this;
 	fActive = false;
+	fLSPClientWrapper = new LSPClientWrapper();
 }
 
 ProjectFolder::~ProjectFolder()
 {
+	fLSPClientWrapper->Dispose();
+	delete fLSPClientWrapper;
 }
 
 status_t
 ProjectFolder::Open()
 {
+	std::string rootURI = "file://" + std::string(fPath.String());
+	fLSPClientWrapper->Create(rootURI.c_str());
 	return B_OK;
 }
 

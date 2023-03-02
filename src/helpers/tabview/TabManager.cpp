@@ -905,7 +905,7 @@ TabManager::CloseTab(int32 tabIndex)
 
 
 void
-TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line)
+TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line, int32 lsp_char)
 {
 	fTabContainerView->AddTab(label, index);
 #if defined DIRTY_HACK
@@ -917,6 +917,8 @@ TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line)
 	BMessage message(TABMANAGER_TAB_NEW_OPENED);
 	message.AddInt32("index", index);
 	message.AddInt32("be:line", be_line);
+	message.AddInt32("lsp:character", lsp_char);
+	
 	fTarget.SendMessage(&message);
 }
 

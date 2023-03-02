@@ -10,8 +10,10 @@
 #include <Messenger.h>
 #include <ScintillaView.h>
 #include <String.h>
-
 #include <string>
+
+class FileWrapper;
+class ProjectFolder;
 
 enum {
 	EDITOR_FIND_COUNT				= 'Efco',
@@ -63,6 +65,7 @@ constexpr auto kBraceMatch = 1;
 constexpr auto kBraceBad = 2;
 
 class Editor : public BScintillaView {
+	
 public:
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
@@ -97,6 +100,7 @@ public:
 			int					FindPrevious(const BString& search, int flags, bool wrap);
 			int32				GetCurrentPosition();
 			void				GoToLine(int32 line);
+			void				GoToLSPPosition(int32 line, int character);
 			void				GrabFocus();
 			bool				IsFoldingAvailable() { return fFoldingAvailable; }
 			bool				IsModified() { return fModified; }
@@ -141,9 +145,21 @@ public:
 			void				ToggleFolding();
 			void				ToggleLineEndings();
 			void				ToggleWhiteSpaces();
-			void				Undo();
+
+			void				SignatureHelp();
 			
+			void				SetProjectFolder(ProjectFolder*);
+			ProjectFolder*		GetProjectFolder() { return fProjectFolder; }
 			void				SetZoom(int32 zoom);
+			void				Undo();
+			void				Completion();
+			void				Format();
+			void				GoToDefinition();
+			void				GoToDeclaration();
+			void				GoToImplementation();
+			void				SwitchSourceHeader();
+			
+			void 				ContextMenu(BPoint point);
 
 private:
 			void				_ApplyExtensionSettings();
@@ -177,6 +193,10 @@ private:
 
 			int					fCurrentLine;
 			int					fCurrentColumn;
+			
+			FileWrapper*		fFileWrapper;
+			ProjectFolder*		fProjectFolder;
+
 };
 
 #endif // EDITOR_H

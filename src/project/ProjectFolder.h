@@ -11,6 +11,8 @@
 #include "GenioNamespace.h"
 #include "GSettings.h"
 
+class LSPClientWrapper;
+
 enum GENIO_SETTINGS_KEY {
 	RELEASE_BUILD_COMMAND,
 	DEBUG_BUILD_COMMAND,
@@ -94,6 +96,8 @@ public:
 	
 	void						ExcludeSettingsOnGit(bool enabled);
 	bool						ExcludeSettingsOnGit();
+	
+	LSPClientWrapper*			GetLSPClient() { return fLSPClientWrapper; }
 
 private:
 
@@ -104,6 +108,7 @@ private:
 	BuildMode					fBuildMode;
 	BString						fTarget;
 	BString						fBuildCommand;
+	LSPClientWrapper*			fLSPClientWrapper;
 };
 
 #endif // PROJECT_FOLDER_H

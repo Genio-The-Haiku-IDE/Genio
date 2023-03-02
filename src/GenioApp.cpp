@@ -23,6 +23,7 @@ GenioApp::GenioApp()
 	:
 	BApplication(GenioNames::kApplicationSignature)
 {
+	
 	BRect frame;
 
 	// Load UI settings
@@ -40,6 +41,7 @@ GenioApp::GenioApp()
 
 GenioApp::~GenioApp()
 {
+
 }
 
 void
@@ -137,6 +139,8 @@ GenioApp::ReadyToRun()
 	_CheckSettingsVersion();
 
 	std::cerr << GenioNames::GetSignature() << std::endl;
+	
+
 }
 
 void

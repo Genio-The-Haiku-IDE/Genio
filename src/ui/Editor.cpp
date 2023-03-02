@@ -11,7 +11,9 @@
 #include <Control.h>
 #include <NodeMonitor.h>
 #include <Path.h>
+#include <ILexer.h>
 #include <SciLexer.h>
+#include <Lexilla.h>
 #include <Volume.h>
 
 #include <iostream>
@@ -20,6 +22,8 @@
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "keywords.h"
+#include "ProjectFolder.h"
+#include "EditorContextMenu.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -30,6 +34,8 @@ using namespace GenioNames;
 // in scintilla messages
 #define UNSET 0
 #define UNUSED 0
+
+#include "FileWrapper.h"
 
 //#define USE_LINEBREAKS_ATTRS
 
@@ -46,6 +52,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCommenter("")
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
+	, fProjectFolder(NULL)
 {
 	fFileName = BString(ref->name);
 	SetTarget(target);
@@ -70,6 +77,10 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 
 // SendMessage(SCI_SETYCARETPOLICY, CARET_SLOP | CARET_STRICT | CARET_JUMPS, 20);
 // CARET_SLOP  CARET_STRICT  CARET_JUMPS  CARET_EVEN
+	std::string s = "file://";
+	s += BPath(&fFileRef).Path();//.String();
+	fFileWrapper = new FileWrapper(s.c_str(), this);
+	
 }
 
 Editor::~Editor()
@@ -85,6 +96,10 @@ Editor::~Editor()
 			node.WriteAttr("be:caret_position", B_INT32_TYPE, 0, &pos, sizeof(pos));
 		}
 	}
+	
+	fFileWrapper->UnsetLSPClient();
+	delete fFileWrapper;
+	fFileWrapper = NULL;
 }
 
 void
@@ -152,14 +167,8 @@ Editor::ApplySettings()
 	SendMessage(SCI_SETMARGINS, 4, UNSET);
 	SendMessage(SCI_STYLESETBACK, STYLE_LINENUMBER, kLineNumberBack);
 
-	// Line numbers
-	if (Settings.show_linenumber == true) {
-		// Margin width
-		int pixelWidth = SendMessage(SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "9");
-		fLinesLog10 = log10(SendMessage(SCI_GETLINECOUNT, UNSET, UNSET));
-		fLinesLog10 += 2;
-		SendMessage(SCI_SETMARGINWIDTHN, sci_NUMBER_MARGIN, pixelWidth * fLinesLog10);
-	}
+	SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
+	
 
 	// Bookmark margin
 	SendMessage(SCI_SETMARGINTYPEN, sci_BOOKMARK_MARGIN, SC_MARGIN_SYMBOL);
@@ -167,6 +176,7 @@ Editor::ApplySettings()
 	SendMessage(SCI_MARKERDEFINE, sci_BOOKMARK, SC_MARK_BOOKMARK);
 	SendMessage(SCI_MARKERSETFORE, sci_BOOKMARK, kMarkerForeColor);
 	SendMessage(SCI_MARKERSETBACK, sci_BOOKMARK, kMarkerBackColor);
+ 	SendMessage(SCI_SETMARGINMASKN, sci_BOOKMARK_MARGIN, (1 << sci_BOOKMARK));
 
 	// Folding
 	if (Settings.enable_folding == B_CONTROL_ON)
@@ -177,6 +187,11 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12);
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	}
+	
+	fFileWrapper->ApplySettings();
+	
+	//custom ContextMenu!
+	SendMessage(SCI_USEPOPUP, SC_POPUP_NEVER, 0);
 }
 
 void
@@ -519,6 +534,15 @@ Editor::GoToLine(int32 line)
 }
 
 void
+Editor::GoToLSPPosition(int32 line, int character)
+{
+  Sci_Position  sci_position;
+  sci_position = SendMessage(SCI_POSITIONFROMLINE, line, 0);
+  sci_position = SendMessage(SCI_POSITIONRELATIVE, sci_position, character);
+  SendMessage(SCI_SETSEL, sci_position, sci_position);
+}
+
+void
 Editor::GrabFocus()
 {
 	SendMessage(SCI_GRABFOCUS, UNSET, UNSET);
@@ -591,6 +615,8 @@ Editor::LoadFromFile()
 
 	off_t size;
 	file.GetSize(&size);
+	
+		
 
 	char* buffer = new char[size + 1];
 
@@ -598,6 +624,7 @@ Editor::LoadFromFile()
 
 	buffer[size] = '\0';
 
+	//fFileWrapper->didOpen(this, false);
 	SendMessage(SCI_SETTEXT, 0, (sptr_t) buffer);
 
 	// Check the first newline only
@@ -626,6 +653,7 @@ Editor::LoadFromFile()
 
 	fFileType = Genio::file_type(fFileName.String());
 
+	
 	return B_OK;
 }
 
@@ -651,6 +679,8 @@ Editor::NotificationReceived(SCNotification* notification)
 					SendMessage(SCI_GETEOLMODE, UNSET, UNSET) == SC_EOL_CR)) {
 				_AutoIndentLine(); // TODO asociate extensions?
 			}
+			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT)
+				fFileWrapper->CharAdded(notification->ch);
 			break;
 		}
 		case SCN_MARGINCLICK: {
@@ -662,23 +692,49 @@ Editor::NotificationReceived(SCNotification* notification)
 				_CommentLine(notification->position);
 			break;
 		}
-		case SCN_MODIFIED: {
-			if (notification->linesAdded != 0)
-				if (Settings.show_linenumber == true)
-					_RedrawNumberMargin();
+		case SCN_AUTOCSELECTION: {
+			fFileWrapper->SelectedCompletion(notification->text);
 			break;
 		}
-	// case SCN_NEEDSHOWN: {
-// std::cerr << "SCN_NEEDSHOWN " << std::endl;
-		// break;
-		// }
+		case SCN_MODIFIED: {
+			if (notification->modificationType & SC_MOD_INSERTTEXT) {
+				fFileWrapper->didChange(notification->text, notification->length, notification->position, 0);
+			} 
+			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
+				fFileWrapper->didChange("", 0, notification->position, notification->length);
+			}
+			if (notification->modificationType & SC_MOD_DELETETEXT && notification->length == 1) {
+				if (SendMessage(SCI_CALLTIPACTIVE))
+					fFileWrapper->ContinueCallTip();
+			}
+			if (notification->linesAdded != 0)
+				if (Settings.show_linenumber == true)
+					_RedrawNumberMargin(false);
+			break;
+		}
+		case SCN_CALLTIPCLICK: {
+			fFileWrapper->UpdateCallTip(notification->position);
+			break;
+		}
+		case SCN_DWELLSTART: {
+			fFileWrapper->StartHover(notification->position);
+			break;
+		}
+		case SCN_DWELLEND: {
+			fFileWrapper->EndHover();
+			break;
+		}
+		case SCN_INDICATORRELEASE: {
+			fFileWrapper->IndicatorClick(notification->position);
+			break;
+		}
 		case SCN_SAVEPOINTLEFT: {
 			fModified = true;
 			BMessage message(EDITOR_SAVEPOINT_LEFT);
 			message.AddRef("ref", &fFileRef);
 			fTarget.SendMessage(&message);
 			break;
-		}
+		}	
 		case SCN_SAVEPOINTREACHED: {
 			fModified = false;
 			BMessage message(EDITOR_SAVEPOINT_REACHED);
@@ -934,6 +990,8 @@ Editor::SaveToFile()
 	delete[] buffer;
 
 	SendMessage(SCI_SETSAVEPOINT, UNSET, UNSET);
+	
+	fFileWrapper->didSave();
 
 	return bytes;
 }
@@ -1136,13 +1194,70 @@ Editor::Undo()
 }
 
 void
+
+Editor::Completion()
+{
+	fFileWrapper->StartCompletion();
+}
+		
+void
+Editor::Format()
+{
+	fFileWrapper->Format();
+}
+
+void
+Editor::GoToDefinition()
+{
+	fFileWrapper->GoTo(FileWrapper::GOTO_DEFINITION);
+}
+
+void
+Editor::GoToDeclaration()
+{
+	fFileWrapper->GoTo(FileWrapper::GOTO_DECLARATION);
+}
+
+void
+Editor::GoToImplementation()
+{
+	fFileWrapper->GoTo(FileWrapper::GOTO_IMPLEMENTATION);
+}
+
+void
+Editor::SwitchSourceHeader()
+{
+	fFileWrapper->SwitchSourceHeader();
+}
+
+void
+Editor::SignatureHelp()
+{
+	fFileWrapper->SignatureHelp();
+}
+
+void
+Editor::SetProjectFolder(ProjectFolder* proj)
+{
+	fProjectFolder = proj;
+	if (proj)
+		fFileWrapper->SetLSPClient(proj->GetLSPClient());
+	else
+		fFileWrapper->UnsetLSPClient();
+}
+
+void
 Editor::SetZoom(int32 zoom)
 {
 	SendMessage(SCI_SETZOOM, zoom, 0);
 	_RedrawNumberMargin(true);
 }
 
-
+void
+Editor::ContextMenu(BPoint point)
+{
+	EditorContextMenu::Show(this, point);
+}
 
 void
 Editor::_ApplyExtensionSettings()
@@ -1153,7 +1268,7 @@ Editor::_ApplyExtensionSettings()
 		fBracingAvailable = true;
 		fParsingAvailable = true;
 		fCommenter = "//";
-		SendMessage(SCI_SETLEXER, SCLEX_CPP, UNSET);
+		SendMessage(SCI_SETILEXER, 0, (sptr_t)CreateLexer("cpp"));
 		SendMessage(SCI_SETKEYWORDS, 0, (sptr_t)cppKeywords);
 		SendMessage(SCI_SETKEYWORDS, 1, (sptr_t)haikuClasses);
 	} else if (fFileType == "rust") {
@@ -1161,13 +1276,13 @@ Editor::_ApplyExtensionSettings()
 		fFoldingAvailable = true;
 		fBracingAvailable = true;
 		fCommenter = "//";
-		SendMessage(SCI_SETLEXER, SCLEX_RUST, UNSET);
+		SendMessage(SCI_SETILEXER, 0, (sptr_t)CreateLexer("rust"));
 		SendMessage(SCI_SETKEYWORDS, 0, (sptr_t)rustKeywords);
 	} else if (fFileType == "make") {
 		fSyntaxAvailable = true;
 		fBracingAvailable = true;
 		fCommenter = "#";
-		SendMessage(SCI_SETLEXER, SCLEX_MAKEFILE, UNSET);
+		SendMessage(SCI_SETILEXER, 0, (sptr_t)CreateLexer("make"));
 	}
 }
 
@@ -1337,6 +1452,9 @@ Editor::_CommentLine(int32 position)
 
 	// Calculate offset of first non-space
 	std::size_t offset = line.find_first_not_of("\t ");
+	
+	if (offset == std::string::npos)
+		return; 
 
 	if (line.substr(offset, fCommenter.length()) != fCommenter) {
 		// Not starting with a comment, comment out

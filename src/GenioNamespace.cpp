@@ -121,7 +121,6 @@ SaveSettingsVars()
 	status += file.SetInt32("wrap_console", Settings.wrap_console);
 	status += file.SetInt32("console_banner", Settings.console_banner);
 	status += file.SetInt32("editor_zoom", Settings.editor_zoom);
-	
 	status += file.SetBool("find_wrap", 	  Settings.find_wrap);
 	status += file.SetBool("find_whole_word", Settings.find_whole_word);
 	status += file.SetBool("find_match_case", Settings.find_match_case);
@@ -160,7 +159,6 @@ LoadSettingsVars()
 	status += file.FindInt32("wrap_console", &Settings.wrap_console);
 	status += file.FindInt32("console_banner", &Settings.console_banner);
 	status += file.FindInt32("editor_zoom", &Settings.editor_zoom);
-
 	status += file.FindBool("find_wrap", 	   &Settings.find_wrap);
 	status += file.FindBool("find_whole_word", &Settings.find_whole_word);
 	status += file.FindBool("find_match_case", &Settings.find_match_case);

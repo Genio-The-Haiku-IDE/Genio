@@ -8,10 +8,14 @@
 
 #include <string>
 
+#include "String.h"
+
 extern std::string wordCharacters;
 
 bool Contains(std::string const &s, char ch) noexcept;
 
 bool IsASpace(int ch) noexcept;
+
+const BString EscapeQuotesWrap(const BString& string);
 
 #endif // TextUtils_H

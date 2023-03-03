@@ -15,3 +15,10 @@ bool Contains(std::string const &s, char ch) noexcept {
 bool IsASpace(int ch) noexcept {
 	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
+
+const BString EscapeQuotesWrap(const BString& path) {
+	BString s = "\"";
+	s += path;
+	s += "\"";
+	return s;
+}

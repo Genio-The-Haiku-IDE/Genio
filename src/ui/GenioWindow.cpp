@@ -32,14 +32,15 @@
 #include "exceptions/Exceptions.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
+#include "GenioWindowMessages.h"
+#include "Log.h"
 #include "NewProjectWindow.h"
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "SettingsWindow.h"
 #include "TPreferences.h"
-#include "Log.h"
-#include "GenioWindowMessages.h"
+#include "TextUtils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -1793,10 +1794,10 @@ GenioWindow::_FindInFiles()
 
 	  BString grepCommand("grep -IHrn");
 	  grepCommand += extraParameters;
-	  grepCommand += " -- \"";
-	  grepCommand += text;
-	  grepCommand += "\" ";
-	  grepCommand += fActiveProject->Path();
+	  grepCommand += " -- ";
+	  grepCommand += EscapeQuotesWrap(text);
+	  grepCommand += " ";
+	  grepCommand += EscapeQuotesWrap(fActiveProject->Path());
 
 	  _RunInConsole(grepCommand);
 }
@@ -3532,8 +3533,7 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetCurrentProjectItem();
 	itemPath = selectedProjectItem->GetSourceItem()->Path();
 	
-
-	commandLine.SetToFormat("Terminal -w \"%s\"  &", itemPath.String());
+	commandLine.SetToFormat("Terminal -w %s &", EscapeQuotesWrap(itemPath.String()).String());
 
 	returnStatus = system(commandLine);
 	if (returnStatus != B_OK)
@@ -3563,7 +3563,7 @@ GenioWindow::_ShowCurrentItemInTracker()
 	if (itemEntry.GetParent(&parentDirectory) == B_OK) {
 		BPath directoryPath;
 		if (parentDirectory.GetPath(&directoryPath) == B_OK) {
-			commandLine.SetToFormat("/bin/open \"%s\"", directoryPath.Path());
+			commandLine.SetToFormat("/bin/open %s", EscapeQuotesWrap(directoryPath.Path()).String());
 			returnStatus = system(commandLine);
 		} else {
 			notification << "An error occurred while showing item in Tracker:" << directoryPath.Path();
@@ -3778,6 +3778,8 @@ GenioWindow::_RunTarget()
 	// Should not happen
 	if (fActiveProject == nullptr)
 		return;
+	
+	chdir(fActiveProject->Path());
 
 	// If there's no app just return, should not happen
 	BEntry entry(fActiveProject->GetTarget());
@@ -3912,6 +3914,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fReleaseModeItem->SetMarked(releaseMode);
 
 		// Target exists: enable run button
+		chdir(fActiveProject->Path());
 		BEntry entry(fActiveProject->GetTarget());
 		if (entry.Exists()) {
 			fRunItem->SetEnabled(true);

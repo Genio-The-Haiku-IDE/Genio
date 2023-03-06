@@ -41,9 +41,17 @@ public:
 	
 	void	SetBuildingPhase(bool building) { fIsBuilding = building;};
 	
+	void	ProjectFolderPopulate(ProjectFolder* project);
+	void	ProjectFolderDepopulate(ProjectFolder* project);
+	
 private:
+	
+	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
+
 	void			_ShowProjectItemPopupMenu(BPoint where);
 	ProjectFolder*	_GetProjectFromItem(ProjectItem*);
+	
+	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
 	
 private:
 	

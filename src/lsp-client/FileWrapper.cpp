@@ -568,11 +568,11 @@ FileWrapper::_DoGoTo(nlohmann::json& items){
 void
 FileWrapper::_DoSignatureHelp(json &result) {
 	lastCalltip    = result["signatures"];
-	currentCalltip = 0;
+	currentCalltip = 0; 
+	
 	if (lastCalltip[currentCalltip] != nlohmann::detail::value_t::null) {
-		 const Sci_Position pos = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
-		 auto str = lastCalltip[currentCalltip]["label"].get<std::string>();
-		fEditor->SendMessage(SCI_CALLTIPSHOW, pos, (sptr_t)(str.c_str()));
+		maxCalltip 	   = lastCalltip.size();
+		UpdateCallTip(0);
 	}
 };
 

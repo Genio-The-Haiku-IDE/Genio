@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <algorithm>
 #include "LSPClientWrapper.h"
 #include <Application.h>
 #include "TextUtils.h"
@@ -293,12 +292,6 @@ void FileWrapper::SelectedCompletion(const char *text) {
   fCurrentCompletion = json({});
 }
 
-// trim from start (in place)
-static inline void ltrim(std::string &s) {
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-            return !std::isspace(ch);
-          }));
-}
 
 void FileWrapper::StartCompletion() {
   if (!initialized || !fEditor)
@@ -458,7 +451,7 @@ FileWrapper::ContinueCallTip()
 		int start = base + params[commas]["label"][0].get<int>();
 		int end   = base + params[commas]["label"][1].get<int>();
 		// printf("DEBUG:%s %d,%d\n", params.dump().c_str(), start, end);
-		fEditor->SendMessage(SCI_CALLTIPSETHLT, start, end);
+		fEditor->SendMessage(SCI_CALLTIPSETHLT, start + 1, end + 1);
 	}	
 }
 
@@ -595,7 +588,7 @@ FileWrapper::_DoCompletion(json &params) {
     std::string list;
     for (auto& item: items) {
       std::string label = item["label"].get<std::string>();
-      ltrim(label);
+      LeftTrim(label);
       if (list.length() > 0)
         list += "\n";
       list += label;

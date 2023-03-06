@@ -121,8 +121,8 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 			fSetActiveProjectMenuItem->SetEnabled(true);
 		} else {
 			// Active building project: return
-			/*if (fIsBuilding)
-				return;*/
+			if (fIsBuilding)
+				return;
 		}
 
 	} else {

@@ -33,6 +33,7 @@ LSPClientWrapper::UnregisterTextDocument(LSPTextDocument* fw)
 bool	
 LSPClientWrapper::Create(const char *uri)
 {
+  fRootURI = uri;
   /** configuration for clangd */
   std::string logLevel("--log=");
   switch (Logger::Level())
@@ -66,7 +67,7 @@ LSPClientWrapper::Create(const char *uri)
 	{
 		on_error.store(true);
 		initialized.store(false);
-		LogError("Unexpected termination of LSPClient");
+		LogError("Unexpected termination of LSPClient - uri [%s]", this->fRootURI.c_str());
 	}
   });
   
@@ -82,8 +83,10 @@ LSPClientWrapper::Create(const char *uri)
 bool	
 LSPClientWrapper::Dispose()
 {
-	if (!initialized)
+	if (!initialized) {
+		readerThread.detach();
     	return true;
+    }
 
     for(auto& m: fTextDocs)
 		LogError("LSPClientWrapper::Dispose() still textDocument registered! [%s]", m.second->GetFilenameURI().c_str());

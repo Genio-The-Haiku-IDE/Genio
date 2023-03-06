@@ -103,6 +103,8 @@ private:
 	
 	std::string fAllCommitCharacters;
 	std::string fTriggerCharacters;
+	
+	std::string fRootURI;
 
 };
 

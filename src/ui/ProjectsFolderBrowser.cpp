@@ -11,6 +11,7 @@
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include <stdio.h>
+#include <Directory.h>
 #include "Log.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -202,4 +203,90 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 			_ShowProjectItemPopupMenu(where);			
 		}
 	}
+}
+
+void
+ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
+{	
+	RemoveItem(GetCurrentProjectItem());
+	Invalidate();
+}
+
+void
+ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
+{
+	ProjectItem *projectItem = NULL;
+	_ProjectFolderScan(projectItem, project->Path(), project);
+	SortItemsUnder(projectItem, false, ProjectsFolderBrowser::_CompareProjectItems);
+	Invalidate();
+}
+
+void
+ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder)
+{
+	char name[B_FILE_NAME_LENGTH];
+	BEntry nextEntry;
+	BEntry entry(path);
+	entry.GetName(name);	
+			
+	ProjectItem *newItem;
+
+	if (item!=NULL) {
+		SourceItem *sourceItem = new SourceItem(path);
+		sourceItem->SetProjectFolder(projectFolder);
+		newItem = new ProjectItem(sourceItem);
+		AddUnder(newItem,item);
+		Collapse(newItem);
+	} else {
+		newItem = item = new ProjectItem(projectFolder);
+		AddItem(newItem);
+	}
+	
+	if (entry.IsDirectory())
+	{
+		BPath _currentPath;
+		BDirectory dir(&entry);
+		while(dir.GetNextEntry(&nextEntry, false)!=B_ENTRY_NOT_FOUND)
+		{
+			nextEntry.GetPath(&_currentPath);
+			_ProjectFolderScan(newItem,_currentPath.Path(), projectFolder);
+		}
+	}
+}
+
+int
+ProjectsFolderBrowser::_CompareProjectItems(const BListItem* a, const BListItem* b)
+{
+	if (a == b)
+		return 0;
+
+	const ProjectItem* A = dynamic_cast<const ProjectItem*>(a);
+	const ProjectItem* B = dynamic_cast<const ProjectItem*>(b);
+	const char* nameA = A->Text();
+	SourceItem *itemA = A->GetSourceItem();
+	const char* nameB = B->Text();
+	SourceItem *itemB = B->GetSourceItem();
+	
+	if (itemA->Type()==SourceItemType::FolderItem && itemB->Type()==SourceItemType::FileItem) {
+		return -1;
+	}
+	
+	if (itemA->Type()==SourceItemType::FileItem && itemB->Type()==SourceItemType::FolderItem) {
+		return 1;
+	}
+		
+	if (nameA == NULL) {
+		return 1;
+	}
+		
+	if (nameB == NULL) {
+		return -1;
+	}
+
+	// Or use strcasecmp?
+	if (nameA != NULL && nameB != NULL) {
+		return strcmp(nameA, nameB);
+	}
+		
+	return 0;
 }

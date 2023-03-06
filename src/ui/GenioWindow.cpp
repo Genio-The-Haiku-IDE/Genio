@@ -1297,28 +1297,6 @@ GenioWindow::_CleanProject()
 	return status;
 }
 
-/*static*/ int
-GenioWindow::_CompareListItems(const BListItem* a, const BListItem* b)
-{
-	std::cerr << __PRETTY_FUNCTION__ << std::endl;
-	if (a == b)
-		return 0;
-
-	const BStringItem* A = dynamic_cast<const BStringItem*>(a);
-	const BStringItem* B = dynamic_cast<const BStringItem*>(b);
-	const char* nameA = A->Text();
-	const char* nameB = B->Text();
-
-	// Or use strcasecmp?
-	if (nameA != NULL && nameB != NULL)
-		return strcmp(nameA, nameB);
-	if (nameA != NULL)
-		return 1;
-	if (nameB != NULL)
-		return -1;
-
-	return (addr_t)a > (addr_t)b ? 1 : -1;
-}
 
 status_t
 GenioWindow::_DebugProject()
@@ -3387,7 +3365,10 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		}
 	}	
 	
-	_ProjectFolderOutlineDepopulate(project);
+	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
+	fProjectFolderObjectList->RemoveItem(project);
+	
+	delete project;
 	
 	BString notification;
 	notification << closed << " "  << name;
@@ -3444,7 +3425,7 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 		return;
 	}
 
-	_ProjectFolderOutlinePopulate(newProject);
+	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
 
 	BString opened(B_TRANSLATE("Project open:"));
@@ -3471,55 +3452,7 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	}	
 }
 
-void
-GenioWindow::_ProjectFolderOutlineDepopulate(ProjectFolder* project)
-{	
-	fProjectsFolderBrowser->RemoveItem(fProjectsFolderBrowser->GetCurrentProjectItem());
-	fProjectsFolderBrowser->Invalidate();
-	fProjectFolderObjectList->RemoveItem(project);
-}
 
-void
-GenioWindow::_ProjectFolderOutlinePopulate(ProjectFolder* project)
-{
-	ProjectItem *projectItem = NULL;
-	_ProjectFolderScan(projectItem, project->Path(), project);
-	fProjectsFolderBrowser->SortItemsUnder(projectItem, false, GenioWindow::_CompareProjectItems);
-	fProjectsFolderBrowser->Invalidate();
-}
-
-void
-GenioWindow::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder)
-{
-	char name[B_FILE_NAME_LENGTH];
-	BEntry nextEntry;
-	BEntry entry(path);
-	entry.GetName(name);	
-			
-	ProjectItem *newItem;
-
-	if (item!=NULL) {
-		SourceItem *sourceItem = new SourceItem(path);
-		sourceItem->SetProjectFolder(projectFolder);
-		newItem = new ProjectItem(sourceItem);
-		fProjectsFolderBrowser->AddUnder(newItem,item);
-		fProjectsFolderBrowser->Collapse(newItem);
-	} else {
-		newItem = item = new ProjectItem(projectFolder);
-		fProjectsFolderBrowser->AddItem(newItem);
-	}
-	
-	if (entry.IsDirectory())
-	{
-		BPath _currentPath;
-		BDirectory dir(&entry);
-		while(dir.GetNextEntry(&nextEntry, false)!=B_ENTRY_NOT_FOUND)
-		{
-			nextEntry.GetPath(&_currentPath);
-			_ProjectFolderScan(newItem,_currentPath.Path(), projectFolder);
-		}
-	}
-}
 
 // TODO: _OpenTerminalWorkingDirectory(), _ShowCurrentItemInTracker() and
 // _FileOpenWithPreferredApp(const entry_ref* ref) share almost the same code
@@ -3579,58 +3512,6 @@ GenioWindow::_ShowCurrentItemInTracker()
 	return returnStatus == 0 ? B_OK : errno;
 }
 
-
-ProjectItem*
-GenioWindow::_GetProjectItem(ProjectFolder *project)
-{
-	ProjectItem *projectItem = nullptr;
-	for (int32 index = 0; index < fProjectsFolderBrowser->CountItems(); index++) {
-		ProjectItem *pitem  = (ProjectItem*)fProjectsFolderBrowser->FullListItemAt(index);
-		SourceItem *sitem = pitem->GetSourceItem();
-		if (sitem->Type()==SourceItemType::ProjectFolderItem && sitem->Path() == project->Path()) {
-			projectItem = pitem;
-			break;
-		}
-	}
-	return projectItem;
-}
-
-int
-GenioWindow::_CompareProjectItems(const BListItem* a, const BListItem* b)
-{
-	if (a == b)
-		return 0;
-
-	const ProjectItem* A = dynamic_cast<const ProjectItem*>(a);
-	const ProjectItem* B = dynamic_cast<const ProjectItem*>(b);
-	const char* nameA = A->Text();
-	SourceItem *itemA = A->GetSourceItem();
-	const char* nameB = B->Text();
-	SourceItem *itemB = B->GetSourceItem();
-	
-	if (itemA->Type()==SourceItemType::FolderItem && itemB->Type()==SourceItemType::FileItem) {
-		return -1;
-	}
-	
-	if (itemA->Type()==SourceItemType::FileItem && itemB->Type()==SourceItemType::FolderItem) {
-		return 1;
-	}
-		
-	if (nameA == NULL) {
-		return 1;
-	}
-		
-	if (nameB == NULL) {
-		return -1;
-	}
-
-	// Or use strcasecmp?
-	if (nameA != NULL && nameB != NULL) {
-		return strcmp(nameA, nameB);
-	}
-		
-	return 0;
-}
 
 int
 GenioWindow::_Replace(int what)

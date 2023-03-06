@@ -70,10 +70,6 @@ private:
 			status_t			_BuildProject();
 			status_t			_CargoNew(BString args);
 			status_t			_CleanProject();
-	static	int					_CompareListItems(const BListItem* a,
-									const BListItem* b);
-	static	int					_CompareProjectItems(const BListItem* a,
-									const BListItem* b);
 
 			status_t			_DebugProject();
 			status_t			_FileClose(int32 index, bool ignoreModifications = false);
@@ -125,11 +121,8 @@ private:
 			void 				_ProjectFolderNew(BMessage *message);
 			void 				_ProjectFolderOpen(BMessage *message);
 			void				_ProjectFolderOpen(const BString& folder, bool activate = false);
-			void				_ProjectFolderOutlineDepopulate(ProjectFolder* project);
-			void				_ProjectFolderOutlinePopulate(ProjectFolder* project);
-			void				_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 			void				_ProjectFolderActivate(ProjectFolder* project);
-			ProjectItem*		_GetProjectItem(ProjectFolder *project);
+
 			status_t			_ShowCurrentItemInTracker();
 			status_t			_OpenTerminalWorkingDirectory();
 			

@@ -39,6 +39,8 @@ public:
 	
 	BString const	GetCurrentProjectFileFullPath();
 	
+	void	SetBuildingPhase(bool building) { fIsBuilding = building;};
+	
 private:
 	void			_ShowProjectItemPopupMenu(BPoint where);
 	ProjectFolder*	_GetProjectFromItem(ProjectItem*);
@@ -55,6 +57,7 @@ private:
 	BMenuItem*			fOpenFileProjectMenuItem;
 	BMenuItem*			fShowInTrackerProjectMenuItem;
 	BMenuItem*			fOpenTerminalProjectMenuItem;
+	bool				fIsBuilding = false;
 };
 
 

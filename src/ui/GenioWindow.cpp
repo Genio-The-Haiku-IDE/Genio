@@ -317,6 +317,7 @@ GenioWindow::MessageReceived(BMessage* message)
 //				editor->GrabFocus();
 
 			fIsBuilding = false;
+			fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
 
 			BString type;
 			if (message->FindString("cmd_type", &type) == B_OK) {
@@ -1228,6 +1229,7 @@ GenioWindow::_BuildProject()
 		return B_ERROR;
 
 	fIsBuilding = true;
+	fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
@@ -1278,6 +1280,7 @@ GenioWindow::_CleanProject()
 	command << fActiveProject->GetCleanCommand();
 
 	fIsBuilding = true;
+	fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
 
 	BMessage message;
 	message.AddString("cmd", command);

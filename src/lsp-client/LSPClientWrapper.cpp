@@ -68,6 +68,7 @@ LSPClientWrapper::Create(const char *uri)
 		on_error.store(true);
 		initialized.store(false);
 		LogInfo("Termination of LSPClient - uri [%s]", this->fRootURI.c_str());
+		Close();
 	}
   });
   

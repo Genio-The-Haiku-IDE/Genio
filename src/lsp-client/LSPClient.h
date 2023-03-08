@@ -20,6 +20,7 @@ public:
 
   void Init(char *argv[]);
   virtual ~LSPClient();
+  void	Close();
 
   void SkipLine();
   int ReadLength();

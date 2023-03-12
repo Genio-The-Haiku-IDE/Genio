@@ -3,16 +3,22 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-
-#include "ProjectsFolderBrowser.h"
-#include <Window.h>
 #include <Catalog.h>
+#include <Directory.h>
+#include <Entry.h>
+#include <File.h>
+#include <Looper.h>
 #include <MenuItem.h>
+#include <Path.h>
+#include <PathMonitor.h>
+#include <Window.h>
+
+#include <stdio.h>
+
+#include "Log.h"
+#include "ProjectsFolderBrowser.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
-#include <stdio.h>
-#include <Directory.h>
-#include "Log.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
@@ -54,11 +60,103 @@ ProjectsFolderBrowser::~ProjectsFolderBrowser()
 	delete fProjectMenu;
 }
 
+// TODO:
+// Optimize the search under a specific ProjectItem, tipically a 
+// superitem (ProjectFolder)
+ProjectItem*	
+ProjectsFolderBrowser::FindProjectItem(BString const& path)
+{
+	ProjectItem *item = nullptr;
+	int32 countItems = FullListCountItems();
+	for(int32 i=0; i<countItems; i++)
+	{
+		item = (ProjectItem *)FullListItemAt(i);
+		if (item->GetSourceItem()->Path() == path)
+			break;
+	}
+	return item;
+}
+
+void				
+ProjectsFolderBrowser::_UpdateNode(BMessage* message)
+{
+	int32 opCode;
+	if (message->FindInt32("opcode", &opCode) != B_OK)
+		return;
+	LogDebug("opcode %d", opCode);
+	
+	BString projectFolderPath;
+	if (message->FindString("watched_path", &projectFolderPath) != B_OK)
+		return;
+	LogDebug("watched_path %s", projectFolderPath.String());
+	ProjectFolder *projectFolder = new ProjectFolder(projectFolderPath);
+	
+	BString spath;
+	if (message->FindString("path", &spath) == B_OK) {
+		LogDebug("path %s", spath.String());
+		SourceItem *sourceItem = new SourceItem(spath);
+		ProjectItem *newItem = new ProjectItem(sourceItem);
+		bool status = AddItem(newItem);
+		if (status) {
+			LogDebug("status %d", status);
+			Collapse(newItem);
+			Invalidate();
+		}
+	}
+	return;
+
+	switch (opCode) {
+		case 1:
+		{
+			BString spath;
+			if (message->FindString("path", &spath) == B_OK) {
+				BPath path(spath.String());
+				BPath parent;
+				path.GetParent(&parent);
+				ProjectItem *item = FindProjectItem(parent.Path());
+				SourceItem *sourceItem = new SourceItem(path.Path());
+				sourceItem->SetProjectFolder(projectFolder);
+				ProjectItem *newItem = new ProjectItem(sourceItem);
+				bool status = AddUnder(newItem,item);
+				// bool status = AddItem(newItem);
+				if (status) {
+					Collapse(newItem);
+					Invalidate();
+				}
+			}
+		}
+		case 3:
+		{
+			BString spath;
+			if (message->FindString("path", &spath) == B_OK) {
+				ProjectItem *item = FindProjectItem(spath);
+				RemoveItem(item);
+			}
+		}
+		// case 3:
+		// {
+		// }
+		default:
+		break;
+	}	
+		
+}
+
 void				
 ProjectsFolderBrowser::MessageReceived(BMessage* message)
 {
+	switch (message->what)
+	{
+		case B_PATH_MONITOR:
+			message->PrintToStream(); 			  
+			_UpdateNode(message);
+		break;
+		default:
+		break;	
+	}
+	
 	//TODO: move more logic here!
-	/*
+	/* 
 	switch (message->what)
 	{
 		case MSG_PROJECT_MENU_CLOSE: 
@@ -208,6 +306,7 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 void
 ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 {	
+	BPrivate::BPathMonitor::StopWatching(BMessenger(this));
 	RemoveItem(GetCurrentProjectItem());
 	Invalidate();
 }
@@ -219,6 +318,9 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	_ProjectFolderScan(projectItem, project->Path(), project);
 	SortItemsUnder(projectItem, false, ProjectsFolderBrowser::_CompareProjectItems);
 	Invalidate();
+	
+	BPrivate::BPathMonitor::StartWatching(project->Path(),
+			B_WATCH_RECURSIVELY, BMessenger(this));
 }
 
 void

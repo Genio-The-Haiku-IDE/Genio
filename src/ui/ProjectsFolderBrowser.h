@@ -27,11 +27,11 @@ class ProjectItem;
 class ProjectsFolderBrowser : public BOutlineListView {
 public:
 					 ProjectsFolderBrowser();
-			virtual ~ProjectsFolderBrowser();
+	virtual 		~ProjectsFolderBrowser();
 	
-	void	MouseDown(BPoint where);
-	void	AttachedToWindow();
-	void	MessageReceived(BMessage* message);
+	void			MouseDown(BPoint where);
+	void			AttachedToWindow();
+	void			MessageReceived(BMessage* message);
 	
 	ProjectFolder*	GetProjectFromCurrentItem();
 	
@@ -39,10 +39,12 @@ public:
 	
 	BString const	GetCurrentProjectFileFullPath();
 	
-	void	SetBuildingPhase(bool building) { fIsBuilding = building;};
+	ProjectItem*	FindProjectItem(BString const& path);
 	
-	void	ProjectFolderPopulate(ProjectFolder* project);
-	void	ProjectFolderDepopulate(ProjectFolder* project);
+	void			SetBuildingPhase(bool building) { fIsBuilding = building;};
+	
+	void			ProjectFolderPopulate(ProjectFolder* project);
+	void			ProjectFolderDepopulate(ProjectFolder* project);
 	
 private:
 	
@@ -52,6 +54,8 @@ private:
 	ProjectFolder*	_GetProjectFromItem(ProjectItem*);
 	
 	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
+	
+	void			_UpdateNode(BMessage *message);
 	
 private:
 	

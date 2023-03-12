@@ -50,6 +50,7 @@ SRCS +=  src/ui/Editor.cpp
 SRCS  +=  src/ui/EditorContextMenu.cpp
 SRCS +=  src/ui/GenioWindow.cpp
 SRCS +=  src/ui/SettingsWindow.cpp
+SRCS +=  src/ui/OutlineListView.cpp
 SRCS +=  src/project/AddToProjectWindow.cpp
 SRCS +=  src/project/NewProjectWindow.cpp
 SRCS +=  src/project/ProjectParser.cpp
@@ -94,6 +95,7 @@ SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY priva
 SYSTEM_INCLUDE_PATHS  +=  src/scintilla/include
 SYSTEM_INCLUDE_PATHS  +=  src/scintilla/haiku
 SYSTEM_INCLUDE_PATHS  +=  src/lexilla/include
+SYSTEM_INCLUDE_PATHS  +=  /boot/system/develop/headers/private
 LOCAL_INCLUDE_PATHS  +=  src/lsp-client/include
 
 ################################################################################

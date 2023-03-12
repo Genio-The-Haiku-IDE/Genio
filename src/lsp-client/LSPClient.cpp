@@ -38,9 +38,15 @@ void LSPClient::Init(char *argv[]) {
   }
 }
 
+void	
+LSPClient::Close()
+{
+	close(outPipe[WRITE_END]);
+	close(inPipe[READ_END]);
+}
+
 LSPClient::~LSPClient() {
-  close(outPipe[WRITE_END]);
-  close(inPipe[READ_END]);
+	Close();
 }
 void LSPClient::SkipLine() {
   char xread;

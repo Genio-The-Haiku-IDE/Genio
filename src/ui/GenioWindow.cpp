@@ -1784,14 +1784,14 @@ GenioWindow::_FindInFiles()
 }
 
 int32
-GenioWindow::_GetEditorIndex(entry_ref* ref)
+GenioWindow::_GetEditorIndex(entry_ref* ref, bool checkExists)
 {
 	BEntry entry(ref, true);
 	int32 filesCount = fEditorObjectList->CountItems();
 
 	// Could try to reopen at start a saved index that was deleted,
 	// check existence
-	if (entry.Exists() == false)
+	if (checkExists && entry.Exists() == false)
 		return -1;
 		
 	for (int32 index = 0; index < filesCount; index++) {
@@ -1911,7 +1911,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 
  	alert->SetShortcut(0, B_ESCAPE);
 
-	int32 index = _GetEditorIndex(oldRef);
+	int32 index = _GetEditorIndex(oldRef, false);
 
  	int32 choice = alert->Go();
  

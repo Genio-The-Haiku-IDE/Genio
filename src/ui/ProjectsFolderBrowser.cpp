@@ -12,6 +12,7 @@
 #include <Path.h>
 #include <PathMonitor.h>
 #include <Window.h>
+#include <NaturalCompare.h>
 
 #include <stdio.h>
 
@@ -405,10 +406,9 @@ ProjectsFolderBrowser::_CompareProjectItems(const BListItem* a, const BListItem*
 		return -1;
 	}
 
-	// Or use strcasecmp?
-	if (nameA != NULL && nameB != NULL) {
-		return strcasecmp(nameA, nameB);
-	}
+	// Natural order sort
+	if (nameA != NULL && nameB != NULL)
+		return BPrivate::NaturalCompare(nameA, nameB);
 		
 	return 0;
 }

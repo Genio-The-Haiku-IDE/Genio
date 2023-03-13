@@ -91,19 +91,19 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 	LogDebug("watched_path %s", projectFolderPath.String());
 	ProjectFolder *projectFolder = new ProjectFolder(projectFolderPath);
 	
-	BString spath;
-	if (message->FindString("path", &spath) == B_OK) {
-		LogDebug("path %s", spath.String());
-		SourceItem *sourceItem = new SourceItem(spath);
-		ProjectItem *newItem = new ProjectItem(sourceItem);
-		bool status = AddItem(newItem);
-		if (status) {
-			LogDebug("status %d", status);
-			Collapse(newItem);
-			Invalidate();
-		}
-	}
-	return;
+	// BString spath;
+	// if (message->FindString("path", &spath) == B_OK) {
+		// LogDebug("path %s", spath.String());
+		// SourceItem *sourceItem = new SourceItem(spath);
+		// ProjectItem *newItem = new ProjectItem(sourceItem);
+		// bool status = AddItem(newItem);
+		// if (status) {
+			// LogDebug("status %d", status);
+			// Collapse(newItem);
+			// Invalidate();
+		// }
+	// }
+	// return;
 
 	switch (opCode) {
 		case 1:
@@ -113,16 +113,29 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				BPath path(spath.String());
 				BPath parent;
 				path.GetParent(&parent);
-				ProjectItem *item = FindProjectItem(parent.Path());
+				
+				ProjectItem *parentItem = FindProjectItem(parent.Path());
 				SourceItem *sourceItem = new SourceItem(path.Path());
 				sourceItem->SetProjectFolder(projectFolder);
 				ProjectItem *newItem = new ProjectItem(sourceItem);
-				bool status = AddUnder(newItem,item);
-				// bool status = AddItem(newItem);
+				
+				LogDebug("ProjectFolder %s", projectFolder->Path().String());
+				LogDebug("parent %s", parentItem->GetSourceItem()->Path().String());
+				LogDebug("path %s",  newItem->GetSourceItem()->Path().String());
+				
+				int32 index = IndexOf(parentItem);
+				BString newText = "";
+				newText << index << ". " << parentItem->Text();
+				parentItem->SetText(newText);
+				LogDebug("parentItem: %d", index);
+				Select(index);
+				bool status = AddUnder(newItem,parentItem);
+				// AddItem(newItem);
 				if (status) {
-					Collapse(newItem);
+					LogDebug("AddUnder(newItem,item)");
 					Invalidate();
 				}
+				
 			}
 		}
 		case 3:

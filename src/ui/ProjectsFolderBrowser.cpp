@@ -72,7 +72,7 @@ ProjectsFolderBrowser::FindProjectItem(BString const& path)
 	{
 		item = (ProjectItem *)FullListItemAt(i);
 		if (item->GetSourceItem()->Path() == path)
-			break;
+			return item;
 	}
 	return item;
 }
@@ -85,26 +85,6 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 		return;
 	LogDebug("opcode %d", opCode);
 	
-	BString projectFolderPath;
-	if (message->FindString("watched_path", &projectFolderPath) != B_OK)
-		return;
-	LogDebug("watched_path %s", projectFolderPath.String());
-	ProjectFolder *projectFolder = new ProjectFolder(projectFolderPath);
-	
-	// BString spath;
-	// if (message->FindString("path", &spath) == B_OK) {
-		// LogDebug("path %s", spath.String());
-		// SourceItem *sourceItem = new SourceItem(spath);
-		// ProjectItem *newItem = new ProjectItem(sourceItem);
-		// bool status = AddItem(newItem);
-		// if (status) {
-			// LogDebug("status %d", status);
-			// Collapse(newItem);
-			// Invalidate();
-		// }
-	// }
-	// return;
-
 	switch (opCode) {
 		case 1:
 		{
@@ -115,6 +95,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				path.GetParent(&parent);
 				
 				ProjectItem *parentItem = FindProjectItem(parent.Path());
+				ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
 				SourceItem *sourceItem = new SourceItem(path.Path());
 				sourceItem->SetProjectFolder(projectFolder);
 				ProjectItem *newItem = new ProjectItem(sourceItem);
@@ -123,32 +104,58 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				LogDebug("parent %s", parentItem->GetSourceItem()->Path().String());
 				LogDebug("path %s",  newItem->GetSourceItem()->Path().String());
 				
-				int32 index = IndexOf(parentItem);
-				BString newText = "";
-				newText << index << ". " << parentItem->Text();
-				parentItem->SetText(newText);
-				LogDebug("parentItem: %d", index);
-				Select(index);
 				bool status = AddUnder(newItem,parentItem);
-				// AddItem(newItem);
 				if (status) {
 					LogDebug("AddUnder(newItem,item)");
-					Invalidate();
+					SortItemsUnder(parentItem, true, ProjectsFolderBrowser::_CompareProjectItems);
+					Collapse(newItem);
 				}
 				
 			}
+			break;
+		}
+		case 2:
+		{
+			BString spath;
+			
+			if (message->FindString("path", &spath) != B_OK)
+				break;
+
+			LogDebug("path %s",  spath.String());
+			ProjectItem *item = FindProjectItem(spath);
+			RemoveItem(item);
+			break;
 		}
 		case 3:
 		{
 			BString spath;
-			if (message->FindString("path", &spath) == B_OK) {
-				ProjectItem *item = FindProjectItem(spath);
-				RemoveItem(item);
+			bool removed;
+			
+			if (message->FindBool("removed", &removed) == B_OK) {
+				if (message->FindString("from path", &spath) == B_OK) {			
+					LogDebug("from path %s",  spath.String());
+					ProjectItem *item = FindProjectItem(spath);
+					RemoveItem(item);
+				}
+			} else {
+				// rename
+				BString oldName, newName;
+				BString oldPath, newPath;
+				if (message->FindString("from name", &oldName) == B_OK) {
+					if (message->FindString("name", &newName) == B_OK) {
+						if (message->FindString("from path", &oldPath) == B_OK) {
+							if (message->FindString("path", &newPath) == B_OK) {
+								ProjectItem *item = FindProjectItem(oldPath);
+								item->SetText(newName);
+								item->GetSourceItem()->Rename(newPath);
+								Invalidate();
+							}
+						}
+					}
+				}
 			}
-		}
-		// case 3:
-		// {
-		// }
+			break;
+		}	
 		default:
 		break;
 	}	
@@ -400,7 +407,7 @@ ProjectsFolderBrowser::_CompareProjectItems(const BListItem* a, const BListItem*
 
 	// Or use strcasecmp?
 	if (nameA != NULL && nameB != NULL) {
-		return strcmp(nameA, nameB);
+		return strcasecmp(nameA, nameB);
 	}
 		
 	return 0;

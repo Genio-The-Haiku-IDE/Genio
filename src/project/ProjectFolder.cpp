@@ -32,6 +32,15 @@ SourceItem::~SourceItem()
 {
 }
 
+void
+SourceItem::Rename(BString const& path)
+{
+	fPath = path;
+	BPath _path(path);
+	fName = _path.Leaf();
+}
+
+
 ProjectFolder::ProjectFolder(BString const& path)
 	: 
 	SourceItem(path)

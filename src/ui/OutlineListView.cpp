@@ -257,9 +257,13 @@ BOutlineListView::AddUnder(BListItem* item, BListItem* superItem)
 	if (superItem == NULL)
 		return AddItem(item);
 
-	fFullList.AddItem(item, FullListIndexOf(superItem) + 1);
+	// for debug
+	int32 indexFL = FullListIndexOf(superItem);
+	int32 outlineLevel = superItem->OutlineLevel();
 
-	item->fLevel = superItem->OutlineLevel() + 1;
+	fFullList.AddItem(item, indexFL + 1);
+
+	item->fLevel = outlineLevel + 1;
 	superItem->fHasSubitems = true;
 
 	if (superItem->IsItemVisible() && superItem->IsExpanded()) {

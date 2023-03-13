@@ -50,7 +50,9 @@ public:
 	
 	ProjectFolder				*GetProjectFolder()	{ return fProjectFolder; }
 	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
-								
+	
+	void 						Rename(BString const& path);
+						
 protected:
 	BString						fPath;
 	BString						fName;

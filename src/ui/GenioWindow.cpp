@@ -1,4 +1,5 @@
 /*
+ * Copyright 2022-2023 Nexus6 <nexus6.haiku@icloud.com>
  * Copyright 2017..2018 A. Mosca <amoscaster@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
@@ -28,7 +29,6 @@
 #include <StringItem.h>
 #include <NodeInfo.h>
 
-#include "AddToProjectWindow.h"
 #include "exceptions/Exceptions.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
@@ -883,12 +883,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromCurrentItem());
 			break;
 		}
-/*		case MSG_PROJECT_MENU_ADD_ITEM: {
-			AddToProjectWindow *window =
-				new AddToProjectWindow(fSelectedProjectName, _ProjectFileFullPath());
-			window->Show();
-			break;
-		}*/
 		case MSG_PROJECT_MENU_DELETE_FILE: {
 			_ProjectFileDelete();
 			break;
@@ -913,11 +907,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromCurrentItem());
 			break;
 		}
-		case MSG_PROJECT_NEW: {
-			NewProjectWindow *wnd = new NewProjectWindow();
-			wnd->Show();
-			break;
-		}
+		// case MSG_PROJECT_NEW: {
+			// NewProjectWindow *wnd = new NewProjectWindow();
+			// wnd->Show();
+			// break;
+		// }
 		case MSG_PROJECT_OPEN: {
 			fOpenProjectFolderPanel->Show();
 			break;

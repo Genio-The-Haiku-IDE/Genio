@@ -186,9 +186,6 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 		case MSG_PROJECT_MENU_SET_ACTIVE: 
 			message->PrintToStream();
 		break;
-		case MSG_PROJECT_MENU_ADD_ITEM: 
-			message->PrintToStream();
-		break;
 		case MSG_PROJECT_MENU_DELETE_FILE: 
 			message->PrintToStream();
 		break;

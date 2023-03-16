@@ -13,19 +13,6 @@
 
 class LSPClientWrapper;
 
-enum GENIO_SETTINGS_KEY {
-	RELEASE_BUILD_COMMAND,
-	DEBUG_BUILD_COMMAND,
-	RELEASE_CLEAN_COMMAND,
-	DEBUG_CLEAN_COMMAND,
-	RELEASE_BUILD_MODE,
-	DEBUG_BUILD_MODE,
-	RELEASE_TARGET_PATH,
-	DEBUG_TARGET_PATH ,
-	RUN_IN_TERMINAL,
-	SOURCE_CONTROL_ACTIVE
-};
-
 enum SourceItemType {
 	FileItem,
 	FolderItem,
@@ -66,9 +53,8 @@ public:
 	status_t					Open();
 	status_t					Close();
 	
-	bool						HasConfig() const { return fHasConfig; }
-	void						InitConfig();
-	void						ResetConfig();
+	void						LoadDefaultSettings();
+	void						SaveSettings();
 
 	bool						Active() const { return fActive; }
 	void						Active(bool status) { fActive = status; }	
@@ -100,8 +86,6 @@ public:
 	LSPClientWrapper*			GetLSPClient() { return fLSPClientWrapper; }
 
 private:
-
-	bool						fHasConfig;
 	bool						fActive;
 	bool						fRunInTerminal;
 	bool						fGitEnabled;
@@ -109,6 +93,7 @@ private:
 	BString						fTarget;
 	BString						fBuildCommand;
 	LSPClientWrapper*			fLSPClientWrapper;
+	GSettings*					fSettings;
 };
 
 #endif // PROJECT_FOLDER_H

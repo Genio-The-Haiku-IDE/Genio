@@ -27,14 +27,13 @@ public:
 						~GSettings();
 						
 	void				Save();
-						
-	status_t			GetStatus() const { return fStatus; }
 	
-	static BString 		GetUserSettingsFolder();
+	status_t			GetStatus() const { return fStatus; }
 	
 private:
 	BPath				fPath;
 	status_t			fStatus;
+	bool				fSaved;
 };
 
 #endif // GSETTINGS_H

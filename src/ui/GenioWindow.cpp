@@ -3367,6 +3367,8 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
 	fProjectFolderObjectList->RemoveItem(project);
 	
+	project->Close();
+	
 	delete project;
 	
 	BString notification;

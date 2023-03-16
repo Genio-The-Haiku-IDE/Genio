@@ -65,10 +65,7 @@ status_t
 ProjectFolder::Close()
 {
 	status_t status;
-	
-	fSettings->Save();
 	status = fSettings->GetStatus();
-	
 	return status;
 }
 

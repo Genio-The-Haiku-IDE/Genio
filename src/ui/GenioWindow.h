@@ -31,7 +31,6 @@
 #include "Editor.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
-#include "ProjectParser.h"
 #include "TabManager.h"
 #include "TPreferences.h"
 #include "ProjectsFolderBrowser.h"

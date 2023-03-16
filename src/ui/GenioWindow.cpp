@@ -170,7 +170,7 @@ GenioWindow::GenioWindow(BRect frame)
 
 GenioWindow::~GenioWindow()
 {
-	delete fEditorObjectList;
+	//delete fEditorObjectList;
 	delete fTabManager;
 	delete fOpenPanel;
 	delete fSavePanel;
@@ -217,9 +217,8 @@ GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 			if (message->FindInt8("byte", 0, &key) == B_OK) {
 				if (key == B_ESCAPE) {
 					fGotoLine->Hide();
-					int32 index = fTabManager->SelectedTabIndex();
-					if (index > -1 && index < fTabManager->CountTabs()) {
-						Editor* editor = fEditorObjectList->ItemAt(index);
+					Editor* editor = fTabManager->SelectedEditor();
+					if (editor) {
 						editor->GrabFocus();
 					}
 				}
@@ -270,13 +269,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			_HandleNodeMonitorMsg(message);
 			break;
 		case B_REDO: {
-			int32 index =  fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {				
 				if (editor->CanRedo())
 					editor->Redo();
-				_UpdateSavepointChange(index, "Redo");
+				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Redo");
 			}
 			break;
 		}
@@ -297,13 +294,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}*/
 		case B_UNDO: {
-			int32 index =  fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {			
 				if (editor->CanUndo())
 					editor->Undo();
-				_UpdateSavepointChange(index, "Undo");
+				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Undo");
 			}
 			break;
 		}
@@ -347,7 +342,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (message->FindRef("ref", &ref) == B_OK) {
 				int32 index = _GetEditorIndex(&ref);
 				if (index == fTabManager->SelectedTabIndex()) {
-					Editor* editor = fEditorObjectList->ItemAt(index);
+					Editor* editor = fTabManager->EditorAt(index);
 
 					int32 line;
 					if (message->FindInt32("line", &line) == B_OK) {
@@ -417,7 +412,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (message->FindRef("ref", &ref) == B_OK) {
 				int32 index =  _GetEditorIndex(&ref);
 				if (index == fTabManager->SelectedTabIndex()) {
-					Editor* editor = fEditorObjectList->ItemAt(index);
+					Editor* editor = fTabManager->EditorAt(index);
 					int32 line, column;
 					BString sel, repl;
 					if (message->FindInt32("line", &line) == B_OK
@@ -471,22 +466,16 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_BOOKMARK_CLEAR_ALL: {
-			int32 index =  fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->BookmarkClearAll(sci_BOOKMARK);
 			}
 			break;
 		}
 		case MSG_BOOKMARK_GOTO_NEXT: {
-			int32 index =  fTabManager->SelectedTabIndex();
-			bool found;
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
-				found = editor->BookmarkGoToNext();
-
-				if (found == false)
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
+				if (!editor->BookmarkGoToNext())
 					_SendNotification(B_TRANSLATE("Next Bookmark not found"),
 													"FIND_MISS");
 			}
@@ -494,13 +483,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_BOOKMARK_GOTO_PREVIOUS: {
-			int32 index =  fTabManager->SelectedTabIndex();
-			bool found;
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
-				found = editor->BookmarkGoToPrevious();
-
-				if (found == false)
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
+				if (!editor->BookmarkGoToPrevious())
 					_SendNotification(B_TRANSLATE("Previous Bookmark not found"),
 													"FIND_MISS");
 			}
@@ -509,20 +494,15 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_BOOKMARK_TOGGLE: {
-			int32 index =  fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor *editor = fEditorObjectList->ItemAt(index);
-				// TODO position in callee?
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->BookmarkToggle(editor->GetCurrentPosition());
 			}
 			break;
 		}
 		case MSG_BUFFER_LOCK: {
-			int32 index =  fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->SetReadOnly();
 				fFileUnlockedButton->SetEnabled(!editor->IsReadOnly());
 				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
@@ -561,53 +541,47 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_EOL_CONVERT_TO_UNIX: {
-			int32 index =  fTabManager->SelectedTabIndex();
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->EndOfLineConvert(SC_EOL_LF);
 			}
 			break;
 		}
 		case MSG_EOL_CONVERT_TO_DOS: {
-			int32 index =  fTabManager->SelectedTabIndex();
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->EndOfLineConvert(SC_EOL_CRLF);
 			}
 			break;
 		}
 		case MSG_EOL_CONVERT_TO_MAC: {
-			int32 index =  fTabManager->SelectedTabIndex();
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->EndOfLineConvert(SC_EOL_CR);
 			}
 			break;
 		}
 		case MSG_EOL_SET_TO_UNIX: {
-			int32 index =  fTabManager->SelectedTabIndex();
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->SetEndOfLine(SC_EOL_LF);
-				_UpdateStatusBarTrailing(index);
+				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
 		case MSG_EOL_SET_TO_DOS: {
-			int32 index =  fTabManager->SelectedTabIndex();
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CRLF);
-				_UpdateStatusBarTrailing(index);
+				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
 		case MSG_EOL_SET_TO_MAC: {
-			int32 index =  fTabManager->SelectedTabIndex();
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CR);
-				_UpdateStatusBarTrailing(index);
+				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -618,10 +592,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			_FileCloseAll();
 			break;
 		case MSG_FILE_FOLD_TOGGLE: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->ToggleFolding();
 			}
 			break;
@@ -686,7 +658,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_FileSave(fTabManager->SelectedTabIndex());
 			break;
 		case MSG_FILE_SAVE_AS: {
-			Editor* editor = fEditorObjectList->ItemAt(fTabManager->SelectedTabIndex());
+			Editor* editor = fTabManager->SelectedEditor();
 			BEntry entry(editor->FileRef());
 			entry.GetParent(&entry);
 			fSavePanel->SetPanelDirectory(&entry);
@@ -700,7 +672,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (GenioNames::Settings.editor_zoom < 20) {
 				GenioNames::Settings.editor_zoom++;
 				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-					Editor* editor = fEditorObjectList->ItemAt(index);
+					Editor* editor = fTabManager->EditorAt(index);
 					editor->SetZoom(GenioNames::Settings.editor_zoom);
 				}				
 			}			
@@ -709,7 +681,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (GenioNames::Settings.editor_zoom > -10) {
 				GenioNames::Settings.editor_zoom--;
 				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-					Editor* editor = fEditorObjectList->ItemAt(index);
+					Editor* editor = fTabManager->EditorAt(index);
 					editor->SetZoom(GenioNames::Settings.editor_zoom);
 				}				
 			}			
@@ -717,7 +689,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_VIEW_ZOOMRESET:
 			GenioNames::Settings.editor_zoom = 0;
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+				Editor* editor = fTabManager->EditorAt(index);
 				editor->SetZoom(GenioNames::Settings.editor_zoom);
 			}
 		break;
@@ -770,100 +742,73 @@ GenioWindow::MessageReceived(BMessage* message)
 			fGotoLine->MakeFocus();
 			break;
 		case MSG_LINE_ENDINGS_TOGGLE: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor * editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 				editor->ToggleLineEndings();
 			}
 			break;
 		}
 		case MSG_SIGNATUREHELP: {
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index < 0 || index >= fTabManager->CountTabs())
-				break;
-				
-			Editor* editor = fEditorObjectList->ItemAt(index);
-			editor->SignatureHelp();			
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) 
+				editor->SignatureHelp();			
 			break;
 		}
 		case MSG_AUTOCOMPLETION: {
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index < 0 || index >= fTabManager->CountTabs())
-				break;
-				
-			Editor* editor = fEditorObjectList->ItemAt(index);
-			editor->Completion();
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) 
+				editor->Completion();
 			break;
 		}
 		case MSG_FORMAT: {
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index < 0 || index >= fTabManager->CountTabs())
-				break;
-				
-			Editor* editor = fEditorObjectList->ItemAt(index);
-			editor->Format();
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) 
+				editor->Format();
 			break;
 		}
 
 		case MSG_GOTODEFINITION: {
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index < 0 || index >= fTabManager->CountTabs())
-				break;
-			
-			Editor* editor = fEditorObjectList->ItemAt(index);
-			editor->GoToDefinition();
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) 
+				editor->GoToDefinition();
 			
 			break; 
 		}
 		case MSG_GOTODECLARATION: {
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index < 0 || index >= fTabManager->CountTabs())
-				break;
-			
-			Editor* editor = fEditorObjectList->ItemAt(index);
-			editor->GoToDeclaration();
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) 
+				editor->GoToDeclaration();
 			
 			break; 
 		}
 		case MSG_GOTOIMPLEMENTATION: {
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index < 0 || index >= fTabManager->CountTabs())
-				break;
-			
-			Editor* editor = fEditorObjectList->ItemAt(index);
-			editor->GoToImplementation();			
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) 
+				editor->GoToImplementation();			
 			break;
 		}
 		case MSG_SWITCHSOURCE: {
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index < 0 || index >= fTabManager->CountTabs())
-				break;
-			
-			Editor* editor = fEditorObjectList->ItemAt(index);
-			editor->SwitchSourceHeader();	
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) 
+				editor->SwitchSourceHeader();	
 			
 			break; 
 		}
 		case MSG_LINE_TO_GOTO: {
-			int32 index = fTabManager->SelectedTabIndex();
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
 
-			if (index < 0 || index >= fTabManager->CountTabs())
-				break;
+				std::string linestr(fGotoLine->Text());
+				int32 line;
+				std::istringstream (linestr) >>  line;
 
-			std::string linestr(fGotoLine->Text());
-			int32 line;
-			std::istringstream (linestr) >>  line;
+				if (line <= editor->CountLines())
+					editor->GoToLine(line);
 
-			Editor* editor = fEditorObjectList->ItemAt(index);
-
-			if (line <= editor->CountLines())
-				editor->GoToLine(line);
-
-			editor->GrabFocus();
-			fGotoLine->SetText("");
-			fGotoLine->Hide();
-
+				editor->GrabFocus();
+				fGotoLine->SetText("");
+				fGotoLine->Hide();
+			}
 			break;
 		}
 		case MSG_MAKE_BINDCATALOGS: {
@@ -1006,21 +951,17 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_TEXT_DELETE: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) 
 				editor->Clear();
-			}
+
 			break;
 		}
 		case MSG_TEXT_OVERWRITE: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor)  {
 				editor->OverwriteToggle();
-				_UpdateStatusBarTrailing(index);
+				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -1034,10 +975,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_WHITE_SPACES_TOGGLE: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor)  {
 				editor->ToggleWhiteSpaces();
 			}
 			break;
@@ -1062,10 +1001,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case TABMANAGER_TAB_SELECTED: {
 			int32 index;
 			if (message->FindInt32("index", &index) == B_OK) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+				Editor* editor = fTabManager->EditorAt(index);
 				// TODO notify and check index too
 				if (editor == nullptr) {
-// std::cerr << "TABMANAGER_TAB_SELECTED " << "NULL on index: " << index << std::endl;
 					break;
 				}	
 				editor->GrabFocus();
@@ -1093,7 +1031,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			int32 lsp_char = message->GetInt32("lsp:character", -1);
 			
 			if (message->FindInt32("index", &index) == B_OK) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+				Editor* editor = fTabManager->EditorAt(index);
 
 				if (lsp_char >= 0 && be_line > 0)
 					editor->GoToLSPPosition(be_line - 1, lsp_char);
@@ -1150,16 +1088,15 @@ GenioWindow::QuitRequested()
 			files.AddInt32("opened_index", index);
 
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-				Editor* editor = fEditorObjectList->ItemAt(index);
+				Editor* editor = fTabManager->EditorAt(index);
 				files.AddRef("file_to_reopen", editor->FileRef());
 			}
 		}
 	}
 	
 	// remove link between all editors and all projects
-	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
-		Editor* editor = fEditorObjectList->ItemAt(index);
-		editor->SetProjectFolder(NULL);
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		fTabManager->EditorAt(index)->SetProjectFolder(NULL);
 	}
 
 	// Projects to reopen
@@ -1211,9 +1148,6 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int lsp_c
 	fTabManager->AddTab(editor, ref->name, index, be_line, lsp_char);
 
 
-	bool added = fEditorObjectList->AddItem(editor);
-
-	assert(added == true);
 
 	return B_OK;
 }
@@ -1328,7 +1262,7 @@ GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
 		return B_ERROR;
 	}
 
-	Editor* editor = fEditorObjectList->ItemAt(index);
+	Editor* editor = fTabManager->EditorAt(index);
 
 	if (editor == nullptr) {
 		notification << B_TRANSLATE("NULL editor pointer");
@@ -1358,10 +1292,8 @@ GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
 	notification << B_TRANSLATE("File close:") << " " << editor->Name();
 	_SendNotification(notification, "FILE_CLOSE");
 
-	BView* view = fTabManager->RemoveTab(index);
-	Editor* editorView = dynamic_cast<Editor*>(view);
-	fEditorObjectList->RemoveItem(fEditorObjectList->ItemAt(index));
-	delete editorView;
+
+	delete editor;
 
 	// Was it the last one?
 	if (fTabManager->CountTabs() == 0)
@@ -1420,10 +1352,10 @@ GenioWindow::_FileOpen(BMessage* msg)
 			}				
 			
 			if (lsp_char >= 0 && be_line > -1)
-				fEditorObjectList->ItemAt(openedIndex)->GoToLSPPosition(be_line - 1, lsp_char);
+				fTabManager->EditorAt(openedIndex)->GoToLSPPosition(be_line - 1, lsp_char);
 			else
 			if (be_line > -1)
-				fEditorObjectList->ItemAt(openedIndex)->GoToLine(be_line);
+				fTabManager->EditorAt(openedIndex)->GoToLine(be_line);
 			
 			continue;
 		}
@@ -1435,7 +1367,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		assert(index >= 0);
 
-		Editor* editor = fEditorObjectList->ItemAt(index);
+		Editor* editor = fTabManager->EditorAt(index);
 
 		if (editor == nullptr) {
 			notification << ref.name
@@ -1550,7 +1482,7 @@ GenioWindow::_FileSave(int32 index)
 		return B_ERROR;
 	}
 
-	Editor* editor = fEditorObjectList->ItemAt(index);
+	Editor* editor = fTabManager->EditorAt(index);
 
 	if (editor == nullptr) {
 		notification << (B_TRANSLATE("NULL editor pointer"));
@@ -1600,11 +1532,11 @@ GenioWindow::_FileSave(int32 index)
 void
 GenioWindow::_FileSaveAll()
 {
-	int32 filesCount = fEditorObjectList->CountItems();
+	int32 filesCount = fTabManager->CountTabs();
 
 	for (int32 index = 0; index < filesCount; index++) {
 
-		Editor* editor = fEditorObjectList->ItemAt(index);
+		Editor* editor = fTabManager->EditorAt(index);
 
 		if (editor == nullptr) {
 			BString notification;
@@ -1639,7 +1571,7 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 	if ((status = entry.GetRef(&newRef)) != B_OK)
 		return status;
 
-	Editor* editor = fEditorObjectList->ItemAt(selection);
+	Editor* editor = fTabManager->EditorAt(selection);
 
 	if (editor == nullptr) {
 		BString notification;
@@ -1668,8 +1600,8 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 bool
 GenioWindow::_FilesNeedSave()
 {
-	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
-		Editor* editor = fEditorObjectList->ItemAt(index);
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
 		if (editor->IsModified()) {
 			return true;
 		}
@@ -1700,9 +1632,8 @@ GenioWindow::_FindGroupToggled()
 	else {
 		if (fReplaceGroup->IsVisible())
 			fReplaceGroup->SetVisible(false);
-		int32 index = fTabManager->SelectedTabIndex();
-		if (index > -1 && index < fTabManager->CountTabs()) {
-			Editor* editor = fEditorObjectList->ItemAt(index);
+		Editor* editor = fTabManager->SelectedEditor();
+		if (editor) {
 			editor->GrabFocus();
 		}
 	}
@@ -1711,7 +1642,7 @@ GenioWindow::_FindGroupToggled()
 int32
 GenioWindow::_FindMarkAll(const BString text)
 {
-	Editor* editor = fEditorObjectList->ItemAt(fTabManager->SelectedTabIndex());
+	Editor* editor = fTabManager->SelectedEditor();
 
 	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
 										fFindWholeWordCheck->Value(),
@@ -1732,7 +1663,7 @@ GenioWindow::_FindNext(const BString& strToFind, bool backwards)
 	if (strToFind.IsEmpty())
 		return;
 
-	Editor* editor = fEditorObjectList->ItemAt(fTabManager->SelectedTabIndex());
+	Editor* editor = fTabManager->SelectedEditor();
 //fFindTextControl->MakeFocus(true);
 	editor->GrabFocus();
 
@@ -1786,7 +1717,7 @@ int32
 GenioWindow::_GetEditorIndex(entry_ref* ref, bool checkExists)
 {
 	BEntry entry(ref, true);
-	int32 filesCount = fEditorObjectList->CountItems();
+	int32 filesCount = fTabManager->CountTabs();
 
 	// Could try to reopen at start a saved index that was deleted,
 	// check existence
@@ -1795,7 +1726,7 @@ GenioWindow::_GetEditorIndex(entry_ref* ref, bool checkExists)
 		
 	for (int32 index = 0; index < filesCount; index++) {
 
-		Editor* editor = fEditorObjectList->ItemAt(index);
+		Editor* editor = fTabManager->EditorAt(index);
 
 		if (editor == nullptr) {
 			BString notification;
@@ -1817,11 +1748,11 @@ GenioWindow::_GetEditorIndex(entry_ref* ref, bool checkExists)
 int32
 GenioWindow::_GetEditorIndex(node_ref* nref)
 {
-	int32 filesCount = fEditorObjectList->CountItems();
+	int32 filesCount = fTabManager->CountTabs();
 	
 	for (int32 index = 0; index < filesCount; index++) {
 
-		Editor* editor = fEditorObjectList->ItemAt(index);
+		Editor* editor = fTabManager->EditorAt(index);
 
 		if (editor == nullptr) {
 			BString notification;
@@ -1844,7 +1775,7 @@ GenioWindow::_GetFocusAndSelection(BTextControl* control)
 {
 	control->MakeFocus(true);
 	// If some text is selected, use that TODO index check
-	Editor* editor = fEditorObjectList->ItemAt(fTabManager->SelectedTabIndex());
+	Editor* editor = fTabManager->SelectedEditor();
 	if (editor->IsTextSelected()) {
 		int32 size = editor->SendMessage(SCI_GETSELTEXT, 0, 0);
 		char text[size + 1];
@@ -1919,7 +1850,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 	else if (choice == 1)
 		_FileClose(index);
 	else if (choice == 2) {
-		Editor *editor = fEditorObjectList->ItemAt(index);
+		Editor *editor = fTabManager->EditorAt(index);
 		editor->SetFileRef(newRef);
 		fTabManager->SetTabLabel(index, editor->Name().String());
 		_UpdateLabel(index, editor->IsModified());
@@ -1940,7 +1871,7 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 		return; //TODO notify
 	}
 
-	Editor* editor = fEditorObjectList->ItemAt(index);
+	Editor* editor = fTabManager->EditorAt(index);
 	BString fileName(editor->Name());
 
 	BString text;
@@ -1986,7 +1917,7 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 		return; //TODO notify
 	}
 
-	Editor* editor = fEditorObjectList->ItemAt(index);
+	Editor* editor = fTabManager->EditorAt(index);
 
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
@@ -2248,9 +2179,8 @@ GenioWindow::_InitCentralSplit()
 	fRunConsoleProgramGroup->SetVisible(false);
 
 	// Editor tab & view
-	fEditorObjectList = new BObjectList<Editor>();
 
-	fTabManager = new TabManager(BMessenger(this));
+	fTabManager = new EditorTabManager(BMessenger(this));
 	fTabManager->TabGroup()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, kTabBarHeight));
 
 	dirtyFrameHack = fTabManager->TabGroup()->Frame();
@@ -3357,8 +3287,8 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	BString projectPath = project->Path();
 	projectPath = projectPath.Append("/");
 
-	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
-		Editor* editor = fEditorObjectList->ItemAt(index);
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
 		if (editor->GetProjectFolder() == project) {
 			editor->SetProjectFolder(NULL);
 		}
@@ -3441,8 +3371,8 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	BString projectPath = newProject->Path();
 	projectPath = projectPath.Append("/");
 
-	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
-		Editor* editor = fEditorObjectList->ItemAt(index);
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
 		//LogError("Open project [%s] vs editor project [%s]", projectPath.String(), fEditor->FilePath().String());
 		if (editor->GetProjectFolder() == NULL &&
 		    editor->FilePath().StartsWith(projectPath)) {
@@ -3522,7 +3452,7 @@ GenioWindow::_Replace(int what)
 	BString replacement(fReplaceTextControl->Text());
 	int retValue = REPLACE_NONE;
 
-	Editor* editor = fEditorObjectList->ItemAt(fTabManager->SelectedTabIndex());
+	Editor* editor = fTabManager->SelectedEditor();
 	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
 										fFindWholeWordCheck->Value(),
 										false, false, false);
@@ -3853,7 +3783,7 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 {
 	assert (index > -1 && index < fTabManager->CountTabs());
 
-	Editor* editor = fEditorObjectList->ItemAt(index);
+	Editor* editor = fTabManager->EditorAt(index);
 
 	// Menu Items
 	fSaveMenuItem->SetEnabled(editor->IsModified());
@@ -3902,7 +3832,7 @@ GenioWindow::_UpdateStatusBarText(int line, int column)
 void
 GenioWindow::_UpdateStatusBarTrailing(int32 index)
 {
-	Editor* editor = fEditorObjectList->ItemAt(index);
+	Editor* editor = fTabManager->EditorAt(index);
 
 	BString trailing;
 	trailing << editor->IsOverwriteString() << '\t';
@@ -3971,7 +3901,7 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 	}
 
 	// ToolBar Items
-	Editor* editor = fEditorObjectList->ItemAt(index);
+	Editor* editor = fTabManager->EditorAt(index);
 	
 	fFindButton->SetEnabled(true);
 	fReplaceButton->SetEnabled(true);

@@ -60,6 +60,8 @@ public:
 
 			BView*				RemoveTab(int32 index);
 			int32				CountTabs() const;
+			
+			void				SwapTabs(int32 from, int32 to);
 
 			void				SetTabLabel(int32 tabIndex, const char* label);
 	const	BString&			TabLabel(int32);

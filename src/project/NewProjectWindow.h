@@ -15,7 +15,6 @@
 #include <TextView.h>
 #include <Window.h>
 
-#include "ProjectParser.h"
 #include "TitleItem.h"
 #include "TPreferences.h"
 

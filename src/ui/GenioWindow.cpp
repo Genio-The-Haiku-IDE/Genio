@@ -28,7 +28,6 @@
 #include <StringItem.h>
 #include <NodeInfo.h>
 
-#include "AddToProjectWindow.h"
 #include "exceptions/Exceptions.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
@@ -914,8 +913,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_NEW: {
-			NewProjectWindow *wnd = new NewProjectWindow();
-			wnd->Show();
+			// NewProjectWindow *wnd = new NewProjectWindow();
+			// wnd->Show();
 			break;
 		}
 		case MSG_PROJECT_OPEN: {

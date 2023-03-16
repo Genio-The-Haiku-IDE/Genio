@@ -22,6 +22,7 @@
 
 enum
 {
+	MSG_DEFAULTS_CLICKED			= 'defs',
 	MSG_CANCEL_CLICKED				= 'canc',
 	MSG_SAVE_CLICKED				= 'save',
 	MSG_BUILD_MODE_SELECTED			= 'bmse',
@@ -60,6 +61,10 @@ void
 ProjectSettingsWindow::MessageReceived(BMessage *msg)
 {
 	switch (msg->what) {
+		case MSG_DEFAULTS_CLICKED: {
+			_LoadDefaults();
+			break;
+		}
 		case MSG_CANCEL_CLICKED: {
 			PostMessage(B_QUIT_REQUESTED);
 			break;
@@ -162,10 +167,10 @@ ProjectSettingsWindow::_InitWindow()
 	.Add(fSourceControlBox, 0, 6, 4)
 	.AddGlue(0, 7, 4);
 
-	// Cancel button
+	BButton* defaultButton = new BButton("default",
+		B_TRANSLATE("Default"), new BMessage(MSG_DEFAULTS_CLICKED));
 	BButton* cancelButton = new BButton("cancel",
 		B_TRANSLATE("Cancel"), new BMessage(MSG_CANCEL_CLICKED));
-	// Save button
 	BButton* saveButton = new BButton("save",
 		B_TRANSLATE("Save"), new BMessage(MSG_SAVE_CLICKED));
 
@@ -177,6 +182,7 @@ ProjectSettingsWindow::_InitWindow()
 				.Add(fProjectBox)
 				.AddGroup(B_HORIZONTAL)
 					.AddGlue()
+					.Add(defaultButton)
 					.Add(cancelButton)
 					.Add(saveButton)
 					.AddGlue()
@@ -190,21 +196,7 @@ void
 ProjectSettingsWindow::_LoadProject()
 {
 	// Init controls
-	// Release controls
-	fProjectBoxProjectLabel.SetTo("");
-	fReleaseProjectTargetText->SetText("");
-	fReleaseBuildCommandText->SetText("");
-	fReleaseCleanCommandText->SetText("");
-	fReleaseExecuteArgsText->SetText("");
-	// Debug controls
-	fDebugProjectTargetText->SetText("");
-	fDebugBuildCommandText->SetText("");
-	fDebugCleanCommandText->SetText("");
-	fDebugExecuteArgsText->SetText("");
-	// Others
-	fRunInTerminal->SetValue(B_CONTROL_OFF);
-	fEnableGit->SetValue(B_CONTROL_OFF);
-	fExcludeSettingsGit->SetValue(B_CONTROL_OFF);
+	_LoadDefaults();
 
 	fProjectBoxProjectLabel << fProjectBoxLabel << "\t\t" << fProject->Name();
 	fProjectBox->SetLabel(fProjectBoxProjectLabel);
@@ -236,6 +228,26 @@ ProjectSettingsWindow::_LoadProject()
 }
 
 void
+ProjectSettingsWindow::_LoadDefaults()
+{
+	// Release controls
+	fProjectBoxProjectLabel.SetTo("");
+	fReleaseProjectTargetText->SetText("");
+	fReleaseBuildCommandText->SetText("");
+	fReleaseCleanCommandText->SetText("");
+	fReleaseExecuteArgsText->SetText("");
+	// Debug controls
+	fDebugProjectTargetText->SetText("");
+	fDebugBuildCommandText->SetText("");
+	fDebugCleanCommandText->SetText("");
+	fDebugExecuteArgsText->SetText("");
+	// Others
+	fRunInTerminal->SetValue(B_CONTROL_OFF);
+	fEnableGit->SetValue(B_CONTROL_OFF);
+	fExcludeSettingsGit->SetValue(B_CONTROL_OFF);
+}
+
+void
 ProjectSettingsWindow::_SaveChanges()
 {	
 	fProject->SetTarget(fReleaseProjectTargetText->Text(), BuildMode::ReleaseMode);
@@ -262,4 +274,6 @@ ProjectSettingsWindow::_SaveChanges()
 		fProject->ExcludeSettingsOnGit(true);
 	else
 		fProject->ExcludeSettingsOnGit(false);
+		
+	fProject->SaveSettings();
 }

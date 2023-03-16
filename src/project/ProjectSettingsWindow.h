@@ -33,6 +33,7 @@ private:
 			void				_InitWindow();
 			void				_LoadProject();
 			void				_SaveChanges();
+			void 				_LoadDefaults();
 
 			ProjectFolder		*fProject;
 			BBox* 				fProjectBox;

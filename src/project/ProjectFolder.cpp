@@ -35,7 +35,6 @@ SourceItem::~SourceItem()
 ProjectFolder::ProjectFolder(BString const& path)
 	: 
 	SourceItem(path)
-	// fSettings(fPath, fName, 'LOPR')
 {	
 	fType = SourceItemType::ProjectFolderItem;
 	fProjectFolder = this;
@@ -47,6 +46,8 @@ ProjectFolder::~ProjectFolder()
 {
 	fLSPClientWrapper->Dispose();
 	delete fLSPClientWrapper;
+
+	delete fSettings;
 }
 
 status_t
@@ -54,143 +55,163 @@ ProjectFolder::Open()
 {
 	std::string rootURI = "file://" + std::string(fPath.String());
 	fLSPClientWrapper->Create(rootURI.c_str());
+	
+	fSettings = new GSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
+	
 	return B_OK;
+}
+
+status_t
+ProjectFolder::Close()
+{
+	status_t status;
+	
+	fSettings->Save();
+	status = fSettings->GetStatus();
+	
+	return status;
+}
+
+void						
+ProjectFolder::LoadDefaultSettings() {
+	fSettings->MakeEmpty();
+	fSettings->SetInt32("build_mode", BuildMode::ReleaseMode);
+	fSettings->SetString("project_release_build_command", "");
+	fSettings->SetString("project_debug_build_command", "");
+	fSettings->SetString("project_release_clean_command", "");
+	fSettings->SetString("project_debug_clean_command", "");
+	fSettings->SetString("project_release_execute_args", "");
+	fSettings->SetString("project_debug_execute_args", "");
+	fSettings->SetString("project_release_target", "");
+	fSettings->SetString("project_debug_target", "");
+	fSettings->SetBool("project_run_in_terminal", false);
+	fSettings->SetBool("git", false);
+	fSettings->SetBool("exclude_settings_git", false);
+}
+
+void
+ProjectFolder::SaveSettings() {
+	fSettings->Save();
 }
 
 void
 ProjectFolder::SetBuildMode(BuildMode mode)
 {
 	fBuildMode = mode;
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
-	fSettings.SetInt32("build_mode", mode);
+	fSettings->SetInt32("build_mode", mode);
 }
 
 BuildMode
 ProjectFolder::GetBuildMode() 
 { 
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
-	fBuildMode = (BuildMode)fSettings.GetInt32("build_mode", BuildMode::ReleaseMode);
+	fBuildMode = (BuildMode)fSettings->GetInt32("build_mode", BuildMode::ReleaseMode);
 	return fBuildMode;
 }
 
 void
 ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
 	if (mode == BuildMode::ReleaseMode)
-		fSettings.SetString("project_release_build_command", command);
+		fSettings->SetString("project_release_build_command", command);
 	else
-		fSettings.SetString("project_debug_build_command", command);
+		fSettings->SetString("project_debug_build_command", command);
 }
 
 BString  const
 ProjectFolder::GetBuildCommand()
 {	
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
 	if (fBuildMode == BuildMode::ReleaseMode)
-		return fSettings.GetString("project_release_build_command", "");
+		return fSettings->GetString("project_release_build_command", "");
 	else
-		return fSettings.GetString("project_debug_build_command", "");
+		return fSettings->GetString("project_debug_build_command", "");
 }
 
 void
 ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
 	if (mode == BuildMode::ReleaseMode)
-		fSettings.SetString("project_release_clean_command", command);
+		fSettings->SetString("project_release_clean_command", command);
 	else
-		fSettings.SetString("project_debug_clean_command", command);
+		fSettings->SetString("project_debug_clean_command", command);
 }
 
 BString  const
 ProjectFolder::GetCleanCommand()
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
 	if (fBuildMode == BuildMode::ReleaseMode)
-		return fSettings.GetString("project_release_clean_command", "");
+		return fSettings->GetString("project_release_clean_command", "");
 	else
-		return fSettings.GetString("project_debug_clean_command", "");
+		return fSettings->GetString("project_debug_clean_command", "");
 }
 
 void
 ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
 	if (mode == BuildMode::ReleaseMode)
-		fSettings.SetString("project_release_execute_args", args);
+		fSettings->SetString("project_release_execute_args", args);
 	else
-		fSettings.SetString("project_debug_execute_args", args);
+		fSettings->SetString("project_debug_execute_args", args);
 }
 
 BString  const
 ProjectFolder::GetExecuteArgs()
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
 	if (fBuildMode == BuildMode::ReleaseMode)
-		return fSettings.GetString("project_release_execute_args", "");
+		return fSettings->GetString("project_release_execute_args", "");
 	else
-		return fSettings.GetString("project_debug_execute_args", "");
+		return fSettings->GetString("project_debug_execute_args", "");
 }
 
 void
 ProjectFolder::SetTarget(BString const& path, BuildMode mode)
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
 	if (mode == BuildMode::ReleaseMode)
-		fSettings.SetString("project_release_target", path);
+		fSettings->SetString("project_release_target", path);
 	else
-		fSettings.SetString("project_debug_target", path);
+		fSettings->SetString("project_debug_target", path);
 }
 
 BString  const
 ProjectFolder::GetTarget()
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
 	if (fBuildMode == BuildMode::ReleaseMode)
-		return fSettings.GetString("project_release_target", "");
+		return fSettings->GetString("project_release_target", "");
 	else
-		return fSettings.GetString("project_debug_target", "");
+		return fSettings->GetString("project_debug_target", "");
 }
 
 void
 ProjectFolder::RunInTerminal(bool enabled)
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
-	fSettings.SetBool("project_run_in_terminal", enabled);
+	fSettings->SetBool("project_run_in_terminal", enabled);
 }
 
 bool
 ProjectFolder::RunInTerminal()
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
-	return fSettings.GetBool("project_run_in_terminal", false);
+	return fSettings->GetBool("project_run_in_terminal", false);
 }
 
 void
 ProjectFolder::Git(bool enabled)
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
-	fSettings.SetBool("git", enabled);
+	fSettings->SetBool("git", enabled);
 }
 
 bool
 ProjectFolder::Git()
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
-	return fSettings.GetBool("git", false);
+	return fSettings->GetBool("git", false);
 }
 
 void
 ProjectFolder::ExcludeSettingsOnGit(bool enabled)
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
-	fSettings.SetBool("exclude_settings_git", enabled);
+	fSettings->SetBool("exclude_settings_git", enabled);
 }
 
 bool
 ProjectFolder::ExcludeSettingsOnGit()
 {
-	GSettings fSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
-	return fSettings.GetBool("exclude_settings_git", false);
+	return fSettings->GetBool("exclude_settings_git", false);
 }

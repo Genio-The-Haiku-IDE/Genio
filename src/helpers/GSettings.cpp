@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nexus6
+ * Copyright 2022 Nexus6 (nexus6.haiku@icloud.com)
  * All rights reserved. Distributed under the terms of the MIT license.
  * 
  * Parts are taken from 
@@ -24,41 +24,28 @@ GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 
 	: 
  	BMessage(command)
 {
-	BFile fFile;
+	BFile file;
 	
 	fPath.SetTo(folderPath);
 	fPath.Append(fileName);		
-	fStatus = fFile.SetTo(fPath.Path(), B_READ_ONLY);
+	fStatus = file.SetTo(fPath.Path(), B_READ_ONLY);
 	if (fStatus==B_OK) {
-		fStatus = Unflatten(&fFile);
+		fStatus = Unflatten(&file);
 		if (fStatus!=B_OK)
-			throw BException("File system error: can't read settings from file", 0, fStatus);
-	} else {
-		fStatus = fFile.SetTo(fPath.Path(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
-		fStatus = Flatten(&fFile);
-		if (fStatus!=B_OK)
-			throw BException("File system error: can't open settings file", 0, fStatus);
+			fSaved = false;
 	}
-}
-
-BString
-GSettings::GetUserSettingsFolder()
-{
-	BPath path;
-	status_t status = find_directory(B_USER_SETTINGS_DIRECTORY, &path);
-	if (status != B_OK) {
-		throw BException("File system error: can't find directory", 0, status);
-	}
-	return path.Path();
 }
 
 GSettings::~GSettings() {
-	Save();
 }
 
 void
 GSettings::Save() {
 	BFile file;
-	file.SetTo(fPath.Path(), B_WRITE_ONLY | B_ERASE_FILE);
-	fStatus = Flatten(&file);
+	fStatus = file.SetTo(fPath.Path(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
+	if (fStatus==B_OK) {
+		fStatus = Flatten(&file);
+		if (fStatus==B_OK)
+			fSaved = true;
+	}
 }

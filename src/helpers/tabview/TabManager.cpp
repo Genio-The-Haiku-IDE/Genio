@@ -407,6 +407,11 @@ public:
 	{
 		fTabContainerGroup = tabContainerGroup;
 	}
+	
+	void SwapTabs(int32 fromIndex, int32 toIndex)
+	{
+		fManager->SwapTabs(fromIndex, toIndex);
+	}
 
 private:
 	TabManager*			fManager;
@@ -920,6 +925,27 @@ TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line, i
 	message.AddInt32("lsp:character", lsp_char);
 	
 	fTarget.SendMessage(&message);
+}
+
+void				
+TabManager::SwapTabs(int32 from, int32 to)
+{
+	BString fromLabel = TabLabel(from);
+	BView* view = RemoveTab(from);
+
+
+	/*if (to > from)
+		to--;*/
+		
+	fTabContainerView->AddTab(fromLabel.String(), to);
+#if defined DIRTY_HACK
+	fCardLayout->SetFrame(dirtyFrameHack);
+#endif
+	fCardLayout->AddView(to, view);
+	
+	SelectTab(to);
+	
+	printf("SwapTabs(%d, %d)\n", from, to);
 }
 
 

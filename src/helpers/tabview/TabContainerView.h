@@ -14,7 +14,9 @@ class TabView;
 #include "TabView.h"
 #endif
 
-class TabContainerView : public BGroupView {
+#include "Draggable.h"
+
+class TabContainerView : public BGroupView, public Draggable {
 public:
 	class Controller {
 	public:
@@ -28,6 +30,8 @@ public:
 		virtual	void			UpdateTabScrollability(bool canScrollLeft,
 									bool canScrollRight) = 0;
 		virtual	void			SetToolTip(const BString& text) = 0;
+		
+		virtual	void			SwapTabs(int32 fromIndex, int32 toIndex) = 0;
 	};
 
 public:
@@ -68,6 +72,8 @@ public:
 			bool				CanScrollRight() const;
 
 private:
+			bool				InitiateDrag(BPoint where);
+			void				OnDrop(BMessage* msg);
 			TabView*			_TabAt(const BPoint& where) const;
 			void				_MouseMoved(BPoint where, uint32 transit,
 									const BMessage* dragMessage);
@@ -83,6 +89,7 @@ private:
 			TabView*			fSelectedTab;
 			Controller*			fController;
 			int32				fFirstVisibleTabIndex;
+			BRect				fDropTargetHighlightFrame;
 };
 
 #endif // TAB_CONTAINER_VIEW_H

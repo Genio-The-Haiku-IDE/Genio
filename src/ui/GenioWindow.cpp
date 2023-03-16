@@ -907,11 +907,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromCurrentItem());
 			break;
 		}
-		// case MSG_PROJECT_NEW: {
+		case MSG_PROJECT_NEW: {
 			// NewProjectWindow *wnd = new NewProjectWindow();
 			// wnd->Show();
-			// break;
-		// }
+			break;
+		}
 		case MSG_PROJECT_OPEN: {
 			fOpenProjectFolderPanel->Show();
 			break;
@@ -3361,6 +3361,8 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
 	fProjectFolderObjectList->RemoveItem(project);
+	
+	project->Close();
 	
 	delete project;
 	

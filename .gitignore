@@ -1,3 +1,5 @@
 app/Genio*
 objects.*
 *.o
+compile_commands.json
+.cache

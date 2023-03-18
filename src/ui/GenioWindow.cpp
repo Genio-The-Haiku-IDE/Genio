@@ -295,7 +295,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		}*/
 		case B_UNDO: {
 			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {			
+			if (editor) {
 				if (editor->CanUndo())
 					editor->Undo();
 				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Undo");
@@ -1292,7 +1292,7 @@ GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
 	notification << B_TRANSLATE("File close:") << " " << editor->Name();
 	_SendNotification(notification, "FILE_CLOSE");
 
-
+	fTabManager->RemoveTab(index);
 	delete editor;
 
 	// Was it the last one?

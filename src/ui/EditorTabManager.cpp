@@ -21,7 +21,7 @@ Editor*
 EditorTabManager::SelectedEditor()
 {
 	int32 sel = SelectedTabIndex();
-	if (sel >0 && sel < CountTabs())
+	if (sel >= 0 && sel < CountTabs())
 		return EditorAt(sel);
 	
 	return NULL;

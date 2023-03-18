@@ -29,6 +29,7 @@
 
 #define TAB_DRAG	'TABD'
 
+#define ALPHA				230
 static const float kLeftTabInset = 4;
 
 
@@ -159,8 +160,22 @@ TabContainerView::Draw(BRect updateRect)
 	// Draw empty area after last tab.
 	be_control_look->DrawInactiveTab(this, frame, updateRect, base, 0, borders);
 	
-	if (fDropTargetHighlightFrame.IsValid())
-		FillRect(fDropTargetHighlightFrame);
+	_DrawTabIndicator();
+}
+
+void
+TabContainerView::_DrawTabIndicator()
+{
+	if (fDropTargetHighlightFrame.IsValid()) {
+		SetHighColor(ui_color(B_CONTROL_HIGHLIGHT_COLOR));
+		BPoint	list[7] = { 
+			BPoint(fDropTargetHighlightFrame.left,  fDropTargetHighlightFrame.top),
+			BPoint(fDropTargetHighlightFrame.right, fDropTargetHighlightFrame.top),
+			BPoint(fDropTargetHighlightFrame.right - 5,fDropTargetHighlightFrame.bottom),
+			BPoint(fDropTargetHighlightFrame.left  ,fDropTargetHighlightFrame.top)
+		};
+		FillPolygon(list, 4, fDropTargetHighlightFrame);
+	}
 }
 
 
@@ -241,7 +256,7 @@ TabContainerView::InitiateDrag(BPoint where)
 			dragBitmap->AddChild(view);
 			dragBitmap->Lock();
 			
-			// Drawing (TODO: write a better 'Draw'?')
+			// Drawing (TODO: write a better tab->'Draw'?')
 			tab->DrawBackground(view, view->Bounds(), view->Bounds(), true, false, true);
 			float spacing = be_control_look->DefaultLabelSpacing();
 			updateRect.InsetBy(spacing, spacing / 2);
@@ -249,6 +264,18 @@ TabContainerView::InitiateDrag(BPoint where)
 			//
 			
 			view->Sync();
+			uint8* bits = (uint8*)dragBitmap->Bits();
+			int32 height = (int32)dragBitmap->Bounds().Height() + 1;
+			int32 width = (int32)dragBitmap->Bounds().Width() + 1;
+			int32 bpr = dragBitmap->BytesPerRow();
+
+
+				for (int32 y = 0; y < height; y++, bits += bpr) {
+					uint8* line = bits + 3;
+					for (uint8* end = line + 4 * width; line < end; line += 4)
+						*line = ALPHA;
+
+				}
 			dragBitmap->Unlock();
 		} else {
 			delete dragBitmap;

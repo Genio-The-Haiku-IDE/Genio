@@ -81,6 +81,7 @@ private:
 			void				_UpdateTabVisibility();
 			float				_AvailableWidthForTabs() const;
 			void				_SendFakeMouseMoved();
+			void				_DrawTabIndicator();
 
 private:
 			TabView*			fLastMouseEventTab;

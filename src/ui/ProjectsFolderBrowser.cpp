@@ -87,6 +87,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 	LogDebug("opcode %d", opCode);
 	
 	switch (opCode) {
+		// new file
 		case 1:
 		{
 			BString spath;
@@ -115,6 +116,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 			}
 			break;
 		}
+		// remove file
 		case 2:
 		{
 			BString spath;
@@ -125,8 +127,10 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 			LogDebug("path %s",  spath.String());
 			ProjectItem *item = FindProjectItem(spath);
 			RemoveItem(item);
+			SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
 			break;
 		}
+		// move or rename
 		case 3:
 		{
 			BString spath;
@@ -137,19 +141,51 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 					LogDebug("from path %s",  spath.String());
 					ProjectItem *item = FindProjectItem(spath);
 					RemoveItem(item);
+					SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
 				}
 			} else {
-				// rename
 				BString oldName, newName;
 				BString oldPath, newPath;
 				if (message->FindString("from name", &oldName) == B_OK) {
 					if (message->FindString("name", &newName) == B_OK) {
 						if (message->FindString("from path", &oldPath) == B_OK) {
 							if (message->FindString("path", &newPath) == B_OK) {
-								ProjectItem *item = FindProjectItem(oldPath);
-								item->SetText(newName);
-								item->GetSourceItem()->Rename(newPath);
-								Invalidate();
+								BPath bp_oldPath(oldPath.String());
+								BPath bp_oldParent;
+								bp_oldPath.GetParent(&bp_oldParent);
+								
+								BPath bp_newPath(newPath.String());
+								BPath bp_newParent;
+								bp_newPath.GetParent(&bp_newParent);
+								
+								// If the path remains the same except the leaf
+								// the item is being RENAMED
+								// if the path changes then the item is being MOVED
+								if (bp_oldParent == bp_newParent) {
+									ProjectItem *item = FindProjectItem(oldPath);
+									item->SetText(newName);
+									item->GetSourceItem()->Rename(newPath);
+									SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
+								} else {
+									ProjectItem *item = FindProjectItem(oldPath);
+									ProjectItem *destinationItem = FindProjectItem(bp_newParent.Path());
+									bool status;
+									
+									status = RemoveItem(item);
+									if (status) {
+										SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
+										
+										ProjectFolder *projectFolder = item->GetSourceItem()->GetProjectFolder();
+										SourceItem *sourceItem = new SourceItem(newPath);
+										sourceItem->SetProjectFolder(projectFolder);
+										ProjectItem *newItem = new ProjectItem(sourceItem);
+										
+										status = AddUnder(newItem, destinationItem);
+										if (status) {
+											SortItemsUnder(destinationItem, true, ProjectsFolderBrowser::_CompareProjectItems);
+										}
+									}
+								}
 							}
 						}
 					}
@@ -177,7 +213,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 	}
 	
 	//TODO: move more logic here!
-	/* 
+	
 	switch (message->what)
 	{
 		case MSG_PROJECT_MENU_CLOSE: 
@@ -203,7 +239,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 		break;
 		
 		default:break;
-	};*/
+	};
 	BOutlineListView::MessageReceived(message);
 }
 

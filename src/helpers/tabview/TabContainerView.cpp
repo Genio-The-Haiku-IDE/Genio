@@ -67,8 +67,6 @@ TabContainerView::MinSize()
 void				
 TabContainerView::OnDrop(BMessage* msg)
 {
-	msg->PrintToStream();
-		
 	int32 dragIndex = msg->GetInt32("index", -1);
 	if (dragIndex < 0)
 		return;
@@ -80,12 +78,11 @@ TabContainerView::OnDrop(BMessage* msg)
 		return;
 		
 	int32 toIndex = IndexOf(tab);
-	printf("Dropped on tab %s (%d)\n", tab->Label().String(), toIndex);
 	if (toIndex < 0)
 		return;
 	
-	//Swap
-	fController->SwapTabs(dragIndex, toIndex);
+	//Move
+	fController->MoveTabs(dragIndex, toIndex);
 	
 	Invalidate();
 }
@@ -167,14 +164,11 @@ void
 TabContainerView::_DrawTabIndicator()
 {
 	if (fDropTargetHighlightFrame.IsValid()) {
-		SetHighColor(ui_color(B_CONTROL_HIGHLIGHT_COLOR));
-		BPoint	list[7] = { 
-			BPoint(fDropTargetHighlightFrame.left,  fDropTargetHighlightFrame.top),
-			BPoint(fDropTargetHighlightFrame.right, fDropTargetHighlightFrame.top),
-			BPoint(fDropTargetHighlightFrame.right - 5,fDropTargetHighlightFrame.bottom),
-			BPoint(fDropTargetHighlightFrame.left  ,fDropTargetHighlightFrame.top)
-		};
-		FillPolygon(list, 4, fDropTargetHighlightFrame);
+		rgb_color color = ui_color(B_CONTROL_HIGHLIGHT_COLOR);
+		color.alpha = 170;
+		SetHighColor(color);
+		SetDrawingMode(B_OP_ALPHA);
+		FillRect(fDropTargetHighlightFrame);
 	}
 }
 
@@ -311,8 +305,6 @@ TabContainerView::MouseMoved(BPoint where, uint32 transit,
 				
 				if (index != newIndex) {
 					BRect highlightFrame = tab->Frame();
-					highlightFrame.right = highlightFrame.left + 10.0;
-
 
 					if (fDropTargetHighlightFrame != highlightFrame) {
 						Invalidate(fDropTargetHighlightFrame);

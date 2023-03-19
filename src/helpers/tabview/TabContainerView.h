@@ -31,7 +31,8 @@ public:
 									bool canScrollRight) = 0;
 		virtual	void			SetToolTip(const BString& text) = 0;
 		
-		virtual	void			SwapTabs(int32 fromIndex, int32 toIndex) = 0;
+		virtual	void			MoveTabs(int32 fromIndex, int32 toIndex) = 0;
+
 	};
 
 public:

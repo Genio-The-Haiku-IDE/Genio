@@ -41,7 +41,6 @@ public:
 	}	
 	virtual bool InitiateDrag(BPoint where)
 	{
-		printf("Initiate Drag?\n");
 		return false;
 	}
 	

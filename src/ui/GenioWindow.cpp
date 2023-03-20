@@ -1759,6 +1759,8 @@ GenioWindow::_FindInFiles()
 	  if (text.IsEmpty())
 		return;
 
+	  fConsoleIOView->Clear();
+	  
 	  fConsoleIOView->TextView()->ScrollTo(
 		  0, fConsoleIOView->TextView()->Bounds().bottom);
 

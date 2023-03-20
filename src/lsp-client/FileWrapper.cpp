@@ -212,13 +212,11 @@ void FileWrapper::EndHover() {
 void	
 FileWrapper::SignatureHelp()
 {
-	if (!initialized)
+  if (!initialized)
     return;
 
-  Position position;
-  GetCurrentLSPPosition(&position);
-
-  fLSPClientWrapper->SignatureHelp(this, fFilenameURI.c_str(), position);
+  if (!StartCallTip(true))
+	  StartCallTip(false);
 }
 
 
@@ -326,58 +324,59 @@ std::string autoCompleteStartCharacters(".>");
 std::string calltipWordCharacters("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 std::string calltipParametersSeparators(",");
 
+bool FileWrapper::StartCallTip(bool searchStart) {
+  
+  Sci_Position pos = fEditor->SendMessage(SCI_GETCURRENTPOS);
+  calltipStartPosition = pos;
+  calltipPosition = pos;
+  
+  Position position;
+  FromSciPositionToLSPPosition(pos, &position);
 
+  if (searchStart) {
+    std::string line = GetCurrentLine();
+    Sci_Position current = position.character;
+    do {
+      int braces = 0;
+      while (current > 0 &&
+             (braces || !Contains(calltipParametersStart, line[current - 1]))) {
+        if (Contains(calltipParametersStart, line[current - 1]))
+          braces--;
+        else if (Contains(calltipParametersEnd, line[current - 1]))
+          braces++;
+        current--;
+        pos--;
+      }
+      if (current > 0) {
+        current--;
+        pos--;
+      } else
+        break;
+      while (current > 0 && IsASpace(line[current - 1])) {
+        current--;
+        pos--;
+      }
+    } while (current > 0 &&
+             !Contains(calltipWordCharacters, line[current - 1]));
 
-bool
-FileWrapper::StartCallTip()
-{
-	// printf("StartCallTip\n");
-	std::string line = GetCurrentLine();
-	
-	Position position;
-	GetCurrentLSPPosition(&position);
-	
-	Sci_Position current = position.character;
-	Sci_Position pos = fEditor->SendMessage(SCI_GETCURRENTPOS);
-	calltipStartPosition = pos;
-	
-	do {
-		int braces = 0;
-		while (current > 0 && (braces || !Contains(calltipParametersStart, line[current - 1]))) {
-			if (Contains(calltipParametersStart, line[current - 1]))
-				braces--;
-			else if (Contains(calltipParametersEnd, line[current - 1]))
-				braces++;
-			current--;
-			pos--;
-		}
-		if (current > 0) {
-			current--;
-			pos--;
-		} else
-			break;
-		while (current > 0 && IsASpace(line[current - 1])) {
-			current--;
-			pos--;
-		}
-	} while (current > 0 && !Contains(calltipWordCharacters, line[current - 1]));
-	if (current <= 0)
-		return true;
+    if (current <= 0)
+      return false;
 
-	startCalltipWord = current - 1;
-	while (startCalltipWord > 0 &&
-			Contains(calltipWordCharacters, line[startCalltipWord - 1])) {
-		startCalltipWord--;
-	}
+    startCalltipWord = current - 1;
+    while (startCalltipWord > 0 &&
+           Contains(calltipWordCharacters, line[startCalltipWord - 1])) {
+      startCalltipWord--;
+    }
 
-	Position newPos;
-	newPos.line = position.line;
-	newPos.character = startCalltipWord;
-	calltipPosition = FromLSPPositionToSciPosition(&newPos);
-	
-	line.at(current + 1) = '\0';
-	
+    line.at(current + 1) = '\0';
+    Position newPos;
+    newPos.line = position.line;
+    newPos.character = startCalltipWord;
+    calltipPosition = FromLSPPositionToSciPosition(&newPos);
+  }
+
   fLSPClientWrapper->SignatureHelp(this, fFilenameURI.c_str(), position);
+
   return true;
 }
 
@@ -393,7 +392,7 @@ FileWrapper::UpdateCallTip(int deltaPos)
 	
 	functionDefinition = "";
 	
-	if (maxCalltip > 0)
+	if (maxCalltip > 1)
 		functionDefinition += "\001 " + std::to_string(currentCalltip+1) + " of " + 
 								std::to_string(maxCalltip) + " \002";
 		
@@ -473,17 +472,17 @@ FileWrapper::CharAdded(const char ch /*utf-8?*/)
 				if (braceCount < 1)
 					fEditor->SendMessage(SCI_CALLTIPCANCEL);
 				else
-					StartCallTip();
+					StartCallTip(true);
 			} else if (Contains(calltipParametersStart, ch)) {
 				braceCount++;
-				StartCallTip();
+				StartCallTip(true);
 			} else {
 				ContinueCallTip();
 			}
 		} else if (fEditor->SendMessage(SCI_AUTOCACTIVE)) {
 			if (Contains(calltipParametersStart, ch)) {
 				braceCount++;
-				StartCallTip();
+				StartCallTip(true);
 			} else if (Contains(calltipParametersEnd, ch)) {
 				braceCount--;
 			} else if (!Contains(wordCharacters, ch)) {
@@ -495,7 +494,7 @@ FileWrapper::CharAdded(const char ch /*utf-8?*/)
 		} else  {
 			if (Contains(calltipParametersStart, ch)) {
 				braceCount = 1;
-				StartCallTip();
+				StartCallTip(true);
 			} else {
 				if (Contains(autoCompleteStartCharacters, ch)) {
 					StartCompletion();
@@ -568,7 +567,14 @@ FileWrapper::_DoGoTo(nlohmann::json& items){
 void
 FileWrapper::_DoSignatureHelp(json &result) {
 	lastCalltip    = result["signatures"];
-	currentCalltip = 0; 
+	/*currentCalltip = 0;
+	startCalltipWord = 0;
+	calltipPosition;
+		Sci_Position calltipStartPosition;
+		nlohmann::json 	lastCalltip;
+		int 	currentCalltip = 0;
+		int 	maxCalltip = 0;
+		std::string functionDefinition;*/
 	
 	if (lastCalltip[currentCalltip] != nlohmann::detail::value_t::null) {
 		maxCalltip 	   = lastCalltip.size();

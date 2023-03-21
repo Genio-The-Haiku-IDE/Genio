@@ -61,7 +61,7 @@ public:
 		const BString&	GetFileStatus(){ return fFileStatus;}
 private:
 		/* experimental section */	
-		bool	StartCallTip();
+		bool	StartCallTip(bool searchStart);
 		
 		
 		

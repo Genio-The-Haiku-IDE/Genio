@@ -69,6 +69,8 @@ private:
 	BMenuItem*			fShowInTrackerProjectMenuItem;
 	BMenuItem*			fOpenTerminalProjectMenuItem;
 	bool				fIsBuilding = false;
+	
+	ProjectFolder		*fActiveProject;
 };
 
 

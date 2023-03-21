@@ -87,8 +87,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 	LogDebug("opcode %d", opCode);
 	
 	switch (opCode) {
-		// new file
-		case 1:
+		case B_ENTRY_CREATED:
 		{
 			BString spath;
 			if (message->FindString("path", &spath) == B_OK) {
@@ -116,8 +115,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 			}
 			break;
 		}
-		// remove file
-		case 2:
+		case B_ENTRY_REMOVED:
 		{
 			BString spath;
 			
@@ -126,22 +124,36 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 
 			LogDebug("path %s",  spath.String());
 			ProjectItem *item = FindProjectItem(spath);
-			RemoveItem(item);
-			SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
+			if (item->GetSourceItem()->Type() == 
+				SourceItemType::ProjectFolderItem)
+			{
+				Select(IndexOf(item));
+				Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+			} else {
+				RemoveItem(item);
+				SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
+			}
 			break;
 		}
-		// move or rename
-		case 3:
+		case B_ENTRY_MOVED:
 		{
 			BString spath;
 			bool removed;
 			
+			// moved outside of the project folder
 			if (message->FindBool("removed", &removed) == B_OK) {
 				if (message->FindString("from path", &spath) == B_OK) {			
 					LogDebug("from path %s",  spath.String());
 					ProjectItem *item = FindProjectItem(spath);
-					RemoveItem(item);
-					SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
+					if (item->GetSourceItem()->Type() == 
+						SourceItemType::ProjectFolderItem)
+					{
+						Select(IndexOf(item));
+						Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+					} else {
+						RemoveItem(item);
+						SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
+					}
 				}
 			} else {
 				BString oldName, newName;
@@ -159,7 +171,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 								bp_newPath.GetParent(&bp_newParent);
 								
 								// If the path remains the same except the leaf
-								// the item is being RENAMED
+								// then the item is being RENAMED
 								// if the path changes then the item is being MOVED
 								if (bp_oldParent == bp_newParent) {
 									ProjectItem *item = FindProjectItem(oldPath);
@@ -170,7 +182,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 									ProjectItem *item = FindProjectItem(oldPath);
 									ProjectItem *destinationItem = FindProjectItem(bp_newParent.Path());
 									bool status;
-									
+										
 									status = RemoveItem(item);
 									if (status) {
 										SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
@@ -204,16 +216,17 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 {
 	switch (message->what)
 	{
-		case B_PATH_MONITOR:
+		case B_PATH_MONITOR: {
 			message->PrintToStream(); 			  
 			_UpdateNode(message);
+		}
 		break;
 		default:
 		break;	
 	}
 	
 	//TODO: move more logic here!
-	
+	/*
 	switch (message->what)
 	{
 		case MSG_PROJECT_MENU_CLOSE: 
@@ -240,6 +253,8 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 		
 		default:break;
 	};
+	*/
+	
 	BOutlineListView::MessageReceived(message);
 }
 

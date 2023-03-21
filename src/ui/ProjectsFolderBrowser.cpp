@@ -3,6 +3,7 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
+#include <Alert.h>
 #include <Catalog.h>
 #include <Directory.h>
 #include <Entry.h>
@@ -16,6 +17,7 @@
 
 #include <stdio.h>
 
+#include "GenioWindowMessages.h"
 #include "Log.h"
 #include "ProjectsFolderBrowser.h"
 #include "ProjectFolder.h"
@@ -127,8 +129,20 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 			if (item->GetSourceItem()->Type() == 
 				SourceItemType::ProjectFolderItem)
 			{
+				LockLooper();
 				Select(IndexOf(item));
 				Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+				
+				// It seems not possible to track the project folder to the new
+				// location outside of the watched path. So we close the project 
+				// and warn the user
+				auto alert = new BAlert("QuitAndSaveDialog",
+					B_TRANSLATE("The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace."),
+					B_TRANSLATE("OK"), NULL, NULL,
+					B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+				alert->Go();
+				
+				UnlockLooper();
 			} else {
 				RemoveItem(item);
 				SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
@@ -148,8 +162,25 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 					if (item->GetSourceItem()->Type() == 
 						SourceItemType::ProjectFolderItem)
 					{
+						LockLooper();
 						Select(IndexOf(item));
 						Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+						
+						// reopen project under the new name or location
+						entry_ref ref;
+						if (message->FindInt64("to directory", &ref.directory) == B_OK) {
+							const char *name;
+							message->FindInt32("device", &ref.device);
+							message->FindString("name", &name);
+							ref.set_name(name);
+							auto msg = new BMessage(MSG_PROJECT_FOLDER_OPEN);
+							msg->AddRef("refs", &ref);
+							Window()->PostMessage(msg);
+						}
+						
+
+				
+						UnlockLooper();
 					} else {
 						RemoveItem(item);
 						SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);

@@ -3353,18 +3353,19 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	BString projectPath = project->Path();
 	projectPath = projectPath.Append("/");
-
+	
+	LockLooper();
 	for (int32 index = fEditorObjectList->CountItems() - 1 ; index > -1; index--) {
 		Editor* editor = fEditorObjectList->ItemAt(index);
 		if (editor->GetProjectFolder() == project) {
 			editor->SetProjectFolder(NULL);
 			_FileClose(index);
 		}
-	}	
+	}
+	UnlockLooper();
 	
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
 	fProjectFolderObjectList->RemoveItem(project);
-	
 	project->Close();
 	
 	delete project;

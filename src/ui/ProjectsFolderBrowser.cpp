@@ -136,7 +136,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				// It seems not possible to track the project folder to the new
 				// location outside of the watched path. So we close the project 
 				// and warn the user
-				auto alert = new BAlert("QuitAndSaveDialog",
+				auto alert = new BAlert("ProjectFolderChanged",
 					B_TRANSLATE("The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace."),
 					B_TRANSLATE("OK"), NULL, NULL,
 					B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
@@ -154,17 +154,25 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 			BString spath;
 			bool removed;
 			
-			// moved outside of the project folder
+			// An item moved outside of the project folder
 			if (message->FindBool("removed", &removed) == B_OK) {
 				if (message->FindString("from path", &spath) == B_OK) {			
 					LogDebug("from path %s",  spath.String());
 					ProjectItem *item = FindProjectItem(spath);
+					
+					// spacial hendling when the project folder is being renamed
 					if (item->GetSourceItem()->Type() == 
 						SourceItemType::ProjectFolderItem)
 					{
 						LockLooper();
 						Select(IndexOf(item));
 						Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+						
+						auto alert = new BAlert("ProjectFolderChanged",
+							B_TRANSLATE("The project folder has been renamed. It will be closed and reopened automatically."),
+							B_TRANSLATE("OK"), NULL, NULL,
+							B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+						alert->Go();
 						
 						// reopen project under the new name or location
 						entry_ref ref;
@@ -177,9 +185,6 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 							msg->AddRef("refs", &ref);
 							Window()->PostMessage(msg);
 						}
-						
-
-				
 						UnlockLooper();
 					} else {
 						RemoveItem(item);

@@ -47,6 +47,7 @@ APP_MIME_SIG := "application/x-vnd.Genio"
 SRCS :=  src/GenioApp.cpp
 SRCS +=  src/GenioNamespace.cpp
 SRCS +=  src/ui/Editor.cpp
+SRCS +=  src/ui/EditorTabManager.cpp
 SRCS +=  src/ui/EditorContextMenu.cpp
 SRCS +=  src/ui/GenioWindow.cpp
 SRCS +=  src/ui/OutlineListView.cpp

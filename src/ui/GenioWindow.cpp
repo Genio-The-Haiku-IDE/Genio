@@ -449,8 +449,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				int32 index = _GetEditorIndex(&ref);
-				_UpdateLabel(index, true);
-				_UpdateSavepointChange(index, "Left");
+				if (index > -1) {
+					_UpdateLabel(index, true);
+					_UpdateSavepointChange(index, "Left");
+				}
 			}
 
 			break;
@@ -459,8 +461,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				int32 index = _GetEditorIndex(&ref);
-				_UpdateLabel(index, false);
-				_UpdateSavepointChange(index, "Reached");
+				if (index > -1) {
+					_UpdateLabel(index, false);
+					_UpdateSavepointChange(index, "Reached");
+				}
 			}
 
 			break;

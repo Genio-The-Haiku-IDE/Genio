@@ -31,7 +31,7 @@
 #include "Editor.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
-#include "TabManager.h"
+#include "EditorTabManager.h"
 #include "TPreferences.h"
 #include "ProjectsFolderBrowser.h"
 
@@ -241,8 +241,8 @@ private:
 			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
 			
 			// Editor group
-			TabManager*				fTabManager;
-			BObjectList<Editor>*	fEditorObjectList;
+			EditorTabManager*		fTabManager;
+
 
 			BGroupLayout*		fFindGroup;
 			BGroupLayout*		fReplaceGroup;

@@ -129,20 +129,21 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 			if (item->GetSourceItem()->Type() == 
 				SourceItemType::ProjectFolderItem)
 			{
-				LockLooper();
-				Select(IndexOf(item));
-				Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+				if (LockLooper()) {
+					Select(IndexOf(item));
+					Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
 				
-				// It seems not possible to track the project folder to the new
-				// location outside of the watched path. So we close the project 
-				// and warn the user
-				auto alert = new BAlert("ProjectFolderChanged",
-					B_TRANSLATE("The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace."),
-					B_TRANSLATE("OK"), NULL, NULL,
-					B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
-				alert->Go();
+					// It seems not possible to track the project folder to the new
+					// location outside of the watched path. So we close the project 
+					// and warn the user
+					auto alert = new BAlert("ProjectFolderChanged",
+						B_TRANSLATE("The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace."),
+						B_TRANSLATE("OK"), NULL, NULL,
+						B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+						alert->Go();
 				
-				UnlockLooper();
+					UnlockLooper();
+				}
 			} else {
 				RemoveItem(item);
 				SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
@@ -152,7 +153,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 		case B_ENTRY_MOVED:
 		{
 			BString spath;
-			bool removed;
+			bool removed, added;
 			
 			// An item moved outside of the project folder
 			if (message->FindBool("removed", &removed) == B_OK) {
@@ -160,32 +161,33 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 					LogDebug("from path %s",  spath.String());
 					ProjectItem *item = FindProjectItem(spath);
 					
-					// spacial hendling when the project folder is being renamed
+					// the project folder is being renamed
 					if (item->GetSourceItem()->Type() == 
 						SourceItemType::ProjectFolderItem)
 					{
-						LockLooper();
-						Select(IndexOf(item));
-						Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+						if (LockLooper()) {
+							Select(IndexOf(item));
+							Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
 						
-						auto alert = new BAlert("ProjectFolderChanged",
+							auto alert = new BAlert("ProjectFolderChanged",
 							B_TRANSLATE("The project folder has been renamed. It will be closed and reopened automatically."),
-							B_TRANSLATE("OK"), NULL, NULL,
-							B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
-						alert->Go();
+								B_TRANSLATE("OK"), NULL, NULL,
+								B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+							alert->Go();
 						
-						// reopen project under the new name or location
-						entry_ref ref;
-						if (message->FindInt64("to directory", &ref.directory) == B_OK) {
-							const char *name;
-							message->FindInt32("device", &ref.device);
-							message->FindString("name", &name);
-							ref.set_name(name);
-							auto msg = new BMessage(MSG_PROJECT_FOLDER_OPEN);
-							msg->AddRef("refs", &ref);
-							Window()->PostMessage(msg);
+							// reopen project under the new name or location
+							entry_ref ref;
+							if (message->FindInt64("to directory", &ref.directory) == B_OK) {
+								const char *name;
+								message->FindInt32("device", &ref.device);
+								message->FindString("name", &name);
+								ref.set_name(name);
+								auto msg = new BMessage(MSG_PROJECT_FOLDER_OPEN);
+								msg->AddRef("refs", &ref);
+								Window()->PostMessage(msg);
+							}
+							UnlockLooper();
 						}
-						UnlockLooper();
 					} else {
 						RemoveItem(item);
 						SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
@@ -194,7 +196,33 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 			} else {
 				BString oldName, newName;
 				BString oldPath, newPath;
-				if (message->FindString("from name", &oldName) == B_OK) {
+				
+				if (message->FindBool("added", &added) == B_OK) {
+					if (message->FindString("path", &newPath) == B_OK) {
+						if (message->FindString("name", &newName) == B_OK) {
+							BPath destination(newPath);
+							BPath parent;
+							destination.GetParent(&parent);
+							
+							ProjectItem *parentItem = FindProjectItem(parent.Path());
+							ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
+							SourceItem *sourceItem = new SourceItem(newPath);
+							sourceItem->SetProjectFolder(projectFolder);
+							ProjectItem *newItem = new ProjectItem(sourceItem);
+				
+							LogDebug("ProjectFolder %s", projectFolder->Path().String());
+							LogDebug("parent %s", parentItem->GetSourceItem()->Path().String());
+							LogDebug("path %s",  newItem->GetSourceItem()->Path().String());
+				
+							bool status = AddUnder(newItem,parentItem);
+							if (status) {
+								LogDebug("AddUnder(newItem,item)");
+								SortItemsUnder(parentItem, true, ProjectsFolderBrowser::_CompareProjectItems);
+								Collapse(newItem);
+							}
+						}
+					}
+				} else 	if (message->FindString("from name", &oldName) == B_OK) {
 					if (message->FindString("name", &newName) == B_OK) {
 						if (message->FindString("from path", &oldPath) == B_OK) {
 							if (message->FindString("path", &newPath) == B_OK) {

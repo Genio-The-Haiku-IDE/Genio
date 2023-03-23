@@ -3294,7 +3294,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	projectPath = projectPath.Append("/");
 
 
-	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {
 		Editor* editor = fTabManager->EditorAt(index);
 
 		if (editor->GetProjectFolder() == project) {

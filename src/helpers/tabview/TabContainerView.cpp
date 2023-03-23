@@ -27,7 +27,9 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Tab Manager"
 
+#define TAB_DRAG	'TABD'
 
+#define ALPHA				230
 static const float kLeftTabInset = 4;
 
 
@@ -62,11 +64,35 @@ TabContainerView::MinSize()
 	return size;
 }
 
-
+void				
+TabContainerView::OnDrop(BMessage* msg)
+{
+	int32 dragIndex = msg->GetInt32("index", -1);
+	if (dragIndex < 0)
+		return;
+	BPoint drop_point;
+	if (msg->FindPoint("_drop_point_", &drop_point) != B_OK)
+		return;		
+	TabView* tab = _TabAt(ConvertFromScreen(drop_point));
+	if (!tab)
+		return;
+		
+	int32 toIndex = IndexOf(tab);
+	if (toIndex < 0)
+		return;
+	
+	//Move
+	fController->MoveTabs(dragIndex, toIndex);
+	
+	Invalidate();
+}
 void
 TabContainerView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+			case TAB_DRAG:
+				OnDrop(message);
+				break;
 			case B_MOUSE_WHEEL_CHANGED:
 			{
 				// No tabs, exit
@@ -130,6 +156,20 @@ TabContainerView::Draw(BRect updateRect)
 
 	// Draw empty area after last tab.
 	be_control_look->DrawInactiveTab(this, frame, updateRect, base, 0, borders);
+	
+	_DrawTabIndicator();
+}
+
+void
+TabContainerView::_DrawTabIndicator()
+{
+	if (fDropTargetHighlightFrame.IsValid()) {
+		rgb_color color = ui_color(B_CONTROL_HIGHLIGHT_COLOR);
+		color.alpha = 170;
+		SetHighColor(color);
+		SetDrawingMode(B_OP_ALPHA);
+		FillRect(fDropTargetHighlightFrame);
+	}
 }
 
 
@@ -157,6 +197,8 @@ TabContainerView::MouseDown(BPoint where)
 		else
 			fClickCount = 1;
 	}
+	
+	Draggable::OnMouseDown(where);
 }
 
 
@@ -180,6 +222,68 @@ TabContainerView::MouseUp(BPoint where)
 	// Always check the tab under the mouse again, since we don't update
 	// it with fMouseDown == true.
 	_SendFakeMouseMoved();
+	
+
+	Draggable::OnMouseUp(where);
+	if (fDropTargetHighlightFrame.IsValid()) {
+		Invalidate(fDropTargetHighlightFrame);
+		fDropTargetHighlightFrame = BRect();
+	}
+}
+
+bool 
+TabContainerView::InitiateDrag(BPoint where)
+{
+	TabView* tab = _TabAt(where);
+	if (tab != nullptr)
+	{
+		BMessage message(TAB_DRAG);
+		message.AddPointer("container", this);
+		message.AddInt32("index", IndexOf(tab));
+		
+		BRect updateRect = tab->Frame().OffsetToCopy(BPoint(0,0));
+		
+		BBitmap* dragBitmap = new BBitmap(updateRect, B_RGB32, true);
+		if (dragBitmap->IsValid()) {
+			BView* view = new BView(dragBitmap->Bounds(), "helper", B_FOLLOW_NONE,
+				B_WILL_DRAW);
+			dragBitmap->AddChild(view);
+			dragBitmap->Lock();
+			
+			// Drawing (TODO: write a better tab->'Draw'?')
+			tab->DrawBackground(view, view->Bounds(), view->Bounds(), true, false, true);
+			float spacing = be_control_look->DefaultLabelSpacing();
+			updateRect.InsetBy(spacing, spacing / 2);
+			tab->DrawContents(view, updateRect, updateRect, true, false, true);
+			//
+			
+			view->Sync();
+			uint8* bits = (uint8*)dragBitmap->Bits();
+			int32 height = (int32)dragBitmap->Bounds().Height() + 1;
+			int32 width = (int32)dragBitmap->Bounds().Width() + 1;
+			int32 bpr = dragBitmap->BytesPerRow();
+
+
+				for (int32 y = 0; y < height; y++, bits += bpr) {
+					uint8* line = bits + 3;
+					for (uint8* end = line + 4 * width; line < end; line += 4)
+						*line = ALPHA;
+
+				}
+			dragBitmap->Unlock();
+		} else {
+			delete dragBitmap;
+			dragBitmap = NULL;
+		}
+
+		if (dragBitmap != NULL)
+			DragMessage(&message, dragBitmap, B_OP_ALPHA, BPoint(where.x - tab->Frame().left, where.y - tab->Frame().top));
+		else
+			DragMessage(&message, tab->Frame(), this);
+			
+		return true;
+	}	
+	return false;
 }
 
 
@@ -187,7 +291,40 @@ void
 TabContainerView::MouseMoved(BPoint where, uint32 transit,
 	const BMessage* dragMessage)
 {
+	if (dragMessage && dragMessage->what == TAB_DRAG)
+	{
+		switch (transit) {
+			case B_ENTERED_VIEW:
+			case B_INSIDE_VIEW:
+			{
+				int32 index = dragMessage->GetInt32("index", -1);
+				TabView* tab = _TabAt(where);
+				if (!tab)
+					return;
+				int32 newIndex = IndexOf(tab);
+				
+				if (index != newIndex) {
+					BRect highlightFrame = tab->Frame();
+
+					if (fDropTargetHighlightFrame != highlightFrame) {
+						Invalidate(fDropTargetHighlightFrame);
+						fDropTargetHighlightFrame = highlightFrame;
+						Invalidate(fDropTargetHighlightFrame);
+					}
+					_MouseMoved(where, transit, dragMessage);
+					return;
+				}
+			}
+			break;
+		};
+	}
+		
 	_MouseMoved(where, transit, dragMessage);
+	Draggable::OnMouseMoved(where);
+	if (fDropTargetHighlightFrame.IsValid()) {
+		Invalidate(fDropTargetHighlightFrame);
+		fDropTargetHighlightFrame = BRect();
+	}
 }
 
 

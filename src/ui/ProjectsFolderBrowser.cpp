@@ -86,7 +86,6 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 	int32 opCode;
 	if (message->FindInt32("opcode", &opCode) != B_OK)
 		return;
-	LogDebug("opcode %d", opCode);
 	
 	switch (opCode) {
 		case B_ENTRY_CREATED:
@@ -102,10 +101,6 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				SourceItem *sourceItem = new SourceItem(path.Path());
 				sourceItem->SetProjectFolder(projectFolder);
 				ProjectItem *newItem = new ProjectItem(sourceItem);
-				
-				LogDebug("ProjectFolder %s", projectFolder->Path().String());
-				LogDebug("parent %s", parentItem->GetSourceItem()->Path().String());
-				LogDebug("path %s",  newItem->GetSourceItem()->Path().String());
 				
 				bool status = AddUnder(newItem,parentItem);
 				if (status) {
@@ -214,12 +209,18 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 							LogDebug("parent %s", parentItem->GetSourceItem()->Path().String());
 							LogDebug("path %s",  newItem->GetSourceItem()->Path().String());
 				
-							bool status = AddUnder(newItem,parentItem);
-							if (status) {
-								LogDebug("AddUnder(newItem,item)");
-								SortItemsUnder(parentItem, true, ProjectsFolderBrowser::_CompareProjectItems);
+							if (newItem->GetSourceItem()->Type() == SourceItemType::FolderItem)
+							{
+								_ProjectFolderScan(parentItem, newItem->GetSourceItem()->Path(), newItem->GetSourceItem()->GetProjectFolder());
+								SortItemsUnder(parentItem, false, ProjectsFolderBrowser::_CompareProjectItems);
 								Collapse(newItem);
-							}
+							} else {
+								bool status = AddUnder(newItem,parentItem);
+								if (status) {
+									SortItemsUnder(parentItem, true, ProjectsFolderBrowser::_CompareProjectItems);
+									Collapse(newItem);
+								}
+							}	
 						}
 					}
 				} else 	if (message->FindString("from name", &oldName) == B_OK) {

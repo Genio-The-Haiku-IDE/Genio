@@ -85,9 +85,12 @@ public:
 			bool				CanRedo();
 			bool				CanUndo();
 			void				Clear();
+			void				CommentSelectedLines();
 			void				Copy();
 			int32				CountLines();
 			void				Cut();
+			void				DeleteLine();
+			void				DuplicateLine();
 			BString	const		EndOfLineString();
 			void				EndOfLineConvert(int32 eolMode);
 			void				EnsureVisiblePolicy();
@@ -158,6 +161,7 @@ public:
 			void				GoToDeclaration();
 			void				GoToImplementation();
 			void				SwitchSourceHeader();
+			void				UncommentSelection();
 			
 			void 				ContextMenu(BPoint point);
 

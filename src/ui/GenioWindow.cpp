@@ -754,6 +754,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case MSG_DUPLICATE_LINE: {
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
+				editor->DuplicateCurrentLine();
+			}
+			break;
+		}
 		case MSG_SIGNATUREHELP: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) 
@@ -2305,6 +2312,8 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_WHITE_SPACES_TOGGLE)));
 	menu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
+	menu->AddItem(fDuplicateLineItem = new BMenuItem(B_TRANSLATE("Duplicate current line"),
+		new BMessage(MSG_DUPLICATE_LINE), 'K', B_OPTION_KEY));
 	
 	menu->AddSeparatorItem();	
 

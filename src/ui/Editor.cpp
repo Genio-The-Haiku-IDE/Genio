@@ -1466,6 +1466,12 @@ Editor::_CommentLine(int32 position)
 	}
 }
 
+void
+Editor::DuplicateCurrentLine() {
+	int32 lineNumber = SendMessage(SCI_LINEFROMPOSITION, GetCurrentPosition(), UNSET);
+	SendMessage(SCI_LINEDUPLICATE, lineNumber, UNSET);
+}
+
 int32
 Editor::_EndOfLine()
 {

@@ -279,7 +279,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case B_REFS_RECEIVED:
-			_FileOpen(message);
+		case 'DATA': //file drag'n'drop
+			_FileOpen(message, false);
 			Activate();
 			break;
 		case B_SAVE_REQUESTED:
@@ -1042,8 +1043,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-
-		default:
+		default:			
 			BWindow::MessageReceived(message);
 			break;
 	}
@@ -1317,7 +1317,7 @@ GenioWindow::_FileCloseAll()
 }
 
 status_t
-GenioWindow::_FileOpen(BMessage* msg)
+GenioWindow::_FileOpen(BMessage* msg, bool openWithPreferred)
 {
 	entry_ref ref;
 	status_t status = B_OK;
@@ -1338,7 +1338,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
 
 		if (!_FileIsSupported(&ref)) {
-			_FileOpenWithPreferredApp(&ref); //TODO make this optional?
+			if (openWithPreferred)
+				_FileOpenWithPreferredApp(&ref); //TODO make this optional?
 			continue;
 		}	
 
@@ -3204,9 +3205,9 @@ GenioWindow::_ProjectFileOpen(const BString& filePath)
 	BEntry entry(filePath);
 	entry_ref ref;
 	entry.GetRef(&ref);
-	BMessage msg(B_REFS_RECEIVED);
+	BMessage msg;
 	msg.AddRef("refs", &ref);
-	_FileOpen(&msg);
+	_FileOpen(&msg, true);
 }
 
 //TODO: old function using fProjectsOutline

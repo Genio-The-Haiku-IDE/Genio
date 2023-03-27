@@ -2313,7 +2313,7 @@ GenioWindow::_InitMenu()
 	menu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
 		
-	menu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment lines"),
+	menu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment selected lines"),
 		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_OPTION_KEY));
 	
 	menu->AddSeparatorItem();	

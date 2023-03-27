@@ -687,13 +687,9 @@ Editor::NotificationReceived(SCNotification* notification)
 			if (notification->margin == sci_BOOKMARK_MARGIN)
 				// Bookmark toggle
 				BookmarkToggle(notification->position);
-			else if (notification->margin == sci_COMMENT_MARGIN) {
+			else if (notification->margin == sci_COMMENT_MARGIN)
 				// Line commenter/decommenter
-				if (Selection().IsEmpty())
-					_CommentLine(notification->position);
-				else
-					CommentSelectedLines();
-			}
+				_CommentLine(notification->position);
 			break;
 		}
 		case SCN_AUTOCSELECTION: {

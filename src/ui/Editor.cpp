@@ -687,9 +687,13 @@ Editor::NotificationReceived(SCNotification* notification)
 			if (notification->margin == sci_BOOKMARK_MARGIN)
 				// Bookmark toggle
 				BookmarkToggle(notification->position);
-			else if (notification->margin == sci_COMMENT_MARGIN)
+			else if (notification->margin == sci_COMMENT_MARGIN) {
 				// Line commenter/decommenter
-				_CommentLine(notification->position);
+				if (Selection().IsEmpty())
+					_CommentLine(notification->position);
+				else
+					CommentSelectedLines();
+			}
 			break;
 		}
 		case SCN_AUTOCSELECTION: {
@@ -1464,6 +1468,22 @@ Editor::_CommentLine(int32 position)
 		std::size_t spaces = line.substr(offset + fCommenter.length()).find_first_not_of("\t ");
 		SendMessage(SCI_DELETERANGE, position + offset, fCommenter.length() + spaces);
 	}
+}
+
+void
+Editor::CommentSelectedLines()
+{
+	
+	int32 start = SendMessage(SCI_GETSELECTIONSTART, 0, UNSET);
+	int32 startLineNumber = SendMessage(SCI_LINEFROMPOSITION, start, UNSET);
+	int32 end = SendMessage(SCI_GETSELECTIONEND, 0, UNSET);
+	int32 endLineNumber = SendMessage(SCI_LINEFROMPOSITION, end, UNSET);
+	SendMessage(SCI_BEGINUNDOACTION, 0, UNSET);
+	for (int32 i = startLineNumber; i<=endLineNumber; i++) {
+		int32 position = SendMessage(SCI_POSITIONFROMLINE, i, UNSET);
+		_CommentLine(position);
+	}
+	SendMessage(SCI_ENDUNDOACTION, 0, UNSET);
 }
 
 int32

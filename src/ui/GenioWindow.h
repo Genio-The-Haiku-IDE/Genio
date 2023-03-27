@@ -162,6 +162,7 @@ private:
 			BMenuItem*			fToggleWhiteSpacesItem;
 			BMenuItem*			fToggleLineEndingsItem;
 			BMenuItem*			fDeleteLinesItem;
+			BMenuItem*			fCommentSelectionItem;
 			BMenu*				fLineEndingsMenu;
 			BMenuItem*			fFindItem;
 			BMenuItem*			fReplaceItem;

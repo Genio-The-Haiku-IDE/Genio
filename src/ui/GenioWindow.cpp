@@ -490,20 +490,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case EDITOR_PRETEND_POSITION_CHANGED: {
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index =  _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex()) {
-					int32 line, column;
-					if (message->FindInt32("line", &line) == B_OK
-						&& message->FindInt32("column", &column) == B_OK)
-
-							_UpdateStatusBarText(line, column);
-				}
-			}
-			break;
-		}
 
 		case EDITOR_REPLACE_ALL_COUNT: {
 			int32 count;
@@ -539,28 +525,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case EDITOR_POSITION_CHANGED: {
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index =  _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex()) {
-					int32 line, column;
-					// Enable Cut,Copy,Paste shortcuts
-					_UpdateSavepointChange(index, "EDITOR_POSITION_CHANGED");
-					if (message->FindInt32("line", &line) == B_OK
-						&& message->FindInt32("column", &column) == B_OK)
-							_UpdateStatusBarText(line, column);
-				}
-			}
-			break;
-		}
+
 		case EDITOR_SAVEPOINT_LEFT: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				int32 index = _GetEditorIndex(&ref);
 				if (index > -1) {
 					_UpdateLabel(index, true);
-					_UpdateSavepointChange(index, "Left");
 				}
 			}
 
@@ -617,8 +588,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetReadOnly();
-				fFileUnlockedButton->SetEnabled(!editor->IsReadOnly());
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
+				editor->UpdateStatusBar();
+				fFileUnlockedButton->SetEnabled(!editor->IsReadOnly());				
 			}
 			break;
 		}
@@ -678,7 +649,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_LF);
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
+				editor->UpdateStatusBar();
 			}
 			break;
 		}
@@ -686,7 +657,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CRLF);
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
+				editor->UpdateStatusBar();
 			}
 			break;
 		}
@@ -694,7 +665,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CR);
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
+				editor->UpdateStatusBar();
 			}
 			break;
 		}
@@ -1089,7 +1060,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor)  {
 				editor->OverwriteToggle();
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
+				editor->UpdateStatusBar();
 			}
 			break;
 		}
@@ -1140,9 +1111,9 @@ GenioWindow::MessageReceived(BMessage* message)
 				// TODO caret policy
 				editor->EnsureVisiblePolicy();
 
-				editor->PretendPositionChanged();
+				
 				_UpdateTabChange(index, "TABMANAGER_TAB_SELECTED");
-				_UpdateStatusBarTrailing(index);
+				editor->UpdateStatusBar();
 			}
 			break;
 		}
@@ -2333,17 +2304,12 @@ GenioWindow::_InitCentralSplit()
 
 	dirtyFrameHack = fTabManager->TabGroup()->Frame();
 
-	// Status Bar
-	fStatusBar = new BStatusBar("StatusBar");
-	fStatusBar->SetBarHeight(1.0);
-
 	fEditorTabsGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
 		.Add(fRunConsoleProgramGroup)
 		.Add(fFindGroup)
 		.Add(fReplaceGroup)
 		.Add(fTabManager->TabGroup())
 		.Add(fTabManager->ContainerView())
-		.Add(fStatusBar)
 	;
 
 }
@@ -3964,37 +3930,6 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 }
 
-/*
- * Status bar is cleaned (both text and trailing) when
- * _UpdateTabChange is called with -1 index
- *
- */
-void
-GenioWindow::_UpdateStatusBarText(int line, int column)
-{
-	BString text;
-	text << "  " << line << ':' << column;
-	fStatusBar->SetText(text.String());
-}
-
-/*
- * Index has to be verified before the call
- * so it is not checked here too
- */
-void
-GenioWindow::_UpdateStatusBarTrailing(int32 index)
-{
-	Editor* editor = fTabManager->EditorAt(index);
-
-	BString trailing;
-	trailing << editor->IsOverwriteString() << '\t';
-	trailing << editor->EndOfLineString() << '\t';
-	trailing << editor->ModeString() << '\t';
-	//trailing << editor->EncodingString() << '\t';
-
-	fStatusBar->SetTrailingText(trailing.String());
-}
-
 // Updating menu, toolbar, title.
 // Also cleaning Status bar if no open files
 void
@@ -4042,9 +3977,6 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 		fReplaceItem->SetEnabled(false);
 		fGoToLineItem->SetEnabled(false);
 		fBookmarksMenu->SetEnabled(false);
-
-		// Clean Status bar
-		fStatusBar->Reset();
 
 		if (GenioNames::Settings.fullpath_title == true)
 			SetTitle(GenioNames::kApplicationName);

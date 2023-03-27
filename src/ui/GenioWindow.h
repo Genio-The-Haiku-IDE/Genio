@@ -140,8 +140,7 @@ private:
 			void				_UpdateReplaceMenuItems(const BString& text);
 			void				_UpdateSavepointChange(int32 index, const BString& caller = "");
 			void				_UpdateTabChange(int32 index, const BString& caller = "");
-			void				_UpdateStatusBarText(int line, int column);
-			void				_UpdateStatusBarTrailing(int32 index);
+
 private:
 			BMenuBar*			fMenuBar;
 			BMenuItem*			fFileNewMenuItem;
@@ -261,7 +260,6 @@ private:
 			BButton*			fRunConsoleProgramButton;
 			BString				fConsoleStdinLine;
 
-			BStatusBar*			fStatusBar;
 			BFilePanel*			fOpenPanel;
 			BFilePanel*			fSavePanel;
 			BFilePanel*			fOpenProjectPanel;

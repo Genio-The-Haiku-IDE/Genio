@@ -36,6 +36,7 @@ using namespace GenioNames;
 #define UNUSED 0
 
 #include "FileWrapper.h"
+#include "EditorStatusView.h"
 
 //#define USE_LINEBREAKS_ATTRS
 
@@ -54,6 +55,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCurrentColumn(-1)
 	, fProjectFolder(NULL)
 {
+	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
 	SetTarget(target);
 
@@ -765,7 +767,7 @@ Editor::NotificationReceived(SCNotification* notification)
 				}
 
 				// Send position to main window so it can update status bar
-				SendCurrentPosition();
+				UpdateStatusBar();
 			}
 
 			break;
@@ -786,19 +788,7 @@ Editor::Paste()
 		SendMessage(SCI_PASTE, UNSET, UNSET);
 }
 
-void
-Editor::PretendPositionChanged()
-{
-	int32 position = GetCurrentPosition();
-	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
-	int column = SendMessage(SCI_GETCOLUMN, position, UNSET) + 1;
 
-	BMessage message(EDITOR_PRETEND_POSITION_CHANGED);
-	message.AddRef("ref", &fFileRef);
-	message.AddInt32("line", line);
-	message.AddInt32("column", column);
-	fTarget.SendMessage(&message);
-}
 
 void
 Editor::Redo()
@@ -1018,27 +1008,21 @@ Editor::Selection()
 }
 
 
-// Name is misleading: it sends Selection/Position changes.
-// Position is not changed when reselecting a different tab,
-// so send an EDITOR_PRETEND_POSITION_CHANGED message.
 void
-Editor::SendCurrentPosition()
-{
-	int32 position = GetCurrentPosition();
-	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
-	int column = SendMessage(SCI_GETCOLUMN, position, UNSET) + 1;
-
-//	if (line == fCurrentLine && column == fCurrentColumn)
-// return;
-
-	fCurrentLine = line;
-	fCurrentColumn = column;
-
-	BMessage message(EDITOR_POSITION_CHANGED);
-	message.AddRef("ref", &fFileRef);
-	message.AddInt32("line", fCurrentLine);
-	message.AddInt32("column", fCurrentColumn);
-	fTarget.SendMessage(&message);
+Editor::UpdateStatusBar()
+{	
+	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS, 0, 0);
+	int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+	int column = SendMessage(SCI_GETCOLUMN, pos, 0);
+	BMessage update(editor::StatusView::UPDATE_STATUS);
+	update.AddInt32("line", line + 1);
+	update.AddInt32("column", column + 1);
+	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
+	update.AddString("readOnly", ModeString());
+	update.AddString("eol", EndOfLineString());
+	fStatusView->SetRef(fFileRef);
+	
+	fStatusView->SetStatus(&update);
 }
 
 void

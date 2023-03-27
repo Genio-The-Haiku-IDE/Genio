@@ -85,6 +85,7 @@ public:
 			bool				CanRedo();
 			bool				CanUndo();
 			void				Clear();
+			void				CommentSelectedLines();
 			void				Copy();
 			int32				CountLines();
 			void				Cut();
@@ -159,6 +160,7 @@ public:
 			void				GoToDeclaration();
 			void				GoToImplementation();
 			void				SwitchSourceHeader();
+			void				UncommentSelection();
 			
 			void 				ContextMenu(BPoint point);
 

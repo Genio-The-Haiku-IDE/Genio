@@ -104,7 +104,7 @@ enum {
 	MSG_FIND_IN_FILES				= 'fifi',
 	MSG_RUN_CONSOLE_PROGRAM_SHOW	= 'rcps',
 	MSG_RUN_CONSOLE_PROGRAM			= 'rcpr',
-	MSG_LINE_TO_GOTO				= 'ltgt',
+
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',

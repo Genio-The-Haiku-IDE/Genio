@@ -14,6 +14,7 @@
 
 
 #include "EditorStatusView.h"
+#include "GenioWindowMessages.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,7 +149,7 @@ StatusView::MouseDown(BPoint where)
 
 	if(where.x < fNavigationButtonWidth + fCellWidth[kPositionCell] && where.x > fNavigationButtonWidth) {
 		BMessenger msgr(Window());
-		//msgr.SendMessage(MAINMENU_SEARCH_GOTOLINE);
+		msgr.SendMessage(MSG_GOTO_LINE);
 	}
 /*
 	if (!fReadOnly)

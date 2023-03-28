@@ -200,6 +200,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fConsoleIOThread(nullptr)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
+	, fGoToLineWindow(nullptr)
 {
 	// Settings file check.
 	BPath path;
@@ -319,20 +320,7 @@ GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 				}
 			}
 		}
-	} else if (handler == fGotoLine->TextView()) {
-		if (message->what == B_KEY_DOWN) {
-			int8 key;
-			if (message->FindInt8("byte", 0, &key) == B_OK) {
-				if (key == B_ESCAPE) {
-					fGotoLine->Hide();
-					Editor* editor = fTabManager->SelectedEditor();
-					if (editor) {
-						editor->GrabFocus();
-					}
-				}
-			}
-		}
-	} else if (handler == fConsoleIOView) {
+	}  else if (handler == fConsoleIOView) {
 		if (message->what == B_KEY_DOWN) {
 			int8 key;
 			if (message->FindInt8("byte", 0, &key) == B_OK) {
@@ -821,9 +809,18 @@ GenioWindow::MessageReceived(BMessage* message)
 				_Git(command);
 			break;
 		}
+		case GTLW_GO: {
+			int32 line;
+			if(message->FindInt32("line", &line) == B_OK) {
+				Editor* editor = fTabManager->SelectedEditor();
+				editor->GoToLine(line);
+			}
+		} break;
 		case MSG_GOTO_LINE:
-			fGotoLine->Show();
-			fGotoLine->MakeFocus();
+			if(fGoToLineWindow == nullptr) {
+				fGoToLineWindow = new GoToLineWindow(this);
+			}
+			fGoToLineWindow->ShowCentered(Frame());
 			break;
 		case MSG_LINE_ENDINGS_TOGGLE: {
 			Editor* editor = fTabManager->SelectedEditor();
@@ -899,23 +896,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			
 			break; 
 		}
-		case MSG_LINE_TO_GOTO: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
 
-				std::string linestr(fGotoLine->Text());
-				int32 line;
-				std::istringstream (linestr) >>  line;
-
-				if (line <= editor->CountLines())
-					editor->GoToLine(line);
-
-				editor->GrabFocus();
-				fGotoLine->SetText("");
-				fGotoLine->Hide();
-			}
-			break;
-		}
 		case MSG_MAKE_BINDCATALOGS: {
 			_MakeBindcatalogs();
 			break;
@@ -1214,6 +1195,11 @@ GenioWindow::QuitRequested()
 			//TODO:---> _ProjectOutlineDepopulate(project);
 			delete project;
 		}
+	}
+	
+	if(fGoToLineWindow != nullptr) {
+		fGoToLineWindow->LockLooper();
+		fGoToLineWindow->Quit();
 	}
 	
 
@@ -2650,16 +2636,7 @@ GenioWindow::_InitToolbar()
 	fFileMenuButton = _LoadIconButton("FileMenuButton", MSG_FILE_MENU_SHOW,
 						211, false, B_TRANSLATE("Indexed File list"));
 
-	fGotoLine = new BTextControl("GotoLine", nullptr, nullptr, new BMessage(MSG_LINE_TO_GOTO));
-	fGotoLine->SetToolTip(B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS));
-	float stringWidth = fGotoLine->StringWidth(" 123456") + 24.0f;
-	fGotoLine->SetExplicitMaxSize(BSize(stringWidth, 24.0f)); //B_SIZE_UNSET
-	for (auto i = 0; i < 256; i++)
-		if (i < '0' || i > '9')
-			fGotoLine->TextView()->DisallowChar(i);
-	fGotoLine->TextView()->SetMaxBytes(kGotolineMaxBytes);
-	fGotoLine->TextView()->SetAlignment(B_ALIGN_RIGHT);
-	fGotoLine->Hide();
+
 
 	fToolBar = BLayoutBuilder::Group<>(B_VERTICAL, 0)
 		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, 1)
@@ -2684,8 +2661,6 @@ GenioWindow::_InitToolbar()
 			.AddGlue()
 			.Add(fBuildModeButton)
 			.Add(fFileUnlockedButton)
-			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
-			.Add(fGotoLine)
 			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
 			.Add(fFilePreviousButton)
 			.Add(fFileNextButton)

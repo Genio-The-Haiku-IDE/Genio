@@ -24,6 +24,7 @@
 #include <TabView.h>
 #include <TextControl.h>
 #include <Window.h>
+#include "GoToLineWindow.h"
 
 
 #include "ConsoleIOThread.h"
@@ -220,7 +221,6 @@ private:
 			BIconButton*		fFileNextButton;
 			BIconButton*		fFileCloseButton;
 			BIconButton*		fFileMenuButton;
-			BTextControl*		fGotoLine;
 
 			BIconButton*		fFindPreviousButton;
 			BIconButton*		fFindNextButton;
@@ -271,6 +271,7 @@ private:
 			ConsoleIOThread*	fConsoleIOThread;
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;
+			GoToLineWindow*		fGoToLineWindow;
 
 };
 

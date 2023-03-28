@@ -761,6 +761,20 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case MSG_DELETE_LINES: {
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
+				editor->DeleteSelectedLines();
+			}
+			break;
+		}
+		case MSG_COMMENT_SELECTED_LINES: {
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
+				editor->CommentSelectedLines();
+			}
+			break;
+		}
 		case MSG_SIGNATUREHELP: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) 
@@ -2314,14 +2328,18 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
 	menu->AddItem(fDuplicateLineItem = new BMenuItem(B_TRANSLATE("Duplicate current line"),
 		new BMessage(MSG_DUPLICATE_LINE), 'K', B_OPTION_KEY));
+	menu->AddItem(fDeleteLinesItem = new BMenuItem(B_TRANSLATE("Delete lines"),
+		new BMessage(MSG_DELETE_LINES), 'D', B_OPTION_KEY));	
+	menu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment selected lines"),
+		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_OPTION_KEY));
 	
 	menu->AddSeparatorItem();	
 
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Autocompletion"), new BMessage(MSG_AUTOCOMPLETION), B_SPACE));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Format"), new BMessage(MSG_FORMAT)));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION), 'g'));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION), 'G'));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to declaration"), new BMessage(MSG_GOTODECLARATION)));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to implentation"), new BMessage(MSG_GOTOIMPLEMENTATION)));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to implementation"), new BMessage(MSG_GOTOIMPLEMENTATION)));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Switch Source Header"), new BMessage(MSG_SWITCHSOURCE), B_TAB));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Signature Help"), new BMessage(MSG_SIGNATUREHELP), '?'));
 

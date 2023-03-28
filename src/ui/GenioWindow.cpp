@@ -754,6 +754,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case MSG_DELETE_LINES: {
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
+				editor->DeleteSelectedLines();
+			}
+			break;
+		}
 		case MSG_COMMENT_SELECTED_LINES: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
@@ -2312,7 +2319,8 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_WHITE_SPACES_TOGGLE)));
 	menu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
-		
+	menu->AddItem(fDeleteLinesItem = new BMenuItem(B_TRANSLATE("Delete lines"),
+		new BMessage(MSG_DELETE_LINES), 'D', B_OPTION_KEY));	
 	menu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment selected lines"),
 		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_OPTION_KEY));
 	

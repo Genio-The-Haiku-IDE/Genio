@@ -1472,6 +1472,34 @@ Editor::DuplicateCurrentLine() {
 	SendMessage(SCI_LINEDUPLICATE, lineNumber, UNSET);
 }
 
+void
+Editor::DeleteSelectedLines() {
+	SendMessage(SCI_BEGINUNDOACTION, 0, UNSET);
+	int32 start = SendMessage(SCI_GETSELECTIONSTART, 0, UNSET);
+	int32 startLineNumber = SendMessage(SCI_LINEFROMPOSITION, start, UNSET);
+	int32 end = SendMessage(SCI_GETSELECTIONEND, 0, UNSET);
+	int32 endLineNumber = SendMessage(SCI_LINEFROMPOSITION, end, UNSET);
+	for (int32 i = startLineNumber; i<=endLineNumber; i++) {
+		SendMessage(SCI_LINEDELETE, i, UNSET);
+	}
+	SendMessage(SCI_ENDUNDOACTION, 0, UNSET);
+}
+
+void
+Editor::CommentSelectedLines()
+{
+	int32 start = SendMessage(SCI_GETSELECTIONSTART, 0, UNSET);
+	int32 startLineNumber = SendMessage(SCI_LINEFROMPOSITION, start, UNSET);
+	int32 end = SendMessage(SCI_GETSELECTIONEND, 0, UNSET);
+	int32 endLineNumber = SendMessage(SCI_LINEFROMPOSITION, end, UNSET);
+	SendMessage(SCI_BEGINUNDOACTION, 0, UNSET);
+	for (int32 i = startLineNumber; i<=endLineNumber; i++) {
+		int32 position = SendMessage(SCI_POSITIONFROMLINE, i, UNSET);
+		_CommentLine(position);
+	}
+	SendMessage(SCI_ENDUNDOACTION, 0, UNSET);
+}
+
 int32
 Editor::_EndOfLine()
 {

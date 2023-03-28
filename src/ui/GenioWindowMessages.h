@@ -33,6 +33,7 @@ enum {
 	MSG_TEXT_OVERWRITE			= 'teov',
 	MSG_WHITE_SPACES_TOGGLE		= 'whsp',
 	MSG_LINE_ENDINGS_TOGGLE		= 'lien',
+	MSG_DELETE_LINES			= 'deli',
 	MSG_COMMENT_SELECTED_LINES	= 'cosl',
 	MSG_EOL_CONVERT_TO_UNIX		= 'ectu',
 	MSG_EOL_CONVERT_TO_DOS		= 'ectd',

@@ -2320,7 +2320,7 @@ GenioWindow::_InitMenu()
 	menu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
 	menu->AddItem(fDeleteLinesItem = new BMenuItem(B_TRANSLATE("Delete lines"),
-		new BMessage(MSG_DELETE_LINES), 'K', B_OPTION_KEY));	
+		new BMessage(MSG_DELETE_LINES), 'D', B_OPTION_KEY));	
 	menu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment selected lines"),
 		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_OPTION_KEY));
 	

@@ -77,7 +77,7 @@ SRCS +=  src/lsp-client/Transport.cpp
 RDEFS := Genio.rdef
 
 LIBS = be shared translation localestub $(STDCPPLIBS)
-LIBS += scintilla columnlistview tracker
+LIBS += columnlistview tracker
 LIBS += src/scintilla/bin/libscintilla.a
 LIBS += src/lexilla/bin/liblexilla.a
 

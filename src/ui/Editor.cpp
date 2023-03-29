@@ -1467,6 +1467,12 @@ Editor::_CommentLine(int32 position)
 }
 
 void
+Editor::DuplicateCurrentLine() {
+	int32 lineNumber = SendMessage(SCI_LINEFROMPOSITION, GetCurrentPosition(), UNSET);
+	SendMessage(SCI_LINEDUPLICATE, lineNumber, UNSET);
+}
+
+void
 Editor::DeleteSelectedLines() {
 	SendMessage(SCI_BEGINUNDOACTION, 0, UNSET);
 	int32 start = SendMessage(SCI_GETSELECTIONSTART, 0, UNSET);

@@ -89,6 +89,7 @@ public:
 			void				Copy();
 			int32				CountLines();
 			void				Cut();
+			void				DuplicateCurrentLine();
 			void				DeleteSelectedLines();
 			BString	const		EndOfLineString();
 			void				EndOfLineConvert(int32 eolMode);

@@ -53,6 +53,7 @@ public:
 	virtual	filter_result	Filter(BMessage* message, BHandler** target);
 
 private:
+	static	uint32 			AllowedModifiers();
 			char			fKey;
 			uint32			fModifiers;
 			uint32			fCommandToSend;

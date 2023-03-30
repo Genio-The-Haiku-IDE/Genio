@@ -156,15 +156,23 @@ KeyDownMessageFilter::KeyDownMessageFilter(uint32 commandToSend, char key,
 {
 }
 
+uint32
+KeyDownMessageFilter::AllowedModifiers()
+{
+	return B_COMMAND_KEY | B_OPTION_KEY | B_SHIFT_KEY | B_CONTROL_KEY
+		| B_MENU_KEY;
+}
 
 filter_result
 KeyDownMessageFilter::Filter(BMessage* message, BHandler** target)
 {
-	if(message->what == B_KEY_DOWN) {
+	
+	if(message->what == B_KEY_DOWN) {		
 		const char* bytes;
 		uint32 modifiers;
 		message->FindString("bytes", &bytes);
 		modifiers = static_cast<uint32>(message->GetInt32("modifiers", 0));
+		modifiers = modifiers & AllowedModifiers();
 		if(bytes[0] == fKey && modifiers == fModifiers) {
 			Looper()->PostMessage(fCommandToSend);
 			return B_SKIP_MESSAGE;

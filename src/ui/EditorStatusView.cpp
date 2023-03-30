@@ -9,6 +9,7 @@
  * Copied from Haiku commit a609673ce8c942d91e14f24d1d8832951ab27964.
  * Modifications:
  * Copyright 2018-2019 Kacper Kasper <kacperkasper@gmail.com>
+ * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
  * Distributed under the terms of the MIT License.
  */
 
@@ -246,19 +247,14 @@ StatusView::_ShowDirMenu()
 
 	if (status != B_OK || !entry.Exists())
 		return;
-/*
-	BPrivate::BDirMenu* menu = new BDirMenu(NULL,
-		BMessenger(Window()), B_REFS_RECEIVED);
-	*/
+
 	BPopUpMenu*	menu = new BPopUpMenu("EditorMenu");
 
-	BMenuItem* openTerminal = new BMenuItem("Disable LSP", NULL);
+	BMenuItem* readOnly = new BMenuItem(B_TRANSLATE("Set read-only"), new BMessage(MSG_BUFFER_LOCK));
 
-		// Actual shortcut is added in EditorWindow
-	openTerminal->SetTarget(Window());
-	menu->AddItem(openTerminal);
-	menu->AddSeparatorItem();
-//	menu->Populate(&entry, Window(), false, false, true, false, true);
+	readOnly->SetTarget(Window());
+	menu->AddItem(readOnly);
+	//menu->AddSeparatorItem();
 
 	BPoint point = Parent()->Bounds().LeftBottom();
 	point.y += 3 + B_H_SCROLL_BAR_HEIGHT;

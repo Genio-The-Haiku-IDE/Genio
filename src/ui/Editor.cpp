@@ -779,6 +779,7 @@ void
 Editor::OverwriteToggle()
 {
 	SendMessage(SCI_SETOVERTYPE, !IsOverwrite(), UNSET);
+	UpdateStatusBar();
 }
 
 void
@@ -1048,6 +1049,7 @@ Editor::SetFileRef(entry_ref* ref)
 	fFileRef = *ref;
 	fFileName = BString(fFileRef.name);
 
+	UpdateStatusBar();
 	return B_OK;
 }
 
@@ -1076,6 +1078,8 @@ Editor::SetReadOnly()
 	fModified = false;
 
 	SendMessage(SCI_SETREADONLY, 1, UNSET);
+	
+	UpdateStatusBar();
 }
 
 status_t

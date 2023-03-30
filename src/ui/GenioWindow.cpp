@@ -223,8 +223,8 @@ GenioWindow::GenioWindow(BRect frame)
 		selectTab->AddInt32("index", index - 1);
 		AddShortcut(index + kAsciiPos, B_COMMAND_KEY, selectTab);
 	}
-	AddShortcut(B_LEFT_ARROW, B_OPTION_KEY, new BMessage(MSG_FILE_PREVIOUS_SELECTED));
-	AddShortcut(B_RIGHT_ARROW, B_OPTION_KEY, new BMessage(MSG_FILE_NEXT_SELECTED));
+	AddShortcut(B_LEFT_ARROW,  B_OPTION_KEY,  new BMessage(MSG_FILE_PREVIOUS_SELECTED));
+	AddShortcut(B_RIGHT_ARROW, B_OPTION_KEY,  new BMessage(MSG_FILE_NEXT_SELECTED));
 
 	// Interface elements. If settings file is missing most probably it is
 	// first time execution, load all elements
@@ -294,19 +294,8 @@ GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 			int8 key;
 			if (message->FindInt8("byte", 0, &key) == B_OK) {
 				if (key == B_ESCAPE) {
-					// If keep focus activated TODO
-					#if 0
-					int32 index = fTabManager->SelectedTabIndex();
-					if (index > -1 && index < fTabManager->CountTabs()) {
-						Editor* editor = fEditorObjectList->ItemAt(index);
-						editor->GrabFocus();
-					}
-					#else
-					{
-						fFindGroup->SetVisible(false);
-						fReplaceGroup->SetVisible(false);
-					}
-					#endif
+					fFindGroup->SetVisible(false);
+					fReplaceGroup->SetVisible(false);
 				}
 			}
 		}
@@ -381,15 +370,6 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_SAVE_REQUESTED:
 			_FileSaveAs(fTabManager->SelectedTabIndex(), message);
 			break;
-		/*case B_SELECT_ALL: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				editor = fEditorObjectList->ItemAt(index);
-				editor->SelectAll();
-			}
-			break;
-		}*/
 		case B_UNDO: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
@@ -576,7 +556,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetReadOnly();
-				editor->UpdateStatusBar();
 				fFileUnlockedButton->SetEnabled(!editor->IsReadOnly());				
 			}
 			break;
@@ -637,7 +616,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_LF);
-				editor->UpdateStatusBar();
 			}
 			break;
 		}
@@ -645,7 +623,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CRLF);
-				editor->UpdateStatusBar();
 			}
 			break;
 		}
@@ -653,7 +630,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CR);
-				editor->UpdateStatusBar();
 			}
 			break;
 		}
@@ -1041,7 +1017,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor)  {
 				editor->OverwriteToggle();
-				editor->UpdateStatusBar();
 			}
 			break;
 		}
@@ -1094,7 +1069,6 @@ GenioWindow::MessageReceived(BMessage* message)
 
 				
 				_UpdateTabChange(index, "TABMANAGER_TAB_SELECTED");
-				editor->UpdateStatusBar();
 			}
 			break;
 		}

@@ -166,10 +166,10 @@ public:
 			
 			void 				ContextMenu(BPoint point);
 			
-			void				UpdateStatusBar();
+			
 
 private:
-			
+			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();
 			void				_AutoIndentLine();
 			void				_CheckForBraceMatching();

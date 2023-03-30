@@ -9,6 +9,7 @@
  * Copied from Haiku commit a609673ce8c942d91e14f24d1d8832951ab27964.
  * Modifications:
  * Copyright 2018-2019 Kacper Kasper 
+ * Copyright 2023, Andrea Anzani 
  * Distributed under the terms of the MIT License.
  */
 #ifndef EDITOR_STATUS_VIEW_H

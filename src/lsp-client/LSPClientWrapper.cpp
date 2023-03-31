@@ -50,7 +50,7 @@ LSPClientWrapper::Create(const char *uri)
 			logLevel += "verbose"; // Low level details
 			break;
   };
-  const char* argv[] = { "clangdf", 
+  const char* argv[] = { "clangd", 
 						 logLevel.c_str(), 
 						 "--offset-encoding=utf-8", 
 						 "--pretty", 

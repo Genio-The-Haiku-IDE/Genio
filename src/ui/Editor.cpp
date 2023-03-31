@@ -389,6 +389,7 @@ Editor::Find(const BString&  text, int flags, bool backwards /* = false */)
 
 		SendMessage(SCI_SCROLLCARET, UNSET, UNSET);
 	}
+
 	return position;
 }
 
@@ -456,23 +457,24 @@ Editor::FindMarkAll(const BString& text, int flags)
 	return count;
 }
 
+static bool sFound = false;
+
 int
 Editor::FindNext(const BString& search, int flags, bool wrap)
 {
-	static bool fFound = false;
-
-	if (fFound == true || IsSearchSelected(search, flags) == true)
+	if (sFound == true || IsSearchSelected(search, flags) == true)
 		SendMessage(SCI_CHARRIGHT, UNSET, UNSET);
 
 	int position = Find(search, flags);
 
 	if (position != -1)
-		fFound = true;
+		sFound = true;
 	else if (position == -1 && wrap == false) {
-		fFound = false;
+		sFound = false;
 		BMessage message(EDITOR_FIND_NEXT_MISS);
 		fTarget.SendMessage(&message);
 	} else if (position == -1 && wrap == true) {
+		sFound = false;
 		// If wrap and not found go to saved position
 		int savedPosition = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 		SendMessage(SCI_SETSEL, 0, 0);
@@ -486,20 +488,19 @@ Editor::FindNext(const BString& search, int flags, bool wrap)
 int
 Editor::FindPrevious(const BString& search, int flags, bool wrap)
 {
-	static bool fFound = false;
-
-	if (fFound == true)
+	if (sFound == true)
 		SendMessage(SCI_CHARLEFT, 0, 0);
 
 	int position = Find(search, flags, true);
 
 	if (position != -1)
-		fFound = true;
+		sFound = true;
 	else if (position == -1 && wrap == false) {
-		fFound = false;
+		sFound = false;
 		BMessage message(EDITOR_FIND_PREV_MISS);
 		fTarget.SendMessage(&message);
 	} else if (position == -1 && wrap == true) {
+		sFound = false;
 		// If wrap and not found go to saved position
 		int savedPosition = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 		int endPosition = SendMessage(SCI_GETTEXTLENGTH, UNSET, UNSET);

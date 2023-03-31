@@ -35,9 +35,10 @@ public:
   
 
 private:
-  BLocker writeLock;
-  pid_t childpid;
-  int outPipe[2], inPipe[2];
+  BLocker fWriteLock;
+  pid_t fChildpid;
+  int fOutPipe[2];
+  int fInPipe[2];
 };
 
 #endif //LSP_CLIENT_H

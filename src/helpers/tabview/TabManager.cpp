@@ -24,7 +24,7 @@
 #include <Rect.h>
 #include <SpaceLayoutItem.h>
 #include <Window.h>
-
+#include "Log.h"
 #include <iostream>
 
 #include "TabContainerView.h"
@@ -852,6 +852,9 @@ extern BRect dirtyFrameHack;
  * fManager->SelectTab(index) so set sendMessage to true not to send message twice
  * but allowing caret position
  */
+
+
+ 
 void
 TabManager::SelectTab(int32 tabIndex, bool sendMessage /*= false */)
 {
@@ -864,8 +867,7 @@ TabManager::SelectTab(int32 tabIndex, bool sendMessage /*= false */)
 	
 	fTabContainerView->SelectTab(tabIndex);
 
-std::cerr << __PRETTY_FUNCTION__ << " index: " << tabIndex << " sendMessage: "
-			<< std::boolalpha << sendMessage << std::endl;
+	LogDebugF("index: %d sendMessage: %d",  tabIndex , sendMessage);
 
 	if (sendMessage == true) {
 		BMessage message(TABMANAGER_TAB_SELECTED);

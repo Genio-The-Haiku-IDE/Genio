@@ -137,10 +137,6 @@ GenioApp::ReadyToRun()
 {
 	// Window Settings file needs updating?
 	_CheckSettingsVersion();
-
-	std::cerr << GenioNames::GetSignature() << std::endl;
-	
-
 }
 
 void

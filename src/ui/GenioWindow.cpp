@@ -2155,28 +2155,28 @@ switch (fields) {
 	case B_STAT_MODE:
 	case B_STAT_UID:
 	case B_STAT_GID:
-std::cerr << __PRETTY_FUNCTION__ << " MODES" << std::endl;
+		LogDebugF("MODES");
 		break;
 	case B_STAT_SIZE:
-std::cerr << __PRETTY_FUNCTION__ << " B_STAT_SIZE" << std::endl;
+		LogDebugF("B_STAT_SIZE");
 		break;
 	case B_STAT_ACCESS_TIME:
-std::cerr << __PRETTY_FUNCTION__ << " B_STAT_ACCESS_TIME" << std::endl;
+		LogDebugF("B_STAT_ACCESS_TIME");
 		break;
 	case B_STAT_MODIFICATION_TIME:
-std::cerr << __PRETTY_FUNCTION__ << " B_STAT_MODIFICATION_TIME" << std::endl;
+		LogDebugF("B_STAT_MODIFICATION_TIME");
 		break;
 	case B_STAT_CREATION_TIME:
-std::cerr << __PRETTY_FUNCTION__ << " B_STAT_CREATION_TIME" << std::endl;
+		LogDebugF("B_STAT_CREATION_TIME");
 		break;
 	case B_STAT_CHANGE_TIME:
-std::cerr << __PRETTY_FUNCTION__ << " B_STAT_CHANGE_TIME" << std::endl;
+		LogDebugF("B_STAT_CHANGE_TIME");
 		break;
 	case B_STAT_INTERIM_UPDATE:
-std::cerr << __PRETTY_FUNCTION__ << " B_STAT_INTERIM_UPDATE" << std::endl;
+		LogDebugF("B_STAT_INTERIM_UPDATE");
 		break;
 	default:
-std::cerr << __PRETTY_FUNCTION__ << "fields is: 0x" << std::hex << fields << std::endl;
+		LogDebugF("fields is: %d", fields);
 		break;
 }
 #endif
@@ -3962,12 +3962,6 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	bool filesNeedSave = _FilesNeedSave();
 	fFileSaveAllButton->SetEnabled(filesNeedSave);
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
-/*	editor = fEditorObjectList->ItemAt(index);
-	// This could be checked too
-	if (fTabManager->SelectedTabIndex() != index);
-*/
-// std::cerr << __PRETTY_FUNCTION__ << " called by: " << caller << " :"<< index << std::endl;
-
 }
 
 /*
@@ -4122,7 +4116,5 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
 
-
-std::cerr << __PRETTY_FUNCTION__ << " called by: " << caller << " :"<< index << std::endl;
-
+	LogTraceF("called by: %s:%d",caller.String(), index);
 }

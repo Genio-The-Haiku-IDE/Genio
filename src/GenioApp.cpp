@@ -251,7 +251,7 @@ main(int argc, char* argv[])
 	if (argc > 1) 
 		CheckLogLevel(argv[1][0]);
 	else
-		CheckLogLevel('e'); //Default log level: ERROR
+		CheckLogLevel('i'); //Default log level: INFO
 		
 	try {
 		GenioApp *app = new GenioApp();

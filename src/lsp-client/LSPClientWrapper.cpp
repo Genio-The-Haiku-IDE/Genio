@@ -50,7 +50,7 @@ LSPClientWrapper::Create(const char *uri)
 			logLevel += "verbose"; // Low level details
 			break;
   };
-  const char* argv[] = { "clangd", 
+  const char* argv[] = { "clangdf", 
 						 logLevel.c_str(), 
 						 "--offset-encoding=utf-8", 
 						 "--pretty", 
@@ -59,6 +59,8 @@ LSPClientWrapper::Create(const char *uri)
 						};
   
   if (Init(argv) != B_OK) {
+	  //TODO: show an alert to the user. (but only once per session!)
+	  LogInfo("Can't execute clangd tool to provide advanced features! Please install llvm12 package.");
 	  return false;
   }
   std::atomic<bool> on_error;

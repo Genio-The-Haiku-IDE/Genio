@@ -55,6 +55,7 @@ SRCS +=  src/ui/ProjectsFolderBrowser.cpp
 SRCS +=  src/ui/SettingsWindow.cpp
 SRCS +=  src/ui/EditorStatusView.cpp
 SRCS +=  src/ui/GoToLineWindow.cpp
+SRCS +=  src/ui/MenuItem.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp
 SRCS +=  src/project/ProjectItem.cpp

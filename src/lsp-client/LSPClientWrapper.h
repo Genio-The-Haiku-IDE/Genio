@@ -97,9 +97,9 @@ private:
 
 	MapFile	fTextDocs;
 
-	std::atomic<bool> initialized;
+	std::atomic<bool> fInitialized;
 
-	std::thread readerThread;
+	std::thread fReaderThread;
 	
 	std::string fAllCommitCharacters;
 	std::string fTriggerCharacters;

@@ -1,7 +1,8 @@
-//
-//	Andrea Anzani 
-//
-
+/*
+ * Copyright 2023, Andrea Anzani 
+ * All rights reserved. Distributed under the terms of the MIT license.
+ */
+ 
 #ifndef LSP_CLIENT_H
 #define LSP_CLIENT_H
 
@@ -18,7 +19,7 @@ class LSPClient : public JsonTransport {
 public:
   explicit LSPClient();
 
-  void Init(char *argv[]);
+  status_t Init(const char *argv[]);
   virtual ~LSPClient();
   void	Close();
 
@@ -31,6 +32,7 @@ public:
   bool writeJson(json &json) override;
 
   pid_t GetChildPid();
+  
 
 private:
   BLocker writeLock;

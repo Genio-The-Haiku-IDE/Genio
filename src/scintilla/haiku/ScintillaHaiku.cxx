@@ -571,8 +571,8 @@ void ScintillaHaiku::CopyToClipboard(const SelectionText& selectedText) {
 			}
 			be_clipboard->Commit();
 		}
+		be_clipboard->Unlock();
 	}
-	be_clipboard->Unlock();
 }
 
 bool ScintillaHaiku::FineTickerRunning(TickReason reason) {

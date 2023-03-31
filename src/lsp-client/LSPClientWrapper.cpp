@@ -58,8 +58,9 @@ LSPClientWrapper::Create(const char *uri)
 						 NULL
 						};
   
-  Init((char**)argv);
-
+  if (Init(argv) != B_OK) {
+	  return false;
+  }
   std::atomic<bool> on_error;
   on_error.store(false);
   readerThread = std::thread([&] {
@@ -67,7 +68,6 @@ LSPClientWrapper::Create(const char *uri)
 	{
 		on_error.store(true);
 		initialized.store(false);
-		LogInfo("Termination of LSPClient - uri [%s]", this->fRootURI.c_str());
 		Close();
 	}
   });
@@ -85,7 +85,8 @@ bool
 LSPClientWrapper::Dispose()
 {
 	if (!initialized) {
-		readerThread.detach();
+		if (readerThread.joinable())
+			 readerThread.detach();
     	return true;
     }
 

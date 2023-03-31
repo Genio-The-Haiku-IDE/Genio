@@ -1,41 +1,96 @@
+/*
+ * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ *
+ * Source code derived from AGMSScriptOCron
+ * 	Copyright (c) 2018 by Alexander G. M. Smith.
+ *
+ * All rights reserved. Distributed under the terms of the MIT license.
+ */
+
 #include "LSPClient.h"
 #include "Log.h"
-
+#include <image.h>
 #define READ_END 0
 #define WRITE_END 1
 
-void LSPClient::Init(char *argv[]) {
+ //lock access play with stdin/stdout
+static BLocker *g_LockStdFilesPntr = new BLocker ("Std-In-Out Changed Lock");
 
-  pipe(outPipe);
-  pipe(inPipe);
+status_t 
+LSPClient::Init(const char *argv[]) {
 
-  if ((childpid = fork()) == -1) {
-    perror("fork");
-    exit(1);
-  }
+	// first we should backup current STDIO/STDOUT
+	// then we prepare the pipes for the 'child'
+	// we load_image
+	// if ok we fix the stdio/stdout to link to the child
+	// if ko we revert original state.
+	// we run the thread. crossing finger.
+  
+	int originalStdIn;
+	int originalStdOut;
+	
+	g_LockStdFilesPntr->Lock();
+	
+    int PipeFlags = 0;
 
-  if (childpid == 0) {
+	originalStdIn = dup (STDIN_FILENO);
+	PipeFlags = fcntl (originalStdIn, F_GETFD);
+	PipeFlags |= FD_CLOEXEC;
+	fcntl (originalStdIn, F_SETFD, PipeFlags);
 
-    setpgid(childpid, childpid);
-    // close(outPipe[READ_END]);
+	originalStdOut = dup (STDOUT_FILENO);
+	PipeFlags = fcntl (originalStdOut, F_GETFD);
+	PipeFlags |= FD_CLOEXEC;
+	fcntl (originalStdOut, F_SETFD, PipeFlags);
+	
+	g_LockStdFilesPntr->Unlock();
+
+  
+  if (pipe (outPipe) != 0) // Returns -1 if failed, 0 if okay.
+    return errno; // Pipe creation failed.
+
+  if (pipe (inPipe) != 0) // Returns -1 if failed, 0 if okay.
+    return errno; // Pipe creation failed.
+
+    
+  // Write end of the outPipe not used by the child, make it close on exec.
+  PipeFlags = fcntl (outPipe[WRITE_END], F_GETFD);
+  PipeFlags |= FD_CLOEXEC;
+  fcntl (outPipe[WRITE_END], F_SETFD, PipeFlags);
+  
+  // Read end of the inPipe not used by the child, make it close on exec.
+  PipeFlags = fcntl (inPipe[READ_END], F_GETFD);
+  PipeFlags |= FD_CLOEXEC;
+  fcntl (inPipe[READ_END], F_SETFD, PipeFlags);
+  
+  dup2(inPipe[WRITE_END], STDOUT_FILENO);
+  close(inPipe[WRITE_END]);
+  dup2(outPipe[READ_END], STDIN_FILENO);
+  close(outPipe[READ_END]);
+  
+  status_t stat = B_OK;
+  childpid = load_image (5, argv, const_cast<const char **>(environ));
+  if (childpid < 0)
+  {
     close(outPipe[WRITE_END]);
     close(inPipe[READ_END]);
-    // close(inPipe[WRITE_END]);
-
-    dup2(inPipe[WRITE_END], STDOUT_FILENO);
-    close(inPipe[WRITE_END]);
-    dup2(outPipe[READ_END], STDIN_FILENO);
-    close(outPipe[READ_END]);
-
-    execvp(argv[0], argv);
-    exit(1);
-  } else {
-
-    close(outPipe[READ_END]);
-    // close(outPipe[WRITE_END]);
-    // close(inPipe[READ_END]);
-    close(inPipe[WRITE_END]);
+    stat = childpid;
   }
+  else
+  {
+	setpgid (childpid, childpid);
+	resume_thread (childpid); // rock'n'roll!
+  }
+
+  close(outPipe[READ_END]);
+  close(inPipe[WRITE_END]);
+  
+  g_LockStdFilesPntr->Lock();
+  dup2 (originalStdIn, STDIN_FILENO);
+  dup2 (originalStdOut, STDOUT_FILENO);
+  g_LockStdFilesPntr->Unlock();
+
+  return stat;
 }
 
 void	

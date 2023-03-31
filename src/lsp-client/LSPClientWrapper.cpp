@@ -9,11 +9,11 @@
 #include "protocol.h"
 
 
-
 LSPClientWrapper::LSPClientWrapper()
 {
-	initialized.store(false);
+	fInitialized.store(false);
 }
+
 #define X(A) std::to_string((size_t)A)
 void
 LSPClientWrapper::RegisterTextDocument(LSPTextDocument* fw)
@@ -65,18 +65,18 @@ LSPClientWrapper::Create(const char *uri)
   }
   std::atomic<bool> on_error;
   on_error.store(false);
-  readerThread = std::thread([&] {
+  fReaderThread = std::thread([&] {
 	if (loop(*this) == -1)
 	{
 		on_error.store(true);
-		initialized.store(false);
+		fInitialized.store(false);
 		Close();
 	}
   });
   
   Initialize(string_ref(uri));
 
-  while (!initialized.load() && !on_error.load()) {
+  while (!fInitialized.load() && !on_error.load()) {
     LogDebug("Waiting for clangd initialization.. \n");
     usleep(500000);
   }
@@ -86,9 +86,9 @@ LSPClientWrapper::Create(const char *uri)
 bool	
 LSPClientWrapper::Dispose()
 {
-	if (!initialized) {
-		if (readerThread.joinable())
-			 readerThread.detach();
+	if (!fInitialized) {
+		if (fReaderThread.joinable())
+			 fReaderThread.detach();
     	return true;
     }
 
@@ -97,12 +97,12 @@ LSPClientWrapper::Dispose()
     
 	Shutdown();
 	
-	while (initialized.load()) {
+	while (fInitialized.load()) {
 		LogDebug("Waiting for shutdown...\n");
 		usleep(500000);
 	}
 	
-  	readerThread.detach();
+  	fReaderThread.detach();
   	Exit();
 	return true;
 }
@@ -138,6 +138,7 @@ LSPClientWrapper::onNotify(std::string method, value &params)
 	
 	LogError("LSPClientWrapper::onNotify not implemented! [%s]", method.c_str());
 }
+
 void
 LSPClientWrapper::onResponse(RequestID id, value &result)
 {
@@ -150,25 +151,24 @@ LSPClientWrapper::onResponse(RequestID id, value &result)
 	
 	if (id.compare("initialize") == 0)
 	{
-		initialized.store(true); 
+		fInitialized.store(true); 
 		Initialized(result);
 		return;
 	}
 	if (id.compare("shutdown") == 0)
 	{
        fprintf(stderr, "Shutdown received\n");
-       initialized.store(false);
+       fInitialized.store(false);
        return; 
 	}
 	
-
 	auto search = fTextDocs.find(key);
 	if (search != fTextDocs.end())
         search->second->onResponse(id, result);
     else    
 		LogError("LSPClientWrapper::onResponse not handled! [%s][%s] for [%s]", key.c_str(), id.c_str(), key.c_str());
-
 }
+
 void 
 LSPClientWrapper::onError(RequestID id, value &error)
 {
@@ -185,29 +185,43 @@ LSPClientWrapper::onError(RequestID id, value &error)
     else    
 		LogError("LSPClientWrapper::onError not handled! [%s][%s] for [%s]", key.c_str(), id.c_str(), key.c_str());
 }
+
 void 
 LSPClientWrapper::onRequest(std::string method, value &params, value &ID)
 {
 	LogError("LSPClientWrapper::onRequest not implemented! [%s] [%s]", method.c_str(), ID.dump().c_str());
 }
 
-
-RequestID LSPClientWrapper::Initialize(option<DocumentUri> rootUri) {
+RequestID
+LSPClientWrapper::Initialize(option<DocumentUri> rootUri)
+{
 	InitializeParams params;
 	params.processId = GetChildPid();
 	params.rootUri = rootUri;
 	return SendRequest("client", "initialize", params);
 }
-RequestID LSPClientWrapper::Shutdown() {
+
+RequestID
+LSPClientWrapper::Shutdown()
+{
 	return SendRequest("client", "shutdown");
 }
-RequestID LSPClientWrapper::Sync() {
+
+RequestID
+LSPClientWrapper::Sync()
+{
 	return SendRequest("client", "sync");
 }
-void LSPClientWrapper::Exit() {
+
+void
+LSPClientWrapper::Exit()
+{
 	SendNotify("exit");
 }
-void LSPClientWrapper::Initialized(json& result) {
+
+void
+LSPClientWrapper::Initialized(json& result)
+{
 	auto &capas = result["capabilities"];
 	if (capas != value::value_t::null) {
 		auto& completionProvider = capas["completionProvider"];
@@ -230,158 +244,229 @@ void LSPClientWrapper::Initialized(json& result) {
 				}
 				LogDebug("triggerCharacters [%s]", this->triggerCharacters().c_str());
 			}
-			
 		}
 	}
 	
 	SendNotify("initialized");
 }
-RequestID LSPClientWrapper::RegisterCapability() { //?
+
+RequestID
+LSPClientWrapper::RegisterCapability()
+{ //?
 	return SendRequest("client/registerCapability", "client/registerCapability");
 }
-void LSPClientWrapper::DidOpen(MessageHandler* fw, DocumentUri uri, string_ref text, string_ref languageId) {
+
+void
+LSPClientWrapper::DidOpen(MessageHandler* fw, DocumentUri uri, string_ref text, string_ref languageId)
+{
 	DidOpenTextDocumentParams params;
 	params.textDocument.uri = std::move(uri);
 	params.textDocument.text = text;
 	params.textDocument.languageId = languageId;
 	SendNotify("textDocument/didOpen", params);
 }
-void LSPClientWrapper::DidClose(MessageHandler* fw, DocumentUri uri) {
+
+void
+LSPClientWrapper::DidClose(MessageHandler* fw, DocumentUri uri)
+{
 	DidCloseTextDocumentParams params;
 	params.textDocument.uri = std::move(uri);
 	SendNotify("textDocument/didClose", params);
 }
-void LSPClientWrapper::DidChange(MessageHandler* fw, DocumentUri uri, std::vector<TextDocumentContentChangeEvent> &changes,
-			   option<bool> wantDiagnostics) {
+
+void
+LSPClientWrapper::DidChange(MessageHandler* fw, DocumentUri uri, std::vector<TextDocumentContentChangeEvent> &changes,
+			   option<bool> wantDiagnostics)
+{
 	DidChangeTextDocumentParams params;
 	params.textDocument.uri = std::move(uri);
 	params.contentChanges = std::move(changes);
 	//params.wantDiagnostics = wantDiagnostics;
 	SendNotify("textDocument/didChange", params);
 }
+
 //xed
-void LSPClientWrapper::DidSave(MessageHandler* fw, DocumentUri uri) {
+void
+LSPClientWrapper::DidSave(MessageHandler* fw, DocumentUri uri)
+{
 	DidSaveTextDocumentParams params;
 	params.textDocument.uri = std::move(uri);
 	SendNotify("textDocument/didSave", params);
 }
 
-RequestID LSPClientWrapper::RangeFomatting(MessageHandler* fw, DocumentUri uri, Range range) {
+RequestID
+LSPClientWrapper::RangeFomatting(MessageHandler* fw, DocumentUri uri, Range range)
+{
 	DocumentRangeFormattingParams params;
 	params.textDocument.uri = std::move(uri);
 	params.range = range;
 	return SendRequest(X(fw), "textDocument/rangeFormatting", params);
 }
-RequestID LSPClientWrapper::FoldingRange(MessageHandler* fw, DocumentUri uri) {
+
+RequestID
+LSPClientWrapper::FoldingRange(MessageHandler* fw, DocumentUri uri)
+{
 	FoldingRangeParams params;
 	params.textDocument.uri = std::move(uri);
 	return SendRequest(X(fw), "textDocument/foldingRange", params);
 }
-RequestID LSPClientWrapper::SelectionRange(MessageHandler* fw, DocumentUri uri, std::vector<Position> &positions) {
+
+RequestID
+LSPClientWrapper::SelectionRange(MessageHandler* fw, DocumentUri uri, std::vector<Position> &positions)
+{
 	SelectionRangeParams params;
 	params.textDocument.uri = std::move(uri);
 	params.positions = std::move(positions);
 	return SendRequest(X(fw), "textDocument/selectionRange", params);
 }
-RequestID LSPClientWrapper::OnTypeFormatting(MessageHandler* fw, DocumentUri uri, Position position, string_ref ch) {
+
+RequestID
+LSPClientWrapper::OnTypeFormatting(MessageHandler* fw, DocumentUri uri, Position position, string_ref ch)
+{
 	DocumentOnTypeFormattingParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	params.ch = std::move(ch);
 	return SendRequest(X(fw), "textDocument/onTypeFormatting", std::move(params));
 }
-RequestID LSPClientWrapper::Formatting(MessageHandler* fw, DocumentUri uri) {
+
+RequestID
+LSPClientWrapper::Formatting(MessageHandler* fw, DocumentUri uri)
+{
 	DocumentFormattingParams params;
 	params.textDocument.uri = std::move(uri);
 	return SendRequest(X(fw), "textDocument/formatting", std::move(params));
 }
-RequestID LSPClientWrapper::CodeAction(MessageHandler* fw, DocumentUri uri, Range range, CodeActionContext context) {
+
+RequestID
+LSPClientWrapper::CodeAction(MessageHandler* fw, DocumentUri uri, Range range, CodeActionContext context)
+{
 	CodeActionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.range = range;
 	params.context = std::move(context);
 	return SendRequest(X(fw), "textDocument/codeAction", std::move(params));
 }
-RequestID LSPClientWrapper::Completion(MessageHandler* fw, DocumentUri uri, Position position, CompletionContext& context) {
+
+RequestID
+LSPClientWrapper::Completion(MessageHandler* fw, DocumentUri uri, Position position, CompletionContext& context)
+{
 	CompletionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	params.context = option<CompletionContext>(context);
 	return SendRequest(X(fw), "textDocument/completion", params);
 }
-RequestID LSPClientWrapper::SignatureHelp(MessageHandler* fw, DocumentUri uri, Position position) {
+
+RequestID
+LSPClientWrapper::SignatureHelp(MessageHandler* fw, DocumentUri uri, Position position)
+{
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	return SendRequest(X(fw), "textDocument/signatureHelp", std::move(params));
 }
-RequestID LSPClientWrapper::GoToDefinition(MessageHandler* fw, DocumentUri uri, Position position) {
+
+RequestID
+LSPClientWrapper::GoToDefinition(MessageHandler* fw, DocumentUri uri, Position position)
+{
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	return SendRequest(X(fw), "textDocument/definition", std::move(params));
 }
 
-RequestID LSPClientWrapper::GoToImplementation(MessageHandler* fw, DocumentUri uri, Position position) {
+RequestID
+LSPClientWrapper::GoToImplementation(MessageHandler* fw, DocumentUri uri, Position position)
+{
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	return SendRequest(X(fw), "textDocument/implementation", std::move(params));
 }
 
-RequestID LSPClientWrapper::GoToDeclaration(MessageHandler* fw, DocumentUri uri, Position position) {
+RequestID
+LSPClientWrapper::GoToDeclaration(MessageHandler* fw, DocumentUri uri, Position position)
+{
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	return SendRequest(X(fw), "textDocument/declaration", std::move(params));
 }
-RequestID LSPClientWrapper::References(MessageHandler* fw, DocumentUri uri, Position position) {
+
+RequestID
+LSPClientWrapper::References(MessageHandler* fw, DocumentUri uri, Position position)
+{
 	ReferenceParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	return SendRequest(X(fw), "textDocument/references", std::move(params));
 }
-RequestID LSPClientWrapper::SwitchSourceHeader(MessageHandler* fw, DocumentUri uri) {
+
+RequestID
+LSPClientWrapper::SwitchSourceHeader(MessageHandler* fw, DocumentUri uri)
+{
 	TextDocumentIdentifier params;
 	params.uri = std::move(uri);
 	return SendRequest(X(fw), "textDocument/switchSourceHeader", std::move(params));
 }
-RequestID LSPClientWrapper::Rename(MessageHandler* fw, DocumentUri uri, Position position, string_ref newName) {
+
+RequestID
+LSPClientWrapper::Rename(MessageHandler* fw, DocumentUri uri, Position position, string_ref newName)
+{
 	RenameParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	params.newName = newName;
 	return SendRequest(X(fw), "textDocument/rename", std::move(params));
 }
-RequestID LSPClientWrapper::Hover(MessageHandler* fw, DocumentUri uri, Position position) {
+
+RequestID
+LSPClientWrapper::Hover(MessageHandler* fw, DocumentUri uri, Position position)
+{
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	return SendRequest(X(fw), "textDocument/hover", std::move(params));
 }
-RequestID LSPClientWrapper::DocumentSymbol(MessageHandler* fw, DocumentUri uri) {
+
+RequestID
+LSPClientWrapper::DocumentSymbol(MessageHandler* fw, DocumentUri uri)
+{
 	DocumentSymbolParams params;
 	params.textDocument.uri = std::move(uri);
 	return SendRequest(X(fw), "textDocument/documentSymbol", std::move(params));
 }
-RequestID LSPClientWrapper::DocumentColor(MessageHandler* fw, DocumentUri uri) {
+
+RequestID
+LSPClientWrapper::DocumentColor(MessageHandler* fw, DocumentUri uri)
+{
 	DocumentSymbolParams params;
 	params.textDocument.uri = std::move(uri);
 	return SendRequest(X(fw), "textDocument/documentColor", std::move(params));
 }
-RequestID LSPClientWrapper::DocumentHighlight(MessageHandler* fw, DocumentUri uri, Position position) {
+
+RequestID
+LSPClientWrapper::DocumentHighlight(MessageHandler* fw, DocumentUri uri, Position position)
+{
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	return SendRequest(X(fw), "textDocument/documentHighlight", std::move(params));
 }
-RequestID LSPClientWrapper::SymbolInfo(MessageHandler* fw, DocumentUri uri, Position position) {
+
+RequestID
+LSPClientWrapper::SymbolInfo(MessageHandler* fw, DocumentUri uri, Position position)
+{
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
 	return SendRequest(X(fw), "textDocument/symbolInfo", std::move(params));
 }
-RequestID LSPClientWrapper::TypeHierarchy(MessageHandler* fw, DocumentUri uri, Position position, TypeHierarchyDirection direction, int resolve) {
+
+RequestID
+LSPClientWrapper::TypeHierarchy(MessageHandler* fw, DocumentUri uri, Position position, TypeHierarchyDirection direction, int resolve)
+{
 	TypeHierarchyParams params;
 	params.textDocument.uri = std::move(uri);
 	params.position = position;
@@ -390,46 +475,58 @@ RequestID LSPClientWrapper::TypeHierarchy(MessageHandler* fw, DocumentUri uri, P
 	return SendRequest(X(fw), "textDocument/typeHierarchy", std::move(params));
 }
 
-RequestID LSPClientWrapper::DocumentLink(MessageHandler* fw, DocumentUri uri) {
+RequestID
+LSPClientWrapper::DocumentLink(MessageHandler* fw, DocumentUri uri)
+{
 	DocumentLinkParams params;
 	params.textDocument.uri = std::move(uri);
 	return SendRequest(X(fw), "textDocument/documentLink", std::move(params));
 }
 
-RequestID LSPClientWrapper::WorkspaceSymbol(MessageHandler* fw, string_ref query) {
+RequestID
+LSPClientWrapper::WorkspaceSymbol(MessageHandler* fw, string_ref query)
+{
 	WorkspaceSymbolParams params;
 	params.query = query;
 	return SendRequest(X(fw), "workspace/symbol", std::move(params));
 }
 /*
-RequestID LSPClientWrapper::ExecuteCommand(MessageHandler* fw, string_ref cmd, option<TweakArgs> tweakArgs, option<WorkspaceEdit> workspaceEdit) {
+RequestID
+LSPClientWrapper::ExecuteCommand(MessageHandler* fw, string_ref cmd, option<TweakArgs> tweakArgs, option<WorkspaceEdit> workspaceEdit)
+{
 	ExecuteCommandParams params;
 	params.tweakArgs = tweakArgs;
 	params.workspaceEdit = workspaceEdit;
 	params.command = cmd;
 	return SendRequest(X(fw), "workspace/executeCommand", std::move(params));
 }*/
-RequestID LSPClientWrapper::DidChangeWatchedFiles(MessageHandler* fw, std::vector<FileEvent> &changes) {
+
+RequestID
+LSPClientWrapper::DidChangeWatchedFiles(MessageHandler* fw, std::vector<FileEvent> &changes)
+{
 	DidChangeWatchedFilesParams params;
 	params.changes = std::move(changes);
 	return SendRequest(X(fw), "workspace/didChangeWatchedFiles", std::move(params));
 }
-RequestID LSPClientWrapper::DidChangeConfiguration(MessageHandler* fw, ConfigurationSettings &settings) {
+
+RequestID
+LSPClientWrapper::DidChangeConfiguration(MessageHandler* fw, ConfigurationSettings &settings)
+{
 	DidChangeConfigurationParams params;
 	params.settings = std::move(settings);
 	return SendRequest(X(fw), "workspace/didChangeConfiguration", std::move(params));
 }
 
-
-
-RequestID LSPClientWrapper::SendRequest(RequestID id, string_ref method, value params) {
+RequestID
+LSPClientWrapper::SendRequest(RequestID id, string_ref method, value params)
+{
 	id.append("_").append(method);
 	request(method, params, id);
 	return id;
 }
 
-
-
-void LSPClientWrapper::SendNotify(string_ref method, value params) {
+void
+LSPClientWrapper::SendNotify(string_ref method, value params)
+{
 	notify(method, params);
 }

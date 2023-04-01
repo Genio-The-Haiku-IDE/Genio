@@ -24,7 +24,7 @@ public:
 	
 private:
 	SourceItem		*fSourceItem;
-	bool			firstTimeRendered = false;
+	bool			firstTimeRendered = true;
 };
 
 

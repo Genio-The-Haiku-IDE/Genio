@@ -94,7 +94,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	
 	if (firstTimeRendered) {
 		owner->Invalidate();
-		firstTimeRendered = true;
+		firstTimeRendered = false;
 	}
 }
 

@@ -1,5 +1,6 @@
 /*
  * Copyright 2023, Andrea Anzani 
+ * Copyright 2023, Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -10,6 +11,7 @@
 #include <File.h>
 #include <Looper.h>
 #include <MenuItem.h>
+#include <Mime.h>
 #include <Path.h>
 #include <PathMonitor.h>
 #include <Window.h>
@@ -451,6 +453,9 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	ProjectItem *projectItem = NULL;
 	_ProjectFolderScan(projectItem, project->Path(), project);
 	SortItemsUnder(projectItem, false, ProjectsFolderBrowser::_CompareProjectItems);
+	
+	update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
+	
 	Invalidate();
 	
 	BPrivate::BPathMonitor::StartWatching(project->Path(),

@@ -51,6 +51,7 @@ SRCS +=  src/ui/EditorTabManager.cpp
 SRCS +=  src/ui/EditorContextMenu.cpp
 SRCS +=  src/ui/GenioWindow.cpp
 SRCS +=  src/ui/OutlineListView.cpp
+SRCS +=  src/ui/IconCache.cpp
 SRCS +=  src/ui/ProjectsFolderBrowser.cpp
 SRCS +=  src/ui/SettingsWindow.cpp
 #SRCS +=  src/project/NewProjectWindow.cpp

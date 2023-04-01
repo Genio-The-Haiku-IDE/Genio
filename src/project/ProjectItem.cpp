@@ -12,19 +12,13 @@
 
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "IconCache.h"
 
 ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
-	BStringItem(sourceItem->Name()),
-	fIcon(BRect(BPoint(0, 0), be_control_look->ComposeIconSize(B_MINI_ICON)), 
-		B_RGBA32)
+	BStringItem(sourceItem->Name())
 {
 	fSourceItem = sourceItem;
-	
-	icon_size iconSize = (icon_size)(fIcon.Bounds().Width()-1);
-	BNode node(sourceItem->Path());
-	BNodeInfo nodeInfo(&node);
-	nodeInfo.GetTrackerIcon(&fIcon, iconSize);
 }
 
 ProjectItem::~ProjectItem()
@@ -78,17 +72,30 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 	}
 
-	float size = fIcon.Bounds().Height();
-	BPoint p(bounds.left + 4.0f, bounds.top  + (bounds.Height() - size) / 2.0f);	
-
 	owner->SetDrawingMode(B_OP_ALPHA);
-	owner->DrawBitmap(&fIcon, p);
+	BEntry entry(GetSourceItem()->Path());
+	entry_ref ref;
+	entry.GetRef(&ref);
+	auto icon = IconCache::GetIcon(&ref);
+	
+	float size = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	BPoint p(bounds.left + 4.0f, bounds.top  + (bounds.Height() - size) / 2.0f);	
+	
+	if (icon!=nullptr)
+		owner->DrawBitmapAsync(icon, p);
 	
 	// Draw string at the right of the icon
 	owner->SetDrawingMode(B_OP_COPY);
 	owner->MovePenTo(p.x + size + be_control_look->DefaultLabelSpacing(),
 		bounds.top + BaselineOffset());
 	owner->DrawString(Text());
+	
+	owner->Sync();
+	
+	if (firstTimeRendered) {
+		owner->Invalidate();
+		firstTimeRendered = true;
+	}
 }
 
 void

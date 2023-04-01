@@ -24,7 +24,7 @@ public:
 	
 private:
 	SourceItem		*fSourceItem;
-	BBitmap			fIcon;
+	bool			firstTimeRendered = false;
 };
 
 

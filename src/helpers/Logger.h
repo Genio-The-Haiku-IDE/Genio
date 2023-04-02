@@ -67,7 +67,7 @@ public:
 	static	bool				IsErrorEnabled();
 
 private:
-	static	log_level			fLevel;
+	static	log_level			sLevel;
 };
 
 

@@ -5,20 +5,20 @@
 #include "Logger.h"
 
 
-log_level Logger::fLevel = LOG_LEVEL_INFO;
+log_level Logger::sLevel = LOG_LEVEL_INFO;
 
 
 log_level
 Logger::Level()
 {
-	return fLevel;
+	return sLevel;
 }
 
 
 void
 Logger::SetLevel(log_level value)
 {
-	fLevel = value;
+	sLevel = value;
 }
 
 
@@ -43,19 +43,20 @@ Logger::NameForLevel(log_level value)
 }
 
 
-/*static*/ bool
+/*static*/
+bool
 Logger::SetLevelByName(const char *name)
 {
 	if (strcmp(name, "off") == 0) {
-		fLevel = LOG_LEVEL_OFF;
+		sLevel = LOG_LEVEL_OFF;
 	} else if (strcmp(name, "info") == 0) {
-		fLevel = LOG_LEVEL_INFO;
+		sLevel = LOG_LEVEL_INFO;
 	} else if (strcmp(name, "debug") == 0) {
-		fLevel = LOG_LEVEL_DEBUG;
+		sLevel = LOG_LEVEL_DEBUG;
 	} else if (strcmp(name, "trace") == 0) {
-		fLevel = LOG_LEVEL_TRACE;
+		sLevel = LOG_LEVEL_TRACE;
 	} else if (strcmp(name, "error") == 0) {
-		fLevel = LOG_LEVEL_ERROR;
+		sLevel = LOG_LEVEL_ERROR;
 	} else {
 		return false;
 	}
@@ -68,10 +69,11 @@ Logger::SetLevelByName(const char *name)
 bool
 Logger::IsLevelEnabled(log_level value)
 {
-	return fLevel >= value;
+	return sLevel >= value;
 }
 
 
+/*static*/
 bool
 Logger::IsInfoEnabled()
 {
@@ -79,6 +81,7 @@ Logger::IsInfoEnabled()
 }
 
 
+/*static*/
 bool
 Logger::IsDebugEnabled()
 {
@@ -86,11 +89,15 @@ Logger::IsDebugEnabled()
 }
 
 
+/*static*/
 bool
 Logger::IsTraceEnabled()
 {
 	return IsLevelEnabled(LOG_LEVEL_TRACE);
 }
+
+
+/*static*/
 bool
 Logger::IsErrorEnabled()
 {

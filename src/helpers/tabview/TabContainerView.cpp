@@ -124,8 +124,21 @@ TabContainerView::MessageReceived(BMessage* message)
 				}
 				break;
 			}
+			// TODO: Don't hardcode, move the definitions from TabManager.cpp
+			// to some common header
+			case 'cltb':
+			case 'clta':
+			case 'clto':
+			{
+				TabView* view = NULL;
+				if (message->FindPointer("source", (void**)&view) == B_OK)
+					message->AddInt32("index", this->IndexOf(view));
+				fController->HandleTabMenuAction(message);
+				break;
+			}
 		default:
 			BGroupView::MessageReceived(message);
+			break;
 	}
 }
 

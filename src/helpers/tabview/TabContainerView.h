@@ -32,6 +32,8 @@ public:
 		virtual	void			SetToolTip(const BString& text) = 0;
 		
 		virtual	void			MoveTabs(int32 fromIndex, int32 toIndex) = 0;
+		
+		virtual void			HandleTabMenuAction(BMessage* message) = 0;
 
 	};
 

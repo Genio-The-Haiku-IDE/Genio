@@ -37,8 +37,17 @@
 
 const static BString kEmptyString;
 
-// #pragma mark - Helper classes
 
+enum {
+	MSG_SCROLL_TABS_LEFT	= 'stlt',
+	MSG_SCROLL_TABS_RIGHT	= 'strt',
+	MSG_OPEN_TAB_MENU		= 'otmn',
+	MSG_CLOSE_TAB			= 'cltb',
+	MSG_CLOSE_TABS_ALL		= 'clta',
+	MSG_CLOSE_TABS_OTHER	= 'clto'
+};
+
+// #pragma mark - Helper classes
 
 class TabButton : public BButton {
 public:
@@ -205,13 +214,6 @@ public:
 
 private:
 	bigtime_t fCloseTime;
-};
-
-
-enum {
-	MSG_SCROLL_TABS_LEFT	= 'stlt',
-	MSG_SCROLL_TABS_RIGHT	= 'strt',
-	MSG_OPEN_TAB_MENU		= 'otmn'
 };
 
 
@@ -413,6 +415,34 @@ public:
 		fManager->MoveTabs(fromIndex, toIndex);
 	}
 
+	virtual void HandleTabMenuAction(BMessage* message)
+	{
+		switch (message->what) {
+			case MSG_CLOSE_TAB:
+			{
+				int32 index = -1;
+				if (message->FindInt32("index", &index) == B_OK)
+					fManager->CloseTab(index);
+				break;
+			}
+			case MSG_CLOSE_TABS_ALL:
+				for (auto i = 0; i < fManager->CountTabs(); i++)
+					fManager->CloseTab(i);
+				break;
+			case MSG_CLOSE_TABS_OTHER:
+			{
+				int32 index = -1;
+				if (message->FindInt32("index", &index) == B_OK) {
+					for (auto i = 0; i < fManager->CountTabs(); i++)
+						if (i != index)
+							fManager->CloseTab(i);
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
 private:
 	TabManager*			fManager;
 	TabContainerGroup*	fTabContainerGroup;
@@ -453,6 +483,7 @@ private:
 private:
 	BBitmap* fIcon;
 	TabManagerController* fController;
+	BPopUpMenu* fPopUpMenu;
 	bool fOverCloseRect;
 	bool fClicked;
 };
@@ -463,15 +494,34 @@ WebTabView::WebTabView(TabManagerController* controller)
 	TabView(),
 	fIcon(NULL),
 	fController(controller),
+	fPopUpMenu(nullptr),
 	fOverCloseRect(false),
 	fClicked(false)
 {
+	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
+	
+	BMessage* closeMessage = new BMessage(MSG_CLOSE_TAB);
+	closeMessage->AddPointer("source", this);
+	BMenuItem* close = new BMenuItem("Close", closeMessage);
+	
+	BMessage* closeAllMessage = new BMessage(MSG_CLOSE_TABS_ALL);
+	closeAllMessage->AddPointer("source", this);
+	BMenuItem* closeAll = new BMenuItem("Close all", closeAllMessage);
+	
+	BMessage* closeOtherMessage = new BMessage(MSG_CLOSE_TABS_OTHER);
+	closeOtherMessage->AddPointer("source", this);
+	BMenuItem* closeOther = new BMenuItem("Close other", closeOtherMessage);
+	
+	fPopUpMenu->AddItem(close);
+	fPopUpMenu->AddItem(closeAll);
+	fPopUpMenu->AddItem(closeOther);
 }
 
 
 WebTabView::~WebTabView()
 {
 	delete fIcon;
+	delete fPopUpMenu;
 }
 
 
@@ -545,6 +595,14 @@ WebTabView::MouseDown(BPoint where, uint32 buttons)
 		return;
 	}
 
+	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
+		ContainerView()->ConvertToScreen(&where);
+		BMessenger messenger(ContainerView());
+		fPopUpMenu->SetTargetForItems(messenger);
+		fPopUpMenu->Go(where, true);
+		return;
+	}
+		
 	BRect closeRect = _CloseRectFrame(Frame());
 	if (!fController->CloseButtonsAvailable() || !closeRect.Contains(where)) {
 		TabView::MouseDown(where, buttons);
@@ -732,7 +790,6 @@ TabManager::TabManager(const BMessenger& target)
 	fTabContainerGroup = new TabContainerGroup(fTabContainerView);
 
 	fTabContainerGroup->GroupLayout()->SetInsets(0.0f, 3.0f, 0.0f, 0.0f);
-
 
 	fController->SetTabContainerGroup(fTabContainerGroup);
 

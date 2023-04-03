@@ -731,17 +731,11 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_SAVEPOINTLEFT: {
-			fModified = true;
-			BMessage message(EDITOR_SAVEPOINT_LEFT);
-			message.AddRef("ref", &fFileRef);
-			fTarget.SendMessage(&message);
+			_UpdateSavePoint(true);
 			break;
-		}	
+		}
 		case SCN_SAVEPOINTREACHED: {
-			fModified = false;
-			BMessage message(EDITOR_SAVEPOINT_REACHED);
-			message.AddRef("ref", &fFileRef);
-			fTarget.SendMessage(&message);	
+			_UpdateSavePoint(false);
 			break;
 		}
 		case SCN_UPDATEUI: {
@@ -773,6 +767,16 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 	}
+}
+
+void				
+Editor::_UpdateSavePoint(bool modified)
+{
+	fModified = modified;
+	BMessage message(EDITOR_UPDATE_SAVEPOINT);
+	message.AddRef("ref", &fFileRef);
+	message.AddBool("modified", fModified);
+	fTarget.SendMessage(&message);	
 }
 
 void

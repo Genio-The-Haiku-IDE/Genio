@@ -26,8 +26,7 @@ enum {
 	EDITOR_FIND_SET_MARK			= 'Efsm',
 	EDITOR_REPLACE_ONE				= 'Eron',
 	EDITOR_REPLACE_ALL_COUNT		= 'Erac',
-	EDITOR_SAVEPOINT_REACHED		= 'Esre',
-	EDITOR_SAVEPOINT_LEFT			= 'Esle',
+	EDITOR_UPDATE_SAVEPOINT			= 'EUSP',
 };
 
 /*
@@ -181,6 +180,7 @@ private:
 			bool				_IsBrace(char character);
 			void				_RedrawNumberMargin(bool forced = false);
 			void				_SetFoldMargin();
+			void				_UpdateSavePoint(bool modified);
 
 private:
 

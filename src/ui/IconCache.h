@@ -26,13 +26,9 @@ class IconCache
 		
     private:
 		IconCache();
-		
-		BBitmap*	GetEmptyBitmap();
 
 		std::unordered_map<std::string, BBitmap*> cache;
-		
-		BBitmap*	fEmptyBitmap;
-		
+				
 		static IconCache instance;
 		
 	public:

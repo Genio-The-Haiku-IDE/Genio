@@ -493,29 +493,19 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-
-		case EDITOR_SAVEPOINT_LEFT: {
+		case EDITOR_UPDATE_SAVEPOINT: {
 			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
+			bool modified = false;
+			if (message->FindRef("ref", &ref) == B_OK &&
+			    message->FindBool("modified", &modified) == B_OK) {
+				    
 				int32 index = _GetEditorIndex(&ref);
 				if (index > -1) {
-					_UpdateLabel(index, true);
-					_UpdateSavepointChange(index, "Left");
+					_UpdateLabel(index, modified);
+					_UpdateSavepointChange(index, "UpdateSavePoint");
 				}
 			}
-
-			break;
-		}
-		case EDITOR_SAVEPOINT_REACHED: {
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref);
-				if (index > -1) {
-					_UpdateLabel(index, false);
-					_UpdateSavepointChange(index, "Reached");
-				}
-			}
-
+			
 			break;
 		}
 		case MSG_BOOKMARK_CLEAR_ALL: {

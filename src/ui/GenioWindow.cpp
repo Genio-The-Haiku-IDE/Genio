@@ -624,7 +624,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (editor) {
 				editor->SetReadOnly();
 				fFileUnlockedButton->SetEnabled(!editor->IsReadOnly());
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -684,7 +683,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_LF);
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -692,7 +690,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CRLF);
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -700,7 +697,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CR);
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -1095,7 +1091,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor)  {
 				editor->OverwriteToggle();
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -1148,7 +1143,6 @@ GenioWindow::MessageReceived(BMessage* message)
 
 				editor->PretendPositionChanged();
 				_UpdateTabChange(index, "TABMANAGER_TAB_SELECTED");
-				_UpdateStatusBarTrailing(index);
 			}
 			break;
 		}

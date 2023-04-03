@@ -16,6 +16,7 @@
 #include <CardLayout.h>
 #include <ControlLook.h>
 #include <GroupView.h>
+#include <PopUpMenu.h>
 #include <SpaceLayoutItem.h>
 #include <Window.h>
 
@@ -25,11 +26,15 @@
 // #pragma mark - TabView
 
 
+
 TabView::TabView()
 	:
 	fContainerView(NULL),
 	fLayoutItem(new TabLayoutItem(this)),
-	fLabel()
+	fLabel(),
+	fIsFirst(false),
+	fIsLast(false),
+	fIsFront(false)
 {
 }
 

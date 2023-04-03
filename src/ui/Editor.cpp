@@ -655,7 +655,7 @@ Editor::LoadFromFile()
 
 	fFileType = Genio::file_type(fFileName.String());
 
-	
+	UpdateStatusBar();
 	return B_OK;
 }
 

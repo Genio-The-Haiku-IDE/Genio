@@ -500,6 +500,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				int32 index = _GetEditorIndex(&ref);
 				if (index > -1) {
 					_UpdateLabel(index, true);
+					_UpdateSavepointChange(index, "Left");
 				}
 			}
 

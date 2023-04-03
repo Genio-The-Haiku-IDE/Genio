@@ -1178,7 +1178,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case kRunnerMessage:
-			_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
+			if (fTabManager->SelectedEditor() != NULL)
+				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			break;
 		default:			
 			BWindow::MessageReceived(message);

@@ -194,7 +194,11 @@ SettingsWindow::MessageReceived(BMessage *msg)
 		}
 		case MSG_EDITOR_FONT_SIZE_CHANGED: {
 			// TODO SetViewColor not working
-			fEditorFont.SetSize(fEditorFontSizeOP->Value());
+			if (fEditorFontSizeOP->Value() > 0)
+				fEditorFont.SetSize(fEditorFontSizeOP->Value());
+			else
+				fEditorFont.SetSize(be_plain_font->Size());
+				
 			fPreviewText->SetFont(&fEditorFont);
 
 			bool modified = fEditorFontSizeOP->Value() !=
@@ -830,8 +834,9 @@ SettingsWindow::_PageEditorView()
 
 //	fFontMenuOP->SetExplicitMaxSize(BSize(400, B_SIZE_UNSET));
 
-	BFont font(be_fixed_font);
-	font.SetSize(GenioNames::Settings.edit_fontsize);
+	BFont font(be_plain_font);
+	if (GenioNames::Settings.edit_fontsize > 0)
+		font.SetSize(GenioNames::Settings.edit_fontsize);
 
 	// preview
 	fPreviewText = new BStringView("preview text",
@@ -854,6 +859,8 @@ SettingsWindow::_PageEditorView()
 
 	fEditorFontSizeOP = new BOptionPopUp("EditSizeMenu",
 		B_TRANSLATE("Font size:"), new BMessage(MSG_EDITOR_FONT_SIZE_CHANGED));
+
+	fEditorFontSizeOP->AddOption(B_TRANSLATE("Default size"), -1);
 
 	for (int32 i = 10; i <= 18; i++) {
 		BString text;

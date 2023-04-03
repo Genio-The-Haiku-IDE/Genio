@@ -23,7 +23,6 @@
 
 #include <Catalog.h>
 #include <ControlLook.h>
-//#include <DirMenu.h>
 #include <MenuItem.h>
 #include <Message.h>
 #include <Messenger.h>
@@ -31,9 +30,7 @@
 #include <ScrollView.h>
 #include <StringView.h>
 #include <Window.h>
-
-//#include "EditorWindow.h"
-
+#include "Editor.h"
 
 const float kHorzSpacing = 5.f;
 
@@ -45,11 +42,11 @@ using namespace BPrivate;
 
 namespace editor {
 
-StatusView::StatusView(BScrollView* scrollView)
-			:
-			controls::StatusView(scrollView),
+StatusView::StatusView(Editor* editor)	:
+			controls::StatusView(dynamic_cast<BScrollView*>(editor)),
 			fNavigationPressed(false),
-			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT)
+			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT),
+			fEditor(editor)
 {
 	memset(fCellWidth, 0, sizeof(fCellWidth));
 
@@ -69,9 +66,8 @@ StatusView::AttachedToWindow()
 	BMessage message(UPDATE_STATUS);
 	message.AddInt32("line", 1);
 	message.AddInt32("column", 1);
-	message.AddString("type", "");
-	SetStatus(&message);
 
+	SetStatus(&message);
 	controls::StatusView::AttachedToWindow();
 }
 
@@ -141,7 +137,7 @@ StatusView::Draw(BRect updateRect)
 void
 StatusView::MouseDown(BPoint where)
 {
-	if (where.x < fNavigationButtonWidth && _HasRef()) {
+	if (where.x < fNavigationButtonWidth) {
 		fNavigationPressed = true;
 		Invalidate();
 		_ShowDirMenu();
@@ -152,19 +148,6 @@ StatusView::MouseDown(BPoint where)
 		BMessenger msgr(Window());
 		msgr.SendMessage(MSG_GOTO_LINE);
 	}
-/*
-	if (!fReadOnly)
-		return;
-
-	float left = fNavigationButtonWidth + fCellWidth[kPositionCell] + fCellWidth[kTypeCell];
-	if (where.x < left)
-		return;
-
-	int32 clicks = 0;
-	BMessage* message = Window()->CurrentMessage();
-	if (message != NULL
-		&& message->FindInt32("clicks", &clicks) == B_OK && clicks > 1)
-			return;*/
 }
 
 
@@ -206,19 +189,6 @@ StatusView::SetStatus(BMessage* message)
 }
 
 
-void
-StatusView::SetRef(const entry_ref& ref)
-{
-	fRef = ref;
-}
-
-
-bool
-StatusView::_HasRef()
-{
-	return fRef != entry_ref();
-}
-
 
 void
 StatusView::_DrawNavigationButton(BRect rect)
@@ -229,7 +199,7 @@ StatusView::_DrawNavigationButton(BRect rect)
 	uint32 flags = 0;
 	if(fNavigationPressed)
 		flags |= BControlLook::B_ACTIVATED;
-	if(Window()->IsActive() == false || _HasRef() == false)
+	if(Window()->IsActive() == false)
 		flags |= BControlLook::B_DISABLED;
 	be_control_look->DrawButtonBackground(this, rect, rect, baseColor, flags,
 		BControlLook::B_ALL_BORDERS, B_HORIZONTAL);
@@ -242,19 +212,15 @@ StatusView::_DrawNavigationButton(BRect rect)
 void
 StatusView::_ShowDirMenu()
 {
-	BEntry entry;
-	status_t status = entry.SetTo(&fRef);
-
-	if (status != B_OK || !entry.Exists())
-		return;
-
 	BPopUpMenu*	menu = new BPopUpMenu("EditorMenu");
 
 	BMenuItem* readOnly = new BMenuItem(B_TRANSLATE("Set read-only"), new BMessage(MSG_BUFFER_LOCK));
 
+	if (fEditor->IsReadOnly())
+		readOnly->SetEnabled(false);
+
 	readOnly->SetTarget(Window());
 	menu->AddItem(readOnly);
-	//menu->AddSeparatorItem();
 
 	BPoint point = Parent()->Bounds().LeftBottom();
 	point.y += 3 + B_H_SCROLL_BAR_HEIGHT;

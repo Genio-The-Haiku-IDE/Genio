@@ -24,7 +24,7 @@
 
 
 class BScrollView;
-
+class Editor;
 
 namespace editor {
 
@@ -34,12 +34,11 @@ public:
 		UPDATE_STATUS		= 'upda'
 	};
 
-							StatusView(BScrollView* fScrollView);
+							StatusView(Editor* editor);
 							~StatusView();
 
 	virtual	void			AttachedToWindow();
 			void			SetStatus(BMessage* mesage);
-			void			SetRef(const entry_ref& ref);
 	virtual	void			Draw(BRect bounds);
 	virtual	void			MouseDown(BPoint point);
 
@@ -49,7 +48,7 @@ protected:
 private:
 			void			_ShowDirMenu();
 			void			_DrawNavigationButton(BRect rect);
-			bool			_HasRef();
+
 
 private:
 	enum {
@@ -63,8 +62,8 @@ private:
 			float			fCellWidth[kStatusCellCount];
 			bool			fReadOnly;
 			bool			fNavigationPressed;
-			entry_ref		fRef;
 	const	float			fNavigationButtonWidth;
+			Editor*			fEditor;
 };
 
 } // namespace editor

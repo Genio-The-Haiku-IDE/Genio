@@ -140,7 +140,7 @@ private:
 			void				_UpdateProjectActivation(bool active);
 			void				_UpdateReplaceMenuItems(const BString& text);
 			void				_UpdateSavepointChange(int32 index, const BString& caller = "");
-			void				_UpdateTabChange(int32 index, const BString& caller = "");
+			void				_UpdateTabChange(Editor*, const BString& caller = "");
 
 private:
 			BMenuBar*			fMenuBar;

@@ -760,7 +760,9 @@ Editor::NotificationReceived(SCNotification* notification)
 						SendMessage(SCI_SCROLLCARET, UNSET, UNSET);
 				}
 
-				// Send position to main window so it can update status bar
+				// Send position to main window so it can update the menus.
+				SendPositionChanges();
+				// Update status bar
 				UpdateStatusBar();
 			}
 
@@ -1012,6 +1014,23 @@ Editor::Selection()
 	return text;
 }
 
+// it sends Selection/Position changes.
+void
+Editor::SendPositionChanges()
+{
+	int32 position = GetCurrentPosition();
+	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
+	int column = SendMessage(SCI_GETCOLUMN, position, UNSET) + 1;
+
+	fCurrentLine = line;
+	fCurrentColumn = column;
+
+	BMessage message(EDITOR_POSITION_CHANGED);
+	message.AddRef("ref", &fFileRef);
+	message.AddInt32("line", fCurrentLine);
+	message.AddInt32("column", fCurrentColumn);
+	fTarget.SendMessage(&message);
+}
 
 void
 Editor::UpdateStatusBar()

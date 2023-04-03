@@ -493,6 +493,18 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		
+		case EDITOR_POSITION_CHANGED: {
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				int32 index =  _GetEditorIndex(&ref);
+				if (index == fTabManager->SelectedTabIndex()) {
+					// Enable Cut,Copy,Paste shortcuts
+					_UpdateSavepointChange(index, "EDITOR_POSITION_CHANGED");
+				}
+			}
+			break;
+		}
 		case EDITOR_UPDATE_SAVEPOINT: {
 			entry_ref ref;
 			bool modified = false;
@@ -1050,8 +1062,10 @@ GenioWindow::MessageReceived(BMessage* message)
 				Editor* editor = fTabManager->EditorAt(index);
 				// TODO notify and check index too
 				if (editor == nullptr) {
+					LogError("Selecting editor but it's null! (index %d)", index);
 					break;
-				}	
+				}
+				
 				editor->GrabFocus();
 				// In multifile open not-focused files place scroll just after
 				// caret line when reselected. Ensure visibility.
@@ -1059,7 +1073,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->EnsureVisiblePolicy();
 
 				
-				_UpdateTabChange(index, "TABMANAGER_TAB_SELECTED");
+				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 			}
 			break;
 		}
@@ -1346,7 +1360,7 @@ GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
 
 	// Was it the last one?
 	if (fTabManager->CountTabs() == 0)
-		_UpdateTabChange(-1, "_FileClose");
+		_UpdateTabChange(nullptr, "_FileClose");
 
 	return B_OK;
 }
@@ -3873,12 +3887,11 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 // Updating menu, toolbar, title.
 // Also cleaning Status bar if no open files
 void
-GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
+GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 {
-	assert (index >= -1 && index < fTabManager->CountTabs());
 
 	// All files are closed
-	if (index == -1) {
+	if (editor == nullptr) {
 		// ToolBar Items
 		fFindButton->SetEnabled(false);
 		fFindGroup->SetVisible(false);
@@ -3925,7 +3938,6 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 	}
 
 	// ToolBar Items
-	Editor* editor = fTabManager->EditorAt(index);
 	
 	fFindButton->SetEnabled(true);
 	fReplaceButton->SetEnabled(true);
@@ -3938,7 +3950,9 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 	fFileMenuButton->SetEnabled(true);
 
 	// Arrows
+	/* TODO: remove! */
 	int32 maxTabIndex = (fTabManager->CountTabs() - 1);
+	int32 index = fTabManager->SelectedTabIndex();
 	if (index == 0) {
 		fFilePreviousButton->SetEnabled(false);
 		if (maxTabIndex > 0)
@@ -3950,7 +3964,8 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 			fFilePreviousButton->SetEnabled(true);
 			fFileNextButton->SetEnabled(true);
 	}
-
+	/* END REMOVE */
+	
 	// Menu Items
 	fSaveMenuItem->SetEnabled(editor->IsModified());
 	fSaveAsMenuItem->SetEnabled(true);
@@ -3988,5 +4003,5 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
 
-	LogTraceF("called by: %s:%d",caller.String(), index);
+	LogTraceF("called by: %s:%d", caller.String(), index);
 }

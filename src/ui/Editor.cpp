@@ -1044,7 +1044,6 @@ Editor::UpdateStatusBar()
 	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
 	update.AddString("readOnly", ModeString());
 	update.AddString("eol", EndOfLineString());
-	fStatusView->SetRef(fFileRef);
 	
 	fStatusView->SetStatus(&update);
 }

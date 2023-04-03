@@ -6,7 +6,23 @@
 #include "IconCache.h"
 #include "Log.h"
 
+#define DIR_FILETYPE "application/x-vnd.Be-directory"
+
 IconCache IconCache::instance;
+
+IconCache::IconCache()
+{
+	fEmptyBitmap = NULL;
+}
+
+BBitmap*	
+IconCache::GetEmptyBitmap()
+{
+	if (!fEmptyBitmap)
+		fEmptyBitmap = new BBitmap(BRect(), B_RGBA32);
+	
+	return fEmptyBitmap;
+}
 
 BBitmap*
 IconCache::GetIcon(entry_ref *ref)
@@ -15,8 +31,15 @@ IconCache::GetIcon(entry_ref *ref)
 	BNodeInfo nodeInfo(&node);
 	char mimeType[B_MIME_TYPE_LENGTH];
 	mimeType[0] = '\0';
-	if (nodeInfo.GetType(mimeType) != B_OK)
-		LogError("Error in getting mimeType for file %s", ref->name);
+	if (nodeInfo.GetType(mimeType) != B_OK) {
+		LogDebug("Invalid mimeType for file [%s]", ref->name);
+		if (node.IsDirectory())
+			strncpy(mimeType, DIR_FILETYPE, B_MIME_TYPE_LENGTH - 1);
+		else
+		{
+			return instance.GetEmptyBitmap();
+		}
+	}
 		
 	LogTrace("IconCache: [%s] - [%s]\n", mimeType, ref->name);
 	
@@ -31,8 +54,8 @@ IconCache::GetIcon(entry_ref *ref)
 		icon_size iconSize = (icon_size)(icon->Bounds().Width()-1);
 		status_t status = nodeInfo.GetTrackerIcon(icon, iconSize);
 		instance.cache.emplace(mimeType, icon);
-		return icon;
 		LogTrace("IconCache: GetTrackerIcon returned - %d\n", status);
+		return icon;
 	}
 	return nullptr;
 }

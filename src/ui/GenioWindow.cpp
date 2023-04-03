@@ -18,6 +18,7 @@
 #include <Catalog.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>
+#include <MessageRunner.h>
 #include <NodeInfo.h>
 #include <NodeMonitor.h>
 #include <Path.h>
@@ -67,6 +68,7 @@ static float kOutputWeight  = 0.4f;
 
 BRect dirtyFrameHack;
 
+const uint32 kRunnerMessage('RnMs');
 
 class ProjectRefFilter : public BRefFilter {
 
@@ -200,6 +202,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fConsoleIOThread(nullptr)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
+	, fMessageRunner(nullptr)
 {
 	// Settings file check.
 	BPath path;
@@ -274,6 +277,8 @@ GenioWindow::GenioWindow(BRect frame)
 			}
 		}
 	}
+	
+	fMessageRunner = new BMessageRunner(this, new BMessage(kRunnerMessage), 1000000UL, -1);
 }
 
 GenioWindow::~GenioWindow()
@@ -283,6 +288,7 @@ GenioWindow::~GenioWindow()
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
+	delete fMessageRunner;
 }
 
 void
@@ -1171,6 +1177,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case kRunnerMessage:
+			_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
+			break;
 		default:			
 			BWindow::MessageReceived(message);
 			break;

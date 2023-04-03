@@ -274,6 +274,7 @@ private:
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;
 
+			BMessageRunner*		fMessageRunner;
 };
 
 #endif //GenioWINDOW_H

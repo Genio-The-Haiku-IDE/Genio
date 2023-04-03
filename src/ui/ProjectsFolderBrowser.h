@@ -38,7 +38,7 @@ public:
 	
 	BString const	GetCurrentProjectFileFullPath();
 	
-	ProjectItem*	FindProjectItem(BString const& path);
+	
 	
 	void			SetBuildingPhase(bool building) { fIsBuilding = building;};
 	
@@ -46,6 +46,10 @@ public:
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 	
 private:
+	
+	ProjectItem*	FindProjectItem(BString const& path);
+	
+	ProjectItem*	_CreatePath(BPath pathToCreate, ProjectFolder* project);
 	
 	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 

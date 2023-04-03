@@ -81,11 +81,42 @@ ProjectsFolderBrowser::FindProjectItem(BString const& path)
 	return nullptr;
 }
 
+ProjectItem*	
+ProjectsFolderBrowser::_CreatePath(BPath pathToCreate, ProjectFolder* project)
+{
+	LogTrace("Create path for %s", pathToCreate.Path());
+	ProjectItem *item = FindProjectItem(pathToCreate.Path());
+	
+	if (!item) {
+		LogTrace("Can't find path %s", pathToCreate.Path());
+		BPath parent;
+		if (pathToCreate.GetParent(&parent) == B_OK)
+		{
+			ProjectItem* parentItem = _CreatePath(parent, project);
+			ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
+			LogTrace("parent projectFolder %s", projectFolder->Path().String());
+			SourceItem *sourceItem = new SourceItem(pathToCreate.Path());
+			sourceItem->SetProjectFolder(projectFolder);
+			
+			LogTrace("Creating path %s", pathToCreate.Path());
+			ProjectItem* newItem = new ProjectItem(sourceItem);
+			AddUnder(newItem,parentItem);
+			return newItem;
+		}
+	}
+	LogTrace("Found path %s", pathToCreate.Path());
+	return item;		
+}
+
+
 void				
 ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 {
 	int32 opCode;
 	if (message->FindInt32("opcode", &opCode) != B_OK)
+		return;
+	BString watchedPath;
+	if (message->FindString("watched_path", &watchedPath) != B_OK)
 		return;
 	
 	switch (opCode) {
@@ -99,8 +130,11 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				
 				ProjectItem *parentItem = FindProjectItem(parent.Path());
 				if (!parentItem) {
-					LogError("No parent for creating an item in [%s]", parent.Path());
-					return;
+					parentItem = _CreatePath(parent, NULL);
+					if (!parentItem) {
+						LogError("Can't create the parent for item in [%s]", parent.Path());
+						return;
+					}
 				}
 				ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
 				SourceItem *sourceItem = new SourceItem(path.Path());
@@ -310,7 +344,8 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 	switch (message->what)
 	{
 		case B_PATH_MONITOR: {
-			message->PrintToStream(); 			  
+			if (Logger::IsDebugEnabled())
+				message->PrintToStream(); 			  
 			_UpdateNode(message);
 		}
 		break;

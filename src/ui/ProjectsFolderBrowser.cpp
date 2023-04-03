@@ -71,15 +71,14 @@ ProjectsFolderBrowser::~ProjectsFolderBrowser()
 ProjectItem*	
 ProjectsFolderBrowser::FindProjectItem(BString const& path)
 {
-	ProjectItem *item = nullptr;
 	int32 countItems = FullListCountItems();
 	for(int32 i=0; i<countItems; i++)
 	{
-		item = (ProjectItem *)FullListItemAt(i);
+		ProjectItem *item = (ProjectItem *)FullListItemAt(i);
 		if (item->GetSourceItem()->Path() == path)
 			return item;
 	}
-	return item;
+	return nullptr;
 }
 
 void				
@@ -99,6 +98,10 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				path.GetParent(&parent);
 				
 				ProjectItem *parentItem = FindProjectItem(parent.Path());
+				if (!parentItem) {
+					LogError("No parent for creating an item in [%s]", parent.Path());
+					return;
+				}
 				ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
 				SourceItem *sourceItem = new SourceItem(path.Path());
 				sourceItem->SetProjectFolder(projectFolder);
@@ -106,7 +109,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				
 				bool status = AddUnder(newItem,parentItem);
 				if (status) {
-					LogDebug("AddUnder(newItem,item)");
+					LogDebug("(B_ENTRY_CREATED) AddUnder(%s,%s) (Parent %s)", newItem->Text(), parentItem->Text(), parent.Path());
 					SortItemsUnder(parentItem, true, ProjectsFolderBrowser::_CompareProjectItems);
 					Collapse(newItem);
 				}
@@ -123,6 +126,10 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 
 			LogDebug("path %s",  spath.String());
 			ProjectItem *item = FindProjectItem(spath);
+			if (!item) {
+					LogError("Can't find an item to remove [%s]", spath.String());
+					return;
+			}
 			if (item->GetSourceItem()->Type() == 
 				SourceItemType::ProjectFolderItem)
 			{
@@ -157,7 +164,10 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				if (message->FindString("from path", &spath) == B_OK) {			
 					LogDebug("from path %s",  spath.String());
 					ProjectItem *item = FindProjectItem(spath);
-					
+					if (!item) {
+						LogError("Can't find an item to move [%s]", spath.String());
+						return;
+					}
 					// the project folder is being renamed
 					if (item->GetSourceItem()->Type() == 
 						SourceItemType::ProjectFolderItem)
@@ -202,6 +212,10 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 							destination.GetParent(&parent);
 							
 							ProjectItem *parentItem = FindProjectItem(parent.Path());
+							if (!parentItem) {
+								LogError("Can't find an item to move parentPath[%s]", parent.Path());
+								return;
+							}
 							ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
 							SourceItem *sourceItem = new SourceItem(newPath);
 							sourceItem->SetProjectFolder(projectFolder);
@@ -242,12 +256,24 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 								// if the path changes then the item is being MOVED
 								if (bp_oldParent == bp_newParent) {
 									ProjectItem *item = FindProjectItem(oldPath);
+									if (!item) {
+										LogError("Can't find an item to move oldPath[%s]", oldPath.String());
+										return;
+									}
 									item->SetText(newName);
 									item->GetSourceItem()->Rename(newPath);
 									SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
 								} else {
 									ProjectItem *item = FindProjectItem(oldPath);
+									if (!item) {
+										LogError("Can't find an item to move oldPath [%s]", oldPath.String());
+										return;
+									}
 									ProjectItem *destinationItem = FindProjectItem(bp_newParent.Path());
+									if (!item) {
+										LogError("Can't find an item to move newParent [%s]", bp_newParent.Path());
+										return;
+									}
 									bool status;
 										
 									status = RemoveItem(item);

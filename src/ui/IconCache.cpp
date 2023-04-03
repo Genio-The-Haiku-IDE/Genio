@@ -14,7 +14,9 @@ IconCache::GetIcon(entry_ref *ref)
 	BNode node(ref);
 	BNodeInfo nodeInfo(&node);
 	char mimeType[B_MIME_TYPE_LENGTH];
-	nodeInfo.GetType(mimeType);
+	mimeType[0] = '\0';
+	if (nodeInfo.GetType(mimeType) != B_OK)
+		LogError("Error in getting mimeType for file %s", ref->name);
 		
 	LogTrace("IconCache: [%s] - [%s]\n", mimeType, ref->name);
 	

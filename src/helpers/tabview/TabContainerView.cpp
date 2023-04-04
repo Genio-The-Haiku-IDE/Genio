@@ -131,8 +131,9 @@ TabContainerView::MessageReceived(BMessage* message)
 			case 'clto':
 			{
 				TabView* view = NULL;
-				if (message->FindPointer("source", (void**)&view) == B_OK)
-					message->AddInt32("index", this->IndexOf(view));
+				if (message->FindPointer("tab_source", (void**)&view) == B_OK) {
+					message->AddInt32("tab_index", IndexOf(view));
+				}
 				fController->HandleTabMenuAction(message);
 				break;
 			}

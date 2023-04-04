@@ -126,7 +126,10 @@ Editor::ApplySettings()
 
 	// Font & Size
 	SendMessage(SCI_STYLESETFONT, STYLE_DEFAULT, (sptr_t) "Noto Sans Mono");
-	SendMessage(SCI_STYLESETSIZE, STYLE_DEFAULT, Settings.edit_fontsize);
+	int32 fontSize = Settings.edit_fontsize;
+	if (fontSize < 0)
+		fontSize = be_plain_font->Size();
+	SendMessage(SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
 	SendMessage(SCI_STYLECLEARALL, UNSET, UNSET);
 
 	// Highlighting

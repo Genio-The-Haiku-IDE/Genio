@@ -20,16 +20,15 @@ class IconCache
 {
 	public:
 	
-
 		static BBitmap* GetIcon(entry_ref *ref);
 		static BBitmap* GetIcon(BString path);
 		static void 	PrintToStream();
 		
     private:
-		IconCache() {}
+		IconCache();
 
 		std::unordered_map<std::string, BBitmap*> cache;
-		
+				
 		static IconCache instance;
 		
 	public:

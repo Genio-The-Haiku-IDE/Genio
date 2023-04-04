@@ -18,7 +18,7 @@ const int32 kSKShowProjects = B_CONTROL_ON;			// "show_projects"
 const int32 kSKShowOutput = B_CONTROL_ON;			// "show_output"
 const int32 kSKShowToolBar = B_CONTROL_ON;			// "show_toolbar"
 
-const int32 kSKEditorFontSize = 13;					// "edit_fontsize"
+const int32 kSKEditorFontSize = -1;					// "edit_fontsize" -1 => system default
 const int32 kSKSyntaxHighlight = B_CONTROL_ON;		// "syntax_highlight"
 const int32 kSKTabWidth = 4;						// "tab_width"
 const int32 kSKBraceMatch = B_CONTROL_ON;			// "brace_match"

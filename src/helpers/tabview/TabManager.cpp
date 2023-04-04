@@ -421,7 +421,7 @@ public:
 			case MSG_CLOSE_TAB:
 			{
 				int32 index = -1;
-				if (message->FindInt32("index", &index) == B_OK)
+				if (message->FindInt32("tab_index", &index) == B_OK)
 					fManager->CloseTab(index);
 				break;
 			}
@@ -432,7 +432,7 @@ public:
 			case MSG_CLOSE_TABS_OTHER:
 			{
 				int32 index = -1;
-				if (message->FindInt32("index", &index) == B_OK) {
+				if (message->FindInt32("tab_index", &index) == B_OK) {
 					for (auto i = 0; i < fManager->CountTabs(); i++)
 						if (i != index)
 							fManager->CloseTab(i);
@@ -501,15 +501,15 @@ WebTabView::WebTabView(TabManagerController* controller)
 	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
 	
 	BMessage* closeMessage = new BMessage(MSG_CLOSE_TAB);
-	closeMessage->AddPointer("source", this);
+	closeMessage->AddPointer("tab_source", this);
 	BMenuItem* close = new BMenuItem("Close", closeMessage);
 	
 	BMessage* closeAllMessage = new BMessage(MSG_CLOSE_TABS_ALL);
-	closeAllMessage->AddPointer("source", this);
+	closeAllMessage->AddPointer("tab_source", this);
 	BMenuItem* closeAll = new BMenuItem("Close all", closeAllMessage);
 	
 	BMessage* closeOtherMessage = new BMessage(MSG_CLOSE_TABS_OTHER);
-	closeOtherMessage->AddPointer("source", this);
+	closeOtherMessage->AddPointer("tab_source", this);
 	BMenuItem* closeOther = new BMenuItem("Close other", closeOtherMessage);
 	
 	fPopUpMenu->AddItem(close);

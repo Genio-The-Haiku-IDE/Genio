@@ -426,14 +426,14 @@ public:
 				break;
 			}
 			case MSG_CLOSE_TABS_ALL:
-				for (auto i = 0; i < fManager->CountTabs(); i++)
+				for (auto i = fManager->CountTabs() - 1; i >= 0; i--)
 					fManager->CloseTab(i);
 				break;
 			case MSG_CLOSE_TABS_OTHER:
 			{
 				int32 index = -1;
 				if (message->FindInt32("tab_index", &index) == B_OK) {
-					for (auto i = 0; i < fManager->CountTabs(); i++)
+					for (auto i = fManager->CountTabs() - 1; i >= 0; i--)
 						if (i != index)
 							fManager->CloseTab(i);
 				}

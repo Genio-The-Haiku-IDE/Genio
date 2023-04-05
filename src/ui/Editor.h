@@ -15,17 +15,19 @@
 class FileWrapper;
 class ProjectFolder;
 
+namespace editor {
+	class StatusView;
+}
+
 enum {
 	EDITOR_FIND_COUNT				= 'Efco',
 	EDITOR_FIND_NEXT_MISS			= 'Efnm',
 	EDITOR_FIND_PREV_MISS			= 'Efpm',
 	EDITOR_FIND_SET_MARK			= 'Efsm',
 	EDITOR_POSITION_CHANGED			= 'Epch',
-	EDITOR_PRETEND_POSITION_CHANGED	= 'Eppc',
 	EDITOR_REPLACE_ONE				= 'Eron',
 	EDITOR_REPLACE_ALL_COUNT		= 'Erac',
-	EDITOR_SAVEPOINT_REACHED		= 'Esre',
-	EDITOR_SAVEPOINT_LEFT			= 'Esle',
+	EDITOR_UPDATE_SAVEPOINT			= 'EUSP',
 };
 
 /*
@@ -120,7 +122,6 @@ public:
 			void				NotificationReceived(SCNotification* n);
 			void				OverwriteToggle();
 			void				Paste();
-			void				PretendPositionChanged();
 			void				Redo();
 			status_t			Reload();
 			int					ReplaceAndFindNext(const BString& selection,
@@ -135,7 +136,7 @@ public:
 			void				ScrollCaret();
 			void				SelectAll();
 	const 	BString				Selection();
-			void				SendCurrentPosition();
+			void				SendPositionChanges();
 			void				SetEndOfLine(int32 eolFormat);
 			status_t			SetFileRef(entry_ref* ref);
 			void				SetReadOnly();
@@ -164,8 +165,11 @@ public:
 			void				UncommentSelection();
 			
 			void 				ContextMenu(BPoint point);
+			
+			
 
 private:
+			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();
 			void				_AutoIndentLine();
 			void				_CheckForBraceMatching();
@@ -177,6 +181,7 @@ private:
 			bool				_IsBrace(char character);
 			void				_RedrawNumberMargin(bool forced = false);
 			void				_SetFoldMargin();
+			void				_UpdateSavePoint(bool modified);
 
 private:
 
@@ -200,6 +205,7 @@ private:
 			
 			FileWrapper*		fFileWrapper;
 			ProjectFolder*		fProjectFolder;
+			editor::StatusView*			fStatusView;
 
 };
 

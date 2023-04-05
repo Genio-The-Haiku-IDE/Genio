@@ -36,6 +36,7 @@ using namespace GenioNames;
 #define UNUSED 0
 
 #include "FileWrapper.h"
+#include "EditorStatusView.h"
 
 //#define USE_LINEBREAKS_ATTRS
 
@@ -54,6 +55,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCurrentColumn(-1)
 	, fProjectFolder(NULL)
 {
+	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
 	SetTarget(target);
 
@@ -657,7 +659,7 @@ Editor::LoadFromFile()
 
 	fFileType = Genio::file_type(fFileName.String());
 
-	
+	UpdateStatusBar();
 	return B_OK;
 }
 
@@ -733,17 +735,11 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_SAVEPOINTLEFT: {
-			fModified = true;
-			BMessage message(EDITOR_SAVEPOINT_LEFT);
-			message.AddRef("ref", &fFileRef);
-			fTarget.SendMessage(&message);
+			_UpdateSavePoint(true);
 			break;
-		}	
+		}
 		case SCN_SAVEPOINTREACHED: {
-			fModified = false;
-			BMessage message(EDITOR_SAVEPOINT_REACHED);
-			message.AddRef("ref", &fFileRef);
-			fTarget.SendMessage(&message);	
+			_UpdateSavePoint(false);
 			break;
 		}
 		case SCN_UPDATEUI: {
@@ -768,8 +764,10 @@ Editor::NotificationReceived(SCNotification* notification)
 						SendMessage(SCI_SCROLLCARET, UNSET, UNSET);
 				}
 
-				// Send position to main window so it can update status bar
-				SendCurrentPosition();
+				// Send position to main window so it can update the menus.
+				SendPositionChanges();
+				// Update status bar
+				UpdateStatusBar();
 			}
 
 			break;
@@ -777,10 +775,21 @@ Editor::NotificationReceived(SCNotification* notification)
 	}
 }
 
+void				
+Editor::_UpdateSavePoint(bool modified)
+{
+	fModified = modified;
+	BMessage message(EDITOR_UPDATE_SAVEPOINT);
+	message.AddRef("ref", &fFileRef);
+	message.AddBool("modified", fModified);
+	fTarget.SendMessage(&message);	
+}
+
 void
 Editor::OverwriteToggle()
 {
 	SendMessage(SCI_SETOVERTYPE, !IsOverwrite(), UNSET);
+	UpdateStatusBar();
 }
 
 void
@@ -790,19 +799,7 @@ Editor::Paste()
 		SendMessage(SCI_PASTE, UNSET, UNSET);
 }
 
-void
-Editor::PretendPositionChanged()
-{
-	int32 position = GetCurrentPosition();
-	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
-	int column = SendMessage(SCI_GETCOLUMN, position, UNSET) + 1;
 
-	BMessage message(EDITOR_PRETEND_POSITION_CHANGED);
-	message.AddRef("ref", &fFileRef);
-	message.AddInt32("line", line);
-	message.AddInt32("column", column);
-	fTarget.SendMessage(&message);
-}
 
 void
 Editor::Redo()
@@ -1021,19 +1018,13 @@ Editor::Selection()
 	return text;
 }
 
-
-// Name is misleading: it sends Selection/Position changes.
-// Position is not changed when reselecting a different tab,
-// so send an EDITOR_PRETEND_POSITION_CHANGED message.
+// it sends Selection/Position changes.
 void
-Editor::SendCurrentPosition()
+Editor::SendPositionChanges()
 {
 	int32 position = GetCurrentPosition();
 	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
 	int column = SendMessage(SCI_GETCOLUMN, position, UNSET) + 1;
-
-//	if (line == fCurrentLine && column == fCurrentColumn)
-// return;
 
 	fCurrentLine = line;
 	fCurrentColumn = column;
@@ -1043,6 +1034,22 @@ Editor::SendCurrentPosition()
 	message.AddInt32("line", fCurrentLine);
 	message.AddInt32("column", fCurrentColumn);
 	fTarget.SendMessage(&message);
+}
+
+void
+Editor::UpdateStatusBar()
+{	
+	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS, 0, 0);
+	int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+	int column = SendMessage(SCI_GETCOLUMN, pos, 0);
+	BMessage update(editor::StatusView::UPDATE_STATUS);
+	update.AddInt32("line", line + 1);
+	update.AddInt32("column", column + 1);
+	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
+	update.AddString("readOnly", ModeString());
+	update.AddString("eol", EndOfLineString());
+	
+	fStatusView->SetStatus(&update);
 }
 
 void
@@ -1068,6 +1075,7 @@ Editor::SetFileRef(entry_ref* ref)
 	fFileRef = *ref;
 	fFileName = BString(fFileRef.name);
 
+	UpdateStatusBar();
 	return B_OK;
 }
 
@@ -1096,6 +1104,8 @@ Editor::SetReadOnly()
 	fModified = false;
 
 	SendMessage(SCI_SETREADONLY, 1, UNSET);
+	
+	UpdateStatusBar();
 }
 
 status_t

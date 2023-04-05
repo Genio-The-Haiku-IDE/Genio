@@ -24,6 +24,7 @@
 #include <TabView.h>
 #include <TextControl.h>
 #include <Window.h>
+#include "GoToLineWindow.h"
 
 
 #include "ConsoleIOThread.h"
@@ -139,9 +140,8 @@ private:
 			void				_UpdateProjectActivation(bool active);
 			void				_UpdateReplaceMenuItems(const BString& text);
 			void				_UpdateSavepointChange(int32 index, const BString& caller = "");
-			void				_UpdateTabChange(int32 index, const BString& caller = "");
-			void				_UpdateStatusBarText(int line, int column);
-			void				_UpdateStatusBarTrailing(int32 index);
+			void				_UpdateTabChange(Editor*, const BString& caller = "");
+
 private:
 			BMenuBar*			fMenuBar;
 			BMenuItem*			fFileNewMenuItem;
@@ -221,7 +221,6 @@ private:
 			BIconButton*		fFileNextButton;
 			BIconButton*		fFileCloseButton;
 			BIconButton*		fFileMenuButton;
-			BTextControl*		fGotoLine;
 
 			BIconButton*		fFindPreviousButton;
 			BIconButton*		fFindNextButton;
@@ -261,7 +260,6 @@ private:
 			BButton*			fRunConsoleProgramButton;
 			BString				fConsoleStdinLine;
 
-			BStatusBar*			fStatusBar;
 			BFilePanel*			fOpenPanel;
 			BFilePanel*			fSavePanel;
 			BFilePanel*			fOpenProjectPanel;
@@ -273,6 +271,7 @@ private:
 			ConsoleIOThread*	fConsoleIOThread;
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;
+			GoToLineWindow*		fGoToLineWindow;
 
 };
 

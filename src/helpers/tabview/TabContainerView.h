@@ -16,6 +16,12 @@ class TabView;
 
 #include "Draggable.h"
 
+enum {
+	MSG_CLOSE_TAB			= 'cltb',
+	MSG_CLOSE_TABS_ALL		= 'clta',
+	MSG_CLOSE_TABS_OTHER	= 'clto'
+};
+
 class TabContainerView : public BGroupView, public Draggable {
 public:
 	class Controller {
@@ -32,6 +38,8 @@ public:
 		virtual	void			SetToolTip(const BString& text) = 0;
 		
 		virtual	void			MoveTabs(int32 fromIndex, int32 toIndex) = 0;
+		
+		virtual void			HandleTabMenuAction(BMessage* message) = 0;
 
 	};
 

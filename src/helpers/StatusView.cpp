@@ -120,13 +120,17 @@ StatusView::_ValidatePreferredSize()
 	fPreferredSize.height = ceilf(fontHeight.ascent + fontHeight.descent
 		+ fontHeight.leading);
 
-	if (fPreferredSize.height < B_H_SCROLL_BAR_HEIGHT + 1)
-		fPreferredSize.height = B_H_SCROLL_BAR_HEIGHT + 1;
+	float minHeight = B_H_SCROLL_BAR_HEIGHT + 1;
+	BScrollBar* scrollBar = fScrollView->ScrollBar(B_HORIZONTAL);
+	if (scrollBar != NULL)
+		minHeight = scrollBar->Bounds().Height() + 1;
+
+	if (fPreferredSize.height < minHeight)
+		fPreferredSize.height = minHeight;
 
 	ResizeBy(fPreferredSize.width, 0);
-	BScrollBar* scrollBar = fScrollView->ScrollBar(B_HORIZONTAL);
 	float diff = scrollBar->Frame().left - fPreferredSize.width;
-	if(fabs(diff) > 0.5) {
+	if (fabs(diff) > 0.5) {
 		scrollBar->ResizeBy(diff, 0);
 		scrollBar->MoveBy(-diff, 0);
 	}

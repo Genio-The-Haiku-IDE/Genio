@@ -16,6 +16,12 @@ class TabView;
 
 #include "Draggable.h"
 
+enum {
+	MSG_CLOSE_TAB			= 'cltb',
+	MSG_CLOSE_TABS_ALL		= 'clta',
+	MSG_CLOSE_TABS_OTHER	= 'clto'
+};
+
 class TabContainerView : public BGroupView, public Draggable {
 public:
 	class Controller {

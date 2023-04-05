@@ -41,10 +41,7 @@ const static BString kEmptyString;
 enum {
 	MSG_SCROLL_TABS_LEFT	= 'stlt',
 	MSG_SCROLL_TABS_RIGHT	= 'strt',
-	MSG_OPEN_TAB_MENU		= 'otmn',
-	MSG_CLOSE_TAB			= 'cltb',
-	MSG_CLOSE_TABS_ALL		= 'clta',
-	MSG_CLOSE_TABS_OTHER	= 'clto'
+	MSG_OPEN_TAB_MENU		= 'otmn'
 };
 
 // #pragma mark - Helper classes

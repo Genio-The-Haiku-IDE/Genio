@@ -124,11 +124,9 @@ TabContainerView::MessageReceived(BMessage* message)
 				}
 				break;
 			}
-			// TODO: Don't hardcode, move the definitions from TabManager.cpp
-			// to some common header
-			case 'cltb':
-			case 'clta':
-			case 'clto':
+			case MSG_CLOSE_TAB:
+			case MSG_CLOSE_TABS_ALL:
+			case MSG_CLOSE_TABS_OTHER:
 			{
 				TabView* view = NULL;
 				if (message->FindPointer("tab_source", (void**)&view) == B_OK) {

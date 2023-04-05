@@ -162,7 +162,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fFileNextButton(nullptr)
 	, fFileCloseButton(nullptr)
 	, fFileMenuButton(nullptr)
-	, fGotoLine(nullptr)
 	, fFindPreviousButton(nullptr)
 	, fFindNextButton(nullptr)
 	, fFindMarkAllButton(nullptr)
@@ -190,7 +189,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fRunConsoleProgramText(nullptr)
 	, fRunConsoleProgramButton(nullptr)
 	, fConsoleStdinLine("")
-	, fStatusBar(nullptr)
 	, fOpenPanel(nullptr)
 	, fSavePanel(nullptr)
 	, fOpenProjectPanel(nullptr)
@@ -200,6 +198,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fConsoleIOThread(nullptr)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
+	, fGoToLineWindow(nullptr)
 {
 	// Settings file check.
 	BPath path;
@@ -222,8 +221,8 @@ GenioWindow::GenioWindow(BRect frame)
 		selectTab->AddInt32("index", index - 1);
 		AddShortcut(index + kAsciiPos, B_COMMAND_KEY, selectTab);
 	}
-	AddShortcut(B_LEFT_ARROW, B_OPTION_KEY, new BMessage(MSG_FILE_PREVIOUS_SELECTED));
-	AddShortcut(B_RIGHT_ARROW, B_OPTION_KEY, new BMessage(MSG_FILE_NEXT_SELECTED));
+	AddShortcut(B_LEFT_ARROW,  B_OPTION_KEY,  new BMessage(MSG_FILE_PREVIOUS_SELECTED));
+	AddShortcut(B_RIGHT_ARROW, B_OPTION_KEY,  new BMessage(MSG_FILE_NEXT_SELECTED));
 
 	// Interface elements. If settings file is missing most probably it is
 	// first time execution, load all elements
@@ -293,19 +292,8 @@ GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 			int8 key;
 			if (message->FindInt8("byte", 0, &key) == B_OK) {
 				if (key == B_ESCAPE) {
-					// If keep focus activated TODO
-					#if 0
-					int32 index = fTabManager->SelectedTabIndex();
-					if (index > -1 && index < fTabManager->CountTabs()) {
-						Editor* editor = fEditorObjectList->ItemAt(index);
-						editor->GrabFocus();
-					}
-					#else
-					{
-						fFindGroup->SetVisible(false);
-						fReplaceGroup->SetVisible(false);
-					}
-					#endif
+					fFindGroup->SetVisible(false);
+					fReplaceGroup->SetVisible(false);
 				}
 			}
 		}
@@ -319,20 +307,7 @@ GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 				}
 			}
 		}
-	} else if (handler == fGotoLine->TextView()) {
-		if (message->what == B_KEY_DOWN) {
-			int8 key;
-			if (message->FindInt8("byte", 0, &key) == B_OK) {
-				if (key == B_ESCAPE) {
-					fGotoLine->Hide();
-					Editor* editor = fTabManager->SelectedEditor();
-					if (editor) {
-						editor->GrabFocus();
-					}
-				}
-			}
-		}
-	} else if (handler == fConsoleIOView) {
+	}  else if (handler == fConsoleIOView) {
 		if (message->what == B_KEY_DOWN) {
 			int8 key;
 			if (message->FindInt8("byte", 0, &key) == B_OK) {
@@ -393,15 +368,6 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_SAVE_REQUESTED:
 			_FileSaveAs(fTabManager->SelectedTabIndex(), message);
 			break;
-		/*case B_SELECT_ALL: {
-			int32 index = fTabManager->SelectedTabIndex();
-
-			if (index > -1 && index < fTabManager->CountTabs()) {
-				editor = fEditorObjectList->ItemAt(index);
-				editor->SelectAll();
-			}
-			break;
-		}*/
 		case B_UNDO: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
@@ -490,20 +456,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case EDITOR_PRETEND_POSITION_CHANGED: {
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index =  _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex()) {
-					int32 line, column;
-					if (message->FindInt32("line", &line) == B_OK
-						&& message->FindInt32("column", &column) == B_OK)
-
-							_UpdateStatusBarText(line, column);
-				}
-			}
-			break;
-		}
 
 		case EDITOR_REPLACE_ALL_COUNT: {
 			int32 count;
@@ -539,43 +491,31 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		
 		case EDITOR_POSITION_CHANGED: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				int32 index =  _GetEditorIndex(&ref);
 				if (index == fTabManager->SelectedTabIndex()) {
-					int32 line, column;
 					// Enable Cut,Copy,Paste shortcuts
 					_UpdateSavepointChange(index, "EDITOR_POSITION_CHANGED");
-					if (message->FindInt32("line", &line) == B_OK
-						&& message->FindInt32("column", &column) == B_OK)
-							_UpdateStatusBarText(line, column);
 				}
 			}
 			break;
 		}
-		case EDITOR_SAVEPOINT_LEFT: {
+		case EDITOR_UPDATE_SAVEPOINT: {
 			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
+			bool modified = false;
+			if (message->FindRef("ref", &ref) == B_OK &&
+			    message->FindBool("modified", &modified) == B_OK) {
+				    
 				int32 index = _GetEditorIndex(&ref);
 				if (index > -1) {
-					_UpdateLabel(index, true);
-					_UpdateSavepointChange(index, "Left");
+					_UpdateLabel(index, modified);
+					_UpdateSavepointChange(index, "UpdateSavePoint");
 				}
 			}
-
-			break;
-		}
-		case EDITOR_SAVEPOINT_REACHED: {
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref);
-				if (index > -1) {
-					_UpdateLabel(index, false);
-					_UpdateSavepointChange(index, "Reached");
-				}
-			}
-
+			
 			break;
 		}
 		case MSG_BOOKMARK_CLEAR_ALL: {
@@ -617,8 +557,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetReadOnly();
-				fFileUnlockedButton->SetEnabled(!editor->IsReadOnly());
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
+				fFileUnlockedButton->SetEnabled(!editor->IsReadOnly());				
 			}
 			break;
 		}
@@ -678,7 +617,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_LF);
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -686,7 +624,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CRLF);
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -694,7 +631,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetEndOfLine(SC_EOL_CR);
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -850,9 +786,18 @@ GenioWindow::MessageReceived(BMessage* message)
 				_Git(command);
 			break;
 		}
+		case GTLW_GO: {
+			int32 line;
+			if(message->FindInt32("line", &line) == B_OK) {
+				Editor* editor = fTabManager->SelectedEditor();
+				editor->GoToLine(line);
+			}
+		} break;
 		case MSG_GOTO_LINE:
-			fGotoLine->Show();
-			fGotoLine->MakeFocus();
+			if(fGoToLineWindow == nullptr) {
+				fGoToLineWindow = new GoToLineWindow(this);
+			}
+			fGoToLineWindow->ShowCentered(Frame());
 			break;
 		case MSG_LINE_ENDINGS_TOGGLE: {
 			Editor* editor = fTabManager->SelectedEditor();
@@ -928,23 +873,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			
 			break; 
 		}
-		case MSG_LINE_TO_GOTO: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
 
-				std::string linestr(fGotoLine->Text());
-				int32 line;
-				std::istringstream (linestr) >>  line;
-
-				if (line <= editor->CountLines())
-					editor->GoToLine(line);
-
-				editor->GrabFocus();
-				fGotoLine->SetText("");
-				fGotoLine->Hide();
-			}
-			break;
-		}
 		case MSG_MAKE_BINDCATALOGS: {
 			_MakeBindcatalogs();
 			break;
@@ -1089,7 +1018,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor)  {
 				editor->OverwriteToggle();
-				_UpdateStatusBarTrailing(fTabManager->SelectedTabIndex());
 			}
 			break;
 		}
@@ -1132,17 +1060,18 @@ GenioWindow::MessageReceived(BMessage* message)
 				Editor* editor = fTabManager->EditorAt(index);
 				// TODO notify and check index too
 				if (editor == nullptr) {
+					LogError("Selecting editor but it's null! (index %d)", index);
 					break;
-				}	
+				}
+				
 				editor->GrabFocus();
 				// In multifile open not-focused files place scroll just after
 				// caret line when reselected. Ensure visibility.
 				// TODO caret policy
 				editor->EnsureVisiblePolicy();
 
-				editor->PretendPositionChanged();
-				_UpdateTabChange(index, "TABMANAGER_TAB_SELECTED");
-				_UpdateStatusBarTrailing(index);
+				
+				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 			}
 			break;
 		}
@@ -1243,6 +1172,11 @@ GenioWindow::QuitRequested()
 			//TODO:---> _ProjectOutlineDepopulate(project);
 			delete project;
 		}
+	}
+	
+	if(fGoToLineWindow != nullptr) {
+		fGoToLineWindow->LockLooper();
+		fGoToLineWindow->Quit();
 	}
 	
 
@@ -1424,7 +1358,7 @@ GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
 
 	// Was it the last one?
 	if (fTabManager->CountTabs() == 0)
-		_UpdateTabChange(-1, "_FileClose");
+		_UpdateTabChange(nullptr, "_FileClose");
 
 	return B_OK;
 }
@@ -2333,17 +2267,12 @@ GenioWindow::_InitCentralSplit()
 
 	dirtyFrameHack = fTabManager->TabGroup()->Frame();
 
-	// Status Bar
-	fStatusBar = new BStatusBar("StatusBar");
-	fStatusBar->SetBarHeight(1.0);
-
 	fEditorTabsGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
 		.Add(fRunConsoleProgramGroup)
 		.Add(fFindGroup)
 		.Add(fReplaceGroup)
 		.Add(fTabManager->TabGroup())
 		.Add(fTabManager->ContainerView())
-		.Add(fStatusBar)
 	;
 
 }
@@ -2684,16 +2613,7 @@ GenioWindow::_InitToolbar()
 	fFileMenuButton = _LoadIconButton("FileMenuButton", MSG_FILE_MENU_SHOW,
 						211, false, B_TRANSLATE("Indexed File list"));
 
-	fGotoLine = new BTextControl("GotoLine", nullptr, nullptr, new BMessage(MSG_LINE_TO_GOTO));
-	fGotoLine->SetToolTip(B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS));
-	float stringWidth = fGotoLine->StringWidth(" 123456") + 24.0f;
-	fGotoLine->SetExplicitMaxSize(BSize(stringWidth, 24.0f)); //B_SIZE_UNSET
-	for (auto i = 0; i < 256; i++)
-		if (i < '0' || i > '9')
-			fGotoLine->TextView()->DisallowChar(i);
-	fGotoLine->TextView()->SetMaxBytes(kGotolineMaxBytes);
-	fGotoLine->TextView()->SetAlignment(B_ALIGN_RIGHT);
-	fGotoLine->Hide();
+
 
 	fToolBar = BLayoutBuilder::Group<>(B_VERTICAL, 0)
 		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, 1)
@@ -2718,8 +2638,6 @@ GenioWindow::_InitToolbar()
 			.AddGlue()
 			.Add(fBuildModeButton)
 			.Add(fFileUnlockedButton)
-			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
-			.Add(fGotoLine)
 			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
 			.Add(fFilePreviousButton)
 			.Add(fFileNextButton)
@@ -3964,46 +3882,14 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 }
 
-/*
- * Status bar is cleaned (both text and trailing) when
- * _UpdateTabChange is called with -1 index
- *
- */
-void
-GenioWindow::_UpdateStatusBarText(int line, int column)
-{
-	BString text;
-	text << "  " << line << ':' << column;
-	fStatusBar->SetText(text.String());
-}
-
-/*
- * Index has to be verified before the call
- * so it is not checked here too
- */
-void
-GenioWindow::_UpdateStatusBarTrailing(int32 index)
-{
-	Editor* editor = fTabManager->EditorAt(index);
-
-	BString trailing;
-	trailing << editor->IsOverwriteString() << '\t';
-	trailing << editor->EndOfLineString() << '\t';
-	trailing << editor->ModeString() << '\t';
-	//trailing << editor->EncodingString() << '\t';
-
-	fStatusBar->SetTrailingText(trailing.String());
-}
-
 // Updating menu, toolbar, title.
 // Also cleaning Status bar if no open files
 void
-GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
+GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 {
-	assert (index >= -1 && index < fTabManager->CountTabs());
 
 	// All files are closed
-	if (index == -1) {
+	if (editor == nullptr) {
 		// ToolBar Items
 		fFindButton->SetEnabled(false);
 		fFindGroup->SetVisible(false);
@@ -4043,9 +3929,6 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 		fGoToLineItem->SetEnabled(false);
 		fBookmarksMenu->SetEnabled(false);
 
-		// Clean Status bar
-		fStatusBar->Reset();
-
 		if (GenioNames::Settings.fullpath_title == true)
 			SetTitle(GenioNames::kApplicationName);
 
@@ -4053,7 +3936,6 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 	}
 
 	// ToolBar Items
-	Editor* editor = fTabManager->EditorAt(index);
 	
 	fFindButton->SetEnabled(true);
 	fReplaceButton->SetEnabled(true);
@@ -4066,7 +3948,9 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 	fFileMenuButton->SetEnabled(true);
 
 	// Arrows
+	/* TODO: remove! */
 	int32 maxTabIndex = (fTabManager->CountTabs() - 1);
+	int32 index = fTabManager->SelectedTabIndex();
 	if (index == 0) {
 		fFilePreviousButton->SetEnabled(false);
 		if (maxTabIndex > 0)
@@ -4078,7 +3962,8 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 			fFilePreviousButton->SetEnabled(true);
 			fFileNextButton->SetEnabled(true);
 	}
-
+	/* END REMOVE */
+	
 	// Menu Items
 	fSaveMenuItem->SetEnabled(editor->IsModified());
 	fSaveAsMenuItem->SetEnabled(true);
@@ -4116,5 +4001,5 @@ GenioWindow::_UpdateTabChange(int32 index, const BString& caller)
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
 
-	LogTraceF("called by: %s:%d",caller.String(), index);
+	LogTraceF("called by: %s:%d", caller.String(), index);
 }

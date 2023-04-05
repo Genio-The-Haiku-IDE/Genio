@@ -32,6 +32,7 @@
 #include <Window.h>
 #include "Editor.h"
 
+
 const float kHorzSpacing = 5.f;
 
 using namespace BPrivate;
@@ -85,7 +86,7 @@ StatusView::Draw(BRect updateRect)
 	bounds.bottom = height;
 	bounds.right = width;
 	uint32 flags = 0;
-	if(!Window()->IsActive())
+	if (!Window()->IsActive())
 		flags |= BControlLook::B_DISABLED;
 	be_control_look->DrawScrollBarBackground(this, bounds, bounds, ViewColor(),
 		flags, B_HORIZONTAL);
@@ -144,7 +145,7 @@ StatusView::MouseDown(BPoint where)
 		return;
 	}
 
-	if(where.x < fNavigationButtonWidth + fCellWidth[kPositionCell] && where.x > fNavigationButtonWidth) {
+	if (where.x < fNavigationButtonWidth + fCellWidth[kPositionCell] && where.x > fNavigationButtonWidth) {
 		BMessenger msgr(Window());
 		msgr.SendMessage(MSG_GOTO_LINE);
 	}
@@ -197,9 +198,9 @@ StatusView::_DrawNavigationButton(BRect rect)
 	rgb_color baseColor = tint_color(ui_color(B_PANEL_BACKGROUND_COLOR),
 		B_LIGHTEN_1_TINT);
 	uint32 flags = 0;
-	if(fNavigationPressed)
+	if (fNavigationPressed)
 		flags |= BControlLook::B_ACTIVATED;
-	if(Window()->IsActive() == false)
+	if (Window()->IsActive() == false)
 		flags |= BControlLook::B_DISABLED;
 	be_control_look->DrawButtonBackground(this, rect, rect, baseColor, flags,
 		BControlLook::B_ALL_BORDERS, B_HORIZONTAL);

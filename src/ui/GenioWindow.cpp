@@ -210,6 +210,7 @@ GenioWindow::GenioWindow(BRect frame)
 	// Fill Settings vars before using
 	GenioNames::LoadSettingsVars();
 
+	Logger::SetDestination(GenioNames::Settings.log_destination);	
 	_InitMenu();
 
 	_InitWindow();

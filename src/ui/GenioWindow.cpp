@@ -1504,11 +1504,19 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 
 	if (info.InitCheck() == B_OK) {
 		char mime[B_MIME_TYPE_LENGTH + 1];
-		info.GetType(mime);
+		if (info.GetType(mime) != B_OK) {
+			LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
+			mime[0]='\0';
+		}	
 		if (strlen(mime) == 0 || strcmp(mime, "application/octet-stream") == 0)
 		{
 			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK)
-				info.GetType(mime);
+			{
+				if (info.GetType(mime) != B_OK) {
+					LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
+					mime[0]='\0';
+				}					
+			}
 		}
 		
 		if (strncmp(mime, "text/", 5) == 0)

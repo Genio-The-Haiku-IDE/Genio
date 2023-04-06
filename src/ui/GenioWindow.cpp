@@ -1403,8 +1403,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 			continue;
 		}	
 
-		refsCount++;
-
 		// Do not reopen an already opened file
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
 			if (openedIndex != fTabManager->SelectedTabIndex()) {

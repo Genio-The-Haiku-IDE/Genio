@@ -1506,11 +1506,11 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 
 	if (info.InitCheck() == B_OK) {
 		char mime[B_MIME_TYPE_LENGTH + 1];
-		mime[0]='\0';
 		info.GetType(mime);
-		if (mime[0] == '\0' && update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_NO_FORCE) == B_OK)
+		if (strlen(mime) == 0 || strcmp(mime, "application/octet-stream") == 0)
 		{
-			info.GetType(mime);
+			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK)
+				info.GetType(mime);
 		}
 		
 		if (strncmp(mime, "text/", 5) == 0)
@@ -3248,7 +3248,10 @@ GenioWindow::_ProjectFileFullPath()
 	if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
 		return selectedProjectItem->GetSourceItem()->Path();
 	else
+	{
+		//LogError("Non invoking a file! (%s)", selectedProjectItem->GetSourceItem()->Name().String() );
 		return "";
+	}
 }
 
 void

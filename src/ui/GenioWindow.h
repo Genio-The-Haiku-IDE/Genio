@@ -110,7 +110,6 @@ private:
 
 			void				_ProjectFileDelete();
 			void				_ProjectFileExclude();
-			BString	const		_ProjectFileFullPath();
 			void				_ProjectFileOpen(const BString& filePath);
 			void				_ProjectFileRemoveItem(bool addToParseless);
 			

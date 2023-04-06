@@ -28,6 +28,10 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
+enum {
+		MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
+};
+
 ProjectsFolderBrowser::ProjectsFolderBrowser():
 	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
 {
@@ -349,39 +353,41 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			_UpdateNode(message);
 		}
 		break;
+		case MSG_PROJECT_MENU_OPEN_FILE: 
+		{
+			//message->PrintToStream();
+			int32 index = -1;
+			if (message->FindInt32("index", &index) != B_OK) {
+				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find index!");
+				return;
+			}
+			
+			ProjectItem* item = dynamic_cast<ProjectItem*>(ItemAt(index));
+			if (!item) {
+				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find item at index %d", index);
+				return;
+			}
+			if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
+				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) Invoking a non FileItem (%s)", item->GetSourceItem()->Name().String());
+				return;
+			}
+			
+			BEntry entry(item->GetSourceItem()->Path());
+			entry_ref ref;
+			if (entry.GetRef(&ref) != B_OK) {
+				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Invalid entry_ref for [%s]", item->GetSourceItem()->Path().String());
+				return;
+			}
+			
+			BMessage msg(B_REFS_RECEIVED);
+			msg.AddRef("refs", &ref);
+			Window()->PostMessage(&msg);
+			return;
+		}
+		break;	
 		default:
 		break;	
 	}
-	
-	//TODO: move more logic here!
-	/*
-	switch (message->what)
-	{
-		case MSG_PROJECT_MENU_CLOSE: 
-			message->PrintToStream();
-		break;
-		case MSG_PROJECT_MENU_SET_ACTIVE: 
-			message->PrintToStream();
-		break;
-		case MSG_PROJECT_MENU_DELETE_FILE: 
-			message->PrintToStream();
-		break;
-		case MSG_PROJECT_MENU_EXCLUDE_FILE: 
-			message->PrintToStream();
-		break;
-		case MSG_PROJECT_MENU_OPEN_FILE: 
-			message->PrintToStream();
-		break;
-		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: 
-			message->PrintToStream();
-		break;
-		case MSG_PROJECT_MENU_OPEN_TERMINAL: 
-			message->PrintToStream();
-		break;
-		
-		default:break;
-	};
-	*/
 	
 	BOutlineListView::MessageReceived(message);
 }

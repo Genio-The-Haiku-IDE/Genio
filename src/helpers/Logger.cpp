@@ -158,7 +158,7 @@ Logger::_DoLog(const char* string)
 		/*case Logger::LOGGER_DEST_FILE:
 			break;*/
 		case Logger::LOGGER_DEST_SYSLOG:
-			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "%s", (const char* const)string);
+			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "Genio: %s", (const char* const)string);
 			break;
 		case Logger::LOGGER_DEST_STDOUT:
 		default:

@@ -124,6 +124,7 @@ SaveSettingsVars()
 	status += file.SetBool("find_wrap", 	  Settings.find_wrap);
 	status += file.SetBool("find_whole_word", Settings.find_whole_word);
 	status += file.SetBool("find_match_case", Settings.find_match_case);
+	status += file.SetInt32("log_destination", Settings.log_destination);
 	
 	return status;
 }
@@ -162,6 +163,7 @@ LoadSettingsVars()
 	status += file.FindBool("find_wrap", 	   &Settings.find_wrap);
 	status += file.FindBool("find_whole_word", &Settings.find_whole_word);
 	status += file.FindBool("find_match_case", &Settings.find_match_case);
+	status += file.FindInt32("log_destination", &Settings.log_destination);
 
 	return status;
 }
@@ -242,6 +244,9 @@ UpdateSettingsFile()
 
 	if (settings.FindBool("find_match_case", &boolVal) != B_OK)
 		settings.SetBool("find_match_case", kSKFindMatchCase);
+	
+	if (settings.FindInt32("log_destination", &intVal) != B_OK)
+		settings.SetInt32("log_destination", 0);
 
 
 	// Managed to get here without errors, reset counter and app version

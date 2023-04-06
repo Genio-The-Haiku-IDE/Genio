@@ -35,6 +35,7 @@
 
 #include "DefaultSettingsKeys.h"
 #include "GenioNamespace.h"
+#include "Logger.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SettingsWindow"
@@ -70,7 +71,7 @@ enum {
 	MSG_SHOW_TOOLBAR_TOGGLED				= 'shto',
 	MSG_SYNTAX_HIGHLIGHT_TOGGLED			= 'syhi',
 	MSG_TAB_WIDTH_CHANGED					= 'tawi',
-
+	MSG_LOG_DESTINATION_CHANGED				= 'lodc',
 	MSG_WRAP_CONSOLE_ENABLED				= 'wcen',
 	MSG_CONSOLE_BANNER_ENABLED				= 'cben'
 };
@@ -311,6 +312,11 @@ SettingsWindow::MessageReceived(BMessage *msg)
 				_ManageModifications(fTabWidthSpinner, modified);
 			break;
 		}
+		case MSG_LOG_DESTINATION_CHANGED: {
+			bool modified = fLogDestination->Value() !=
+								fWindowSettingsFile->FindInt32("log_destination");
+				_ManageModifications(fLogDestination, modified);
+		}
 		case MSG_WRAP_CONSOLE_ENABLED: {
 			bool modified = fWrapConsoleEnabled->Value() !=
 								fWindowSettingsFile->FindInt32("wrap_console");
@@ -341,6 +347,9 @@ SettingsWindow::QuitRequested()
 	// If full path window title has been set off, clean title
 	if (GenioNames::Settings.fullpath_title == false)
 		be_app->WindowAt(0)->SetTitle(GenioNames::kApplicationName);
+
+	// TODO: Move this to the proper place
+	Logger::SetDestination(GenioNames::Settings.log_destination);
 
 	// TODO Send a message to reload file settings
 
@@ -553,6 +562,15 @@ SettingsWindow::_LoadFromFile(BControl* control, bool loadAll /*= false*/)
 			fControlsDone += loadAll == true;
 		} else
 			fOrphansList->AddItem(fFullPathWindowTitle);
+	}
+	if (control == fLogDestination || loadAll == true) {
+		status = fWindowSettingsFile->FindInt32("log_destination", &intVal);
+		fControlsCount += loadAll == true;
+		if (status == B_OK) {
+			fLogDestination->SetValue(intVal);
+			fControlsDone += loadAll == true;
+		} else
+			fOrphansList->AddItem(fLogDestination);
 	}
 	// General Startup Page
 	if (control == fReopenProjects || loadAll == true) {
@@ -975,6 +993,11 @@ SettingsWindow::_PageGeneralView()
 	fFullPathWindowTitle = new BCheckBox("FullPathWindowTitle",
 		B_TRANSLATE("File full path in window title"), new BMessage(MSG_FULL_PATH_TOGGLED));
 
+	fLogDestination = new BOptionPopUp("LogDestination",
+		B_TRANSLATE("Log destination"), new BMessage(MSG_LOG_DESTINATION_CHANGED));
+	fLogDestination->AddOptionAt("Stdout", Logger::LOGGER_DEST_STDOUT, 0);
+	fLogDestination->AddOptionAt("Stderr", Logger::LOGGER_DEST_STDERR, 1);
+	fLogDestination->AddOptionAt("Syslog", Logger::LOGGER_DEST_SYSLOG, 2);
 	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
 		.Add(BLayoutBuilder::Grid<>(fGeneralBox)
 		.Add(fProjectsDirectory->CreateLabelLayoutItem(), 0, 0)
@@ -982,6 +1005,7 @@ SettingsWindow::_PageGeneralView()
 		.Add(fBrowseProjectsButton, 3, 0)
 		.Add(saveWindowPosition, 0, 1)
 		.Add(fFullPathWindowTitle, 1, 1)
+		.Add(fLogDestination, 0, 2)
 		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 3, 4)
 		.AddGlue(0, 4)
 		.SetInsets(10, 20, 10, 10))
@@ -1142,6 +1166,8 @@ SettingsWindow::_StoreToFile(BControl* control)
 		status = fWindowSettingsFile->SetBString("projects_directory", fProjectsDirectory->Text());
 	else if (control == fFullPathWindowTitle)
 		status = fWindowSettingsFile->SetInt32("fullpath_title", fFullPathWindowTitle->Value());
+	else if (control == fLogDestination)
+		status = fWindowSettingsFile->SetInt32("log_destination", fLogDestination->Value());
 	// General Startup Page
 	else if (control == fReopenProjects)
 		status = fWindowSettingsFile->SetInt32("reopen_projects", fReopenProjects->Value());
@@ -1206,6 +1232,7 @@ SettingsWindow::_StoreToFileDefaults()
 	// General Page
 	fWindowSettingsFile->SetBString("projects_directory", kSKProjectsDirectory);
 	fWindowSettingsFile->SetInt32("fullpath_title", kSKFullPathTitle);
+	fWindowSettingsFile->SetInt32("log_destination", Logger::LOGGER_DEST_STDOUT);
 
 	// General Startup Page
 	fWindowSettingsFile->SetInt32("reopen_projects", kSKReopenProjects);

@@ -88,6 +88,7 @@ typedef std::map<BStringItem*, BString>::const_iterator ViewPageIterator;
 			BBox*				fGeneralBox;
 			BButton*			fBrowseProjectsButton;
 			BCheckBox*			fFullPathWindowTitle;
+			BOptionPopUp*		fLogDestination;
 
 			// GeneralStartup page
 			BBox*				fGeneralStartupBox;

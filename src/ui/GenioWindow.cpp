@@ -898,10 +898,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectFileExclude();
 			break;
 		}
-		case MSG_PROJECT_MENU_OPEN_FILE: {
-			_ProjectFileOpen(_ProjectFileFullPath());
-			break;
-		}
 		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
 			_ShowCurrentItemInTracker();
 			break;
@@ -3235,23 +3231,6 @@ void
 GenioWindow::_ProjectFileExclude()
 {
 	_ProjectFileRemoveItem(true);
-}
-
-/*
- * Full path of a file selected in Project Outline List
- *
- */
-BString const
-GenioWindow::_ProjectFileFullPath()
-{
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetCurrentProjectItem();
-	if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
-		return selectedProjectItem->GetSourceItem()->Path();
-	else
-	{
-		//LogError("Non invoking a file! (%s)", selectedProjectItem->GetSourceItem()->Name().String() );
-		return "";
-	}
 }
 
 void

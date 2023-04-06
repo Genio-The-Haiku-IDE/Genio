@@ -30,6 +30,9 @@ GenioApp::GenioApp()
 	fUISettingsFile = new TPreferences(GenioNames::kUISettingsFileName,
 										GenioNames::kApplicationName, 'UISE');
 
+	int32 logDestination = 0;
+	fUISettingsFile->FindInt32("log_destination", &logDestination);
+	Logger::SetDestination(logDestination);
 	// Load frame from settings if present or use default
 	if (fUISettingsFile->FindRect("ui_bounds", &frame) != B_OK)
 		frame.Set(40, 40, 839, 639);

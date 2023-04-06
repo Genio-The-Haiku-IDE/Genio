@@ -59,6 +59,7 @@ namespace GenioNames
 		bool  find_wrap;
 		bool  find_whole_word;
 		bool  find_match_case;
+		int32 log_destination;
 
 
 	} SettingsVars;

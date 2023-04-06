@@ -23,12 +23,12 @@
 // conditional clauses in the code to prevent this otherwise would be
 // cumbersome.
 
-#define HDLOGPREFIX(L) printf("{%c} ", toupper(Logger::NameForLevel(L)[0]));
+#define HDLOGPREFIX(L) Logger::LogFormat("{%c} ", toupper(Logger::NameForLevel(L)[0]));
 
 #define HDLOG(L, M...) do { if (Logger::IsLevelEnabled(L)) { \
 	HDLOGPREFIX(L) \
-	printf(M); \
-	putchar('\n'); \
+	Logger::LogFormat(M); \
+	Logger::Log('\n'); \
 } } while (0)
 
 #define HDINFO(M...) HDLOG(LOG_LEVEL_INFO, M)
@@ -37,9 +37,9 @@
 #define HDERROR(M...) HDLOG(LOG_LEVEL_ERROR, M)
 
 #define HDFATAL(M...) do { \
-	printf("{!} (failed @ %s:%d) ", __FILE__, __LINE__); \
-	printf(M); \
-	putchar('\n'); \
+	Logger::LogFormat("{!} (failed @ %s:%d) ", __FILE__, __LINE__); \
+	Logger::LogFormat(M); \
+	Logger::Log('\n'); \
 	exit(EXIT_FAILURE); \
 } while (0)
 
@@ -54,6 +54,17 @@ typedef enum log_level {
 
 class Logger {
 public:
+	enum LOGGER_DEST {
+		LOGGER_DEST_STDOUT = 0,
+		LOGGER_DEST_STDERR = 1,
+		LOGGER_DEST_SYSLOG = 2
+	};
+	static	void				SetDestination(int destination);
+
+	static	void				LogFormat(const char* fmtString, ...);
+	static	void				Log(const char*);
+	static	void				Log(char);
+
 	static	log_level			Level();
 	static	void				SetLevel(log_level value);
 	static	bool				SetLevelByName(const char *name);
@@ -67,7 +78,10 @@ public:
 	static	bool				IsErrorEnabled();
 
 private:
+	static	void				_DoLog(const char* string);
+
 	static	log_level			sLevel;
+	static	int					sDestination;
 };
 
 

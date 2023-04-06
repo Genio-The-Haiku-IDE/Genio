@@ -4,10 +4,51 @@
  */
 #include "Logger.h"
 
+#include <stdarg.h>
+#include <syslog.h>
 
 log_level Logger::sLevel = LOG_LEVEL_INFO;
+int	Logger::sDestination = LOGGER_DEST_STDOUT;
+
+/*static*/
+void
+Logger::SetDestination(int destination)
+{
+	sDestination = destination;
+}
 
 
+/*static*/
+void
+Logger::LogFormat(const char* fmtString, ...)
+{
+	char logString[1024];
+	va_list argp;
+	::va_start(argp, fmtString);
+	::vsnprintf(logString, sizeof(logString), fmtString, argp);
+	::va_end(argp);
+	_DoLog(logString);
+}
+
+
+/* static */
+void
+Logger::Log(const char* string)
+{
+	_DoLog(string);
+}
+
+
+/* static */
+void
+Logger::Log(char c)
+{
+	char string[2] = { c, 0 };
+	_DoLog(string);
+}
+
+
+/*static*/
 log_level
 Logger::Level()
 {
@@ -15,6 +56,7 @@ Logger::Level()
 }
 
 
+/*static*/
 void
 Logger::SetLevel(log_level value)
 {
@@ -102,4 +144,25 @@ bool
 Logger::IsErrorEnabled()
 {
 	return IsLevelEnabled(LOG_LEVEL_ERROR);
+}
+
+
+/*static*/
+void
+Logger::_DoLog(const char* string)
+{
+	switch (sDestination) {
+		case Logger::LOGGER_DEST_STDERR:
+			::fprintf(stderr, string);
+			break;
+		/*case Logger::LOGGER_DEST_FILE:
+			break;*/
+		case Logger::LOGGER_DEST_SYSLOG:
+			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "%s", (const char* const)string);
+			break;
+		case Logger::LOGGER_DEST_STDOUT:
+		default:
+			::fprintf(stdout, string);
+			break;
+	}
 }

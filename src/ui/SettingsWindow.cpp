@@ -478,6 +478,7 @@ SettingsWindow::_InitWindow()
 
 	// Window layout
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
+		.SetInsets(B_USE_DEFAULT_SPACING)
 		.AddGroup(B_HORIZONTAL)
 			.Add(fSettingsScroll, 4.0f)
 			.Add(fSettingsBaseView, 9.0f)

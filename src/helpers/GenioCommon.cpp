@@ -4,16 +4,19 @@
  */
 #include "GenioCommon.h"
 
+#include <Entry.h>
+
 #include <cctype>
 #include <ctime>
-#include <fstream>
 #include <sstream>
 #include <string>
+
 
 namespace Genio
 {
 
-std::string const Copyright()
+std::string
+const Copyright()
 {
 	std::ostringstream header;
 	header
@@ -31,7 +34,8 @@ std::string const Copyright()
  *     all_lower = ALL_LOWER
  *     CamelCase = CAMEL_CASE
  */
-std::string const HeaderGuard(const std::string& fileName)
+std::string const
+HeaderGuard(const std::string& fileName)
 {
 	std::string upper(fileName);
 	std::string lower(fileName);
@@ -56,18 +60,15 @@ std::string const HeaderGuard(const std::string& fileName)
 	return out;
 }
 
-bool file_exists(const std::string& filename)
+bool
+file_exists(const std::string& filename)
 {
-	// Test existence
-	std::ifstream file(filename);
-	if (file.is_open()) {
-		file.close();
-		return true;
-	}
-	return false;
+	// TODO: Test if it's a file or directory ?
+	return BEntry(filename.c_str()).Exists();
 }
 
-std::string const file_type(const std::string& filename)
+std::string const
+file_type(const std::string& filename)
 {
  	if (filename.find("Jamfile") == 0) {
 		return "jam";
@@ -87,18 +88,13 @@ std::string const file_type(const std::string& filename)
 	return "";
 }
 
-int get_year()
+int
+get_year()
 {
 	// Get year
 	time_t time = ::time(NULL);
 	struct tm* tm = localtime(&time);
 	return tm->tm_year + 1900;
 }
-
-
-
-
-
-
 
 } // end of namespace

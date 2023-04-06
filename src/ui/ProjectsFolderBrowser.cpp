@@ -381,6 +381,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			
 			BMessage msg(B_REFS_RECEIVED);
 			msg.AddRef("refs", &ref);
+			msg.AddBool("openWithPreferred", true);
 			Window()->PostMessage(&msg);
 			return;
 		}

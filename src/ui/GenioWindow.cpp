@@ -362,7 +362,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case B_REFS_RECEIVED:
 		case 'DATA': //file drag'n'drop
-			_FileOpen(message, false);
+			_FileOpen(message);
 			Activate();
 			break;
 		case B_SAVE_REQUESTED:
@@ -1375,7 +1375,7 @@ GenioWindow::_FileCloseAll()
 }
 
 status_t
-GenioWindow::_FileOpen(BMessage* msg, bool openWithPreferred)
+GenioWindow::_FileOpen(BMessage* msg)
 {
 	entry_ref ref;
 	status_t status = B_OK;
@@ -1392,7 +1392,9 @@ GenioWindow::_FileOpen(BMessage* msg, bool openWithPreferred)
 
 	const int32 be_line   = msg->GetInt32("be:line", -1);
 	const int32 lsp_char	= msg->GetInt32("lsp:character", -1);
-
+	
+	bool openWithPreferred	= msg->GetBool("openWithPreferred", false);
+	 
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
 
 		if (!_FileIsSupported(&ref)) {
@@ -3238,10 +3240,14 @@ GenioWindow::_ProjectFileOpen(const BString& filePath)
 {
 	BEntry entry(filePath);
 	entry_ref ref;
-	entry.GetRef(&ref);
-	BMessage msg;
+	if (entry.GetRef(&ref) != B_OK) {
+		LogErrorF("Invalid entry_ref for [%s]", filePath.String());
+		return;
+	}
+	
+	BMessage msg(B_REFS_RECEIVED);
 	msg.AddRef("refs", &ref);
-	_FileOpen(&msg, true);
+	PostMessage(&msg);
 }
 
 //TODO: old function using fProjectsOutline

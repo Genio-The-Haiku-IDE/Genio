@@ -1771,7 +1771,7 @@ GenioWindow::_FindInFiles()
 	  if ((bool)fFindCaseSensitiveCheck->Value() == false)
 		extraParameters += "i";
 
-	  text.CharacterEscape("\'\\ \n\"", '\\');
+	  text.CharacterEscape("\\\n\"", '\\');
 
 	  BString grepCommand("grep -IHrn");
 	  grepCommand += extraParameters;

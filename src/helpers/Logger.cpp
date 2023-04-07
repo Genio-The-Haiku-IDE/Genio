@@ -18,7 +18,7 @@ Logger::SetDestination(int destination)
 }
 
 
-/*static*/
+
 void
 Logger::LogFormat(const char* fmtString, ...)
 {
@@ -30,22 +30,20 @@ Logger::LogFormat(const char* fmtString, ...)
 	_DoLog(logString);
 }
 
-
-/* static */
 void
-Logger::Log(const char* string)
+Logger::LogFormat(log_level level, const char* fmtString, ...)
 {
-	_DoLog(string);
+	char fullString[1024 + 4];
+	snprintf(fullString, 4 + 1, "{%c} ", toupper(Logger::NameForLevel(level)[0]));
+
+	char* logString = fullString + 4;
+	va_list argp;
+	::va_start(argp, fmtString);
+	::vsnprintf(logString, sizeof(fullString) - 4, fmtString, argp);
+	::va_end(argp);
+	_DoLog(logString);
 }
 
-
-/* static */
-void
-Logger::Log(char c)
-{
-	char string[2] = { c, 0 };
-	_DoLog(string);
-}
 
 
 /*static*/
@@ -153,7 +151,7 @@ Logger::_DoLog(const char* string)
 {
 	switch (sDestination) {
 		case Logger::LOGGER_DEST_STDERR:
-			::fprintf(stderr, string);
+			::fprintf(stderr, string); ::fprintf(stderr, "\n");
 			break;
 		/*case Logger::LOGGER_DEST_FILE:
 			break;*/
@@ -162,7 +160,7 @@ Logger::_DoLog(const char* string)
 			break;
 		case Logger::LOGGER_DEST_STDOUT:
 		default:
-			::fprintf(stdout, string);
+			::fprintf(stdout, string); ::fprintf(stdout, "\n");
 			break;
 	}
 }

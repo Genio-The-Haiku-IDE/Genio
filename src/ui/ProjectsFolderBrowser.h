@@ -48,7 +48,7 @@ private:
 	
 	ProjectItem*	FindProjectItem(BString const& path);
 	
-	ProjectItem*	_CreatePath(BPath pathToCreate, ProjectFolder* project);
+	ProjectItem*	_CreatePath(BPath pathToCreate);
 	
 	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 
@@ -58,6 +58,10 @@ private:
 	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
 	
 	void			_UpdateNode(BMessage *message);
+	
+	
+
+	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
 	
 private:
 	

@@ -86,7 +86,16 @@ ProjectsFolderBrowser::FindProjectItem(BString const& path)
 }
 
 ProjectItem*	
-ProjectsFolderBrowser::_CreatePath(BPath pathToCreate, ProjectFolder* project)
+ProjectsFolderBrowser::_CreateNewProjectItem(ProjectItem* parentItem, BPath path)
+{
+	ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
+	SourceItem *sourceItem = new SourceItem(path.Path());
+	sourceItem->SetProjectFolder(projectFolder);
+	return new ProjectItem(sourceItem);
+}
+
+ProjectItem*	
+ProjectsFolderBrowser::_CreatePath(BPath pathToCreate)
 {
 	LogTrace("Create path for %s", pathToCreate.Path());
 	ProjectItem *item = FindProjectItem(pathToCreate.Path());
@@ -96,19 +105,19 @@ ProjectsFolderBrowser::_CreatePath(BPath pathToCreate, ProjectFolder* project)
 		BPath parent;
 		if (pathToCreate.GetParent(&parent) == B_OK)
 		{
-			ProjectItem* parentItem = _CreatePath(parent, project);
-			ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
-			LogTrace("parent projectFolder %s", projectFolder->Path().String());
-			SourceItem *sourceItem = new SourceItem(pathToCreate.Path());
-			sourceItem->SetProjectFolder(projectFolder);
-			
+			ProjectItem* parentItem = _CreatePath(parent);
 			LogTrace("Creating path %s", pathToCreate.Path());
-			ProjectItem* newItem = new ProjectItem(sourceItem);
-			AddUnder(newItem,parentItem);
+			ProjectItem* newItem = _CreateNewProjectItem(parentItem, pathToCreate);// new ProjectItem(sourceItem);
+
+			if (AddUnder(newItem,parentItem)) {
+				LogDebugF("AddUnder(%s,%s) (Parent %s)", newItem->Text(), parentItem->Text(), parent.Path());
+				SortItemsUnder(parentItem, true, ProjectsFolderBrowser::_CompareProjectItems);
+				Collapse(newItem);
+			}
 			return newItem;
 		}
 	}
-	LogTrace("Found path %s", pathToCreate.Path());
+	LogTrace("Found path [%s]", pathToCreate.Path());
 	return item;		
 }
 
@@ -129,29 +138,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 			BString spath;
 			if (message->FindString("path", &spath) == B_OK) {
 				BPath path(spath.String());
-				BPath parent;
-				path.GetParent(&parent);
-				
-				ProjectItem *parentItem = FindProjectItem(parent.Path());
-				if (!parentItem) {
-					parentItem = _CreatePath(parent, NULL);
-					if (!parentItem) {
-						LogError("Can't create the parent for item in [%s]", parent.Path());
-						return;
-					}
-				}
-				ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
-				SourceItem *sourceItem = new SourceItem(path.Path());
-				sourceItem->SetProjectFolder(projectFolder);
-				ProjectItem *newItem = new ProjectItem(sourceItem);
-				
-				bool status = AddUnder(newItem,parentItem);
-				if (status) {
-					LogDebug("(B_ENTRY_CREATED) AddUnder(%s,%s) (Parent %s)", newItem->Text(), parentItem->Text(), parent.Path());
-					SortItemsUnder(parentItem, true, ProjectsFolderBrowser::_CompareProjectItems);
-					Collapse(newItem);
-				}
-				
+				_CreatePath(path);
 			}
 			break;
 		}
@@ -194,11 +181,9 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 		}
 		case B_ENTRY_MOVED:
 		{
-			BString spath;
-			bool removed, added;
-			
+			BString spath;			
 			// An item moved outside of the project folder
-			if (message->FindBool("removed", &removed) == B_OK) {
+			if (message->GetBool("removed", false)) {
 				if (message->FindString("from path", &spath) == B_OK) {			
 					LogDebug("from path %s",  spath.String());
 					ProjectItem *item = FindProjectItem(spath);
@@ -242,50 +227,37 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				BString oldName, newName;
 				BString oldPath, newPath;
 				
-				if (message->FindBool("added", &added) == B_OK) {
+				if (message->GetBool("added")) {
 					if (message->FindString("path", &newPath) == B_OK) {
 						if (message->FindString("name", &newName) == B_OK) {
-							BPath destination(newPath);
-							BPath parent;
-							destination.GetParent(&parent);
-							
-							ProjectItem *parentItem = FindProjectItem(parent.Path());
-							if (!parentItem) {
-								LogError("Can't find an item to move parentPath[%s]", parent.Path());
-								return;
-							}
-							ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
-							SourceItem *sourceItem = new SourceItem(newPath);
-							sourceItem->SetProjectFolder(projectFolder);
-							ProjectItem *newItem = new ProjectItem(sourceItem);
-				
-							LogDebug("ProjectFolder %s", projectFolder->Path().String());
-							LogDebug("parent %s", parentItem->GetSourceItem()->Path().String());
-							LogDebug("path %s",  newItem->GetSourceItem()->Path().String());
-				
-							if (newItem->GetSourceItem()->Type() == SourceItemType::FolderItem)
-							{
-								_ProjectFolderScan(parentItem, newItem->GetSourceItem()->Path(), newItem->GetSourceItem()->GetProjectFolder());
+							const BPath destination(newPath);
+							if (BEntry(newPath).IsDirectory()) {
+								
+								// a new folder moved inside the project.
+								
+								//ensure we have a parent								
+								BPath parent;
+								destination.GetParent(&parent);
+								ProjectItem *parentItem = _CreatePath(parent);
+								
+								// recursive parsing!
+								_ProjectFolderScan(parentItem, newPath, parentItem->GetSourceItem()->GetProjectFolder());
 								SortItemsUnder(parentItem, false, ProjectsFolderBrowser::_CompareProjectItems);
-								Collapse(newItem);
-							} else {
-								bool status = AddUnder(newItem,parentItem);
-								if (status) {
-									SortItemsUnder(parentItem, true, ProjectsFolderBrowser::_CompareProjectItems);
-									Collapse(newItem);
-								}
-							}	
-						}
+							}
+							else {	//Plain file.
+								_CreatePath(destination);
+							}
 					}
+				  }
 				} else 	if (message->FindString("from name", &oldName) == B_OK) {
 					if (message->FindString("name", &newName) == B_OK) {
 						if (message->FindString("from path", &oldPath) == B_OK) {
 							if (message->FindString("path", &newPath) == B_OK) {
-								BPath bp_oldPath(oldPath.String());
+								const BPath bp_oldPath(oldPath.String());
 								BPath bp_oldParent;
 								bp_oldPath.GetParent(&bp_oldParent);
 								
-								BPath bp_newPath(newPath.String());
+								const BPath bp_newPath(newPath.String());
 								BPath bp_newParent;
 								bp_newPath.GetParent(&bp_newParent);
 								
@@ -295,7 +267,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 								if (bp_oldParent == bp_newParent) {
 									ProjectItem *item = FindProjectItem(oldPath);
 									if (!item) {
-										LogError("Can't find an item to move oldPath[%s]", oldPath.String());
+										LogError("Can't find an item to move oldPath[%s] -> newPath[%s]", oldPath.String(), newPath.String());
 										return;
 									}
 									item->SetText(newName);
@@ -318,10 +290,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 									if (status) {
 										SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
 										
-										ProjectFolder *projectFolder = item->GetSourceItem()->GetProjectFolder();
-										SourceItem *sourceItem = new SourceItem(newPath);
-										sourceItem->SetProjectFolder(projectFolder);
-										ProjectItem *newItem = new ProjectItem(sourceItem);
+										ProjectItem *newItem = _CreateNewProjectItem(item, bp_newPath);
 										
 										status = AddUnder(newItem, destinationItem);
 										if (status) {
@@ -526,8 +495,11 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	
 	Invalidate();
 	
-	BPrivate::BPathMonitor::StartWatching(project->Path(),
-			B_WATCH_RECURSIVELY, BMessenger(this));
+	if (BPrivate::BPathMonitor::StartWatching(project->Path(),
+			B_WATCH_RECURSIVELY, BMessenger(this)) != B_OK)
+	{
+		LogError("Can't start PathMonitor!");
+	}
 }
 
 void

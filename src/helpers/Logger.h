@@ -23,12 +23,9 @@
 // conditional clauses in the code to prevent this otherwise would be
 // cumbersome.
 
-#define HDLOGPREFIX(L) Logger::LogFormat("{%c} ", toupper(Logger::NameForLevel(L)[0]));
 
 #define HDLOG(L, M...) do { if (Logger::IsLevelEnabled(L)) { \
-	HDLOGPREFIX(L) \
-	Logger::LogFormat(M); \
-	Logger::Log('\n'); \
+	Logger::LogFormat(L, M); \
 } } while (0)
 
 #define HDINFO(M...) HDLOG(LOG_LEVEL_INFO, M)
@@ -39,7 +36,6 @@
 #define HDFATAL(M...) do { \
 	Logger::LogFormat("{!} (failed @ %s:%d) ", __FILE__, __LINE__); \
 	Logger::LogFormat(M); \
-	Logger::Log('\n'); \
 	exit(EXIT_FAILURE); \
 } while (0)
 
@@ -62,8 +58,7 @@ public:
 	static	void				SetDestination(int destination);
 
 	static	void				LogFormat(const char* fmtString, ...);
-	static	void				Log(const char*);
-	static	void				Log(char);
+	static	void				LogFormat(log_level level, const char* fmtString, ...);
 
 	static	log_level			Level();
 	static	void				SetLevel(log_level value);

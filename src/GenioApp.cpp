@@ -39,7 +39,6 @@ GenioApp::GenioApp()
 
 GenioApp::~GenioApp()
 {
-
 }
 
 void
@@ -141,7 +140,6 @@ void
 GenioApp::_CheckSettingsVersion()
 {
 	BString fileVersion("");
-	int32 result;
 
 	TPreferences* settings = new TPreferences(GenioNames::kSettingsFileName,
 												GenioNames::kApplicationName, 'IDSE');
@@ -150,7 +148,6 @@ GenioApp::_CheckSettingsVersion()
 
 	// Settings file missing or corrupted
 	if (fileVersion.IsEmpty() || fileVersion == "0.0.0.0") {
-
 		BString text;
 		text << B_TRANSLATE("Settings file is corrupted or deleted,")
 			 << "\n"
@@ -171,18 +168,14 @@ GenioApp::_CheckSettingsVersion()
 			GenioNames::UpdateSettingsFile();
 			SettingsWindow* window = new SettingsWindow();
 			window->Show();
-		}
-		else if (choice == 2) {
+		} else if (choice == 2) {
 			GenioNames::UpdateSettingsFile();
 			GenioNames::LoadSettingsVars();
 		}
-	}
-	else {
-
-		result = GenioNames::CompareVersion(GenioNames::GetVersionInfo(), fileVersion);
+	} else {
+		int32 result = GenioNames::CompareVersion(GenioNames::GetVersionInfo(), fileVersion);
 		// App version > file version
 		if (result > 0) {
-
 			BString text;
 			text << B_TRANSLATE("Settings file for a previous version detected,")
 				 << "\n"
@@ -210,8 +203,9 @@ GenioApp::_CheckSettingsVersion()
 	}
 }
 
-void CheckLogLevel(char level) {
-	
+void
+CheckLogLevel(char level)
+{
 	switch(level){
 		case 'o':
 			Logger::SetLevel(LOG_LEVEL_OFF);

@@ -1230,6 +1230,9 @@ Editor::SetProjectFolder(ProjectFolder* proj)
 		fFileWrapper->SetLSPClient(proj->GetLSPClient());
 	else
 		fFileWrapper->UnsetLSPClient();
+	
+	BMessage empty;
+	SetDiagnostics(&empty);
 }
 
 void
@@ -1650,4 +1653,21 @@ Editor::_SetFoldMargin()
 		SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_CHANGE, 4);
 		SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_CLICK, 2);
 	}
+}
+
+
+void
+Editor::SetDiagnostics(const BMessage* diagnostics)
+{
+	assert(Looper()->IsLocked()); //Looper must be locked.
+	fDiagnostics = *diagnostics;
+	fDiagnostics.what = 'diag';
+	fDiagnostics.AddRef("ref", &fFileRef);
+	Window()->PostMessage(&fDiagnostics);
+}
+void
+Editor::GetDiagnostics(BMessage* diagnostics)
+{
+	assert(Looper()->IsLocked()); //Looper must be locked.
+	*diagnostics = fDiagnostics;
 }

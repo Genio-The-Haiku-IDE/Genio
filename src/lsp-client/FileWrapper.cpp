@@ -15,6 +15,8 @@
 #include "Log.h"
 #include "Editor.h"
 #include "protocol.h"
+#include <Window.h>
+#include <Json.h>
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 #define IND_DIAG 0
@@ -367,8 +369,8 @@ bool FileWrapper::StartCallTip(bool searchStart) {
            Contains(calltipWordCharacters, line[startCalltipWord - 1])) {
       startCalltipWord--;
     }
-
-    line.at(current + 1) = '\0';
+	
+    
     Position newPos;
     newPos.line = position.line;
     newPos.character = startCalltipWord;
@@ -631,11 +633,10 @@ FileWrapper::_RemoveAllDiagnostics()
 void	
 FileWrapper::_DoDiagnostics(nlohmann::json& params)
 {
-	//auto dias = params["diagnostics"];
 	auto vect = params["diagnostics"].get<std::vector<Diagnostic>>();
 	
 	_RemoveAllDiagnostics();
-
+	
 	for (auto &v: vect)
 	{
 		Range &r = v.range;
@@ -647,6 +648,13 @@ FileWrapper::_DoDiagnostics(nlohmann::json& params)
 		LogTrace("Diagnostics [%ld->%ld] [%s]", ir.from, ir.to, ir.info.c_str());
 		fEditor->SendMessage(SCI_INDICATORFILLRANGE, ir.from, ir.to-ir.from);
 		fLastDiagnostics.push_back(ir);
+	}
+	
+	BMessage toJson('diag');
+	BPrivate::BJson::Parse(params["diagnostics"].dump().c_str(), toJson);
+	if (fEditor->LockLooper()) {
+		fEditor->SetDiagnostics(&toJson);
+		fEditor->UnlockLooper();
 	}
 }
 

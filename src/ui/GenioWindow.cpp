@@ -200,18 +200,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fConsoleIOView(nullptr)
 	, fGoToLineWindow(nullptr)
 {
-	// Settings file check.
-	BPath path;
-	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
-	path.Append(GenioNames::kApplicationName);
-	path.Append(GenioNames::kSettingsFileName);
-	bool settingsFileMissing = !Genio::file_exists(path.Path());
-
-	// Fill Settings vars before using
-	GenioNames::LoadSettingsVars();
-
-	Logger::SetDestination(GenioNames::Settings.log_destination);	
-	Logger::SetLevel(log_level(GenioNames::Settings.log_level));
 	_InitMenu();
 
 	_InitWindow();
@@ -226,20 +214,12 @@ GenioWindow::GenioWindow(BRect frame)
 	AddShortcut(B_LEFT_ARROW,  B_OPTION_KEY,  new BMessage(MSG_FILE_PREVIOUS_SELECTED));
 	AddShortcut(B_RIGHT_ARROW, B_OPTION_KEY,  new BMessage(MSG_FILE_NEXT_SELECTED));
 
-	// Interface elements. If settings file is missing most probably it is
-	// first time execution, load all elements
-	if (settingsFileMissing == true) {
-		fProjectsTabView->Show();
-		fToolBar->View()->Show();
-		fOutputTabView->Show();
-	} else {
-		if (GenioNames::Settings.show_projects == false)
-			fProjectsTabView->Hide();
-		if (GenioNames::Settings.show_output == false)
-			fOutputTabView->Hide();
-		if (GenioNames::Settings.show_toolbar == false)
-			fToolBar->View()->Hide();
-	}
+	if (GenioNames::Settings.show_projects == false)
+		fProjectsTabView->Hide();
+	if (GenioNames::Settings.show_output == false)
+		fOutputTabView->Hide();
+	if (GenioNames::Settings.show_toolbar == false)
+		fToolBar->View()->Hide();
 
 	// Load workspace - reopen projects
 	if (GenioNames::Settings.reopen_projects == true) {

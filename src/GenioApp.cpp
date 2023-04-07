@@ -26,15 +26,6 @@ GenioApp::GenioApp()
 	// Load UI settings
 	fUISettingsFile = new TPreferences(GenioNames::kUISettingsFileName,
 										GenioNames::kApplicationName, 'UISE');
-
-	// Load frame from settings if present or use default
-	BRect frame;
-	if (fUISettingsFile->FindRect("ui_bounds", &frame) != B_OK)
-		frame.Set(40, 40, 839, 639);
-
-	fGenioWindow = new GenioWindow(frame);
-
-	fGenioWindow->Show();
 }
 
 GenioApp::~GenioApp()
@@ -134,6 +125,26 @@ GenioApp::ReadyToRun()
 {
 	// Window Settings file needs updating?
 	_CheckSettingsVersion();
+
+	// Global settings file check.
+	BPath path;
+	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
+	path.Append(GenioNames::kApplicationName);
+	path.Append(GenioNames::kSettingsFileName);
+
+	// Fill Settings vars before using
+	GenioNames::LoadSettingsVars();
+
+	Logger::SetDestination(GenioNames::Settings.log_destination);
+	Logger::SetLevel(log_level(GenioNames::Settings.log_level));
+
+	// Load frame from settings if present or use default
+	BRect frame;
+	if (fUISettingsFile->FindRect("ui_bounds", &frame) != B_OK)
+		frame.Set(40, 40, 839, 639);
+
+	fGenioWindow = new GenioWindow(frame);
+	fGenioWindow->Show();
 }
 
 void

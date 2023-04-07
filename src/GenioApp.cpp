@@ -19,6 +19,8 @@
 
 #include "Log.h"
 
+static log_level sSessionLogLevel = log_level(-1);
+
 GenioApp::GenioApp()
 	:
 	BApplication(GenioNames::kApplicationSignature)
@@ -75,7 +77,6 @@ void
 GenioApp::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-
 		default:
 			BApplication::MessageReceived(message);
 			break;
@@ -115,7 +116,8 @@ GenioApp::QuitRequested()
 void
 GenioApp::RefsReceived(BMessage* message)
 {
-	fGenioWindow->PostMessage(message);
+	if (fGenioWindow != NULL)
+		fGenioWindow->PostMessage(message);
 }
 
 void
@@ -134,7 +136,11 @@ GenioApp::ReadyToRun()
 	GenioNames::LoadSettingsVars();
 
 	Logger::SetDestination(GenioNames::Settings.log_destination);
-	Logger::SetLevel(log_level(GenioNames::Settings.log_level));
+
+	if (sSessionLogLevel == -1)
+		Logger::SetLevel(log_level(GenioNames::Settings.log_level));
+	else
+		Logger::SetLevel(sSessionLogLevel);
 
 	// Load frame from settings if present or use default
 	BRect frame;
@@ -213,27 +219,27 @@ GenioApp::_CheckSettingsVersion()
 }
 
 void
-CheckLogLevel(char level)
+SetSessionLogLevel(char level)
 {
 	switch(level){
 		case 'o':
-			Logger::SetLevel(LOG_LEVEL_OFF);
+			sSessionLogLevel = log_level(1);
 			printf("Log level set to OFF\n");
 		break;
 		case 'e':
-			Logger::SetLevel(LOG_LEVEL_ERROR);
+			sSessionLogLevel = log_level(2);
 			printf("Log level set to ERROR\n");
 		break;
 		case 'i':
-			Logger::SetLevel(LOG_LEVEL_INFO);
+			sSessionLogLevel = log_level(3);
 			printf("Log level set to INFO\n");
 		break;
 		case 'd':
-			Logger::SetLevel(LOG_LEVEL_DEBUG);
+			sSessionLogLevel = log_level(4);
 			printf("Log level set to DEBUG\n");
 		break;
 		case 't':
-			Logger::SetLevel(LOG_LEVEL_TRACE);
+			sSessionLogLevel = log_level(5);
 			printf("Log level set to TRACE\n");
 		break;
 		default:
@@ -246,9 +252,7 @@ int
 main(int argc, char* argv[])
 {
 	if (argc > 1) 
-		CheckLogLevel(argv[1][0]);
-	else
-		CheckLogLevel('i'); //Default log level: INFO
+		SetSessionLogLevel(argv[1][0]);
 		
 	try {
 		GenioApp *app = new GenioApp();
@@ -257,9 +261,7 @@ main(int argc, char* argv[])
 
 		delete app;
 	} catch (...) {
-
 		debugger("Exception caught.");
-
 	}
 
 	return 0;

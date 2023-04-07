@@ -109,9 +109,7 @@ GenioApp::QuitRequested()
 	
 	delete fUISettingsFile;
 	
-	be_app->PostMessage(B_QUIT_REQUESTED);
-	
-	return true;
+	return BApplication::QuitRequested();
 }
 
 void

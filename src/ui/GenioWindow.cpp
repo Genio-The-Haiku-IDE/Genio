@@ -194,7 +194,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fOpenProjectPanel(nullptr)
 	, fOpenProjectFolderPanel(nullptr)
 	, fOutputTabView(nullptr)
-	, fNotificationsListView(nullptr)
+	, fDiagnosticsPanel(nullptr)
 	, fConsoleIOThread(nullptr)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
@@ -311,6 +311,17 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case 'diag': {
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				int32 index = _GetEditorIndex(&ref);
+				if (index == fTabManager->SelectedTabIndex()) 
+				{
+					fDiagnosticsPanel->UpdateDiagnostics(message);
+				}
+			}
+			break;
+		}
 		case 'NOTI': {
 			BString notification, type;
 			if (message->FindString("notification", &notification) == B_OK
@@ -1046,9 +1057,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				// In multifile open not-focused files place scroll just after
 				// caret line when reselected. Ensure visibility.
 				// TODO caret policy
-				editor->EnsureVisiblePolicy();
-
-				
+				editor->EnsureVisiblePolicy();				
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 			}
 			break;
@@ -2640,24 +2649,14 @@ GenioWindow::_InitOutputSplit()
 {
 	// Output
 	fOutputTabView = new BTabView("OutputTabview");
-
-	fNotificationsListView = new BColumnListView(B_TRANSLATE("Notifications"),
-									B_NAVIGABLE, B_FANCY_BORDER, true);
-	fNotificationsListView->AddColumn(new BDateColumn(B_TRANSLATE("Time"),
-								200.0, 200.0, 200.0), kTimeColumn);
-	fNotificationsListView->AddColumn(new BStringColumn(B_TRANSLATE("Message"),
-								600.0, 600.0, 800.0, 0), kMessageColumn);
-	fNotificationsListView->AddColumn(new BStringColumn(B_TRANSLATE("Type"),
-								200.0, 200.0, 200.0, 0), kTypeColumn);
-	BFont font;
-	font.SetFamilyAndStyle("Noto Sans Mono", "Bold");
-	fNotificationsListView->SetFont(&font);
+	
+	fDiagnosticsPanel = new DiagnosticsPanel();
 
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build Log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
-	fOutputTabView->AddTab(fNotificationsListView);
+	fOutputTabView->AddTab(fDiagnosticsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
 	fOutputTabView->AddTab(fConsoleIOView);
 }
@@ -3696,13 +3695,7 @@ GenioWindow::_SendNotification(BString message, BString type)
 	if (GenioNames::Settings.enable_notifications == false)
 		return;
 
-       BRow* fRow = new BRow();
-       time_t now =  static_cast<bigtime_t>(real_time_clock());
-
-       fRow->SetField(new BDateField(&now), kTimeColumn);
-       fRow->SetField(new BStringField(message), kMessageColumn);
-       fRow->SetField(new BStringField(type), kTypeColumn);
-       fNotificationsListView->AddRow(fRow, int32(0));
+	LogInfo("Notification: %s - %s", type.String(), message.String());
 }
 
 void
@@ -3976,6 +3969,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fFileSaveAllButton->SetEnabled(filesNeedSave);
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
+	BMessage diagnostics;
+	editor->GetDiagnostics(&diagnostics);
+	fDiagnosticsPanel->UpdateDiagnostics(&diagnostics);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

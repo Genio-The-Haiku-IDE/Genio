@@ -125,6 +125,7 @@ SaveSettingsVars()
 	status += file.SetBool("find_whole_word", Settings.find_whole_word);
 	status += file.SetBool("find_match_case", Settings.find_match_case);
 	status += file.SetInt32("log_destination", Settings.log_destination);
+	status += file.SetInt32("log_level", Settings.log_level);
 	
 	return status;
 }
@@ -164,6 +165,7 @@ LoadSettingsVars()
 	status += file.FindBool("find_whole_word", &Settings.find_whole_word);
 	status += file.FindBool("find_match_case", &Settings.find_match_case);
 	status += file.FindInt32("log_destination", &Settings.log_destination);
+	status += file.FindInt32("log_level", &Settings.log_level);
 
 	return status;
 }
@@ -248,6 +250,8 @@ UpdateSettingsFile()
 	if (settings.FindInt32("log_destination", &intVal) != B_OK)
 		settings.SetInt32("log_destination", 0);
 
+	if (settings.FindInt32("log_level", &intVal) != B_OK)
+		settings.SetInt32("log_level", 1);
 
 	// Managed to get here without errors, reset counter and app version
 	settings.SetInt64("last_used", real_time_clock());

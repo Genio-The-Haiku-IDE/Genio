@@ -72,6 +72,7 @@ enum {
 	MSG_SYNTAX_HIGHLIGHT_TOGGLED			= 'syhi',
 	MSG_TAB_WIDTH_CHANGED					= 'tawi',
 	MSG_LOG_DESTINATION_CHANGED				= 'lodc',
+	MSG_LOG_LEVEL_CHANGED					= 'lolc',
 	MSG_WRAP_CONSOLE_ENABLED				= 'wcen',
 	MSG_CONSOLE_BANNER_ENABLED				= 'cben'
 };
@@ -316,6 +317,11 @@ SettingsWindow::MessageReceived(BMessage *msg)
 								fWindowSettingsFile->FindInt32("log_destination");
 				_ManageModifications(fLogDestination, modified);
 		}
+		case MSG_LOG_LEVEL_CHANGED: {
+			bool modified = fLogLevel->Value() !=
+								fWindowSettingsFile->FindInt32("log_level");
+				_ManageModifications(fLogLevel, modified);
+		}
 		case MSG_WRAP_CONSOLE_ENABLED: {
 			bool modified = fWrapConsoleEnabled->Value() !=
 								fWindowSettingsFile->FindInt32("wrap_console");
@@ -349,6 +355,7 @@ SettingsWindow::QuitRequested()
 
 	// TODO: Move this to the proper place
 	Logger::SetDestination(GenioNames::Settings.log_destination);
+	Logger::SetLevel(log_level(GenioNames::Settings.log_level));
 
 	// TODO Send a message to reload file settings
 
@@ -570,6 +577,15 @@ SettingsWindow::_LoadFromFile(BControl* control, bool loadAll /*= false*/)
 			fControlsDone += loadAll == true;
 		} else
 			fOrphansList->AddItem(fLogDestination);
+	}
+	if (control == fLogLevel || loadAll == true) {
+		status = fWindowSettingsFile->FindInt32("log_level", &intVal);
+		fControlsCount += loadAll == true;
+		if (status == B_OK) {
+			fLogLevel->SetValue(intVal);
+			fControlsDone += loadAll == true;
+		} else
+			fOrphansList->AddItem(fLogLevel);
 	}
 	// General Startup Page
 	if (control == fReopenProjects || loadAll == true) {
@@ -997,6 +1013,15 @@ SettingsWindow::_PageGeneralView()
 	fLogDestination->AddOptionAt("Stdout", Logger::LOGGER_DEST_STDOUT, 0);
 	fLogDestination->AddOptionAt("Stderr", Logger::LOGGER_DEST_STDERR, 1);
 	fLogDestination->AddOptionAt("Syslog", Logger::LOGGER_DEST_SYSLOG, 2);
+
+	fLogLevel = new BOptionPopUp("LogLevel",
+		B_TRANSLATE("Log level"), new BMessage(MSG_LOG_LEVEL_CHANGED));
+	fLogLevel->AddOptionAt("Off", 1, 0);
+	fLogLevel->AddOptionAt("Error", 2, 1);
+	fLogLevel->AddOptionAt("Info", 3, 2);
+	fLogLevel->AddOptionAt("Debug", 4, 3);
+	fLogLevel->AddOptionAt("Trace", 5, 4);
+
 	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
 		.Add(BLayoutBuilder::Grid<>(fGeneralBox)
 		.Add(fProjectsDirectory->CreateLabelLayoutItem(), 0, 0)
@@ -1005,6 +1030,7 @@ SettingsWindow::_PageGeneralView()
 		.Add(saveWindowPosition, 0, 1)
 		.Add(fFullPathWindowTitle, 1, 1)
 		.Add(fLogDestination, 0, 2)
+		.Add(fLogLevel, 1, 2)
 		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 3, 4)
 		.AddGlue(0, 4)
 		.SetInsets(10, 20, 10, 10))
@@ -1166,6 +1192,8 @@ SettingsWindow::_StoreToFile(BControl* control)
 		status = fWindowSettingsFile->SetInt32("fullpath_title", fFullPathWindowTitle->Value());
 	else if (control == fLogDestination)
 		status = fWindowSettingsFile->SetInt32("log_destination", fLogDestination->Value());
+	else if (control == fLogLevel)
+		status = fWindowSettingsFile->SetInt32("log_level", fLogLevel->Value());
 	// General Startup Page
 	else if (control == fReopenProjects)
 		status = fWindowSettingsFile->SetInt32("reopen_projects", fReopenProjects->Value());

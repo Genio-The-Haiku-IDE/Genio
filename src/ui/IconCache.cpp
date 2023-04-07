@@ -32,20 +32,20 @@ IconCache::GetIcon(entry_ref *ref)
 			strncpy(mimeType, FILE_FILETYPE, B_MIME_TYPE_LENGTH - 1);
 	}
 		
-	LogTrace("IconCache: [%s] - [%s]\n", mimeType, ref->name);
+	LogTrace("IconCache: [%s] - [%s]", mimeType, ref->name);
 	
 	auto it = instance.cache.find(mimeType);
 	if (it != instance.cache.end()) {
-		LogTrace("IconCache: return icon from cache for %s\n",mimeType);
+		LogTrace("IconCache: return icon from cache for %s",mimeType);
 		return it->second;
 	} else {
-		LogTrace("IconCache: could not find an icon in cache for %s\n",mimeType);
+		LogTrace("IconCache: could not find an icon in cache for %s",mimeType);
 		BRect rect(BPoint(0, 0), be_control_look->ComposeIconSize(B_MINI_ICON));
 		BBitmap *icon = new BBitmap(rect, B_RGBA32);
 		icon_size iconSize = (icon_size)(icon->Bounds().Width()-1);
 		status_t status = nodeInfo.GetTrackerIcon(icon, iconSize);
 		instance.cache.emplace(mimeType, icon);
-		LogTrace("IconCache: GetTrackerIcon returned - %d\n", status);
+		LogTrace("IconCache: GetTrackerIcon returned - %d", status);
 		return icon;
 	}
 	return nullptr;

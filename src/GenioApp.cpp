@@ -44,6 +44,7 @@ GenioApp::AboutRequested()
 	const char* authors[] = {
 		"D. Alfano",
 		"A. Anzani",
+		"S. Ceccherini",
 		"A. Mosca",
 		NULL
 	}; 
@@ -64,6 +65,7 @@ GenioApp::AboutRequested()
 	extraInfo << B_TRANSLATE("Made with love in Italy");
 
 	window->AddExtraInfo(extraInfo);
+	window->ResizeBy(0, 200);
 
 	window->Show();
 }

@@ -206,57 +206,29 @@ Editor::BookmarkClearAll(int marker)
 }
 
 bool
-Editor::BookmarkGoToNext(bool wrap /*= false*/)
+Editor::BookmarkGoToNext()
 {
-	int32 position = GetCurrentPosition();
-
-	int lineToGoTo;
-	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
-
-	line += 1;
-	lineToGoTo = SendMessage(SCI_MARKERNEXT, line, 1 << sci_BOOKMARK);
-
-
-	if (lineToGoTo == -1) {
-			if (wrap == false)
-				return false;
-			else {
-				lineToGoTo = SendMessage(SCI_MARKERNEXT, 0, 1 << sci_BOOKMARK);
-				if (lineToGoTo == -1)
-					return false;
-		}
-	}
-
-	SendMessage(SCI_ENSUREVISIBLEENFORCEPOLICY, lineToGoTo, UNSET);
-	SendMessage(SCI_GOTOLINE, lineToGoTo, UNSET);
-
+	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS);
+	int64 line = SendMessage(SCI_LINEFROMPOSITION, pos);
+	int64 bookmark = SendMessage(SCI_MARKERNEXT, line + 1, (1 << sci_BOOKMARK));
+	if(bookmark == -1)
+		bookmark = SendMessage(SCI_MARKERNEXT, 0, (1 << sci_BOOKMARK));
+	if(bookmark != -1)
+		GoToLine(bookmark+1);
+	
 	return true;
 }
 
 bool
-Editor::BookmarkGoToPrevious(bool wrap)
+Editor::BookmarkGoToPrevious()
 {
-	int32 position = GetCurrentPosition();
-
-	int lineToGoTo;
-	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
-
-	line -= 1;
-	lineToGoTo = SendMessage(SCI_MARKERPREVIOUS, line, 1 << sci_BOOKMARK);
-
-	if (lineToGoTo == -1) {
-			if (wrap == false)
-				return false;
-			else {
-				int32 line = SendMessage(SCI_GETLINECOUNT, UNSET, UNSET);
-				lineToGoTo = SendMessage(SCI_MARKERPREVIOUS, line, 1 << sci_BOOKMARK);
-				if (lineToGoTo == -1)
-					return false;
-		}
-	}
-
-	SendMessage(SCI_ENSUREVISIBLEENFORCEPOLICY, lineToGoTo, UNSET);
-	SendMessage(SCI_GOTOLINE, lineToGoTo, UNSET);
+	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS);
+	int64 line = SendMessage(SCI_LINEFROMPOSITION, pos);
+	int64 bookmark = SendMessage(SCI_MARKERPREVIOUS, line - 1, (1 << sci_BOOKMARK));
+	if(bookmark == -1)
+		bookmark = SendMessage(SCI_MARKERPREVIOUS, SendMessage(SCI_GETLINECOUNT), (1 << sci_BOOKMARK));
+	if(bookmark != -1)
+		GoToLine(bookmark+1);
 
 	return true;
 }

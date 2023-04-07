@@ -75,10 +75,8 @@ public:
 
 			void				ApplySettings();
 			void				BookmarkClearAll(int marker);
-			bool				BookmarkGoToNext(bool wrap = false
-									/*, int marker */);
-			bool				BookmarkGoToPrevious(bool wrap = false
-									/*, int marker */);
+			bool				BookmarkGoToNext();
+			bool				BookmarkGoToPrevious();
 			void				BookmarkToggle(int position);
 			bool				CanClear();
 			bool				CanCopy();

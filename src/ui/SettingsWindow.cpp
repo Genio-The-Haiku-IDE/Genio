@@ -131,7 +131,6 @@ SettingsWindow::~SettingsWindow()
 void
 SettingsWindow::DispatchMessage(BMessage* message, BHandler* handler)
 {
-
 	if (message->what == B_KEY_DOWN) {
 		int8 key;
 		int32 modifiers;
@@ -528,21 +527,21 @@ SettingsWindow::_InitWindow()
 status_t
 SettingsWindow::_LoadFromFile(BControl* control, bool loadAll /*= false*/)
 {
-	status_t status;
-	BString stringVal;
-	int32	intVal;
-
 	if (loadAll == true) {
 		fControlsCount = 0;
 		fControlsDone = 0;
 	}
 
 	// TODO manage/notify errors
+	status_t status;
 	if ((status = fWindowSettingsFile->InitCheck()) != B_OK)
 		return status;
 
 	if (fWindowSettingsFile->FindInt32("use_count", &fUseCount) != B_OK)
 		fUseCount = -1;
+
+	BString stringVal;
+	int32 intVal;
 
 	// General Page
 	if (control == fProjectsDirectory || loadAll == true) {
@@ -1144,7 +1143,6 @@ SettingsWindow::_ShowView(BStringItem * item)
 	
 	if (iter != fViewPageMap.end()) {
 		fNextView  = iter->second;
-
 	}
 
 	// If a map was found show the view
@@ -1218,8 +1216,9 @@ SettingsWindow::_StoreToFile(BControl* control)
 status_t
 SettingsWindow::_StoreToFileDefaults()
 {
-	if (fWindowSettingsFile->InitCheck() != B_OK)
-		return B_ERROR; // TODO notify
+	status_t status = fWindowSettingsFile->InitCheck();
+	if (status != B_OK)
+		return status; // TODO notify
 
 	// TODO check individual Setting
 	// Reset counter

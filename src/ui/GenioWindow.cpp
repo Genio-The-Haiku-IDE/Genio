@@ -211,6 +211,7 @@ GenioWindow::GenioWindow(BRect frame)
 	GenioNames::LoadSettingsVars();
 
 	Logger::SetDestination(GenioNames::Settings.log_destination);	
+	Logger::SetLevel(log_level(GenioNames::Settings.log_level));
 	_InitMenu();
 
 	_InitWindow();

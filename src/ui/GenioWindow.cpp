@@ -2437,9 +2437,9 @@ GenioWindow::_InitMenu()
 	fBookmarksMenu->AddItem(fBookmarkClearAllItem = new BMenuItem(B_TRANSLATE("Clear all"),
 		new BMessage(MSG_BOOKMARK_CLEAR_ALL)));
 	fBookmarksMenu->AddItem(fBookmarkGoToNextItem = new BMenuItem(B_TRANSLATE("Go to next"),
-		new BMessage(MSG_BOOKMARK_GOTO_NEXT)));
+		new BMessage(MSG_BOOKMARK_GOTO_NEXT), 'N', B_CONTROL_KEY));
 	fBookmarksMenu->AddItem(fBookmarkGoToPreviousItem = new BMenuItem(B_TRANSLATE("Go to previous"),
-		new BMessage(MSG_BOOKMARK_GOTO_PREVIOUS)));
+		new BMessage(MSG_BOOKMARK_GOTO_PREVIOUS),'P', B_CONTROL_KEY));
 
 	fFindItem->SetEnabled(false);
 	fReplaceItem->SetEnabled(false);

@@ -368,7 +368,7 @@ bool FileWrapper::StartCallTip(bool searchStart) {
       startCalltipWord--;
     }
 
-    line.at(current + 1) = '\0';
+
     Position newPos;
     newPos.line = position.line;
     newPos.character = startCalltipWord;

@@ -193,7 +193,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fOpenProjectPanel(nullptr)
 	, fOpenProjectFolderPanel(nullptr)
 	, fOutputTabView(nullptr)
-	, fDiagnosticsPanel(nullptr)
+	, fProblemsPanel(nullptr)
 	, fConsoleIOThread(nullptr)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
@@ -316,7 +316,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				int32 index = _GetEditorIndex(&ref);
 				if (index == fTabManager->SelectedTabIndex()) 
 				{
-					fDiagnosticsPanel->UpdateDiagnostics(message);
+					fProblemsPanel->UpdateProblems(message);
 				}
 			}
 			break;
@@ -2652,13 +2652,13 @@ GenioWindow::_InitOutputSplit()
 	// Output
 	fOutputTabView = new BTabView("OutputTabview");
 	
-	fDiagnosticsPanel = new DiagnosticsPanel();
+	fProblemsPanel = new ProblemsPanel();
 
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build Log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
-	fOutputTabView->AddTab(fDiagnosticsPanel);
+	fOutputTabView->AddTab(fProblemsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
 	fOutputTabView->AddTab(fConsoleIOView);
 }
@@ -3972,8 +3972,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
 	BMessage diagnostics;
-	editor->GetDiagnostics(&diagnostics);
-	fDiagnosticsPanel->UpdateDiagnostics(&diagnostics);
+	editor->GetProblems(&diagnostics);
+	fProblemsPanel->UpdateProblems(&diagnostics);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

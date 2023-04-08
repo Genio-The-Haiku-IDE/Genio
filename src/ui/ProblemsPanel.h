@@ -2,20 +2,20 @@
  * Copyright 2023, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef DiagnosticsPanel_H
-#define DiagnosticsPanel_H
+#ifndef ProblemsPanel_H
+#define ProblemsPanel_H
 
 
 #include <SupportDefs.h>
 #include <ColumnListView.h>
 
 
-class DiagnosticsPanel : public BColumnListView {
+class ProblemsPanel : public BColumnListView {
 public:
 
-		DiagnosticsPanel();
+		ProblemsPanel();
 		
-		void UpdateDiagnostics(BMessage* msg);
+		void UpdateProblems(BMessage* msg);
 		
 		virtual void MessageReceived(BMessage* msg);
 		virtual void	AttachedToWindow();
@@ -23,4 +23,4 @@ public:
 };
 
 
-#endif // DiagnosticsPanel_H
+#endif // ProblemsPanel_H

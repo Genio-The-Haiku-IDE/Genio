@@ -164,8 +164,8 @@ public:
 			
 			void 				ContextMenu(BPoint point);
 			
-			void				SetDiagnostics(const BMessage* diagnostics);
-			void				GetDiagnostics(BMessage* diagnostics);
+			void				SetProblems(const BMessage* diagnostics);
+			void				GetProblems(BMessage* diagnostics);
 
 private:
 			void				UpdateStatusBar();
@@ -206,7 +206,7 @@ private:
 			ProjectFolder*		fProjectFolder;
 			editor::StatusView*			fStatusView;
 			
-			BMessage	fDiagnostics;
+			BMessage	fProblems;
 
 };
 

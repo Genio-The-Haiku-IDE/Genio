@@ -663,7 +663,7 @@ FileWrapper::_DoDiagnostics(nlohmann::json& params)
 	BMessage toJson('diag');
 	BPrivate::BJson::Parse(params["diagnostics"].dump().c_str(), toJson);
 	if (fEditor->LockLooper()) {
-		fEditor->SetDiagnostics(&toJson);
+		fEditor->SetProblems(&toJson);
 		fEditor->UnlockLooper();
 	}
 >>>>>>> 74adb4a (first commit of the diagnostics panel)

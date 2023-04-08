@@ -20,8 +20,6 @@ public:
 		virtual void MessageReceived(BMessage* msg);
 		virtual void	AttachedToWindow();
 
-private:
-
 };
 
 

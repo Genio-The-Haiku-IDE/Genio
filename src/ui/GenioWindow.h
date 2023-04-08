@@ -24,7 +24,7 @@
 #include <TextControl.h>
 #include <Window.h>
 #include "GoToLineWindow.h"
-#include "DiagnosticsPanel.h"
+#include "ProblemsPanel.h"
 #include "ConsoleIOThread.h"
 #include "ConsoleIOView.h"
 #include "Editor.h"
@@ -260,7 +260,7 @@ private:
 
 			// Bottom panels
 			BTabView*			fOutputTabView;
-			DiagnosticsPanel*	fDiagnosticsPanel;
+			ProblemsPanel*	fProblemsPanel;
 			ConsoleIOThread*	fConsoleIOThread;
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;

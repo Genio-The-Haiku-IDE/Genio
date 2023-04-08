@@ -4,12 +4,12 @@
  */
 
 
-#include "DiagnosticsPanel.h"
+#include "ProblemsPanel.h"
 #include <ColumnTypes.h>
 #include <Catalog.h>
 #include <Window.h>
 #undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "DiagnosticsPanel"
+#define B_TRANSLATION_CONTEXT "ProblemsPanel"
 
 #include <string>
 
@@ -28,7 +28,7 @@ class RangeRow : public BRow {
 
 };
 
-DiagnosticsPanel::DiagnosticsPanel(): BColumnListView(B_TRANSLATE("Diagnostics"),
+ProblemsPanel::ProblemsPanel(): BColumnListView(B_TRANSLATE("Problems"),
 									B_NAVIGABLE, B_FANCY_BORDER, true)
 	
 {
@@ -43,14 +43,14 @@ DiagnosticsPanel::DiagnosticsPanel(): BColumnListView(B_TRANSLATE("Diagnostics")
 }
 
 void 
-DiagnosticsPanel::AttachedToWindow()
+ProblemsPanel::AttachedToWindow()
 {
 	BColumnListView::AttachedToWindow();
 	SetTarget(this);
 }
 
 void 
-DiagnosticsPanel::MessageReceived(BMessage* msg)
+ProblemsPanel::MessageReceived(BMessage* msg)
 {
 	if (msg->what == 'clIV')
 	{
@@ -79,7 +79,7 @@ DiagnosticsPanel::MessageReceived(BMessage* msg)
 }
 
 void 	
-DiagnosticsPanel::UpdateDiagnostics(BMessage* msg)
+ProblemsPanel::UpdateProblems(BMessage* msg)
 {
 	Clear();
 	BMessage dia;
@@ -100,15 +100,3 @@ DiagnosticsPanel::UpdateDiagnostics(BMessage* msg)
 	}
 
 }
-
-
-
-/*
-       BRow* fRow = new BRow();
-       time_t now =  static_cast<bigtime_t>(real_time_clock());
-
-       fRow->SetField(new BDateField(&now), kTimeColumn);
-       fRow->SetField(new BStringField(message), kMessageColumn);
-       fRow->SetField(new BStringField(type), kTypeColumn);
-       //fNotificationsListView->AddRow(fRow, int32(0));
-*/

@@ -53,7 +53,6 @@ constexpr auto kRecentFilesNumber = 14 + 1;
 
 static constexpr float kTabBarHeight = 30.0f;
 
-static constexpr auto kGotolineMaxBytes = 6;
 
 // Find group
 static constexpr auto kFindReplaceMaxBytes = 50;
@@ -1396,16 +1395,19 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		// Do not reopen an already opened file
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
+			
 			if (openedIndex != fTabManager->SelectedTabIndex()) {
 				fTabManager->SelectTab(openedIndex);
 			}				
 			
-			if (lsp_char >= 0 && be_line > -1)
+			if (lsp_char >= 0 && be_line > -1) {
 				fTabManager->EditorAt(openedIndex)->GoToLSPPosition(be_line - 1, lsp_char);
-			else
-			if (be_line > -1)
+			}
+			else if (be_line > -1) {
 				fTabManager->EditorAt(openedIndex)->GoToLine(be_line);
+			}
 			
+			fTabManager->SelectedEditor()->GrabFocus();
 			continue;
 		}
 

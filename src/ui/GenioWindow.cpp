@@ -2266,27 +2266,12 @@ GenioWindow::_InitCentralSplit()
 void
 GenioWindow::_InitMenu()
 {
+	BMenu* menu = NULL;
+
 	// Menu
 	fMenuBar = new BMenuBar("menubar");
 
-	BMenu* menu = new BMenu(B_TRANSLATE("Project"));
-	// TODO: As a temporary measure we disable New menu item until we merge
-	// the project-folders branch into main and implement a brand new system
-	// to create new projects. This will likely be based on the "template" or 
-	// "stationery" concept as found in Paladin or BeIDE
-	// menu->AddItem(new BMenuItem(B_TRANSLATE("New"),
-		// new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
-		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
-	menu->AddSeparatorItem();
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Settings"),
-		new BMessage(MSG_PROJECT_SETTINGS)));
-	menu->AddSeparatorItem();
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
-		new BMessage(B_QUIT_REQUESTED), 'Q'));
-
-	fMenuBar->AddItem(menu);
-
+	// File menu
 	menu = new BMenu(B_TRANSLATE("File"));
 	menu->AddItem(fFileNewMenuItem = new BMenuItem(B_TRANSLATE("New"),
 		new BMessage(MSG_FILE_NEW)));
@@ -2313,6 +2298,9 @@ GenioWindow::_InitMenu()
 	menu->AddItem(fFoldMenuItem = new BMenuItem(B_TRANSLATE("Fold"),
 		new BMessage(MSG_FILE_FOLD_TOGGLE)));
 
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
+		new BMessage(B_QUIT_REQUESTED), 'Q'));
+
 	fSaveMenuItem->SetEnabled(false);
 	fSaveAsMenuItem->SetEnabled(false);
 	fSaveAllMenuItem->SetEnabled(false);
@@ -2322,6 +2310,7 @@ GenioWindow::_InitMenu()
 
 	fMenuBar->AddItem(menu);
 
+	// Edit menu
 	menu = new BMenu(B_TRANSLATE("Edit"));
 	menu->AddItem(fUndoMenuItem = new BMenuItem(B_TRANSLATE("Undo"),
 		new BMessage(B_UNDO), 'Z'));
@@ -2365,7 +2354,6 @@ GenioWindow::_InitMenu()
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Switch Source Header"), new BMessage(MSG_SWITCHSOURCE), B_TAB));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Signature Help"), new BMessage(MSG_SIGNATUREHELP), '?'));
 
-
 	menu->AddSeparatorItem();
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));
 	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Set to Unix"),
@@ -2396,12 +2384,14 @@ GenioWindow::_InitMenu()
 	menu->AddItem(fLineEndingsMenu);
 	fMenuBar->AddItem(menu);
 	
+	// View menu
 	menu = new BMenu(B_TRANSLATE("View"));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom In"), new BMessage(MSG_VIEW_ZOOMIN), '+'));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Out"), new BMessage(MSG_VIEW_ZOOMOUT), '-'));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Reset"), new BMessage(MSG_VIEW_ZOOMRESET), '0'));
 	fMenuBar->AddItem(menu);
 	
+	// Search menu
 	menu = new BMenu(B_TRANSLATE("Search"));
 
 	menu->AddItem(fFindItem = new BMenuItem(B_TRANSLATE("Find"),
@@ -2428,7 +2418,27 @@ GenioWindow::_InitMenu()
 
 	menu->AddItem(fBookmarksMenu);
 	fMenuBar->AddItem(menu);
+	
+	// Project menu
+	menu = new BMenu(B_TRANSLATE("Project"));
+	// TODO: As a temporary measure we disable New menu item until we merge
+	// the project-folders branch into main and implement a brand new system
+	// to create new projects. This will likely be based on the "template" or 
+	// "stationery" concept as found in Paladin or BeIDE
+	// menu->AddItem(new BMenuItem(B_TRANSLATE("New"),
+		// new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
+		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Close"),
+		new BMessage(MSG_PROJECT_CLOSE), 'C', B_OPTION_KEY));
+	menu->AddSeparatorItem();
+	
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Settings"),
+		new BMessage(MSG_PROJECT_SETTINGS)));
 
+	fMenuBar->AddItem(menu);
+
+	// Build menu
 	menu = new BMenu(B_TRANSLATE("Build"));
 	menu->AddItem(fBuildItem = new BMenuItem (B_TRANSLATE("Build Project"),
 		new BMessage(MSG_BUILD_PROJECT), 'B'));
@@ -2466,6 +2476,7 @@ GenioWindow::_InitMenu()
 
 	fMenuBar->AddItem(menu);
 
+	// Git menu
 	fGitMenu = new BMenu(B_TRANSLATE("Git"));
 
 	fGitMenu->AddItem(fGitBranchItem = new BMenuItem(B_TRANSLATE("Branch"), nullptr));
@@ -2528,6 +2539,7 @@ GenioWindow::_InitMenu()
 	menu->AddItem(fHgMenu);
 */
 
+	// Window menu
 	menu = new BMenu(B_TRANSLATE("Window"));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("Settings"),
 		new BMessage(MSG_WINDOW_SETTINGS), 'P', B_OPTION_KEY));
@@ -2542,6 +2554,7 @@ GenioWindow::_InitMenu()
 
 	fMenuBar->AddItem(menu);
 
+	// Help menu
 	menu = new BMenu(B_TRANSLATE("Help"));
 	menu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
 		new BMessage(B_ABOUT_REQUESTED)));

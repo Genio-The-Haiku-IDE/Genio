@@ -2295,6 +2295,7 @@ GenioWindow::_InitMenu()
 	fileMenu->AddItem(fFoldMenuItem = new BMenuItem(B_TRANSLATE("Fold"),
 		new BMessage(MSG_FILE_FOLD_TOGGLE)));
 
+	fileMenu->AddSeparatorItem();
 	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
 		new BMessage(B_QUIT_REQUESTED), 'Q'));
 

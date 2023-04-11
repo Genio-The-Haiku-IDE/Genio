@@ -2266,39 +2266,36 @@ GenioWindow::_InitCentralSplit()
 void
 GenioWindow::_InitMenu()
 {
-	BMenu* menu = NULL;
-
 	// Menu
 	fMenuBar = new BMenuBar("menubar");
 
-	// File menu
-	menu = new BMenu(B_TRANSLATE("File"));
-	menu->AddItem(fFileNewMenuItem = new BMenuItem(B_TRANSLATE("New"),
+	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
+	fileMenu->AddItem(fFileNewMenuItem = new BMenuItem(B_TRANSLATE("New"),
 		new BMessage(MSG_FILE_NEW)));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
+	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
 		new BMessage(MSG_FILE_OPEN), 'O'));
-	menu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
+	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
 			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), nullptr, nullptr, this,
 			kRecentFilesNumber, true, nullptr, GenioNames::kApplicationSignature), nullptr));
-	menu->AddSeparatorItem();
-	menu->AddItem(fSaveMenuItem = new BMenuItem(B_TRANSLATE("Save"),
+	fileMenu->AddSeparatorItem();
+	fileMenu->AddItem(fSaveMenuItem = new BMenuItem(B_TRANSLATE("Save"),
 		new BMessage(MSG_FILE_SAVE), 'S'));
-	menu->AddItem(fSaveAsMenuItem = new BMenuItem(B_TRANSLATE("Save as" B_UTF8_ELLIPSIS),
+	fileMenu->AddItem(fSaveAsMenuItem = new BMenuItem(B_TRANSLATE("Save as" B_UTF8_ELLIPSIS),
 		new BMessage(MSG_FILE_SAVE_AS)));
-	menu->AddItem(fSaveAllMenuItem = new BMenuItem(B_TRANSLATE("Save all"),
+	fileMenu->AddItem(fSaveAllMenuItem = new BMenuItem(B_TRANSLATE("Save all"),
 		new BMessage(MSG_FILE_SAVE_ALL), 'S', B_SHIFT_KEY));
-	menu->AddSeparatorItem();
-	menu->AddItem(fCloseMenuItem = new BMenuItem(B_TRANSLATE("Close"),
+	fileMenu->AddSeparatorItem();
+	fileMenu->AddItem(fCloseMenuItem = new BMenuItem(B_TRANSLATE("Close"),
 		new BMessage(MSG_FILE_CLOSE), 'W'));
-	menu->AddItem(fCloseAllMenuItem = new BMenuItem(B_TRANSLATE("Close all"),
+	fileMenu->AddItem(fCloseAllMenuItem = new BMenuItem(B_TRANSLATE("Close all"),
 		new BMessage(MSG_FILE_CLOSE_ALL), 'W', B_SHIFT_KEY));
 	fFileNewMenuItem->SetEnabled(false);
 
-	menu->AddSeparatorItem();
-	menu->AddItem(fFoldMenuItem = new BMenuItem(B_TRANSLATE("Fold"),
+	fileMenu->AddSeparatorItem();
+	fileMenu->AddItem(fFoldMenuItem = new BMenuItem(B_TRANSLATE("Fold"),
 		new BMessage(MSG_FILE_FOLD_TOGGLE)));
 
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
+	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
 		new BMessage(B_QUIT_REQUESTED), 'Q'));
 
 	fSaveMenuItem->SetEnabled(false);
@@ -2308,53 +2305,52 @@ GenioWindow::_InitMenu()
 	fCloseAllMenuItem->SetEnabled(false);
 	fFoldMenuItem->SetEnabled(false);
 
-	fMenuBar->AddItem(menu);
+	fMenuBar->AddItem(fileMenu);
 
-	// Edit menu
-	menu = new BMenu(B_TRANSLATE("Edit"));
-	menu->AddItem(fUndoMenuItem = new BMenuItem(B_TRANSLATE("Undo"),
+	BMenu* editMenu = new BMenu(B_TRANSLATE("Edit"));
+	editMenu->AddItem(fUndoMenuItem = new BMenuItem(B_TRANSLATE("Undo"),
 		new BMessage(B_UNDO), 'Z'));
-	menu->AddItem(fRedoMenuItem = new BMenuItem(B_TRANSLATE("Redo"),
+	editMenu->AddItem(fRedoMenuItem = new BMenuItem(B_TRANSLATE("Redo"),
 		new BMessage(B_REDO), 'Z', B_SHIFT_KEY));
-	menu->AddSeparatorItem();
-	menu->AddItem(fCutMenuItem = new BMenuItem(B_TRANSLATE("Cut"),
+	editMenu->AddSeparatorItem();
+	editMenu->AddItem(fCutMenuItem = new BMenuItem(B_TRANSLATE("Cut"),
 		new BMessage(B_CUT), 'X'));
-	menu->AddItem(fCopyMenuItem = new BMenuItem(B_TRANSLATE("Copy"),
+	editMenu->AddItem(fCopyMenuItem = new BMenuItem(B_TRANSLATE("Copy"),
 		new BMessage(B_COPY), 'C'));
-	menu->AddItem(fPasteMenuItem = new BMenuItem(B_TRANSLATE("Paste"),
+	editMenu->AddItem(fPasteMenuItem = new BMenuItem(B_TRANSLATE("Paste"),
 		new BMessage(B_PASTE), 'V'));
-	menu->AddItem(fDeleteMenuItem = new BMenuItem(B_TRANSLATE("Delete"),
+	editMenu->AddItem(fDeleteMenuItem = new BMenuItem(B_TRANSLATE("Delete"),
 		new BMessage(MSG_TEXT_DELETE), 'D'));
-	menu->AddSeparatorItem();
-	menu->AddItem(fSelectAllMenuItem = new BMenuItem(B_TRANSLATE("Select all"),
+	editMenu->AddSeparatorItem();
+	editMenu->AddItem(fSelectAllMenuItem = new BMenuItem(B_TRANSLATE("Select all"),
 		new BMessage(B_SELECT_ALL), 'A'));
-	menu->AddSeparatorItem();
-	menu->AddItem(fOverwiteItem = new BMenuItem(B_TRANSLATE("Overwrite"),
+	editMenu->AddSeparatorItem();
+	editMenu->AddItem(fOverwiteItem = new BMenuItem(B_TRANSLATE("Overwrite"),
 		new BMessage(MSG_TEXT_OVERWRITE), B_INSERT));
 
-	menu->AddSeparatorItem();
-	menu->AddItem(fToggleWhiteSpacesItem = new BMenuItem(B_TRANSLATE("Toggle white spaces"),
+	editMenu->AddSeparatorItem();
+	editMenu->AddItem(fToggleWhiteSpacesItem = new BMenuItem(B_TRANSLATE("Toggle white spaces"),
 		new BMessage(MSG_WHITE_SPACES_TOGGLE)));
-	menu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
+	editMenu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
-	menu->AddItem(fDuplicateLineItem = new BMenuItem(B_TRANSLATE("Duplicate current line"),
+	editMenu->AddItem(fDuplicateLineItem = new BMenuItem(B_TRANSLATE("Duplicate current line"),
 		new BMessage(MSG_DUPLICATE_LINE), 'K', B_OPTION_KEY));
-	menu->AddItem(fDeleteLinesItem = new BMenuItem(B_TRANSLATE("Delete lines"),
+	editMenu->AddItem(fDeleteLinesItem = new BMenuItem(B_TRANSLATE("Delete lines"),
 		new BMessage(MSG_DELETE_LINES), 'D', B_OPTION_KEY));	
-	menu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment selected lines"),
+	editMenu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment selected lines"),
 		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_OPTION_KEY));
 	
-	menu->AddSeparatorItem();	
+	editMenu->AddSeparatorItem();	
 
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Autocompletion"), new BMessage(MSG_AUTOCOMPLETION), B_SPACE));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Format"), new BMessage(MSG_FORMAT)));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION), 'G'));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to declaration"), new BMessage(MSG_GOTODECLARATION)));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Go to implementation"), new BMessage(MSG_GOTOIMPLEMENTATION)));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Switch Source Header"), new BMessage(MSG_SWITCHSOURCE), B_TAB));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Signature Help"), new BMessage(MSG_SIGNATUREHELP), '?'));
+	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Autocompletion"), new BMessage(MSG_AUTOCOMPLETION), B_SPACE));
+	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Format"), new BMessage(MSG_FORMAT)));
+	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION), 'G'));
+	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Go to declaration"), new BMessage(MSG_GOTODECLARATION)));
+	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Go to implementation"), new BMessage(MSG_GOTOIMPLEMENTATION)));
+	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Switch Source Header"), new BMessage(MSG_SWITCHSOURCE), B_TAB));
+	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Signature Help"), new BMessage(MSG_SIGNATUREHELP), '?'));
 
-	menu->AddSeparatorItem();
+	editMenu->AddSeparatorItem();
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));
 	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Set to Unix"),
 		new BMessage(MSG_EOL_SET_TO_UNIX)));
@@ -2381,24 +2377,21 @@ GenioWindow::_InitMenu()
 	fToggleLineEndingsItem->SetEnabled(false);
 	fLineEndingsMenu->SetEnabled(false);
 
-	menu->AddItem(fLineEndingsMenu);
-	fMenuBar->AddItem(menu);
+	editMenu->AddItem(fLineEndingsMenu);
+	fMenuBar->AddItem(editMenu);
 	
-	// View menu
-	menu = new BMenu(B_TRANSLATE("View"));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom In"), new BMessage(MSG_VIEW_ZOOMIN), '+'));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Out"), new BMessage(MSG_VIEW_ZOOMOUT), '-'));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Reset"), new BMessage(MSG_VIEW_ZOOMRESET), '0'));
-	fMenuBar->AddItem(menu);
+	BMenu* viewMenu = new BMenu(B_TRANSLATE("View"));
+	viewMenu->AddItem(new BMenuItem(B_TRANSLATE("Zoom In"), new BMessage(MSG_VIEW_ZOOMIN), '+'));
+	viewMenu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Out"), new BMessage(MSG_VIEW_ZOOMOUT), '-'));
+	viewMenu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Reset"), new BMessage(MSG_VIEW_ZOOMRESET), '0'));
+	fMenuBar->AddItem(viewMenu);
 	
-	// Search menu
-	menu = new BMenu(B_TRANSLATE("Search"));
-
-	menu->AddItem(fFindItem = new BMenuItem(B_TRANSLATE("Find"),
+	BMenu* searchMenu = new BMenu(B_TRANSLATE("Search"));
+	searchMenu->AddItem(fFindItem = new BMenuItem(B_TRANSLATE("Find"),
 		new BMessage(MSG_FIND_GROUP_SHOW), 'F'));
-	menu->AddItem(fReplaceItem = new BMenuItem(B_TRANSLATE("Replace"),
+	searchMenu->AddItem(fReplaceItem = new BMenuItem(B_TRANSLATE("Replace"),
 		new BMessage(MSG_REPLACE_GROUP_SHOW), 'R'));
-	menu->AddItem(fGoToLineItem = new BMenuItem(B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
+	searchMenu->AddItem(fGoToLineItem = new BMenuItem(B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
 		new BMessage(MSG_GOTO_LINE), '<'));
 
 	fBookmarksMenu = new BMenu(B_TRANSLATE("Bookmark"));
@@ -2416,24 +2409,22 @@ GenioWindow::_InitMenu()
 	fGoToLineItem->SetEnabled(false);
 	fBookmarksMenu->SetEnabled(false);
 
-	menu->AddItem(fBookmarksMenu);
-	fMenuBar->AddItem(menu);
+	searchMenu->AddItem(fBookmarksMenu);
+	fMenuBar->AddItem(searchMenu);
 	
-	// Project menu
-	menu = new BMenu(B_TRANSLATE("Project"));
+	BMenu* projectMenu = new BMenu(B_TRANSLATE("Project"));
 	// TODO: As a temporary measure we disable New menu item until we merge
 	// the project-folders branch into main and implement a brand new system
 	// to create new projects. This will likely be based on the "template" or 
 	// "stationery" concept as found in Paladin or BeIDE
-	// menu->AddItem(new BMenuItem(B_TRANSLATE("New"),
+	// projectMenu->AddItem(new BMenuItem(B_TRANSLATE("New"),
 		// new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
+	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
 		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Close"),
+	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Close"),
 		new BMessage(MSG_PROJECT_CLOSE), 'C', B_OPTION_KEY));
-	menu->AddSeparatorItem();
+	projectMenu->AddSeparatorItem();
 	
-	// Build menu
 	BMenu* buildSubMenu = new BMenu(B_TRANSLATE("Build"));
 	buildSubMenu->AddItem(fBuildItem = new BMenuItem (B_TRANSLATE("Build Project"),
 		new BMessage(MSG_BUILD_PROJECT), 'B'));
@@ -2469,18 +2460,15 @@ GenioWindow::_InitMenu()
 	fMakeCatkeysItem->SetEnabled(false);
 	fMakeBindcatalogsItem->SetEnabled(false);
 
-	menu->AddItem(buildSubMenu);
+	projectMenu->AddItem(buildSubMenu);
 
-	menu->AddSeparatorItem();
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Settings" B_UTF8_ELLIPSIS),
+	projectMenu->AddSeparatorItem();
+	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Settings" B_UTF8_ELLIPSIS),
 		new BMessage(MSG_PROJECT_SETTINGS)));
 
-	// project
-	fMenuBar->AddItem(menu);
+	fMenuBar->AddItem(projectMenu);
 
-	// Git menu
 	fGitMenu = new BMenu(B_TRANSLATE("Git"));
-
 	fGitMenu->AddItem(fGitBranchItem = new BMenuItem(B_TRANSLATE("Branch"), nullptr));
 	BMessage* git_branch_message = new BMessage(MSG_GIT_COMMAND);
 	git_branch_message->AddString("command", "branch");
@@ -2541,8 +2529,7 @@ GenioWindow::_InitMenu()
 	menu->AddItem(fHgMenu);
 */
 
-	// Window menu
-	menu = new BMenu(B_TRANSLATE("Window"));
+	BMenu* windowMenu = new BMenu(B_TRANSLATE("Window"));
 
 	BMenu* submenu = new BMenu(B_TRANSLATE("Appearance"));
 	submenu->AddItem(new BMenuItem(B_TRANSLATE("Toggle Projects panes"),
@@ -2551,19 +2538,18 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_SHOW_HIDE_OUTPUT)));
 	submenu->AddItem(new BMenuItem(B_TRANSLATE("Toggle ToolBar"),
 		new BMessage(MSG_TOGGLE_TOOLBAR)));
-	menu->AddItem(submenu);
+	windowMenu->AddItem(submenu);
 
-	menu->AddSeparatorItem();
-	menu->AddItem(new BMenuItem(B_TRANSLATE("Settings" B_UTF8_ELLIPSIS),
+	windowMenu->AddSeparatorItem();
+	windowMenu->AddItem(new BMenuItem(B_TRANSLATE("Settings" B_UTF8_ELLIPSIS),
 		new BMessage(MSG_WINDOW_SETTINGS), 'P', B_OPTION_KEY));
-	fMenuBar->AddItem(menu);
+	fMenuBar->AddItem(windowMenu);
 
-	// Help menu
-	menu = new BMenu(B_TRANSLATE("Help"));
-	menu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
+	BMenu* helpMenu = new BMenu(B_TRANSLATE("Help"));
+	helpMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
 		new BMessage(B_ABOUT_REQUESTED)));
 
-	fMenuBar->AddItem(menu);
+	fMenuBar->AddItem(helpMenu);
 }
 
 void

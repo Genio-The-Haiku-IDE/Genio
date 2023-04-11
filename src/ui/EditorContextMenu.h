@@ -6,19 +6,19 @@
 #define EditorContextMenu_H
 
 
-#include <SupportDefs.h>
 #include <Point.h>
+#include <SupportDefs.h>
 
 class Editor;
 class BPopUpMenu;
 
-class EditorContextMenu{
+class EditorContextMenu {
 public:
 	static void Show(Editor*, BPoint point);
 private:
 		   EditorContextMenu();
 	static void AddToPopUp(const char *label, uint32 what = 0, bool enabled = true);
-	static BPopUpMenu*	fMenu;
+	static BPopUpMenu*	sMenu;
 };
 
 

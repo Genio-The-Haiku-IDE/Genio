@@ -2292,10 +2292,6 @@ GenioWindow::_InitMenu()
 	fFileNewMenuItem->SetEnabled(false);
 
 	fileMenu->AddSeparatorItem();
-	fileMenu->AddItem(fFoldMenuItem = new BMenuItem(B_TRANSLATE("Fold"),
-		new BMessage(MSG_FILE_FOLD_TOGGLE)));
-
-	fileMenu->AddSeparatorItem();
 	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
 		new BMessage(B_QUIT_REQUESTED), 'Q'));
 
@@ -2304,7 +2300,6 @@ GenioWindow::_InitMenu()
 	fSaveAllMenuItem->SetEnabled(false);
 	fCloseMenuItem->SetEnabled(false);
 	fCloseAllMenuItem->SetEnabled(false);
-	fFoldMenuItem->SetEnabled(false);
 
 	fMenuBar->AddItem(fileMenu);
 
@@ -2330,6 +2325,10 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_TEXT_OVERWRITE), B_INSERT));
 
 	editMenu->AddSeparatorItem();
+	editMenu->AddItem(fFoldMenuItem = new BMenuItem(B_TRANSLATE("Fold/Unfold all"),
+		new BMessage(MSG_FILE_FOLD_TOGGLE)));
+	fFoldMenuItem->SetEnabled(false);
+
 	editMenu->AddItem(fToggleWhiteSpacesItem = new BMenuItem(B_TRANSLATE("Toggle white spaces"),
 		new BMessage(MSG_WHITE_SPACES_TOGGLE)));
 	editMenu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
@@ -2425,7 +2424,6 @@ GenioWindow::_InitMenu()
 	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Close Project"),
 		new BMessage(MSG_PROJECT_CLOSE), 'C', B_OPTION_KEY));
 	projectMenu->AddSeparatorItem();
-	
 	
 	projectMenu->AddItem(fBuildItem = new BMenuItem (B_TRANSLATE("Build Project"),
 		new BMessage(MSG_BUILD_PROJECT), 'B'));
@@ -2574,7 +2572,7 @@ GenioWindow::_InitToolbar()
 
 
 	fFoldButton = _LoadIconButton("Fold", MSG_FILE_FOLD_TOGGLE, 213, false,
-						B_TRANSLATE("Fold toggle"));
+						B_TRANSLATE("Fold/unfold all"));
 	fUndoButton = _LoadIconButton("UndoButton", B_UNDO, 204, false,
 						B_TRANSLATE("Undo"));
 	fRedoButton = _LoadIconButton("RedoButton", B_REDO, 205, false,

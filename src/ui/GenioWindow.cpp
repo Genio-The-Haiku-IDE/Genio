@@ -2420,20 +2420,20 @@ GenioWindow::_InitMenu()
 	// "stationery" concept as found in Paladin or BeIDE
 	// projectMenu->AddItem(new BMenuItem(B_TRANSLATE("New"),
 		// new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
-	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
+	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Open Project"),
 		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
-	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Close"),
+	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Close Project"),
 		new BMessage(MSG_PROJECT_CLOSE), 'C', B_OPTION_KEY));
 	projectMenu->AddSeparatorItem();
 	
-	BMenu* buildSubMenu = new BMenu(B_TRANSLATE("Build"));
-	buildSubMenu->AddItem(fBuildItem = new BMenuItem (B_TRANSLATE("Build Project"),
+	
+	projectMenu->AddItem(fBuildItem = new BMenuItem (B_TRANSLATE("Build Project"),
 		new BMessage(MSG_BUILD_PROJECT), 'B'));
-	buildSubMenu->AddItem(fCleanItem = new BMenuItem (B_TRANSLATE("Clean Project"),
+	projectMenu->AddItem(fCleanItem = new BMenuItem (B_TRANSLATE("Clean Project"),
 		new BMessage(MSG_CLEAN_PROJECT)));
-	buildSubMenu->AddItem(fRunItem = new BMenuItem (B_TRANSLATE("Run target"),
+	projectMenu->AddItem(fRunItem = new BMenuItem (B_TRANSLATE("Run target"),
 		new BMessage(MSG_RUN_TARGET)));
-	buildSubMenu->AddSeparatorItem();
+	projectMenu->AddSeparatorItem();
 
 	fBuildModeItem = new BMenu(B_TRANSLATE("Build mode"));
 	fBuildModeItem->SetRadioMode(true);
@@ -2442,15 +2442,15 @@ GenioWindow::_InitMenu()
 	fBuildModeItem->AddItem(fDebugModeItem = new BMenuItem(B_TRANSLATE("Debug"),
 		new BMessage(MSG_BUILD_MODE_DEBUG)));
 	fDebugModeItem->SetMarked(true);
-	buildSubMenu->AddItem(fBuildModeItem);
-	buildSubMenu->AddSeparatorItem();
+	projectMenu->AddItem(fBuildModeItem);
+	projectMenu->AddSeparatorItem();
 
-	buildSubMenu->AddItem(fDebugItem = new BMenuItem (B_TRANSLATE("Debug Project"),
+	projectMenu->AddItem(fDebugItem = new BMenuItem (B_TRANSLATE("Debug Project"),
 		new BMessage(MSG_DEBUG_PROJECT)));
-	buildSubMenu->AddSeparatorItem();
-	buildSubMenu->AddItem(fMakeCatkeysItem = new BMenuItem ("make catkeys",
+	projectMenu->AddSeparatorItem();
+	projectMenu->AddItem(fMakeCatkeysItem = new BMenuItem ("make catkeys",
 		new BMessage(MSG_MAKE_CATKEYS)));
-	buildSubMenu->AddItem(fMakeBindcatalogsItem = new BMenuItem ("make bindcatalogs",
+	projectMenu->AddItem(fMakeBindcatalogsItem = new BMenuItem ("make bindcatalogs",
 		new BMessage(MSG_MAKE_BINDCATALOGS)));
 
 	fBuildItem->SetEnabled(false);
@@ -2460,8 +2460,6 @@ GenioWindow::_InitMenu()
 	fDebugItem->SetEnabled(false);
 	fMakeCatkeysItem->SetEnabled(false);
 	fMakeBindcatalogsItem->SetEnabled(false);
-
-	projectMenu->AddItem(buildSubMenu);
 
 	projectMenu->AddSeparatorItem();
 	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Settings" B_UTF8_ELLIPSIS),

@@ -383,12 +383,13 @@ bool FileWrapper::StartCallTip(bool searchStart) {
 void
 FileWrapper::UpdateCallTip(int deltaPos)
 {
+	LogTraceF("BEFORE currentCalltip %d", currentCalltip);
 	if (deltaPos == 1 && currentCalltip > 0  && currentCalltip + 1)
 		currentCalltip--;
 	else if (deltaPos == 2 && currentCalltip + 1 < maxCalltip)
 		currentCalltip++;
 	
-
+	LogTraceF("AFTER currentCalltip %d", currentCalltip);
 	
 	functionDefinition = "";
 	
@@ -397,7 +398,9 @@ FileWrapper::UpdateCallTip(int deltaPos)
 								std::to_string(maxCalltip) + " \002";
 		
 	functionDefinition += lastCalltip[currentCalltip]["label"].get<std::string>();
-
+	
+	LogTraceF("functionDefinition %s", functionDefinition.c_str());
+	
 	Sci_Position hackPos = fEditor->SendMessage(SCI_GETCURRENTPOS);
 	fEditor->SendMessage(SCI_SETCURRENTPOS, calltipStartPosition);
 	fEditor->SendMessage(SCI_CALLTIPSHOW, calltipPosition, (sptr_t)(functionDefinition.c_str()));
@@ -429,8 +432,8 @@ FileWrapper::ContinueCallTip()
 	// if the num of commas is not compatible with current calltip
 	// try to find a better one..
 	auto params = lastCalltip[currentCalltip]["parameters"];
-	// printf("DEBUG:%s %ld, %ld\n", params.dump().c_str(), params.size(), commas);
-	if (commas >= params.size())
+	//printf("1) DEBUG:%s %ld, %ld\n", params.dump().c_str(), params.size(), commas);
+	if (commas > params.size())
 	{
 		for (int i=0;i<maxCalltip;i++)
 		{
@@ -443,15 +446,21 @@ FileWrapper::ContinueCallTip()
 		}
 	}
 	
+
 	if (params.size() > commas)
 	{
-		// printf("DEBUG:%s\n", params.dump().c_str());
+		//printf("2) DEBUG:%s\n", params.dump().c_str());
 		int base  = functionDefinition.find("\002", 0);
 		int start = base + params[commas]["label"][0].get<int>();
 		int end   = base + params[commas]["label"][1].get<int>();
 		// printf("DEBUG:%s %d,%d\n", params.dump().c_str(), start, end);
 		fEditor->SendMessage(SCI_CALLTIPSETHLT, start + 1, end + 1);
-	}	
+	}
+	else if (commas == 0 && params.size() == 0)
+	{
+		//printf("3) DEBUG: reset\n");
+		fEditor->SendMessage(SCI_CALLTIPSETHLT, 1, 1);
+	}
 }
 
 void
@@ -567,14 +576,8 @@ FileWrapper::_DoGoTo(nlohmann::json& items){
 void
 FileWrapper::_DoSignatureHelp(json &result) {
 	lastCalltip    = result["signatures"];
-	/*currentCalltip = 0;
-	startCalltipWord = 0;
-	calltipPosition;
-		Sci_Position calltipStartPosition;
-		nlohmann::json 	lastCalltip;
-		int 	currentCalltip = 0;
-		int 	maxCalltip = 0;
-		std::string functionDefinition;*/
+	currentCalltip = 0;
+	maxCalltip 	   = 0;
 	
 	if (lastCalltip[currentCalltip] != nlohmann::detail::value_t::null) {
 		maxCalltip 	   = lastCalltip.size();

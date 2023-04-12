@@ -10,6 +10,7 @@
 log_level Logger::sLevel = LOG_LEVEL_INFO;
 int	Logger::sDestination = LOGGER_DEST_STDOUT;
 
+
 /*static*/
 void
 Logger::SetDestination(int destination)
@@ -18,7 +19,7 @@ Logger::SetDestination(int destination)
 }
 
 
-
+/*static*/
 void
 Logger::LogFormat(const char* fmtString, ...)
 {
@@ -30,6 +31,8 @@ Logger::LogFormat(const char* fmtString, ...)
 	_DoLog(logString);
 }
 
+
+/*static*/
 void
 Logger::LogFormat(log_level level, const char* fmtString, ...)
 {
@@ -41,9 +44,8 @@ Logger::LogFormat(log_level level, const char* fmtString, ...)
 	::va_start(argp, fmtString);
 	::vsnprintf(logString, sizeof(fullString) - 4, fmtString, argp);
 	::va_end(argp);
-	_DoLog(logString);
+	_DoLog(fullString);
 }
-
 
 
 /*static*/

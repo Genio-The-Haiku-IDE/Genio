@@ -3938,6 +3938,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		if (GenioNames::Settings.fullpath_title == true)
 			SetTitle(GenioNames::kApplicationName);
+			
+		fProblemsPanel->Clear();
 
 		fProblemsPanel->Clear();
 

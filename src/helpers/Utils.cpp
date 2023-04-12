@@ -13,7 +13,6 @@
 #include <CheckBox.h>
 #include <IconUtils.h>
 #include <MessageFilter.h>
-#include <Notification.h>
 #include <RadioButton.h>
 #include <Resources.h>
 
@@ -149,12 +148,13 @@ int32 rgb_colorToSciColor(rgb_color color)
 
 
 KeyDownMessageFilter::KeyDownMessageFilter(uint32 commandToSend, char key,
-	uint32 modifiers)
+	uint32 modifiers, filter_result filterResult)
 	:
 	BMessageFilter(B_KEY_DOWN),
 	fKey(key),
 	fModifiers(modifiers),
-	fCommandToSend(commandToSend)
+	fCommandToSend(commandToSend),
+	fFilterResult(filterResult)
 {
 }
 
@@ -177,7 +177,7 @@ KeyDownMessageFilter::Filter(BMessage* message, BHandler** target)
 		modifiers = modifiers & AllowedModifiers();
 		if(bytes[0] == fKey && modifiers == fModifiers) {
 			Looper()->PostMessage(fCommandToSend);
-			return B_SKIP_MESSAGE;
+			return fFilterResult;
 		}
 	}
 	return B_DISPATCH_MESSAGE;

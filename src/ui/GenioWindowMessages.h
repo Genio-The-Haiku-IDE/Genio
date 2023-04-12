@@ -62,6 +62,7 @@ enum {
 	MSG_FIND_PREVIOUS			= 'fipr',
 	MSG_FIND_MARK_ALL			= 'fmal',
 	MSG_FIND_NEXT				= 'fite',
+	MSG_FIND_INVOKED			= 'finv',
 	MSG_REPLACE_GROUP_SHOW		= 'regs',
 	MSG_REPLACE_MENU_SELECTED 	= 'rmse',
 	MSG_REPLACE_ONE				= 'reon',
@@ -108,8 +109,9 @@ enum {
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',
-
-	MSG_SELECT_TAB					= 'seta'
+	MSG_SELECT_TAB					= 'seta',
+		
+	MSG_ESCAPE_KEY					= 'escp'
 };
 
 #endif // GenioWindowMessages_H

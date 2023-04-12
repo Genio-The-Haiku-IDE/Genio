@@ -1661,7 +1661,7 @@ Editor::SetProblems(const BMessage* diagnostics)
 {
 	assert(Looper()->IsLocked()); //Looper must be locked.
 	fProblems = *diagnostics;
-	fProblems.what = 'diag';
+	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
 	fProblems.AddRef("ref", &fFileRef);
 	Window()->PostMessage(&fProblems);
 }

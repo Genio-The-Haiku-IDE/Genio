@@ -44,7 +44,7 @@ Logger::LogFormat(log_level level, const char* fmtString, ...)
 	::va_start(argp, fmtString);
 	::vsnprintf(logString, sizeof(fullString) - 4, fmtString, argp);
 	::va_end(argp);
-	_DoLog(logString);
+	_DoLog(fullString);
 }
 
 

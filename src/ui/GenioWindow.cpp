@@ -310,7 +310,7 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case 'diag': {
+		case EDITOR_UPDATE_DIAGNOSTICS : {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				int32 index = _GetEditorIndex(&ref);
@@ -3902,6 +3902,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		if (GenioNames::Settings.fullpath_title == true)
 			SetTitle(GenioNames::kApplicationName);
+			
+		fProblemsPanel->Clear();
 
 		return;
 	}

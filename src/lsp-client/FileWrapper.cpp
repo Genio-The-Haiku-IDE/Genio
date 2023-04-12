@@ -124,7 +124,6 @@ FileWrapper::didChange(const char* text, long len, Sci_Position start_pos, Sci_P
   std::vector<TextDocumentContentChangeEvent> changes{event};
 
   fLSPClientWrapper->DidChange(this, fFilenameURI.c_str(), changes, false);
-  fLSPClientWrapper->DocumentLink(this, fFilenameURI.c_str());
 }
 
 
@@ -651,6 +650,8 @@ FileWrapper::_DoDiagnostics(nlohmann::json& params)
 		fEditor->SendMessage(SCI_INDICATORFILLRANGE, ir.from, ir.to-ir.from);
 		fLastDiagnostics.push_back(ir);
 	}
+	
+	  fLSPClientWrapper->DocumentLink(this, fFilenameURI.c_str());
 }
 
 void

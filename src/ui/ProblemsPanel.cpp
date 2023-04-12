@@ -13,6 +13,10 @@
 
 #include <string>
 
+enum  {
+	COLUMNVIEW_CLICK = 'clIV'
+};
+
 enum {
 	kCategoryColumn = 0,
 	kMessageColumn,
@@ -39,20 +43,20 @@ ProblemsPanel::ProblemsPanel(): BColumnListView(B_TRANSLATE("Problems"),
 	AddColumn(new BStringColumn(B_TRANSLATE("Source"),
 								200.0, 200.0, 200.0, 0), kSourceColumn);
 	
-	SetInvocationMessage(new BMessage('clIV'));
 }
 
 void 
 ProblemsPanel::AttachedToWindow()
 {
 	BColumnListView::AttachedToWindow();
+	SetInvocationMessage(new BMessage(COLUMNVIEW_CLICK));
 	SetTarget(this);
 }
 
 void 
 ProblemsPanel::MessageReceived(BMessage* msg)
 {
-	if (msg->what == 'clIV')
+	if (msg->what == COLUMNVIEW_CLICK)
 	{
 		RangeRow*	range = dynamic_cast<RangeRow*>(CurrentSelection());
 		if (range) {

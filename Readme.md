@@ -10,7 +10,19 @@ Genio is an IDE for the Haiku operating system.
 Despite being in an early stage, Genio can already be used to develop and build applications.
 In fact, the Genio team uses it as the main development tool to develop and build Genio.
 
-Genio started off as a fork of Ideam an IDE for [Haiku](https://www.haiku-os.org)
+Genio started off as a fork of Ideam an IDE for [Haiku](https://www.haiku-os.org), but we already implemented some new features:
+* LSP (autocompletion, signature help, go to definition/implementation/declaration)
+* Find in files
+* Links to file and build errors in Build Log and Console I/O
+* Project browser
+* Improved handling of Editor tabs:
+  * Movable tabs
+  * Close all/other
+* New Editor commands:
+  * Duplicate current line
+  * Delete lines
+  * Comment/uncomment lines
+  * Switch between source and header
 
 The editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).  
 

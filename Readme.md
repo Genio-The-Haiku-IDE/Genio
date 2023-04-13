@@ -6,8 +6,14 @@ Genio
 
 Introduction
 --------------------------------------------------------------------------------
-Genio is a fork of Ideam an IDE for [Haiku](https://www.haiku-os.org).
+Genio is an IDE for the Haiku operating system.
+Despite being in an early stage, Genio can already be used to develop and build applications.
+In fact, the Genio team uses it as the main development tool to develop and build Genio.
+
+Genio started off as a fork of Ideam an IDE for [Haiku](https://www.haiku-os.org)
+
 The editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).  
+
 
 Goals and roadmap
 ------------------
@@ -36,19 +42,16 @@ Top priority goals after the first initial commit include:
 
 Branches
 ------------------
-Currently there are 3 branches on the Github repository:
-* main - is functionally equivalent to the latest version of Ideam (v.0.7.9) at the time we forked it, except it is fully rebranded
-* workspace - this is the branch where the development on the workspace manager and project folders happens
-* experimental/lsp-client - this is the branch where the development of the Language Server Protocol and related features happens (e.g. autocompletion)
+Currently there are 2 branches on the Github repository:
+* main - this is the main branch, which we always try to keep in a relatively stable state
+* experimental/ProjectTreeView - this is the branch where the development of the new Project related stuff happens
 	
 Contributions
 ------------------
-Genio is in a very early stage. There is currently no difference between Ideam and the main branch except from a branding perspective.
 We are not ready for prime time and we will keep the branches separate until we are.
 We do not accept PRs at the moment but if you want to contribute, please contact us here on GitHub.
 
 Compiling
-
 ------------------
 * ensure you have installed "llvm12_clang and llvm12_libs" packages
 

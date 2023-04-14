@@ -44,6 +44,7 @@ TYPE := APP
 
 APP_MIME_SIG := "application/x-vnd.Genio"
 
+<<<<<<< HEAD
 SRCS := src/GenioApp.cpp
 SRCS += src/GenioNamespace.cpp
 SRCS += src/ui/Editor.cpp
@@ -83,6 +84,43 @@ SRCS += src/ProjectTreeView/FileTreeItem.cpp
 SRCS += src/ProjectTreeView/NodeMonitor.cpp
 SRCS += src/ProjectTreeView/ProjectTreeView.cpp
 SRCS += src/ProjectTreeView/DirectoryScanThread.cpp
+=======
+SRCS :=  src/GenioApp.cpp
+SRCS +=  src/GenioNamespace.cpp
+SRCS +=  src/ui/Editor.cpp
+SRCS +=  src/ui/EditorTabManager.cpp
+SRCS +=  src/ui/EditorContextMenu.cpp
+SRCS +=  src/ui/GenioWindow.cpp
+SRCS +=  src/override/OutlineListView.cpp
+SRCS +=  src/ui/IconCache.cpp
+SRCS +=  src/ui/ProjectsFolderBrowser.cpp
+SRCS +=  src/ui/SettingsWindow.cpp
+SRCS +=  src/ui/EditorStatusView.cpp
+SRCS +=  src/ui/GoToLineWindow.cpp
+SRCS +=  src/override/MenuItem.cpp
+SRCS +=  src/ui/ProblemsPanel.cpp
+SRCS +=  src/project/ProjectSettingsWindow.cpp
+SRCS +=  src/project/ProjectFolder.cpp
+SRCS +=  src/project/ProjectItem.cpp
+SRCS +=  src/helpers/GenioCommon.cpp
+SRCS +=  src/helpers/TPreferences.cpp
+SRCS +=  src/helpers/GSettings.cpp
+SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
+SRCS +=  src/helpers/console_io/ConsoleIOThread.cpp
+SRCS +=  src/helpers/console_io/GenericThread.cpp
+SRCS +=  src/helpers/console_io/WordTextView.cpp
+SRCS +=  src/helpers/tabview/TabContainerView.cpp
+SRCS +=  src/helpers/tabview/TabManager.cpp
+SRCS +=  src/helpers/tabview/TabView.cpp
+SRCS +=  src/helpers/Logger.cpp
+SRCS +=  src/helpers/TextUtils.cpp
+SRCS +=  src/helpers/StatusView.cpp
+SRCS +=  src/helpers/Utils.cpp
+SRCS +=  src/lsp-client/FileWrapper.cpp
+SRCS +=  src/lsp-client/LSPClientWrapper.cpp
+SRCS +=  src/lsp-client/LSPClient.cpp
+SRCS +=  src/lsp-client/Transport.cpp
+>>>>>>> f6210da (moved haiku classes in a separate folder)
 
 RDEFS := Genio.rdef
 

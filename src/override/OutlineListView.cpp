@@ -906,7 +906,7 @@ BOutlineListView::ExpandOrCollapse(BListItem* item, bool expand)
 			fLastSelected = maxIndex;
 
 		if (selectionChanged)
-			SelectionChanged();
+			Select(fFirstSelected);
 	}
 
 	_FixupScrollBar();

@@ -1659,7 +1659,7 @@ Editor::_SetFoldMargin()
 void
 Editor::SetProblems(const BMessage* diagnostics)
 {
-	assert(Looper()->IsLocked()); //Looper must be locked.
+	BAutolock lock(fProblemsLock);
 	fProblems = *diagnostics;
 	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
 	fProblems.AddRef("ref", &fFileRef);
@@ -1668,6 +1668,6 @@ Editor::SetProblems(const BMessage* diagnostics)
 void
 Editor::GetProblems(BMessage* diagnostics)
 {
-	assert(Looper()->IsLocked()); //Looper must be locked.
+	BAutolock lock(fProblemsLock);
 	*diagnostics = fProblems;
 }

@@ -484,7 +484,11 @@ void
 ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 {	
 	BPrivate::BPathMonitor::StopWatching(BMessenger(this));
-	RemoveItem(GetCurrentProjectItem());
+	ProjectItem*	listItem = FindProjectItem(project->Path());
+	if (listItem)
+		RemoveItem(listItem);
+	else
+		LogErrorF("Can't find ProjectItem for path [%s]", project->Path().String());
 	Invalidate();
 }
 

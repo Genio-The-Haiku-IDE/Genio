@@ -182,11 +182,12 @@ FileWrapper::GoTo(FileWrapper::GoToType type)
 
 
 void FileWrapper::StartHover(Sci_Position sci_position) {
-  if (!initialized)
+  
+  if (!initialized || sci_position < 0) {
 		return;
+  }
 		
-  if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_DIAG, sci_position) == 1)
-  {
+  if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_DIAG, sci_position) == 1) {
 	  for (auto& ir: fLastDiagnostics) {			
 		if (sci_position > ir.from && sci_position <= ir.to){
 			_ShowToolTip(ir.info.c_str());
@@ -195,7 +196,7 @@ void FileWrapper::StartHover(Sci_Position sci_position) {
 	  }
 	  return;
   }
-  
+
   Position position;
   FromSciPositionToLSPPosition(sci_position, &position);
   fLSPClientWrapper->Hover(this, fFilenameURI.c_str(), position);

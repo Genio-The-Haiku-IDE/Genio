@@ -11,6 +11,7 @@
 #include <ScintillaView.h>
 #include <String.h>
 #include <string>
+#include <Locker.h>
 
 class FileWrapper;
 class ProjectFolder;
@@ -208,6 +209,7 @@ private:
 			editor::StatusView*			fStatusView;
 			
 			BMessage	fProblems;
+			BLocker		fProblemsLock;
 
 };
 

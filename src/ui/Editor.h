@@ -11,6 +11,7 @@
 #include <ScintillaView.h>
 #include <String.h>
 #include <string>
+#include <Locker.h>
 
 class FileWrapper;
 class ProjectFolder;
@@ -28,6 +29,7 @@ enum {
 	EDITOR_REPLACE_ONE				= 'Eron',
 	EDITOR_REPLACE_ALL_COUNT		= 'Erac',
 	EDITOR_UPDATE_SAVEPOINT			= 'EUSP',
+	EDITOR_UPDATE_DIAGNOSTICS		= 'diag'
 };
 
 /*
@@ -164,7 +166,8 @@ public:
 			
 			void 				ContextMenu(BPoint point);
 			
-			
+			void				SetProblems(const BMessage* diagnostics);
+			void				GetProblems(BMessage* diagnostics);
 
 private:
 			void				UpdateStatusBar();
@@ -204,6 +207,9 @@ private:
 			FileWrapper*		fFileWrapper;
 			ProjectFolder*		fProjectFolder;
 			editor::StatusView*			fStatusView;
+			
+			BMessage	fProblems;
+			BLocker		fProblemsLock;
 
 };
 

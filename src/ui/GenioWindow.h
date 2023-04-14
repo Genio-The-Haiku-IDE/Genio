@@ -9,7 +9,6 @@
 
 #include <Bitmap.h>
 #include <CheckBox.h>
-#include <ColumnListView.h>
 #include <ColumnTypes.h>
 #include <FilePanel.h>
 #include <GroupLayout.h>
@@ -25,8 +24,7 @@
 #include <TextControl.h>
 #include <Window.h>
 #include "GoToLineWindow.h"
-
-
+#include "ProblemsPanel.h"
 #include "ConsoleIOThread.h"
 #include "ConsoleIOView.h"
 #include "Editor.h"
@@ -39,11 +37,7 @@
 enum {
 	kProjectsOutline = 0,
 };
-enum {
-	kTimeColumn = 0,
-	kMessageColumn,
-	kTypeColumn
-};
+
 
 enum {
 	kNotificationLog = 0,
@@ -266,7 +260,7 @@ private:
 
 			// Bottom panels
 			BTabView*			fOutputTabView;
-			BColumnListView*	fNotificationsListView;
+			ProblemsPanel*	fProblemsPanel;
 			ConsoleIOThread*	fConsoleIOThread;
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;

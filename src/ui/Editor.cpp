@@ -1230,6 +1230,9 @@ Editor::SetProjectFolder(ProjectFolder* proj)
 		fFileWrapper->SetLSPClient(proj->GetLSPClient());
 	else
 		fFileWrapper->UnsetLSPClient();
+	
+	BMessage empty;
+	SetProblems(&empty);
 }
 
 void
@@ -1650,4 +1653,21 @@ Editor::_SetFoldMargin()
 		SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_CHANGE, 4);
 		SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_CLICK, 2);
 	}
+}
+
+
+void
+Editor::SetProblems(const BMessage* diagnostics)
+{
+	BAutolock lock(fProblemsLock);
+	fProblems = *diagnostics;
+	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
+	fProblems.AddRef("ref", &fFileRef);
+	Window()->PostMessage(&fProblems);
+}
+void
+Editor::GetProblems(BMessage* diagnostics)
+{
+	BAutolock lock(fProblemsLock);
+	*diagnostics = fProblems;
 }

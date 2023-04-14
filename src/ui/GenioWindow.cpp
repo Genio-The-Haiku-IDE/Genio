@@ -53,7 +53,6 @@ constexpr auto kRecentFilesNumber = 14 + 1;
 
 static constexpr float kTabBarHeight = 30.0f;
 
-static constexpr auto kGotolineMaxBytes = 6;
 
 // Find group
 static constexpr auto kFindReplaceMaxBytes = 50;
@@ -194,7 +193,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fOpenProjectPanel(nullptr)
 	, fOpenProjectFolderPanel(nullptr)
 	, fOutputTabView(nullptr)
-	, fNotificationsListView(nullptr)
+	, fProblemsPanel(nullptr)
 	, fConsoleIOThread(nullptr)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
@@ -311,6 +310,17 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case EDITOR_UPDATE_DIAGNOSTICS : {
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				int32 index = _GetEditorIndex(&ref);
+				if (index == fTabManager->SelectedTabIndex()) 
+				{
+					fProblemsPanel->UpdateProblems(message);
+				}
+			}
+			break;
+		}
 		case 'NOTI': {
 			BString notification, type;
 			if (message->FindString("notification", &notification) == B_OK
@@ -1046,9 +1056,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				// In multifile open not-focused files place scroll just after
 				// caret line when reselected. Ensure visibility.
 				// TODO caret policy
-				editor->EnsureVisiblePolicy();
-
-				
+				editor->EnsureVisiblePolicy();				
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 			}
 			break;
@@ -1387,16 +1395,19 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		// Do not reopen an already opened file
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
+			
 			if (openedIndex != fTabManager->SelectedTabIndex()) {
 				fTabManager->SelectTab(openedIndex);
 			}				
 			
-			if (lsp_char >= 0 && be_line > -1)
+			if (lsp_char >= 0 && be_line > -1) {
 				fTabManager->EditorAt(openedIndex)->GoToLSPPosition(be_line - 1, lsp_char);
-			else
-			if (be_line > -1)
+			}
+			else if (be_line > -1) {
 				fTabManager->EditorAt(openedIndex)->GoToLine(be_line);
+			}
 			
+			fTabManager->SelectedEditor()->GrabFocus();
 			continue;
 		}
 
@@ -2640,24 +2651,14 @@ GenioWindow::_InitOutputSplit()
 {
 	// Output
 	fOutputTabView = new BTabView("OutputTabview");
-
-	fNotificationsListView = new BColumnListView(B_TRANSLATE("Notifications"),
-									B_NAVIGABLE, B_FANCY_BORDER, true);
-	fNotificationsListView->AddColumn(new BDateColumn(B_TRANSLATE("Time"),
-								200.0, 200.0, 200.0), kTimeColumn);
-	fNotificationsListView->AddColumn(new BStringColumn(B_TRANSLATE("Message"),
-								600.0, 600.0, 800.0, 0), kMessageColumn);
-	fNotificationsListView->AddColumn(new BStringColumn(B_TRANSLATE("Type"),
-								200.0, 200.0, 200.0, 0), kTypeColumn);
-	BFont font;
-	font.SetFamilyAndStyle("Noto Sans Mono", "Bold");
-	fNotificationsListView->SetFont(&font);
+	
+	fProblemsPanel = new ProblemsPanel();
 
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build Log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
-	fOutputTabView->AddTab(fNotificationsListView);
+	fOutputTabView->AddTab(fProblemsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
 	fOutputTabView->AddTab(fConsoleIOView);
 }
@@ -3696,13 +3697,7 @@ GenioWindow::_SendNotification(BString message, BString type)
 	if (GenioNames::Settings.enable_notifications == false)
 		return;
 
-       BRow* fRow = new BRow();
-       time_t now =  static_cast<bigtime_t>(real_time_clock());
-
-       fRow->SetField(new BDateField(&now), kTimeColumn);
-       fRow->SetField(new BStringField(message), kMessageColumn);
-       fRow->SetField(new BStringField(type), kTypeColumn);
-       fNotificationsListView->AddRow(fRow, int32(0));
+	LogInfo("Notification: %s - %s", type.String(), message.String());
 }
 
 void
@@ -3907,6 +3902,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		if (GenioNames::Settings.fullpath_title == true)
 			SetTitle(GenioNames::kApplicationName);
+			
+		fProblemsPanel->Clear();
 
 		return;
 	}
@@ -3976,6 +3973,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fFileSaveAllButton->SetEnabled(filesNeedSave);
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
+	BMessage diagnostics;
+	editor->GetProblems(&diagnostics);
+	fProblemsPanel->UpdateProblems(&diagnostics);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

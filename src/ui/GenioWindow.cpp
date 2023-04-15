@@ -2441,7 +2441,7 @@ GenioWindow::_InitMenu()
 	projectMenu->AddItem(fCleanItem = new BMenuItem (B_TRANSLATE("Clean Project"),
 		new BMessage(MSG_CLEAN_PROJECT)));
 	projectMenu->AddItem(fRunItem = new BMenuItem (B_TRANSLATE("Run target"),
-		new BMessage(MSG_RUN_TARGET)));
+		new BMessage(MSG_RUN_TARGET), 'R', B_SHIFT_KEY));
 	projectMenu->AddSeparatorItem();
 
 	fBuildModeItem = new BMenu(B_TRANSLATE("Build mode"));

@@ -846,7 +846,7 @@ BOutlineListView::ExpandOrCollapse(BListItem* item, bool expand)
 				uint32 subLevel = item->fLevel;
 				items++;
 
-				while (items[0]->fLevel > subLevel && count > 1) {
+				while (count > 0 && items[0]->fLevel > subLevel) {
 					items++;
 					count--;
 				}
@@ -906,7 +906,7 @@ BOutlineListView::ExpandOrCollapse(BListItem* item, bool expand)
 			fLastSelected = maxIndex;
 
 		if (selectionChanged)
-			Select(fFirstSelected);
+			Select(fFirstSelected, fLastSelected);
 	}
 
 	_FixupScrollBar();

@@ -3858,7 +3858,6 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 void
 GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 {
-
 	// All files are closed
 	if (editor == nullptr) {
 		// ToolBar Items
@@ -3869,6 +3868,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fFoldButton->SetEnabled(false);
 		fUndoButton->SetEnabled(false);
 		fRedoButton->SetEnabled(false);
+
 		fFileSaveButton->SetEnabled(false);
 		fFileSaveAllButton->SetEnabled(false);
 		fFileUnlockedButton->SetEnabled(false);
@@ -3895,6 +3895,10 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fToggleWhiteSpacesItem->SetEnabled(false);
 		fToggleLineEndingsItem->SetEnabled(false);
 		fLineEndingsMenu->SetEnabled(false);
+		fDuplicateLineItem->SetEnabled(false);
+		fCommentSelectionItem->SetEnabled(false);
+		fDeleteLinesItem->SetEnabled(false);
+
 		fFindItem->SetEnabled(false);
 		fReplaceItem->SetEnabled(false);
 		fGoToLineItem->SetEnabled(false);
@@ -3902,7 +3906,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		if (GenioNames::Settings.fullpath_title == true)
 			SetTitle(GenioNames::kApplicationName);
-			
+
 		fProblemsPanel->Clear();
 
 		return;
@@ -3942,6 +3946,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fSaveAsMenuItem->SetEnabled(true);
 	fCloseMenuItem->SetEnabled(true);
 	fCloseAllMenuItem->SetEnabled(true);
+
+	// Edit menu items
 	fFoldMenuItem->SetEnabled(editor->IsFoldingAvailable());
 	fUndoMenuItem->SetEnabled(editor->CanUndo());
 	fRedoMenuItem->SetEnabled(editor->CanRedo());
@@ -3955,6 +3961,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fToggleWhiteSpacesItem->SetEnabled(true);
 	fToggleLineEndingsItem->SetEnabled(true);
 	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
+	fDuplicateLineItem->SetEnabled(!editor->IsReadOnly());
+	fCommentSelectionItem->SetEnabled(!editor->IsReadOnly());
+	fDeleteLinesItem->SetEnabled(!editor->IsReadOnly());
 	fFindItem->SetEnabled(true);
 	fReplaceItem->SetEnabled(true);
 	fGoToLineItem->SetEnabled(true);

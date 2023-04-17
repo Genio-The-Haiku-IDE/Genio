@@ -108,8 +108,9 @@ enum {
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',
-
-	MSG_SELECT_TAB					= 'seta'
+	MSG_SELECT_TAB					= 'seta',
+		
+	MSG_ESCAPE_KEY					= 'escp'
 };
 
 #endif // GenioWindowMessages_H

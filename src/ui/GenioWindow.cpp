@@ -41,6 +41,7 @@
 #include "SettingsWindow.h"
 #include "TPreferences.h"
 #include "TextUtils.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -210,8 +211,11 @@ GenioWindow::GenioWindow(BRect frame)
 		selectTab->AddInt32("index", index - 1);
 		AddShortcut(index + kAsciiPos, B_COMMAND_KEY, selectTab);
 	}
-	AddShortcut(B_LEFT_ARROW,  B_OPTION_KEY,  new BMessage(MSG_FILE_PREVIOUS_SELECTED));
-	AddShortcut(B_RIGHT_ARROW, B_OPTION_KEY,  new BMessage(MSG_FILE_NEXT_SELECTED));
+
+	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_PREVIOUS_SELECTED, B_LEFT_ARROW, B_OPTION_KEY));
+	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW, B_OPTION_KEY));
+	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE));
+	
 
 	if (GenioNames::Settings.show_projects == false)
 		fProjectsTabView->Hide();
@@ -268,27 +272,8 @@ GenioWindow::~GenioWindow()
 void
 GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 {
-	if (handler == fFindTextControl->TextView()) {
-		if (message->what == B_KEY_DOWN) {
-			int8 key;
-			if (message->FindInt8("byte", 0, &key) == B_OK) {
-				if (key == B_ESCAPE) {
-					fFindGroup->SetVisible(false);
-					fReplaceGroup->SetVisible(false);
-				}
-			}
-		}
-	} else if (handler == fReplaceTextControl->TextView()) {
-		if (message->what == B_KEY_DOWN) {
-			int8 key;
-			if (message->FindInt8("byte", 0, &key) == B_OK) {
-				if (key == B_ESCAPE) {
-					fReplaceGroup->SetVisible(false);
-					fFindTextControl->MakeFocus(true);
-				}
-			}
-		}
-	}  else if (handler == fConsoleIOView) {
+	//TODO: understand this part of code and move it to a better place.
+	if (handler == fConsoleIOView) {
 		if (message->what == B_KEY_DOWN) {
 			int8 key;
 			if (message->FindInt8("byte", 0, &key) == B_OK) {
@@ -310,6 +295,16 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case MSG_ESCAPE_KEY:{
+			if (CurrentFocus() == fFindTextControl->TextView()) {
+					fFindGroup->SetVisible(false);
+					fReplaceGroup->SetVisible(false);
+			} else if (CurrentFocus() == fReplaceTextControl->TextView()) {
+					fReplaceGroup->SetVisible(false);
+					fFindTextControl->MakeFocus(true);
+			}
+		}
+		break;
 		case EDITOR_UPDATE_DIAGNOSTICS : {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {

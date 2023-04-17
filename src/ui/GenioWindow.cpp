@@ -1386,7 +1386,9 @@ GenioWindow::_FileOpen(BMessage* msg)
 			if (openWithPreferred)
 				_FileOpenWithPreferredApp(&ref); //TODO make this optional?
 			continue;
-		}	
+		}	else {
+			be_roster->AddToRecentDocuments(&ref, GenioNames::GetSignature());
+		}
 
 		// Do not reopen an already opened file
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {

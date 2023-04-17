@@ -188,7 +188,7 @@ UpdateSettingsFile()
 
 	// General Page
 	if (settings.FindString("projects_directory", &stringVal) != B_OK)
-		settings.SetBString("projects_directory", kSKProjectsDirectory);
+		settings.SetString("projects_directory", kSKProjectsDirectory);
 	if (settings.FindInt32("fullpath_title", &intVal) != B_OK)
 		settings.SetInt32("fullpath_title", kSKFullPathTitle);
 	// General Startup Page
@@ -259,7 +259,7 @@ UpdateSettingsFile()
 	if ((status = settings.SetInt32("use_count", 0)) != B_OK)
 		return status;
 	// Reset app version
-	return settings.SetBString("app_version", GenioNames::GetVersionInfo());
+	return settings.SetString("app_version", GenioNames::GetVersionInfo());
 }
 
 

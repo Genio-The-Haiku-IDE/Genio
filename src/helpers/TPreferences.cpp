@@ -132,13 +132,6 @@ status_t TPreferences::SetString(const char *name, const char *s) {
 	return AddString(name, s);
 }
 
-status_t TPreferences::SetBString(const char *name, const BString& bstring) {
-	if (HasString(name)) {
-		return ReplaceString(name, 0, bstring);
-	}
-	return AddString(name, bstring);
-}
-
 status_t TPreferences::SetPoint(const char *name, BPoint p) {
 	if (HasPoint(name)) {
 		return ReplacePoint(name, 0, p);

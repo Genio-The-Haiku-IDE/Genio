@@ -429,7 +429,7 @@ SettingsWindow::_ApplyOrphans()
 		fWindowSettingsFile->SetInt32("use_count", 0);
 		fWindowSettingsFile->SetInt64("last_used", real_time_clock());
 		// Reset app version
-		fWindowSettingsFile->SetBString("app_version", GenioNames::GetVersionInfo());
+		fWindowSettingsFile->SetString("app_version", GenioNames::GetVersionInfo());
 	}
 	_UpdateText();
 	_UpdateTrailing();
@@ -1135,7 +1135,7 @@ SettingsWindow::_ShowOrphans()
 	// If there is a new app version with no settings modifications
 	// ReadyToRun will keep asking to review forever so update version
 	if (GenioNames::CompareVersion(appVersion, fileVersion) > 0)
-		fWindowSettingsFile->SetBString("app_version", appVersion);
+		fWindowSettingsFile->SetString("app_version", appVersion);
 
 	if (fOrphansList->CountItems() == 0)
 		return;
@@ -1187,7 +1187,7 @@ SettingsWindow::_StoreToFile(BControl* control)
 
 	// General Page
 	if (control == fProjectsDirectory)
-		status = fWindowSettingsFile->SetBString("projects_directory", fProjectsDirectory->Text());
+		status = fWindowSettingsFile->SetString("projects_directory", fProjectsDirectory->Text());
 	else if (control == fFullPathWindowTitle)
 		status = fWindowSettingsFile->SetInt32("fullpath_title", fFullPathWindowTitle->Value());
 	else if (control == fLogDestination)
@@ -1226,7 +1226,7 @@ SettingsWindow::_StoreToFile(BControl* control)
 	else if (control == fShowEdgeLine)
 		status = fWindowSettingsFile->SetInt32("show_edgeline", fShowEdgeLine->Value());
 	else if (control == fEdgeLineColumn)
-		status = fWindowSettingsFile->SetBString("edgeline_column", fEdgeLineColumn->Text());
+		status = fWindowSettingsFile->SetString("edgeline_column", fEdgeLineColumn->Text());
 	else if (control == fEnableFolding)
 		status = fWindowSettingsFile->SetInt32("enable_folding", fEnableFolding->Value());
 	// Notifications Page
@@ -1254,10 +1254,10 @@ SettingsWindow::_StoreToFileDefaults()
 
 	fWindowSettingsFile->SetInt64("last_used", real_time_clock());
 	// Reset app version
-	fWindowSettingsFile->SetBString("app_version", GenioNames::GetVersionInfo());
+	fWindowSettingsFile->SetString("app_version", GenioNames::GetVersionInfo());
 
 	// General Page
-	fWindowSettingsFile->SetBString("projects_directory", kSKProjectsDirectory);
+	fWindowSettingsFile->SetString("projects_directory", kSKProjectsDirectory);
 	fWindowSettingsFile->SetInt32("fullpath_title", kSKFullPathTitle);
 	fWindowSettingsFile->SetInt32("log_destination", Logger::LOGGER_DEST_STDOUT);
 
@@ -1280,7 +1280,7 @@ SettingsWindow::_StoreToFileDefaults()
 	fWindowSettingsFile->SetInt32("show_commentmargin", kSKShowCommentMargin);
 	fWindowSettingsFile->SetInt32("mark_caretline", kSKMarkCaretLine);
 	fWindowSettingsFile->SetInt32("show_edgeline", kSKShowEdgeLine);
-	fWindowSettingsFile->SetBString("edgeline_column", kSKEdgeLineColumn);
+	fWindowSettingsFile->SetString("edgeline_column", kSKEdgeLineColumn);
 	fWindowSettingsFile->SetInt32("enable_folding", kSKEnableFolding);
 
 	// Notifications Page

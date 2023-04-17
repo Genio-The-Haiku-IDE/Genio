@@ -23,7 +23,9 @@ static log_level sSessionLogLevel = log_level(-1);
 
 GenioApp::GenioApp()
 	:
-	BApplication(GenioNames::kApplicationSignature)
+	BApplication(GenioNames::kApplicationSignature),
+	fGenioWindow(nullptr),
+	fUISettingsFile(nullptr)
 {
 	// Load UI settings
 	fUISettingsFile = new TPreferences(GenioNames::kUISettingsFileName,

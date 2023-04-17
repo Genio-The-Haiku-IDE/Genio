@@ -29,13 +29,10 @@ ProjectItem::~ProjectItem()
 void 
 ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
-	BFont font;
-	
 	if (Text() == NULL)
 		return;
 
-	font.SetFamilyAndStyle("Noto Sans", "Regular");
-	owner->SetFont(&font);
+	owner->SetFont(be_plain_font);
 		
 	rgb_color lowColor = owner->LowColor();
 
@@ -60,13 +57,11 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		{
 			owner->SetDrawingMode(B_OP_OVER);
 			owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
-			font.SetFamilyAndStyle("Noto Sans", "Bold");
-			owner->SetFont(&font);
+			owner->SetFont(be_bold_font);
 		} else {
 			owner->SetDrawingMode(B_OP_OVER);
 			owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
-			font.SetFamilyAndStyle("Noto Sans", "Regular");
-			owner->SetFont(&font);
+			owner->SetFont(be_plain_font);
 		}
 	} else {
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));

@@ -100,7 +100,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fCutMenuItem(nullptr)
 	, fCopyMenuItem(nullptr)
 	, fPasteMenuItem(nullptr)
-	, fDeleteMenuItem(nullptr)
 	, fSelectAllMenuItem(nullptr)
 	, fOverwiteItem(nullptr)
 	, fToggleWhiteSpacesItem(nullptr)
@@ -988,13 +987,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			} else {
 				fOutputTabView->Hide();
 			}
-			break;
-		}
-		case MSG_TEXT_DELETE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) 
-				editor->Clear();
-
 			break;
 		}
 		case MSG_TEXT_OVERWRITE: {
@@ -2323,8 +2315,6 @@ GenioWindow::_InitMenu()
 		new BMessage(B_COPY), 'C'));
 	editMenu->AddItem(fPasteMenuItem = new BMenuItem(B_TRANSLATE("Paste"),
 		new BMessage(B_PASTE), 'V'));
-	editMenu->AddItem(fDeleteMenuItem = new BMenuItem(B_TRANSLATE("Delete"),
-		new BMessage(MSG_TEXT_DELETE), 'D'));
 	editMenu->AddSeparatorItem();
 	editMenu->AddItem(fSelectAllMenuItem = new BMenuItem(B_TRANSLATE("Select all"),
 		new BMessage(B_SELECT_ALL), 'A'));
@@ -2342,11 +2332,11 @@ GenioWindow::_InitMenu()
 	editMenu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
 	editMenu->AddItem(fDuplicateLineItem = new BMenuItem(B_TRANSLATE("Duplicate current line"),
-		new BMessage(MSG_DUPLICATE_LINE), 'K', B_OPTION_KEY));
+		new BMessage(MSG_DUPLICATE_LINE), 'K'));
 	editMenu->AddItem(fDeleteLinesItem = new BMenuItem(B_TRANSLATE("Delete lines"),
-		new BMessage(MSG_DELETE_LINES), 'D', B_OPTION_KEY));	
+		new BMessage(MSG_DELETE_LINES), 'D'));	
 	editMenu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment selected lines"),
-		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_OPTION_KEY));
+		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_SHIFT_KEY));
 	
 	editMenu->AddSeparatorItem();	
 
@@ -2378,11 +2368,13 @@ GenioWindow::_InitMenu()
 	fCutMenuItem->SetEnabled(false);
 	fCopyMenuItem->SetEnabled(false);
 	fPasteMenuItem->SetEnabled(false);
-	fDeleteMenuItem->SetEnabled(false);
 	fSelectAllMenuItem->SetEnabled(false);
 	fOverwiteItem->SetEnabled(false);
 	fToggleWhiteSpacesItem->SetEnabled(false);
 	fToggleLineEndingsItem->SetEnabled(false);
+	fDuplicateLineItem->SetEnabled(false);
+	fDeleteLinesItem->SetEnabled(false);
+	fCommentSelectionItem->SetEnabled(false);
 	fLineEndingsMenu->SetEnabled(false);
 
 	editMenu->AddItem(fLineEndingsMenu);
@@ -3836,7 +3828,6 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	fCutMenuItem->SetEnabled(editor->CanCut());
 	fCopyMenuItem->SetEnabled(editor->CanCopy());
 	fPasteMenuItem->SetEnabled(editor->CanPaste());
-	fDeleteMenuItem->SetEnabled(editor->CanClear());
 
 	// ToolBar Items
 	fUndoButton->SetEnabled(editor->CanUndo());
@@ -3886,7 +3877,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fCutMenuItem->SetEnabled(false);
 		fCopyMenuItem->SetEnabled(false);
 		fPasteMenuItem->SetEnabled(false);
-		fDeleteMenuItem->SetEnabled(false);
 		fSelectAllMenuItem->SetEnabled(false);
 		fOverwiteItem->SetEnabled(false);
 		fToggleWhiteSpacesItem->SetEnabled(false);
@@ -3895,7 +3885,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fDuplicateLineItem->SetEnabled(false);
 		fCommentSelectionItem->SetEnabled(false);
 		fDeleteLinesItem->SetEnabled(false);
-
 		fFindItem->SetEnabled(false);
 		fReplaceItem->SetEnabled(false);
 		fGoToLineItem->SetEnabled(false);
@@ -3951,7 +3940,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fCutMenuItem->SetEnabled(editor->CanCut());
 	fCopyMenuItem->SetEnabled(editor->CanCopy());
 	fPasteMenuItem->SetEnabled(editor->CanPaste());
-	fDeleteMenuItem->SetEnabled(editor->CanClear());
 	fSelectAllMenuItem->SetEnabled(true);
 	fOverwiteItem->SetEnabled(true);
 	// fOverwiteItem->SetMarked(editor->IsOverwrite());

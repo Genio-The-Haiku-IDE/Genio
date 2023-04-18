@@ -20,7 +20,7 @@ class IconCache
 {
 	public:
 	
-		static BBitmap* GetIcon(entry_ref *ref);
+		static BBitmap* GetIcon(const entry_ref *ref);
 		static BBitmap* GetIcon(BString path);
 		static void 	PrintToStream();
 		

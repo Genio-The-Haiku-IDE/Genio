@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <thread>
 
 #include <Alert.h>
 #include <Application.h>
@@ -41,6 +42,8 @@
 #include "SettingsWindow.h"
 #include "TPreferences.h"
 #include "TextUtils.h"
+
+#include "ProjectTreeView.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -2673,6 +2676,18 @@ GenioWindow::_InitSideSplit()
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 	
+	ProjectTreeView* projectTree = new ProjectTreeView("ProjectsTreeView");
+	BScrollView* projectTreeScroll = new BScrollView(B_TRANSLATE("ProjectTree"),
+		projectTree, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
+	fProjectsTabView->AddTab(projectTreeScroll);
+	BEntry entry("/boot/home/develop/myprojects/IDE/Genio");
+	entry_ref ref;
+	entry.GetRef(&ref);
+	projectTree->AddRootItem(ref);
+	BEntry entry2("/boot/home/develop/haiku/haiku");
+	entry_ref ref2;
+	entry2.GetRef(&ref2);
+	projectTree->AddRootItem(ref2);
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
@@ -3406,6 +3421,8 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 		return;
 	}
 
+	// std::thread scanThread(&ProjectsFolderBrowser::ProjectFolderPopulate, fProjectsFolderBrowser, newProject);
+	// scanThread.detach();
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
 

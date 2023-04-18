@@ -5,6 +5,7 @@
  */
 
 #include <Alert.h>
+#include <Autolock.h>
 #include <Catalog.h>
 #include <Directory.h>
 #include <Entry.h>
@@ -18,12 +19,15 @@
 #include <NaturalCompare.h>
 
 #include <stdio.h>
+#include <thread>
 
 #include "GenioWindowMessages.h"
 #include "Log.h"
 #include "ProjectsFolderBrowser.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+
+#include "scintilla/src/ElapsedPeriod.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
@@ -487,6 +491,8 @@ ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 void
 ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
+	Scintilla::Internal::ElapsedPeriod epWrapping;
+	BAutolock lock(Looper());
 	ProjectItem *projectItem = NULL;
 	_ProjectFolderScan(projectItem, project->Path(), project);
 	SortItemsUnder(projectItem, false, ProjectsFolderBrowser::_CompareProjectItems);
@@ -500,6 +506,7 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	{
 		LogError("Can't start PathMonitor!");
 	}
+	LogTrace("ProjectsFolderBrowser::ProjectFolderPopulate - project [%s] completed in [%d]s", project->Path(), epWrapping.Duration());
 }
 
 void

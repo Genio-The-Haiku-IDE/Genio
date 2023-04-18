@@ -18,7 +18,7 @@ IconCache::IconCache()
 
 
 BBitmap*
-IconCache::GetIcon(entry_ref *ref)
+IconCache::GetIcon(const entry_ref *ref)
 {	
 	BNode node(ref);
 	BNodeInfo nodeInfo(&node);

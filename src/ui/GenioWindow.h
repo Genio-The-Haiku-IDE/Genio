@@ -149,7 +149,6 @@ private:
 			BMenuItem*			fCutMenuItem;
 			BMenuItem*			fCopyMenuItem;
 			BMenuItem*			fPasteMenuItem;
-			BMenuItem*			fDeleteMenuItem;
 			BMenuItem*			fSelectAllMenuItem;
 			BMenuItem*			fOverwiteItem;
 			BMenuItem*			fToggleWhiteSpacesItem;

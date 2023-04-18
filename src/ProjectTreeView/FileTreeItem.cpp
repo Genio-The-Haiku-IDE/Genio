@@ -12,15 +12,22 @@
 
 #include "FileTreeItem.h"
 #include "IconCache.h"
+<<<<<<< HEAD
 #include "Log.h"
+=======
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 
 FileTreeItem::FileTreeItem()
 	:
 	BStringItem(""),
 	fIcon(nullptr),
+<<<<<<< HEAD
 	fRef(nullptr),
 	fFileTreeView(nullptr),
 	fParentItem(nullptr),
+=======
+	fFileTreeView(nullptr),
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 	fFirstTimeRendered(true),
 	fInitStatus(B_NOT_INITIALIZED)
 {
@@ -30,9 +37,13 @@ FileTreeItem::FileTreeItem(const entry_ref& ref, BOutlineListView *view)
 	:
 	BStringItem(""),
 	fIcon(nullptr),
+<<<<<<< HEAD
 	fRef(nullptr),
 	fFileTreeView(view),
 	fParentItem(nullptr),
+=======
+	fFileTreeView(view),
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 	fFirstTimeRendered(true),
 	fInitStatus(B_NOT_INITIALIZED)
 {
@@ -46,17 +57,31 @@ FileTreeItem::~FileTreeItem()
 void
 FileTreeItem::SetTo(const entry_ref& ref)
 {
+<<<<<<< HEAD
 	fRef = new entry_ref(ref);
 	BStringItem::SetText(fRef->name);
 	fInitStatus = B_OK;
 	// LogTrace("FileTreeItem::SetTo: ref: %s",fRef.name);
+=======
+	fRef = ref;
+	fPath = new BPath(&fRef);
+	fEntry = new BEntry(&fRef);
+	fStringPath = new BString(fPath->Path());
+	
+	BStringItem::SetText(fRef.name),
+	fIcon = IconCache::GetIcon(&fRef);
+	fInitStatus = B_OK;
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 }
 
 void 
 FileTreeItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
+<<<<<<< HEAD
 	if (fIcon==nullptr && fFirstTimeRendered)
 		fIcon = IconCache::GetIcon(fRef);
+=======
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 
 	if (Text() == NULL)
 		return;
@@ -111,6 +136,7 @@ void
 FileTreeItem::SetText(const char* text)
 {
 	BStringItem::SetText(text);
+<<<<<<< HEAD
 }
 
 bool
@@ -118,4 +144,6 @@ FileTreeItem::IsDirectory() const
 {
 	BEntry entry(fRef);
 	return entry.IsDirectory();
+=======
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 }

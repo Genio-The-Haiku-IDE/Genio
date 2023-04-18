@@ -84,6 +84,7 @@ SRCS += src/ProjectTreeView/NodeMonitor.cpp
 SRCS += src/ProjectTreeView/ProjectTreeView.cpp
 SRCS += src/ProjectTreeView/DirectoryScanThread.cpp
 
+
 RDEFS := Genio.rdef
 
 LIBS = be shared translation localestub $(STDCPPLIBS)

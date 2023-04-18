@@ -8,12 +8,16 @@
 #include <FilePanel.h>
 #include <Notification.h>
 #include <OutlineListView.h>
+<<<<<<< HEAD
 #include <ObjectList.h>
+=======
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 #include <SupportDefs.h>
 #include <TextControl.h>
 #include <View.h>
 #include <Window.h>
 
+<<<<<<< HEAD
 #include <filesystem>
 
 
@@ -39,6 +43,11 @@ private:
 };
 
 
+=======
+#include "FileTreeItem.h"
+#include "NodeMonitor.h"
+
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 class ProjectTreeView: public BView {
 public:
 	enum ViewMode {
@@ -64,7 +73,11 @@ public:
 	virtual	void			AttachedToWindow();
 	virtual	void			MessageReceived(BMessage* msg);
 	
+<<<<<<< HEAD
 	status_t				AddRootItem(const entry_ref& directory, ScanRefFilter* filter = nullptr);
+=======
+	status_t				AddRootItem(const entry_ref& directory, BRefFilter* filter = nullptr);
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 	status_t				RemoveRootItem(const entry_ref& directory);
 	
 	status_t				ActivateRootItem(const entry_ref& ref);
@@ -72,6 +85,7 @@ public:
 	
 	void					Refresh(const entry_ref& ref);
 	void					RefreshAll();
+<<<<<<< HEAD
 	void					SetFilter(const entry_ref& ref, ScanRefFilter* filter);
 	void					ResetFilter(const entry_ref& ref, ScanRefFilter* filter);
 	
@@ -88,6 +102,16 @@ public:
 	FileTreeItem*			CreateItem(const entry_ref* ref);
 	
 private:
+=======
+	void					SetFilter(const entry_ref& ref, BRefFilter* filter);
+	void					ResetFilter(const entry_ref& ref, BRefFilter* filter);
+	
+	void					FilterAllItemsByText(const BString& search);
+
+private:
+	void					_MoveUnder(BListItem* item, BListItem* superitem, 
+										bool moveChildren = false);
+>>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 										
 	BListItem*				_FindItemByRef(const entry_ref& ref);
 	

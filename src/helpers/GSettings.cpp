@@ -7,17 +7,17 @@
  * All rights reserved. Distributed under the terms of the Be Sample Code
  * license.
  */
+#include "GSettings.h"
 
 #include <memory>
 #include <typeinfo>
 
+#include <Directory.h>
 #include <Message.h>
 #include <Messenger.h>
-#include <Directory.h>
-#include <String.h>
 #include <NodeInfo.h>
+#include <String.h>
 
-#include "GSettings.h"
 #include "exceptions/Exceptions.h"
 
 GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 command)
@@ -29,23 +29,25 @@ GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 
 	fPath.SetTo(folderPath);
 	fPath.Append(fileName);		
 	fStatus = file.SetTo(fPath.Path(), B_READ_ONLY);
-	if (fStatus==B_OK) {
+	if (fStatus == B_OK) {
 		fStatus = Unflatten(&file);
-		if (fStatus!=B_OK)
+		if (fStatus != B_OK)
 			fSaved = false;
 	}
 }
 
-GSettings::~GSettings() {
+GSettings::~GSettings()
+{
 }
 
 void
-GSettings::Save() {
+GSettings::Save()
+{
 	BFile file;
 	fStatus = file.SetTo(fPath.Path(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
-	if (fStatus==B_OK) {
+	if (fStatus == B_OK) {
 		fStatus = Flatten(&file);
-		if (fStatus==B_OK)
+		if (fStatus == B_OK)
 			fSaved = true;
 	}
 }

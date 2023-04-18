@@ -6,11 +6,11 @@ Genio
 
 Introduction
 --------------------------------------------------------------------------------
-Genio is an IDE for the Haiku operating system.
+Genio is an IDE for the [Haiku operating system](https://www.haiku-os.org).
 Despite being in an early stage, Genio can already be used to develop and build applications.
 In fact, the Genio team uses it as the main development tool to develop and build Genio.
 
-Genio started off as a fork of Ideam an IDE for [Haiku](https://www.haiku-os.org), but we already implemented some new features:
+Genio started off as a fork of Ideam, but we already implemented some new features:
 * LSP (autocompletion, signature help, go to definition/implementation/declaration)
 * Find in files
 * Links to file and build errors in Build Log and Console I/O
@@ -46,11 +46,6 @@ Top priority goals after the first initial commit include:
 	
 *Editor*
 * implement the Language Server Protocol via clangd to get autocompletion and jump to definition/instance
-
-*Fixes and improvements*
-* Bug fixing (find/replace focus capture)
-* Find in files
-* Better GIT support
 
 Branches
 ------------------

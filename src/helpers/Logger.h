@@ -74,7 +74,7 @@ public:
 	static	bool				IsErrorEnabled();
 
 private:
-	static	void				_DoLog(const char* string);
+	static	void				_DoLog(log_level level, const char* string);
 
 	static	log_level			sLevel;
 	static	int					sDestination;

@@ -30,7 +30,7 @@ Logger::LogFormat(const char* fmtString, ...)
 	::va_start(argp, fmtString);
 	::vsnprintf(logString, sizeof(logString), fmtString, argp);
 	::va_end(argp);
-	_DoLog(logString);
+	_DoLog(LOG_LEVEL_INFO, logString);
 }
 
 
@@ -46,7 +46,7 @@ Logger::LogFormat(log_level level, const char* fmtString, ...)
 	::va_start(argp, fmtString);
 	::vsnprintf(logString, sizeof(fullString) - 4, fmtString, argp);
 	::va_end(argp);
-	_DoLog(fullString);
+	_DoLog(level, fullString);
 }
 
 
@@ -151,19 +151,17 @@ Logger::IsErrorEnabled()
 
 /*static*/
 void
-Logger::_DoLog(const char* string)
+Logger::_DoLog(log_level level, const char* string)
 {
 	switch (sDestination) {
 		case Logger::LOGGER_DEST_STDERR:
 			::fprintf(stderr, string); ::fprintf(stderr, "\n");
 			break;
-		/*case Logger::LOGGER_DEST_FILE:
-			break;*/
 		case Logger::LOGGER_DEST_SYSLOG:
 			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "Genio: %s", (const char* const)string);
 			break;
 		case Logger::LOGGER_DEST_BEDC:
-			be_dc.SendMessage(string);
+			be_dc.SendMessage(string, level == LOG_LEVEL_ERROR ? DC_ERROR : DC_MESSAGE);
 			break;
 		case Logger::LOGGER_DEST_STDOUT:
 		default:

@@ -1013,6 +1013,7 @@ SettingsWindow::_PageGeneralView()
 	fLogDestination->AddOptionAt("Stdout", Logger::LOGGER_DEST_STDOUT, 0);
 	fLogDestination->AddOptionAt("Stderr", Logger::LOGGER_DEST_STDERR, 1);
 	fLogDestination->AddOptionAt("Syslog", Logger::LOGGER_DEST_SYSLOG, 2);
+	fLogDestination->AddOptionAt("BeDC",   Logger::LOGGER_DEST_BEDC,   3);
 
 	fLogLevel = new BOptionPopUp("LogLevel",
 		B_TRANSLATE("Log level"), new BMessage(MSG_LOG_LEVEL_CHANGED));

@@ -53,7 +53,8 @@ public:
 	enum LOGGER_DEST {
 		LOGGER_DEST_STDOUT = 0,
 		LOGGER_DEST_STDERR = 1,
-		LOGGER_DEST_SYSLOG = 2
+		LOGGER_DEST_SYSLOG = 2,
+		LOGGER_DEST_BEDC   = 3
 	};
 	static	void				SetDestination(int destination);
 

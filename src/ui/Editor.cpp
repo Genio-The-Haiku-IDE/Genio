@@ -24,11 +24,14 @@
 #include "keywords.h"
 #include "ProjectFolder.h"
 #include "EditorContextMenu.h"
-
+#include "ScintillaUtils.h"
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
 
 using namespace GenioNames;
+namespace Sci = Scintilla;
+using namespace Sci::Properties;
+
 
 // Differentiate unset parameters from 0 ones
 // in scintilla messages
@@ -45,7 +48,6 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	BScintillaView(ref->name, 0, true, true)
 	, fFileRef(*ref)
 	, fModified(false)
-	, fBraceHighlighted(kNoBrace)
 	, fBracingAvailable(false)
 	, fFoldingAvailable(false)
 	, fSyntaxAvailable(false)
@@ -602,7 +604,6 @@ Editor::LoadFromFile()
 
 	buffer[size] = '\0';
 
-	//fFileWrapper->didOpen(this, false);
 	SendMessage(SCI_SETTEXT, 0, (sptr_t) buffer);
 
 	// Check the first newline only
@@ -652,11 +653,9 @@ Editor::NotificationReceived(SCNotification* notification)
 	switch (pNmhdr->code) {
 		// Auto-indent
 		case SCN_CHARADDED: {
-			if (notification->ch == '\n' ||
-					(notification->ch == '\r' &&
-					SendMessage(SCI_GETEOLMODE, UNSET, UNSET) == SC_EOL_CR)) {
-				_AutoIndentLine(); // TODO asociate extensions?
-			}
+			char ch = static_cast<char>(notification->ch);
+			if (ch == '\n' || ch == '\r')
+				_MaintainIndentation(ch);
 			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT)
 				fFileWrapper->CharAdded(notification->ch);
 			break;
@@ -718,9 +717,9 @@ Editor::NotificationReceived(SCNotification* notification)
 
 			// Do not trigger brace match on selection
 			// as it flickers more on line selection
-			if (IsTextSelected() == false  && fBracingAvailable == true)
-				_CheckForBraceMatching();
-
+			//if (IsTextSelected() == false  && fBracingAvailable == true)
+			//	_CheckForBraceMatching();
+			_BraceHighlight();
 			// Selection/Position has changed
 			if (notification->updated & SC_UPDATE_SELECTION) {
 
@@ -1275,153 +1274,114 @@ Editor::_ApplyExtensionSettings()
 	}
 }
 
-/*
- * TODO: tune better and extensions management
- *
- */
+// borrowed from SciTE  and Koder
+// Copyright (c) Neil Hodgson
+// Copyright 2014-2019 Kacper Kasper <kacperkasper@gmail.com>
+
 void
-Editor::_AutoIndentLine()
+Editor::_MaintainIndentation(char ch)
 {
-	auto tabInsertions = 0;
-	auto charInsertions = 0;
+	int eolMode = SendMessage(SCI_GETEOLMODE, 0, 0);
+	int currentLine = SendMessage(SCI_LINEFROMPOSITION, SendMessage(SCI_GETCURRENTPOS, 0, 0), 0);
+	int lastLine = currentLine - 1;
 
-	BString lineIndent = "\t";
-	if (fFileType == "rust")
-		lineIndent = "    ";
-
-	// Get current line number
-	int32 position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
-
-	int32 currentLine = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
-
-	int end = SendMessage(SCI_GETLINEENDPOSITION, currentLine -1, UNSET);
-	int start = SendMessage(SCI_POSITIONFROMLINE, currentLine -1, UNSET);
-	// Empty line, return
-	if (end == start)
-		return;
-
-	char previousLine[end - start + 1];
-	SendMessage(SCI_GETLINE, currentLine -1, (sptr_t)previousLine);
-
-	previousLine[end - start] =  '\0';
-
-	BString lineStart;
-	std::string previousString(previousLine);
-
-	// Last line char is '{', indent
-	if (previousString.back() == '{') {
-		lineStart << lineIndent;
-		tabInsertions += lineIndent.Length();
-	}
-	// TODO maybe
-	else if (previousString.back() == ')') {
-		lineStart << lineIndent;
-		tabInsertions += lineIndent.Length();
-	}
-	// Last line char is ';', parse a little
-	else if (previousString.back() == ';') {
-		// If last word is: break, return, continue
-		// deindent if possible (tab check only)
-		std::size_t found = previousString.find_last_of(lineIndent);
-		if (previousString.substr(found + 1) == "break;"
-			|| previousString.substr(found + 1) == "return;"
-			|| previousString.substr(found + 1) == "continue;")
-			tabInsertions  -= lineIndent.Length();
-		// TODO
-		// Non void return
-
-		// If previous line last char was ')'
-		// deindent if possible
-	}
-
-	for (int pos = 0; previousLine[pos] != '\0'; pos++) {
-		if (previousLine[pos] == '\t') {
-			lineStart << previousLine[pos];
-			tabInsertions++;
-		} else if (previousLine[pos] == ' ') {
-			lineStart << previousLine[pos];
-			charInsertions++;
-		} else
-			break;
-	}
-	auto insertions = tabInsertions + charInsertions;
-	// TODO check negative tab/char insertions
-
-	if (insertions < 1)
-		return;
-
-	SendMessage(SCI_INSERTTEXT, position, (sptr_t)lineStart.String());
-	SendMessage(SCI_GOTOPOS, position + insertions, UNSET);
-}
-
-/*
- * TODO oneline 'if' indentation guide not highlighted
- */
-void
-Editor::_CheckForBraceMatching()
-{
-	char charBefore;
-	char charAfter;
-	int32 positionMatch;
-
-	int32 caretPosition = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
-	int32 positionBefore = SendMessage(SCI_POSITIONBEFORE, caretPosition, UNSET);
-
-	charBefore = SendMessage(SCI_GETCHARAT, positionBefore, UNSET);
-	charAfter = SendMessage(SCI_GETCHARAT, caretPosition, UNSET);
-
-	// No brace, return
-	if (!_IsBrace(charBefore) && !_IsBrace(charAfter)) {
-		// If there's nothing to do don't even waste a cycle
-		if (fBraceHighlighted == kNoBrace) {
-			return;
-		} else if (fBraceHighlighted == kBraceMatch) {
-			SendMessage(SCI_BRACEHIGHLIGHT, INVALID_POSITION, INVALID_POSITION);
-			SendMessage(SCI_SETHIGHLIGHTGUIDE, 0, UNSET);
-		} else if (fBraceHighlighted == kBraceBad)
-			SendMessage(SCI_BRACEBADLIGHT, INVALID_POSITION, UNSET);
-
-		fBraceHighlighted = kNoBrace;
-
-		return;
-	}
-	// Found a brace, see if it's matched or not
-	// Found before
-	if (_IsBrace(charBefore) == true) {
-		positionMatch = SendMessage(SCI_BRACEMATCH, positionBefore, UNUSED);
-		// No match found, highlight brace bad
-		if (positionMatch == -1) {
-			SendMessage(SCI_BRACEBADLIGHT, positionBefore, UNSET);
-			fBraceHighlighted = kBraceBad;
+	if(((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') ||
+		(eolMode == SC_EOL_CR && ch == '\r')) {
+		int indentAmount = 0;
+		if(lastLine >= 0) {
+			indentAmount = SendMessage(SCI_GETLINEINDENTATION, lastLine, 0);
 		}
-		// Match found, highlight braces and guides
-		else if (positionMatch != -1) {
-			int maxPosition = MAX(positionBefore, positionMatch);
-			int column = SendMessage(SCI_GETCOLUMN, maxPosition, UNSET);
-			SendMessage(SCI_SETHIGHLIGHTGUIDE, column, UNSET);
-			SendMessage(SCI_BRACEHIGHLIGHT, positionBefore, positionMatch);
-			fBraceHighlighted = kBraceMatch;
-		}
-		return;
-	}
-	// Found after
-	else if (_IsBrace(charAfter) == true) {
-		positionMatch = SendMessage(SCI_BRACEMATCH, caretPosition, UNUSED);
-		// No match found, highlight brace bad
-		if (positionMatch == -1) {
-			SendMessage(SCI_BRACEBADLIGHT, caretPosition, UNSET);
-			fBraceHighlighted = kBraceBad;
-		}
-		// Match found, highlight braces and guides
-		else if (positionMatch != -1) {
-			int maxPosition = MAX(caretPosition, positionMatch);
-			int column = SendMessage(SCI_GETCOLUMN, maxPosition, UNSET);
-			SendMessage(SCI_SETHIGHLIGHTGUIDE, column, UNSET);
-			SendMessage(SCI_BRACEHIGHLIGHT, caretPosition, positionMatch);
-			fBraceHighlighted = kBraceMatch;
+		if(indentAmount > 0) {
+			_SetLineIndentation(currentLine, indentAmount);
 		}
 	}
 }
+
+// borrowed from SciTE  and Koder
+// Copyright (c) Neil Hodgson
+// Copyright 2014-2019 Kacper Kasper <kacperkasper@gmail.com>
+
+void
+Editor::_SetLineIndentation(int line, int indent)
+{
+	if(indent < 0)
+		return;
+
+	Sci_CharacterRange crange;
+	std::tie(crange.cpMin, crange.cpMax) = Get<Sci::Properties::Selection>();
+	Sci_CharacterRange crangeStart = crange;
+	int posBefore = SendMessage(SCI_GETLINEINDENTPOSITION, line, 0);
+	SendMessage(SCI_SETLINEINDENTATION, line, indent);
+	int posAfter = SendMessage(SCI_GETLINEINDENTPOSITION, line, 0);
+	int posDifference = posAfter - posBefore;
+	if(posAfter > posBefore) {
+		if(crange.cpMin >= posBefore) {
+			crange.cpMin += posDifference;
+		}
+		if(crange.cpMax >= posBefore) {
+			crange.cpMax += posDifference;
+		}
+	} else if(posAfter < posBefore) {
+		if(crange.cpMin >= posAfter) {
+			if(crange.cpMin >= posBefore) {
+				crange.cpMin += posDifference;
+			} else {
+				crange.cpMin = posAfter;
+			}
+		}
+		if(crange.cpMax >= posAfter) {
+			if(crange.cpMax >= posBefore) {
+				crange.cpMax += posDifference;
+			} else {
+				crange.cpMax = posAfter;
+			}
+		}
+	}
+	if((crangeStart.cpMin != crange.cpMin) || (crangeStart.cpMax != crange.cpMax)) {
+		Set<Sci::Properties::Selection>({static_cast<int>(crange.cpMin), static_cast<int>(crange.cpMax)});
+	}
+}
+
+// borrowed from Koder
+// Copyright 2014-2019 Kacper Kasper <kacperkasper@gmail.com>
+void
+Editor::_BraceHighlight()
+{
+	if(fBracingAvailable == true) {
+		Sci_Position pos = SendMessage(SCI_GETCURRENTPOS, 0, 0);
+		// highlight indent guide
+		int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
+		int indentation = SendMessage(SCI_GETLINEINDENTATION, line, 0);
+		SendMessage(SCI_SETHIGHLIGHTGUIDE, indentation, 0);
+		// highlight braces
+		if(_BraceMatch(pos - 1) == false) {
+			_BraceMatch(pos);
+		}
+	} else {
+		SendMessage(SCI_BRACEBADLIGHT, -1, 0);
+	}
+}
+
+// borrowed from Koder
+// Copyright 2014-2019 Kacper Kasper <kacperkasper@gmail.com>
+bool
+Editor::_BraceMatch(int pos)
+{
+	char ch = SendMessage(SCI_GETCHARAT, pos, 0);
+	if(ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
+		int match = SendMessage(SCI_BRACEMATCH, pos, 0);
+		if(match == -1) {
+			SendMessage(SCI_BRACEBADLIGHT, pos, 0);
+		} else {
+			SendMessage(SCI_BRACEHIGHLIGHT, pos, match);
+		}
+	} else {
+		SendMessage(SCI_BRACEBADLIGHT, -1, 0);
+		return false;
+	}
+	return true;
+}
+
 
 // Leave line leading spaces when commenting/decommenting
 // Erase spaces from comment char(s) to first non-space when decommenting
@@ -1600,19 +1560,6 @@ Editor::_HighlightFile()
 	}
 }
 
-bool
-Editor::_IsBrace(char character)
-{
-	return character == '('
-			|| character == ')'
-			|| character == '{'
-			|| character == '}'
-			|| character == '['
-			|| character == ']';
-// TODO !c++ lang add
-//			|| character == '<'
-//			|| character == '>';
-}
 
 void
 Editor::_RedrawNumberMargin(bool forced)

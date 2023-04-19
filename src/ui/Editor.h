@@ -172,17 +172,23 @@ public:
 private:
 			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();
-			void				_AutoIndentLine();
-			void				_CheckForBraceMatching();
+			void				_MaintainIndentation(char c);
+			void				_SetLineIndentation(int line, int indent);
+			void				_BraceHighlight();
+			bool				_BraceMatch(int pos);
 			void				_CommentLine(int32 position);
 			int32				_EndOfLine();
 			void				_EndOfLineAssign(char *buffer, int32 size);
 			void				_HighlightBraces();
 			void				_HighlightFile();
-			bool				_IsBrace(char character);
 			void				_RedrawNumberMargin(bool forced = false);
 			void				_SetFoldMargin();
 			void				_UpdateSavePoint(bool modified);
+			
+			template<typename T>
+			typename T::type	Get() { return T::Get(this); }
+			template<typename T>
+			void				Set(typename T::type value) { T::Set(this, value); }
 
 private:
 
@@ -192,7 +198,6 @@ private:
 			node_ref			fNodeRef;
 			BMessenger			fTarget;
 
-			int32				fBraceHighlighted;
 			bool				fBracingAvailable;
 			std::string			fFileType;
 			bool				fFoldingAvailable;

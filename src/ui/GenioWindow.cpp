@@ -213,8 +213,8 @@ GenioWindow::GenioWindow(BRect frame)
 
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_PREVIOUS_SELECTED, B_LEFT_ARROW, B_OPTION_KEY));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW, B_OPTION_KEY));
-	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE));
-	
+	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY,   B_ESCAPE));
+	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 
 	if (GenioNames::Settings.show_projects == false)
 		fProjectsTabView->Hide();
@@ -751,15 +751,21 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case MSG_FIND_INVOKED: {
+			if (CurrentFocus() == fFindTextControl->TextView()) {
+				const BString& text(fFindTextControl->Text());
+				_FindNext(text, false);
+				fFindTextControl->MakeFocus(true);
+			}
+			break;
+		}
 		case MSG_FIND_NEXT: {
 			const BString& text(fFindTextControl->Text());
-//			if (!text.IsEmpty())
 			_FindNext(text, false);
 			break;
 		}
 		case MSG_FIND_PREVIOUS: {
 			const BString& text(fFindTextControl->Text());
-//			if (!text.IsEmpty())
 			_FindNext(text, true);
 			break;
 		}
@@ -1712,7 +1718,7 @@ GenioWindow::_FindNext(const BString& strToFind, bool backwards)
 		return;
 
 	Editor* editor = fTabManager->SelectedEditor();
-//fFindTextControl->MakeFocus(true);
+
 	editor->GrabFocus();
 
 	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),

@@ -715,10 +715,6 @@ Editor::NotificationReceived(SCNotification* notification)
 		}
 		case SCN_UPDATEUI: {
 
-			// Do not trigger brace match on selection
-			// as it flickers more on line selection
-			//if (IsTextSelected() == false  && fBracingAvailable == true)
-			//	_CheckForBraceMatching();
 			_BraceHighlight();
 			// Selection/Position has changed
 			if (notification->updated & SC_UPDATE_SELECTION) {

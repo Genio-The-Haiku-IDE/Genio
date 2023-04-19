@@ -6,10 +6,12 @@
 
 #include <stdarg.h>
 #include <syslog.h>
+#include "BeDC.h"
 
 log_level Logger::sLevel = LOG_LEVEL_INFO;
 int	Logger::sDestination = LOGGER_DEST_STDOUT;
 
+BeDC	be_dc("Genio");
 
 /*static*/
 void
@@ -159,6 +161,9 @@ Logger::_DoLog(const char* string)
 			break;*/
 		case Logger::LOGGER_DEST_SYSLOG:
 			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "Genio: %s", (const char* const)string);
+			break;
+		case Logger::LOGGER_DEST_BEDC:
+			be_dc.SendMessage(string);
 			break;
 		case Logger::LOGGER_DEST_STDOUT:
 		default:

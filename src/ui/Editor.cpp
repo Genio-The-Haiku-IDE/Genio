@@ -37,8 +37,8 @@ using namespace GenioNames;
 
 #include "FileWrapper.h"
 #include "EditorStatusView.h"
+#include <Url.h>
 
-//#define USE_LINEBREAKS_ATTRS
 
 Editor::Editor(entry_ref* ref, const BMessenger& target)
 	:
@@ -58,30 +58,9 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
 	SetTarget(target);
-
-	// Filter notifying changes
-/*	SendMessage(SCI_SETMODEVENTMASK,SC_MOD_INSERTTEXT
-									 | SC_MOD_DELETETEXT
-									 | SC_MOD_CHANGESTYLE
-									 | SC_MOD_CHANGEFOLD
-									 | SC_PERFORMED_USER
-									 | SC_PERFORMED_UNDO
-									 | SC_PERFORMED_REDO
-									 | SC_MULTISTEPUNDOREDO
-									 | SC_LASTSTEPINUNDOREDO
-									 | SC_MOD_CHANGEMARKER
-									 | SC_MOD_BEFOREINSERT
-									 | SC_MOD_BEFOREDELETE
-									 | SC_MULTILINEUNDOREDO
-									 | SC_MODEVENTMASKALL
-									 , UNSET);
-*/
-
-// SendMessage(SCI_SETYCARETPOLICY, CARET_SLOP | CARET_STRICT | CARET_JUMPS, 20);
-// CARET_SLOP  CARET_STRICT  CARET_JUMPS  CARET_EVEN
-	std::string s = "file://";
-	s += BPath(&fFileRef).Path();//.String();
-	fFileWrapper = new FileWrapper(s.c_str(), this);
+	BPath path(&fFileRef);
+	BUrl fileUrl(path);
+	fFileWrapper = new FileWrapper(std::string(fileUrl), this);
 	
 }
 

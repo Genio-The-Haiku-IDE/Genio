@@ -107,7 +107,8 @@ private:
 	void					ResetFilter(const entry_ref& ref, BRefFilter* filter);
 	
 	void					FilterAllItemsByText(const BString& search);
-
+	int						CountEntries(const entry_ref& ref);
+	
 private:
 	void					_MoveUnder(BListItem* item, BListItem* superitem, 
 										bool moveChildren = false);

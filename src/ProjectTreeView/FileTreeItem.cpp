@@ -13,9 +13,13 @@
 #include "FileTreeItem.h"
 #include "IconCache.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "Log.h"
 =======
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+#include "Log.h"
+>>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
 
 FileTreeItem::FileTreeItem()
 	:
@@ -69,9 +73,13 @@ FileTreeItem::SetTo(const entry_ref& ref)
 	fStringPath = new BString(fPath->Path());
 	
 	BStringItem::SetText(fRef.name),
-	fIcon = IconCache::GetIcon(&fRef);
+	// fIcon = IconCache::GetIcon(&fRef);
 	fInitStatus = B_OK;
+<<<<<<< HEAD
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+	// LogTrace("FileTreeItem::SetTo: ref: %s",fRef.name);
+>>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
 }
 
 void 

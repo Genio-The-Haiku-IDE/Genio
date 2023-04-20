@@ -48,6 +48,8 @@
 =======
 >>>>>>> 1b2fe43 (OPTION+arrows is now working. Moved B_ESCAPE handling from DispatchMessage)
 
+#include "ProjectTreeView.h"
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
 

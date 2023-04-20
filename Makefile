@@ -50,13 +50,13 @@ SRCS += src/ui/Editor.cpp
 SRCS += src/ui/EditorTabManager.cpp
 SRCS += src/ui/EditorContextMenu.cpp
 SRCS += src/ui/GenioWindow.cpp
-SRCS +=  src/override/OutlineListView.cpp
+SRCS += src/override/OutlineListView.cpp
 SRCS += src/ui/IconCache.cpp
 SRCS += src/ui/ProjectsFolderBrowser.cpp
 SRCS += src/ui/SettingsWindow.cpp
 SRCS += src/ui/EditorStatusView.cpp
 SRCS += src/ui/GoToLineWindow.cpp
-SRCS +=  src/override/MenuItem.cpp
+SRCS += src/override/MenuItem.cpp
 SRCS += src/project/ProjectSettingsWindow.cpp
 SRCS += src/project/ProjectFolder.cpp
 SRCS += src/project/ProjectItem.cpp
@@ -83,7 +83,6 @@ SRCS += src/ProjectTreeView/FileTreeItem.cpp
 SRCS += src/ProjectTreeView/NodeMonitor.cpp
 SRCS += src/ProjectTreeView/ProjectTreeView.cpp
 SRCS += src/ProjectTreeView/DirectoryScanThread.cpp
-
 
 RDEFS := Genio.rdef
 

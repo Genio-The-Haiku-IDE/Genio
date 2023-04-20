@@ -5,7 +5,7 @@
 #ifndef TextUtils_H
 #define TextUtils_H
 
-
+#include <Uuid.h>
 #include <string>
 #include "String.h"
 
@@ -19,6 +19,8 @@ const BString EscapeQuotesWrap(const BString& string);
 
 // trim from start (in place)
 void LeftTrim(std::string &s);
+
+// std::string GetUuid(std::string s);
 
 
 #endif // TextUtils_H

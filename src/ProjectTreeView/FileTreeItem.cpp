@@ -12,6 +12,7 @@
 
 #include "FileTreeItem.h"
 #include "IconCache.h"
+#include "Log.h"
 
 FileTreeItem::FileTreeItem()
 	:
@@ -47,8 +48,9 @@ FileTreeItem::SetTo(const entry_ref& ref)
 	fStringPath = new BString(fPath->Path());
 	
 	BStringItem::SetText(fRef.name),
-	fIcon = IconCache::GetIcon(&fRef);
+	// fIcon = IconCache::GetIcon(&fRef);
 	fInitStatus = B_OK;
+	// LogTrace("FileTreeItem::SetTo: ref: %s",fRef.name);
 }
 
 void 

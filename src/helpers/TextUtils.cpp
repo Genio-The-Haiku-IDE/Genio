@@ -31,3 +31,9 @@ void LeftTrim(std::string &s) {
           }));
 }
 
+// std::string
+// GUuid(std::string s)
+// {
+	// s += BPrivate::BUuid().SetToRandom().ToString();
+	// return s;
+// }

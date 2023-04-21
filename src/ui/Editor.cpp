@@ -1,5 +1,9 @@
 /*
+ * Orininal code from Idea project
+ * Parts borrowed from SciTe and Koder editors
  * Copyright 2017 A. Mosca 
+ * Copyright (c) Neil Hodgson
+ * Copyright 2014-2019 Kacper Kasper 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -858,9 +862,7 @@ Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
 	return retValue;
 }
 
-/*
- * Adapted from Koder EditorWindow::_FindReplace
- */
+
 int32
 Editor::ReplaceAll(const BString& selection, const BString& replacement, int flags)
 {
@@ -1270,9 +1272,6 @@ Editor::_ApplyExtensionSettings()
 	}
 }
 
-// borrowed from SciTE  and Koder
-// Copyright (c) Neil Hodgson
-// Copyright 2014-2019 Kacper Kasper 
 
 void
 Editor::_MaintainIndentation(char ch)
@@ -1293,9 +1292,6 @@ Editor::_MaintainIndentation(char ch)
 	}
 }
 
-// borrowed from SciTE  and Koder
-// Copyright (c) Neil Hodgson
-// Copyright 2014-2019 Kacper Kasper 
 
 void
 Editor::_SetLineIndentation(int line, int indent)
@@ -1338,8 +1334,6 @@ Editor::_SetLineIndentation(int line, int indent)
 	}
 }
 
-// borrowed from Koder
-// Copyright 2014-2019 Kacper Kasper 
 void
 Editor::_BraceHighlight()
 {
@@ -1358,8 +1352,6 @@ Editor::_BraceHighlight()
 	}
 }
 
-// borrowed from Koder
-// Copyright 2014-2019 Kacper Kasper 
 bool
 Editor::_BraceMatch(int pos)
 {

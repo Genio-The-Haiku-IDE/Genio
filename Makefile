@@ -64,6 +64,7 @@ SRCS +=  src/project/ProjectItem.cpp
 SRCS +=  src/helpers/GenioCommon.cpp
 SRCS +=  src/helpers/TPreferences.cpp
 SRCS +=  src/helpers/GSettings.cpp
+SRCS +=  src/helpers/ToolBar.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOThread.cpp
 SRCS +=  src/helpers/console_io/GenericThread.cpp

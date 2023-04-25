@@ -2677,34 +2677,30 @@ GenioWindow::_InitSideSplit()
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 	
+	// TEST ProjectTree
 	ProjectTreeView* projectTree = new ProjectTreeView("ProjectsTreeView");
 	BScrollView* projectTreeScroll = new BScrollView(B_TRANSLATE("ProjectTree"),
 		projectTree, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(projectTreeScroll);
 	
+	ScanRefFilter* filter = new ScanRefFilter();
+	BEntry _entry("/boot/home/develop/myprojects/IDE/Genio/.git");
+	entry_ref _ref;
+	_entry.GetRef(&_ref);
+	filter->AddPath(&_ref);
+	_entry.SetTo("/boot/home/develop/myprojects/IDE/Genio/.cache");
+	_entry.GetRef(&_ref);
+	filter->AddPath(&_ref);
+	
 	BEntry entry("/boot/home/develop/myprojects/IDE/Genio");
 	entry_ref ref;
 	entry.GetRef(&ref);
-	projectTree->AddRootItem(ref);
-	// auto count = projectTree->CountEntries(ref);
-	// BString message;
-	// message << "CountEntries = " << ref.name << " " << count << "\n";
-			// (new BAlert("_ScanThread",
-						// message,
-						// B_TRANSLATE("OK"), NULL, NULL,
-						// B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT))->Go();
+	projectTree->AddRootItem(ref, filter);
 						
-	// BEntry entry2("/boot/home/develop/haiku/haiku");
-	// entry_ref ref2;
-	// entry2.GetRef(&ref2);
-	// projectTree->AddRootItem(ref2);
-	// auto count2 = projectTree->CountEntries(ref2);
-	// BString message2;
-	// message2 << "CountEntries = " << ref2.name << " " << count2 << "\n";
-			// (new BAlert("_ScanThread",
-						// message2,
-						// B_TRANSLATE("OK"), NULL, NULL,
-						// B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT))->Go();
+	BEntry entry2("/boot/home/develop/haiku/haiku");
+	entry_ref ref2;
+	entry2.GetRef(&ref2);
+	projectTree->AddRootItem(ref2, nullptr);
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();

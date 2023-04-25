@@ -14,7 +14,6 @@
 #include <Message.h>
 #include <Messenger.h>
 #include <Notification.h>
-#include <OutlineListView.h>
 #include <String.h>
 #include <SupportDefs.h>
 
@@ -23,40 +22,34 @@
 
 #include "FileTreeItem.h"
 #include "GenericThread.h"
+#include "ProjectTreeView.h"
 
-enum {
-	DIRECTORYSCANTHREAD_ENABLE_STOP_BUTTON	= 'Cesb',
-	DIRECTORYSCANTHREAD_ERROR				= 'Cerr',
-	DIRECTORYSCANTHREAD_EXIT				= 'Cexi',
-	DIRECTORYSCANTHREAD_CMD_TYPE			= 'Ccty',
-	DIRECTORYSCANTHREAD_PRINT_BANNER		= 'Cpba',
-	DIRECTORYSCANTHREAD_STOP				= 'Csto',
-	DIRECTORYSCANTHREAD_STDOUT				= 'Csou',
-	DIRECTORYSCANTHREAD_STDERR				= 'Cser'
-};
 
 class DirectoryScanThread: public GenericThread {
 public:
-								DirectoryScanThread(const entry_ref& ref, 
-														BOutlineListView *listView);
+								DirectoryScanThread(const entry_ref& ref, ScanRefFilter* filter,
+														ProjectTreeView *listView);
 								~DirectoryScanThread();
 
 private:
 			status_t			ExecuteUnit(void) override;
 			status_t			ThreadShutdown() override;
 			
-			void				_SetNotifications();
+			void				_ShowProgressNotification(const BString& content);
+			void				_ShowErrorNotification(const BString& content);
+			
 			int					_CountEntries(entry_ref* ref);
 			FileTreeItem*		_RecursiveScan(const entry_ref* ref, FileTreeItem* item);
 
 private:
-			const BMessenger*	fTarget;
 			entry_ref* 			fRootRef;
-			BNotification*		fProgressNotification;
-			BNotification*		fErrorNotification;
-			BOutlineListView*	fFileTreeView;
+			const BString		fThreadUUID;
+			const BString		fProgressNotificationMessageID;
+			ProjectTreeView*	fProjectTreeView;
+			ScanRefFilter* 		fScanFilter;
 			int					fTotalEntries;
 			int					fEntryCount;
+			float				fScanProgress;
 };
 
 

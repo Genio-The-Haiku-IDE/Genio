@@ -18,7 +18,9 @@ FileTreeItem::FileTreeItem()
 	:
 	BStringItem(""),
 	fIcon(nullptr),
+	fRef(nullptr),
 	fFileTreeView(nullptr),
+	fParentItem(nullptr),
 	fFirstTimeRendered(true),
 	fInitStatus(B_NOT_INITIALIZED)
 {
@@ -28,7 +30,9 @@ FileTreeItem::FileTreeItem(const entry_ref& ref, BOutlineListView *view)
 	:
 	BStringItem(""),
 	fIcon(nullptr),
+	fRef(nullptr),
 	fFileTreeView(view),
+	fParentItem(nullptr),
 	fFirstTimeRendered(true),
 	fInitStatus(B_NOT_INITIALIZED)
 {
@@ -42,13 +46,8 @@ FileTreeItem::~FileTreeItem()
 void
 FileTreeItem::SetTo(const entry_ref& ref)
 {
-	fRef = ref;
-	fPath = new BPath(&fRef);
-	fEntry = new BEntry(&fRef);
-	fStringPath = new BString(fPath->Path());
-	
-	BStringItem::SetText(fRef.name),
-	// fIcon = IconCache::GetIcon(&fRef);
+	fRef = new entry_ref(ref);
+	BStringItem::SetText(fRef->name);
 	fInitStatus = B_OK;
 	// LogTrace("FileTreeItem::SetTo: ref: %s",fRef.name);
 }
@@ -56,6 +55,8 @@ FileTreeItem::SetTo(const entry_ref& ref)
 void 
 FileTreeItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
+	if (fIcon==nullptr && fFirstTimeRendered)
+		fIcon = IconCache::GetIcon(fRef);
 
 	if (Text() == NULL)
 		return;
@@ -110,4 +111,11 @@ void
 FileTreeItem::SetText(const char* text)
 {
 	BStringItem::SetText(text);
+}
+
+bool
+FileTreeItem::IsDirectory() const
+{
+	BEntry entry(fRef);
+	return entry.IsDirectory();
 }

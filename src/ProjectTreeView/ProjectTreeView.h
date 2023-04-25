@@ -8,13 +8,31 @@
 #include <FilePanel.h>
 #include <Notification.h>
 #include <OutlineListView.h>
+#include <ObjectList.h>
 #include <SupportDefs.h>
 #include <TextControl.h>
 #include <View.h>
 #include <Window.h>
 
+
 #include "FileTreeItem.h"
 #include "NodeMonitor.h"
+
+
+class ScanRefFilter : public BRefFilter {
+public:
+							ScanRefFilter();
+				
+	bool					AddPath(const entry_ref* ref);
+	bool					RemovePath(const entry_ref* ref);
+				
+	bool					Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
+								const char* filetype);
+
+private:
+	BObjectList<entry_ref>	fExcluded;
+};
+
 
 class ProjectTreeView: public BView {
 public:
@@ -41,7 +59,7 @@ public:
 	virtual	void			AttachedToWindow();
 	virtual	void			MessageReceived(BMessage* msg);
 	
-	status_t				AddRootItem(const entry_ref& directory, BRefFilter* filter = nullptr);
+	status_t				AddRootItem(const entry_ref& directory, ScanRefFilter* filter = nullptr);
 	status_t				RemoveRootItem(const entry_ref& directory);
 	
 	status_t				ActivateRootItem(const entry_ref& ref);
@@ -49,15 +67,22 @@ public:
 	
 	void					Refresh(const entry_ref& ref);
 	void					RefreshAll();
-	void					SetFilter(const entry_ref& ref, BRefFilter* filter);
-	void					ResetFilter(const entry_ref& ref, BRefFilter* filter);
+	void					SetFilter(const entry_ref& ref, ScanRefFilter* filter);
+	void					ResetFilter(const entry_ref& ref, ScanRefFilter* filter);
 	
 	void					FilterAllItemsByText(const BString& search);
 	int						CountEntries(const entry_ref& ref);
 	
-private:
-	void					_MoveUnder(BListItem* item, BListItem* superitem, 
+	void					MoveUnder(BListItem* item, BListItem* superitem, 
 										bool moveChildren = false);
+	bool					AddItem(BListItem *item);
+	bool					AddUnder(BListItem *item, BListItem *superItem);
+	bool					RemoveItem(BListItem *item);
+	void					SortTree(BListItem *item);
+	void					Collapse(BListItem *item);
+	FileTreeItem*			CreateItem(const entry_ref* ref);
+	
+private:
 										
 	BListItem*				_FindItemByRef(const entry_ref& ref);
 	

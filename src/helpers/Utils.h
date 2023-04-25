@@ -143,5 +143,12 @@ public:
 	}
 };
 
+double Round(double value, int precision);
+
+void ProgressNotification(const char* group, const char* title, const char* messageID, 
+							const char* content, float progress);
+							
+void ErrorNotification(const char* group, const char* title, const char* messageID, 
+							const char* content);
 
 #endif // UTILS_H

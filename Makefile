@@ -78,7 +78,6 @@ SRCS += src/lsp-client/FileWrapper.cpp
 SRCS += src/lsp-client/LSPClientWrapper.cpp
 SRCS += src/lsp-client/LSPClient.cpp
 SRCS += src/lsp-client/Transport.cpp
-SRCS += src/ProjectTreeView/FileTreeView.cpp
 SRCS += src/ProjectTreeView/FileTreeItem.cpp
 SRCS += src/ProjectTreeView/NodeMonitor.cpp
 SRCS += src/ProjectTreeView/ProjectTreeView.cpp

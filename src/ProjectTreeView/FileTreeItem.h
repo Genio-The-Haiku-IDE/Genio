@@ -13,12 +13,15 @@
 #include <View.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "FileTreeView.h"
 
 class FileTreeView;
 
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 class FileTreeItem : public BStringItem {
 public:
 						FileTreeItem();
@@ -28,6 +31,7 @@ public:
 	status_t			InitCheck() const { return fInitStatus; }
 	void				SetTo(const entry_ref& ref);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	entry_ref*			GetRef() const { return fRef; };
 	
@@ -42,19 +46,26 @@ public:
 	BEntry*				GetEntry() const { return fEntry; };
 	BPath*				GetPath() const { return fPath; };
 	BString*			GetStringPath() const { return fStringPath; };
+=======
+	entry_ref*			GetRef() const { return fRef; };
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	
 	BOutlineListView*	GetFileTreeView() const { return fFileTreeView; };
-	void				SetFileTreeView(BOutlineListView *view) { fFileTreeView = view; };
 	
 	FileTreeItem*		GetParentItem() const { return fParentItem; };
-	void				SetParentItem(FileTreeItem *item);
+	void				SetParentItem(FileTreeItem *item) { fParentItem = item; };
 
+<<<<<<< HEAD
 	const char*			Text() const { return fRef.name; };
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+	const char*			Text() const { return fRef->name; };
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 		
 	void 				DrawItem(BView* owner, BRect bounds, bool complete);
 	void 				Update(BView* owner, const BFont* font);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	bool				IsDirectory() const;
 
@@ -71,10 +82,20 @@ public:
 	// bool				IsActive() const { return fIsActive; }
 	// bool				IsRoot() const;
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+	bool				IsDirectory() const;
+
+	void				SetActive(bool active) { fIsActive = active; }
+	bool				IsActive() const { return fIsActive; }
+	
+	void				SetAsRoot(bool root = true) { fIsRoot = root; }
+	bool				IsRoot() const { return fIsRoot; }
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	
 private:
 
 	BBitmap*			fIcon;
+<<<<<<< HEAD
 <<<<<<< HEAD
 	entry_ref*			fRef;
 	BOutlineListView*	fFileTreeView;
@@ -88,12 +109,19 @@ private:
 	BEntry*				fEntry;
 	BPath*				fPath;
 	BString*			fStringPath;
+=======
+	entry_ref*			fRef;
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	BOutlineListView*	fFileTreeView;
 	FileTreeItem*		fParentItem;
 	bool				fFirstTimeRendered;
-	bool				fIsScanned;
 	status_t			fInitStatus;
+<<<<<<< HEAD
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+	bool				fIsActive;
+	bool				fIsRoot;
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	
 	// Derived class should not be able to set the Text manually
 	void				SetText(const char* text);

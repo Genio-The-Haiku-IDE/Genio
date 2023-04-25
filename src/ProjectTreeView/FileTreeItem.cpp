@@ -26,12 +26,18 @@ FileTreeItem::FileTreeItem()
 	BStringItem(""),
 	fIcon(nullptr),
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fRef(nullptr),
 	fFileTreeView(nullptr),
 	fParentItem(nullptr),
 =======
 	fFileTreeView(nullptr),
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+	fRef(nullptr),
+	fFileTreeView(nullptr),
+	fParentItem(nullptr),
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	fFirstTimeRendered(true),
 	fInitStatus(B_NOT_INITIALIZED)
 {
@@ -42,12 +48,18 @@ FileTreeItem::FileTreeItem(const entry_ref& ref, BOutlineListView *view)
 	BStringItem(""),
 	fIcon(nullptr),
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fRef(nullptr),
 	fFileTreeView(view),
 	fParentItem(nullptr),
 =======
 	fFileTreeView(view),
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+	fRef(nullptr),
+	fFileTreeView(view),
+	fParentItem(nullptr),
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	fFirstTimeRendered(true),
 	fInitStatus(B_NOT_INITIALIZED)
 {
@@ -62,6 +74,7 @@ void
 FileTreeItem::SetTo(const entry_ref& ref)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fRef = new entry_ref(ref);
 	BStringItem::SetText(fRef->name);
 	fInitStatus = B_OK;
@@ -74,6 +87,10 @@ FileTreeItem::SetTo(const entry_ref& ref)
 	
 	BStringItem::SetText(fRef.name),
 	// fIcon = IconCache::GetIcon(&fRef);
+=======
+	fRef = new entry_ref(ref);
+	BStringItem::SetText(fRef->name);
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	fInitStatus = B_OK;
 <<<<<<< HEAD
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
@@ -86,10 +103,15 @@ void
 FileTreeItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (fIcon==nullptr && fFirstTimeRendered)
 		fIcon = IconCache::GetIcon(fRef);
 =======
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+	if (fIcon==nullptr && fFirstTimeRendered)
+		fIcon = IconCache::GetIcon(fRef);
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 
 	if (Text() == NULL)
 		return;
@@ -145,6 +167,9 @@ FileTreeItem::SetText(const char* text)
 {
 	BStringItem::SetText(text);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 }
 
 bool
@@ -152,6 +177,9 @@ FileTreeItem::IsDirectory() const
 {
 	BEntry entry(fRef);
 	return entry.IsDirectory();
+<<<<<<< HEAD
 =======
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 }

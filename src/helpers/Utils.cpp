@@ -13,6 +13,7 @@
 #include <CheckBox.h>
 #include <IconUtils.h>
 #include <MessageFilter.h>
+#include <Notification.h>
 #include <RadioButton.h>
 #include <Resources.h>
 

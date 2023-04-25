@@ -9,17 +9,24 @@
 #include <Notification.h>
 #include <OutlineListView.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ObjectList.h>
 =======
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+#include <ObjectList.h>
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 #include <SupportDefs.h>
 #include <TextControl.h>
 #include <View.h>
 #include <Window.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <filesystem>
 
+=======
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 
 #include "FileTreeItem.h"
 #include "NodeMonitor.h"
@@ -27,6 +34,7 @@
 
 class ScanRefFilter : public BRefFilter {
 public:
+<<<<<<< HEAD
 							ScanRefFilter(const char* base_path);
 							~ScanRefFilter();
 				
@@ -48,6 +56,21 @@ private:
 #include "NodeMonitor.h"
 
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+							ScanRefFilter();
+				
+	bool					AddPath(const entry_ref* ref);
+	bool					RemovePath(const entry_ref* ref);
+				
+	bool					Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
+								const char* filetype);
+
+private:
+	BObjectList<entry_ref>	fExcluded;
+};
+
+
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 class ProjectTreeView: public BView {
 public:
 	enum ViewMode {
@@ -74,10 +97,14 @@ public:
 	virtual	void			MessageReceived(BMessage* msg);
 	
 <<<<<<< HEAD
+<<<<<<< HEAD
 	status_t				AddRootItem(const entry_ref& directory, ScanRefFilter* filter = nullptr);
 =======
 	status_t				AddRootItem(const entry_ref& directory, BRefFilter* filter = nullptr);
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+	status_t				AddRootItem(const entry_ref& directory, ScanRefFilter* filter = nullptr);
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	status_t				RemoveRootItem(const entry_ref& directory);
 	
 	status_t				ActivateRootItem(const entry_ref& ref);
@@ -85,6 +112,7 @@ public:
 	
 	void					Refresh(const entry_ref& ref);
 	void					RefreshAll();
+<<<<<<< HEAD
 <<<<<<< HEAD
 	void					SetFilter(const entry_ref& ref, ScanRefFilter* filter);
 	void					ResetFilter(const entry_ref& ref, ScanRefFilter* filter);
@@ -105,14 +133,28 @@ private:
 =======
 	void					SetFilter(const entry_ref& ref, BRefFilter* filter);
 	void					ResetFilter(const entry_ref& ref, BRefFilter* filter);
+=======
+	void					SetFilter(const entry_ref& ref, ScanRefFilter* filter);
+	void					ResetFilter(const entry_ref& ref, ScanRefFilter* filter);
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	
 	void					FilterAllItemsByText(const BString& search);
 	int						CountEntries(const entry_ref& ref);
 	
-private:
-	void					_MoveUnder(BListItem* item, BListItem* superitem, 
+	void					MoveUnder(BListItem* item, BListItem* superitem, 
 										bool moveChildren = false);
+<<<<<<< HEAD
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+	bool					AddItem(BListItem *item);
+	bool					AddUnder(BListItem *item, BListItem *superItem);
+	bool					RemoveItem(BListItem *item);
+	void					SortTree(BListItem *item);
+	void					Collapse(BListItem *item);
+	FileTreeItem*			CreateItem(const entry_ref* ref);
+	
+private:
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 										
 	BListItem*				_FindItemByRef(const entry_ref& ref);
 	

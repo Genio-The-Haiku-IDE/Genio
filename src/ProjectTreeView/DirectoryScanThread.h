@@ -15,9 +15,12 @@
 #include <Messenger.h>
 #include <Notification.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include <OutlineListView.h>
 >>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
+=======
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 #include <String.h>
 #include <SupportDefs.h>
 
@@ -27,6 +30,7 @@
 #include "FileTreeItem.h"
 #include "GenericThread.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "ProjectTreeView.h"
 
 
@@ -35,23 +39,21 @@ public:
 								DirectoryScanThread(const entry_ref& ref, ScanRefFilter* filter,
 														ProjectTreeView *listView);
 =======
+=======
+#include "ProjectTreeView.h"
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 
-enum {
-	DIRECTORYSCANTHREAD_ENABLE_STOP_BUTTON	= 'Cesb',
-	DIRECTORYSCANTHREAD_ERROR				= 'Cerr',
-	DIRECTORYSCANTHREAD_EXIT				= 'Cexi',
-	DIRECTORYSCANTHREAD_CMD_TYPE			= 'Ccty',
-	DIRECTORYSCANTHREAD_PRINT_BANNER		= 'Cpba',
-	DIRECTORYSCANTHREAD_STOP				= 'Csto',
-	DIRECTORYSCANTHREAD_STDOUT				= 'Csou',
-	DIRECTORYSCANTHREAD_STDERR				= 'Cser'
-};
 
 class DirectoryScanThread: public GenericThread {
 public:
+<<<<<<< HEAD
 								DirectoryScanThread(const entry_ref& ref, 
 														BOutlineListView *listView);
 >>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
+=======
+								DirectoryScanThread(const entry_ref& ref, ScanRefFilter* filter,
+														ProjectTreeView *listView);
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 								~DirectoryScanThread();
 
 private:
@@ -59,16 +61,23 @@ private:
 			status_t			ThreadShutdown() override;
 			
 <<<<<<< HEAD
+<<<<<<< HEAD
 			void				_ShowProgressNotification(const BString& content);
 			void				_ShowErrorNotification(const BString& content);
 			
 =======
 			void				_SetNotifications();
 >>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
+=======
+			void				_ShowProgressNotification(const BString& content);
+			void				_ShowErrorNotification(const BString& content);
+			
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 			int					_CountEntries(entry_ref* ref);
 			FileTreeItem*		_RecursiveScan(const entry_ref* ref, FileTreeItem* item);
 
 private:
+<<<<<<< HEAD
 <<<<<<< HEAD
 			entry_ref* 			fRootRef;
 			const BString		fThreadUUID;
@@ -80,13 +89,20 @@ private:
 			float				fScanProgress;
 =======
 			const BMessenger*	fTarget;
+=======
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 			entry_ref* 			fRootRef;
-			BNotification*		fProgressNotification;
-			BNotification*		fErrorNotification;
-			BOutlineListView*	fFileTreeView;
+			const BString		fThreadUUID;
+			const BString		fProgressNotificationMessageID;
+			ProjectTreeView*	fProjectTreeView;
+			ScanRefFilter* 		fScanFilter;
 			int					fTotalEntries;
 			int					fEntryCount;
+<<<<<<< HEAD
 >>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
+=======
+			float				fScanProgress;
+>>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 };
 
 

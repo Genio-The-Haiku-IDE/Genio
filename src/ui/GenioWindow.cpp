@@ -3450,10 +3450,9 @@ GenioWindow::_ReplaceGroupShow()
 
 	if (findGroupOpen == false)
 		_FindGroupShow();
-	LogError("ReplaceGroup->IsHidden %d", fReplaceGroup->IsHidden());
+	
 	if (fReplaceGroup->IsHidden()) {
 		fReplaceGroup->Show();
-		LogError("SHOWW");
 		fReplaceTextControl->TextView()->Clear();
 		// If find group was not open focus and selection go there
 		if (findGroupOpen == false)

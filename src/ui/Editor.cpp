@@ -726,6 +726,18 @@ Editor::NotificationReceived(SCNotification* notification)
 	}
 }
 
+void
+Editor::NextSignatureHelp(int direction)
+{
+	fFileWrapper->UpdateCallTip(direction);
+}
+
+bool
+Editor::IsSignatureHelpVisible()
+{
+	return SendMessage(SCI_CALLTIPACTIVE, 0, 0);
+}
+
 void				
 Editor::_UpdateSavePoint(bool modified)
 {

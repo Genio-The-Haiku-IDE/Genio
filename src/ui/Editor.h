@@ -168,6 +168,9 @@ public:
 			
 			void				SetProblems(const BMessage* diagnostics);
 			void				GetProblems(BMessage* diagnostics);
+			
+			void				NextSignatureHelp(int direction);
+			bool				IsSignatureHelpVisible();
 
 private:
 			void				UpdateStatusBar();

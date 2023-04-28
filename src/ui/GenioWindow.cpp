@@ -11,7 +11,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <thread>
 
 #include <Alert.h>
 #include <Application.h>
@@ -42,6 +41,7 @@
 #include "SettingsWindow.h"
 #include "TPreferences.h"
 #include "TextUtils.h"
+#include "Utils.h"
 
 #include "ProjectTreeView.h"
 
@@ -56,7 +56,6 @@ constexpr auto kRecentFilesNumber = 14 + 1;
 
 static constexpr float kTabBarHeight = 30.0f;
 
-static constexpr auto kGotolineMaxBytes = 6;
 
 // Find group
 static constexpr auto kFindReplaceMaxBytes = 50;
@@ -103,7 +102,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fCutMenuItem(nullptr)
 	, fCopyMenuItem(nullptr)
 	, fPasteMenuItem(nullptr)
-	, fDeleteMenuItem(nullptr)
 	, fSelectAllMenuItem(nullptr)
 	, fOverwiteItem(nullptr)
 	, fToggleWhiteSpacesItem(nullptr)
@@ -197,7 +195,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fOpenProjectPanel(nullptr)
 	, fOpenProjectFolderPanel(nullptr)
 	, fOutputTabView(nullptr)
-	, fNotificationsListView(nullptr)
+	, fProblemsPanel(nullptr)
 	, fConsoleIOThread(nullptr)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
@@ -214,8 +212,11 @@ GenioWindow::GenioWindow(BRect frame)
 		selectTab->AddInt32("index", index - 1);
 		AddShortcut(index + kAsciiPos, B_COMMAND_KEY, selectTab);
 	}
-	AddShortcut(B_LEFT_ARROW,  B_OPTION_KEY,  new BMessage(MSG_FILE_PREVIOUS_SELECTED));
-	AddShortcut(B_RIGHT_ARROW, B_OPTION_KEY,  new BMessage(MSG_FILE_NEXT_SELECTED));
+
+	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_PREVIOUS_SELECTED, B_LEFT_ARROW, B_OPTION_KEY));
+	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW, B_OPTION_KEY));
+	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY,   B_ESCAPE));
+	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 
 	if (GenioNames::Settings.show_projects == false)
 		fProjectsTabView->Hide();
@@ -232,10 +233,9 @@ GenioWindow::GenioWindow(BRect frame)
 			BString projectName, activeProject = "";
 
 			activeProject = projects.GetString("active_project");
-			// REACTIVATE!
-			// for (auto count = 0; projects.FindString("project_to_reopen",
-										// count, &projectName) == B_OK; count++)
-					// _ProjectFolderOpen(projectName, projectName == activeProject);
+			for (auto count = 0; projects.FindString("project_to_reopen",
+										count, &projectName) == B_OK; count++)
+					_ProjectFolderOpen(projectName, projectName == activeProject);
 		}
 	}
 
@@ -273,27 +273,8 @@ GenioWindow::~GenioWindow()
 void
 GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 {
-	if (handler == fFindTextControl->TextView()) {
-		if (message->what == B_KEY_DOWN) {
-			int8 key;
-			if (message->FindInt8("byte", 0, &key) == B_OK) {
-				if (key == B_ESCAPE) {
-					fFindGroup->SetVisible(false);
-					fReplaceGroup->SetVisible(false);
-				}
-			}
-		}
-	} else if (handler == fReplaceTextControl->TextView()) {
-		if (message->what == B_KEY_DOWN) {
-			int8 key;
-			if (message->FindInt8("byte", 0, &key) == B_OK) {
-				if (key == B_ESCAPE) {
-					fReplaceGroup->SetVisible(false);
-					fFindTextControl->MakeFocus(true);
-				}
-			}
-		}
-	}  else if (handler == fConsoleIOView) {
+	//TODO: understand this part of code and move it to a better place.
+	if (handler == fConsoleIOView) {
 		if (message->what == B_KEY_DOWN) {
 			int8 key;
 			if (message->FindInt8("byte", 0, &key) == B_OK) {
@@ -315,6 +296,27 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case MSG_ESCAPE_KEY:{
+			if (CurrentFocus() == fFindTextControl->TextView()) {
+					fFindGroup->SetVisible(false);
+					fReplaceGroup->SetVisible(false);
+			} else if (CurrentFocus() == fReplaceTextControl->TextView()) {
+					fReplaceGroup->SetVisible(false);
+					fFindTextControl->MakeFocus(true);
+			}
+		}
+		break;
+		case EDITOR_UPDATE_DIAGNOSTICS : {
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				int32 index = _GetEditorIndex(&ref);
+				if (index == fTabManager->SelectedTabIndex()) 
+				{
+					fProblemsPanel->UpdateProblems(message);
+				}
+			}
+			break;
+		}
 		case 'NOTI': {
 			BString notification, type;
 			if (message->FindString("notification", &notification) == B_OK
@@ -751,15 +753,21 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case MSG_FIND_INVOKED: {
+			if (CurrentFocus() == fFindTextControl->TextView()) {
+				const BString& text(fFindTextControl->Text());
+				_FindNext(text, false);
+				fFindTextControl->MakeFocus(true);
+			}
+			break;
+		}
 		case MSG_FIND_NEXT: {
 			const BString& text(fFindTextControl->Text());
-//			if (!text.IsEmpty())
 			_FindNext(text, false);
 			break;
 		}
 		case MSG_FIND_PREVIOUS: {
 			const BString& text(fFindTextControl->Text());
-//			if (!text.IsEmpty())
 			_FindNext(text, true);
 			break;
 		}
@@ -989,13 +997,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_TEXT_DELETE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) 
-				editor->Clear();
-
-			break;
-		}
 		case MSG_TEXT_OVERWRITE: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor)  {
@@ -1050,9 +1051,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				// In multifile open not-focused files place scroll just after
 				// caret line when reselected. Ensure visibility.
 				// TODO caret policy
-				editor->EnsureVisiblePolicy();
-
-				
+				editor->EnsureVisiblePolicy();				
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 			}
 			break;
@@ -1387,20 +1386,25 @@ GenioWindow::_FileOpen(BMessage* msg)
 			if (openWithPreferred)
 				_FileOpenWithPreferredApp(&ref); //TODO make this optional?
 			continue;
-		}	
+		}	else {
+			be_roster->AddToRecentDocuments(&ref, GenioNames::GetSignature());
+		}
 
 		// Do not reopen an already opened file
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
+			
 			if (openedIndex != fTabManager->SelectedTabIndex()) {
 				fTabManager->SelectTab(openedIndex);
 			}				
 			
-			if (lsp_char >= 0 && be_line > -1)
+			if (lsp_char >= 0 && be_line > -1) {
 				fTabManager->EditorAt(openedIndex)->GoToLSPPosition(be_line - 1, lsp_char);
-			else
-			if (be_line > -1)
+			}
+			else if (be_line > -1) {
 				fTabManager->EditorAt(openedIndex)->GoToLine(be_line);
+			}
 			
+			fTabManager->SelectedEditor()->GrabFocus();
 			continue;
 		}
 
@@ -1716,7 +1720,7 @@ GenioWindow::_FindNext(const BString& strToFind, bool backwards)
 		return;
 
 	Editor* editor = fTabManager->SelectedEditor();
-//fFindTextControl->MakeFocus(true);
+
 	editor->GrabFocus();
 
 	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
@@ -2319,8 +2323,6 @@ GenioWindow::_InitMenu()
 		new BMessage(B_COPY), 'C'));
 	editMenu->AddItem(fPasteMenuItem = new BMenuItem(B_TRANSLATE("Paste"),
 		new BMessage(B_PASTE), 'V'));
-	editMenu->AddItem(fDeleteMenuItem = new BMenuItem(B_TRANSLATE("Delete"),
-		new BMessage(MSG_TEXT_DELETE), 'D'));
 	editMenu->AddSeparatorItem();
 	editMenu->AddItem(fSelectAllMenuItem = new BMenuItem(B_TRANSLATE("Select all"),
 		new BMessage(B_SELECT_ALL), 'A'));
@@ -2338,11 +2340,11 @@ GenioWindow::_InitMenu()
 	editMenu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
 		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
 	editMenu->AddItem(fDuplicateLineItem = new BMenuItem(B_TRANSLATE("Duplicate current line"),
-		new BMessage(MSG_DUPLICATE_LINE), 'K', B_OPTION_KEY));
+		new BMessage(MSG_DUPLICATE_LINE), 'K'));
 	editMenu->AddItem(fDeleteLinesItem = new BMenuItem(B_TRANSLATE("Delete lines"),
-		new BMessage(MSG_DELETE_LINES), 'D', B_OPTION_KEY));	
+		new BMessage(MSG_DELETE_LINES), 'D'));	
 	editMenu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment selected lines"),
-		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_OPTION_KEY));
+		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_SHIFT_KEY));
 	
 	editMenu->AddSeparatorItem();	
 
@@ -2374,11 +2376,13 @@ GenioWindow::_InitMenu()
 	fCutMenuItem->SetEnabled(false);
 	fCopyMenuItem->SetEnabled(false);
 	fPasteMenuItem->SetEnabled(false);
-	fDeleteMenuItem->SetEnabled(false);
 	fSelectAllMenuItem->SetEnabled(false);
 	fOverwiteItem->SetEnabled(false);
 	fToggleWhiteSpacesItem->SetEnabled(false);
 	fToggleLineEndingsItem->SetEnabled(false);
+	fDuplicateLineItem->SetEnabled(false);
+	fDeleteLinesItem->SetEnabled(false);
+	fCommentSelectionItem->SetEnabled(false);
 	fLineEndingsMenu->SetEnabled(false);
 
 	editMenu->AddItem(fLineEndingsMenu);
@@ -2434,7 +2438,7 @@ GenioWindow::_InitMenu()
 	projectMenu->AddItem(fCleanItem = new BMenuItem (B_TRANSLATE("Clean Project"),
 		new BMessage(MSG_CLEAN_PROJECT)));
 	projectMenu->AddItem(fRunItem = new BMenuItem (B_TRANSLATE("Run target"),
-		new BMessage(MSG_RUN_TARGET)));
+		new BMessage(MSG_RUN_TARGET), 'R', B_SHIFT_KEY));
 	projectMenu->AddSeparatorItem();
 
 	fBuildModeItem = new BMenu(B_TRANSLATE("Build mode"));
@@ -2644,24 +2648,14 @@ GenioWindow::_InitOutputSplit()
 {
 	// Output
 	fOutputTabView = new BTabView("OutputTabview");
-
-	fNotificationsListView = new BColumnListView(B_TRANSLATE("Notifications"),
-									B_NAVIGABLE, B_FANCY_BORDER, true);
-	fNotificationsListView->AddColumn(new BDateColumn(B_TRANSLATE("Time"),
-								200.0, 200.0, 200.0), kTimeColumn);
-	fNotificationsListView->AddColumn(new BStringColumn(B_TRANSLATE("Message"),
-								600.0, 600.0, 800.0, 0), kMessageColumn);
-	fNotificationsListView->AddColumn(new BStringColumn(B_TRANSLATE("Type"),
-								200.0, 200.0, 200.0, 0), kTypeColumn);
-	BFont font;
-	font.SetFamilyAndStyle("Noto Sans Mono", "Bold");
-	fNotificationsListView->SetFont(&font);
+	
+	fProblemsPanel = new ProblemsPanel();
 
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build Log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
-	fOutputTabView->AddTab(fNotificationsListView);
+	fOutputTabView->AddTab(fProblemsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
 	fOutputTabView->AddTab(fConsoleIOView);
 }
@@ -2677,7 +2671,7 @@ GenioWindow::_InitSideSplit()
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 	
-	// TEST ProjectTree
+		// TEST ProjectTree
 	ProjectTreeView* projectTree = new ProjectTreeView("ProjectsTreeView");
 	BScrollView* projectTreeScroll = new BScrollView(B_TRANSLATE("ProjectTree"),
 		projectTree, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
@@ -3448,8 +3442,6 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 		return;
 	}
 
-	// std::thread scanThread(&ProjectsFolderBrowser::ProjectFolderPopulate, fProjectsFolderBrowser, newProject);
-	// scanThread.detach();
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
 
@@ -3740,13 +3732,7 @@ GenioWindow::_SendNotification(BString message, BString type)
 	if (GenioNames::Settings.enable_notifications == false)
 		return;
 
-       BRow* fRow = new BRow();
-       time_t now =  static_cast<bigtime_t>(real_time_clock());
-
-       fRow->SetField(new BDateField(&now), kTimeColumn);
-       fRow->SetField(new BStringField(message), kMessageColumn);
-       fRow->SetField(new BStringField(type), kTypeColumn);
-       fNotificationsListView->AddRow(fRow, int32(0));
+	LogInfo("Notification: %s - %s", type.String(), message.String());
 }
 
 void
@@ -3888,7 +3874,6 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	fCutMenuItem->SetEnabled(editor->CanCut());
 	fCopyMenuItem->SetEnabled(editor->CanCopy());
 	fPasteMenuItem->SetEnabled(editor->CanPaste());
-	fDeleteMenuItem->SetEnabled(editor->CanClear());
 
 	// ToolBar Items
 	fUndoButton->SetEnabled(editor->CanUndo());
@@ -3907,7 +3892,6 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 void
 GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 {
-
 	// All files are closed
 	if (editor == nullptr) {
 		// ToolBar Items
@@ -3918,6 +3902,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fFoldButton->SetEnabled(false);
 		fUndoButton->SetEnabled(false);
 		fRedoButton->SetEnabled(false);
+
 		fFileSaveButton->SetEnabled(false);
 		fFileSaveAllButton->SetEnabled(false);
 		fFileUnlockedButton->SetEnabled(false);
@@ -3938,12 +3923,14 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fCutMenuItem->SetEnabled(false);
 		fCopyMenuItem->SetEnabled(false);
 		fPasteMenuItem->SetEnabled(false);
-		fDeleteMenuItem->SetEnabled(false);
 		fSelectAllMenuItem->SetEnabled(false);
 		fOverwiteItem->SetEnabled(false);
 		fToggleWhiteSpacesItem->SetEnabled(false);
 		fToggleLineEndingsItem->SetEnabled(false);
 		fLineEndingsMenu->SetEnabled(false);
+		fDuplicateLineItem->SetEnabled(false);
+		fCommentSelectionItem->SetEnabled(false);
+		fDeleteLinesItem->SetEnabled(false);
 		fFindItem->SetEnabled(false);
 		fReplaceItem->SetEnabled(false);
 		fGoToLineItem->SetEnabled(false);
@@ -3951,6 +3938,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		if (GenioNames::Settings.fullpath_title == true)
 			SetTitle(GenioNames::kApplicationName);
+
+		fProblemsPanel->Clear();
 
 		return;
 	}
@@ -3989,19 +3978,23 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fSaveAsMenuItem->SetEnabled(true);
 	fCloseMenuItem->SetEnabled(true);
 	fCloseAllMenuItem->SetEnabled(true);
+
+	// Edit menu items
 	fFoldMenuItem->SetEnabled(editor->IsFoldingAvailable());
 	fUndoMenuItem->SetEnabled(editor->CanUndo());
 	fRedoMenuItem->SetEnabled(editor->CanRedo());
 	fCutMenuItem->SetEnabled(editor->CanCut());
 	fCopyMenuItem->SetEnabled(editor->CanCopy());
 	fPasteMenuItem->SetEnabled(editor->CanPaste());
-	fDeleteMenuItem->SetEnabled(editor->CanClear());
 	fSelectAllMenuItem->SetEnabled(true);
 	fOverwiteItem->SetEnabled(true);
 	// fOverwiteItem->SetMarked(editor->IsOverwrite());
 	fToggleWhiteSpacesItem->SetEnabled(true);
 	fToggleLineEndingsItem->SetEnabled(true);
 	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
+	fDuplicateLineItem->SetEnabled(!editor->IsReadOnly());
+	fCommentSelectionItem->SetEnabled(!editor->IsReadOnly());
+	fDeleteLinesItem->SetEnabled(!editor->IsReadOnly());
 	fFindItem->SetEnabled(true);
 	fReplaceItem->SetEnabled(true);
 	fGoToLineItem->SetEnabled(true);
@@ -4020,6 +4013,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fFileSaveAllButton->SetEnabled(filesNeedSave);
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
+	BMessage diagnostics;
+	editor->GetProblems(&diagnostics);
+	fProblemsPanel->UpdateProblems(&diagnostics);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

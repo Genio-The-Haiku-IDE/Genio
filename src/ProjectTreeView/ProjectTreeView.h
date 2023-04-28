@@ -23,10 +23,15 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <filesystem>
 
 =======
 >>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
+=======
+#include <filesystem>
+
+>>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 
 #include "FileTreeItem.h"
 #include "NodeMonitor.h"
@@ -34,6 +39,7 @@
 
 class ScanRefFilter : public BRefFilter {
 public:
+<<<<<<< HEAD
 <<<<<<< HEAD
 							ScanRefFilter(const char* base_path);
 							~ScanRefFilter();
@@ -58,15 +64,21 @@ private:
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 =======
 							ScanRefFilter();
+=======
+							ScanRefFilter(const char* base_path);
+							~ScanRefFilter();
+>>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 				
-	bool					AddPath(const entry_ref* ref);
-	bool					RemovePath(const entry_ref* ref);
+	void					AddPath(std::filesystem::path relative_path);
+	void					RemovePath(std::filesystem::path relative_path);
 				
 	bool					Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
-								const char* filetype);
+									const char* filetype);
 
 private:
-	BObjectList<entry_ref>	fExcluded;
+	// std::list<entry_ref*>	fExcludedList;
+	std::list<std::filesystem::path>	fExcludedList;
+	std::filesystem::path				fBasePath;
 };
 
 

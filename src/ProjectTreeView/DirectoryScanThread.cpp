@@ -24,7 +24,11 @@
 #include <Uuid.h>
 
 #include <errno.h>
+<<<<<<< HEAD
 >>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
+=======
+#include <filesystem>
+>>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 #include <functional>
 #include <image.h>
 #include <iostream>
@@ -197,6 +201,7 @@ DirectoryScanThread::_CountEntries(entry_ref* ref)
 	int count = 0;
 	BEntry nextEntry;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	BEntry entry(ref);
 	bool doScan = true;
 	
@@ -221,6 +226,8 @@ DirectoryScanThread::_CountEntries(entry_ref* ref)
 	}
 	
 =======
+=======
+>>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 	BEntry entry(ref);	
 				
 	if (entry.IsDirectory())
@@ -233,9 +240,35 @@ DirectoryScanThread::_CountEntries(entry_ref* ref)
 		{
 			nextEntry.GetRef(&nextRef);
 			count += _CountEntries(&nextRef);
+=======
+	BEntry entry(ref);
+	bool doScan = true;
+	
+	if (fScanFilter != nullptr) {
+		doScan = fScanFilter->Filter(ref, nullptr, nullptr, nullptr);
+		if (doScan) {
+			if (entry.IsDirectory())
+			{
+				entry_ref nextRef;
+				BDirectory dir(&entry);
+				count = dir.CountEntries();
+				while(dir.GetNextEntry(&nextEntry)==B_OK)
+				{
+					nextEntry.GetRef(&nextRef);
+					count += _CountEntries(&nextRef);
+				}
+			}
+		} else {
+			LogTrace("_CountEntries(%s) skip ref=%s doScan=%d count=%d", fRootRef->name, ref->name, doScan, count);
+			std::filesystem::path x;
+>>>>>>> f168a64 (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 		}
 	}
+<<<<<<< HEAD
 >>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
+=======
+	
+>>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 	return count;
 }
 
@@ -309,10 +342,21 @@ DirectoryScanThread::_RecursiveScan(const entry_ref* ref, FileTreeItem* item)
 	FileTreeItem *newItem = new FileTreeItem(*ref, fFileTreeView);
 	
 	if (item!=nullptr) {
+<<<<<<< HEAD
 		// BAutolock lock(Looper());
 		// fFileTreeView->AddUnder(newItem,item);
 		// fFileTreeView->Collapse(newItem);
 		fEntryCount++;
+=======
+		if (doScan) {
+			newItem->SetParentItem(item);
+			fProjectTreeView->AddUnder(newItem,item);
+			fProjectTreeView->Collapse(newItem);
+			fEntryCount++;
+		} else {
+			LogTrace("_CountEntries() skip ref=%s doScan=false", ref->name);
+		}
+>>>>>>> f168a64 (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 	} else {
 		// this is the first recursive call and we need to create the superitem
 		// it is then returned back to caller for subsequent operations
@@ -354,7 +398,12 @@ DirectoryScanThread::_RecursiveScan(const entry_ref* ref, FileTreeItem* item)
 				case B_NO_MORE_FDS: snes = "B_NO_MORE_FDS"; break;
 				default: break;
 			}
+<<<<<<< HEAD
 			LogTrace("DirectoryScanThread::_RecursiveScan: %s(%s)", slevel.String(), snes.String());
+=======
+		} else {
+			LogTrace("_CountEntries() entry.IsDirectory() skip ref=%s doScan=false", ref->name);
+>>>>>>> f168a64 (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 		}
 	}
 	// debug 

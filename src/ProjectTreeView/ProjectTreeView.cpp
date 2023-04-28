@@ -19,6 +19,9 @@
 #include <NaturalCompare.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 #include <algorithm>
 
 #include "Log.h"
@@ -39,6 +42,10 @@
 #define B_TRANSLATION_CONTEXT "ProjectTreeView"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 ScanRefFilter::ScanRefFilter(const char* base_path)
 	:
 	BRefFilter(),
@@ -122,8 +129,12 @@ ScanRefFilter::Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
 
 
 
+<<<<<<< HEAD
 =======
 >>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
+=======
+>>>>>>> f168a64 (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
+>>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 ProjectTreeView::ProjectTreeView(const char* name, uint32 flags, BLayout* layout):
 	BView(name, flags, layout),
 	fFileTreeView(nullptr),

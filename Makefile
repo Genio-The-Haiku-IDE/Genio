@@ -71,6 +71,7 @@ SRCS += src/helpers/tabview/TabContainerView.cpp
 SRCS += src/helpers/tabview/TabManager.cpp
 SRCS += src/helpers/tabview/TabView.cpp
 SRCS += src/helpers/Logger.cpp
+SRCS += src/helpers/FSUtils.cpp
 SRCS += src/helpers/TextUtils.cpp
 SRCS += src/helpers/StatusView.cpp
 SRCS += src/helpers/Utils.cpp

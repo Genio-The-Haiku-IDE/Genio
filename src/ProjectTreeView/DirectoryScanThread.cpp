@@ -14,6 +14,7 @@
 
 #include <chrono>
 #include <errno.h>
+#include <filesystem>
 #include <functional>
 #include <image.h>
 #include <iostream>
@@ -110,26 +111,28 @@ DirectoryScanThread::_CountEntries(entry_ref* ref)
 	int count = 0;
 	BEntry nextEntry;
 	BEntry entry(ref);
-	// bool doScan = true;
+	bool doScan = true;
 	
-	// if (fScanFilter != nullptr)
-		// doScan = fScanFilter->Filter(ref, nullptr, nullptr, nullptr);
-		
-	if (entry.IsDirectory())
-	{
-		// if (doScan) {
-			entry_ref nextRef;
-			BDirectory dir(&entry);
-			count = dir.CountEntries();
-			while(dir.GetNextEntry(&nextEntry)==B_OK)
+	if (fScanFilter != nullptr) {
+		doScan = fScanFilter->Filter(ref, nullptr, nullptr, nullptr);
+		if (doScan) {
+			if (entry.IsDirectory())
 			{
-				nextEntry.GetRef(&nextRef);
-				count += _CountEntries(&nextRef);
+				entry_ref nextRef;
+				BDirectory dir(&entry);
+				count = dir.CountEntries();
+				while(dir.GetNextEntry(&nextEntry)==B_OK)
+				{
+					nextEntry.GetRef(&nextRef);
+					count += _CountEntries(&nextRef);
+				}
 			}
-		// } else {
-			// LogTrace("_CountEntries() skip ref=%s doScan=false count=", ref->name, count);
-		// }
+		} else {
+			LogTrace("_CountEntries(%s) skip ref=%s doScan=%d count=%d", fRootRef->name, ref->name, doScan, count);
+			std::filesystem::path x;
+		}
 	}
+	
 	return count;
 }
 
@@ -152,7 +155,7 @@ DirectoryScanThread::_RecursiveScan(const entry_ref* ref, FileTreeItem* item)
 			fProjectTreeView->Collapse(newItem);
 			fEntryCount++;
 		} else {
-			// LogTrace("_CountEntries() skip ref=%s doScan=false", ref->name);
+			LogTrace("_CountEntries() skip ref=%s doScan=false", ref->name);
 		}
 	} else {
 		// this is the first recursive call and we need to create the superitem
@@ -176,7 +179,7 @@ DirectoryScanThread::_RecursiveScan(const entry_ref* ref, FileTreeItem* item)
 				_RecursiveScan(&nextRef, newItem);
 			}
 		} else {
-			// LogTrace("_CountEntries() entry.IsDirectory() skip ref=%s doScan=false", ref->name);
+			LogTrace("_CountEntries() entry.IsDirectory() skip ref=%s doScan=false", ref->name);
 		}
 	}
 	

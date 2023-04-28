@@ -10,7 +10,7 @@
 #include <Mime.h>
 #include <NaturalCompare.h>
 
-#include <thread>
+#include <algorithm>
 
 #include "Log.h"
 #include "ProjectTreeView.h"
@@ -19,66 +19,85 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectTreeView"
 
-ScanRefFilter::ScanRefFilter()
+ScanRefFilter::ScanRefFilter(const char* base_path)
 	:
-	BRefFilter()
+	BRefFilter(),
+	fBasePath(base_path)
 {
 }
 
-bool
-ScanRefFilter::AddPath(const entry_ref* ref)
+ScanRefFilter::~ScanRefFilter()
 {
-	entry_ref *cpRef = new entry_ref(*ref); 
-	BPath path(cpRef);
-	LogTrace("AddPath(%d) adding %s", fExcluded.CountItems(), path.Path());
-	bool status = fExcluded.AddItem(cpRef);
-	LogTrace("AddPath(%d) items in the list", fExcluded.CountItems());
-	for(int i=0;i<fExcluded.CountItems();i++)
-		LogTrace("AddPath(%d) items %s", fExcluded.CountItems(), fExcluded.ItemAt(i)->name);
-	return status;
+	// for (auto const& item: fExcludedList)
+		// delete item;
 }
 
-bool
-ScanRefFilter::RemovePath(const entry_ref* ref)
+void
+ScanRefFilter::AddPath(std::filesystem::path relative_path)
 {
-	entry_ref *cpRef = new entry_ref(*ref); 
-	BPath path(cpRef);
-	LogTrace("AddPath(%d) removing %s", fExcluded.CountItems(), path.Path());
-	bool status = false;
-	LogTrace("AddPath(%d) items in the list", fExcluded.CountItems());
-	for(int i=0;i<fExcluded.CountItems();i++) {
-		entry_ref *item = (entry_ref*)fExcluded.ItemAt(i);
-		if (item->name == cpRef->name && 
-			item->device == cpRef->device && 
-			item->directory == cpRef->directory) {
-			status = fExcluded.RemoveItem(item);
-			LogTrace("AddPath(%d) items %s", fExcluded.CountItems(), fExcluded.ItemAt(i)->name);
-		}
+	// entry_ref *cpRef = new entry_ref(*ref); 
+	// LogTrace("AddPath(%d) adding %s", fExcludedList.size(), cpRef->name);
+	fExcludedList.push_back(relative_path);
+	// LogTrace("AddPath(%d) item %s added", fExcludedList.size(), cpRef->name);
+	// LogTrace("AddPath() list of items");
+	// for (auto const& item: fExcludedList)
+		// LogTrace("AddPath(%s): ", item->name);
+}
+
+void
+ScanRefFilter::RemovePath(std::filesystem::path relative_path)
+{
+	// entry_ref *cpRef = new entry_ref(*ref); 
+	LogTrace("RemovePath(%d) removing %s", fExcludedList.size(), relative_path.c_str());
+	
+	auto predicate = [relative_path](std::filesystem::path item) { 
+		return 	relative_path == item;
+	};
+	auto element = std::find_if(fExcludedList.begin(), fExcludedList.end(), predicate);
+	if (element != fExcludedList.end()) {
+		fExcludedList.erase(element);
+		LogTrace("RemovePath(%d) item %s removed", fExcludedList.size(),(*element).c_str());
+	} else {
+		LogTrace("RemovePath(%d) item %s not found", fExcludedList.size(),(*element).c_str());
 	}
-	return status;
+	LogTrace("RemovePath() list of items");
+	for (auto const& item: fExcludedList)
+		LogTrace("RemovePath(%s): ", item.c_str());
 }
 
 bool
 ScanRefFilter::Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
 						const char* filetype)
 {
-	BPath path(ref);
+	chdir(fBasePath.c_str());
+	bool exclude = true;
+	entry_ref *cpRef = new entry_ref(*ref);
 	node = new BNode(ref);
 	if (node != nullptr && node->IsDirectory()) {
-		LogTrace("Filter(): ref(%s) path(%s)", ref->name, path.Path());
-		for(int i=0;i<fExcluded.CountItems();i++) {
-			entry_ref *item = (entry_ref*)fExcluded.ItemAt(i);
-			LogTrace("Filter(): item(%d,%d,%s)",item->device, item->directory,item->name);
-			LogTrace("Filter(): ref(%d,%d,%s)",ref->device, ref->directory,ref->name);
-			if (BString(item->name)==BString(ref->name) && 
-				item->device == ref->device && 
-				item->directory == ref->directory) {
-				LogTrace("Filter(): HasItem()");
-				return false;
-			}
+		LogTrace("Filter(): ref(%s)", cpRef->name);
+		
+		auto predicate = [cpRef](std::filesystem::path item) {
+			auto absolute_path = std::filesystem::absolute(item);
+			BEntry entry(absolute_path.c_str());
+			entry_ref itemRef;
+			entry.GetRef(&itemRef);
+			LogTrace("Filter(predicate): cpRef(%s,%d,%d)", cpRef->name, cpRef->device, cpRef->directory);
+			LogTrace("Filter(predicate): item(%s,%d,%d)", itemRef.name, itemRef.device, itemRef.directory);
+			return 	BString(cpRef->name) == BString(itemRef.name) &&
+					cpRef->device == itemRef.device &&
+					cpRef->directory == itemRef.directory;
+		};
+		auto element = std::find_if(fExcludedList.begin(), fExcludedList.end(), predicate);
+		if (element != fExcludedList.end()) {
+			LogTrace("Filter() item %s is in the excluded list", (*element).c_str());
+			exclude = false;
+		} else {
+			LogTrace("Filter() item %s is not in the excluded list", cpRef->name);
+			exclude = true;
 		}
 	}
-	return true;
+	delete node;
+	return exclude;
 }
 
 

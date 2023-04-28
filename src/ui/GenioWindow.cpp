@@ -2683,24 +2683,38 @@ GenioWindow::_InitSideSplit()
 		projectTree, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(projectTreeScroll);
 	
-	ScanRefFilter* filter = new ScanRefFilter();
-	BEntry _entry("/boot/home/develop/myprojects/IDE/Genio/.git");
-	entry_ref _ref;
-	_entry.GetRef(&_ref);
-	filter->AddPath(&_ref);
-	_entry.SetTo("/boot/home/develop/myprojects/IDE/Genio/.cache");
-	_entry.GetRef(&_ref);
-	filter->AddPath(&_ref);
+	ScanRefFilter* filter_p1 = new ScanRefFilter("/boot/home/develop/myprojects/IDE/Genio");
+	// BEntry _entry_p11("/boot/home/develop/myprojects/IDE/Genio/.git");
+	// entry_ref _ref_p11;
+	// _entry_p11.GetRef(&_ref_p11);
+	// filter_p1->AddPath(&_ref_p11);
+	filter_p1->AddPath("./.git");
+	// BEntry _entry_p12("/boot/home/develop/myprojects/IDE/Genio/.cache");
+	// entry_ref _ref_p12;
+	// _entry_p12.GetRef(&_ref_p12);
+	// filter_p1->AddPath(&_ref_p12);
+	filter_p1->AddPath("./.cache");
 	
 	BEntry entry("/boot/home/develop/myprojects/IDE/Genio");
 	entry_ref ref;
 	entry.GetRef(&ref);
-	projectTree->AddRootItem(ref, filter);
-						
-	BEntry entry2("/boot/home/develop/haiku/haiku");
-	entry_ref ref2;
-	entry2.GetRef(&ref2);
-	projectTree->AddRootItem(ref2, nullptr);
+	projectTree->AddRootItem(ref, filter_p1);
+	
+	
+	// ScanRefFilter* filter_p2 = new ScanRefFilter("/boot/home/develop/haiku/haiku");
+	// BEntry _entry_p21("/boot/home/develop/haiku/haiku/.git");
+	// entry_ref _ref_p21;
+	// _entry_p21.GetRef(&_ref_p21);
+	// filter_p2->AddPath(&_ref_p21);
+	// BEntry _entry_p22("/boot/home/develop/haiku/haiku/.cache");
+	// entry_ref _ref_p22;
+	// _entry_p22.GetRef(&_ref_p22);
+	// filter_p2->AddPath(&_ref_p22);
+	
+	// BEntry entry_p2("/boot/home/develop/haiku/haiku");
+	// entry_ref ref_p2;
+	// entry_p2.GetRef(&ref_p2);
+	// projectTree->AddRootItem(ref_p2, filter_p1);
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();

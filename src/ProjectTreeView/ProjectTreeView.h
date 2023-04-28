@@ -14,6 +14,8 @@
 #include <View.h>
 #include <Window.h>
 
+#include <filesystem>
+
 
 #include "FileTreeItem.h"
 #include "NodeMonitor.h"
@@ -21,16 +23,19 @@
 
 class ScanRefFilter : public BRefFilter {
 public:
-							ScanRefFilter();
+							ScanRefFilter(const char* base_path);
+							~ScanRefFilter();
 				
-	bool					AddPath(const entry_ref* ref);
-	bool					RemovePath(const entry_ref* ref);
+	void					AddPath(std::filesystem::path relative_path);
+	void					RemovePath(std::filesystem::path relative_path);
 				
 	bool					Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
-								const char* filetype);
+									const char* filetype);
 
 private:
-	BObjectList<entry_ref>	fExcluded;
+	// std::list<entry_ref*>	fExcludedList;
+	std::list<std::filesystem::path>	fExcludedList;
+	std::filesystem::path				fBasePath;
 };
 
 

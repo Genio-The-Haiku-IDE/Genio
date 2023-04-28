@@ -3,14 +3,6 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-<<<<<<< HEAD
-=======
-// void
-// ProjectTreeView::()
-// {
-// }
-
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 #include <Alert.h>
 #include <Autolock.h>
 #include <Catalog.h>
@@ -18,34 +10,15 @@
 #include <Mime.h>
 #include <NaturalCompare.h>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 #include <algorithm>
 
 #include "Log.h"
 #include "ProjectTreeView.h"
 #include "DirectoryScanThread.h"
-=======
-#include <thread>
-
-#include "Log.h"
-#include "ProjectTreeView.h"
-<<<<<<< HEAD
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
-=======
-#include "DirectoryScanThread.h"
->>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectTreeView"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 ScanRefFilter::ScanRefFilter(const char* base_path)
 	:
 	BRefFilter(),
@@ -129,12 +102,6 @@ ScanRefFilter::Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
 
 
 
-<<<<<<< HEAD
-=======
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
-=======
->>>>>>> f168a64 (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
->>>>>>> fb8b2aa (ScanRefFilter now supports relative path to folders or files to exclude from scanning. For example, ./.cache or ./.git are still valid when moving the project folder to a different location)
 ProjectTreeView::ProjectTreeView(const char* name, uint32 flags, BLayout* layout):
 	BView(name, flags, layout),
 	fFileTreeView(nullptr),
@@ -149,11 +116,6 @@ ProjectTreeView::ProjectTreeView(const char* name, uint32 flags, BLayout* layout
 		.Add(fFileTreeView)
 		.Add(fFileSearchControl);
 	
-<<<<<<< HEAD
-=======
-	// AddChild(fFileTreeView);
-	// AddChild(fFileSearchControl);
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 }
 
 ProjectTreeView::~ProjectTreeView()
@@ -190,31 +152,11 @@ ProjectTreeView::MessageReceived(BMessage* msg)
 }
 
 status_t
-<<<<<<< HEAD
 ProjectTreeView::AddRootItem(const entry_ref& ref, ScanRefFilter* filter)
 {
 	auto thread = new DirectoryScanThread(ref, filter, this);
 	thread->Start();
 	
-=======
-ProjectTreeView::AddRootItem(const entry_ref& ref, BRefFilter* filter)
-{
-	// status_t status;
-	
-	// auto lambda = [=]{ _ScanThread(ref); };
-	// std::thread scanThread(&ProjectTreeView::_ScanThread, this, ref);
-	// std::thread scanThread(lambda);
-	// scanThread.detach();
-
-	auto thread = new DirectoryScanThread(ref, fFileTreeView);
-	thread->Start();
-	
-	// _ScanThread(ref);
-	
-	// if (status != B_OK)
-		// LogError("(AddRootItem) unable to start scan thread for [%s]", directory->name);
-	// return status;
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 	return B_OK;
 }
 
@@ -245,7 +187,6 @@ ProjectTreeView::DeactivateRootItem(const entry_ref& ref)
 }
 
 void
-<<<<<<< HEAD
 ProjectTreeView::MoveUnder(BListItem* item, BListItem* superitem, bool moveChildren)
 {
 }
@@ -291,12 +232,6 @@ ProjectTreeView::CreateItem(const entry_ref* ref)
 	return new FileTreeItem(*ref, fFileTreeView);
 }
 
-=======
-ProjectTreeView::_MoveUnder(BListItem* item, BListItem* superitem, bool moveChildren)
-{
-}
-
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 void
 ProjectTreeView::FilterAllItemsByText(const BString& search)
 {
@@ -308,132 +243,6 @@ ProjectTreeView::_FindItemByRef(const entry_ref& ref)
 	return nullptr;
 }
 
-<<<<<<< HEAD
-=======
-int32
-ProjectTreeView::_ScanThread(const entry_ref& ref)
-{
-	// TODO: use some sort of GUID to add to messageID to avoid clashes with 
-	// projects with the same name in different paths
-	BNotification notification(B_PROGRESS_NOTIFICATION);
-	// notification.SetGroup("Genio");
-	// BString title(B_TRANSLATE("Opening project "));
-	// title << ref.name; 
-	// notification.SetTitle(title);
-	// BString messageID = "open_project_progress_";
-	// messageID << ref.name;
-	// notification.SetMessageID(messageID);
-	// notification.SetProgress(0.0);	
-	// notification.SetContent(B_TRANSLATE("Calculating size..."));
-	// notification.Send();
-	
-	const int nEntries = CountEntries(ref);
-	int currentEntries = 0;
-	
-	// notification.SetContent(B_TRANSLATE("Loading project..."));
-	// notification.Send();
-	
-	// FileTreeItem *rootItem = _RecursiveScan(ref, nullptr, totalEntries, currentEntries, notification);
-	// _RecursiveScan(ref, nullptr, nEntries, currentEntries, notification);
-	// if (rootItem->InitCheck() == B_OK) {
-		// update_mime_info(rootItem->GetStringPath()->String(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
-		// BAutolock lock(Looper());
-		// fFileTreeView->SortItemsUnder(rootItem, false, ProjectTreeView::_CompareProjectItems);
-		// fFileTreeView->Invalidate();
-	// } else {
-		// BString message = "An error occurred while loading ";
-		// message << ref.name;
-		// (new BAlert("_ScanThread",
-						// B_TRANSLATE(message),
-						// B_TRANSLATE("OK"), NULL, NULL,
-						// B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT))->Go();
-		// fFileTreeView->RemoveItem(rootItem);
-	// }
-	
-	// notification.SetProgress(1.0);
-	// notification.Send();
-	BString message;
-	message << "CountEntries = " << ref.name << " " << nEntries << "\n";
-	message << "currentEntries = " << ref.name << " " << currentEntries << "\n";
-	
-			(new BAlert("_ScanThread",
-						message,
-						B_TRANSLATE("OK"), NULL, NULL,
-						B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT))->Go();
-	
-	return B_OK;
-}
-
-FileTreeItem*
-ProjectTreeView::_RecursiveScan(const entry_ref& ref, FileTreeItem* item, 
-									const int totalEntries,	int& entryCount,
-									BNotification& notification)
-{
-	BEntry nextEntry;
-	BEntry entry(&ref);	
-				
-	FileTreeItem *newItem = new FileTreeItem(ref, fFileTreeView);
-	
-	if (item!=nullptr) {
-		// BAutolock lock(Looper());
-		// fFileTreeView->AddUnder(newItem,item);
-		// fFileTreeView->Collapse(newItem);
-	} else {
-		// this is the first recursive call and we need to create the superitem
-		// it is then returned back to caller for subsequent operations
-		// BAutolock lock(Looper());
-		// fFileTreeView->AddItem(newItem);
-		// fFileTreeView->Collapse(newItem);
-		item = newItem;
-	}
-	
-	if (entry.IsDirectory())
-	{
-		entry_ref nextRef;
-		BDirectory dir(&entry);
-		dir.Rewind();
-		entryCount += dir.CountEntries();
-		while(dir.GetNextEntry(&nextEntry)==B_OK)
-		{
-			nextEntry.GetRef(&nextRef);
-			_RecursiveScan(nextRef, newItem, totalEntries, entryCount, notification);
-		}
-	}
-	
-	// calculate progress and updates BNotification
-	// float progress = (float)entryCount/(float)totalEntries;
-	// BString content;
-	// content << entryCount << "/" << totalEntries;
-	// notification.SetContent(content);
-	// notification.SetProgress(progress);
-	// notification.Send();
-	
-	return item;
-}
-
-int
-ProjectTreeView::CountEntries(const entry_ref& ref)
-{
-	int count = 0;
-	BEntry nextEntry;
-	BEntry entry(&ref);	
-				
-	if (entry.IsDirectory())
-	{
-		entry_ref nextRef;
-		BDirectory dir(&entry);
-		dir.Rewind();
-		count = dir.CountEntries();
-		while(dir.GetNextEntry(&nextEntry)==B_OK)
-		{
-			nextEntry.GetRef(&nextRef);
-			count += CountEntries(nextRef);
-		}
-	}
-	return count;
-}
-
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
 int
 ProjectTreeView::_CompareProjectItems(const BListItem* a, const BListItem* b)
 {

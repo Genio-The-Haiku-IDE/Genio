@@ -12,32 +12,15 @@
 
 #include "FileTreeItem.h"
 #include "IconCache.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
 #include "Log.h"
-=======
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
-=======
-#include "Log.h"
->>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
 
 FileTreeItem::FileTreeItem()
 	:
 	BStringItem(""),
 	fIcon(nullptr),
-<<<<<<< HEAD
-<<<<<<< HEAD
 	fRef(nullptr),
 	fFileTreeView(nullptr),
 	fParentItem(nullptr),
-=======
-	fFileTreeView(nullptr),
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
-=======
-	fRef(nullptr),
-	fFileTreeView(nullptr),
-	fParentItem(nullptr),
->>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	fFirstTimeRendered(true),
 	fInitStatus(B_NOT_INITIALIZED)
 {
@@ -47,19 +30,9 @@ FileTreeItem::FileTreeItem(const entry_ref& ref, BOutlineListView *view)
 	:
 	BStringItem(""),
 	fIcon(nullptr),
-<<<<<<< HEAD
-<<<<<<< HEAD
 	fRef(nullptr),
 	fFileTreeView(view),
 	fParentItem(nullptr),
-=======
-	fFileTreeView(view),
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
-=======
-	fRef(nullptr),
-	fFileTreeView(view),
-	fParentItem(nullptr),
->>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 	fFirstTimeRendered(true),
 	fInitStatus(B_NOT_INITIALIZED)
 {
@@ -73,45 +46,17 @@ FileTreeItem::~FileTreeItem()
 void
 FileTreeItem::SetTo(const entry_ref& ref)
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
 	fRef = new entry_ref(ref);
 	BStringItem::SetText(fRef->name);
 	fInitStatus = B_OK;
 	// LogTrace("FileTreeItem::SetTo: ref: %s",fRef.name);
-=======
-	fRef = ref;
-	fPath = new BPath(&fRef);
-	fEntry = new BEntry(&fRef);
-	fStringPath = new BString(fPath->Path());
-	
-	BStringItem::SetText(fRef.name),
-	// fIcon = IconCache::GetIcon(&fRef);
-=======
-	fRef = new entry_ref(ref);
-	BStringItem::SetText(fRef->name);
->>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
-	fInitStatus = B_OK;
-<<<<<<< HEAD
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
-=======
-	// LogTrace("FileTreeItem::SetTo: ref: %s",fRef.name);
->>>>>>> 8b271b4 (Directory traversing is performed as an instance of GenericThread)
 }
 
 void 
 FileTreeItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
 	if (fIcon==nullptr && fFirstTimeRendered)
 		fIcon = IconCache::GetIcon(fRef);
-=======
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
-=======
-	if (fIcon==nullptr && fFirstTimeRendered)
-		fIcon = IconCache::GetIcon(fRef);
->>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 
 	if (Text() == NULL)
 		return;
@@ -166,10 +111,6 @@ void
 FileTreeItem::SetText(const char* text)
 {
 	BStringItem::SetText(text);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 }
 
 bool
@@ -177,9 +118,4 @@ FileTreeItem::IsDirectory() const
 {
 	BEntry entry(fRef);
 	return entry.IsDirectory();
-<<<<<<< HEAD
-=======
->>>>>>> 4badbb7 (_ScanThread is run as an independent thread for each project.)
-=======
->>>>>>> 245779f (Introduced scan filters to exclude certain directories from the tree)
 }

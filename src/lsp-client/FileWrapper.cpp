@@ -369,13 +369,7 @@ bool FileWrapper::StartCallTip(bool searchStart) {
            Contains(calltipWordCharacters, line[startCalltipWord - 1])) {
       startCalltipWord--;
     }
-<<<<<<< HEAD
 
-
-=======
-	
-    
->>>>>>> 74adb4a (first commit of the diagnostics panel)
     Position newPos;
     newPos.line = position.line;
     newPos.character = startCalltipWord;
@@ -658,16 +652,16 @@ FileWrapper::_DoDiagnostics(nlohmann::json& params)
 		fLastDiagnostics.push_back(ir);
 	}
 	
-<<<<<<< HEAD
-	  fLSPClientWrapper->DocumentLink(this, fFilenameURI.c_str());
-=======
+
 	BMessage toJson('diag');
 	BPrivate::BJson::Parse(params["diagnostics"].dump().c_str(), toJson);
 	if (fEditor->LockLooper()) {
 		fEditor->SetProblems(&toJson);
 		fEditor->UnlockLooper();
 	}
->>>>>>> 74adb4a (first commit of the diagnostics panel)
+
+	fLSPClientWrapper->DocumentLink(this, fFilenameURI.c_str());
+
 }
 
 void

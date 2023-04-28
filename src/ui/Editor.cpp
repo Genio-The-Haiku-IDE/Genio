@@ -64,9 +64,10 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
 	SetTarget(target);
-	BPath path(&fFileRef);
-	BUrl fileUrl(path);
-	fFileWrapper = new FileWrapper(std::string(fileUrl), this);
+	BString uri = "file://";
+	uri << BPath(&fFileRef).Path();
+	
+	fFileWrapper = new FileWrapper(std::string(uri.String()), this);
 	
 }
 

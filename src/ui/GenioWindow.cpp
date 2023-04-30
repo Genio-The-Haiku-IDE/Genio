@@ -42,6 +42,7 @@
 #include "TPreferences.h"
 #include "TextUtils.h"
 #include "Utils.h"
+#include "EditorKeyDownMessageFilter.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -215,6 +216,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW, B_OPTION_KEY));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY,   B_ESCAPE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
+	AddCommonFilter(new EditorKeyDownMessageFilter());
 
 	if (GenioNames::Settings.show_projects == false)
 		fProjectsTabView->Hide();
@@ -271,23 +273,6 @@ GenioWindow::~GenioWindow()
 void
 GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 {
-	//simple hack to move the 'SignatureHelp' list using the up/down arrows..
-	if (message->what == B_KEY_DOWN) {
-		int8 key = message->GetInt8("byte", 0);
-		if (key == B_UP_ARROW || key == B_DOWN_ARROW) {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor && editor->IsSignatureHelpVisible()){
-				int32 len = be_app->CountWindows();
-				for (int32 i=0;i<len;i++)  {
-					BWindow* w = be_app->WindowAt (i);
-					if (strcmp(w->Title(), "calltip") == 0) {
-						editor->NextSignatureHelp(key == B_UP_ARROW ? 1 : 2);
-						return;
-					}
-				}
-			}
-	  }
-	}
 	//TODO: understand this part of code and move it to a better place.
 	if (handler == fConsoleIOView) {
 		if (message->what == B_KEY_DOWN) {

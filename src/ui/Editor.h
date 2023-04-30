@@ -12,6 +12,7 @@
 #include <String.h>
 #include <string>
 #include <Locker.h>
+#include <MessageFilter.h>
 
 class FileWrapper;
 class ProjectFolder;
@@ -169,8 +170,8 @@ public:
 			void				SetProblems(const BMessage* diagnostics);
 			void				GetProblems(BMessage* diagnostics);
 			
-			void				NextSignatureHelp(int direction);
-			bool				IsSignatureHelpVisible();
+			filter_result		BeforeKeyDown(BMessage*);
+			filter_result		OnArrowKey(int8 ch);
 
 private:
 			void				UpdateStatusBar();

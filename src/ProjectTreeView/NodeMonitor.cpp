@@ -1,6 +1,6 @@
 /*
- * Original code taken from Seeker. Copyright by DarkWyrm
  * Copyright 2023 Nexus6 (nexus6.haiku@icloud.com)
+ * Original code taken from Seeker. Copyright by DarkWyrm
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -8,13 +8,14 @@
 
 #include <Alert.h>
 #include <Node.h>
-#include <NodeMonitor.h>
+#include <PathMonitor.h>
 
+#include "Log.h"
 #include "NodeMonitor.h"
+#include "Utils.h"
 
 NodeMonitor::NodeMonitor()
- : BHandler("NodeMonitor"),
- iWatchCount(0)
+ : BHandler("NodeMonitor")
 {
 	fHandlers.clear();
 }
@@ -23,60 +24,29 @@ NodeMonitor::~NodeMonitor()
 {
 }
 
-// add a node to the watch list
 status_t
-NodeMonitor::AddWatch(BMessage *message)
+NodeMonitor::StartWatching(const char* path)
 {
 	status_t status;
-	
-	if(message==NULL)
+	status = BPrivate::BPathMonitor::StartWatching(path, B_WATCH_RECURSIVELY, BMessenger(this));
+	if (status != B_OK)
+	{
+		LogError("Can't start PathMonitor!");
 		return B_ERROR;
-
-	node_ref nodeRef;
-	status = message->FindInt32("device", &nodeRef.device);
-	if(status!=B_OK)
-		return status;
-
-	status = message->FindInt64("node", &nodeRef.node);
-	if(status!=B_OK)
-		return status;
-
-	// add watch
-	status = watch_node(&nodeRef, B_WATCH_MOUNT | B_WATCH_NAME | B_WATCH_ATTR | B_STAT_CHANGED | B_WATCH_DIRECTORY, this);
-	if(status==B_OK)
-		iWatchCount +=1;
-	else
-		return status;
-	
+	}
 	return B_OK;
 }
-		
-// remove a node from the watch list
+
 status_t
-NodeMonitor::RemoveWatch(BMessage *message)
+NodeMonitor::StopWatching(const char* path)
 {
 	status_t status;
-	
-	if(message==NULL) {
+	status = BPrivate::BPathMonitor::StopWatching(path, BMessenger(this));
+	if (status != B_OK)
+	{
+		LogError("Can't stop PathMonitor!");
 		return B_ERROR;
 	}
-
-	node_ref nodeRef;
-	status = message->FindInt32("device", &nodeRef.device);
-	if(status !=B_OK) {
-		return status;
-	}
-	status = message->FindInt64("node", &nodeRef.node);
-	if(status !=B_OK) {
-		return status;
-	}
-	
-	status = watch_node(&nodeRef, B_STOP_WATCHING, this);
-	if(status==B_OK)
-		iWatchCount -=1;
-	else
-		return status;
-		
 	return B_OK;
 }
 
@@ -90,6 +60,8 @@ void NodeMonitor::MessageReceived(BMessage *message)
 	if(message->what!=B_NODE_MONITOR)
 		return;
 
+OKAlert("NodeMonitor::MessageReceived", BString("what:")<<message->what,B_WARNING_ALERT);
+
 	int32 op;
 	entry_ref toEntryRef, fromEntryRef; 
 	const char *name;
@@ -100,6 +72,7 @@ void NodeMonitor::MessageReceived(BMessage *message)
 	
 	if(op==B_ENTRY_MOVED)
 	{
+		LogTrace("NodeMonitor::MessageReceived B_ENTRY_MOVED");
 		message->FindInt64("from directory", &fromEntryRef.directory); 
 		message->FindString("name", &name);
 		fromEntryRef.set_name(name);
@@ -123,30 +96,30 @@ void NodeMonitor::MessageReceived(BMessage *message)
 	{
 		case B_STAT_CHANGED:
 		{
+			LogTrace("NodeMonitor::MessageReceived B_STAT_CHANGED");
 			for (auto const *x : fHandlers)
 				x->OnStatChanged(&fromEntryRef);
-			// iTreeView->OnStatChanged(&fromEntryRef);
 			break;
 		}
 		case B_ENTRY_CREATED:
 		{
+			LogTrace("NodeMonitor::MessageReceived B_ENTRY_CREATED");
 			for (auto const *x : fHandlers)
 				x->OnCreated(&fromEntryRef);
-			// iTreeView->OnCreated(&fromEntryRef);
 			break;
 		}
 		case B_ENTRY_REMOVED:
 		{
+			LogTrace("NodeMonitor::MessageReceived B_ENTRY_REMOVED");
 			for (auto const *x : fHandlers)
 				x->OnRemoved(&fromEntryRef);
-			// iTreeView->OnRemoved(&fromEntryRef); 
 			break;
 		}
 		case B_ENTRY_MOVED:
 		{
+			LogTrace("NodeMonitor::MessageReceived B_ENTRY_MOVED");
 			for (auto const *x : fHandlers)
 				x->OnMoved(&fromEntryRef, &toEntryRef);
-			// iTreeView->OnMoved(&fromEntryRef, &toEntryRef);
 			break;
 		}
 		default:
@@ -155,7 +128,7 @@ void NodeMonitor::MessageReceived(BMessage *message)
 }
 
 status_t 
-NodeMonitor::AddHandler(INodeMonitorHandler *handler)
+NodeMonitor::AddMonitorHandler(INodeMonitorHandler *handler)
 {
 	if (handler) {
 		fHandlers.emplace_back(handler);
@@ -166,7 +139,7 @@ NodeMonitor::AddHandler(INodeMonitorHandler *handler)
 }
 
 status_t 
-NodeMonitor::RemoveHandler(INodeMonitorHandler *handler)
+NodeMonitor::RemoveMonitorHandler(INodeMonitorHandler *handler)
 {
 	if (handler) {
 		fHandlers.remove(handler);

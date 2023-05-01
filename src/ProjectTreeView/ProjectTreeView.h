@@ -39,7 +39,7 @@ private:
 };
 
 
-class ProjectTreeView: public BView {
+class ProjectTreeView: public BView, INodeMonitorHandler {
 public:
 	enum ViewMode {
 		FILE_VIEW_MODE,
@@ -64,8 +64,11 @@ public:
 	virtual	void			AttachedToWindow();
 	virtual	void			MessageReceived(BMessage* msg);
 	
+	void 					SetNodeMonitor();
+	
 	status_t				AddRootItem(const entry_ref& directory, ScanRefFilter* filter = nullptr);
-	status_t				RemoveRootItem(const entry_ref& directory);
+	status_t				RemoveRootItem(const entry_ref* ref);
+	void					OnRootItemAdded(const entry_ref* ref);
 	
 	status_t				ActivateRootItem(const entry_ref& ref);
 	status_t				DeactivateRootItem(const entry_ref& ref);
@@ -76,7 +79,6 @@ public:
 	void					ResetFilter(const entry_ref& ref, ScanRefFilter* filter);
 	
 	void					FilterAllItemsByText(const BString& search);
-	int						CountEntries(const entry_ref& ref);
 	
 	void					MoveUnder(BListItem* item, BListItem* superitem, 
 										bool moveChildren = false);
@@ -87,6 +89,11 @@ public:
 	void					Collapse(BListItem *item);
 	FileTreeItem*			CreateItem(const entry_ref* ref);
 	
+	virtual void 			OnCreated(entry_ref *ref) const;
+	virtual void 			OnRemoved(entry_ref *ref) const;
+	virtual void 			OnMoved(entry_ref *origin, entry_ref *destination) const;
+	virtual void 			OnStatChanged(entry_ref *ref) const;
+	
 private:
 										
 	BListItem*				_FindItemByRef(const entry_ref& ref);
@@ -96,13 +103,13 @@ private:
 											const int totalEntries, int& entryCount,
 											BNotification& notification);
 	int						_CountEntries(const entry_ref& ref);
-	void					_OnRootItemAdded(const entry_ref& ref, BListItem* item);
 	
 	static	int				_CompareProjectItems(const BListItem* a, const BListItem* b);
 
 private:
 	BOutlineListView*		fFileTreeView;
 	BTextControl*			fFileSearchControl;
+	NodeMonitor*			fNodeMonitor;
 };
 
 

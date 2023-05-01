@@ -26,6 +26,7 @@
 #include "GenioNamespace.h"
 #include "Log.h"
 #include "TextUtils.h"
+#include "ProjectTreeView.h"
 #include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -88,6 +89,7 @@ DirectoryScanThread::ThreadShutdown(void)
 	// LogTrace("DirectoryScanThread::Quit(): root_ref(%s) progress(%s)\r", 
 				// fRootRef->name, (BString("") << fEntryCount << "/" << fTotalEntries).String());
 	_ShowProgressNotification(B_TRANSLATE("Completed"));
+	fProjectTreeView->OnRootItemAdded(fRootRef);
 	return B_OK;
 }
 

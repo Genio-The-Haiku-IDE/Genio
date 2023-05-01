@@ -9,12 +9,14 @@
 #include <LayoutBuilder.h>
 #include <Mime.h>
 #include <NaturalCompare.h>
+#include <PathMonitor.h>
 
 #include <algorithm>
 
 #include "Log.h"
 #include "ProjectTreeView.h"
 #include "DirectoryScanThread.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectTreeView"
@@ -28,27 +30,18 @@ ScanRefFilter::ScanRefFilter(const char* base_path)
 
 ScanRefFilter::~ScanRefFilter()
 {
-	// for (auto const& item: fExcludedList)
-		// delete item;
 }
 
 void
 ScanRefFilter::AddPath(std::filesystem::path relative_path)
 {
-	// entry_ref *cpRef = new entry_ref(*ref); 
-	// LogTrace("AddPath(%d) adding %s", fExcludedList.size(), cpRef->name);
 	fExcludedList.push_back(relative_path);
-	// LogTrace("AddPath(%d) item %s added", fExcludedList.size(), cpRef->name);
-	// LogTrace("AddPath() list of items");
-	// for (auto const& item: fExcludedList)
-		// LogTrace("AddPath(%s): ", item->name);
 }
 
 void
 ScanRefFilter::RemovePath(std::filesystem::path relative_path)
 {
-	// entry_ref *cpRef = new entry_ref(*ref); 
-	LogTrace("RemovePath(%d) removing %s", fExcludedList.size(), relative_path.c_str());
+	// LogTrace("RemovePath(%d) removing %s", fExcludedList.size(), relative_path.c_str());
 	
 	auto predicate = [relative_path](std::filesystem::path item) { 
 		return 	relative_path == item;
@@ -56,13 +49,13 @@ ScanRefFilter::RemovePath(std::filesystem::path relative_path)
 	auto element = std::find_if(fExcludedList.begin(), fExcludedList.end(), predicate);
 	if (element != fExcludedList.end()) {
 		fExcludedList.erase(element);
-		LogTrace("RemovePath(%d) item %s removed", fExcludedList.size(),(*element).c_str());
+		// LogTrace("RemovePath(%d) item %s removed", fExcludedList.size(),(*element).c_str());
 	} else {
-		LogTrace("RemovePath(%d) item %s not found", fExcludedList.size(),(*element).c_str());
+		// LogTrace("RemovePath(%d) item %s not found", fExcludedList.size(),(*element).c_str());
 	}
-	LogTrace("RemovePath() list of items");
-	for (auto const& item: fExcludedList)
-		LogTrace("RemovePath(%s): ", item.c_str());
+	// LogTrace("RemovePath() list of items");
+	// for (auto const& item: fExcludedList)
+		// LogTrace("RemovePath(%s): ", item.c_str());
 }
 
 bool
@@ -74,25 +67,25 @@ ScanRefFilter::Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
 	entry_ref *cpRef = new entry_ref(*ref);
 	node = new BNode(ref);
 	if (node != nullptr && node->IsDirectory()) {
-		LogTrace("Filter(): ref(%s)", cpRef->name);
+		// LogTrace("Filter(): ref(%s)", cpRef->name);
 		
 		auto predicate = [cpRef](std::filesystem::path item) {
 			auto absolute_path = std::filesystem::absolute(item);
 			BEntry entry(absolute_path.c_str());
 			entry_ref itemRef;
 			entry.GetRef(&itemRef);
-			LogTrace("Filter(predicate): cpRef(%s,%d,%d)", cpRef->name, cpRef->device, cpRef->directory);
-			LogTrace("Filter(predicate): item(%s,%d,%d)", itemRef.name, itemRef.device, itemRef.directory);
+			// LogTrace("Filter(predicate): cpRef(%s,%d,%d)", cpRef->name, cpRef->device, cpRef->directory);
+			// LogTrace("Filter(predicate): item(%s,%d,%d)", itemRef.name, itemRef.device, itemRef.directory);
 			return 	BString(cpRef->name) == BString(itemRef.name) &&
 					cpRef->device == itemRef.device &&
 					cpRef->directory == itemRef.directory;
 		};
 		auto element = std::find_if(fExcludedList.begin(), fExcludedList.end(), predicate);
 		if (element != fExcludedList.end()) {
-			LogTrace("Filter() item %s is in the excluded list", (*element).c_str());
+			// LogTrace("Filter() item %s is in the excluded list", (*element).c_str());
 			exclude = false;
 		} else {
-			LogTrace("Filter() item %s is not in the excluded list", cpRef->name);
+			// LogTrace("Filter() item %s is not in the excluded list", cpRef->name);
 			exclude = true;
 		}
 	}
@@ -105,7 +98,8 @@ ScanRefFilter::Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
 ProjectTreeView::ProjectTreeView(const char* name, uint32 flags, BLayout* layout):
 	BView(name, flags, layout),
 	fFileTreeView(nullptr),
-	fFileSearchControl(nullptr)
+	fFileSearchControl(nullptr),
+	fNodeMonitor(nullptr)
 {
 	fFileTreeView = new BOutlineListView("FileTreeView", 
 											B_SINGLE_SELECTION_LIST, flags);
@@ -120,6 +114,8 @@ ProjectTreeView::ProjectTreeView(const char* name, uint32 flags, BLayout* layout
 
 ProjectTreeView::~ProjectTreeView()
 {
+	BAutolock lock(Looper());
+	Looper()->RemoveHandler(fNodeMonitor);
 }
 
 void
@@ -127,6 +123,7 @@ ProjectTreeView::AttachedToWindow(void)
 {
 	fFileTreeView->SetTarget(this);
 	fFileSearchControl->SetTarget(this);
+	SetNodeMonitor();
 }
 
 void
@@ -151,24 +148,51 @@ ProjectTreeView::MessageReceived(BMessage* msg)
 	}
 }
 
+void 
+ProjectTreeView::SetNodeMonitor()
+{
+	if (LockLooper()) {
+	fNodeMonitor = new NodeMonitor();
+	Looper()->AddHandler(fNodeMonitor);
+	fNodeMonitor->AddMonitorHandler(this);
+	auto index = Looper()->IndexOf(fNodeMonitor);
+	LogTrace("AddHandler: index of %d", index);
+	OKAlert("addhandler", BString("index:")<<index,B_WARNING_ALERT);
+	UnlockLooper();
+	}
+}
+
 status_t
 ProjectTreeView::AddRootItem(const entry_ref& ref, ScanRefFilter* filter)
 {
 	auto thread = new DirectoryScanThread(ref, filter, this);
 	thread->Start();
+
+	BPath path(&ref);
+	if (fNodeMonitor != nullptr) {
+		if (fNodeMonitor->StartWatching(path.Path()) != B_OK)
+			LogError("Can't start PathMonitor!");
+	}
 	
 	return B_OK;
 }
 
 void
-ProjectTreeView::_OnRootItemAdded(const entry_ref& ref, BListItem* item)
+ProjectTreeView::OnRootItemAdded(const entry_ref* ref)
 {
+	// BPath path(ref);
+	// if (fNodeMonitor->StartWatching(path.Path()) != B_OK)
+		// LogError("Can't start PathMonitor!");
 }
 
 status_t
-ProjectTreeView::RemoveRootItem(const entry_ref& ref)
+ProjectTreeView::RemoveRootItem(const entry_ref* ref)
 {
-	LogError("(REMOVE_PROJECT) entry_ref not passed with BMessage");
+	BPath path(ref);
+	if (fNodeMonitor->StopWatching(path.Path()) != B_OK) {
+		LogError("Can't stop PathMonitor!");
+		return B_ERROR;
+	}
 	return B_OK;
 }
 
@@ -275,4 +299,20 @@ ProjectTreeView::_CompareProjectItems(const BListItem* a, const BListItem* b)
 		return BPrivate::NaturalCompare(nameA, nameB);
 		
 	return 0;
+}
+
+void
+ProjectTreeView::OnCreated(entry_ref *ref) const {
+}
+
+void
+ProjectTreeView::OnRemoved(entry_ref *ref) const {
+}
+
+void
+ProjectTreeView::OnMoved(entry_ref *origin, entry_ref *destination) const {
+}
+
+void
+ProjectTreeView::OnStatChanged(entry_ref *ref) const {
 }

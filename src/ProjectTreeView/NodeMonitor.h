@@ -19,7 +19,6 @@ public:
 	virtual void OnRemoved(entry_ref *ref) const = 0;
 	virtual void OnMoved(entry_ref *origin, entry_ref *destination) const = 0;
 	virtual void OnStatChanged(entry_ref *ref) const = 0;
-	// virtual inline ~INodeMonitorHandler() {};
 };
 
 class NodeMonitor : public BHandler
@@ -28,23 +27,17 @@ public:
 					NodeMonitor();
 					~NodeMonitor();
 
-	status_t		AddWatch(BMessage *message);
-	status_t		RemoveWatch(BMessage *message);
+	status_t		AddMonitorHandler(INodeMonitorHandler *handler);
+	status_t		RemoveMonitorHandler(INodeMonitorHandler *handler);
 	
-	int32 			WatchCount() {return iWatchCount;}
-	
-	status_t		AddHandler(INodeMonitorHandler *handler);
-	status_t		RemoveHandler(INodeMonitorHandler *handler);
+	status_t		StartWatching(const char* path);
+	status_t		StopWatching(const char* path);
 
-protected:
-
-	/* message handler */
-	virtual void	MessageReceived(BMessage *message=NULL);		
+	void			MessageReceived(BMessage *message) override;		
 
 private:
 
 	std::list<INodeMonitorHandler*>	fHandlers;
-	int32			iWatchCount;		
 };
 
 #endif

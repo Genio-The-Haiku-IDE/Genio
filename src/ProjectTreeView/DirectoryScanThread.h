@@ -2,7 +2,7 @@
  * Copyright 2023 Nexus6 <nexus6.haiku@icloud.com>
  *
  * Adapted from Expander::ExpanderThread class
- * Copyright 2004-2010, Jérôme Duval. All rights reserved.
+ * Copyright 2004-2010, JÃ©rÃ´me Duval. All rights reserved.
  *
  * Distributed under the terms of the MIT License.
  * Original code from ZipOMatic by jonas.sundstrom@kirilla.com

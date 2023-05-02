@@ -67,22 +67,6 @@ static float kOutputWeight  = 0.4f;
 
 BRect dirtyFrameHack;
 
-
-class ProjectRefFilter : public BRefFilter {
-
-public:
-//	virtual ~ProjectRefFilter()
-//	{
-//	}
-
-	virtual bool Filter(const entry_ref* ref, BNode* node,
-		struct stat_beos* stat, const char* filetype)
-	{
-		BString name(ref->name);
-		return name.EndsWith(GenioNames::kProjectExtension); // ".idmpro"
-	}
-};
-
 GenioWindow::GenioWindow(BRect frame)
 	:
 	BWindow(frame, "Genio", B_TITLED_WINDOW, B_ASYNCHRONOUS_CONTROLS |

@@ -1543,13 +1543,15 @@ GenioWindow::_FileSave(int32 index)
 	}
 */
 	// Stop monitoring if needed
-	editor->StopMonitoring();
+	if (editor->StopMonitoring() != B_OK)
+		LogErrorF("Error in StopMonitoring node (%s)", editor->Name().String());
 
 	ssize_t written = editor->SaveToFile();
 	ssize_t length = editor->SendMessage(SCI_GETLENGTH, 0, 0);
 
 	// Restart monitoring
-	editor->StartMonitoring();
+	if (editor->StartMonitoring() != B_OK)
+		LogErrorF("Error in StartMonitoring node (%s)", editor->Name().String());
 
 	notification << B_TRANSLATE("File save:")  << "  "
 		<< editor->Name()

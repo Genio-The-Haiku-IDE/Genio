@@ -14,10 +14,10 @@
 #define LogTrace(M...) HDLOG(LOG_LEVEL_TRACE, M)
 
 //Function prepending the calling method/function
-#define LogFatalF(S, M...) LogFatal("%s" S, __PRETTY_FUNCTION__, M)
-#define LogErrorF(S, M...) LogError("%s" S, __PRETTY_FUNCTION__, M)
-#define LogInfoF(S, M...)  LogInfo("%s" S, __PRETTY_FUNCTION__, M)
-#define LogDebugF(S, M...) LogDebug("%s" S, __PRETTY_FUNCTION__, M)
-#define LogTraceF(S, M...) LogTrace("%s" S, __PRETTY_FUNCTION__, M)
+#define LogFatalF(S, M...) LogFatal("%s " S, __PRETTY_FUNCTION__, M)
+#define LogErrorF(S, M...) LogError("%s " S, __PRETTY_FUNCTION__, M)
+#define LogInfoF(S, M...)  LogInfo("%s " S, __PRETTY_FUNCTION__, M)
+#define LogDebugF(S, M...) LogDebug("%s " S, __PRETTY_FUNCTION__, M)
+#define LogTraceF(S, M...) LogTrace("%s " S, __PRETTY_FUNCTION__, M)
 
 #endif // LOG_H

@@ -10,7 +10,6 @@ Genio is a fork of Ideam, an IDE for Haiku created by AmosCaster.
 - TitleItem/ProjectTitleItem classes taken from Haiku preferences/network
 - Editor::ReplaceAll adapted from Koder
 - GenioWindow::_CompareListItems taken from Haiku preferences/network
-- ShellView class adapted from Heidi project
 - Build icons taken/adapted from Heidi project
 - ConsoleIOView class adapted from Haiku apps/debugger ConsoleOutputView class
 - ConsoleIOThread class adapted from Haiku apps/expander ExpanderThread class

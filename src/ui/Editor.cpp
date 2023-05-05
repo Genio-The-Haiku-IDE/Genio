@@ -726,6 +726,31 @@ Editor::NotificationReceived(SCNotification* notification)
 	}
 }
 
+filter_result
+Editor::BeforeKeyDown(BMessage* message) {
+
+	int8 key = message->GetInt8("byte", 0);
+	switch (key) {
+		case B_UP_ARROW:
+		case B_DOWN_ARROW:
+			return OnArrowKey(key);
+		break;
+		default:
+		break;
+	};
+
+  return B_DISPATCH_MESSAGE;
+}
+
+filter_result		
+Editor::OnArrowKey(int8 key) {
+	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
+		fFileWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
+		return B_SKIP_MESSAGE;
+	}
+	return B_DISPATCH_MESSAGE;
+}
+
 void				
 Editor::_UpdateSavePoint(bool modified)
 {

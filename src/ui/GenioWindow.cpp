@@ -140,7 +140,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGitTagItem(nullptr)
 	, fHgMenu(nullptr)
 	, fHgStatusItem(nullptr)
-	, fNewToolBar(nullptr)
+	, fToolBar(nullptr)
 	, fRootLayout(nullptr)
 	, fEditorTabsGroup(nullptr)
 	, fProjectsTabView(nullptr)
@@ -196,7 +196,7 @@ GenioWindow::GenioWindow(BRect frame)
 	if (GenioNames::Settings.show_output == false)
 		fOutputTabView->Hide();
 	if (GenioNames::Settings.show_toolbar == false)
-		fNewToolBar->Hide();
+		fToolBar->Hide();
 
 	// Load workspace - reopen projects
 	if (GenioNames::Settings.reopen_projects == true) {
@@ -521,19 +521,19 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetReadOnly();
-				fNewToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());			
+				fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
 			}
 			break;
 		}
 		case MSG_BUILD_MODE_DEBUG: {
-			fNewToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Debug"));
+			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Debug"));
 			fActiveProject->SetBuildMode(BuildMode::DebugMode);
 			// _MakefileSetBuildMode(false);
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE: {
-			fNewToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Release"));
+			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Release"));
 			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
 			// _MakefileSetBuildMode(true);
 			_UpdateProjectActivation(fActiveProject != nullptr);
@@ -625,7 +625,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				// Force layout to get the final menu size. InvalidateLayout()
 				// did not seem to work here.
 				tabMenu->AttachedToWindow();
-				BRect buttonFrame = fNewToolBar->FindButton(MSG_FILE_MENU_SHOW)->Frame();
+				BRect buttonFrame = fToolBar->FindButton(MSG_FILE_MENU_SHOW)->Frame();
 				BRect menuFrame = tabMenu->Frame();
 				BPoint openPoint = ConvertToScreen(buttonFrame.LeftBottom());
 				// Open with the right side of the menu aligned with the right
@@ -980,10 +980,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 
 		case MSG_TOGGLE_TOOLBAR: {
-			if (fNewToolBar->IsHidden()) {
-				fNewToolBar->Show();
+			if (fToolBar->IsHidden()) {
+				fToolBar->Show();
 			} else {
-				fNewToolBar->Hide();
+				fToolBar->Hide();
 			}
 			break;
 		}
@@ -2515,34 +2515,34 @@ GenioWindow::_InitMenu()
 void
 GenioWindow::_InitToolbar()
 {
-	fNewToolBar = new ToolBar(this);
-	fNewToolBar->ChangeIconSize(kDefaultIconSize);
+	fToolBar = new ToolBar(this);
+	fToolBar->ChangeIconSize(kDefaultIconSize);
 
-	fNewToolBar->AddAction(MSG_SHOW_HIDE_PROJECTS, B_TRANSLATE("Show/Hide Projects split"), "kIconWindow");
-	fNewToolBar->AddAction(MSG_SHOW_HIDE_OUTPUT,   B_TRANSLATE("Show/Hide Output split"),   "kIconTerminal");
-	fNewToolBar->AddSeparator();
-	fNewToolBar->AddAction(MSG_FILE_FOLD_TOGGLE,   B_TRANSLATE("Fold/unfold all"), "App_OpenTargetFolder");
-	fNewToolBar->AddAction(B_UNDO, B_TRANSLATE("Undo"), "kIconUndo");
-	fNewToolBar->AddAction(B_REDO, B_TRANSLATE("Redo"), "kIconRedo");
-	fNewToolBar->AddAction(MSG_FILE_SAVE, B_TRANSLATE("Save current File"), "kIconSave");
-	fNewToolBar->AddAction(MSG_FILE_SAVE_ALL, B_TRANSLATE("Save all Files"), "kIconSaveAll");
-	fNewToolBar->AddSeparator();
-	fNewToolBar->AddAction(MSG_BUILD_PROJECT, B_TRANSLATE("Build Project"), "kIconBuild");
-	fNewToolBar->AddAction(MSG_RUN_TARGET, B_TRANSLATE("Run Project"), "kIconRun");
-	fNewToolBar->AddAction(MSG_DEBUG_PROJECT, B_TRANSLATE("Debug Project"),	"kIconDebug");
-	fNewToolBar->AddSeparator();
-	fNewToolBar->AddAction(MSG_FIND_GROUP_TOGGLED, B_TRANSLATE("Find toggle (closes Replace bar if open)"), "kIconFind");
-	fNewToolBar->AddAction(MSG_REPLACE_GROUP_TOGGLED, B_TRANSLATE("Replace toggle (leaves Find bar open)"), "kIconReplace");
-	fNewToolBar->AddSeparator();
-	fNewToolBar->AddAction(MSG_RUN_CONSOLE_PROGRAM_SHOW, B_TRANSLATE("Run console program"), "kConsoleApp");
-	fNewToolBar->AddGlue();
-	fNewToolBar->AddAction(MSG_BUILD_MODE, B_TRANSLATE("Build mode: Debug"), "kAppDebugger");
-	fNewToolBar->AddAction(MSG_BUFFER_LOCK, B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
-	fNewToolBar->AddSeparator();		
-	fNewToolBar->AddAction(MSG_FILE_PREVIOUS_SELECTED, B_TRANSLATE("Select previous File"), "kIconBack_1");
-	fNewToolBar->AddAction(MSG_FILE_NEXT_SELECTED, B_TRANSLATE("Select next File"), "kIconForward_2");
-	fNewToolBar->AddAction(MSG_FILE_CLOSE, B_TRANSLATE("Close File"), "kIconClose");
-	fNewToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Indexed File list"), "kIconFileList");
+	fToolBar->AddAction(MSG_SHOW_HIDE_PROJECTS, B_TRANSLATE("Show/Hide Projects split"), "kIconWindow");
+	fToolBar->AddAction(MSG_SHOW_HIDE_OUTPUT,   B_TRANSLATE("Show/Hide Output split"),   "kIconTerminal");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_FILE_FOLD_TOGGLE,   B_TRANSLATE("Fold/unfold all"), "App_OpenTargetFolder");
+	fToolBar->AddAction(B_UNDO, B_TRANSLATE("Undo"), "kIconUndo");
+	fToolBar->AddAction(B_REDO, B_TRANSLATE("Redo"), "kIconRedo");
+	fToolBar->AddAction(MSG_FILE_SAVE, B_TRANSLATE("Save current File"), "kIconSave");
+	fToolBar->AddAction(MSG_FILE_SAVE_ALL, B_TRANSLATE("Save all Files"), "kIconSaveAll");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_BUILD_PROJECT, B_TRANSLATE("Build Project"), "kIconBuild");
+	fToolBar->AddAction(MSG_RUN_TARGET, B_TRANSLATE("Run Project"), "kIconRun");
+	fToolBar->AddAction(MSG_DEBUG_PROJECT, B_TRANSLATE("Debug Project"),	"kIconDebug");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_FIND_GROUP_TOGGLED, B_TRANSLATE("Find toggle (closes Replace bar if open)"), "kIconFind");
+	fToolBar->AddAction(MSG_REPLACE_GROUP_TOGGLED, B_TRANSLATE("Replace toggle (leaves Find bar open)"), "kIconReplace");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_RUN_CONSOLE_PROGRAM_SHOW, B_TRANSLATE("Run console program"), "kConsoleApp");
+	fToolBar->AddGlue();
+	fToolBar->AddAction(MSG_BUILD_MODE, B_TRANSLATE("Build mode: Debug"), "kAppDebugger");
+	fToolBar->AddAction(MSG_BUFFER_LOCK, B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_FILE_PREVIOUS_SELECTED, B_TRANSLATE("Select previous File"), "kIconBack_1");
+	fToolBar->AddAction(MSG_FILE_NEXT_SELECTED, B_TRANSLATE("Select next File"), "kIconForward_2");
+	fToolBar->AddAction(MSG_FILE_CLOSE, B_TRANSLATE("Close File"), "kIconClose");
+	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Indexed File list"), "kIconFileList");
 }
 
 void
@@ -2592,7 +2592,7 @@ GenioWindow::_InitWindow()
 	// Layout
 	fRootLayout = BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.Add(fMenuBar)
-		.Add(fNewToolBar)
+		.Add(fToolBar)
 		
 		.AddSplit(B_VERTICAL, 0.0f) // output split
 			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
@@ -3621,7 +3621,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fBuildModeItem->SetEnabled(true);
 		fMakeCatkeysItem->SetEnabled(true);
 		fMakeBindcatalogsItem->SetEnabled(true);
-		fNewToolBar->SetActionEnabled(MSG_BUILD_PROJECT, true);
+		fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, true);
 
 		// Is this a git project?
 		if (fActiveProject->Git())
@@ -3632,7 +3632,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
 		// Build mode menu
-		fNewToolBar->SetActionEnabled(MSG_BUILD_MODE, !releaseMode);
+		fToolBar->SetActionEnabled(MSG_BUILD_MODE, !releaseMode);
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 
@@ -3641,16 +3641,16 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		BEntry entry(fActiveProject->GetTarget());
 		if (entry.Exists()) {
 			fRunItem->SetEnabled(true);
-			fNewToolBar->SetActionEnabled(MSG_RUN_TARGET, true);
+			fToolBar->SetActionEnabled(MSG_RUN_TARGET, true);
 			// Enable debug button in debug mode only
 			fDebugItem->SetEnabled(!releaseMode);
-			fNewToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, !releaseMode);
+			fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, !releaseMode);
 
 		} else {
 			fRunItem->SetEnabled(false);
 			fDebugItem->SetEnabled(false);
-			fNewToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
-			fNewToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
+			fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
+			fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
 		}
 	} else { // here project is inactive
 		fBuildItem->SetEnabled(false);
@@ -3661,10 +3661,10 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fMakeCatkeysItem->SetEnabled(false);
 		fMakeBindcatalogsItem->SetEnabled(false);
 		fGitMenu->SetEnabled(false);
-		fNewToolBar->SetActionEnabled(MSG_BUILD_PROJECT, false);
-		fNewToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
-		fNewToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
-		fNewToolBar->SetActionEnabled(MSG_BUILD_MODE, false);
+		fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, false);
+		fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
+		fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
+		fToolBar->SetActionEnabled(MSG_BUILD_MODE, false);
 	}
 	
 	fProjectsFolderBrowser->Invalidate();
@@ -3704,14 +3704,14 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	fPasteMenuItem->SetEnabled(editor->CanPaste());
 
 	// ToolBar Items
-	fNewToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
-	fNewToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
-	fNewToolBar->SetActionEnabled(MSG_FILE_SAVE, editor->IsModified());
+	fToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
+	fToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
+	fToolBar->SetActionEnabled(MSG_FILE_SAVE, editor->IsModified());
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
 	bool filesNeedSave = _FilesNeedSave();
-	fNewToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
+	fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 }
 
@@ -3723,21 +3723,21 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// All files are closed
 	if (editor == nullptr) {
 		// ToolBar Items
-		fNewToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, false);
-		fNewToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
+		fToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, false);
+		fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
 		fReplaceGroup->Hide();
-		fNewToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, false);
-		fNewToolBar->SetActionEnabled(B_UNDO, false);
-		fNewToolBar->SetActionEnabled(B_REDO, false);
+		fToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, false);
+		fToolBar->SetActionEnabled(B_UNDO, false);
+		fToolBar->SetActionEnabled(B_REDO, false);
 		
-		fNewToolBar->SetActionEnabled(MSG_FILE_SAVE, false);
+		fToolBar->SetActionEnabled(MSG_FILE_SAVE, false);
 		
-		fNewToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, false);
-		fNewToolBar->SetActionEnabled(MSG_BUFFER_LOCK, false);
-		fNewToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
-		fNewToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
-		fNewToolBar->SetActionEnabled(MSG_FILE_CLOSE, false);
-		fNewToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, false);
+		fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, false);
+		fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, false);
+		fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
+		fToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
+		fToolBar->SetActionEnabled(MSG_FILE_CLOSE, false);
+		fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, false);
 
 		// Menu Items
 		fSaveMenuItem->SetEnabled(false);
@@ -3774,30 +3774,30 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	// ToolBar Items
 	
-	fNewToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, true);
-	fNewToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
-	fNewToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, editor->IsFoldingAvailable());
-	fNewToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
-	fNewToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
-	fNewToolBar->SetActionEnabled(MSG_FILE_SAVE, editor->IsModified());
-	fNewToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
-	fNewToolBar->SetActionEnabled(MSG_FILE_CLOSE, true);
-	fNewToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, true);
+	fToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, true);
+	fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
+	fToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, editor->IsFoldingAvailable());
+	fToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
+	fToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
+	fToolBar->SetActionEnabled(MSG_FILE_SAVE, editor->IsModified());
+	fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
+	fToolBar->SetActionEnabled(MSG_FILE_CLOSE, true);
+	fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, true);
 
 	// Arrows
 	/* TODO: remove! */
 	int32 maxTabIndex = (fTabManager->CountTabs() - 1);
 	int32 index = fTabManager->SelectedTabIndex();
 	if (index == 0) {
-		fNewToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
+		fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
 		if (maxTabIndex > 0)
-				fNewToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
+				fToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
 	} else if (index == maxTabIndex) {
-			fNewToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
-			fNewToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
+			fToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
+			fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
 	} else {
-			fNewToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
-			fNewToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
+			fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
+			fToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
 	}
 	/* END REMOVE */
 	
@@ -3838,7 +3838,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
 	bool filesNeedSave = _FilesNeedSave();
-	fNewToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
+	fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
 	BMessage diagnostics;

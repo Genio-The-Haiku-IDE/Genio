@@ -187,7 +187,7 @@ private:
 			BMenu*				fHgMenu;
 			BMenuItem*			fHgStatusItem;
 			
-			ToolBar*			fNewToolBar;
+			ToolBar*			fToolBar;
 			
 			BGroupLayout*		fRootLayout;
 			BGroupLayout*		fEditorTabsGroup;

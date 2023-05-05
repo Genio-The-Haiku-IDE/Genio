@@ -69,22 +69,6 @@ BRect dirtyFrameHack;
 
 static float kDefaultIconSize = 32.0;
 
-
-class ProjectRefFilter : public BRefFilter {
-
-public:
-//	virtual ~ProjectRefFilter()
-//	{
-//	}
-
-	virtual bool Filter(const entry_ref* ref, BNode* node,
-		struct stat_beos* stat, const char* filetype)
-	{
-		BString name(ref->name);
-		return name.EndsWith(GenioNames::kProjectExtension); // ".idmpro"
-	}
-};
-
 GenioWindow::GenioWindow(BRect frame)
 	:
 	BWindow(frame, "Genio", B_TITLED_WINDOW, B_ASYNCHRONOUS_CONTROLS |
@@ -1535,13 +1519,15 @@ GenioWindow::_FileSave(int32 index)
 	}
 */
 	// Stop monitoring if needed
-	editor->StopMonitoring();
+	if (editor->StopMonitoring() != B_OK)
+		LogErrorF("Error in StopMonitoring node (%s)", editor->Name().String());
 
 	ssize_t written = editor->SaveToFile();
 	ssize_t length = editor->SendMessage(SCI_GETLENGTH, 0, 0);
 
 	// Restart monitoring
-	editor->StartMonitoring();
+	if (editor->StartMonitoring() != B_OK)
+		LogErrorF("Error in StartMonitoring node (%s)", editor->Name().String());
 
 	notification << B_TRANSLATE("File save:")  << "  "
 		<< editor->Name()

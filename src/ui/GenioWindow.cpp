@@ -67,6 +67,8 @@ static float kOutputWeight  = 0.4f;
 
 BRect dirtyFrameHack;
 
+static float kDefaultIconSize = 32.0;
+
 GenioWindow::GenioWindow(BRect frame)
 	:
 	BWindow(frame, "Genio", B_TITLED_WINDOW, B_ASYNCHRONOUS_CONTROLS |
@@ -122,36 +124,9 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGitTagItem(nullptr)
 	, fHgMenu(nullptr)
 	, fHgStatusItem(nullptr)
-	, fRootLayout(nullptr)
 	, fToolBar(nullptr)
+	, fRootLayout(nullptr)
 	, fEditorTabsGroup(nullptr)
-	, fProjectsButton(nullptr)
-	, fOutputButton(nullptr)
-	, fFindButton(nullptr)
-	, fReplaceButton(nullptr)
-	, fFindinFilesButton(nullptr)
-	, fFoldButton(nullptr)
-	, fUndoButton(nullptr)
-	, fRedoButton(nullptr)
-	, fFileSaveButton(nullptr)
-	, fFileSaveAllButton(nullptr)
-	, fBuildButton(nullptr)
-	, fRunButton(nullptr)
-	, fDebugButton(nullptr)
-	, fConsoleButton(nullptr)
-	, fBuildModeButton(nullptr)
-	, fFileUnlockedButton(nullptr)
-	, fFilePreviousButton(nullptr)
-	, fFileNextButton(nullptr)
-	, fFileCloseButton(nullptr)
-	, fFileMenuButton(nullptr)
-	, fFindPreviousButton(nullptr)
-	, fFindNextButton(nullptr)
-	, fFindMarkAllButton(nullptr)
-	, fReplaceOneButton(nullptr)
-	, fReplaceAndFindNextButton(nullptr)
-	, fReplaceAndFindPrevButton(nullptr)
-	, fReplaceAllButton(nullptr)
 	, fProjectsTabView(nullptr)
 	, fProjectsFolderBrowser(nullptr)
 	, fProjectsFolderScroll(nullptr)
@@ -205,7 +180,7 @@ GenioWindow::GenioWindow(BRect frame)
 	if (GenioNames::Settings.show_output == false)
 		fOutputTabView->Hide();
 	if (GenioNames::Settings.show_toolbar == false)
-		fToolBar->View()->Hide();
+		fToolBar->Hide();
 
 	// Load workspace - reopen projects
 	if (GenioNames::Settings.reopen_projects == true) {
@@ -280,10 +255,13 @@ GenioWindow::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case MSG_ESCAPE_KEY:{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
-					fFindGroup->SetVisible(false);
-					fReplaceGroup->SetVisible(false);
+					if (!fFindGroup->IsHidden())
+						fFindGroup->Hide();
+					if (!fReplaceGroup->IsHidden())
+						fReplaceGroup->Hide();
 			} else if (CurrentFocus() == fReplaceTextControl->TextView()) {
-					fReplaceGroup->SetVisible(false);
+					if (!fReplaceGroup->IsHidden())
+						fReplaceGroup->Hide();
 					fFindTextControl->MakeFocus(true);
 			}
 		}
@@ -527,21 +505,19 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetReadOnly();
-				fFileUnlockedButton->SetEnabled(!editor->IsReadOnly());				
+				fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
 			}
 			break;
 		}
 		case MSG_BUILD_MODE_DEBUG: {
-			// fBuildModeButton->SetEnabled(true);
-			fBuildModeButton->SetToolTip(B_TRANSLATE("Build mode: Debug"));
+			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Debug"));
 			fActiveProject->SetBuildMode(BuildMode::DebugMode);
 			// _MakefileSetBuildMode(false);
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE: {
-			// fBuildModeButton->SetEnabled(false);
-			fBuildModeButton->SetToolTip(B_TRANSLATE("Build mode: Release"));
+			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Release"));
 			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
 			// _MakefileSetBuildMode(true);
 			_UpdateProjectActivation(fActiveProject != nullptr);
@@ -633,7 +609,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				// Force layout to get the final menu size. InvalidateLayout()
 				// did not seem to work here.
 				tabMenu->AttachedToWindow();
-				BRect buttonFrame = fFileMenuButton->Frame();
+				BRect buttonFrame = fToolBar->FindButton(MSG_FILE_MENU_SHOW)->Frame();
 				BRect menuFrame = tabMenu->Frame();
 				BPoint openPoint = ConvertToScreen(buttonFrame.LeftBottom());
 				// Open with the right side of the menu aligned with the right
@@ -988,10 +964,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 
 		case MSG_TOGGLE_TOOLBAR: {
-			if (fToolBar->View()->IsHidden()) {
-				fToolBar->View()->Show();
+			if (fToolBar->IsHidden()) {
+				fToolBar->Show();
 			} else {
-				fToolBar->View()->Hide();
+				fToolBar->Hide();
 			}
 			break;
 		}
@@ -1653,29 +1629,29 @@ GenioWindow::_FilesNeedSave()
 void
 GenioWindow::_FindGroupShow()
 {
-	if (!fFindGroup->IsVisible()) {
-		fFindGroup->SetVisible(true);
-		_GetFocusAndSelection(fFindTextControl);
+	if (fFindGroup->IsHidden()) {
+		fFindGroup->Show();
 	}
-	else if (fFindGroup->IsVisible())
-		_GetFocusAndSelection(fFindTextControl);
+	_GetFocusAndSelection(fFindTextControl);
 }
 
 void
 GenioWindow::_FindGroupToggled()
 {
-	fFindGroup->SetVisible(!fFindGroup->IsVisible());
-
-	if (fFindGroup->IsVisible()) {
-		_GetFocusAndSelection(fFindTextControl);
-	}
-	else {
-		if (fReplaceGroup->IsVisible())
-			fReplaceGroup->SetVisible(false);
+	bool findHidden = fFindGroup->IsHidden();
+	if (findHidden) {
+		_FindGroupShow();
+	} else {
+		
+		fFindGroup->Hide();
+		
+		if (!fReplaceGroup->IsHidden())
+			fReplaceGroup->Hide();
+			
 		Editor* editor = fTabManager->SelectedEditor();
 		if (editor) {
 			editor->GrabFocus();
-		}
+		}		
 	}
 }
 
@@ -1818,7 +1794,7 @@ GenioWindow::_GetFocusAndSelection(BTextControl* control)
 	control->MakeFocus(true);
 	// If some text is selected, use that TODO index check
 	Editor* editor = fTabManager->SelectedEditor();
-	if (editor->IsTextSelected()) {
+	if (editor && editor->IsTextSelected()) {
 		int32 size = editor->SendMessage(SCI_GETSELTEXT, 0, 0);
 		char text[size + 1];
 		editor->SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text);
@@ -2146,16 +2122,9 @@ GenioWindow::_InitCentralSplit()
 						B_SIZE_UNSET));
 	fFindTextControl->SetExplicitMaxSize(fFindTextControl->MinSize());
 
-	fFindNextButton = _LoadIconButton("FindNextButton", MSG_FIND_NEXT, 164, true,
-						B_TRANSLATE("Find Next"));
-	fFindPreviousButton = _LoadIconButton("FindPreviousButton", MSG_FIND_PREVIOUS,
-							165, true, B_TRANSLATE("Find previous"));
-	fFindMarkAllButton = _LoadIconButton("FindMarkAllButton", MSG_FIND_MARK_ALL,
-							202, true, B_TRANSLATE("Mark all"));
 	AddShortcut(B_DOWN_ARROW, B_COMMAND_KEY, new BMessage(MSG_FIND_NEXT));
 	AddShortcut(B_UP_ARROW, B_COMMAND_KEY, new BMessage(MSG_FIND_PREVIOUS));
-	// AddShortcut(B_PAGE_DOWN, B_COMMAND_KEY, new BMessage(MSG_FIND_NEXT));
-	// AddShortcut(B_PAGE_UP, B_COMMAND_KEY, new BMessage(MSG_FIND_PREVIOUS));
+
 
 	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE("Match case"));
 	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"));
@@ -2165,25 +2134,24 @@ GenioWindow::_InitCentralSplit()
 	fFindWholeWordCheck->SetValue((int32)GenioNames::Settings.find_whole_word);
 	fFindCaseSensitiveCheck->SetValue((int32)GenioNames::Settings.find_match_case);
 	
-	fFindinFilesButton = _LoadIconButton("FindinFiles", MSG_FIND_IN_FILES, 201, true,
-						B_TRANSLATE("Find in files"));
 	
-	fFindGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
-		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
-			.Add(fFindMenuField)
-			.Add(fFindTextControl)
-			.Add(fFindNextButton)
-			.Add(fFindPreviousButton)
-			.Add(fFindWrapCheck)
-			.Add(fFindWholeWordCheck)
-			.Add(fFindCaseSensitiveCheck)
-			.Add(fFindMarkAllButton)
-			.Add(fFindinFilesButton)
-			.AddGlue()
-		)
-		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER))
-	;
-	fFindGroup->SetVisible(false);
+	fFindGroup = new ToolBar(this);
+	fFindGroup->ChangeIconSize(kDefaultIconSize);
+	fFindGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
+												.Add(fFindMenuField)
+												.Add(fFindTextControl).View());
+	fFindGroup->AddAction(MSG_FIND_NEXT, B_TRANSLATE("Find Next"), "kIconDown_3");
+	fFindGroup->AddAction(MSG_FIND_PREVIOUS, B_TRANSLATE("Find previous"), "kIconUp_3");
+	fFindGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
+												.Add(fFindWrapCheck)
+												.Add(fFindWholeWordCheck)
+												.Add(fFindCaseSensitiveCheck).View());
+
+	fFindGroup->AddAction(MSG_FIND_MARK_ALL, B_TRANSLATE("Mark all"), "kIconBookmarkPen");	
+	fFindGroup->AddAction(MSG_FIND_IN_FILES, B_TRANSLATE("Find in files"), "kIconFindInFiles");
+	fFindGroup->AddGlue();
+	
+	fFindGroup->Hide();
 
 	// Replace group
 	fReplaceMenuField = new BMenuField("ReplaceMenu", NULL,
@@ -2196,28 +2164,17 @@ GenioWindow::_InitCentralSplit()
 	fReplaceTextControl->SetExplicitMaxSize(fFindTextControl->MaxSize());
 	fReplaceTextControl->SetExplicitMinSize(fFindTextControl->MinSize());
 
-	fReplaceOneButton = _LoadIconButton("ReplaceOneButton", MSG_REPLACE_ONE,
-						166, true, B_TRANSLATE("Replace selection"));
-	fReplaceAndFindNextButton = _LoadIconButton("ReplaceFindNextButton", MSG_REPLACE_NEXT,
-								167, true, B_TRANSLATE("Replace and find next"));
-	fReplaceAndFindPrevButton = _LoadIconButton("ReplaceFindPrevButton", MSG_REPLACE_PREVIOUS,
-								168, true, B_TRANSLATE("Replace and find previous"));
-	fReplaceAllButton = _LoadIconButton("ReplaceAllButton", MSG_REPLACE_ALL,
-							169, true, B_TRANSLATE("Replace all"));
-
-	fReplaceGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
-		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
-			.Add(fReplaceMenuField)
-			.Add(fReplaceTextControl)
-			.Add(fReplaceOneButton)
-			.Add(fReplaceAndFindNextButton)
-			.Add(fReplaceAndFindPrevButton)
-			.Add(fReplaceAllButton)
-			.AddGlue()
-		)
-		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER))
-	;
-	fReplaceGroup->SetVisible(false);
+	fReplaceGroup = new ToolBar(this);
+	fReplaceGroup->ChangeIconSize(kDefaultIconSize);
+	fReplaceGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
+												.Add(fReplaceMenuField)
+												.Add(fReplaceTextControl).View());
+	fReplaceGroup->AddAction(MSG_REPLACE_ONE, B_TRANSLATE("Replace selection"), "kIconReplaceOne");
+	fReplaceGroup->AddAction(MSG_REPLACE_NEXT, B_TRANSLATE("Replace and find next"), "kIconReplaceNext");
+	fReplaceGroup->AddAction(MSG_REPLACE_PREVIOUS, B_TRANSLATE("Replace and find previous"), "kIconReplacePrev");
+	fReplaceGroup->AddAction(MSG_REPLACE_ALL, B_TRANSLATE("Replace all"), "kIconReplaceAll");
+	fReplaceGroup->AddGlue();
+	fReplaceGroup->Hide();
 
 	// Run group
 	fRunConsoleProgramText = new BTextControl("ReplaceTextControl", "", "", nullptr);
@@ -2544,87 +2501,34 @@ GenioWindow::_InitMenu()
 void
 GenioWindow::_InitToolbar()
 {
-	// toolbar group
-	fProjectsButton = _LoadIconButton("ProjectsButton", MSG_SHOW_HIDE_PROJECTS,
-						111, true, B_TRANSLATE("Show/Hide Projects split"));
-	fOutputButton = _LoadIconButton("OutputButton", MSG_SHOW_HIDE_OUTPUT,
-						115, true, B_TRANSLATE("Show/Hide Output split"));
-	fBuildButton = _LoadIconButton("Build", MSG_BUILD_PROJECT,
-						112, false, B_TRANSLATE("Build Project"));
-	fRunButton = _LoadIconButton("Run", MSG_RUN_TARGET,
-						113, false, B_TRANSLATE("Run Project"));
-	fDebugButton = _LoadIconButton("Debug", MSG_DEBUG_PROJECT,
-						114, false, B_TRANSLATE("Debug Project"));
+	fToolBar = new ToolBar(this);
+	fToolBar->ChangeIconSize(kDefaultIconSize);
 
-	fFindButton = _LoadIconButton("Find", MSG_FIND_GROUP_TOGGLED, 199, false,
-						B_TRANSLATE("Find toggle (closes Replace bar if open)"));
-
-	fReplaceButton = _LoadIconButton("Replace", MSG_REPLACE_GROUP_TOGGLED, 200, false,
-						B_TRANSLATE("Replace toggle (leaves Find bar open)"));
-
-
-	fFoldButton = _LoadIconButton("Fold", MSG_FILE_FOLD_TOGGLE, 213, false,
-						B_TRANSLATE("Fold/unfold all"));
-	fUndoButton = _LoadIconButton("UndoButton", B_UNDO, 204, false,
-						B_TRANSLATE("Undo"));
-	fRedoButton = _LoadIconButton("RedoButton", B_REDO, 205, false,
-						B_TRANSLATE("Redo"));
-	fFileSaveButton = _LoadIconButton("FileSaveButton", MSG_FILE_SAVE,
-						206, false, B_TRANSLATE("Save current File"));
-	fFileSaveAllButton = _LoadIconButton("FileSaveAllButton", MSG_FILE_SAVE_ALL,
-						207, false, B_TRANSLATE("Save all Files"));
-
-	fConsoleButton = _LoadIconButton("ConsoleButton", MSG_RUN_CONSOLE_PROGRAM_SHOW,
-		227, true, B_TRANSLATE("Run console program"));
-
-	fBuildModeButton = _LoadIconButton("BuildMode", MSG_BUILD_MODE,
-						221, false, B_TRANSLATE("Build mode: Debug"));
-
-	fFileUnlockedButton = _LoadIconButton("FileUnlockedButton", MSG_BUFFER_LOCK,
-						212, false, B_TRANSLATE("Set buffer read-only"));
-	fFilePreviousButton = _LoadIconButton("FilePreviousButton", MSG_FILE_PREVIOUS_SELECTED,
-						208, false, B_TRANSLATE("Select previous File"));
-	fFileNextButton = _LoadIconButton("FileNextButton", MSG_FILE_NEXT_SELECTED,
-						209, false, B_TRANSLATE("Select next File"));
-	fFileCloseButton = _LoadIconButton("FileCloseButton", MSG_FILE_CLOSE,
-						210, false, B_TRANSLATE("Close File"));
-	fFileMenuButton = _LoadIconButton("FileMenuButton", MSG_FILE_MENU_SHOW,
-						211, false, B_TRANSLATE("Indexed File list"));
-
-
-
-	fToolBar = BLayoutBuilder::Group<>(B_VERTICAL, 0)
-		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, 1)
-			.AddGlue()
-			.Add(fProjectsButton)
-			.Add(fOutputButton)
-			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
-			.Add(fFoldButton)
-			.Add(fUndoButton)
-			.Add(fRedoButton)
-			.Add(fFileSaveButton)
-			.Add(fFileSaveAllButton)
-			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
-			.Add(fBuildButton)
-			.Add(fRunButton)
-			.Add(fDebugButton)
-			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
-			.Add(fFindButton)
-			.Add(fReplaceButton)
-			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
-			.Add(fConsoleButton)
-			.AddGlue()
-			.Add(fBuildModeButton)
-			.Add(fFileUnlockedButton)
-			.Add(new BSeparatorView(B_VERTICAL, B_PLAIN_BORDER))
-			.Add(fFilePreviousButton)
-			.Add(fFileNextButton)
-			.Add(fFileCloseButton)
-			.Add(fFileMenuButton)
-//			.SetInsets(1, 1, 1, 1)
-		)
-		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER))
-	;
+	fToolBar->AddAction(MSG_SHOW_HIDE_PROJECTS, B_TRANSLATE("Show/Hide Projects split"), "kIconWindow");
+	fToolBar->AddAction(MSG_SHOW_HIDE_OUTPUT,   B_TRANSLATE("Show/Hide Output split"),   "kIconTerminal");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_FILE_FOLD_TOGGLE,   B_TRANSLATE("Fold/unfold all"), "App_OpenTargetFolder");
+	fToolBar->AddAction(B_UNDO, B_TRANSLATE("Undo"), "kIconUndo");
+	fToolBar->AddAction(B_REDO, B_TRANSLATE("Redo"), "kIconRedo");
+	fToolBar->AddAction(MSG_FILE_SAVE, B_TRANSLATE("Save current File"), "kIconSave");
+	fToolBar->AddAction(MSG_FILE_SAVE_ALL, B_TRANSLATE("Save all Files"), "kIconSaveAll");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_BUILD_PROJECT, B_TRANSLATE("Build Project"), "kIconBuild");
+	fToolBar->AddAction(MSG_RUN_TARGET, B_TRANSLATE("Run Project"), "kIconRun");
+	fToolBar->AddAction(MSG_DEBUG_PROJECT, B_TRANSLATE("Debug Project"),	"kIconDebug");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_FIND_GROUP_TOGGLED, B_TRANSLATE("Find toggle (closes Replace bar if open)"), "kIconFind");
+	fToolBar->AddAction(MSG_REPLACE_GROUP_TOGGLED, B_TRANSLATE("Replace toggle (leaves Find bar open)"), "kIconReplace");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_RUN_CONSOLE_PROGRAM_SHOW, B_TRANSLATE("Run console program"), "kConsoleApp");
+	fToolBar->AddGlue();
+	fToolBar->AddAction(MSG_BUILD_MODE, B_TRANSLATE("Build mode: Debug"), "kAppDebugger");
+	fToolBar->AddAction(MSG_BUFFER_LOCK, B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
+	fToolBar->AddSeparator();
+	fToolBar->AddAction(MSG_FILE_PREVIOUS_SELECTED, B_TRANSLATE("Select previous File"), "kIconBack_1");
+	fToolBar->AddAction(MSG_FILE_NEXT_SELECTED, B_TRANSLATE("Select next File"), "kIconForward_2");
+	fToolBar->AddAction(MSG_FILE_CLOSE, B_TRANSLATE("Close File"), "kIconClose");
+	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Indexed File list"), "kIconFileList");
 }
 
 void
@@ -2675,7 +2579,7 @@ GenioWindow::_InitWindow()
 	fRootLayout = BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.Add(fMenuBar)
 		.Add(fToolBar)
-
+		
 		.AddSplit(B_VERTICAL, 0.0f) // output split
 			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
 				.Add(fProjectsTabView, kProjectsWeight)
@@ -2704,37 +2608,6 @@ GenioWindow::_InitWindow()
 
 }
 
-BIconButton*
-GenioWindow::_LoadIconButton(const char* name, int32 msg,
-								int32 resIndex, bool enabled, const char* tooltip)
-{
-	BIconButton* button = new BIconButton(name, nullptr, new BMessage(msg));
-//	button->SetIcon(_LoadSizedVectorIcon(resIndex, kToolBarSize));
-	button->SetIcon(resIndex);
-	button->SetEnabled(enabled);
-	button->SetToolTip(tooltip);
-
-	return button;
-}
-
-BBitmap*
-GenioWindow::_LoadSizedVectorIcon(int32 resourceID, int32 size)
-{
-	BResources* res = BApplication::AppResources();
-	size_t iconSize;
-	const void* data = res->LoadResource(B_VECTOR_ICON_TYPE, resourceID, &iconSize);
-
-	assert(data != nullptr);
-
-	BBitmap* bitmap = new BBitmap(BRect(0, 0, size, size), B_RGBA32);
-
-	status_t status = BIconUtils::GetVectorIcon(static_cast<const uint8*>(data),
-						iconSize, bitmap);
-
-	assert(status == B_OK);
-
-	return bitmap;
-}
 
 void
 GenioWindow::_MakeBindcatalogs()
@@ -3559,13 +3432,13 @@ GenioWindow::_ReplaceAndFind()
 void
 GenioWindow::_ReplaceGroupShow()
 {
-	bool findGroupOpen = fFindGroup->IsVisible();
+	bool findGroupOpen = !fFindGroup->IsHidden();
 
 	if (findGroupOpen == false)
-		_FindGroupToggled();
-
-	if (!fReplaceGroup->IsVisible()) {
-		fReplaceGroup->SetVisible(true);
+		_FindGroupShow();
+	
+	if (fReplaceGroup->IsHidden()) {
+		fReplaceGroup->Show();
 		fReplaceTextControl->TextView()->Clear();
 		// If find group was not open focus and selection go there
 		if (findGroupOpen == false)
@@ -3574,24 +3447,19 @@ GenioWindow::_ReplaceGroupShow()
 			_GetFocusAndSelection(fReplaceTextControl);
 	}
 	// Replace group was opened, get focus and selection
-	else if (fReplaceGroup->IsVisible())
+	else 
 		_GetFocusAndSelection(fReplaceTextControl);
 }
 
 void
 GenioWindow::_ReplaceGroupToggled()
 {
-	fReplaceGroup->SetVisible(!fReplaceGroup->IsVisible());
+	bool replaceHidden = fReplaceGroup->IsHidden();
+	if (replaceHidden)
+		_ReplaceGroupShow();
+	else
+		fReplaceGroup->Hide();
 
-	if (fReplaceGroup->IsVisible()) {
-		if (!fFindGroup->IsVisible())
-			_FindGroupToggled();
-		else if (fFindGroup->IsVisible()) {
-			// Find group was already visible, grab focus and selection
-			// on replace text control
-			_GetFocusAndSelection(fReplaceTextControl);
-		}
-	}
 }
 
 status_t
@@ -3739,7 +3607,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fBuildModeItem->SetEnabled(true);
 		fMakeCatkeysItem->SetEnabled(true);
 		fMakeBindcatalogsItem->SetEnabled(true);
-		fBuildButton->SetEnabled(true);
+		fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, true);
 
 		// Is this a git project?
 		if (fActiveProject->Git())
@@ -3750,7 +3618,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
 		// Build mode menu
-		fBuildModeButton->SetEnabled(!releaseMode);
+		fToolBar->SetActionEnabled(MSG_BUILD_MODE, !releaseMode);
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 
@@ -3759,16 +3627,16 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		BEntry entry(fActiveProject->GetTarget());
 		if (entry.Exists()) {
 			fRunItem->SetEnabled(true);
-			fRunButton->SetEnabled(true);
+			fToolBar->SetActionEnabled(MSG_RUN_TARGET, true);
 			// Enable debug button in debug mode only
 			fDebugItem->SetEnabled(!releaseMode);
-			fDebugButton->SetEnabled(!releaseMode);
+			fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, !releaseMode);
 
 		} else {
 			fRunItem->SetEnabled(false);
 			fDebugItem->SetEnabled(false);
-			fRunButton->SetEnabled(false);
-			fDebugButton->SetEnabled(false);
+			fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
+			fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
 		}
 	} else { // here project is inactive
 		fBuildItem->SetEnabled(false);
@@ -3779,10 +3647,10 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fMakeCatkeysItem->SetEnabled(false);
 		fMakeBindcatalogsItem->SetEnabled(false);
 		fGitMenu->SetEnabled(false);
-		fBuildButton->SetEnabled(false);
-		fRunButton->SetEnabled(false);
-		fDebugButton->SetEnabled(false);
-		fBuildModeButton->SetEnabled(false);
+		fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, false);
+		fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
+		fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
+		fToolBar->SetActionEnabled(MSG_BUILD_MODE, false);
 	}
 	
 	fProjectsFolderBrowser->Invalidate();
@@ -3822,14 +3690,14 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	fPasteMenuItem->SetEnabled(editor->CanPaste());
 
 	// ToolBar Items
-	fUndoButton->SetEnabled(editor->CanUndo());
-	fRedoButton->SetEnabled(editor->CanRedo());
-	fFileSaveButton->SetEnabled(editor->IsModified());
+	fToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
+	fToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
+	fToolBar->SetActionEnabled(MSG_FILE_SAVE, editor->IsModified());
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
 	bool filesNeedSave = _FilesNeedSave();
-	fFileSaveAllButton->SetEnabled(filesNeedSave);
+	fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 }
 
@@ -3841,21 +3709,21 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// All files are closed
 	if (editor == nullptr) {
 		// ToolBar Items
-		fFindButton->SetEnabled(false);
-		fFindGroup->SetVisible(false);
-		fReplaceButton->SetEnabled(false);
-		fReplaceGroup->SetVisible(false);
-		fFoldButton->SetEnabled(false);
-		fUndoButton->SetEnabled(false);
-		fRedoButton->SetEnabled(false);
-
-		fFileSaveButton->SetEnabled(false);
-		fFileSaveAllButton->SetEnabled(false);
-		fFileUnlockedButton->SetEnabled(false);
-		fFilePreviousButton->SetEnabled(false);
-		fFileNextButton->SetEnabled(false);
-		fFileCloseButton->SetEnabled(false);
-		fFileMenuButton->SetEnabled(false);
+		fToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, false);
+		fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
+		fReplaceGroup->Hide();
+		fToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, false);
+		fToolBar->SetActionEnabled(B_UNDO, false);
+		fToolBar->SetActionEnabled(B_REDO, false);
+		
+		fToolBar->SetActionEnabled(MSG_FILE_SAVE, false);
+		
+		fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, false);
+		fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, false);
+		fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
+		fToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
+		fToolBar->SetActionEnabled(MSG_FILE_CLOSE, false);
+		fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, false);
 
 		// Menu Items
 		fSaveMenuItem->SetEnabled(false);
@@ -3892,30 +3760,30 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	// ToolBar Items
 	
-	fFindButton->SetEnabled(true);
-	fReplaceButton->SetEnabled(true);
-	fFoldButton->SetEnabled(editor->IsFoldingAvailable());
-	fUndoButton->SetEnabled(editor->CanUndo());
-	fRedoButton->SetEnabled(editor->CanRedo());
-	fFileSaveButton->SetEnabled(editor->IsModified());
-	fFileUnlockedButton->SetEnabled(!editor->IsReadOnly());
-	fFileCloseButton->SetEnabled(true);
-	fFileMenuButton->SetEnabled(true);
+	fToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, true);
+	fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
+	fToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, editor->IsFoldingAvailable());
+	fToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
+	fToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
+	fToolBar->SetActionEnabled(MSG_FILE_SAVE, editor->IsModified());
+	fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
+	fToolBar->SetActionEnabled(MSG_FILE_CLOSE, true);
+	fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, true);
 
 	// Arrows
 	/* TODO: remove! */
 	int32 maxTabIndex = (fTabManager->CountTabs() - 1);
 	int32 index = fTabManager->SelectedTabIndex();
 	if (index == 0) {
-		fFilePreviousButton->SetEnabled(false);
+		fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
 		if (maxTabIndex > 0)
-				fFileNextButton->SetEnabled(true);
+				fToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
 	} else if (index == maxTabIndex) {
-			fFileNextButton->SetEnabled(false);
-			fFilePreviousButton->SetEnabled(true);
+			fToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
+			fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
 	} else {
-			fFilePreviousButton->SetEnabled(true);
-			fFileNextButton->SetEnabled(true);
+			fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
+			fToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
 	}
 	/* END REMOVE */
 	
@@ -3956,7 +3824,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
 	bool filesNeedSave = _FilesNeedSave();
-	fFileSaveAllButton->SetEnabled(filesNeedSave);
+	fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 	fSaveAllMenuItem->SetEnabled(filesNeedSave);
 
 	BMessage diagnostics;

@@ -42,6 +42,7 @@
 #include "TPreferences.h"
 #include "TextUtils.h"
 #include "Utils.h"
+#include "EditorKeyDownMessageFilter.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -174,6 +175,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW, B_OPTION_KEY));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY,   B_ESCAPE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
+	AddCommonFilter(new EditorKeyDownMessageFilter());
 
 	if (GenioNames::Settings.show_projects == false)
 		fProjectsTabView->Hide();

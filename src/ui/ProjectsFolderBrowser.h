@@ -10,6 +10,8 @@
 #include <OutlineListView.h>
 #include <PopUpMenu.h>
 
+#include "TemplatesMenu.h"
+
 enum {
 	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
 	MSG_PROJECT_MENU_SET_ACTIVE			= 'pmsa',
@@ -17,6 +19,8 @@ enum {
 	MSG_PROJECT_MENU_EXCLUDE_FILE		= 'pmef',
 	MSG_PROJECT_MENU_SHOW_IN_TRACKER	= 'pmst',
 	MSG_PROJECT_MENU_OPEN_TERMINAL		= 'pmot',
+	MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
+	MSG_PROJECT_MENU_NEW_FILE			= 'pmnf',
 };
 
 class ProjectFolder;
@@ -73,6 +77,7 @@ private:
 	BMenuItem*			fExcludeFileProjectMenuItem;
 	BMenuItem*			fDeleteFileProjectMenuItem;
 	BMenuItem*			fOpenFileProjectMenuItem;
+	TemplatesMenu*		fFileNewProjectMenuItem;
 	BMenuItem*			fShowInTrackerProjectMenuItem;
 	BMenuItem*			fOpenTerminalProjectMenuItem;
 	bool				fIsBuilding = false;

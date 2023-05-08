@@ -24,13 +24,11 @@
 #include "ProjectsFolderBrowser.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
-enum {
-		MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
-};
 
 ProjectsFolderBrowser::ProjectsFolderBrowser():
 	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
@@ -41,6 +39,8 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 		new BMessage(MSG_PROJECT_MENU_CLOSE));
 	fSetActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set Active"),
 		new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
+	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
+		MSG_PROJECT_MENU_NEW_FILE);
 	fDeleteFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Delete file"),
 		new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
 	fOpenFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
@@ -53,6 +53,7 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 	fProjectMenu->AddItem(fCloseProjectMenuItem);
 	fProjectMenu->AddItem(fSetActiveProjectMenuItem);
 	fProjectMenu->AddSeparatorItem();
+	fProjectMenu->AddItem(fFileNewProjectMenuItem);
 	fProjectMenu->AddItem(fOpenFileProjectMenuItem);
 	fProjectMenu->AddItem(fDeleteFileProjectMenuItem);
 	fProjectMenu->AddSeparatorItem();
@@ -426,10 +427,10 @@ BString const
 ProjectsFolderBrowser::GetCurrentProjectFileFullPath()
 {
 	ProjectItem* selectedProjectItem = GetCurrentProjectItem();
-	if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
+	// if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
 		return selectedProjectItem->GetSourceItem()->Path();
-	else
-		return "";
+	// else
+		// return "";
 }
 
 ProjectFolder*

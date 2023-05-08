@@ -33,6 +33,7 @@
 #include "EditorTabManager.h"
 #include "TPreferences.h"
 #include "ProjectsFolderBrowser.h"
+#include "TemplatesMenu.h"
 
 enum {
 	kProjectsOutline = 0,
@@ -117,6 +118,7 @@ private:
 			void				_ProjectFolderActivate(ProjectFolder* project);
 
 			status_t			_ShowCurrentItemInTracker();
+			status_t			_ShowInTracker(entry_ref *ref);
 			status_t			_OpenTerminalWorkingDirectory();
 			
 			int					_Replace(int what);
@@ -137,7 +139,7 @@ private:
 
 private:
 			BMenuBar*			fMenuBar;
-			BMenuItem*			fFileNewMenuItem;
+			TemplatesMenu*		fFileNewMenuItem;
 			BMenuItem*			fSaveMenuItem;
 			BMenuItem*			fSaveAsMenuItem;
 			BMenuItem*			fSaveAllMenuItem;

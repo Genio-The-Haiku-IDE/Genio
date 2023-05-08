@@ -45,6 +45,8 @@ enum {
 	kOutputLog
 };
 
+class ActionManager;
+
 class GenioWindow : public BWindow
 {
 public:
@@ -132,11 +134,11 @@ private:
 			void				_UpdateReplaceMenuItems(const BString& text);
 			void				_UpdateSavepointChange(int32 index, const BString& caller = "");
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
+			void				_InitActions();
 
 private:
 			BMenuBar*			fMenuBar;
 			BMenuItem*			fFileNewMenuItem;
-			BMenuItem*			fSaveMenuItem;
 			BMenuItem*			fSaveAsMenuItem;
 			BMenuItem*			fSaveAllMenuItem;
 			BMenuItem*			fCloseMenuItem;
@@ -235,6 +237,7 @@ private:
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
+			ActionManager*		fActionManager;
 
 };
 

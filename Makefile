@@ -76,6 +76,7 @@ SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/helpers/TextUtils.cpp
 SRCS +=  src/helpers/StatusView.cpp
 SRCS +=  src/helpers/Utils.cpp
+SRCS +=  src/helpers/ActionManager.cpp
 SRCS +=  src/lsp-client/FileWrapper.cpp
 SRCS +=  src/lsp-client/LSPClientWrapper.cpp
 SRCS +=  src/lsp-client/LSPClient.cpp

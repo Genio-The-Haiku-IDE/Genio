@@ -76,14 +76,7 @@ GenioWindow::GenioWindow(BRect frame)
 	BWindow(frame, "Genio", B_TITLED_WINDOW, B_ASYNCHRONOUS_CONTROLS |
 												B_QUIT_ON_WINDOW_CLOSE)
 	, fMenuBar(nullptr)
-	, fFileNewMenuItem(nullptr)
-	, fSaveAsMenuItem(nullptr)
-	, fSaveAllMenuItem(nullptr)
-	, fCloseMenuItem(nullptr)
-	, fCloseAllMenuItem(nullptr)
 	, fFoldMenuItem(nullptr)
-	, fUndoMenuItem(nullptr)
-	, fRedoMenuItem(nullptr)
 	, fCutMenuItem(nullptr)
 	, fCopyMenuItem(nullptr)
 	, fPasteMenuItem(nullptr)
@@ -2222,11 +2215,50 @@ void
 GenioWindow::_InitActions()
 {
 	fActionManager = new ActionManager();
+	
+	fActionManager->RegisterAction(MSG_FILE_OPEN,
+								   B_TRANSLATE("Open"),
+								   "", "", 'O');
+								   
+	fActionManager->RegisterAction(MSG_FILE_NEW,
+								   B_TRANSLATE("New"),
+								   "", "");
+
 	fActionManager->RegisterAction(MSG_FILE_SAVE, 
 								   B_TRANSLATE("Save"), 
 								   B_TRANSLATE("Save current File"), 
 								   "kIconSave", 'S');
+								   
+	fActionManager->RegisterAction(MSG_FILE_SAVE_AS,
+								   B_TRANSLATE("Save as" B_UTF8_ELLIPSIS),
+								   "","");
 
+	fActionManager->RegisterAction(MSG_FILE_SAVE_ALL,
+								   B_TRANSLATE("Save all"),
+								   B_TRANSLATE("Save all Files"), 
+								   "kIconSaveAll", 'S', B_SHIFT_KEY);
+
+	
+	fActionManager->RegisterAction(MSG_FILE_CLOSE,
+								   B_TRANSLATE("Close"),
+								   B_TRANSLATE("Close File"), 
+								   "kIconClose", 'W'); 
+	
+	fActionManager->RegisterAction(MSG_FILE_CLOSE_ALL,
+								   B_TRANSLATE("Close all"),
+								   "", "", 'W', B_SHIFT_KEY);
+								   
+	fActionManager->RegisterAction(B_QUIT_REQUESTED,
+	                               B_TRANSLATE("Quit"),
+								   "", "", 'Q');
+	fActionManager->RegisterAction(B_UNDO,
+								   B_TRANSLATE("Undo"),
+								   B_TRANSLATE("Undo"), 
+								   "kIconUndo", 'Z');
+	fActionManager->RegisterAction(B_REDO,
+								   B_TRANSLATE("Redo"),
+								   B_TRANSLATE("Redo"),
+								   "kIconRedo", 'Z', B_SHIFT_KEY);
 }
 
 void
@@ -2236,47 +2268,47 @@ GenioWindow::_InitMenu()
 	fMenuBar = new BMenuBar("menubar");
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
-	fileMenu->AddItem(fFileNewMenuItem = new BMenuItem(B_TRANSLATE("New"),
-		new BMessage(MSG_FILE_NEW)));
-	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
-		new BMessage(MSG_FILE_OPEN), 'O'));
+
+	fActionManager->AddItem(MSG_FILE_NEW,     fileMenu);
+	fActionManager->SetEnabled(MSG_FILE_NEW,  false);
+
+	fActionManager->AddItem(MSG_FILE_OPEN,     fileMenu);
+	
 	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
 			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), nullptr, nullptr, this,
 			kRecentFilesNumber, true, nullptr, GenioNames::kApplicationSignature), nullptr));
+	
 	fileMenu->AddSeparatorItem();
 		
-	fActionManager->AddItem(MSG_FILE_SAVE, fileMenu);
-		
-	fileMenu->AddItem(fSaveAsMenuItem = new BMenuItem(B_TRANSLATE("Save as" B_UTF8_ELLIPSIS),
-		new BMessage(MSG_FILE_SAVE_AS)));
-	fileMenu->AddItem(fSaveAllMenuItem = new BMenuItem(B_TRANSLATE("Save all"),
-		new BMessage(MSG_FILE_SAVE_ALL), 'S', B_SHIFT_KEY));
-	fileMenu->AddSeparatorItem();
-	fileMenu->AddItem(fCloseMenuItem = new BMenuItem(B_TRANSLATE("Close"),
-		new BMessage(MSG_FILE_CLOSE), 'W'));
-	fileMenu->AddItem(fCloseAllMenuItem = new BMenuItem(B_TRANSLATE("Close all"),
-		new BMessage(MSG_FILE_CLOSE_ALL), 'W', B_SHIFT_KEY));
-	fFileNewMenuItem->SetEnabled(false);
+	fActionManager->AddItem(MSG_FILE_SAVE,     fileMenu);
+	fActionManager->AddItem(MSG_FILE_SAVE_AS,  fileMenu);
+	fActionManager->AddItem(MSG_FILE_SAVE_ALL, fileMenu);
+
 
 	fileMenu->AddSeparatorItem();
-	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
-		new BMessage(B_QUIT_REQUESTED), 'Q'));
+	
+	fActionManager->AddItem(MSG_FILE_CLOSE,     fileMenu);
+	fActionManager->AddItem(MSG_FILE_CLOSE_ALL, fileMenu);
+	
+	fileMenu->AddSeparatorItem();
+	fActionManager->AddItem(B_QUIT_REQUESTED, fileMenu);
 
 	fActionManager->SetEnabled(MSG_FILE_SAVE, false);
-		
-	fSaveAsMenuItem->SetEnabled(false);
-	fSaveAllMenuItem->SetEnabled(false);
-	fCloseMenuItem->SetEnabled(false);
-	fCloseAllMenuItem->SetEnabled(false);
+	fActionManager->SetEnabled(MSG_FILE_SAVE_AS, false);
+	fActionManager->SetEnabled(MSG_FILE_SAVE_ALL, false);
+	fActionManager->SetEnabled(MSG_FILE_CLOSE, false);
+	fActionManager->SetEnabled(MSG_FILE_CLOSE_ALL, false);
+
 
 	fMenuBar->AddItem(fileMenu);
 
 	BMenu* editMenu = new BMenu(B_TRANSLATE("Edit"));
-	editMenu->AddItem(fUndoMenuItem = new BMenuItem(B_TRANSLATE("Undo"),
-		new BMessage(B_UNDO), 'Z'));
-	editMenu->AddItem(fRedoMenuItem = new BMenuItem(B_TRANSLATE("Redo"),
-		new BMessage(B_REDO), 'Z', B_SHIFT_KEY));
+	
+	fActionManager->AddItem(B_UNDO, editMenu);
+	fActionManager->AddItem(B_REDO, editMenu);
+	
 	editMenu->AddSeparatorItem();
+
 	editMenu->AddItem(fCutMenuItem = new BMenuItem(B_TRANSLATE("Cut"),
 		new BMessage(B_CUT), 'X'));
 	editMenu->AddItem(fCopyMenuItem = new BMenuItem(B_TRANSLATE("Copy"),
@@ -2331,11 +2363,13 @@ GenioWindow::_InitMenu()
 	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Convert to Mac"),
 		new BMessage(MSG_EOL_CONVERT_TO_MAC)));
 
-	fUndoMenuItem->SetEnabled(false);
-	fRedoMenuItem->SetEnabled(false);
+	fActionManager->SetEnabled(B_UNDO, false);
+	fActionManager->SetEnabled(B_REDO, false);
+	
 	fCutMenuItem->SetEnabled(false);
 	fCopyMenuItem->SetEnabled(false);
 	fPasteMenuItem->SetEnabled(false);
+	
 	fSelectAllMenuItem->SetEnabled(false);
 	fOverwiteItem->SetEnabled(false);
 	fToggleWhiteSpacesItem->SetEnabled(false);
@@ -2527,12 +2561,12 @@ GenioWindow::_InitToolbar()
 	fToolBar->AddAction(MSG_SHOW_HIDE_OUTPUT,   B_TRANSLATE("Show/Hide Output split"),   "kIconTerminal");
 	fToolBar->AddSeparator();
 	fToolBar->AddAction(MSG_FILE_FOLD_TOGGLE,   B_TRANSLATE("Fold/unfold all"), "App_OpenTargetFolder");
-	fToolBar->AddAction(B_UNDO, B_TRANSLATE("Undo"), "kIconUndo");
-	fToolBar->AddAction(B_REDO, B_TRANSLATE("Redo"), "kIconRedo");
+	fActionManager->AddItem(B_UNDO, fToolBar);
+	fActionManager->AddItem(B_REDO, fToolBar);
 	
 	fActionManager->AddItem(MSG_FILE_SAVE, fToolBar);
+	fActionManager->AddItem(MSG_FILE_SAVE_ALL, fToolBar);
 	
-	fToolBar->AddAction(MSG_FILE_SAVE_ALL, B_TRANSLATE("Save all Files"), "kIconSaveAll");
 	fToolBar->AddSeparator();
 	fToolBar->AddAction(MSG_BUILD_PROJECT, B_TRANSLATE("Build Project"), "kIconBuild");
 	fToolBar->AddAction(MSG_RUN_TARGET, B_TRANSLATE("Run Project"), "kIconRun");
@@ -2548,7 +2582,9 @@ GenioWindow::_InitToolbar()
 	fToolBar->AddSeparator();
 	fToolBar->AddAction(MSG_FILE_PREVIOUS_SELECTED, B_TRANSLATE("Select previous File"), "kIconBack_1");
 	fToolBar->AddAction(MSG_FILE_NEXT_SELECTED, B_TRANSLATE("Select next File"), "kIconForward_2");
-	fToolBar->AddAction(MSG_FILE_CLOSE, B_TRANSLATE("Close File"), "kIconClose");
+	
+	fActionManager->AddItem(MSG_FILE_CLOSE, fToolBar);
+	
 	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Indexed File list"), "kIconFileList");
 }
 
@@ -3697,15 +3733,12 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	Editor* editor = fTabManager->EditorAt(index);
 
 	// Menu Items
-	fUndoMenuItem->SetEnabled(editor->CanUndo());
-	fRedoMenuItem->SetEnabled(editor->CanRedo());
 	fCutMenuItem->SetEnabled(editor->CanCut());
 	fCopyMenuItem->SetEnabled(editor->CanCopy());
 	fPasteMenuItem->SetEnabled(editor->CanPaste());
 
-	// ToolBar Items
-	fToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
-	fToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
+	fActionManager->SetEnabled(B_UNDO, editor->CanUndo());
+	fActionManager->SetEnabled(B_REDO, editor->CanRedo());
 
 	//ActionManager.
 	fActionManager->SetEnabled(MSG_FILE_SAVE, editor->IsModified());
@@ -3713,8 +3746,7 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
 	bool filesNeedSave = _FilesNeedSave();
-	fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
-	fSaveAllMenuItem->SetEnabled(filesNeedSave);
+	fActionManager->SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 }
 
 // Updating menu, toolbar, title.
@@ -3729,26 +3761,25 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
 		fReplaceGroup->Hide();
 		fToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, false);
-		fToolBar->SetActionEnabled(B_UNDO, false);
-		fToolBar->SetActionEnabled(B_REDO, false);
+		fActionManager->SetEnabled(B_UNDO, false);
+		fActionManager->SetEnabled(B_REDO, false);
 		
 		fActionManager->SetEnabled(MSG_FILE_SAVE, false);
-		
-		fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, false);
+		fActionManager->SetEnabled(MSG_FILE_SAVE_AS, false);	
+		fActionManager->SetEnabled(MSG_FILE_SAVE_ALL, false);	
+		fActionManager->SetEnabled(MSG_FILE_CLOSE, false);	
+		fActionManager->SetEnabled(MSG_FILE_CLOSE_ALL, false);	
+
 		fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, false);
 		fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
 		fToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
-		fToolBar->SetActionEnabled(MSG_FILE_CLOSE, false);
 		fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, false);
 
 		// Menu Items
-		fSaveAsMenuItem->SetEnabled(false);
-		fSaveAllMenuItem->SetEnabled(false);
-		fCloseMenuItem->SetEnabled(false);
+		
+
 		fFoldMenuItem->SetEnabled(false);
-		fCloseAllMenuItem->SetEnabled(false);
-		fUndoMenuItem->SetEnabled(false);
-		fRedoMenuItem->SetEnabled(false);
+
 		fCutMenuItem->SetEnabled(false);
 		fCopyMenuItem->SetEnabled(false);
 		fPasteMenuItem->SetEnabled(false);
@@ -3779,12 +3810,12 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, true);
 	fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
 	fToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, editor->IsFoldingAvailable());
-	fToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
-	fToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
+	fActionManager->SetEnabled(B_UNDO, editor->CanUndo());
+	fActionManager->SetEnabled(B_REDO, editor->CanRedo());
 	fActionManager->SetEnabled(MSG_FILE_SAVE, editor->IsModified());
+	fActionManager->SetEnabled(MSG_FILE_CLOSE, true);	
 	
 	fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
-	fToolBar->SetActionEnabled(MSG_FILE_CLOSE, true);
 	fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, true);
 
 	// Arrows
@@ -3805,14 +3836,12 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	/* END REMOVE */
 	
 	// Menu Items
-	fSaveAsMenuItem->SetEnabled(true);
-	fCloseMenuItem->SetEnabled(true);
-	fCloseAllMenuItem->SetEnabled(true);
+	fActionManager->SetEnabled(MSG_FILE_SAVE_AS, true);
+	fActionManager->SetEnabled(MSG_FILE_CLOSE_ALL, true);
 
 	// Edit menu items
 	fFoldMenuItem->SetEnabled(editor->IsFoldingAvailable());
-	fUndoMenuItem->SetEnabled(editor->CanUndo());
-	fRedoMenuItem->SetEnabled(editor->CanRedo());
+
 	fCutMenuItem->SetEnabled(editor->CanCut());
 	fCopyMenuItem->SetEnabled(editor->CanCopy());
 	fPasteMenuItem->SetEnabled(editor->CanPaste());
@@ -3840,8 +3869,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
 	bool filesNeedSave = _FilesNeedSave();
-	fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
-	fSaveAllMenuItem->SetEnabled(filesNeedSave);
+	fActionManager->SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 
 	BMessage diagnostics;
 	editor->GetProblems(&diagnostics);

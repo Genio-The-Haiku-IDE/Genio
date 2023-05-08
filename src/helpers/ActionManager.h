@@ -23,7 +23,7 @@ public:
 							BString label, 
 							BString toolTip,
 							BString iconResource,
-							char shortCut);
+							char shortcut = 0, uint32 modifiers = 0);
 	
 	BMenuItem*	CreateMenuItem(int32 msgWhat);
 	

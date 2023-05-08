@@ -13,6 +13,7 @@ public:
 	BString fIconResourceName;
 	BString fToolTip;
 	char	fShortcut;
+	uint32  fModifiers;
 	bool	fEnabled;
 	
 	BObjectList<BMenuItem>	fMenuItemList;
@@ -33,14 +34,16 @@ ActionManager::RegisterAction(int32   msgWhat,
 								BString label, 
 								BString toolTip,
 								BString iconResource,
-								char shortCut)
+								char shortcut, 
+								uint32 modifiers)
 {
 	Action* action = new Action();
 	action->fEnabled = true; //by default?
 	action->fLabel = label;
 	action->fIconResourceName = iconResource;
 	action->fToolTip = toolTip;
-	action->fShortcut = shortCut;
+	action->fShortcut = shortcut;
+	action->fModifiers = modifiers;
 	fActionMap[msgWhat] = action;
 	return B_OK;
 }
@@ -52,8 +55,9 @@ ActionManager::AddItem(int32 msgWhat, BMenu* menu)
 		return B_ERROR;
 	
 	Action* action = fActionMap[msgWhat];
-	BMenuItem* item = new BMenuItem(action->fLabel, new BMessage(msgWhat), action->fShortcut);
+	BMenuItem* item = new BMenuItem(action->fLabel, new BMessage(msgWhat), action->fShortcut, action->fModifiers);
 	menu->AddItem(item);
+	item->SetEnabled(action->fEnabled);
 	action->fMenuItemList.AddItem(item);
 	return B_OK;
 }
@@ -65,6 +69,7 @@ ActionManager::AddItem(int32 msgWhat, ToolBar* bar)
 		return B_ERROR;
 	Action* action = fActionMap[msgWhat];
 	bar->AddAction(msgWhat, action->fToolTip, action->fIconResourceName);
+	bar->SetActionEnabled(msgWhat, action->fEnabled);
 	action->fToolBarList.AddItem(bar);
 	return B_OK;
 }
@@ -75,6 +80,9 @@ ActionManager::SetEnabled(int32 msgWhat, bool enabled)
 	if (fActionMap.find(msgWhat) == fActionMap.end())
 		return B_ERROR;
 	Action* action = fActionMap[msgWhat];
+	
+	action->fEnabled = enabled;
+	
 	for (int i=0; i<action->fMenuItemList.CountItems();i++)
 		action->fMenuItemList.ItemAt(i)->SetEnabled(enabled);
 	for (int i=0; i<action->fToolBarList.CountItems();i++)

@@ -138,14 +138,7 @@ private:
 
 private:
 			BMenuBar*			fMenuBar;
-			BMenuItem*			fFileNewMenuItem;
-			BMenuItem*			fSaveAsMenuItem;
-			BMenuItem*			fSaveAllMenuItem;
-			BMenuItem*			fCloseMenuItem;
-			BMenuItem*			fCloseAllMenuItem;
 			BMenuItem*			fFoldMenuItem;
-			BMenuItem*			fUndoMenuItem;
-			BMenuItem*			fRedoMenuItem;
 			BMenuItem*			fCutMenuItem;
 			BMenuItem*			fCopyMenuItem;
 			BMenuItem*			fPasteMenuItem;

@@ -20,6 +20,7 @@
 #include <stdio.h>
 
 #include "GenioWindowMessages.h"
+#include "GenioWindow.h"
 #include "Log.h"
 #include "ProjectsFolderBrowser.h"
 #include "ProjectFolder.h"
@@ -373,21 +374,27 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	
 	fCloseProjectMenuItem->SetEnabled(false);
 	fSetActiveProjectMenuItem->SetEnabled(false);
+	fFileNewProjectMenuItem->SetEnabled(false);
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
-	fShowInTrackerProjectMenuItem->SetEnabled(true);
+	fShowInTrackerProjectMenuItem->SetEnabled(false);
 	fOpenTerminalProjectMenuItem->SetEnabled(false);
 	
 	ProjectFolder *project = _GetProjectFromItem(projectItem);
 	if (project==nullptr)
 		return;
 	
-	if (projectItem->GetSourceItem()->Type() != 
-		SourceItemType::FileItem)
-		fOpenTerminalProjectMenuItem->SetEnabled(true);
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::FileItem) {
+		fCloseProjectMenuItem->SetEnabled(false);
+		fSetActiveProjectMenuItem->SetEnabled(false);
+		fFileNewProjectMenuItem->SetEnabled(false);
+		fDeleteFileProjectMenuItem->SetEnabled(true);
+		fOpenFileProjectMenuItem->SetEnabled(true);
+		fShowInTrackerProjectMenuItem->SetEnabled(true);
+		fOpenTerminalProjectMenuItem->SetEnabled(false);
+	}
 	
-	if (projectItem->GetSourceItem()->Type() == 
-		SourceItemType::ProjectFolderItem)
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem)
 	{
 		fCloseProjectMenuItem->SetEnabled(true);
 		if (!project->Active()) {
@@ -397,10 +404,23 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 			if (fIsBuilding)
 				return;
 		}
+		
+		fFileNewProjectMenuItem->SetEnabled(true);
+		fDeleteFileProjectMenuItem->SetEnabled(false);
+		fOpenFileProjectMenuItem->SetEnabled(false);
+		fShowInTrackerProjectMenuItem->SetEnabled(true);
+		fOpenTerminalProjectMenuItem->SetEnabled(true);
 
-	} else {
+	} 
+
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem) {
+		fCloseProjectMenuItem->SetEnabled(false);
+		fSetActiveProjectMenuItem->SetEnabled(false);
+		fFileNewProjectMenuItem->SetEnabled(true);
 		fDeleteFileProjectMenuItem->SetEnabled(true);
-		fOpenFileProjectMenuItem->SetEnabled(true);
+		fOpenFileProjectMenuItem->SetEnabled(false);
+		fShowInTrackerProjectMenuItem->SetEnabled(true);
+		fOpenTerminalProjectMenuItem->SetEnabled(true);
 	}
 
 	fProjectMenu->Go(ConvertToScreen(where), true, true, false);
@@ -574,4 +594,10 @@ ProjectsFolderBrowser::_CompareProjectItems(const BListItem* a, const BListItem*
 		return BPrivate::NaturalCompare(nameA, nameB);
 		
 	return 0;
+}
+
+void
+ProjectsFolderBrowser::SelectionChanged() {
+	GenioWindow *window = (GenioWindow*)this->Window();
+	window->UpdateMenu();
 }

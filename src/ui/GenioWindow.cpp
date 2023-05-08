@@ -275,6 +275,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (index == fTabManager->SelectedTabIndex()) 
 				{
 					fProblemsPanel->UpdateProblems(message);
+					fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
 				}
 			}
 			break;
@@ -3603,14 +3604,14 @@ GenioWindow::_UpdateLabel(int32 index, bool isModified)
 void
 GenioWindow::_UpdateProjectActivation(bool active)
 {
+	fBuildItem->SetEnabled(active);
+	fCleanItem->SetEnabled(active);
+	fBuildModeItem->SetEnabled(active);
+	fMakeCatkeysItem->SetEnabled(active);
+	fMakeBindcatalogsItem->SetEnabled(active);
+	fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, active);
+	
 	if (active == true) {
-		fBuildItem->SetEnabled(true);
-		fCleanItem->SetEnabled(true);
-		fBuildModeItem->SetEnabled(true);
-		fMakeCatkeysItem->SetEnabled(true);
-		fMakeBindcatalogsItem->SetEnabled(true);
-		fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, true);
-
 		// Is this a git project?
 		if (fActiveProject->Git())
 			fGitMenu->SetEnabled(true);
@@ -3641,15 +3642,9 @@ GenioWindow::_UpdateProjectActivation(bool active)
 			fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
 		}
 	} else { // here project is inactive
-		fBuildItem->SetEnabled(false);
-		fCleanItem->SetEnabled(false);
-		fRunItem->SetEnabled(false);
-		fBuildModeItem->SetEnabled(false);
+		fRunItem->SetEnabled(false);		
 		fDebugItem->SetEnabled(false);
-		fMakeCatkeysItem->SetEnabled(false);
-		fMakeBindcatalogsItem->SetEnabled(false);
 		fGitMenu->SetEnabled(false);
-		fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, false);
 		fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
 		fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
 		fToolBar->SetActionEnabled(MSG_BUILD_MODE, false);
@@ -3756,7 +3751,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 			SetTitle(GenioNames::kApplicationName);
 
 		fProblemsPanel->Clear();
-
+		fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
+		
 		return;
 	}
 
@@ -3832,6 +3828,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	BMessage diagnostics;
 	editor->GetProblems(&diagnostics);
 	fProblemsPanel->UpdateProblems(&diagnostics);
-
+	fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
+	
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

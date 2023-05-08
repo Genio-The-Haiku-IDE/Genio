@@ -41,12 +41,12 @@ public:
 	
 	BString const	GetCurrentProjectFileFullPath();
 	
-	
-	
 	void			SetBuildingPhase(bool building) { fIsBuilding = building;};
 	
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
+	
+	virtual void	SelectionChanged();
 	
 private:
 	

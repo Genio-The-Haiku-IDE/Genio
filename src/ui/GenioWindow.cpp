@@ -674,9 +674,20 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_FILE_NEW: {
-			//TODO
-			break;
+			if (!fActiveProject) {
+				LogError("Can't find current item");
+				return;
+			}
+			BEntry entry(fActiveProject->Path());
+			entry_ref ref;
+			if (entry.GetRef(&ref) != B_OK) {
+				LogError("Invalid entry_ref for [%s]", fActiveProject->Path().String());
+				return;
+			}
+			
+			_CreateNewFile(message, &entry);
 		}
+		break;
 		case MSG_FILE_NEXT_SELECTED: {
 			int32 index = fTabManager->SelectedTabIndex();
 
@@ -885,75 +896,23 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_MENU_NEW_FILE: 
 		{
-			//message->PrintToStream();
-			BString type;
-			if (message->FindString("type", &type) != B_OK) {
-				LogError("(MSG_PROJECT_MENU_NEW_FILE) Can't find type!");
-				return;
-			}
-			
-			int32 index = -1;
-			if (message->FindInt32("index", &index) != B_OK) {
-				LogError("(MSG_PROJECT_MENU_NEW_FILE) Can't find index!");
-				return;
-			}
-			
 			ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();
 			if (!item) {
-				LogError("(MSG_PROJECT_MENU_NEW_FILE) Can't find item at index %d", index);
+				LogError("Can't find current item");
 				return;
 			}
 			if (item->GetSourceItem()->Type() != SourceItemType::FolderItem) {
-				LogDebug("(MSG_PROJECT_MENU_NEW_FILE) Invoking on a non directory (%s)", item->GetSourceItem()->Name().String());
+				LogDebug("Invoking on a non directory (%s)", item->GetSourceItem()->Name().String());
 				return;
 			}
-			
 			BEntry entry(item->GetSourceItem()->Path());
 			entry_ref ref;
 			if (entry.GetRef(&ref) != B_OK) {
-				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Invalid entry_ref for [%s]", item->GetSourceItem()->Path().String());
+				LogError("Invalid entry_ref for [%s]", item->GetSourceItem()->Path().String());
 				return;
 			}
 			
-			if (type == "new_folder") {
-				LogError("(MSG_PROJECT_MENU_NEW_FILE) New folder!");
-				
-				BDirectory dir(&entry);
-				status_t status = dir.CreateDirectory("New folder", nullptr);
-				if (status != B_OK) {
-					OKAlert(B_TRANSLATE("New folder"), B_TRANSLATE("Error creating folder"), B_WARNING_ALERT);
-					LogError("Invalid entry_ref for [%s]", item->GetSourceItem()->Path().String());
-				}
-				return;
-			}
-			if (type == "new_file") {
-				entry_ref new_ref;
-				if (message->FindRef("refs", &new_ref) != B_OK) {
-					LogError("Can't find ref in message!");
-					return;
-				}
-				// Copy template file to destination
-				BEntry sourceEntry(&new_ref);
-				BPath destPath(item->GetSourceItem()->Path());
-				destPath.Append(new_ref.name, true);
-				BEntry destEntry(destPath.Path());
-				status_t status = CopyFile(&sourceEntry, &destEntry, false);
-				if (status != B_OK) {
-					OKAlert(B_TRANSLATE("New folder"), B_TRANSLATE("Error creating new file"), B_WARNING_ALERT);
-					LogError("Error creating new file %s in %s", new_ref.name, ref.name);
-				}
-				return;
-			}
-			if (type == "open_template_folder") {
-				entry_ref new_ref;
-				if (message->FindRef("refs", &new_ref) != B_OK) {
-					LogError("Can't find ref in message!");
-					return;
-				}
-				_ShowInTracker(&new_ref);
-				return;
-			}
-			return;
+			_CreateNewFile(message, &entry);
 		}
 		break;
 		case MSG_PROJECT_MENU_CLOSE: {
@@ -2355,7 +2314,7 @@ GenioWindow::_InitMenu()
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
 	fileMenu->AddItem(fFileNewMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
-			MSG_PROJECT_NEW));	
+			MSG_PROJECT_MENU_NEW_FILE));	
 	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
 		new BMessage(MSG_FILE_OPEN), 'O'));
 	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
@@ -4079,4 +4038,74 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fProblemsPanel->UpdateProblems(&diagnostics);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
+}
+
+
+status_t
+GenioWindow::_CreateNewFile(BMessage *message, BEntry *dest)
+{
+	status_t status;
+
+	BString type;
+	status = message->FindString("type", &type);
+	if (status != B_OK) {
+		LogError("Can't find type!");
+		return status;
+	}
+	
+	if (type == "new_folder") {
+		BDirectory dir(dest);
+		status = dir.CreateDirectory("New folder", nullptr);
+		if (status != B_OK) {
+			OKAlert(B_TRANSLATE("New folder"), B_TRANSLATE("Error creating folder"), B_WARNING_ALERT);
+			LogError("Invalid destination directory [%s]", dest->Name());
+		}
+		return status;
+	}
+	
+	if (type == "new_file") {
+		entry_ref new_ref;
+		if (message->FindRef("refs", &new_ref) != B_OK) {
+			LogError("Can't find ref in message!");
+			return B_ERROR;
+		}
+		// Copy template file to destination
+		BEntry sourceEntry(&new_ref);
+		BPath destPath;
+		dest->GetPath(&destPath);
+		destPath.Append(new_ref.name, true);
+		BEntry destEntry(destPath.Path());
+		status = CopyFile(&sourceEntry, &destEntry, false);
+		if (status != B_OK) {
+			OKAlert(B_TRANSLATE("New folder"), B_TRANSLATE("Error creating new file"), B_WARNING_ALERT);
+			LogError("Error creating new file %s in %s", new_ref.name, dest->Name());
+		}
+		return status;
+	}
+	
+	if (type == "open_template_folder") {
+		entry_ref new_ref;
+		status = message->FindRef("refs", &new_ref);
+		if (status != B_OK) {
+			LogError("Can't find ref in message!");
+			return status;
+		}
+		_ShowInTracker(&new_ref);
+		return B_OK;
+	}
+	
+	return B_OK;
+}
+
+
+void
+GenioWindow::UpdateMenu()
+{
+	ProjectItem *item = fProjectsFolderBrowser->GetCurrentProjectItem();
+	if (item != nullptr) {
+		if (item->GetSourceItem()->Type() != SourceItemType::FileItem)
+			fFileNewMenuItem->SetEnabled(true);
+		else
+			fFileNewMenuItem->SetEnabled(false);
+	}
 }

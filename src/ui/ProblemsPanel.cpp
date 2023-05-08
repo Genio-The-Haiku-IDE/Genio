@@ -32,7 +32,9 @@ class RangeRow : public BRow {
 
 };
 
-ProblemsPanel::ProblemsPanel(): BColumnListView(B_TRANSLATE("Problems"),
+#define ProblemLabel B_TRANSLATE("Problems")
+
+ProblemsPanel::ProblemsPanel(): BColumnListView(ProblemLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)
 	
 {
@@ -102,5 +104,15 @@ ProblemsPanel::UpdateProblems(BMessage* msg)
 		   row->SetField(new BStringField(dia.GetString("source","")), kSourceColumn);
 		   AddRow(row);
 	}
-
+}
+BString	
+ProblemsPanel::TabLabel()
+{
+	BString label = ProblemLabel;
+	if (CountRows() > 0) {
+		label.Append(" (");
+		label.Append(std::to_string(CountRows()).c_str());
+		label.Append(")");
+	}
+	return label;
 }

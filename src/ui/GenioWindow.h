@@ -12,7 +12,6 @@
 #include <ColumnTypes.h>
 #include <FilePanel.h>
 #include <GroupLayout.h>
-#include <IconButton.h>
 #include <MenuBar.h>
 #include <ObjectList.h>
 #include <OutlineListView.h>
@@ -23,6 +22,7 @@
 #include <TabView.h>
 #include <TextControl.h>
 #include <Window.h>
+#include "ToolBar.h"
 #include "GoToLineWindow.h"
 #include "ProblemsPanel.h"
 #include "ConsoleIOThread.h"
@@ -99,9 +99,7 @@ private:
 			void				_InitSideSplit();
 			void				_InitToolbar();
 			void				_InitWindow();
-			BIconButton*		_LoadIconButton(const char* name, int32 msg,
-									int32 resIndex, bool enabled, const char* tooltip);
-			BBitmap*			_LoadSizedVectorIcon(int32 resourceID, int32 size);
+
 			void				_MakeBindcatalogs();
 			void				_MakeCatkeys();
 			void				_MakefileSetBuildMode(bool isReleaseMode);
@@ -193,39 +191,12 @@ private:
 			BMenuItem*			fGitTagItem;
 			BMenu*				fHgMenu;
 			BMenuItem*			fHgStatusItem;
-
+			
+			ToolBar*			fToolBar;
+			
 			BGroupLayout*		fRootLayout;
-			BGroupLayout* 		fToolBar;
 			BGroupLayout*		fEditorTabsGroup;
 
-			BIconButton*		fProjectsButton;
-			BIconButton*		fOutputButton;
-			BIconButton*		fFindButton;
-			BIconButton*		fReplaceButton;
-			BIconButton*		fFindinFilesButton;
-			BIconButton*		fFoldButton;
-			BIconButton*		fUndoButton;
-			BIconButton*		fRedoButton;
-			BIconButton*		fFileSaveButton;
-			BIconButton*		fFileSaveAllButton;
-			BIconButton*		fBuildButton;
-			BIconButton*		fRunButton;
-			BIconButton*		fDebugButton;
-			BIconButton*		fConsoleButton;
-			BIconButton*		fBuildModeButton;
-			BIconButton*		fFileUnlockedButton;
-			BIconButton*		fFilePreviousButton;
-			BIconButton*		fFileNextButton;
-			BIconButton*		fFileCloseButton;
-			BIconButton*		fFileMenuButton;
-
-			BIconButton*		fFindPreviousButton;
-			BIconButton*		fFindNextButton;
-			BIconButton*		fFindMarkAllButton;
-			BIconButton*		fReplaceOneButton;
-			BIconButton*		fReplaceAndFindNextButton;
-			BIconButton*		fReplaceAndFindPrevButton;
-			BIconButton*		fReplaceAllButton;
 
 			// Left panels
 			BTabView*	  		fProjectsTabView;
@@ -243,8 +214,8 @@ private:
 			EditorTabManager*		fTabManager;
 
 
-			BGroupLayout*		fFindGroup;
-			BGroupLayout*		fReplaceGroup;
+			ToolBar*			fFindGroup;
+			ToolBar*			fReplaceGroup;
 			BMenuField*			fFindMenuField;
 			BMenuField*			fReplaceMenuField;
 			BTextControl*		fFindTextControl;
@@ -264,7 +235,7 @@ private:
 
 			// Bottom panels
 			BTabView*			fOutputTabView;
-			ProblemsPanel*	fProblemsPanel;
+			ProblemsPanel*		fProblemsPanel;
 			ConsoleIOThread*	fConsoleIOThread;
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;

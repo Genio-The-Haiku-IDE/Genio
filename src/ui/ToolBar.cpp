@@ -26,8 +26,8 @@ ToolBar::ToolBar(BHandler* defaultTarget)
 	GroupLayout()->SetInsets(0.0f, 0.0f, B_USE_HALF_ITEM_INSETS, 1.0f);
 		// 1px bottom inset used for border
 
-	// Needed to draw the bottom border
-	SetFlags(Flags() | B_WILL_DRAW);
+	// Needed to draw the bottom border and to avoid a BToolBar tool-tip-hide bug
+	SetFlags((Flags() | B_WILL_DRAW) & ~B_PULSE_NEEDED);
 	SetLowColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 }
 

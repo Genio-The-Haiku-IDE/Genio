@@ -51,9 +51,6 @@
 
 constexpr auto kRecentFilesNumber = 14 + 1;
 
-// If enabled check menu open point
-//static const auto kToolBarSize = 29;
-
 static constexpr float kTabBarHeight = 30.0f;
 
 
@@ -140,9 +137,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fActionManager(nullptr)
 {
 	_InitActions();
-	
 	_InitMenu();
-
 	_InitWindow();
 
 	// Shortcuts
@@ -158,9 +153,6 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY,   B_ESCAPE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorKeyDownMessageFilter());
-	
-
-
 
 	// Load workspace - reopen projects
 	if (GenioNames::Settings.reopen_projects == true) {
@@ -250,13 +242,9 @@ GenioWindow::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case MSG_ESCAPE_KEY:{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
-					if (!fFindGroup->IsHidden())
-						fFindGroup->Hide();
-					if (!fReplaceGroup->IsHidden())
-						fReplaceGroup->Hide();
+					_FindGroupShow(false);
 			} else if (CurrentFocus() == fReplaceTextControl->TextView()) {
-					if (!fReplaceGroup->IsHidden())
-						fReplaceGroup->Hide();
+					_ReplaceGroupShow(false);
 					fFindTextControl->MakeFocus(true);
 			}
 		}
@@ -685,7 +673,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 		break;
 		case MSG_FIND_GROUP_SHOW:
-			_FindGroupShow();
+			_FindGroupShow(true);
 			break;
 		case MSG_FIND_IN_FILES: {
 			_FindInFiles();
@@ -726,7 +714,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_FIND_GROUP_TOGGLED:
-			_FindGroupToggled();
+			_FindGroupShow(fFindGroup->IsHidden());
 			break;
 		case MSG_GIT_COMMAND: {
 			BString command;
@@ -879,14 +867,14 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_REPLACE_GROUP_SHOW:
-			_ReplaceGroupShow();
+			_ReplaceGroupShow(true);
 			break;
 		case MSG_REPLACE_ALL: {
 			_Replace(REPLACE_ALL);
 			break;
 		}
 		case MSG_REPLACE_GROUP_TOGGLED:
-			_ReplaceGroupToggled();
+			_ReplaceGroupShow(fReplaceGroup->IsHidden());
 			break;
 		case MSG_REPLACE_MENU_SELECTED: {
 			int32 index;
@@ -913,6 +901,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				fRunConsoleProgramGroup->SetVisible(true);
 				fRunConsoleProgramText->MakeFocus(true);
 			}
+			fActionManager->SetPressed(MSG_RUN_CONSOLE_PROGRAM_SHOW, fRunConsoleProgramGroup->IsVisible());
 			break;
 		}
 		case MSG_RUN_CONSOLE_PROGRAM: {
@@ -1614,31 +1603,17 @@ GenioWindow::_FilesNeedSave()
 }
 
 void
-GenioWindow::_FindGroupShow()
+GenioWindow::_FindGroupShow(bool show)
 {
-	if (fFindGroup->IsHidden()) {
-		fFindGroup->Show();
-	}
-	_GetFocusAndSelection(fFindTextControl);
-}
-
-void
-GenioWindow::_FindGroupToggled()
-{
-	bool findHidden = fFindGroup->IsHidden();
-	if (findHidden) {
-		_FindGroupShow();
-	} else {
-		
-		fFindGroup->Hide();
-		
-		if (!fReplaceGroup->IsHidden())
-			fReplaceGroup->Hide();
-			
+	_ShowView(fFindGroup, show, MSG_FIND_GROUP_TOGGLED);
+	if (!show) {
+		_ShowView(fReplaceGroup, show, MSG_REPLACE_GROUP_TOGGLED);
 		Editor* editor = fTabManager->SelectedEditor();
 		if (editor) {
 			editor->GrabFocus();
-		}		
+		}
+	} else {
+		_GetFocusAndSelection(fFindTextControl);
 	}
 }
 
@@ -2334,17 +2309,20 @@ GenioWindow::_InitActions()
 								   "",
 								   "", '<'); //TODO: check shortcut.
 
-
+	fActionManager->RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,
+								   B_TRANSLATE("Run console program"),
+								   B_TRANSLATE("Run console program"), 
+								   "kConsoleApp");
 //add missing menus
 
 	fActionManager->RegisterAction(MSG_SHOW_HIDE_PROJECTS,
-								   B_TRANSLATE("Toggle Projects panes"),
-								   B_TRANSLATE("Show/Hide Projects split"), 
+								   B_TRANSLATE("Show Projects pane"),
+								   B_TRANSLATE("Show/Hide Projects pane"), 
 								   "kIconWindow");
 								   
 	fActionManager->RegisterAction(MSG_SHOW_HIDE_OUTPUT,
-								   B_TRANSLATE("Toggle Output panes"),
-	                               B_TRANSLATE("Show/Hide Output split"),   
+								   B_TRANSLATE("Show Output panes"),
+	                               B_TRANSLATE("Show/Hide Output panes"),   
 								   "kIconTerminal");
 								   
 	fActionManager->RegisterAction(MSG_TOGGLE_TOOLBAR,
@@ -2655,7 +2633,7 @@ GenioWindow::_InitToolbar()
 	fActionManager->AddItem(MSG_FIND_GROUP_TOGGLED,		fToolBar);
 	fActionManager->AddItem(MSG_REPLACE_GROUP_TOGGLED,	fToolBar);
 	fToolBar->AddSeparator();
-	fToolBar->AddAction(MSG_RUN_CONSOLE_PROGRAM_SHOW, B_TRANSLATE("Run console program"), "kConsoleApp");
+	fActionManager->AddItem(MSG_RUN_CONSOLE_PROGRAM_SHOW, fToolBar);
 	fToolBar->AddGlue();
 	fToolBar->AddAction(MSG_BUILD_MODE, B_TRANSLATE("Build mode: Debug"), "kAppDebugger");
 	fToolBar->AddAction(MSG_BUFFER_LOCK, B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
@@ -2666,6 +2644,10 @@ GenioWindow::_InitToolbar()
 	fActionManager->AddItem(MSG_FILE_CLOSE, fToolBar);
 	
 	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Indexed File list"), "kIconFileList");
+	
+	
+	fActionManager->SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
+	fActionManager->SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
 }
 
 void
@@ -3566,16 +3548,19 @@ GenioWindow::_ReplaceAndFind()
 	_UpdateReplaceMenuItems(fReplaceTextControl->Text());
 }
 */
+
 void
-GenioWindow::_ReplaceGroupShow()
+GenioWindow::_ReplaceGroupShow(bool show)
 {
 	bool findGroupOpen = !fFindGroup->IsHidden();
 
 	if (findGroupOpen == false)
-		_FindGroupShow();
+		_FindGroupShow(true);
 	
-	if (fReplaceGroup->IsHidden()) {
-		fReplaceGroup->Show();
+	_ShowView(fReplaceGroup, show, MSG_REPLACE_GROUP_TOGGLED);
+	
+	if (!show) {
+
 		fReplaceTextControl->TextView()->Clear();
 		// If find group was not open focus and selection go there
 		if (findGroupOpen == false)
@@ -3586,17 +3571,6 @@ GenioWindow::_ReplaceGroupShow()
 	// Replace group was opened, get focus and selection
 	else 
 		_GetFocusAndSelection(fReplaceTextControl);
-}
-
-void
-GenioWindow::_ReplaceGroupToggled()
-{
-	bool replaceHidden = fReplaceGroup->IsHidden();
-	if (replaceHidden)
-		_ReplaceGroupShow();
-	else
-		fReplaceGroup->Hide();
-
 }
 
 status_t
@@ -3837,8 +3811,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// All files are closed
 	if (editor == nullptr) {
 		// ToolBar Items
-		fToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, false);
-		fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
+		fActionManager->SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
+		fActionManager->SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
 		fReplaceGroup->Hide();
 		fActionManager->SetEnabled(MSG_FILE_FOLD_TOGGLE, false);
 		fActionManager->SetEnabled(B_UNDO, false);
@@ -3864,7 +3838,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fActionManager->SetEnabled(MSG_TEXT_OVERWRITE, false);
 		fActionManager->SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
 		fActionManager->SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
-		fLineEndingsMenu->SetEnabled(false);
+
 		fActionManager->SetEnabled(MSG_DUPLICATE_LINE, false);
 		fActionManager->SetEnabled(MSG_DELETE_LINES, false);
 		fActionManager->SetEnabled(MSG_COMMENT_SELECTED_LINES, false);
@@ -3877,6 +3851,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fActionManager->SetEnabled(MSG_SWITCHSOURCE, false);
 		fActionManager->SetEnabled(MSG_SIGNATUREHELP, false);
 	
+		fLineEndingsMenu->SetEnabled(false);
 		fFindItem->SetEnabled(false);
 		fReplaceItem->SetEnabled(false);
 		fGoToLineItem->SetEnabled(false);
@@ -3893,8 +3868,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	// ToolBar Items
 	
-	fToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, true);
-	fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
 	fActionManager->SetEnabled(MSG_FILE_FOLD_TOGGLE, editor->IsFoldingAvailable());
 	fActionManager->SetEnabled(B_UNDO, editor->CanUndo());
 	fActionManager->SetEnabled(B_REDO, editor->CanRedo());
@@ -3947,7 +3920,10 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fActionManager->SetEnabled(MSG_GOTOIMPLEMENTATION, editor->GetProjectFolder());
 	fActionManager->SetEnabled(MSG_SWITCHSOURCE, editor->GetProjectFolder());
 	fActionManager->SetEnabled(MSG_SIGNATUREHELP, !editor->IsReadOnly() && editor->GetProjectFolder());
-
+	
+	fActionManager->SetEnabled(MSG_FIND_GROUP_TOGGLED, true);
+	fActionManager->SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
+	
 	fFindItem->SetEnabled(true);
 	fReplaceItem->SetEnabled(true);
 	fGoToLineItem->SetEnabled(true);

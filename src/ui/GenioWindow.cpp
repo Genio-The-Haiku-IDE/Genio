@@ -246,6 +246,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			} else if (CurrentFocus() == fReplaceTextControl->TextView()) {
 					_ReplaceGroupShow(false);
 					fFindTextControl->MakeFocus(true);
+			} else if (CurrentFocus() == fRunConsoleProgramText->TextView()) {
+				fRunConsoleProgramGroup->SetVisible(false);
+				fRunConsoleProgramText->MakeFocus(false);
+				fActionManager->SetPressed(MSG_RUN_CONSOLE_PROGRAM_SHOW, false);
 			}
 		}
 		break;

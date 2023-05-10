@@ -3665,16 +3665,10 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	fBuildModeItem->SetEnabled(active);
 	fMakeCatkeysItem->SetEnabled(active);
 	fMakeBindcatalogsItem->SetEnabled(active);
+	fFileNewMenuItem->SetEnabled(active);
 	fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, active);
 	
 	if (active == true) {
-		fBuildItem->SetEnabled(true);
-		fCleanItem->SetEnabled(true);
-		fBuildModeItem->SetEnabled(true);
-		fMakeCatkeysItem->SetEnabled(true);
-		fMakeBindcatalogsItem->SetEnabled(true);
-		fBuildButton->SetEnabled(true);
-		fFileNewMenuItem->SetEnabled(true);
 
 		// Is this a git project?
 		if (fActiveProject->Git())

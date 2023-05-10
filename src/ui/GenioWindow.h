@@ -56,6 +56,7 @@ public:
 	virtual void				DispatchMessage(BMessage* message, BHandler* handler);
 	virtual void				MessageReceived(BMessage* message);
 	virtual bool				QuitRequested();
+	virtual void				Show();
 	
 
 private:
@@ -135,20 +136,10 @@ private:
 			void				_UpdateSavepointChange(int32 index, const BString& caller = "");
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
+			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
 
 private:
 			BMenuBar*			fMenuBar;
-			BMenuItem*			fFoldMenuItem;
-			BMenuItem*			fCutMenuItem;
-			BMenuItem*			fCopyMenuItem;
-			BMenuItem*			fPasteMenuItem;
-			BMenuItem*			fSelectAllMenuItem;
-			BMenuItem*			fOverwiteItem;
-			BMenuItem*			fToggleWhiteSpacesItem;
-			BMenuItem*			fToggleLineEndingsItem;
-			BMenuItem*			fDuplicateLineItem;
-			BMenuItem*			fDeleteLinesItem;
-			BMenuItem*			fCommentSelectionItem;
 			BMenu*				fLineEndingsMenu;
 			BMenuItem*			fFindItem;
 			BMenuItem*			fReplaceItem;
@@ -164,11 +155,10 @@ private:
 			BMenu*				fBuildModeItem;
 			BMenuItem*			fReleaseModeItem;
 			BMenuItem*			fDebugModeItem;
-			BMenu*				fCargoMenu;
-			BMenuItem*			fCargoUpdateItem;
 			BMenuItem*			fDebugItem;
 			BMenuItem*			fMakeCatkeysItem;
 			BMenuItem*			fMakeBindcatalogsItem;
+
 			BMenu*				fGitMenu;
 			BMenuItem*			fGitBranchItem;
 			BMenuItem*			fGitLogItem;
@@ -179,8 +169,6 @@ private:
 			BMenuItem*			fGitStatusItem;
 			BMenuItem*			fGitStatusShortItem;
 			BMenuItem*			fGitTagItem;
-			BMenu*				fHgMenu;
-			BMenuItem*			fHgStatusItem;
 			
 			ToolBar*			fToolBar;
 			

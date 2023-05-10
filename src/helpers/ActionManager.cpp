@@ -15,6 +15,7 @@ public:
 	char	fShortcut;
 	uint32  fModifiers;
 	bool	fEnabled;
+	bool	fPressed;
 	
 	BObjectList<BMenuItem>	fMenuItemList;
 	BObjectList<ToolBar>	fToolBarList;
@@ -39,6 +40,7 @@ ActionManager::RegisterAction(int32   msgWhat,
 {
 	Action* action = new Action();
 	action->fEnabled = true; //by default?
+	action->fPressed = false;
 	action->fLabel = label;
 	action->fIconResourceName = iconResource;
 	action->fToolTip = toolTip;
@@ -58,6 +60,7 @@ ActionManager::AddItem(int32 msgWhat, BMenu* menu)
 	BMenuItem* item = new BMenuItem(action->fLabel, new BMessage(msgWhat), action->fShortcut, action->fModifiers);
 	menu->AddItem(item);
 	item->SetEnabled(action->fEnabled);
+	item->SetMarked(action->fPressed);
 	action->fMenuItemList.AddItem(item);
 	return B_OK;
 }
@@ -70,6 +73,7 @@ ActionManager::AddItem(int32 msgWhat, ToolBar* bar)
 	Action* action = fActionMap[msgWhat];
 	bar->AddAction(msgWhat, action->fToolTip, action->fIconResourceName);
 	bar->SetActionEnabled(msgWhat, action->fEnabled);
+	bar->SetActionPressed(msgWhat, action->fPressed);
 	action->fToolBarList.AddItem(bar);
 	return B_OK;
 }
@@ -92,3 +96,31 @@ ActionManager::SetEnabled(int32 msgWhat, bool enabled)
 	
 }
 
+status_t	
+ActionManager::SetPressed(int32 msgWhat, bool pressed)
+{
+	if (fActionMap.find(msgWhat) == fActionMap.end())
+		return B_ERROR;
+	Action* action = fActionMap[msgWhat];
+	
+	action->fPressed = pressed;
+	
+	for (int i=0; i<action->fMenuItemList.CountItems();i++)
+		action->fMenuItemList.ItemAt(i)->SetMarked(pressed);
+		
+	for (int i=0; i<action->fToolBarList.CountItems();i++)
+		action->fToolBarList.ItemAt(i)->SetActionPressed(msgWhat, pressed);
+	
+	return B_OK;
+	
+}
+
+bool		
+ActionManager::IsPressed(int32 msgWhat)
+{
+	if (fActionMap.find(msgWhat) == fActionMap.end())
+		return false;
+	Action* action = fActionMap[msgWhat];
+	
+	return action->fPressed;
+}

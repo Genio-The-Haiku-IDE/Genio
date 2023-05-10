@@ -2330,7 +2330,7 @@ GenioWindow::_InitActions()
 								   "kIconTerminal");
 								   
 	fActionManager->RegisterAction(MSG_TOGGLE_TOOLBAR,
-								   B_TRANSLATE("Toggle ToolBar"));
+								   B_TRANSLATE("Show ToolBar"));
 }
 
 void

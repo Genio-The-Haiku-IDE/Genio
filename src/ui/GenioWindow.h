@@ -139,9 +139,6 @@ private:
 private:
 			BMenuBar*			fMenuBar;
 			BMenu*				fLineEndingsMenu;
-			BMenuItem*			fFindItem;
-			BMenuItem*			fReplaceItem;
-			BMenuItem*			fGoToLineItem;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;
 			BMenuItem*			fBookmarkClearAllItem;

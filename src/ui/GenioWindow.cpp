@@ -636,21 +636,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				delete tabMenu;
 			break;
 		}
-		case MSG_FILE_NEW: {
-			if (!fActiveProject) {
-				LogError("Can't find current item");
-				return;
-			}
-			BEntry entry(fActiveProject->Path());
-			entry_ref ref;
-			if (entry.GetRef(&ref) != B_OK) {
-				LogError("Invalid entry_ref for [%s]", fActiveProject->Path().String());
-				return;
-			}
-			
-			_CreateNewFile(message, &entry);
-		}
-		break;
 		case MSG_FILE_NEXT_SELECTED: {
 			int32 index = fTabManager->SelectedTabIndex();
 
@@ -857,6 +842,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectFolderClose(fActiveProject);
 			break;
 		}
+		case MSG_FILE_NEW:
 		case MSG_PROJECT_MENU_NEW_FILE: 
 		{
 			ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();

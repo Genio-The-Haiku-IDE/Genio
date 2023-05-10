@@ -78,8 +78,7 @@ private:
 			void				_FileSaveAll();
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
 			bool				_FilesNeedSave();
-			void				_FindGroupShow();
-			void				_FindGroupToggled();
+			void				_FindGroupShow(bool show);
 			int32				_FindMarkAll(const BString text);
 			void				_FindNext(const BString& strToFind, bool backwards);
 			void				_FindInFiles();
@@ -122,8 +121,7 @@ private:
 			
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
-			void				_ReplaceGroupShow();
-			void				_ReplaceGroupToggled();
+			void				_ReplaceGroupShow(bool show);
 			status_t			_RunInConsole(const BString& command);
 			void				_RunTarget();
 			void				_SendNotification(BString message, BString type);

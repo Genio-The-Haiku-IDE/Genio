@@ -74,9 +74,6 @@ GenioWindow::GenioWindow(BRect frame)
 												B_QUIT_ON_WINDOW_CLOSE)
 	, fMenuBar(nullptr)
 	, fLineEndingsMenu(nullptr)
-	, fFindItem(nullptr)
-	, fReplaceItem(nullptr)
-	, fGoToLineItem(nullptr)
 	, fBookmarksMenu(nullptr)
 	, fBookmarkToggleItem(nullptr)
 	, fBookmarkClearAllItem(nullptr)
@@ -2297,7 +2294,12 @@ GenioWindow::_InitActions()
 	fActionManager->RegisterAction(MSG_SIGNATUREHELP,
 								   B_TRANSLATE("Signature Help"), "", "", '?');
 								   
-// add missing zoom actions
+
+	fActionManager->RegisterAction(MSG_VIEW_ZOOMIN,  B_TRANSLATE("Zoom In"), "", "", '+');
+	fActionManager->RegisterAction(MSG_VIEW_ZOOMOUT, B_TRANSLATE("Zoom Out"), "", "", '-');
+	fActionManager->RegisterAction(MSG_VIEW_ZOOMRESET, B_TRANSLATE("Zoom Reset"), "", "", '0');
+
+
 	fActionManager->RegisterAction(MSG_FIND_GROUP_TOGGLED, //MSG_FIND_GROUP_SHOW,
 								   B_TRANSLATE("Find"),
 								   B_TRANSLATE("Find toggle (closes Replace bar if open)"),
@@ -2307,7 +2309,16 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Replace"),
 								   B_TRANSLATE("Replace toggle (leaves Find bar open)"),
 								   "kIconReplace");
+
+	
+	fActionManager->RegisterAction(MSG_FIND_GROUP_SHOW,
+								   B_TRANSLATE("Find"),
+								   "", "", 'F');
 								   
+	fActionManager->RegisterAction(MSG_REPLACE_GROUP_SHOW,
+								   B_TRANSLATE("Replace"),
+								   "", "", 'R');
+		
 	fActionManager->RegisterAction(MSG_GOTO_LINE,
 								   B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
 								   "",
@@ -2458,18 +2469,20 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(editMenu);
 	
 	BMenu* viewMenu = new BMenu(B_TRANSLATE("View"));
-	viewMenu->AddItem(new BMenuItem(B_TRANSLATE("Zoom In"), new BMessage(MSG_VIEW_ZOOMIN), '+'));
-	viewMenu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Out"), new BMessage(MSG_VIEW_ZOOMOUT), '-'));
-	viewMenu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Reset"), new BMessage(MSG_VIEW_ZOOMRESET), '0'));
 	fMenuBar->AddItem(viewMenu);
 	
+	fActionManager->AddItem(MSG_VIEW_ZOOMIN, viewMenu);
+	fActionManager->AddItem(MSG_VIEW_ZOOMOUT, viewMenu);
+	fActionManager->AddItem(MSG_VIEW_ZOOMRESET, viewMenu);
+		
 	BMenu* searchMenu = new BMenu(B_TRANSLATE("Search"));
-	searchMenu->AddItem(fFindItem = new BMenuItem(B_TRANSLATE("Find"),
-		new BMessage(MSG_FIND_GROUP_SHOW), 'F'));
-	searchMenu->AddItem(fReplaceItem = new BMenuItem(B_TRANSLATE("Replace"),
-		new BMessage(MSG_REPLACE_GROUP_SHOW), 'R'));
-	searchMenu->AddItem(fGoToLineItem = new BMenuItem(B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
-		new BMessage(MSG_GOTO_LINE), '<'));
+	fActionManager->AddItem(MSG_FIND_GROUP_SHOW, searchMenu);
+	fActionManager->AddItem(MSG_REPLACE_GROUP_SHOW, searchMenu);
+	fActionManager->AddItem(MSG_GOTO_LINE, searchMenu);
+	
+	fActionManager->SetEnabled(MSG_FIND_GROUP_SHOW, false);
+	fActionManager->SetEnabled(MSG_REPLACE_GROUP_SHOW, false);
+	fActionManager->SetEnabled(MSG_GOTO_LINE, false);
 
 	fBookmarksMenu = new BMenu(B_TRANSLATE("Bookmark"));
 	fBookmarksMenu->AddItem(fBookmarkToggleItem = new BMenuItem(B_TRANSLATE("Toggle"),
@@ -2481,9 +2494,6 @@ GenioWindow::_InitMenu()
 	fBookmarksMenu->AddItem(fBookmarkGoToPreviousItem = new BMenuItem(B_TRANSLATE("Go to previous"),
 		new BMessage(MSG_BOOKMARK_GOTO_PREVIOUS),'P', B_CONTROL_KEY));
 
-	fFindItem->SetEnabled(false);
-	fReplaceItem->SetEnabled(false);
-	fGoToLineItem->SetEnabled(false);
 	fBookmarksMenu->SetEnabled(false);
 
 	searchMenu->AddItem(fBookmarksMenu);
@@ -3856,9 +3866,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fActionManager->SetEnabled(MSG_SIGNATUREHELP, false);
 	
 		fLineEndingsMenu->SetEnabled(false);
-		fFindItem->SetEnabled(false);
-		fReplaceItem->SetEnabled(false);
-		fGoToLineItem->SetEnabled(false);
+		fActionManager->SetEnabled(MSG_FIND_GROUP_SHOW, false);
+		fActionManager->SetEnabled(MSG_REPLACE_GROUP_SHOW, false);
+		fActionManager->SetEnabled(MSG_GOTO_LINE, false);
 		fBookmarksMenu->SetEnabled(false);
 
 		if (GenioNames::Settings.fullpath_title == true)
@@ -3926,11 +3936,11 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fActionManager->SetEnabled(MSG_SIGNATUREHELP, !editor->IsReadOnly() && editor->GetProjectFolder());
 	
 	fActionManager->SetEnabled(MSG_FIND_GROUP_TOGGLED, true);
-	fActionManager->SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
-	
-	fFindItem->SetEnabled(true);
-	fReplaceItem->SetEnabled(true);
-	fGoToLineItem->SetEnabled(true);
+	fActionManager->SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);	
+	fActionManager->SetEnabled(MSG_FIND_GROUP_SHOW, true);
+	fActionManager->SetEnabled(MSG_REPLACE_GROUP_SHOW, true);
+	fActionManager->SetEnabled(MSG_GOTO_LINE, true);
+
 	fBookmarksMenu->SetEnabled(true);
 
 	// File full path in window title

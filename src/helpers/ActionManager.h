@@ -21,8 +21,8 @@ public:
 
 	status_t RegisterAction(int32   msgWhat, 
 							BString label, 
-							BString toolTip,
-							BString iconResource,
+							BString toolTip = "",
+							BString iconResource = "",
 							char shortcut = 0, uint32 modifiers = 0);
 	
 	BMenuItem*	CreateMenuItem(int32 msgWhat);
@@ -31,6 +31,9 @@ public:
 	status_t    AddItem(int32 msgWhat, ToolBar*);
 	
 	status_t	SetEnabled(int32 msgWhat, bool enabled);
+	status_t	SetPressed(int32 msgWhat, bool pressed);
+	
+	bool		IsPressed(int32 msgWhat);
 
 private:
 

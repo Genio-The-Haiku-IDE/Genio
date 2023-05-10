@@ -2323,6 +2323,14 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
 								   "",
 								   "", '<'); //TODO: check shortcut.
+								   
+	fActionManager->RegisterAction(MSG_PROJECT_OPEN,
+								   B_TRANSLATE("Open Project"),
+								   "","",'O', B_OPTION_KEY);
+								   
+	fActionManager->RegisterAction(MSG_PROJECT_CLOSE,
+								   B_TRANSLATE("Close Project"),
+								   "", "", 'C', B_OPTION_KEY);
 
 	fActionManager->RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,
 								   B_TRANSLATE("Run console program"),
@@ -2506,10 +2514,8 @@ GenioWindow::_InitMenu()
 	// "stationery" concept as found in Paladin or BeIDE
 	// projectMenu->AddItem(new BMenuItem(B_TRANSLATE("New"),
 		// new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
-	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Open Project"),
-		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
-	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Close Project"),
-		new BMessage(MSG_PROJECT_CLOSE), 'C', B_OPTION_KEY));
+	fActionManager->AddItem(MSG_PROJECT_OPEN, projectMenu);
+	fActionManager->AddItem(MSG_PROJECT_CLOSE, projectMenu);
 	projectMenu->AddSeparatorItem();
 	
 	projectMenu->AddItem(fBuildItem = new BMenuItem (B_TRANSLATE("Build Project"),

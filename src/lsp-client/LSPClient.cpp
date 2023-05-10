@@ -14,7 +14,7 @@
 #define WRITE_END 1
 
  //lock access play with stdin/stdout
-static BLocker *g_LockStdFilesPntr = new BLocker ("Std-In-Out Changed Lock");
+BLocker *g_LockStdFilesPntr = new BLocker ("Std-In-Out Changed Lock");
 
 status_t 
 LSPClient::Init(const char *argv[])

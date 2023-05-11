@@ -29,7 +29,11 @@
 #include <StringItem.h>
 #include <NodeInfo.h>
 
+#include <DirMenu.h>
+
+
 #include "exceptions/Exceptions.h"
+#include "FSUtils.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
@@ -39,6 +43,7 @@
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "SettingsWindow.h"
+#include "TemplatesMenu.h"
 #include "TPreferences.h"
 #include "TextUtils.h"
 #include "Utils.h"
@@ -631,10 +636,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				delete tabMenu;
 			break;
 		}
-		case MSG_FILE_NEW: {
-			//TODO
-			break;
-		}
 		case MSG_FILE_NEXT_SELECTED: {
 			int32 index = fTabManager->SelectedTabIndex();
 
@@ -841,6 +842,28 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectFolderClose(fActiveProject);
 			break;
 		}
+		case MSG_FILE_NEW:
+		case MSG_PROJECT_MENU_NEW_FILE: 
+		{
+			ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();
+			if (!item) {
+				LogError("Can't find current item");
+				return;
+			}
+			if (item->GetSourceItem()->Type() != SourceItemType::FolderItem) {
+				LogDebug("Invoking on a non directory (%s)", item->GetSourceItem()->Name().String());
+				return;
+			}
+			BEntry entry(item->GetSourceItem()->Path());
+			entry_ref ref;
+			if (entry.GetRef(&ref) != B_OK) {
+				LogError("Invalid entry_ref for [%s]", item->GetSourceItem()->Path().String());
+				return;
+			}
+			
+			_CreateNewFile(message, &entry);
+		}
+		break;
 		case MSG_PROJECT_MENU_CLOSE: {
 			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromCurrentItem());
 			break;
@@ -2222,8 +2245,8 @@ GenioWindow::_InitMenu()
 	fMenuBar = new BMenuBar("menubar");
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
-	fileMenu->AddItem(fFileNewMenuItem = new BMenuItem(B_TRANSLATE("New"),
-		new BMessage(MSG_FILE_NEW)));
+	fileMenu->AddItem(fFileNewMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
+			MSG_PROJECT_MENU_NEW_FILE));	
 	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
 		new BMessage(MSG_FILE_OPEN), 'O'));
 	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
@@ -2241,7 +2264,6 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_FILE_CLOSE), 'W'));
 	fileMenu->AddItem(fCloseAllMenuItem = new BMenuItem(B_TRANSLATE("Close all"),
 		new BMessage(MSG_FILE_CLOSE_ALL), 'W', B_SHIFT_KEY));
-	fFileNewMenuItem->SetEnabled(false);
 
 	fileMenu->AddSeparatorItem();
 	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
@@ -3046,14 +3068,14 @@ GenioWindow::_ProjectFileDelete()
 
 	BString text;
 	text
-		 << B_TRANSLATE("Deleting file:")
+		 << B_TRANSLATE("Deleting item:")
 		 << " \"" << name << "\"" << ".\n\n"
-		 << B_TRANSLATE("After deletion file will be lost.") << "\n"
+		 << B_TRANSLATE("After deletion the item will be lost.") << "\n"
 		 << B_TRANSLATE("Do you really want to delete it?") << "\n";
 
-	BAlert* alert = new BAlert(B_TRANSLATE("Delete file dialog"),
+	BAlert* alert = new BAlert(B_TRANSLATE("Delete dialog"),
 		text.String(),
-		B_TRANSLATE("Cancel"), B_TRANSLATE("Delete file"), nullptr,
+		B_TRANSLATE("Cancel"), B_TRANSLATE("Delete"), nullptr,
 		B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 
 	alert->SetShortcut(0, B_ESCAPE);
@@ -3064,12 +3086,18 @@ GenioWindow::_ProjectFileDelete()
 		return;
 	else if (choice == 1) {
 		// Close the file if open
-		if ((openedIndex = _GetEditorIndex(&ref)) != -1)
-			_FileClose(openedIndex, true);
+		if (entry.IsFile())
+			if ((openedIndex = _GetEditorIndex(&ref)) != -1)
+				_FileClose(openedIndex, true);
 
 		// Remove the entry
-		if (entry.Exists())
-			entry.Remove();
+		if (entry.Exists()) {
+			status_t status = entry.Remove();
+			if (status != B_OK) {
+				OKAlert("Delete item", BString("Could not delete ") << name, B_WARNING_ALERT);
+				LogError("Could not delete %s (status = %d)", name, status);
+			}
+		}
 
 		_ProjectFileRemoveItem(false);
 	}
@@ -3351,6 +3379,22 @@ GenioWindow::_ShowCurrentItemInTracker()
 	return returnStatus == 0 ? B_OK : errno;
 }
 
+status_t
+GenioWindow::_ShowInTracker(entry_ref *ref)
+{
+	status_t status = 0;
+	BEntry itemEntry(ref);
+	BPath path;
+	BString commandLine;
+	if (itemEntry.GetPath(&path) == B_OK) {
+		commandLine.SetToFormat("/bin/open %s", EscapeQuotesWrap(path.Path()).String());
+		status = system(commandLine);
+	} else {
+		OKAlert("Open in Tracker", B_TRANSLATE("Could not open template folder in Tracker"), B_WARNING_ALERT);
+	}
+	return status == 0 ? B_OK : errno;
+}
+
 
 int
 GenioWindow::_Replace(int what)
@@ -3609,9 +3653,11 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	fBuildModeItem->SetEnabled(active);
 	fMakeCatkeysItem->SetEnabled(active);
 	fMakeBindcatalogsItem->SetEnabled(active);
+	fFileNewMenuItem->SetEnabled(active);
 	fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, active);
 	
 	if (active == true) {
+
 		// Is this a git project?
 		if (fActiveProject->Git())
 			fGitMenu->SetEnabled(true);
@@ -3645,6 +3691,8 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fRunItem->SetEnabled(false);		
 		fDebugItem->SetEnabled(false);
 		fGitMenu->SetEnabled(false);
+		fBuildButton->SetEnabled(false);
+		fFileNewMenuItem->SetEnabled(false);
 		fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
 		fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
 		fToolBar->SetActionEnabled(MSG_BUILD_MODE, false);
@@ -3831,4 +3879,74 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
 	
 	LogTraceF("called by: %s:%d", caller.String(), index);
+}
+
+
+status_t
+GenioWindow::_CreateNewFile(BMessage *message, BEntry *dest)
+{
+	status_t status;
+
+	BString type;
+	status = message->FindString("type", &type);
+	if (status != B_OK) {
+		LogError("Can't find type!");
+		return status;
+	}
+	
+	if (type == "new_folder") {
+		BDirectory dir(dest);
+		status = dir.CreateDirectory("New folder", nullptr);
+		if (status != B_OK) {
+			OKAlert(B_TRANSLATE("New folder"), B_TRANSLATE("Error creating folder"), B_WARNING_ALERT);
+			LogError("Invalid destination directory [%s]", dest->Name());
+		}
+		return status;
+	}
+	
+	if (type == "new_file") {
+		entry_ref new_ref;
+		if (message->FindRef("refs", &new_ref) != B_OK) {
+			LogError("Can't find ref in message!");
+			return B_ERROR;
+		}
+		// Copy template file to destination
+		BEntry sourceEntry(&new_ref);
+		BPath destPath;
+		dest->GetPath(&destPath);
+		destPath.Append(new_ref.name, true);
+		BEntry destEntry(destPath.Path());
+		status = CopyFile(&sourceEntry, &destEntry, false);
+		if (status != B_OK) {
+			OKAlert(B_TRANSLATE("New folder"), B_TRANSLATE("Error creating new file"), B_WARNING_ALERT);
+			LogError("Error creating new file %s in %s", new_ref.name, dest->Name());
+		}
+		return status;
+	}
+	
+	if (type == "open_template_folder") {
+		entry_ref new_ref;
+		status = message->FindRef("refs", &new_ref);
+		if (status != B_OK) {
+			LogError("Can't find ref in message!");
+			return status;
+		}
+		_ShowInTracker(&new_ref);
+		return B_OK;
+	}
+	
+	return B_OK;
+}
+
+
+void
+GenioWindow::UpdateMenu()
+{
+	ProjectItem *item = fProjectsFolderBrowser->GetCurrentProjectItem();
+	if (item != nullptr) {
+		if (item->GetSourceItem()->Type() != SourceItemType::FileItem)
+			fFileNewMenuItem->SetEnabled(true);
+		else
+			fFileNewMenuItem->SetEnabled(false);
+	}
 }

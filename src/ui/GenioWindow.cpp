@@ -848,8 +848,12 @@ GenioWindow::MessageReceived(BMessage* message)
 			ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();
 			if (!item) {
 				LogError("Can't find current item");
+				OKAlert("Create new file", "Please select the root of a project or a folder where "
+							"you want to create file", B_WARNING_ALERT);
 				return;
 			}
+			// in theory this should not happen as the menu item is enabled only when a folder or
+			// a project folder is selected
 			if (item->GetSourceItem()->Type() != SourceItemType::FolderItem) {
 				LogDebug("Invoking on a non directory (%s)", item->GetSourceItem()->Name().String());
 				return;
@@ -3691,7 +3695,6 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fRunItem->SetEnabled(false);		
 		fDebugItem->SetEnabled(false);
 		fGitMenu->SetEnabled(false);
-		fBuildButton->SetEnabled(false);
 		fFileNewMenuItem->SetEnabled(false);
 		fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
 		fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);

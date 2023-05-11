@@ -114,16 +114,23 @@ ProjectTreeView::ProjectTreeView(const char* name, uint32 flags, BLayout* layout
 
 ProjectTreeView::~ProjectTreeView()
 {
-	BAutolock lock(Looper());
-	Looper()->RemoveHandler(fNodeMonitor);
 }
 
 void
-ProjectTreeView::AttachedToWindow(void)
+ProjectTreeView::AttachedToWindow()
 {
 	fFileTreeView->SetTarget(this);
 	fFileSearchControl->SetTarget(this);
 	SetNodeMonitor();
+}
+
+void
+ProjectTreeView::DetachedFromWindow()
+{
+	BAutolock lock(Looper());
+	Looper()->RemoveHandler(fNodeMonitor);
+	if (fNodeMonitor != nullptr)
+		delete fNodeMonitor;
 }
 
 void
@@ -137,10 +144,21 @@ ProjectTreeView::MessageReceived(BMessage* msg)
 			}
 			break;
 		}
-		// case XXX: {
-		// 
-		// 		break;
+		// case B_PATH_MONITOR: {
+			// if (Logger::IsDebugEnabled())
+				// msg->PrintToStream(); 			  
+			// OKAlert("NodeMonitor", BString("ProjectTreeView::MessageReceived - message->what: ") << msg->what, B_WARNING_ALERT);
+			// break;
 		// }
+		case ON_ROOT_ITEM_ADDED: {
+			entry_ref ref;
+			if (msg->FindRef("refs", &ref) != B_OK) {
+				LogError("ON_ROOT_ITEM_ADDED: refs not found");
+				return;
+			}
+			OnRootItemAdded(&ref);
+			break;
+		}
 		default: {
 			BView::MessageReceived(msg);
 			break;
@@ -152,13 +170,15 @@ void
 ProjectTreeView::SetNodeMonitor()
 {
 	if (LockLooper()) {
-	fNodeMonitor = new NodeMonitor();
-	Looper()->AddHandler(fNodeMonitor);
-	fNodeMonitor->AddMonitorHandler(this);
-	auto index = Looper()->IndexOf(fNodeMonitor);
-	LogTrace("AddHandler: index of %d", index);
-	OKAlert("addhandler", BString("index:")<<index,B_WARNING_ALERT);
-	UnlockLooper();
+		fNodeMonitor = new NodeMonitor();
+		Looper()->AddHandler(fNodeMonitor);
+		fNodeMonitor->AddMonitorHandler(this);
+		auto index = Looper()->IndexOf(fNodeMonitor);
+		if (index == B_ERROR) {
+			LogTrace("AddHandler: Error adding node monitor handler");
+			OKAlert("NodeMonitor", "Error adding node monitor handler", B_WARNING_ALERT);
+		}
+		UnlockLooper();
 	}
 }
 
@@ -168,21 +188,22 @@ ProjectTreeView::AddRootItem(const entry_ref& ref, ScanRefFilter* filter)
 	auto thread = new DirectoryScanThread(ref, filter, this);
 	thread->Start();
 
-	BPath path(&ref);
-	if (fNodeMonitor != nullptr) {
-		if (fNodeMonitor->StartWatching(path.Path()) != B_OK)
-			LogError("Can't start PathMonitor!");
-	}
-	
 	return B_OK;
 }
 
 void
 ProjectTreeView::OnRootItemAdded(const entry_ref* ref)
 {
-	// BPath path(ref);
-	// if (fNodeMonitor->StartWatching(path.Path()) != B_OK)
-		// LogError("Can't start PathMonitor!");
+	BPath path(ref);
+	if (fNodeMonitor != nullptr) {
+		if (fNodeMonitor->StartWatching(path.Path()) != B_OK) {
+			LogError("NodeMonitor: Can't watch %s!", path.Path());
+			OKAlert("NodeMonitor", BString("Can't watch ") << path.Path(), B_WARNING_ALERT);
+		} else {
+			LogError("NodeMonitor:OnRootItemAdded watching %s!", path.Path());
+			OKAlert("NodeMonitor:OnRootItemAdded", BString("Watching ") << path.Path(), B_WARNING_ALERT);
+		}
+	}
 }
 
 status_t
@@ -190,8 +211,10 @@ ProjectTreeView::RemoveRootItem(const entry_ref* ref)
 {
 	BPath path(ref);
 	if (fNodeMonitor->StopWatching(path.Path()) != B_OK) {
-		LogError("Can't stop PathMonitor!");
+		LogError("NodeMonitor: Can't stop watching %s!", path.Path());
 		return B_ERROR;
+	} else {
+		LogError("NodeMonitor: stopped watching %s!", path.Path());
 	}
 	return B_OK;
 }
@@ -303,16 +326,20 @@ ProjectTreeView::_CompareProjectItems(const BListItem* a, const BListItem* b)
 
 void
 ProjectTreeView::OnCreated(entry_ref *ref) const {
+	OKAlert("ProjectTreeView", BString("ProjectTreeView::OnCreated ") << ref->name, B_WARNING_ALERT);
 }
 
 void
 ProjectTreeView::OnRemoved(entry_ref *ref) const {
+	OKAlert("ProjectTreeView", BString("ProjectTreeView::OnRemoved ") << ref->name, B_WARNING_ALERT);
 }
 
 void
 ProjectTreeView::OnMoved(entry_ref *origin, entry_ref *destination) const {
+	OKAlert("ProjectTreeView", BString("ProjectTreeView::OnMoved from ") << origin->name << " to " << destination->name, B_WARNING_ALERT);
 }
 
 void
 ProjectTreeView::OnStatChanged(entry_ref *ref) const {
+	OKAlert("ProjectTreeView", BString("ProjectTreeView::OnStatChanged ") << ref->name, B_WARNING_ALERT);
 }

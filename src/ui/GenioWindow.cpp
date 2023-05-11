@@ -2671,13 +2671,13 @@ GenioWindow::_InitSideSplit()
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 	
-		// TEST ProjectTree
+	// TEST ProjectTree
 	ProjectTreeView* projectTree = new ProjectTreeView("ProjectsTreeView");
 	BScrollView* projectTreeScroll = new BScrollView(B_TRANSLATE("ProjectTree"),
 		projectTree, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(projectTreeScroll);
 	
-	ScanRefFilter* filter_p1 = new ScanRefFilter("/boot/home/develop/myprojects/IDE/Genio");
+	ScanRefFilter* filter_p1 = new ScanRefFilter("/boot/home/develop/myprojects/IDE/genio-working");
 	// BEntry _entry_p11("/boot/home/develop/myprojects/IDE/Genio/.git");
 	// entry_ref _ref_p11;
 	// _entry_p11.GetRef(&_ref_p11);
@@ -2689,7 +2689,7 @@ GenioWindow::_InitSideSplit()
 	// filter_p1->AddPath(&_ref_p12);
 	filter_p1->AddPath("./.cache");
 	
-	BEntry entry("/boot/home/develop/myprojects/IDE/Genio");
+	BEntry entry("/boot/home/develop/myprojects/IDE/genio-working");
 	entry_ref ref;
 	entry.GetRef(&ref);
 	projectTree->AddRootItem(ref, filter_p1);

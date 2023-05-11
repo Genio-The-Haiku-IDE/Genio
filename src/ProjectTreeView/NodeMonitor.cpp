@@ -28,7 +28,8 @@ status_t
 NodeMonitor::StartWatching(const char* path)
 {
 	status_t status;
-	status = BPrivate::BPathMonitor::StartWatching(path, B_WATCH_RECURSIVELY, BMessenger(this));
+	BMessenger messenger(this);
+	status = BPrivate::BPathMonitor::StartWatching(path, B_WATCH_RECURSIVELY, messenger);
 	if (status != B_OK)
 	{
 		LogError("Can't start PathMonitor!");
@@ -41,7 +42,8 @@ status_t
 NodeMonitor::StopWatching(const char* path)
 {
 	status_t status;
-	status = BPrivate::BPathMonitor::StopWatching(path, BMessenger(this));
+	BMessenger messenger(this);
+	status = BPrivate::BPathMonitor::StopWatching(path, messenger);
 	if (status != B_OK)
 	{
 		LogError("Can't stop PathMonitor!");
@@ -53,14 +55,12 @@ NodeMonitor::StopWatching(const char* path)
 // message handler
 void NodeMonitor::MessageReceived(BMessage *message)
 {
-	if(message==NULL)
-		return;
-
 	// this should really be a BMessageFilter
-	if(message->what!=B_NODE_MONITOR)
+	if(message->what!=B_PATH_MONITOR)
 		return;
-
-OKAlert("NodeMonitor::MessageReceived", BString("what:")<<message->what,B_WARNING_ALERT);
+	
+	if (Logger::IsDebugEnabled())
+		message->PrintToStream(); 
 
 	int32 op;
 	entry_ref toEntryRef, fromEntryRef; 

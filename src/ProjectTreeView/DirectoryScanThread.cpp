@@ -84,12 +84,17 @@ DirectoryScanThread::ExecuteUnit(void)
 }
 
 status_t
-DirectoryScanThread::ThreadShutdown(void)
+DirectoryScanThread::ThreadShutdown()
 {
-	// LogTrace("DirectoryScanThread::Quit(): root_ref(%s) progress(%s)\r", 
-				// fRootRef->name, (BString("") << fEntryCount << "/" << fTotalEntries).String());
 	_ShowProgressNotification(B_TRANSLATE("Completed"));
-	fProjectTreeView->OnRootItemAdded(fRootRef);
+	
+	// we can't use the callback function if we need to invoke a function that must be called from
+	// within the same thread of the Looper to which the handler belongs to (i.e. PathMonitor)
+	// Both options are available for maximum flexibility
+	BMessage *message = new BMessage(ProjectTreeView::ProjectTreeMessage::ON_ROOT_ITEM_ADDED);
+	message->AddRef("refs", fRootRef);
+	BMessenger messenger(fProjectTreeView);
+	messenger.SendMessage(message);
 	return B_OK;
 }
 

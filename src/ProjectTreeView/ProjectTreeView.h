@@ -52,7 +52,11 @@ public:
 	};
 	
 	enum ProjectTreeMessage {
-		FILE_SEARCH_MSG = 'ptfs'
+		FILE_SEARCH_MSG 	= 'ptfs',
+		ON_ROOT_ITEM_ADDED 	= 'ptia',
+		SORT_TREE 			= 'ptst',
+		REMOVE_ITEM			= 'ptri',
+		CREATE_ITEM			= 'ptci'
 	};
 	
 public:
@@ -62,6 +66,7 @@ public:
 							~ProjectTreeView();
 						
 	virtual	void			AttachedToWindow();
+	virtual void			DetachedFromWindow();
 	virtual	void			MessageReceived(BMessage* msg);
 	
 	void 					SetNodeMonitor();

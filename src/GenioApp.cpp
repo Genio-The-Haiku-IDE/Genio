@@ -47,7 +47,6 @@ GenioApp::AboutRequested()
 		"Nexus6",
 		"A. Anzani",
 		"S. Ceccherini",
-		"A. Mosca",
 		NULL
 	}; 
 

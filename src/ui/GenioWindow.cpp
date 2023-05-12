@@ -48,6 +48,7 @@
 #include "TextUtils.h"
 #include "Utils.h"
 #include "EditorKeyDownMessageFilter.h"
+#include "TextControlFloater.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -874,6 +875,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_MENU_DELETE_FILE: {
 			_ProjectFileDelete();
+			break;
+		}
+		case MSG_PROJECT_MENU_RENAME_FILE: {
+			_ProjectRenameFile();
 			break;
 		}
 		case MSG_PROJECT_MENU_EXCLUDE_FILE: {
@@ -2250,7 +2255,7 @@ GenioWindow::_InitMenu()
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
 	fileMenu->AddItem(fFileNewMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
-			MSG_PROJECT_MENU_NEW_FILE));	
+			MSG_FILE_NEW));	
 	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
 		new BMessage(MSG_FILE_OPEN), 'O'));
 	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
@@ -3105,6 +3110,21 @@ GenioWindow::_ProjectFileDelete()
 
 		_ProjectFileRemoveItem(false);
 	}
+}
+
+
+void
+GenioWindow::_ProjectRenameFile()
+{
+	ProjectItem *item = fProjectsFolderBrowser->GetCurrentProjectItem();
+	BRect rect = item->GetTextRect();
+	
+
+	TextControlFloater *tf = new TextControlFloater(fProjectsFolderBrowser->ConvertToScreen(rect), B_ALIGN_LEFT,
+									be_plain_font, item->Text(), fProjectsFolderBrowser, 
+									new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE),new BMessage('exit'));
+	tf->SetTitle("");
+	
 }
 
 void

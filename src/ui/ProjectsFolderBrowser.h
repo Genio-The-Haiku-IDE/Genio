@@ -21,6 +21,8 @@ enum {
 	MSG_PROJECT_MENU_OPEN_TERMINAL		= 'pmot',
 	MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
 	MSG_PROJECT_MENU_NEW_FILE			= 'pmnf',
+	MSG_PROJECT_MENU_RENAME_FILE		= 'pmrf',
+	MSG_PROJECT_MENU_DO_RENAME_FILE		= 'pmdr'
 };
 
 class ProjectFolder;
@@ -63,7 +65,7 @@ private:
 	
 	void			_UpdateNode(BMessage *message);
 	
-	
+	status_t		_RenameCurrentSelectedFile(const BString& newName);
 
 	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
 	
@@ -72,6 +74,7 @@ private:
 	BPopUpMenu*			fProjectMenu;
 	BMenuItem*			fCloseProjectMenuItem;
 	BMenuItem*			fDeleteProjectMenuItem;
+	BMenuItem*			fRenameFileProjectMenuItem;
 	BMenuItem*			fSetActiveProjectMenuItem;
 	BMenuItem*			fAddProjectMenuItem;
 	BMenuItem*			fExcludeFileProjectMenuItem;

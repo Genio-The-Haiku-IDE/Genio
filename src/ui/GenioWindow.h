@@ -105,6 +105,7 @@ private:
 			void				_MakefileSetBuildMode(bool isReleaseMode);
 
 			void				_ProjectFileDelete();
+			void				_ProjectRenameFile();
 			void				_ProjectFileExclude();
 			void				_ProjectFileOpen(const BString& filePath);
 			void				_ProjectFileRemoveItem(bool addToParseless);

@@ -487,7 +487,7 @@ ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item)
 status_t
 ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 {
-	status_t status;
+	status_t status = B_NOT_INITIALIZED;
 	ProjectItem *item = GetCurrentProjectItem();
 	if (item) {
 		BPath path(item->GetSourceItem()->Path());

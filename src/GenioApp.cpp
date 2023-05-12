@@ -47,7 +47,6 @@ GenioApp::AboutRequested()
 		"D. Alfano",
 		"A. Anzani",
 		"S. Ceccherini",
-		"A. Mosca",
 		NULL
 	}; 
 

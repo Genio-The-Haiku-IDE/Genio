@@ -31,7 +31,7 @@
 #define B_TRANSLATION_CONTEXT "TemplatesMenu"
 
 const char* kTemplatesMenuName = "";
-const char* kTemplatesDirectory = "Tracker/Tracker New Templates";
+const char* kTemplatesDirectory = "Genio/templates/files";
 
 TemplatesMenu::TemplatesMenu(const BHandler *target, const char* label, uint32 command)
 	:

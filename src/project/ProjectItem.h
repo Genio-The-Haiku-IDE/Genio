@@ -19,12 +19,14 @@ public:
 						
 	void 			DrawItem(BView* owner, BRect bounds, bool complete);
 	void 			Update(BView* owner, const BFont* font);
+	BRect 			GetTextRect() { return fTextRect; }
 
 	SourceItem		*GetSourceItem() const { return fSourceItem; };
 	
 private:
 	SourceItem		*fSourceItem;
 	bool			firstTimeRendered = true;
+	BRect			fTextRect;
 };
 
 

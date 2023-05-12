@@ -46,6 +46,8 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 		new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
 	fOpenFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
 		new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+	fRenameFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Rename file"),
+		new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
 	fShowInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
 		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
 	fOpenTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open Terminal"),
@@ -57,6 +59,7 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 	fProjectMenu->AddItem(fFileNewProjectMenuItem);
 	fProjectMenu->AddItem(fOpenFileProjectMenuItem);
 	fProjectMenu->AddItem(fDeleteFileProjectMenuItem);
+	fProjectMenu->AddItem(fRenameFileProjectMenuItem);
 	fProjectMenu->AddSeparatorItem();
 	fProjectMenu->AddItem(fShowInTrackerProjectMenuItem);
 	fProjectMenu->AddItem(fOpenTerminalProjectMenuItem);
@@ -356,7 +359,14 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			Window()->PostMessage(&msg);
 			return;
 		}
-		break;	
+		break;
+		case MSG_PROJECT_MENU_DO_RENAME_FILE:
+		{
+			BString newName;
+			if (message->FindString("_value", &newName) == B_OK)
+				_RenameCurrentSelectedFile(newName);
+		}
+		break;
 		default:
 		break;	
 	}
@@ -377,6 +387,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	fFileNewProjectMenuItem->SetEnabled(false);
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
+	fRenameFileProjectMenuItem->SetEnabled(false);
 	fShowInTrackerProjectMenuItem->SetEnabled(false);
 	fOpenTerminalProjectMenuItem->SetEnabled(false);
 	
@@ -389,6 +400,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		fSetActiveProjectMenuItem->SetEnabled(false);
 		fFileNewProjectMenuItem->SetEnabled(false);
 		fDeleteFileProjectMenuItem->SetEnabled(true);
+		fRenameFileProjectMenuItem->SetEnabled(true);
 		fOpenFileProjectMenuItem->SetEnabled(true);
 		fShowInTrackerProjectMenuItem->SetEnabled(true);
 		fOpenTerminalProjectMenuItem->SetEnabled(false);
@@ -407,6 +419,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		
 		fFileNewProjectMenuItem->SetEnabled(true);
 		fDeleteFileProjectMenuItem->SetEnabled(false);
+		fRenameFileProjectMenuItem->SetEnabled(false);
 		fOpenFileProjectMenuItem->SetEnabled(false);
 		fShowInTrackerProjectMenuItem->SetEnabled(true);
 		fOpenTerminalProjectMenuItem->SetEnabled(true);
@@ -418,6 +431,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		fSetActiveProjectMenuItem->SetEnabled(false);
 		fFileNewProjectMenuItem->SetEnabled(true);
 		fDeleteFileProjectMenuItem->SetEnabled(true);
+		fRenameFileProjectMenuItem->SetEnabled(true);
 		fOpenFileProjectMenuItem->SetEnabled(false);
 		fShowInTrackerProjectMenuItem->SetEnabled(true);
 		fOpenTerminalProjectMenuItem->SetEnabled(true);
@@ -468,6 +482,22 @@ ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item)
 	}
 	
 	return project;	
+}
+
+status_t
+ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
+{
+	status_t status;
+	ProjectItem *item = GetCurrentProjectItem();
+	if (item) {
+		BPath path(item->GetSourceItem()->Path());
+		BPath newPath;
+		path.GetParent(&newPath);
+		newPath.Append(new_name);
+		BEntry entry(item->GetSourceItem()->Path());
+		status = entry.Rename(newPath.Path(), false);
+	}
+	return status;
 }
 
 void

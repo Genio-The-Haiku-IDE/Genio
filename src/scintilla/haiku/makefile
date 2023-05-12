@@ -6,7 +6,6 @@
 # This makefile assumes GCC is used and changes will be needed to use other compilers.
 
 srcdir ?= .
-DEBUG = true
 .SUFFIXES: .cxx .c .o .h .a
 ARFLAGS = rc
 RANLIB = touch

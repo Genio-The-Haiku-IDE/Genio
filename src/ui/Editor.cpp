@@ -1054,12 +1054,18 @@ Editor::SetFileRef(entry_ref* ref)
 }
 
 void
-Editor::SetReadOnly()
+Editor::SetReadOnly(bool readOnly)
 {
+	if (!readOnly) {
+		SendMessage(SCI_SETREADONLY, 0, UNSET);
+		UpdateStatusBar();
+		return;
+	}
+	
 	if (IsModified()) {
 		BString text(B_TRANSLATE("Save changes to file"));
 		text << " \"" << Name() << "\" ?";
-		
+
 		BAlert* alert = new BAlert(B_TRANSLATE("Save dialog"), text,
  			B_TRANSLATE("Cancel"), B_TRANSLATE("Don't save"), B_TRANSLATE("Save"),
  			B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);

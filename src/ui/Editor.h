@@ -140,7 +140,7 @@ public:
 			void				SendPositionChanges();
 			void				SetEndOfLine(int32 eolFormat);
 			status_t			SetFileRef(entry_ref* ref);
-			void				SetReadOnly();
+			void				SetReadOnly(bool readOnly = true);
 			status_t			SetSavedCaretPosition();
 			int					SetSearchFlags(bool matchCase, bool wholeWord,
 									bool wordStart,	bool regExp, bool posix);

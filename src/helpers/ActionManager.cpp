@@ -9,16 +9,16 @@
 
 class Action {		
 public:
-	BString	fLabel;
-	BString fIconResourceName;
-	BString fToolTip;
-	char	fShortcut;
-	uint32  fModifiers;
-	bool	fEnabled;
-	bool	fPressed;
+	BString	label;
+	BString iconResourceName;
+	BString toolTip;
+	char	shortcut;
+	uint32  modifiers;
+	bool	enabled;
+	bool	pressed;
 	
-	BObjectList<BMenuItem>	fMenuItemList;
-	BObjectList<ToolBar>	fToolBarList;
+	BObjectList<BMenuItem>	menuItemList;
+	BObjectList<ToolBar>	toolBarList;
 };
 
 ActionManager::~ActionManager()
@@ -39,13 +39,13 @@ ActionManager::RegisterAction(int32   msgWhat,
 								uint32 modifiers)
 {
 	Action* action = new Action();
-	action->fEnabled = true; //by default?
-	action->fPressed = false;
-	action->fLabel = label;
-	action->fIconResourceName = iconResource;
-	action->fToolTip = toolTip;
-	action->fShortcut = shortcut;
-	action->fModifiers = modifiers;
+	action->enabled = true; //by default?
+	action->pressed = false;
+	action->label = label;
+	action->iconResourceName = iconResource;
+	action->toolTip = toolTip;
+	action->shortcut = shortcut;
+	action->modifiers = modifiers;
 	fActionMap[msgWhat] = action;
 	return B_OK;
 }
@@ -57,11 +57,11 @@ ActionManager::AddItem(int32 msgWhat, BMenu* menu)
 		return B_ERROR;
 	
 	Action* action = fActionMap[msgWhat];
-	BMenuItem* item = new BMenuItem(action->fLabel, new BMessage(msgWhat), action->fShortcut, action->fModifiers);
+	BMenuItem* item = new BMenuItem(action->label, new BMessage(msgWhat), action->shortcut, action->modifiers);
 	menu->AddItem(item);
-	item->SetEnabled(action->fEnabled);
-	item->SetMarked(action->fPressed);
-	action->fMenuItemList.AddItem(item);
+	item->SetEnabled(action->enabled);
+	item->SetMarked(action->pressed);
+	action->menuItemList.AddItem(item);
 	return B_OK;
 }
 
@@ -71,10 +71,10 @@ ActionManager::AddItem(int32 msgWhat, ToolBar* bar)
 	if (fActionMap.find(msgWhat) == fActionMap.end())
 		return B_ERROR;
 	Action* action = fActionMap[msgWhat];
-	bar->AddAction(msgWhat, action->fToolTip, action->fIconResourceName);
-	bar->SetActionEnabled(msgWhat, action->fEnabled);
-	bar->SetActionPressed(msgWhat, action->fPressed);
-	action->fToolBarList.AddItem(bar);
+	bar->AddAction(msgWhat, action->toolTip, action->iconResourceName);
+	bar->SetActionEnabled(msgWhat, action->enabled);
+	bar->SetActionPressed(msgWhat, action->pressed);
+	action->toolBarList.AddItem(bar);
 	return B_OK;
 }
 
@@ -85,12 +85,12 @@ ActionManager::SetEnabled(int32 msgWhat, bool enabled)
 		return B_ERROR;
 	Action* action = fActionMap[msgWhat];
 	
-	action->fEnabled = enabled;
+	action->enabled = enabled;
 	
-	for (int i=0; i<action->fMenuItemList.CountItems();i++)
-		action->fMenuItemList.ItemAt(i)->SetEnabled(enabled);
-	for (int i=0; i<action->fToolBarList.CountItems();i++)
-		action->fToolBarList.ItemAt(i)->SetActionEnabled(msgWhat, enabled);
+	for (int i=0; i<action->menuItemList.CountItems();i++)
+		action->menuItemList.ItemAt(i)->SetEnabled(enabled);
+	for (int i=0; i<action->toolBarList.CountItems();i++)
+		action->toolBarList.ItemAt(i)->SetActionEnabled(msgWhat, enabled);
 	
 	return B_OK;
 	
@@ -103,13 +103,13 @@ ActionManager::SetPressed(int32 msgWhat, bool pressed)
 		return B_ERROR;
 	Action* action = fActionMap[msgWhat];
 	
-	action->fPressed = pressed;
+	action->pressed = pressed;
 	
-	for (int i=0; i<action->fMenuItemList.CountItems();i++)
-		action->fMenuItemList.ItemAt(i)->SetMarked(pressed);
+	for (int i=0; i<action->menuItemList.CountItems();i++)
+		action->menuItemList.ItemAt(i)->SetMarked(pressed);
 		
-	for (int i=0; i<action->fToolBarList.CountItems();i++)
-		action->fToolBarList.ItemAt(i)->SetActionPressed(msgWhat, pressed);
+	for (int i=0; i<action->toolBarList.CountItems();i++)
+		action->toolBarList.ItemAt(i)->SetActionPressed(msgWhat, pressed);
 	
 	return B_OK;
 	
@@ -122,5 +122,5 @@ ActionManager::IsPressed(int32 msgWhat)
 		return false;
 	Action* action = fActionMap[msgWhat];
 	
-	return action->fPressed;
+	return action->pressed;
 }

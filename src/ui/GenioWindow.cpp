@@ -514,7 +514,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BUFFER_LOCK: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
-				editor->SetReadOnly();
+				editor->SetReadOnly(!editor->IsReadOnly());
 				fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
 			}
 			break;

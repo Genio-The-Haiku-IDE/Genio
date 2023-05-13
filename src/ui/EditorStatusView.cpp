@@ -218,7 +218,7 @@ StatusView::_ShowDirMenu()
 	BMenuItem* readOnly = new BMenuItem(B_TRANSLATE("Set read-only"), new BMessage(MSG_BUFFER_LOCK));
 
 	if (fEditor->IsReadOnly())
-		readOnly->SetEnabled(false);
+		readOnly->SetMarked(true);
 
 	readOnly->SetTarget(Window());
 	menu->AddItem(readOnly);

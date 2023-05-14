@@ -7,6 +7,8 @@
 #include "ActionManager.h"
 #include "ObjectList.h"
 
+ActionManager ActionManager::instance;
+
 class Action {		
 public:
 	BString	label;
@@ -24,10 +26,10 @@ public:
 ActionManager::~ActionManager()
 {
 	ActionMap::reverse_iterator it;
-	for (it = fActionMap.rbegin(); it != fActionMap.rend(); it++) {
+	for (it = instance.fActionMap.rbegin(); it != instance.fActionMap.rend(); it++) {
 		delete it->second;
 	}
-	fActionMap.clear();
+	instance.fActionMap.clear();
 }
 
 status_t 
@@ -46,17 +48,17 @@ ActionManager::RegisterAction(int32   msgWhat,
 	action->toolTip = toolTip;
 	action->shortcut = shortcut;
 	action->modifiers = modifiers;
-	fActionMap[msgWhat] = action;
+	instance.fActionMap[msgWhat] = action;
 	return B_OK;
 }
 
 status_t
 ActionManager::AddItem(int32 msgWhat, BMenu* menu)
 {
-	if (fActionMap.find(msgWhat) == fActionMap.end())
+	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
 	
-	Action* action = fActionMap[msgWhat];
+	Action* action = instance.fActionMap[msgWhat];
 	BMenuItem* item = new BMenuItem(action->label, new BMessage(msgWhat), action->shortcut, action->modifiers);
 	menu->AddItem(item);
 	item->SetEnabled(action->enabled);
@@ -68,9 +70,9 @@ ActionManager::AddItem(int32 msgWhat, BMenu* menu)
 status_t
 ActionManager::AddItem(int32 msgWhat, ToolBar* bar)
 {
-	if (fActionMap.find(msgWhat) == fActionMap.end())
+	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
-	Action* action = fActionMap[msgWhat];
+	Action* action = instance.fActionMap[msgWhat];
 	bar->AddAction(msgWhat, action->toolTip, action->iconResourceName);
 	bar->SetActionEnabled(msgWhat, action->enabled);
 	bar->SetActionPressed(msgWhat, action->pressed);
@@ -81,9 +83,9 @@ ActionManager::AddItem(int32 msgWhat, ToolBar* bar)
 status_t	
 ActionManager::SetEnabled(int32 msgWhat, bool enabled)
 {
-	if (fActionMap.find(msgWhat) == fActionMap.end())
+	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
-	Action* action = fActionMap[msgWhat];
+	Action* action = instance.fActionMap[msgWhat];
 	
 	action->enabled = enabled;
 	
@@ -99,9 +101,9 @@ ActionManager::SetEnabled(int32 msgWhat, bool enabled)
 status_t	
 ActionManager::SetPressed(int32 msgWhat, bool pressed)
 {
-	if (fActionMap.find(msgWhat) == fActionMap.end())
+	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
-	Action* action = fActionMap[msgWhat];
+	Action* action = instance.fActionMap[msgWhat];
 	
 	action->pressed = pressed;
 	
@@ -118,9 +120,9 @@ ActionManager::SetPressed(int32 msgWhat, bool pressed)
 bool		
 ActionManager::IsPressed(int32 msgWhat)
 {
-	if (fActionMap.find(msgWhat) == fActionMap.end())
+	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return false;
-	Action* action = fActionMap[msgWhat];
+	Action* action = instance.fActionMap[msgWhat];
 	
 	return action->pressed;
 }

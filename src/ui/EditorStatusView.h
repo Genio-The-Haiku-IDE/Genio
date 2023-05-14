@@ -22,7 +22,7 @@
 
 #include "StatusView.h"
 
-
+class BPopUpMenu;
 class BScrollView;
 class Editor;
 
@@ -48,6 +48,7 @@ protected:
 private:
 			void			_ShowDirMenu();
 			void			_DrawNavigationButton(BRect rect);
+			void			_CreateMenu();
 
 
 private:
@@ -64,6 +65,7 @@ private:
 			bool			fNavigationPressed;
 	const	float			fNavigationButtonWidth;
 			Editor*			fEditor;
+			BPopUpMenu*		fMenu;
 };
 
 } // namespace editor

@@ -31,7 +31,7 @@
 #include <StringView.h>
 #include <Window.h>
 #include "Editor.h"
-
+#include "ActionManager.h"
 
 const float kHorzSpacing = 5.f;
 
@@ -47,7 +47,8 @@ StatusView::StatusView(Editor* editor)	:
 			controls::StatusView(dynamic_cast<BScrollView*>(editor)),
 			fNavigationPressed(false),
 			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT),
-			fEditor(editor)
+			fEditor(editor),
+			fMenu(nullptr)
 {
 	memset(fCellWidth, 0, sizeof(fCellWidth));
 
@@ -209,29 +210,27 @@ StatusView::_DrawNavigationButton(BRect rect)
 		BControlLook::B_DOWN_ARROW, flags, B_DARKEN_MAX_TINT);
 }
 
+void
+StatusView::_CreateMenu()
+{
+	fMenu = new BPopUpMenu("EditorMenu");
+	ActionManager::AddItem(MSG_BUFFER_LOCK, fMenu);
+	fMenu->SetTargetForItems(Window());
+}
 
 void
 StatusView::_ShowDirMenu()
 {
-	BPopUpMenu*	menu = new BPopUpMenu("EditorMenu");
-
-	BMenuItem* readOnly = new BMenuItem(B_TRANSLATE("Set read-only"), new BMessage(MSG_BUFFER_LOCK));
-
-	if (fEditor->IsReadOnly())
-		readOnly->SetEnabled(false);
-
-	readOnly->SetTarget(Window());
-	menu->AddItem(readOnly);
+	if (!fMenu)
+		_CreateMenu();
 
 	BPoint point = Parent()->Bounds().LeftBottom();
 	point.y += 3 + B_H_SCROLL_BAR_HEIGHT;
 	ConvertToScreen(&point);
 	BRect clickToOpenRect(Parent()->Bounds());
 	ConvertToScreen(&clickToOpenRect);
-	menu->Go(point, true, true, clickToOpenRect);
+	fMenu->Go(point, true, true, clickToOpenRect);
 	fNavigationPressed = false;
-	delete menu;
-
 }
 
 } // namespace editor

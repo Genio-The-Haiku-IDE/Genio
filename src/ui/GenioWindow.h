@@ -144,13 +144,10 @@ private:
 			BMenuItem*			fBookmarkClearAllItem;
 			BMenuItem*			fBookmarkGoToNextItem;
 			BMenuItem*			fBookmarkGoToPreviousItem;
-			BMenuItem*			fBuildItem;
-			BMenuItem*			fCleanItem;
-			BMenuItem*			fRunItem;
+
 			BMenu*				fBuildModeItem;
 			BMenuItem*			fReleaseModeItem;
 			BMenuItem*			fDebugModeItem;
-			BMenuItem*			fDebugItem;
 			BMenuItem*			fMakeCatkeysItem;
 			BMenuItem*			fMakeBindcatalogsItem;
 

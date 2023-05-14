@@ -213,8 +213,6 @@ private:
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
-			ActionManager*		fActionManager;
-
 };
 
 #endif //GenioWINDOW_H

@@ -79,13 +79,9 @@ GenioWindow::GenioWindow(BRect frame)
 	, fBookmarkClearAllItem(nullptr)
 	, fBookmarkGoToNextItem(nullptr)
 	, fBookmarkGoToPreviousItem(nullptr)
-	, fBuildItem(nullptr)
-	, fCleanItem(nullptr)
-	, fRunItem(nullptr)
 	, fBuildModeItem(nullptr)
 	, fReleaseModeItem(nullptr)
 	, fDebugModeItem(nullptr)
-	, fDebugItem(nullptr)
 	, fMakeCatkeysItem(nullptr)
 	, fMakeBindcatalogsItem(nullptr)
 	, fGitMenu(nullptr)
@@ -135,6 +131,8 @@ GenioWindow::GenioWindow(BRect frame)
 	_InitActions();
 	_InitMenu();
 	_InitWindow();
+	
+	_UpdateTabChange(nullptr, "GenioWindow");
 
 	// Shortcuts
 	for (int32 index = 1; index < 10; index++) {
@@ -2083,9 +2081,6 @@ GenioWindow::_InitCentralSplit()
 						B_SIZE_UNSET));
 	fFindTextControl->SetExplicitMaxSize(fFindTextControl->MinSize());
 
-	AddShortcut(B_DOWN_ARROW, B_COMMAND_KEY, new BMessage(MSG_FIND_NEXT));
-	AddShortcut(B_UP_ARROW, B_COMMAND_KEY, new BMessage(MSG_FIND_PREVIOUS));
-
 
 	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE("Match case"));
 	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"));
@@ -2101,8 +2096,9 @@ GenioWindow::_InitCentralSplit()
 	fFindGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 												.Add(fFindMenuField)
 												.Add(fFindTextControl).View());
-	fFindGroup->AddAction(MSG_FIND_NEXT, B_TRANSLATE("Find Next"), "kIconDown_3");
-	fFindGroup->AddAction(MSG_FIND_PREVIOUS, B_TRANSLATE("Find previous"), "kIconUp_3");
+
+	ActionManager::AddItem(MSG_FIND_NEXT, fFindGroup);
+	ActionManager::AddItem(MSG_FIND_PREVIOUS, fFindGroup);
 	fFindGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 												.Add(fFindWrapCheck)
 												.Add(fFindWholeWordCheck)
@@ -2347,6 +2343,48 @@ GenioWindow::_InitActions()
 								   
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
 								   B_TRANSLATE("Show ToolBar"));
+								   
+	
+	ActionManager::RegisterAction(MSG_BUILD_PROJECT,
+								  B_TRANSLATE("Build Project"),
+								  B_TRANSLATE("Build Project"),
+								  "kIconBuild", 'B');
+								  
+	ActionManager::RegisterAction(MSG_CLEAN_PROJECT,
+								  B_TRANSLATE("Clean Project"));
+
+	ActionManager::RegisterAction(MSG_RUN_TARGET,
+								  B_TRANSLATE("Run target"),
+								  B_TRANSLATE("Run target"),
+								  "kIconRun", 'R', B_SHIFT_KEY);
+								  
+	ActionManager::RegisterAction(MSG_DEBUG_PROJECT,
+								  B_TRANSLATE("Debug Project"),
+								  B_TRANSLATE("Debug Project"),
+								  "kIconDebug");
+								  
+	ActionManager::RegisterAction(MSG_BUFFER_LOCK, 
+								  B_TRANSLATE("Read only"),
+								  B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
+								  
+	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, "",
+						          B_TRANSLATE("Select previous File"), "kIconBack_1");
+								  
+	ActionManager::RegisterAction(MSG_FILE_NEXT_SELECTED, "", 
+								  B_TRANSLATE("Select next File"), "kIconForward_2");
+								   
+	// Find Panel
+	ActionManager::RegisterAction(MSG_FIND_NEXT,
+								  B_TRANSLATE("Find Next"),
+								  B_TRANSLATE("Find Next"),
+								   "kIconDown_3",
+								  B_DOWN_ARROW, B_COMMAND_KEY);
+								  
+	ActionManager::RegisterAction(MSG_FIND_PREVIOUS, 
+								  B_TRANSLATE("Find previous"),
+								  B_TRANSLATE("Find previous"),
+								  "kIconUp_3",
+								  B_UP_ARROW, B_COMMAND_KEY);
 }
 
 void
@@ -2483,6 +2521,8 @@ GenioWindow::_InitMenu()
 	BMenu* searchMenu = new BMenu(B_TRANSLATE("Search"));
 	ActionManager::AddItem(MSG_FIND_GROUP_SHOW, searchMenu);
 	ActionManager::AddItem(MSG_REPLACE_GROUP_SHOW, searchMenu);
+	ActionManager::AddItem(MSG_FIND_NEXT, searchMenu);
+	ActionManager::AddItem(MSG_FIND_PREVIOUS, searchMenu);
 	ActionManager::AddItem(MSG_GOTO_LINE, searchMenu);
 	
 	ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, false);
@@ -2513,14 +2553,13 @@ GenioWindow::_InitMenu()
 		// new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
 	ActionManager::AddItem(MSG_PROJECT_OPEN, projectMenu);
 	ActionManager::AddItem(MSG_PROJECT_CLOSE, projectMenu);
+
 	projectMenu->AddSeparatorItem();
-	
-	projectMenu->AddItem(fBuildItem = new BMenuItem (B_TRANSLATE("Build Project"),
-		new BMessage(MSG_BUILD_PROJECT), 'B'));
-	projectMenu->AddItem(fCleanItem = new BMenuItem (B_TRANSLATE("Clean Project"),
-		new BMessage(MSG_CLEAN_PROJECT)));
-	projectMenu->AddItem(fRunItem = new BMenuItem (B_TRANSLATE("Run target"),
-		new BMessage(MSG_RUN_TARGET), 'R', B_SHIFT_KEY));
+
+	ActionManager::AddItem(MSG_BUILD_PROJECT, projectMenu);
+	ActionManager::AddItem(MSG_CLEAN_PROJECT, projectMenu);
+	ActionManager::AddItem(MSG_RUN_TARGET, projectMenu);
+
 	projectMenu->AddSeparatorItem();
 
 	fBuildModeItem = new BMenu(B_TRANSLATE("Build mode"));
@@ -2533,19 +2572,20 @@ GenioWindow::_InitMenu()
 	projectMenu->AddItem(fBuildModeItem);
 	projectMenu->AddSeparatorItem();
 
-	projectMenu->AddItem(fDebugItem = new BMenuItem (B_TRANSLATE("Debug Project"),
-		new BMessage(MSG_DEBUG_PROJECT)));
+	ActionManager::AddItem(MSG_DEBUG_PROJECT, projectMenu);
+
 	projectMenu->AddSeparatorItem();
 	projectMenu->AddItem(fMakeCatkeysItem = new BMenuItem ("make catkeys",
 		new BMessage(MSG_MAKE_CATKEYS)));
 	projectMenu->AddItem(fMakeBindcatalogsItem = new BMenuItem ("make bindcatalogs",
 		new BMessage(MSG_MAKE_BINDCATALOGS)));
 
-	fBuildItem->SetEnabled(false);
-	fCleanItem->SetEnabled(false);
-	fRunItem->SetEnabled(false);
+	ActionManager::SetEnabled(MSG_BUILD_PROJECT, false);
+	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, false);
+	ActionManager::SetEnabled(MSG_RUN_TARGET, false);
+	
 	fBuildModeItem->SetEnabled(false);
-	fDebugItem->SetEnabled(false);
+	ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
 	fMakeCatkeysItem->SetEnabled(false);
 	fMakeBindcatalogsItem->SetEnabled(false);
 
@@ -2643,9 +2683,10 @@ GenioWindow::_InitToolbar()
 	ActionManager::AddItem(MSG_FILE_SAVE_ALL, fToolBar);
 	
 	fToolBar->AddSeparator();
-	fToolBar->AddAction(MSG_BUILD_PROJECT, B_TRANSLATE("Build Project"), "kIconBuild");
-	fToolBar->AddAction(MSG_RUN_TARGET, B_TRANSLATE("Run Project"), "kIconRun");
-	fToolBar->AddAction(MSG_DEBUG_PROJECT, B_TRANSLATE("Debug Project"),	"kIconDebug");
+	ActionManager::AddItem(MSG_BUILD_PROJECT, fToolBar);
+	ActionManager::AddItem(MSG_RUN_TARGET, fToolBar);
+	ActionManager::AddItem(MSG_DEBUG_PROJECT, fToolBar);
+	
 	fToolBar->AddSeparator();
 	ActionManager::AddItem(MSG_FIND_GROUP_TOGGLED,		fToolBar);
 	ActionManager::AddItem(MSG_REPLACE_GROUP_TOGGLED,	fToolBar);
@@ -2653,10 +2694,10 @@ GenioWindow::_InitToolbar()
 	ActionManager::AddItem(MSG_RUN_CONSOLE_PROGRAM_SHOW, fToolBar);
 	fToolBar->AddGlue();
 	fToolBar->AddAction(MSG_BUILD_MODE, B_TRANSLATE("Build mode: Debug"), "kAppDebugger");
-	fToolBar->AddAction(MSG_BUFFER_LOCK, B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
+	ActionManager::AddItem(MSG_BUFFER_LOCK, fToolBar);
 	fToolBar->AddSeparator();
-	fToolBar->AddAction(MSG_FILE_PREVIOUS_SELECTED, B_TRANSLATE("Select previous File"), "kIconBack_1");
-	fToolBar->AddAction(MSG_FILE_NEXT_SELECTED, B_TRANSLATE("Select next File"), "kIconForward_2");
+	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, fToolBar);
+	ActionManager::AddItem(MSG_FILE_NEXT_SELECTED, fToolBar);
 	
 	ActionManager::AddItem(MSG_FILE_CLOSE, fToolBar);
 	
@@ -3729,12 +3770,11 @@ GenioWindow::_UpdateLabel(int32 index, bool isModified)
 void
 GenioWindow::_UpdateProjectActivation(bool active)
 {
-	fBuildItem->SetEnabled(active);
-	fCleanItem->SetEnabled(active);
+	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, active);
 	fBuildModeItem->SetEnabled(active);
 	fMakeCatkeysItem->SetEnabled(active);
 	fMakeBindcatalogsItem->SetEnabled(active);
-	fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, active);
+	ActionManager::SetEnabled(MSG_BUILD_PROJECT, active);
 	
 	if (active == true) {
 		// Is this a git project?
@@ -3754,24 +3794,17 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		chdir(fActiveProject->Path());
 		BEntry entry(fActiveProject->GetTarget());
 		if (entry.Exists()) {
-			fRunItem->SetEnabled(true);
-			fToolBar->SetActionEnabled(MSG_RUN_TARGET, true);
-			// Enable debug button in debug mode only
-			fDebugItem->SetEnabled(!releaseMode);
-			fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, !releaseMode);
+			ActionManager::SetEnabled(MSG_RUN_TARGET, true);
+			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
 
 		} else {
-			fRunItem->SetEnabled(false);
-			fDebugItem->SetEnabled(false);
-			fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
-			fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
+			ActionManager::SetEnabled(MSG_RUN_TARGET, false);
+			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
 		}
-	} else { // here project is inactive
-		fRunItem->SetEnabled(false);		
-		fDebugItem->SetEnabled(false);
+	} else { // here project is inactive	
 		fGitMenu->SetEnabled(false);
-		fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
-		fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
+		ActionManager::SetEnabled(MSG_RUN_TARGET, false);
+		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
 		fToolBar->SetActionEnabled(MSG_BUILD_MODE, false);
 	}
 	
@@ -3841,10 +3874,13 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_FILE_CLOSE, false);	
 		ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, false);	
 
-		fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, false);
-		fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
-		fToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
+		ActionManager::SetEnabled(MSG_BUFFER_LOCK, false);
+		ActionManager::SetEnabled(MSG_FIND_PREVIOUS, false);
+		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
 		fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, false);
+		
+		ActionManager::SetEnabled(MSG_FILE_NEXT_SELECTED, false);
+		ActionManager::SetEnabled(MSG_FILE_PREVIOUS_SELECTED, false);
 
 
 		ActionManager::SetEnabled(B_CUT, false);
@@ -3871,6 +3907,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fLineEndingsMenu->SetEnabled(false);
 		ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, false);
 		ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, false);
+		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
+		ActionManager::SetEnabled(MSG_FIND_PREVIOUS, false);
 		ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 		fBookmarksMenu->SetEnabled(false);
 
@@ -3891,25 +3929,15 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_FILE_SAVE, editor->IsModified());
 	ActionManager::SetEnabled(MSG_FILE_CLOSE, true);	
 	
-	fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
+	ActionManager::SetEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
 	fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, true);
 
 	// Arrows
-	/* TODO: remove! */
 	int32 maxTabIndex = (fTabManager->CountTabs() - 1);
 	int32 index = fTabManager->SelectedTabIndex();
-	if (index == 0) {
-		fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
-		if (maxTabIndex > 0)
-				fToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
-	} else if (index == maxTabIndex) {
-			fToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
-			fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
-	} else {
-			fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
-			fToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
-	}
-	/* END REMOVE */
+
+	ActionManager::SetEnabled(MSG_FILE_PREVIOUS_SELECTED, index > 0);
+	ActionManager::SetEnabled(MSG_FILE_NEXT_SELECTED, maxTabIndex > index);
 	
 	// Menu Items
 	ActionManager::SetEnabled(MSG_FILE_SAVE_AS, true);
@@ -3925,7 +3953,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, true);
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, true);
+	
 	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
+	
 	ActionManager::SetEnabled(MSG_DUPLICATE_LINE, !editor->IsReadOnly());
 	ActionManager::SetEnabled(MSG_DELETE_LINES, !editor->IsReadOnly());
 	ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, !editor->IsReadOnly());
@@ -3942,6 +3972,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);	
 	ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, true);
 	ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, true);
+	ActionManager::SetEnabled(MSG_FIND_NEXT, true);
+	ActionManager::SetEnabled(MSG_FIND_PREVIOUS, true);
 	ActionManager::SetEnabled(MSG_GOTO_LINE, true);
 
 	fBookmarksMenu->SetEnabled(true);

@@ -6,6 +6,7 @@
 
 #include "ActionManager.h"
 #include "ObjectList.h"
+#include <Button.h>
 
 ActionManager ActionManager::instance;
 
@@ -115,6 +116,25 @@ ActionManager::SetPressed(int32 msgWhat, bool pressed)
 	
 	return B_OK;
 	
+}
+
+status_t
+ActionManager::SetToolTip(int32 msgWhat, const char* tooltip)
+{
+	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+		return B_ERROR;
+		
+	Action* action = instance.fActionMap[msgWhat];
+	
+	action->toolTip = tooltip;
+	
+	for (int i=0; i<action->toolBarList.CountItems();i++) {
+		BButton* button = action->toolBarList.ItemAt(i)->FindButton(msgWhat);
+		if (button)
+			button->SetToolTip(action->toolTip);
+	}
+
+	return B_OK;
 }
 
 bool		

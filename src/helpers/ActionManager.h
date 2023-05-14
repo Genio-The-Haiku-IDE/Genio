@@ -31,7 +31,9 @@ public:
 	static status_t		AddItem(int32 msgWhat, ToolBar*);
 	
 	static status_t		SetEnabled(int32 msgWhat, bool enabled);
-	static status_t	SetPressed(int32 msgWhat, bool pressed);
+	static status_t		SetPressed(int32 msgWhat, bool pressed);
+	
+	static status_t		SetToolTip(int32 msgWhat, const char* tooltip);
 	
 	static bool		IsPressed(int32 msgWhat);
 

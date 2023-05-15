@@ -1,3 +1,0 @@
-cd ..
-rm -f scintillahaiku.tgz
-tar --create --exclude '.*' haiku | gzip -c > scintillahaiku.tgz

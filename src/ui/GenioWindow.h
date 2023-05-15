@@ -33,6 +33,7 @@
 #include "EditorTabManager.h"
 #include "TPreferences.h"
 #include "ProjectsFolderBrowser.h"
+#include "TemplatesMenu.h"
 
 enum {
 	kProjectsOutline = 0,
@@ -58,6 +59,7 @@ public:
 	virtual bool				QuitRequested();
 	virtual void				Show();
 	
+	void						UpdateMenu();
 
 private:
 
@@ -67,6 +69,8 @@ private:
 			status_t			_BuildProject();
 			status_t			_CargoNew(BString args);
 			status_t			_CleanProject();
+			
+			status_t			_CreateNewFile(BMessage *message, BEntry *dest);
 
 			status_t			_DebugProject();
 			status_t			_FileClose(int32 index, bool ignoreModifications = false);
@@ -103,6 +107,7 @@ private:
 			void				_MakefileSetBuildMode(bool isReleaseMode);
 
 			void				_ProjectFileDelete();
+			void				_ProjectRenameFile();
 			void				_ProjectFileExclude();
 			void				_ProjectFileOpen(const BString& filePath);
 			void				_ProjectFileRemoveItem(bool addToParseless);
@@ -117,6 +122,7 @@ private:
 			void				_ProjectFolderActivate(ProjectFolder* project);
 
 			status_t			_ShowCurrentItemInTracker();
+			status_t			_ShowInTracker(entry_ref *ref);
 			status_t			_OpenTerminalWorkingDirectory();
 			
 			int					_Replace(int what);
@@ -138,7 +144,9 @@ private:
 
 private:
 			BMenuBar*			fMenuBar;
-			BMenu*				fLineEndingsMenu;
+			TemplatesMenu*	fFileNewMenuItem;
+			
+      BMenu*				fLineEndingsMenu;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;
 			BMenuItem*			fBookmarkClearAllItem;

@@ -1,4 +1,4 @@
-Genio is Copyright (c) 2022-2023 by D. Alfano, A. Anzani
+Genio is Copyright (c) 2022-2023 by D. Alfano, A. Anzani, S. Ceccherini
 Genio icon is Copyright (c) 2022-2023 by M. Frau
 Ideam is Copyright (c) 2017 A. Mosca
 

@@ -72,15 +72,19 @@ SRCS +=  src/helpers/console_io/WordTextView.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
+SRCS +=  src/helpers/TextControlFloater.cpp
 SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/helpers/TextUtils.cpp
 SRCS +=  src/helpers/StatusView.cpp
 SRCS +=  src/helpers/Utils.cpp
 SRCS +=  src/helpers/ActionManager.cpp
+SRCS +=  src/helpers/FSUtils.cpp 
 SRCS +=  src/lsp-client/FileWrapper.cpp
 SRCS +=  src/lsp-client/LSPClientWrapper.cpp
 SRCS +=  src/lsp-client/LSPClient.cpp
 SRCS +=  src/lsp-client/Transport.cpp
+SRCS +=  src/TemplatesMenu/IconMenuItem.cpp
+SRCS +=  src/TemplatesMenu/TemplatesMenu.cpp
 
 RDEFS := Genio.rdef
 
@@ -97,6 +101,7 @@ LIBS += src/lexilla/bin/liblexilla.a
 SYSTEM_INCLUDE_PATHS  = $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
 SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/shared)
 SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/storage)
+SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/tracker)
 #SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY scintilla)
 
 SYSTEM_INCLUDE_PATHS  +=  src/scintilla/include

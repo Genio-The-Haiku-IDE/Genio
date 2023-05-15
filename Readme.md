@@ -61,7 +61,11 @@ We gladly accept contributions, especially for bug fixes. Feel free to submit PR
 
 Compiling
 ------------------
-* ensure you have installed "llvm12_clang and llvm12_libs" packages
+* ensure you have installed the following packages:
+- llvm12_clang
+- llvm12_libs
+- scintilla and scintilla_devel
+- lexilla and lexilla_devel
 
 * Execute `make` in Genio's top directory  
 The executable is created in `app` subdirectory.  

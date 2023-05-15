@@ -48,7 +48,7 @@ protected:
 private:
 			void			_ShowDirMenu();
 			void			_DrawNavigationButton(BRect rect);
-			void			_CreateMenu();
+			static void		_CreateMenu(BWindow*);
 
 
 private:
@@ -65,7 +65,8 @@ private:
 			bool			fNavigationPressed;
 	const	float			fNavigationButtonWidth;
 			Editor*			fEditor;
-			BPopUpMenu*		fMenu;
+			
+			static BPopUpMenu*		fMenu;
 };
 
 } // namespace editor

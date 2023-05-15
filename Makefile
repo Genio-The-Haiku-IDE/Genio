@@ -142,6 +142,3 @@ include $(ENGINE_DIRECTORY)/etc/makefile-engine
 ## CXXFLAGS rule
 $(OBJ_DIR)/%.o : %.cpp
 	$(CXX) -c $< $(INCLUDES) $(CFLAGS) $(CXXFLAGS) -o "$@"
-
-.PHONY: clean deps
-cleanall: clean

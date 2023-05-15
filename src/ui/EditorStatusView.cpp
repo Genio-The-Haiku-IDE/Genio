@@ -38,17 +38,19 @@ const float kHorzSpacing = 5.f;
 using namespace BPrivate;
 
 
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EditorStatusView"
 
 namespace editor {
 
+BPopUpMenu* StatusView::fMenu = nullptr;
+
 StatusView::StatusView(Editor* editor)	:
 			controls::StatusView(dynamic_cast<BScrollView*>(editor)),
 			fNavigationPressed(false),
 			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT),
-			fEditor(editor),
-			fMenu(nullptr)
+			fEditor(editor)
 {
 	memset(fCellWidth, 0, sizeof(fCellWidth));
 
@@ -211,25 +213,25 @@ StatusView::_DrawNavigationButton(BRect rect)
 }
 
 void
-StatusView::_CreateMenu()
+StatusView::_CreateMenu(BWindow* window)
 {
 	fMenu = new BPopUpMenu("EditorMenu");
 	ActionManager::AddItem(MSG_BUFFER_LOCK, fMenu);
-	fMenu->SetTargetForItems(Window());
+	fMenu->SetTargetForItems(window);
 }
 
 void
 StatusView::_ShowDirMenu()
 {
 	if (!fMenu)
-		_CreateMenu();
+		StatusView::_CreateMenu(Window());
 
 	BPoint point = Parent()->Bounds().LeftBottom();
 	point.y += 3 + B_H_SCROLL_BAR_HEIGHT;
 	ConvertToScreen(&point);
 	BRect clickToOpenRect(Parent()->Bounds());
 	ConvertToScreen(&clickToOpenRect);
-	fMenu->Go(point, true, true, clickToOpenRect);
+	StatusView::fMenu->Go(point, true, true, clickToOpenRect);
 	fNavigationPressed = false;
 }
 

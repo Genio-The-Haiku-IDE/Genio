@@ -10,6 +10,8 @@
 #include <OutlineListView.h>
 #include <PopUpMenu.h>
 
+#include "TemplatesMenu.h"
+
 enum {
 	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
 	MSG_PROJECT_MENU_SET_ACTIVE			= 'pmsa',
@@ -17,6 +19,10 @@ enum {
 	MSG_PROJECT_MENU_EXCLUDE_FILE		= 'pmef',
 	MSG_PROJECT_MENU_SHOW_IN_TRACKER	= 'pmst',
 	MSG_PROJECT_MENU_OPEN_TERMINAL		= 'pmot',
+	MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
+	MSG_PROJECT_MENU_NEW_FILE			= 'pmnf',
+	MSG_PROJECT_MENU_RENAME_FILE		= 'pmrf',
+	MSG_PROJECT_MENU_DO_RENAME_FILE		= 'pmdr'
 };
 
 class ProjectFolder;
@@ -37,12 +43,12 @@ public:
 	
 	BString const	GetCurrentProjectFileFullPath();
 	
-	
-	
 	void			SetBuildingPhase(bool building) { fIsBuilding = building;};
 	
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
+	
+	virtual void	SelectionChanged();
 	
 private:
 	
@@ -59,7 +65,7 @@ private:
 	
 	void			_UpdateNode(BMessage *message);
 	
-	
+	status_t		_RenameCurrentSelectedFile(const BString& newName);
 
 	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
 	
@@ -68,11 +74,13 @@ private:
 	BPopUpMenu*			fProjectMenu;
 	BMenuItem*			fCloseProjectMenuItem;
 	BMenuItem*			fDeleteProjectMenuItem;
+	BMenuItem*			fRenameFileProjectMenuItem;
 	BMenuItem*			fSetActiveProjectMenuItem;
 	BMenuItem*			fAddProjectMenuItem;
 	BMenuItem*			fExcludeFileProjectMenuItem;
 	BMenuItem*			fDeleteFileProjectMenuItem;
 	BMenuItem*			fOpenFileProjectMenuItem;
+	TemplatesMenu*		fFileNewProjectMenuItem;
 	BMenuItem*			fShowInTrackerProjectMenuItem;
 	BMenuItem*			fOpenTerminalProjectMenuItem;
 	bool				fIsBuilding = false;

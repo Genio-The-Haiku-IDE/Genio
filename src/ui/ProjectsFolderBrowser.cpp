@@ -20,17 +20,16 @@
 #include <stdio.h>
 
 #include "GenioWindowMessages.h"
+#include "GenioWindow.h"
 #include "Log.h"
 #include "ProjectsFolderBrowser.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
-enum {
-		MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
-};
 
 ProjectsFolderBrowser::ProjectsFolderBrowser():
 	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
@@ -41,10 +40,14 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 		new BMessage(MSG_PROJECT_MENU_CLOSE));
 	fSetActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set Active"),
 		new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
+	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
+		MSG_PROJECT_MENU_NEW_FILE);
 	fDeleteFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Delete file"),
 		new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
 	fOpenFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
 		new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+	fRenameFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Rename file"),
+		new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
 	fShowInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
 		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
 	fOpenTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open Terminal"),
@@ -53,8 +56,10 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 	fProjectMenu->AddItem(fCloseProjectMenuItem);
 	fProjectMenu->AddItem(fSetActiveProjectMenuItem);
 	fProjectMenu->AddSeparatorItem();
+	fProjectMenu->AddItem(fFileNewProjectMenuItem);
 	fProjectMenu->AddItem(fOpenFileProjectMenuItem);
 	fProjectMenu->AddItem(fDeleteFileProjectMenuItem);
+	fProjectMenu->AddItem(fRenameFileProjectMenuItem);
 	fProjectMenu->AddSeparatorItem();
 	fProjectMenu->AddItem(fShowInTrackerProjectMenuItem);
 	fProjectMenu->AddItem(fOpenTerminalProjectMenuItem);
@@ -354,7 +359,14 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			Window()->PostMessage(&msg);
 			return;
 		}
-		break;	
+		break;
+		case MSG_PROJECT_MENU_DO_RENAME_FILE:
+		{
+			BString newName;
+			if (message->FindString("_value", &newName) == B_OK)
+				_RenameCurrentSelectedFile(newName);
+		}
+		break;
 		default:
 		break;	
 	}
@@ -372,21 +384,29 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	
 	fCloseProjectMenuItem->SetEnabled(false);
 	fSetActiveProjectMenuItem->SetEnabled(false);
+	fFileNewProjectMenuItem->SetEnabled(false);
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
-	fShowInTrackerProjectMenuItem->SetEnabled(true);
+	fRenameFileProjectMenuItem->SetEnabled(false);
+	fShowInTrackerProjectMenuItem->SetEnabled(false);
 	fOpenTerminalProjectMenuItem->SetEnabled(false);
 	
 	ProjectFolder *project = _GetProjectFromItem(projectItem);
 	if (project==nullptr)
 		return;
 	
-	if (projectItem->GetSourceItem()->Type() != 
-		SourceItemType::FileItem)
-		fOpenTerminalProjectMenuItem->SetEnabled(true);
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::FileItem) {
+		fCloseProjectMenuItem->SetEnabled(false);
+		fSetActiveProjectMenuItem->SetEnabled(false);
+		fFileNewProjectMenuItem->SetEnabled(false);
+		fDeleteFileProjectMenuItem->SetEnabled(true);
+		fRenameFileProjectMenuItem->SetEnabled(true);
+		fOpenFileProjectMenuItem->SetEnabled(true);
+		fShowInTrackerProjectMenuItem->SetEnabled(true);
+		fOpenTerminalProjectMenuItem->SetEnabled(false);
+	}
 	
-	if (projectItem->GetSourceItem()->Type() == 
-		SourceItemType::ProjectFolderItem)
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem)
 	{
 		fCloseProjectMenuItem->SetEnabled(true);
 		if (!project->Active()) {
@@ -396,10 +416,25 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 			if (fIsBuilding)
 				return;
 		}
+		
+		fFileNewProjectMenuItem->SetEnabled(true);
+		fDeleteFileProjectMenuItem->SetEnabled(false);
+		fRenameFileProjectMenuItem->SetEnabled(false);
+		fOpenFileProjectMenuItem->SetEnabled(false);
+		fShowInTrackerProjectMenuItem->SetEnabled(true);
+		fOpenTerminalProjectMenuItem->SetEnabled(true);
 
-	} else {
+	} 
+
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem) {
+		fCloseProjectMenuItem->SetEnabled(false);
+		fSetActiveProjectMenuItem->SetEnabled(false);
+		fFileNewProjectMenuItem->SetEnabled(true);
 		fDeleteFileProjectMenuItem->SetEnabled(true);
-		fOpenFileProjectMenuItem->SetEnabled(true);
+		fRenameFileProjectMenuItem->SetEnabled(true);
+		fOpenFileProjectMenuItem->SetEnabled(false);
+		fShowInTrackerProjectMenuItem->SetEnabled(true);
+		fOpenTerminalProjectMenuItem->SetEnabled(true);
 	}
 
 	fProjectMenu->Go(ConvertToScreen(where), true, true, false);
@@ -426,10 +461,10 @@ BString const
 ProjectsFolderBrowser::GetCurrentProjectFileFullPath()
 {
 	ProjectItem* selectedProjectItem = GetCurrentProjectItem();
-	if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
+	// if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
 		return selectedProjectItem->GetSourceItem()->Path();
-	else
-		return "";
+	// else
+		// return "";
 }
 
 ProjectFolder*
@@ -447,6 +482,22 @@ ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item)
 	}
 	
 	return project;	
+}
+
+status_t
+ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
+{
+	status_t status = B_NOT_INITIALIZED;
+	ProjectItem *item = GetCurrentProjectItem();
+	if (item) {
+		BPath path(item->GetSourceItem()->Path());
+		BPath newPath;
+		path.GetParent(&newPath);
+		newPath.Append(new_name);
+		BEntry entry(item->GetSourceItem()->Path());
+		status = entry.Rename(newPath.Path(), false);
+	}
+	return status;
 }
 
 void
@@ -573,4 +624,10 @@ ProjectsFolderBrowser::_CompareProjectItems(const BListItem* a, const BListItem*
 		return BPrivate::NaturalCompare(nameA, nameB);
 		
 	return 0;
+}
+
+void
+ProjectsFolderBrowser::SelectionChanged() {
+	GenioWindow *window = (GenioWindow*)this->Window();
+	window->UpdateMenu();
 }

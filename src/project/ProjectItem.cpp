@@ -85,6 +85,11 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		bounds.top + BaselineOffset());
 	owner->DrawString(Text());
 	
+	fTextRect.top = bounds.top;
+	fTextRect.left = p.x + size + be_control_look->DefaultLabelSpacing();
+	fTextRect.bottom = bounds.bottom;
+	fTextRect.right = bounds.right;
+	
 	owner->Sync();
 	
 	if (firstTimeRendered) {
@@ -98,4 +103,3 @@ ProjectItem::Update(BView* owner, const BFont* font)
 {
 	BStringItem::Update(owner, be_bold_font);
 }
-

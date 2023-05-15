@@ -182,7 +182,7 @@ StatusView::SetStatus(BMessage* message)
 	if (message->FindInt32("line", &line) == B_OK
 		&& message->FindInt32("column", &column) == B_OK)
 	{
-		fCellText[kPositionCell].SetToFormat("%d:%d", line, column);
+		fCellText[kPositionCell].SetToFormat("%" B_PRIi32 ":%" B_PRIi32, line, column);
 	}
 	
 	fCellText[kOverwriteMode] = message->GetString("overwrite", "");
@@ -225,6 +225,7 @@ StatusView::_ShowDirMenu()
 {
 	if (!fMenu)
 		StatusView::_CreateMenu(Window());
+
 
 	BPoint point = Parent()->Bounds().LeftBottom();
 	point.y += 3 + B_H_SCROLL_BAR_HEIGHT;

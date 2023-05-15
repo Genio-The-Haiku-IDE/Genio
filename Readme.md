@@ -1,6 +1,7 @@
-=======
 Genio
 ================================================================================
+[![CodeFactor](https://www.codefactor.io/repository/github/genio-the-haiku-ide/genio/badge)](https://www.codefactor.io/repository/github/genio-the-haiku-ide/genio)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/26f32bc4ecf2440d89c1932000405a4d)](https://app.codacy.com/gh/Genio-The-Haiku-IDE/Genio/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 ![Screenshot](https://github.com/nexus6-haiku/Genio/blob/main/data/screenshot/Genio.png)
     Genio.png
 
@@ -14,6 +15,7 @@ Genio started off as a fork of Ideam, but we already implemented some new featur
 * LSP (autocompletion, signature help, go to definition/implementation/declaration)
 * Find in files
 * Links to file and build errors in Build Log and Console I/O
+* "Problems" tab
 * Project browser
 * Improved handling of Editor tabs:
   * Movable tabs
@@ -49,22 +51,17 @@ Top priority goals after the first initial commit include:
 
 Branches
 ------------------
-Currently there are 2 branches on the Github repository:
+Currently there are various branches on the Github repository:
 * main - this is the main branch, which we always try to keep in a relatively stable state
-* experimental/ProjectTreeView - this is the branch where the development of the new Project related stuff happens
+* feature/* - these branches are where we develop new features, before merging into main
 	
 Contributions
 ------------------
-We are not ready for prime time and we will keep the branches separate until we are.
-We do not accept PRs at the moment but if you want to contribute, please contact us here on GitHub.
+We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
 
 Compiling
 ------------------
 * ensure you have installed "llvm12_clang and llvm12_libs" packages
-
-* cd into src/scintilla/haiku and 'make'
-* cd into src/lexilla and 'make'
-
 
 * Execute `make` in Genio's top directory  
 The executable is created in `app` subdirectory.  
@@ -87,4 +84,3 @@ We recommend to build Genio with gcc if you want to contribute to it and debug, 
 License
 ----------------
 Genio is available under the MIT license. See [License.md](License.md).
-

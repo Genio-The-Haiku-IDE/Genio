@@ -1166,7 +1166,7 @@ GenioWindow::QuitRequested()
 
 
 status_t
-GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int lsp_char)
+GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int32 lsp_char)
 {
 	// Check existence
 	BEntry entry(ref);

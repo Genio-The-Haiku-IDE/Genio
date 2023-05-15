@@ -13,7 +13,7 @@ Keep in mind that clangd tries to compile and index a set of files to provide th
 Two main configuration point:
 
 1) The compilier itself.
-	The most relevant configuration here are the include paths.
+	With the default configuration, clangd should already recognize system include paths. If you want to add more includes, you need to add a configuration file.
 	Inside the file "/boot/home/config/settings/clangd/config.yaml", a good configuration could be something like
 	
 	CompileFlags:

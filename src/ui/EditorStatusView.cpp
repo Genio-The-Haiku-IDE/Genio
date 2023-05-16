@@ -49,8 +49,7 @@ BPopUpMenu* StatusView::fMenu = nullptr;
 StatusView::StatusView(Editor* editor)	:
 			controls::StatusView(dynamic_cast<BScrollView*>(editor)),
 			fNavigationPressed(false),
-			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT),
-			fEditor(editor)
+			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT)
 {
 	memset(fCellWidth, 0, sizeof(fCellWidth));
 

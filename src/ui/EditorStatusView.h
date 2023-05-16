@@ -61,10 +61,8 @@ private:
 	};
 			BString			fCellText[kStatusCellCount];
 			float			fCellWidth[kStatusCellCount];
-			bool			fReadOnly;
 			bool			fNavigationPressed;
 	const	float			fNavigationButtonWidth;
-			Editor*			fEditor;
 			
 			static BPopUpMenu*		fMenu;
 };

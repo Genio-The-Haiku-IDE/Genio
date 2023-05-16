@@ -31,8 +31,6 @@
 #include <Window.h>
 
 
-const float kHorzSpacing = 5.f;
-
 using namespace BPrivate;
 
 

@@ -40,6 +40,7 @@
 } while (0)
 
 typedef enum log_level {
+	LOG_LEVEL_UNSET		= -1,
 	LOG_LEVEL_OFF		= 1,
 	LOG_LEVEL_ERROR		= 2,
 	LOG_LEVEL_INFO		= 3,

@@ -44,6 +44,7 @@
 #include "ProjectItem.h"
 #include "SettingsWindow.h"
 #include "TemplatesMenu.h"
+#include "TemplateManager.h"
 #include "TPreferences.h"
 #include "TextUtils.h"
 #include "Utils.h"
@@ -843,30 +844,126 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectFolderClose(fActiveProject);
 			break;
 		}
+		case MSG_SHOW_TEMPLATE_USER_FOLDER:
+		{
+			entry_ref new_ref;
+			status_t status = message->FindRef("refs", &new_ref);
+			if (status != B_OK) {
+				LogError("Can't find ref in message!");
+			} else {
+				_ShowInTracker(&new_ref);
+			}
+		}
+		break;
+		case MSG_CREATE_NEW_PROJECT:
+		{
+			entry_ref ref;
+			status_t status = message->FindRef("refs", &ref);
+			if (status != B_OK) {
+				LogError("Invalid project folder");
+			} else {
+				entry_ref template_ref;
+				if (message->FindRef("template_ref", &template_ref) == B_OK) {
+					if (TemplateManager::CopyTemplate(&template_ref, &ref) == B_OK) {
+						BPath path(&ref);
+						_ProjectFolderOpen(path.Path());
+					} else {
+						LogError("TemplateManager: could not copy %s to %s", 
+									template_ref.name, ref.name); 
+					}
+				} else {
+					LogError("Template entry_ref is not valid"); 
+				}
+			}
+		}
+		break;
 		case MSG_FILE_NEW:
 		case MSG_PROJECT_MENU_NEW_FILE: 
 		{
-			ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();
-			if (!item) {
-				LogError("Can't find current item");
-				OKAlert("Create new file", "Please select the root of a project or a folder where "
-							"you want to create file", B_WARNING_ALERT);
-				return;
-			}
-			// in theory this should not happen as the menu item is enabled only when a folder or
-			// a project folder is selected
-			if (item->GetSourceItem()->Type() != SourceItemType::FolderItem) {
-				LogDebug("Invoking on a non directory (%s)", item->GetSourceItem()->Name().String());
-				return;
-			}
-			BEntry entry(item->GetSourceItem()->Path());
-			entry_ref ref;
-			if (entry.GetRef(&ref) != B_OK) {
-				LogError("Invalid entry_ref for [%s]", item->GetSourceItem()->Path().String());
+			status_t status;
+
+			BString type;
+			status = message->FindString("type", &type);
+			if (status != B_OK) {
+				LogError("Can't find type!");
 				return;
 			}
 			
-			_CreateNewFile(message, &entry);
+			// new_folder_template corresponds to creating a new project
+			// there is no need to check the selected item in the ProjectBrowser
+			// A FilePanel is shown to let the user select the destination of the new project
+			if (type == "new_folder_template") {
+				if (!fCreateNewProjectPanel) {
+					entry_ref template_ref;
+					if (message->FindRef("refs", &template_ref) == B_OK) {
+						BMessage *msg = new BMessage(MSG_CREATE_NEW_PROJECT);
+						msg->AddRef("template_ref", &template_ref);
+						fCreateNewProjectPanel->SetMessage(msg);
+						fCreateNewProjectPanel->Show();
+					}
+				}
+														
+			}
+			
+			// new_file_template corresponds to creating a new file
+			if (type ==  "new_file_template") {
+				// _CreateNewFile(message, )
+			}		
+			
+			// ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();
+			// 
+			// New folder
+			// if (type == "new_folder") {
+				// if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
+						// BEntry entry(item->GetSourceItem()->Path());
+						// entry_ref ref;
+						// if (entry.GetRef(&ref) != B_OK) {
+							// LogError("Invalid entry_ref for [%s]", item->GetSourceItem()->Path().String());
+							// return;
+						// }
+						// BDirectory dir(&entry);
+						// status = dir.CreateDirectory("New folder", nullptr);
+						// if (status != B_OK) {
+							// OKAlert(B_TRANSLATE("New folder"), 
+									// B_TRANSLATE("Error creating folder"), 
+									// B_WARNING_ALERT);
+							// LogError("Invalid destination directory [%s]", dest->Name());
+						// }
+						// return;
+					// }
+				// } else {
+					// LogError("Can't find current item");
+					// OKAlert(B_TRANSLATE("New folder"), 
+							// B_TRANSLATE("You can't create a new folder here, "
+										// "please select a project or another folder"), 
+							// B_WARNING_ALERT);
+					// return;
+				// }
+			// }
+			// 
+			// New file
+			// if (type == "new_item") {
+			// 
+				// entry_ref new_ref;
+				// if (message->FindRef("refs", &new_ref) != B_OK) {
+					// LogError("Can't find ref in message!");
+					// return B_ERROR;
+				// }
+				// Copy template file to destination
+				// BEntry sourceEntry(&new_ref);
+				// BPath destPath;
+				// dest->GetPath(&destPath);
+				// destPath.Append(new_ref.name, true);
+				// BEntry destEntry(destPath.Path());
+				// status = CopyFile(&sourceEntry, &destEntry, false);
+				// if (status != B_OK) {
+					// OKAlert(B_TRANSLATE("New folder"), B_TRANSLATE("Error creating new file"), B_WARNING_ALERT);
+					// LogError("Error creating new file %s in %s", new_ref.name, dest->Name());
+				// }
+				// return;
+			// }
+		
+			// _CreateNewFile(message, &entry);
 		}
 		break;
 		case MSG_PROJECT_MENU_CLOSE: {
@@ -2254,8 +2351,12 @@ GenioWindow::_InitMenu()
 	fMenuBar = new BMenuBar("menubar");
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
+	
 	fileMenu->AddItem(fFileNewMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
-			MSG_FILE_NEW));	
+			new BMessage(MSG_FILE_NEW), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
+			TemplateManager::GetDefaultTemplateDirectory(), 
+			TemplateManager::GetUserTemplateDirectory(), 
+			TemplatesMenu::FILE_VIEW_MODE,	true));	
 	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
 		new BMessage(MSG_FILE_OPEN), 'O'));
 	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
@@ -2396,12 +2497,6 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(searchMenu);
 	
 	BMenu* projectMenu = new BMenu(B_TRANSLATE("Project"));
-	// TODO: As a temporary measure we disable New menu item until we merge
-	// the project-folders branch into main and implement a brand new system
-	// to create new projects. This will likely be based on the "template" or 
-	// "stationery" concept as found in Paladin or BeIDE
-	// projectMenu->AddItem(new BMenuItem(B_TRANSLATE("New"),
-		// new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
 	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Open Project"),
 		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
 	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Close Project"),
@@ -2639,6 +2734,11 @@ GenioWindow::_InitWindow()
 	fOpenProjectFolderPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), 
 												&ref, B_DIRECTORY_NODE, false,
 												openProjectFolderMessage);
+												
+	fCreateNewProjectPanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this),
+										&ref, B_DIRECTORY_NODE, false,
+										new BMessage(MSG_CREATE_NEW_PROJECT),
+										NULL, true, true);
 
 }
 
@@ -3945,17 +4045,6 @@ GenioWindow::_CreateNewFile(BMessage *message, BEntry *dest)
 			LogError("Error creating new file %s in %s", new_ref.name, dest->Name());
 		}
 		return status;
-	}
-	
-	if (type == "open_template_folder") {
-		entry_ref new_ref;
-		status = message->FindRef("refs", &new_ref);
-		if (status != B_OK) {
-			LogError("Can't find ref in message!");
-			return status;
-		}
-		_ShowInTracker(&new_ref);
-		return B_OK;
 	}
 	
 	return B_OK;

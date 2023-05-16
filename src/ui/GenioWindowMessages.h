@@ -111,7 +111,10 @@ enum {
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',
 	MSG_SELECT_TAB					= 'seta',
 		
-	MSG_ESCAPE_KEY					= 'escp'
+	MSG_ESCAPE_KEY					= 'escp',
+	
+	MSG_SHOW_TEMPLATE_USER_FOLDER	= 'stuf',
+	MSG_CREATE_NEW_PROJECT			= 'mcnp'
 };
 
 #endif // GenioWindowMessages_H

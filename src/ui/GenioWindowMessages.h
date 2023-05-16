@@ -12,7 +12,6 @@
 enum {
 	// Project menu
 	MSG_PROJECT_CLOSE			= 'prcl',
-	MSG_PROJECT_NEW				= 'prne',
 	MSG_PROJECT_OPEN			= 'prop',
 	MSG_PROJECT_SET_ACTIVE		= 'psac',	// TODO
 	MSG_PROJECT_SETTINGS		= 'prse',

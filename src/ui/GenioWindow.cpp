@@ -38,7 +38,6 @@
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
 #include "Log.h"
-#include "NewProjectWindow.h"
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
@@ -874,11 +873,6 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_MENU_SET_ACTIVE: {
 			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromCurrentItem());
-			break;
-		}
-		case MSG_PROJECT_NEW: {
-			// NewProjectWindow *wnd = new NewProjectWindow();
-			// wnd->Show();
 			break;
 		}
 		case MSG_PROJECT_OPEN: {
@@ -2582,12 +2576,7 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(searchMenu);
 	
 	BMenu* projectMenu = new BMenu(B_TRANSLATE("Project"));
-	// TODO: As a temporary measure we disable New menu item until we merge
-	// the project-folders branch into main and implement a brand new system
-	// to create new projects. This will likely be based on the "template" or 
-	// "stationery" concept as found in Paladin or BeIDE
-	// projectMenu->AddItem(new BMenuItem(B_TRANSLATE("New"),
-		// new BMessage(MSG_PROJECT_NEW), 'N', B_OPTION_KEY));
+
 	ActionManager::AddItem(MSG_PROJECT_OPEN, projectMenu);
 	ActionManager::AddItem(MSG_PROJECT_CLOSE, projectMenu);
 

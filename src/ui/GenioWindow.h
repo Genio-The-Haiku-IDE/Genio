@@ -233,6 +233,7 @@ private:
 			BFilePanel*			fSavePanel;
 			BFilePanel*			fOpenProjectPanel;
 			BFilePanel*			fOpenProjectFolderPanel;
+			BFilePanel*			fCreateNewProjectPanel;
 
 			// Bottom panels
 			BTabView*			fOutputTabView;

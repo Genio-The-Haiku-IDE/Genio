@@ -106,15 +106,12 @@ private:
 
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
-			void				_ProjectFileExclude();
 			void				_ProjectFileOpen(const BString& filePath);
-			void				_ProjectFileRemoveItem(bool addToParseless);
 			
 			status_t			_ProjectRemoveDir(const BString& dirPath);
 
 			// Project Folders
 			void				_ProjectFolderClose(ProjectFolder *project);
-			void 				_ProjectFolderNew(BMessage *message);
 			void 				_ProjectFolderOpen(BMessage *message);
 			void				_ProjectFolderOpen(const BString& folder, bool activate = false);
 			void				_ProjectFolderActivate(ProjectFolder* project);

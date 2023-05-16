@@ -659,8 +659,9 @@ FileWrapper::_DoDiagnostics(nlohmann::json& params)
 		fEditor->SetProblems(&toJson);
 		fEditor->UnlockLooper();
 	}
-
-	fLSPClientWrapper->DocumentLink(this, fFilenameURI.c_str());
+	
+	if (fLSPClientWrapper)
+		fLSPClientWrapper->DocumentLink(this, fFilenameURI.c_str());
 
 }
 

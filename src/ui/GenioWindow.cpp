@@ -1009,17 +1009,6 @@ GenioWindow::MessageReceived(BMessage* message)
 
 			break;
 		}
-		case GenioNames::ADDTOPROJECTWINDOW_NEW_ITEM: {
-			BString projectName, filePath, file2Path;
-			if (message->FindString("project", &projectName) == B_OK
-				&& message->FindString("file_path", &filePath) == B_OK) {
-					_ProjectFileOpen(filePath);
-			}
-			if ( message->FindString("file2_path", &file2Path) == B_OK)
-				_ProjectFileOpen(file2Path);
-
-			break;
-		}
 		case TABMANAGER_TAB_SELECTED: {
 			int32 index;
 			if (message->FindInt32("index", &index) == B_OK) {
@@ -3024,21 +3013,6 @@ GenioWindow::_ProjectRenameFile()
 	
 }
 
-
-void
-GenioWindow::_ProjectFileOpen(const BString& filePath)
-{
-	BEntry entry(filePath);
-	entry_ref ref;
-	if (entry.GetRef(&ref) != B_OK) {
-		LogErrorF("Invalid entry_ref for [%s]", filePath.String());
-		return;
-	}
-	
-	BMessage msg(B_REFS_RECEIVED);
-	msg.AddRef("refs", &ref);
-	PostMessage(&msg);
-}
 
 
 status_t

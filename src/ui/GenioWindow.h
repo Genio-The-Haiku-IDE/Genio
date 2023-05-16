@@ -106,7 +106,6 @@ private:
 
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
-			void				_ProjectFileOpen(const BString& filePath);
 			
 			status_t			_ProjectRemoveDir(const BString& dirPath);
 

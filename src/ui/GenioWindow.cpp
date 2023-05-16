@@ -859,10 +859,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectRenameFile();
 			break;
 		}
-		case MSG_PROJECT_MENU_EXCLUDE_FILE: {
-			_ProjectFileExclude();
-			break;
-		}
 		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
 			_ShowCurrentItemInTracker();
 			break;
@@ -978,17 +974,6 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_WINDOW_SETTINGS: {
 			SettingsWindow *window = new SettingsWindow();
 			window->Show();
-
-			break;
-		}
-		case GenioNames::ADDTOPROJECTWINDOW_NEW_ITEM: {
-			BString projectName, filePath, file2Path;
-			if (message->FindString("project", &projectName) == B_OK
-				&& message->FindString("file_path", &filePath) == B_OK) {
-					_ProjectFileOpen(filePath);
-			}
-			if ( message->FindString("file2_path", &file2Path) == B_OK)
-				_ProjectFileOpen(file2Path);
 
 			break;
 		}
@@ -3144,92 +3129,6 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	fRunConsoleProgramText->SetToolTip(tooltip);
 }
 
-
-/*void
-GenioWindow::_ProjectClose()
-{
-	Project* project = _ProjectPointerFromName(fSelectedProjectName);
-	if (project == nullptr)
-		return;
-
-	BString closed(B_TRANSLATE("Project close:"));
-	BString name = fSelectedProjectName;
-
-	// Active project closed
-	if (project == fActiveProject) {
-		fActiveProject = nullptr;
-		closed = B_TRANSLATE("Active project close:");
-		_UpdateProjectActivation(false);
-		// Update run command working directory tooltip too
-		BString tooltip;
-		tooltip << "cwd: " << GenioNames::Settings.projects_directory;
-		fRunConsoleProgramText->SetToolTip(tooltip);
-	}
-	_ProjectOutlineDepopulate(project);
-	fProjectObjectList->RemoveItem(project);
-	
-	//xed
-	for (int32 index = 0; index < fEditorObjectList->CountItems(); index++) {
-		fEditor = fEditorObjectList->ItemAt(index);
-		if (fEditor->GetProject() == project)
-		{
-			fEditor->SetProject(NULL);
-		}
-	}
-	delete project;
-
-	BString notification;
-	notification << closed << " "  << name;
-	_SendNotification(notification, "PROJ_CLOSE");
-}*/
-/*
-void
-GenioWindow::_ProjectDelete(BString name, bool sourcesToo)
-{
-
-	BPath projectPath;
-
-	if ((find_directory(B_USER_SETTINGS_DIRECTORY, &projectPath)) != B_OK) {
-		BString text;
-		text << B_TRANSLATE("ERROR: Settings directory not found");
-		_SendNotification( text.String(), "PROJ_DELETE");
-		return;
-	}
-
-	// Get base directory for removal
-	BString baseDir("");
-	for (int32 index = 0; index < fProjectObjectList->CountItems(); index++) {
-		Project * project = fProjectObjectList->ItemAt(index);
-		if (project->ExtensionedName() == fSelectedProjectName) {
-			baseDir.SetTo(project->BasePath());
-		}
-	}
-
-	_ProjectClose();
-
-	projectPath.Append(GenioNames::kApplicationName);
-	projectPath.Append(name);
-	BEntry entry(projectPath.Path());
-
-	if (entry.Exists()) {
-		BString notification;
-		entry.Remove();
-		notification << B_TRANSLATE("Project delete:") << "  "  << name.String();
-		_SendNotification(notification, "PROJ_DELETE");
-	}
-
-	if (sourcesToo == true) {
-		if (!baseDir.IsEmpty()) {
-			if (_ProjectRemoveDir(baseDir) == B_OK) {
-				BString notification;
-				notification << B_TRANSLATE("Project delete:") << "  "
-					<< B_TRANSLATE("removed") << " " << baseDir;
-				_SendNotification(notification, "PROJ_DELETE");
-			}
-		}
-	}
-}
-*/
 void
 GenioWindow::_ProjectFileDelete()
 {
@@ -3276,8 +3175,6 @@ GenioWindow::_ProjectFileDelete()
 				LogError("Could not delete %s (status = %d)", name, status);
 			}
 		}
-
-		_ProjectFileRemoveItem(false);
 	}
 }
 
@@ -3296,69 +3193,7 @@ GenioWindow::_ProjectRenameFile()
 	
 }
 
-void
-GenioWindow::_ProjectFileExclude()
-{
-	_ProjectFileRemoveItem(true);
-}
 
-void
-GenioWindow::_ProjectFileOpen(const BString& filePath)
-{
-	BEntry entry(filePath);
-	entry_ref ref;
-	if (entry.GetRef(&ref) != B_OK) {
-		LogErrorF("Invalid entry_ref for [%s]", filePath.String());
-		return;
-	}
-	
-	BMessage msg(B_REFS_RECEIVED);
-	msg.AddRef("refs", &ref);
-	PostMessage(&msg);
-}
-
-//TODO: old function using fProjectsOutline
-void
-GenioWindow::_ProjectFileRemoveItem(bool addToParseless)
-{/*
-	TPreferences idmproFile(fSelectedProjectName,
-							GenioNames::kApplicationName, 'LOPR');
-
-	int32 index = 0;
-	BString superItem(""), file;
-	BStringItem *itemType;
-	BListItem *item = fSelectedProjectItem, *parent;
-
-	while ((parent = fProjectsOutline->Superitem(item)) != nullptr) {
-		itemType = dynamic_cast<BStringItem*>(parent);
-		superItem = itemType->Text();
-		if (superItem == B_TRANSLATE("Project Files")
-			|| superItem == B_TRANSLATE("Project Sources"))
-			break;
-
-		item = parent;
-	}
-
-	if (superItem == B_TRANSLATE("Project Sources"))
-		superItem = "project_source";
-	else if (superItem == B_TRANSLATE("Project Files"))
-		superItem = "project_file";
-	else
-		return;
-
-	while ((idmproFile.FindString(superItem, index, &file)) != B_BAD_INDEX) {
-		if (_ProjectFileFullPath() == file) {
-			idmproFile.RemoveData(superItem, index);
-			fProjectsOutline->RemoveItem(fSelectedProjectItem);
-			// Excluded items go to "parseless_item" array in settings file so
-			// subsequent calls to ProjectParser::ParseProjectFiles() will keep hiding them
-			if (addToParseless == true)
-				idmproFile.AddString("parseless_item", file);
-			break;
-		}
-		index++;
-	}*/
-}
 
 status_t
 GenioWindow::_ProjectRemoveDir(const BString& dirPath)
@@ -3434,12 +3269,6 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	notification << closed << " "  << name;
 	_SendNotification(notification, "PROJ_CLOSE");
 	
-
-}
-
-void
-GenioWindow::_ProjectFolderNew(BMessage *message)
-{
 
 }
 

@@ -56,9 +56,8 @@ LexInterface::LexInterface(Document *pdoc_) noexcept : pdoc(pdoc_), performingSt
 
 LexInterface::~LexInterface() noexcept = default;
 
-void LexInterface::SetInstance(ILexer5 *instance_) {
+void LexInterface::SetInstance(ILexer5 *instance_) noexcept {
 	instance.reset(instance_);
-	pdoc->LexerChanged();
 }
 
 void LexInterface::Colourise(Sci::Position start, Sci::Position end) {
@@ -124,6 +123,18 @@ double ActionDuration::Duration() const noexcept {
 
 size_t ActionDuration::ActionsInAllowedTime(double secondsAllowed) const noexcept {
 	return std::lround(secondsAllowed / Duration());
+}
+
+CharacterExtracted::CharacterExtracted(const unsigned char *charBytes, size_t widthCharBytes) noexcept {
+	const int utf8status = UTF8Classify(charBytes, widthCharBytes);
+	if (utf8status & UTF8MaskInvalid) {
+		// Treat as invalid and use up just one byte
+		character = unicodeReplacementChar;
+		widthBytes = 1;
+	} else {
+		character = UnicodeFromUTF8(charBytes);
+		widthBytes = utf8status & UTF8MaskWidth;
+	}
 }
 
 Document::Document(DocumentOption options) :
@@ -214,27 +225,27 @@ void Document::RemoveLine(Sci::Line line) {
 }
 
 LineMarkers *Document::Markers() const noexcept {
-	return dynamic_cast<LineMarkers *>(perLineData[ldMarkers].get());
+	return static_cast<LineMarkers *>(perLineData[ldMarkers].get());
 }
 
 LineLevels *Document::Levels() const noexcept {
-	return dynamic_cast<LineLevels *>(perLineData[ldLevels].get());
+	return static_cast<LineLevels *>(perLineData[ldLevels].get());
 }
 
 LineState *Document::States() const noexcept {
-	return dynamic_cast<LineState *>(perLineData[ldState].get());
+	return static_cast<LineState *>(perLineData[ldState].get());
 }
 
 LineAnnotation *Document::Margins() const noexcept {
-	return dynamic_cast<LineAnnotation *>(perLineData[ldMargin].get());
+	return static_cast<LineAnnotation *>(perLineData[ldMargin].get());
 }
 
 LineAnnotation *Document::Annotations() const noexcept {
-	return dynamic_cast<LineAnnotation *>(perLineData[ldAnnotation].get());
+	return static_cast<LineAnnotation *>(perLineData[ldAnnotation].get());
 }
 
 LineAnnotation *Document::EOLAnnotations() const noexcept {
-	return dynamic_cast<LineAnnotation *>(perLineData[ldEOLAnnotation].get());
+	return static_cast<LineAnnotation *>(perLineData[ldEOLAnnotation].get());
 }
 
 LineEndType Document::LineEndTypesSupported() const {
@@ -437,6 +448,10 @@ Sci_Position SCI_METHOD Document::LineStart(Sci_Position line) const {
 	return cb.LineStart(line);
 }
 
+Range Document::LineRange(Sci::Line line) const noexcept {
+	return {cb.LineStart(line), cb.LineStart(line + 1)};
+}
+
 bool Document::IsLineStartPosition(Sci::Position position) const {
 	return LineStart(LineFromPosition(position)) == position;
 }
@@ -501,7 +516,7 @@ Sci::Position Document::VCHomePosition(Sci::Position position) const {
 	const Sci::Position startPosition = LineStart(line);
 	const Sci::Position endLine = LineEnd(line);
 	Sci::Position startText = startPosition;
-	while (startText < endLine && (cb.CharAt(startText) == ' ' || cb.CharAt(startText) == '\t'))
+	while (startText < endLine && IsSpaceOrTab(cb.CharAt(startText)))
 		startText++;
 	if (position == startText)
 		return startPosition;
@@ -547,8 +562,8 @@ int SCI_METHOD Document::GetLevel(Sci_Position line) const {
 	return Levels()->GetLevel(line);
 }
 
-FoldLevel Document::GetFoldLevel(Sci_Position line) const {
-	return static_cast<FoldLevel>(Levels()->GetLevel(line));
+FoldLevel Document::GetFoldLevel(Sci_Position line) const noexcept {
+	return Levels()->GetFoldLevel(line);
 }
 
 void Document::ClearLevels() {
@@ -586,21 +601,8 @@ Sci::Line Document::GetLastChild(Sci::Line lineParent, std::optional<FoldLevel> 
 	return lineMaxSubord;
 }
 
-Sci::Line Document::GetFoldParent(Sci::Line line) const {
-	const FoldLevel level = LevelNumberPart(GetFoldLevel(line));
-	Sci::Line lineLook = line - 1;
-	while ((lineLook > 0) && (
-	            (!LevelIsHeader(GetFoldLevel(lineLook))) ||
-	            (LevelNumberPart(GetFoldLevel(lineLook)) >= level))
-	      ) {
-		lineLook--;
-	}
-	if (LevelIsHeader(GetFoldLevel(lineLook)) &&
-	        (LevelNumberPart(GetFoldLevel(lineLook)) < level)) {
-		return lineLook;
-	} else {
-		return -1;
-	}
+Sci::Line Document::GetFoldParent(Sci::Line line) const noexcept {
+	return Levels()->GetFoldParent(line);
 }
 
 void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, Sci::Line line, Sci::Line lastLine) {
@@ -918,7 +920,7 @@ bool Document::NextCharacter(Sci::Position &pos, int moveDir) const noexcept {
 	}
 }
 
-Document::CharacterExtracted Document::CharacterAfter(Sci::Position position) const noexcept {
+CharacterExtracted Document::CharacterAfter(Sci::Position position) const noexcept {
 	if (position >= LengthNoExcept()) {
 		return CharacterExtracted(unicodeReplacementChar, 0);
 	}
@@ -932,13 +934,7 @@ Document::CharacterExtracted Document::CharacterAfter(Sci::Position position) co
 		unsigned char charBytes[UTF8MaxBytes] = { leadByte, 0, 0, 0 };
 		for (int b = 1; b<widthCharBytes; b++)
 			charBytes[b] = cb.UCharAt(position + b);
-		const int utf8status = UTF8Classify(charBytes, widthCharBytes);
-		if (utf8status & UTF8MaskInvalid) {
-			// Treat as invalid and use up just one byte
-			return CharacterExtracted(unicodeReplacementChar, 1);
-		} else {
-			return CharacterExtracted(UnicodeFromUTF8(charBytes), utf8status & UTF8MaskWidth);
-		}
+		return CharacterExtracted(charBytes, widthCharBytes);
 	} else {
 		if (IsDBCSLeadByteNoExcept(leadByte)) {
 			const unsigned char trailByte = cb.UCharAt(position + 1);
@@ -950,7 +946,7 @@ Document::CharacterExtracted Document::CharacterAfter(Sci::Position position) co
 	}
 }
 
-Document::CharacterExtracted Document::CharacterBefore(Sci::Position position) const noexcept {
+CharacterExtracted Document::CharacterBefore(Sci::Position position) const noexcept {
 	if (position <= 0) {
 		return CharacterExtracted(unicodeReplacementChar, 0);
 	}
@@ -973,13 +969,7 @@ Document::CharacterExtracted Document::CharacterBefore(Sci::Position position) c
 				unsigned char charBytes[UTF8MaxBytes] = { 0, 0, 0, 0 };
 				for (Sci::Position b = 0; b<widthCharBytes; b++)
 					charBytes[b] = cb.UCharAt(startUTF + b);
-				const int utf8status = UTF8Classify(charBytes, widthCharBytes);
-				if (utf8status & UTF8MaskInvalid) {
-					// Treat as invalid and use up just one byte
-					return CharacterExtracted(unicodeReplacementChar, 1);
-				} else {
-					return CharacterExtracted(UnicodeFromUTF8(charBytes), utf8status & UTF8MaskWidth);
-				}
+				return CharacterExtracted(charBytes, widthCharBytes);
 			}
 			// Else invalid UTF-8 so return position of isolated trail byte
 		}
@@ -1243,6 +1233,17 @@ void Document::CheckReadOnly() {
 	}
 }
 
+void Document::TrimReplacement(std::string_view &text, Range &range) const noexcept {
+	while (!text.empty() && !range.Empty() && (text.front() == CharAt(range.start))) {
+		text.remove_prefix(1);
+		range.start++;
+	}
+	while (!text.empty() && !range.Empty() && (text.back() == CharAt(range.end-1))) {
+		text.remove_suffix(1);
+		range.end--;
+	}
+}
+
 // Document only modified by gateways DeleteChars, InsertString, Undo, Redo, and SetStyleAt.
 // SetStyleAt does not change the persistent state of a document
 
@@ -1335,6 +1336,10 @@ Sci::Position Document::InsertString(Sci::Position position, const char *s, Sci:
 	}
 	enteredModification--;
 	return insertLength;
+}
+
+Sci::Position Document::InsertString(Sci::Position position, std::string_view sv) {
+	return InsertString(position, sv.data(), sv.length());
 }
 
 void Document::ChangeInsertion(const char *s, Sci::Position length) {
@@ -1562,13 +1567,12 @@ Sci::Position Document::SetLineIndentation(Sci::Line line, Sci::Position indent)
 	if (indent < 0)
 		indent = 0;
 	if (indent != indentOfLine) {
-		std::string linebuf = CreateIndentation(indent, tabInChars, !useTabs);
+		const std::string linebuf = CreateIndentation(indent, tabInChars, !useTabs);
 		const Sci::Position thisLineStart = LineStart(line);
 		const Sci::Position indentPos = GetLineIndentPosition(line);
 		UndoGroup ug(this);
 		DeleteChars(thisLineStart, indentPos - thisLineStart);
-		return thisLineStart + InsertString(thisLineStart, linebuf.c_str(),
-			linebuf.length());
+		return thisLineStart + InsertString(thisLineStart, linebuf);
 	} else {
 		return GetLineIndentPosition(line);
 	}
@@ -1585,7 +1589,7 @@ Sci::Position Document::GetLineIndentPosition(Sci::Line line) const {
 	return pos;
 }
 
-Sci::Position Document::GetColumn(Sci::Position pos) {
+Sci::Position Document::GetColumn(Sci::Position pos) const {
 	Sci::Position column = 0;
 	const Sci::Line line = SciLineFromPosition(pos);
 	if ((line >= 0) && (line < LinesTotal())) {
@@ -1705,7 +1709,8 @@ void Document::ConvertLineEnds(EndOfLine eolModeSet) {
 	UndoGroup ug(this);
 
 	for (Sci::Position pos = 0; pos < Length(); pos++) {
-		if (cb.CharAt(pos) == '\r') {
+		const char ch = cb.CharAt(pos);
+		if (ch == '\r') {
 			if (cb.CharAt(pos + 1) == '\n') {
 				// CRLF
 				if (eolModeSet == EndOfLine::Cr) {
@@ -1725,7 +1730,7 @@ void Document::ConvertLineEnds(EndOfLine eolModeSet) {
 					pos--;
 				}
 			}
-		} else if (cb.CharAt(pos) == '\n') {
+		} else if (ch == '\n') {
 			// LF
 			if (eolModeSet == EndOfLine::CrLf) {
 				pos += InsertString(pos, "\r", 1); // Insert CR
@@ -1737,6 +1742,16 @@ void Document::ConvertLineEnds(EndOfLine eolModeSet) {
 		}
 	}
 
+}
+
+std::string_view Document::EOLString() const noexcept {
+	if (eolMode == EndOfLine::CrLf) {
+		return "\r\n";
+	} else if (eolMode == EndOfLine::Cr) {
+		return "\r";
+	} else {
+		return "\n";
+	}
 }
 
 DocumentOption Document::Options() const noexcept {
@@ -1758,7 +1773,10 @@ bool Document::IsWhiteLine(Sci::Line line) const {
 
 Sci::Position Document::ParaUp(Sci::Position pos) const {
 	Sci::Line line = SciLineFromPosition(pos);
-	line--;
+	const Sci::Position start = LineStart(line);
+	if (pos == start) {
+		line--;
+	}
 	while (line >= 0 && IsWhiteLine(line)) { // skip empty lines
 		line--;
 	}
@@ -2034,7 +2052,7 @@ void Document::SetCaseFolder(std::unique_ptr<CaseFolder> pcf_) noexcept {
 	pcf = std::move(pcf_);
 }
 
-Document::CharacterExtracted Document::ExtractCharacter(Sci::Position position) const noexcept {
+CharacterExtracted Document::ExtractCharacter(Sci::Position position) const noexcept {
 	const unsigned char leadByte = cb.UCharAt(position);
 	if (UTF8IsAscii(leadByte)) {
 		// Common case: ASCII character
@@ -2044,13 +2062,7 @@ Document::CharacterExtracted Document::ExtractCharacter(Sci::Position position) 
 	unsigned char charBytes[UTF8MaxBytes] = { leadByte, 0, 0, 0 };
 	for (int b=1; b<widthCharBytes; b++)
 		charBytes[b] = cb.UCharAt(position + b);
-	const int utf8status = UTF8Classify(charBytes, widthCharBytes);
-	if (utf8status & UTF8MaskInvalid) {
-		// Treat as invalid and use up just one byte
-		return CharacterExtracted(unicodeReplacementChar, 1);
-	} else {
-		return CharacterExtracted(UnicodeFromUTF8(charBytes), utf8status & UTF8MaskWidth);
-	}
+	return CharacterExtracted(charBytes, widthCharBytes);
 }
 
 namespace {
@@ -2174,32 +2186,32 @@ Sci::Position Document::FindText(Sci::Position minPos, Sci::Position maxPos, con
 			const size_t lenSearch =
 				pcf->Fold(&searchThing[0], searchThing.size(), search, lengthFind);
 			while (forward ? (pos < endPos) : (pos >= endPos)) {
-				int widthFirstCharacter = 0;
+				int widthFirstCharacter = 1;
 				Sci::Position posIndexDocument = pos;
 				size_t indexSearch = 0;
 				bool characterMatches = true;
-				for (;;) {
+				while (indexSearch < lenSearch) {
 					const unsigned char leadByte = cbView.CharAt(posIndexDocument);
-					char bytes[UTF8MaxBytes + 1];
 					int widthChar = 1;
-					if (!UTF8IsAscii(leadByte)) {
-						const int widthCharBytes = UTF8BytesOfLead[leadByte];
-						bytes[0] = leadByte;
-						for (int b=1; b<widthCharBytes; b++) {
-							bytes[b] = cbView.CharAt(posIndexDocument+b);
-						}
-						widthChar = UTF8Classify(reinterpret_cast<const unsigned char *>(bytes), widthCharBytes) & UTF8MaskWidth;
-					}
-					if (!widthFirstCharacter) {
-						widthFirstCharacter = widthChar;
-					}
-					if ((posIndexDocument + widthChar) > limitPos) {
-						break;
-					}
 					size_t lenFlat = 1;
-					if (widthChar == 1) {
+					if (UTF8IsAscii(leadByte)) {
+						if ((posIndexDocument + 1) > limitPos) {
+							break;
+						}
 						characterMatches = searchThing[indexSearch] == MakeLowerCase(leadByte);
 					} else {
+						char bytes[UTF8MaxBytes]{ static_cast<char>(leadByte) };
+						const int widthCharBytes = UTF8BytesOfLead[leadByte];
+						for (int b = 1; b < widthCharBytes; b++) {
+							bytes[b] = cbView.CharAt(posIndexDocument + b);
+						}
+						widthChar = UTF8Classify(reinterpret_cast<const unsigned char *>(bytes), widthCharBytes) & UTF8MaskWidth;
+						if (!indexSearch) {	// First character
+							widthFirstCharacter = widthChar;
+						}
+						if ((posIndexDocument + widthChar) > limitPos) {
+							break;
+						}
 						char folded[UTF8MaxBytes * maxFoldingExpansion + 1];
 						lenFlat = pcf->Fold(folded, sizeof(folded), bytes, widthChar);
 						// memcmp may examine lenFlat bytes in both arguments so assert it doesn't read past end of searchThing
@@ -2212,9 +2224,6 @@ Sci::Position Document::FindText(Sci::Position minPos, Sci::Position maxPos, con
 					}
 					posIndexDocument += widthChar;
 					indexSearch += lenFlat;
-					if (indexSearch >= lenSearch) {
-						break;
-					}
 				}
 				if (characterMatches && (indexSearch == lenSearch)) {
 					if (MatchesWordOptions(word, wordStart, pos, posIndexDocument - pos)) {
@@ -2254,9 +2263,10 @@ Sci::Position Document::FindText(Sci::Position minPos, Sci::Position maxPos, con
 					if (widthChar == 1) {
 						characterMatches = searchThing[indexSearch] == MakeLowerCase(leadByte);
 					} else {
-						char bytes[maxBytesCharacter + 1];
-						bytes[0] = leadByte;
-						bytes[1] = cbView.CharAt(pos + indexDocument + 1);
+						const char bytes[maxBytesCharacter + 1] {
+							static_cast<char>(leadByte),
+							cbView.CharAt(pos + indexDocument + 1)
+						};
 						char folded[maxBytesCharacter * maxFoldingExpansion + 1];
 						lenFlat = pcf->Fold(folded, sizeof(folded), bytes, widthChar);
 						// memcmp may examine lenFlat bytes in both arguments so assert it doesn't read past end of searchThing
@@ -2430,13 +2440,6 @@ void Document::StyleToAdjustingLineDuration(Sci::Position pos) {
 	ElapsedPeriod epStyling;
 	EnsureStyledTo(pos);
 	durationStyleOneByte.AddSample(pos - stylingStart, epStyling.Duration());
-}
-
-void Document::LexerChanged() {
-	// Tell the watchers the lexer has changed.
-	for (const WatcherWithUserData &watcher : watchers) {
-		watcher.watcher->NotifyLexerChanged(this, watcher.userData);
-	}
 }
 
 LexInterface *Document::GetLexInterface() const noexcept {
@@ -3044,7 +3047,7 @@ public:
 	}
 private:
 	void ReadCharacter() noexcept {
-		const Document::CharacterExtracted charExtracted = doc->ExtractCharacter(position);
+		const CharacterExtracted charExtracted = doc->ExtractCharacter(position);
 		lenBytes = charExtracted.widthBytes;
 		if (charExtracted.character == unicodeReplacementChar) {
 			lenCharacters = 1;
@@ -3073,7 +3076,7 @@ public:
 		doc(doc_), position(position_) {
 	}
 	wchar_t operator*() const noexcept {
-		const Document::CharacterExtracted charExtracted = doc->ExtractCharacter(position);
+		const CharacterExtracted charExtracted = doc->ExtractCharacter(position);
 		return charExtracted.character;
 	}
 	UTF8Iterator &operator++() noexcept {

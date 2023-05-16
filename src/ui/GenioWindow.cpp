@@ -2475,7 +2475,6 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(searchMenu);
 	
 	BMenu* projectMenu = new BMenu(B_TRANSLATE("Project"));
-
 	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Open Project"),
 		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
 	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Close Project"),

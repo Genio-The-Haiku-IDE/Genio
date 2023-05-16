@@ -10,13 +10,6 @@
 
 namespace GenioNames
 {
-	enum
-	{
-		ADDTOPROJECTWINDOW_NEW_ITEM			= 'Anit',
-		NEWPROJECTWINDOW_PROJECT_CARGO_NEW	= 'Npcn',
-		NEWPROJECTWINDOW_PROJECT_OPEN_NEW	= 'Npon'
-	};
-
 	const BString kApplicationName(B_TRANSLATE_SYSTEM_NAME("Genio"));
 	const BString kApplicationSignature("application/x-vnd.Genio");
 	const BString kSettingsFileName("Genio.settings");

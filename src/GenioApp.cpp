@@ -19,7 +19,7 @@
 
 #include "Log.h"
 
-static log_level sSessionLogLevel = log_level(-1);
+static log_level sSessionLogLevel = log_level(LOG_LEVEL_UNSET);
 
 GenioApp::GenioApp()
 	:
@@ -140,7 +140,7 @@ GenioApp::ReadyToRun()
 
 	Logger::SetDestination(GenioNames::Settings.log_destination);
 
-	if (sSessionLogLevel == -1)
+	if (sSessionLogLevel == LOG_LEVEL_UNSET)
 		Logger::SetLevel(log_level(GenioNames::Settings.log_level));
 	else
 		Logger::SetLevel(sSessionLogLevel);

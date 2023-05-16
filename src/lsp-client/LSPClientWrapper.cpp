@@ -38,6 +38,7 @@ LSPClientWrapper::Create(const char *uri)
   std::string logLevel("--log=");
   switch (Logger::Level())
   {
+  		case LOG_LEVEL_UNSET:
 		case LOG_LEVEL_OFF:
 		case LOG_LEVEL_ERROR:
 			logLevel += "error"; // Error messages only

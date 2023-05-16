@@ -13,8 +13,8 @@
 #include "Sci_Position.h"
 #include "LSPTextDocument.h"
 
-class Position;
-class Range;
+struct Position;
+struct Range;
 class LSPClientWrapper;
 class Editor;
 

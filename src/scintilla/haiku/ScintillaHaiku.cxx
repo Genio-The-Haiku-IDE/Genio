@@ -24,6 +24,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include <Autolock.h>
 #include <Bitmap.h>
 #include <Clipboard.h>
 #include <Input.h>
@@ -37,7 +38,6 @@
 #include <SupportDefs.h>
 #include <View.h>
 #include <Window.h>
-#include <Autolock.h>
 
 #include "ScintillaTypes.h"
 #include "ScintillaMessages.h"
@@ -83,6 +83,7 @@ using namespace Scintilla;
 using namespace Scintilla::Internal;
 
 namespace {
+	const int32 sNotification = 'BSCN';
 	const int32 sContextMenu = 'BSCM';
 	const int32 sTickMessage = 'TCKM';
 	const BString sMimeRectangularMarker("text/x-rectangular-marker");
@@ -484,7 +485,13 @@ void ScintillaHaiku::NotifyChange() {
 void ScintillaHaiku::NotifyParent(NotificationData n) {
 	n.nmhdr.hwndFrom = static_cast<void*>(scrollView);
 	n.nmhdr.idFrom = GetCtrlID();
-	static_cast<BScintillaView*>(scrollView)->NotificationReceived((SCNotification*)&n);
+	BMessage message(sNotification);
+	message.AddData("notification", B_ANY_TYPE, &n, sizeof(NotificationData));
+	if (n.text) {
+		message.AddData("notification_text", B_ANY_TYPE, n.text, n.length == 0 ? strlen(n.text) : n.length);
+	}
+
+	BMessenger(this).SendMessage(&message);
 }
 
 void ScintillaHaiku::MessageReceived(BMessage* msg) {
@@ -978,12 +985,21 @@ sptr_t BScintillaView::SendMessage(unsigned int iMessage, uptr_t wParam, sptr_t 
 }
 
 sptr_t BScintillaView::SendMessage(Scintilla::Message iMessage, uptr_t wParam, sptr_t lParam) {
-	BAutolock autolock(Window());
+	BAutolock lock(Window());
 	return p->sciControl->WndProc(iMessage, wParam, lParam);
 }
 
 void BScintillaView::MessageReceived(BMessage* msg) {
 	switch(msg->what) {
+ 		case sNotification: {
+ 			SCNotification* n = NULL;
+ 			ssize_t size;
+ 			if (msg->FindData("notification", B_ANY_TYPE, 0, (const void**)&n, &size) == B_OK) {
+ 				msg->FindData("notification_text", B_ANY_TYPE, 0, (const void**)&(n->text), &size);
+ 				NotificationReceived(n);
+ 			}
+ 		}
+ 		break;
 		case sContextMenu: {
 			BPoint point;
 			if(msg->FindPoint("where", &point) == B_OK) {

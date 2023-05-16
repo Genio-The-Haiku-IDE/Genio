@@ -308,6 +308,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	Point GetVisibleOriginInMain() const override;
 	PointDocument DocumentPointFromView(Point ptView) const;  // Convert a point from view space to document
 	Sci::Line TopLineOfMain() const noexcept final;   // Return the line at Main's y coordinate 0
+	virtual Point ClientSize() const;
 	virtual PRectangle GetClientRectangle() const;
 	virtual PRectangle GetClientDrawingRectangle();
 	PRectangle GetTextRectangle() const;
@@ -399,6 +400,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	bool Wrapping() const noexcept;
 	void NeedWrapping(Sci::Line docLineStart=0, Sci::Line docLineEnd=WrapPending::lineLarge);
 	bool WrapOneLine(Surface *surface, Sci::Line lineToWrap);
+	bool WrapBlock(Surface *surface, Sci::Line lineToWrap, Sci::Line lineToWrapEnd);
 	enum class WrapScope {wsAll, wsVisible, wsIdle};
 	bool WrapLines(WrapScope ws);
 	void LinesJoin();
@@ -471,7 +473,6 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void NotifyModified(Document *document, DocModification mh, void *userData) override;
 	void NotifyDeleted(Document *document, void *userData) noexcept override;
 	void NotifyStyleNeeded(Document *doc, void *userData, Sci::Position endStyleNeeded) override;
-	void NotifyLexerChanged(Document *doc, void *userData) override;
 	void NotifyErrorOccurred(Document *doc, void *userData, Scintilla::Status status) override;
 	void NotifyMacroRecord(Scintilla::Message iMessage, Scintilla::uptr_t wParam, Scintilla::sptr_t lParam);
 
@@ -582,7 +583,8 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void FoldAll(Scintilla::FoldAction action);
 
 	Sci::Position GetTag(char *tagValue, int tagNumber);
-	Sci::Position ReplaceTarget(bool replacePatterns, const char *text, Sci::Position length=-1);
+	enum class ReplaceType {basic, patterns, minimal};
+	Sci::Position ReplaceTarget(ReplaceType replaceType, std::string_view text);
 
 	bool PositionIsHotspot(Sci::Position position) const noexcept;
 	bool PointIsHotspot(Point pt);
@@ -599,14 +601,14 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 
 	Sci::Line WrapCount(Sci::Line line);
 	void AddStyledText(const char *buffer, Sci::Position appendLength);
+	Sci::Position GetStyledText(char *buffer, Sci::Position cpMin, Sci::Position cpMax) const noexcept;
+	Sci::Position GetTextRange(char *buffer, Sci::Position cpMin, Sci::Position cpMax) const;
 
 	virtual Scintilla::sptr_t DefWndProc(Scintilla::Message iMessage, Scintilla::uptr_t wParam, Scintilla::sptr_t lParam) = 0;
 	bool ValidMargin(Scintilla::uptr_t wParam) const noexcept;
 	void StyleSetMessage(Scintilla::Message iMessage, Scintilla::uptr_t wParam, Scintilla::sptr_t lParam);
 	Scintilla::sptr_t StyleGetMessage(Scintilla::Message iMessage, Scintilla::uptr_t wParam, Scintilla::sptr_t lParam);
 	void SetSelectionNMessage(Scintilla::Message iMessage, Scintilla::uptr_t wParam, Scintilla::sptr_t lParam);
-
-	static const char *StringFromEOLMode(Scintilla::EndOfLine eolMode) noexcept;
 
 	// Coercion functions for transforming WndProc parameters into pointers
 	static void *PtrFromSPtr(Scintilla::sptr_t lParam) noexcept {
@@ -623,6 +625,12 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	}
 	static unsigned char *UCharPtrFromSPtr(Scintilla::sptr_t lParam) noexcept {
 		return static_cast<unsigned char *>(PtrFromSPtr(lParam));
+	}
+	static std::string_view ViewFromParams(Scintilla::sptr_t lParam, Scintilla::uptr_t wParam) noexcept {
+		if (SPtrFromUPtr(wParam) == -1) {
+			return std::string_view(CharPtrFromSPtr(lParam));
+		}
+		return std::string_view(CharPtrFromSPtr(lParam), wParam);
 	}
 	static void *PtrFromUPtr(Scintilla::uptr_t wParam) noexcept {
 		return reinterpret_cast<void *>(wParam);

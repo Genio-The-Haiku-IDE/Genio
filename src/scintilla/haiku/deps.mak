@@ -126,8 +126,8 @@ PositionCache.o: ../src/PositionCache.cxx ../include/ScintillaTypes.h \
  ../src/ContractionState.h ../src/CellBuffer.h ../src/KeyMap.h \
  ../src/Indicator.h ../src/LineMarker.h ../src/Style.h ../src/ViewStyle.h \
  ../src/CharClassify.h ../src/Decoration.h ../src/CaseFolder.h \
- ../src/Document.h ../src/UniConversion.h ../src/Selection.h \
- ../src/PositionCache.h
+ ../src/Document.h ../src/UniConversion.h ../src/DBCS.h \
+ ../src/Selection.h ../src/PositionCache.h
 RESearch.o: ../src/RESearch.cxx ../src/Position.h ../src/CharClassify.h \
  ../src/RESearch.h
 RunStyles.o: ../src/RunStyles.cxx ../src/Debugging.h ../src/Position.h \

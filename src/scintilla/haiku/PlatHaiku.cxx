@@ -773,11 +773,7 @@ PRectangle Window::GetPosition() const {
 	if (wid) {
 		BView *view = bview(wid);
 		if(view != nullptr) {
-			BWindow* parent = view->Window();
-			BAutolock a(parent->Looper());
-			if(a.IsLocked()) {
-				rc = toPRect(view->ConvertToScreen(view->Frame()));
-			}
+			rc = toPRect(view->ConvertToScreen(view->Bounds()));
 		} else {
 			BWindow* window = bwindow(wid);
 			BAutolock a(window->Looper());

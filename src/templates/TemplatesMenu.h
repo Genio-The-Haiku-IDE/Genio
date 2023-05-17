@@ -11,6 +11,7 @@
 
 
 #include <Menu.h>
+#include <SeparatorItem.h>
 
 #include <list>
 #include <string>
@@ -45,16 +46,16 @@ public:
 	void					ShowNewFolder(bool show) { fShowNewFolder = show; }
 
 private:
-	bool 					_BuildMenu(bool addItems = true);
-	void					_BuildTemplateItems(BString directory);
+	bool 					_BuildMenu();
+	void					_BuildTemplateItems(const BString& directory);
 
 	const BHandler* 		fTarget;
 	BMenuItem* 				fOpenItem;
 	BMessage*				fMessage;
 	BMessage*				fShowTemplateMessage;
 	ViewMode				fViewMode;
-	const BString			fDefaultDirectory;
-	const BString			fUserDirectory;
+	const BString 			fDefaultDirectory;
+	const BString 			fUserDirectory;
 	bool					fShowNewFolder;
 	bool					fShowTemplatesDirectory;
 };

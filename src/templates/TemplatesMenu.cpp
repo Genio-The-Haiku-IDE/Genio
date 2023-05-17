@@ -20,6 +20,7 @@
 #include <Query.h>
 #include <Roster.h>
 #include <MenuItem.h>
+#include <Menu.h>
 #include <stdio.h>
 
 #include <list>
@@ -28,16 +29,19 @@
 #include "IconMenuItem.h"
 #include "MimeType.h"
 
+#include <ControlLook.h>
+#include <Menu.h>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplatesMenu"
+
 
 const char* kNewFolderLabel = "New folder";
 
 TemplatesMenu::TemplatesMenu(const BHandler *target, const char* label, 
 								BMessage *message, BMessage *show_template_message,
 								const BString& defaultDirectory, 
-								const BString& userDirectory,
+								const BString&  userDirectory,
 								ViewMode mode, 
 								bool showNewDirectory)
 	:
@@ -82,7 +86,7 @@ TemplatesMenu::SetTargetForItems(const BHandler* target)
 void
 TemplatesMenu::UpdateMenuState()
 {
-	_BuildMenu(false);
+	_BuildMenu();
 }
 
 
@@ -111,7 +115,7 @@ TemplatesMenu::UpdateMenuState()
 // refs (entry_ref): the entry_ref of the folder
 //
 bool
-TemplatesMenu::_BuildMenu(bool addItems)
+TemplatesMenu::_BuildMenu()
 {
 	// clear everything...
 	fOpenItem = nullptr;
@@ -160,30 +164,23 @@ TemplatesMenu::_BuildMenu(bool addItems)
 
 
 void
-TemplatesMenu::_BuildTemplateItems(BString directory)
+TemplatesMenu::_BuildTemplateItems(const BString& directory)
 {
 	// the templates folder
-	BDirectory templatesDir;
+	BDirectory templatesDir(directory);
 	BEntry entry;
-	BString currentDir;
-	BPath path(directory);
 
-	int count = 0;
-
-	templatesDir.SetTo(path.Path());
 	while (templatesDir.GetNextEntry(&entry) == B_OK) {
-		BNode node(&entry);
+		BNode node(&entry); 
 		BNodeInfo nodeInfo(&node);
 		
 		// ViewMode can be changed at any time before the menu is invoked to show/hide folder or
 		// directories or both depending on the context and the item selected to perform the 
 		// operation on
-		if (fViewMode == DIRECTORY_VIEW_MODE && !node.IsDirectory())
+		if (fViewMode == DIRECTORY_VIEW_MODE && !entry.IsDirectory())
 			break;
-		if (fViewMode == FILE_VIEW_MODE && node.IsDirectory())
+		if (fViewMode == FILE_VIEW_MODE && entry.IsDirectory())
 			break;
-		if (fViewMode == SHOW_ALL_VIEW_MODE)
-			continue;
 		
 		char fileName[B_FILE_NAME_LENGTH];
 		entry.GetName(fileName);
@@ -193,8 +190,6 @@ TemplatesMenu::_BuildTemplateItems(BString directory)
 
 			BMimeType mime(mimeType);
 			if (mime.IsValid()) {
-
-				count++;
 
 				entry_ref ref;
 				entry.GetRef(&ref);

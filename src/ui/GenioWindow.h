@@ -67,8 +67,6 @@ private:
 			status_t			_CargoNew(BString args);
 			status_t			_CleanProject();
 			
-			status_t			_CreateNewFile(BMessage *message, BEntry *dest);
-
 			status_t			_DebugProject();
 			status_t			_FileClose(int32 index, bool ignoreModifications = false);
 			void				_FileCloseAll();

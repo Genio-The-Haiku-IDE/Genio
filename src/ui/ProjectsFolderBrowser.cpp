@@ -42,13 +42,11 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 	fSetActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set Active"),
 		new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
 		
-	BString defaultDir("/boot/system/non-packaged/bin/templates");
-	BString userDir("/boot/home/config/settings/Genio/templates");
 	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
 		new BMessage(MSG_PROJECT_MENU_NEW_FILE), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER), 
 		TemplateManager::GetDefaultTemplateDirectory(), 
 		TemplateManager::GetUserTemplateDirectory(), 
-		TemplatesMenu::FILE_VIEW_MODE,	true);
+		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
 	fDeleteFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Delete file"),
 		new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
 	fOpenFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),

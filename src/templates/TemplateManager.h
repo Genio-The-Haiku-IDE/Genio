@@ -21,26 +21,19 @@ class TemplateManager {
 
 public:
 
-								TemplateManager(TemplateManager const&) = delete;
-	void 						operator=(TemplateManager const&) = delete;
+	static status_t		CopyFileTemplate(const entry_ref* source, const entry_ref* destination);
+	static status_t		CopyProjectTemplate(const entry_ref* source, const entry_ref* destination,
+												const char* name = nullptr);
+	static status_t		CreateTemplate(const entry_ref* project);
+	static status_t		CreateNewFolder(const entry_ref* destination);
 	
-	static status_t				InitCheck() { return instance.fStatus; }
-					
-	static status_t				CopyTemplate(const entry_ref* source, const entry_ref* destination);
-	static status_t				CreateTemplate(const entry_ref* project);
-	
-	static BString				 GetDefaultTemplateDirectory() { return instance.fDefaultTemplateDirectory; }
-	static BString				 GetUserTemplateDirectory() { return instance.fUserTemplateDirectory; }
+	static BString		GetDefaultTemplateDirectory();
+	static BString		GetUserTemplateDirectory();
 
 private:
 
-								TemplateManager();
-								~TemplateManager();
-	static TemplateManager 		instance;
-
-	BString						fDefaultTemplateDirectory;
-	BString						fUserTemplateDirectory;
-	status_t					fStatus;
+						TemplateManager();
+						~TemplateManager();
 };
 
 

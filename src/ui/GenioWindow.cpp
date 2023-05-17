@@ -492,6 +492,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BUFFER_LOCK: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
+				editor->SetReadOnly(!editor->IsReadOnly());
 				_UpdateTabChange(editor, "Buffer Lock");
 			}
 			break;
@@ -3825,9 +3826,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_FILE_SAVE, editor->IsModified());
 	ActionManager::SetEnabled(MSG_FILE_CLOSE, true);	
 	
-	ActionManager::SetEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
+	ActionManager::SetEnabled(MSG_BUFFER_LOCK, true);
+	ActionManager::SetPressed(MSG_BUFFER_LOCK, editor->IsReadOnly());
 	fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, true);
-
 	// Arrows
 	int32 maxTabIndex = (fTabManager->CountTabs() - 1);
 	int32 index = fTabManager->SelectedTabIndex();

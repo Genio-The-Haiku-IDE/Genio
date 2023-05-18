@@ -23,9 +23,11 @@ class TemplatesMenu : public BMenu {
 public:
 
 	enum ViewMode {
-		FILE_VIEW_MODE,
-		DIRECTORY_VIEW_MODE,
-		SHOW_ALL_VIEW_MODE
+		FILE_VIEW_MODE, // hide directories
+		DIRECTORY_VIEW_MODE, // hide files and symlinks
+		SHOW_ALL_VIEW_MODE, // show all items
+		DISABLE_FILES_VIEW_MODE, // show all items, files are visible and disabled
+		DISABLE_DIRECTORIES_VIEW_MODE // show all items, directories are visible and disabled
 	};
 
 							TemplatesMenu(const BHandler *target, const char* label, 
@@ -33,7 +35,7 @@ public:
 											const BString& defaultDirectory, 
 											const BString& userDirectory,
 											ViewMode mode = FILE_VIEW_MODE, 
-											bool showNewDirectory = true);
+											bool showNewFolder = true);
 	virtual 				~TemplatesMenu();
 
 	virtual void 			AttachedToWindow();
@@ -42,8 +44,9 @@ public:
 
 	void 					UpdateMenuState();
 	
-	void					SetViewMode(ViewMode mode) { fViewMode = mode; }
-	void					ShowNewFolder(bool show) { fShowNewFolder = show; }
+	void					SetViewMode(ViewMode mode, bool enableNewFolder = true);
+	void 					ShowNewFolder(bool show) { fShowNewFolder = show; }
+	void 					EnableNewFolder(bool enable) { fEnableNewFolder = enable; }
 
 private:
 	bool 					_BuildMenu();
@@ -57,6 +60,7 @@ private:
 	const BString 			fDefaultDirectory;
 	const BString 			fUserDirectory;
 	bool					fShowNewFolder;
+	bool					fEnableNewFolder;
 	bool					fShowTemplatesDirectory;
 };
 

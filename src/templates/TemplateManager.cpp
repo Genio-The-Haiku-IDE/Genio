@@ -7,6 +7,8 @@
 #include <Application.h>
 #include <AppFileInfo.h>
 #include <Catalog.h>
+#include <CopyEngine.h>
+#include <EntryOperationEngineBase.h>
 #include <Entry.h>
 #include <Roster.h>
 
@@ -19,6 +21,8 @@
 #define B_TRANSLATION_CONTEXT "TemplateManager"
 
 const char* kTemplateDirectory = "templates";
+
+using Entry = BPrivate::BEntryOperationEngineBase::Entry;
 
 TemplateManager::TemplateManager()
 {
@@ -34,16 +38,17 @@ TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* dest
 	status_t status = B_NOT_INITIALIZED;
 	
 	// Copy template file to destination
-	BEntry sourceEntry(source);
-	BEntry destEntry(destination);
-	BPath destPath;
+	BPath sourcePath(source);
+	Entry sourceEntry(sourcePath.Path());
 	
-	destEntry.GetPath(&destPath);
-	destPath.Append(source->name, true);
-	destEntry.SetTo(destPath.Path());
-	status = CopyFile(&sourceEntry, &destEntry, false);
+	BPath destPath(destination);
+	destPath.Append(source->name);
+	Entry destEntry(destPath.Path());
+	
+	status = BCopyEngine().CopyEntry(sourceEntry, destEntry);
 	if (status != B_OK) {
-		LogError("Error creating new file %s in %s", source->name, destination->name);
+		BString err(strerror(status));
+		LogError("Error creating new file %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
 	}
 	
 	return status;
@@ -54,6 +59,19 @@ TemplateManager::CopyProjectTemplate(const entry_ref* source, const entry_ref* d
 										const char* name)
 {	
 	status_t status = B_NOT_INITIALIZED;
+	
+	BPath sourcePath(source);
+	Entry sourceEntry(sourcePath.Path());
+	
+	BPath destPath(destination);
+	destPath.Append(name);
+	Entry destEntry(destPath.Path());
+	
+	status = BCopyEngine(BCopyEngine::COPY_RECURSIVELY).CopyEntry(sourceEntry, destEntry);
+	if (status != B_OK) {
+		BString err(strerror(status));
+		LogError("Error creating new template %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
+	}
 	
 	return status;
 }

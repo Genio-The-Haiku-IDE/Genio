@@ -57,11 +57,11 @@ public:
 			status_t			SuspendExternal();
 			status_t			ResumeExternal();
 			status_t			InterruptExternal();
-			status_t			WaitOnExternal();
 
 			void				PushInput(BString text);
 
 private:
+			void				ClosePipes();
 	virtual	status_t			ThreadStartup();
 	virtual	status_t			ExecuteUnit();
 	virtual	status_t			ThreadShutdown();

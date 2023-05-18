@@ -335,37 +335,16 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case CONSOLEIOTHREAD_ERROR:
 		case CONSOLEIOTHREAD_EXIT:
-		case CONSOLEIOTHREAD_STOP:
-		{
-			// TODO: Review focus policy
-//			if (fTabManager->CountTabs() > 0)
-//				editor->GrabFocus();
-
-			fIsBuilding = false;
-			fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
-
-			BString type;
-			if (message->FindString("cmd_type", &type) == B_OK) {
-				if (type == "build" || type == "clean" || type == "run") {
-					_UpdateProjectActivation(true);
-				} else if (type.StartsWith("git")) {
-					_UpdateProjectActivation(true);
-				} else if (type == "startfail") {
-					if (fActiveProject != nullptr)
-						_UpdateProjectActivation(true);
-					break;
-				} else if (type == "catkeys" || type == "bindcatalogs") {
-					;
-				} else {
-					// user custom (run console program)
-					;
-				}
-			}
-
+		case CONSOLEIOTHREAD_STOP: 
+		{ 
 			if (fConsoleIOThread) {
 				fConsoleIOThread->InterruptExternal();
 				fConsoleIOThread = nullptr;
 			}
+
+			fIsBuilding = false;
+			fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
+			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case EDITOR_FIND_SET_MARK: {

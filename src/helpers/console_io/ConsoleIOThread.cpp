@@ -86,6 +86,10 @@ ConsoleIOThread::ThreadStartup()
 	flags = fcntl(fStdErr, F_GETFL, 0);
 	flags |= O_NONBLOCK;
 	fcntl(fStdErr, F_SETFL, flags);
+	
+	char f;
+	while(read(fStdOut, &f, 1) > 0);
+	while(read(fStdErr, &f, 1) > 0);	
 
 	fConsoleOutput = fdopen(fStdOut, "r");
 	fConsoleError = fdopen(fStdErr, "r");
@@ -151,9 +155,7 @@ ConsoleIOThread::PushInput(BString text)
 status_t
 ConsoleIOThread::ThreadShutdown(void)
 {
-	close(fStdIn);
-	close(fStdOut);
-	close(fStdErr);
+	ClosePipes();
 
 	// Disable Stop button in view
 	BMessage button_message(CONSOLEIOTHREAD_ENABLE_STOP_BUTTON);
@@ -284,31 +286,32 @@ ConsoleIOThread::ResumeExternal()
 		return status;
 }
 
+void
+ConsoleIOThread::ClosePipes()
+{
+	if (fConsoleOutput)
+		fclose(fConsoleOutput);
+	if (fConsoleError)	
+		fclose(fConsoleError);
+	
+	fConsoleOutput = fConsoleError = 0;
+	
+	close(fStdIn);
+	close(fStdOut);
+	close(fStdErr);
+	
+	fStdIn = fStdOut = fStdErr = -1;
+}
+
 status_t
 ConsoleIOThread::InterruptExternal()
 {
-	thread_info info;
-	status_t status = get_thread_info(fThreadId, &info);
-
-	if (status == B_OK) {
-		status = send_signal(-fThreadId, SIGINT);
-		WaitOnExternal();
-	}
-
-	return status;
+	Quit();
+	status_t exitValue;
+	WaitForThread(&exitValue);
+	return exitValue;
 }
 
-status_t
-ConsoleIOThread::WaitOnExternal()
-{
-	thread_info info;
-	status_t status = get_thread_info(fThreadId, &info);
-
-	if (status == B_OK)
-		return wait_for_thread(fThreadId, &status);
-	else
-		return status;
-}
 
 void
 ConsoleIOThread::_BannerMessage(BString status)

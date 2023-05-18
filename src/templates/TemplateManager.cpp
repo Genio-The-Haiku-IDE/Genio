@@ -20,6 +20,7 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplateManager"
 
+
 const char* kTemplateDirectory = "templates";
 
 using Entry = BPrivate::BEntryOperationEngineBase::Entry;
@@ -98,17 +99,30 @@ BString
 TemplateManager::GetDefaultTemplateDirectory()
 {
 	// Default template directory
-	BString retString;
 	app_info info;
-	
+	BPath templatePath;
 	if (be_app->GetAppInfo(&info) == B_OK) {
+		// This code should work both for the case where Genio is
+		// in the "app" subdirectory, like in the repo,
+		// and when it's in the package.
 		BPath genioPath(&info.ref);
-		BPath parent;
-		genioPath.GetParent(&parent);
-		parent.Append(kTemplateDirectory);
-		retString = parent.Path();
+		BPath parentPath;
+		if (genioPath.GetParent(&parentPath) == B_OK) {
+			templatePath = parentPath;
+			templatePath.Append("data");
+			templatePath.Append(kTemplateDirectory);
+			// Genio
+			// data/templates/
+			if (!BEntry(templatePath.Path()).IsDirectory()) {
+				// app/Genio
+				// data/templates/
+				parentPath.GetParent(&templatePath);
+				templatePath.Append("data");
+				templatePath.Append(kTemplateDirectory);
+			}
+		}
 	}
-	return retString;
+	return templatePath.Path();
 }
 
 BString

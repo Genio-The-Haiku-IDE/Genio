@@ -3774,7 +3774,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	fBuildModeItem->SetEnabled(active);
 	fMakeCatkeysItem->SetEnabled(active);
 	fMakeBindcatalogsItem->SetEnabled(active);
-	fFileNewMenuItem->SetEnabled(active);
+	fFileNewMenuItem->SetEnabled(true); // This menu should be always active!
 	fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, active);
 	
 	if (active == true) {
@@ -3812,7 +3812,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fRunItem->SetEnabled(false);		
 		fDebugItem->SetEnabled(false);
 		fGitMenu->SetEnabled(false);
-		fFileNewMenuItem->SetEnabled(false);
+		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 		fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
 		fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
 		fToolBar->SetActionEnabled(MSG_BUILD_MODE, false);
@@ -4008,8 +4008,8 @@ GenioWindow::UpdateMenu()
 	ProjectItem *item = fProjectsFolderBrowser->GetCurrentProjectItem();
 	if (item != nullptr) {
 		if (item->GetSourceItem()->Type() != SourceItemType::FileItem)
-			fFileNewMenuItem->SetEnabled(true);
+			fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 		else
-			fFileNewMenuItem->SetEnabled(false);
+			fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
 	}
 }

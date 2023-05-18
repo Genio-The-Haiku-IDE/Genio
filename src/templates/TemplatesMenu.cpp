@@ -43,7 +43,7 @@ TemplatesMenu::TemplatesMenu(const BHandler *target, const char* label,
 								const BString& defaultDirectory, 
 								const BString&  userDirectory,
 								ViewMode mode, 
-								bool showNewDirectory)
+								bool showNewFolder)
 	:
 	BMenu(label),
 	fTarget(target),
@@ -53,7 +53,9 @@ TemplatesMenu::TemplatesMenu(const BHandler *target, const char* label,
 	fViewMode(mode),
 	fDefaultDirectory(defaultDirectory),
 	fUserDirectory(userDirectory),
-	fShowNewFolder(fShowTemplateMessage!=nullptr ? true : false)
+	fShowNewFolder(showNewFolder),
+	fEnableNewFolder(true),
+	fShowTemplatesDirectory(fShowTemplateMessage!=nullptr ? true : false)
 {
 }
 
@@ -89,6 +91,13 @@ TemplatesMenu::UpdateMenuState()
 	_BuildMenu();
 }
 
+
+void
+TemplatesMenu::SetViewMode(ViewMode mode, bool enableNewFolder) 
+{ 
+	fViewMode = mode; 
+	fEnableNewFolder = enableNewFolder;
+}
 
 // BMessages are passed in the constructor for each of the events:
 // * Create new item
@@ -130,6 +139,7 @@ TemplatesMenu::_BuildMenu()
 		// add the folder
 		IconMenuItem* menuItem = new IconMenuItem(B_TRANSLATE(kNewFolderLabel),
 			message, DIR_FILETYPE, B_MINI_ICON);
+		menuItem->SetEnabled(fEnableNewFolder);
 		AddItem(menuItem);
 		menuItem->SetShortcut('N', 0);
 		AddSeparatorItem();
@@ -169,8 +179,9 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 	// the templates folder
 	BDirectory templatesDir(directory);
 	BEntry entry;
+	bool itemEnabled = true;
 
-	while (templatesDir.GetNextEntry(&entry) == B_OK) {
+	while (templatesDir.GetNextEntry(&entry, true) == B_OK) {
 		BNode node(&entry); 
 		BNodeInfo nodeInfo(&node);
 		
@@ -181,6 +192,10 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 			break;
 		if (fViewMode == FILE_VIEW_MODE && entry.IsDirectory())
 			break;
+		if (fViewMode == DISABLE_FILES_VIEW_MODE && !entry.IsDirectory())
+			itemEnabled = false;
+		if (fViewMode == DISABLE_DIRECTORIES_VIEW_MODE && entry.IsDirectory())
+			itemEnabled = false;
 		
 		char fileName[B_FILE_NAME_LENGTH];
 		entry.GetName(fileName);
@@ -200,7 +215,9 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 					message->AddString("type","new_folder_template");
 				else
 					message->AddString("type","new_file_template");
-				AddItem(new IconMenuItem(fileName, message, &nodeInfo, B_MINI_ICON));
+				auto item = new IconMenuItem(fileName, message, &nodeInfo, B_MINI_ICON);
+				item->SetEnabled(itemEnabled);
+				AddItem(item);
 			}
 		}
 	}

@@ -5,8 +5,7 @@ Genio
 ![Screenshot](https://github.com/nexus6-haiku/Genio/blob/main/data/screenshot/Genio.png)
     Genio.png
 
-Introduction
---------------------------------------------------------------------------------
+# Introduction
 Genio is an IDE for the [Haiku operating system](https://www.haiku-os.org).
 Despite being in an early stage, Genio can already be used to develop and build applications.
 In fact, the Genio team uses it as the main development tool to develop and build Genio.
@@ -28,44 +27,45 @@ Genio started off as a fork of Ideam, but we already implemented some new featur
 
 The editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).  
 
-
-Goals and roadmap
-------------------
+# Goals and roadmap
 Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code and Nova.
 
-*Main goals*
+## Main goals
 * Workspace Manager and Project folders
 * Language Server Protocol via clangd: autocompletion, jump to definition, and more
 * Bring the editor up-to-date and on par with other Haiku editors (Koder, Pe)
 * Plug-in architecture
 * Compiler error parser
-
-Top priority goals after the first initial commit include:
-
-*Source file and project management*
-* refactor the source file and project management module by implementing a Workspace Manager and Project folders
-* remove support for project files outside of source tree (.idmpro)
+* Refactor the source file and project management module by implementing a Workspace Manager and Project folders
 	
-*Editor*
+## Editor
 * implement the Language Server Protocol via clangd to get autocompletion and jump to definition/instance
 
-Branches
-------------------
+## Branches
 Currently there are various branches on the Github repository:
 * main - this is the main branch, which we always try to keep in a relatively stable state
 * feature/* - these branches are where we develop new features, before merging into main
 	
-Contributions
-------------------
+## Contributions
 We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
 
-Compiling
-------------------
-* ensure you have installed the following packages:
-- llvm12_clang
-- llvm12_libs
-- scintilla and scintilla_devel (version >= 5.3.4)
-- lexilla and lexilla_devel (version >= 5.2.4)
+## Compiling
+* install required packages:
+  * scintilla and scintilla_devel (version >= 5.3.4)
+  * lexilla and lexilla_devel (version >= 5.2.4)
+
+```
+pkgman install scintilla_devel lexilla_devel
+```
+
+* strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
+  * gcc_syslibs_devel
+  * llvm12_clang
+  * llvm12_libs
+
+```
+pkgman install gcc_syslibs_devel llvm12_clang llvm12_libs
+```
 
 * Execute `make` in Genio's top directory  
 The executable is created in `app` subdirectory.  
@@ -74,8 +74,7 @@ If you would like to try a clang++ build:
 * Install `llvm_clang` hpkg from HaikuPorts
 * Set `BUILD_WITH_CLANG` to `1` in `Makefile`
 
-
-As of v.0.2.0 Genio can now be opened and built within Genio itself (.genio config file has been added to the repository).
+Genio can already be opened and built within Genio itself.
 The makefile has been updated to accept the *debug* parameter:
 
 * debug=1 - Genio is built in debug mode
@@ -84,7 +83,5 @@ The makefile has been updated to accept the *debug* parameter:
 Currently debug build with clang is broken and Debugger does not detect debug info
 We recommend to build Genio with gcc if you want to contribute to it and debug, otherwise please use clang.
 
-
-License
-----------------
+## License
 Genio is available under the MIT license. See [License.md](License.md).

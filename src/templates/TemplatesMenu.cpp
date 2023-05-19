@@ -20,10 +20,7 @@
 #include <Query.h>
 #include <Roster.h>
 #include <MenuItem.h>
-<<<<<<< HEAD
 #include <Menu.h>
-=======
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 #include <stdio.h>
 
 #include <list>
@@ -32,33 +29,21 @@
 #include "IconMenuItem.h"
 #include "MimeType.h"
 
-<<<<<<< HEAD
 #include <ControlLook.h>
 #include <Menu.h>
-=======
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplatesMenu"
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 const char* kNewFolderLabel = "New folder";
 
 TemplatesMenu::TemplatesMenu(const BHandler *target, const char* label, 
 								BMessage *message, BMessage *show_template_message,
 								const BString& defaultDirectory, 
-<<<<<<< HEAD
 								const BString&  userDirectory,
 								ViewMode mode, 
 								bool showNewFolder)
-=======
-								const BString& userDirectory,
-								ViewMode mode, 
-								bool showNewDirectory)
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 	:
 	BMenu(label),
 	fTarget(target),
@@ -68,13 +53,9 @@ TemplatesMenu::TemplatesMenu(const BHandler *target, const char* label,
 	fViewMode(mode),
 	fDefaultDirectory(defaultDirectory),
 	fUserDirectory(userDirectory),
-<<<<<<< HEAD
 	fShowNewFolder(showNewFolder),
 	fEnableNewFolder(true),
 	fShowTemplatesDirectory(fShowTemplateMessage!=nullptr ? true : false)
-=======
-	fShowNewFolder(fShowTemplateMessage!=nullptr ? true : false)
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 {
 }
 
@@ -107,7 +88,6 @@ TemplatesMenu::SetTargetForItems(const BHandler* target)
 void
 TemplatesMenu::UpdateMenuState()
 {
-<<<<<<< HEAD
 	_BuildMenu();
 }
 
@@ -119,12 +99,6 @@ TemplatesMenu::SetViewMode(ViewMode mode, bool enableNewFolder)
 	fEnableNewFolder = enableNewFolder;
 }
 
-=======
-	_BuildMenu(false);
-}
-
-
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 // BMessages are passed in the constructor for each of the events:
 // * Create new item
 // * Show user template folder
@@ -150,11 +124,7 @@ TemplatesMenu::SetViewMode(ViewMode mode, bool enableNewFolder)
 // refs (entry_ref): the entry_ref of the folder
 //
 bool
-<<<<<<< HEAD
 TemplatesMenu::_BuildMenu()
-=======
-TemplatesMenu::_BuildMenu(bool addItems)
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 {
 	// clear everything...
 	fOpenItem = nullptr;
@@ -169,10 +139,7 @@ TemplatesMenu::_BuildMenu(bool addItems)
 		// add the folder
 		IconMenuItem* menuItem = new IconMenuItem(B_TRANSLATE(kNewFolderLabel),
 			message, DIR_FILETYPE, B_MINI_ICON);
-<<<<<<< HEAD
 		menuItem->SetEnabled(fEnableNewFolder);
-=======
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 		AddItem(menuItem);
 		menuItem->SetShortcut('N', 0);
 		AddSeparatorItem();
@@ -207,7 +174,6 @@ TemplatesMenu::_BuildMenu(bool addItems)
 
 
 void
-<<<<<<< HEAD
 TemplatesMenu::_BuildTemplateItems(const BString& directory)
 {
 	// the templates folder
@@ -217,27 +183,11 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 
 	while (templatesDir.GetNextEntry(&entry, true) == B_OK) {
 		BNode node(&entry); 
-=======
-TemplatesMenu::_BuildTemplateItems(BString directory)
-{
-	// the templates folder
-	BDirectory templatesDir;
-	BEntry entry;
-	BString currentDir;
-	BPath path(directory);
-
-	int count = 0;
-
-	templatesDir.SetTo(path.Path());
-	while (templatesDir.GetNextEntry(&entry) == B_OK) {
-		BNode node(&entry);
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 		BNodeInfo nodeInfo(&node);
 		
 		// ViewMode can be changed at any time before the menu is invoked to show/hide folder or
 		// directories or both depending on the context and the item selected to perform the 
 		// operation on
-<<<<<<< HEAD
 		if (fViewMode == DIRECTORY_VIEW_MODE && !entry.IsDirectory())
 			break;
 		if (fViewMode == FILE_VIEW_MODE && entry.IsDirectory())
@@ -246,14 +196,6 @@ TemplatesMenu::_BuildTemplateItems(BString directory)
 			itemEnabled = false;
 		if (fViewMode == DISABLE_DIRECTORIES_VIEW_MODE && entry.IsDirectory())
 			itemEnabled = false;
-=======
-		if (fViewMode == DIRECTORY_VIEW_MODE && !node.IsDirectory())
-			break;
-		if (fViewMode == FILE_VIEW_MODE && node.IsDirectory())
-			break;
-		if (fViewMode == SHOW_ALL_VIEW_MODE)
-			continue;
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 		
 		char fileName[B_FILE_NAME_LENGTH];
 		entry.GetName(fileName);
@@ -264,11 +206,6 @@ TemplatesMenu::_BuildTemplateItems(BString directory)
 			BMimeType mime(mimeType);
 			if (mime.IsValid()) {
 
-<<<<<<< HEAD
-=======
-				count++;
-
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 				entry_ref ref;
 				entry.GetRef(&ref);
 
@@ -278,13 +215,9 @@ TemplatesMenu::_BuildTemplateItems(BString directory)
 					message->AddString("type","new_folder_template");
 				else
 					message->AddString("type","new_file_template");
-<<<<<<< HEAD
 				auto item = new IconMenuItem(fileName, message, &nodeInfo, B_MINI_ICON);
 				item->SetEnabled(itemEnabled);
 				AddItem(item);
-=======
-				AddItem(new IconMenuItem(fileName, message, &nodeInfo, B_MINI_ICON));
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 			}
 		}
 	}

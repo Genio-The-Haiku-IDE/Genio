@@ -86,7 +86,7 @@ ConsoleIOThread::ThreadStartup()
 	fcntl(fStdErr, F_SETFL, flags);
 
 	_CleanPipes();
-	
+
 	fConsoleOutput = fdopen(fStdOut, "r");
 	fConsoleError = fdopen(fStdErr, "r");
 
@@ -117,7 +117,6 @@ ConsoleIOThread::ExecuteUnit(void)
 
 	if (output_string != "") {
 		out_message.AddString("stdout", output_string);
-		
 		fConsoleTarget.SendMessage(&out_message);
 	}
 
@@ -130,7 +129,6 @@ ConsoleIOThread::ExecuteUnit(void)
 	if (error_string != "") {
 		err_message.AddString("stderr", error_string);
 		fConsoleTarget.SendMessage(&err_message);
-
 	}
 
 	if (feof(fConsoleOutput) && feof(fConsoleError))
@@ -217,7 +215,7 @@ ConsoleIOThread::PipeCommand(int argc, const char** argv, int& in, int& out,
 	int old_out  =  dup(1);
 	int old_err  =  dup(2);
 	g_LockStdFilesPntr->Unlock();
-	
+
 	int filedes[2];
 
 	// Create new pipe FDs as stdin, stdout, stderr
@@ -256,7 +254,6 @@ ConsoleIOThread::SuspendExternal()
 {
 	thread_info info;
 	status_t status = get_thread_info(fThreadId, &info);
-
 	if (status == B_OK)
 		return send_signal(-fThreadId, SIGSTOP);
 	else
@@ -268,7 +265,6 @@ ConsoleIOThread::ResumeExternal()
 {
 	thread_info info;
 	status_t status = get_thread_info(fThreadId, &info);
-
 	if (status == B_OK)
 		return send_signal(-fThreadId, SIGCONT);
 	else
@@ -282,13 +278,13 @@ ConsoleIOThread::ClosePipes()
 		fclose(fConsoleOutput);
 	if (fConsoleError)	
 		fclose(fConsoleError);
-	
+
 	fConsoleOutput = fConsoleError = 0;
-	
+
 	close(fStdIn);
 	close(fStdOut);
 	close(fStdErr);
-	
+
 	fStdIn = fStdOut = fStdErr = -1;
 }
 
@@ -298,7 +294,6 @@ ConsoleIOThread::InterruptExternal()
 	ExecuteUnitFailed(EOF); //just a shortcut
 	return B_OK;
 }
-
 
 void
 ConsoleIOThread::_BannerMessage(BString status)

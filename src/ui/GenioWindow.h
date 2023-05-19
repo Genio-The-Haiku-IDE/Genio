@@ -233,7 +233,6 @@ private:
 			// Bottom panels
 			BTabView*			fOutputTabView;
 			ProblemsPanel*		fProblemsPanel;
-			ConsoleIOThread*	fConsoleIOThread;
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;

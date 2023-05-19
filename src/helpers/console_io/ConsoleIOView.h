@@ -37,6 +37,8 @@ public:
 			void				EnableStopButton(bool doIt);
 			
 			BTextView*			TextView();
+			
+			status_t			RunCommand(BMessage* cmd_message, const BMessenger& windowTarget);
 
 private:
 			struct OutputInfo;
@@ -58,6 +60,7 @@ private:
 			BButton*			fStopButton;
 			BString				fCmdType;
 			OutputInfoList*		fPendingOutput;
+			ConsoleIOThread*	fConsoleIOThread;
 };
 
 

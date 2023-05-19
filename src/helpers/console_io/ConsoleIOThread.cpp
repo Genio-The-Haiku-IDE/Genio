@@ -171,16 +171,9 @@ ConsoleIOThread::ThreadShutdown(void)
 void
 ConsoleIOThread::ThreadStartupFailed(status_t status)
 {
-	//mostrly never called..
-	BMessage message(CONSOLEIOTHREAD_STOP);
-	message.AddString("cmd_type", "startfail");
-	fWindowTarget.SendMessage(&message);
-
-	BString banner;
-	banner << __PRETTY_FUNCTION__ << ": " << strerror(status) << "   ";
-	_BannerMessage(banner);
-
-	Quit();
+	// mostrly never called.. this won't do a 'delete this'!
+	// is only called in case the config message is missing the command string
+	ExecuteUnitFailed(EOF); //just a shortcut
 }
 
 void

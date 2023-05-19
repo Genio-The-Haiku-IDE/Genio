@@ -15,9 +15,7 @@
 class Action;
 
 class ActionManager {
-public:
-
-			~ActionManager();
+public
 
 	static status_t RegisterAction(int32   msgWhat, 
 							BString label, 
@@ -35,7 +33,12 @@ public:
 	
 	static status_t		SetToolTip(int32 msgWhat, const char* tooltip);
 	
-	static bool		IsPressed(int32 msgWhat);
+	static bool			IsPressed(int32 msgWhat);
+	
+	// disable copy costructor and assignment operator
+	
+	ActionManager(const ActionManager &) = delete;
+	ActionManager & operator = (const ActionManager &) = delete;
 
 private:
 
@@ -44,7 +47,8 @@ private:
 	
 	static ActionManager instance;
 	
-	ActionManager() {};
+	 ActionManager() {};
+	~ActionManager();
 };
 
 

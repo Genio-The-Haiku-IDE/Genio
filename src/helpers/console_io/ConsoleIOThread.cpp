@@ -27,11 +27,9 @@ extern BLocker *g_LockStdFilesPntr;
 
 extern char **environ;
 
-ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message,
-					const BMessenger& windowTarget, const BMessenger& consoleTarget)
+ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consoleTarget)
 	:
 	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message)
-	, fWindowTarget(windowTarget)
 	, fConsoleTarget(consoleTarget)
 	, fThreadId(-1)
 	, fStdIn(-1)
@@ -86,11 +84,9 @@ ConsoleIOThread::ThreadStartup()
 	flags = fcntl(fStdErr, F_GETFL, 0);
 	flags |= O_NONBLOCK;
 	fcntl(fStdErr, F_SETFL, flags);
-	
-	char f;
-	while(read(fStdOut, &f, 1) > 0);
-	while(read(fStdErr, &f, 1) > 0);	
 
+	_CleanPipes();
+	
 	fConsoleOutput = fdopen(fStdOut, "r");
 	fConsoleError = fdopen(fStdErr, "r");
 
@@ -183,12 +179,12 @@ ConsoleIOThread::ExecuteUnitFailed(status_t status)
 		// thread has finished, been quit or killed, we don't know
 		BMessage message(CONSOLEIOTHREAD_EXIT);
 		message.AddString("cmd_type", fCmdType);
-		fWindowTarget.SendMessage(&message);
+		fConsoleTarget.SendMessage(&message);
 	} else {
 		// explicit error - communicate error to Window
 		BMessage message(CONSOLEIOTHREAD_ERROR);
 		message.AddString("cmd_type", fCmdType);
-		fWindowTarget.SendMessage(&message);
+		fConsoleTarget.SendMessage(&message);
 	}
 
 	Quit();
@@ -320,3 +316,13 @@ ConsoleIOThread::_BannerMessage(BString status)
 	fConsoleTarget.SendMessage(&banner_message);
 }
 
+void
+ConsoleIOThread::_CleanPipes()
+{
+	int32 maxSteps = PIPE_BUF / LINE_MAX;
+	//let's clean the current duplicated pipes.
+	for (int i=0;i<maxSteps;i++) {
+		read(fStdOut, fConsoleOutputBuffer, LINE_MAX);
+		read(fStdErr, fConsoleOutputBuffer, LINE_MAX);
+	}
+}

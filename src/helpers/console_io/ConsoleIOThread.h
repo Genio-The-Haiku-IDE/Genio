@@ -48,7 +48,6 @@ enum {
 class ConsoleIOThread : public GenericThread {
 public:
 								ConsoleIOThread(BMessage* cmd_message,
-									const BMessenger& windowTarget,
 									const BMessenger& consoleTarget);
 
 								~ConsoleIOThread();
@@ -74,8 +73,8 @@ private:
 									const char** envp = (const char**)environ);
 
 			void				_BannerMessage(BString status);
+			void				_CleanPipes();
 
-			BMessenger			fWindowTarget;
 			BMessenger			fConsoleTarget;
 
 			thread_id			fThreadId;

@@ -38,7 +38,7 @@ public:
 			
 			BTextView*			TextView();
 			
-			status_t			RunCommand(BMessage* cmd_message, const BMessenger& windowTarget);
+			status_t			RunCommand(BMessage* cmd_message);
 
 private:
 			struct OutputInfo;

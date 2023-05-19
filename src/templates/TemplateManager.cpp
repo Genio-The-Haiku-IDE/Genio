@@ -6,7 +6,6 @@
 
 #include <Application.h>
 #include <AppFileInfo.h>
-<<<<<<< HEAD
 #include <Catalog.h>
 #include <CopyEngine.h>
 #include <EntryOperationEngineBase.h>
@@ -28,37 +27,6 @@ using Entry = BPrivate::BEntryOperationEngineBase::Entry;
 
 TemplateManager::TemplateManager()
 {
-=======
-#include <Roster.h>
-
-#include "GenioNamespace.h"
-#include "TemplateManager.h"
-
-TemplateManager TemplateManager::instance;
-const char* kTemplateDirectory = "templates";
-
-TemplateManager::TemplateManager()
-{
-	// Default template directory
-	app_info info;
-	fStatus = be_app->GetAppInfo(&info);
-	if (fStatus == B_OK) {
-		BPath genioPath(&info.ref);
-		genioPath.Append(kTemplateDirectory);
-		mkdir(genioPath.Path(), 0777);
-		instance.fDefaultTemplateDirectory = genioPath.Path();
-	}
-
-	// User template directory
-	BPath userPath;
-	find_directory (B_USER_SETTINGS_DIRECTORY, &userPath, true);
-	userPath.Append(GenioNames::kApplicationName);
-	userPath.Append(kTemplateDirectory);
-	mkdir(userPath.Path(), 0777);
-	instance.fUserTemplateDirectory = userPath.Path();
-	
-	
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 }
 
 TemplateManager::~TemplateManager()
@@ -66,7 +34,6 @@ TemplateManager::~TemplateManager()
 }
 
 status_t
-<<<<<<< HEAD
 TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* destination)
 {	
 	status_t status = B_NOT_INITIALIZED;
@@ -115,11 +82,6 @@ TemplateManager::CopyProjectTemplate(const entry_ref* source, const entry_ref* d
 	
 	
 	return status;
-=======
-TemplateManager::CopyTemplate(const entry_ref* source, const entry_ref* destination)
-{
-	return B_OK;
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)
 }
 
 status_t
@@ -128,7 +90,6 @@ TemplateManager::CreateTemplate(const entry_ref* file)
 	return B_OK;
 }
 
-<<<<<<< HEAD
 status_t
 TemplateManager::CreateNewFolder(const entry_ref* destination)
 {
@@ -188,5 +149,3 @@ TemplateManager::GetUserTemplateDirectory()
 	return retString;
 }
 
-=======
->>>>>>> 76497bb (Initial work on a brand new "File->New" dynamic menu based on templates files and directories)

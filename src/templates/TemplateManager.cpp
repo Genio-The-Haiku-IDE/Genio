@@ -51,6 +51,8 @@ TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* dest
 		BString err(strerror(status));
 		LogError("Error creating new file %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
 	}
+
+	chmod(destPath.Path(), 0777);
 	
 	return status;
 }
@@ -73,6 +75,11 @@ TemplateManager::CopyProjectTemplate(const entry_ref* source, const entry_ref* d
 		BString err(strerror(status));
 		LogError("Error creating new template %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
 	}
+	
+	// TODO: Default templates in a tipical HPKG installation are readonly
+	// we are setting all permissions recursively here
+	chmodr(destPath.Path(), fs::perms::all);
+	
 	
 	return status;
 }

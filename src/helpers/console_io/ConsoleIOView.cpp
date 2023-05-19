@@ -51,6 +51,7 @@ ConsoleIOView::ConsoleIOView(const BString& name, const BMessenger& target)
 	, fWindowTarget(target)
 	, fConsoleIOText(nullptr)
 	, fPendingOutput(nullptr)
+	, fConsoleIOThread(nullptr)
 {
 	SetName(name);
 
@@ -79,6 +80,15 @@ ConsoleIOView::Create(const BString& name, const BMessenger& target)
 	}
 
 	return self;
+}
+
+status_t			
+ConsoleIOView::RunCommand(BMessage* cmd_message, const BMessenger& windowTarget)
+{
+	fConsoleIOThread = new ConsoleIOThread(cmd_message,  windowTarget,
+		BMessenger(this));
+
+	 return fConsoleIOThread->Start();
 }
 
 void
@@ -139,9 +149,10 @@ ConsoleIOView::MessageReceived(BMessage* message)
 		}
 		case MSG_STOP_PROCESS:
 		{
-			BMessage message(CONSOLEIOTHREAD_STOP);
-			message.AddString("cmd_type", fCmdType);
-			fWindowTarget.SendMessage(&message);
+			// this is unsafe
+			// if the user is pressing stop while the process is terminating,
+			// it could happen fConsoleIOThread to be invalid (see "delete this");
+			fConsoleIOThread->InterruptExternal();
 			break;
 		}
 

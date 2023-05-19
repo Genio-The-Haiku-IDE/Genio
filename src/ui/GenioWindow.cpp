@@ -332,18 +332,26 @@ GenioWindow::MessageReceived(BMessage* message)
 				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Undo");
 			}
 			break;
-		}
+		}		
+		case CONSOLEIOTHREAD_STOP:
+			// this is unsafe
+			// if the user is pressing stop while the process is terminating,
+			// it could happen fConsoleIOThread to be invalid (search for "delete this");
+			fConsoleIOThread->InterruptExternal();
+		break;				
 		case CONSOLEIOTHREAD_ERROR:
 		case CONSOLEIOTHREAD_EXIT:
-		case CONSOLEIOTHREAD_STOP: 
-		{ 
-			if (fConsoleIOThread) {
-				fConsoleIOThread->InterruptExternal();
-				fConsoleIOThread = nullptr;
-			}
+		{
+			BString cmdType = message->GetString("cmd_type", "");
+			if (cmdType == "build"  	  ||
+				cmdType == "clean" 		  ||
+				cmdType == "bindcatalogs" ||
+				cmdType == "catkeys") {
 
-			fIsBuilding = false;
-			fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
+				fIsBuilding = false;
+				fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
+			
+			}
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}

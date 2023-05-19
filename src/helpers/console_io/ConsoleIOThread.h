@@ -77,7 +77,7 @@ private:
 
 			BMessenger			fConsoleTarget;
 
-			thread_id			fThreadId;
+			thread_id			fProcessId;
 			int					fStdIn;
 			int					fStdOut;
 			int					fStdErr;

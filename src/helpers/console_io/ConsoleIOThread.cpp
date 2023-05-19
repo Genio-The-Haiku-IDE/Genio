@@ -31,7 +31,7 @@ ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consol
 	:
 	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message)
 	, fConsoleTarget(consoleTarget)
-	, fThreadId(-1)
+	, fProcessId(-1)
 	, fStdIn(-1)
 	, fStdOut(-1)
 	, fStdErr(-1)
@@ -66,17 +66,17 @@ ConsoleIOThread::ThreadStartup()
 	argv[2] = strdup(cmd.String());
 	argv[argc] = nullptr;
 
-	fThreadId = PipeCommand(argc, argv, fStdIn, fStdOut, fStdErr);
+	fProcessId = PipeCommand(argc, argv, fStdIn, fStdOut, fStdErr);
 
 	delete [] argv;
 
-	if (fThreadId < 0)
-		return fThreadId;
+	if (fProcessId < 0)
+		return fProcessId;
 
 	// lower the command priority since it is a background task.
-	set_thread_priority(fThreadId, B_LOW_PRIORITY);
+	set_thread_priority(fProcessId, B_LOW_PRIORITY);
 
-	resume_thread(fThreadId);
+	resume_thread(fProcessId);
 
 	int flags = fcntl(fStdOut, F_GETFL, 0);
 	flags |= O_NONBLOCK;
@@ -253,9 +253,9 @@ status_t
 ConsoleIOThread::SuspendExternal()
 {
 	thread_info info;
-	status_t status = get_thread_info(fThreadId, &info);
+	status_t status = get_thread_info(fProcessId, &info);
 	if (status == B_OK)
-		return send_signal(-fThreadId, SIGSTOP);
+		return send_signal(-fProcessId, SIGSTOP);
 	else
 		return status;
 }
@@ -264,9 +264,9 @@ status_t
 ConsoleIOThread::ResumeExternal()
 {
 	thread_info info;
-	status_t status = get_thread_info(fThreadId, &info);
+	status_t status = get_thread_info(fProcessId, &info);
 	if (status == B_OK)
-		return send_signal(-fThreadId, SIGCONT);
+		return send_signal(-fProcessId, SIGCONT);
 	else
 		return status;
 }
@@ -291,9 +291,17 @@ ConsoleIOThread::ClosePipes()
 status_t
 ConsoleIOThread::InterruptExternal()
 {
-	ExecuteUnitFailed(EOF); //just a shortcut
-	return B_OK;
+	thread_info info;
+	status_t status = get_thread_info(fProcessId, &info);
+
+	if (status == B_OK) {
+		status = send_signal(-fProcessId, SIGTERM);
+		return wait_for_thread(fProcessId, &status);
+	}
+
+	return status;
 }
+
 
 void
 ConsoleIOThread::_BannerMessage(BString status)

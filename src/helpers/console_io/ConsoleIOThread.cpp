@@ -171,6 +171,7 @@ ConsoleIOThread::ThreadShutdown(void)
 void
 ConsoleIOThread::ThreadStartupFailed(status_t status)
 {
+	//mostrly never called..
 	BMessage message(CONSOLEIOTHREAD_STOP);
 	message.AddString("cmd_type", "startfail");
 	fWindowTarget.SendMessage(&message);
@@ -206,9 +207,8 @@ ConsoleIOThread::ExecuteUnitFailed(status_t status)
 void
 ConsoleIOThread::ThreadShutdownFailed(status_t status)
 {
-	BString banner;
-	banner << __PRETTY_FUNCTION__ << ": " << strerror(status) << "   ";
-	_BannerMessage(banner);
+	//DO NOT implement this or you will skip the 'delete this' call.
+	debugger("avoid calling this");
 }
 
 
@@ -306,10 +306,8 @@ ConsoleIOThread::ClosePipes()
 status_t
 ConsoleIOThread::InterruptExternal()
 {
-	Quit();
-	status_t exitValue;
-	WaitForThread(&exitValue);
-	return exitValue;
+	ExecuteUnitFailed(EOF); //just a shortcut
+	return B_OK;
 }
 
 

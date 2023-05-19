@@ -29,6 +29,8 @@
 #include "ProjectFolder.h"
 #include "EditorContextMenu.h"
 #include "ScintillaUtils.h"
+#include "Log.h"
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
 
@@ -1145,16 +1147,26 @@ Editor::StartMonitoring()
 	// start monitoring this file for changes
 	BEntry entry(&fFileRef, true);
 
-	if ((status = entry.GetNodeRef(&fNodeRef)) != B_OK)
+	if ((status = entry.GetNodeRef(&fNodeRef)) != B_OK) {
+		LogErrorF("Can't get a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
 		return status;
-
-	return	watch_node(&fNodeRef, B_WATCH_NAME | B_WATCH_STAT, fTarget);
+	}
+	if ((status = watch_node(&fNodeRef, B_WATCH_NAME | B_WATCH_STAT, fTarget)) != B_OK) {
+		LogErrorF("Can't start watch_node a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
+		return status;		
+	}
+	return	B_OK;
 }
 
 status_t
 Editor::StopMonitoring()
 {
-	return watch_node(&fNodeRef, B_STOP_WATCHING, fTarget);
+	status_t status;
+	if ((status = watch_node(&fNodeRef, B_STOP_WATCHING, fTarget)) != B_OK) {
+		LogErrorF("Can't stop watch_node a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
+		return status;		
+	}
+	return B_OK;
 }
 
 void
@@ -1229,7 +1241,7 @@ Editor::SignatureHelp()
 {
 	fFileWrapper->SignatureHelp();
 }
-
+ 
 void
 Editor::SetProjectFolder(ProjectFolder* proj)
 {

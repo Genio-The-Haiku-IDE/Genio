@@ -535,7 +535,7 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 void
 ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 {	
-	BPrivate::BPathMonitor::StopWatching(BMessenger(this));
+	BPrivate::BPathMonitor::StopWatching(project->Path(), BMessenger(this));
 	ProjectItem*	listItem = FindProjectItem(project->Path());
 	if (listItem)
 		RemoveItem(listItem);

@@ -30,7 +30,8 @@
 enum {
 	MSG_CLEAR_OUTPUT	= 'clou',
 	MSG_POST_OUTPUT		= 'poou',
-	MSG_STOP_PROCESS	= 'stpr'
+	MSG_STOP_PROCESS	= 'stpr',
+	MSG_RUN_PROCESS		= 'runp'
 };
 
 struct ConsoleIOView::OutputInfo {
@@ -82,13 +83,11 @@ ConsoleIOView::Create(const BString& name, const BMessenger& target)
 	return self;
 }
 
-status_t			
-ConsoleIOView::RunCommand(BMessage* cmd_message, const BMessenger& windowTarget)
+status_t
+ConsoleIOView::RunCommand(BMessage* cmd_message)
 {
-	fConsoleIOThread = new ConsoleIOThread(cmd_message,  windowTarget,
-		BMessenger(this));
-
-	 return fConsoleIOThread->Start();
+	cmd_message->what = MSG_RUN_PROCESS;
+	return BMessenger(this).SendMessage(cmd_message);
 }
 
 void
@@ -147,15 +146,38 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			_HandleConsoleOutput(info);
 			break;
 		}
+		case MSG_RUN_PROCESS:
+		{
+			if (fConsoleIOThread) {
+				//this should be prevented by the UI...
+				BString msg = "\n *** ";
+				msg << B_TRANSLATE("Another command is running..");
+				msg << "\n";
+				
+				ConsoleOutputReceived(1, msg);
+				return;
+			}
+			fConsoleIOThread = new ConsoleIOThread(message, BMessenger(this));
+			fConsoleIOThread->Start();
+
+			break;
+		}
 		case MSG_STOP_PROCESS:
 		{
 			// this is unsafe
 			// if the user is pressing stop while the process is terminating,
 			// it could happen fConsoleIOThread to be invalid (see "delete this");
-			fConsoleIOThread->InterruptExternal();
+			if (fConsoleIOThread)
+				fConsoleIOThread->InterruptExternal();
 			break;
 		}
-
+		case CONSOLEIOTHREAD_ERROR:
+		case CONSOLEIOTHREAD_EXIT:
+		{
+			fConsoleIOThread = nullptr;
+			Window()->PostMessage(message);
+			break;
+		}
 		default:
 			BGroupView::MessageReceived(message);
 			break;

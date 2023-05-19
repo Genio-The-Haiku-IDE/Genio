@@ -1173,7 +1173,7 @@ GenioWindow::_BuildProject()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	return fBuildLogView->RunCommand(&message,  BMessenger(this));
+	return fBuildLogView->RunCommand(&message);
 }
 
 status_t
@@ -1206,7 +1206,7 @@ GenioWindow::_CleanProject()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	return fBuildLogView->RunCommand(&message,  BMessenger(this));
+	return fBuildLogView->RunCommand(&message);
 }
 
 
@@ -1806,7 +1806,7 @@ GenioWindow::_Git(const BString& git_command)
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	return fConsoleIOView->RunCommand(&message,  BMessenger(this));
+	return fConsoleIOView->RunCommand(&message);
 }
 
 void
@@ -2593,7 +2593,7 @@ GenioWindow::_MakeBindcatalogs()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fBuildLogView->RunCommand(&message,  BMessenger(this));
+	fBuildLogView->RunCommand(&message);
 }
 
 void
@@ -2613,7 +2613,7 @@ GenioWindow::_MakeCatkeys()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fBuildLogView->RunCommand(&message,  BMessenger(this));
+	fBuildLogView->RunCommand(&message);
 }
 
 // As of release 0.7.5 3 Genio's Makefiles are managed:
@@ -3319,7 +3319,7 @@ GenioWindow::_RunInConsole(const BString& command)
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", command);
 
-	return fConsoleIOView->RunCommand(&message,  BMessenger(this));
+	return fConsoleIOView->RunCommand(&message);
 }
 
 
@@ -3363,7 +3363,7 @@ GenioWindow::_RunTarget()
 
 		fConsoleIOView->MakeFocus(true);
 
-		fConsoleIOView->RunCommand(&message,  BMessenger(this));
+		fConsoleIOView->RunCommand(&message);
 
 	} else {
 	// TODO: run args

@@ -1890,7 +1890,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 
  	int32 choice = alert->Go();
  
- 	if (choice == 0)
+	if (choice == 0)
 		return;
 	else if (choice == 1)
 		_FileClose(index);
@@ -1961,9 +1961,7 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 	 	if (editor->IsModified() == false)
 			_FileSave(index);
 		return;
-	}	
-	else if (choice == 1) {
-
+	} else if (choice == 1) {
 		_FileClose(index, true);
 
 		BString notification;
@@ -1993,13 +1991,9 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 
  	alert->SetShortcut(0, B_ESCAPE);
 
- 	int32 choice = alert->Go();
- 
- 	if (choice == 0)
-		return;
-	else if (choice == 1) {
+	int32 choice = alert->Go();
+ 	if (choice == 1) {
 		editor->Reload();
-
 		BString notification;
 		notification << B_TRANSLATE("File info:") << "  "
 			<< editor->Name() << " "

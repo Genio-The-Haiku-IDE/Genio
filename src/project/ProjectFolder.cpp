@@ -3,21 +3,27 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-#include <OutlineListView.h>
+#include "ProjectFolder.h"
+
 #include <Directory.h>
+#include <Debug.h>
 #include <Entry.h>
+#include <OutlineListView.h>
 #include <Path.h>
 
 #include <stdexcept>
 
+#include "LSPClientWrapper.h"
 #include "GenioNamespace.h"
 #include "GSettings.h"
-#include "ProjectFolder.h"
-#include "LSPClientWrapper.h"
 
-SourceItem::SourceItem(BString const& path) 
+SourceItem::SourceItem(BString const& path)
+	:
+	fPath(path),
+	fName(),
+	fType(SourceItemType::FileItem),
+	fProjectFolder(nullptr)
 {
-	fPath = path;
 	BPath _path(path);
 	fName = _path.Leaf();
 	
@@ -28,9 +34,11 @@ SourceItem::SourceItem(BString const& path)
 		fType = SourceItemType::FileItem;
 }
 
+
 SourceItem::~SourceItem()
 {
 }
+
 
 void
 SourceItem::Rename(BString const& path)
@@ -43,21 +51,27 @@ SourceItem::Rename(BString const& path)
 
 ProjectFolder::ProjectFolder(BString const& path)
 	: 
-	SourceItem(path)
-{	
-	fType = SourceItemType::ProjectFolderItem;
+	SourceItem(path),
+	fActive(false),
+	fBuildMode(BuildMode::ReleaseMode),
+	fLSPClientWrapper(nullptr),
+	fSettings(nullptr)
+{
 	fProjectFolder = this;
-	fActive = false;
+	fType = SourceItemType::ProjectFolderItem;
 	fLSPClientWrapper = new LSPClientWrapper();
 }
 
+
 ProjectFolder::~ProjectFolder()
 {
-	fLSPClientWrapper->Dispose();
-	delete fLSPClientWrapper;
-
+	if (fLSPClientWrapper != nullptr) {
+		fLSPClientWrapper->Dispose();
+		delete fLSPClientWrapper;
+	}
 	delete fSettings;
 }
+
 
 status_t
 ProjectFolder::Open()
@@ -70,16 +84,20 @@ ProjectFolder::Open()
 	return B_OK;
 }
 
+
 status_t
 ProjectFolder::Close()
 {
-	status_t status;
-	status = fSettings->GetStatus();
+	status_t status = fSettings->GetStatus();
 	return status;
 }
 
-void						
-ProjectFolder::LoadDefaultSettings() {
+
+void
+ProjectFolder::LoadDefaultSettings()
+{
+	ASSERT(fSettings != nullptr);
+
 	fSettings->MakeEmpty();
 	fSettings->SetInt32("build_mode", BuildMode::ReleaseMode);
 	fSettings->SetString("project_release_build_command", "");
@@ -95,10 +113,13 @@ ProjectFolder::LoadDefaultSettings() {
 	fSettings->SetBool("exclude_settings_git", false);
 }
 
+
 void
-ProjectFolder::SaveSettings() {
+ProjectFolder::SaveSettings()
+{
 	fSettings->Save();
 }
+
 
 void
 ProjectFolder::SetBuildMode(BuildMode mode)
@@ -106,6 +127,7 @@ ProjectFolder::SetBuildMode(BuildMode mode)
 	fBuildMode = mode;
 	fSettings->SetInt32("build_mode", mode);
 }
+
 
 BuildMode
 ProjectFolder::GetBuildMode() 
@@ -123,7 +145,8 @@ ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 		fSettings->SetString("project_debug_build_command", command);
 }
 
-BString  const
+
+BString const
 ProjectFolder::GetBuildCommand()
 {	
 	if (fBuildMode == BuildMode::ReleaseMode)
@@ -131,6 +154,7 @@ ProjectFolder::GetBuildCommand()
 	else
 		return fSettings->GetString("project_debug_build_command", "");
 }
+
 
 void
 ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
@@ -141,7 +165,8 @@ ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
 		fSettings->SetString("project_debug_clean_command", command);
 }
 
-BString  const
+
+BString const
 ProjectFolder::GetCleanCommand()
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
@@ -149,6 +174,7 @@ ProjectFolder::GetCleanCommand()
 	else
 		return fSettings->GetString("project_debug_clean_command", "");
 }
+
 
 void
 ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
@@ -159,7 +185,8 @@ ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 		fSettings->SetString("project_debug_execute_args", args);
 }
 
-BString  const
+
+BString const
 ProjectFolder::GetExecuteArgs()
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
@@ -167,6 +194,7 @@ ProjectFolder::GetExecuteArgs()
 	else
 		return fSettings->GetString("project_debug_execute_args", "");
 }
+
 
 void
 ProjectFolder::SetTarget(BString const& path, BuildMode mode)
@@ -177,7 +205,8 @@ ProjectFolder::SetTarget(BString const& path, BuildMode mode)
 		fSettings->SetString("project_debug_target", path);
 }
 
-BString  const
+
+BString const
 ProjectFolder::GetTarget()
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
@@ -186,11 +215,13 @@ ProjectFolder::GetTarget()
 		return fSettings->GetString("project_debug_target", "");
 }
 
+
 void
 ProjectFolder::RunInTerminal(bool enabled)
 {
 	fSettings->SetBool("project_run_in_terminal", enabled);
 }
+
 
 bool
 ProjectFolder::RunInTerminal()
@@ -198,11 +229,13 @@ ProjectFolder::RunInTerminal()
 	return fSettings->GetBool("project_run_in_terminal", false);
 }
 
+
 void
 ProjectFolder::Git(bool enabled)
 {
 	fSettings->SetBool("git", enabled);
 }
+
 
 bool
 ProjectFolder::Git()
@@ -210,11 +243,13 @@ ProjectFolder::Git()
 	return fSettings->GetBool("git", false);
 }
 
+
 void
 ProjectFolder::ExcludeSettingsOnGit(bool enabled)
 {
 	fSettings->SetBool("exclude_settings_git", enabled);
 }
+
 
 bool
 ProjectFolder::ExcludeSettingsOnGit()

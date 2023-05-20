@@ -6,31 +6,29 @@
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.
  */
 
+#include "TemplatesMenu.h"
 
 #include <Application.h>
 #include <Catalog.h>
-#include <FindDirectory.h>
+#include <ControlLook.h>
 #include <Directory.h>
-#include <NodeInfo.h>
+#include <FindDirectory.h>
 #include <Locale.h>
+#include <Menu.h>
+#include <MenuItem.h>
+#include <Message.h>
 #include <Mime.h>
 #include <MimeType.h>
-#include <Message.h>
+#include <NodeInfo.h>
 #include <Path.h>
 #include <Query.h>
 #include <Roster.h>
-#include <MenuItem.h>
-#include <Menu.h>
-#include <stdio.h>
 
+#include <cstdio>
 #include <list>
 
-#include "TemplatesMenu.h"
 #include "IconMenuItem.h"
 #include "MimeType.h"
-
-#include <ControlLook.h>
-#include <Menu.h>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplatesMenu"
@@ -196,7 +194,7 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 			itemEnabled = false;
 		if (fViewMode == DISABLE_DIRECTORIES_VIEW_MODE && entry.IsDirectory())
 			itemEnabled = false;
-		
+
 		char fileName[B_FILE_NAME_LENGTH];
 		entry.GetName(fileName);
 		if (nodeInfo.InitCheck() == B_OK) {
@@ -205,7 +203,6 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 
 			BMimeType mime(mimeType);
 			if (mime.IsValid()) {
-
 				entry_ref ref;
 				entry.GetRef(&ref);
 

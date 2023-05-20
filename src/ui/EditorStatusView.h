@@ -64,7 +64,7 @@ private:
 			bool			fNavigationPressed;
 	const	float			fNavigationButtonWidth;
 			
-			static BPopUpMenu*		fMenu;
+			static BPopUpMenu*		sMenu;
 };
 
 } // namespace editor

@@ -15,7 +15,6 @@
 
 
 #include "EditorStatusView.h"
-#include "GenioWindowMessages.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,13 +29,14 @@
 #include <ScrollView.h>
 #include <StringView.h>
 #include <Window.h>
-#include "Editor.h"
+
 #include "ActionManager.h"
+#include "GenioWindowMessages.h"
+#include "Editor.h"
 
 const float kHorzSpacing = 5.f;
 
 using namespace BPrivate;
-
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -44,7 +44,7 @@ using namespace BPrivate;
 
 namespace editor {
 
-BPopUpMenu* StatusView::fMenu = nullptr;
+BPopUpMenu* StatusView::sMenu = nullptr;
 
 StatusView::StatusView(Editor* editor)	:
 			controls::StatusView(dynamic_cast<BScrollView*>(editor)),
@@ -179,8 +179,7 @@ StatusView::SetStatus(BMessage* message)
 {
 	int32 line = 0, column = 0;
 	if (message->FindInt32("line", &line) == B_OK
-		&& message->FindInt32("column", &column) == B_OK)
-	{
+		&& message->FindInt32("column", &column) == B_OK) {
 		fCellText[kPositionCell].SetToFormat("%" B_PRIi32 ":%" B_PRIi32, line, column);
 	}
 	
@@ -190,7 +189,6 @@ StatusView::SetStatus(BMessage* message)
 	
 	Invalidate();
 }
-
 
 
 void
@@ -211,18 +209,20 @@ StatusView::_DrawNavigationButton(BRect rect)
 		BControlLook::B_DOWN_ARROW, flags, B_DARKEN_MAX_TINT);
 }
 
+
 void
 StatusView::_CreateMenu(BWindow* window)
 {
-	fMenu = new BPopUpMenu("EditorMenu");
-	ActionManager::AddItem(MSG_BUFFER_LOCK, fMenu);
-	fMenu->SetTargetForItems(window);
+	sMenu = new BPopUpMenu("EditorMenu");
+	ActionManager::AddItem(MSG_BUFFER_LOCK, sMenu);
+	sMenu->SetTargetForItems(window);
 }
+
 
 void
 StatusView::_ShowDirMenu()
 {
-	if (!fMenu)
+	if (!sMenu)
 		StatusView::_CreateMenu(Window());
 
 	BPoint point = Parent()->Bounds().LeftBottom();
@@ -230,7 +230,7 @@ StatusView::_ShowDirMenu()
 	ConvertToScreen(&point);
 	BRect clickToOpenRect(Parent()->Bounds());
 	ConvertToScreen(&clickToOpenRect);
-	StatusView::fMenu->Go(point, true, true, clickToOpenRect);
+	StatusView::sMenu->Go(point, true, true, clickToOpenRect);
 	fNavigationPressed = false;
 }
 

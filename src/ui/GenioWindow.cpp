@@ -2344,15 +2344,15 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Go to implementation"));
 								   
 	ActionManager::RegisterAction(MSG_SWITCHSOURCE, 
-								   B_TRANSLATE("Switch Source Header"), "", "", B_TAB);
+								   B_TRANSLATE("Switch source header"), "", "", B_TAB);
 								   
 	ActionManager::RegisterAction(MSG_SIGNATUREHELP,
-								   B_TRANSLATE("Signature Help"), "", "", '?');
+								   B_TRANSLATE("Signature help"), "", "", '?');
 								   
 
-	ActionManager::RegisterAction(MSG_VIEW_ZOOMIN,  B_TRANSLATE("Zoom In"), "", "", '+');
-	ActionManager::RegisterAction(MSG_VIEW_ZOOMOUT, B_TRANSLATE("Zoom Out"), "", "", '-');
-	ActionManager::RegisterAction(MSG_VIEW_ZOOMRESET, B_TRANSLATE("Zoom Reset"), "", "", '0');
+	ActionManager::RegisterAction(MSG_VIEW_ZOOMIN,  B_TRANSLATE("Zoom in"), "", "", '+');
+	ActionManager::RegisterAction(MSG_VIEW_ZOOMOUT, B_TRANSLATE("Zoom out"), "", "", '-');
+	ActionManager::RegisterAction(MSG_VIEW_ZOOMRESET, B_TRANSLATE("Zoom reset"), "", "", '0');
 
 
 	ActionManager::RegisterAction(MSG_FIND_GROUP_TOGGLED, //MSG_FIND_GROUP_SHOW,
@@ -2380,11 +2380,11 @@ GenioWindow::_InitActions()
 								   "", '<'); //TODO: check shortcut.
 								   
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN,
-								   B_TRANSLATE("Open Project"),
+								   B_TRANSLATE("Open project"),
 								   "","",'O', B_OPTION_KEY);
 								   
 	ActionManager::RegisterAction(MSG_PROJECT_CLOSE,
-								   B_TRANSLATE("Close Project"),
+								   B_TRANSLATE("Close project"),
 								   "", "", 'C', B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,
@@ -2394,26 +2394,26 @@ GenioWindow::_InitActions()
 //add missing menus
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,
-								   B_TRANSLATE("Show Projects pane"),
-								   B_TRANSLATE("Show/Hide Projects pane"), 
+								   B_TRANSLATE("Show projects pane"),
+								   B_TRANSLATE("Show/Hide projects pane"), 
 								   "kIconWindow");
 								   
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
-								   B_TRANSLATE("Show Output panes"),
-	                               B_TRANSLATE("Show/Hide Output panes"),   
+								   B_TRANSLATE("Show output panes"),
+	                               B_TRANSLATE("Show/Hide output panes"),   
 								   "kIconTerminal");
 								   
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
-								   B_TRANSLATE("Show ToolBar"));
+								   B_TRANSLATE("Show toolBar"));
 								   
 	
 	ActionManager::RegisterAction(MSG_BUILD_PROJECT,
-								  B_TRANSLATE("Build Project"),
-								  B_TRANSLATE("Build Project"),
+								  B_TRANSLATE("Build project"),
+								  B_TRANSLATE("Build project"),
 								  "kIconBuild", 'B');
 								  
 	ActionManager::RegisterAction(MSG_CLEAN_PROJECT,
-								  B_TRANSLATE("Clean Project"));
+								  B_TRANSLATE("Clean project"));
 
 	ActionManager::RegisterAction(MSG_RUN_TARGET,
 								  B_TRANSLATE("Run target"),
@@ -2421,8 +2421,8 @@ GenioWindow::_InitActions()
 								  "kIconRun", 'R', B_SHIFT_KEY);
 								  
 	ActionManager::RegisterAction(MSG_DEBUG_PROJECT,
-								  B_TRANSLATE("Debug Project"),
-								  B_TRANSLATE("Debug Project"),
+								  B_TRANSLATE("Debug project"),
+								  B_TRANSLATE("Debug project"),
 								  "kIconDebug");
 								  
 	ActionManager::RegisterAction(MSG_BUFFER_LOCK, 
@@ -2437,8 +2437,8 @@ GenioWindow::_InitActions()
 								   
 	// Find Panel
 	ActionManager::RegisterAction(MSG_FIND_NEXT,
-								  B_TRANSLATE("Find Next"),
-								  B_TRANSLATE("Find Next"),
+								  B_TRANSLATE("Find next"),
+								  B_TRANSLATE("Find next"),
 								   "kIconDown_3",
 								  B_DOWN_ARROW, B_COMMAND_KEY);
 								  
@@ -2639,9 +2639,9 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_DEBUG_PROJECT, projectMenu);
 
 	projectMenu->AddSeparatorItem();
-	projectMenu->AddItem(fMakeCatkeysItem = new BMenuItem ("make catkeys",
+	projectMenu->AddItem(fMakeCatkeysItem = new BMenuItem ("Make catkeys",
 		new BMessage(MSG_MAKE_CATKEYS)));
-	projectMenu->AddItem(fMakeBindcatalogsItem = new BMenuItem ("make bindcatalogs",
+	projectMenu->AddItem(fMakeBindcatalogsItem = new BMenuItem ("Make bindcatalogs",
 		new BMessage(MSG_MAKE_BINDCATALOGS)));
 
 	ActionManager::SetEnabled(MSG_BUILD_PROJECT, false);
@@ -2680,7 +2680,7 @@ GenioWindow::_InitMenu()
 	git_status_message->AddString("command", "status");
 	fGitStatusItem->SetMessage(git_status_message);
 
-	fGitMenu->AddItem(fGitShowConfigItem = new BMenuItem(B_TRANSLATE("Show Config"), nullptr));
+	fGitMenu->AddItem(fGitShowConfigItem = new BMenuItem(B_TRANSLATE("Show config"), nullptr));
 	BMessage* git_config_message = new BMessage(MSG_GIT_COMMAND);
 	git_config_message->AddString("command", "config --list");
 	fGitShowConfigItem->SetMessage(git_config_message);

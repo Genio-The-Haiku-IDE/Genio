@@ -3,6 +3,8 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
+#include "ProjectItem.h"
+
 #include <Bitmap.h>
 #include <ControlLook.h>
 #include <Font.h>
@@ -10,21 +12,23 @@
 #include <StringItem.h>
 #include <View.h>
 
-#include "ProjectFolder.h"
-#include "ProjectItem.h"
 #include "IconCache.h"
+#include "ProjectFolder.h"
+
 
 ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
-	BStringItem(sourceItem->Name())
+	BStringItem(sourceItem->Name()),
+	fSourceItem(sourceItem)
 {
-	fSourceItem = sourceItem;
 }
+
 
 ProjectItem::~ProjectItem()
 {
 	delete fSourceItem;
 }
+
 
 void 
 ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
@@ -50,11 +54,9 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	
 	owner->SetLowColor(lowColor);
 	
-	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem)
-	{
+	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		ProjectFolder *projectFolder = (ProjectFolder *)GetSourceItem();
-		if (projectFolder->Active())
-		{
+		if (projectFolder->Active()) {
 			owner->SetDrawingMode(B_OP_OVER);
 			owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 			owner->SetFont(be_bold_font);
@@ -76,7 +78,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	float size = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BPoint p(bounds.left + 4.0f, bounds.top  + (bounds.Height() - size) / 2.0f);	
 	
-	if (icon!=nullptr)
+	if (icon != nullptr)
 		owner->DrawBitmapAsync(icon, p);
 	
 	// Draw string at the right of the icon
@@ -97,6 +99,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		firstTimeRendered = false;
 	}
 }
+
 
 void
 ProjectItem::Update(BView* owner, const BFont* font)

@@ -8,10 +8,10 @@
 #define FS_SKIP 'fssk'
 
 namespace fs = std::filesystem;
-status_t CheckCopiable(BEntry *src, BEntry *dest);
-status_t CopyFile(BEntry *src,BEntry *dest, bool clobber);
-status_t MoveFile(BEntry *src,BEntry *dest, bool clobber);
-void chmodr(const fs::path& path, fs::perms perm);
-status_t DeleteFolder(BEntry *dirEntry);
+status_t FSCheckCopiable(BEntry *src, BEntry *dest);
+status_t FSCopyFile(BEntry *src,BEntry *dest, bool clobber);
+status_t FSMoveFile(BEntry *src,BEntry *dest, bool clobber);
+void FSChmodr(const fs::path& path, fs::perms perm);
+status_t FSDeleteFolder(BEntry *dirEntry);
 
 #endif

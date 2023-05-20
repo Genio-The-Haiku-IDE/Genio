@@ -8,8 +8,8 @@
 #include <AppFileInfo.h>
 #include <Catalog.h>
 #include <CopyEngine.h>
-#include <EntryOperationEngineBase.h>
 #include <Entry.h>
+#include <EntryOperationEngineBase.h>
 #include <Roster.h>
 
 #include "FSUtils.h"
@@ -28,6 +28,7 @@ using Entry = BPrivate::BEntryOperationEngineBase::Entry;
 TemplateManager::TemplateManager()
 {
 }
+
 
 TemplateManager::~TemplateManager()
 {
@@ -57,6 +58,7 @@ TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* dest
 	return status;
 }
 
+
 status_t
 TemplateManager::CopyProjectTemplate(const entry_ref* source, const entry_ref* destination, 
 										const char* name)
@@ -78,17 +80,18 @@ TemplateManager::CopyProjectTemplate(const entry_ref* source, const entry_ref* d
 	
 	// TODO: Default templates in a tipical HPKG installation are readonly
 	// we are setting all permissions recursively here
-	chmodr(destPath.Path(), fs::perms::all);
-	
+	FSChmodr(destPath.Path(), fs::perms::all);
 	
 	return status;
 }
+
 
 status_t
 TemplateManager::CreateTemplate(const entry_ref* file)
 {
 	return B_OK;
 }
+
 
 status_t
 TemplateManager::CreateNewFolder(const entry_ref* destination)
@@ -101,6 +104,7 @@ TemplateManager::CreateNewFolder(const entry_ref* destination)
 	}
 	return status;
 }
+
 
 BString
 TemplateManager::GetDefaultTemplateDirectory()
@@ -131,6 +135,7 @@ TemplateManager::GetDefaultTemplateDirectory()
 	}
 	return templatePath.Path();
 }
+
 
 BString
 TemplateManager::GetUserTemplateDirectory()

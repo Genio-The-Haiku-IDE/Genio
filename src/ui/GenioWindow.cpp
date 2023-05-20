@@ -3223,7 +3223,7 @@ GenioWindow::_ProjectFileDelete()
 		if (entry.Exists()) {
 			status_t status;
 			if (entry.IsDirectory())
-				status = DeleteFolder(&entry);
+				status = FSDeleteFolder(&entry);
 			else
 				status = entry.Remove();
 			if (status != B_OK) {

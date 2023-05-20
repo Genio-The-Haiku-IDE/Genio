@@ -473,7 +473,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetReadOnly(!editor->IsReadOnly());
-				fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
+				_UpdateTabChange(editor, "Buffer Lock");
 			}
 			break;
 		}

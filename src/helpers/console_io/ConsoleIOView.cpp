@@ -23,6 +23,7 @@
 #include <AutoDeleter.h>
 
 #include "GenioNamespace.h"
+#include "Log.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ConsoleIOView"
@@ -167,8 +168,15 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			// this is unsafe
 			// if the user is pressing stop while the process is terminating,
 			// it could happen fConsoleIOThread to be invalid (see "delete this");
-			if (fConsoleIOThread)
-				fConsoleIOThread->InterruptExternal();
+			if (fConsoleIOThread) {
+				status_t status = B_OK;
+				if ((status = fConsoleIOThread->InterruptExternal()) != B_OK) {
+					LogErrorF("Can't stop external process! (%s)", strerror(status));
+					fConsoleIOThread->Kill();
+					delete fConsoleIOThread;
+					fConsoleIOThread = nullptr;
+				}
+			}
 			break;
 		}
 		case CONSOLEIOTHREAD_ERROR:

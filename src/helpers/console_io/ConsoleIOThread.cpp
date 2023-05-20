@@ -46,7 +46,7 @@ ConsoleIOThread::~ConsoleIOThread()
 }
 
 status_t
-ConsoleIOThread::ThreadStartup()
+ConsoleIOThread::_RunExternalProcess()
 {
 	status_t status = B_OK;
 	BString cmd;
@@ -71,7 +71,7 @@ ConsoleIOThread::ThreadStartup()
 	delete [] argv;
 
 	if (fProcessId < 0)
-		return fProcessId;
+		return B_ERROR;
 
 	// lower the command priority since it is a background task.
 	set_thread_priority(fProcessId, B_LOW_PRIORITY);
@@ -98,8 +98,7 @@ ConsoleIOThread::ThreadStartup()
 	// Let console view know the cmd_type so Stop action will post it
 	button_message.AddString("cmd_type", fCmdType);
 
-	if (GenioNames::Settings.console_banner == true)
-		_BannerMessage("started   ");
+	_BannerMessage("started   ");
 
 	return B_OK;
 }
@@ -107,6 +106,18 @@ ConsoleIOThread::ThreadStartup()
 status_t
 ConsoleIOThread::ExecuteUnit(void)
 {
+	// first time: let's setup the external process.
+	// this way we always enter in the same managed loop
+
+	if (fProcessId == -1) {
+		status_t status = _RunExternalProcess();
+
+		if (status != B_OK)
+			_BannerMessage("can't run ");
+
+		return status;
+	}
+
 	// read output and error from command
 	// send it to window
 	BMessage out_message(CONSOLEIOTHREAD_STDOUT);
@@ -156,18 +167,9 @@ ConsoleIOThread::ThreadShutdown(void)
 	button_message.AddBool("enable", false);
 	fConsoleTarget.SendMessage(&button_message);
 
-	if (GenioNames::Settings.console_banner == true)
-		_BannerMessage("ended   --");
+	_BannerMessage("ended   --");
 
 	return B_OK;
-}
-
-void
-ConsoleIOThread::ThreadStartupFailed(status_t status)
-{
-	// mostrly never called.. this won't do a 'delete this'!
-	// is only called in case the config message is missing the command string
-	ExecuteUnitFailed(EOF); //just a shortcut
 }
 
 void
@@ -186,16 +188,6 @@ ConsoleIOThread::ExecuteUnitFailed(status_t status)
 	}
 
 	Quit();
-}
-
-/*
- * ThreadShutdown only returns B_OK so this will never be called.
- */
-void
-ConsoleIOThread::ThreadShutdownFailed(status_t status)
-{
-	//DO NOT implement this or you will skip the 'delete this' call.
-	debugger("avoid calling this");
 }
 
 
@@ -279,7 +271,7 @@ ConsoleIOThread::ClosePipes()
 	if (fConsoleError)	
 		fclose(fConsoleError);
 
-	fConsoleOutput = fConsoleError = 0;
+	fConsoleOutput = fConsoleError = nullptr;
 
 	close(fStdIn);
 	close(fStdOut);
@@ -296,7 +288,7 @@ ConsoleIOThread::InterruptExternal()
 
 	if (status == B_OK) {
 		status = send_signal(-fProcessId, SIGTERM);
-		return wait_for_thread(fProcessId, &status);
+		return wait_for_thread_etc(fProcessId, 0, 4000, &status);
 	}
 
 	return status;
@@ -306,6 +298,9 @@ ConsoleIOThread::InterruptExternal()
 void
 ConsoleIOThread::_BannerMessage(BString status)
 {
+	if (GenioNames::Settings.console_banner == false)
+		return;
+	
 	BString banner;
 	banner  << "--------------------------------"
 			<< "   "

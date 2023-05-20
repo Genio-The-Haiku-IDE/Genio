@@ -3127,8 +3127,9 @@ GenioWindow::_ProjectFileDelete()
 		if (entry.Exists()) {
 			status_t status = entry.Remove();
 			if (status != B_OK) {
-				OKAlert("Delete item", BString("Could not delete ") << name, B_WARNING_ALERT);
-				LogError("Could not delete %s (status = %d)", name, status);
+				OKAlert("Delete item", BString("Could not delete ") << name << "\n\n" << ::strerror(status),
+					B_WARNING_ALERT);
+				LogError("Could not delete %s (%s)", name, ::strerror(status));
 			}
 		}
 	}

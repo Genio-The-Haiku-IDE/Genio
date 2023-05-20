@@ -46,6 +46,8 @@ enum {
 	kOutputLog
 };
 
+class ActionManager;
+
 class GenioWindow : public BWindow
 {
 public:
@@ -55,6 +57,7 @@ public:
 	virtual void				DispatchMessage(BMessage* message, BHandler* handler);
 	virtual void				MessageReceived(BMessage* message);
 	virtual bool				QuitRequested();
+	virtual void				Show();
 	
 	void						UpdateMenu();
 
@@ -77,8 +80,7 @@ private:
 			void				_FileSaveAll();
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
 			bool				_FilesNeedSave();
-			void				_FindGroupShow();
-			void				_FindGroupToggled();
+			void				_FindGroupShow(bool show);
 			int32				_FindMarkAll(const BString text);
 			void				_FindNext(const BString& strToFind, bool backwards);
 			void				_FindInFiles();
@@ -119,8 +121,7 @@ private:
 			
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
-			void				_ReplaceGroupShow();
-			void				_ReplaceGroupToggled();
+			void				_ReplaceGroupShow(bool show);
 			status_t			_RunInConsole(const BString& command);
 			void				_RunTarget();
 			void				_SendNotification(BString message, BString type);
@@ -132,48 +133,26 @@ private:
 			void				_UpdateReplaceMenuItems(const BString& text);
 			void				_UpdateSavepointChange(int32 index, const BString& caller = "");
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
+			void				_InitActions();
+			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
 
 private:
 			BMenuBar*			fMenuBar;
-			TemplatesMenu*		fFileNewMenuItem;
-			BMenuItem*			fSaveMenuItem;
-			BMenuItem*			fSaveAsMenuItem;
-			BMenuItem*			fSaveAllMenuItem;
-			BMenuItem*			fCloseMenuItem;
-			BMenuItem*			fCloseAllMenuItem;
-			BMenuItem*			fFoldMenuItem;
-			BMenuItem*			fUndoMenuItem;
-			BMenuItem*			fRedoMenuItem;
-			BMenuItem*			fCutMenuItem;
-			BMenuItem*			fCopyMenuItem;
-			BMenuItem*			fPasteMenuItem;
-			BMenuItem*			fSelectAllMenuItem;
-			BMenuItem*			fOverwiteItem;
-			BMenuItem*			fToggleWhiteSpacesItem;
-			BMenuItem*			fToggleLineEndingsItem;
-			BMenuItem*			fDuplicateLineItem;
-			BMenuItem*			fDeleteLinesItem;
-			BMenuItem*			fCommentSelectionItem;
-			BMenu*				fLineEndingsMenu;
-			BMenuItem*			fFindItem;
-			BMenuItem*			fReplaceItem;
-			BMenuItem*			fGoToLineItem;
+			TemplatesMenu*	fFileNewMenuItem;
+			
+      BMenu*				fLineEndingsMenu;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;
 			BMenuItem*			fBookmarkClearAllItem;
 			BMenuItem*			fBookmarkGoToNextItem;
 			BMenuItem*			fBookmarkGoToPreviousItem;
-			BMenuItem*			fBuildItem;
-			BMenuItem*			fCleanItem;
-			BMenuItem*			fRunItem;
+
 			BMenu*				fBuildModeItem;
 			BMenuItem*			fReleaseModeItem;
 			BMenuItem*			fDebugModeItem;
-			BMenu*				fCargoMenu;
-			BMenuItem*			fCargoUpdateItem;
-			BMenuItem*			fDebugItem;
 			BMenuItem*			fMakeCatkeysItem;
 			BMenuItem*			fMakeBindcatalogsItem;
+
 			BMenu*				fGitMenu;
 			BMenuItem*			fGitBranchItem;
 			BMenuItem*			fGitLogItem;
@@ -184,8 +163,6 @@ private:
 			BMenuItem*			fGitStatusItem;
 			BMenuItem*			fGitStatusShortItem;
 			BMenuItem*			fGitTagItem;
-			BMenu*				fHgMenu;
-			BMenuItem*			fHgStatusItem;
 			
 			ToolBar*			fToolBar;
 			
@@ -232,11 +209,9 @@ private:
 			// Bottom panels
 			BTabView*			fOutputTabView;
 			ProblemsPanel*		fProblemsPanel;
-			ConsoleIOThread*	fConsoleIOThread;
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
-
 };
 
 #endif //GenioWINDOW_H

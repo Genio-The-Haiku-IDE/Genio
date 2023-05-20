@@ -72,11 +72,8 @@ private:
 	
 	BPopUpMenu*			fProjectMenu;
 	BMenuItem*			fCloseProjectMenuItem;
-	BMenuItem*			fDeleteProjectMenuItem;
 	BMenuItem*			fRenameFileProjectMenuItem;
 	BMenuItem*			fSetActiveProjectMenuItem;
-	BMenuItem*			fAddProjectMenuItem;
-	BMenuItem*			fExcludeFileProjectMenuItem;
 	BMenuItem*			fDeleteFileProjectMenuItem;
 	BMenuItem*			fOpenFileProjectMenuItem;
 	TemplatesMenu*		fFileNewProjectMenuItem;
@@ -84,7 +81,6 @@ private:
 	BMenuItem*			fOpenTerminalProjectMenuItem;
 	bool				fIsBuilding = false;
 	
-	ProjectFolder		*fActiveProject;
 };
 
 

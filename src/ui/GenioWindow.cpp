@@ -48,16 +48,16 @@
 #include "TextUtils.h"
 #include "Utils.h"
 #include "EditorKeyDownMessageFilter.h"
+
+#include "ActionManager.h"
 #include "TextControlFloater.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
 
 
 constexpr auto kRecentFilesNumber = 14 + 1;
-
-// If enabled check menu open point
-//static const auto kToolBarSize = 29;
 
 static constexpr float kTabBarHeight = 30.0f;
 
@@ -81,42 +81,15 @@ GenioWindow::GenioWindow(BRect frame)
 	BWindow(frame, "Genio", B_TITLED_WINDOW, B_ASYNCHRONOUS_CONTROLS |
 												B_QUIT_ON_WINDOW_CLOSE)
 	, fMenuBar(nullptr)
-	, fFileNewMenuItem(nullptr)
-	, fSaveMenuItem(nullptr)
-	, fSaveAsMenuItem(nullptr)
-	, fSaveAllMenuItem(nullptr)
-	, fCloseMenuItem(nullptr)
-	, fCloseAllMenuItem(nullptr)
-	, fFoldMenuItem(nullptr)
-	, fUndoMenuItem(nullptr)
-	, fRedoMenuItem(nullptr)
-	, fCutMenuItem(nullptr)
-	, fCopyMenuItem(nullptr)
-	, fPasteMenuItem(nullptr)
-	, fSelectAllMenuItem(nullptr)
-	, fOverwiteItem(nullptr)
-	, fToggleWhiteSpacesItem(nullptr)
-	, fToggleLineEndingsItem(nullptr)
-	, fDeleteLinesItem(nullptr)
-	, fCommentSelectionItem(nullptr)
 	, fLineEndingsMenu(nullptr)
-	, fFindItem(nullptr)
-	, fReplaceItem(nullptr)
-	, fGoToLineItem(nullptr)
 	, fBookmarksMenu(nullptr)
 	, fBookmarkToggleItem(nullptr)
 	, fBookmarkClearAllItem(nullptr)
 	, fBookmarkGoToNextItem(nullptr)
 	, fBookmarkGoToPreviousItem(nullptr)
-	, fBuildItem(nullptr)
-	, fCleanItem(nullptr)
-	, fRunItem(nullptr)
 	, fBuildModeItem(nullptr)
 	, fReleaseModeItem(nullptr)
 	, fDebugModeItem(nullptr)
-	, fCargoMenu(nullptr)
-	, fCargoUpdateItem(nullptr)
-	, fDebugItem(nullptr)
 	, fMakeCatkeysItem(nullptr)
 	, fMakeBindcatalogsItem(nullptr)
 	, fGitMenu(nullptr)
@@ -129,8 +102,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGitStatusItem(nullptr)
 	, fGitStatusShortItem(nullptr)
 	, fGitTagItem(nullptr)
-	, fHgMenu(nullptr)
-	, fHgStatusItem(nullptr)
 	, fToolBar(nullptr)
 	, fRootLayout(nullptr)
 	, fEditorTabsGroup(nullptr)
@@ -160,14 +131,15 @@ GenioWindow::GenioWindow(BRect frame)
 	, fOpenProjectFolderPanel(nullptr)
 	, fOutputTabView(nullptr)
 	, fProblemsPanel(nullptr)
-	, fConsoleIOThread(nullptr)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
 	, fGoToLineWindow(nullptr)
 {
+	_InitActions();
 	_InitMenu();
-
 	_InitWindow();
+	
+	_UpdateTabChange(nullptr, "GenioWindow");
 
 	// Shortcuts
 	for (int32 index = 1; index < 10; index++) {
@@ -182,13 +154,6 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorKeyDownMessageFilter());
-
-	if (GenioNames::Settings.show_projects == false)
-		fProjectsTabView->Hide();
-	if (GenioNames::Settings.show_output == false)
-		fOutputTabView->Hide();
-	if (GenioNames::Settings.show_toolbar == false)
-		fToolBar->Hide();
 
 	// Load workspace - reopen projects
 	if (GenioNames::Settings.reopen_projects == true) {
@@ -226,9 +191,23 @@ GenioWindow::GenioWindow(BRect frame)
 	}
 }
 
+void				
+GenioWindow::Show()
+{
+	BWindow::Show();
+	
+	if (LockLooper()) {
+	
+		_ShowView(fProjectsTabView, GenioNames::Settings.show_projects, MSG_SHOW_HIDE_PROJECTS);
+		_ShowView(fOutputTabView,   GenioNames::Settings.show_output,	MSG_SHOW_HIDE_OUTPUT);
+		_ShowView(fToolBar,  		GenioNames::Settings.show_toolbar,	MSG_TOGGLE_TOOLBAR);
+		
+		UnlockLooper();
+	}
+}
+
 GenioWindow::~GenioWindow()
 {
-	//delete fEditorObjectList;
 	delete fTabManager;
 	delete fOpenPanel;
 	delete fSavePanel;
@@ -239,7 +218,7 @@ void
 GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 {
 	//TODO: understand this part of code and move it to a better place.
-	if (handler == fConsoleIOView) {
+	/*if (handler == fConsoleIOView) {
 		if (message->what == B_KEY_DOWN) {
 			int8 key;
 			if (message->FindInt8("byte", 0, &key) == B_OK) {
@@ -252,8 +231,7 @@ GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 				}
 			}
 		}
-	}
-
+	}*/
 	BWindow::DispatchMessage(message, handler);
 }
 
@@ -263,14 +241,14 @@ GenioWindow::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case MSG_ESCAPE_KEY:{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
-					if (!fFindGroup->IsHidden())
-						fFindGroup->Hide();
-					if (!fReplaceGroup->IsHidden())
-						fReplaceGroup->Hide();
+					_FindGroupShow(false);
 			} else if (CurrentFocus() == fReplaceTextControl->TextView()) {
-					if (!fReplaceGroup->IsHidden())
-						fReplaceGroup->Hide();
+					_ReplaceGroupShow(false);
 					fFindTextControl->MakeFocus(true);
+			} else if (CurrentFocus() == fRunConsoleProgramText->TextView()) {
+				fRunConsoleProgramGroup->SetVisible(false);
+				fRunConsoleProgramText->MakeFocus(false);
+				ActionManager::SetPressed(MSG_RUN_CONSOLE_PROGRAM_SHOW, false);
 			}
 		}
 		break;
@@ -333,40 +311,21 @@ GenioWindow::MessageReceived(BMessage* message)
 				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Undo");
 			}
 			break;
-		}
+		}	
 		case CONSOLEIOTHREAD_ERROR:
 		case CONSOLEIOTHREAD_EXIT:
-		case CONSOLEIOTHREAD_STOP:
 		{
-			// TODO: Review focus policy
-//			if (fTabManager->CountTabs() > 0)
-//				editor->GrabFocus();
+			BString cmdType = message->GetString("cmd_type", "");
+			if (cmdType == "build"  	  ||
+				cmdType == "clean" 		  ||
+				cmdType == "bindcatalogs" ||
+				cmdType == "catkeys") {
 
-			fIsBuilding = false;
-			fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
-
-			BString type;
-			if (message->FindString("cmd_type", &type) == B_OK) {
-				if (type == "build" || type == "clean" || type == "run") {
-					_UpdateProjectActivation(true);
-				} else if (type.StartsWith("git")) {
-					_UpdateProjectActivation(true);
-				} else if (type == "startfail") {
-					if (fActiveProject != nullptr)
-						_UpdateProjectActivation(true);
-					break;
-				} else if (type == "catkeys" || type == "bindcatalogs") {
-					;
-				} else {
-					// user custom (run console program)
-					;
-				}
+				fIsBuilding = false;
+				fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
+			
 			}
-
-			if (fConsoleIOThread) {
-				fConsoleIOThread->InterruptExternal();
-				fConsoleIOThread = nullptr;
-			}
+			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case EDITOR_FIND_SET_MARK: {
@@ -694,7 +653,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 		break;
 		case MSG_FIND_GROUP_SHOW:
-			_FindGroupShow();
+			_FindGroupShow(true);
 			break;
 		case MSG_FIND_IN_FILES: {
 			_FindInFiles();
@@ -735,7 +694,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_FIND_GROUP_TOGGLED:
-			_FindGroupToggled();
+			_FindGroupShow(fFindGroup->IsHidden());
 			break;
 		case MSG_GIT_COMMAND: {
 			BString command;
@@ -1002,14 +961,14 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_REPLACE_GROUP_SHOW:
-			_ReplaceGroupShow();
+			_ReplaceGroupShow(true);
 			break;
 		case MSG_REPLACE_ALL: {
 			_Replace(REPLACE_ALL);
 			break;
 		}
 		case MSG_REPLACE_GROUP_TOGGLED:
-			_ReplaceGroupToggled();
+			_ReplaceGroupShow(fReplaceGroup->IsHidden());
 			break;
 		case MSG_REPLACE_MENU_SELECTED: {
 			int32 index;
@@ -1036,6 +995,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				fRunConsoleProgramGroup->SetVisible(true);
 				fRunConsoleProgramText->MakeFocus(true);
 			}
+			ActionManager::SetPressed(MSG_RUN_CONSOLE_PROGRAM_SHOW, fRunConsoleProgramGroup->IsVisible());
 			break;
 		}
 		case MSG_RUN_CONSOLE_PROGRAM: {
@@ -1059,19 +1019,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}	
 		case MSG_SHOW_HIDE_PROJECTS: {
-			if (fProjectsTabView->IsHidden()) {
-				fProjectsTabView->Show();
-			} else {
-				fProjectsTabView->Hide();
-			}
+			_ShowView(fProjectsTabView, fProjectsTabView->IsHidden(), MSG_SHOW_HIDE_PROJECTS);
 			break;
 		}
 		case MSG_SHOW_HIDE_OUTPUT: {
-			if (fOutputTabView->IsHidden()) {
-				fOutputTabView->Show();
-			} else {
-				fOutputTabView->Hide();
-			}
+			_ShowView(fOutputTabView, fOutputTabView->IsHidden(), MSG_SHOW_HIDE_OUTPUT);
 			break;
 		}
 		case MSG_TEXT_OVERWRITE: {
@@ -1083,11 +1035,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 
 		case MSG_TOGGLE_TOOLBAR: {
-			if (fToolBar->IsHidden()) {
-				fToolBar->Show();
-			} else {
-				fToolBar->Hide();
-			}
+			_ShowView(fToolBar, fToolBar->IsHidden(), MSG_TOGGLE_TOOLBAR);
 			break;
 		}
 		case MSG_WHITE_SPACES_TOGGLE: {
@@ -1230,6 +1178,9 @@ GenioWindow::QuitRequested()
 	GenioNames::Settings.find_wrap = (bool)fFindWrapCheck->Value();
 	GenioNames::Settings.find_whole_word = (bool)fFindWholeWordCheck->Value();
 	GenioNames::Settings.find_match_case = (bool)fFindCaseSensitiveCheck->Value();
+	GenioNames::Settings.show_projects = ActionManager::IsPressed(MSG_SHOW_HIDE_PROJECTS);
+	GenioNames::Settings.show_output   = ActionManager::IsPressed(MSG_SHOW_HIDE_OUTPUT);
+	GenioNames::Settings.show_toolbar  = ActionManager::IsPressed(MSG_TOGGLE_TOOLBAR);
 	
 
 	GenioNames::SaveSettingsVars();
@@ -1263,8 +1214,6 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int32 lsp
 status_t
 GenioWindow::_BuildProject()
 {
-	status_t status;
-
 	// Should not happen
 	if (fActiveProject == nullptr)
 		return B_ERROR;
@@ -1290,19 +1239,12 @@ GenioWindow::_BuildProject()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fBuildLogView));
-
-	status = fConsoleIOThread->Start();
-
-	return status;
+	return fBuildLogView->RunCommand(&message);
 }
 
 status_t
 GenioWindow::_CleanProject()
 {
-	status_t status;
-
 	// Should not happen
 	if (fActiveProject == nullptr)
 		return B_ERROR;
@@ -1330,12 +1272,7 @@ GenioWindow::_CleanProject()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fBuildLogView));
-
-	status = fConsoleIOThread->Start();
-
-	return status;
+	return fBuildLogView->RunCommand(&message);
 }
 
 
@@ -1737,31 +1674,17 @@ GenioWindow::_FilesNeedSave()
 }
 
 void
-GenioWindow::_FindGroupShow()
+GenioWindow::_FindGroupShow(bool show)
 {
-	if (fFindGroup->IsHidden()) {
-		fFindGroup->Show();
-	}
-	_GetFocusAndSelection(fFindTextControl);
-}
-
-void
-GenioWindow::_FindGroupToggled()
-{
-	bool findHidden = fFindGroup->IsHidden();
-	if (findHidden) {
-		_FindGroupShow();
-	} else {
-		
-		fFindGroup->Hide();
-		
-		if (!fReplaceGroup->IsHidden())
-			fReplaceGroup->Hide();
-			
+	_ShowView(fFindGroup, show, MSG_FIND_GROUP_TOGGLED);
+	if (!show) {
+		_ShowView(fReplaceGroup, show, MSG_REPLACE_GROUP_TOGGLED);
 		Editor* editor = fTabManager->SelectedEditor();
 		if (editor) {
 			editor->GrabFocus();
-		}		
+		}
+	} else {
+		_GetFocusAndSelection(fFindTextControl);
 	}
 }
 
@@ -1917,7 +1840,6 @@ GenioWindow::_GetFocusAndSelection(BTextControl* control)
 status_t
 GenioWindow::_Git(const BString& git_command)
 {
-	status_t status;
 	// Should not happen
 	if (fActiveProject == nullptr)
 		return B_ERROR;
@@ -1938,12 +1860,7 @@ GenioWindow::_Git(const BString& git_command)
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fConsoleIOView));
-
-	status = fConsoleIOThread->Start();
-
-	return status;
+	return fConsoleIOView->RunCommand(&message);
 }
 
 void
@@ -2232,9 +2149,6 @@ GenioWindow::_InitCentralSplit()
 						B_SIZE_UNSET));
 	fFindTextControl->SetExplicitMaxSize(fFindTextControl->MinSize());
 
-	AddShortcut(B_DOWN_ARROW, B_COMMAND_KEY, new BMessage(MSG_FIND_NEXT));
-	AddShortcut(B_UP_ARROW, B_COMMAND_KEY, new BMessage(MSG_FIND_PREVIOUS));
-
 
 	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE("Match case"));
 	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"));
@@ -2250,8 +2164,9 @@ GenioWindow::_InitCentralSplit()
 	fFindGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 												.Add(fFindMenuField)
 												.Add(fFindTextControl).View());
-	fFindGroup->AddAction(MSG_FIND_NEXT, B_TRANSLATE("Find Next"), "kIconDown_3");
-	fFindGroup->AddAction(MSG_FIND_PREVIOUS, B_TRANSLATE("Find previous"), "kIconUp_3");
+
+	ActionManager::AddItem(MSG_FIND_NEXT, fFindGroup);
+	ActionManager::AddItem(MSG_FIND_PREVIOUS, fFindGroup);
 	fFindGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 												.Add(fFindWrapCheck)
 												.Add(fFindWholeWordCheck)
@@ -2323,94 +2238,311 @@ GenioWindow::_InitCentralSplit()
 }
 
 void
+GenioWindow::_ShowView(BView* view, bool show, int32 msgWhat)
+{
+	if (show && view->IsHidden())
+		view->Show();
+	if (!show && !view->IsHidden())
+		view->Hide();
+	
+	if (msgWhat > -1)
+		ActionManager::SetPressed(msgWhat, !view->IsHidden());
+}
+
+void
+GenioWindow::_InitActions()
+{
+	
+	ActionManager::RegisterAction(MSG_FILE_OPEN,
+								   B_TRANSLATE("Open"),
+								   "", "", 'O');
+								   
+	ActionManager::RegisterAction(MSG_FILE_NEW,
+								   B_TRANSLATE("New"),
+								   "", "");
+
+	ActionManager::RegisterAction(MSG_FILE_SAVE, 
+								   B_TRANSLATE("Save"), 
+								   B_TRANSLATE("Save current File"), 
+								   "kIconSave", 'S');
+								   
+	ActionManager::RegisterAction(MSG_FILE_SAVE_AS,
+								   B_TRANSLATE("Save as" B_UTF8_ELLIPSIS),
+								   "","");
+
+	ActionManager::RegisterAction(MSG_FILE_SAVE_ALL,
+								   B_TRANSLATE("Save all"),
+								   B_TRANSLATE("Save all Files"), 
+								   "kIconSaveAll", 'S', B_SHIFT_KEY);
+
+	
+	ActionManager::RegisterAction(MSG_FILE_CLOSE,
+								   B_TRANSLATE("Close"),
+								   B_TRANSLATE("Close File"), 
+								   "kIconClose", 'W'); 
+	
+	ActionManager::RegisterAction(MSG_FILE_CLOSE_ALL,
+								   B_TRANSLATE("Close all"),
+								   "", "", 'W', B_SHIFT_KEY);
+								   
+	ActionManager::RegisterAction(B_QUIT_REQUESTED,
+	                               B_TRANSLATE("Quit"),
+								   "", "", 'Q');
+	ActionManager::RegisterAction(B_UNDO,
+								   B_TRANSLATE("Undo"),
+								   B_TRANSLATE("Undo"), 
+								   "kIconUndo", 'Z');
+	ActionManager::RegisterAction(B_REDO,
+								   B_TRANSLATE("Redo"),
+								   B_TRANSLATE("Redo"),
+								   "kIconRedo", 'Z', B_SHIFT_KEY);
+	
+	ActionManager::RegisterAction(B_CUT,
+	                               B_TRANSLATE("Cut"),
+								   "", "", 'X');
+	ActionManager::RegisterAction(B_COPY,
+	                               B_TRANSLATE("Copy"),
+								   "", "", 'C');
+	ActionManager::RegisterAction(B_PASTE,
+	                               B_TRANSLATE("Paste"),
+								   "", "", 'V');	
+	ActionManager::RegisterAction(B_SELECT_ALL,
+								   B_TRANSLATE("Select all"),
+								   "", "", 'A');
+	ActionManager::RegisterAction(MSG_TEXT_OVERWRITE,
+								   B_TRANSLATE("Overwrite"),
+								   "", "", B_INSERT);
+	ActionManager::RegisterAction(MSG_FILE_FOLD_TOGGLE,
+								   B_TRANSLATE("Fold/Unfold all"),
+								   B_TRANSLATE("Fold/unfold all"),
+								   "App_OpenTargetFolder");
+	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
+								   B_TRANSLATE("Toggle white spaces"),
+								   "", "");
+	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
+								   B_TRANSLATE("Toggle line endings"),
+								   "", "");
+
+	ActionManager::RegisterAction(MSG_DUPLICATE_LINE,
+								   B_TRANSLATE("Duplicate current line"),
+								   "", "", 'K');
+	ActionManager::RegisterAction(MSG_DELETE_LINES,
+								   B_TRANSLATE("Delete lines"),
+								   "", "", 'D');
+								   
+	ActionManager::RegisterAction(MSG_COMMENT_SELECTED_LINES,
+								   B_TRANSLATE("Comment selected lines"),
+								   "", "", 'C', B_SHIFT_KEY);
+								   
+	ActionManager::RegisterAction(MSG_AUTOCOMPLETION, 
+								   B_TRANSLATE("Autocompletion"), "","", B_SPACE);
+								   
+	ActionManager::RegisterAction(MSG_FORMAT, 
+								   B_TRANSLATE("Format"));
+								   
+	ActionManager::RegisterAction(MSG_GOTODEFINITION, 
+								   B_TRANSLATE("Go to definition"), "","", 'G');
+								   
+	ActionManager::RegisterAction(MSG_GOTODECLARATION, 
+								   B_TRANSLATE("Go to declaration"));
+								   
+	ActionManager::RegisterAction(MSG_GOTOIMPLEMENTATION, 
+								   B_TRANSLATE("Go to implementation"));
+								   
+	ActionManager::RegisterAction(MSG_SWITCHSOURCE, 
+								   B_TRANSLATE("Switch Source Header"), "", "", B_TAB);
+								   
+	ActionManager::RegisterAction(MSG_SIGNATUREHELP,
+								   B_TRANSLATE("Signature Help"), "", "", '?');
+								   
+
+	ActionManager::RegisterAction(MSG_VIEW_ZOOMIN,  B_TRANSLATE("Zoom In"), "", "", '+');
+	ActionManager::RegisterAction(MSG_VIEW_ZOOMOUT, B_TRANSLATE("Zoom Out"), "", "", '-');
+	ActionManager::RegisterAction(MSG_VIEW_ZOOMRESET, B_TRANSLATE("Zoom Reset"), "", "", '0');
+
+
+	ActionManager::RegisterAction(MSG_FIND_GROUP_TOGGLED, //MSG_FIND_GROUP_SHOW,
+								   B_TRANSLATE("Find"),
+								   B_TRANSLATE("Find toggle (closes Replace bar if open)"),
+								   "kIconFind");
+	
+	ActionManager::RegisterAction(MSG_REPLACE_GROUP_TOGGLED, //MSG_REPLACE_GROUP_SHOW,
+								   B_TRANSLATE("Replace"),
+								   B_TRANSLATE("Replace toggle (leaves Find bar open)"),
+								   "kIconReplace");
+
+	
+	ActionManager::RegisterAction(MSG_FIND_GROUP_SHOW,
+								   B_TRANSLATE("Find"),
+								   "", "", 'F');
+								   
+	ActionManager::RegisterAction(MSG_REPLACE_GROUP_SHOW,
+								   B_TRANSLATE("Replace"),
+								   "", "", 'R');
+		
+	ActionManager::RegisterAction(MSG_GOTO_LINE,
+								   B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
+								   "",
+								   "", '<'); //TODO: check shortcut.
+								   
+	ActionManager::RegisterAction(MSG_PROJECT_OPEN,
+								   B_TRANSLATE("Open Project"),
+								   "","",'O', B_OPTION_KEY);
+								   
+	ActionManager::RegisterAction(MSG_PROJECT_CLOSE,
+								   B_TRANSLATE("Close Project"),
+								   "", "", 'C', B_OPTION_KEY);
+
+	ActionManager::RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,
+								   B_TRANSLATE("Run console program"),
+								   B_TRANSLATE("Run console program"), 
+								   "kConsoleApp");
+//add missing menus
+
+	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,
+								   B_TRANSLATE("Show Projects pane"),
+								   B_TRANSLATE("Show/Hide Projects pane"), 
+								   "kIconWindow");
+								   
+	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
+								   B_TRANSLATE("Show Output panes"),
+	                               B_TRANSLATE("Show/Hide Output panes"),   
+								   "kIconTerminal");
+								   
+	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
+								   B_TRANSLATE("Show ToolBar"));
+								   
+	
+	ActionManager::RegisterAction(MSG_BUILD_PROJECT,
+								  B_TRANSLATE("Build Project"),
+								  B_TRANSLATE("Build Project"),
+								  "kIconBuild", 'B');
+								  
+	ActionManager::RegisterAction(MSG_CLEAN_PROJECT,
+								  B_TRANSLATE("Clean Project"));
+
+	ActionManager::RegisterAction(MSG_RUN_TARGET,
+								  B_TRANSLATE("Run target"),
+								  B_TRANSLATE("Run target"),
+								  "kIconRun", 'R', B_SHIFT_KEY);
+								  
+	ActionManager::RegisterAction(MSG_DEBUG_PROJECT,
+								  B_TRANSLATE("Debug Project"),
+								  B_TRANSLATE("Debug Project"),
+								  "kIconDebug");
+								  
+	ActionManager::RegisterAction(MSG_BUFFER_LOCK, 
+								  B_TRANSLATE("Read only"),
+								  B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
+								  
+	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, "",
+						          B_TRANSLATE("Select previous File"), "kIconBack_1");
+								  
+	ActionManager::RegisterAction(MSG_FILE_NEXT_SELECTED, "", 
+								  B_TRANSLATE("Select next File"), "kIconForward_2");
+								   
+	// Find Panel
+	ActionManager::RegisterAction(MSG_FIND_NEXT,
+								  B_TRANSLATE("Find Next"),
+								  B_TRANSLATE("Find Next"),
+								   "kIconDown_3",
+								  B_DOWN_ARROW, B_COMMAND_KEY);
+								  
+	ActionManager::RegisterAction(MSG_FIND_PREVIOUS, 
+								  B_TRANSLATE("Find previous"),
+								  B_TRANSLATE("Find previous"),
+								  "kIconUp_3",
+								  B_UP_ARROW, B_COMMAND_KEY);
+}
+
+void
 GenioWindow::_InitMenu()
 {
 	// Menu
 	fMenuBar = new BMenuBar("menubar");
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
-	
+
+  //ActionManager::AddItem(MSG_FILE_NEW,      fileMenu);
+
 	fileMenu->AddItem(fFileNewMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
 			new BMessage(MSG_FILE_NEW), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
 			TemplateManager::GetDefaultTemplateDirectory(), 
 			TemplateManager::GetUserTemplateDirectory(), 
 			TemplatesMenu::SHOW_ALL_VIEW_MODE,	true));	
-	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Open"),
-		new BMessage(MSG_FILE_OPEN), 'O'));
-	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
+	
+  ActionManager::AddItem(MSG_FILE_OPEN,     fileMenu);
+
+  fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
 			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), nullptr, nullptr, this,
 			kRecentFilesNumber, true, nullptr, GenioNames::kApplicationSignature), nullptr));
+	
 	fileMenu->AddSeparatorItem();
-	fileMenu->AddItem(fSaveMenuItem = new BMenuItem(B_TRANSLATE("Save"),
-		new BMessage(MSG_FILE_SAVE), 'S'));
-	fileMenu->AddItem(fSaveAsMenuItem = new BMenuItem(B_TRANSLATE("Save as" B_UTF8_ELLIPSIS),
-		new BMessage(MSG_FILE_SAVE_AS)));
-	fileMenu->AddItem(fSaveAllMenuItem = new BMenuItem(B_TRANSLATE("Save all"),
-		new BMessage(MSG_FILE_SAVE_ALL), 'S', B_SHIFT_KEY));
-	fileMenu->AddSeparatorItem();
-	fileMenu->AddItem(fCloseMenuItem = new BMenuItem(B_TRANSLATE("Close"),
-		new BMessage(MSG_FILE_CLOSE), 'W'));
-	fileMenu->AddItem(fCloseAllMenuItem = new BMenuItem(B_TRANSLATE("Close all"),
-		new BMessage(MSG_FILE_CLOSE_ALL), 'W', B_SHIFT_KEY));
+		
+	ActionManager::AddItem(MSG_FILE_SAVE,     fileMenu);
+	ActionManager::AddItem(MSG_FILE_SAVE_AS,  fileMenu);
+	ActionManager::AddItem(MSG_FILE_SAVE_ALL, fileMenu);
+
 
 	fileMenu->AddSeparatorItem();
-	fileMenu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
-		new BMessage(B_QUIT_REQUESTED), 'Q'));
+	
+	ActionManager::AddItem(MSG_FILE_CLOSE,     fileMenu);
+	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fileMenu);
+	
+	fileMenu->AddSeparatorItem();
+	ActionManager::AddItem(B_QUIT_REQUESTED, fileMenu);
 
-	fSaveMenuItem->SetEnabled(false);
-	fSaveAsMenuItem->SetEnabled(false);
-	fSaveAllMenuItem->SetEnabled(false);
-	fCloseMenuItem->SetEnabled(false);
-	fCloseAllMenuItem->SetEnabled(false);
+	ActionManager::SetEnabled(MSG_FILE_NEW,  false);
+	ActionManager::SetEnabled(MSG_FILE_SAVE, false);
+	ActionManager::SetEnabled(MSG_FILE_SAVE_AS, false);
+	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);
+	ActionManager::SetEnabled(MSG_FILE_CLOSE, false);
+	ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, false);
+
 
 	fMenuBar->AddItem(fileMenu);
 
 	BMenu* editMenu = new BMenu(B_TRANSLATE("Edit"));
-	editMenu->AddItem(fUndoMenuItem = new BMenuItem(B_TRANSLATE("Undo"),
-		new BMessage(B_UNDO), 'Z'));
-	editMenu->AddItem(fRedoMenuItem = new BMenuItem(B_TRANSLATE("Redo"),
-		new BMessage(B_REDO), 'Z', B_SHIFT_KEY));
+	
+	ActionManager::AddItem(B_UNDO, editMenu);
+	ActionManager::AddItem(B_REDO, editMenu);
+	
 	editMenu->AddSeparatorItem();
-	editMenu->AddItem(fCutMenuItem = new BMenuItem(B_TRANSLATE("Cut"),
-		new BMessage(B_CUT), 'X'));
-	editMenu->AddItem(fCopyMenuItem = new BMenuItem(B_TRANSLATE("Copy"),
-		new BMessage(B_COPY), 'C'));
-	editMenu->AddItem(fPasteMenuItem = new BMenuItem(B_TRANSLATE("Paste"),
-		new BMessage(B_PASTE), 'V'));
+
+	ActionManager::AddItem(B_CUT, editMenu);
+	ActionManager::AddItem(B_COPY, editMenu);
+	ActionManager::AddItem(B_PASTE, editMenu);
+	
 	editMenu->AddSeparatorItem();
-	editMenu->AddItem(fSelectAllMenuItem = new BMenuItem(B_TRANSLATE("Select all"),
-		new BMessage(B_SELECT_ALL), 'A'));
+
+	ActionManager::AddItem(B_SELECT_ALL, editMenu);
+	
 	editMenu->AddSeparatorItem();
-	editMenu->AddItem(fOverwiteItem = new BMenuItem(B_TRANSLATE("Overwrite"),
-		new BMessage(MSG_TEXT_OVERWRITE), B_INSERT));
+	
+	ActionManager::AddItem(MSG_TEXT_OVERWRITE, editMenu);
 
 	editMenu->AddSeparatorItem();
-	editMenu->AddItem(fFoldMenuItem = new BMenuItem(B_TRANSLATE("Fold/Unfold all"),
-		new BMessage(MSG_FILE_FOLD_TOGGLE)));
-	fFoldMenuItem->SetEnabled(false);
+	
+	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, editMenu);
+	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, editMenu);
+	ActionManager::AddItem(MSG_LINE_ENDINGS_TOGGLE, editMenu);
 
-	editMenu->AddItem(fToggleWhiteSpacesItem = new BMenuItem(B_TRANSLATE("Toggle white spaces"),
-		new BMessage(MSG_WHITE_SPACES_TOGGLE)));
-	editMenu->AddItem(fToggleLineEndingsItem = new BMenuItem(B_TRANSLATE("Toggle line endings"),
-		new BMessage(MSG_LINE_ENDINGS_TOGGLE)));
-	editMenu->AddItem(fDuplicateLineItem = new BMenuItem(B_TRANSLATE("Duplicate current line"),
-		new BMessage(MSG_DUPLICATE_LINE), 'K'));
-	editMenu->AddItem(fDeleteLinesItem = new BMenuItem(B_TRANSLATE("Delete lines"),
-		new BMessage(MSG_DELETE_LINES), 'D'));	
-	editMenu->AddItem(fCommentSelectionItem = new BMenuItem(B_TRANSLATE("Comment selected lines"),
-		new BMessage(MSG_COMMENT_SELECTED_LINES), 'C', B_SHIFT_KEY));
+	ActionManager::AddItem(MSG_DUPLICATE_LINE, editMenu);
+	ActionManager::AddItem(MSG_DELETE_LINES, editMenu);
+	ActionManager::AddItem(MSG_COMMENT_SELECTED_LINES, editMenu);
 	
 	editMenu->AddSeparatorItem();	
 
-	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Autocompletion"), new BMessage(MSG_AUTOCOMPLETION), B_SPACE));
-	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Format"), new BMessage(MSG_FORMAT)));
-	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Go to definition"), new BMessage(MSG_GOTODEFINITION), 'G'));
-	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Go to declaration"), new BMessage(MSG_GOTODECLARATION)));
-	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Go to implementation"), new BMessage(MSG_GOTOIMPLEMENTATION)));
-	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Switch Source Header"), new BMessage(MSG_SWITCHSOURCE), B_TAB));
-	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Signature Help"), new BMessage(MSG_SIGNATUREHELP), '?'));
+	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
+	ActionManager::AddItem(MSG_FORMAT, editMenu);
+	ActionManager::AddItem(MSG_GOTODEFINITION, editMenu);
+	ActionManager::AddItem(MSG_GOTODECLARATION, editMenu);
+	ActionManager::AddItem(MSG_GOTOIMPLEMENTATION, editMenu);
+	ActionManager::AddItem(MSG_SWITCHSOURCE, editMenu);
+	ActionManager::AddItem(MSG_SIGNATUREHELP, editMenu);
 
 	editMenu->AddSeparatorItem();
+	
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));
 	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Set to Unix"),
 		new BMessage(MSG_EOL_SET_TO_UNIX)));
@@ -2425,36 +2557,52 @@ GenioWindow::_InitMenu()
 	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Convert to Mac"),
 		new BMessage(MSG_EOL_CONVERT_TO_MAC)));
 
-	fUndoMenuItem->SetEnabled(false);
-	fRedoMenuItem->SetEnabled(false);
-	fCutMenuItem->SetEnabled(false);
-	fCopyMenuItem->SetEnabled(false);
-	fPasteMenuItem->SetEnabled(false);
-	fSelectAllMenuItem->SetEnabled(false);
-	fOverwiteItem->SetEnabled(false);
-	fToggleWhiteSpacesItem->SetEnabled(false);
-	fToggleLineEndingsItem->SetEnabled(false);
-	fDuplicateLineItem->SetEnabled(false);
-	fDeleteLinesItem->SetEnabled(false);
-	fCommentSelectionItem->SetEnabled(false);
+	ActionManager::SetEnabled(B_UNDO, false);
+	ActionManager::SetEnabled(B_REDO, false);
+	
+	ActionManager::SetEnabled(B_CUT, false);
+	ActionManager::SetEnabled(B_COPY, false);
+	ActionManager::SetEnabled(B_PASTE, false);
+	ActionManager::SetEnabled(B_SELECT_ALL, false);
+	ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, false);
+	ActionManager::SetEnabled(MSG_FILE_FOLD_TOGGLE, false);
+	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
+	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
+	ActionManager::SetEnabled(MSG_DUPLICATE_LINE, false);
+	ActionManager::SetEnabled(MSG_DELETE_LINES, false);
+	ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, false);
+	
+	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
+	ActionManager::SetEnabled(MSG_FORMAT, false);
+	ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
+	ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
+	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
+	ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
+	ActionManager::SetEnabled(MSG_SIGNATUREHELP, false);
+	
+	
 	fLineEndingsMenu->SetEnabled(false);
 
 	editMenu->AddItem(fLineEndingsMenu);
 	fMenuBar->AddItem(editMenu);
 	
 	BMenu* viewMenu = new BMenu(B_TRANSLATE("View"));
-	viewMenu->AddItem(new BMenuItem(B_TRANSLATE("Zoom In"), new BMessage(MSG_VIEW_ZOOMIN), '+'));
-	viewMenu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Out"), new BMessage(MSG_VIEW_ZOOMOUT), '-'));
-	viewMenu->AddItem(new BMenuItem(B_TRANSLATE("Zoom Reset"), new BMessage(MSG_VIEW_ZOOMRESET), '0'));
 	fMenuBar->AddItem(viewMenu);
 	
+	ActionManager::AddItem(MSG_VIEW_ZOOMIN, viewMenu);
+	ActionManager::AddItem(MSG_VIEW_ZOOMOUT, viewMenu);
+	ActionManager::AddItem(MSG_VIEW_ZOOMRESET, viewMenu);
+		
 	BMenu* searchMenu = new BMenu(B_TRANSLATE("Search"));
-	searchMenu->AddItem(fFindItem = new BMenuItem(B_TRANSLATE("Find"),
-		new BMessage(MSG_FIND_GROUP_SHOW), 'F'));
-	searchMenu->AddItem(fReplaceItem = new BMenuItem(B_TRANSLATE("Replace"),
-		new BMessage(MSG_REPLACE_GROUP_SHOW), 'R'));
-	searchMenu->AddItem(fGoToLineItem = new BMenuItem(B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
-		new BMessage(MSG_GOTO_LINE), '<'));
+	ActionManager::AddItem(MSG_FIND_GROUP_SHOW, searchMenu);
+	ActionManager::AddItem(MSG_REPLACE_GROUP_SHOW, searchMenu);
+	ActionManager::AddItem(MSG_FIND_NEXT, searchMenu);
+	ActionManager::AddItem(MSG_FIND_PREVIOUS, searchMenu);
+	ActionManager::AddItem(MSG_GOTO_LINE, searchMenu);
+	
+	ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, false);
+	ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, false);
+	ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 
 	fBookmarksMenu = new BMenu(B_TRANSLATE("Bookmark"));
 	fBookmarksMenu->AddItem(fBookmarkToggleItem = new BMenuItem(B_TRANSLATE("Toggle"),
@@ -2466,9 +2614,6 @@ GenioWindow::_InitMenu()
 	fBookmarksMenu->AddItem(fBookmarkGoToPreviousItem = new BMenuItem(B_TRANSLATE("Go to previous"),
 		new BMessage(MSG_BOOKMARK_GOTO_PREVIOUS),'P', B_CONTROL_KEY));
 
-	fFindItem->SetEnabled(false);
-	fReplaceItem->SetEnabled(false);
-	fGoToLineItem->SetEnabled(false);
 	fBookmarksMenu->SetEnabled(false);
 
 	searchMenu->AddItem(fBookmarksMenu);
@@ -2476,18 +2621,15 @@ GenioWindow::_InitMenu()
 	
 	BMenu* projectMenu = new BMenu(B_TRANSLATE("Project"));
 
-	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Open Project"),
-		new BMessage(MSG_PROJECT_OPEN), 'O', B_OPTION_KEY));
-	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Close Project"),
-		new BMessage(MSG_PROJECT_CLOSE), 'C', B_OPTION_KEY));
+	ActionManager::AddItem(MSG_PROJECT_OPEN, projectMenu);
+	ActionManager::AddItem(MSG_PROJECT_CLOSE, projectMenu);
+
 	projectMenu->AddSeparatorItem();
-	
-	projectMenu->AddItem(fBuildItem = new BMenuItem (B_TRANSLATE("Build Project"),
-		new BMessage(MSG_BUILD_PROJECT), 'B'));
-	projectMenu->AddItem(fCleanItem = new BMenuItem (B_TRANSLATE("Clean Project"),
-		new BMessage(MSG_CLEAN_PROJECT)));
-	projectMenu->AddItem(fRunItem = new BMenuItem (B_TRANSLATE("Run target"),
-		new BMessage(MSG_RUN_TARGET), 'R', B_SHIFT_KEY));
+
+	ActionManager::AddItem(MSG_BUILD_PROJECT, projectMenu);
+	ActionManager::AddItem(MSG_CLEAN_PROJECT, projectMenu);
+	ActionManager::AddItem(MSG_RUN_TARGET, projectMenu);
+
 	projectMenu->AddSeparatorItem();
 
 	fBuildModeItem = new BMenu(B_TRANSLATE("Build mode"));
@@ -2500,19 +2642,20 @@ GenioWindow::_InitMenu()
 	projectMenu->AddItem(fBuildModeItem);
 	projectMenu->AddSeparatorItem();
 
-	projectMenu->AddItem(fDebugItem = new BMenuItem (B_TRANSLATE("Debug Project"),
-		new BMessage(MSG_DEBUG_PROJECT)));
+	ActionManager::AddItem(MSG_DEBUG_PROJECT, projectMenu);
+
 	projectMenu->AddSeparatorItem();
 	projectMenu->AddItem(fMakeCatkeysItem = new BMenuItem ("make catkeys",
 		new BMessage(MSG_MAKE_CATKEYS)));
 	projectMenu->AddItem(fMakeBindcatalogsItem = new BMenuItem ("make bindcatalogs",
 		new BMessage(MSG_MAKE_BINDCATALOGS)));
 
-	fBuildItem->SetEnabled(false);
-	fCleanItem->SetEnabled(false);
-	fRunItem->SetEnabled(false);
+	ActionManager::SetEnabled(MSG_BUILD_PROJECT, false);
+	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, false);
+	ActionManager::SetEnabled(MSG_RUN_TARGET, false);
+	
 	fBuildModeItem->SetEnabled(false);
-	fDebugItem->SetEnabled(false);
+	ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
 	fMakeCatkeysItem->SetEnabled(false);
 	fMakeBindcatalogsItem->SetEnabled(false);
 
@@ -2572,26 +2715,13 @@ GenioWindow::_InitMenu()
 
 	fGitMenu->SetEnabled(false);
 	fMenuBar->AddItem(fGitMenu);
-/*
-	fHgMenu = new BMenu(B_TRANSLATE("Hg"));
-	fHgMenu->AddItem(fHgStatusItem = new BMenuItem(B_TRANSLATE("Status"), nullptr));
-	BMessage* hg_status_message = new BMessage(MSG_HG_COMMAND);
-	hg_status_message->AddString("command", "status");
-	fHgStatusItem->SetMessage(hg_status_message);
-
-	fHgMenu->SetEnabled(false);
-	menu->AddItem(fHgMenu);
-*/
 
 	BMenu* windowMenu = new BMenu(B_TRANSLATE("Window"));
 
 	BMenu* submenu = new BMenu(B_TRANSLATE("Appearance"));
-	submenu->AddItem(new BMenuItem(B_TRANSLATE("Toggle Projects panes"),
-		new BMessage(MSG_SHOW_HIDE_PROJECTS)));
-	submenu->AddItem(new BMenuItem(B_TRANSLATE("Toggle Output panes"),
-		new BMessage(MSG_SHOW_HIDE_OUTPUT)));
-	submenu->AddItem(new BMenuItem(B_TRANSLATE("Toggle ToolBar"),
-		new BMessage(MSG_TOGGLE_TOOLBAR)));
+	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, submenu);
+	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   submenu);
+	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
 	windowMenu->AddItem(submenu);
 
 	windowMenu->AddSeparatorItem();
@@ -2612,31 +2742,40 @@ GenioWindow::_InitToolbar()
 	fToolBar = new ToolBar(this);
 	fToolBar->ChangeIconSize(kDefaultIconSize);
 
-	fToolBar->AddAction(MSG_SHOW_HIDE_PROJECTS, B_TRANSLATE("Show/Hide Projects split"), "kIconWindow");
-	fToolBar->AddAction(MSG_SHOW_HIDE_OUTPUT,   B_TRANSLATE("Show/Hide Output split"),   "kIconTerminal");
+	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, fToolBar);
+	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   fToolBar);
 	fToolBar->AddSeparator();
-	fToolBar->AddAction(MSG_FILE_FOLD_TOGGLE,   B_TRANSLATE("Fold/unfold all"), "App_OpenTargetFolder");
-	fToolBar->AddAction(B_UNDO, B_TRANSLATE("Undo"), "kIconUndo");
-	fToolBar->AddAction(B_REDO, B_TRANSLATE("Redo"), "kIconRedo");
-	fToolBar->AddAction(MSG_FILE_SAVE, B_TRANSLATE("Save current File"), "kIconSave");
-	fToolBar->AddAction(MSG_FILE_SAVE_ALL, B_TRANSLATE("Save all Files"), "kIconSaveAll");
+	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, fToolBar);
+	ActionManager::AddItem(B_UNDO, fToolBar);
+	ActionManager::AddItem(B_REDO, fToolBar);
+	
+	ActionManager::AddItem(MSG_FILE_SAVE, fToolBar);
+	ActionManager::AddItem(MSG_FILE_SAVE_ALL, fToolBar);
+	
 	fToolBar->AddSeparator();
-	fToolBar->AddAction(MSG_BUILD_PROJECT, B_TRANSLATE("Build Project"), "kIconBuild");
-	fToolBar->AddAction(MSG_RUN_TARGET, B_TRANSLATE("Run Project"), "kIconRun");
-	fToolBar->AddAction(MSG_DEBUG_PROJECT, B_TRANSLATE("Debug Project"),	"kIconDebug");
+	ActionManager::AddItem(MSG_BUILD_PROJECT, fToolBar);
+	ActionManager::AddItem(MSG_RUN_TARGET, fToolBar);
+	ActionManager::AddItem(MSG_DEBUG_PROJECT, fToolBar);
+	
 	fToolBar->AddSeparator();
-	fToolBar->AddAction(MSG_FIND_GROUP_TOGGLED, B_TRANSLATE("Find toggle (closes Replace bar if open)"), "kIconFind");
-	fToolBar->AddAction(MSG_REPLACE_GROUP_TOGGLED, B_TRANSLATE("Replace toggle (leaves Find bar open)"), "kIconReplace");
+	ActionManager::AddItem(MSG_FIND_GROUP_TOGGLED,		fToolBar);
+	ActionManager::AddItem(MSG_REPLACE_GROUP_TOGGLED,	fToolBar);
 	fToolBar->AddSeparator();
-	fToolBar->AddAction(MSG_RUN_CONSOLE_PROGRAM_SHOW, B_TRANSLATE("Run console program"), "kConsoleApp");
+	ActionManager::AddItem(MSG_RUN_CONSOLE_PROGRAM_SHOW, fToolBar);
 	fToolBar->AddGlue();
 	fToolBar->AddAction(MSG_BUILD_MODE, B_TRANSLATE("Build mode: Debug"), "kAppDebugger");
-	fToolBar->AddAction(MSG_BUFFER_LOCK, B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
+	ActionManager::AddItem(MSG_BUFFER_LOCK, fToolBar);
 	fToolBar->AddSeparator();
-	fToolBar->AddAction(MSG_FILE_PREVIOUS_SELECTED, B_TRANSLATE("Select previous File"), "kIconBack_1");
-	fToolBar->AddAction(MSG_FILE_NEXT_SELECTED, B_TRANSLATE("Select next File"), "kIconForward_2");
-	fToolBar->AddAction(MSG_FILE_CLOSE, B_TRANSLATE("Close File"), "kIconClose");
+	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, fToolBar);
+	ActionManager::AddItem(MSG_FILE_NEXT_SELECTED, fToolBar);
+	
+	ActionManager::AddItem(MSG_FILE_CLOSE, fToolBar);
+	
 	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Indexed File list"), "kIconFileList");
+	
+	
+	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
+	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
 }
 
 void
@@ -2739,10 +2878,7 @@ GenioWindow::_MakeBindcatalogs()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fBuildLogView));
-
-	fConsoleIOThread->Start();
+	fBuildLogView->RunCommand(&message);
 }
 
 void
@@ -2762,10 +2898,7 @@ GenioWindow::_MakeCatkeys()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fBuildLogView));
-
-	fConsoleIOThread->Start();
+	fBuildLogView->RunCommand(&message);
 }
 
 // As of release 0.7.5 3 Genio's Makefiles are managed:
@@ -3094,10 +3227,15 @@ GenioWindow::_ProjectFileDelete()
 
 		// Remove the entry
 		if (entry.Exists()) {
-			status_t status = entry.Remove();
+			status_t status;
+			if (entry.IsDirectory())
+				status = DeleteFolder(&entry);
+			else
+				status = entry.Remove();
 			if (status != B_OK) {
-				OKAlert("Delete item", BString("Could not delete ") << name, B_WARNING_ALERT);
-				LogError("Could not delete %s (status = %d)", name, status);
+				OKAlert("Delete item", BString("Could not delete ") << name << "\n\n" << ::strerror(status),
+					B_WARNING_ALERT);
+				LogError("Could not delete %s (%s)", name, ::strerror(status));
 			}
 		}
 	}
@@ -3423,16 +3561,19 @@ GenioWindow::_ReplaceAndFind()
 	_UpdateReplaceMenuItems(fReplaceTextControl->Text());
 }
 */
+
 void
-GenioWindow::_ReplaceGroupShow()
+GenioWindow::_ReplaceGroupShow(bool show)
 {
 	bool findGroupOpen = !fFindGroup->IsHidden();
 
 	if (findGroupOpen == false)
-		_FindGroupShow();
+		_FindGroupShow(true);
 	
-	if (fReplaceGroup->IsHidden()) {
-		fReplaceGroup->Show();
+	_ShowView(fReplaceGroup, show, MSG_REPLACE_GROUP_TOGGLED);
+	
+	if (!show) {
+
 		fReplaceTextControl->TextView()->Clear();
 		// If find group was not open focus and selection go there
 		if (findGroupOpen == false)
@@ -3445,21 +3586,9 @@ GenioWindow::_ReplaceGroupShow()
 		_GetFocusAndSelection(fReplaceTextControl);
 }
 
-void
-GenioWindow::_ReplaceGroupToggled()
-{
-	bool replaceHidden = fReplaceGroup->IsHidden();
-	if (replaceHidden)
-		_ReplaceGroupShow();
-	else
-		fReplaceGroup->Hide();
-
-}
-
 status_t
 GenioWindow::_RunInConsole(const BString& command)
 {
-	status_t status;
 	// If no active project go to projects directory
 	if (fActiveProject == nullptr)
 		chdir(GenioNames::Settings.projects_directory);
@@ -3472,12 +3601,7 @@ GenioWindow::_RunInConsole(const BString& command)
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", command);
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fConsoleIOView));
-
-	status = fConsoleIOThread->Start();
-
-	return status;
+	return fConsoleIOView->RunCommand(&message);
 }
 
 
@@ -3521,9 +3645,7 @@ GenioWindow::_RunTarget()
 
 		fConsoleIOView->MakeFocus(true);
 
-		fConsoleIOThread = new ConsoleIOThread(&message, BMessenger(this),
-			BMessenger(fConsoleIOView));
-		fConsoleIOThread->Start();
+		fConsoleIOView->RunCommand(&message);
 
 	} else {
 	// TODO: run args
@@ -3595,13 +3717,12 @@ GenioWindow::_UpdateLabel(int32 index, bool isModified)
 void
 GenioWindow::_UpdateProjectActivation(bool active)
 {
-	fBuildItem->SetEnabled(active);
-	fCleanItem->SetEnabled(active);
+	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, active);
 	fBuildModeItem->SetEnabled(active);
 	fMakeCatkeysItem->SetEnabled(active);
 	fMakeBindcatalogsItem->SetEnabled(active);
+	ActionManager::SetEnabled(MSG_BUILD_PROJECT, active);
 	fFileNewMenuItem->SetEnabled(true); // This menu should be always active!
-	fToolBar->SetActionEnabled(MSG_BUILD_PROJECT, active);
 	
 	if (active == true) {
 
@@ -3622,25 +3743,18 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		chdir(fActiveProject->Path());
 		BEntry entry(fActiveProject->GetTarget());
 		if (entry.Exists()) {
-			fRunItem->SetEnabled(true);
-			fToolBar->SetActionEnabled(MSG_RUN_TARGET, true);
-			// Enable debug button in debug mode only
-			fDebugItem->SetEnabled(!releaseMode);
-			fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, !releaseMode);
+			ActionManager::SetEnabled(MSG_RUN_TARGET, true);
+			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
 
 		} else {
-			fRunItem->SetEnabled(false);
-			fDebugItem->SetEnabled(false);
-			fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
-			fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
+			ActionManager::SetEnabled(MSG_RUN_TARGET, false);
+			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
 		}
-	} else { // here project is inactive
-		fRunItem->SetEnabled(false);		
-		fDebugItem->SetEnabled(false);
+	} else { // here project is inactive	
 		fGitMenu->SetEnabled(false);
+		ActionManager::SetEnabled(MSG_RUN_TARGET, false);
+		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
 		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
-		fToolBar->SetActionEnabled(MSG_RUN_TARGET, false);
-		fToolBar->SetActionEnabled(MSG_DEBUG_PROJECT, false);
 		fToolBar->SetActionEnabled(MSG_BUILD_MODE, false);
 	}
 	
@@ -3673,23 +3787,20 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	Editor* editor = fTabManager->EditorAt(index);
 
 	// Menu Items
-	fSaveMenuItem->SetEnabled(editor->IsModified());
-	fUndoMenuItem->SetEnabled(editor->CanUndo());
-	fRedoMenuItem->SetEnabled(editor->CanRedo());
-	fCutMenuItem->SetEnabled(editor->CanCut());
-	fCopyMenuItem->SetEnabled(editor->CanCopy());
-	fPasteMenuItem->SetEnabled(editor->CanPaste());
+	ActionManager::SetEnabled(B_CUT, editor->CanCut());
+	ActionManager::SetEnabled(B_COPY, editor->CanCopy());
+	ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
 
-	// ToolBar Items
-	fToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
-	fToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
-	fToolBar->SetActionEnabled(MSG_FILE_SAVE, editor->IsModified());
+	ActionManager::SetEnabled(B_UNDO, editor->CanUndo());
+	ActionManager::SetEnabled(B_REDO, editor->CanRedo());
+
+	//ActionManager.
+	ActionManager::SetEnabled(MSG_FILE_SAVE, editor->IsModified());
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
 	bool filesNeedSave = _FilesNeedSave();
-	fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
-	fSaveAllMenuItem->SetEnabled(filesNeedSave);
+	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 }
 
 // Updating menu, toolbar, title.
@@ -3700,45 +3811,55 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// All files are closed
 	if (editor == nullptr) {
 		// ToolBar Items
-		fToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, false);
-		fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
+		ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
+		ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
 		fReplaceGroup->Hide();
-		fToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, false);
-		fToolBar->SetActionEnabled(B_UNDO, false);
-		fToolBar->SetActionEnabled(B_REDO, false);
+		ActionManager::SetEnabled(MSG_FILE_FOLD_TOGGLE, false);
+		ActionManager::SetEnabled(B_UNDO, false);
+		ActionManager::SetEnabled(B_REDO, false);
 		
-		fToolBar->SetActionEnabled(MSG_FILE_SAVE, false);
-		
-		fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, false);
-		fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, false);
-		fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
-		fToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
-		fToolBar->SetActionEnabled(MSG_FILE_CLOSE, false);
-		fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, false);
+		ActionManager::SetEnabled(MSG_FILE_SAVE, false);
+		ActionManager::SetEnabled(MSG_FILE_SAVE_AS, false);	
+		ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);	
+		ActionManager::SetEnabled(MSG_FILE_CLOSE, false);	
+		ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, false);	
 
-		// Menu Items
-		fSaveMenuItem->SetEnabled(false);
-		fSaveAsMenuItem->SetEnabled(false);
-		fSaveAllMenuItem->SetEnabled(false);
-		fCloseMenuItem->SetEnabled(false);
-		fFoldMenuItem->SetEnabled(false);
-		fCloseAllMenuItem->SetEnabled(false);
-		fUndoMenuItem->SetEnabled(false);
-		fRedoMenuItem->SetEnabled(false);
-		fCutMenuItem->SetEnabled(false);
-		fCopyMenuItem->SetEnabled(false);
-		fPasteMenuItem->SetEnabled(false);
-		fSelectAllMenuItem->SetEnabled(false);
-		fOverwiteItem->SetEnabled(false);
-		fToggleWhiteSpacesItem->SetEnabled(false);
-		fToggleLineEndingsItem->SetEnabled(false);
+		ActionManager::SetEnabled(MSG_BUFFER_LOCK, false);
+		ActionManager::SetEnabled(MSG_FIND_PREVIOUS, false);
+		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
+		fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, false);
+		
+		ActionManager::SetEnabled(MSG_FILE_NEXT_SELECTED, false);
+		ActionManager::SetEnabled(MSG_FILE_PREVIOUS_SELECTED, false);
+
+
+		ActionManager::SetEnabled(B_CUT, false);
+		ActionManager::SetEnabled(B_COPY, false);
+		ActionManager::SetEnabled(B_PASTE, false);
+		ActionManager::SetEnabled(B_SELECT_ALL, false);
+		
+		ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, false);
+		ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
+		ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
+
+		ActionManager::SetEnabled(MSG_DUPLICATE_LINE, false);
+		ActionManager::SetEnabled(MSG_DELETE_LINES, false);
+		ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, false);
+	
+		ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
+		ActionManager::SetEnabled(MSG_FORMAT, false);
+		ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
+		ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
+		ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
+		ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
+		ActionManager::SetEnabled(MSG_SIGNATUREHELP, false);
+	
 		fLineEndingsMenu->SetEnabled(false);
-		fDuplicateLineItem->SetEnabled(false);
-		fCommentSelectionItem->SetEnabled(false);
-		fDeleteLinesItem->SetEnabled(false);
-		fFindItem->SetEnabled(false);
-		fReplaceItem->SetEnabled(false);
-		fGoToLineItem->SetEnabled(false);
+		ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, false);
+		ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, false);
+		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
+		ActionManager::SetEnabled(MSG_FIND_PREVIOUS, false);
+		ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 		fBookmarksMenu->SetEnabled(false);
 
 		if (GenioNames::Settings.fullpath_title == true)
@@ -3752,58 +3873,59 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	// ToolBar Items
 	
-	fToolBar->SetActionEnabled(MSG_FIND_GROUP_TOGGLED, true);
-	fToolBar->SetActionEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
-	fToolBar->SetActionEnabled(MSG_FILE_FOLD_TOGGLE, editor->IsFoldingAvailable());
-	fToolBar->SetActionEnabled(B_UNDO, editor->CanUndo());
-	fToolBar->SetActionEnabled(B_REDO, editor->CanRedo());
-	fToolBar->SetActionEnabled(MSG_FILE_SAVE, editor->IsModified());
-	fToolBar->SetActionEnabled(MSG_BUFFER_LOCK, !editor->IsReadOnly());
-	fToolBar->SetActionEnabled(MSG_FILE_CLOSE, true);
+	ActionManager::SetEnabled(MSG_FILE_FOLD_TOGGLE, editor->IsFoldingAvailable());
+	ActionManager::SetEnabled(B_UNDO, editor->CanUndo());
+	ActionManager::SetEnabled(B_REDO, editor->CanRedo());
+	ActionManager::SetEnabled(MSG_FILE_SAVE, editor->IsModified());
+	ActionManager::SetEnabled(MSG_FILE_CLOSE, true);	
+	
+	ActionManager::SetEnabled(MSG_BUFFER_LOCK, true);
+	ActionManager::SetPressed(MSG_BUFFER_LOCK, editor->IsReadOnly());
 	fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, true);
-
 	// Arrows
-	/* TODO: remove! */
 	int32 maxTabIndex = (fTabManager->CountTabs() - 1);
 	int32 index = fTabManager->SelectedTabIndex();
-	if (index == 0) {
-		fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, false);
-		if (maxTabIndex > 0)
-				fToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
-	} else if (index == maxTabIndex) {
-			fToolBar->SetActionEnabled(MSG_FIND_NEXT, false);
-			fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
-	} else {
-			fToolBar->SetActionEnabled(MSG_FIND_PREVIOUS, true);
-			fToolBar->SetActionEnabled(MSG_FIND_NEXT, true);
-	}
-	/* END REMOVE */
+
+	ActionManager::SetEnabled(MSG_FILE_PREVIOUS_SELECTED, index > 0);
+	ActionManager::SetEnabled(MSG_FILE_NEXT_SELECTED, maxTabIndex > index);
 	
 	// Menu Items
-	fSaveMenuItem->SetEnabled(editor->IsModified());
-	fSaveAsMenuItem->SetEnabled(true);
-	fCloseMenuItem->SetEnabled(true);
-	fCloseAllMenuItem->SetEnabled(true);
+	ActionManager::SetEnabled(MSG_FILE_SAVE_AS, true);
+	ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, true);
 
-	// Edit menu items
-	fFoldMenuItem->SetEnabled(editor->IsFoldingAvailable());
-	fUndoMenuItem->SetEnabled(editor->CanUndo());
-	fRedoMenuItem->SetEnabled(editor->CanRedo());
-	fCutMenuItem->SetEnabled(editor->CanCut());
-	fCopyMenuItem->SetEnabled(editor->CanCopy());
-	fPasteMenuItem->SetEnabled(editor->CanPaste());
-	fSelectAllMenuItem->SetEnabled(true);
-	fOverwiteItem->SetEnabled(true);
-	// fOverwiteItem->SetMarked(editor->IsOverwrite());
-	fToggleWhiteSpacesItem->SetEnabled(true);
-	fToggleLineEndingsItem->SetEnabled(true);
+
+	ActionManager::SetEnabled(B_CUT, editor->CanCut());
+	ActionManager::SetEnabled(B_COPY, editor->CanCopy());
+	ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
+	ActionManager::SetEnabled(B_SELECT_ALL, true);
+	
+	ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, true);
+
+	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, true);
+	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, true);
+	
 	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
-	fDuplicateLineItem->SetEnabled(!editor->IsReadOnly());
-	fCommentSelectionItem->SetEnabled(!editor->IsReadOnly());
-	fDeleteLinesItem->SetEnabled(!editor->IsReadOnly());
-	fFindItem->SetEnabled(true);
-	fReplaceItem->SetEnabled(true);
-	fGoToLineItem->SetEnabled(true);
+	
+	ActionManager::SetEnabled(MSG_DUPLICATE_LINE, !editor->IsReadOnly());
+	ActionManager::SetEnabled(MSG_DELETE_LINES, !editor->IsReadOnly());
+	ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, !editor->IsReadOnly());
+
+	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, !editor->IsReadOnly() && editor->GetProjectFolder());
+	ActionManager::SetEnabled(MSG_FORMAT, !editor->IsReadOnly() && editor->GetProjectFolder());
+	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->GetProjectFolder());
+	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->GetProjectFolder());
+	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->GetProjectFolder());
+	ActionManager::SetEnabled(MSG_SWITCHSOURCE, editor->GetProjectFolder());
+	ActionManager::SetEnabled(MSG_SIGNATUREHELP, !editor->IsReadOnly() && editor->GetProjectFolder());
+	
+	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, true);
+	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);	
+	ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, true);
+	ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, true);
+	ActionManager::SetEnabled(MSG_FIND_NEXT, true);
+	ActionManager::SetEnabled(MSG_FIND_PREVIOUS, true);
+	ActionManager::SetEnabled(MSG_GOTO_LINE, true);
+
 	fBookmarksMenu->SetEnabled(true);
 
 	// File full path in window title
@@ -3816,8 +3938,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
 	bool filesNeedSave = _FilesNeedSave();
-	fToolBar->SetActionEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
-	fSaveAllMenuItem->SetEnabled(filesNeedSave);
+	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 
 	BMessage diagnostics;
 	editor->GetProblems(&diagnostics);

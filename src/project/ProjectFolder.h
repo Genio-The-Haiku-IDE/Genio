@@ -89,8 +89,6 @@ public:
 
 private:
 	bool						fActive;
-	bool						fRunInTerminal;
-	bool						fGitEnabled;
 	BuildMode					fBuildMode;
 	BString						fTarget;
 	BString						fBuildCommand;

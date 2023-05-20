@@ -31,11 +31,12 @@
 #include <StringView.h>
 #include <Window.h>
 #include "Editor.h"
-
+#include "ActionManager.h"
 
 const float kHorzSpacing = 5.f;
 
 using namespace BPrivate;
+
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -43,11 +44,12 @@ using namespace BPrivate;
 
 namespace editor {
 
+BPopUpMenu* StatusView::fMenu = nullptr;
+
 StatusView::StatusView(Editor* editor)	:
 			controls::StatusView(dynamic_cast<BScrollView*>(editor)),
 			fNavigationPressed(false),
-			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT),
-			fEditor(editor)
+			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT)
 {
 	memset(fCellWidth, 0, sizeof(fCellWidth));
 
@@ -209,29 +211,28 @@ StatusView::_DrawNavigationButton(BRect rect)
 		BControlLook::B_DOWN_ARROW, flags, B_DARKEN_MAX_TINT);
 }
 
+void
+StatusView::_CreateMenu(BWindow* window)
+{
+	fMenu = new BPopUpMenu("EditorMenu");
+	ActionManager::AddItem(MSG_BUFFER_LOCK, fMenu);
+	fMenu->SetTargetForItems(window);
+}
 
 void
 StatusView::_ShowDirMenu()
 {
-	BPopUpMenu*	menu = new BPopUpMenu("EditorMenu");
+	if (!fMenu)
+		StatusView::_CreateMenu(Window());
 
-	BMenuItem* readOnly = new BMenuItem(B_TRANSLATE("Set read-only"), new BMessage(MSG_BUFFER_LOCK));
-
-	if (fEditor->IsReadOnly())
-		readOnly->SetMarked(true);
-
-	readOnly->SetTarget(Window());
-	menu->AddItem(readOnly);
 
 	BPoint point = Parent()->Bounds().LeftBottom();
 	point.y += 3 + B_H_SCROLL_BAR_HEIGHT;
 	ConvertToScreen(&point);
 	BRect clickToOpenRect(Parent()->Bounds());
 	ConvertToScreen(&clickToOpenRect);
-	menu->Go(point, true, true, clickToOpenRect);
+	StatusView::fMenu->Go(point, true, true, clickToOpenRect);
 	fNavigationPressed = false;
-	delete menu;
-
 }
 
 } // namespace editor

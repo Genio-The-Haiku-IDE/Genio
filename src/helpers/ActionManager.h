@@ -15,8 +15,7 @@
 class Action;
 
 class ActionManager {
-public
-
+public:
 	static status_t RegisterAction(int32   msgWhat, 
 							BString label, 
 							BString toolTip = "",

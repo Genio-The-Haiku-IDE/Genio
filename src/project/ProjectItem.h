@@ -5,10 +5,11 @@
 #ifndef PROJECT_ITEM_H
 #define PROJECT_ITEM_H
 
+#include <Bitmap.h>
 #include <Font.h>
 #include <StringItem.h>
 #include <View.h>
-#include <Bitmap.h>
+
 
 class SourceItem;
 

@@ -60,13 +60,9 @@ public:
 
 private:
 			void				ClosePipes();
-	virtual	status_t			ThreadStartup();
 	virtual	status_t			ExecuteUnit();
 	virtual	status_t			ThreadShutdown();
-
-	virtual	void				ThreadStartupFailed(status_t a_status);
 	virtual	void				ExecuteUnitFailed(status_t a_status);
-	virtual	void				ThreadShutdownFailed(status_t a_status);
 
 			thread_id			PipeCommand(int argc, const char** argv,
 									int& in, int& out, int& err,
@@ -74,6 +70,7 @@ private:
 
 			void				_BannerMessage(BString status);
 			void				_CleanPipes();
+			status_t			_RunExternalProcess();
 
 			BMessenger			fConsoleTarget;
 

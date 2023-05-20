@@ -5,14 +5,12 @@
 #ifndef ProblemsPanel_H
 #define ProblemsPanel_H
 
-
-#include <SupportDefs.h>
 #include <ColumnListView.h>
+#include <SupportDefs.h>
 
 
 class ProblemsPanel : public BColumnListView {
 public:
-
 		ProblemsPanel();
 		
 		void UpdateProblems(BMessage* msg);

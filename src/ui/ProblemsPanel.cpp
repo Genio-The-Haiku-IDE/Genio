@@ -5,13 +5,15 @@
 
 
 #include "ProblemsPanel.h"
+
 #include <ColumnTypes.h>
 #include <Catalog.h>
 #include <Window.h>
-#undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "ProblemsPanel"
 
 #include <string>
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "ProblemsPanel"
 
 enum  {
 	COLUMNVIEW_CLICK = 'clIV'
@@ -23,8 +25,7 @@ enum {
 	kSourceColumn
 };
 
-class RangeRow : public BRow {
-	
+class RangeRow : public BRow {	
 	public:
 		RangeRow(){};
 			
@@ -47,6 +48,7 @@ ProblemsPanel::ProblemsPanel(): BColumnListView(ProblemLabel,
 	
 }
 
+
 void 
 ProblemsPanel::AttachedToWindow()
 {
@@ -55,21 +57,21 @@ ProblemsPanel::AttachedToWindow()
 	SetTarget(this);
 }
 
+
 void 
 ProblemsPanel::MessageReceived(BMessage* msg)
 {
-	if (msg->what == COLUMNVIEW_CLICK)
-	{
-		RangeRow*	range = dynamic_cast<RangeRow*>(CurrentSelection());
+	if (msg->what == COLUMNVIEW_CLICK) {
+		RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
 		if (range) {
 			//range->fRange.PrintToStream();
 			BMessage start;
 			if (range->fRange.FindMessage("start", &start) == B_OK) {
-				const int32 be_line   = start.GetDouble("line", -1.0);
-				const int32 lsp_char  = start.GetDouble("character", -1.0);
-				entry_ref	ref;
+				const int32 be_line = start.GetDouble("line", -1.0);
+				const int32 lsp_char = start.GetDouble("character", -1.0);
+				entry_ref ref;
 				range->fRange.FindRef("ref", &ref);
-				
+
 				BMessage refs(B_REFS_RECEIVED);
 				refs.AddInt32("be:line", be_line + 1);
 				refs.AddInt32("lsp:character", lsp_char);
@@ -80,9 +82,10 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 		}
 		return;
 	}
-		
+
 	BColumnListView::MessageReceived(msg);
 }
+
 
 void 	
 ProblemsPanel::UpdateProblems(BMessage* msg)
@@ -91,20 +94,21 @@ ProblemsPanel::UpdateProblems(BMessage* msg)
 	BMessage dia;
 	int32 index = 0;
 	entry_ref ref;
-	if(msg->FindRef("ref", &ref) != B_OK)
+	if (msg->FindRef("ref", &ref) != B_OK)
 		return;
-	while (msg->FindMessage(std::to_string(index++).c_str(), &dia) == B_OK) {
-   
-		   RangeRow* row = new RangeRow();
-		   dia.FindMessage("range", &row->fRange);
-		   row->fRange.AddRef("ref", &ref);
-		   //dia.PrintToStream();
-		   row->SetField(new BStringField(dia.GetString("category","")), kCategoryColumn);
-		   row->SetField(new BStringField(dia.GetString("message","")), kMessageColumn);
-		   row->SetField(new BStringField(dia.GetString("source","")), kSourceColumn);
-		   AddRow(row);
+	while (msg->FindMessage(std::to_string(index++).c_str(), &dia) == B_OK) {   
+		RangeRow* row = new RangeRow();
+		dia.FindMessage("range", &row->fRange);
+		row->fRange.AddRef("ref", &ref);
+		//dia.PrintToStream();
+		row->SetField(new BStringField(dia.GetString("category","")), kCategoryColumn);
+		row->SetField(new BStringField(dia.GetString("message","")), kMessageColumn);
+		row->SetField(new BStringField(dia.GetString("source","")), kSourceColumn);
+		AddRow(row);
 	}
 }
+
+
 BString	
 ProblemsPanel::TabLabel()
 {

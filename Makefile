@@ -83,8 +83,9 @@ SRCS +=  src/lsp-client/FileWrapper.cpp
 SRCS +=  src/lsp-client/LSPClientWrapper.cpp
 SRCS +=  src/lsp-client/LSPClient.cpp
 SRCS +=  src/lsp-client/Transport.cpp
-SRCS +=  src/TemplatesMenu/IconMenuItem.cpp
-SRCS +=  src/TemplatesMenu/TemplatesMenu.cpp
+SRCS +=  src/templates/IconMenuItem.cpp
+SRCS +=  src/templates/TemplatesMenu.cpp
+SRCS +=  src/templates/TemplateManager.cpp
 
 RDEFS := Genio.rdef
 

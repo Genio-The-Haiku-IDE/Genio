@@ -25,6 +25,7 @@
 #include "ProjectsFolderBrowser.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "TemplateManager.h"
 #include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -40,8 +41,12 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 		new BMessage(MSG_PROJECT_MENU_CLOSE));
 	fSetActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set Active"),
 		new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
+		
 	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
-		MSG_PROJECT_MENU_NEW_FILE);
+		new BMessage(MSG_PROJECT_MENU_NEW_FILE), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER), 
+		TemplateManager::GetDefaultTemplateDirectory(), 
+		TemplateManager::GetUserTemplateDirectory(), 
+		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
 	fDeleteFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Delete file"),
 		new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
 	fOpenFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
@@ -384,7 +389,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	
 	fCloseProjectMenuItem->SetEnabled(false);
 	fSetActiveProjectMenuItem->SetEnabled(false);
-	fFileNewProjectMenuItem->SetEnabled(false);
+	fFileNewProjectMenuItem->SetEnabled(true);
 	fDeleteFileProjectMenuItem->SetEnabled(false);
 	fOpenFileProjectMenuItem->SetEnabled(false);
 	fRenameFileProjectMenuItem->SetEnabled(false);
@@ -398,7 +403,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::FileItem) {
 		fCloseProjectMenuItem->SetEnabled(false);
 		fSetActiveProjectMenuItem->SetEnabled(false);
-		fFileNewProjectMenuItem->SetEnabled(false);
+		fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
 		fDeleteFileProjectMenuItem->SetEnabled(true);
 		fRenameFileProjectMenuItem->SetEnabled(true);
 		fOpenFileProjectMenuItem->SetEnabled(true);
@@ -417,7 +422,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 				return;
 		}
 		
-		fFileNewProjectMenuItem->SetEnabled(true);
+		fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 		fDeleteFileProjectMenuItem->SetEnabled(false);
 		fRenameFileProjectMenuItem->SetEnabled(false);
 		fOpenFileProjectMenuItem->SetEnabled(false);
@@ -429,7 +434,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem) {
 		fCloseProjectMenuItem->SetEnabled(false);
 		fSetActiveProjectMenuItem->SetEnabled(false);
-		fFileNewProjectMenuItem->SetEnabled(true);
+		fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 		fDeleteFileProjectMenuItem->SetEnabled(true);
 		fRenameFileProjectMenuItem->SetEnabled(true);
 		fOpenFileProjectMenuItem->SetEnabled(false);

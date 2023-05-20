@@ -225,6 +225,11 @@ StatusView::_ShowDirMenu()
 	if (!fMenu)
 		StatusView::_CreateMenu(Window());
 
+	if (fEditor->IsReadOnly())
+		readOnly->SetMarked(true);
+
+	readOnly->SetTarget(Window());
+	menu->AddItem(readOnly);
 
 	BPoint point = Parent()->Bounds().LeftBottom();
 	point.y += 3 + B_H_SCROLL_BAR_HEIGHT;

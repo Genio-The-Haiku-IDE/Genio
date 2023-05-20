@@ -211,6 +211,14 @@ status_t MoveFile(BEntry *src,BEntry *dest, bool clobber)
 	return status;
 }
 
+namespace fs = std::filesystem;
+
+void chmodr(const fs::path& path, fs::perms perm) {
+    fs::permissions(path, perm);      // set permissions on the top directory
+    for(auto& de : fs::recursive_directory_iterator(path)) {
+        fs::permissions(de, perm);    // set permissions
+    }
+}
 
 status_t
 DeleteFolder(BEntry *dirEntry)

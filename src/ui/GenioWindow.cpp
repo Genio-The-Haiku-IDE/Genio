@@ -3125,7 +3125,11 @@ GenioWindow::_ProjectFileDelete()
 
 		// Remove the entry
 		if (entry.Exists()) {
-			status_t status = entry.Remove();
+			status_t status;
+			if (entry.IsDirectory())
+				status = DeleteFolder(&entry);
+			else
+				status = entry.Remove();
 			if (status != B_OK) {
 				OKAlert("Delete item", BString("Could not delete ") << name << "\n\n" << ::strerror(status),
 					B_WARNING_ALERT);

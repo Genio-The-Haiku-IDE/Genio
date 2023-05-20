@@ -210,3 +210,29 @@ status_t MoveFile(BEntry *src,BEntry *dest, bool clobber)
 	}
 	return status;
 }
+
+
+status_t
+DeleteFolder(BEntry *dirEntry)
+{
+	status_t status = B_OK;
+	BDirectory dir(dirEntry);
+	// delete recursively
+	BEntry entry;
+	while (dir.GetNextEntry(&entry) == B_OK) {
+		if (entry.IsDirectory()) {
+			status = DeleteFolder(&entry);
+		} else {
+			status = entry.Remove();
+		}
+		if (status != B_OK)
+			break;
+	}
+	
+	if (status == B_OK) {
+		// delete top directory
+		status = dirEntry->Remove();
+	}
+	
+	return status;
+}

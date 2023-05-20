@@ -171,10 +171,14 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			if (fConsoleIOThread) {
 				status_t status = B_OK;
 				if ((status = fConsoleIOThread->InterruptExternal()) != B_OK) {
+					fStopButton->SetEnabled(false);
 					LogErrorF("Can't stop external process! (%s)", strerror(status));
 					fConsoleIOThread->Kill();
 					delete fConsoleIOThread;
 					fConsoleIOThread = nullptr;
+					BMessage message(CONSOLEIOTHREAD_ERROR);
+					message.AddString("cmd_type", fCmdType);
+					Window()->PostMessage(&message);
 				}
 			}
 			break;

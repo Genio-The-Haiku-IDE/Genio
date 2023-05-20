@@ -159,7 +159,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fOpenProjectFolderPanel(nullptr)
 	, fOutputTabView(nullptr)
 	, fProblemsPanel(nullptr)
-	, fConsoleIOThread(nullptr)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
 	, fGoToLineWindow(nullptr)
@@ -238,7 +237,7 @@ void
 GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 {
 	//TODO: understand this part of code and move it to a better place.
-	if (handler == fConsoleIOView) {
+	/*if (handler == fConsoleIOView) {
 		if (message->what == B_KEY_DOWN) {
 			int8 key;
 			if (message->FindInt8("byte", 0, &key) == B_OK) {
@@ -251,8 +250,7 @@ GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 				}
 			}
 		}
-	}
-
+	}*/
 	BWindow::DispatchMessage(message, handler);
 }
 
@@ -332,40 +330,21 @@ GenioWindow::MessageReceived(BMessage* message)
 				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Undo");
 			}
 			break;
-		}
+		}	
 		case CONSOLEIOTHREAD_ERROR:
 		case CONSOLEIOTHREAD_EXIT:
-		case CONSOLEIOTHREAD_STOP:
 		{
-			// TODO: Review focus policy
-//			if (fTabManager->CountTabs() > 0)
-//				editor->GrabFocus();
+			BString cmdType = message->GetString("cmd_type", "");
+			if (cmdType == "build"  	  ||
+				cmdType == "clean" 		  ||
+				cmdType == "bindcatalogs" ||
+				cmdType == "catkeys") {
 
-			fIsBuilding = false;
-			fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
-
-			BString type;
-			if (message->FindString("cmd_type", &type) == B_OK) {
-				if (type == "build" || type == "clean" || type == "run") {
-					_UpdateProjectActivation(true);
-				} else if (type.StartsWith("git")) {
-					_UpdateProjectActivation(true);
-				} else if (type == "startfail") {
-					if (fActiveProject != nullptr)
-						_UpdateProjectActivation(true);
-					break;
-				} else if (type == "catkeys" || type == "bindcatalogs") {
-					;
-				} else {
-					// user custom (run console program)
-					;
-				}
+				fIsBuilding = false;
+				fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
+			
 			}
-
-			if (fConsoleIOThread) {
-				fConsoleIOThread->InterruptExternal();
-				fConsoleIOThread = nullptr;
-			}
+			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case EDITOR_FIND_SET_MARK: {
@@ -1169,8 +1148,6 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int32 lsp
 status_t
 GenioWindow::_BuildProject()
 {
-	status_t status;
-
 	// Should not happen
 	if (fActiveProject == nullptr)
 		return B_ERROR;
@@ -1196,19 +1173,12 @@ GenioWindow::_BuildProject()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fBuildLogView));
-
-	status = fConsoleIOThread->Start();
-
-	return status;
+	return fBuildLogView->RunCommand(&message);
 }
 
 status_t
 GenioWindow::_CleanProject()
 {
-	status_t status;
-
 	// Should not happen
 	if (fActiveProject == nullptr)
 		return B_ERROR;
@@ -1236,12 +1206,7 @@ GenioWindow::_CleanProject()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fBuildLogView));
-
-	status = fConsoleIOThread->Start();
-
-	return status;
+	return fBuildLogView->RunCommand(&message);
 }
 
 
@@ -1823,7 +1788,6 @@ GenioWindow::_GetFocusAndSelection(BTextControl* control)
 status_t
 GenioWindow::_Git(const BString& git_command)
 {
-	status_t status;
 	// Should not happen
 	if (fActiveProject == nullptr)
 		return B_ERROR;
@@ -1844,12 +1808,7 @@ GenioWindow::_Git(const BString& git_command)
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fConsoleIOView));
-
-	status = fConsoleIOThread->Start();
-
-	return status;
+	return fConsoleIOView->RunCommand(&message);
 }
 
 void
@@ -2636,10 +2595,7 @@ GenioWindow::_MakeBindcatalogs()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fBuildLogView));
-
-	fConsoleIOThread->Start();
+	fBuildLogView->RunCommand(&message);
 }
 
 void
@@ -2659,10 +2615,7 @@ GenioWindow::_MakeCatkeys()
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fBuildLogView));
-
-	fConsoleIOThread->Start();
+	fBuildLogView->RunCommand(&message);
 }
 
 // As of release 0.7.5 3 Genio's Makefiles are managed:
@@ -3356,7 +3309,6 @@ GenioWindow::_ReplaceGroupToggled()
 status_t
 GenioWindow::_RunInConsole(const BString& command)
 {
-	status_t status;
 	// If no active project go to projects directory
 	if (fActiveProject == nullptr)
 		chdir(GenioNames::Settings.projects_directory);
@@ -3369,12 +3321,7 @@ GenioWindow::_RunInConsole(const BString& command)
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", command);
 
-	fConsoleIOThread = new ConsoleIOThread(&message,  BMessenger(this),
-		BMessenger(fConsoleIOView));
-
-	status = fConsoleIOThread->Start();
-
-	return status;
+	return fConsoleIOView->RunCommand(&message);
 }
 
 
@@ -3418,9 +3365,7 @@ GenioWindow::_RunTarget()
 
 		fConsoleIOView->MakeFocus(true);
 
-		fConsoleIOThread = new ConsoleIOThread(&message, BMessenger(this),
-			BMessenger(fConsoleIOView));
-		fConsoleIOThread->Start();
+		fConsoleIOView->RunCommand(&message);
 
 	} else {
 	// TODO: run args

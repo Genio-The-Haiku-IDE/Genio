@@ -27,13 +27,11 @@ extern BLocker *g_LockStdFilesPntr;
 
 extern char **environ;
 
-ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message,
-					const BMessenger& windowTarget, const BMessenger& consoleTarget)
+ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consoleTarget)
 	:
 	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message)
-	, fWindowTarget(windowTarget)
 	, fConsoleTarget(consoleTarget)
-	, fThreadId(-1)
+	, fProcessId(-1)
 	, fStdIn(-1)
 	, fStdOut(-1)
 	, fStdErr(-1)
@@ -68,17 +66,17 @@ ConsoleIOThread::ThreadStartup()
 	argv[2] = strdup(cmd.String());
 	argv[argc] = nullptr;
 
-	fThreadId = PipeCommand(argc, argv, fStdIn, fStdOut, fStdErr);
+	fProcessId = PipeCommand(argc, argv, fStdIn, fStdOut, fStdErr);
 
 	delete [] argv;
 
-	if (fThreadId < 0)
-		return fThreadId;
+	if (fProcessId < 0)
+		return fProcessId;
 
 	// lower the command priority since it is a background task.
-	set_thread_priority(fThreadId, B_LOW_PRIORITY);
+	set_thread_priority(fProcessId, B_LOW_PRIORITY);
 
-	resume_thread(fThreadId);
+	resume_thread(fProcessId);
 
 	int flags = fcntl(fStdOut, F_GETFL, 0);
 	flags |= O_NONBLOCK;
@@ -86,6 +84,8 @@ ConsoleIOThread::ThreadStartup()
 	flags = fcntl(fStdErr, F_GETFL, 0);
 	flags |= O_NONBLOCK;
 	fcntl(fStdErr, F_SETFL, flags);
+
+	_CleanPipes();
 
 	fConsoleOutput = fdopen(fStdOut, "r");
 	fConsoleError = fdopen(fStdErr, "r");
@@ -117,7 +117,6 @@ ConsoleIOThread::ExecuteUnit(void)
 
 	if (output_string != "") {
 		out_message.AddString("stdout", output_string);
-		
 		fConsoleTarget.SendMessage(&out_message);
 	}
 
@@ -130,7 +129,6 @@ ConsoleIOThread::ExecuteUnit(void)
 	if (error_string != "") {
 		err_message.AddString("stderr", error_string);
 		fConsoleTarget.SendMessage(&err_message);
-
 	}
 
 	if (feof(fConsoleOutput) && feof(fConsoleError))
@@ -151,9 +149,7 @@ ConsoleIOThread::PushInput(BString text)
 status_t
 ConsoleIOThread::ThreadShutdown(void)
 {
-	close(fStdIn);
-	close(fStdOut);
-	close(fStdErr);
+	ClosePipes();
 
 	// Disable Stop button in view
 	BMessage button_message(CONSOLEIOTHREAD_ENABLE_STOP_BUTTON);
@@ -169,15 +165,9 @@ ConsoleIOThread::ThreadShutdown(void)
 void
 ConsoleIOThread::ThreadStartupFailed(status_t status)
 {
-	BMessage message(CONSOLEIOTHREAD_STOP);
-	message.AddString("cmd_type", "startfail");
-	fWindowTarget.SendMessage(&message);
-
-	BString banner;
-	banner << __PRETTY_FUNCTION__ << ": " << strerror(status) << "   ";
-	_BannerMessage(banner);
-
-	Quit();
+	// mostrly never called.. this won't do a 'delete this'!
+	// is only called in case the config message is missing the command string
+	ExecuteUnitFailed(EOF); //just a shortcut
 }
 
 void
@@ -187,12 +177,12 @@ ConsoleIOThread::ExecuteUnitFailed(status_t status)
 		// thread has finished, been quit or killed, we don't know
 		BMessage message(CONSOLEIOTHREAD_EXIT);
 		message.AddString("cmd_type", fCmdType);
-		fWindowTarget.SendMessage(&message);
+		fConsoleTarget.SendMessage(&message);
 	} else {
 		// explicit error - communicate error to Window
 		BMessage message(CONSOLEIOTHREAD_ERROR);
 		message.AddString("cmd_type", fCmdType);
-		fWindowTarget.SendMessage(&message);
+		fConsoleTarget.SendMessage(&message);
 	}
 
 	Quit();
@@ -204,9 +194,8 @@ ConsoleIOThread::ExecuteUnitFailed(status_t status)
 void
 ConsoleIOThread::ThreadShutdownFailed(status_t status)
 {
-	BString banner;
-	banner << __PRETTY_FUNCTION__ << ": " << strerror(status) << "   ";
-	_BannerMessage(banner);
+	//DO NOT implement this or you will skip the 'delete this' call.
+	debugger("avoid calling this");
 }
 
 
@@ -226,7 +215,7 @@ ConsoleIOThread::PipeCommand(int argc, const char** argv, int& in, int& out,
 	int old_out  =  dup(1);
 	int old_err  =  dup(2);
 	g_LockStdFilesPntr->Unlock();
-	
+
 	int filedes[2];
 
 	// Create new pipe FDs as stdin, stdout, stderr
@@ -264,10 +253,9 @@ status_t
 ConsoleIOThread::SuspendExternal()
 {
 	thread_info info;
-	status_t status = get_thread_info(fThreadId, &info);
-
+	status_t status = get_thread_info(fProcessId, &info);
 	if (status == B_OK)
-		return send_signal(-fThreadId, SIGSTOP);
+		return send_signal(-fProcessId, SIGSTOP);
 	else
 		return status;
 }
@@ -276,39 +264,44 @@ status_t
 ConsoleIOThread::ResumeExternal()
 {
 	thread_info info;
-	status_t status = get_thread_info(fThreadId, &info);
-
+	status_t status = get_thread_info(fProcessId, &info);
 	if (status == B_OK)
-		return send_signal(-fThreadId, SIGCONT);
+		return send_signal(-fProcessId, SIGCONT);
 	else
 		return status;
+}
+
+void
+ConsoleIOThread::ClosePipes()
+{
+	if (fConsoleOutput)
+		fclose(fConsoleOutput);
+	if (fConsoleError)	
+		fclose(fConsoleError);
+
+	fConsoleOutput = fConsoleError = 0;
+
+	close(fStdIn);
+	close(fStdOut);
+	close(fStdErr);
+
+	fStdIn = fStdOut = fStdErr = -1;
 }
 
 status_t
 ConsoleIOThread::InterruptExternal()
 {
 	thread_info info;
-	status_t status = get_thread_info(fThreadId, &info);
+	status_t status = get_thread_info(fProcessId, &info);
 
 	if (status == B_OK) {
-		status = send_signal(-fThreadId, SIGINT);
-		WaitOnExternal();
+		status = send_signal(-fProcessId, SIGTERM);
+		return wait_for_thread(fProcessId, &status);
 	}
 
 	return status;
 }
 
-status_t
-ConsoleIOThread::WaitOnExternal()
-{
-	thread_info info;
-	status_t status = get_thread_info(fThreadId, &info);
-
-	if (status == B_OK)
-		return wait_for_thread(fThreadId, &status);
-	else
-		return status;
-}
 
 void
 ConsoleIOThread::_BannerMessage(BString status)
@@ -326,3 +319,13 @@ ConsoleIOThread::_BannerMessage(BString status)
 	fConsoleTarget.SendMessage(&banner_message);
 }
 
+void
+ConsoleIOThread::_CleanPipes()
+{
+	int32 maxSteps = PIPE_BUF / LINE_MAX;
+	//let's clean the current duplicated pipes.
+	for (int i=0;i<maxSteps;i++) {
+		read(fStdOut, fConsoleOutputBuffer, LINE_MAX);
+		read(fStdErr, fConsoleOutputBuffer, LINE_MAX);
+	}
+}

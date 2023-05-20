@@ -41,7 +41,6 @@ enum {
 	CONSOLEIOTHREAD_EXIT				= 'Cexi',
 	CONSOLEIOTHREAD_CMD_TYPE			= 'Ccty',
 	CONSOLEIOTHREAD_PRINT_BANNER		= 'Cpba',
-	CONSOLEIOTHREAD_STOP				= 'Csto',
 	CONSOLEIOTHREAD_STDOUT				= 'Csou',
 	CONSOLEIOTHREAD_STDERR				= 'Cser'
 };
@@ -49,7 +48,6 @@ enum {
 class ConsoleIOThread : public GenericThread {
 public:
 								ConsoleIOThread(BMessage* cmd_message,
-									const BMessenger& windowTarget,
 									const BMessenger& consoleTarget);
 
 								~ConsoleIOThread();
@@ -57,11 +55,11 @@ public:
 			status_t			SuspendExternal();
 			status_t			ResumeExternal();
 			status_t			InterruptExternal();
-			status_t			WaitOnExternal();
 
 			void				PushInput(BString text);
 
 private:
+			void				ClosePipes();
 	virtual	status_t			ThreadStartup();
 	virtual	status_t			ExecuteUnit();
 	virtual	status_t			ThreadShutdown();
@@ -75,11 +73,11 @@ private:
 									const char** envp = (const char**)environ);
 
 			void				_BannerMessage(BString status);
+			void				_CleanPipes();
 
-			BMessenger			fWindowTarget;
 			BMessenger			fConsoleTarget;
 
-			thread_id			fThreadId;
+			thread_id			fProcessId;
 			int					fStdIn;
 			int					fStdOut;
 			int					fStdErr;

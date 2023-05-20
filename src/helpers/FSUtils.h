@@ -12,4 +12,6 @@ status_t CheckCopiable(BEntry *src, BEntry *dest);
 status_t CopyFile(BEntry *src,BEntry *dest, bool clobber);
 status_t MoveFile(BEntry *src,BEntry *dest, bool clobber);
 void chmodr(const fs::path& path, fs::perms perm);
+status_t DeleteFolder(BEntry *dirEntry);
+
 #endif

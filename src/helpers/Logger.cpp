@@ -155,7 +155,7 @@ Logger::_DoLog(log_level level, const char* string)
 {
 	switch (sDestination) {
 		case Logger::LOGGER_DEST_STDERR:
-			::fprintf(stderr, string); ::fprintf(stderr, "\n");
+			::fprintf(stderr, "%s", string); ::fprintf(stderr, "\n");
 			break;
 		case Logger::LOGGER_DEST_SYSLOG:
 			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "Genio: %s", (const char* const)string);
@@ -165,7 +165,7 @@ Logger::_DoLog(log_level level, const char* string)
 			break;
 		case Logger::LOGGER_DEST_STDOUT:
 		default:
-			::fprintf(stdout, string); ::fprintf(stdout, "\n");
+			::fprintf(stdout, "%s", string); ::fprintf(stdout, "\n");
 			break;
 	}
 }

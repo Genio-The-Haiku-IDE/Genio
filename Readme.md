@@ -37,9 +37,6 @@ Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code 
 * Plug-in architecture
 * Compiler error parser
 * Refactor the source file and project management module by implementing a Workspace Manager and Project folders
-	
-## Editor
-* implement the Language Server Protocol via clangd to get autocompletion and jump to definition/instance
 
 ## Branches
 Currently there are various branches on the Github repository:
@@ -48,6 +45,9 @@ Currently there are various branches on the Github repository:
 	
 ## Contributions
 We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
+For code contributions, prefer Haiku API over posix, where applicable.
+We (try to) stick to the Haiku style for code, although with a few differences.
+ 
 
 ## Compiling
 * install required packages:

@@ -1,0 +1,35 @@
+# README for building Scintilla for Haiku
+
+Create directory named haiku in main directory of Scintilla and copy all files
+there.
+
+Now you can use the makefile provided. Compiled library will be in ../bin.
+Make sure you are using GCC11, it will not compile with GCC2.
+
+There is no SciTE port available.
+
+The port is still missing a few things:
+- Idler implementation
+- ListBox features
+- Bidirectional text support
+
+This revision is compatible with Scintilla 5.3.4.
+
+## IME support
+
+You can set your own colors for clauses and selection, customize indicators
+INDIC_IME and INDIC_IME+1, respectively.
+
+## Notifications
+
+To receive notifications override the following method in BScintillaView:
+
+void NotificationReceived(SCNotification* notification)
+
+## Custom context menu
+
+To customize the context menu override the following method in BScintillaView:
+
+void ContextMenu(BPoint point)
+
+point is absolute coordinates where context menu should be shown.

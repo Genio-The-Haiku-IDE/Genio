@@ -13,7 +13,6 @@
 #include <MenuItem.h>
 #include <Mime.h>
 #include <Path.h>
-#include <PathMonitor.h>
 #include <Window.h>
 #include <NaturalCompare.h>
 
@@ -27,6 +26,7 @@
 #include "ProjectItem.h"
 #include "TemplateManager.h"
 #include "Utils.h"
+#include "GenioWatchingFilter.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
@@ -71,11 +71,15 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 	
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 	
+	fGenioWatchingFilter = new GenioWatchingFilter();
+	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);
 }
 
  
 ProjectsFolderBrowser::~ProjectsFolderBrowser()
 {
+	BPrivate::BPathMonitor::SetWatchingInterface(nullptr);
+	delete fGenioWatchingFilter;
 	delete fProjectMenu;
 }
 

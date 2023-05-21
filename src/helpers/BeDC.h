@@ -84,7 +84,8 @@ class BeDC
 			va_end(args); 
 			SendMessage(buffer, DC_MESSAGE);       
 		} 
-		
+// Clang doesn't like this function, and we don't use it anyway
+#if 0		
 		void SendFormatT(const char *text, int8 type, ...){ 
 			char buffer[1024]; 
 			va_list args; 
@@ -95,7 +96,7 @@ class BeDC
 			SendMessage(buffer, type); 
 		} 
 		//---------------
-		
+#endif		
 		//Dump a BMessage
 		void DumpBMessage(BMessage *Message, const char *desc = "", int8 type = DC_MESSAGE){
 			Message->AddInt32(	"bedc_what", Message->what);

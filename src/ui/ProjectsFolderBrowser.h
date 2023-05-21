@@ -26,6 +26,7 @@ enum {
 
 class ProjectFolder;
 class ProjectItem;
+class GenioWatchingFilter;
 
 class ProjectsFolderBrowser : public BOutlineListView {
 public:
@@ -80,6 +81,7 @@ private:
 	BMenuItem*			fShowInTrackerProjectMenuItem;
 	BMenuItem*			fOpenTerminalProjectMenuItem;
 	bool				fIsBuilding = false;
+	GenioWatchingFilter* fGenioWatchingFilter;
 	
 };
 

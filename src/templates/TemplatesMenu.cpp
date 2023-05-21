@@ -36,7 +36,7 @@
 
 const char* kNewFolderLabel = "New folder";
 
-TemplatesMenu::TemplatesMenu(const BHandler *target, const char* label, 
+TemplatesMenu::TemplatesMenu(BHandler *target, const char* label, 
 								BMessage *message, BMessage *show_template_message,
 								const BString& defaultDirectory, 
 								const BString&  userDirectory,
@@ -73,7 +73,7 @@ TemplatesMenu::AttachedToWindow()
 
 
 status_t
-TemplatesMenu::SetTargetForItems(const BHandler* target)
+TemplatesMenu::SetTargetForItems(BHandler* target)
 {
 	status_t result = BMenu::SetTargetForItems(target);
 	if (fOpenItem)

@@ -31,7 +31,7 @@ public:
 		DISABLE_DIRECTORIES_VIEW_MODE // show all items, directories are visible and disabled
 	};
 
-							TemplatesMenu(const BHandler *target, const char* label, 
+							TemplatesMenu(BHandler *target, const char* label, 
 											BMessage *message, BMessage *show_template_message,
 											const BString& defaultDirectory, 
 											const BString& userDirectory,
@@ -41,7 +41,7 @@ public:
 
 	virtual void 			AttachedToWindow();
 
-	virtual status_t 		SetTargetForItems(const BHandler* target);
+	virtual status_t 		SetTargetForItems(BHandler* target);
 
 	void 					UpdateMenuState();
 	
@@ -53,7 +53,7 @@ private:
 	bool 					_BuildMenu();
 	void					_BuildTemplateItems(const BString& directory);
 
-	const BHandler* 		fTarget;
+	BHandler* 				fTarget;
 	BMenuItem* 				fOpenItem;
 	BMessage*				fMessage;
 	BMessage*				fShowTemplateMessage;

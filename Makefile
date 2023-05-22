@@ -11,24 +11,18 @@ else
 endif
 
 ## clang build flag ############################################################
-BUILD_WITH_CLANG := 0
+BUILD_WITH_CLANG := 1
 ################################################################################
 
 ifeq ($(BUILD_WITH_CLANG), 0)		# gcc build
-  ifeq ($(platform), x86)			# x86
-	CC   := gcc-x86
-	CXX  := g++-x86
-   endif
+	ifeq ($(platform), x86)			# x86
+		CC   := gcc-x86
+		CXX  := g++-x86
+	endif
 else								# clang build
 	CC  := clang
 	CXX := clang++
 	LD  := clang++
-	ifeq ($(platform), x86)			# x86
-		INCLUDE_PATH_HACK  :=  $(shell gcc-x86 --version | grep ^gcc | sed 's/^.* //g')
-	endif
-	ifeq ($(platform), x86_64)		# x86_64
-		INCLUDE_PATH_HACK  :=  $(shell gcc --version | grep ^gcc | sed 's/^.* //g')
-	endif 
 endif
 
 ifeq ($(debug), 0)
@@ -111,30 +105,15 @@ SYSTEM_INCLUDE_PATHS  += src/lexilla/include
 SYSTEM_INCLUDE_PATHS  +=  /boot/system/develop/headers/private
 LOCAL_INCLUDE_PATHS  +=  src/lsp-client/include
 
-################################################################################
-## clang++ headers hack
-ifneq ($(BUILD_WITH_CLANG), 0)
-
-TOOLS_PATH := $(shell findpaths -e B_FIND_PATH_DEVELOP_DIRECTORY tools)
-
-ifeq ($(platform), x86)
-###### x86 clang++ build (mind scan-build too) #################################
-SYSTEM_INCLUDE_PATHS +=  \
-	$(TOOLS_PATH)/x86/lib/gcc/i586-pc-haiku/$(INCLUDE_PATH_HACK)/include/c++ \
-	$(TOOLS_PATH)/x86/lib/gcc/i586-pc-haiku/$(INCLUDE_PATH_HACK)/include/c++/i586-pc-haiku
-endif
-ifeq ($(platform), x86_64)
-######## x86_64 clang++ build (mind scan-build too) ############################
-SYSTEM_INCLUDE_PATHS += \
-	$(TOOLS_PATH)/lib/gcc/x86_64-unknown-haiku/$(INCLUDE_PATH_HACK)/include/c++ \
-	$(TOOLS_PATH)/lib/gcc/x86_64-unknown-haiku/$(INCLUDE_PATH_HACK)/include/c++/x86_64-unknown-haiku
-endif
-endif
-
-
 CFLAGS := -Wall -Werror
 
 CXXFLAGS := -std=c++17 -fPIC
+
+ifneq ($(BUILD_WITH_CLANG), 0)
+	ifneq ($(debug), 0)
+		CXXFLAGS += -gdwarf-3
+	endif
+endif
 
 LOCALES := en it
 

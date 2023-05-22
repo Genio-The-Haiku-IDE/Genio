@@ -91,7 +91,7 @@ RDEFS := Genio.rdef
 
 LIBS = be shared translation localestub $(STDCPPLIBS)
 LIBS += columnlistview tracker
-LIBS +=  lexilla
+LIBS += src/lexilla/bin/liblexilla.a
 LIBS += src/scintilla/bin/libscintilla.a
 
 # LIBPATHS = $(shell findpaths -a $(platform) B_FIND_PATH_DEVELOP_LIB_DIRECTORY)
@@ -103,9 +103,10 @@ SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY priva
 SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/storage)
 SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/tracker)
 # SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY scintilla)
-SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY lexilla)
+#SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY lexilla)
 SYSTEM_INCLUDE_PATHS   +=  src/scintilla/haiku
 SYSTEM_INCLUDE_PATHS   +=  src/scintilla/include
+SYSTEM_INCLUDE_PATHS  += src/lexilla/include
 
 SYSTEM_INCLUDE_PATHS  +=  /boot/system/develop/headers/private
 LOCAL_INCLUDE_PATHS  +=  src/lsp-client/include
@@ -146,11 +147,13 @@ $(OBJ_DIR)/%.o : %.cpp
 	$(CXX) -c $< $(INCLUDES) $(CFLAGS) $(CXXFLAGS) -o "$@"
 
 deps:
+	$(MAKE) -C src/lexilla/src
 	$(MAKE) -C src/scintilla/haiku  
 
 .PHONY: clean deps
 cleanall: clean
 	$(MAKE) clean -C src/scintilla/haiku
+	$(MAKE) clean -C src/lexilla/src
        
 $(TARGET): deps
 

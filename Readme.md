@@ -48,16 +48,6 @@ We gladly accept contributions, especially for bug fixes. Feel free to submit PR
 For code contributions, prefer Haiku API over posix, where applicable.
 We (try to) stick to the Haiku style for code, although with a few differences.
  
-
-## Compiling
-* install required packages:
-  * scintilla and scintilla_devel (version >= 5.3.4)
-  * lexilla and lexilla_devel (version >= 5.2.4)
-
-```
-pkgman install scintilla_devel lexilla_devel
-```
-
 * strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
   * gcc_syslibs_devel
   * llvm12_clang
@@ -66,6 +56,8 @@ pkgman install scintilla_devel lexilla_devel
 ```
 pkgman install gcc_syslibs_devel llvm12_clang llvm12_libs
 ```
+
+## Compiling
 
 * Execute `make` in Genio's top directory  
 The executable is created in `app` subdirectory.  
@@ -79,9 +71,6 @@ The makefile has been updated to accept the *debug* parameter:
 
 * debug=1 - Genio is built in debug mode
 * debug=0 or parameter omitted - Genio is built in release mode
-
-Currently debug build with clang is broken and Debugger does not detect debug info
-We recommend to build Genio with gcc if you want to contribute to it and debug, otherwise please use clang.
 
 ## License
 Genio is available under the MIT license. See [License.md](License.md).

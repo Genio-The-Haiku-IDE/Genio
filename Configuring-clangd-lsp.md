@@ -23,9 +23,10 @@ Usually this is enough to let clangd work correctly in most cases.
 
 ### For make
 The best tool so far tested is the python program called 'compiledb'. Run it as "compiledb make -Bnwk" to produce the database.
-Another available tool is 'bear'. The syntax should be similar to "bear -- make -Bnwk"
+
 compiledb: https://github.com/nickdiego/compiledb  (pip3 install compiledb)
-bear: https://github.com/rizsotto/Bear (bear can be found on HaikuDepot)
+
+Another tool available on HaikuDepot is 'bear' (https://github.com/rizsotto/Bear)
 
 ### For cmake
   > cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ...

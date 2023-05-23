@@ -17,7 +17,7 @@ Two main configuration point:
 
 ## The project
 To let understand clangd how you want each file to be compiled, you should provide a compile database file (compile_commands.json).
-The file contains, for each file of the project, the list off all the flags and include paths your compiler needs.
+The file contains, for each file of the project, the list of all the flags and include paths your compiler needs.
 There are usefull tools to let you create the compile_commands.json file automatically from a building tool like make, jam or cmake.
 Usually this is enough to let clangd work correctly in most cases.
 

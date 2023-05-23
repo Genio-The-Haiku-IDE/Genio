@@ -27,6 +27,11 @@ Genio started off as a fork of Ideam, but we already implemented some new featur
 
 The editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).  
 
+* strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
+  * gcc_syslibs_devel
+  * llvm12_clang
+  * llvm12_libs
+
 # Goals and roadmap
 Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code and Nova.
 
@@ -37,11 +42,6 @@ Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code 
 * Plug-in architecture
 * Compiler error parser
 * Refactor the source file and project management module by implementing a Workspace Manager and Project folders
-	
-* strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
-  * gcc_syslibs_devel
-  * llvm12_clang
-  * llvm12_libs
 
 ```
 pkgman install gcc_syslibs_devel llvm12_clang llvm12_libs

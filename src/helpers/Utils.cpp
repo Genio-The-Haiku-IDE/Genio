@@ -14,7 +14,9 @@
 #include <MessageFilter.h>
 #include <RadioButton.h>
 #include <Resources.h>
-
+#include <Path.h>
+#include <string>
+#include <algorithm>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Utilities"
@@ -193,3 +195,60 @@ find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
 	}
 	return entry_ref();
 }
+
+status_t	
+FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
+{
+	//TODO this is not language specific!
+	
+	status_t status;
+	BEntry entry;
+	if ((status = entry.SetTo(editorRef)) != B_OK)
+		return status;
+
+	BPath fullPath;
+	if ((status = entry.GetPath(&fullPath)) != B_OK)
+		return status;
+
+	// extract extension
+	std::string filename = fullPath.Path();
+	size_t dotPos = filename.find_last_of('.');
+	if (dotPos == std::string::npos)
+		return B_ERROR;
+
+	std::string extension = filename.substr(dotPos);
+	std::string prefixname = filename.substr(0, dotPos);
+
+
+	std::string sourceExt[] = {".cpp", ".c", ".cc", ".cxx", ".c++", ".m", ".mm"};
+
+	std::string headerExt[] = {".h", ".hh", ".hpp", ".hxx", ".inc"};
+
+	BEntry foundFile;
+
+	if (std::find(std::begin(sourceExt), std::end(sourceExt), extension) != std::end(sourceExt)) {
+		
+		// search if the file exists with the possible header extensions..
+		std::find_if(std::begin(headerExt), std::end(headerExt),
+			[&prefixname, &foundFile](std::string extension) {
+				std::string fullFilename = prefixname + extension;
+				foundFile.SetTo(fullFilename.c_str());
+				return foundFile.Exists();
+			});
+	} else if (std::find(std::begin(headerExt), std::end(headerExt), extension) != std::end(headerExt)) {
+
+		// search if the file exists with the possible source extensions..
+		std::find_if(std::begin(sourceExt), std::end(sourceExt),
+			[&prefixname, &foundFile](std::string extension) {
+				std::string fullFilename = prefixname + extension;
+				foundFile.SetTo(fullFilename.c_str());
+				return foundFile.Exists();
+			});
+	}
+	
+	if (foundFile.Exists() == false)
+		return B_ERROR;
+
+	return foundFile.GetRef(foundRef);
+}
+

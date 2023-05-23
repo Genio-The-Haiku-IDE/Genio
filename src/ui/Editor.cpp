@@ -1230,10 +1230,16 @@ Editor::GoToImplementation()
 	fFileWrapper->GoTo(FileWrapper::GOTO_IMPLEMENTATION);
 }
 
+#include "Utils.h"
 void
 Editor::SwitchSourceHeader()
 {
-	fFileWrapper->SwitchSourceHeader();
+	entry_ref foundRef;
+	if (FindSourceOrHeader(&fFileRef, &foundRef) == B_OK) {
+		BMessage refs(B_REFS_RECEIVED);
+        refs.AddRef("refs", &foundRef);
+        be_app->PostMessage(&refs);
+	}
 }
 
 void

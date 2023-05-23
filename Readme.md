@@ -31,6 +31,9 @@ The editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla
   * gcc_syslibs_devel
   * llvm12_clang
   * llvm12_libs
+```
+pkgman install gcc_syslibs_devel llvm12_clang llvm12_libs
+```
 
 # Goals and roadmap
 Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code and Nova.
@@ -43,9 +46,6 @@ Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code 
 * Compiler error parser
 * Refactor the source file and project management module by implementing a Workspace Manager and Project folders
 
-```
-pkgman install gcc_syslibs_devel llvm12_clang llvm12_libs
-```
 ## Configuring Clangd / LSP
 See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/Configuring-clangd-lsp.md)
 

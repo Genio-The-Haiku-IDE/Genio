@@ -37,17 +37,7 @@ Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code 
 * Plug-in architecture
 * Compiler error parser
 * Refactor the source file and project management module by implementing a Workspace Manager and Project folders
-
-## Branches
-Currently there are various branches on the Github repository:
-* main - this is the main branch, which we always try to keep in a relatively stable state
-* feature/* - these branches are where we develop new features, before merging into main
 	
-## Contributions
-We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
-For code contributions, prefer Haiku API over posix, where applicable.
-We (try to) stick to the Haiku style for code, although with a few differences.
- 
 * strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
   * gcc_syslibs_devel
   * llvm12_clang
@@ -56,9 +46,10 @@ We (try to) stick to the Haiku style for code, although with a few differences.
 ```
 pkgman install gcc_syslibs_devel llvm12_clang llvm12_libs
 ```
+## Configuring Clangd / LSP
+See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/Configuring-clangd-lsp.md)
 
 ## Compiling
-
 * Execute `make` in Genio's top directory  
 The executable is created in `app` subdirectory.  
 
@@ -71,6 +62,16 @@ The makefile has been updated to accept the *debug* parameter:
 
 * debug=1 - Genio is built in debug mode
 * debug=0 or parameter omitted - Genio is built in release mode
+
+## Contributions
+We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
+For code contributions, prefer Haiku API over posix, where applicable.
+We (try to) stick to the Haiku style for code, although with a few differences.
+
+## Branches
+Currently there are various branches on the Github repository:
+* main - this is the main branch, which we always try to keep in a relatively stable state
+* feature/* - these branches are where we develop new features, before merging into main
 
 ## License
 Genio is available under the MIT license. See [License.md](License.md).

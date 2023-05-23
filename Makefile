@@ -13,13 +13,8 @@ endif
 ## clang build flag ############################################################
 BUILD_WITH_CLANG := 0
 ################################################################################
-
-ifeq ($(BUILD_WITH_CLANG), 0)		# gcc build
-	ifeq ($(platform), x86)			# x86
-		CC   := gcc-x86
-		CXX  := g++-x86
-	endif
-else								# clang build
+ifeq ($(BUILD_WITH_CLANG), 1)
+	# clang build
 	CC  := clang
 	CXX := clang++
 	LD  := clang++

@@ -43,12 +43,6 @@ More info: https://www.freelists.org/post/haiku-development/linting-and-autocomp
 More info https://clang.llvm.org/docs/JSONCompilationDatabase.html
 
 ## The compiler itself
-With the default configuration, clangd should already recognize system include paths. If you want to add more includes, you need to add a configuration file.
-Inside the file "/boot/home/config/settings/clangd/config.yaml", a good configuration could be something like
-	
-> CompileFlags:
->  		Add: [-I/boot/system/develop/tools/lib/gcc/x86_64-unknown-haiku/11.2.0/include/c++, -I/boot/system/develop/tools/lib/gcc/x86_64-unknown-haiku/11.2.0/include/c++/x86_64-unknown-haiku, -I/boot/system/develop/headers/private/interface, -I/boot/system/develop/headers/private/shared]
-	
-* please note this config in valid for a x86_64 system with gcc 11.2.0 *
-	
-More info -> https://clangd.llvm.org/config
+With the default configuration, clangd should already recognize system include paths. If you want to add more includes or finetune some settings you need to add a configuration file.
+The best place to create the file is at "/boot/home/config/settings/clangd/config.yaml".
+More info with all the configuration flags can be found here:  https://clangd.llvm.org/config

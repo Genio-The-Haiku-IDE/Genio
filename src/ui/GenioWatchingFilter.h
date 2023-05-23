@@ -15,7 +15,6 @@
 
 class GenioWatchingFilter : public BPrivate::BPathMonitor::BWatchingInterface {
 public:
-
 	status_t WatchNode(const node_ref* node, uint32 flags, const BHandler* handler,
 							  		const BLooper* looper = NULL) 
 									
@@ -35,7 +34,6 @@ public:
 			//TODO: maybe we should notify the user that the PathMonitor is not working?
 		}
 		return status;
-								
 	}
 };
 

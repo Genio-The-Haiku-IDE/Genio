@@ -1551,7 +1551,7 @@ GenioWindow::_FileSave(int32 index)
 
 	// Readonly file, should not happen
 	if (editor->IsReadOnly()) {
-		notification << (B_TRANSLATE("File is Read-only"));
+		notification << (B_TRANSLATE("File is read-only"));
 		_SendNotification(notification, "FILE_ERR");
 		return B_ERROR;
 	}
@@ -1874,9 +1874,9 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
-	text << B_TRANSLATE("File \"%file%\" was moved externally,")
+	text << B_TRANSLATE("File \"%file%\" was moved externally.")
 		 << "\n"
-		 << B_TRANSLATE("do You want to ignore, close or reload it?");
+		 << B_TRANSLATE("Do you want to ignore, close or reload it?");
 
 	text.ReplaceAll("%file%", oldRef->name);
 
@@ -1939,11 +1939,11 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
-	text 	<< B_TRANSLATE("File \"%file%\" was removed externally,")
+	text 	<< B_TRANSLATE("File \"%file%\" was removed externally.")
 			<< "\n"
-			<< B_TRANSLATE("do You want to keep the file or discard it?")
+			<< B_TRANSLATE("Do you want to keep the file or discard it?")
 			<< "\n"
-			<< B_TRANSLATE("If kept and modified save it or it will be lost");
+			<< B_TRANSLATE("If kept and modified, save it or it will be lost");
 
 	text.ReplaceAll("%file%", fileName);
 
@@ -2257,7 +2257,7 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_FILE_SAVE, 
 								   B_TRANSLATE("Save"), 
-								   B_TRANSLATE("Save current File"), 
+								   B_TRANSLATE("Save current file"), 
 								   "kIconSave", 'S');
 								   
 	ActionManager::RegisterAction(MSG_FILE_SAVE_AS,
@@ -2266,13 +2266,13 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_FILE_SAVE_ALL,
 								   B_TRANSLATE("Save all"),
-								   B_TRANSLATE("Save all Files"), 
+								   B_TRANSLATE("Save all files"), 
 								   "kIconSaveAll", 'S', B_SHIFT_KEY);
 
 	
 	ActionManager::RegisterAction(MSG_FILE_CLOSE,
 								   B_TRANSLATE("Close"),
-								   B_TRANSLATE("Close File"), 
+								   B_TRANSLATE("Close file"), 
 								   "kIconClose", 'W'); 
 	
 	ActionManager::RegisterAction(MSG_FILE_CLOSE_ALL,
@@ -2308,7 +2308,7 @@ GenioWindow::_InitActions()
 								   "", "", B_INSERT);
 	ActionManager::RegisterAction(MSG_FILE_FOLD_TOGGLE,
 								   B_TRANSLATE("Fold/Unfold all"),
-								   B_TRANSLATE("Fold/unfold all"),
+								   B_TRANSLATE("Fold/Unfold all"),
 								   "App_OpenTargetFolder");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
 								   B_TRANSLATE("Toggle white spaces"),
@@ -2329,7 +2329,7 @@ GenioWindow::_InitActions()
 								   "", "", 'C', B_SHIFT_KEY);
 								   
 	ActionManager::RegisterAction(MSG_AUTOCOMPLETION, 
-								   B_TRANSLATE("Autocompletion"), "","", B_SPACE);
+								   B_TRANSLATE("Autocomplete"), "","", B_SPACE);
 								   
 	ActionManager::RegisterAction(MSG_FORMAT, 
 								   B_TRANSLATE("Format"));
@@ -2344,7 +2344,7 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Go to implementation"));
 								   
 	ActionManager::RegisterAction(MSG_SWITCHSOURCE, 
-								   B_TRANSLATE("Switch source header"), "", "", B_TAB);
+								   B_TRANSLATE("Switch source/header"), "", "", B_TAB);
 								   
 	ActionManager::RegisterAction(MSG_SIGNATUREHELP,
 								   B_TRANSLATE("Signature help"), "", "", '?');
@@ -2352,7 +2352,7 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_VIEW_ZOOMIN,  B_TRANSLATE("Zoom in"), "", "", '+');
 	ActionManager::RegisterAction(MSG_VIEW_ZOOMOUT, B_TRANSLATE("Zoom out"), "", "", '-');
-	ActionManager::RegisterAction(MSG_VIEW_ZOOMRESET, B_TRANSLATE("Zoom reset"), "", "", '0');
+	ActionManager::RegisterAction(MSG_VIEW_ZOOMRESET, B_TRANSLATE("Reset zoom"), "", "", '0');
 
 
 	ActionManager::RegisterAction(MSG_FIND_GROUP_TOGGLED, //MSG_FIND_GROUP_SHOW,
@@ -2404,7 +2404,7 @@ GenioWindow::_InitActions()
 								   "kIconTerminal");
 								   
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
-								   B_TRANSLATE("Show toolBar"));
+								   B_TRANSLATE("Show toolbar"));
 								   
 	
 	ActionManager::RegisterAction(MSG_BUILD_PROJECT,
@@ -2430,10 +2430,10 @@ GenioWindow::_InitActions()
 								  B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
 								  
 	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, "",
-						          B_TRANSLATE("Select previous File"), "kIconBack_1");
+						          B_TRANSLATE("Select previous file"), "kIconBack_1");
 								  
 	ActionManager::RegisterAction(MSG_FILE_NEXT_SELECTED, "", 
-								  B_TRANSLATE("Select next File"), "kIconForward_2");
+								  B_TRANSLATE("Select next file"), "kIconForward_2");
 								   
 	// Find Panel
 	ActionManager::RegisterAction(MSG_FIND_NEXT,
@@ -2692,17 +2692,17 @@ GenioWindow::_InitMenu()
 
 	fGitMenu->AddSeparatorItem();
 
-	fGitMenu->AddItem(fGitLogOnelineItem = new BMenuItem(B_TRANSLATE("Log (Oneline)"), nullptr));
+	fGitMenu->AddItem(fGitLogOnelineItem = new BMenuItem(B_TRANSLATE("Log (oneline)"), nullptr));
 	BMessage* git_log_oneline_message = new BMessage(MSG_GIT_COMMAND);
 	git_log_oneline_message->AddString("command", "log --oneline --decorate");
 	fGitLogOnelineItem->SetMessage(git_log_oneline_message);
 
-	fGitMenu->AddItem(fGitPullRebaseItem = new BMenuItem(B_TRANSLATE("Pull (Rebase)"), nullptr));
+	fGitMenu->AddItem(fGitPullRebaseItem = new BMenuItem(B_TRANSLATE("Pull (rebase)"), nullptr));
 	BMessage* git_pull_rebase_message = new BMessage(MSG_GIT_COMMAND);
 	git_pull_rebase_message->AddString("command", "pull --rebase");
 	fGitPullRebaseItem->SetMessage(git_pull_rebase_message);
 
-	fGitMenu->AddItem(fGitStatusShortItem = new BMenuItem(B_TRANSLATE("Status (Short)"), nullptr));
+	fGitMenu->AddItem(fGitStatusShortItem = new BMenuItem(B_TRANSLATE("Status (short)"), nullptr));
 	BMessage* git_status_short_message = new BMessage(MSG_GIT_COMMAND);
 	git_status_short_message->AddString("command", "status --short");
 	fGitStatusShortItem->SetMessage(git_status_short_message);
@@ -2765,7 +2765,7 @@ GenioWindow::_InitToolbar()
 	
 	ActionManager::AddItem(MSG_FILE_CLOSE, fToolBar);
 	
-	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Indexed File list"), "kIconFileList");
+	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Indexed file list"), "kIconFileList");
 	
 	
 	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
@@ -2780,7 +2780,7 @@ GenioWindow::_InitOutputSplit()
 	
 	fProblemsPanel = new ProblemsPanel();
 
-	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build Log"), BMessenger(this));
+	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
@@ -3421,7 +3421,7 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 	if (returnStatus != B_OK)
 		notification << B_TRANSLATE("An error occurred while opening Terminal and setting working directory to:") << itemPath;
 	else
-		notification << B_TRANSLATE("Terminal succesfully opened with working directory:") << itemPath;
+		notification << B_TRANSLATE("Terminal successfully opened with working directory:") << itemPath;
 	_SendNotification(notification, "PROJ_TERM");
 	return returnStatus == 0 ? B_OK : errno;
 }

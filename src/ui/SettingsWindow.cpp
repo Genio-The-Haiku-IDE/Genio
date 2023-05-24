@@ -49,7 +49,7 @@ enum {
 	MSG_BRACE_MATCHING_TOGGLED				= 'brma',
 	MSG_BUTTON_APPLY_CLICKED				= 'buap',
 	MSG_BUTTON_DEFAULT_CLICKED				= 'bude',
-	MSG_BUTTON_EXIT_CLICKED					= 'buex',
+	MSG_BUTTON_CANCEL_CLICKED				= 'bucl',
 	MSG_BUTTON_REVERT_CLICKED				= 'bure',
 	MSG_EDGE_LINE_COLUMN_CHANGED			= 'elco',
 	MSG_EDITOR_FONT_CHANGED					= 'edfo',
@@ -178,7 +178,7 @@ SettingsWindow::MessageReceived(BMessage *msg)
 
 			break;
 		}
-		case MSG_BUTTON_EXIT_CLICKED: {
+		case MSG_BUTTON_CANCEL_CLICKED: {
 			PostMessage(B_QUIT_REQUESTED);
 			break;
 		}
@@ -484,7 +484,7 @@ SettingsWindow::_InitWindow()
 	// Buttons
 	fRevertButton = new BButton(B_TRANSLATE("Revert"), new BMessage(MSG_BUTTON_REVERT_CLICKED));
 	fDefaultButton = new BButton(B_TRANSLATE("Default"), new BMessage(MSG_BUTTON_DEFAULT_CLICKED));
-	fExitButton = new BButton(B_TRANSLATE("Exit"), new BMessage(MSG_BUTTON_EXIT_CLICKED));
+	fExitButton = new BButton(B_TRANSLATE("Cancel"), new BMessage(MSG_BUTTON_CANCEL_CLICKED));
 	fApplyButton = new BButton(B_TRANSLATE("Apply"), new BMessage(MSG_BUTTON_APPLY_CLICKED));
 
 	fRevertButton->SetEnabled(false);
@@ -903,9 +903,9 @@ SettingsWindow::_PageEditorView()
 	}
 
 	fSyntaxHighlight = new BCheckBox("SyntaxHighlight",
-		B_TRANSLATE("Enable Syntax highlighting"), new BMessage(MSG_SYNTAX_HIGHLIGHT_TOGGLED));
+		B_TRANSLATE("Enable syntax highlighting"), new BMessage(MSG_SYNTAX_HIGHLIGHT_TOGGLED));
 	fBraceMatch = new BCheckBox("BraceMatch",
-		B_TRANSLATE("Enable Brace matching"), new BMessage(MSG_BRACE_MATCHING_TOGGLED));
+		B_TRANSLATE("Enable brace matching"), new BMessage(MSG_BRACE_MATCHING_TOGGLED));
 	fSaveCaret = new BCheckBox("SaveCaret",
 		B_TRANSLATE("Save caret position"), new BMessage(MSG_SAVE_CARET_TOGGLED));
 	fTabWidthSpinner = new BSpinner("TabWidth",
@@ -990,7 +990,7 @@ SettingsWindow::_PageGeneralView()
 
 	// Text Control
 	fProjectsDirectory = new BTextControl("ProjectsDirectory",
-		B_TRANSLATE("Projects directory:"), "", nullptr);
+		B_TRANSLATE("Projects folder:"), "", nullptr);
 	fProjectsDirectory->SetModificationMessage(new BMessage(MSG_PROJECT_DIRECTORY_EDITED));
 
 	// Button disabled now
@@ -1006,17 +1006,17 @@ SettingsWindow::_PageGeneralView()
 
 	// Check Box
 	fFullPathWindowTitle = new BCheckBox("FullPathWindowTitle",
-		B_TRANSLATE("File full path in window title"), new BMessage(MSG_FULL_PATH_TOGGLED));
+		B_TRANSLATE("Show full path in window title"), new BMessage(MSG_FULL_PATH_TOGGLED));
 
 	fLogDestination = new BOptionPopUp("LogDestination",
-		B_TRANSLATE("Log destination"), new BMessage(MSG_LOG_DESTINATION_CHANGED));
+		B_TRANSLATE("Log destination:"), new BMessage(MSG_LOG_DESTINATION_CHANGED));
 	fLogDestination->AddOptionAt("Stdout", Logger::LOGGER_DEST_STDOUT, 0);
 	fLogDestination->AddOptionAt("Stderr", Logger::LOGGER_DEST_STDERR, 1);
 	fLogDestination->AddOptionAt("Syslog", Logger::LOGGER_DEST_SYSLOG, 2);
 	fLogDestination->AddOptionAt("BeDC",   Logger::LOGGER_DEST_BEDC,   3);
 
 	fLogLevel = new BOptionPopUp("LogLevel",
-		B_TRANSLATE("Log level"), new BMessage(MSG_LOG_LEVEL_CHANGED));
+		B_TRANSLATE("Log level:"), new BMessage(MSG_LOG_LEVEL_CHANGED));
 	fLogLevel->AddOptionAt("Off", 1, 0);
 	fLogLevel->AddOptionAt("Error", 2, 1);
 	fLogLevel->AddOptionAt("Info", 3, 2);
@@ -1056,13 +1056,13 @@ SettingsWindow::_PageGeneralViewStartup()
 		B_TRANSLATE("Reload files"), new BMessage(MSG_REOPEN_FILES_TOGGLED));
 
 	fShowProjectsPanes = new BCheckBox("ShowProjectsPanes",
-		B_TRANSLATE("Show Projects panes"), new BMessage(MSG_SHOW_PROJECTS_PANES_TOGGLED));
+		B_TRANSLATE("Show projects panes"), new BMessage(MSG_SHOW_PROJECTS_PANES_TOGGLED));
 
 	fShowOutputPanes = new BCheckBox("ShowOutputPanes",
-		B_TRANSLATE("Show Output panes"), new BMessage(MSG_SHOW_OUTPUT_PANES_TOGGLED));
+		B_TRANSLATE("Show output panes"), new BMessage(MSG_SHOW_OUTPUT_PANES_TOGGLED));
 
 	fShowToolBar = new BCheckBox("ShowToolBar",
-		B_TRANSLATE("Show ToolBar"), new BMessage(MSG_SHOW_TOOLBAR_TOGGLED));
+		B_TRANSLATE("Show toolbar"), new BMessage(MSG_SHOW_TOOLBAR_TOGGLED));
 
 	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
 		.Add(BLayoutBuilder::Grid<>(fGeneralStartupBox)

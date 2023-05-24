@@ -24,7 +24,7 @@ enum
 {
 	MSG_DEFAULTS_CLICKED			= 'defs',
 	MSG_CANCEL_CLICKED				= 'canc',
-	MSG_SAVE_CLICKED				= 'save',
+	MSG_OK_CLICKED					= 'okay',
 	MSG_BUILD_MODE_SELECTED			= 'bmse',
 };
 
@@ -69,7 +69,7 @@ ProjectSettingsWindow::MessageReceived(BMessage *msg)
 			PostMessage(B_QUIT_REQUESTED);
 			break;
 		}
-		case MSG_SAVE_CLICKED: {
+		case MSG_OK_CLICKED: {
 			_CloseProject();
 			PostMessage(B_QUIT_REQUESTED);
 			break;
@@ -145,7 +145,7 @@ ProjectSettingsWindow::_InitWindow()
 	
 	// "Source Control" Box
 	fSourceControlBox = new BBox("SourceControlBox");
-	fSourceControlBox->SetLabel(B_TRANSLATE("Source Control"));
+	fSourceControlBox->SetLabel(B_TRANSLATE("Source control"));
 
 	BLayoutBuilder::Grid<>(fSourceControlBox)
 	.SetInsets(10.0f, 24.0f, 10.0f, 10.0f)
@@ -171,8 +171,8 @@ ProjectSettingsWindow::_InitWindow()
 		B_TRANSLATE("Default"), new BMessage(MSG_DEFAULTS_CLICKED));
 	BButton* cancelButton = new BButton("cancel",
 		B_TRANSLATE("Cancel"), new BMessage(MSG_CANCEL_CLICKED));
-	BButton* saveButton = new BButton("save",
-		B_TRANSLATE("Save"), new BMessage(MSG_SAVE_CLICKED));
+	BButton* saveButton = new BButton("ok",
+		B_TRANSLATE("OK"), new BMessage(MSG_OK_CLICKED));
 
 	// Window layout
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)

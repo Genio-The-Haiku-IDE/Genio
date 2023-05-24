@@ -2529,9 +2529,6 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
-	ActionManager::AddItem(MSG_GOTODEFINITION, editMenu);
-	ActionManager::AddItem(MSG_GOTODECLARATION, editMenu);
-	ActionManager::AddItem(MSG_GOTOIMPLEMENTATION, editMenu);
 	ActionManager::AddItem(MSG_SWITCHSOURCE, editMenu);
 	ActionManager::AddItem(MSG_SIGNATUREHELP, editMenu);
 
@@ -2568,12 +2565,8 @@ GenioWindow::_InitMenu()
 	
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 	ActionManager::SetEnabled(MSG_FORMAT, false);
-	ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
-	ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
-	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
 	ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 	ActionManager::SetEnabled(MSG_SIGNATUREHELP, false);
-	
 	
 	fLineEndingsMenu->SetEnabled(false);
 
@@ -2592,8 +2585,10 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_REPLACE_GROUP_SHOW, searchMenu);
 	ActionManager::AddItem(MSG_FIND_NEXT, searchMenu);
 	ActionManager::AddItem(MSG_FIND_PREVIOUS, searchMenu);
+	searchMenu->AddSeparatorItem();
+
 	ActionManager::AddItem(MSG_GOTO_LINE, searchMenu);
-	
+
 	ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, false);
 	ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, false);
 	ActionManager::SetEnabled(MSG_GOTO_LINE, false);
@@ -2611,6 +2606,15 @@ GenioWindow::_InitMenu()
 	fBookmarksMenu->SetEnabled(false);
 
 	searchMenu->AddItem(fBookmarksMenu);
+
+	ActionManager::AddItem(MSG_GOTODEFINITION, searchMenu);
+	ActionManager::AddItem(MSG_GOTODECLARATION, searchMenu);
+	ActionManager::AddItem(MSG_GOTOIMPLEMENTATION, searchMenu);
+
+	ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
+	ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
+	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
+
 	fMenuBar->AddItem(searchMenu);
 	
 	BMenu* projectMenu = new BMenu(B_TRANSLATE("Project"));
@@ -2654,7 +2658,7 @@ GenioWindow::_InitMenu()
 	fMakeBindcatalogsItem->SetEnabled(false);
 
 	projectMenu->AddSeparatorItem();
-	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Settings" B_UTF8_ELLIPSIS),
+	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
 		new BMessage(MSG_PROJECT_SETTINGS)));
 
 	fMenuBar->AddItem(projectMenu);
@@ -3825,7 +3829,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		
 		ActionManager::SetEnabled(MSG_FILE_NEXT_SELECTED, false);
 		ActionManager::SetEnabled(MSG_FILE_PREVIOUS_SELECTED, false);
-
 
 		ActionManager::SetEnabled(B_CUT, false);
 		ActionManager::SetEnabled(B_COPY, false);

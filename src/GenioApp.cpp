@@ -56,13 +56,13 @@ GenioApp::AboutRequested()
 	BString extraInfo;
 	extraInfo << B_TRANSLATE("Genio is a fork of Ideam and available under the MIT license.");
 	extraInfo << "\nIdeam (c) 2017 A. Mosca\n\n";
-	extraInfo << GenioNames::kApplicationName << " " << B_TRANSLATE("uses:");
-	extraInfo << "\nScintilla lib";
-	extraInfo << "\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>";
-	extraInfo << "\n\nScintilla for Haiku";
-	extraInfo << "\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>";
-	extraInfo << "\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n";
-	extraInfo << B_TRANSLATE("See Credits for a complete list.\n\n");
+	extraInfo << B_TRANSLATE("Genio uses:"
+		"\nScintilla lib"
+		"\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>"
+		"\n\nScintilla for Haiku"
+		"\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>"
+		"\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n");
+	extraInfo << B_TRANSLATE("See credits for a complete list.\n\n");
 	extraInfo << B_TRANSLATE("Made with love in Italy");
 
 	window->AddExtraInfo(extraInfo);
@@ -167,12 +167,12 @@ GenioApp::_CheckSettingsVersion()
 	// Settings file missing or corrupted
 	if (fileVersion.IsEmpty() || fileVersion == "0.0.0.0") {
 		BString text;
-		text << B_TRANSLATE("Settings file is corrupted or deleted,")
+		text << B_TRANSLATE("The settings file doesn't exist or is corrupted.")
 			 << "\n"
-			 << B_TRANSLATE("do You want to ignore, review or load to defaults?");
+			 << B_TRANSLATE("Do you want to ignore, review or load defaults?");
 
 		BAlert* alert = new BAlert("SettingsDeletedDialog", text,
-			B_TRANSLATE("Ignore"), B_TRANSLATE("Review"), B_TRANSLATE("Load"),
+			B_TRANSLATE("Ignore"), B_TRANSLATE("Review"), B_TRANSLATE("Load defaults"),
 			B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 
 		alert->SetShortcut(0, B_ESCAPE);
@@ -195,12 +195,12 @@ GenioApp::_CheckSettingsVersion()
 		// App version > file version
 		if (result > 0) {
 			BString text;
-			text << B_TRANSLATE("Settings file for a previous version detected,")
+			text << B_TRANSLATE("Settings file for a previous version detected.")
 				 << "\n"
-				 << B_TRANSLATE("do You want to ignore, review or load to defaults?");
+				 << B_TRANSLATE("Do you want to ignore, review or load defaults?");
 
 			BAlert* alert = new BAlert("SettingsUpdateDialog", text,
-				B_TRANSLATE("Ignore"), B_TRANSLATE("Review"), B_TRANSLATE("Load"),
+				B_TRANSLATE("Ignore"), B_TRANSLATE("Review"), B_TRANSLATE("Load defaults"),
 				B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 
 			alert->SetShortcut(0, B_ESCAPE);

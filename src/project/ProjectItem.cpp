@@ -57,16 +57,21 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		ProjectFolder *projectFolder = (ProjectFolder *)GetSourceItem();
 		if (projectFolder->Active()) {
-			owner->SetDrawingMode(B_OP_OVER);
-			owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 			owner->SetFont(be_bold_font);
 		} else {
-			owner->SetDrawingMode(B_OP_OVER);
-			owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 			owner->SetFont(be_plain_font);
 		}
+		if (IsSelected()) {
+			owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
+		} else {
+			owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
+		}
+		owner->SetDrawingMode(B_OP_OVER);
 	} else {
-		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
+		if (IsSelected())
+			owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
+		else
+			owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 	}
 
 	owner->SetDrawingMode(B_OP_ALPHA);

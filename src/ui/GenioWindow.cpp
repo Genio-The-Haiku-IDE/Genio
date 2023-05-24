@@ -2515,10 +2515,6 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_TEXT_OVERWRITE, editMenu);
 
 	editMenu->AddSeparatorItem();
-	
-	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, editMenu);
-	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, editMenu);
-	ActionManager::AddItem(MSG_LINE_ENDINGS_TOGGLE, editMenu);
 
 	ActionManager::AddItem(MSG_DUPLICATE_LINE, editMenu);
 	ActionManager::AddItem(MSG_DELETE_LINES, editMenu);
@@ -2528,7 +2524,6 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
-	ActionManager::AddItem(MSG_SWITCHSOURCE, editMenu);
 	ActionManager::AddItem(MSG_SIGNATUREHELP, editMenu);
 
 	editMenu->AddSeparatorItem();
@@ -2555,30 +2550,36 @@ GenioWindow::_InitMenu()
 	ActionManager::SetEnabled(B_PASTE, false);
 	ActionManager::SetEnabled(B_SELECT_ALL, false);
 	ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, false);
-	ActionManager::SetEnabled(MSG_FILE_FOLD_TOGGLE, false);
-	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
-	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
 	ActionManager::SetEnabled(MSG_DUPLICATE_LINE, false);
 	ActionManager::SetEnabled(MSG_DELETE_LINES, false);
 	ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, false);
 	
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 	ActionManager::SetEnabled(MSG_FORMAT, false);
-	ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 	ActionManager::SetEnabled(MSG_SIGNATUREHELP, false);
-	
+
 	fLineEndingsMenu->SetEnabled(false);
 
 	editMenu->AddItem(fLineEndingsMenu);
 	fMenuBar->AddItem(editMenu);
-	
+
 	BMenu* viewMenu = new BMenu(B_TRANSLATE("View"));
 	fMenuBar->AddItem(viewMenu);
-	
+
 	ActionManager::AddItem(MSG_VIEW_ZOOMIN, viewMenu);
 	ActionManager::AddItem(MSG_VIEW_ZOOMOUT, viewMenu);
 	ActionManager::AddItem(MSG_VIEW_ZOOMRESET, viewMenu);
-		
+
+	viewMenu->AddSeparatorItem();
+	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, viewMenu);
+	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, viewMenu);
+	ActionManager::AddItem(MSG_LINE_ENDINGS_TOGGLE, viewMenu);
+	ActionManager::AddItem(MSG_SWITCHSOURCE, viewMenu);
+	ActionManager::SetEnabled(MSG_FILE_FOLD_TOGGLE, false);
+	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
+	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
+	ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
+
 	BMenu* searchMenu = new BMenu(B_TRANSLATE("Search"));
 	ActionManager::AddItem(MSG_FIND_GROUP_SHOW, searchMenu);
 	ActionManager::AddItem(MSG_REPLACE_GROUP_SHOW, searchMenu);

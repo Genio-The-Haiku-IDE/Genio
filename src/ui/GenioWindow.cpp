@@ -3909,7 +3909,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->GetProjectFolder());
-	ActionManager::SetEnabled(MSG_SWITCHSOURCE, editor->GetProjectFolder());
+	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (Genio::file_type(editor->Name().String()).compare("c++") == 0));
 	ActionManager::SetEnabled(MSG_SIGNATUREHELP, !editor->IsReadOnly() && editor->GetProjectFolder());
 	
 	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, true);

@@ -3,3 +3,8 @@ engines:
   cppcheck:
     language: c++
     std: c++17
+exclude_paths:
+  - "data/templates/*"
+  - "src/lexilla/*"
+  - "src/scintilla/*"
+  

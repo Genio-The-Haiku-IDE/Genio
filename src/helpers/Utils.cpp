@@ -196,6 +196,23 @@ find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
 	return entry_ref();
 }
 
+#define FIND_IN_ARRAY(ARRAY, VALUE) (std::find(std::begin(ARRAY), std::end(ARRAY), VALUE) != std::end(ARRAY));
+
+std::string sourceExt[] = {".cpp", ".c", ".cc", ".cxx", ".c++"}; //, ".m", ".mm"};
+std::string headerExt[] = {".h", ".hh", ".hpp", ".hxx"}; //, ".inc"};
+
+bool 
+IsCppSourceExtension(std::string extension)
+{
+	return FIND_IN_ARRAY(sourceExt, extension);
+}
+
+bool 
+IsCppHeaderExtension(std::string extension)
+{
+	return FIND_IN_ARRAY(headerExt, extension);
+}
+
 status_t	
 FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 {
@@ -219,26 +236,22 @@ FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 	std::string extension = filename.substr(dotPos);
 	std::string prefixname = filename.substr(0, dotPos);
 
-
-	std::string sourceExt[] = {".cpp", ".c", ".cc", ".cxx", ".c++", ".m", ".mm"};
-
-	std::string headerExt[] = {".h", ".hh", ".hpp", ".hxx", ".inc"};
-
 	BEntry foundFile;
+	bool found = false;
 
-	if (std::find(std::begin(sourceExt), std::end(sourceExt), extension) != std::end(sourceExt)) {
+	if (IsCppSourceExtension(extension)) {
 		
 		// search if the file exists with the possible header extensions..
-		std::find_if(std::begin(headerExt), std::end(headerExt),
+		found = std::find_if(std::begin(headerExt), std::end(headerExt),
 			[&prefixname, &foundFile](std::string extension) {
 				std::string fullFilename = prefixname + extension;
 				foundFile.SetTo(fullFilename.c_str());
 				return foundFile.Exists();
 			});
-	} else if (std::find(std::begin(headerExt), std::end(headerExt), extension) != std::end(headerExt)) {
+	} else if (IsCppHeaderExtension(extension)) {
 
 		// search if the file exists with the possible source extensions..
-		std::find_if(std::begin(sourceExt), std::end(sourceExt),
+		found = std::find_if(std::begin(sourceExt), std::end(sourceExt),
 			[&prefixname, &foundFile](std::string extension) {
 				std::string fullFilename = prefixname + extension;
 				foundFile.SetTo(fullFilename.c_str());
@@ -246,7 +259,7 @@ FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 			});
 	}
 	
-	if (foundFile.Exists() == false)
+	if (!found)
 		return B_ERROR;
 
 	return foundFile.GetRef(foundRef);

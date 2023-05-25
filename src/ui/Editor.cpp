@@ -30,6 +30,7 @@
 #include "EditorContextMenu.h"
 #include "ScintillaUtils.h"
 #include "Log.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -1230,7 +1231,7 @@ Editor::GoToImplementation()
 	fFileWrapper->GoTo(FileWrapper::GOTO_IMPLEMENTATION);
 }
 
-#include "Utils.h"
+
 void
 Editor::SwitchSourceHeader()
 {

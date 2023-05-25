@@ -240,7 +240,6 @@ FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 	bool found = false;
 
 	if (IsCppSourceExtension(extension)) {
-		
 		// search if the file exists with the possible header extensions..
 		found = std::find_if(std::begin(headerExt), std::end(headerExt),
 			[&prefixname, &foundFile](std::string extension) {
@@ -249,7 +248,6 @@ FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 				return foundFile.Exists();
 			});
 	} else if (IsCppHeaderExtension(extension)) {
-
 		// search if the file exists with the possible source extensions..
 		found = std::find_if(std::begin(sourceExt), std::end(sourceExt),
 			[&prefixname, &foundFile](std::string extension) {

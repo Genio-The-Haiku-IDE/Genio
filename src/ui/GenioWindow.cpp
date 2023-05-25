@@ -59,7 +59,7 @@
 
 constexpr auto kRecentFilesNumber = 14 + 1;
 
-static constexpr float kTabBarHeight = 30.0f;
+static constexpr float kTabBarHeight = 35.0f;
 
 
 // Find group

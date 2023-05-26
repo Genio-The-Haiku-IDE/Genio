@@ -3245,14 +3245,7 @@ void
 GenioWindow::_ProjectRenameFile()
 {
 	ProjectItem *item = fProjectsFolderBrowser->GetCurrentProjectItem();
-	BRect rect = item->GetTextRect();
-	
-
-	TextControlFloater *tf = new TextControlFloater(fProjectsFolderBrowser->ConvertToScreen(rect), B_ALIGN_LEFT,
-									be_plain_font, item->Text(), fProjectsFolderBrowser, 
-									new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE),new BMessage('exit'));
-	tf->SetTitle("");
-	
+	fProjectsFolderBrowser->InitRename(item);
 }
 
 

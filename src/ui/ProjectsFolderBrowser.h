@@ -50,6 +50,8 @@ public:
 	
 	virtual void	SelectionChanged();
 	
+	void			InitRename(ProjectItem *item);
+	
 private:
 	
 	ProjectItem*	FindProjectItem(BString const& path);

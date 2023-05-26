@@ -7,6 +7,8 @@
  * Release
    * Create release branch
    * Bump version
+   * Create release from the release branch
    * Review haikuports recipe
-   * Create tag and a release from the release branch
+     * Change it to point at the new release tag
+     * Make a PR to haikuports with the new recipe
  

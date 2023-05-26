@@ -31,6 +31,12 @@ std::string ParseFileArgument(const std::string argument,
 	int32* line = nullptr, int32* column = nullptr);
 
 
+status_t FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef);
+
+bool IsCppSourceExtension(std::string extension);
+bool IsCppHeaderExtension(std::string extension);
+
+
 template<typename T>
 bool IsChecked(T* control);
 template<typename T>

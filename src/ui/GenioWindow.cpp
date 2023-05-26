@@ -50,7 +50,6 @@
 #include "EditorKeyDownMessageFilter.h"
 
 #include "ActionManager.h"
-#include "TextControlFloater.h"
 
 
 #undef B_TRANSLATION_CONTEXT

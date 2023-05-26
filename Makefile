@@ -41,7 +41,6 @@ SRCS +=  src/helpers/GenioCommon.cpp
 SRCS +=  src/helpers/GSettings.cpp
 SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/helpers/StatusView.cpp
-SRCS +=  src/helpers/TextControlFloater.cpp
 SRCS +=  src/helpers/TextUtils.cpp
 SRCS +=  src/helpers/TPreferences.cpp
 SRCS +=  src/helpers/Utils.cpp

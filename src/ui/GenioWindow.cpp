@@ -2798,7 +2798,7 @@ GenioWindow::_InitSideSplit()
 {
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
-	
+
 	fProjectsFolderBrowser = new ProjectsFolderBrowser();
 	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
@@ -2824,8 +2824,9 @@ GenioWindow::_InitWindow()
 	fRootLayout = BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.Add(fMenuBar)
 		.Add(fToolBar)
-		
+
 		.AddSplit(B_VERTICAL, 0.0f) // output split
+		.SetInsets(-2.0f, 0.0f, -2.0f, -2.0f)
 			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
 				.Add(fProjectsTabView, kProjectsWeight)
 				.Add(fEditorTabsGroup, kEditorWeight)  // Editor

@@ -128,10 +128,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	owner->SetDrawingMode(B_OP_ALPHA);
 
-	BEntry entry(GetSourceItem()->Path());
-	entry_ref ref;
-	entry.GetRef(&ref);
-	auto icon = IconCache::GetIcon(&ref);
+	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
 	
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);	

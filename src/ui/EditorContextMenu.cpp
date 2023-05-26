@@ -33,14 +33,23 @@ EditorContextMenu::_CreateMenu()
 	
 	ActionManager::AddItem(B_UNDO, sMenu);
 	ActionManager::AddItem(B_REDO, sMenu);
+
 	sMenu->AddSeparatorItem();
+
 	ActionManager::AddItem(B_CUT, sMenu);
 	ActionManager::AddItem(B_COPY, sMenu);
 	ActionManager::AddItem(B_PASTE, sMenu);
 	ActionManager::AddItem(MSG_TEXT_DELETE, sMenu);
+
 	sMenu->AddSeparatorItem();
+
 	ActionManager::AddItem(B_SELECT_ALL, sMenu);
 
+	sMenu->AddSeparatorItem();
+
+	ActionManager::AddItem(MSG_GOTODEFINITION, sMenu);
+	ActionManager::AddItem(MSG_GOTODECLARATION, sMenu);
+	ActionManager::AddItem(MSG_GOTOIMPLEMENTATION, sMenu);
 }
 
 

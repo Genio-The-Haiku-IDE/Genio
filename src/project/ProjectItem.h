@@ -32,7 +32,7 @@ public:
 	
 private:
 	SourceItem		*fSourceItem;
-	bool			fFirstTimeRendered = true;
+	bool			fFirstTimeRendered;
 	BRect			fTextRect;
 	bool			fInitRename;
 	BMessenger		fTarget;	

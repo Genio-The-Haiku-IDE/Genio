@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Your_Name <your@email.address>
+ * Copyright 2023 Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #ifndef PROJECT_ITEM_H
@@ -32,7 +32,7 @@ public:
 	
 private:
 	SourceItem		*fSourceItem;
-	bool			fFirstTimeRendered;
+	bool			fFirstTimeRendered = true;
 	BRect			fTextRect;
 	bool			fInitRename;
 	BMessenger		fTarget;	

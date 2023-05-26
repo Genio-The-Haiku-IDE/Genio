@@ -103,9 +103,9 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->FillRect(bounds, B_SOLID_LOW);
 	} else
 		owner->SetLowColor(owner->ViewColor());
-	
+
 	owner->SetLowColor(lowColor);
-	
+
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		ProjectFolder *projectFolder = (ProjectFolder *)GetSourceItem();
 		if (projectFolder->Active()) {
@@ -127,50 +127,30 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	}
 
 	owner->SetDrawingMode(B_OP_ALPHA);
-	BEntry entry(GetSourceItem()->Path());
-	entry_ref ref;
-	entry.GetRef(&ref);
-	auto icon = IconCache::GetIcon(&ref);
-	
-	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);	
-	
-	fTextRect.top = bounds.top-0.5f;
-	fTextRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
-	fTextRect.bottom = bounds.bottom-1;
-	fTextRect.right = bounds.right;
+	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
+
+	float size = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	BPoint p(bounds.left + 4.0f, bounds.top  + (bounds.Height() - size) / 2.0f);	
 	
 	if (icon != nullptr)
-		owner->DrawBitmapAsync(icon, iconStartingPoint);
-	
-	// Check if there is an InitRename request and show a TextControl
-	if (fInitRename) {
-	
-		fTextControl = new TemporaryTextControl(fTextRect, "RenameTextWidget", "", 
-												Text(), fMessage, this,
-												B_FOLLOW_NONE);
-												
-		fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);			
-		owner->AddChild(fTextControl);
-		fTextControl->SetDivider(0);
-		fTextControl->TextView()->SelectAll();
-		fTextControl->TextView()->ResizeBy(0,-3);
-		fTextControl->MakeFocus();
-	} else {
-		// Draw string at the right of the icon
-		owner->SetDrawingMode(B_OP_COPY);
-		owner->MovePenTo(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
-							bounds.top + BaselineOffset());
-		owner->DrawString(Text());
-		
+		owner->DrawBitmapAsync(icon, p);
 
-		
-		owner->Sync();
-		
-		if (fFirstTimeRendered) {
-			owner->Invalidate();
-			fFirstTimeRendered = false;
-		}
+	// Draw string at the right of the icon
+	owner->SetDrawingMode(B_OP_COPY);
+	owner->MovePenTo(p.x + size + be_control_look->DefaultLabelSpacing(),
+		bounds.top + BaselineOffset());
+	owner->DrawString(Text());
+
+	fTextRect.top = bounds.top;
+	fTextRect.left = p.x + size + be_control_look->DefaultLabelSpacing();
+	fTextRect.bottom = bounds.bottom;
+	fTextRect.right = bounds.right;
+
+	owner->Sync();
+	
+	if (fFirstTimeRendered) {
+		owner->Invalidate();
+		fFirstTimeRendered = false;
 	}
 }
 

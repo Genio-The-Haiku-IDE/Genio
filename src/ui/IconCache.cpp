@@ -13,7 +13,6 @@ IconCache IconCache::instance;
 
 IconCache::IconCache()
 {
-
 }
 
 
@@ -31,9 +30,9 @@ IconCache::GetIcon(entry_ref *ref)
 		else
 			strncpy(mimeType, FILE_FILETYPE, B_MIME_TYPE_LENGTH - 1);
 	}
-		
+
 	LogTrace("IconCache: [%s] - [%s]", mimeType, ref->name);
-	
+
 	auto it = instance.cache.find(mimeType);
 	if (it != instance.cache.end()) {
 		LogTrace("IconCache: return icon from cache for %s",mimeType);
@@ -51,6 +50,7 @@ IconCache::GetIcon(entry_ref *ref)
 	return nullptr;
 }
 
+
 BBitmap*
 IconCache::GetIcon(BString path)
 {
@@ -60,10 +60,10 @@ IconCache::GetIcon(BString path)
 	return IconCache::GetIcon(&ref);
 }
 
+
 void
 IconCache::PrintToStream()
 {
-	
 	printf("IconCache %p: cache content\n", &instance);
 	for (auto const& x : instance.cache) {
 		printf("IconCache: %s\n", x.first.c_str());

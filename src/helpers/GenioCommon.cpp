@@ -10,7 +10,7 @@
 #include <ctime>
 #include <sstream>
 #include <string>
-
+#include "Utils.h"
 
 namespace Genio
 {
@@ -73,18 +73,20 @@ file_type(const std::string& filename)
  	if (filename.find("Jamfile") == 0) {
 		return "jam";
 	}
+	
 	if (filename.find("Makefile") == 0
 		|| filename.find("makefile") == 0) {
 		return "make";
 	}
-
-	std::string extension = filename.substr(filename.find_last_of('.') + 1);
-	if (extension == "cpp" || extension == "cxx" || extension == "cc"
-			 || extension == "h" || extension == "hpp" || extension == "c")
-		return "c++";
-	else if (extension == "rs")
-		return "rust";
-
+	
+	auto pos = filename.find_last_of('.');
+	if (pos != std::string::npos) {
+		std::string extension = filename.substr(filename.find_last_of('.'));
+		if (IsCppHeaderExtension(extension) || IsCppSourceExtension(extension))
+			return "c++";
+		else if (extension == ".rs")
+			return "rust";
+	}
 	return "";
 }
 

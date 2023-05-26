@@ -51,9 +51,9 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->FillRect(bounds, B_SOLID_LOW);
 	} else
 		owner->SetLowColor(owner->ViewColor());
-	
+
 	owner->SetLowColor(lowColor);
-	
+
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		ProjectFolder *projectFolder = (ProjectFolder *)GetSourceItem();
 		if (projectFolder->Active()) {
@@ -75,33 +75,30 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	}
 
 	owner->SetDrawingMode(B_OP_ALPHA);
-	BEntry entry(GetSourceItem()->Path());
-	entry_ref ref;
-	entry.GetRef(&ref);
-	auto icon = IconCache::GetIcon(&ref);
-	
+	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
+
 	float size = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BPoint p(bounds.left + 4.0f, bounds.top  + (bounds.Height() - size) / 2.0f);	
 	
 	if (icon != nullptr)
 		owner->DrawBitmapAsync(icon, p);
-	
+
 	// Draw string at the right of the icon
 	owner->SetDrawingMode(B_OP_COPY);
 	owner->MovePenTo(p.x + size + be_control_look->DefaultLabelSpacing(),
 		bounds.top + BaselineOffset());
 	owner->DrawString(Text());
-	
+
 	fTextRect.top = bounds.top;
 	fTextRect.left = p.x + size + be_control_look->DefaultLabelSpacing();
 	fTextRect.bottom = bounds.bottom;
 	fTextRect.right = bounds.right;
-	
+
 	owner->Sync();
 	
-	if (firstTimeRendered) {
+	if (fFirstTimeRendered) {
 		owner->Invalidate();
-		firstTimeRendered = false;
+		fFirstTimeRendered = false;
 	}
 }
 

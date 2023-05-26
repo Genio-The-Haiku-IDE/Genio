@@ -2375,9 +2375,8 @@ GenioWindow::_InitActions()
 		
 	ActionManager::RegisterAction(MSG_GOTO_LINE,
 								   B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
-								   "",
-								   "", '<'); //TODO: check shortcut.
-								   
+								   "", "", ',');
+
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN,
 								   B_TRANSLATE("Open project"),
 								   "","",'O', B_OPTION_KEY);

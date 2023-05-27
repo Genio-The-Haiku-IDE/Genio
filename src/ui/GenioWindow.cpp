@@ -1569,7 +1569,6 @@ GenioWindow::_FileSave(int32 index)
 		<< editor->Name() << "    "
 		<< length << " bytes -> "
 		<< written << " written";
-
 	_SendNotification(notification, length == written ? "FILE_SAVE" : "FILE_ERR");
 
 	return B_OK;
@@ -1854,10 +1853,8 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
-	text << B_TRANSLATE("File \"%file%\" was moved externally.")
-		 << "\n"
-		 << B_TRANSLATE("Do you want to ignore, close or reload it?");
-
+	text << B_TRANSLATE("File \"%file%\" was apparently moved.\n"
+		 "Do you want to ignore, close or reload it?");
 	text.ReplaceAll("%file%", oldRef->name);
 
 	BAlert* alert = new BAlert("FileMoveDialog", text,
@@ -1917,13 +1914,11 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
-	text 	<< B_TRANSLATE("File \"%file%\" was removed externally.")
-			<< "\n"
-			<< B_TRANSLATE("Do you want to keep the file or discard it?")
-			<< "\n"
-			<< B_TRANSLATE("If kept and modified, save it or it will be lost");
+	text << B_TRANSLATE("File \"%file%\" was apparently removed.\n"
+		"Do you want to keep the file or discard it?\n"
+		"If kept and modified, save it or it will be lost.");
 
-	text.ReplaceAll("%file%", fileName);
+	text.ReplaceFirst("%file%", fileName);
 
 	BAlert* alert = new BAlert("FileRemoveDialog", text,
  		B_TRANSLATE("Keep"), B_TRANSLATE("Discard"), nullptr,
@@ -1959,8 +1954,8 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
-	text << (B_TRANSLATE("File \"%file%\" was modified externally, reload it?"));
-	text.ReplaceAll("%file%", editor->Name());
+	text << (B_TRANSLATE("File \"%file%\" was apparently modified, reload it?"));
+	text.ReplaceFirst("%file%", editor->Name());
 
 	BAlert* alert = new BAlert("FileReloadDialog", text,
  		B_TRANSLATE("Ignore"), B_TRANSLATE("Reload"), nullptr,
@@ -1974,6 +1969,7 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 		BString notification;
 		notification << "File info: " << editor->Name()
 			<< " modified externally";
+
 		_SendNotification(notification, "FILE_INFO");
 	}
 }
@@ -2142,8 +2138,8 @@ GenioWindow::_InitCentralSplit()
 												.Add(fFindWholeWordCheck)
 												.Add(fFindCaseSensitiveCheck).View());
 
-	fFindGroup->AddAction(MSG_FIND_MARK_ALL, B_TRANSLATE("Mark all"), "kIconBookmarkPen");	
-	fFindGroup->AddAction(MSG_FIND_IN_FILES, B_TRANSLATE("Find in files"), "kIconFindInFiles");
+	fFindGroup->AddAction(MSG_FIND_MARK_ALL, B_TRANSLATE("Bookmark all"), "kIconBookmarkPen");
+	fFindGroup->AddAction(MSG_FIND_IN_FILES, B_TRANSLATE("Find in project"), "kIconFindInFiles");
 	fFindGroup->AddGlue();
 	
 	fFindGroup->Hide();
@@ -2297,7 +2293,7 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Duplicate current line"),
 								   "", "", 'K');
 	ActionManager::RegisterAction(MSG_DELETE_LINES,
-								   B_TRANSLATE("Delete lines"),
+								   B_TRANSLATE("Delete current line"),
 								   "", "", 'D');
 								   
 	ActionManager::RegisterAction(MSG_COMMENT_SELECTED_LINES,
@@ -2333,12 +2329,12 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_FIND_GROUP_TOGGLED, //MSG_FIND_GROUP_SHOW,
 								   B_TRANSLATE("Find"),
-								   B_TRANSLATE("Find toggle (closes Replace bar if open)"),
+								   B_TRANSLATE("Show/Hide find bar"),
 								   "kIconFind");
 	
 	ActionManager::RegisterAction(MSG_REPLACE_GROUP_TOGGLED, //MSG_REPLACE_GROUP_SHOW,
 								   B_TRANSLATE("Replace"),
-								   B_TRANSLATE("Replace toggle (leaves Find bar open)"),
+								   B_TRANSLATE("Show/Hide replace bar"),
 								   "kIconReplace");
 
 	
@@ -2370,12 +2366,12 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,
 								   B_TRANSLATE("Show projects pane"),
-								   B_TRANSLATE("Show/Hide projects pane"), 
+								   B_TRANSLATE("Show/Hide projects pane"),
 								   "kIconWindow");
 								   
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
-								   B_TRANSLATE("Show output panes"),
-	                               B_TRANSLATE("Show/Hide output panes"),   
+								   B_TRANSLATE("Show output pane"),
+	                               B_TRANSLATE("Show/Hide output pane"),
 								   "kIconTerminal");
 								   
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
@@ -2401,14 +2397,14 @@ GenioWindow::_InitActions()
 								  "kIconDebug");
 								  
 	ActionManager::RegisterAction(MSG_BUFFER_LOCK, 
-								  B_TRANSLATE("Read only"),
-								  B_TRANSLATE("Set buffer read-only"), "kIconUnlocked");
+								  B_TRANSLATE("Read-only"),
+								  B_TRANSLATE("Make file read-only"), "kIconUnlocked");
 								  
 	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, "",
-						          B_TRANSLATE("Select previous file"), "kIconBack_1");
+						          B_TRANSLATE("Switch to previous file"), "kIconBack_1");
 								  
 	ActionManager::RegisterAction(MSG_FILE_NEXT_SELECTED, "", 
-								  B_TRANSLATE("Select next file"), "kIconForward_2");
+								  B_TRANSLATE("Switch to next file"), "kIconForward_2");
 								   
 	// Find Panel
 	ActionManager::RegisterAction(MSG_FIND_NEXT,
@@ -2570,13 +2566,14 @@ GenioWindow::_InitMenu()
 	ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 
 	fBookmarksMenu = new BMenu(B_TRANSLATE("Bookmark"));
-	fBookmarksMenu->AddItem(fBookmarkToggleItem = new BMenuItem(B_TRANSLATE("Toggle"),
-		new BMessage(MSG_BOOKMARK_TOGGLE)));
-	fBookmarksMenu->AddItem(fBookmarkClearAllItem = new BMenuItem(B_TRANSLATE("Clear all"),
-		new BMessage(MSG_BOOKMARK_CLEAR_ALL)));
-	fBookmarksMenu->AddItem(fBookmarkGoToNextItem = new BMenuItem(B_TRANSLATE("Go to next"),
-		new BMessage(MSG_BOOKMARK_GOTO_NEXT), 'N', B_CONTROL_KEY));
-	fBookmarksMenu->AddItem(fBookmarkGoToPreviousItem = new BMenuItem(B_TRANSLATE("Go to previous"),
+	fBookmarksMenu->AddItem(fBookmarkToggleItem = new BMenuItem(B_TRANSLATE_COMMENT("Toggle",
+		"Bookmark menu"), new BMessage(MSG_BOOKMARK_TOGGLE)));
+	fBookmarksMenu->AddItem(fBookmarkClearAllItem = new BMenuItem(B_TRANSLATE_COMMENT("Clear all",
+		"Bookmark menu"), new BMessage(MSG_BOOKMARK_CLEAR_ALL)));
+	fBookmarksMenu->AddItem(fBookmarkGoToNextItem = new BMenuItem(B_TRANSLATE_COMMENT("Next",
+		"Bookmark menu"), new BMessage(MSG_BOOKMARK_GOTO_NEXT), 'N', B_CONTROL_KEY));
+	fBookmarksMenu->AddItem(fBookmarkGoToPreviousItem = new BMenuItem(B_TRANSLATE_COMMENT(
+		"Previous", "Bookmark menu"),
 		new BMessage(MSG_BOOKMARK_GOTO_PREVIOUS),'P', B_CONTROL_KEY));
 
 	fBookmarksMenu->SetEnabled(false);
@@ -2640,49 +2637,58 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(projectMenu);
 
 	fGitMenu = new BMenu(B_TRANSLATE("Git"));
-	fGitMenu->AddItem(fGitBranchItem = new BMenuItem(B_TRANSLATE("Branch"), nullptr));
+	fGitMenu->AddItem(fGitBranchItem = new BMenuItem(B_TRANSLATE_COMMENT("Branch",
+		"The git command"), nullptr));
 	BMessage* git_branch_message = new BMessage(MSG_GIT_COMMAND);
 	git_branch_message->AddString("command", "branch");
 	fGitBranchItem->SetMessage(git_branch_message);
 
-	fGitMenu->AddItem(fGitLogItem = new BMenuItem(B_TRANSLATE("Log"), nullptr));
+	fGitMenu->AddItem(fGitLogItem = new BMenuItem(B_TRANSLATE_COMMENT("Log",
+		"The git command"), nullptr));
 	BMessage* git_log_message = new BMessage(MSG_GIT_COMMAND);
 	git_log_message->AddString("command", "log");
 	fGitLogItem->SetMessage(git_log_message);
 
-	fGitMenu->AddItem(fGitPullItem = new BMenuItem(B_TRANSLATE("Pull"), nullptr));
+	fGitMenu->AddItem(fGitPullItem = new BMenuItem(B_TRANSLATE_COMMENT("Pull",
+		"The git command"), nullptr));
 	BMessage* git_pull_message = new BMessage(MSG_GIT_COMMAND);
 	git_pull_message->AddString("command", "pull");
 	fGitPullItem->SetMessage(git_pull_message);
 
-	fGitMenu->AddItem(fGitStatusItem = new BMenuItem(B_TRANSLATE("Status"), nullptr));
+	fGitMenu->AddItem(fGitStatusItem = new BMenuItem(B_TRANSLATE_COMMENT("Status",
+		"The git command"), nullptr));
 	BMessage* git_status_message = new BMessage(MSG_GIT_COMMAND);
 	git_status_message->AddString("command", "status");
 	fGitStatusItem->SetMessage(git_status_message);
 
-	fGitMenu->AddItem(fGitShowConfigItem = new BMenuItem(B_TRANSLATE("Show config"), nullptr));
+	fGitMenu->AddItem(fGitShowConfigItem = new BMenuItem(B_TRANSLATE_COMMENT("Show config",
+		"The git command"), nullptr));
 	BMessage* git_config_message = new BMessage(MSG_GIT_COMMAND);
 	git_config_message->AddString("command", "config --list");
 	fGitShowConfigItem->SetMessage(git_config_message);
 
-	fGitMenu->AddItem(fGitTagItem = new BMenuItem(B_TRANSLATE("Tag"), nullptr));
+	fGitMenu->AddItem(fGitTagItem = new BMenuItem(B_TRANSLATE_COMMENT("Tag",
+		"The git command"), nullptr));
 	BMessage* git_tag_message = new BMessage(MSG_GIT_COMMAND);
 	git_tag_message->AddString("command", "tag");
 	fGitTagItem->SetMessage(git_tag_message);
 
 	fGitMenu->AddSeparatorItem();
 
-	fGitMenu->AddItem(fGitLogOnelineItem = new BMenuItem(B_TRANSLATE("Log (oneline)"), nullptr));
+	fGitMenu->AddItem(fGitLogOnelineItem = new BMenuItem(B_TRANSLATE_COMMENT("Log (oneline)",
+		"The git command"), nullptr));
 	BMessage* git_log_oneline_message = new BMessage(MSG_GIT_COMMAND);
 	git_log_oneline_message->AddString("command", "log --oneline --decorate");
 	fGitLogOnelineItem->SetMessage(git_log_oneline_message);
 
-	fGitMenu->AddItem(fGitPullRebaseItem = new BMenuItem(B_TRANSLATE("Pull (rebase)"), nullptr));
+	fGitMenu->AddItem(fGitPullRebaseItem = new BMenuItem(B_TRANSLATE_COMMENT("Pull (rebase)",
+		"The git command"), nullptr));
 	BMessage* git_pull_rebase_message = new BMessage(MSG_GIT_COMMAND);
 	git_pull_rebase_message->AddString("command", "pull --rebase");
 	fGitPullRebaseItem->SetMessage(git_pull_rebase_message);
 
-	fGitMenu->AddItem(fGitStatusShortItem = new BMenuItem(B_TRANSLATE("Status (short)"), nullptr));
+	fGitMenu->AddItem(fGitStatusShortItem = new BMenuItem(B_TRANSLATE_COMMENT("Status (short)",
+		"The git command"), nullptr));
 	BMessage* git_status_short_message = new BMessage(MSG_GIT_COMMAND);
 	git_status_short_message->AddString("command", "status --short");
 	fGitStatusShortItem->SetMessage(git_status_short_message);
@@ -2745,7 +2751,7 @@ GenioWindow::_InitToolbar()
 	
 	ActionManager::AddItem(MSG_FILE_CLOSE, fToolBar);
 	
-	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Indexed file list"), "kIconFileList");
+	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Open files list"), "kIconFileList");
 	
 	
 	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
@@ -3176,12 +3182,10 @@ GenioWindow::_ProjectFileDelete()
 
 	entry.GetName(name);
 
-	BString text;
-	text
-		 << B_TRANSLATE("Deleting item:")
-		 << " \"" << name << "\"" << ".\n\n"
-		 << B_TRANSLATE("After deletion the item will be lost.") << "\n"
-		 << B_TRANSLATE("Do you really want to delete it?") << "\n";
+	BString text(B_TRANSLATE("Deleting item: \"%name%\".\n\n"
+		"After deletion, the item will be lost.\n"
+		"Do you really want to delete it?"));
+	text.ReplaceFirst("%name%", name);
 
 	BAlert* alert = new BAlert(B_TRANSLATE("Delete dialog"),
 		text.String(),
@@ -3208,8 +3212,10 @@ GenioWindow::_ProjectFileDelete()
 			else
 				status = entry.Remove();
 			if (status != B_OK) {
-				OKAlert("Delete item", BString("Could not delete ") << name << "\n\n" << ::strerror(status),
-					B_WARNING_ALERT);
+				BString text(B_TRANSLATE("Could not delete \"%name%\".\n\n"));
+				text << ::strerror(status);
+				text.ReplaceFirst("%name%", name);
+				OKAlert("Delete item", text.String(), B_WARNING_ALERT);
 				LogError("Could not delete %s (%s)", name, ::strerror(status));
 			}
 		}
@@ -3424,12 +3430,12 @@ GenioWindow::_ShowCurrentItemInTracker()
 			commandLine.SetToFormat("/bin/open %s", EscapeQuotesWrap(directoryPath.Path()).String());
 			returnStatus = system(commandLine);
 		} else {
-			notification << "An error occurred while showing item in Tracker:" << directoryPath.Path();
-			_SendNotification(notification, "PROJ_SHOW");	
+			notification << "An error occurred when showing an item in Tracker: " << directoryPath.Path();
+			_SendNotification(notification, "PROJ_SHOW");
 		}
 	} else {
 		notification << "An error occurred while retrieving parent directory of " << itemPath;
-		_SendNotification(notification, "PROJ_TRACK");	
+		_SendNotification(notification, "PROJ_TRACK");
 	}
 	return returnStatus == 0 ? B_OK : errno;
 }

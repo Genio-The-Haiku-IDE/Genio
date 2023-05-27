@@ -7,7 +7,9 @@
 
 #include <Bitmap.h>
 #include <Font.h>
+#include <Messenger.h>
 #include <StringItem.h>
+#include <TextControl.h>
 #include <View.h>
 
 
@@ -24,10 +26,19 @@ public:
 
 	SourceItem		*GetSourceItem() const { return fSourceItem; };
 	
+	void			InitRename(BMessage* message);
+	void			AbortRename();
+	void			CommitRename();
+	
 private:
 	SourceItem		*fSourceItem;
-	bool			fFirstTimeRendered = true;
+	bool			fFirstTimeRendered;
 	BRect			fTextRect;
+	bool			fInitRename;
+	BMessage*		fMessage;
+	BTextControl	*fTextControl;
+	
+	void			_DestroyTextWidget();
 };
 
 

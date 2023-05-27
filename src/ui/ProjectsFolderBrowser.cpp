@@ -373,7 +373,12 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 		{
 			BString newName;
 			if (message->FindString("_value", &newName) == B_OK) {
-				_RenameCurrentSelectedFile(newName);
+				if (_RenameCurrentSelectedFile(newName) != B_OK) {
+					OKAlert("Rename", 
+							BString(B_TRANSLATE("An error occurred attempting to rename file ")) <<
+							newName, 
+							B_WARNING_ALERT);
+				}
 			}
 		}
 		break;
@@ -500,12 +505,9 @@ ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 	status_t status = B_NOT_INITIALIZED;
 	ProjectItem *item = GetCurrentProjectItem();
 	if (item) {
-		BPath path(item->GetSourceItem()->Path());
-		BPath newPath;
-		path.GetParent(&newPath);
-		newPath.Append(new_name);
 		BEntry entry(item->GetSourceItem()->Path());
-		status = entry.Rename(newPath.Path(), false);
+		if (entry.Exists())
+			status = entry.Rename(new_name, false);
 	}
 	return status;
 }
@@ -644,6 +646,6 @@ ProjectsFolderBrowser::SelectionChanged() {
 
 void
 ProjectsFolderBrowser::InitRename(ProjectItem *item) {
-	item->InitRename(new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE), BMessenger(this));
+	item->InitRename(new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
 	Invalidate();
 }

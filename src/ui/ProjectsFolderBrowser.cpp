@@ -39,7 +39,7 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 
 	fCloseProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"),
 		new BMessage(MSG_PROJECT_MENU_CLOSE));
-	fSetActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set Active"),
+	fSetActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"),
 		new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
 		
 	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
@@ -179,8 +179,9 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 					// It seems not possible to track the project folder to the new
 					// location outside of the watched path. So we close the project 
 					// and warn the user
-					auto alert = new BAlert("ProjectFolderChanged",
-						B_TRANSLATE("The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace."),
+					auto alert = new BAlert("ProjectFolderChanged", B_TRANSLATE(
+						"The project folder has been deleted or moved to another location "
+						"and it will be closed and unloaded from the workspace."),
 						B_TRANSLATE("OK"), NULL, NULL,
 						B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 						alert->Go();

@@ -17,6 +17,8 @@
 #include "ProjectFolder.h"
 #include "Utils.h"
 
+#include <cassert>
+
 class ProjectItem;
 
 class TemporaryTextControl: public BTextControl {
@@ -143,16 +145,16 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	
 	// Check if there is an InitRename request and show a TextControl
 	if (fInitRename) {
-	
-		fTextControl = new TemporaryTextControl(fTextRect, "RenameTextWidget", "", 
+		if (fTextControl == nullptr) {
+			fTextControl = new TemporaryTextControl(fTextRect, "RenameTextWidget", "", 
 												Text(), fMessage, this,
 												B_FOLLOW_NONE);
-												
-		fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);			
-		owner->AddChild(fTextControl);
-		fTextControl->SetDivider(0);
-		fTextControl->TextView()->SelectAll();
-		fTextControl->TextView()->ResizeBy(0,-3);
+			owner->AddChild(fTextControl);
+			fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
+			fTextControl->SetDivider(0);
+			fTextControl->TextView()->SelectAll();
+			fTextControl->TextView()->ResizeBy(0,-3);
+		}
 		fTextControl->MakeFocus();
 	} else {
 		// Draw string at the right of the icon
@@ -181,6 +183,8 @@ ProjectItem::Update(BView* owner, const BFont* font)
 void
 ProjectItem::InitRename(BMessage* message, const BMessenger& target)
 {
+	if (fTextControl != nullptr)
+		debugger("ProjectItem::InitRename() called twice!");
 	fInitRename = true;
 	fTarget = target;
 	fMessage = message;
@@ -189,17 +193,20 @@ ProjectItem::InitRename(BMessage* message, const BMessenger& target)
 void
 ProjectItem::AbortRename()
 {
-	_DestroyTextWidget();
+	if (fTextControl != nullptr)
+		_DestroyTextWidget();
 	fInitRename = false;
 }
 
 void
 ProjectItem::CommitRename()
 {
-	fMessage->AddString("_value", fTextControl->Text());
-	BMessenger(fTextControl->Parent()).SendMessage(fMessage);
-	SetText(fTextControl->Text());
-	_DestroyTextWidget();
+	if (fTextControl != nullptr) {
+		fMessage->AddString("_value", fTextControl->Text());
+		BMessenger(fTextControl->Parent()).SendMessage(fMessage);
+		SetText(fTextControl->Text());
+		_DestroyTextWidget();
+	}
 	fInitRename = false;
 }
 
@@ -209,6 +216,7 @@ ProjectItem::_DestroyTextWidget()
 	if (fTextControl != nullptr) {
 		fTextControl->RemoveSelf();
 		delete fTextControl;
+		fTextControl = nullptr;
 	}
 }
 

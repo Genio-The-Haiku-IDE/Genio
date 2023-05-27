@@ -17,12 +17,10 @@
 #include "ProjectFolder.h"
 #include "Utils.h"
 
-#include <cassert>
 
 class ProjectItem;
 
-class TemporaryTextControl: public BTextControl {
-	
+class TemporaryTextControl: public BTextControl {	
 	typedef	BTextControl _inherited;
 	
 	
@@ -30,35 +28,36 @@ public:
 	ProjectItem *fProjectItem;
 
 	TemporaryTextControl(BRect frame, const char* name, const char* label, const char* text,
-							BMessage* message, ProjectItem *item, uint32 resizingMode=B_FOLLOW_LEFT|B_FOLLOW_TOP,
-							uint32 flags=B_WILL_DRAW|B_NAVIGABLE)
+							BMessage* message, ProjectItem *item, uint32 resizingMode = B_FOLLOW_LEFT|B_FOLLOW_TOP,
+							uint32 flags = B_WILL_DRAW|B_NAVIGABLE)
 		:
-		BTextControl(frame,  name, label, text, message, resizingMode, flags),
+		BTextControl(frame, name, label, text, message, resizingMode, flags),
 		fProjectItem(item)
 	{
 		SetEventMask(B_POINTER_EVENTS|B_KEYBOARD_EVENTS);	
 	}
 	
-	virtual void AllAttached() {
+	virtual void AllAttached()
+	{
 		TextView()->SelectAll();
 	}
 	
-	virtual void MouseDown(BPoint point) {
-		if(Bounds().Contains(point))
+	virtual void MouseDown(BPoint point)
+	{
+		if (Bounds().Contains(point))
 			_inherited::MouseDown(point);
 		else {
 			fProjectItem->AbortRename();
 		}
-		
 		Invoke();
-		
 	}
 	
-	virtual void KeyDown(const char* bytes, int32 numBytes) {
-		if(numBytes == 1 && *bytes == B_ESCAPE) {
+	virtual void KeyDown(const char* bytes, int32 numBytes)
+	{
+		if (numBytes == 1 && *bytes == B_ESCAPE) {
 			fProjectItem->AbortRename();
 		}
-		if(numBytes == 1 && *bytes == B_RETURN) {
+		if (numBytes == 1 && *bytes == B_RETURN) {
 			fProjectItem->CommitRename();
 		}
 	}
@@ -84,7 +83,7 @@ ProjectItem::~ProjectItem()
 }
 
 
-void 
+void
 ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
 	if (Text() == NULL)
@@ -100,7 +99,6 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			color = ui_color(B_LIST_SELECTED_BACKGROUND_COLOR);
 		else
 			color = owner->ViewColor();
-
 		owner->SetLowColor(color);
 		owner->FillRect(bounds, B_SOLID_LOW);
 	} else
@@ -219,4 +217,3 @@ ProjectItem::_DestroyTextWidget()
 		fTextControl = nullptr;
 	}
 }
-

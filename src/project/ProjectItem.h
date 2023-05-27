@@ -26,7 +26,7 @@ public:
 
 	SourceItem		*GetSourceItem() const { return fSourceItem; };
 	
-	void			InitRename(BMessage* message, const BMessenger& target);
+	void			InitRename(BMessage* message);
 	void			AbortRename();
 	void			CommitRename();
 	
@@ -35,7 +35,6 @@ private:
 	bool			fFirstTimeRendered;
 	BRect			fTextRect;
 	bool			fInitRename;
-	BMessenger		fTarget;	
 	BMessage*		fMessage;
 	BTextControl	*fTextControl;
 	

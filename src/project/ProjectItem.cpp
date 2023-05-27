@@ -179,12 +179,11 @@ ProjectItem::Update(BView* owner, const BFont* font)
 
 
 void
-ProjectItem::InitRename(BMessage* message, const BMessenger& target)
+ProjectItem::InitRename(BMessage* message)
 {
 	if (fTextControl != nullptr)
 		debugger("ProjectItem::InitRename() called twice!");
 	fInitRename = true;
-	fTarget = target;
 	fMessage = message;
 }
 

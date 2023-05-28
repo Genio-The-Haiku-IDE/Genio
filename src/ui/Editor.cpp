@@ -1066,8 +1066,8 @@ Editor::SetReadOnly(bool readOnly)
 	}
 	
 	if (IsModified()) {
-		BString text(B_TRANSLATE("Save changes to file"));
-		text << " \"" << Name() << "\" ?";
+		BString text(B_TRANSLATE("Save changes to file \"%filename%\"?"));
+		text.ReplaceFirst("%filename%", Name());
 
 		BAlert* alert = new BAlert(B_TRANSLATE("Save dialog"), text,
  			B_TRANSLATE("Cancel"), B_TRANSLATE("Don't save"), B_TRANSLATE("Save"),

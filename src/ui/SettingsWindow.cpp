@@ -1056,10 +1056,10 @@ SettingsWindow::_PageGeneralViewStartup()
 		B_TRANSLATE("Reload files"), new BMessage(MSG_REOPEN_FILES_TOGGLED));
 
 	fShowProjectsPanes = new BCheckBox("ShowProjectsPanes",
-		B_TRANSLATE("Show projects panes"), new BMessage(MSG_SHOW_PROJECTS_PANES_TOGGLED));
+		B_TRANSLATE("Show projects pane"), new BMessage(MSG_SHOW_PROJECTS_PANES_TOGGLED));
 
 	fShowOutputPanes = new BCheckBox("ShowOutputPanes",
-		B_TRANSLATE("Show output panes"), new BMessage(MSG_SHOW_OUTPUT_PANES_TOGGLED));
+		B_TRANSLATE("Show output pane"), new BMessage(MSG_SHOW_OUTPUT_PANES_TOGGLED));
 
 	fShowToolBar = new BCheckBox("ShowToolBar",
 		B_TRANSLATE("Show toolbar"), new BMessage(MSG_SHOW_TOOLBAR_TOGGLED));
@@ -1089,7 +1089,7 @@ SettingsWindow::_PageNotificationsView()
 	fNotificationsBox->SetLabel(B_TRANSLATE("Notifications"));
 
 	fEnableNotifications = new BCheckBox("EnableNotifications",
-		B_TRANSLATE("Enable Notifications"), new BMessage(MSG_ENABLE_NOTIFICATIONS_TOGGLED));
+		B_TRANSLATE("Enable notifications"), new BMessage(MSG_ENABLE_NOTIFICATIONS_TOGGLED));
 
 	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
 		.Add(BLayoutBuilder::Grid<>(fNotificationsBox)
@@ -1304,9 +1304,8 @@ SettingsWindow::_UpdateText()
 	BString text;
 
 	text << fControlsDone << "/" << fControlsCount;
-	text <<  " " << B_TRANSLATE("Controls loaded.");
-	text << " " << B_TRANSLATE("Modifications") << " " << fModifiedList->CountItems();
-	text <<  ",\t" << B_TRANSLATE("applied") << " " << fAppliedModifications;
+	text << " " << "Controls loaded. Modifications " << fModifiedList->CountItems();
+	text << ", applied " << fAppliedModifications;
 	fStatusBar->SetText(text.String());
 }
 
@@ -1315,12 +1314,10 @@ SettingsWindow::_UpdateTrailing()
 {
 	BString text;
 
-	text << B_TRANSLATE("Set for app ver: ")
-		 << fWindowSettingsFile->FindString("app_version") << ",\t";
+	text << "Set for app ver: " << fWindowSettingsFile->FindString("app_version") << ",\t";
 
-	BString option = fUseCount == 1	? B_TRANSLATE("time")
-										: B_TRANSLATE("times");
-	text << B_TRANSLATE("tuned ") << fUseCount << " " << option;
+	BString option = fUseCount == 1	? "time" : "times";
+	text << "tuned " << fUseCount << " " << option;
 
 	fStatusBar->SetTrailingText(text.String());
 }

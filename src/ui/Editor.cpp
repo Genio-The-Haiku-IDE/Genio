@@ -30,6 +30,7 @@
 #include "EditorContextMenu.h"
 #include "ScintillaUtils.h"
 #include "Log.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -1065,8 +1066,8 @@ Editor::SetReadOnly(bool readOnly)
 	}
 	
 	if (IsModified()) {
-		BString text(B_TRANSLATE("Save changes to file"));
-		text << " \"" << Name() << "\" ?";
+		BString text(B_TRANSLATE("Save changes to file \"%filename%\"?"));
+		text.ReplaceFirst("%filename%", Name());
 
 		BAlert* alert = new BAlert(B_TRANSLATE("Save dialog"), text,
  			B_TRANSLATE("Cancel"), B_TRANSLATE("Don't save"), B_TRANSLATE("Save"),
@@ -1230,10 +1231,16 @@ Editor::GoToImplementation()
 	fFileWrapper->GoTo(FileWrapper::GOTO_IMPLEMENTATION);
 }
 
+
 void
 Editor::SwitchSourceHeader()
 {
-	fFileWrapper->SwitchSourceHeader();
+	entry_ref foundRef;
+	if (FindSourceOrHeader(&fFileRef, &foundRef) == B_OK) {
+		BMessage refs(B_REFS_RECEIVED);
+        refs.AddRef("refs", &foundRef);
+        be_app->PostMessage(&refs);
+	}
 }
 
 void

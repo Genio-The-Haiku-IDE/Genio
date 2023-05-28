@@ -14,7 +14,9 @@
 #include <MessageFilter.h>
 #include <RadioButton.h>
 #include <Resources.h>
-
+#include <Path.h>
+#include <string>
+#include <algorithm>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Utilities"
@@ -193,3 +195,71 @@ find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
 	}
 	return entry_ref();
 }
+
+#define FIND_IN_ARRAY(ARRAY, VALUE) (std::find(std::begin(ARRAY), std::end(ARRAY), VALUE) != std::end(ARRAY));
+
+std::string sourceExt[] = {".cpp", ".c", ".cc", ".cxx", ".c++"}; //, ".m", ".mm"};
+std::string headerExt[] = {".h", ".hh", ".hpp", ".hxx"}; //, ".inc"};
+
+bool 
+IsCppSourceExtension(std::string extension)
+{
+	return FIND_IN_ARRAY(sourceExt, extension);
+}
+
+bool 
+IsCppHeaderExtension(std::string extension)
+{
+	return FIND_IN_ARRAY(headerExt, extension);
+}
+
+status_t	
+FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
+{
+	//TODO this is not language specific!
+	
+	status_t status;
+	BEntry entry;
+	if ((status = entry.SetTo(editorRef)) != B_OK)
+		return status;
+
+	BPath fullPath;
+	if ((status = entry.GetPath(&fullPath)) != B_OK)
+		return status;
+
+	// extract extension
+	std::string filename = fullPath.Path();
+	size_t dotPos = filename.find_last_of('.');
+	if (dotPos == std::string::npos)
+		return B_ERROR;
+
+	std::string extension = filename.substr(dotPos);
+	std::string prefixname = filename.substr(0, dotPos);
+
+	BEntry foundFile;
+	bool found = false;
+
+	if (IsCppSourceExtension(extension)) {
+		// search if the file exists with the possible header extensions..
+		found = std::find_if(std::begin(headerExt), std::end(headerExt),
+			[&prefixname, &foundFile](std::string extension) {
+				std::string fullFilename = prefixname + extension;
+				foundFile.SetTo(fullFilename.c_str());
+				return foundFile.Exists();
+			});
+	} else if (IsCppHeaderExtension(extension)) {
+		// search if the file exists with the possible source extensions..
+		found = std::find_if(std::begin(sourceExt), std::end(sourceExt),
+			[&prefixname, &foundFile](std::string extension) {
+				std::string fullFilename = prefixname + extension;
+				foundFile.SetTo(fullFilename.c_str());
+				return foundFile.Exists();
+			});
+	}
+	
+	if (!found)
+		return B_ERROR;
+
+	return foundFile.GetRef(foundRef);
+}
+

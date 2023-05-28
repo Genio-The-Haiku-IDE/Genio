@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Your_Name <your@email.address>
+ * Copyright 2023 Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #ifndef PROJECT_ITEM_H
@@ -7,7 +7,9 @@
 
 #include <Bitmap.h>
 #include <Font.h>
+#include <Messenger.h>
 #include <StringItem.h>
+#include <TextControl.h>
 #include <View.h>
 
 
@@ -24,10 +26,19 @@ public:
 
 	SourceItem		*GetSourceItem() const { return fSourceItem; };
 	
+	void			InitRename(BMessage* message);
+	void			AbortRename();
+	void			CommitRename();
+	
 private:
 	SourceItem		*fSourceItem;
-	bool			firstTimeRendered = true;
+	bool			fFirstTimeRendered;
 	BRect			fTextRect;
+	bool			fInitRename;
+	BMessage*		fMessage;
+	BTextControl	*fTextControl;
+	
+	void			_DestroyTextWidget();
 };
 
 

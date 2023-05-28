@@ -39,7 +39,7 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 
 	fCloseProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"),
 		new BMessage(MSG_PROJECT_MENU_CLOSE));
-	fSetActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set Active"),
+	fSetActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"),
 		new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
 		
 	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
@@ -179,8 +179,9 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 					// It seems not possible to track the project folder to the new
 					// location outside of the watched path. So we close the project 
 					// and warn the user
-					auto alert = new BAlert("ProjectFolderChanged",
-						B_TRANSLATE("The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace."),
+					auto alert = new BAlert("ProjectFolderChanged", B_TRANSLATE(
+						"The project folder has been deleted or moved to another location "
+						"and it will be closed and unloaded from the workspace."),
 						B_TRANSLATE("OK"), NULL, NULL,
 						B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 						alert->Go();
@@ -372,8 +373,14 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 		case MSG_PROJECT_MENU_DO_RENAME_FILE:
 		{
 			BString newName;
-			if (message->FindString("_value", &newName) == B_OK)
-				_RenameCurrentSelectedFile(newName);
+			if (message->FindString("_value", &newName) == B_OK) {
+				if (_RenameCurrentSelectedFile(newName) != B_OK) {
+					OKAlert("Rename", 
+							BString(B_TRANSLATE("An error occurred attempting to rename file ")) <<
+							newName, 
+							B_WARNING_ALERT);
+				}
+			}
 		}
 		break;
 		default:
@@ -499,12 +506,9 @@ ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 	status_t status = B_NOT_INITIALIZED;
 	ProjectItem *item = GetCurrentProjectItem();
 	if (item) {
-		BPath path(item->GetSourceItem()->Path());
-		BPath newPath;
-		path.GetParent(&newPath);
-		newPath.Append(new_name);
 		BEntry entry(item->GetSourceItem()->Path());
-		status = entry.Rename(newPath.Path(), false);
+		if (entry.Exists())
+			status = entry.Rename(new_name, false);
 	}
 	return status;
 }
@@ -639,4 +643,10 @@ void
 ProjectsFolderBrowser::SelectionChanged() {
 	GenioWindow *window = (GenioWindow*)this->Window();
 	window->UpdateMenu();
+}
+
+void
+ProjectsFolderBrowser::InitRename(ProjectItem *item) {
+	item->InitRename(new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
+	Invalidate();
 }

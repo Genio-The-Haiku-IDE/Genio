@@ -94,7 +94,7 @@ ProjectSettingsWindow::_InitWindow()
 {
 	// "Build Commands" Box
 	fBuildCommandsBox = new BBox("BuildCommandsBox");
-	fBuildCommandsBox->SetLabel(B_TRANSLATE("Build Commands"));
+	fBuildCommandsBox->SetLabel(B_TRANSLATE("Build commands"));
 
 	fReleaseBuildCommandText = new BTextControl(B_TRANSLATE("Release build comand:"), "", nullptr);
 	fDebugBuildCommandText = new BTextControl(B_TRANSLATE("Debug build comand:"), "", nullptr);

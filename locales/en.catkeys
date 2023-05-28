@@ -1,73 +1,71 @@
-1	English	application/x-vnd.Genio	1131137956
+1	English	application/x-vnd.Genio	1556747924
 Copy	GenioWindow		Copy
 Enable brace matching	SettingsWindow		Enable brace matching
-time	SettingsWindow		time
 Clear	ConsoleIOView		Clear
 Comment selected lines	GenioWindow		Comment selected lines
 Switch source/header	GenioWindow		Switch source/header
 Debug clean comand:	ProjectSettingsWindow		Debug clean comand:
+Make file read-only	GenioWindow		Make file read-only
 Show toolbar	GenioWindow		Show toolbar
 Debug build comand:	ProjectSettingsWindow		Debug build comand:
 Font:	SettingsWindow		Font:
 Build mode: Debug	GenioWindow		Build mode: Debug
-Delete lines	GenioWindow		Delete lines
+Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Replace selection	GenioWindow		Replace selection
-Set buffer read-only	GenioWindow		Set buffer read-only
-Select previous file	GenioWindow		Select previous file
 Problems	ProblemsPanel		Problems
 Open file	ProjectsFolderBrowser		Open file
 Edge column:	SettingsWindow		Edge column:
 Line endings	GenioWindow		Line endings
 Window	GenioWindow		Window
+Open files list	GenioWindow		Open files list
 Projects folder:	SettingsWindow		Projects folder:
+Set active	ProjectsFolderBrowser		Set active
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
 Wrap	GenioWindow		Wrap
 Run in Terminal	ProjectSettingsWindow		Run in Terminal
 Save all	GenioWindow		Save all
 Go to line…	GenioWindow		Go to line…
+Log (oneline)	GenioWindow	The git command	Log (oneline)
 OK	GoToLineWindow		OK
-Pull (rebase)	GenioWindow		Pull (rebase)
 Select all	GenioWindow		Select all
 New folder	TemplateManager		New folder
-If kept and modified, save it or it will be lost	GenioWindow		If kept and modified, save it or it will be lost
-Startup	SettingsWindow		Startup
+Show/Hide find bar	GenioWindow		Show/Hide find bar
+Status	GenioWindow	The git command	Status
 Close file	GenioWindow		Close file
 Build log	GenioWindow		Build log
+Startup	SettingsWindow		Startup
 Find previous	GenioWindow		Find previous
+Show projects pane	SettingsWindow		Show projects pane
 Redo	GenioWindow		Redo
-Show output panes	GenioWindow		Show output panes
 Console I/O	GenioWindow		Console I/O
 Run	GenioWindow		Run
 Save current file	GenioWindow		Save current file
 Open Terminal	ProjectsFolderBrowser		Open Terminal
 Reload	GenioWindow		Reload
-Do you want to ignore, close or reload it?	GenioWindow		Do you want to ignore, close or reload it?
 Default	ProjectSettingsWindow		Default
 Project	GenioWindow		Project
 Replace	GenioWindow		Replace
 Load defaults	GenioApp		Load defaults
 Cancel	GenioWindow		Cancel
+Switch to previous file	GenioWindow		Switch to previous file
 Log level:	SettingsWindow		Log level:
 Release project target:	ProjectSettingsWindow		Release project target:
-Replace toggle (leaves Find bar open)	GenioWindow		Replace toggle (leaves Find bar open)
-Enable Notifications	SettingsWindow		Enable Notifications
-Build Commands	ProjectSettingsWindow		Build Commands
 Genio	System name		Genio
 OK	ProjectsFolderBrowser		OK
 Keep	GenioWindow		Keep
 Release	GenioWindow		Release
-Toggle	GenioWindow		Toggle
 Debug	GenioWindow		Debug
 Undo	GenioWindow		Undo
 Open recent…	GenioWindow		Open recent…
-Show config	GenioWindow		Show config
 Save	Editor		Save
 Autocomplete	GenioWindow		Autocomplete
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
 Convert to Mac	GenioWindow		Convert to Mac
-Deleting item:	GenioWindow		Deleting item:
 New file	GenioWindow		New file
-Read only	GenioWindow		Read only
 Project:	ProjectSettingsWindow		Project:
+Previous	GenioWindow	Bookmark menu	Previous
+Show output pane	GenioWindow		Show output pane
+Read-only	GenioWindow		Read-only
 Delete file	ProjectsFolderBrowser		Delete file
 Do you want to ignore, review or load defaults?	GenioApp		Do you want to ignore, review or load defaults?
 Find	GenioWindow		Find
@@ -76,45 +74,43 @@ Invalid project folder	GenioWindow		Invalid project folder
 Mark caret line	SettingsWindow		Mark caret line
 Build mode	GenioWindow		Build mode
 Wrap console	SettingsWindow		Wrap console
-Mark all	GenioWindow		Mark all
+Toggle	GenioWindow	Bookmark menu	Toggle
 Replace all	GenioWindow		Replace all
 Replace and find previous	GenioWindow		Replace and find previous
 Defaults loaded	SettingsWindow		Defaults loaded
 Debug project	GenioWindow		Debug project
 stderr	ConsoleIOView		stderr
 The settings file doesn't exist or is corrupted.	GenioApp		The settings file doesn't exist or is corrupted.
-File \"%file%\" was modified externally, reload it?	GenioWindow		File \"%file%\" was modified externally, reload it?
-File \"%file%\" was moved externally.	GenioWindow		File \"%file%\" was moved externally.
 Go to line:	GoToLineWindow		Go to line:
 Close project	GenioWindow		Close project
 Replace:	GenioWindow		Replace:
 Ignore	GenioWindow		Ignore
-Indexed file list	GenioWindow		Indexed file list
+Tag	GenioWindow	The git command	Tag
 Run console program	GenioWindow		Run console program
-Do you really want to delete it?	GenioWindow		Do you really want to delete it?
-Do you want to keep the file or discard it?	GenioWindow		Do you want to keep the file or discard it?
+Branch	GenioWindow	The git command	Branch
+Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
 New folder	GenioWindow		New folder
 Could not open template folder in Tracker	GenioWindow		Could not open template folder in Tracker
 Build	SettingsWindow		Build
+Another command is running.	ConsoleIOView		Another command is running.
 Duplicate current line	GenioWindow		Duplicate current line
 Clean project	GenioWindow		Clean project
 Release clean comand:	ProjectSettingsWindow		Release clean comand:
 Default	SettingsWindow		Default
-General	SettingsWindow		General
 Settings…	GenioWindow		Settings…
+General	SettingsWindow		General
 Release build comand:	ProjectSettingsWindow		Release build comand:
 Delete	GenioWindow		Delete
 Message	ProblemsPanel		Message
 Go to line	GoToLineWindow		Go to line
 Match case	GenioWindow		Match case
-File \"%file%\" was removed externally.	GenioWindow		File \"%file%\" was removed externally.
-Go to previous	GenioWindow		Go to previous
+Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Pull	GenioWindow	The git command	Pull
 Save	GenioWindow		Save
-applied	SettingsWindow		applied
-Find toggle (closes Replace bar if open)	GenioWindow		Find toggle (closes Replace bar if open)
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
-Quit	GenioWindow		Quit
 Go to declaration	GenioWindow		Go to declaration
+Quit	GenioWindow		Quit
+Switch to next file	GenioWindow		Switch to next file
 Show projects pane	GenioWindow		Show projects pane
 Log destination:	SettingsWindow		Log destination:
 Show edge line	SettingsWindow		Show edge line
@@ -127,13 +123,14 @@ stdout	ConsoleIOView		stdout
 Reload projects	SettingsWindow		Reload projects
 Console banner	SettingsWindow		Console banner
 Overwrite	GenioWindow		Overwrite
+Enable notifications	SettingsWindow		Enable notifications
 Edit user templates…	TemplatesMenu		Edit user templates…
 Go to definition	GenioWindow		Go to definition
 Save dialog	Editor		Save dialog
 Rename file	ProjectsFolderBrowser		Rename file
-Branch	GenioWindow		Branch
+Show output pane	SettingsWindow		Show output pane
+Status (short)	GenioWindow	The git command	Status (short)
 Don't save	GenioWindow		Don't save
-Show output panes	SettingsWindow		Show output panes
 Release execute arguments:	ProjectSettingsWindow		Release execute arguments:
 Search	GenioWindow		Search
 OK	ProjectSettingsWindow		OK
@@ -141,57 +138,49 @@ Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
 Exclude settings file from Git	ProjectSettingsWindow		Exclude settings file from Git
 Editor	SettingsWindow		Editor
 Banner	ConsoleIOView		Banner
-Log	GenioWindow		Log
 Error creating folder	GenioWindow		Error creating folder
-Save changes to file	Editor		Save changes to file
 Replace and find next	GenioWindow		Replace and find next
-Select next file	GenioWindow		Select next file
 Set to Mac	GenioWindow		Set to Mac
 Show/Hide projects pane	GenioWindow		Show/Hide projects pane
 Source	ProblemsPanel		Source
 Show full path in window title	SettingsWindow		Show full path in window title
-Show projects panes	SettingsWindow		Show projects panes
 See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
 Build project	GenioWindow		Build project
 View	GenioWindow		View
 Don't save	Editor		Don't save
 Reset zoom	GenioWindow		Reset zoom
 Stop	ConsoleIOView		Stop
-tuned 	SettingsWindow		tuned 
 Signature help	GenioWindow		Signature help
 Tab width:  	SettingsWindow		Tab width:  
-Status	GenioWindow		Status
-After deletion the item will be lost.	GenioWindow		After deletion the item will be lost.
 Show toolbar	SettingsWindow		Show toolbar
 Revert	SettingsWindow		Revert
 Settings file for a previous version detected.	GenioApp		Settings file for a previous version detected.
-Log (oneline)	GenioWindow		Log (oneline)
 Whole word	GenioWindow		Whole word
 Made with love in Italy	GenioApp		Made with love in Italy
 Enable Git	ProjectSettingsWindow		Enable Git
 Default size	SettingsWindow		Default size
 Show comment margin	SettingsWindow		Show comment margin
+File \"%file%\" was apparently modified, reload it?	GenioWindow		File \"%file%\" was apparently modified, reload it?
 Cancel	GoToLineWindow		Cancel
+Bookmark all	GenioWindow		Bookmark all
 Appearance	GenioWindow		Appearance
 Cancel	Editor		Cancel
 File	GenioWindow		File
+Delete current line	GenioWindow		Delete current line
 Source control	ProjectSettingsWindow		Source control
 Reload files	SettingsWindow		Reload files
-Tag	GenioWindow		Tag
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
 Cut	GenioWindow		Cut
 Set for app ver: 	SettingsWindow		Set for app ver: 
 Font size:	SettingsWindow		Font size:
 Cancel	SettingsWindow		Cancel
 Zoom out	GenioWindow		Zoom out
-Pull	GenioWindow		Pull
-Another command is running..	ConsoleIOView		Another command is running..
 Save as…	GenioWindow		Save as…
 Set to Unix	GenioWindow		Set to Unix
-Clear all	GenioWindow		Clear all
+Log	GenioWindow	The git command	Log
+Show/Hide output pane	GenioWindow		Show/Hide output pane
+Show config	GenioWindow	The git command	Show config
 Projects	GenioWindow		Projects
-Set Active	ProjectsFolderBrowser		Set Active
-Show/Hide output panes	GenioWindow		Show/Hide output panes
 Go to implementation	GenioWindow		Go to implementation
 Run target	GenioWindow		Run target
 New	ProjectsFolderBrowser		New
@@ -205,45 +194,46 @@ Build mode: Release	GenioWindow		Build mode: Release
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
 Set to Dos	GenioWindow		Set to Dos
 Zoom in	GenioWindow		Zoom in
-Status (short)	GenioWindow		Status (short)
 Enable folding	SettingsWindow		Enable folding
 Apply	SettingsWindow		Apply
 Fold/Unfold all	GenioWindow		Fold/Unfold all
 Toggle white spaces	GenioWindow		Toggle white spaces
 New	GenioWindow		New
 Bookmark	GenioWindow		Bookmark
-Go to next	GenioWindow		Go to next
 Close all	GenioWindow		Close all
 You can't create a new folder here, please select a project or another folder	GenioWindow		You can't create a new folder here, please select a project or another folder
 Wrap	ConsoleIOView		Wrap
-Modifications	SettingsWindow		Modifications
-Find in files	GenioWindow		Find in files
+Next	GenioWindow	Bookmark menu	Next
+Clear all	GenioWindow	Bookmark menu	Clear all
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
 Review	GenioApp		Review
 Cancel	ProjectSettingsWindow		Cancel
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
-Controls loaded.	SettingsWindow		Controls loaded.
 Delete dialog	GenioWindow		Delete dialog
 Show line number	SettingsWindow		Show line number
 Target	ProjectSettingsWindow		Target
+Find in project	GenioWindow		Find in project
 About…	GenioWindow		About…
 Debug execute arguments:	ProjectSettingsWindow		Debug execute arguments:
 Category	ProblemsPanel		Category
 Debug project target:	ProjectSettingsWindow		Debug project target:
 Close	GenioWindow		Close
+Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n
 Open project	GenioWindow		Open project
 Ignore	GenioApp		Ignore
 Edit	GenioWindow		Edit
 There are modified files, do you want to save changes before quitting?	GenioWindow		There are modified files, do you want to save changes before quitting?
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Find next	GenioWindow		Find next
 Notifications	SettingsWindow		Notifications
 Find:	GenioWindow		Find:
 This is the font size preview	SettingsWindow		This is the font size preview
 Git	GenioWindow		Git
-times	SettingsWindow		times
 OK	Utilities		OK
 Project settings…	GenioWindow		Project settings…
 Paste	GenioWindow		Paste
 Visual	SettingsWindow		Visual
 Convert to Unix	GenioWindow		Convert to Unix
+Build commands	ProjectSettingsWindow		Build commands
 Save caret position	SettingsWindow		Save caret position

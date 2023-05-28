@@ -152,7 +152,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			if (fConsoleIOThread) {
 				//this should be prevented by the UI...
 				BString msg = "\n *** ";
-				msg << B_TRANSLATE("Another command is running..");
+				msg << B_TRANSLATE("Another command is running.");
 				msg << "\n";
 				
 				ConsoleOutputReceived(1, msg);

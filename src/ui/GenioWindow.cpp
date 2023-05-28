@@ -3789,7 +3789,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		// ToolBar Items
 		ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
 		ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
-		fReplaceGroup->Hide();
 		ActionManager::SetEnabled(MSG_FILE_FOLD_TOGGLE, false);
 		ActionManager::SetEnabled(B_UNDO, false);
 		ActionManager::SetEnabled(B_REDO, false);

@@ -113,34 +113,27 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		} else {
 			owner->SetFont(be_plain_font);
 		}
-		if (IsSelected()) {
-			owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
-		} else {
-			owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
-		}
-		owner->SetDrawingMode(B_OP_OVER);
-	} else {
-		if (IsSelected())
-			owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
-		else
-			owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 	}
-
-	owner->SetDrawingMode(B_OP_ALPHA);
+	if (IsSelected())
+		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
+	else
+		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
 	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
 
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);	
-	
+
 	fTextRect.top = bounds.top-0.5f;
 	fTextRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
 	fTextRect.bottom = bounds.bottom-1;
 	fTextRect.right = bounds.right;
-	
-	if (icon != nullptr)
+
+	if (icon != nullptr) {
+		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->DrawBitmapAsync(icon, iconStartingPoint);
-	
+	}
+
 	// Check if there is an InitRename request and show a TextControl
 	if (fInitRename) {
 		if (fTextControl == nullptr) {

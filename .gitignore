@@ -4,3 +4,4 @@ objects.*
 compile_commands.json
 .cache
 txt2header
+Changelog.h

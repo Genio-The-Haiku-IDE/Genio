@@ -93,13 +93,13 @@ TabView::Draw(BRect updateRect)
 		fIsFront);
 
 	if (fIsFront) {
-		frame.top += 3.0f;
+		frame.top += 0.0f;
 		if (!fIsFirst)
 			frame.left++;
 		if (!fIsLast)
 			frame.right--;
 	} else
-		frame.top += 6.0f;
+		frame.top += 3.0f;
 
 	float spacing = be_control_look->DefaultLabelSpacing();
 	frame.InsetBy(spacing, spacing / 2);

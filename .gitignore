@@ -3,3 +3,4 @@ objects.*
 *.o
 compile_commands.json
 .cache
+txt2header

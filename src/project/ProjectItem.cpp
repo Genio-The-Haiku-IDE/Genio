@@ -89,11 +89,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	if (Text() == NULL)
 		return;
 
-	owner->SetFont(be_plain_font);
-		
-	rgb_color lowColor = owner->LowColor();
-
 	if (IsSelected() || complete) {
+		rgb_color oldLowColor = owner->LowColor();
 		rgb_color color;
 		if (IsSelected())
 			color = ui_color(B_LIST_SELECTED_BACKGROUND_COLOR);
@@ -101,17 +98,15 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			color = owner->ViewColor();
 		owner->SetLowColor(color);
 		owner->FillRect(bounds, B_SOLID_LOW);
-	} else
-		owner->SetLowColor(owner->ViewColor());
+		owner->SetLowColor(oldLowColor);
+	}
 
-	owner->SetLowColor(lowColor);
+	owner->SetFont(be_plain_font);
 
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		ProjectFolder *projectFolder = (ProjectFolder *)GetSourceItem();
 		if (projectFolder->Active()) {
 			owner->SetFont(be_bold_font);
-		} else {
-			owner->SetFont(be_plain_font);
 		}
 	}
 	if (IsSelected())
@@ -124,7 +119,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);	
 
-	fTextRect.top = bounds.top-0.5f;
+	fTextRect.top = bounds.top - 0.5f;
 	fTextRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
 	fTextRect.bottom = bounds.bottom-1;
 	fTextRect.right = bounds.right;
@@ -153,7 +148,6 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->MovePenTo(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
 							bounds.top + BaselineOffset());
 		owner->DrawString(Text());
-		
 		owner->Sync();
 		
 		if (fFirstTimeRendered) {

@@ -105,11 +105,8 @@ void
 ConsoleIOView::_StopCommand()
 {
 	if (fConsoleIOThread) {
-		status_t status = B_OK;
-		if ((status = fConsoleIOThread->InterruptExternal()) != B_OK) {
-			LogErrorF("Can't stop external process! (%s)", strerror(status));
-		}
-		
+	
+		fConsoleIOThread->InterruptExternal();
 		fConsoleIOThread->Kill();
 		delete fConsoleIOThread;
 		fConsoleIOThread = nullptr;

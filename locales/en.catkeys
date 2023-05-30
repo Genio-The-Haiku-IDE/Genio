@@ -1,6 +1,7 @@
-1	English	application/x-vnd.Genio	1556747924
+1	English	application/x-vnd.Genio	677345963
 Copy	GenioWindow		Copy
 Enable brace matching	SettingsWindow		Enable brace matching
+Dos	GenioWindow		Dos
 Clear	ConsoleIOView		Clear
 Comment selected lines	GenioWindow		Comment selected lines
 Switch source/header	GenioWindow		Switch source/header
@@ -60,7 +61,6 @@ Open recent…	GenioWindow		Open recent…
 Save	Editor		Save
 Autocomplete	GenioWindow		Autocomplete
 File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
-Convert to Mac	GenioWindow		Convert to Mac
 New file	GenioWindow		New file
 Project:	ProjectSettingsWindow		Project:
 Previous	GenioWindow	Bookmark menu	Previous
@@ -91,6 +91,7 @@ Branch	GenioWindow	The git command	Branch
 Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
 New folder	GenioWindow		New folder
 Could not open template folder in Tracker	GenioWindow		Could not open template folder in Tracker
+{0, plural,one{A file was modified. Do you want to save the changes before quitting?}other{Some files were modified. Do you want to save the changes before quitting?}}	GenioWindow		{0, plural,one{A file was modified. Do you want to save the changes before quitting?}other{Some files were modified. Do you want to save the changes before quitting?}}
 Build	SettingsWindow		Build
 Another command is running.	ConsoleIOView		Another command is running.
 Duplicate current line	GenioWindow		Duplicate current line
@@ -117,7 +118,6 @@ Show edge line	SettingsWindow		Show edge line
 Help	GenioWindow		Help
 Open	GenioWindow		Open
 Toggle line endings	GenioWindow		Toggle line endings
-Convert to Dos	GenioWindow		Convert to Dos
 Save all files	GenioWindow		Save all files
 stdout	ConsoleIOView		stdout
 Reload projects	SettingsWindow		Reload projects
@@ -136,11 +136,10 @@ Search	GenioWindow		Search
 OK	ProjectSettingsWindow		OK
 Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
 Exclude settings file from Git	ProjectSettingsWindow		Exclude settings file from Git
-Editor	SettingsWindow		Editor
 Banner	ConsoleIOView		Banner
+Editor	SettingsWindow		Editor
 Error creating folder	GenioWindow		Error creating folder
 Replace and find next	GenioWindow		Replace and find next
-Set to Mac	GenioWindow		Set to Mac
 Show/Hide projects pane	GenioWindow		Show/Hide projects pane
 Source	ProblemsPanel		Source
 Show full path in window title	SettingsWindow		Show full path in window title
@@ -161,6 +160,7 @@ Enable Git	ProjectSettingsWindow		Enable Git
 Default size	SettingsWindow		Default size
 Show comment margin	SettingsWindow		Show comment margin
 File \"%file%\" was apparently modified, reload it?	GenioWindow		File \"%file%\" was apparently modified, reload it?
+Unix	GenioWindow		Unix
 Cancel	GoToLineWindow		Cancel
 Bookmark all	GenioWindow		Bookmark all
 Appearance	GenioWindow		Appearance
@@ -176,7 +176,7 @@ Font size:	SettingsWindow		Font size:
 Cancel	SettingsWindow		Cancel
 Zoom out	GenioWindow		Zoom out
 Save as…	GenioWindow		Save as…
-Set to Unix	GenioWindow		Set to Unix
+Mac	GenioWindow		Mac
 Log	GenioWindow	The git command	Log
 Show/Hide output pane	GenioWindow		Show/Hide output pane
 Show config	GenioWindow	The git command	Show config
@@ -192,7 +192,6 @@ Format	GenioWindow		Format
 Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
 Build mode: Release	GenioWindow		Build mode: Release
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
-Set to Dos	GenioWindow		Set to Dos
 Zoom in	GenioWindow		Zoom in
 Enable folding	SettingsWindow		Enable folding
 Apply	SettingsWindow		Apply
@@ -223,7 +222,6 @@ Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla fo
 Open project	GenioWindow		Open project
 Ignore	GenioApp		Ignore
 Edit	GenioWindow		Edit
-There are modified files, do you want to save changes before quitting?	GenioWindow		There are modified files, do you want to save changes before quitting?
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Find next	GenioWindow		Find next
 Notifications	SettingsWindow		Notifications
@@ -234,6 +232,5 @@ OK	Utilities		OK
 Project settings…	GenioWindow		Project settings…
 Paste	GenioWindow		Paste
 Visual	SettingsWindow		Visual
-Convert to Unix	GenioWindow		Convert to Unix
 Build commands	ProjectSettingsWindow		Build commands
 Save caret position	SettingsWindow		Save caret position

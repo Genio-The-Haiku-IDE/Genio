@@ -79,7 +79,7 @@ private:
 			status_t			_FileSave(int32	index);
 			void				_FileSaveAll();
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
-			bool				_FilesNeedSave();
+			int32				_FilesNeedSave();
 			void				_FindGroupShow(bool show);
 			int32				_FindMarkAll(const BString text);
 			void				_FindNext(const BString& strToFind, bool backwards);

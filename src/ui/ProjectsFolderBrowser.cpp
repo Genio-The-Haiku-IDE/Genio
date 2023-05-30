@@ -542,8 +542,11 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 
 void
 ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
-{	
-	BPrivate::BPathMonitor::StopWatching(project->Path(), BMessenger(this));
+{
+	status_t status = BPrivate::BPathMonitor::StopWatching(project->Path(), BMessenger(this));
+	if ( status != B_OK ){
+		LogErrorF("Can't StopWatching! path [%s] error[%s]", project->Path(), strerror(status));
+	}
 	ProjectItem*	listItem = FindProjectItem(project->Path());
 	if (listItem)
 		RemoveItem(listItem);
@@ -562,11 +565,10 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
 	
 	Invalidate();
-	
-	if (BPrivate::BPathMonitor::StartWatching(project->Path(),
-			B_WATCH_RECURSIVELY, BMessenger(this)) != B_OK)
-	{
-		LogError("Can't start PathMonitor!");
+	status_t status = BPrivate::BPathMonitor::StartWatching(project->Path(),
+			B_WATCH_RECURSIVELY, BMessenger(this));
+	if ( status != B_OK ){
+		LogErrorF("Can't StartWatching! path [%s] error[%s]", project->Path(), strerror(status));
 	}
 }
 

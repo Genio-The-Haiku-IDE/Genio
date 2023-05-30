@@ -43,6 +43,7 @@ ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consol
 
 ConsoleIOThread::~ConsoleIOThread()
 {
+	ClosePipes();
 }
 
 status_t
@@ -90,16 +91,6 @@ ConsoleIOThread::_RunExternalProcess()
 	fConsoleOutput = fdopen(fStdOut, "r");
 	fConsoleError = fdopen(fStdErr, "r");
 
-	// Enable Stop button in view
-	BMessage button_message(CONSOLEIOTHREAD_ENABLE_STOP_BUTTON);
-	button_message.AddBool("enable", true);
-	fConsoleTarget.SendMessage(&button_message);
-
-	// Let console view know the cmd_type so Stop action will post it
-	button_message.AddString("cmd_type", fCmdType);
-
-	_BannerMessage("started   ");
-
 	return B_OK;
 }
 
@@ -110,12 +101,7 @@ ConsoleIOThread::ExecuteUnit(void)
 	// this way we always enter in the same managed loop
 
 	if (fProcessId == -1) {
-		status_t status = _RunExternalProcess();
-
-		if (status != B_OK)
-			_BannerMessage("can't run ");
-
-		return status;
+		return _RunExternalProcess();
 	}
 
 	// read output and error from command
@@ -162,31 +148,23 @@ ConsoleIOThread::ThreadShutdown(void)
 {
 	ClosePipes();
 
-	// Disable Stop button in view
-	BMessage button_message(CONSOLEIOTHREAD_ENABLE_STOP_BUTTON);
-	button_message.AddBool("enable", false);
-	fConsoleTarget.SendMessage(&button_message);
-
-	_BannerMessage("ended   --");
-
+	BMessage message(CONSOLEIOTHREAD_EXIT);
+	message.AddString("cmd_type", fCmdType);
+	fConsoleTarget.SendMessage(&message);
+	
+	// the job is done, let's wait to be killed..
+	// (avoid to quit and to reach the 'delete this')
+	
+	while(true) {
+		sleep(1);
+	}
+	
 	return B_OK;
 }
 
 void
 ConsoleIOThread::ExecuteUnitFailed(status_t status)
 {
-	if (status == EOF) {
-		// thread has finished, been quit or killed, we don't know
-		BMessage message(CONSOLEIOTHREAD_EXIT);
-		message.AddString("cmd_type", fCmdType);
-		fConsoleTarget.SendMessage(&message);
-	} else {
-		// explicit error - communicate error to Window
-		BMessage message(CONSOLEIOTHREAD_ERROR);
-		message.AddString("cmd_type", fCmdType);
-		fConsoleTarget.SendMessage(&message);
-	}
-
 	Quit();
 }
 
@@ -281,11 +259,16 @@ ConsoleIOThread::ClosePipes()
 }
 
 status_t
-ConsoleIOThread::InterruptExternal()
+ConsoleIOThread::IsProcessAlive()
 {
 	thread_info info;
-	status_t status = get_thread_info(fProcessId, &info);
+	return get_thread_info(fProcessId, &info);	
+}
 
+status_t
+ConsoleIOThread::InterruptExternal()
+{
+	status_t status = IsProcessAlive();
 	if (status == B_OK) {
 		status = send_signal(-fProcessId, SIGTERM);
 		return wait_for_thread_etc(fProcessId, 0, 4000, &status);
@@ -294,25 +277,6 @@ ConsoleIOThread::InterruptExternal()
 	return status;
 }
 
-
-void
-ConsoleIOThread::_BannerMessage(BString status)
-{
-	if (GenioNames::Settings.console_banner == false)
-		return;
-	
-	BString banner;
-	banner  << "--------------------------------"
-			<< "   "
-			<< fCmdType
-			<< " "
-			<< status
-			<< "--------------------------------\n";
-
-	BMessage banner_message(CONSOLEIOTHREAD_PRINT_BANNER);
-	banner_message.AddString("banner", banner);
-	fConsoleTarget.SendMessage(&banner_message);
-}
 
 void
 ConsoleIOThread::_CleanPipes()

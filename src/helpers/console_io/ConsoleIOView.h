@@ -47,6 +47,9 @@ private:
 private:
 			void				_Init();
 			void				_HandleConsoleOutput(OutputInfo* info);
+			void				_BannerMessage(BString status);
+			void				Pulse();
+			void				_StopCommand();
 
 private:
 			BMessenger			fWindowTarget;

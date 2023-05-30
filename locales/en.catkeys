@@ -183,6 +183,7 @@ Show config	GenioWindow	The git command	Show config
 Projects	GenioWindow		Projects
 Go to implementation	GenioWindow		Go to implementation
 Run target	GenioWindow		Run target
+{0, plural,one{A file was modified. Do you want to save the changes before quitting?}other{# files were modified. Do you want to save the changes before quitting?}}	GenioWindow		{0, plural,one{A file was modified. Do you want to save the changes before quitting?}other{# files were modified. Do you want to save the changes before quitting?}}
 New	ProjectsFolderBrowser		New
 Show line endings	GenioWindow		Show line endings
 Could not create a new file	GenioWindow		Could not create a new file
@@ -223,7 +224,6 @@ Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla fo
 Open project	GenioWindow		Open project
 Ignore	GenioApp		Ignore
 Edit	GenioWindow		Edit
-There are modified files, do you want to save changes before quitting?	GenioWindow		There are modified files, do you want to save changes before quitting?
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Find next	GenioWindow		Find next
 Notifications	SettingsWindow		Notifications

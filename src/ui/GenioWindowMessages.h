@@ -41,6 +41,7 @@ enum {
 	MSG_EOL_SET_TO_UNIX			= 'estu',
 	MSG_EOL_SET_TO_DOS			= 'estd',
 	MSG_EOL_SET_TO_MAC			= 'estm',
+	MSG_FILE_TRIM_TRAILING_SPACE = 'trim',
 	
 	MSG_AUTOCOMPLETION			= 'auto',	
 	MSG_FORMAT					= 'form',

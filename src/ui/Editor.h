@@ -81,6 +81,7 @@ public:
 			bool				BookmarkGoToNext();
 			bool				BookmarkGoToPrevious();
 			void				BookmarkToggle(int position);
+			void				TrimTrailingWhitespace();
 			bool				CanClear();
 			bool				CanCopy();
 			bool				CanCut();

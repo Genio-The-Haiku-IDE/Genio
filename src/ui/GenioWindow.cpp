@@ -3552,7 +3552,6 @@ GenioWindow::_ReplaceGroupShow(bool show)
 	_ShowView(fReplaceGroup, show, MSG_REPLACE_GROUP_TOGGLED);
 	
 	if (!show) {
-
 		fReplaceTextControl->TextView()->Clear();
 		// If find group was not open focus and selection go there
 		if (findGroupOpen == false)
@@ -3704,7 +3703,6 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	fFileNewMenuItem->SetEnabled(true); // This menu should be always active!
 	
 	if (active == true) {
-
 		// Is this a git project?
 		if (fActiveProject->Git())
 			fGitMenu->SetEnabled(true);

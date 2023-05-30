@@ -148,8 +148,10 @@ public:
 			status_t			StartMonitoring();
 			status_t			StopMonitoring();
 			void				ToggleFolding();
-			void				ToggleLineEndings();
-			void				ToggleWhiteSpaces();
+			void				ShowLineEndings(bool show);
+			void				ShowWhiteSpaces(bool show);
+			bool				LineEndingsVisible();
+			bool				WhiteSpacesVisible();
 
 			void				SignatureHelp();
 			

@@ -54,6 +54,8 @@ namespace GenioNames
 		bool  find_match_case;
 		int32 log_destination;
 		int32 log_level;
+		bool	show_white_space = false;
+		bool	show_line_endings = false;
 
 	} SettingsVars;
 

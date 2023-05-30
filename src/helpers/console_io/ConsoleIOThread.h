@@ -36,11 +36,11 @@
 
 
 enum {
-	CONSOLEIOTHREAD_ENABLE_STOP_BUTTON	= 'Cesb',
+//	CONSOLEIOTHREAD_ENABLE_STOP_BUTTON	= 'Cesb',
 	CONSOLEIOTHREAD_ERROR				= 'Cerr',
 	CONSOLEIOTHREAD_EXIT				= 'Cexi',
 	CONSOLEIOTHREAD_CMD_TYPE			= 'Ccty',
-	CONSOLEIOTHREAD_PRINT_BANNER		= 'Cpba',
+	//CONSOLEIOTHREAD_PRINT_BANNER		= 'Cpba',
 	CONSOLEIOTHREAD_STDOUT				= 'Csou',
 	CONSOLEIOTHREAD_STDERR				= 'Cser'
 };
@@ -55,6 +55,7 @@ public:
 			status_t			SuspendExternal();
 			status_t			ResumeExternal();
 			status_t			InterruptExternal();
+			status_t			IsProcessAlive();
 
 			void				PushInput(BString text);
 
@@ -68,7 +69,6 @@ private:
 									int& in, int& out, int& err,
 									const char** envp = (const char**)environ);
 
-			void				_BannerMessage(BString status);
 			void				_CleanPipes();
 			status_t			_RunExternalProcess();
 

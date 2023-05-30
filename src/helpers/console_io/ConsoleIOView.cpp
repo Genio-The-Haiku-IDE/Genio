@@ -62,6 +62,8 @@ ConsoleIOView::ConsoleIOView(const BString& name, const BMessenger& target)
 	} catch (...) {
 		throw;
 	}
+	
+	this->SetFlags(this->Flags() | B_PULSE_NEEDED);
 }
 
 ConsoleIOView::~ConsoleIOView()
@@ -92,25 +94,43 @@ ConsoleIOView::RunCommand(BMessage* cmd_message)
 }
 
 void
+ConsoleIOView::Pulse()
+{
+	if (fConsoleIOThread && fConsoleIOThread->IsProcessAlive() != B_OK) {
+		_StopCommand();
+	}
+}
+
+void				
+ConsoleIOView::_StopCommand()
+{
+	if (fConsoleIOThread) {
+		status_t status = B_OK;
+		if ((status = fConsoleIOThread->InterruptExternal()) != B_OK) {
+			LogErrorF("Can't stop external process! (%s)", strerror(status));
+		}
+		
+		fConsoleIOThread->Kill();
+		delete fConsoleIOThread;
+		fConsoleIOThread = nullptr;
+		
+		_BannerMessage("ended   --");
+		
+		fStopButton->SetEnabled(false);
+		BMessage message(CONSOLEIOTHREAD_EXIT);
+		message.AddString("cmd_type", fCmdType);
+		Window()->PostMessage(&message);
+	}
+}
+
+void
 ConsoleIOView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case CONSOLEIOTHREAD_ENABLE_STOP_BUTTON: {
-			bool enable;
-			if (message->FindBool("enable", &enable) == B_OK)
-				fStopButton->SetEnabled(enable);
-			break;
-		}
 		case CONSOLEIOTHREAD_CMD_TYPE: {
 			BString type("none");
 			message->FindString("cmd_type",  &type);
 			fCmdType = type;
-			break;
-		}
-		case CONSOLEIOTHREAD_PRINT_BANNER: {
-			BString banner;
-			if (message->FindString("banner",  &banner) == B_OK)
-				ConsoleOutputReceived(1, banner);
 			break;
 		}
 		case CONSOLEIOTHREAD_STDERR: {
@@ -158,42 +178,42 @@ ConsoleIOView::MessageReceived(BMessage* message)
 				ConsoleOutputReceived(1, msg);
 				return;
 			}
+			fStopButton->SetEnabled(true);
 			fConsoleIOThread = new ConsoleIOThread(message, BMessenger(this));
 			fConsoleIOThread->Start();
-
-			break;
-		}
-		case MSG_STOP_PROCESS:
-		{
-			// this is unsafe
-			// if the user is pressing stop while the process is terminating,
-			// it could happen fConsoleIOThread to be invalid (see "delete this");
-			if (fConsoleIOThread) {
-				status_t status = B_OK;
-				if ((status = fConsoleIOThread->InterruptExternal()) != B_OK) {
-					fStopButton->SetEnabled(false);
-					LogErrorF("Can't stop external process! (%s)", strerror(status));
-					fConsoleIOThread->Kill();
-					delete fConsoleIOThread;
-					fConsoleIOThread = nullptr;
-					BMessage message(CONSOLEIOTHREAD_ERROR);
-					message.AddString("cmd_type", fCmdType);
-					Window()->PostMessage(&message);
-				}
-			}
+			_BannerMessage("started   ");
+			
 			break;
 		}
 		case CONSOLEIOTHREAD_ERROR:
 		case CONSOLEIOTHREAD_EXIT:
+		case MSG_STOP_PROCESS:
 		{
-			fConsoleIOThread = nullptr;
-			Window()->PostMessage(message);
+			_StopCommand();
 			break;
 		}
 		default:
 			BGroupView::MessageReceived(message);
 			break;
 	}
+}
+
+
+void
+ConsoleIOView::_BannerMessage(BString status)
+{
+	if (GenioNames::Settings.console_banner == false)
+		return;
+	
+	BString banner;
+	banner  << "--------------------------------"
+			<< "   "
+			<< fCmdType
+			<< " "
+			<< status
+			<< "--------------------------------\n";
+
+	ConsoleOutputReceived(1, banner);
 }
 
 void

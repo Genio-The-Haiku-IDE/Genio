@@ -138,7 +138,6 @@ public:
 			void				SelectAll();
 	const 	BString				Selection();
 			void				SendPositionChanges();
-			void				SetEndOfLine(int32 eolFormat);
 			status_t			SetFileRef(entry_ref* ref);
 			void				SetReadOnly(bool readOnly = true);
 			status_t			SetSavedCaretPosition();

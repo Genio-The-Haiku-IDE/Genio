@@ -520,27 +520,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_EOL_SET_TO_UNIX: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->SetEndOfLine(SC_EOL_LF);
-			}
-			break;
-		}
-		case MSG_EOL_SET_TO_DOS: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->SetEndOfLine(SC_EOL_CRLF);
-			}
-			break;
-		}
-		case MSG_EOL_SET_TO_MAC: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->SetEndOfLine(SC_EOL_CR);
-			}
-			break;
-		}
 		case MSG_FILE_CLOSE:
 			_FileClose(fTabManager->SelectedTabIndex());
 			break;
@@ -2513,17 +2492,11 @@ GenioWindow::_InitMenu()
 	editMenu->AddSeparatorItem();
 	
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Set to Unix"),
-		new BMessage(MSG_EOL_SET_TO_UNIX)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Set to Dos"),
-		new BMessage(MSG_EOL_SET_TO_DOS)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Set to Mac"),
-		new BMessage(MSG_EOL_SET_TO_MAC)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Convert to Unix"),
+	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Unix"),
 		new BMessage(MSG_EOL_CONVERT_TO_UNIX)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Convert to Dos"),
+	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Dos"),
 		new BMessage(MSG_EOL_CONVERT_TO_DOS)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Convert to Mac"),
+	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Mac"),
 		new BMessage(MSG_EOL_CONVERT_TO_MAC)));
 
 	ActionManager::SetEnabled(B_UNDO, false);

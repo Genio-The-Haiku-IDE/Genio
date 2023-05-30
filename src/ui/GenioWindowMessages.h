@@ -38,10 +38,7 @@ enum {
 	MSG_EOL_CONVERT_TO_UNIX		= 'ectu',
 	MSG_EOL_CONVERT_TO_DOS		= 'ectd',
 	MSG_EOL_CONVERT_TO_MAC		= 'ectm',
-	MSG_EOL_SET_TO_UNIX			= 'estu',
-	MSG_EOL_SET_TO_DOS			= 'estd',
-	MSG_EOL_SET_TO_MAC			= 'estm',
-	
+
 	MSG_AUTOCOMPLETION			= 'auto',	
 	MSG_FORMAT					= 'form',
 	MSG_GOTODEFINITION			= 'gode',

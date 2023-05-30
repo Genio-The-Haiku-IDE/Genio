@@ -27,10 +27,20 @@ public:
 			// we quit here.
 			return B_OK;
 		}
-		
+
 		status = BPrivate::BPathMonitor::BWatchingInterface::WatchNode(node, flags, handler, looper);
-		if (status != B_OK) {
-			LogErrorF("Can't watch_node for node_id [%ld] (%s)", node->node, strerror(status));
+		if (status != B_OK /*&& flags != B_STOP_WATCHING*/) {
+			BEntry entry;
+			dir.GetEntry(&entry);
+			BPath path;
+			entry.GetPath(&path);
+			LogErrorF("Can't watch_node for directory [%s](%d) (%s) handler (%p) looper (%p) %d", 
+						path.Path(), 
+						node->node, 
+						strerror(status),
+						handler,
+						looper,
+						status == B_BAD_VALUE);
 			//TODO: maybe we should notify the user that the PathMonitor is not working?
 		}
 		return status;

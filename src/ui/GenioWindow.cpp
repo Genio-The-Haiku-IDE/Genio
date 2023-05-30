@@ -471,14 +471,14 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_BUILD_MODE_DEBUG: {
-			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Debug"));
+
 			fActiveProject->SetBuildMode(BuildMode::DebugMode);
 			fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE: {
-			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Release"));
+
 			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
 			fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
@@ -493,6 +493,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_BUILD_MODE: {
+			int32 what;
+			if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
+				what = MSG_BUILD_MODE_DEBUG;
+			else 
+				what = MSG_BUILD_MODE_RELEASE;
+			
+			PostMessage(what);
 			break;
 		}
 		case MSG_DEBUG_PROJECT: {
@@ -2750,6 +2757,9 @@ GenioWindow::_InitToolbar()
 	ActionManager::AddItem(MSG_RUN_CONSOLE_PROGRAM_SHOW, fToolBar);
 	fToolBar->AddGlue();
 	fToolBar->AddAction(MSG_BUILD_MODE, B_TRANSLATE("Build mode: Debug"), "kAppDebugger");
+	fToolBar->FindButton(MSG_BUILD_MODE)->SetLabel(B_TRANSLATE("Build mode: Debug"));
+	fToolBar->FindButton(MSG_BUILD_MODE)->SetBehavior(BButton::B_TOGGLE_BEHAVIOR);
+	
 	ActionManager::AddItem(MSG_BUFFER_LOCK, fToolBar);
 	fToolBar->AddSeparator();
 	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, fToolBar);
@@ -3716,8 +3726,17 @@ GenioWindow::_UpdateProjectActivation(bool active)
 			
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
+		
+		if (releaseMode) {
+			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Release"));
+			fToolBar->FindButton(MSG_BUILD_MODE)->SetLabel(B_TRANSLATE("Build mode: Release"));
+		} else {
+			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Debug"));
+			fToolBar->FindButton(MSG_BUILD_MODE)->SetLabel(B_TRANSLATE("Build mode: Debug"));
+		}
 		// Build mode menu
-		fToolBar->SetActionEnabled(MSG_BUILD_MODE, !releaseMode);
+		fToolBar->SetActionEnabled(MSG_BUILD_MODE, true);
+		//fToolBar->SetActionPressed(MSG_BUILD_MODE, !releaseMode);
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 

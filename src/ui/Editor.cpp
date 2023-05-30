@@ -1029,20 +1029,6 @@ Editor::UpdateStatusBar()
 	fStatusView->SetStatus(&update);
 }
 
-void
-Editor::SetEndOfLine(int32 eolFormat)
-{
-	if (IsReadOnly() == true)
-		return;
-
-	SendMessage(SCI_SETEOLMODE, eolFormat, UNSET);
-
-#ifdef USE_LINEBREAKS_ATTRS
-	BNode node(&fFileRef);
-	node.WriteAttr("be:line_breaks", B_INT32_TYPE, 0, &eolFormat, sizeof(eolFormat));
-#endif
-}
-
 status_t
 Editor::SetFileRef(entry_ref* ref)
 {

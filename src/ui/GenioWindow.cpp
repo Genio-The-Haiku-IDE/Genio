@@ -312,7 +312,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}	
-		case CONSOLEIOTHREAD_ERROR:
 		case CONSOLEIOTHREAD_EXIT:
 		{
 			BString cmdType = message->GetString("cmd_type", "");

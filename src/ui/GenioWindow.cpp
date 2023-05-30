@@ -26,6 +26,7 @@
 #include <Resources.h>
 #include <Roster.h>
 #include <SeparatorView.h>
+#include <StringFormat.h>
 #include <StringItem.h>
 #include <NodeInfo.h>
 
@@ -516,27 +517,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->EndOfLineConvert(SC_EOL_CR);
-			}
-			break;
-		}
-		case MSG_EOL_SET_TO_UNIX: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->SetEndOfLine(SC_EOL_LF);
-			}
-			break;
-		}
-		case MSG_EOL_SET_TO_DOS: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->SetEndOfLine(SC_EOL_CRLF);
-			}
-			break;
-		}
-		case MSG_EOL_SET_TO_MAC: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->SetEndOfLine(SC_EOL_CR);
 			}
 			break;
 		}
@@ -1105,9 +1085,14 @@ bool
 GenioWindow::QuitRequested()
 {
 	// Is there any modified file?
-	if (_FilesNeedSave()) {
-		BAlert* alert = new BAlert("QuitAndSaveDialog",
-	 		B_TRANSLATE("There are modified files, do you want to save changes before quitting?"),
+	int32 count = _FilesNeedSave();
+	if (count > 0) {
+		BString text = "";
+		static BStringFormat format(B_TRANSLATE("{0, plural,"
+			"one{A file was modified. Do you want to save the changes before quitting?}"
+			"other{Some files were modified. Do you want to save the changes before quitting?}}"));
+		format.Format(text, count);
+		BAlert* alert = new BAlert("QuitAndSaveDialog", text,
  			B_TRANSLATE("Cancel"), B_TRANSLATE("Don't save"), B_TRANSLATE("Save"),
  			B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 
@@ -1647,17 +1632,17 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 	return B_OK;
 }
 
-bool
+int32
 GenioWindow::_FilesNeedSave()
 {
+	int32 count = 0;
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 		Editor* editor = fTabManager->EditorAt(index);
-		if (editor->IsModified()) {
-			return true;
-		}
+		if (editor->IsModified())
+			count++;
 	}
 
-	return false;
+	return count;
 }
 
 void
@@ -2514,17 +2499,11 @@ GenioWindow::_InitMenu()
 	editMenu->AddSeparatorItem();
 
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Set to Unix"),
-		new BMessage(MSG_EOL_SET_TO_UNIX)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Set to Dos"),
-		new BMessage(MSG_EOL_SET_TO_DOS)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Set to Mac"),
-		new BMessage(MSG_EOL_SET_TO_MAC)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Convert to Unix"),
+	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Unix"),
 		new BMessage(MSG_EOL_CONVERT_TO_UNIX)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Convert to Dos"),
+	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Dos"),
 		new BMessage(MSG_EOL_CONVERT_TO_DOS)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Convert to Mac"),
+	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Mac"),
 		new BMessage(MSG_EOL_CONVERT_TO_MAC)));
 
 	ActionManager::SetEnabled(B_UNDO, false);
@@ -3789,7 +3768,7 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
-	bool filesNeedSave = _FilesNeedSave();
+	bool filesNeedSave = (_FilesNeedSave() > 0 ? true : false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 }
 

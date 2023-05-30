@@ -2538,6 +2538,7 @@ GenioWindow::_InitMenu()
 	ActionManager::SetEnabled(MSG_DUPLICATE_LINE, false);
 	ActionManager::SetEnabled(MSG_DELETE_LINES, false);
 	ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, false);
+	ActionManager::SetEnabled(MSG_FILE_TRIM_TRAILING_SPACE, false);
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 	ActionManager::SetEnabled(MSG_FORMAT, false);
@@ -3831,6 +3832,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_DUPLICATE_LINE, false);
 		ActionManager::SetEnabled(MSG_DELETE_LINES, false);
 		ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, false);
+		ActionManager::SetEnabled(MSG_FILE_TRIM_TRAILING_SPACE, false);
 
 		ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 		ActionManager::SetEnabled(MSG_FORMAT, false);
@@ -3895,6 +3897,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_DUPLICATE_LINE, !editor->IsReadOnly());
 	ActionManager::SetEnabled(MSG_DELETE_LINES, !editor->IsReadOnly());
 	ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, !editor->IsReadOnly());
+	ActionManager::SetEnabled(MSG_FILE_TRIM_TRAILING_SPACE, !editor->IsReadOnly());
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, !editor->IsReadOnly() && editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_FORMAT, !editor->IsReadOnly() && editor->GetProjectFolder());

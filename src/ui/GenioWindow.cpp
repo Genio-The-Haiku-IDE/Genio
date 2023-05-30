@@ -58,7 +58,7 @@
 
 constexpr auto kRecentFilesNumber = 14 + 1;
 
-static constexpr float kTabBarHeight = 35.0f;
+//static constexpr float kTabBarHeight = 35.0f;
 
 
 // Find group
@@ -2189,7 +2189,8 @@ GenioWindow::_InitCentralSplit()
 	// Editor tab & view
 
 	fTabManager = new EditorTabManager(BMessenger(this));
-	fTabManager->TabGroup()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, kTabBarHeight));
+	fTabManager->GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, fProjectsTabView->TabHeight()));
+	fTabManager->GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, fProjectsTabView->TabHeight()));
 
 	dirtyFrameHack = fTabManager->TabGroup()->Frame();
 

@@ -127,12 +127,6 @@ void
 ConsoleIOView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case CONSOLEIOTHREAD_CMD_TYPE: {
-			BString type("none");
-			message->FindString("cmd_type",  &type);
-			fCmdType = type;
-			break;
-		}
 		case CONSOLEIOTHREAD_STDERR: {
 			BString string;
 			if (message->FindString("stderr",  &string) == B_OK)
@@ -185,7 +179,6 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			
 			break;
 		}
-		case CONSOLEIOTHREAD_ERROR:
 		case CONSOLEIOTHREAD_EXIT:
 		case MSG_STOP_PROCESS:
 		{

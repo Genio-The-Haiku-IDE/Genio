@@ -96,7 +96,6 @@ enum {
 	
 	// Toolbar
 	MSG_BUFFER_LOCK					= 'bulo',
-	MSG_BUILD_MODE					= 'bumo',
 	MSG_FILE_MENU_SHOW				= 'fmsh',
 	MSG_FILE_NEXT_SELECTED			= 'fnse',
 	MSG_FILE_PREVIOUS_SELECTED		= 'fpse',

@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	677345963
+1	English	application/x-vnd.Genio	3918039797
 Copy	GenioWindow		Copy
 Enable brace matching	SettingsWindow		Enable brace matching
 Dos	GenioWindow		Dos
@@ -10,7 +10,6 @@ Make file read-only	GenioWindow		Make file read-only
 Show toolbar	GenioWindow		Show toolbar
 Debug build comand:	ProjectSettingsWindow		Debug build comand:
 Font:	SettingsWindow		Font:
-Build mode: Debug	GenioWindow		Build mode: Debug
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Replace selection	GenioWindow		Replace selection
 Problems	ProblemsPanel		Problems
@@ -90,6 +89,7 @@ Tag	GenioWindow	The git command	Tag
 Run console program	GenioWindow		Run console program
 Branch	GenioWindow	The git command	Branch
 Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
+Trim trailing whitespace	GenioWindow		Trim trailing whitespace
 New folder	GenioWindow		New folder
 Could not open template folder in Tracker	GenioWindow		Could not open template folder in Tracker
 {0, plural,one{A file was modified. Do you want to save the changes before quitting?}other{Some files were modified. Do you want to save the changes before quitting?}}	GenioWindow		{0, plural,one{A file was modified. Do you want to save the changes before quitting?}other{Some files were modified. Do you want to save the changes before quitting?}}
@@ -118,7 +118,6 @@ Log destination:	SettingsWindow		Log destination:
 Show edge line	SettingsWindow		Show edge line
 Help	GenioWindow		Help
 Open	GenioWindow		Open
-Toggle line endings	GenioWindow		Toggle line endings
 Save all files	GenioWindow		Save all files
 stdout	ConsoleIOView		stdout
 Reload projects	SettingsWindow		Reload projects
@@ -192,7 +191,6 @@ Close project	ProjectsFolderBrowser		Close project
 Save position	SettingsWindow		Save position
 Format	GenioWindow		Format
 Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
-Build mode: Release	GenioWindow		Build mode: Release
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
 Zoom in	GenioWindow		Zoom in
 Enable folding	SettingsWindow		Enable folding

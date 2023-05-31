@@ -688,10 +688,12 @@ GenioWindow::MessageReceived(BMessage* message)
 			fGoToLineWindow->ShowCentered(Frame());
 			break;
 		case MSG_LINE_ENDINGS_TOGGLE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->ToggleLineEndings();
+			GenioNames::Settings.show_line_endings = !GenioNames::Settings.show_line_endings;
+			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+				Editor* editor = fTabManager->EditorAt(index);
+				editor->ShowLineEndings(GenioNames::Settings.show_line_endings);
 			}
+			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, GenioNames::Settings.show_line_endings);
 			break;
 		}
 		case MSG_DUPLICATE_LINE: {
@@ -1011,10 +1013,12 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_WHITE_SPACES_TOGGLE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)  {
-				editor->ToggleWhiteSpaces();
+			GenioNames::Settings.show_white_space = !GenioNames::Settings.show_white_space;
+			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+				Editor* editor = fTabManager->EditorAt(index);
+				editor->ShowWhiteSpaces(GenioNames::Settings.show_white_space);
 			}
+			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, GenioNames::Settings.show_white_space);
 			break;
 		}
 		case MSG_WINDOW_SETTINGS: {
@@ -1426,6 +1430,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		editor->ApplySettings();
 		editor->SetZoom(GenioNames::Settings.editor_zoom);
+		editor->ShowLineEndings(GenioNames::Settings.show_line_endings);
+		editor->ShowWhiteSpaces(GenioNames::Settings.show_white_space);
 
 		// First tab gets selected by tabview
 		if (index > 0)
@@ -2268,10 +2274,10 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Fold/Unfold all"),
 								   "App_OpenTargetFolder");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
-								   B_TRANSLATE("Toggle white spaces"),
+								   B_TRANSLATE("Show white spaces"),
 								   "", "");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
-								   B_TRANSLATE("Toggle line endings"),
+								   B_TRANSLATE("Show line endings"),
 								   "", "");
 
 	ActionManager::RegisterAction(MSG_DUPLICATE_LINE,

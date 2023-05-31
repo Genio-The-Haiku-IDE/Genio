@@ -46,6 +46,7 @@ Reload	GenioWindow		Reload
 Default	ProjectSettingsWindow		Default
 Project	GenioWindow		Project
 Replace	GenioWindow		Replace
+Show white spaces	GenioWindow		Show white spaces
 Load defaults	GenioApp		Load defaults
 Cancel	GenioWindow		Cancel
 Switch to previous file	GenioWindow		Switch to previous file
@@ -184,6 +185,7 @@ Projects	GenioWindow		Projects
 Go to implementation	GenioWindow		Go to implementation
 Run target	GenioWindow		Run target
 New	ProjectsFolderBrowser		New
+Show line endings	GenioWindow		Show line endings
 Could not create a new file	GenioWindow		Could not create a new file
 Browse…	SettingsWindow		Browse…
 Close project	ProjectsFolderBrowser		Close project
@@ -196,7 +198,6 @@ Zoom in	GenioWindow		Zoom in
 Enable folding	SettingsWindow		Enable folding
 Apply	SettingsWindow		Apply
 Fold/Unfold all	GenioWindow		Fold/Unfold all
-Toggle white spaces	GenioWindow		Toggle white spaces
 New	GenioWindow		New
 Bookmark	GenioWindow		Bookmark
 Close all	GenioWindow		Close all

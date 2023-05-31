@@ -234,6 +234,28 @@ Editor::BookmarkToggle(int position)
 		SendMessage(SCI_MARKERADD, line, sci_BOOKMARK);
 }
 
+void
+Editor::TrimTrailingWhitespace()
+{
+	Sci::Guard<SearchTarget, SearchFlags> guard(this);
+
+	Sci_Position length = SendMessage(SCI_GETLENGTH, 0, 0);
+	Set<SearchTarget>({0, length});
+	Set<SearchFlags>(SCFIND_REGEXP | SCFIND_CXX11REGEX);
+
+	Sci::UndoAction action(this);
+	const std::string whitespace = "\\s+$";
+	int result;
+	do {
+		result = SendMessage(SCI_SEARCHINTARGET, whitespace.size(), (sptr_t) whitespace.c_str());
+		if(result != -1) {
+			SendMessage(SCI_REPLACETARGET, -1, (sptr_t) "");
+
+			Set<SearchTarget>({Get<SearchTargetEnd>(), length});
+		}
+	} while(result != -1);
+}
+
 bool
 Editor::CanClear()
 {

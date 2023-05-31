@@ -1163,21 +1163,27 @@ Editor::ToggleFolding()
 }
 
 void
-Editor::ToggleLineEndings()
+Editor::ShowLineEndings(bool show)
 {
-	if (SendMessage(SCI_GETVIEWEOL, UNSET, UNSET) == false)
-		SendMessage(SCI_SETVIEWEOL, 1, UNSET);
-	else
-		SendMessage(SCI_SETVIEWEOL, 0, UNSET);
+	SendMessage(SCI_SETVIEWEOL, show ? 1 : 0, UNSET);
 }
 
 void
-Editor::ToggleWhiteSpaces()
+Editor::ShowWhiteSpaces(bool show)
 {
-	if (SendMessage(SCI_GETVIEWWS, UNSET, UNSET) == SCWS_INVISIBLE)
-		SendMessage(SCI_SETVIEWWS, SCWS_VISIBLEALWAYS, UNSET);
-	else
-		SendMessage(SCI_SETVIEWWS, SCWS_INVISIBLE, UNSET);
+	SendMessage(SCI_SETVIEWWS, show ? SCWS_VISIBLEALWAYS : SCWS_INVISIBLE, UNSET);
+}
+
+bool
+Editor::LineEndingsVisible()
+{
+	return SendMessage(SCI_GETVIEWEOL, UNSET, UNSET);
+}
+
+bool
+Editor::WhiteSpacesVisible()
+{
+	return !(SendMessage(SCI_GETVIEWWS, UNSET, UNSET) == SCWS_INVISIBLE);
 }
 
 void

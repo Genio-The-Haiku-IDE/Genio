@@ -471,14 +471,14 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_BUILD_MODE_DEBUG: {
-			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Debug"));
+
 			fActiveProject->SetBuildMode(BuildMode::DebugMode);
 			fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE: {
-			fToolBar->FindButton(MSG_BUILD_MODE)->SetToolTip(B_TRANSLATE("Build mode: Release"));
+
 			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
 			fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
@@ -490,9 +490,6 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_CLEAN_PROJECT: {
 			_CleanProject();
-			break;
-		}
-		case MSG_BUILD_MODE: {
 			break;
 		}
 		case MSG_DEBUG_PROJECT: {
@@ -2728,7 +2725,7 @@ GenioWindow::_InitToolbar()
 	fToolBar->AddSeparator();
 	ActionManager::AddItem(MSG_RUN_CONSOLE_PROGRAM_SHOW, fToolBar);
 	fToolBar->AddGlue();
-	fToolBar->AddAction(MSG_BUILD_MODE, B_TRANSLATE("Build mode: Debug"), "kAppDebugger");
+
 	ActionManager::AddItem(MSG_BUFFER_LOCK, fToolBar);
 	fToolBar->AddSeparator();
 	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, fToolBar);
@@ -3534,7 +3531,6 @@ GenioWindow::_ReplaceGroupShow(bool show)
 	_ShowView(fReplaceGroup, show, MSG_REPLACE_GROUP_TOGGLED);
 	
 	if (!show) {
-
 		fReplaceTextControl->TextView()->Clear();
 		// If find group was not open focus and selection go there
 		if (findGroupOpen == false)
@@ -3686,7 +3682,6 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	fFileNewMenuItem->SetEnabled(true); // This menu should be always active!
 	
 	if (active == true) {
-
 		// Is this a git project?
 		if (fActiveProject->Git())
 			fGitMenu->SetEnabled(true);
@@ -3695,8 +3690,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 			
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
-		// Build mode menu
-		fToolBar->SetActionEnabled(MSG_BUILD_MODE, !releaseMode);
+		
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 
@@ -3716,7 +3710,6 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		ActionManager::SetEnabled(MSG_RUN_TARGET, false);
 		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
 		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
-		fToolBar->SetActionEnabled(MSG_BUILD_MODE, false);
 	}
 	
 	fProjectsFolderBrowser->Invalidate();

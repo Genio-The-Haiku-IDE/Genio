@@ -38,8 +38,9 @@ enum {
 	MSG_EOL_CONVERT_TO_UNIX		= 'ectu',
 	MSG_EOL_CONVERT_TO_DOS		= 'ectd',
 	MSG_EOL_CONVERT_TO_MAC		= 'ectm',
+	MSG_FILE_TRIM_TRAILING_SPACE = 'trim',
 
-	MSG_AUTOCOMPLETION			= 'auto',	
+  MSG_AUTOCOMPLETION			= 'auto',	
 	MSG_FORMAT					= 'form',
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',

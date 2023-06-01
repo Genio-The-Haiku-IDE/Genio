@@ -73,6 +73,7 @@ private:
 			status_t			_DebugProject();
 			status_t			_FileClose(int32 index, bool ignoreModifications = false);
 			void				_FileCloseAll();
+			void				_FileRequestSaveModified();
 			status_t			_FileOpen(BMessage* msg);
 			bool				_FileIsSupported(const entry_ref* ref);
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);

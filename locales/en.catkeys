@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	3918039797
+1	English	application/x-vnd.Genio	716145585
 Copy	GenioWindow		Copy
 Enable brace matching	SettingsWindow		Enable brace matching
 Dos	GenioWindow		Dos
@@ -149,7 +149,6 @@ View	GenioWindow		View
 Don't save	Editor		Don't save
 Reset zoom	GenioWindow		Reset zoom
 Stop	ConsoleIOView		Stop
-Signature help	GenioWindow		Signature help
 Tab width:  	SettingsWindow		Tab width:  
 Show toolbar	SettingsWindow		Show toolbar
 Revert	SettingsWindow		Revert

@@ -517,9 +517,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_FILE_CLOSE:
-			_FileClose(fTabManager->SelectedTabIndex());
+		case MSG_FILE_CLOSE: {
+			_FileRequestClose(fTabManager->SelectedTabIndex());
 			break;
+		}
 		case MSG_FILE_CLOSE_ALL:
 			_FileCloseAll();
 			break;
@@ -1044,11 +1045,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case TABMANAGER_TAB_CLOSE: {
-			int32 index;
-			if (message->FindInt32("index", &index) == B_OK)
-				_FileClose(index);
-
+		case TABMANAGER_TAB_CLOSE_MULTI: {
+			_CloseMultipleTabs(message);
 			break;
 		}
 		case TABMANAGER_TAB_NEW_OPENED: {
@@ -1076,41 +1074,131 @@ GenioWindow::MessageReceived(BMessage* message)
 }
 
 void
-GenioWindow::_FileRequestSaveModified()
+GenioWindow::_CloseMultipleTabs(BMessage* msg)
 {
-	//Let's use Koder QuitAlert!
-	std::vector<int>		 unsavedIndex;
-	std::vector<std::string> unsavedPaths;
+	type_code	typeFound;
+	int32		countFound;
+	bool		fixedSize;
 
-	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		if(editor->IsModified()) {
-			unsavedIndex.push_back(index);
-			unsavedPaths.push_back(std::string(editor->FilePath().String()));
-		}
-	}
-	if(!unsavedIndex.empty()) {
-		QuitAlert* quitAlert = new QuitAlert(unsavedPaths);
-		auto filesToSave = quitAlert->Go();
-		if(!filesToSave.empty()) {
-			auto bter = filesToSave.begin();
-			auto iter = unsavedIndex.begin();
-			while(iter != unsavedIndex.end()) {
-				if ((*bter)) {
-					_FileSave(*iter);
+	if (msg->GetInfo("index", &typeFound, &countFound, &fixedSize) == B_OK) {
+		int32 index;
+		std::vector<int32> unsavedIndex;
+		for (int32 i=0; i<countFound; i++) {
+			if (msg->FindInt32("index", i, &index) == B_OK) {
+				Editor* editor = fTabManager->EditorAt(index);
+				if (editor && editor->IsModified()) {
+					unsavedIndex.push_back(index);
 				}
-				iter++;
-				bter++;
+			}
+		}
+
+		if (!_FileRequestSaveList(unsavedIndex))
+			return;
+
+		for (int32 i=0; i<countFound; i++) {
+			if (msg->FindInt32("index", i, &index) == B_OK) {
+				_RemoveTab(index);
 			}
 		}
 	}
 }
 
 bool
+GenioWindow::_FileRequestSaveAllModified()
+{
+	std::vector<int32>		 unsavedIndex;
+
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
+		if(editor->IsModified()) {
+			unsavedIndex.push_back(index);
+		}
+	}
+
+	return _FileRequestSaveList(unsavedIndex);
+}
+
+bool
+GenioWindow::_FileRequestClose(int32 index)
+{
+	if (index < 0)
+		return true;
+
+	Editor* editor = fTabManager->EditorAt(index);
+	if (editor) {
+		if (editor->IsModified()) {
+			std::vector<int32> unsavedIndex { index };
+			if (!_FileRequestSaveList(unsavedIndex))
+				return false;
+
+		}
+		_RemoveTab(index);
+	}
+
+	return true;
+}
+
+
+
+bool
+GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
+{
+	if(unsavedIndex.empty())
+		return true;
+
+	std::vector<std::string> unsavedPaths;
+	for(int i:unsavedIndex) {
+		Editor* editor = fTabManager->EditorAt(i);
+		unsavedPaths.push_back(std::string(editor->FilePath().String()));
+	}
+
+	if (unsavedIndex.size() == 1) {
+
+		BString text(B_TRANSLATE("Save changes to file \"%file%\""));
+		text.ReplaceAll("%file%", unsavedPaths[0].c_str());
+
+		BAlert* alert = new BAlert("CloseAndSaveDialog", text,
+ 			B_TRANSLATE("Cancel"), B_TRANSLATE("Don't save"), B_TRANSLATE("Save"),
+ 			B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+
+		alert->SetShortcut(0, B_ESCAPE);
+
+		int32 choice = alert->Go();
+
+		if (choice == 0)
+			return B_ERROR;
+		else if (choice == 2) {
+			_FileSave(unsavedIndex[0]);
+		}
+		return true;
+	}
+	//Let's use Koder QuitAlert!
+
+
+	QuitAlert* quitAlert = new QuitAlert(unsavedPaths);
+	auto filesToSave = quitAlert->Go();
+
+	if (filesToSave.empty()) //Cancel the request!
+		return false;
+
+	auto bter = filesToSave.begin();
+	auto iter = unsavedIndex.begin();
+	while(iter != unsavedIndex.end()) {
+		if ((*bter)) {
+			_FileSave(*iter);
+		}
+		iter++;
+		bter++;
+	}
+
+	return true;
+}
+
+bool
 GenioWindow::QuitRequested()
 {
-
-	_FileRequestSaveModified();
+	if (!_FileRequestSaveAllModified())
+		return false;
 
 	// Files to reopen
 	if (GenioNames::Settings.reopen_files == true) {
@@ -1282,53 +1370,22 @@ GenioWindow::_DebugProject()
 	return system(commandLine) == 0 ? B_OK : errno;
 }
 
-/*
- * ignoreModifications: the file is modified but has been removed
- * 						externally and user choose to discard it.
- */
+
 status_t
-GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
+GenioWindow::_RemoveTab(int32 index)
 {
 	// Should not happen
 	if (index < 0) {
 		LogErrorF("No file selected %d", index);
 		return B_ERROR;
 	}
-
 	Editor* editor = fTabManager->EditorAt(index);
-
-	if (editor == nullptr) {
-		LogErrorF("NULL editor pointer (%d)", index);
-		return B_ERROR;
-	}
-
-	if (editor->IsModified() && ignoreModifications == false) {
-		BString text(B_TRANSLATE("Save changes to file \"%file%\""));
-		text.ReplaceAll("%file%", editor->Name());
-
-		BAlert* alert = new BAlert("CloseAndSaveDialog", text,
- 			B_TRANSLATE("Cancel"), B_TRANSLATE("Don't save"), B_TRANSLATE("Save"),
- 			B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
-
-		alert->SetShortcut(0, B_ESCAPE);
-
-		int32 choice = alert->Go();
-
-		if (choice == 0)
-			return B_ERROR;
-		else if (choice == 2) {
-			_FileSave(index);
-		}
-	}
-
-	LogInfoF("File closed: %s", editor->Name());
-
 	fTabManager->RemoveTab(index);
 	delete editor;
 
 	// Was it the last one?
 	if (fTabManager->CountTabs() == 0)
-		_UpdateTabChange(nullptr, "_FileClose");
+		_UpdateTabChange(nullptr, "_RemoveTab");
 
 	return B_OK;
 }
@@ -1336,7 +1393,8 @@ GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
 void
 GenioWindow::_FileCloseAll()
 {
-	_FileRequestSaveModified();
+	if (!_FileRequestSaveAllModified())
+		return;
 
 	int32 tabsCount = fTabManager->CountTabs();
 	// If there is something to close
@@ -1345,7 +1403,7 @@ GenioWindow::_FileCloseAll()
 		fTabManager->SelectTab(int32(0));
 
 		for (int32 index = tabsCount - 1; index >= 0; index--) {
-			_FileClose(index, true);
+			_RemoveTab(index);
 		}
 	}
 }
@@ -1848,8 +1906,9 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 
 	if (choice == 0)
 		return;
-	else if (choice == 1)
-		_FileClose(index);
+	else if (choice == 1) {
+		_FileRequestClose(index);
+	}
 	else if (choice == 2) {
 		Editor *editor = fTabManager->EditorAt(index);
 		editor->SetFileRef(newRef);
@@ -1914,7 +1973,7 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 			_FileSave(index);
 		return;
 	} else if (choice == 1) {
-		_FileClose(index, true);
+		_RemoveTab(index);
 
 		BString notification;
 		notification << "File info: " << fileName << " removed externally";
@@ -3177,7 +3236,7 @@ GenioWindow::_ProjectFileDelete()
 		// Close the file if open
 		if (entry.IsFile())
 			if ((openedIndex = _GetEditorIndex(&ref)) != -1)
-				_FileClose(openedIndex, true);
+				_RemoveTab(openedIndex);
 
 		// Remove the entry
 		if (entry.Exists()) {
@@ -3244,6 +3303,16 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	if (project == nullptr)
 		return;
 
+	std::vector<int32> unsavedFiles;
+	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {
+		Editor* editor = fTabManager->EditorAt(index);
+		if (editor->IsModified())
+			unsavedFiles.push_back(index);
+	}
+
+	if(!_FileRequestSaveList(unsavedFiles))
+		return;
+
 	BString closed("Project close:");
 	BString name = project->Name();
 
@@ -3263,10 +3332,9 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {
 		Editor* editor = fTabManager->EditorAt(index);
-
 		if (editor->GetProjectFolder() == project) {
 			editor->SetProjectFolder(NULL);
-			_FileClose(index);
+			_RemoveTab(index);
 		}
 	}
 

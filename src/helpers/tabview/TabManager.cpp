@@ -187,7 +187,7 @@ public:
 		bigtime_t clickSpeed = 2000000;
 		get_click_speed(&clickSpeed);
 		bigtime_t clickTime = Window()->CurrentMessage()->FindInt64("when");
-		if (!IsEnabled() || (Value() == B_CONTROL_ON) 
+		if (!IsEnabled() || (Value() == B_CONTROL_ON)
 			|| clickTime < fCloseTime + clickSpeed) {
 			return;
 		}
@@ -282,7 +282,7 @@ public:
 				}
 				fTabMenuButton->MenuClosed();
 				delete tabMenu;
-				
+
 				break;
 			}
 			default:
@@ -406,7 +406,7 @@ public:
 	{
 		fTabContainerGroup = tabContainerGroup;
 	}
-	
+
 	void MoveTabs(int32 fromIndex, int32 toIndex)
 	{
 		fManager->MoveTabs(fromIndex, toIndex);
@@ -419,20 +419,30 @@ public:
 			{
 				int32 index = -1;
 				if (message->FindInt32("tab_index", &index) == B_OK)
-					fManager->CloseTab(index);
+					fManager->CloseTabs(&index, 1);
 				break;
 			}
-			case MSG_CLOSE_TABS_ALL:
-				for (auto i = fManager->CountTabs() - 1; i >= 0; i--)
-					fManager->CloseTab(i);
+			case MSG_CLOSE_TABS_ALL: {
+				int32 count = fManager->CountTabs();
+				int32 tabsToClose[count];
+				int32 added = 0;
+				for (auto i = count - 1; i >= 0; i--) {
+						tabsToClose[added++] = i;
+				}
+				fManager->CloseTabs(tabsToClose, added);
 				break;
-			case MSG_CLOSE_TABS_OTHER:
-			{
+			}
+			case MSG_CLOSE_TABS_OTHER: {
 				int32 index = -1;
+				int32 count = fManager->CountTabs();
+				int32 tabsToClose[count];
+				int32 added = 0;
 				if (message->FindInt32("tab_index", &index) == B_OK) {
-					for (auto i = fManager->CountTabs() - 1; i >= 0; i--)
+					for (auto i = count - 1; i >= 0; i--) {
 						if (i != index)
-							fManager->CloseTab(i);
+							tabsToClose[added++] = i;
+					}
+					fManager->CloseTabs(tabsToClose, added);
 				}
 				break;
 			}
@@ -496,19 +506,19 @@ WebTabView::WebTabView(TabManagerController* controller)
 	fClicked(false)
 {
 	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
-	
+
 	BMessage* closeMessage = new BMessage(MSG_CLOSE_TAB);
 	closeMessage->AddPointer("tab_source", this);
 	BMenuItem* close = new BMenuItem("Close", closeMessage);
-	
+
 	BMessage* closeAllMessage = new BMessage(MSG_CLOSE_TABS_ALL);
 	closeAllMessage->AddPointer("tab_source", this);
 	BMenuItem* closeAll = new BMenuItem("Close all", closeAllMessage);
-	
+
 	BMessage* closeOtherMessage = new BMessage(MSG_CLOSE_TABS_OTHER);
 	closeOtherMessage->AddPointer("tab_source", this);
 	BMenuItem* closeOther = new BMenuItem("Close other", closeOtherMessage);
-	
+
 	fPopUpMenu->AddItem(close);
 	fPopUpMenu->AddItem(closeAll);
 	fPopUpMenu->AddItem(closeOther);
@@ -599,7 +609,7 @@ WebTabView::MouseDown(BPoint where, uint32 buttons)
 		fPopUpMenu->Go(where, true);
 		return;
 	}
-		
+
 	BRect closeRect = _CloseRectFrame(Frame());
 	if (!fController->CloseButtonsAvailable() || !closeRect.Contains(where)) {
 		TabView::MouseDown(where, buttons);
@@ -753,7 +763,7 @@ TabManagerController::DoubleClickOutsideTabs()
 void
 TabManagerController::CloseTab(int32 index)
 {
-	fManager->CloseTab(index);
+	fManager->CloseTabs(&index, 1);
 }
 
 #if 0
@@ -908,7 +918,7 @@ extern BRect dirtyFrameHack;
  */
 
 
- 
+
 void
 TabManager::SelectTab(int32 tabIndex, bool sendMessage /*= false */)
 {
@@ -918,7 +928,7 @@ TabManager::SelectTab(int32 tabIndex, bool sendMessage /*= false */)
 #endif
 
 	fCardLayout->SetVisibleItem(tabIndex);
-	
+
 	fTabContainerView->SelectTab(tabIndex);
 
 	LogDebugF("index: %d sendMessage: %d",  tabIndex , sendMessage);
@@ -957,12 +967,15 @@ TabManager::SelectedTabIndex() const
 
 
 void
-TabManager::CloseTab(int32 tabIndex)
+TabManager::CloseTabs(int32 tabIndex[], int32 size)
 {
-    BMessage message(TABMANAGER_TAB_CLOSE);
-    message.AddInt32("index", tabIndex);
+    BMessage message(TABMANAGER_TAB_CLOSE_MULTI);
+	for (int32 i=0;i<size;i++)
+		message.AddInt32("index", tabIndex[i]);
     fTarget.SendMessage(&message);
 }
+
+
 
 
 void
@@ -979,11 +992,11 @@ TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line, i
 	message.AddInt32("index", index);
 	message.AddInt32("be:line", be_line);
 	message.AddInt32("lsp:character", lsp_char);
-	
+
 	fTarget.SendMessage(&message);
 }
 
-void				
+void
 TabManager::MoveTabs(int32 from, int32 to)
 {
 	BString fromLabel = TabLabel(from);
@@ -994,7 +1007,7 @@ TabManager::MoveTabs(int32 from, int32 to)
 	fCardLayout->SetFrame(dirtyFrameHack);
 #endif
 	fCardLayout->AddView(to, view);
-	
+
 	SelectTab(to);
 }
 

@@ -57,19 +57,19 @@ QuitAlert::_InitInterface()
 	fSaveSelected = new BButton(B_TRANSLATE("Save selected"), new BMessage((uint32) Actions::SAVE_SELECTED));
 	fDontSave = new BButton(B_TRANSLATE("Don't save"), new BMessage((uint32) Actions::DONT_SAVE));
 	fCancel = new BButton(B_TRANSLATE("Cancel"), new BMessage(B_QUIT_REQUESTED));
-	fCancel->MakeDefault(true);
+	fSaveAll->MakeDefault(true);
 	BGroupView* filesView = new BGroupView(B_VERTICAL, 0);
 	filesView->SetViewUIColor(B_CONTROL_BACKGROUND_COLOR);
 	fScrollView = new BScrollView("files", filesView, 0, false, true);
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
-		.Add(fMessageString)
+		.Add(fMessageString) 
 		.Add(fScrollView)
 		.AddGroup(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
-			.Add(fSaveAll)
-			.Add(fSaveSelected)
-			.Add(fDontSave)
-			.AddGlue()
 			.Add(fCancel)
+			.AddGlue()
+			.Add(fDontSave)
+			.Add(fSaveSelected)
+			.Add(fSaveAll)
 		.End()
 		.SetInsets(B_USE_SMALL_INSETS);
 

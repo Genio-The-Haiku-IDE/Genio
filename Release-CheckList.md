@@ -1,7 +1,9 @@
+ # Release Checklist
+ 
  * Check for critical problems
  * Update translations
-   * gather strings
-   * update translations
+   * make sure english catkeys in polyglot are up to date
+   * import completed translations into repository
  * Documentation
    * Update README, changelog and screenshot
  * Release

@@ -1534,17 +1534,13 @@ GenioWindow::_FileSave(int32 index)
 	}
 	
 	// Stop monitoring if needed
-	status_t status = editor->StopMonitoring();
-	if (status != B_OK)
-		LogErrorF("Error in StopMonitoring node (%s) (%s)", editor->Name().String(), strerror(status));
+	editor->StopMonitoring();
 
 	ssize_t written = editor->SaveToFile();
 	ssize_t length = editor->SendMessage(SCI_GETLENGTH, 0, 0);
 
 	// Restart monitoring
-	status = editor->StartMonitoring();
-	if (status != B_OK)
-		LogErrorF("Error in StartMonitoring node (%s) (%s)", editor->Name().String(), strerror(status));
+	editor->StartMonitoring();
 
 	if (length == written)
 		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath(), length, written);

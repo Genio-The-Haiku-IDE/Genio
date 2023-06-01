@@ -1258,12 +1258,6 @@ Editor::SwitchSourceHeader()
 }
 
 void
-Editor::SignatureHelp()
-{
-	fFileWrapper->SignatureHelp();
-}
- 
-void
 Editor::SetProjectFolder(ProjectFolder* proj)
 {
 	fProjectFolder = proj;

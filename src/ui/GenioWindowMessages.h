@@ -46,7 +46,6 @@ enum {
 	MSG_GOTODECLARATION			= 'gocl',
 	MSG_GOTOIMPLEMENTATION		= 'goim',
 	MSG_SWITCHSOURCE			= 'swit',
-	MSG_SIGNATUREHELP			= 'sihe',
 
 	// view
 	MSG_VIEW_ZOOMIN				= 'zoin',

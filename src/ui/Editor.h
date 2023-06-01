@@ -153,7 +153,6 @@ public:
 			bool				LineEndingsVisible();
 			bool				WhiteSpacesVisible();
 
-			void				SignatureHelp();
 			
 			void				SetProjectFolder(ProjectFolder*);
 			ProjectFolder*		GetProjectFolder() { return fProjectFolder; }

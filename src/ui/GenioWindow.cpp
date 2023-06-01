@@ -1075,8 +1075,8 @@ GenioWindow::MessageReceived(BMessage* message)
 	}
 }
 
-bool
-GenioWindow::QuitRequested()
+void
+GenioWindow::_FileRequestSaveModified()
 {
 	//Let's use Koder QuitAlert!
 	std::vector<int>		 unsavedIndex;
@@ -1104,6 +1104,13 @@ GenioWindow::QuitRequested()
 			}
 		}
 	}
+}
+
+bool
+GenioWindow::QuitRequested()
+{
+
+	_FileRequestSaveModified();
 
 	// Files to reopen
 	if (GenioNames::Settings.reopen_files == true) {
@@ -1266,11 +1273,11 @@ GenioWindow::_DebugProject()
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	// attempt to launch Debugger with BRoster::Launch() failed so we use a more traditional 
+	// attempt to launch Debugger with BRoster::Launch() failed so we use a more traditional
 	// approach here
 	BString commandLine;
-	commandLine.SetToFormat("Debugger %s %s", 
-							EscapeQuotesWrap(fActiveProject->GetTarget()).String(), 
+	commandLine.SetToFormat("Debugger %s %s",
+							EscapeQuotesWrap(fActiveProject->GetTarget()).String(),
 							EscapeQuotesWrap(fActiveProject->GetExecuteArgs()).String());
 	return system(commandLine) == 0 ? B_OK : errno;
 }
@@ -1282,20 +1289,16 @@ GenioWindow::_DebugProject()
 status_t
 GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
 {
-	BString notification;
-
 	// Should not happen
 	if (index < 0) {
-		notification << "No file selected";
-		_SendNotification(notification, "FILE_ERR");
+		LogErrorF("No file selected %d", index);
 		return B_ERROR;
 	}
 
 	Editor* editor = fTabManager->EditorAt(index);
 
 	if (editor == nullptr) {
-		notification << "NULL editor pointer";
-		_SendNotification(notification, "FILE_ERR");
+		LogErrorF("NULL editor pointer (%d)", index);
 		return B_ERROR;
 	}
 
@@ -1318,8 +1321,7 @@ GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
 		}
 	}
 
-	notification << "File close: " << editor->Name();
-	_SendNotification(notification, "FILE_CLOSE");
+	LogInfoF("File closed: %s", editor->Name());
 
 	fTabManager->RemoveTab(index);
 	delete editor;
@@ -1334,6 +1336,8 @@ GenioWindow::_FileClose(int32 index, bool ignoreModifications /* = false */)
 void
 GenioWindow::_FileCloseAll()
 {
+	_FileRequestSaveModified();
+
 	int32 tabsCount = fTabManager->CountTabs();
 	// If there is something to close
 	if (tabsCount > 0) {
@@ -1341,7 +1345,7 @@ GenioWindow::_FileCloseAll()
 		fTabManager->SelectTab(int32(0));
 
 		for (int32 index = tabsCount - 1; index >= 0; index--) {
-			fTabManager->CloseTab(index);
+			_FileClose(index, true);
 		}
 	}
 }
@@ -1523,7 +1527,7 @@ GenioWindow::_FileSave(int32 index)
 	Editor* editor = fTabManager->EditorAt(index);
 
 	if (editor == nullptr) {
-		LogErrorF("NULL editor pointer (%s)", editor->FilePath().String());
+		LogErrorF("NULL editor pointer (%d)", index);
 		return B_ERROR;
 	}
 
@@ -1532,7 +1536,7 @@ GenioWindow::_FileSave(int32 index)
 		LogErrorF("File is read-only (%s)", editor->FilePath().String());
 		return B_ERROR;
 	}
-	
+
 	// Stop monitoring if needed
 	editor->StopMonitoring();
 
@@ -3679,7 +3683,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
-		
+
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 

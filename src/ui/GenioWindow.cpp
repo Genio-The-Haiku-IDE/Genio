@@ -721,12 +721,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_SIGNATUREHELP: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->SignatureHelp();
-			break;
-		}
 		case MSG_AUTOCOMPLETION: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor)
@@ -2323,10 +2317,6 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_SWITCHSOURCE,
 								   B_TRANSLATE("Switch source/header"), "", "", B_TAB);
 
-	ActionManager::RegisterAction(MSG_SIGNATUREHELP,
-								   B_TRANSLATE("Signature help"), "", "", '?');
-
-
 	ActionManager::RegisterAction(MSG_VIEW_ZOOMIN,  B_TRANSLATE("Zoom in"), "", "", '+');
 	ActionManager::RegisterAction(MSG_VIEW_ZOOMOUT, B_TRANSLATE("Zoom out"), "", "", '-');
 	ActionManager::RegisterAction(MSG_VIEW_ZOOMRESET, B_TRANSLATE("Reset zoom"), "", "", '0');
@@ -2502,7 +2492,6 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
-	ActionManager::AddItem(MSG_SIGNATUREHELP, editMenu);
 
 	editMenu->AddSeparatorItem();
 
@@ -2529,7 +2518,6 @@ GenioWindow::_InitMenu()
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 	ActionManager::SetEnabled(MSG_FORMAT, false);
-	ActionManager::SetEnabled(MSG_SIGNATUREHELP, false);
 
 	fLineEndingsMenu->SetEnabled(false);
 
@@ -3823,7 +3811,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
 		ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
 		ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
-		ActionManager::SetEnabled(MSG_SIGNATUREHELP, false);
 
 		fLineEndingsMenu->SetEnabled(false);
 		ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, false);
@@ -3888,7 +3875,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (Genio::file_type(editor->Name().String()).compare("c++") == 0));
-	ActionManager::SetEnabled(MSG_SIGNATUREHELP, !editor->IsReadOnly() && editor->GetProjectFolder());
 
 	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, true);
 	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);

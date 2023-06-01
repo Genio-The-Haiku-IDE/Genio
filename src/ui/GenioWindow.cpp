@@ -51,7 +51,7 @@
 #include "EditorKeyDownMessageFilter.h"
 
 #include "ActionManager.h"
-
+#include "QuitAlert.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -1075,32 +1075,33 @@ GenioWindow::MessageReceived(BMessage* message)
 	}
 }
 
-
 bool
 GenioWindow::QuitRequested()
 {
-	// Is there any modified file?
-	int32 count = _FilesNeedSave();
-	if (count > 0) {
-		BString text = "";
-		static BStringFormat format(B_TRANSLATE("{0, plural,"
-			"one{A file was modified. Do you want to save the changes before quitting?}"
-			"other{Some files were modified. Do you want to save the changes before quitting?}}"));
-		format.Format(text, count);
-		BAlert* alert = new BAlert("QuitAndSaveDialog", text,
- 			B_TRANSLATE("Cancel"), B_TRANSLATE("Don't save"), B_TRANSLATE("Save"),
- 			B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+	//Let's use Koder QuitAlert!
+	std::vector<int>		 unsavedIndex;
+	std::vector<std::string> unsavedPaths;
 
-		alert->SetShortcut(0, B_ESCAPE);
-
-		int32 choice = alert->Go();
-
-		if (choice == 0)
-			return false;
-		else if (choice == 1) {
-
-		} else if (choice == 2) {
-			_FileSaveAll();
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
+		if(editor->IsModified()) {
+			unsavedIndex.push_back(index);
+			unsavedPaths.push_back(std::string(editor->FilePath().String()));
+		}
+	}
+	if(!unsavedIndex.empty()) {
+		QuitAlert* quitAlert = new QuitAlert(unsavedPaths);
+		auto filesToSave = quitAlert->Go();
+		if(!filesToSave.empty()) {
+			auto bter = filesToSave.begin();
+			auto iter = unsavedIndex.begin();
+			while(iter != unsavedIndex.end()) {
+				if ((*bter)) {
+					_FileSave(*iter);
+				}
+				iter++;
+				bter++;
+			}
 		}
 	}
 
@@ -1513,38 +1514,25 @@ GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 status_t
 GenioWindow::_FileSave(int32 index)
 {
-//	status_t status;
-	BString notification;
-
 	// Should not happen
 	if (index < 0) {
-		notification << "No file selected";
-		_SendNotification(notification, "FILE_ERR");
+		LogErrorF("No file selected (%d)", index);
 		return B_ERROR;
 	}
 
 	Editor* editor = fTabManager->EditorAt(index);
 
 	if (editor == nullptr) {
-		notification << "NULL editor pointer";
-		_SendNotification(notification, "FILE_ERR");
+		LogErrorF("NULL editor pointer (%s)", editor->FilePath().String());
 		return B_ERROR;
 	}
 
 	// Readonly file, should not happen
 	if (editor->IsReadOnly()) {
-		notification << "File is read-only";
-		_SendNotification(notification, "FILE_ERR");
+		LogErrorF("File is read-only (%s)", editor->FilePath().String());
 		return B_ERROR;
 	}
-
-	// File not modified, happens at file save as
-/*	if (!editor->IsModified()) {
-		notification << "File not modified";
-		_SendNotification(notification, "FILE_ERR");
-		return B_ERROR;
-	}
-*/
+	
 	// Stop monitoring if needed
 	status_t status = editor->StopMonitoring();
 	if (status != B_OK)
@@ -1558,12 +1546,10 @@ GenioWindow::_FileSave(int32 index)
 	if (status != B_OK)
 		LogErrorF("Error in StartMonitoring node (%s) (%s)", editor->Name().String(), strerror(status));
 
-	notification << "File save: "
-		<< editor->Name() << "    "
-		<< length << " bytes -> "
-		<< written << " written";
-	_SendNotification(notification, length == written ? "FILE_SAVE" : "FILE_ERR");
-
+	if (length == written)
+		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath(), length, written);
+	else
+		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
 	return B_OK;
 }
 

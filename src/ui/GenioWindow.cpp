@@ -1265,11 +1265,11 @@ GenioWindow::_DebugProject()
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	// attempt to launch Debugger with BRoster::Launch() failed so we use a more traditional 
+	// attempt to launch Debugger with BRoster::Launch() failed so we use a more traditional
 	// approach here
 	BString commandLine;
-	commandLine.SetToFormat("Debugger %s %s", 
-							EscapeQuotesWrap(fActiveProject->GetTarget()).String(), 
+	commandLine.SetToFormat("Debugger %s %s",
+							EscapeQuotesWrap(fActiveProject->GetTarget()).String(),
 							EscapeQuotesWrap(fActiveProject->GetExecuteArgs()).String());
 	return system(commandLine) == 0 ? B_OK : errno;
 }
@@ -2011,9 +2011,28 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 				|| msg->FindInt64("node", &nref.node) != B_OK)
 					break;
 
+			// Special case: let's detect a node_id change.
+			// The path still exists but it's a new file.
+			// Happens on a 'git switch' command.
+
+			node_ref dirRef;
+			dirRef.device = nref.device;
+			dirRef.node = dir;
+			BDirectory fileDir(&dirRef);
+			if (fileDir.InitCheck() == B_OK) {
+				// this will 'refresh' the files in the directory
+				// and will automatically send a file update.
+				BEntry entry;
+				while(fileDir.GetNextEntry(&entry) == B_OK) {
+					entry_ref ref;
+					entry.GetRef(&ref);
+					if (name.Compare(ref.name) == 0) {
+						return;
+					}
+				}
+			}
+
 			_HandleExternalRemoveModification(_GetEditorIndex(&nref));
-			//entry_ref ref(device, dir, name);
-			//_HandleExternalRemoveModification(_GetEditorIndex(&ref));
 			break;
 		}
 		case B_STAT_CHANGED: {
@@ -3697,7 +3716,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
-		
+
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 

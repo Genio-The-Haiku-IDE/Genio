@@ -30,6 +30,7 @@ public:
 	void						MessageReceived(BMessage* message);
 	virtual void				Show();
 	std::vector<bool>			Go();
+
 private:
 	enum Actions {
 		SAVE_ALL		= 'sval',

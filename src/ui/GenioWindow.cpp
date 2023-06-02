@@ -2011,24 +2011,25 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 				|| msg->FindInt64("node", &nref.node) != B_OK)
 					break;
 
-			// Special case: let's detect a node_id change.
-			// The path still exists but it's a new file.
+			// Special case: not real B_ENTRY_REMOVED.
 			// Happens on a 'git switch' command.
-
 			node_ref dirRef;
 			dirRef.device = nref.device;
 			dirRef.node = dir;
 			BDirectory fileDir(&dirRef);
 			if (fileDir.InitCheck() == B_OK) {
-				// this will 'refresh' the files in the directory
-				// and will automatically send a file update.
 				BEntry entry;
-				while(fileDir.GetNextEntry(&entry) == B_OK) {
-					entry_ref ref;
-					entry.GetRef(&ref);
-					if (name.Compare(ref.name) == 0) {
-						return;
+				if (fileDir.GetEntry(&entry) == B_OK) {
+					BPath path;
+					entry.GetPath(&path);
+					if (path.Append(name.String()) == B_OK) {
+						entry.SetTo(path.Path());
+						if (entry.Exists()) {
+						// this will automatically send a file update.
+							return;
+						}
 					}
+					
 				}
 			}
 

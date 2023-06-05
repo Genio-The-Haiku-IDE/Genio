@@ -117,7 +117,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
 
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);	
+	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);
 
 	fTextRect.top = bounds.top - 0.5f;
 	fTextRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
@@ -131,17 +131,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	// Check if there is an InitRename request and show a TextControl
 	if (fInitRename) {
-		if (fTextControl == nullptr) {
-			fTextControl = new TemporaryTextControl(fTextRect, "RenameTextWidget", "", 
-												Text(), fMessage, this,
-												B_FOLLOW_NONE);
-			owner->AddChild(fTextControl);
-			fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
-			fTextControl->SetDivider(0);
-			fTextControl->TextView()->SelectAll();
-			fTextControl->TextView()->ResizeBy(0,-3);
-		}
-		fTextControl->MakeFocus();
+		_DrawTextWidget(owner);
 	} else {
 		// Draw string at the right of the icon
 		owner->SetDrawingMode(B_OP_COPY);
@@ -149,7 +139,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 							bounds.top + BaselineOffset());
 		owner->DrawString(Text());
 		owner->Sync();
-		
+
 		if (fFirstTimeRendered) {
 			owner->Invalidate();
 			fFirstTimeRendered = false;
@@ -193,6 +183,24 @@ ProjectItem::CommitRename()
 	}
 	fInitRename = false;
 }
+
+
+void
+ProjectItem::_DrawTextWidget(BView* owner)
+{
+	if (fTextControl == nullptr) {
+		fTextControl = new TemporaryTextControl(fTextRect, "RenameTextWidget",
+											"", Text(), fMessage, this,
+											B_FOLLOW_NONE);
+		owner->AddChild(fTextControl);
+		fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
+		fTextControl->SetDivider(0);
+		fTextControl->TextView()->SelectAll();
+		fTextControl->TextView()->ResizeBy(0, -3);
+	}
+	fTextControl->MakeFocus();
+}
+
 
 void
 ProjectItem::_DestroyTextWidget()

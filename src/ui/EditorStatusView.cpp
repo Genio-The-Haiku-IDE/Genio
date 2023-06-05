@@ -51,6 +51,10 @@ StatusView::StatusView(Editor* editor)	:
 			fNavigationPressed(false),
 			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT)
 {
+	BScrollBar* scrollBar = ScrollView()->ScrollBar(B_HORIZONTAL);
+	if (scrollBar != NULL)
+		fNavigationButtonWidth = scrollBar->Bounds().Height() + 1;
+
 	memset(fCellWidth, 0, sizeof(fCellWidth));
 
 	SetFont(be_plain_font);

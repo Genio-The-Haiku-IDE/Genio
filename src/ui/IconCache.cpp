@@ -9,6 +9,7 @@
 #define DIR_FILETYPE "application/x-vnd.Be-directory"
 #define FILE_FILETYPE "application/octet-stream"
 
+
 IconCache IconCache::instance;
 
 IconCache::IconCache()
@@ -39,10 +40,11 @@ IconCache::GetIcon(entry_ref *ref)
 		return it->second;
 	} else {
 		LogTrace("IconCache: could not find an icon in cache for %s",mimeType);
-		BRect rect(BPoint(0, 0), be_control_look->ComposeIconSize(B_MINI_ICON));
+		BSize composedSize = be_control_look->ComposeIconSize(B_MINI_ICON);
+		BRect rect(0, 0, composedSize.IntegerWidth() - 1, composedSize.IntegerHeight() - 1);
 		BBitmap *icon = new BBitmap(rect, B_RGBA32);
-		icon_size iconSize = (icon_size)(icon->Bounds().Width()-1);
-		status_t status = nodeInfo.GetTrackerIcon(icon, iconSize);
+		icon_size iconSize = (icon_size)(icon->Bounds().IntegerWidth() - 1);
+		status_t status = nodeInfo.GetTrackerIcon(icon, (icon_size)iconSize);
 		instance.cache.emplace(mimeType, icon);
 		LogTrace("IconCache: GetTrackerIcon returned - %d", status);
 		return icon;

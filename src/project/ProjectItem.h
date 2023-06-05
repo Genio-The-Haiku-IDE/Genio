@@ -38,6 +38,8 @@ private:
 	BMessage*		fMessage;
 	BTextControl	*fTextControl;
 	
+	void			_DrawIcon(BView* owner);
+	void			_DrawTextWidget(BView* owner);
 	void			_DestroyTextWidget();
 };
 

@@ -3331,7 +3331,6 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 void
 GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 {
-
 	BPath path(folder);
 
 	ProjectFolder* newProject = new ProjectFolder(path.Path());

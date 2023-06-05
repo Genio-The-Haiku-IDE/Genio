@@ -1939,9 +1939,8 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 void
 GenioWindow::_HandleExternalStatModification(int32 index)
 {
-	if (index < 0) {
-		return; //TODO notify
-	}
+	if (index < 0)
+		return;
 
 	Editor* editor = fTabManager->EditorAt(index);
 
@@ -1956,15 +1955,12 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 
  	alert->SetShortcut(0, B_ESCAPE);
 
-	int32 choice = alert->Go();
- 	if (choice == 1) {
+	editor->StopMonitoring();
+ 	if (alert->Go() == 1) {
 		editor->Reload();
-		BString notification;
-		notification << "File info: " << editor->Name()
-			<< " modified externally";
-
-		_SendNotification(notification, "FILE_INFO");
+		LogInfoF("File info: %s modified externally", editor->Name().String());
 	}
+	editor->StartMonitoring();
 }
 
 void

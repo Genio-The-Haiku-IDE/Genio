@@ -103,6 +103,17 @@ SettingsWindow::SettingsWindow()
 	// Map Items
 	_MapPages();
 
+	// Set fSettingsOutline minimum width
+	// done after _MapPages because it fills fViewPageMap
+	float maxTitleSize = 0;
+	ViewPageMap::const_iterator i;
+	for (i = fViewPageMap.begin(); i != fViewPageMap.end(); i++) {
+		float titleSize = fSettingsOutline->StringWidth(i->first->Text());
+		if (titleSize > maxTitleSize)
+			maxTitleSize = titleSize;
+	}
+	fSettingsOutline->SetExplicitMinSize(BSize(maxTitleSize + 20, B_SIZE_UNSET));
+
 	// Modified and Applied Controls List
 	fModifiedList = new BObjectList<BControl>();
 	fAppliedList = new BObjectList<BControl>();
@@ -525,9 +536,6 @@ SettingsWindow::_InitWindow()
 
 	// Select first one
 	fSettingsOutline->Select(0);
-
-	// TODO: Avoid fSettingsScroll being shrinked too much
-	fSettingsScroll->SetExplicitMinSize(BSize(200, 200));
 
 	// Center window
 	CenterOnScreen();

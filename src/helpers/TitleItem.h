@@ -20,13 +20,12 @@ public:
 
 	void DrawItem(BView* owner, BRect bounds, bool complete)
 	{
-		BFont font;
+		owner->PushState();
 
-		font.SetFamilyAndStyle("Noto Sans", "Bold");
-		owner->SetFont(&font);
-
+		owner->SetFont(be_bold_font);
 		BStringItem::DrawItem(owner, bounds, complete);
-		owner->SetFont(be_plain_font);
+
+		owner->PopState();
 	}
 
 	void Update(BView* owner, const BFont* font)

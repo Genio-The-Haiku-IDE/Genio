@@ -62,7 +62,7 @@ private:
 			BString			fCellText[kStatusCellCount];
 			float			fCellWidth[kStatusCellCount];
 			bool			fNavigationPressed;
-	const	float			fNavigationButtonWidth;
+			float			fNavigationButtonWidth;
 			
 			static BPopUpMenu*		sMenu;
 };

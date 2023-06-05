@@ -1265,11 +1265,11 @@ GenioWindow::_DebugProject()
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	// attempt to launch Debugger with BRoster::Launch() failed so we use a more traditional 
+	// attempt to launch Debugger with BRoster::Launch() failed so we use a more traditional
 	// approach here
 	BString commandLine;
-	commandLine.SetToFormat("Debugger %s %s", 
-							EscapeQuotesWrap(fActiveProject->GetTarget()).String(), 
+	commandLine.SetToFormat("Debugger %s %s",
+							EscapeQuotesWrap(fActiveProject->GetTarget()).String(),
 							EscapeQuotesWrap(fActiveProject->GetExecuteArgs()).String());
 	return system(commandLine) == 0 ? B_OK : errno;
 }
@@ -2007,9 +2007,29 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 				|| msg->FindInt64("node", &nref.node) != B_OK)
 					break;
 
+			// Special case: not real B_ENTRY_REMOVED.
+			// Happens on a 'git switch' command.
+			node_ref dirRef;
+			dirRef.device = nref.device;
+			dirRef.node = dir;
+			BDirectory fileDir(&dirRef);
+			if (fileDir.InitCheck() == B_OK) {
+				BEntry entry;
+				if (fileDir.GetEntry(&entry) == B_OK) {
+					BPath path;
+					entry.GetPath(&path);
+					if (path.Append(name.String()) == B_OK) {
+						entry.SetTo(path.Path());
+						if (entry.Exists()) {
+						// this will automatically send a file update.
+							return;
+						}
+					}
+					
+				}
+			}
+
 			_HandleExternalRemoveModification(_GetEditorIndex(&nref));
-			//entry_ref ref(device, dir, name);
-			//_HandleExternalRemoveModification(_GetEditorIndex(&ref));
 			break;
 		}
 		case B_STAT_CHANGED: {
@@ -3311,7 +3331,6 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 void
 GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 {
-
 	BPath path(folder);
 
 	ProjectFolder* newProject = new ProjectFolder(path.Path());
@@ -3693,7 +3712,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
-		
+
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 

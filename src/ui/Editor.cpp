@@ -829,6 +829,7 @@ Editor::Reload()
 	if (readOnly == true)
 		SendMessage(SCI_SETREADONLY, 0, UNSET);
 
+	Sci_Position position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 	off_t size;
 	file.GetSize(&size);
 
@@ -850,6 +851,8 @@ Editor::Reload()
 
 	SendMessage(SCI_EMPTYUNDOBUFFER, UNSET, UNSET);
 	SendMessage(SCI_SETSAVEPOINT, UNSET, UNSET);
+	SendMessage(SCI_SETSEL, position, position);
+	GrabFocus();
 
 	return B_OK;
 }

@@ -28,6 +28,7 @@
 
 #include <Application.h>
 #include <Catalog.h>
+#include <GridLayoutBuilder.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
@@ -368,7 +369,6 @@ SettingsWindow::_ApplyModifications()
 	int32 modifications = fModifiedList->CountItems();
 
 	for (int32 item = fModifiedList->CountItems() -1; item >= 0 ; item--) {
-
 		if (_StoreToFile(fModifiedList->ItemAt(item)) != B_OK) {
 			// TODO notify
 			continue;
@@ -408,7 +408,6 @@ SettingsWindow::_ApplyOrphans()
 
 	if (orphans > 0) {
 		for (int32 item = fOrphansList->CountItems() -1; item >= 0 ; item--) {
-
 			if (_StoreToFile(fOrphansList->ItemAt(item)) != B_OK) {
 				// TODO notify
 				continue;
@@ -526,6 +525,9 @@ SettingsWindow::_InitWindow()
 
 	// Select first one
 	fSettingsOutline->Select(0);
+
+	// TODO: Avoid fSettingsScroll being shrinked too much
+	fSettingsScroll->SetExplicitMinSize(BSize(200, 200));
 
 	// Center window
 	CenterOnScreen();
@@ -777,7 +779,6 @@ SettingsWindow::_ManageModifications(BControl* control, bool isModified)
 {
 	// Item was modified
 	if (isModified == true) {
-
 		// Manage multiple modifications for the same control 
 		if (!fModifiedList->HasItem(control))
 			fModifiedList->AddItem(control);
@@ -788,11 +789,9 @@ SettingsWindow::_ManageModifications(BControl* control, bool isModified)
 
 		fApplyButton->SetEnabled(true);
 		fRevertButton->SetEnabled(true);
-		
 	} else {
 		// Item was demodified
 		if (fModifiedList->HasItem(control)) {
-			
 			control->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 			control->Invalidate();
 			
@@ -822,7 +821,6 @@ SettingsWindow::_MapPages()
 	fViewPageMap.insert(ViewPagePair(fEditorVisualItem, "EditorVisualPage"));
 	fViewPageMap.insert(ViewPagePair(fNotificationsTitle, "NotificationsPage"));
 	fViewPageMap.insert(ViewPagePair(fBuildTitle, "BuildPage"));
-
 }
 
 // Pages
@@ -831,8 +829,7 @@ BView*
 SettingsWindow::_PageBuildView()
 {
 	// "BuildPage" Box
-
-	fBuildBox = new BBox("BuildBox");
+	fBuildBox = new BBox("BuildPage");
 	fBuildBox->SetLabel(B_TRANSLATE("Build"));
 
 	fWrapConsoleEnabled = new BCheckBox("WrapConsoleEnabled",
@@ -841,18 +838,17 @@ SettingsWindow::_PageBuildView()
 	fConsoleBannerEnabled = new BCheckBox("ConsoleBannerEnabled",
 		B_TRANSLATE("Console banner"), new BMessage(MSG_CONSOLE_BANNER_ENABLED));
 
-	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
-		.Add(BLayoutBuilder::Grid<>(fBuildBox)
+	BView* view = BGridLayoutBuilder(B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING)
 		.Add(fWrapConsoleEnabled, 0, 1)
 		.Add(fConsoleBannerEnabled, 1, 1)
 		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 3, 4)
-		.AddGlue(0, 4)
-		.SetInsets(10, 20, 10, 10))
-	.TopView();
+		.Add(BSpaceLayoutItem::CreateGlue(), 0, 4)
+		.SetInsets(10, 10, 10, 10)
+	.View();
 
-	view->SetName("BuildPage");
+	fBuildBox->AddChild(view);
 
-	return view;
+	return fBuildBox;
 
 }
 
@@ -860,7 +856,7 @@ BView*
 SettingsWindow::_PageEditorView()
 {
 	// "EditorPage" Box
-	fEditorBox = new BBox("EditorBox");
+	fEditorBox = new BBox("EditorPage");
 	fEditorBox->SetLabel(B_TRANSLATE("Editor"));
 
 	fFontMenuOP = new BOptionPopUp("FontMenu",
@@ -913,8 +909,7 @@ SettingsWindow::_PageEditorView()
 	fTabWidthSpinner->SetRange(1, 8);
 	fTabWidthSpinner->SetAlignment(B_ALIGN_RIGHT);
 
-	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
-		.Add(BLayoutBuilder::Grid<>(fEditorBox)
+	BView* view = BGridLayoutBuilder(B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING)
 		.Add(fFontMenuOP, 0, 0, 2)
 		.Add(fEditorFontSizeOP, 3, 0)
 		.Add(fPreviewBox, 0, 1, 3)
@@ -923,20 +918,20 @@ SettingsWindow::_PageEditorView()
 		.Add(fSaveCaret, 0, 4)
 		.Add(fTabWidthSpinner, 0, 5, 1)
 		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 6, 6)
-		.AddGlue(0, 7)
-		.SetInsets(10, 20, 10, 10))
-	.TopView();
+		.Add(BSpaceLayoutItem::CreateGlue(), 0, 7)
+		.SetInsets(10, 10, 10, 10)
+	.View();
 
-	view->SetName("EditorPage");
+	fEditorBox->AddChild(view);
 
-	return view;
+	return fEditorBox;
 }
 
 BView*
 SettingsWindow::_PageEditorViewVisual()
 {
 	// "EditorVisualPage" Box
-	fEditorVisualBox = new BBox("EditorVisualBox");
+	fEditorVisualBox = new BBox("EditorVisualPage");
 	fEditorVisualBox->SetLabel(B_TRANSLATE("Visual"));
 
 	fShowLineNumber = new BCheckBox("ShowLineNumber",
@@ -961,8 +956,7 @@ SettingsWindow::_PageEditorViewVisual()
 	float w = fEdgeLineColumn->StringWidth("123") + 10;
 	fEdgeLineColumn->CreateTextViewLayoutItem()->SetExplicitMaxSize(BSize(w, B_SIZE_UNSET));
 
-	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
-		.Add(BLayoutBuilder::Grid<>(fEditorVisualBox)
+	BView* view = BGridLayoutBuilder(B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING)
 		.Add(fShowLineNumber, 0, 0)
 		.Add(fEnableFolding, 1, 0)
 		.Add(fShowCommentMargin, 2, 0)
@@ -970,22 +964,22 @@ SettingsWindow::_PageEditorViewVisual()
 		.Add(fShowEdgeLine, 0, 2)
 		.Add(fEdgeLineColumn->CreateLabelLayoutItem(), 1, 2)
 		.Add(fEdgeLineColumn->CreateTextViewLayoutItem(), 2, 2)
-		.AddGlue(3, 2)
+		.Add(BSpaceLayoutItem::CreateGlue(), 3, 2)
 		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 3, 4)
-		.AddGlue(0, 4)
-		.SetInsets(10, 20, 10, 10))
-	.TopView();
+		.Add(BSpaceLayoutItem::CreateGlue(), 0, 4)
+		.SetInsets(10, 10, 10, 10)
+	.View();
 
-	view->SetName("EditorVisualPage");
+	fEditorVisualBox->AddChild(view);
 
-	return view;
+	return fEditorVisualBox;
 }
 
 BView*
 SettingsWindow::_PageGeneralView()
 {
 	// "General" Box
-	fGeneralBox = new BBox("GeneralBox");
+	fGeneralBox = new BBox("GeneralPage");
 	fGeneralBox->SetLabel(B_TRANSLATE("General"));
 
 	// Text Control
@@ -1023,8 +1017,7 @@ SettingsWindow::_PageGeneralView()
 	fLogLevel->AddOptionAt("Debug", 4, 3);
 	fLogLevel->AddOptionAt("Trace", 5, 4);
 
-	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
-		.Add(BLayoutBuilder::Grid<>(fGeneralBox)
+	BView* view = BGridLayoutBuilder(B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING)
 		.Add(fProjectsDirectory->CreateLabelLayoutItem(), 0, 0)
 		.Add(fProjectsDirectory->CreateTextViewLayoutItem(), 1, 0, 2)
 		.Add(fBrowseProjectsButton, 3, 0)
@@ -1033,22 +1026,22 @@ SettingsWindow::_PageGeneralView()
 		.Add(fLogDestination, 0, 2)
 		.Add(fLogLevel, 1, 2)
 		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 3, 4)
-		.AddGlue(0, 4)
-		.SetInsets(10, 20, 10, 10))
-	.TopView();
+		.Add(BSpaceLayoutItem::CreateGlue(), 0, 4)
+		.SetInsets(10, 10, 10, 10)
+	.View();
 
-	view->SetName("GeneralPage");
+	fGeneralBox->AddChild(view);
 
-	return view;
+	return fGeneralBox;
 }
 
 BView*
 SettingsWindow::_PageGeneralViewStartup()
 {
 	// "Startup" Box
-	fGeneralStartupBox = new BBox("GeneralStartupBox");
+	fGeneralStartupBox = new BBox("GeneralStartupPage");
 	fGeneralStartupBox->SetLabel(B_TRANSLATE("Startup"));
-
+	
 	fReopenProjects = new BCheckBox("ReopenProjects",
 		B_TRANSLATE("Reload projects"), new BMessage(MSG_REOPEN_PROJECTS_TOGGLED));
 
@@ -1064,44 +1057,42 @@ SettingsWindow::_PageGeneralViewStartup()
 	fShowToolBar = new BCheckBox("ShowToolBar",
 		B_TRANSLATE("Show toolbar"), new BMessage(MSG_SHOW_TOOLBAR_TOGGLED));
 
-	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
-		.Add(BLayoutBuilder::Grid<>(fGeneralStartupBox)
-		.Add(fReopenProjects, 0, 1)
-		.Add(fReopenFiles, 1, 1)
-		.Add(fShowProjectsPanes, 0, 2)		
-		.Add(fShowOutputPanes, 1, 2)
-		.Add(fShowToolBar, 2, 2)
-		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 3, 4)
-		.AddGlue(0, 4)
-		.SetInsets(10, 20, 10, 10))
-	.TopView();
+	BView* view = BLayoutBuilder::Grid<>(B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING)
+		.Add(fReopenProjects, 0, 0)
+		.Add(fReopenFiles, 1, 0)
+		.Add(fShowProjectsPanes, 0, 1)
+		.Add(fShowOutputPanes, 1, 1)
+		.Add(fShowToolBar, 2, 1)
+		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 2, 4)
+		.AddGlue(0, 3)
+		.SetInsets(10, 10, 10, 10)
+		.View();
 
-	view->SetName("GeneralStartupPage");
+	fGeneralStartupBox->AddChild(view);
 
-	return view;
+	return fGeneralStartupBox;
 }
 
 BView*
 SettingsWindow::_PageNotificationsView()
 {
 	// "" Box
-	fNotificationsBox = new BBox("NotificationsBox");
+	fNotificationsBox = new BBox("NotificationsPage");
 	fNotificationsBox->SetLabel(B_TRANSLATE("Notifications"));
 
 	fEnableNotifications = new BCheckBox("EnableNotifications",
 		B_TRANSLATE("Enable notifications"), new BMessage(MSG_ENABLE_NOTIFICATIONS_TOGGLED));
 
-	BView* view = BGroupLayoutBuilder(B_VERTICAL, 0)
-		.Add(BLayoutBuilder::Grid<>(fNotificationsBox)
+	BView* view = BGridLayoutBuilder(B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING)
 		.Add(fEnableNotifications, 0, 1)
-		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 3, 4)
-		.AddGlue(0, 4)
-		.SetInsets(10, 20, 10, 10))
-	.TopView();
+		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 2, 4)
+		.Add(BSpaceLayoutItem::CreateGlue(), 0, 3)
+		.SetInsets(10, 10, 10, 10)
+	.View();
 
-	view->SetName("NotificationsPage");
+	fNotificationsBox->AddChild(view);
 
-	return view;
+	return fNotificationsBox;
 }
 
 
@@ -1109,7 +1100,6 @@ void
 SettingsWindow::_RevertModifications()
 {
 	for (int32 item = fModifiedList->CountItems() -1; item >= 0 ; item--) {
-
 		_LoadFromFile(fModifiedList->ItemAt(item), false);
 		fModifiedList->ItemAt(item)->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 		fModifiedList->ItemAt(item)->Invalidate();

@@ -39,7 +39,12 @@ IconCache::GetIcon(entry_ref *ref)
 		return it->second;
 	} else {
 		LogTrace("IconCache: could not find an icon in cache for %s",mimeType);
-		BRect rect(BPoint(0, 0), be_control_look->ComposeIconSize(B_MINI_ICON));
+		// TODO: Seems like icons bigger than 32x32 don't work correctly.
+		// for now cap the max size to 32x32.
+		BSize composedSize = be_control_look->ComposeIconSize(B_MINI_ICON);
+		float cappedWidth = composedSize.Width() > B_LARGE_ICON ? B_LARGE_ICON : composedSize.Width();
+		float cappedHeight = composedSize.Height() > B_LARGE_ICON ? B_LARGE_ICON : composedSize.Height(); 
+		BRect rect(0, 0, cappedWidth, cappedHeight);
 		BBitmap *icon = new BBitmap(rect, B_RGBA32);
 		icon_size iconSize = (icon_size)(icon->Bounds().Width()-1);
 		status_t status = nodeInfo.GetTrackerIcon(icon, iconSize);

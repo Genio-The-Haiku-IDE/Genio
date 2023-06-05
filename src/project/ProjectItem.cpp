@@ -117,6 +117,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
 
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	iconSize = iconSize > B_LARGE_ICON ? B_LARGE_ICON : iconSize;
 	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);	
 
 	fTextRect.top = bounds.top - 0.5f;

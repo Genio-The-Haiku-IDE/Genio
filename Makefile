@@ -130,3 +130,10 @@ cleanall: clean
        
 $(TARGET): deps
 
+GenioApp.cpp : Changelog.h
+
+Changelog.h : txt2header Changelog.txt
+	txt2header < Changelog.txt > Changelog.h
+
+txt2header : txt2header.cpp
+

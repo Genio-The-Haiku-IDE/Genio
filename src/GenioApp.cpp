@@ -9,6 +9,8 @@
 #include <AboutWindow.h>
 #include <Catalog.h>
 #include <String.h>
+#include <StringList.h>
+
 #include <iostream>
 
 #include "GenioNamespace.h"
@@ -20,6 +22,33 @@
 #include "Log.h"
 
 static log_level sSessionLogLevel = log_level(LOG_LEVEL_UNSET);
+
+const char kChangeLog[] = {
+#include "Changelog.h"
+};
+
+static BStringList
+SplitChangeLog(const char* changeLog)
+{
+	BStringList list;
+	char* stringStart = (char*)changeLog;
+	int i = 0;
+	char c;
+	while ((c = stringStart[i]) != '\0') {
+		if (c == '-'  && i > 2 && stringStart[i - 1] == '-' && stringStart[i - 2] == '-') {
+			BString string;
+			string.Append(stringStart, i - 2);
+			string.RemoveAll("\t");
+			string.ReplaceAll("- ", "\n\t- ");
+			list.Add(string);
+			stringStart = stringStart + i + 1;
+			i = 0;
+		} else
+			i++;
+	}
+	return list;		
+}
+
 
 GenioApp::GenioApp()
 	:
@@ -53,6 +82,17 @@ GenioApp::AboutRequested()
 	window->AddCopyright(2023, "The Genio Team");
 	window->AddAuthors(authors);
 
+	BStringList list = SplitChangeLog(kChangeLog);
+	int32 stringCount = list.CountStrings();
+	char** charArray = new char* [stringCount + 1];
+	for (int32 i = 0; i < stringCount; i++) {
+		charArray[i] = (char*)list.StringAt(i).String();
+	}
+	charArray[stringCount] = NULL;
+	
+	window->AddVersionHistory((const char**)charArray);
+	delete[] charArray;
+	
 	BString extraInfo;
 	extraInfo << B_TRANSLATE("Genio is a fork of Ideam and available under the MIT license.");
 	extraInfo << "\nIdeam (c) 2017 A. Mosca\n\n";

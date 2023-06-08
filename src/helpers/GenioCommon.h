@@ -8,26 +8,10 @@
 #include <algorithm>
 #include <string>
 
-
+//TODO: move this function inside other
 namespace Genio
 {
-	std::string const	Copyright();
-	std::string const	HeaderGuard(const std::string&  fileName);
-
-	bool				file_exists(const std::string& filename);
 	std::string const	file_type(const std::string& filename);
-	int					get_year();
-
-
-	template<class Element, class Container>
-	bool _in_container(const Element & element, const Container & container)
-	{
-		return std::find(std::begin(container), std::end(container), element)
-				!= std::end(container);
-	}
-
-
-
 }
 
 

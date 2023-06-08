@@ -102,7 +102,6 @@ private:
 
 			void				_MakeBindcatalogs();
 			void				_MakeCatkeys();
-			void				_MakefileSetBuildMode(bool isReleaseMode);
 
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();

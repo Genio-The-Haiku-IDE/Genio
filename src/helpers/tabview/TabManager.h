@@ -18,7 +18,7 @@
 
 enum {
     TABMANAGER_TAB_SELECTED		= 'Ttse',
-    TABMANAGER_TAB_CLOSE		= 'Ttcl',
+    TABMANAGER_TAB_CLOSE_MULTI	= 'Ttcl',
     TABMANAGER_TAB_NEW_OPENED	= 'Ttno'
 };
 
@@ -54,7 +54,7 @@ public:
 			void				SelectTab(int32 tabIndex, bool isNew = false);
 			void				SelectTab(const BView* containedView);
 			int32				SelectedTabIndex() const;
-			void				CloseTab(int32 tabIndex);
+			void				CloseTabs(int32 tabIndex[], int32 size);
 
 			void				AddTab(BView* view, const char* label, int32 index = -1, int32 be_line = -1, int32 lsp_char = -1);
 

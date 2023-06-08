@@ -92,10 +92,12 @@ ConsoleIOThread::_RunExternalProcess()
 	fConsoleOutput = fdopen(fStdOut, "r");
 	if (fConsoleOutput == nullptr) {
 		LogErrorF("Can't open ConsoleOutput file! (%d) [%s]", errno, strerror(errno));
+		return B_ERROR;
 	}
 	fConsoleError = fdopen(fStdErr, "r");
 	if (fConsoleError == nullptr) {
 		LogErrorF("Can't open ConsoleError file! (%d) [%s]", errno, strerror(errno));
+		return B_ERROR;
 	}
 
 	return B_OK;

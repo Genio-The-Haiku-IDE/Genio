@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include "Utils.h"
+#include <Path.h>
 
 namespace Genio
 {
@@ -68,8 +69,11 @@ file_exists(const std::string& filename)
 }
 
 std::string const
-file_type(const std::string& filename)
+file_type(const std::string& fullpath)
 {
+	BPath path(fullpath.c_str());
+	std::string filename = path.Leaf();
+	
  	if (filename.find("Jamfile") == 0) {
 		return "jam";
 	}

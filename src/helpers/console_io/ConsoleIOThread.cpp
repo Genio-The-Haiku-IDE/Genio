@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include "GenioNamespace.h"
+#include "Log.h"
 
  //lock access play with stdin/stdout (from LSPCLient.h)
 extern BLocker *g_LockStdFilesPntr;
@@ -89,7 +90,13 @@ ConsoleIOThread::_RunExternalProcess()
 	_CleanPipes();
 
 	fConsoleOutput = fdopen(fStdOut, "r");
+	if (fConsoleOutput == nullptr) {
+		LogErrorF("Can't open ConsoleOutput file! (%d) [%s]", errno, strerror(errno));
+	}
 	fConsoleError = fdopen(fStdErr, "r");
+	if (fConsoleError == nullptr) {
+		LogErrorF("Can't open ConsoleError file! (%d) [%s]", errno, strerror(errno));
+	}
 
 	return B_OK;
 }
@@ -99,42 +106,46 @@ ConsoleIOThread::ExecuteUnit(void)
 {
 	// first time: let's setup the external process.
 	// this way we always enter in the same managed loop
-
+	status_t status = B_OK;
+	
 	if (fProcessId == -1) {
-		return _RunExternalProcess();
+		status = _RunExternalProcess();
+	} else {
+
+		// read output and error from command
+		// send it to window
+
+		if (fConsoleOutput) {
+			BMessage out_message(CONSOLEIOTHREAD_STDOUT);
+			BString output_string("");
+			output_string = fgets(fConsoleOutputBuffer, LINE_MAX, fConsoleOutput);
+
+			if (output_string != "") {
+				out_message.AddString("stdout", output_string);
+				fConsoleTarget.SendMessage(&out_message);
+			}
+			if (feof(fConsoleOutput))
+				status = EOF;
+		}
+
+		if (fConsoleError) {
+			BMessage err_message(CONSOLEIOTHREAD_STDERR);
+			BString error_string("");
+
+			error_string = fgets(fConsoleOutputBuffer, LINE_MAX, fConsoleError);
+
+			if (error_string != "") {
+				err_message.AddString("stderr", error_string);
+				fConsoleTarget.SendMessage(&err_message);
+			}
+
+			if (feof(fConsoleError))
+				status = EOF;
+		}
 	}
-
-	// read output and error from command
-	// send it to window
-	BMessage out_message(CONSOLEIOTHREAD_STDOUT);
-	BString output_string("");
-
-	output_string = fgets(fConsoleOutputBuffer , LINE_MAX,
-		fConsoleOutput);
-
-	if (output_string != "") {
-		out_message.AddString("stdout", output_string);
-		fConsoleTarget.SendMessage(&out_message);
-	}
-
-	BMessage err_message(CONSOLEIOTHREAD_STDERR);
-	BString error_string("");
-
-	error_string = fgets(fConsoleOutputBuffer, LINE_MAX,
-		fConsoleError);
-
-	if (error_string != "") {
-		err_message.AddString("stderr", error_string);
-		fConsoleTarget.SendMessage(&err_message);
-	}
-
-	if (feof(fConsoleOutput) && feof(fConsoleError))
-		return EOF;
-
 	// streams are non blocking, sleep every 1ms
 	snooze(1000);
-
-	return B_OK;
+	return status;
 }
 
 void

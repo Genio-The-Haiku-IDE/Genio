@@ -3142,7 +3142,6 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	notification << closed << " "  << name;
 	_SendNotification(notification, "PROJ_CLOSE");
 
-
 }
 
 void

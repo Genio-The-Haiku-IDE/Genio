@@ -59,7 +59,7 @@ public:
 	virtual void				MessageReceived(BMessage* message);
 	virtual bool				QuitRequested();
 	virtual void				Show();
-	
+
 	void						UpdateMenu();
 
 private:
@@ -70,7 +70,7 @@ private:
 			status_t			_BuildProject();
 			status_t			_CargoNew(BString args);
 			status_t			_CleanProject();
-			
+
 			status_t			_DebugProject();
 			bool				_FileRequestClose(int32 index);
 			status_t			_RemoveTab(int32 index);
@@ -109,7 +109,7 @@ private:
 
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
-			
+
 			status_t			_ProjectRemoveDir(const BString& dirPath);
 
 			// Project Folders
@@ -121,7 +121,7 @@ private:
 			status_t			_ShowCurrentItemInTracker();
 			status_t			_ShowInTracker(entry_ref *ref);
 			status_t			_OpenTerminalWorkingDirectory();
-			
+
 			int					_Replace(int what);
 			bool				_ReplaceAllow();
 			void				_ReplaceGroupShow(bool show);
@@ -138,12 +138,13 @@ private:
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
+			status_t		_AlertInvalidBuildConfig(BString text);
 			void				_CloseMultipleTabs(BMessage* msg);
 
 private:
 			BMenuBar*			fMenuBar;
 			TemplatesMenu*	fFileNewMenuItem;
-			
+
       BMenu*				fLineEndingsMenu;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;
@@ -167,9 +168,9 @@ private:
 			BMenuItem*			fGitStatusItem;
 			BMenuItem*			fGitStatusShortItem;
 			BMenuItem*			fGitTagItem;
-			
+
 			ToolBar*			fToolBar;
-			
+
 			BGroupLayout*		fRootLayout;
 			BGroupLayout*		fEditorTabsGroup;
 
@@ -183,9 +184,9 @@ private:
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
-			
+
 			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
-			
+
 			// Editor group
 			EditorTabManager*		fTabManager;
 

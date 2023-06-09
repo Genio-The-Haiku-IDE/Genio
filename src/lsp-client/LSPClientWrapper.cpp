@@ -9,9 +9,11 @@
 #include "protocol.h"
 
 
+
 LSPClientWrapper::LSPClientWrapper()
 {
 	fInitialized.store(false);
+	fReaderThread = -1;
 }
 
 #define X(A) std::to_string((size_t)A)
@@ -64,32 +66,40 @@ LSPClientWrapper::Create(const char *uri)
 	  LogInfo("Can't execute clangd tool to provide advanced features! Please install llvm12 package.");
 	  return false;
   }
-  std::atomic<bool> on_error;
-  on_error.store(false);
-  fReaderThread = std::thread([&] {
-	if (loop(*this) == -1)
-	{
-		on_error.store(true);
-		fInitialized.store(false);
-		Close();
-	}
-  });
+
+  fOnEroor.store(false);
+  fReaderThread = spawn_thread(LSPClientWrapper::thread_func,
+								"lsp reader thread",
+								B_NORMAL_PRIORITY,
+								this);
+	resume_thread(fReaderThread);
   
   Initialize(string_ref(uri));
 
-  while (!fInitialized.load() && !on_error.load()) {
+  while (!fInitialized.load() && !fOnEroor.load()) {
     LogDebug("Waiting for clangd initialization.. \n");
-    usleep(500000);
+    usleep(100000);
   }
-  return on_error.load();
+  return fOnEroor.load();
+}
+
+int32 
+LSPClientWrapper::thread_func(void *data)
+{
+   LSPClientWrapper* wrap = (LSPClientWrapper*)data;
+	if (wrap->loop(*wrap) == -1)
+	{
+		wrap->fOnEroor.store(true);
+		wrap->fInitialized.store(false);
+		wrap->Close();
+	}
+	return 0;
 }
 
 bool	
 LSPClientWrapper::Dispose()
 {
 	if (!fInitialized) {
-		if (fReaderThread.joinable())
-			 fReaderThread.detach();
     	return true;
     }
 
@@ -97,14 +107,18 @@ LSPClientWrapper::Dispose()
 		LogError("LSPClientWrapper::Dispose() still textDocument registered! [%s]", m.second->GetFilenameURI().c_str());
     
 	Shutdown();
-	
-	while (fInitialized.load()) {
-		LogDebug("Waiting for shutdown...\n");
-		usleep(500000);
+	int tries = 4;
+	while (fInitialized.load() && tries--) {
+		LogDebug("Waiting for shutdown...(%d)\n", tries);
+		usleep(100000);
 	}
-	
-  	fReaderThread.detach();
-  	Exit();
+	if (tries == 0) { 
+		InterruptExternal();
+	} else {
+		Exit();
+	}
+	Close();
+	kill_thread(fReaderThread);
 	return true;
 }
 		

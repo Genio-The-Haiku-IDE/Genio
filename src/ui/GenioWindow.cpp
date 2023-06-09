@@ -1287,11 +1287,38 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int32 lsp
 }
 
 status_t
+GenioWindow::_AlertInvalidBuildConfig(BString message)
+{
+	BAlert* alert = new BAlert("Building project", B_TRANSLATE(message),
+						B_TRANSLATE("Cancel"),
+						B_TRANSLATE("Configure"),
+						nullptr, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
+	alert->SetShortcut(0, B_ESCAPE);
+	if (alert->Go() == 1) {
+			PostMessage(MSG_PROJECT_SETTINGS);
+	}
+	return B_OK;
+}
+
+status_t
 GenioWindow::_BuildProject()
 {
 	// Should not happen
 	if (fActiveProject == nullptr)
 		return B_ERROR;
+
+	BString command;
+	command	<< fActiveProject->GetBuildCommand();
+
+	if (command.IsEmpty()) {
+		LogInfoF("Empty build command for project [%s]", fActiveProject->Name().String());
+
+		BString message;
+		message << "No build command found!\n"
+				   "Please configure the project to provide\n"
+				   "a valid build configuration.";
+		return _AlertInvalidBuildConfig(message);
+	}
 
 	fIsBuilding = true;
 	fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
@@ -1300,12 +1327,7 @@ GenioWindow::_BuildProject()
 	fBuildLogView->Clear();
 	_ShowLog(kBuildLog);
 
-	BString text;
-	text << "Build started: " << fActiveProject->Name();
-	_SendNotification(text, "PROJ_BUILD");
-
-	BString command;
-	command	<< fActiveProject->GetBuildCommand();
+	LogInfoF("Build started: [%s]", fActiveProject->Name().String());
 
 	BMessage message;
 	message.AddString("cmd", command);
@@ -1324,17 +1346,25 @@ GenioWindow::_CleanProject()
 	if (fActiveProject == nullptr)
 		return B_ERROR;
 
+	BString command;
+	command	<< fActiveProject->GetCleanCommand();
+
+	if (command.IsEmpty()) {
+		LogInfoF("Empty clean command for project [%s]", fActiveProject->Name().String());
+
+		BString message;
+		message << "No clean command found!\n"
+				   "Please configure the project to provide\n"
+				   "a valid clean configuration.";
+		return _AlertInvalidBuildConfig(message);
+	}
+
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
 	_ShowLog(kBuildLog);
 
-	BString notification;
-	notification << "Clean started: " << fActiveProject->Name();
-	_SendNotification(notification, "PROJ_BUILD");
-
-	BString command;
-	command << fActiveProject->GetCleanCommand();
+	LogInfoF("Clean started: [%s]", fActiveProject->Name().String());
 
 	fIsBuilding = true;
 	fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
@@ -2070,7 +2100,7 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 							return;
 						}
 					}
-					
+
 				}
 			}
 
@@ -3111,7 +3141,6 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	BString notification;
 	notification << closed << " "  << name;
 	_SendNotification(notification, "PROJ_CLOSE");
-
 
 }
 

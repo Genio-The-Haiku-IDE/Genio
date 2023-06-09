@@ -71,6 +71,7 @@ SRCS +=  src/ui/ProblemsPanel.cpp
 SRCS +=  src/ui/ProjectsFolderBrowser.cpp
 SRCS +=  src/ui/SettingsWindow.cpp
 SRCS +=  src/ui/ToolBar.cpp
+SRCS +=  src/ui/QuitAlert.cpp
 SRCS +=  src/templates/IconMenuItem.cpp
 SRCS +=  src/templates/TemplatesMenu.cpp
 SRCS +=  src/templates/TemplateManager.cpp

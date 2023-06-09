@@ -83,12 +83,11 @@ LSPClientWrapper::Create(const char *uri)
   return fOnEroor.load();
 }
 
-int32 
-LSPClientWrapper::thread_func(void *data)
+int32
+LSPClientWrapper::thread_func(void* data)
 {
-   LSPClientWrapper* wrap = (LSPClientWrapper*)data;
-	if (wrap->loop(*wrap) == -1)
-	{
+	LSPClientWrapper* wrap = (LSPClientWrapper*) data;
+	if (wrap->loop(*wrap) == -1) {
 		wrap->fOnEroor.store(true);
 		wrap->fInitialized.store(false);
 		wrap->Close();
@@ -96,23 +95,24 @@ LSPClientWrapper::thread_func(void *data)
 	return 0;
 }
 
-bool	
+bool
 LSPClientWrapper::Dispose()
 {
 	if (!fInitialized) {
-    	return true;
-    }
+		return true;
+	}
 
-    for(auto& m: fTextDocs)
-		LogError("LSPClientWrapper::Dispose() still textDocument registered! [%s]", m.second->GetFilenameURI().c_str());
-    
+	for (auto& m : fTextDocs)
+		LogError("LSPClientWrapper::Dispose() still textDocument registered! [%s]",
+			m.second->GetFilenameURI().c_str());
+
 	Shutdown();
 	int tries = 4;
 	while (fInitialized.load() && tries--) {
 		LogDebug("Waiting for shutdown...(%d)\n", tries);
 		usleep(100000);
 	}
-	if (tries == 0) { 
+	if (tries == 0) {
 		InterruptExternal();
 	} else {
 		Exit();
@@ -121,7 +121,7 @@ LSPClientWrapper::Dispose()
 	kill_thread(fReaderThread);
 	return true;
 }
-		
+
 LSPTextDocument*	
 LSPClientWrapper::_DocumentByURI(const std::string& uri)
 {

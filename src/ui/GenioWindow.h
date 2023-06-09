@@ -34,6 +34,7 @@
 #include "TPreferences.h"
 #include "ProjectsFolderBrowser.h"
 #include "TemplatesMenu.h"
+#include <vector>
 
 enum {
 	kProjectsOutline = 0,
@@ -71,8 +72,11 @@ private:
 			status_t			_CleanProject();
 
 			status_t			_DebugProject();
-			status_t			_FileClose(int32 index, bool ignoreModifications = false);
+			bool				_FileRequestClose(int32 index);
+			status_t			_RemoveTab(int32 index);
 			void				_FileCloseAll();
+			bool				_FileRequestSaveList(std::vector<int32>& unsavedIndex);
+			bool				_FileRequestSaveAllModified();
 			status_t			_FileOpen(BMessage* msg);
 			bool				_FileIsSupported(const entry_ref* ref);
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
@@ -134,7 +138,8 @@ private:
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
-			status_t			_AlertInvalidBuildConfig(BString text);
+			status_t		_AlertInvalidBuildConfig(BString text);
+			void				_CloseMultipleTabs(BMessage* msg);
 
 private:
 			BMenuBar*			fMenuBar;

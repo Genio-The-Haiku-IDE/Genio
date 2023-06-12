@@ -86,17 +86,12 @@ LSPClient::Init(const char *argv[])
 	return stat;
 }
 
-status_t
-LSPClient::IsProcessAlive()
-{
-	thread_info info;
-	return get_thread_info(fChildpid, &info);	
-}
 
 status_t
 LSPClient::InterruptExternal()
-{
-	status_t status = IsProcessAlive();
+{	
+	thread_info info;
+	status_t status = get_thread_info(fChildpid, &info);
 	if (status == B_OK) {
 		status = send_signal(-fChildpid, SIGTERM);
 		return wait_for_thread_etc(fChildpid, 0, 4000, &status);

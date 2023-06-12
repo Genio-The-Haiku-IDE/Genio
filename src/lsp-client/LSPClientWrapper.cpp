@@ -110,7 +110,7 @@ LSPClientWrapper::Dispose()
 	int tries = 4;
 	while (fInitialized.load() && tries--) {
 		LogDebug("Waiting for shutdown...(%d)\n", tries);
-		usleep(100000);
+		snooze(100000);
 	}
 	if (tries == 0) {
 		InterruptExternal();

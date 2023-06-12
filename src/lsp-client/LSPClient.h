@@ -33,7 +33,6 @@ public:
 
   pid_t GetChildPid();
   
-  status_t IsProcessAlive();
   status_t InterruptExternal();
 
 private:

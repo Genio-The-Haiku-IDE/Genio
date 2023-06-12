@@ -55,6 +55,9 @@ public:
 
 			void				PushInput(BString text);
 
+			status_t			GetFromPipe(BString& stdOut, BString& stdErr);
+
+
 private:
 			void				ClosePipes();
 	virtual	status_t			ExecuteUnit();

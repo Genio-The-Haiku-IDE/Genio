@@ -33,6 +33,7 @@ public:
 
   pid_t GetChildPid();
   
+  status_t InterruptExternal();
 
 private:
   BLocker fWriteLock;

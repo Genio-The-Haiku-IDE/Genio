@@ -12,6 +12,7 @@
 #include <atomic>
 #include <thread>
 #include <optional>
+#include <OS.h>
 
 class  LSPTextDocument;
 struct TextDocumentContentChangeEvent;
@@ -91,6 +92,8 @@ public:
 
 private:
 
+	static int32 thread_func(void *data);
+
 	LSPTextDocument*	_DocumentByURI(const std::string& uri);
 
 	typedef std::map<std::string, LSPTextDocument*> MapFile;
@@ -98,8 +101,9 @@ private:
 	MapFile	fTextDocs;
 
 	std::atomic<bool> fInitialized;
+	std::atomic<bool> fOnEroor;
 
-	std::thread fReaderThread;
+	thread_id	fReaderThread;
 	
 	std::string fAllCommitCharacters;
 	std::string fTriggerCharacters;

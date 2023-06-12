@@ -35,9 +35,9 @@ public:
 			void				ConsoleOutputReceived(
 									int32 fd, const BString& output);
 			void				EnableStopButton(bool doIt);
-			
+
 			BTextView*			TextView();
-			
+
 			status_t			RunCommand(BMessage* cmd_message);
 
 private:

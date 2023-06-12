@@ -62,7 +62,7 @@ ConsoleIOView::ConsoleIOView(const BString& name, const BMessenger& target)
 	} catch (...) {
 		throw;
 	}
-	
+
 	this->SetFlags(this->Flags() | B_PULSE_NEEDED);
 }
 
@@ -97,22 +97,35 @@ void
 ConsoleIOView::Pulse()
 {
 	if (fConsoleIOThread && fConsoleIOThread->IsProcessAlive() != B_OK) {
-		_StopCommand();
+		// Flush the pipes
+		BString outStr("");
+		BString errStr("");
+		status_t status = fConsoleIOThread->GetFromPipe(outStr, errStr);
+		if (status == B_OK) {
+			if (outStr != "") {
+				ConsoleOutputReceived(1, outStr);
+			}
+			if (errStr != "") {
+				ConsoleOutputReceived(2, errStr);
+			}
+		} else {
+			_StopCommand();
+		}
 	}
 }
 
-void				
+void
 ConsoleIOView::_StopCommand()
 {
 	if (fConsoleIOThread) {
-	
+
 		fConsoleIOThread->InterruptExternal();
 		fConsoleIOThread->Kill();
 		delete fConsoleIOThread;
 		fConsoleIOThread = nullptr;
-		
+
 		_BannerMessage("ended   --");
-		
+
 		fStopButton->SetEnabled(false);
 		BMessage message(CONSOLEIOTHREAD_EXIT);
 		message.AddString("cmd_type", fCmdType);
@@ -165,7 +178,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 				BString msg = "\n *** ";
 				msg << B_TRANSLATE("Another command is running.");
 				msg << "\n";
-				
+
 				ConsoleOutputReceived(1, msg);
 				return;
 			}
@@ -173,7 +186,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			fConsoleIOThread = new ConsoleIOThread(message, BMessenger(this));
 			fConsoleIOThread->Start();
 			_BannerMessage("started   ");
-			
+
 			break;
 		}
 		case CONSOLEIOTHREAD_EXIT:
@@ -194,7 +207,7 @@ ConsoleIOView::_BannerMessage(BString status)
 {
 	if (GenioNames::Settings.console_banner == false)
 		return;
-	
+
 	BString banner;
 	banner  << "--------------------------------"
 			<< "   "
@@ -332,7 +345,7 @@ ConsoleIOView::_HandleConsoleOutput(OutputInfo* info)
 	}
 }
 
-BTextView*			
-ConsoleIOView::TextView() { 
+BTextView*
+ConsoleIOView::TextView() {
 	return fConsoleIOText;
 }

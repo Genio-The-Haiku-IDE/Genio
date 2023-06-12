@@ -109,45 +109,44 @@ ConsoleIOThread::ExecuteUnit(void)
 	// first time: let's setup the external process.
 	// this way we always enter in the same managed loop
 	status_t status = B_OK;
-	
+
 	if (fProcessId == -1) {
 		status = _RunExternalProcess();
 	} else {
 
 		// read output and error from command
 		// send it to window
-
-		if (fConsoleOutput) {
-			BMessage out_message(CONSOLEIOTHREAD_STDOUT);
-			BString output_string("");
-			output_string = fgets(fConsoleOutputBuffer, LINE_MAX, fConsoleOutput);
-
-			if (output_string != "") {
-				out_message.AddString("stdout", output_string);
+		BString outStr("");
+		BString errStr("");
+		status = GetFromPipe(outStr, errStr);
+		if (status == B_OK) {
+			if (outStr != "") {
+				BMessage out_message(CONSOLEIOTHREAD_STDOUT);
+				out_message.AddString("stdout", outStr);
 				fConsoleTarget.SendMessage(&out_message);
 			}
-			if (feof(fConsoleOutput))
-				status = EOF;
-		}
-
-		if (fConsoleError) {
-			BMessage err_message(CONSOLEIOTHREAD_STDERR);
-			BString error_string("");
-
-			error_string = fgets(fConsoleOutputBuffer, LINE_MAX, fConsoleError);
-
-			if (error_string != "") {
-				err_message.AddString("stderr", error_string);
+			if (errStr != "") {
+				BMessage err_message(CONSOLEIOTHREAD_STDERR);
+				err_message.AddString("stderr", errStr);
 				fConsoleTarget.SendMessage(&err_message);
 			}
-
-			if (feof(fConsoleError))
-				status = EOF;
 		}
 	}
 	// streams are non blocking, sleep every 1ms
 	snooze(1000);
 	return status;
+}
+
+status_t
+ConsoleIOThread::GetFromPipe(BString& stdOut, BString& stdErr)
+{
+	if (fConsoleOutput) {
+		stdOut = fgets(fConsoleOutputBuffer, LINE_MAX, fConsoleOutput);
+	}
+	if (fConsoleError) {
+		stdErr = fgets(fConsoleOutputBuffer, LINE_MAX, fConsoleError);
+	}
+	return (!feof(fConsoleOutput) || !feof(fConsoleError)) ? B_OK : EOF;
 }
 
 void
@@ -164,14 +163,14 @@ ConsoleIOThread::ThreadShutdown(void)
 	BMessage message(CONSOLEIOTHREAD_EXIT);
 	message.AddString("cmd_type", fCmdType);
 	fConsoleTarget.SendMessage(&message);
-	
+
 	// the job is done, let's wait to be killed..
 	// (avoid to quit and to reach the 'delete this')
-	
+
 	while(true) {
 		sleep(1);
 	}
-	
+
 	return B_OK;
 }
 
@@ -226,7 +225,7 @@ cleanup:
 	close(2); dup(old_err); close(old_err);
 	g_LockStdFilesPntr->Unlock();
 	/* Theoretically I should do loads of error checking, but
-	   the calls aren't very likely to fail, and that would 
+	   the calls aren't very likely to fail, and that would
 	   muddy up the example quite a bit.  YMMV. */
 
 	return ret;
@@ -259,7 +258,7 @@ ConsoleIOThread::ClosePipes()
 {
 	if (fConsoleOutput)
 		fclose(fConsoleOutput);
-	if (fConsoleError)	
+	if (fConsoleError)
 		fclose(fConsoleError);
 
 	fConsoleOutput = fConsoleError = nullptr;
@@ -275,7 +274,7 @@ status_t
 ConsoleIOThread::IsProcessAlive()
 {
 	thread_info info;
-	return get_thread_info(fProcessId, &info);	
+	return get_thread_info(fProcessId, &info);
 }
 
 status_t

@@ -78,7 +78,7 @@ LSPClientWrapper::Create(const char *uri)
 
   while (!fInitialized.load() && !fOnEroor.load()) {
     LogDebug("Waiting for clangd initialization.. \n");
-    usleep(100000);
+    snooze(100000);
   }
   return fOnEroor.load();
 }

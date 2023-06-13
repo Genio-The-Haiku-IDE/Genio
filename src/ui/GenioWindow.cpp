@@ -2372,7 +2372,7 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,
 								   B_TRANSLATE("Run console program"),
 								   B_TRANSLATE("Run console program"),
-								   "kConsoleApp");
+								   "kIconTerminal");
 //add missing menus
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,

@@ -130,6 +130,7 @@ ConsoleIOView::_StopCommand()
 		BMessage message(CONSOLEIOTHREAD_EXIT);
 		message.AddString("cmd_type", fCmdType);
 		Window()->PostMessage(&message);
+		fCmdType = "";
 	}
 }
 
@@ -185,6 +186,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			fStopButton->SetEnabled(true);
 			fConsoleIOThread = new ConsoleIOThread(message, BMessenger(this));
 			fConsoleIOThread->Start();
+			fCmdType = message->GetString("cmd_type", "");
 			_BannerMessage("started   ");
 
 			break;

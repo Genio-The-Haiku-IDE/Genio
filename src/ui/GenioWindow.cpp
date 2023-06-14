@@ -3658,6 +3658,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 
 		fLineEndingsMenu->SetEnabled(false);
+		ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
+		ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
 		ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, false);
 		ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, false);
 		ActionManager::SetEnabled(MSG_FIND_NEXT, false);

@@ -2447,18 +2447,18 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,
 								   B_TRANSLATE("Run console program"),
 								   B_TRANSLATE("Run console program"),
-								   "kConsoleApp");
+								   "kIconTerminal");
 //add missing menus
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,
 								   B_TRANSLATE("Show projects pane"),
 								   B_TRANSLATE("Show/Hide projects pane"),
-								   "kIconWindow");
+								   "kIconWinNav");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
 								   B_TRANSLATE("Show output pane"),
 	                               B_TRANSLATE("Show/Hide output pane"),
-								   "kIconTerminal");
+								   "kIconWinStat");
 
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
 								   B_TRANSLATE("Show toolbar"));

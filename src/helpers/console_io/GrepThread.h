@@ -12,7 +12,8 @@
 #define MAX_LINE_LEN B_PATH_NAME_LENGTH * 2
 
 enum {
-	MSG_REPORT_RESULT = 'mrre'
+	MSG_REPORT_RESULT = 'mrre',
+	MSG_GREP_DONE = 'mgrd'
 };
 
 class GrepThread : public ConsoleIOThread

@@ -68,4 +68,8 @@ GrepThread::OnThreadShutdown()
 {
 	if (fCurrentMessage.HasMessage("line"))
 		fTarget.SendMessage(&fCurrentMessage);
+	
+	fCurrentMessage.MakeEmpty();
+	fCurrentMessage.what = MSG_GREP_DONE;
+	fTarget.SendMessage(&fCurrentMessage);	
 }

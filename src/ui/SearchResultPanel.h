@@ -15,20 +15,19 @@
 class SearchResultPanel : public BColumnListView {
 public:
 		SearchResultPanel();
-		
-		void StartSearch(BString command);
+
+		void StartSearch(BString command, BString projectPath);
 
 		virtual void MessageReceived(BMessage* msg);
 		virtual void	AttachedToWindow();
 		BString	TabLabel();
 
 private:
-		
+
 		void	ClearSearch();
 		void 	UpdateSearch(BMessage* msg);
 		GrepThread*	fGrepThread;
-		
-
+		BString 	fProjectPath;
 };
 
 

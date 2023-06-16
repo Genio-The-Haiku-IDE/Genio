@@ -1810,8 +1810,8 @@ GenioWindow::_FindInFiles()
 	  grepCommand += " ";
 	  grepCommand += EscapeQuotesWrap(fActiveProject->Path());
 
-	 // _RunInConsole(grepCommand);
-	 fSearchResultPanel->StartSearch(grepCommand);
+	 fProjectsTabView->Select(1);
+	 fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
 }
 
 int32

@@ -260,7 +260,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (index == fTabManager->SelectedTabIndex())
 				{
 					fProblemsPanel->UpdateProblems(message);
-					fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
 				}
 			}
 			break;
@@ -1787,11 +1786,6 @@ GenioWindow::_FindInFiles()
 	  BString text(fFindTextControl->Text());
 	  if (text.IsEmpty())
 		return;
-/*
-	  fConsoleIOView->Clear();
-
-	  fConsoleIOView->TextView()->ScrollTo(
-		  0, fConsoleIOView->TextView()->Bounds().bottom);*/
 
 	  // convert checkboxes to grep parameters..
 	  BString extraParameters;
@@ -2846,15 +2840,18 @@ GenioWindow::_InitOutputSplit()
 	// Output
 	fOutputTabView = new BTabView("OutputTabview");
 
-	fProblemsPanel = new ProblemsPanel();
+	fProblemsPanel = new ProblemsPanel(fOutputTabView);
 
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
+	
+	fSearchResultPanel = new SearchResultPanel(fOutputTabView);
 
 	fOutputTabView->AddTab(fProblemsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
 	fOutputTabView->AddTab(fConsoleIOView);
+	fOutputTabView->AddTab(fSearchResultPanel);
 }
 
 void
@@ -2867,9 +2864,6 @@ GenioWindow::_InitSideSplit()
 	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
-
-	fSearchResultPanel = new SearchResultPanel();
-	fProjectsTabView->AddTab(fSearchResultPanel);
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
@@ -3674,9 +3668,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		if (GenioNames::Settings.fullpath_title == true)
 			SetTitle(GenioNames::kApplicationName);
 
-		fProblemsPanel->Clear();
-		fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
-
+		fProblemsPanel->ClearProblems();
 		return;
 	}
 
@@ -3752,7 +3744,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	BMessage diagnostics;
 	editor->GetProblems(&diagnostics);
 	fProblemsPanel->UpdateProblems(&diagnostics);
-	fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

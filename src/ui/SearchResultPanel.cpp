@@ -58,14 +58,27 @@ public:
 
 #define SearchResultPanelLabel B_TRANSLATE("Search Results")
 
-SearchResultPanel::SearchResultPanel(): BColumnListView(SearchResultPanelLabel,
+SearchResultPanel::SearchResultPanel(BTabView* tabView): BColumnListView(SearchResultPanelLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)
 									, fGrepThread(nullptr)
+									, fTabView(tabView)
+									, fCountResults(0)
 
 {
 	AddColumn(new BFontStringColumn(B_TRANSLATE("Location"),
 								1000.0, 20.0, 2000.0, 0), kLocationColumn);
 	//SetFont(be_fixed_font);
+}
+void	
+SearchResultPanel::SetTabLabel(BString label)
+{
+	if (!fTabView)
+		return;
+	
+	for (int32 i=0;i<fTabView->CountTabs();i++) {
+		if (fTabView->ViewForTab(i) == this)
+			fTabView->TabAt(i)->SetLabel(label.String());
+	}
 }
 
 void
@@ -73,6 +86,7 @@ SearchResultPanel::StartSearch(BString command, BString projectPath)
 {
 	if (fGrepThread)
 		return;
+	fCountResults = 0;
 	fProjectPath = projectPath;
 	if (!fProjectPath.EndsWith("/"))
 		fProjectPath.Append("/");
@@ -90,7 +104,7 @@ SearchResultPanel::AttachedToWindow()
 	BColumnListView::AttachedToWindow();
 	SetInvocationMessage(new BMessage(SEARCHRESULT_CLICK));
 	SetTarget(this);
-	UpdateTabLabel();
+	_UpdateTabLabel();
 }
 
 
@@ -105,6 +119,9 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 			RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
 			if (range && range->fRange.what == B_REFS_RECEIVED) {
 				Window()->PostMessage(&range->fRange);
+			} else {
+				BRow* selected = CurrentSelection();
+				ExpandOrCollapse(selected, !selected->IsExpanded());
 			}
 		}
 		break;
@@ -115,6 +132,7 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 				delete fGrepThread;
 				fGrepThread = nullptr;
 			}
+			_UpdateTabLabel();
 		}
 		default:
 			BColumnListView::MessageReceived(msg);
@@ -125,6 +143,7 @@ void
 SearchResultPanel::ClearSearch()
 {
 	Clear();
+	_UpdateTabLabel();
 }
 
 void
@@ -148,22 +167,22 @@ SearchResultPanel::UpdateSearch(BMessage* msg)
 			row->fRange = line;
 			row->SetField(new BStringField(text), kLocationColumn);
 			AddRow(row, parent);
+			fCountResults++;
 			if (c == 1)
 				ExpandOrCollapse(parent, true);
 		}
 	}
-	//msg->PrintToStream();
 }
 
 
 void
-SearchResultPanel::UpdateTabLabel()
+SearchResultPanel::_UpdateTabLabel()
 {
 	BString label = SearchResultPanelLabel;
-	if (CountRows() > 0) {
+	if (fCountResults > 0) {
 		label.Append(" (");
-		label.Append(std::to_string(CountRows()).c_str());
+		label.Append(std::to_string(fCountResults).c_str());
 		label.Append(")");
 	}
-	//TODO we should be able to change the tab title here!
+	SetTabLabel(label);
 }

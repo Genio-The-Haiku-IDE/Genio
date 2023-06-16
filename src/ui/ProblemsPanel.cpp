@@ -25,19 +25,20 @@ enum {
 	kSourceColumn
 };
 
-class RangeRow : public BRow {	
+class RangeRow : public BRow {
 	public:
 		RangeRow(){};
-			
+
 		BMessage	fRange;
 
 };
 
 #define ProblemLabel B_TRANSLATE("Problems")
 
-ProblemsPanel::ProblemsPanel(): BColumnListView(ProblemLabel,
+ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)
-	
+									, fTabView(tabView)
+
 {
 	AddColumn(new BStringColumn(B_TRANSLATE("Category"),
 								200.0, 200.0, 200.0, 0), kCategoryColumn);
@@ -45,11 +46,11 @@ ProblemsPanel::ProblemsPanel(): BColumnListView(ProblemLabel,
 								600.0, 600.0, 800.0, 0), kMessageColumn);
 	AddColumn(new BStringColumn(B_TRANSLATE("Source"),
 								200.0, 200.0, 200.0, 0), kSourceColumn);
-	
+
 }
 
 
-void 
+void
 ProblemsPanel::AttachedToWindow()
 {
 	BColumnListView::AttachedToWindow();
@@ -58,7 +59,7 @@ ProblemsPanel::AttachedToWindow()
 }
 
 
-void 
+void
 ProblemsPanel::MessageReceived(BMessage* msg)
 {
 	if (msg->what == COLUMNVIEW_CLICK) {
@@ -87,7 +88,7 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 }
 
 
-void 	
+void
 ProblemsPanel::UpdateProblems(BMessage* msg)
 {
 	Clear();
@@ -96,7 +97,7 @@ ProblemsPanel::UpdateProblems(BMessage* msg)
 	entry_ref ref;
 	if (msg->FindRef("ref", &ref) != B_OK)
 		return;
-	while (msg->FindMessage(std::to_string(index++).c_str(), &dia) == B_OK) {   
+	while (msg->FindMessage(std::to_string(index++).c_str(), &dia) == B_OK) {
 		RangeRow* row = new RangeRow();
 		dia.FindMessage("range", &row->fRange);
 		row->fRange.AddRef("ref", &ref);
@@ -106,17 +107,32 @@ ProblemsPanel::UpdateProblems(BMessage* msg)
 		row->SetField(new BStringField(dia.GetString("source","")), kSourceColumn);
 		AddRow(row);
 	}
+	_UpdateTabLabel();
 }
 
-
-BString	
-ProblemsPanel::TabLabel()
+void 
+ProblemsPanel::ClearProblems()
 {
+	Clear();
+	_UpdateTabLabel();
+}
+
+void
+ProblemsPanel::_UpdateTabLabel()
+{
+	if (!fTabView)
+		return;
+
 	BString label = ProblemLabel;
 	if (CountRows() > 0) {
 		label.Append(" (");
 		label.Append(std::to_string(CountRows()).c_str());
 		label.Append(")");
 	}
-	return label;
+
+
+	for (int32 i = 0; i < fTabView->CountTabs(); i++) {
+		if (fTabView->ViewForTab(i) == this)
+			fTabView->TabAt(i)->SetLabel(label.String());
+	}
 }

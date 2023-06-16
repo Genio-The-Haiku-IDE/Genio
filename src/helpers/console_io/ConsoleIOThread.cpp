@@ -130,7 +130,6 @@ ConsoleIOThread::ExecuteUnit(void)
 				OnStdErrorLine(errStr);
 
 			if (IsProcessAlive() != B_OK && outStr.IsEmpty() && errStr.IsEmpty()) {
-				printf("IsProcessAlive %d\n", IsProcessAlive());
 				return EOF;
 			}
 		}

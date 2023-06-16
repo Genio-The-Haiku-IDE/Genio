@@ -134,6 +134,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
 	, fGoToLineWindow(nullptr)
+	, fSearchResultPanel(nullptr)
 {
 	_InitActions();
 	_InitMenu();
@@ -1786,11 +1787,11 @@ GenioWindow::_FindInFiles()
 	  BString text(fFindTextControl->Text());
 	  if (text.IsEmpty())
 		return;
-
+/*
 	  fConsoleIOView->Clear();
 
 	  fConsoleIOView->TextView()->ScrollTo(
-		  0, fConsoleIOView->TextView()->Bounds().bottom);
+		  0, fConsoleIOView->TextView()->Bounds().bottom);*/
 
 	  // convert checkboxes to grep parameters..
 	  BString extraParameters;
@@ -1809,7 +1810,8 @@ GenioWindow::_FindInFiles()
 	  grepCommand += " ";
 	  grepCommand += EscapeQuotesWrap(fActiveProject->Path());
 
-	  _RunInConsole(grepCommand);
+	 // _RunInConsole(grepCommand);
+	 fSearchResultPanel->StartSearch(grepCommand);
 }
 
 int32
@@ -2866,6 +2868,8 @@ GenioWindow::_InitSideSplit()
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 
+	fSearchResultPanel = new SearchResultPanel();
+	fProjectsTabView->AddTab(fSearchResultPanel);
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();

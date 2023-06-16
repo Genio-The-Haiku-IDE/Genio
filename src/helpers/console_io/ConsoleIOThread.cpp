@@ -28,16 +28,19 @@ extern BLocker *g_LockStdFilesPntr;
 
 extern char **environ;
 
+
+
 ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consoleTarget)
 	:
 	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message)
-	, fConsoleTarget(consoleTarget)
+	, fTarget(consoleTarget)
 	, fProcessId(-1)
 	, fStdIn(-1)
 	, fStdOut(-1)
 	, fStdErr(-1)
 	, fConsoleOutput(nullptr)
 	, fConsoleError(nullptr)
+	, fIsDone(false)
 {
 	SetDataStore(new BMessage(*cmd_message));
 }
@@ -120,21 +123,37 @@ ConsoleIOThread::ExecuteUnit(void)
 		BString errStr("");
 		status = GetFromPipe(outStr, errStr);
 		if (status == B_OK) {
-			if (outStr != "") {
-				BMessage out_message(CONSOLEIOTHREAD_STDOUT);
-				out_message.AddString("stdout", outStr);
-				fConsoleTarget.SendMessage(&out_message);
-			}
-			if (errStr != "") {
-				BMessage err_message(CONSOLEIOTHREAD_STDERR);
-				err_message.AddString("stderr", errStr);
-				fConsoleTarget.SendMessage(&err_message);
+			if (outStr != "")
+				OnStdOutputLine(outStr);
+
+			if (errStr != "")
+				OnStdErrorLine(errStr);
+
+			if (IsProcessAlive() != B_OK && outStr.IsEmpty() && errStr.IsEmpty()) {
+				printf("IsProcessAlive %d\n", IsProcessAlive());
+				return EOF;
 			}
 		}
 	}
 	// streams are non blocking, sleep every 1ms
 	snooze(1000);
 	return status;
+}
+
+void
+ConsoleIOThread::OnStdOutputLine(const BString& stdOut)
+{
+	BMessage out_message(CONSOLEIOTHREAD_STDOUT);
+	out_message.AddString("stdout", stdOut);
+	fTarget.SendMessage(&out_message);
+}
+
+void
+ConsoleIOThread::OnStdErrorLine(const BString& stdErr)
+{
+	BMessage err_message(CONSOLEIOTHREAD_STDERR);
+	err_message.AddString("stderr", stdErr);
+	fTarget.SendMessage(&err_message);
 }
 
 status_t
@@ -146,7 +165,7 @@ ConsoleIOThread::GetFromPipe(BString& stdOut, BString& stdErr)
 	if (fConsoleError) {
 		stdErr = fgets(fConsoleOutputBuffer, LINE_MAX, fConsoleError);
 	}
-	return (!feof(fConsoleOutput) || !feof(fConsoleError)) ? B_OK : EOF;
+	return (feof(fConsoleOutput) && feof(fConsoleError)) ? EOF : B_OK;
 }
 
 void
@@ -155,14 +174,20 @@ ConsoleIOThread::PushInput(BString text)
 	write(fStdIn, text.String(), text.Length());
 }
 
+void
+ConsoleIOThread::OnThreadShutdown()
+{
+	BMessage message(CONSOLEIOTHREAD_EXIT);
+	message.AddString("cmd_type", fCmdType);
+	fTarget.SendMessage(&message);
+}
+
 status_t
 ConsoleIOThread::ThreadShutdown(void)
 {
 	ClosePipes();
-
-	BMessage message(CONSOLEIOTHREAD_EXIT);
-	message.AddString("cmd_type", fCmdType);
-	fConsoleTarget.SendMessage(&message);
+	OnThreadShutdown();
+	fIsDone = true;
 
 	// the job is done, let's wait to be killed..
 	// (avoid to quit and to reach the 'delete this')

@@ -132,7 +132,9 @@ ProblemsPanel::_UpdateTabLabel()
 
 
 	for (int32 i = 0; i < fTabView->CountTabs(); i++) {
-		if (fTabView->ViewForTab(i) == this)
+		if (fTabView->ViewForTab(i) == this) {
 			fTabView->TabAt(i)->SetLabel(label.String());
+			break;
+		}
 	}
 }

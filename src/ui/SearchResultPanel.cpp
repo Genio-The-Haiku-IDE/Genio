@@ -10,6 +10,8 @@
 #include <Catalog.h>
 #include <Window.h>
 #include <string>
+#include "ActionManager.h"
+#include "GenioWindowMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SearchResultPanel"
@@ -93,6 +95,9 @@ SearchResultPanel::StartSearch(BString command, BString projectPath)
 	ClearSearch();
 	BMessage message;
 	message.AddString("cmd", command);
+	
+	ActionManager::SetEnabled(MSG_FIND_IN_FILES, false);
+	
 	fGrepThread = new GrepThread(&message, BMessenger(this));
 	fGrepThread->Start();
 }
@@ -133,7 +138,9 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 				fGrepThread = nullptr;
 			}
 			_UpdateTabLabel();
+			ActionManager::SetEnabled(MSG_FIND_IN_FILES, true);
 		}
+		break;
 		default:
 			BColumnListView::MessageReceived(msg);
 	};

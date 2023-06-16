@@ -9,7 +9,6 @@
 #include <ColumnTypes.h>
 #include <Catalog.h>
 #include <Window.h>
-
 #include <string>
 
 #undef B_TRANSLATION_CONTEXT
@@ -32,18 +31,18 @@ class RangeRow : public BRow {
 
 };
 
-#define ProblemLabel B_TRANSLATE("Search")
+#define SearchResultPanelLabel B_TRANSLATE("Search Results")
 
-SearchResultPanel::SearchResultPanel(): BColumnListView(ProblemLabel,
+SearchResultPanel::SearchResultPanel(): BColumnListView(SearchResultPanelLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)
 									, fGrepThread(nullptr)
 
 {
 	AddColumn(new BStringColumn(B_TRANSLATE("Location"),
-								200.0, 20.0, 2000.0, 0), kLocationColumn);
+								1000.0, 20.0, 2000.0, 0), kLocationColumn);
 	AddColumn(new BStringColumn(B_TRANSLATE("Message"),
 								80.0, 80.0, 80.0, 0), kPositionColumn);
-								
+
 	//SetFont(be_fixed_font);
 }
 
@@ -69,6 +68,7 @@ SearchResultPanel::AttachedToWindow()
 	BColumnListView::AttachedToWindow();
 	SetInvocationMessage(new BMessage(SEARCHRESULT_CLICK));
 	SetTarget(this);
+	UpdateTabLabel();
 }
 
 
@@ -130,18 +130,17 @@ SearchResultPanel::UpdateSearch(BMessage* msg)
 				ExpandOrCollapse(parent, true);
 		}
 	}
-	msg->PrintToStream();
+	//msg->PrintToStream();
 }
 
 
-BString
-SearchResultPanel::TabLabel()
+void
+SearchResultPanel::UpdateTabLabel()
 {
-	BString label = ProblemLabel;
+	BString label = SearchResultPanelLabel;
 	if (CountRows() > 0) {
 		label.Append(" (");
 		label.Append(std::to_string(CountRows()).c_str());
 		label.Append(")");
 	}
-	return label;
 }

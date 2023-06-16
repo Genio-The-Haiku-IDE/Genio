@@ -7,6 +7,7 @@
 
 #include <ColumnListView.h>
 #include <SupportDefs.h>
+#include <TabView.h>
 #include "GrepThread.h"
 
 // For now this is specific to manage only the FindInFiles results
@@ -20,10 +21,10 @@ public:
 
 		virtual void MessageReceived(BMessage* msg);
 		virtual void	AttachedToWindow();
-		BString	TabLabel();
+		
 
 private:
-
+		void	UpdateTabLabel();
 		void	ClearSearch();
 		void 	UpdateSearch(BMessage* msg);
 		GrepThread*	fGrepThread;

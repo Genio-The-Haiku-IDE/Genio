@@ -20,7 +20,6 @@ enum  {
 
 enum {
 	kLocationColumn = 0,
-	kPositionColumn,
 };
 
 class RangeRow : public BRow {
@@ -30,7 +29,7 @@ class RangeRow : public BRow {
 		BMessage	fRange;
 };
 
-class BBoldStringField : public BStringField 
+class BBoldStringField : public BStringField
 {
 public:
 	BBoldStringField(const char* str): BStringField(str){}
@@ -40,7 +39,9 @@ class BFontStringColumn : public BStringColumn
 public:
 	BFontStringColumn(const char* title, float width, float minWidth, float maxWidth,
 		uint32 truncate, alignment align = B_ALIGN_LEFT)
-		: BStringColumn(title, width, minWidth, maxWidth, truncate, align){};
+		: BStringColumn(title, width, minWidth, maxWidth, truncate, align){
+
+		};
 
 	void DrawField(BField* field, BRect rect, BView* parent) {
 		if (dynamic_cast<BBoldStringField*>(field)) {
@@ -49,7 +50,7 @@ public:
 			parent->SetFont(be_bold_font);
 			BStringColumn::DrawField(field, rect, parent);
 			parent->SetFont(&current);
-			return;			
+			return;
 		}
 		BStringColumn::DrawField(field, rect, parent);
 	}
@@ -64,9 +65,6 @@ SearchResultPanel::SearchResultPanel(): BColumnListView(SearchResultPanelLabel,
 {
 	AddColumn(new BFontStringColumn(B_TRANSLATE("Location"),
 								1000.0, 20.0, 2000.0, 0), kLocationColumn);
-	AddColumn(new BStringColumn(B_TRANSLATE("Message"),
-								80.0, 80.0, 80.0, 0), kPositionColumn);
-
 	//SetFont(be_fixed_font);
 }
 

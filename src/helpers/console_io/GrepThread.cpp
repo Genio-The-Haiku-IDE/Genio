@@ -24,7 +24,6 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 		
 	stdOut.CopyInto(fLine, 0, stdOut.Length());
 	fLine[stdOut.Length()] = '\0';
-	//printf("GREP [%s]\n", fLine);
 	
 	// parse grep output
 	char fileName[B_PATH_NAME_LENGTH];
@@ -32,11 +31,6 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 	int lineNumber = -1;
 	int textPos = -1;
 	sscanf(fLine, "%[^\n:]:%d:%n", fileName, &lineNumber, &textPos);
-	// printf("sscanf(\"%s\") -> %s %d %d\n", line, fileName,
-	//		lineNumber, textPos);
-	//printf("fileName [%s]\n", fileName);
-	//printf("lineNumber [%d]\n", lineNumber);
-	//printf("textPos [%d]\n", textPos);
 	if (textPos > 0) {
 		if (strcmp(fileName, fCurrentFileName) != 0) {
 			

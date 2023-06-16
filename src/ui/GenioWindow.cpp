@@ -2219,7 +2219,7 @@ GenioWindow::_InitCentralSplit()
 												.Add(fFindCaseSensitiveCheck).View());
 
 	fFindGroup->AddAction(MSG_FIND_MARK_ALL, B_TRANSLATE("Bookmark all"), "kIconBookmarkPen");
-	fFindGroup->AddAction(MSG_FIND_IN_FILES, B_TRANSLATE("Find in project"), "kIconFindInFiles");
+	ActionManager::AddItem(MSG_FIND_IN_FILES, fFindGroup);
 	fFindGroup->AddGlue();
 
 	fFindGroup->Hide();
@@ -2500,6 +2500,10 @@ GenioWindow::_InitActions()
 								  B_TRANSLATE("Find previous"),
 								  "kIconUp_3",
 								  B_UP_ARROW, B_COMMAND_KEY);
+	ActionManager::RegisterAction(MSG_FIND_IN_FILES,
+								  B_TRANSLATE("Find in project"),
+								  B_TRANSLATE("Find in project"),
+								  "kIconFindInFiles");
 }
 
 void

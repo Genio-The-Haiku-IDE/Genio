@@ -28,7 +28,31 @@ class RangeRow : public BRow {
 		RangeRow(){};
 
 		BMessage	fRange;
+};
 
+class BBoldStringField : public BStringField 
+{
+public:
+	BBoldStringField(const char* str): BStringField(str){}
+};
+class BFontStringColumn : public BStringColumn
+{
+public:
+	BFontStringColumn(const char* title, float width, float minWidth, float maxWidth,
+		uint32 truncate, alignment align = B_ALIGN_LEFT)
+		: BStringColumn(title, width, minWidth, maxWidth, truncate, align){};
+
+	void DrawField(BField* field, BRect rect, BView* parent) {
+		if (dynamic_cast<BBoldStringField*>(field)) {
+			BFont current;
+			parent->GetFont(&current);
+			parent->SetFont(be_bold_font);
+			BStringColumn::DrawField(field, rect, parent);
+			parent->SetFont(&current);
+			return;			
+		}
+		BStringColumn::DrawField(field, rect, parent);
+	}
 };
 
 #define SearchResultPanelLabel B_TRANSLATE("Search Results")
@@ -38,7 +62,7 @@ SearchResultPanel::SearchResultPanel(): BColumnListView(SearchResultPanelLabel,
 									, fGrepThread(nullptr)
 
 {
-	AddColumn(new BStringColumn(B_TRANSLATE("Location"),
+	AddColumn(new BFontStringColumn(B_TRANSLATE("Location"),
 								1000.0, 20.0, 2000.0, 0), kLocationColumn);
 	AddColumn(new BStringColumn(B_TRANSLATE("Message"),
 								80.0, 80.0, 80.0, 0), kPositionColumn);
@@ -115,7 +139,7 @@ SearchResultPanel::UpdateSearch(BMessage* msg)
 	RangeRow* parent = new RangeRow();
 	parent->fRange.MakeEmpty();
 
-	parent->SetField(new BStringField(filename), kLocationColumn);
+	parent->SetField(new BBoldStringField(filename), kLocationColumn);
 	AddRow(parent);
 	int32 c = 0;
 	BMessage line;
@@ -143,4 +167,5 @@ SearchResultPanel::UpdateTabLabel()
 		label.Append(std::to_string(CountRows()).c_str());
 		label.Append(")");
 	}
+	//TODO we should be able to change the tab title here!
 }

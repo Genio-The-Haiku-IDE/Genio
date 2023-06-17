@@ -2470,7 +2470,9 @@ GenioWindow::_InitActions()
 								  "kIconBuild", 'B');
 
 	ActionManager::RegisterAction(MSG_CLEAN_PROJECT,
-								  B_TRANSLATE("Clean project"));
+								  B_TRANSLATE("Clean project"),
+								  B_TRANSLATE("Clean project"),
+								  "kIconClean");
 
 	ActionManager::RegisterAction(MSG_RUN_TARGET,
 								  B_TRANSLATE("Run target"),
@@ -2814,6 +2816,7 @@ GenioWindow::_InitToolbar()
 
 	fToolBar->AddSeparator();
 	ActionManager::AddItem(MSG_BUILD_PROJECT, fToolBar);
+	ActionManager::AddItem(MSG_CLEAN_PROJECT, fToolBar);
 	ActionManager::AddItem(MSG_RUN_TARGET, fToolBar);
 	ActionManager::AddItem(MSG_DEBUG_PROJECT, fToolBar);
 

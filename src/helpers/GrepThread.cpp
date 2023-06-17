@@ -14,15 +14,11 @@ GrepThread::GrepThread(BMessage* cmd_message, const BMessenger& consoleTarget)
 	fCurrentFileName[0] = '\0';
 }
 
-
-
+// Method freely derived from TextGrep by Matthijs Hollemans
 void
 GrepThread::OnStdOutputLine(const BString& stdOut)
 {
-	if (stdOut.Length() > MAX_LINE_LEN) 
-		return;
-		
-	stdOut.CopyInto(fLine, 0, stdOut.Length());
+	stdOut.CopyInto(fLine, 0, stdOut.Length() > MAX_LINE_LEN ? MAX_LINE_LEN : stdOut.Length());
 	fLine[stdOut.Length()] = '\0';
 	
 	// parse grep output
@@ -51,8 +47,7 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 		lineMessage.what = B_REFS_RECEIVED;
 		lineMessage.AddString("text", text);
 		lineMessage.AddRef("refs", &fCurrentRef);
-		lineMessage.AddInt32("be:line", lineNumber); //+1??
-		//lineMessage.AddInt32("lsp:character", textPos);
+		lineMessage.AddInt32("be:line", lineNumber); 
 		fCurrentMessage.AddMessage("line", &lineMessage);
 	}
 }

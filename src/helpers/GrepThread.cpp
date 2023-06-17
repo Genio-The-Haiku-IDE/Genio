@@ -20,7 +20,7 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 {
 	stdOut.CopyInto(fLine, 0, stdOut.Length() > MAX_LINE_LEN ? MAX_LINE_LEN : stdOut.Length());
 	fLine[stdOut.Length()] = '\0';
-	
+
 	// parse grep output
 	char fileName[B_PATH_NAME_LENGTH];
 
@@ -29,14 +29,13 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 	sscanf(fLine, "%[^\n:]:%d:%n", fileName, &lineNumber, &textPos);
 	if (textPos > 0) {
 		if (strcmp(fileName, fCurrentFileName) != 0) {
-			
 			fTarget.SendMessage(&fCurrentMessage);
 			strncpy(fCurrentFileName, fileName,
 						sizeof(fCurrentFileName));
-						
+
 			BEntry entry(fileName);
 			entry.GetRef(&fCurrentRef);
-			
+
 			fCurrentMessage.MakeEmpty();
 			fCurrentMessage.what = MSG_REPORT_RESULT;
 			fCurrentMessage.AddString("filename", fCurrentFileName);
@@ -47,7 +46,7 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 		lineMessage.what = B_REFS_RECEIVED;
 		lineMessage.AddString("text", text);
 		lineMessage.AddRef("refs", &fCurrentRef);
-		lineMessage.AddInt32("be:line", lineNumber); 
+		lineMessage.AddInt32("be:line", lineNumber);
 		fCurrentMessage.AddMessage("line", &lineMessage);
 	}
 }
@@ -57,8 +56,8 @@ GrepThread::OnThreadShutdown()
 {
 	if (fCurrentMessage.HasMessage("line"))
 		fTarget.SendMessage(&fCurrentMessage);
-	
+
 	fCurrentMessage.MakeEmpty();
 	fCurrentMessage.what = MSG_GREP_DONE;
-	fTarget.SendMessage(&fCurrentMessage);	
+	fTarget.SendMessage(&fCurrentMessage);
 }

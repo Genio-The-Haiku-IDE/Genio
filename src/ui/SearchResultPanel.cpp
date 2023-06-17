@@ -42,7 +42,6 @@ public:
 	BFontStringColumn(const char* title, float width, float minWidth, float maxWidth,
 		uint32 truncate, alignment align = B_ALIGN_LEFT)
 		: BStringColumn(title, width, minWidth, maxWidth, truncate, align){
-
 		};
 
 	void DrawField(BField* field, BRect rect, BView* parent) {
@@ -71,12 +70,12 @@ SearchResultPanel::SearchResultPanel(BTabView* tabView): BColumnListView(SearchR
 								1000.0, 20.0, 2000.0, 0), kLocationColumn);
 	//SetFont(be_fixed_font);
 }
-void	
+void
 SearchResultPanel::SetTabLabel(BString label)
 {
 	if (!fTabView)
 		return;
-	
+
 	for (int32 i=0;i<fTabView->CountTabs();i++) {
 		if (fTabView->ViewForTab(i) == this) {
 			fTabView->TabAt(i)->SetLabel(label.String());
@@ -102,12 +101,12 @@ SearchResultPanel::StartSearch(BString command, BString projectPath)
 			break;
 		}
 	}
-	
+
 	BMessage message;
 	message.AddString("cmd", command);
-	
+
 	ActionManager::SetEnabled(MSG_FIND_IN_FILES, false);
-	
+
 	fGrepThread = new GrepThread(&message, BMessenger(this));
 	fGrepThread->Start();
 }

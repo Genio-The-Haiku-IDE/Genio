@@ -12,6 +12,7 @@ GrepThread::GrepThread(BMessage* cmd_message, const BMessenger& consoleTarget)
 {
 	fCurrentMessage.MakeEmpty();
 	fCurrentFileName[0] = '\0';
+	fNextFileName[0] = '\0';
 }
 
 // Method freely derived from TextGrep by Matthijs Hollemans
@@ -22,18 +23,17 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 	fLine[stdOut.Length()] = '\0';
 
 	// parse grep output
-	char fileName[B_PATH_NAME_LENGTH];
+	fNextFileName[0] = '\0';
 
 	int lineNumber = -1;
 	int textPos = -1;
-	sscanf(fLine, "%[^\n:]:%d:%n", fileName, &lineNumber, &textPos);
+	sscanf(fLine, "%[^\n:]:%d:%n", fNextFileName, &lineNumber, &textPos);
 	if (textPos > 0) {
-		if (strcmp(fileName, fCurrentFileName) != 0) {
+		if (strcmp(fNextFileName, fCurrentFileName) != 0) {
 			fTarget.SendMessage(&fCurrentMessage);
-			strncpy(fCurrentFileName, fileName,
-						sizeof(fCurrentFileName));
+			strncpy(fCurrentFileName, fNextFileName, sizeof(fCurrentFileName));
 
-			BEntry entry(fileName);
+			BEntry entry(fNextFileName);
 			entry.GetRef(&fCurrentRef);
 
 			fCurrentMessage.MakeEmpty();
@@ -41,7 +41,7 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 			fCurrentMessage.AddString("filename", fCurrentFileName);
 		}
 
-		char* text = &fLine[strlen(fileName) + 1];
+		char* text = &fLine[strlen(fNextFileName) + 1];
 		BMessage lineMessage;
 		lineMessage.what = B_REFS_RECEIVED;
 		lineMessage.AddString("text", text);

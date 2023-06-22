@@ -28,6 +28,7 @@ protected:
 private:
 	char fCurrentFileName[B_PATH_NAME_LENGTH];
 	char fLine[MAX_LINE_LEN];
+	char fNextFileName[B_PATH_NAME_LENGTH];
 	BMessage fCurrentMessage;
 	entry_ref fCurrentRef;
 };

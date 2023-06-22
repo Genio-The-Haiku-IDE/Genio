@@ -31,8 +31,7 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 	if (textPos > 0) {
 		if (strcmp(fNextFileName, fCurrentFileName) != 0) {
 			fTarget.SendMessage(&fCurrentMessage);
-			strncpy(fCurrentFileName, fNextFileName, sizeof(fCurrentFileName));
-
+			strncpy(fCurrentFileName, fNextFileName, B_PATH_NAME_LENGTH);
 			BEntry entry(fNextFileName);
 			entry.GetRef(&fCurrentRef);
 

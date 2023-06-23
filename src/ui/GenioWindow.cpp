@@ -42,6 +42,7 @@
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "RemoteProjectWindow.h"
 #include "SettingsWindow.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
@@ -920,6 +921,19 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_OPEN: {
 			fOpenProjectFolderPanel->Show();
+			break;
+		}
+		case MSG_PROJECT_OPEN_REMOTE: {
+			// TODO: There is an attempt ongoing to refactor the whole way we manage the settings
+			// refactor and optimize the settings part
+			// 
+			TPreferences prefs(GenioNames::kSettingsFileName, GenioNames::kApplicationName, 'PRSE');
+			BEntry entry(prefs.GetString("projects_directory"), true);
+			BPath path;
+			entry.GetPath(&path);
+			
+			RemoteProjectWindow *window = new RemoteProjectWindow("", path.Path(), BMessenger(this));
+			window->Show();
 			break;
 		}
 		case MSG_PROJECT_SETTINGS: {
@@ -2439,6 +2453,10 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN,
 								   B_TRANSLATE("Open project"),
 								   "","",'O', B_OPTION_KEY);
+								   
+	ActionManager::RegisterAction(MSG_PROJECT_OPEN_REMOTE,
+								   B_TRANSLATE("Open remote project"),
+								   "","",'O', B_SHIFT_KEY | B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_CLOSE,
 								   B_TRANSLATE("Close project"),
@@ -2675,6 +2693,7 @@ GenioWindow::_InitMenu()
 	BMenu* projectMenu = new BMenu(B_TRANSLATE("Project"));
 
 	ActionManager::AddItem(MSG_PROJECT_OPEN, projectMenu);
+	ActionManager::AddItem(MSG_PROJECT_OPEN_REMOTE, projectMenu);
 	ActionManager::AddItem(MSG_PROJECT_CLOSE, projectMenu);
 
 	projectMenu->AddSeparatorItem();

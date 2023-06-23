@@ -36,6 +36,11 @@ status_t FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef);
 bool IsCppSourceExtension(std::string extension);
 bool IsCppHeaderExtension(std::string extension);
 
+double Round(double value, int precision);
+void ProgressNotification(const char* group, const char* title, const char* messageID, 
+							const char* content, float progress, bigtime_t timeout = -1);
+void ErrorNotification(const char* group, const char* title, const char* messageID, 
+							const char* content, bigtime_t timeout = -1);
 
 template<typename T>
 bool IsChecked(T* control);

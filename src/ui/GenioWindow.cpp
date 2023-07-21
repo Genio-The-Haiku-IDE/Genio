@@ -134,6 +134,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fBuildLogView(nullptr)
 	, fConsoleIOView(nullptr)
 	, fGoToLineWindow(nullptr)
+	, fSearchResultPanel(nullptr)
 {
 	_InitActions();
 	_InitMenu();
@@ -259,7 +260,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (index == fTabManager->SelectedTabIndex())
 				{
 					fProblemsPanel->UpdateProblems(message);
-					fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
 				}
 			}
 			break;
@@ -1787,11 +1787,6 @@ GenioWindow::_FindInFiles()
 	  if (text.IsEmpty())
 		return;
 
-	  fConsoleIOView->Clear();
-
-	  fConsoleIOView->TextView()->ScrollTo(
-		  0, fConsoleIOView->TextView()->Bounds().bottom);
-
 	  // convert checkboxes to grep parameters..
 	  BString extraParameters;
 	  if ((bool)fFindWholeWordCheck->Value())
@@ -1809,7 +1804,7 @@ GenioWindow::_FindInFiles()
 	  grepCommand += " ";
 	  grepCommand += EscapeQuotesWrap(fActiveProject->Path());
 
-	  _RunInConsole(grepCommand);
+	 fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
 }
 
 int32
@@ -2223,7 +2218,7 @@ GenioWindow::_InitCentralSplit()
 												.Add(fFindCaseSensitiveCheck).View());
 
 	fFindGroup->AddAction(MSG_FIND_MARK_ALL, B_TRANSLATE("Bookmark all"), "kIconBookmarkPen");
-	fFindGroup->AddAction(MSG_FIND_IN_FILES, B_TRANSLATE("Find in project"), "kIconFindInFiles");
+	ActionManager::AddItem(MSG_FIND_IN_FILES, fFindGroup);
 	fFindGroup->AddGlue();
 
 	fFindGroup->Hide();
@@ -2506,6 +2501,10 @@ GenioWindow::_InitActions()
 								  B_TRANSLATE("Find previous"),
 								  "kIconUp_3",
 								  B_UP_ARROW, B_COMMAND_KEY);
+	ActionManager::RegisterAction(MSG_FIND_IN_FILES,
+								  B_TRANSLATE("Find in project"),
+								  B_TRANSLATE("Find in project"),
+								  "kIconFindInFiles");
 }
 
 void
@@ -2847,15 +2846,18 @@ GenioWindow::_InitOutputSplit()
 	// Output
 	fOutputTabView = new BTabView("OutputTabview");
 
-	fProblemsPanel = new ProblemsPanel();
+	fProblemsPanel = new ProblemsPanel(fOutputTabView);
 
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
+	
+	fSearchResultPanel = new SearchResultPanel(fOutputTabView);
 
 	fOutputTabView->AddTab(fProblemsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
 	fOutputTabView->AddTab(fConsoleIOView);
+	fOutputTabView->AddTab(fSearchResultPanel);
 }
 
 void
@@ -2868,7 +2870,6 @@ GenioWindow::_InitSideSplit()
 	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
-
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
@@ -3673,9 +3674,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		if (GenioNames::Settings.fullpath_title == true)
 			SetTitle(GenioNames::kApplicationName);
 
-		fProblemsPanel->Clear();
-		fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
-
+		fProblemsPanel->ClearProblems();
 		return;
 	}
 
@@ -3751,7 +3750,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	BMessage diagnostics;
 	editor->GetProblems(&diagnostics);
 	fProblemsPanel->UpdateProblems(&diagnostics);
-	fOutputTabView->TabAt(0)->SetLabel(fProblemsPanel->TabLabel());
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

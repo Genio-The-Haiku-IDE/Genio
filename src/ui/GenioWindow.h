@@ -34,6 +34,7 @@
 #include "TPreferences.h"
 #include "ProjectsFolderBrowser.h"
 #include "TemplatesMenu.h"
+#include "SearchResultPanel.h"
 #include <vector>
 
 enum {
@@ -217,6 +218,7 @@ private:
 			ConsoleIOView*		fBuildLogView;
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
+			SearchResultPanel*	fSearchResultPanel;
 };
 
 #endif //GenioWINDOW_H

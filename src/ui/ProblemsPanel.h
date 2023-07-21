@@ -7,18 +7,22 @@
 
 #include <ColumnListView.h>
 #include <SupportDefs.h>
-
+#include <TabView.h>
 
 class ProblemsPanel : public BColumnListView {
 public:
-		ProblemsPanel();
+		ProblemsPanel(BTabView*);
 		
 		void UpdateProblems(BMessage* msg);
 		
 		virtual void MessageReceived(BMessage* msg);
 		virtual void	AttachedToWindow();
-		BString	TabLabel();
-
+		
+		void ClearProblems();
+		
+private:
+		void	_UpdateTabLabel();
+		BTabView* fTabView;
 };
 
 

@@ -9,6 +9,7 @@
 
 #include "GitRepository.h"
 
+#include <stdexcept>
 #include <map>
 
 namespace Genio::Git {
@@ -146,11 +147,58 @@ namespace Genio::Git {
 		return _ExecuteCommand(pullCommand);
 	}
 	
-	void
+	status_t
 	GitRepository::Clone(const string& url, const path& localPath)
 	{
-		auto thread = new CloneThread(url, localPath);
-		thread->Start();
+		// auto thread = new CloneThread(url, localPath);
+		// thread->Start();
+		git_libgit2_init();
+		git_clone_options clone_opts = GIT_CLONE_OPTIONS_INIT;
+		git_remote_callbacks callbacks = GIT_REMOTE_CALLBACKS_INIT;
+		callbacks.transfer_progress = &GitRepository::_CloneProgressCallback;
+		clone_opts.fetch_opts.callbacks = callbacks;
+        
+		git_repository *repo = nullptr;
+		
+		int error = git_clone(&repo, url.c_str(), localPath.c_str(), &clone_opts);
+		if (error != 0) {
+			throw std::runtime_error(git_error_last()->message);
+		}
+		throw std::runtime_error("test exception");
+		// return B_OK;
+		return 1978;
+	}
+	
+	int
+	GitRepository::_CloneProgressCallback(const git_transfer_progress *stats, void *payload)
+	{
+		int timeout = -1;
+		int current_progress = stats->total_objects > 0 ?
+			(100*stats->received_objects) /
+			stats->total_objects :
+			0;
+		int kbytes = stats->received_bytes / 1024;
+		
+		BString progressString;
+		progressString << "Network " << current_progress 
+			<< " (" << kbytes << " kb, "
+			<< stats->received_objects << "/"
+			<< stats->total_objects << ")\n";
+
+		std::cout << "Current progress: " << current_progress << "% - " << stats->received_objects << " objects received out of " << stats->total_objects << "\n";
+		
+		
+		if (progress_tracker[current_progress] == false) {
+			if (current_progress == 100)
+				timeout = -1;
+			ProgressNotification("Genio", BString("Clone remote repository"), 
+									"GitRepositoryClone", 
+									progressString, 
+									(float)current_progress/100, timeout);
+			progress_tracker[current_progress] = true;
+		}
+			
+        return 0;
 	}
 	
 }

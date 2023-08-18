@@ -3172,12 +3172,12 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 	entry_ref ref;
 
 	status_t status = message->FindRef("refs", &ref);
-	if (status != B_OK)
-		throw BException(B_TRANSLATE("Invalid project folder"),0,status);
-
-	BPath path(&ref);
-
-	_ProjectFolderOpen(path.Path());
+	if (status == B_OK) {
+		BPath path(&ref);
+		_ProjectFolderOpen(path.Path());
+	} else {
+		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
+	}
 }
 
 void

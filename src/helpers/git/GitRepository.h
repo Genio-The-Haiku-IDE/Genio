@@ -57,7 +57,7 @@ namespace Genio::Git {
 											GitRepository(const path& path);
 											~GitRepository();
 											
-		static void							Clone(const string& url, const path& localPath);
+		static status_t						Clone(const string& url, const path& localPath);
 		
 		bool								InitCheck() { return fInitCheck; };
 		void								Init(const path& repo, const path& localPath);
@@ -76,8 +76,8 @@ namespace Genio::Git {
 		
 		string 								_ExecuteCommand(const string& command) const;
 		
-		// static int 							_CloneProgressCallback(const git_transfer_progress *stats, 
-																	// void *payload);
+		static int 							_CloneProgressCallback(const git_transfer_progress *stats, 
+																	void *payload);
 	};
 	
 }

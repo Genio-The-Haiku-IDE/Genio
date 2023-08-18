@@ -42,6 +42,7 @@ SRCS +=  src/helpers/GSettings.cpp
 SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/helpers/PathBox.cpp
 SRCS +=  src/helpers/StatusView.cpp
+SRCS +=  src/helpers/Task.cpp
 SRCS +=  src/helpers/TextUtils.cpp
 SRCS +=  src/helpers/TPreferences.cpp
 SRCS +=  src/helpers/Utils.cpp

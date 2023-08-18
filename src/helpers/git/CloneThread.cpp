@@ -90,10 +90,10 @@ namespace Genio::Git {
 		// we can't use the callback function if we need to invoke a function that must be called from
 		// within the same thread of the Looper to which the handler belongs to (i.e. PathMonitor)
 		// Both options are available for maximum flexibility
-		BMessage *message = new BMessage(Genio::Git::THREAD_EXIT);
-		message->AddPointer("exception", (void *)fLastException);
-		BMessenger messenger(fTarget);
-		messenger.SendMessage(message);
+		// BMessage *message = new BMessage(Genio::Git::THREAD_EXIT);
+		// message->AddPointer("exception", (void *)fLastException->);
+		// BMessenger messenger(fTarget);
+		// messenger.SendMessage(message);
 		return B_OK;
 	}
 

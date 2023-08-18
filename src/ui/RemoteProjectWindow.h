@@ -15,7 +15,8 @@
 
 enum {
 	kDoClone,
-	kCancel
+	kCancel,
+	kFinished
 };
 
 class RemoteProjectWindow : public BWindow {
@@ -28,6 +29,8 @@ private:
 	PathBox* 				fPathBox;
 	bool					fIsCloning;
 	const BMessenger		fTarget;
+	BButton* 				fClone;
+	BButton* 				fCancel;
 };
 
 

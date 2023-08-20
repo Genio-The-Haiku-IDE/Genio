@@ -14,7 +14,7 @@
 #include "FSUtils.h"
 
 #define COPY_BUFFER_SIZE 8192
-
+/*
 status_t FSCheckCopiable(BEntry *src,BEntry *dest)
 {
 	// Checks to see if we can copy the src to dest.
@@ -239,3 +239,4 @@ FSDeleteFolder(BEntry *dirEntry)
 	
 	return status;
 }
+*/

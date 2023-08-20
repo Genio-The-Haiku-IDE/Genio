@@ -57,7 +57,7 @@ namespace Genio::Git {
 											GitRepository(const path& path);
 											~GitRepository();
 											
-		static status_t						Clone(const string& url, const path& localPath);
+		static void						Clone(const string& url, const path& localPath);
 		
 		bool								InitCheck() { return fInitCheck; };
 		void								Init(const path& repo, const path& localPath);

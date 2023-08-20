@@ -147,7 +147,7 @@ namespace Genio::Git {
 		return _ExecuteCommand(pullCommand);
 	}
 	
-	status_t
+	void
 	GitRepository::Clone(const string& url, const path& localPath)
 	{
 		// auto thread = new CloneThread(url, localPath);
@@ -166,7 +166,7 @@ namespace Genio::Git {
 		}
 		throw std::runtime_error("test exception");
 		// return B_OK;
-		return 1978;
+		// return 1978;
 	}
 	
 	int

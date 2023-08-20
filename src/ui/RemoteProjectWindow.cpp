@@ -66,8 +66,8 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 		case TASK_RESULT_MESSAGE:
 		{
 			try {
-				auto result = TaskResult<status_t>(*msg).GetResult();
-				OKAlert("", BString("Result: ") << result, B_INFO_ALERT);
+				TaskResult<void>(*msg).GetResult();
+				OKAlert("", BString("Result: terminated"), B_INFO_ALERT);
 			} catch(std::exception &ex) {
 				OKAlert("", BString("Exception: ") << ex.what(), B_INFO_ALERT);
 			}
@@ -82,7 +82,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			fPathBox->SetEnabled(false);
 			fURL->SetEnabled(false);
 			
-			Genio::Task::Task<status_t> task("test", new BMessenger(this), 
+			Genio::Task::Task<void> task("test", new BMessenger(this), 
 												&Genio::Git::GitRepository::Clone, 
 												fURL->Text(), 
 												fPathBox->Path());

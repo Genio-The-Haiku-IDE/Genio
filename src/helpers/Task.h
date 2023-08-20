@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <functional>
 #include <map>
+#include <optional>
 
 #include "Utils.h"
 
@@ -145,7 +146,7 @@ namespace Genio::Task {
 		
 		TaskResult(const BMessage &archive) 
 		{
-			archive.PrintToStream();
+			// archive.PrintToStream();
 			void *data = nullptr;
 			ssize_t size = 0;
 			type_code type;
@@ -164,25 +165,12 @@ namespace Genio::Task {
 			if (archive.FindInt32(fResultTaskIdName, &fId) != B_OK) {
 					throw runtime_error("Can't unarchive TaskResult instance");
 			}
-			// if (archive.Find<int32>(fResultTaskIdName, &fId) != B_OK) {
-					// throw runtime_error("Can't unarchive TaskResult instance");
-			// }
 		}
 		
 		~TaskResult() {}
 
 		ResultType	GetResult() 
-		{ 
-			// BString log("log: size=");
-			// log << TaskExceptionMap.size();
-			// log << " ";
-			// for(auto &e : TaskExceptionMap) {
-				// log << " fid=" << fId;
-				// log << " id=" << e.first;
-				// log << " ptr=" << (e.second == nullptr ? "false" : "true");
-			// }
-			// OKAlert("", log, B_INFO_ALERT);
-			
+		{ 		
 			auto ptr = TaskExceptionMap[fId];
 			if (ptr)
 				rethrow_exception(ptr);
@@ -207,7 +195,7 @@ namespace Genio::Task {
 		static BArchivable* Instantiate(BMessage* archive)
 		{
 			if (validate_instantiation(archive, "TaskResult"))
-				return new TaskResult(archive);
+				return new TaskResult<ResultType>(archive);
 			else
 				return nullptr;
 		}
@@ -217,6 +205,60 @@ namespace Genio::Task {
 		const char*		fResultFieldName = "TaskResult::Result";
 		const char*		fResultTaskIdName = "TaskResult::ID";
 		ResultType		fResult;
+		thread_id		fId;
+		
+						TaskResult() {}
+		
+	};
+	
+	template <>
+	class TaskResult<void>: public BArchivable {
+	public:
+		
+		TaskResult(const BMessage &archive) 
+			: fResult(true)
+		{
+			// archive.PrintToStream();
+					
+			if (archive.FindInt32(fResultTaskIdName, &fId) != B_OK) {
+					throw runtime_error("Can't unarchive TaskResult instance");
+			}
+		}
+		
+		~TaskResult() {}
+
+		void	GetResult() 
+		{ 		
+			auto ptr = TaskExceptionMap[fId];
+			if (ptr)
+				rethrow_exception(ptr);
+		}
+		
+		virtual status_t Archive(BMessage *archive, bool deep) const
+		{
+			status_t result;
+			result = BArchivable::Archive(archive, deep);
+			
+			result = archive->AddInt32(fResultTaskIdName, fId);
+			
+			result = archive->AddString("class", "TaskResult");
+		   
+			return result;
+		}
+		
+		static BArchivable* Instantiate(BMessage* archive)
+		{
+			if (validate_instantiation(archive, "TaskResult"))
+				return new TaskResult<void>(archive);
+			else
+				return nullptr;
+		}
+
+	private:
+		friend class	Task<void>;
+		const char*		fResultFieldName = "TaskResult::Result";
+		const char*		fResultTaskIdName = "TaskResult::ID";
+		bool			fResult;
 		thread_id		fId;
 		
 						TaskResult() {}
@@ -234,6 +276,7 @@ namespace Genio::Task {
 			auto *target_function =
 				new arguments_wrapper<Function, Args...>(std::forward<Function>(function),
 				std::forward<Args>(args)...);
+				
 			using lambda_type = std::remove_reference_t<decltype(*target_function)>;
 
 			ThreadData *thread_data = new ThreadData;
@@ -282,8 +325,15 @@ namespace Genio::Task {
 				lambda = reinterpret_cast<Lambda *>(data->target_function);
 				messenger = data->messenger;
 				task_result.fId = data->id;
-				auto result = (*lambda)();
-				task_result.fResult = result;
+				
+				using ret_t = decltype((*lambda)());
+				
+				if constexpr (std::is_same_v<void, ret_t>) {
+					(*lambda)();
+				} else {
+					auto result = (*lambda)();
+					task_result.fResult = result;
+				}
 			} catch(...) {
 				TaskExceptionMap[task_result.fId] = current_exception();
 			}
@@ -314,13 +364,14 @@ namespace Genio::Task {
 				args{std::forward<Args>(args)...}
 			{}
 
-			ResultType operator()()
+			constexpr decltype(auto) operator()()
 			{
 				return apply(std::make_index_sequence<sizeof...(Args)>{});
 			}
+			
 		private:
 			template <std::size_t ... indices>
-			ResultType apply(std::index_sequence<indices...>)
+			constexpr decltype(auto) apply(std::index_sequence<indices...>)
 			{
 				return callable(std::move(std::get<indices>(args))...);
 			}

@@ -41,7 +41,7 @@ namespace Genio::Git {
 							_error(error),
 							_message(message)
 						{
-							LogError("GitException %s, error = %d" , message, error);
+							LogError("GitException %s, error = %d" , message.c_str(), error);
 						}
 
 		int				Error() noexcept { return _error; }
@@ -57,7 +57,8 @@ namespace Genio::Git {
 											GitRepository(const path& path);
 											~GitRepository();
 											
-		static void						Clone(const string& url, const path& localPath);
+		static const BPath&					Clone(const string& url, const BPath& localPath, 
+													git_indexer_progress_cb callback);
 		
 		bool								InitCheck() { return fInitCheck; };
 		void								Init(const path& repo, const path& localPath);
@@ -76,8 +77,6 @@ namespace Genio::Git {
 		
 		string 								_ExecuteCommand(const string& command) const;
 		
-		static int 							_CloneProgressCallback(const git_transfer_progress *stats, 
-																	void *payload);
 	};
 	
 }

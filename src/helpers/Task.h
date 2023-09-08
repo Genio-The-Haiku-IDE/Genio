@@ -5,20 +5,24 @@
  
 #pragma once
 
-#include <stdexcept>
+#include <any>
 #include <functional>
 #include <map>
-#include <optional>
+#include <stdexcept>
 
-#include "Utils.h"
-
-#include <String.h>
+#include <Alignment.h>
+#include <Message.h>
 #include <Messenger.h>
+#include <String.h>
 #include <SupportDefs.h>
+
+// #include "TMessage.h"
+// #include "Utils.h"
 
 namespace Genio::Task {
 
 	using namespace std;
+	// using namespace Genio::Message;
 
 	namespace Private {
 
@@ -26,13 +30,43 @@ namespace Genio::Task {
 			void *target_function;
 			BMessenger *messenger;
 			thread_id id;
+			const char *name;
 		};
 
 		static exception_ptr current_exception_ptr;
 		static map<thread_id, exception_ptr> TaskExceptionMap;
-
-		template <typename int32>
-		struct BMessageType{ static type_code Get() { return B_INT32_TYPE; }  };
+		static map<string, type_code> TypeMap = {
+			{typeid(BAlignment).name(), B_ALIGNMENT_TYPE},
+			{typeid(BRect).name(), B_RECT_TYPE},
+			{typeid(BPoint).name(), B_POINT_TYPE},
+			{typeid(BSize).name(), B_SIZE_TYPE},
+			{typeid(const char *).name(), B_STRING_TYPE},
+			{typeid(BString).name(), B_STRING_TYPE},
+			{typeid(std::string).name(), B_STRING_TYPE},
+			// {typeid(BStringList).name(), B_STRING_LIST_TYPE},
+			{typeid(int8).name(), B_INT8_TYPE},
+			{typeid(int16).name(), B_INT16_TYPE},
+			{typeid(int32).name(), B_INT32_TYPE},
+			{typeid(int64).name(), B_INT64_TYPE},
+			{typeid(uint8).name(), B_UINT8_TYPE},
+			{typeid(uint16).name(), B_UINT16_TYPE},
+			{typeid(uint32).name(), B_UINT32_TYPE},
+			{typeid(uint64).name(), B_UINT64_TYPE},
+			{typeid(bool).name(), B_BOOL_TYPE},
+			{typeid(float).name(), B_FLOAT_TYPE},
+			{typeid(double).name(), B_DOUBLE_TYPE},
+			{typeid(rgb_color).name(), B_RGB_COLOR_TYPE},
+			{typeid(const void *).name(), B_POINTER_TYPE},
+			{typeid(BMessenger).name(), B_MESSENGER_TYPE},
+			{typeid(entry_ref).name(), B_REF_TYPE},
+			{typeid(node_ref).name(), B_NODE_REF_TYPE},
+			{typeid(BMessage).name(), B_MESSAGE_TYPE},
+		};
+			
+		template <typename T>
+		struct BMessageType {
+			static type_code Get() { return TypeMap[typeid(T).name()]; }  
+		};
 	}
 
 	using namespace Private;
@@ -42,129 +76,37 @@ namespace Genio::Task {
 	template <typename ResultType>
 	class Task;
 	
-	class TMessage : public BMessage {
-		public:
-										TMessage() : BMessage() {};
-										TMessage(uint32 what) : BMessage(what) {};
-										TMessage(const BMessage& other) : BMessage(other) {};
-			virtual						~TMessage();
-		
-			template <typename Type>
-			status_t			Add(const char* name, Type value) {
-									if (typeid(Type) == typeid(const BAlignment&))
-										return AddAlignment(name, value); 
-									if (typeid(Type) == typeid(BRect))
-										return AddRect(name, value); 
-									if (typeid(Type) == typeid(BPoint))
-										return AddPoint(name, value); 
-									if (typeid(Type) == typeid(BSize))
-										return AddSize(name, value); 
-									if (typeid(Type) == typeid(const char*))
-										return AddString(name, value);
-									if (typeid(Type) == typeid(const BString&))
-										return AddString(name, value); 
-									// if (typeid(Type) == typeid(const BStringList&))
-										// return AddStrings(name, value); 
-									if (typeid(Type) == typeid(int8))
-										return AddInt8(name, value); 
-									if (typeid(Type) == typeid(uint8))
-										return AddUInt8(name, value); 
-									if (typeid(Type) == typeid(int16))
-										return AddInt16(name, value); 
-									if (typeid(Type) == typeid(uint16))
-										return AddUInt16(name, value); 
-									if (typeid(Type) == typeid(int32))
-										return AddInt32(name, value); 
-									if (typeid(Type) == typeid(uint32))
-										return AddUInt32(name, value); 
-									if (typeid(Type) == typeid(int64))
-										return AddInt64(name, value); 
-									if (typeid(Type) == typeid(uint64))
-										return AddUInt64(name, value); 
-									if (typeid(Type) == typeid(bool))
-										return AddBool(name, value); 
-									if (typeid(Type) == typeid(float))
-										return AddFloat(name, value); 
-									if (typeid(Type) == typeid(double))
-										return AddDouble(name, value); 
-								};
-			
-			template <typename Type>
-			status_t			Find(const char* name, Type *value) {
-									if (typeid(Type) == typeid(int32))
-										return FindInt32(name, value); 
-								}
-			template <typename Type>
-			status_t			Find(const char* name, int32 index, Type *value) {
-									if (typeid(Type) == typeid(int32))
-										return FindInt32(name, index, value); 
-								}
-		
-			// template <typename Type = BAlignment>
-			// status_t			Add(const char* name, Type value) { return AddAlignment(name, value); };
-			// template <typename Type = BRect>				
-			// status_t			Add(const char* name, Type value) { return	AddRect(name, value); }
-			// template <typename Type = BPoint>
-			// status_t			Add(const char* name, Type value) { return	AddPoint(name, value); }
-			// template <typename Type = BPoint>
-			// status_t			AddSize(const char* name, Type value) { return	AddPoint(name, value); };
-			// status_t			AddString(const char* name, const char* string);
-			// status_t			AddString(const char* name,
-									// const BString& string);
-			// status_t			AddStrings(const char* name,
-									// const BStringList& list);
-			// status_t			AddInt8(const char* name, int8 value);
-			// status_t			AddUInt8(const char* name, uint8 value);
-			// status_t			AddInt16(const char* name, int16 value);
-			// status_t			AddUInt16(const char* name, uint16 value);
-			// status_t			AddInt32(const char* name, int32 value);
-			// status_t			AddUInt32(const char* name, uint32 value);
-			// status_t			AddInt64(const char* name, int64 value);
-			// status_t			AddUInt64(const char* name, uint64 value);
-			// status_t			AddBool(const char* name, bool value);
-			// status_t			AddFloat(const char* name, float value);
-			// status_t			AddDouble(const char* name, double value);
-			// status_t			AddColor(const char* name, rgb_color value);
-			// status_t			AddPointer(const char* name,
-									// const void* pointer);
-			// status_t			AddMessenger(const char* name,
-									// BMessenger messenger);
-			// status_t			AddRef(const char* name, const entry_ref* ref);
-			// status_t			AddNodeRef(const char* name,
-									// const node_ref* ref);
-			// status_t			AddMessage(const char* name,
-									// const BMessage* message);
-			// status_t			AddFlat(const char* name, BFlattenable* object,
-									// int32 count = 1);
-			// status_t			AddFlat(const char* name,
-									// const BFlattenable* object, int32 count = 1);
-		};
 	
 	template <typename ResultType>
 	class TaskResult: public BArchivable {
 	public:
 		
 		TaskResult(const BMessage &archive) 
+			: fResult(nullptr)
 		{
-			// archive.PrintToStream();
-			void *data = nullptr;
 			ssize_t size = 0;
 			type_code type;
+			void *result;
 			
-			if (archive.GetInfo(fResultFieldName, &type) == B_OK) {
-				status_t error = archive.FindData(fResultFieldName, type, 
-													(const void**)&data, &size);
-				if (error != B_OK)
-					throw runtime_error("Can't unarchive TaskResult instance");
-				else
-					fResult = *(ResultType*)(data);
-			} else {
-				throw runtime_error("Can't unarchive TaskResult instance");
+			if constexpr (std::is_void<ResultType>::value == false) {
+				if (archive.GetInfo(fResultField, &type) == B_OK) {
+					status_t error = archive.FindData(fResultField, type, (const void **)&result, &size);
+					if (error == B_OK) {
+						fResult = *(ResultType*)result;
+						// OKAlert("", BString("result:") << *(ResultType*)result, B_INFO_ALERT);
+						// OKAlert("", BString("fResult:") << any_cast<ResultType>(fResult) << " type:" << fResult.type().name(), B_INFO_ALERT);
+					}
+				}
 			}
 			
-			if (archive.FindInt32(fResultTaskIdName, &fId) != B_OK) {
-					throw runtime_error("Can't unarchive TaskResult instance");
+			if (archive.FindInt32(fTaskIdField, &fId) != B_OK) {
+					throw runtime_error("Can't unarchive TaskResult instance: Task ID not available");
 			}
+			if (archive.FindString(fTaskNameField, &fName) != B_OK) {
+					throw runtime_error("Can't unarchive TaskResult instance: Task Name not available");
+			}
+			
+			// archive.PrintToStream();
 		}
 		
 		~TaskResult() {}
@@ -172,106 +114,73 @@ namespace Genio::Task {
 		ResultType	GetResult() 
 		{ 		
 			auto ptr = TaskExceptionMap[fId];
-			if (ptr)
+			if (ptr) {
 				rethrow_exception(ptr);
-			else
-				return fResult; 
-		}
-		
-		virtual status_t Archive(BMessage *archive, bool deep)
-		{
-			status_t result;
-			result = BArchivable::Archive(archive, deep);
-			
-			type_code type = BMessageType<ResultType>::Get();
-			result = archive->AddData(fResultFieldName, type, &fResult, sizeof(fResult));
-			result = archive->AddInt32(fResultTaskIdName, fId);
-			
-			result = archive->AddString("class", "TaskResult");
-		   
-			return result;
-		}
-		
-		static BArchivable* Instantiate(BMessage* archive)
-		{
-			if (validate_instantiation(archive, "TaskResult"))
-				return new TaskResult<ResultType>(archive);
-			else
-				return nullptr;
-		}
-
-	private:
-		friend class	Task<ResultType>;
-		const char*		fResultFieldName = "TaskResult::Result";
-		const char*		fResultTaskIdName = "TaskResult::ID";
-		ResultType		fResult;
-		thread_id		fId;
-		
-						TaskResult() {}
-		
-	};
-	
-	template <>
-	class TaskResult<void>: public BArchivable {
-	public:
-		
-		TaskResult(const BMessage &archive) 
-			: fResult(true)
-		{
-			// archive.PrintToStream();
-					
-			if (archive.FindInt32(fResultTaskIdName, &fId) != B_OK) {
-					throw runtime_error("Can't unarchive TaskResult instance");
+			} else {
+				if constexpr (std::is_void<ResultType>::value == false) {
+					return any_cast<ResultType>(fResult);
+				}
 			}
-		}
-		
-		~TaskResult() {}
-
-		void	GetResult() 
-		{ 		
-			auto ptr = TaskExceptionMap[fId];
-			if (ptr)
-				rethrow_exception(ptr);
 		}
 		
 		virtual status_t Archive(BMessage *archive, bool deep) const
 		{
-			status_t result;
-			result = BArchivable::Archive(archive, deep);
+			status_t status;
+			status = BArchivable::Archive(archive, deep);
 			
-			result = archive->AddInt32(fResultTaskIdName, fId);
+			if constexpr (std::is_void<ResultType>::value == false) {
+				if (fResult.has_value()) {
+					type_code type = BMessageType<ResultType>::Get();
+					ResultType result = any_cast<ResultType>(fResult);
+					status = archive->AddData(fResultField, type, &result, sizeof(ResultType));
+					// TMessage *msg = (TMessage*)(archive);
+					// msg->Add<ResultType>(fResultFieldName, &result);
+					// OKAlert("", BString("fResult:") << any_cast<ResultType>(fResult) << " type:" << fResult.type().name() << " result:" << result, B_INFO_ALERT);
+				}
+			}
+			status = archive->AddInt32(fTaskIdField, fId);
+			status = archive->AddString(fTaskNameField, fName);
 			
-			result = archive->AddString("class", "TaskResult");
-		   
-			return result;
+			status = archive->AddString("class", "TaskResult");
+			// archive->PrintToStream();
+			return status;
 		}
 		
-		static BArchivable* Instantiate(BMessage* archive)
+		static TaskResult<ResultType>* Instantiate(BMessage* archive)
 		{
-			if (validate_instantiation(archive, "TaskResult"))
-				return new TaskResult<void>(archive);
-			else
+			if (validate_instantiation(archive, "TaskResult")) {
+				return new TaskResult<ResultType>(*archive);
+			} else {
 				return nullptr;
+			}
 		}
-
+		
+		thread_id GetTaskID() { return fId; }
+		const char* GetTaskName() { return fName; }
+		
 	private:
-		friend class	Task<void>;
-		const char*		fResultFieldName = "TaskResult::Result";
-		const char*		fResultTaskIdName = "TaskResult::ID";
-		bool			fResult;
+		friend class	Task<ResultType>;
+		
+		const char*		fResultField = "TaskResult::Result";
+		const char*		fTaskIdField = "TaskResult::TaskID";
+		const char*		fTaskNameField = "TaskResult::TaskName";
+		
+		any				fResult;
 		thread_id		fId;
+		const char *	fName;
 		
 						TaskResult() {}
-		
 	};
-
+	
+	
 	template <typename ResultType>
 	class Task {
 	public:
 		using native_handle_type = thread_id;
 
-		template<typename Name, typename Messenger, typename Function, typename... Args>
-		Task(Name name, Messenger messenger, Function&& function, Args&&... args)
+		// template<typename Name, typename Messenger, typename Function, typename... Args>
+		template<typename Function, typename... Args>
+		Task(const char *name, BMessenger *messenger, Function&& function, Args&&... args)
 		{
 			auto *target_function =
 				new arguments_wrapper<Function, Args...>(std::forward<Function>(function),
@@ -282,6 +191,7 @@ namespace Genio::Task {
 			ThreadData *thread_data = new ThreadData;
 			thread_data->target_function = target_function;
 			thread_data->messenger = messenger;
+			thread_data->name = name;
 			
 			thread_handle = spawn_thread(&_CallTarget<ThreadData, lambda_type>,
 										name,
@@ -304,11 +214,12 @@ namespace Genio::Task {
 			return resume_thread(thread_handle);
 		}
 								
-								
+		status_t Stop() 
+		{ 
+			return kill_thread(thread_handle);
+		}					
 		
 	private:
-		friend class TaskResult<ResultType>;
-		
 		native_handle_type thread_handle;
 		
 		template<typename Data, typename Lambda>
@@ -325,6 +236,7 @@ namespace Genio::Task {
 				lambda = reinterpret_cast<Lambda *>(data->target_function);
 				messenger = data->messenger;
 				task_result.fId = data->id;
+				task_result.fName = data->name;
 				
 				using ret_t = decltype((*lambda)());
 				

@@ -1,9 +1,6 @@
 /*
  * Copyright 2023 Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
- * Based on TrackGit (https://github.com/HaikuArchives/TrackGit)
- * Original author: Hrishikesh Hiraskar  
- * Copyright Hrishikesh Hiraskar and other HaikuArchives contributors (see GitHub repo for details)
  */
 
 #pragma once
@@ -12,25 +9,37 @@
 
 #include "GitRepository.h"
 #include "PathBox.h"
+#include "Task.h"
+
+using namespace Genio::Task;
+using namespace Genio::Git;
 
 enum {
 	kDoClone,
 	kCancel,
-	kFinished
+	kFinished,
+	kProgress
 };
 
 class RemoteProjectWindow : public BWindow {
 public:
-							RemoteProjectWindow(BString repo, BString dirPath, 
+								RemoteProjectWindow(BString repo, BString dirPath, 
 												const BMessenger target);
-	virtual void			MessageReceived(BMessage*);
+	virtual void				MessageReceived(BMessage*);
 private:
-	BTextControl* 			fURL;
-	PathBox* 				fPathBox;
-	bool					fIsCloning;
-	const BMessenger		fTarget;
-	BButton* 				fClone;
-	BButton* 				fCancel;
+	BTextControl* 				fURL;
+	PathBox* 					fPathBox;
+	bool						fIsCloning;
+	const BMessenger			fTarget;
+	BButton* 					fClone;
+	BButton* 					fCancel;
+	BTextView*					fProgressTextView;
+	BStatusBar*					fProgressBar;
+	
+	shared_ptr<Task<BPath>>		fCurrentTask;
+	
+	void						_OpenProject(const path& localPath);
+	void						_ResetControls();
 };
 
 

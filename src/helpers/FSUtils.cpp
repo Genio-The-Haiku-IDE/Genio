@@ -14,7 +14,7 @@
 #include "FSUtils.h"
 
 #define COPY_BUFFER_SIZE 8192
-/*
+
 status_t FSCheckCopiable(BEntry *src,BEntry *dest)
 {
 	// Checks to see if we can copy the src to dest.
@@ -153,7 +153,7 @@ FSCopyFile(BEntry *src, BEntry *dest, bool clobber)
 		destnode.WriteAttr(attr_name, attr_info.type, 0LL, attr_buffer, attr_size);
 		destnode.Sync();
 												
-		delete attr_buffer;
+		std::destroy_at(attr_buffer);
 	}
 
 	return B_OK;
@@ -239,4 +239,3 @@ FSDeleteFolder(BEntry *dirEntry)
 	
 	return status;
 }
-*/

@@ -33,24 +33,10 @@ private:
 	const BMessenger			fTarget;
 	BButton* 					fClone;
 	BButton* 					fCancel;
-	BTextView*					fProgressTextView;
 	BStatusBar*					fProgressBar;
 	
 	shared_ptr<Task<BPath>>		fCurrentTask;
 	
 	void						_OpenProject(const path& localPath);
 	void						_ResetControls();
-};
-
-
-class OpenRemoteProgressWindow : public BWindow
-{
-	RemoteProjectWindow*	fRemoteProjectWindow;
-	BTextView*				fTextView;
-	BStatusBar*				fProgressBar;
-	public:
-							OpenRemoteProgressWindow(RemoteProjectWindow*);
-	void					SetText(const char*);
-	void					SetProgress(float);
-	virtual void			MessageReceived(BMessage*);
 };

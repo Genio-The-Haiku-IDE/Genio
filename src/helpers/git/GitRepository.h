@@ -23,7 +23,6 @@
 #include <memory>
 
 #include "Utils.h"
-#include "CloneThread.h"
 #include "Log.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -57,7 +56,7 @@ namespace Genio::Git {
 											GitRepository(const path& path);
 											~GitRepository();
 											
-		static const BPath&					Clone(const string& url, const BPath& localPath, 
+		const BPath&					Clone(const string& url, const BPath& localPath, 
 													git_indexer_progress_cb callback);
 		
 		bool								InitCheck() { return fInitCheck; };

@@ -30,7 +30,6 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fTarget(target),
 	fClone(nullptr),
 	fCancel(nullptr),
-	fProgressTextView(nullptr),
 	fProgressBar(nullptr)
 {
 	fURL = new BTextControl(B_TRANSLATE("URL:"), "", NULL);
@@ -40,15 +39,7 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fCancel = new BButton("ok", B_TRANSLATE("Cancel"),
 			new BMessage(kCancel));
 
-	// fProgressTextView = new BTextView(BRect(0, 0, 280, 80), "_clone_", 
-							  // BRect(0, 0, 280, 80), B_FOLLOW_LEFT_RIGHT);
-	// fProgressTextView->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
-	// fProgressTextView->MakeEditable(false);
-	// fProgressTextView->MakeSelectable(false);
-	// fProgressTextView->SetWordWrap(true);
-	// fProgressTextView->SetText("Cloning" B_UTF8_ELLIPSIS "\nRepository");
-
-	fProgressBar = new BStatusBar("progressBar");
+	fProgressBar = new BStatusBar("progressBar", " ", "");
 	fProgressBar->SetBarHeight(be_plain_font->Size() * 1.5);
 
 	// test
@@ -61,7 +52,6 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 		.Add(fURL)
 		.Add(fPathBox)
 		.AddGlue()
-		// .Add(fProgressTextView)
 		.Add(fProgressBar)
 		.AddGlue()
 		.AddGroup(B_HORIZONTAL, 0)
@@ -111,11 +101,12 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			try {
 				auto result = TaskResult<BPath>::Instantiate(msg)->GetResult();
 				_OpenProject(result.Path());
+				fProgressBar->SetTo(100, "Finished!", " ");
 			} catch(std::exception &ex) {
 				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ") << ex.what(), B_INFO_ALERT);
+				fProgressBar->SetTo(0, "An error occurred!", " ");
 			}
 			_ResetControls();
-			Quit();
 		}
 		break;
 		case kDoClone:
@@ -135,10 +126,10 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 								int kbytes = stats->received_bytes / 1024;
 								
 								BString progressString;
-								progressString << "Network " << current_progress 
-									<< " (" << kbytes << " kb, "
+								progressString << "Cloning "
 									<< stats->received_objects << "/"
-									<< stats->total_objects << ")\n";
+									<< stats->total_objects << " objects"
+									<< " (" << kbytes << " kb)";
 								
 								BMessage msg(kProgress);
 								msg.AddString("progress_text", progressString);
@@ -147,13 +138,22 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 								return 0;
 							};
 			
-			fCurrentTask = make_shared<Task<BPath>>("GitClone", new BMessenger(this), 
-													&GitRepository::Clone, 
-													fURL->Text(), 
-													BPath(fPathBox->Path()),
-													callback);
+			GitRepository repo(fPathBox->Path());  
+			fCurrentTask = make_shared<Task<BPath>>
+			(
+				"GitClone", 
+				new BMessenger(this), 
+				std::bind
+				(
+					&GitRepository::Clone, 
+					&repo , 
+					fURL->Text(), 
+					BPath(fPathBox->Path()), 
+					callback
+				)
+			); 
 			fCurrentTask->Run();
-	
+			fProgressBar->SetTo(0, " ", " ");
 			break;
 		}
 		case kCancel:
@@ -169,8 +169,9 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 
 				if (choice == 1) {
 					fCurrentTask->Stop();
+					_ResetControls();
+					fProgressBar->SetTo(100, "Cenceled!", " ");
 				}
-				_ResetControls();
 			} else {
 				Quit();
 			}
@@ -178,13 +179,13 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 		}
 		case kProgress:
 		{
-			auto text = msg->GetString("progress_text");
+			BString trailing_label;
+			auto label = msg->GetString("progress_text");
 			auto progress = msg->GetFloat("progress_value", 0);
+			trailing_label << (int32)progress << "%";
 			if (LockLooper()) {
-				if (text != nullptr)
-					fProgressBar->SetTrailingText(text);
 				if (progress != 0)
-					fProgressBar->SetTo(progress);
+					fProgressBar->SetTo(progress, label, trailing_label);
 				UnlockLooper();
 			}
 		}
@@ -193,67 +194,3 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			BWindow::MessageReceived(msg);
 	}
 }
-
-// OpenRemoteProgressWindow::OpenRemoteProgressWindow(RemoteProjectWindow* cloneWindow)
-	// :
-	// BWindow(BRect(0, 0, 300, 150), "TrackGit - Clone Progress",
-			// B_TITLED_WINDOW, B_NOT_CLOSABLE | B_NOT_RESIZABLE)
-// {
-	// fRemoteProjectWindow = cloneWindow;
-	// fTextView = new BTextView(BRect(0, 0, 280, 80), "_clone_", 
-							  // BRect(0, 0, 280, 80), B_FOLLOW_LEFT_RIGHT);
-	// fTextView->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
-	// fTextView->MakeEditable(false);
-	// fTextView->MakeSelectable(false);
-	// fTextView->SetWordWrap(true);
-	// fTextView->SetText("Cloning" B_UTF8_ELLIPSIS "\nRepository");
-// 
-	// fProgressBar = new BStatusBar("progressBar");
-	// fProgressBar->SetBarHeight(20);
-// 
-	// BButton* fCancel = new BButton("ok", "Cancel",
-								  // new BMessage(kCancel));
-// 
-    // BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
-		// .SetInsets(10)
-		// .Add(fTextView)
-		// .Add(fProgressBar)
-		// .AddGroup(B_HORIZONTAL, 0)
-			// .AddGlue()
-			// .Add(fCancel)
-			// .End();
-// }
-// 
-// 
-// void
-// OpenRemoteProgressWindow::SetText(const char* text)
-// {
-	// if (LockLooper()) {
-		// fTextView->SetText(text);
-		// UnlockLooper();
-	// }
-// }
-// 
-// 
-// void
-// OpenRemoteProgressWindow::SetProgress(float progress)
-// {
-	// if (LockLooper()) {
-		// fProgressBar->SetTo(progress);
-		// UnlockLooper();
-	// }
-// }
-// 
-// 
-// void
-// OpenRemoteProgressWindow::MessageReceived(BMessage* msg)
-// {
-	// switch (msg->what) {
-		// case kCancel:
-			// fRemoteProjectWindow->PostMessage(kCancel);
-			// Quit();
-			// break;
-		// default:
-			// BWindow::MessageReceived(msg);
-	// }
-// }

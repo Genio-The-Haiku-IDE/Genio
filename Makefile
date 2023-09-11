@@ -53,7 +53,6 @@ SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
 SRCS +=  src/helpers/git/GitRepository.cpp
-SRCS +=  src/helpers/git/CloneThread.cpp
 SRCS +=  src/lsp-client/FileWrapper.cpp
 SRCS +=  src/lsp-client/LSPClientWrapper.cpp
 SRCS +=  src/lsp-client/LSPClient.cpp

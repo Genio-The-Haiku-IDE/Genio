@@ -52,17 +52,24 @@ public:
 			status_t			ResumeExternal();
 			status_t			InterruptExternal();
 			status_t			IsProcessAlive();
+			bool				IsDone() { return fIsDone; };
 
 			void				PushInput(BString text);
 
 			status_t			GetFromPipe(BString& stdOut, BString& stdErr);
 
+protected:
+	virtual	void	OnStdOutputLine(const BString& stdOut);
+	virtual void	OnStdErrorLine(const BString& stdErr);
+	virtual void	OnThreadShutdown();
+	BMessenger		fTarget;
 
 private:
 			void				ClosePipes();
 	virtual	status_t			ExecuteUnit();
 	virtual	status_t			ThreadShutdown();
 	virtual	void				ExecuteUnitFailed(status_t a_status);
+			
 
 			thread_id			PipeCommand(int argc, const char** argv,
 									int& in, int& out, int& err,
@@ -71,7 +78,7 @@ private:
 			void				_CleanPipes();
 			status_t			_RunExternalProcess();
 
-			BMessenger			fConsoleTarget;
+			
 
 			thread_id			fProcessId;
 			int					fStdIn;
@@ -81,6 +88,7 @@ private:
 			FILE*				fConsoleError;
 			char				fConsoleOutputBuffer[LINE_MAX];
 			BString 			fCmdType;
+			bool				fIsDone;
 };
 
 

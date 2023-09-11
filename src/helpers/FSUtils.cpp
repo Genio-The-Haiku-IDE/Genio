@@ -153,7 +153,7 @@ FSCopyFile(BEntry *src, BEntry *dest, bool clobber)
 		destnode.WriteAttr(attr_name, attr_info.type, 0LL, attr_buffer, attr_size);
 		destnode.Sync();
 												
-		std::destroy_at(attr_buffer);
+		delete[] attr_buffer;
 	}
 
 	return B_OK;

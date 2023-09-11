@@ -96,21 +96,9 @@ ConsoleIOView::RunCommand(BMessage* cmd_message)
 void
 ConsoleIOView::Pulse()
 {
-	if (fConsoleIOThread && fConsoleIOThread->IsProcessAlive() != B_OK) {
-		// Flush the pipes
-		BString outStr("");
-		BString errStr("");
-		status_t status = fConsoleIOThread->GetFromPipe(outStr, errStr);
-		if (status == B_OK) {
-			if (outStr != "") {
-				ConsoleOutputReceived(1, outStr);
-			}
-			if (errStr != "") {
-				ConsoleOutputReceived(2, errStr);
-			}
-		} else {
+	if (fConsoleIOThread && 
+		fConsoleIOThread->IsDone()) {
 			_StopCommand();
-		}
 	}
 }
 

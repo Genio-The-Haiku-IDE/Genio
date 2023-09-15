@@ -11,15 +11,17 @@
 
 class LSPTextDocument : public MessageHandler {
 public:
-    LSPTextDocument(std::string fileURI) { fFilenameURI = fileURI; }
+    LSPTextDocument(BString fileURI) { fFilenameURI = fileURI; fFileStatus = "";}
     
-    std::string	GetFilenameURI() { return fFilenameURI; }
+    const BString	GetFilenameURI()  { return fFilenameURI;}
+	const BString	GetFileStatus()	  { return fFileStatus; }
+	
+			void	SetFileStatus(BString newStatus) { fFileStatus = newStatus; }
 
-protected:
+private:
 
-	std::string fFilenameURI;
-
-
+	BString fFilenameURI;
+	BString	fFileStatus;
 };
 
 

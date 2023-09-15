@@ -11,7 +11,7 @@
 #include "GenioNamespace.h"
 #include "GSettings.h"
 
-class LSPClientWrapper;
+class LSPProjectWrapper;
 
 enum SourceItemType {
 	FileItem,
@@ -85,14 +85,14 @@ public:
 	void						ExcludeSettingsOnGit(bool enabled);
 	bool						ExcludeSettingsOnGit();
 	
-	LSPClientWrapper*			GetLSPClient() { return fLSPClientWrapper; }
+	LSPProjectWrapper*			GetLSPClient() { return fLSPProjectWrapper; }
 
 private:
 	bool						fActive;
 	BuildMode					fBuildMode;
 	BString						fTarget;
 	BString						fBuildCommand;
-	LSPClientWrapper*			fLSPClientWrapper;
+	LSPProjectWrapper*			fLSPProjectWrapper;
 	GSettings*					fSettings;
 };
 

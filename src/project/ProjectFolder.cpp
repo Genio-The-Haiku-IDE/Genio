@@ -13,7 +13,7 @@
 
 #include <stdexcept>
 
-#include "LSPClientWrapper.h"
+#include "LSPProjectWrapper.h"
 #include "GenioNamespace.h"
 #include "GSettings.h"
 
@@ -54,20 +54,21 @@ ProjectFolder::ProjectFolder(BString const& path)
 	SourceItem(path),
 	fActive(false),
 	fBuildMode(BuildMode::ReleaseMode),
-	fLSPClientWrapper(nullptr),
+	fLSPProjectWrapper(nullptr),
 	fSettings(nullptr)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
-	fLSPClientWrapper = new LSPClientWrapper();
+	std::string rootURI = "file://" + std::string(fPath.String());
+	fLSPProjectWrapper = new LSPProjectWrapper(rootURI.c_str());
 }
 
 
 ProjectFolder::~ProjectFolder()
 {
-	if (fLSPClientWrapper != nullptr) {
-		fLSPClientWrapper->Dispose();
-		delete fLSPClientWrapper;
+	if (fLSPProjectWrapper != nullptr) {
+		fLSPProjectWrapper->Dispose();
+//		delete fLSPClientWrapper; //TODO: BLooper autodeletes itself?
 	}
 	delete fSettings;
 }
@@ -76,11 +77,7 @@ ProjectFolder::~ProjectFolder()
 status_t
 ProjectFolder::Open()
 {
-	std::string rootURI = "file://" + std::string(fPath.String());
-	fLSPClientWrapper->Create(rootURI.c_str());
-	
 	fSettings = new GSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
-	
 	return B_OK;
 }
 

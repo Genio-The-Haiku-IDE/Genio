@@ -221,9 +221,9 @@ void LSPEditorWrapper::EndHover() {
 
 
 void LSPEditorWrapper::SwitchSourceHeader() {
-  if (!fLSPProjectWrapper || !IsStatusValid())
+	if (!fLSPProjectWrapper || !IsStatusValid())
 		return;
-  fLSPProjectWrapper->SwitchSourceHeader(this);
+	fLSPProjectWrapper->SwitchSourceHeader(this);
 }
 
 void LSPEditorWrapper::SelectedCompletion(const char *text) {
@@ -249,7 +249,7 @@ void LSPEditorWrapper::SelectedCompletion(const char *text) {
         size_t dollarPos = textToAdd.find_first_of('$');
         
         if (dollarPos != std::string::npos) {
-	        size_t lastPos = dollarPos;
+			size_t lastPos = dollarPos;
 			//single value case: check the case is $0
 			if (dollarPos < textToAdd.length() - 1 && textToAdd.at(dollarPos+1) == '0')
 			{

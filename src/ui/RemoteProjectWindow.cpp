@@ -9,6 +9,7 @@
 #include <Catalog.h>
 #include <ControlLook.h>
 #include <LayoutBuilder.h>
+#include <SeparatorView.h>
 #include <SupportKit.h>
 #include <Window.h>
 
@@ -19,46 +20,80 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "RemoteProjectWindow"
 
-std::map<float,bool> progress_tracker;
 BHandler *this_handler = nullptr;
+
+#define VIEW_INDEX_BARBER_POLE	(int32) 0
+#define VIEW_INDEX_PROGRESS_BAR	(int32) 1
+static const BSize kStatusBarSize = BSize(600, be_plain_font->Size() * 2);
 
 RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BMessenger target)
 	:
-	BWindow(BRect(0, 0, 600, 200), "Open remote repository",
-			B_TITLED_WINDOW, B_NOT_V_RESIZABLE | B_NOT_ZOOMABLE),
+	BWindow(BRect(0, 0, 600, 200), B_TRANSLATE("Open remote Git project"),
+			B_TITLED_WINDOW, 
+			B_ASYNCHRONOUS_CONTROLS | 
+			B_NOT_ZOOMABLE |
+			B_NOT_RESIZABLE |
+			B_AVOID_FRONT |
+			B_AUTO_UPDATE_SIZE_LIMITS |
+			B_CLOSE_ON_ESCAPE),
 	fIsCloning(false),
 	fTarget(target),
 	fClone(nullptr),
 	fCancel(nullptr),
-	fProgressBar(nullptr)
+	fProgressBar(nullptr),
+	fBarberPole(nullptr),
+	fProgressLayout(nullptr),
+	fProgressView(nullptr),
+	fStatusText(nullptr)
 {
 	fURL = new BTextControl(B_TRANSLATE("URL:"), "", NULL);
 	fPathBox = new PathBox("pathbox", dirPath.String(), "Path:");
-	fClone = new BButton("ok", B_TRANSLATE("Clone"),
+	fClone = new BButton("clone button", B_TRANSLATE("Clone"),
 			new BMessage(kDoClone));
-	fCancel = new BButton("ok", B_TRANSLATE("Cancel"),
+	fCancel = new BButton("cancel button", B_TRANSLATE("Cancel"),
 			new BMessage(kCancel));
 
-	fProgressBar = new BStatusBar("progressBar", " ", "");
-	fProgressBar->SetBarHeight(be_plain_font->Size() * 1.5);
+	fBarberPole = new BarberPole("barber pole");
+	fProgressBar = new BStatusBar("progress bar");
+	fProgressLayout = new BCardLayout();
+	fProgressView = new BView("progress view", 0);
+	fStatusText = new BStringView("status text", nullptr);
 
+	fProgressView->SetLayout(fProgressLayout);
+	fProgressLayout->AddView(VIEW_INDEX_BARBER_POLE, fBarberPole);
+	fProgressLayout->AddView(VIEW_INDEX_PROGRESS_BAR, fProgressBar);
+
+	fBarberPole->SetExplicitSize(kStatusBarSize);
+	fBarberPole->SetResizingMode(B_FOLLOW_LEFT_RIGHT);
+
+	fProgressBar->SetBarHeight(kStatusBarSize.Height());
+	fProgressBar->SetExplicitSize(kStatusBarSize);
+
+	fStatusText->SetExplicitPreferredSize(kStatusBarSize);
+	fStatusText->SetDrawingMode(B_OP_ALPHA);
+	
 	// test
 	fPathBox->SetPath("/boot/home/workspace/clone_test");
 	fURL->SetText("https://github.com/Genio-The-Haiku-IDE/Genio");
-
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
 		.SetInsets(10)
 		.Add(fURL)
 		.Add(fPathBox)
-		.AddGlue()
-		.Add(fProgressBar)
-		.AddGlue()
-		.AddGroup(B_HORIZONTAL, 0)
+		.AddGroup(B_HORIZONTAL) 
+			.SetInsets(0, 5, 0, 5)
+			.Add(fProgressLayout)
 			.AddGlue()
+			.End()
+		.Add(fStatusText)
+		.AddGroup(B_HORIZONTAL)
+			.SetInsets(0, 5, 0, 5)
 			.Add(fCancel)
 			.Add(fClone)
+			.AddGlue()
 			.End();
+
+	_SetIdle();
 
 	CenterOnScreen();
 	Layout(true);
@@ -101,16 +136,18 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			try {
 				auto result = TaskResult<BPath>::Instantiate(msg)->GetResult();
 				_OpenProject(result.Path());
-				fProgressBar->SetTo(100, "Finished!", " ");
+				_SetProgress(100, "Finished!");
 			} catch(std::exception &ex) {
 				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ") << ex.what(), B_INFO_ALERT);
-				fProgressBar->SetTo(0, "An error occurred!", " ");
+				fStatusText->SetText("An error occurred!");
 			}
 			_ResetControls();
+			// _SetIdle();
 		}
 		break;
 		case kDoClone:
 		{
+			_SetBusy();
 			fIsCloning = true;
 			fClone->SetEnabled(false);
 			fCancel->SetEnabled(true);
@@ -152,8 +189,10 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 					callback
 				)
 			); 
+			
+			_SetProgress(0, nullptr);
 			fCurrentTask->Run();
-			fProgressBar->SetTo(0, " ", " ");
+
 			break;
 		}
 		case kCancel:
@@ -170,7 +209,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				if (choice == 1) {
 					fCurrentTask->Stop();
 					_ResetControls();
-					fProgressBar->SetTo(100, "Cenceled!", " ");
+					_SetProgress(100, "Canceled!");
 				}
 			} else {
 				Quit();
@@ -179,13 +218,13 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 		}
 		case kProgress:
 		{
-			BString trailing_label;
-			auto label = msg->GetString("progress_text");
+			BString label;
+			auto text = msg->GetString("progress_text");
 			auto progress = msg->GetFloat("progress_value", 0);
-			trailing_label << (int32)progress << "%";
+			label << text << " " << (int32)progress << "%";
 			if (LockLooper()) {
 				if (progress != 0)
-					fProgressBar->SetTo(progress, label, trailing_label);
+					_SetProgress(progress, label);
 				UnlockLooper();
 			}
 		}
@@ -193,4 +232,30 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 		default:
 			BWindow::MessageReceived(msg);
 	}
+}
+
+void
+RemoteProjectWindow::_SetBusy()
+{
+	fBarberPole->Start();
+	if (fProgressLayout->VisibleIndex() != VIEW_INDEX_BARBER_POLE)
+		fProgressLayout->SetVisibleItem(VIEW_INDEX_BARBER_POLE);
+}
+
+
+void
+RemoteProjectWindow::_SetIdle()
+{
+	fBarberPole->Stop();
+	fProgressLayout->SetVisibleItem(VIEW_INDEX_BARBER_POLE);
+}
+
+
+void
+RemoteProjectWindow::_SetProgress(float value, const char* text)
+{
+	fProgressBar->SetTo(value);
+	fStatusText->SetText(text);
+	if (fProgressLayout->VisibleIndex() != VIEW_INDEX_PROGRESS_BAR)
+		fProgressLayout->SetVisibleItem(VIEW_INDEX_PROGRESS_BAR);
 }

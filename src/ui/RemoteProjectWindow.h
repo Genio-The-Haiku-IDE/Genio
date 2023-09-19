@@ -6,6 +6,7 @@
 #pragma once
 
 #include <InterfaceKit.h>
+#include <BarberPole.h>
 
 #include "GitRepository.h"
 #include "PathBox.h"
@@ -34,9 +35,16 @@ private:
 	BButton* 					fClone;
 	BButton* 					fCancel;
 	BStatusBar*					fProgressBar;
+	BarberPole*					fBarberPole;
+	BCardLayout*				fProgressLayout;
+	BView*						fProgressView;
+	BStringView*				fStatusText;
 	
 	shared_ptr<Task<BPath>>		fCurrentTask;
 	
 	void						_OpenProject(const path& localPath);
 	void						_ResetControls();
+	void						_SetBusy();
+	void						_SetIdle();
+	void						_SetProgress(float value, const char* text);
 };

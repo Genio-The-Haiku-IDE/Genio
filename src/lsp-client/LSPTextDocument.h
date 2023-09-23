@@ -7,20 +7,20 @@
 #define LSPTextDocument_H
 
 #include "MessageHandler.h"
-
+#include <Url.h>
 
 class LSPTextDocument : public MessageHandler {
 public:
-    LSPTextDocument(BString fileURI) { fFilenameURI = fileURI; fFileStatus = "";}
+    LSPTextDocument(BPath filePath) { fFilenameURI = BUrl(filePath); fFilenameURI.SetAuthority("") ; fFileStatus = "";}
     
-    const BString	GetFilenameURI()  { return fFilenameURI;}
+    const BString	GetFilenameURI()  { return fFilenameURI.UrlString();}
 	const BString	GetFileStatus()	  { return fFileStatus; }
 	
 			void	SetFileStatus(BString newStatus) { fFileStatus = newStatus; }
 
 private:
 
-	BString fFilenameURI;
+	BUrl 	fFilenameURI;
 	BString	fFileStatus;
 };
 

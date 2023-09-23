@@ -27,7 +27,7 @@ public:
 	};
 	
 public:
-				LSPEditorWrapper(BString fileURI, Editor* fEditor);
+				LSPEditorWrapper(BPath filenamePath, Editor* fEditor);
 		virtual	~LSPEditorWrapper() {};
 		void	ApplySettings();
 		void	SetLSPClient(LSPProjectWrapper* cW);

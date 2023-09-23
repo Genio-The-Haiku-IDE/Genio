@@ -67,10 +67,8 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
 	SetTarget(target);
-	BString uri = "file://";
-	uri << BPath(&fFileRef).Path();
 	
-	fLSPEditorWrapper = new LSPEditorWrapper(uri.String(), this);
+	fLSPEditorWrapper = new LSPEditorWrapper(BPath(&fFileRef), this);
 	
 }
 

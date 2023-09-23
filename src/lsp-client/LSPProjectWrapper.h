@@ -12,6 +12,7 @@
 #include <atomic>
 #include <thread>
 #include <optional>
+#include <Path.h>
 
 class  LSPTextDocument;
 struct TextDocumentContentChangeEvent;
@@ -32,7 +33,7 @@ using json = nlohmann::json;
 class LSPProjectWrapper : public MessageHandler {
 	
 public:
-			LSPProjectWrapper(const char* uri);
+			LSPProjectWrapper(BPath rootPath);
 	virtual ~LSPProjectWrapper() = default;
 		
 	

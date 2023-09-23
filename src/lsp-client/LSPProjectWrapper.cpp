@@ -10,10 +10,14 @@
 #include "LSPReaderThread.h"
 #include "LSPPipeClient.h"
 #include "GenioCommon.h"
+#include <Url.h>
 
-LSPProjectWrapper::LSPProjectWrapper(const char* uri)
+LSPProjectWrapper::LSPProjectWrapper(BPath rootPath)
 {
-	fRootURI = uri;
+	BUrl url(rootPath); 
+	url.SetAuthority("");
+	
+	fRootURI = url.UrlString();
 	fLSPPipeClient = nullptr;
 	fInitialized.store(false);
 }
@@ -139,8 +143,11 @@ LSPProjectWrapper::onNotify(std::string method, value &params)
 	{
 		auto uri = params["uri"].get<std::string>();
 		LSPTextDocument* doc = _DocumentByURI(uri.c_str());
- 		if (doc)
+ 		if (doc) {
 			doc->onNotify(method, params);
+		} else {
+			LogError("Can't deliver a notify from LSP to %s\n%s\n", uri.c_str(), params.dump().c_str());
+		}
 
 		return;
 	}

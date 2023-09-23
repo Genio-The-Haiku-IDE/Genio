@@ -17,13 +17,14 @@
 #include "protocol.h"
 #include <Window.h>
 #include <Json.h>
+#include <Path.h>
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 #define IND_DIAG 0
 #define IND_LINK 1
 
-LSPEditorWrapper::LSPEditorWrapper(BString filenameURI, Editor* editor):
-						 LSPTextDocument(filenameURI), 
+LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor):
+						 LSPTextDocument(filenamePath), 
 						 fEditor(editor),
 						 fToolTip(nullptr),
 						 fLSPProjectWrapper(nullptr)
@@ -801,10 +802,10 @@ LSPEditorWrapper::ApplyTextEdit(json &textEditJson) {
 
 void 
 LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character) {
-  if (uri.find("file://") == 0)
+  BUrl url(uri.c_str());
+  if (url.IsValid() && url.HasPath())
   {
-    uri.erase(uri.begin(), uri.begin() + 7);
-    BEntry entry(uri.c_str());
+    BEntry entry(url.Path().String());
     entry_ref ref;
     if (entry.Exists()) {
       BMessage refs(B_REFS_RECEIVED);

@@ -59,8 +59,8 @@ ProjectFolder::ProjectFolder(BString const& path)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
-	std::string rootURI = "file://" + std::string(fPath.String());
-	fLSPProjectWrapper = new LSPProjectWrapper(rootURI.c_str());
+	
+	fLSPProjectWrapper = new LSPProjectWrapper(fPath.String());
 }
 
 

@@ -13,23 +13,26 @@
 #include "Utils.h"
 #include <Path.h>
 #include "Log.h"
+#include <Url.h>
 namespace Genio
 {
 
 std::string const
 file_type(const std::string& fullpath)
 {
-	BPath path;
-	//should 'support' also the URI format
-	if (fullpath.find("file://") == 0) {
-		path.SetTo(fullpath.substr(7).c_str());
-	} else {
-		path.SetTo(fullpath.c_str());
-	}
+	BPath path(fullpath.c_str());
 	
 	if (path.InitCheck() != B_OK) {
 		LogErrorF("Invalid path: %s", fullpath.c_str());
-		return "";
+		//should 'support' also the URI format
+		BUrl url(fullpath.c_str());
+		if (url.IsValid() && url.HasPath()) {
+			path = BPath(url.Path().String());
+			if (path.InitCheck() != B_OK) {
+			LogErrorF("Invalid URI: %s", fullpath.c_str());
+				return "";
+			}
+		}
 	}
 	
 	std::string filename = path.Leaf(); //ensure InitCheck is checked!

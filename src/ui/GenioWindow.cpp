@@ -2674,6 +2674,12 @@ GenioWindow::_InitMenu()
 	BMenu* projectMenu = new BMenu(B_TRANSLATE("Project"));
 
 	ActionManager::AddItem(MSG_PROJECT_OPEN, projectMenu);
+
+	BMessage *openProjectFolderMessage = new BMessage(MSG_PROJECT_FOLDER_OPEN);
+	projectMenu->AddItem(new BMenuItem(BRecentFoldersList::NewFolderListMenu(
+			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), openProjectFolderMessage, this,
+			kRecentFilesNumber, false, GenioNames::kApplicationSignature), nullptr));
+
 	ActionManager::AddItem(MSG_PROJECT_CLOSE, projectMenu);
 
 	projectMenu->AddSeparatorItem();
@@ -2851,7 +2857,7 @@ GenioWindow::_InitOutputSplit()
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
-	
+
 	fSearchResultPanel = new SearchResultPanel(fOutputTabView);
 
 	fOutputTabView->AddTab(fProblemsPanel);

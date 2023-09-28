@@ -18,7 +18,7 @@ LSPReaderThread::ExecuteUnit(void)
 	if(fTransport.readStep() == false){
 		printf("LSPReaderThread::ExecuteUnit(void) false\n");
 		Quit();
-		fTransport.Close();  //FIX ME: this should be performed by the Client itself not from the thread!
+		fTransport.Close();  //TODO: this should be performed by the Client itself not from the thread!
 		return B_ERROR;
 	}
 	return B_OK;

@@ -206,30 +206,8 @@ GenioApp::_CheckSettingsVersion()
 
 	// Settings file missing or corrupted
 	if (fileVersion.IsEmpty() || fileVersion == "0.0.0.0") {
-		BString text;
-		text << B_TRANSLATE("The settings file doesn't exist or is corrupted.")
-			 << "\n"
-			 << B_TRANSLATE("Do you want to ignore, review or load defaults?");
-
-		BAlert* alert = new BAlert("SettingsDeletedDialog", text,
-			B_TRANSLATE("Ignore"), B_TRANSLATE("Review"), B_TRANSLATE("Load defaults"),
-			B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
-
-		alert->SetShortcut(0, B_ESCAPE);
-
-		int32 choice = alert->Go();
-	 
-		if (choice == 0)
-			;
-		else if (choice == 1) {
-			// Fill file with defaults
-			GenioNames::UpdateSettingsFile();
-			SettingsWindow* window = new SettingsWindow();
-			window->Show();
-		} else if (choice == 2) {
-			GenioNames::UpdateSettingsFile();
-			GenioNames::LoadSettingsVars();
-		}
+		GenioNames::UpdateSettingsFile();
+		GenioNames::LoadSettingsVars();
 	} else {
 		int32 result = GenioNames::CompareVersion(GenioNames::GetVersionInfo(), fileVersion);
 		// App version > file version

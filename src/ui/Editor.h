@@ -14,7 +14,7 @@
 #include <Locker.h>
 #include <MessageFilter.h>
 
-class FileWrapper;
+class LSPEditorWrapper;
 class ProjectFolder;
 
 namespace editor {
@@ -214,7 +214,7 @@ private:
 			int					fCurrentLine;
 			int					fCurrentColumn;
 			
-			FileWrapper*		fFileWrapper;
+			LSPEditorWrapper*		fLSPEditorWrapper;
 			ProjectFolder*		fProjectFolder;
 			editor::StatusView*			fStatusView;
 			

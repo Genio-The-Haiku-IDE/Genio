@@ -87,7 +87,7 @@ LSPProjectWrapper::_Create()
 
   while (!fInitialized.load() && !fLSPPipeClient->HasQuitBeenRequested()) {
     LogDebug("Waiting for clangd initialization.. \n");
-    usleep(50000);
+    snooze(50000);
   }
   return !fLSPPipeClient->HasQuitBeenRequested();
 }
@@ -109,7 +109,7 @@ LSPProjectWrapper::Dispose()
 
 	int i=0;
 	while(fLSPPipeClient && !fLSPPipeClient->HasQuitBeenRequested() && i++ < 3) {
-		usleep(50000);
+		snooze(50000);
 	}
 
 	// let's force the thread to quit.

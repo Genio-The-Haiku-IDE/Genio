@@ -127,7 +127,7 @@ deps:
 	$(MAKE) -C src/lexilla/src
 	$(MAKE) -C src/scintilla/haiku  
 
-.PHONY: clean deps
+.PHONY: clean deps Changelog.h
 cleanall: clean
 	$(MAKE) clean -C src/scintilla/haiku
 	$(MAKE) clean -C src/lexilla/src
@@ -141,5 +141,6 @@ GenioApp.cpp : Changelog.h
 Changelog.h : txt2header Changelog.txt
 	txt2header < Changelog.txt > Changelog.h
 
-txt2header : txt2header.cpp
+txt2header :
+	$(CXX) txt2header.cpp -o txt2header
 

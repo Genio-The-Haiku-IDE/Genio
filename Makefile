@@ -115,8 +115,7 @@ endif
 LOCALES := en it
 
 ## Include the Makefile-Engine
-ENGINE_DIRECTORY := $(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)
-include $(ENGINE_DIRECTORY)/etc/makefile-engine
+include $(BUILDHOME)/etc/makefile-engine
 
 ## CXXFLAGS rule
 $(OBJ_DIR)/%.o : %.cpp
@@ -130,6 +129,8 @@ deps:
 cleanall: clean
 	$(MAKE) clean -C src/scintilla/haiku
 	$(MAKE) clean -C src/lexilla/src
+	rm -f txt2header
+	rm -f Changelog.h
        
 $(TARGET): deps
 

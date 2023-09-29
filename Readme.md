@@ -52,7 +52,7 @@ Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code 
 See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/Configuring-clangd-lsp.md)
 
 ## Compiling
-* Execute `make` in Genio's top directory  
+* Execute `make deps && make` in Genio's top directory  
 The executable is created in `app` subdirectory.  
 
 If you would like to try a clang++ build:

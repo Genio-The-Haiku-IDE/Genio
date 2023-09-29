@@ -45,7 +45,7 @@ using namespace Sci::Properties;
 #define UNSET 0
 #define UNUSED 0
 
-#include "FileWrapper.h"
+#include "LSPEditorWrapper.h"
 #include "EditorStatusView.h"
 #include <Url.h>
 
@@ -67,10 +67,8 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
 	SetTarget(target);
-	BString uri = "file://";
-	uri << BPath(&fFileRef).Path();
 	
-	fFileWrapper = new FileWrapper(std::string(uri.String()), this);
+	fLSPEditorWrapper = new LSPEditorWrapper(BPath(&fFileRef), this);
 	
 }
 
@@ -88,9 +86,9 @@ Editor::~Editor()
 		}
 	}
 	
-	fFileWrapper->UnsetLSPClient();
-	delete fFileWrapper;
-	fFileWrapper = NULL;
+	fLSPEditorWrapper->UnsetLSPClient();
+	delete fLSPEditorWrapper;
+	fLSPEditorWrapper = NULL;
 }
 
 void
@@ -182,7 +180,7 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	}
 	
-	fFileWrapper->ApplySettings();
+	fLSPEditorWrapper->ApplySettings();
 	
 	//custom ContextMenu!
 	SendMessage(SCI_USEPOPUP, SC_POPUP_NEVER, 0);
@@ -666,7 +664,7 @@ Editor::NotificationReceived(SCNotification* notification)
 			if (ch == '\n' || ch == '\r')
 				_MaintainIndentation(ch);
 			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT)
-				fFileWrapper->CharAdded(notification->ch);
+				fLSPEditorWrapper->CharAdded(notification->ch);
 			break;
 		}
 		case SCN_MARGINCLICK: {
@@ -679,19 +677,19 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_AUTOCSELECTION: {
-			fFileWrapper->SelectedCompletion(notification->text);
+			fLSPEditorWrapper->SelectedCompletion(notification->text);
 			break;
 		}
 		case SCN_MODIFIED: {
 			if (notification->modificationType & SC_MOD_INSERTTEXT) {
-				fFileWrapper->didChange(notification->text, notification->length, notification->position, 0);
+				fLSPEditorWrapper->didChange(notification->text, notification->length, notification->position, 0);
 			} 
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
-				fFileWrapper->didChange("", 0, notification->position, notification->length);
+				fLSPEditorWrapper->didChange("", 0, notification->position, notification->length);
 			}
 			if (notification->modificationType & SC_MOD_DELETETEXT && notification->length == 1) {
 				if (SendMessage(SCI_CALLTIPACTIVE))
-					fFileWrapper->ContinueCallTip();
+					fLSPEditorWrapper->ContinueCallTip();
 			}
 			if (notification->linesAdded != 0)
 				if (Settings.show_linenumber == true)
@@ -699,19 +697,19 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_CALLTIPCLICK: {
-			fFileWrapper->UpdateCallTip(notification->position);
+			fLSPEditorWrapper->UpdateCallTip(notification->position);
 			break;
 		}
 		case SCN_DWELLSTART: {
-			fFileWrapper->StartHover(notification->position);
+			fLSPEditorWrapper->StartHover(notification->position);
 			break;
 		}
 		case SCN_DWELLEND: {
-			fFileWrapper->EndHover();
+			fLSPEditorWrapper->EndHover();
 			break;
 		}
 		case SCN_INDICATORRELEASE: {
-			fFileWrapper->IndicatorClick(notification->position);
+			fLSPEditorWrapper->IndicatorClick(notification->position);
 			break;
 		}
 		case SCN_SAVEPOINTLEFT: {
@@ -770,7 +768,7 @@ Editor::BeforeKeyDown(BMessage* message) {
 filter_result		
 Editor::OnArrowKey(int8 key) {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
-		fFileWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
+		fLSPEditorWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
 		return B_SKIP_MESSAGE;
 	}
 	return B_DISPATCH_MESSAGE;
@@ -994,7 +992,7 @@ Editor::SaveToFile()
 
 	SendMessage(SCI_SETSAVEPOINT, UNSET, UNSET);
 	
-	fFileWrapper->didSave();
+	fLSPEditorWrapper->didSave();
 
 	return bytes;
 }
@@ -1221,31 +1219,31 @@ void
 
 Editor::Completion()
 {
-	fFileWrapper->StartCompletion();
+	fLSPEditorWrapper->StartCompletion();
 }
 		
 void
 Editor::Format()
 {
-	fFileWrapper->Format();
+	fLSPEditorWrapper->Format();
 }
 
 void
 Editor::GoToDefinition()
 {
-	fFileWrapper->GoTo(FileWrapper::GOTO_DEFINITION);
+	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_DEFINITION);
 }
 
 void
 Editor::GoToDeclaration()
 {
-	fFileWrapper->GoTo(FileWrapper::GOTO_DECLARATION);
+	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_DECLARATION);
 }
 
 void
 Editor::GoToImplementation()
 {
-	fFileWrapper->GoTo(FileWrapper::GOTO_IMPLEMENTATION);
+	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_IMPLEMENTATION);
 }
 
 
@@ -1265,9 +1263,9 @@ Editor::SetProjectFolder(ProjectFolder* proj)
 {
 	fProjectFolder = proj;
 	if (proj)
-		fFileWrapper->SetLSPClient(proj->GetLSPClient());
+		fLSPEditorWrapper->SetLSPClient(proj->GetLSPClient());
 	else
-		fFileWrapper->UnsetLSPClient();
+		fLSPEditorWrapper->UnsetLSPClient();
 	
 	BMessage empty;
 	SetProblems(&empty);

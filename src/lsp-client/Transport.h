@@ -1,6 +1,6 @@
 //
-// Created by Alex on 2020/1/28. (https://github.com/microsoft/language-server-protocol)
-// Additional changes by Andrea Anzani <andrea.anzani@gmail.com>
+// Code and inspiration taken from https://github.com/microsoft/language-server-protocol
+// Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
 //
 
 #ifndef LSP_TRANSPORT_H
@@ -9,25 +9,41 @@
 #include "MessageHandler.h"
 #include <functional>
 #include <utility>
-
-//TODO: why using string_ref?
+#include <Looper.h>
 
 class Transport {
 public:
     virtual void notify(string_ref method,  value &params) = 0;
     virtual void request(string_ref method, value &params, RequestID &id) = 0;
-    virtual int  loop(MessageHandler &) = 0;
+
+    virtual bool  readStep() = 0;
+    
+    virtual bool readMessage(std::string &) = 0;
+    virtual bool writeMessage(std::string &) = 0;
 };
 
-class JsonTransport : public Transport {
+class AsyncJsonTransport: public Transport, public BLooper {
+	
 public:
-    const char *jsonrpc = "2.0";
-    int  loop(MessageHandler &handler) override;
+		 AsyncJsonTransport(MessageHandler& handler);
+		 
     void notify(string_ref method, value &params) override;
     void request(string_ref method, value &params, RequestID &id) override;
+    
+	
+	bool  readStep() override;
+	
+	void MessageReceived(BMessage* msg) override;
 
-    virtual bool readJson(value &) = 0;
-    virtual bool writeJson(value &) = 0;
+
+
+private:	
+
+	void DispatchResult(const char* data);
+	bool writeJson(value& value);
+
+	MessageHandler&	fHandler;
+
 };
 
 #endif //LSP_TRANSPORT_H

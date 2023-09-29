@@ -10,9 +10,9 @@
 #include <cstring>
 #include <string>
 #include <regex>
-#include "json.hpp"
+//#include "json.hpp"
 
-using json = nlohmann::json;
+//using json = nlohmann::json;
 
 class string_ref {
 public:
@@ -81,7 +81,7 @@ public:
     T &operator*() { return value(); }
     explicit operator bool() const { return fHas; }
 };
-
+/*
 namespace nlohmann {
     template <typename T>
     struct adl_serializer<option<T>> {
@@ -101,7 +101,7 @@ namespace nlohmann {
         }
     };
 }
-
+*/
 
 using DocumentUri = string_ref;
 

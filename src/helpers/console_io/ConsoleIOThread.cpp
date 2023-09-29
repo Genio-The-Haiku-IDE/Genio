@@ -19,12 +19,10 @@
 #include <signal.h>
 #include <termios.h>
 #include <unistd.h>
-
+#include "PipeImage.h"
 #include "GenioNamespace.h"
 #include "Log.h"
 
- //lock access play with stdin/stdout (from LSPCLient.h)
-extern BLocker *g_LockStdFilesPntr;
 
 extern char **environ;
 
@@ -216,11 +214,11 @@ ConsoleIOThread::PipeCommand(int argc, const char** argv, int& in, int& out,
 		envp = (const char**)environ;
 
 	// Save current FDs
-	g_LockStdFilesPntr->Lock();
+	PipeImage::LockStdFilesPntr->Lock();
 	int old_in  =  dup(0);
 	int old_out  =  dup(1);
 	int old_err  =  dup(2);
-	g_LockStdFilesPntr->Unlock();
+	PipeImage::LockStdFilesPntr->Unlock();
 
 	int filedes[2];
 
@@ -243,11 +241,11 @@ ConsoleIOThread::PipeCommand(int argc, const char** argv, int& in, int& out,
 
 cleanup:
 	// Restore old FDs
-	g_LockStdFilesPntr->Lock();
+	PipeImage::LockStdFilesPntr->Lock();
 	close(0); dup(old_in); close(old_in);
 	close(1); dup(old_out); close(old_out);
 	close(2); dup(old_err); close(old_err);
-	g_LockStdFilesPntr->Unlock();
+	PipeImage::LockStdFilesPntr->Unlock();
 	/* Theoretically I should do loads of error checking, but
 	   the calls aren't very likely to fail, and that would
 	   muddy up the example quite a bit.  YMMV. */

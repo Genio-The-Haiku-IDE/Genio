@@ -7,19 +7,21 @@
 #define LSPTextDocument_H
 
 #include "MessageHandler.h"
-
+#include <Url.h>
 
 class LSPTextDocument : public MessageHandler {
 public:
-    LSPTextDocument(std::string fileURI) { fFilenameURI = fileURI; }
+    LSPTextDocument(BPath filePath) { fFilenameURI = BUrl(filePath); fFilenameURI.SetAuthority("") ; fFileStatus = "";}
     
-    std::string	GetFilenameURI() { return fFilenameURI; }
+    const BString	GetFilenameURI()  { return fFilenameURI.UrlString();}
+	const BString	GetFileStatus()	  { return fFileStatus; }
+	
+			void	SetFileStatus(BString newStatus) { fFileStatus = newStatus; }
 
-protected:
+private:
 
-	std::string fFilenameURI;
-
-
+	BUrl 	fFilenameURI;
+	BString	fFileStatus;
 };
 
 

@@ -416,7 +416,9 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		fSetActiveProjectMenuItem->SetEnabled(false);
 		fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
 		fDeleteFileProjectMenuItem->SetEnabled(true);
+		fDeleteFileProjectMenuItem->SetLabel(B_TRANSLATE("Delete file"));
 		fRenameFileProjectMenuItem->SetEnabled(true);
+		fRenameFileProjectMenuItem->SetLabel(B_TRANSLATE("Rename file"));
 		fOpenFileProjectMenuItem->SetEnabled(true);
 		fShowInTrackerProjectMenuItem->SetEnabled(true);
 		fOpenTerminalProjectMenuItem->SetEnabled(false);
@@ -447,7 +449,9 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		fSetActiveProjectMenuItem->SetEnabled(false);
 		fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 		fDeleteFileProjectMenuItem->SetEnabled(true);
+		fDeleteFileProjectMenuItem->SetLabel(B_TRANSLATE("Delete folder"));
 		fRenameFileProjectMenuItem->SetEnabled(true);
+		fRenameFileProjectMenuItem->SetLabel(B_TRANSLATE("Rename folder"));
 		fOpenFileProjectMenuItem->SetEnabled(false);
 		fShowInTrackerProjectMenuItem->SetEnabled(true);
 		fOpenTerminalProjectMenuItem->SetEnabled(true);

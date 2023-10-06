@@ -1,0 +1,240 @@
+1	Catalan	application/x-vnd.Genio	2456584478
+About…	GenioWindow		Quant a...
+Appearance	GenioWindow		Aparença
+Autocomplete	GenioWindow		Autocompleta
+Bookmark	GenioWindow		Marcador
+Bookmark all	GenioWindow		Marca-ho tot
+Branch	GenioWindow	The git command	Branca
+Build log	GenioWindow		Registre de construcció
+Build mode	GenioWindow		Mode de construcció
+Build project	GenioWindow		Construcció del projecte
+Cancel	GenioWindow		Cancel·la
+Clean project	GenioWindow		Neteja el projecte
+Clear all	GenioWindow	Bookmark menu	Neteja-ho tot
+Close	GenioWindow		Tanca
+Close all	GenioWindow		Tanca-ho tot
+Close file	GenioWindow		Tanca el fitxer
+Close project	GenioWindow		Tanca el projecte
+Comment selected lines	GenioWindow		Comenta les línies seleccionades
+Configure	GenioWindow		Configura
+Console I/O	GenioWindow		E/S de la consola
+Copy	GenioWindow		Copia
+Could not create a new file	GenioWindow		No s'ha pogut crear un fitxer nou.
+Could not delete \"%name%\".\n\n	GenioWindow		No s'ha pogut suprimir %name%.\n\n
+Could not open template folder in Tracker	GenioWindow		No s'ha pogut obrir la carpeta de plantilles al Rastrejador.
+Cut	GenioWindow		Retalla
+Debug	GenioWindow		Depuració
+Debug project	GenioWindow		Projecte de depuració
+Delete	GenioWindow		Suprimeix
+Delete current line	GenioWindow		Suprimeix la línia actual
+Delete dialog	GenioWindow		Diàleg de supressió
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Se suprimeix l'element: \"%name%\".\n\nDesprés de la supressió, l'element es perdrà.\nDe veritat el voleu suprimir?
+Discard	GenioWindow		Descarta
+Don't save	GenioWindow		No ho desis
+Dos	GenioWindow		Dos
+Duplicate current line	GenioWindow		Duplica la línia actual
+Edit	GenioWindow		Edita
+Error creating folder	GenioWindow		S'ha produït un error en crear la carpeta.
+File	GenioWindow		Fitxer
+File \"%file%\" was apparently modified, reload it?	GenioWindow		Sembla que el fitxer %file% s'ha modificat. El torno a carregar?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		Sembla que el fitxer %file% s'ha mogut.\nVoleu ignorar-lo, tancar-lo o tornar-lo a carregar?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		Aparentment, el fitxer %file% s'ha suprimit.\nVoleu conservar el fitxer o descartar-lo?\nSi es conserva i es modifica, deseu-lo o es perdrà.
+Find	GenioWindow		Troba
+Find in project	GenioWindow		Troba al projecte
+Find next	GenioWindow		Troba el següent
+Find previous	GenioWindow		Troba l'anterior
+Find:	GenioWindow		Troba:
+Fold/Unfold all	GenioWindow		Plega / desplega-ho tot
+Format	GenioWindow		Format
+Git	GenioWindow		Git
+Go to declaration	GenioWindow		Ves a la declaració
+Go to definition	GenioWindow		Ves a la definició
+Go to implementation	GenioWindow		Ves a la implementació
+Go to line…	GenioWindow		Ves a la línia...
+Help	GenioWindow		Ajuda
+Ignore	GenioWindow		Ignora-ho
+Invalid project folder	GenioWindow		Carpeta del projecte no vàlida
+Keep	GenioWindow		Mantén
+Line endings	GenioWindow		Finals de línia
+Log	GenioWindow	The git command	Registre
+Log (oneline)	GenioWindow	The git command	Registre (una línia)
+Mac	GenioWindow		Mac
+Make file read-only	GenioWindow		Fes que el fitxer sigui només de lectura
+Match case	GenioWindow		Coincidència de majúscules
+New	GenioWindow		Nou
+New file	GenioWindow		Fitxer nou
+New folder	GenioWindow		Carpeta nova
+Next	GenioWindow	Bookmark menu	Següent
+Open	GenioWindow		Obre
+Open files list	GenioWindow		Obre la llista de fitxers
+Open project	GenioWindow		Obre un projecte
+Open recent…	GenioWindow		Obre el recent...
+Overwrite	GenioWindow		Sobreescriu
+Paste	GenioWindow		Enganxa
+Previous	GenioWindow	Bookmark menu	Anterior
+Project	GenioWindow		Projecte
+Project settings…	GenioWindow		Paràmetres del projecte...
+Projects	GenioWindow		Projectes
+Pull	GenioWindow	The git command	Pull
+Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Quit	GenioWindow		Surt
+Read-only	GenioWindow		Només de lectura
+Redo	GenioWindow		Refés
+Release	GenioWindow		Publica
+Reload	GenioWindow		Torna a carregar
+Replace	GenioWindow		Substitueix
+Replace all	GenioWindow		Substitueix-ho tot
+Replace and find next	GenioWindow		Substitueix i troba el següent
+Replace and find previous	GenioWindow		Substitueix i troba l'anterior
+Replace selection	GenioWindow		Substitueix la selecció
+Replace:	GenioWindow		Substitueix:
+Reset zoom	GenioWindow		Restableix l'ampliació
+Run	GenioWindow		Executa
+Run console program	GenioWindow		Executa el programa de consola.
+Run target	GenioWindow		Destinació de l'execució
+Save	GenioWindow		Desa
+Save all	GenioWindow		Desa-ho tot
+Save all files	GenioWindow		Desa tots els fitxers
+Save as…	GenioWindow		Desa com a...
+Save changes to file \"%file%\"	GenioWindow		Desa els canvis al fitxer %file%
+Save current file	GenioWindow		Desa el fitxer actual
+Search	GenioWindow		Cerca
+Select all	GenioWindow		Selecciona-ho tot
+Settings…	GenioWindow		Paràmetres...
+Show config	GenioWindow	The git command	Mostra la configuració
+Show line endings	GenioWindow		Mostra els finals de línia
+Show output pane	GenioWindow		Mostra el plafó de sortida
+Show projects pane	GenioWindow		Mostra el plafó de projectes
+Show toolbar	GenioWindow		Mostra la barra d'eines
+Show white spaces	GenioWindow		Mostra els espais en blanc
+Show/Hide find bar	GenioWindow		Mostra la barra de cerca
+Show/Hide output pane	GenioWindow		Mostra / amaga el plafó de sortida
+Show/Hide projects pane	GenioWindow		Mostra / amaga el plafó de projectes
+Show/Hide replace bar	GenioWindow		Mostra / amaga la barra de substitució
+Status	GenioWindow	The git command	Estat
+Status (short)	GenioWindow	The git command	Estat (breu)
+Switch source/header	GenioWindow		Canvia la font / capçalera
+Switch to next file	GenioWindow		Canvia al fitxer següent
+Switch to previous file	GenioWindow		Canvia al fitxer anterior
+Tag	GenioWindow	The git command	Etiqueta
+Toggle	GenioWindow	Bookmark menu	Commuta
+Trim trailing whitespace	GenioWindow		Retalla l'espai en blanc final
+Undo	GenioWindow		Refés
+Unix	GenioWindow		Unix
+View	GenioWindow		Vista
+Whole word	GenioWindow		Tot
+Window	GenioWindow		Finestra
+Wrap	GenioWindow		Plega
+You can't create a new folder here, please select a project or another folder	GenioWindow		No podeu crear una carpeta nova aquí, seleccioneu un projecte o una altra carpeta.
+Zoom in	GenioWindow		Amplia
+Zoom out	GenioWindow		Redueix
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Hi ha hagut un error intentant canviar de nom el fitxer.
+Close project	ProjectsFolderBrowser		Tanca el projecte
+Delete file	ProjectsFolderBrowser		Suprimeix el fitxer
+New	ProjectsFolderBrowser		Nou
+OK	ProjectsFolderBrowser		D'acord
+Open file	ProjectsFolderBrowser		Obre el fitxer
+Open Terminal	ProjectsFolderBrowser		Obre el Terminal
+Rename file	ProjectsFolderBrowser		Canvia de nom el fitxer
+Set active	ProjectsFolderBrowser		Estableix com a actiu
+Show in Tracker	ProjectsFolderBrowser		Mostra al rastrejador
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La carpeta del projecte s'ha suprimit o s'ha mogut a una altra ubicació i es tancarà i es descarregarà de l'espai de treball.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		S'ha canviat el nom de la carpeta del projecte. Es tancarà i es reobrirà automàticament.
+Another command is running.	ConsoleIOView		S'executa una altra ordre.
+Banner	ConsoleIOView		Rètol
+Clear	ConsoleIOView		Neteja
+stderr	ConsoleIOView		stderr
+stdout	ConsoleIOView		stdout
+Stop	ConsoleIOView		Atura
+Wrap	ConsoleIOView		Replega
+Apply	SettingsWindow		Aplica
+Browse…	SettingsWindow		Navega...
+Build	SettingsWindow		Construeix
+Cancel	SettingsWindow		Cancel·la
+Console banner	SettingsWindow		Pancarta de la consola
+Default	SettingsWindow		Per defecte
+Default size	SettingsWindow		Mida per defecte
+Defaults loaded	SettingsWindow		Valors per defecte carregats
+Edge column:	SettingsWindow		Columna de vora:
+Editor	SettingsWindow		Editor
+Enable brace matching	SettingsWindow		Habilita la concordança de claus
+Enable folding	SettingsWindow		Habilita el replegament
+Enable notifications	SettingsWindow		Habilita les notificacions
+Enable syntax highlighting	SettingsWindow		Habilita el ressaltat de la sintaxi
+Font size:	SettingsWindow		Mida de la lletra:
+Font:	SettingsWindow		Lletra:
+General	SettingsWindow		General
+Log destination:	SettingsWindow		Destinació del registre:
+Log level:	SettingsWindow		Nivell de registre:
+Mark caret line	SettingsWindow		Marca la línia del cursor
+Notifications	SettingsWindow		Notificacions
+Projects folder:	SettingsWindow		Carpeta de projectes:
+Reload files	SettingsWindow		Torna a carregar els fitxers
+Reload projects	SettingsWindow		Torna a carregar els projectes
+Revert	SettingsWindow		Reverteix
+Save caret position	SettingsWindow		Desa la posició del cursor
+Save position	SettingsWindow		Desa la posició
+Set for app ver: 	SettingsWindow		Configurat per a la versió de l'aplicació:
+Show comment margin	SettingsWindow		Mostra el marge del comentari
+Show edge line	SettingsWindow		Mostra la línia de vora
+Show full path in window title	SettingsWindow		Mostra el camí complet al títol de la finestra
+Show line number	SettingsWindow		Mostra el número de línia
+Show output pane	SettingsWindow		Mostra el plafó de sortida
+Show projects pane	SettingsWindow		Mostra el plafó de projectes
+Show toolbar	SettingsWindow		Mostra la barra d'eines
+Startup	SettingsWindow		Inici
+Tab width:  	SettingsWindow		Amplada de la tabulació:
+This is the font size preview	SettingsWindow		Aquesta és la vista prèvia de la mida de la lletra.
+Visual	SettingsWindow		Visual
+Wrap console	SettingsWindow		Plega la consola
+Build commands	ProjectSettingsWindow		Ordres de construcció
+Cancel	ProjectSettingsWindow		Cancel·la
+Debug build comand:	ProjectSettingsWindow		Ordre de construcció de depuració:
+Debug clean comand:	ProjectSettingsWindow		Ordre de neteja de depuració:
+Debug execute arguments:	ProjectSettingsWindow		Arguments d'execució de depuració:
+Debug project target:	ProjectSettingsWindow		Destinació del projecte de depuració:
+Default	ProjectSettingsWindow		Per defecte
+Enable Git	ProjectSettingsWindow		Habilita Git
+Exclude settings file from Git	ProjectSettingsWindow		Exclou el fitxer de configuració de Git
+OK	ProjectSettingsWindow		D'acord
+Project:	ProjectSettingsWindow		Projecte:
+Release build comand:	ProjectSettingsWindow		Ordre de construcció de publicació:
+Release clean comand:	ProjectSettingsWindow		Ordre de neteja de publicació:
+Release execute arguments:	ProjectSettingsWindow		Arguments d'execució de publicació:
+Release project target:	ProjectSettingsWindow		Destinació del projecte de publicació:
+Run in Terminal	ProjectSettingsWindow		Executa al Terminal
+Source control	ProjectSettingsWindow		Control de font
+Target	ProjectSettingsWindow		Destinació
+Cancel	GoToLineWindow		Cancel·la
+Go to line	GoToLineWindow		Ves a la línia
+Go to line:	GoToLineWindow		Ves a la línia:
+OK	GoToLineWindow		D'acord
+Cancel	Editor		Cancel·la
+Don't save	Editor		No ho desis
+Save	Editor		Desa-ho
+Save changes to file \"%filename%\"?	Editor		Voleu desar els canvis al fitxer %filename%?
+Save dialog	Editor		Diàleg de desament
+Cancel	QuitAlert		Cancel·la
+Don't save	QuitAlert		No ho desis
+Save all	QuitAlert		Desa-ho tot
+Save selected	QuitAlert		Desa la selecció
+There are unsaved changes.\nSelect the files to save.	QuitAlert		Hi ha canvis no desats.\nSeleccioneu els fitxers que voleu desar.
+Unsaved files	QuitAlert		Fitxers no desats
+Category	ProblemsPanel		Categoria
+Message	ProblemsPanel		Misstge
+Problems	ProblemsPanel		Problemes
+Source	ProblemsPanel		Font
+Do you want to ignore, review or load defaults?	GenioApp		Voleu ignorar, revisar o carregar els valors predeterminats?
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio és una bifurcació d'Ideam i està disponible segons la llicència MIT.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio usa\nScintilla lib\nCopyright 1998-2003 de Neil Hodgson <neilh@scintilla.org>\n\nScintilla per a Haiku\nCopyright 2011 d'Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014 de Kaper-c2015 <kacperkasper@gmail.com>\n\n
+Ignore	GenioApp		Ignora-ho
+Load defaults	GenioApp		Carrega els valors predeterminats
+Made with love in Italy	GenioApp		Fet amb amor a Itàlia
+Review	GenioApp		Revisió
+See credits for a complete list.\n\n	GenioApp		Consulteu-ne els crèdits per obtenir una llista completa.\n\n
+Settings file for a previous version detected.	GenioApp		S'ha detectat un fitxer de configuració d'una versió anterior.
+The settings file doesn't exist or is corrupted.	GenioApp		El fitxer de configuració no existeix o està malmès.
+Edit user templates…	TemplatesMenu		Edita les plantilles d'usuari...
+Genio	System name		Genio
+New folder	TemplateManager		Carpeta nova
+OK	Utilities		D'acord

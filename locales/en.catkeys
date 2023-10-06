@@ -1,10 +1,10 @@
-1	English	application/x-vnd.Genio	2456584478
+1	English	application/x-vnd.Genio	3155416892
 Copy	GenioWindow		Copy
 Enable brace matching	SettingsWindow		Enable brace matching
 Dos	GenioWindow		Dos
 Clear	ConsoleIOView		Clear
-Comment selected lines	GenioWindow		Comment selected lines
 Switch source/header	GenioWindow		Switch source/header
+Comment selected lines	GenioWindow		Comment selected lines
 Debug clean comand:	ProjectSettingsWindow		Debug clean comand:
 Make file read-only	GenioWindow		Make file read-only
 Show toolbar	GenioWindow		Show toolbar
@@ -81,7 +81,6 @@ Replace and find previous	GenioWindow		Replace and find previous
 Defaults loaded	SettingsWindow		Defaults loaded
 Debug project	GenioWindow		Debug project
 stderr	ConsoleIOView		stderr
-The settings file doesn't exist or is corrupted.	GenioApp		The settings file doesn't exist or is corrupted.
 Go to line:	GoToLineWindow		Go to line:
 Close project	GenioWindow		Close project
 Replace:	GenioWindow		Replace:
@@ -169,6 +168,7 @@ Bookmark all	GenioWindow		Bookmark all
 Appearance	GenioWindow		Appearance
 Cancel	Editor		Cancel
 File	GenioWindow		File
+Rename folder	ProjectsFolderBrowser		Rename folder
 Delete current line	GenioWindow		Delete current line
 Source control	ProjectSettingsWindow		Source control
 Reload files	SettingsWindow		Reload files
@@ -193,6 +193,7 @@ Save all	QuitAlert		Save all
 Browse…	SettingsWindow		Browse…
 Close project	ProjectsFolderBrowser		Close project
 Save position	SettingsWindow		Save position
+Delete folder	ProjectsFolderBrowser		Delete folder
 Format	GenioWindow		Format
 Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
@@ -223,6 +224,7 @@ Close	GenioWindow		Close
 Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n
 Open project	GenioWindow		Open project
+Search Results	SearchResultPanel		Search Results
 Ignore	GenioApp		Ignore
 Edit	GenioWindow		Edit
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
@@ -233,6 +235,7 @@ This is the font size preview	SettingsWindow		This is the font size preview
 Git	GenioWindow		Git
 OK	Utilities		OK
 Project settings…	GenioWindow		Project settings…
+Location	SearchResultPanel		Location
 Paste	GenioWindow		Paste
 Visual	SettingsWindow		Visual
 Don't save	QuitAlert		Don't save

@@ -3119,8 +3119,10 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	BString closed("Project close:");
 	BString name = project->Name();
 
+	bool wasActive = false;
 	// Active project closed
 	if (project == fActiveProject) {
+		wasActive = true;
 		fActiveProject = nullptr;
 		closed = "Active project close:";
 		_UpdateProjectActivation(false);
@@ -3147,7 +3149,13 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	project->Close();
 
 	delete project;
-
+	
+	// Select a new active project
+	if (wasActive) {
+		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));
+		if (item != nullptr)
+			_ProjectFolderActivate((ProjectFolder*)item->GetSourceItem());
+	}
 	BString notification;
 	notification << closed << " "  << name;
 	_SendNotification(notification, "PROJ_CLOSE");

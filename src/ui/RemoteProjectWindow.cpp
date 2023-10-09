@@ -63,15 +63,13 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fProgressLayout->AddView(VIEW_INDEX_BARBER_POLE, fBarberPole);
 	fProgressLayout->AddView(VIEW_INDEX_PROGRESS_BAR, fProgressBar);
 
-	fBarberPole->SetExplicitSize(kStatusBarSize);
-	fBarberPole->SetResizingMode(B_FOLLOW_LEFT_RIGHT);
-
 	fProgressBar->SetBarHeight(kStatusBarSize.Height());
-	fProgressBar->SetExplicitSize(kStatusBarSize);
 
-	fStatusText->SetExplicitPreferredSize(kStatusBarSize);
 	fStatusText->SetDrawingMode(B_OP_ALPHA);
-	
+
+	// TODO: Improve size
+	fURL->SetExplicitMinSize(BSize(500, B_SIZE_UNSET));
+
 	// test
 	fPathBox->SetPath("/boot/home/workspace/clone_test");
 	fURL->SetText("https://github.com/Genio-The-Haiku-IDE/Genio");
@@ -83,7 +81,6 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 		.AddGroup(B_HORIZONTAL) 
 			.SetInsets(0, 5, 0, 5)
 			.Add(fProgressLayout)
-			.AddGlue()
 			.End()
 		.Add(fStatusText)
 		.AddGroup(B_HORIZONTAL)

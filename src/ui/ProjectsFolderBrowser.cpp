@@ -370,15 +370,21 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		projectMenu->AddItem(setActiveProjectMenuItem);
 		projectMenu->AddItem(projectSettingsMenuItem);
 		closeProjectMenuItem->SetEnabled(true);
-		if (!project->Active() && !fIsBuilding) {
-			setActiveProjectMenuItem->SetEnabled(true);
-			projectSettingsMenuItem->SetEnabled(false);
-		} else {
-			// cannot change active project while building
-			setActiveProjectMenuItem->SetEnabled(false);
-		}
-
 		projectMenu->AddSeparatorItem();
+		BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),
+			new BMessage(MSG_BUILD_PROJECT));
+		BMenuItem* cleanMenuItem = new BMenuItem(B_TRANSLATE("Clean project"),
+			new BMessage(MSG_CLEAN_PROJECT));
+		projectMenu->AddItem(buildMenuItem);
+		projectMenu->AddItem(cleanMenuItem);
+		setActiveProjectMenuItem->SetEnabled(!project->Active());
+		if (!project->Active())
+			setActiveProjectMenuItem->SetEnabled(true);
+		if (fIsBuilding || !project->Active()) {
+			projectSettingsMenuItem->SetEnabled(false);
+			buildMenuItem->SetEnabled(false);
+			cleanMenuItem->SetEnabled(false);
+		}
 	}
 
 	projectMenu->AddItem(fFileNewProjectMenuItem);

@@ -210,6 +210,7 @@ ProjectSettingsWindow::_LoadProject()
 	fReleaseProjectTargetText->SetText(fProject->GetTarget());
 	fReleaseBuildCommandText->SetText(fProject->GetBuildCommand());
 	fReleaseCleanCommandText->SetText(fProject->GetCleanCommand());
+	fBuildOnSave->SetValue(fProject->BuildOnSave() ? B_CONTROL_ON : B_CONTROL_OFF);
 	fReleaseExecuteArgsText->SetText(fProject->GetExecuteArgs());
 	
 	fProject->SetBuildMode(BuildMode::DebugMode);

@@ -1,15 +1,14 @@
-1	English	application/x-vnd.Genio	3155416892
+1	English	application/x-vnd.Genio	516460576
 Copy	GenioWindow		Copy
 Enable brace matching	SettingsWindow		Enable brace matching
 Dos	GenioWindow		Dos
 Clear	ConsoleIOView		Clear
 Switch source/header	GenioWindow		Switch source/header
 Comment selected lines	GenioWindow		Comment selected lines
-Debug clean comand:	ProjectSettingsWindow		Debug clean comand:
 Make file read-only	GenioWindow		Make file read-only
 Show toolbar	GenioWindow		Show toolbar
-Debug build comand:	ProjectSettingsWindow		Debug build comand:
 Font:	SettingsWindow		Font:
+Project settings…	ProjectsFolderBrowser		Project settings…
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Replace selection	GenioWindow		Replace selection
 Problems	ProblemsPanel		Problems
@@ -31,9 +30,9 @@ Select all	GenioWindow		Select all
 New folder	TemplateManager		New folder
 Show/Hide find bar	GenioWindow		Show/Hide find bar
 Status	GenioWindow	The git command	Status
+Startup	SettingsWindow		Startup
 Close file	GenioWindow		Close file
 Build log	GenioWindow		Build log
-Startup	SettingsWindow		Startup
 Find previous	GenioWindow		Find previous
 Show projects pane	SettingsWindow		Show projects pane
 Redo	GenioWindow		Redo
@@ -96,11 +95,9 @@ Build	SettingsWindow		Build
 Another command is running.	ConsoleIOView		Another command is running.
 Duplicate current line	GenioWindow		Duplicate current line
 Clean project	GenioWindow		Clean project
-Release clean comand:	ProjectSettingsWindow		Release clean comand:
 Default	SettingsWindow		Default
 Settings…	GenioWindow		Settings…
 General	SettingsWindow		General
-Release build comand:	ProjectSettingsWindow		Release build comand:
 Delete	GenioWindow		Delete
 Message	ProblemsPanel		Message
 Go to line	GoToLineWindow		Go to line
@@ -138,8 +135,8 @@ Search	GenioWindow		Search
 OK	ProjectSettingsWindow		OK
 Exclude settings file from Git	ProjectSettingsWindow		Exclude settings file from Git
 Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
-Banner	ConsoleIOView		Banner
 Editor	SettingsWindow		Editor
+Banner	ConsoleIOView		Banner
 Error creating folder	GenioWindow		Error creating folder
 Replace and find next	GenioWindow		Replace and find next
 Show/Hide projects pane	GenioWindow		Show/Hide projects pane
@@ -181,6 +178,7 @@ Zoom out	GenioWindow		Zoom out
 Save as…	GenioWindow		Save as…
 Mac	GenioWindow		Mac
 Log	GenioWindow	The git command	Log
+Release clean command:	ProjectSettingsWindow		Release clean command:
 Show/Hide output pane	GenioWindow		Show/Hide output pane
 Show config	GenioWindow	The git command	Show config
 Projects	GenioWindow		Projects
@@ -196,6 +194,7 @@ Save position	SettingsWindow		Save position
 Delete folder	ProjectsFolderBrowser		Delete folder
 Format	GenioWindow		Format
 Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
+Release build command:	ProjectSettingsWindow		Release build command:
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
 Zoom in	GenioWindow		Zoom in
 Enable folding	SettingsWindow		Enable folding
@@ -224,7 +223,10 @@ Close	GenioWindow		Close
 Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
 Open project	GenioWindow		Open project
+Clean project	ProjectsFolderBrowser		Clean project
+Debug clean command:	ProjectSettingsWindow		Debug clean command:
 Search Results	SearchResultPanel		Search Results
+Build project	ProjectsFolderBrowser		Build project
 Ignore	GenioApp		Ignore
 Edit	GenioWindow		Edit
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
@@ -237,6 +239,7 @@ OK	Utilities		OK
 Project settings…	GenioWindow		Project settings…
 Location	SearchResultPanel		Location
 Paste	GenioWindow		Paste
+Debug build command:	ProjectSettingsWindow		Debug build command:
 Visual	SettingsWindow		Visual
 Don't save	QuitAlert		Don't save
 Build commands	ProjectSettingsWindow		Build commands

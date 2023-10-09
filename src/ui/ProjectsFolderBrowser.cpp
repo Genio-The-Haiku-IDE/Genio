@@ -364,11 +364,15 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 			new BMessage(MSG_PROJECT_MENU_CLOSE));
 		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"),
 			new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
+		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
+			new BMessage(MSG_PROJECT_SETTINGS));
 		projectMenu->AddItem(closeProjectMenuItem);
 		projectMenu->AddItem(setActiveProjectMenuItem);
+		projectMenu->AddItem(projectSettingsMenuItem);
 		closeProjectMenuItem->SetEnabled(true);
 		if (!project->Active() && !fIsBuilding) {
 			setActiveProjectMenuItem->SetEnabled(true);
+			projectSettingsMenuItem->SetEnabled(false);
 		} else {
 			// cannot change active project while building
 			setActiveProjectMenuItem->SetEnabled(false);

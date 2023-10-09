@@ -343,97 +343,73 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	if (!projectItem)
 		return;
 
+	ProjectFolder *project = _GetProjectFromItem(projectItem);
+	if (project==nullptr)
+		return;
+
 	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
 
-	BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"),
-		new BMessage(MSG_PROJECT_MENU_CLOSE));
-	BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"),
-		new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
 	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
 		new BMessage(MSG_PROJECT_MENU_NEW_FILE), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
 		TemplateManager::GetDefaultTemplateDirectory(),
 		TemplateManager::GetUserTemplateDirectory(),
 		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
-	BMenuItem* deleteFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Delete file"),
-		new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
-	BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
-		new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
-	BMenuItem* renameFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Rename file"),
-		new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
+	
+	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+
+	fFileNewProjectMenuItem->SetEnabled(true);
+
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"),
+			new BMessage(MSG_PROJECT_MENU_CLOSE));
+		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"),
+			new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
+		projectMenu->AddItem(closeProjectMenuItem);
+		projectMenu->AddItem(setActiveProjectMenuItem);
+		closeProjectMenuItem->SetEnabled(true);
+		if (!project->Active() && !fIsBuilding) {
+			setActiveProjectMenuItem->SetEnabled(true);
+		} else {
+			// cannot change active project while building
+			setActiveProjectMenuItem->SetEnabled(false);
+		}
+
+		projectMenu->AddSeparatorItem();
+	}
+
+	projectMenu->AddItem(fFileNewProjectMenuItem);
+	fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
+	projectMenu->AddSeparatorItem();
+
+	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
+	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
+	if (isFolder || isFile) {
+		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
+			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),
+			new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
+		BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
+			new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
+			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
+			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
+		if (isFile)
+			fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
+		projectMenu->AddItem(openFileProjectMenuItem);
+		projectMenu->AddItem(deleteFileProjectMenuItem);
+		projectMenu->AddItem(renameFileProjectMenuItem);
+		deleteFileProjectMenuItem->SetEnabled(true);
+		renameFileProjectMenuItem->SetEnabled(true);
+		openFileProjectMenuItem->SetEnabled(isFile);
+	}
+
 	BMenuItem* showInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
 		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
 	BMenuItem* openTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open Terminal"),
 		new BMessage(MSG_PROJECT_MENU_OPEN_TERMINAL));
-
-	projectMenu->AddItem(closeProjectMenuItem);
-	projectMenu->AddItem(setActiveProjectMenuItem);
-	projectMenu->AddSeparatorItem();
-	projectMenu->AddItem(fFileNewProjectMenuItem);
-	projectMenu->AddItem(openFileProjectMenuItem);
-	projectMenu->AddItem(deleteFileProjectMenuItem);
-	projectMenu->AddItem(renameFileProjectMenuItem);
-	projectMenu->AddSeparatorItem();
+	showInTrackerProjectMenuItem->SetEnabled(true);
+	openTerminalProjectMenuItem->SetEnabled(true);
 	projectMenu->AddItem(showInTrackerProjectMenuItem);
 	projectMenu->AddItem(openTerminalProjectMenuItem);
-	
-	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
-
-	closeProjectMenuItem->SetEnabled(false);
-	setActiveProjectMenuItem->SetEnabled(false);
-	fFileNewProjectMenuItem->SetEnabled(true);
-	deleteFileProjectMenuItem->SetEnabled(false);
-	openFileProjectMenuItem->SetEnabled(false);
-	renameFileProjectMenuItem->SetEnabled(false);
-	showInTrackerProjectMenuItem->SetEnabled(false);
-	openTerminalProjectMenuItem->SetEnabled(false);
-
-	ProjectFolder *project = _GetProjectFromItem(projectItem);
-	if (project==nullptr)
-		return;
-
-	if (projectItem->GetSourceItem()->Type() == SourceItemType::FileItem) {
-		closeProjectMenuItem->SetEnabled(false);
-		setActiveProjectMenuItem->SetEnabled(false);
-		fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
-		deleteFileProjectMenuItem->SetEnabled(true);
-		deleteFileProjectMenuItem->SetLabel(B_TRANSLATE("Delete file"));
-		renameFileProjectMenuItem->SetEnabled(true);
-		renameFileProjectMenuItem->SetLabel(B_TRANSLATE("Rename file"));
-		openFileProjectMenuItem->SetEnabled(true);
-		showInTrackerProjectMenuItem->SetEnabled(true);
-		openTerminalProjectMenuItem->SetEnabled(false);
-	}
-	
-	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		closeProjectMenuItem->SetEnabled(true);
-		if (!project->Active()) {
-			setActiveProjectMenuItem->SetEnabled(true);
-		} else {
-			// Active building project: return
-			if (fIsBuilding)
-				return;
-		}
-
-		fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
-		deleteFileProjectMenuItem->SetEnabled(false);
-		renameFileProjectMenuItem->SetEnabled(false);
-		openFileProjectMenuItem->SetEnabled(false);
-		showInTrackerProjectMenuItem->SetEnabled(true);
-		openTerminalProjectMenuItem->SetEnabled(true);
-	}
-
-	if (projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem) {
-		closeProjectMenuItem->SetEnabled(false);
-		setActiveProjectMenuItem->SetEnabled(false);
-		fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
-		deleteFileProjectMenuItem->SetEnabled(true);
-		deleteFileProjectMenuItem->SetLabel(B_TRANSLATE("Delete folder"));
-		renameFileProjectMenuItem->SetEnabled(true);
-		renameFileProjectMenuItem->SetLabel(B_TRANSLATE("Rename folder"));
-		openFileProjectMenuItem->SetEnabled(false);
-		showInTrackerProjectMenuItem->SetEnabled(true);
-		openTerminalProjectMenuItem->SetEnabled(true);
-	}
 
 	projectMenu->SetTargetForItems(Window());
 	projectMenu->Go(ConvertToScreen(where), true);

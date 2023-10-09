@@ -96,11 +96,11 @@ ProjectSettingsWindow::_InitWindow()
 	fBuildCommandsBox = new BBox("BuildCommandsBox");
 	fBuildCommandsBox->SetLabel(B_TRANSLATE("Build commands"));
 
-	fReleaseBuildCommandText = new BTextControl(B_TRANSLATE("Release build comand:"), "", nullptr);
-	fDebugBuildCommandText = new BTextControl(B_TRANSLATE("Debug build comand:"), "", nullptr);
+	fReleaseBuildCommandText = new BTextControl(B_TRANSLATE("Release build command:"), "", nullptr);
+	fDebugBuildCommandText = new BTextControl(B_TRANSLATE("Debug build command:"), "", nullptr);
 
-	fReleaseCleanCommandText = new BTextControl(B_TRANSLATE("Release clean comand:"), "", nullptr);
-	fDebugCleanCommandText = new BTextControl(B_TRANSLATE("Debug clean comand:"), "", nullptr);
+	fReleaseCleanCommandText = new BTextControl(B_TRANSLATE("Release clean command:"), "", nullptr);
+	fDebugCleanCommandText = new BTextControl(B_TRANSLATE("Debug clean command:"), "", nullptr);
 
 	fReleaseProjectTargetText = new BTextControl(B_TRANSLATE("Release project target:"), "", nullptr);
 	fDebugProjectTargetText = new BTextControl(B_TRANSLATE("Debug project target:"), "", nullptr);

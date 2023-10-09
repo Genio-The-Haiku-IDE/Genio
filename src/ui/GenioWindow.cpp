@@ -1638,14 +1638,14 @@ GenioWindow::_FileSave(int32 index)
 		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath(), length, written);
 	else
 		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
-	
+
 	// TODO: Also handle cases where the file is saved from outside Genio
 	ProjectFolder* project = editor->GetProjectFolder();
 	if (project != nullptr && project->BuildOnSave()) {
 		if (!fIsBuilding)
 			PostMessage(MSG_BUILD_PROJECT);
 	}
-	
+
 	return B_OK;
 }
 

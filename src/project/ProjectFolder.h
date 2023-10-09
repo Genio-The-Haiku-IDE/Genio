@@ -70,6 +70,9 @@ public:
 	void						SetBuildCommand(BString const& command, BuildMode mode);
 	BString const				GetBuildCommand();
 	
+	void						SetBuildOnSave(bool enabled);
+	bool						BuildOnSave() const;
+
 	void						SetExecuteArgs(BString const& args, BuildMode mode);
 	BString const				GetExecuteArgs();
 	

@@ -103,6 +103,7 @@ ProjectSettingsWindow::_InitWindow()
 	fDebugCleanCommandText = new BTextControl(B_TRANSLATE("Debug clean command:"), "", nullptr);
 
 	fBuildOnSave = new BCheckBox("BuildOnSave", B_TRANSLATE("Build project on resource save"), nullptr);
+	fSaveOnBuild = new BCheckBox("SaveOnBuild", B_TRANSLATE("Save changed files on build"), nullptr);
 	
 	fReleaseProjectTargetText = new BTextControl(B_TRANSLATE("Release project target:"), "", nullptr);
 	fDebugProjectTargetText = new BTextControl(B_TRANSLATE("Debug project target:"), "", nullptr);
@@ -126,6 +127,7 @@ ProjectSettingsWindow::_InitWindow()
 	.Add(fDebugCleanCommandText->CreateLabelLayoutItem(), 2, 1)
 	.Add(fDebugCleanCommandText->CreateTextViewLayoutItem(), 3, 1)
 	.Add(fBuildOnSave, 0, 2)
+	.Add(fSaveOnBuild, 1, 2)
 	.End()
 	;
 
@@ -211,6 +213,7 @@ ProjectSettingsWindow::_LoadProject()
 	fReleaseBuildCommandText->SetText(fProject->GetBuildCommand());
 	fReleaseCleanCommandText->SetText(fProject->GetCleanCommand());
 	fBuildOnSave->SetValue(fProject->BuildOnSave() ? B_CONTROL_ON : B_CONTROL_OFF);
+	fSaveOnBuild->SetValue(fProject->SaveOnBuild() ? B_CONTROL_ON : B_CONTROL_OFF);
 	fReleaseExecuteArgsText->SetText(fProject->GetExecuteArgs());
 	
 	fProject->SetBuildMode(BuildMode::DebugMode);
@@ -247,6 +250,7 @@ ProjectSettingsWindow::_LoadDefaults()
 	fDebugExecuteArgsText->SetText("");
 	// Others
 	fBuildOnSave->SetValue(B_CONTROL_OFF);
+	fSaveOnBuild->SetValue(B_CONTROL_OFF);
 	fRunInTerminal->SetValue(B_CONTROL_OFF);
 	fEnableGit->SetValue(B_CONTROL_OFF);
 	fExcludeSettingsGit->SetValue(B_CONTROL_OFF);
@@ -259,8 +263,9 @@ ProjectSettingsWindow::_SaveChanges()
 	fProject->SetBuildCommand(fReleaseBuildCommandText->Text(), BuildMode::ReleaseMode);
 	fProject->SetCleanCommand(fReleaseCleanCommandText->Text(), BuildMode::ReleaseMode);
 	fProject->SetBuildOnSave(fBuildOnSave->Value() == B_CONTROL_ON);
+	fProject->SetSaveOnBuild(fSaveOnBuild->Value() == B_CONTROL_ON);
 	fProject->SetExecuteArgs(fReleaseExecuteArgsText->Text(), BuildMode::ReleaseMode);
-	
+
 	fProject->SetTarget(fDebugProjectTargetText->Text(), BuildMode::DebugMode);
 	fProject->SetBuildCommand(fDebugBuildCommandText->Text(), BuildMode::DebugMode);
 	fProject->SetCleanCommand(fDebugCleanCommandText->Text(), BuildMode::DebugMode);
@@ -270,16 +275,16 @@ ProjectSettingsWindow::_SaveChanges()
 		fProject->RunInTerminal(true);
 	else
 		fProject->RunInTerminal(false);
-		
+
 	if (fEnableGit->Value() == B_CONTROL_ON)
 		fProject->Git(true);
 	else
 		fProject->Git(false);
-		
+	
 	if (fExcludeSettingsGit->Value() == B_CONTROL_ON)
 		fProject->ExcludeSettingsOnGit(true);
 	else
 		fProject->ExcludeSettingsOnGit(false);
-		
+
 	fProject->SaveSettings();
 }

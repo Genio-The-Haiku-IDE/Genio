@@ -73,6 +73,9 @@ public:
 	void						SetBuildOnSave(bool enabled);
 	bool						BuildOnSave() const;
 
+	void						SetSaveOnBuild(bool enabled);
+	bool						SaveOnBuild() const;
+
 	void						SetExecuteArgs(BString const& args, BuildMode mode);
 	BString const				GetExecuteArgs();
 	

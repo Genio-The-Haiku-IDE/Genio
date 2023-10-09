@@ -1320,6 +1320,10 @@ GenioWindow::_BuildProject()
 		return _AlertInvalidBuildConfig(message);
 	}
 
+	// TODO: Should ask if the user wants to save
+	if (fActiveProject->SaveOnBuild())
+		_FileSaveAllProject(fActiveProject);
+
 	fIsBuilding = true;
 	fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
 	_UpdateProjectActivation(false);
@@ -1646,6 +1650,7 @@ GenioWindow::_FileSave(int32 index)
 			PostMessage(MSG_BUILD_PROJECT);
 	}
 
+
 	return B_OK;
 }
 
@@ -1655,9 +1660,7 @@ GenioWindow::_FileSaveAll()
 	int32 filesCount = fTabManager->CountTabs();
 
 	for (int32 index = 0; index < filesCount; index++) {
-
 		Editor* editor = fTabManager->EditorAt(index);
-
 		if (editor == nullptr) {
 			BString notification;
 			notification << "Index " << index
@@ -1667,6 +1670,27 @@ GenioWindow::_FileSaveAll()
 		}
 
 		if (editor->IsModified())
+			_FileSave(index);
+	}
+}
+
+
+void
+GenioWindow::_FileSaveAllProject(ProjectFolder* project)
+{
+	int32 filesCount = fTabManager->CountTabs();
+
+	for (int32 index = 0; index < filesCount; index++) {
+		Editor* editor = fTabManager->EditorAt(index);
+		if (editor == nullptr) {
+			BString notification;
+			notification << "Index " << index
+				<< ": " << "NULL editor pointer";
+			_SendNotification(notification, "FILE_ERR");
+			continue;
+		}
+
+		 if (editor->GetProjectFolder() == project && editor->IsModified())
 			_FileSave(index);
 	}
 }

@@ -181,6 +181,20 @@ ProjectFolder::SetBuildOnSave(bool enabled)
 
 
 bool
+ProjectFolder::SaveOnBuild() const
+{
+	return fSettings->GetBool("save_on_build", false);
+}
+
+
+void
+ProjectFolder::SetSaveOnBuild(bool enabled)
+{
+	fSettings->SetBool("save_on_build", enabled);
+}
+
+
+bool
 ProjectFolder::BuildOnSave() const
 {
 	return fSettings->GetBool("build_on_save", false);

@@ -83,6 +83,7 @@ private:
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
 			status_t			_FileSave(int32	index);
 			void				_FileSaveAll();
+			void				_FileSaveAllProject(ProjectFolder* project);
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
 			int32				_FilesNeedSave();
 			void				_FindGroupShow(bool show);

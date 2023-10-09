@@ -174,6 +174,20 @@ ProjectFolder::GetCleanCommand()
 
 
 void
+ProjectFolder::SetBuildOnSave(bool enabled)
+{
+	fSettings->SetBool("build_on_save", enabled);
+}
+
+
+bool
+ProjectFolder::BuildOnSave() const
+{
+	return fSettings->GetBool("build_on_save", false);
+}
+
+	
+void
 ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 {
 	if (mode == BuildMode::ReleaseMode)

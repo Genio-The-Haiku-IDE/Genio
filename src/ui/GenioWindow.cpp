@@ -1617,7 +1617,6 @@ GenioWindow::_FileSave(int32 index)
 	}
 
 	Editor* editor = fTabManager->EditorAt(index);
-
 	if (editor == nullptr) {
 		LogErrorF("NULL editor pointer (%d)", index);
 		return B_ERROR;
@@ -1628,7 +1627,9 @@ GenioWindow::_FileSave(int32 index)
 		LogErrorF("File is read-only (%s)", editor->FilePath().String());
 		return B_ERROR;
 	}
-	
+
+	_PreFileSave(editor);
+
 	// Stop monitoring if needed
 	editor->StopMonitoring();
 
@@ -1643,13 +1644,7 @@ GenioWindow::_FileSave(int32 index)
 	else
 		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
 
-	// TODO: Also handle cases where the file is saved from outside Genio
-	ProjectFolder* project = editor->GetProjectFolder();
-	if (project != nullptr && project->BuildOnSave()) {
-		if (!fIsBuilding)
-			PostMessage(MSG_BUILD_PROJECT);
-	}
-
+	_PostFileSave(editor);
 
 	return B_OK;
 }
@@ -1752,6 +1747,25 @@ GenioWindow::_FilesNeedSave()
 
 	return count;
 }
+
+
+void
+GenioWindow::_PreFileSave(Editor* editor)
+{
+}
+
+
+void
+GenioWindow::_PostFileSave(Editor* editor)
+{
+	// TODO: Also handle cases where the file is saved from outside Genio ?
+	ProjectFolder* project = editor->GetProjectFolder();
+	if (project != nullptr && project->BuildOnSave()) {
+		if (!fIsBuilding)
+			PostMessage(MSG_BUILD_PROJECT);
+	}
+}
+
 
 void
 GenioWindow::_FindGroupShow(bool show)

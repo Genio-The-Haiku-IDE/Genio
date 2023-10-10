@@ -72,6 +72,7 @@ private:
 			status_t			_CargoNew(BString args);
 			status_t			_CleanProject();
 
+
 			status_t			_DebugProject();
 			bool				_FileRequestClose(int32 index);
 			status_t			_RemoveTab(int32 index);
@@ -86,6 +87,8 @@ private:
 			void				_FileSaveAllProject(ProjectFolder* project);
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
 			int32				_FilesNeedSave();
+			void				_PreFileSave(Editor* editor);
+			void				_PostFileSave(Editor* editor);
 			void				_FindGroupShow(bool show);
 			int32				_FindMarkAll(const BString text);
 			void				_FindNext(const BString& strToFind, bool backwards);

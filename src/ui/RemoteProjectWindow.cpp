@@ -70,21 +70,20 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	// TODO: Improve size
 	fURL->SetExplicitMinSize(BSize(500, B_SIZE_UNSET));
 
+	fStatusText->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT,
+		B_ALIGN_VERTICAL_CENTER)); 
 	// test
 	fPathBox->SetPath("/boot/home/workspace/clone_test");
 	fURL->SetText("https://github.com/Genio-The-Haiku-IDE/Genio");
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 		.SetInsets(10)
+		.AddGlue()
 		.Add(fURL)
 		.Add(fPathBox)
-		.AddGroup(B_HORIZONTAL) 
-			.SetInsets(0, 5, 0, 5)
-			.Add(fProgressLayout)
-		.End()
-		.Add(fStatusText)
+		.Add(fProgressLayout)
 		.AddGroup(B_HORIZONTAL)
-			.SetInsets(0, 5, 0, 5)
+			.Add(fStatusText)
 			.AddGlue()
 			.Add(fCancel)
 			.Add(fClone)

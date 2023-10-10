@@ -37,6 +37,7 @@ ProjectsFolderBrowser::ProjectsFolderBrowser():
 	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
 {	
 	fGenioWatchingFilter = new GenioWatchingFilter();
+	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);
 }
 
@@ -355,8 +356,6 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		TemplateManager::GetUserTemplateDirectory(),
 		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
 	
-	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
-
 	fFileNewProjectMenuItem->SetEnabled(true);
 
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {

@@ -100,7 +100,7 @@ SaveSettingsVars()
 
 	if ((status = file.InitCheck()) != B_OK)
 		return status;
-		
+
 	status += file.SetString("projects_directory",	Settings.projects_directory);
 	status += file.SetInt32("fullpath_title", Settings.fullpath_title);
 	status += file.SetInt32("reopen_projects", Settings.reopen_projects);
@@ -128,10 +128,11 @@ SaveSettingsVars()
 	status += file.SetBool("find_match_case", Settings.find_match_case);
 	status += file.SetInt32("log_destination", Settings.log_destination);
 	status += file.SetInt32("log_level", Settings.log_level);
-	
+	status += file.SetInt32("trim_trailing_whitespace", Settings.trim_trailing_whitespace);
+
 	return status;
 }
-		
+
 status_t
 LoadSettingsVars()
 {
@@ -168,7 +169,7 @@ LoadSettingsVars()
 	status += file.FindBool("find_match_case", &Settings.find_match_case);
 	status += file.FindInt32("log_destination", &Settings.log_destination);
 	status += file.FindInt32("log_level", &Settings.log_level);
-
+	status += file.FindInt32("trim_trailing_whitespace", &Settings.trim_trailing_whitespace);
 	return status;
 }
 
@@ -236,10 +237,10 @@ UpdateSettingsFile()
 		settings.SetInt32("wrap_console", kSKWrapConsole);
 	if (settings.FindInt32("console_banner", &intVal) != B_OK)
 		settings.SetInt32("console_banner", kSKConsoleBanner);
-	
+
 	if (settings.FindInt32("editor_zoom", &intVal) != B_OK)
 		settings.SetInt32("editor_zoom", kSKEditorZoom);
-		
+
 	if (settings.FindBool("find_wrap", &boolVal) != B_OK)
 		settings.SetBool("find_wrap", kSKFindWrap);
 
@@ -248,12 +249,15 @@ UpdateSettingsFile()
 
 	if (settings.FindBool("find_match_case", &boolVal) != B_OK)
 		settings.SetBool("find_match_case", kSKFindMatchCase);
-	
+
 	if (settings.FindInt32("log_destination", &intVal) != B_OK)
 		settings.SetInt32("log_destination", 0);
 
 	if (settings.FindInt32("log_level", &intVal) != B_OK)
 		settings.SetInt32("log_level", 1);
+
+	if (settings.FindInt32("trim_trailing_whitespace", &intVal) != B_OK)
+		settings.SetInt32("trim_trailing_whitespace", 0);
 
 	// Managed to get here without errors, reset counter and app version
 	settings.SetInt64("last_used", real_time_clock());

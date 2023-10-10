@@ -14,15 +14,15 @@
  * Features:
  *
  * Settings are managed through Pages(read Views) mapped with an OutlineView List.
- * 
+ *
  * Modifications are user-visible and persistent across pages (orange).
  * Saved modifications are user-visible and persistent across pages (light blue).
  * On executing a new app version, New controls may be user-visible (green).
  *
  * Revert and Apply buttons are appliable everywhere in presence of modifications.
- * 
+ *
  * Only modified items are saved on disk.
- * 
+ *
  */
 #include "SettingsWindow.h"
 
@@ -64,6 +64,7 @@ enum {
 	MSG_REOPEN_PROJECTS_TOGGLED				= 'repr',
 	MSG_REOPEN_FILES_TOGGLED				= 'refi',
 	MSG_SAVE_CARET_TOGGLED					= 'sace',
+	MSG_TRIM_WHITESPACE_TOGGLED				= 'trws',
 	MSG_SHOW_EDGE_LINE_TOGGLED				= 'seli',
 	MSG_SHOW_LINE_NUMBER_TOGGLED			= 'slnu',
 	MSG_SHOW_COMMENT_MARGIN_TOGGLED			= 'scmt',
@@ -81,7 +82,7 @@ enum {
 SettingsWindow::SettingsWindow()
 	:
 	BWindow(BRect(0, 0, 799, 599), "Settings", B_MODAL_WINDOW,
-													B_ASYNCHRONOUS_CONTROLS | 
+													B_ASYNCHRONOUS_CONTROLS |
 													B_NOT_ZOOMABLE |
 													B_NOT_RESIZABLE |
 													B_AVOID_FRONT |
@@ -156,7 +157,7 @@ SettingsWindow::DispatchMessage(BMessage* message, BHandler* handler)
 		}
 	}
 	// Maybe press and hold for default button
-//	if (message->what == B_KEY_UP) 
+//	if (message->what == B_KEY_UP)
 //				fDefaultButton->SetEnabled(false);
 
 	BWindow::DispatchMessage(message, handler);
@@ -211,7 +212,7 @@ SettingsWindow::MessageReceived(BMessage *msg)
 				fEditorFont.SetSize(fEditorFontSizeOP->Value());
 			else
 				fEditorFont.SetSize(be_plain_font->Size());
-				
+
 			fPreviewText->SetFont(&fEditorFont);
 
 			bool modified = fEditorFontSizeOP->Value() !=
@@ -276,6 +277,12 @@ SettingsWindow::MessageReceived(BMessage *msg)
 			bool modified = fSaveCaret->Value() !=
 								fWindowSettingsFile->FindInt32("save_caret");
 				_ManageModifications(fSaveCaret, modified);
+			break;
+		}
+		case MSG_TRIM_WHITESPACE_TOGGLED: {
+			bool modified = fTrimWhitespace->Value() !=
+								fWindowSettingsFile->FindInt32("trim_trailing_whitespace");
+				_ManageModifications(fTrimWhitespace, modified);
 			break;
 		}
 		case MSG_SHOW_EDGE_LINE_TOGGLED: {
@@ -383,7 +390,7 @@ SettingsWindow::_ApplyModifications()
 		if (_StoreToFile(fModifiedList->ItemAt(item)) != B_OK) {
 			// TODO notify
 			continue;
-		}	
+		}
 
 		fModifiedList->ItemAt(item)->SetViewColor(kSettingsAzure);
 		fModifiedList->ItemAt(item)->Invalidate();
@@ -398,7 +405,7 @@ SettingsWindow::_ApplyModifications()
 
 	fApplyButton->SetEnabled(false);
 	fRevertButton->SetEnabled(false);
-	
+
 	// If applied, update markers too
 	// TODO Check B_OK
 	int32 count = 0;
@@ -422,7 +429,7 @@ SettingsWindow::_ApplyOrphans()
 			if (_StoreToFile(fOrphansList->ItemAt(item)) != B_OK) {
 				// TODO notify
 				continue;
-			}	
+			}
 
 			fOrphansList->ItemAt(item)->SetViewColor(kSettingsAzure);
 			fOrphansList->ItemAt(item)->Invalidate();
@@ -431,7 +438,7 @@ SettingsWindow::_ApplyOrphans()
 			appliedOrphans++;
 			fControlsDone++;
 		}
-		// If not all orphans were applied, 
+		// If not all orphans were applied,
 		if (appliedOrphans < orphans)
 			return;
 
@@ -690,6 +697,15 @@ SettingsWindow::_LoadFromFile(BControl* control, bool loadAll /*= false*/)
 		} else
 			fOrphansList->AddItem(fSaveCaret);
 	}
+	if (control == fTrimWhitespace || loadAll == true) {
+		status = fWindowSettingsFile->FindInt32("trim_trailing_whitespace", &intVal);
+		fControlsCount += loadAll == true;
+		if (status == B_OK) {
+			fTrimWhitespace->SetValue(intVal);
+			fControlsDone += loadAll == true;
+		} else
+			fOrphansList->AddItem(fTrimWhitespace);
+	}
 	// Editor Visual Page
 	if (control == fShowLineNumber || loadAll == true) {
 		status = fWindowSettingsFile->FindInt32("show_linenumber", &intVal);
@@ -787,7 +803,7 @@ SettingsWindow::_ManageModifications(BControl* control, bool isModified)
 {
 	// Item was modified
 	if (isModified == true) {
-		// Manage multiple modifications for the same control 
+		// Manage multiple modifications for the same control
 		if (!fModifiedList->HasItem(control))
 			fModifiedList->AddItem(control);
 		// Notify user with a deep red color TODO no numbers
@@ -802,7 +818,7 @@ SettingsWindow::_ManageModifications(BControl* control, bool isModified)
 		if (fModifiedList->HasItem(control)) {
 			control->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 			control->Invalidate();
-			
+
 			fModifiedList->RemoveItem(control);
 			// Disable buttons if no modifications
 			if (fModifiedList->IsEmpty()){
@@ -912,6 +928,9 @@ SettingsWindow::_PageEditorView()
 		B_TRANSLATE("Enable brace matching"), new BMessage(MSG_BRACE_MATCHING_TOGGLED));
 	fSaveCaret = new BCheckBox("SaveCaret",
 		B_TRANSLATE("Save caret position"), new BMessage(MSG_SAVE_CARET_TOGGLED));
+	// TODO: "Trim trailing whitespace on save" is too long: reword
+	fTrimWhitespace = new BCheckBox("TrimWhitespace",
+		B_TRANSLATE("Trim trailing whitespace on save"), new BMessage(MSG_TRIM_WHITESPACE_TOGGLED));
 	fTabWidthSpinner = new BSpinner("TabWidth",
 		B_TRANSLATE("Tab width:  "), new BMessage(MSG_TAB_WIDTH_CHANGED));
 	fTabWidthSpinner->SetRange(1, 8);
@@ -924,9 +943,10 @@ SettingsWindow::_PageEditorView()
 		.Add(fSyntaxHighlight, 0, 2)
 		.Add(fBraceMatch, 0, 3)
 		.Add(fSaveCaret, 0, 4)
-		.Add(fTabWidthSpinner, 0, 5, 1)
-		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 6, 6)
-		.Add(BSpaceLayoutItem::CreateGlue(), 0, 7)
+		.Add(fTrimWhitespace, 0, 5)
+		.Add(fTabWidthSpinner, 0, 6, 1)
+		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 7, 6)
+		.Add(BSpaceLayoutItem::CreateGlue(), 0, 8)
 		.SetInsets(10, 10, 10, 10)
 	.View();
 
@@ -1049,7 +1069,7 @@ SettingsWindow::_PageGeneralViewStartup()
 	// "Startup" Box
 	fGeneralStartupBox = new BBox("GeneralStartupPage");
 	fGeneralStartupBox->SetLabel(B_TRANSLATE("Startup"));
-	
+
 	fReopenProjects = new BCheckBox("ReopenProjects",
 		B_TRANSLATE("Reload projects"), new BMessage(MSG_REOPEN_PROJECTS_TOGGLED));
 
@@ -1149,7 +1169,7 @@ SettingsWindow::_ShowOrphans()
 
 	// Mark new controls with green
 	for (int32 item = fOrphansList->CountItems() -1; item >= 0 ; item--) {
-		_LoadFromFile(fOrphansList->ItemAt(item), false);		
+		_LoadFromFile(fOrphansList->ItemAt(item), false);
 		fOrphansList->ItemAt(item)->SetViewColor(kSettingsGreen);
 		fOrphansList->ItemAt(item)->Invalidate();
 	}
@@ -1165,7 +1185,7 @@ SettingsWindow::_ShowView(BStringItem * item)
 	fNextView = "";
 
 	ViewPageIterator iter = fViewPageMap.find(item);
-	
+
 	if (iter != fViewPageMap.end()) {
 		fNextView  = iter->second;
 	}
@@ -1215,6 +1235,8 @@ SettingsWindow::_StoreToFile(BControl* control)
 		status = fWindowSettingsFile->SetInt32("brace_match", fBraceMatch->Value());
 	else if (control == fSaveCaret)
 		status = fWindowSettingsFile->SetInt32("save_caret", fSaveCaret->Value());
+	else if (control == fTrimWhitespace)
+		status = fWindowSettingsFile->SetInt32("trim_trailing_whitespace", fTrimWhitespace->Value());
 	// Editor Visual Page
 	else if (control == fShowLineNumber)
 		status = fWindowSettingsFile->SetInt32("show_linenumber", fShowLineNumber->Value());
@@ -1236,7 +1258,7 @@ SettingsWindow::_StoreToFile(BControl* control)
 		status = fWindowSettingsFile->SetInt32("wrap_console", fWrapConsoleEnabled->Value());
 	else if (control == fConsoleBannerEnabled)
 		status = fWindowSettingsFile->SetInt32("console_banner", fConsoleBannerEnabled->Value());
-	
+
 	return status;
 }
 
@@ -1292,7 +1314,7 @@ SettingsWindow::_StoreToFileDefaults()
 	fWindowSettingsFile->SetBool("find_wrap", kSKFindWrap);
 	fWindowSettingsFile->SetBool("find_whole_word", kSKFindWholeWord);
 	fWindowSettingsFile->SetBool("find_match_case", kSKFindMatchCase);
-	
+
 	return B_OK;
 }
 

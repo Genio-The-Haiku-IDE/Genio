@@ -1752,6 +1752,8 @@ GenioWindow::_FilesNeedSave()
 void
 GenioWindow::_PreFileSave(Editor* editor)
 {
+	if (GenioNames::Settings.trim_trailing_whitespace)
+		editor->TrimTrailingWhitespace();
 }
 
 
@@ -3195,7 +3197,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	project->Close();
 
 	delete project;
-	
+
 	// Select a new active project
 	if (wasActive) {
 		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));

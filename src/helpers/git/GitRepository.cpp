@@ -14,8 +14,6 @@
 
 namespace Genio::Git {
 
-	std::map<float,bool> progress_tracker;
-
 	GitRepository::GitRepository(const path& path)
 		: 
 		fRepository(nullptr),

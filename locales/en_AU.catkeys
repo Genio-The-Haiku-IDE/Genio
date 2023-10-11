@@ -1,0 +1,240 @@
+1	English (Australian)	application/x-vnd.Genio	2456584478
+About…	GenioWindow		About…
+Appearance	GenioWindow		Appearance
+Autocomplete	GenioWindow		Autocomplete
+Bookmark	GenioWindow		Bookmark
+Bookmark all	GenioWindow		Bookmark all
+Branch	GenioWindow	The git command	Branch
+Build log	GenioWindow		Build log
+Build mode	GenioWindow		Build mode
+Build project	GenioWindow		Build project
+Cancel	GenioWindow		Cancel
+Clean project	GenioWindow		Clean project
+Clear all	GenioWindow	Bookmark menu	Clear all
+Close	GenioWindow		Close
+Close all	GenioWindow		Close all
+Close file	GenioWindow		Close file
+Close project	GenioWindow		Close project
+Comment selected lines	GenioWindow		Comment selected lines
+Configure	GenioWindow		Configure
+Console I/O	GenioWindow		Console I/O
+Copy	GenioWindow		Copy
+Could not create a new file	GenioWindow		Could not create a new file
+Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
+Could not open template folder in Tracker	GenioWindow		Could not open template folder in Tracker
+Cut	GenioWindow		Cut
+Debug	GenioWindow		Debug
+Debug project	GenioWindow		Debug project
+Delete	GenioWindow		Delete
+Delete current line	GenioWindow		Delete current line
+Delete dialog	GenioWindow		Delete dialogue
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
+Discard	GenioWindow		Discard
+Don't save	GenioWindow		Don't save
+Dos	GenioWindow		Dos
+Duplicate current line	GenioWindow		Duplicate current line
+Edit	GenioWindow		Edit
+Error creating folder	GenioWindow		Error creating folder
+File	GenioWindow		File
+File \"%file%\" was apparently modified, reload it?	GenioWindow		File \"%file%\" was apparently modified, reload it?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
+Find	GenioWindow		Find
+Find in project	GenioWindow		Find in project
+Find next	GenioWindow		Find next
+Find previous	GenioWindow		Find previous
+Find:	GenioWindow		Find:
+Fold/Unfold all	GenioWindow		Fold/Unfold all
+Format	GenioWindow		Format
+Git	GenioWindow		Git
+Go to declaration	GenioWindow		Go to declaration
+Go to definition	GenioWindow		Go to definition
+Go to implementation	GenioWindow		Go to implementation
+Go to line…	GenioWindow		Go to line…
+Help	GenioWindow		Help
+Ignore	GenioWindow		Ignore
+Invalid project folder	GenioWindow		Invalid project folder
+Keep	GenioWindow		Keep
+Line endings	GenioWindow		Line endings
+Log	GenioWindow	The git command	Log
+Log (oneline)	GenioWindow	The git command	Log (oneline)
+Mac	GenioWindow		Mac
+Make file read-only	GenioWindow		Make file read-only
+Match case	GenioWindow		Match case
+New	GenioWindow		New
+New file	GenioWindow		New file
+New folder	GenioWindow		New folder
+Next	GenioWindow	Bookmark menu	Next
+Open	GenioWindow		Open
+Open files list	GenioWindow		Open files list
+Open project	GenioWindow		Open project
+Open recent…	GenioWindow		Open recent…
+Overwrite	GenioWindow		Overwrite
+Paste	GenioWindow		Paste
+Previous	GenioWindow	Bookmark menu	Previous
+Project	GenioWindow		Project
+Project settings…	GenioWindow		Project settings…
+Projects	GenioWindow		Projects
+Pull	GenioWindow	The git command	Pull
+Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Quit	GenioWindow		Quit
+Read-only	GenioWindow		Read-only
+Redo	GenioWindow		Redo
+Release	GenioWindow		Release
+Reload	GenioWindow		Reload
+Replace	GenioWindow		Replace
+Replace all	GenioWindow		Replace all
+Replace and find next	GenioWindow		Replace and find next
+Replace and find previous	GenioWindow		Replace and find previous
+Replace selection	GenioWindow		Replace selection
+Replace:	GenioWindow		Replace:
+Reset zoom	GenioWindow		Reset zoom
+Run	GenioWindow		Run
+Run console program	GenioWindow		Run console program
+Run target	GenioWindow		Run target
+Save	GenioWindow		Save
+Save all	GenioWindow		Save all
+Save all files	GenioWindow		Save all files
+Save as…	GenioWindow		Save as…
+Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
+Save current file	GenioWindow		Save current file
+Search	GenioWindow		Search
+Select all	GenioWindow		Select all
+Settings…	GenioWindow		Settings…
+Show config	GenioWindow	The git command	Show config
+Show line endings	GenioWindow		Show line endings
+Show output pane	GenioWindow		Show output pane
+Show projects pane	GenioWindow		Show projects pane
+Show toolbar	GenioWindow		Show toolbar
+Show white spaces	GenioWindow		Show white spaces
+Show/Hide find bar	GenioWindow		Show/Hide find bar
+Show/Hide output pane	GenioWindow		Show/Hide output pane
+Show/Hide projects pane	GenioWindow		Show/Hide projects pane
+Show/Hide replace bar	GenioWindow		Show/Hide replace bar
+Status	GenioWindow	The git command	Status
+Status (short)	GenioWindow	The git command	Status (short)
+Switch source/header	GenioWindow		Switch source/header
+Switch to next file	GenioWindow		Switch to next file
+Switch to previous file	GenioWindow		Switch to previous file
+Tag	GenioWindow	The git command	Tag
+Toggle	GenioWindow	Bookmark menu	Toggle
+Trim trailing whitespace	GenioWindow		Trim trailing whitespace
+Undo	GenioWindow		Undo
+Unix	GenioWindow		Unix
+View	GenioWindow		View
+Whole word	GenioWindow		Whole word
+Window	GenioWindow		Window
+Wrap	GenioWindow		Wrap
+You can't create a new folder here, please select a project or another folder	GenioWindow		You can't create a new folder here, please select a project or another folder
+Zoom in	GenioWindow		Zoom in
+Zoom out	GenioWindow		Zoom out
+An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
+Close project	ProjectsFolderBrowser		Close project
+Delete file	ProjectsFolderBrowser		Delete file
+New	ProjectsFolderBrowser		New
+OK	ProjectsFolderBrowser		OK
+Open file	ProjectsFolderBrowser		Open file
+Open Terminal	ProjectsFolderBrowser		Open Terminal
+Rename file	ProjectsFolderBrowser		Rename file
+Set active	ProjectsFolderBrowser		Set active
+Show in Tracker	ProjectsFolderBrowser		Show in Tracker
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
+Another command is running.	ConsoleIOView		Another command is running.
+Banner	ConsoleIOView		Banner
+Clear	ConsoleIOView		Clear
+stderr	ConsoleIOView		stderr
+stdout	ConsoleIOView		stdout
+Stop	ConsoleIOView		Stop
+Wrap	ConsoleIOView		Wrap
+Apply	SettingsWindow		Apply
+Browse…	SettingsWindow		Browse…
+Build	SettingsWindow		Build
+Cancel	SettingsWindow		Cancel
+Console banner	SettingsWindow		Console banner
+Default	SettingsWindow		Default
+Default size	SettingsWindow		Default size
+Defaults loaded	SettingsWindow		Defaults loaded
+Edge column:	SettingsWindow		Edge column:
+Editor	SettingsWindow		Editor
+Enable brace matching	SettingsWindow		Enable brace matching
+Enable folding	SettingsWindow		Enable folding
+Enable notifications	SettingsWindow		Enable Notifications
+Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
+Font size:	SettingsWindow		Font size:
+Font:	SettingsWindow		Font:
+General	SettingsWindow		General
+Log destination:	SettingsWindow		Log destination:
+Log level:	SettingsWindow		Log level:
+Mark caret line	SettingsWindow		Mark caret line
+Notifications	SettingsWindow		Notifications
+Projects folder:	SettingsWindow		Projects folder:
+Reload files	SettingsWindow		Reload files
+Reload projects	SettingsWindow		Reload projects
+Revert	SettingsWindow		Revert
+Save caret position	SettingsWindow		Save caret position
+Save position	SettingsWindow		Save position
+Set for app ver: 	SettingsWindow		Set for app ver: 
+Show comment margin	SettingsWindow		Show comment margin
+Show edge line	SettingsWindow		Show edge line
+Show full path in window title	SettingsWindow		Show full path in window title
+Show line number	SettingsWindow		Show line number
+Show output pane	SettingsWindow		Show output pane
+Show projects pane	SettingsWindow		Show projects pane
+Show toolbar	SettingsWindow		Show toolbar
+Startup	SettingsWindow		Startup
+Tab width:  	SettingsWindow		Tab width:  
+This is the font size preview	SettingsWindow		This is the font size preview
+Visual	SettingsWindow		Visual
+Wrap console	SettingsWindow		Wrap console
+Build commands	ProjectSettingsWindow		Build commands
+Cancel	ProjectSettingsWindow		Cancel
+Debug build comand:	ProjectSettingsWindow		Debug build comand:
+Debug clean comand:	ProjectSettingsWindow		Debug clean comand:
+Debug execute arguments:	ProjectSettingsWindow		Debug execute arguments:
+Debug project target:	ProjectSettingsWindow		Debug project target:
+Default	ProjectSettingsWindow		Default
+Enable Git	ProjectSettingsWindow		Enable Git
+Exclude settings file from Git	ProjectSettingsWindow		Exclude settings file from Git
+OK	ProjectSettingsWindow		OK
+Project:	ProjectSettingsWindow		Project:
+Release build comand:	ProjectSettingsWindow		Release build comand:
+Release clean comand:	ProjectSettingsWindow		Release clean comand:
+Release execute arguments:	ProjectSettingsWindow		Release execute arguments:
+Release project target:	ProjectSettingsWindow		Release project target:
+Run in Terminal	ProjectSettingsWindow		Run in Terminal
+Source control	ProjectSettingsWindow		Source control
+Target	ProjectSettingsWindow		Target
+Cancel	GoToLineWindow		Cancel
+Go to line	GoToLineWindow		Go to line
+Go to line:	GoToLineWindow		Go to line:
+OK	GoToLineWindow		OK
+Cancel	Editor		Cancel
+Don't save	Editor		Don't save
+Save	Editor		Save
+Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
+Save dialog	Editor		Save dialog
+Cancel	QuitAlert		Cancel
+Don't save	QuitAlert		Don't save
+Save all	QuitAlert		Save all
+Save selected	QuitAlert		Save selected
+There are unsaved changes.\nSelect the files to save.	QuitAlert		There are unsaved changes.\nSelect the files to save.
+Unsaved files	QuitAlert		Unsaved files
+Category	ProblemsPanel		Category
+Message	ProblemsPanel		Message
+Problems	ProblemsPanel		Problems
+Source	ProblemsPanel		Source
+Do you want to ignore, review or load defaults?	GenioApp		Do you want to ignore, review or load defaults?
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n
+Ignore	GenioApp		Ignore
+Load defaults	GenioApp		Load defaults
+Made with love in Italy	GenioApp		Made with love in Italy
+Review	GenioApp		Review
+See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
+Settings file for a previous version detected.	GenioApp		Settings file for a previous version detected.
+The settings file doesn't exist or is corrupted.	GenioApp		The settings file doesn't exist or is corrupted.
+Edit user templates…	TemplatesMenu		Edit user templates…
+Genio	System name		Genio
+New folder	TemplateManager		New folder
+OK	Utilities		OK

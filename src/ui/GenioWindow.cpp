@@ -2693,6 +2693,12 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_PROJECT_OPEN, projectMenu);
 	ActionManager::AddItem(MSG_PROJECT_OPEN_REMOTE, projectMenu);
+
+	BMessage *openProjectFolderMessage = new BMessage(MSG_PROJECT_FOLDER_OPEN);
+	projectMenu->AddItem(new BMenuItem(BRecentFoldersList::NewFolderListMenu(
+			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), openProjectFolderMessage, this,
+			kRecentFilesNumber, false, GenioNames::kApplicationSignature), nullptr));
+
 	ActionManager::AddItem(MSG_PROJECT_CLOSE, projectMenu);
 
 	projectMenu->AddSeparatorItem();
@@ -2870,7 +2876,7 @@ GenioWindow::_InitOutputSplit()
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
-	
+
 	fSearchResultPanel = new SearchResultPanel(fOutputTabView);
 
 	fOutputTabView->AddTab(fProblemsPanel);
@@ -3132,8 +3138,10 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	BString closed("Project close:");
 	BString name = project->Name();
 
+	bool wasActive = false;
 	// Active project closed
 	if (project == fActiveProject) {
+		wasActive = true;
 		fActiveProject = nullptr;
 		closed = "Active project close:";
 		_UpdateProjectActivation(false);
@@ -3160,7 +3168,13 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	project->Close();
 
 	delete project;
-
+	
+	// Select a new active project
+	if (wasActive) {
+		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));
+		if (item != nullptr)
+			_ProjectFolderActivate((ProjectFolder*)item->GetSourceItem());
+	}
 	BString notification;
 	notification << closed << " "  << name;
 	_SendNotification(notification, "PROJ_CLOSE");

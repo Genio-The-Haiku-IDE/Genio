@@ -1,0 +1,9 @@
+-> make it safe to register a doc?
+-> Do not send (some) LSP message if the file is not 'idle' *** to be tested
+-> setup the LSPEditor client only when needed (lazy loading)
+-> Do not 'open' a file not supported (not cpp nor make) **DONE**
+-> Can we 'open' a file only the first time a tab is selected? (it's not simple!)
+-> review the include chain. **On its way**
+-> HL class diagram to document
+-> split protocol.h object and wrapper **On its way**
+-> check and fix the 'delete this'

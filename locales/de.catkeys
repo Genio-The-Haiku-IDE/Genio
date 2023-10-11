@@ -1,0 +1,240 @@
+1	German	application/x-vnd.Genio	2456584478
+About…	GenioWindow		Über…
+Appearance	GenioWindow		Erscheinungsbild
+Autocomplete	GenioWindow		Auto-vervollständigen
+Bookmark	GenioWindow		Lesezeichen
+Bookmark all	GenioWindow		Lesezeichen für alle
+Branch	GenioWindow	The git command	Branch
+Build log	GenioWindow		Build Log
+Build mode	GenioWindow		Build Modus
+Build project	GenioWindow		Projekt kompilieren
+Cancel	GenioWindow		Abbrechen
+Clean project	GenioWindow		Projekt säubern
+Clear all	GenioWindow	Bookmark menu	Alle löschen
+Close	GenioWindow		Schließen
+Close all	GenioWindow		Alle schließen
+Close file	GenioWindow		Datei schließen
+Close project	GenioWindow		Projekt schließen
+Comment selected lines	GenioWindow		Auswahl auskommentieren
+Configure	GenioWindow		Konfigurieren
+Console I/O	GenioWindow		Konsole I/O
+Copy	GenioWindow		Kopieren
+Could not create a new file	GenioWindow		Neue Datei konnte nicht erstellt werden
+Could not delete \"%name%\".\n\n	GenioWindow		Konnte \"%name%\" nicht entfernen.\n\n
+Could not open template folder in Tracker	GenioWindow		Vorlagenordner konnte nicht in Tracker geöffnet werden
+Cut	GenioWindow		Ausschneiden
+Debug	GenioWindow		Debug
+Debug project	GenioWindow		Projekt debuggen
+Delete	GenioWindow		Löschen
+Delete current line	GenioWindow		Aktuelle Zeile entfernen
+Delete dialog	GenioWindow		Löschdialog
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Lösche: \"%name%\".\n\nDas Objekt wird unwiederbringlich entfernt.\nSoll es tatsächlich gelöscht werden?
+Discard	GenioWindow		Verwerfen
+Don't save	GenioWindow		Nicht speichern
+Dos	GenioWindow		Dos
+Duplicate current line	GenioWindow		Aktuelle Zeile duplizieren
+Edit	GenioWindow		Bearbeiten
+Error creating folder	GenioWindow		Fehler bei Ordner-Erstellung
+File	GenioWindow		Datei
+File \"%file%\" was apparently modified, reload it?	GenioWindow		Die Datei \"%file%\" wurde offenbar geändert, soll sie neu geladen werden?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		Die Datei \"%file%\" wurde offenbar verschoben.\nSoll das ignoriert werden, die Datei geschlossen oder neu geladen werden?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		Die Datei \"%file%\" wurde offenbar entfernt.\nSoll die Datei behalten oder verworfen werden?\nWird sie behalten und verändert, sollte sie gespeichert werden, damit sie nicht verloren geht.
+Find	GenioWindow		Suchen
+Find in project	GenioWindow		Durchsuche Projekt
+Find next	GenioWindow		Weitersuchen
+Find previous	GenioWindow		Rückwärtssuchen
+Find:	GenioWindow		Suchen:
+Fold/Unfold all	GenioWindow		Alles ein/ausklappen
+Format	GenioWindow		Formatieren
+Git	GenioWindow		Git
+Go to declaration	GenioWindow		Zur Deklaration springen
+Go to definition	GenioWindow		Zur Definition springen
+Go to implementation	GenioWindow		Zur Implementierung springen
+Go to line…	GenioWindow		Zu Zeile springen…
+Help	GenioWindow		Hilfe
+Ignore	GenioWindow		Ignorieren
+Invalid project folder	GenioWindow		Ungültiger Projektordner
+Keep	GenioWindow		Behalten
+Line endings	GenioWindow		Zeilenenden
+Log	GenioWindow	The git command	Log
+Log (oneline)	GenioWindow	The git command	Log (oneline)
+Mac	GenioWindow		Mac
+Make file read-only	GenioWindow		Datei schreibschützen
+Match case	GenioWindow		Groß/Klein
+New	GenioWindow		Neu
+New file	GenioWindow		Neue Datei
+New folder	GenioWindow		Neuer Ordner
+Next	GenioWindow	Bookmark menu	Nächstes
+Open	GenioWindow		Öffnen
+Open files list	GenioWindow		Liste offener Dateien
+Open project	GenioWindow		Projekt öffnen
+Open recent…	GenioWindow		Zuletzt geöffnet…
+Overwrite	GenioWindow		Überschreiben
+Paste	GenioWindow		Einfügen
+Previous	GenioWindow	Bookmark menu	Voriges
+Project	GenioWindow		Projekt
+Project settings…	GenioWindow		Projekt Einstellungen…
+Projects	GenioWindow		Projekte
+Pull	GenioWindow	The git command	Pull
+Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Quit	GenioWindow		Beenden
+Read-only	GenioWindow		Schreibgeschützt
+Redo	GenioWindow		Wiederholen
+Release	GenioWindow		Release
+Reload	GenioWindow		Neu laden
+Replace	GenioWindow		Ersetzen
+Replace all	GenioWindow		Alle ersetzen
+Replace and find next	GenioWindow		Ersetzen und nächstes finden
+Replace and find previous	GenioWindow		Ersetzen und voriges finden
+Replace selection	GenioWindow		In Auswahl ersetzen
+Replace:	GenioWindow		Ersetzen:
+Reset zoom	GenioWindow		Zoom zurücksetzen
+Run	GenioWindow		Starten
+Run console program	GenioWindow		Konsolenprogramm starten
+Run target	GenioWindow		Ziel starten
+Save	GenioWindow		Speichern
+Save all	GenioWindow		Alles speichern
+Save all files	GenioWindow		Alle Dateien speichern
+Save as…	GenioWindow		Speichern unter…
+Save changes to file \"%file%\"	GenioWindow		Änderungen an Datei \"%file%\" speichern
+Save current file	GenioWindow		Aktuelle Datei speichern
+Search	GenioWindow		Suche
+Select all	GenioWindow		Alles auswählen
+Settings…	GenioWindow		Einstellungen…
+Show config	GenioWindow	The git command	Config anzeigen
+Show line endings	GenioWindow		Zeilenenden anzeigen
+Show output pane	GenioWindow		Ausgabebereich zeigen
+Show projects pane	GenioWindow		Projektbereich zeigen
+Show toolbar	GenioWindow		Werkzeugleiste zeigen
+Show white spaces	GenioWindow		'Whitespace' anzeigen
+Show/Hide find bar	GenioWindow		Suche-Leiste ein/aus
+Show/Hide output pane	GenioWindow		Ausgabebereich ein/aus
+Show/Hide projects pane	GenioWindow		Projektbereich ein/ausblenden
+Show/Hide replace bar	GenioWindow		Ersetzen-Leiste ein/aus
+Status	GenioWindow	The git command	Status
+Status (short)	GenioWindow	The git command	Status (short)
+Switch source/header	GenioWindow		Source/Header wechseln
+Switch to next file	GenioWindow		Zur nächsten Datei
+Switch to previous file	GenioWindow		Zur vorigen Datei
+Tag	GenioWindow	The git command	Tag
+Toggle	GenioWindow	Bookmark menu	Setzen/Entfernen
+Trim trailing whitespace	GenioWindow		Anhängenden 'Whitespace' entfernen
+Undo	GenioWindow		Rückgängig
+Unix	GenioWindow		Unix
+View	GenioWindow		Ansicht
+Whole word	GenioWindow		Ganze Wörter
+Window	GenioWindow		Fenster
+Wrap	GenioWindow		Umbruch
+You can't create a new folder here, please select a project or another folder	GenioWindow		Hier kann kein neuer Ordner erstellt werden. Bitte ein Projekt oder anderen Ordner auswählen.
+Zoom in	GenioWindow		Vergrößern
+Zoom out	GenioWindow		Verkleinern
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Fehler beim Umbenennen der Datei
+Close project	ProjectsFolderBrowser		Projekt schließen
+Delete file	ProjectsFolderBrowser		Datei löschen
+New	ProjectsFolderBrowser		Neu
+OK	ProjectsFolderBrowser		OK
+Open file	ProjectsFolderBrowser		Datei öffnen
+Open Terminal	ProjectsFolderBrowser		Terminal öffnen
+Rename file	ProjectsFolderBrowser		Datei umbenennen
+Set active	ProjectsFolderBrowser		Aktiv setzen
+Show in Tracker	ProjectsFolderBrowser		In Tracker zeigen
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Der Projektordner wurde gelöscht oder verschoben und wird daher geschlossen und vom Arbeitsbereich entfernt.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Der Projektordner wurde umbenannt. Er wird daher automatisch geschlossen und neu geöffnet.
+Another command is running.	ConsoleIOView		Ein anderer Befehl läuft bereits.
+Banner	ConsoleIOView		Banner
+Clear	ConsoleIOView		Löschen
+stderr	ConsoleIOView		stderr
+stdout	ConsoleIOView		stdout
+Stop	ConsoleIOView		Stopp
+Wrap	ConsoleIOView		Umbruch
+Apply	SettingsWindow		Anwenden
+Browse…	SettingsWindow		Durchsuchen…
+Build	SettingsWindow		Build
+Cancel	SettingsWindow		Abbrechen
+Console banner	SettingsWindow		Start/Ende-Banner in Konsole
+Default	SettingsWindow		Standardwerte
+Default size	SettingsWindow		Standardgröße
+Defaults loaded	SettingsWindow		Standardwerte geladen
+Edge column:	SettingsWindow		Max. Zeichen pro Zeile:
+Editor	SettingsWindow		Editor
+Enable brace matching	SettingsWindow		Klammern hervorheben
+Enable folding	SettingsWindow		Ein-/Ausklappen aktivieren
+Enable notifications	SettingsWindow		Benachrichtigungen aktivieren
+Enable syntax highlighting	SettingsWindow		Syntax-Hervorhebung aktivieren
+Font size:	SettingsWindow		Schriftgröße:
+Font:	SettingsWindow		Schriftart:
+General	SettingsWindow		Allgemein
+Log destination:	SettingsWindow		Log Ausgabe:
+Log level:	SettingsWindow		Log Stufe:
+Mark caret line	SettingsWindow		Einfügemarke zeigen
+Notifications	SettingsWindow		Benachrichtigungen
+Projects folder:	SettingsWindow		Projektordner:
+Reload files	SettingsWindow		Dateien neu laden
+Reload projects	SettingsWindow		Projekte neu laden
+Revert	SettingsWindow		Anfangswerte
+Save caret position	SettingsWindow		Cursor-Position merken
+Save position	SettingsWindow		Position merken
+Set for app ver: 	SettingsWindow		Gesetzt für App version: 
+Show comment margin	SettingsWindow		Kommentar-Rand zeigen
+Show edge line	SettingsWindow		Zeichenlimit-Linie zeigen
+Show full path in window title	SettingsWindow		Kompletter Pfad in Fenstertitel
+Show line number	SettingsWindow		Zeilennummerierung zeigen
+Show output pane	SettingsWindow		Ausgabebereich zeigen
+Show projects pane	SettingsWindow		Projektbereich zeigen
+Show toolbar	SettingsWindow		Wergzeugleiste zeigen
+Startup	SettingsWindow		Anwendungsstart
+Tab width:  	SettingsWindow		Tabulatorbreite:
+This is the font size preview	SettingsWindow		Das ist die Schriftgrößen Vorschau
+Visual	SettingsWindow		Aussehen
+Wrap console	SettingsWindow		Konsolenausgabe umbrechen
+Build commands	ProjectSettingsWindow		Build Befehle
+Cancel	ProjectSettingsWindow		Abbrechen
+Debug build comand:	ProjectSettingsWindow		Debug Build Befehl:
+Debug clean comand:	ProjectSettingsWindow		Debug Clean Befehl:
+Debug execute arguments:	ProjectSettingsWindow		Debug Ausführungsparameter:
+Debug project target:	ProjectSettingsWindow		Debug Projektziel:
+Default	ProjectSettingsWindow		Standardwerte
+Enable Git	ProjectSettingsWindow		Git aktivieren
+Exclude settings file from Git	ProjectSettingsWindow		Einstellungsdatei bei Git Aktionen ignorieren
+OK	ProjectSettingsWindow		OK
+Project:	ProjectSettingsWindow		Projekt:
+Release build comand:	ProjectSettingsWindow		Release Build Befehl:
+Release clean comand:	ProjectSettingsWindow		Release Clean Befehl:
+Release execute arguments:	ProjectSettingsWindow		Release Ausführungsparameter:
+Release project target:	ProjectSettingsWindow		Release Projektziel:
+Run in Terminal	ProjectSettingsWindow		In Terminal starten
+Source control	ProjectSettingsWindow		Quellkontrolle
+Target	ProjectSettingsWindow		Ziel
+Cancel	GoToLineWindow		Abbrechen
+Go to line	GoToLineWindow		Zu Zeile springen
+Go to line:	GoToLineWindow		Zu Zeile springen:
+OK	GoToLineWindow		OK
+Cancel	Editor		Abbrechen
+Don't save	Editor		Nicht speichern
+Save	Editor		Speichern
+Save changes to file \"%filename%\"?	Editor		Änderungen an Datei \"%filename%\" speichern?
+Save dialog	Editor		Speicherdialog
+Cancel	QuitAlert		Abbrechen
+Don't save	QuitAlert		Nicht speichern
+Save all	QuitAlert		Alles speichern
+Save selected	QuitAlert		Ausgewählte speichern
+There are unsaved changes.\nSelect the files to save.	QuitAlert		Änderungen wurden noch nicht gespeichert\nDateien auswählen, die gespeichert werden sollen.
+Unsaved files	QuitAlert		Ungespeicherte Deteien
+Category	ProblemsPanel		Kategorie
+Message	ProblemsPanel		Inhalt
+Problems	ProblemsPanel		Probleme
+Source	ProblemsPanel		Quelle
+Do you want to ignore, review or load defaults?	GenioApp		Soll das Problem ignoriert, näher überprüft oder die Standardeinstellungen geladen werden?
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio ist ein Fork von Ideam und wird unter der MIT Lizenz bereitgestellt.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio nutzt:\nScintilla lib\nCopyright 1998-2003 von Neil Hodgson \n\nScintilla für Haiku\nCopyright 2011 von Andrea Anzani \nCopyright 2014-2015 von Kacper Kasper \n\n
+Ignore	GenioApp		Ignorieren
+Load defaults	GenioApp		Standardeinstellungen
+Made with love in Italy	GenioApp		Mit Liebe gemacht aus Italien
+Review	GenioApp		Überprüfen
+See credits for a complete list.\n\n	GenioApp		Siehe die Credits für eine vollständige Liste.\n\n
+Settings file for a previous version detected.	GenioApp		Einstellungsdatei einer früheren Version gefunden.
+The settings file doesn't exist or is corrupted.	GenioApp		Die Einstellungsdatei wurde nicht gefunden oder ist beschädigt.
+Edit user templates…	TemplatesMenu		Benutzervorlagen bearbeiten…
+Genio	System name		Genio
+New folder	TemplateManager		Neuer Ordner
+OK	Utilities		OK

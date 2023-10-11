@@ -1322,7 +1322,7 @@ GenioWindow::_BuildProject()
 
 	// TODO: Should ask if the user wants to save
 	if (fActiveProject->SaveOnBuild())
-		_FileSaveAllProject(fActiveProject);
+		_FileSaveAll(fActiveProject);
 
 	fIsBuilding = true;
 	fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
@@ -1650,10 +1650,9 @@ GenioWindow::_FileSave(int32 index)
 }
 
 void
-GenioWindow::_FileSaveAll()
+GenioWindow::_FileSaveAll(ProjectFolder* onlyThisProject)
 {
 	int32 filesCount = fTabManager->CountTabs();
-
 	for (int32 index = 0; index < filesCount; index++) {
 		Editor* editor = fTabManager->EditorAt(index);
 		if (editor == nullptr) {
@@ -1663,32 +1662,16 @@ GenioWindow::_FileSaveAll()
 			_SendNotification(notification, "FILE_ERR");
 			continue;
 		}
+
+		// If a project was specified and the file doesn't belong, skip
+		if (onlyThisProject != NULL && editor->GetProjectFolder() != onlyThisProject)
+			continue;
 
 		if (editor->IsModified())
 			_FileSave(index);
 	}
 }
 
-
-void
-GenioWindow::_FileSaveAllProject(ProjectFolder* project)
-{
-	int32 filesCount = fTabManager->CountTabs();
-
-	for (int32 index = 0; index < filesCount; index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		if (editor == nullptr) {
-			BString notification;
-			notification << "Index " << index
-				<< ": " << "NULL editor pointer";
-			_SendNotification(notification, "FILE_ERR");
-			continue;
-		}
-
-		 if (editor->GetProjectFolder() == project && editor->IsModified())
-			_FileSave(index);
-	}
-}
 
 status_t
 GenioWindow::_FileSaveAs(int32 selection, BMessage* message)

@@ -36,8 +36,31 @@ ProjectSettingsWindow::ProjectSettingsWindow(ProjectFolder *project)
 //													B_NOT_RESIZABLE |
 													B_AVOID_FRONT |
 													B_AUTO_UPDATE_SIZE_LIMITS |
-													B_CLOSE_ON_ESCAPE)
-	, fProject(project)
+													B_CLOSE_ON_ESCAPE),
+	fProject(project),
+	fProjectBox(),
+	fProjectBoxLabel(),
+	fProjectBoxProjectLabel(),
+	fBuildCommandsBox(nullptr),
+	fReleaseProjectTargetText(nullptr),
+	fDebugProjectTargetText(nullptr),
+	fReleaseBuildCommandText(nullptr),
+	fDebugBuildCommandText(nullptr),
+	fReleaseCleanCommandText(nullptr),
+	fDebugCleanCommandText(nullptr),
+	fBuildOnSave(nullptr),
+	fSaveOnBuild(nullptr),
+	fReleaseExecuteArgsText(nullptr),
+	fDebugExecuteArgsText(nullptr),
+	fTargetString(),
+	fBuildString(),
+	fCleanString(),
+	fTargetBox(nullptr),
+	fRunInTerminal(nullptr),
+	fEnableGit(nullptr),
+	fExcludeSettingsGit(nullptr),
+	fSourceControlBox(nullptr),
+	fRunArgsString()
 {
 	_InitWindow();
 

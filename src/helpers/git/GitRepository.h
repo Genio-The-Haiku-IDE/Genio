@@ -35,20 +35,20 @@ namespace Genio::Git {
 
 	class GitException {
 	public:
-						GitException(int error, string const& message)
+						GitException(int error, BString const& message)
 							:
 							_error(error),
 							_message(message)
 						{
-							LogError("GitException %s, error = %d" , message.c_str(), error);
+							LogError("GitException %s, error = %d" , message.String(), error);
 						}
 
 		int				Error() noexcept { return _error; }
-		string			Message() noexcept { return _message; }
+		BString			Message() noexcept { return _message; }
 				
 	private:
 		int				_error;
-		string			_message;
+		BString			_message;
 	};
 
 	class GitRepository {	

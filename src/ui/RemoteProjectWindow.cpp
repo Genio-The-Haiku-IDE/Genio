@@ -134,11 +134,11 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				_OpenProject(result.Path());
 				_SetProgress(100, "Finished!");
 			} catch(std::exception &ex) {
-				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ") << ex.what(), B_INFO_ALERT);
+				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ") 
+					<< ex.what(), B_INFO_ALERT);
 				fStatusText->SetText("An error occurred!");
 			}
 			_ResetControls();
-			// _SetIdle();
 		}
 		break;
 		case kDoClone:

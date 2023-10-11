@@ -1,0 +1,240 @@
+1	Turkish	application/x-vnd.Genio	2456584478
+About…	GenioWindow		Hakkında…
+Appearance	GenioWindow		Görünüş
+Autocomplete	GenioWindow		Otomatik tamamlama
+Bookmark	GenioWindow		Yer imi
+Bookmark all	GenioWindow		Tümünü yer imlerine ekle
+Branch	GenioWindow	The git command	Dal
+Build log	GenioWindow		Yapı günlüğü
+Build mode	GenioWindow		Yapı kipi
+Build project	GenioWindow		Projeyi yap
+Cancel	GenioWindow		Vazgeç
+Clean project	GenioWindow		Projeyi temizle
+Clear all	GenioWindow	Bookmark menu	Tümünü temizle
+Close	GenioWindow		Kapat
+Close all	GenioWindow		Tümünü kapat
+Close file	GenioWindow		Dosyayı kapat
+Close project	GenioWindow		Projeyi kapat
+Comment selected lines	GenioWindow		Seçili satırları yorum yap
+Configure	GenioWindow		Yapılandır
+Console I/O	GenioWindow		Konsol G/Ç
+Copy	GenioWindow		Kopyala
+Could not create a new file	GenioWindow		Yeni bir dosya oluşturulamadı
+Could not delete \"%name%\".\n\n	GenioWindow		\"%name%\" silinemedi.\n\n
+Could not open template folder in Tracker	GenioWindow		Şablon klasörü, İzleyici ile açılamadı
+Cut	GenioWindow		Kes
+Debug	GenioWindow		Hata ayıkla
+Debug project	GenioWindow		Proje hatalarını ayıkla
+Delete	GenioWindow		Sil
+Delete current line	GenioWindow		Geçerli satırı sil
+Delete dialog	GenioWindow		İletişim kutusunu sil
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Öge siliniyor: \"%name%\".\n\nSilme sonrası öge artık kullanılamayacak.\nSilmeyi gerçekten istiyor musunuz?
+Discard	GenioWindow		At
+Don't save	GenioWindow		Kaydetme
+Dos	GenioWindow		Dos
+Duplicate current line	GenioWindow		Geçerli satırı çoğalt
+Edit	GenioWindow		Düzen
+Error creating folder	GenioWindow		Klasör oluşturulurken hata
+File	GenioWindow		Dosya
+File \"%file%\" was apparently modified, reload it?	GenioWindow		\"%file%\" dosyası değiştirilmiş, yeniden yüklensin mi?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		\"%file%\" dosyası taşınmış.\nYok saymak, kapatmak veya yeniden yüklemek mi istiyorsunuz?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		\"%file%\" dosyası taşınmış.\nDosyayı tutmak mı yoksa atmak mı istiyorsunuz?\nTutar ve değiştirirseniz onu kaydedin, yoksa kaybolur.
+Find	GenioWindow		Bul
+Find in project	GenioWindow		Projede bul
+Find next	GenioWindow		Sonrakini bul
+Find previous	GenioWindow		Öncekini bul
+Find:	GenioWindow		Bul:
+Fold/Unfold all	GenioWindow		Katla/Katlamayı aç
+Format	GenioWindow		Biçimlendir
+Git	GenioWindow		Git
+Go to declaration	GenioWindow		Beyana git
+Go to definition	GenioWindow		Tanıma git
+Go to implementation	GenioWindow		Uygulamaya git
+Go to line…	GenioWindow		Satıra git…
+Help	GenioWindow		Yardım
+Ignore	GenioWindow		Yok say
+Invalid project folder	GenioWindow		Geçersiz proje klasörü
+Keep	GenioWindow		Tut
+Line endings	GenioWindow		Satır sonları
+Log	GenioWindow	The git command	Günlük
+Log (oneline)	GenioWindow	The git command	Günlük (tek satır)
+Mac	GenioWindow		Mac
+Make file read-only	GenioWindow		Dosyayı saltokunur yap
+Match case	GenioWindow		BÜYÜK/küçük harf eşleştir
+New	GenioWindow		Yeni
+New file	GenioWindow		Yeni dosya
+New folder	GenioWindow		Yeni klasör
+Next	GenioWindow	Bookmark menu	Sonraki
+Open	GenioWindow		Aç
+Open files list	GenioWindow		Dosyalar listesini aç
+Open project	GenioWindow		Proje aç
+Open recent…	GenioWindow		Son kullanılanı aç…
+Overwrite	GenioWindow		Üzerine yaz
+Paste	GenioWindow		Yapıştır
+Previous	GenioWindow	Bookmark menu	Önceki
+Project	GenioWindow		Proje
+Project settings…	GenioWindow		Proje ayarları…
+Projects	GenioWindow		Projeler
+Pull	GenioWindow	The git command	Çek
+Pull (rebase)	GenioWindow	The git command	Çek (yeniden temellendir)
+Quit	GenioWindow		Çık
+Read-only	GenioWindow		Saltokunur
+Redo	GenioWindow		Yinele
+Release	GenioWindow		Bırak
+Reload	GenioWindow		Yeniden yükle
+Replace	GenioWindow		Değiştir
+Replace all	GenioWindow		Tümünü değiştir
+Replace and find next	GenioWindow		Değiştir ve sonrakini bul
+Replace and find previous	GenioWindow		Değiştir ve öncekini bul
+Replace selection	GenioWindow		Seçimi değiştir
+Replace:	GenioWindow		Değiştir:
+Reset zoom	GenioWindow		Yakınlaştırmayı sıfırla
+Run	GenioWindow		Çalıştır
+Run console program	GenioWindow		Konsol programı çalıştır
+Run target	GenioWindow		Hedefi çalıştır
+Save	GenioWindow		Kaydet
+Save all	GenioWindow		Tümünü kaydet
+Save all files	GenioWindow		Tüm dosyaları kaydet
+Save as…	GenioWindow		Farklı kaydet…
+Save changes to file \"%file%\"	GenioWindow		Değişiklikleri \"%file%\" dosyasına kaydet
+Save current file	GenioWindow		Geçerli dosyayı kaydet
+Search	GenioWindow		Ara
+Select all	GenioWindow		Tümünü seç
+Settings…	GenioWindow		Ayarlar…
+Show config	GenioWindow	The git command	Yapılandırmayı göster
+Show line endings	GenioWindow		Satır sonlarını göster
+Show output pane	GenioWindow		Çıktı panelini göster
+Show projects pane	GenioWindow		Projeler panelini göster
+Show toolbar	GenioWindow		Araç çubuğunu göster
+Show white spaces	GenioWindow		Boşlukları göster
+Show/Hide find bar	GenioWindow		Bul çubuğunu göster/gizle
+Show/Hide output pane	GenioWindow		Çıktı panelini göster/gizle
+Show/Hide projects pane	GenioWindow		Projeler panelini göster/gizle
+Show/Hide replace bar	GenioWindow		Değiştir çubuğunu göster/gizle
+Status	GenioWindow	The git command	Durum
+Status (short)	GenioWindow	The git command	Durum (kısa)
+Switch source/header	GenioWindow		Kaynak/Üstbilgi arasında geçiş yap
+Switch to next file	GenioWindow		Sonraki dosyaya geç
+Switch to previous file	GenioWindow		Önceki dosyaya geç
+Tag	GenioWindow	The git command	Etiketle
+Toggle	GenioWindow	Bookmark menu	Aç/Kapat
+Trim trailing whitespace	GenioWindow		Sondaki boşlukları kırp
+Undo	GenioWindow		Geri al
+Unix	GenioWindow		Unix
+View	GenioWindow		Görüntü
+Whole word	GenioWindow		Tam sözcük
+Window	GenioWindow		Pencere
+Wrap	GenioWindow		Kaydır
+You can't create a new folder here, please select a project or another folder	GenioWindow		Burada yeni bir klasör oluşturamazsınız, lütfen bir proje veya başka bir klasör seçin
+Zoom in	GenioWindow		Yakınlaştır
+Zoom out	GenioWindow		Uzaklaştır
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Dosyayı yeniden adlandırma sırasında bir hata oluştu
+Close project	ProjectsFolderBrowser		Projeyi kapat
+Delete file	ProjectsFolderBrowser		Dosyayı sil
+New	ProjectsFolderBrowser		Yeni
+OK	ProjectsFolderBrowser		Tamam
+Open file	ProjectsFolderBrowser		Dosya aç
+Open Terminal	ProjectsFolderBrowser		Uçbirim aç
+Rename file	ProjectsFolderBrowser		Dosyayı yeniden adlandır
+Set active	ProjectsFolderBrowser		Etkin kıl
+Show in Tracker	ProjectsFolderBrowser		İzleyici'de göster
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Proje klasörü başka bir konuma taşındı veya silindi; bu nedenle kapatılacak ve çalışma alanından kaldırılacak.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Proje klasörü yeniden adlandırıldı. Kendiliğinden kapatılacak ve yeniden açılacak.
+Another command is running.	ConsoleIOView		Başka bir komut çalışıyor.
+Banner	ConsoleIOView		Afiş
+Clear	ConsoleIOView		Temizle
+stderr	ConsoleIOView		standart hata
+stdout	ConsoleIOView		standart çıktı
+Stop	ConsoleIOView		Durdur
+Wrap	ConsoleIOView		Kaydır
+Apply	SettingsWindow		Uygula
+Browse…	SettingsWindow		Göz at…
+Build	SettingsWindow		Yapı
+Cancel	SettingsWindow		Vazgeç
+Console banner	SettingsWindow		Konsol afişi
+Default	SettingsWindow		Saptanmış
+Default size	SettingsWindow		Saptanmış boyut
+Defaults loaded	SettingsWindow		Saptanmışlar yüklendi
+Edge column:	SettingsWindow		Kenar sütunu:
+Editor	SettingsWindow		Düzenleyici
+Enable brace matching	SettingsWindow		Ayraç eşleştirmeyi etkinleştir
+Enable folding	SettingsWindow		Katlamayı etkinleştir
+Enable notifications	SettingsWindow		Bildirimleri etkinleştir
+Enable syntax highlighting	SettingsWindow		Sözdizim vurgulamayı etkinleştir
+Font size:	SettingsWindow		Yazıtipi boyutu:
+Font:	SettingsWindow		Yazıtipi:
+General	SettingsWindow		Genel
+Log destination:	SettingsWindow		Günlük konumu:
+Log level:	SettingsWindow		Günlük düzeyi:
+Mark caret line	SettingsWindow		İmleç satırını imle
+Notifications	SettingsWindow		Bildirimler
+Projects folder:	SettingsWindow		Projeler klasörü:
+Reload files	SettingsWindow		Dosyaları yeniden yükle
+Reload projects	SettingsWindow		Projeleri yeniden yükle
+Revert	SettingsWindow		Geri al
+Save caret position	SettingsWindow		İmleç konumunu kaydet
+Save position	SettingsWindow		Konumu kaydet
+Set for app ver: 	SettingsWindow		Ayarlı sürüm: 
+Show comment margin	SettingsWindow		Yorum kenar boşluğunu göster
+Show edge line	SettingsWindow		Kenar çizgisini göster
+Show full path in window title	SettingsWindow		Pencere başlığında tam yolu göster
+Show line number	SettingsWindow		Satır numarasını göster
+Show output pane	SettingsWindow		Çıktı panelini göster
+Show projects pane	SettingsWindow		Projeler panelini göster
+Show toolbar	SettingsWindow		Araç çubuğunu göster
+Startup	SettingsWindow		Başlangıç
+Tab width:  	SettingsWindow		Sekme genişliği:
+This is the font size preview	SettingsWindow		Bu, yazıtipi büyüklüğü önizlemesidir
+Visual	SettingsWindow		Görsel
+Wrap console	SettingsWindow		Konsolu kaydır
+Build commands	ProjectSettingsWindow		Yapı komutları
+Cancel	ProjectSettingsWindow		Vazgeç
+Debug build comand:	ProjectSettingsWindow		Hata ayıklama yap komutu:
+Debug clean comand:	ProjectSettingsWindow		Hata ayıklama temizle komutu:
+Debug execute arguments:	ProjectSettingsWindow		Hata ayıklama yürüt argümanları:
+Debug project target:	ProjectSettingsWindow		Hata ayıklama proje hedefi:
+Default	ProjectSettingsWindow		Saptanmış
+Enable Git	ProjectSettingsWindow		Git'i etkinleştir
+Exclude settings file from Git	ProjectSettingsWindow		Git ayarlarını dışarıda tut
+OK	ProjectSettingsWindow		Tamam
+Project:	ProjectSettingsWindow		Proje:
+Release build comand:	ProjectSettingsWindow		Kararlı yap komutu:
+Release clean comand:	ProjectSettingsWindow		Kararlı temizle komutu:
+Release execute arguments:	ProjectSettingsWindow		Kararlı yürüt argümanları:
+Release project target:	ProjectSettingsWindow		Kararlı proje hedefi:
+Run in Terminal	ProjectSettingsWindow		Uçbirimde çalıştır
+Source control	ProjectSettingsWindow		Kaynak denetimi
+Target	ProjectSettingsWindow		Hedef
+Cancel	GoToLineWindow		Vazgeç
+Go to line	GoToLineWindow		Satıra git
+Go to line:	GoToLineWindow		Satıra git:
+OK	GoToLineWindow		Tamam
+Cancel	Editor		Vazgeç
+Don't save	Editor		Kaydetme
+Save	Editor		Kaydet
+Save changes to file \"%filename%\"?	Editor		Değişiklikler \"%filename%\" dosyasına kaydedilsin mi?
+Save dialog	Editor		Kaydet iletişim kutusu
+Cancel	QuitAlert		Vazgeç
+Don't save	QuitAlert		Kaydetme
+Save all	QuitAlert		Tümünü kaydet
+Save selected	QuitAlert		Seçiliyi kaydet
+There are unsaved changes.\nSelect the files to save.	QuitAlert		Kaydedilmemiş değişiklikler var.\nKaydedilecek dosyaları seçin.
+Unsaved files	QuitAlert		Kaydedilmemiş dosyalar
+Category	ProblemsPanel		Kategori
+Message	ProblemsPanel		İleti
+Problems	ProblemsPanel		Sorunlar
+Source	ProblemsPanel		Kaynak
+Do you want to ignore, review or load defaults?	GenioApp		Saptanmışları yüklemek, gözden geçirmek veya yok saymak mı istiyorsunuz?
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio, Ideam'ın bir çatalıdır ve MIT lisansı altında kullanılabilir.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio şunları kullanır:\nScintilla lib\nTelif hakkı 1998-2003, Neil Hodgson tarafından <neilh@scintilla.org>\n\nHaiku için Scintilla\nTelif hakkı 2011, Andrea Anzani tarafından <andrea.anzani@gmail.com>\nTelif hakkı 2014-2015, Kacper Kasper tarafından <kacperkasper@gmail.com>\n\n
+Ignore	GenioApp		Yok say
+Load defaults	GenioApp		Saptanmışları yükle
+Made with love in Italy	GenioApp		İtalya'da, sevgi ile yapıldı
+Review	GenioApp		Gözden geçir
+See credits for a complete list.\n\n	GenioApp		Tam bir liste için emeği geçenler bölümüne bakın.\n\n
+Settings file for a previous version detected.	GenioApp		Önceki bir sürüm için ayarlar dosyası algılandı.
+The settings file doesn't exist or is corrupted.	GenioApp		Ayarlar dosyası yok veya hasar görmüş.
+Edit user templates…	TemplatesMenu		Kullanıcı şablonlarını düzenle…
+Genio	System name		Genio
+New folder	TemplateManager		Yeni klasör
+OK	Utilities		Tamam

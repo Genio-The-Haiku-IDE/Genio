@@ -50,14 +50,15 @@ SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOThread.cpp
 SRCS +=  src/helpers/console_io/GenericThread.cpp
 SRCS +=  src/helpers/console_io/WordTextView.cpp
+SRCS +=  src/helpers/git/GitRepository.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
-SRCS +=  src/helpers/git/GitRepository.cpp
-SRCS +=  src/lsp-client/FileWrapper.cpp
-SRCS +=  src/lsp-client/LSPClientWrapper.cpp
-SRCS +=  src/lsp-client/LSPClient.cpp
+SRCS +=  src/lsp-client/LSPEditorWrapper.cpp
+SRCS +=  src/lsp-client/LSPProjectWrapper.cpp
+SRCS +=  src/lsp-client/LSPPipeClient.cpp
 SRCS +=  src/lsp-client/Transport.cpp
+SRCS +=  src/lsp-client/LSPReaderThread.cpp
 SRCS +=  src/override/MenuItem.cpp
 SRCS +=  src/override/OutlineListView.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
@@ -80,6 +81,7 @@ SRCS +=  src/ui/QuitAlert.cpp
 SRCS +=  src/templates/IconMenuItem.cpp
 SRCS +=  src/templates/TemplatesMenu.cpp
 SRCS +=  src/templates/TemplateManager.cpp
+SRCS +=  src/helpers/PipeImage.cpp
 
 RDEFS := Genio.rdef
 
@@ -120,8 +122,7 @@ CXXFLAGS := -std=c++17 -fPIC
 LOCALES := en it
 
 ## Include the Makefile-Engine
-ENGINE_DIRECTORY := $(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)
-include $(ENGINE_DIRECTORY)/etc/makefile-engine
+include $(BUILDHOME)/etc/makefile-engine
 
 ## CXXFLAGS rule
 $(OBJ_DIR)/%.o : %.cpp
@@ -132,16 +133,20 @@ deps:
 	$(MAKE) -C src/scintilla/haiku  
 
 .PHONY: clean deps
+
 cleanall: clean
 	$(MAKE) clean -C src/scintilla/haiku
 	$(MAKE) clean -C src/lexilla/src
+	rm -f txt2header
+	rm -f Changelog.h
        
 $(TARGET): deps
 
 GenioApp.cpp : Changelog.h
 
-Changelog.h : txt2header Changelog.txt
+Changelog.h : Changelog.txt txt2header
 	txt2header < Changelog.txt > Changelog.h
 
-txt2header : txt2header.cpp
+txt2header :
+	$(CXX) txt2header.cpp -o txt2header
 

@@ -11,7 +11,7 @@
 #include "json_fwd.hpp"
 #include <string>
 
-using value = json;
+using value = nlohmann::json;
 using RequestID = std::string;
 
 class MessageHandler {

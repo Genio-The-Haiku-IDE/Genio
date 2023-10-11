@@ -6,7 +6,9 @@
 #define GenioWatchingFilter_H
 
 
+#include <Directory.h>
 #include <PathMonitor.h>
+
 #include "Log.h"
 
 // This is attached to the PathMonitor class to avoid watching too many (useless) files.

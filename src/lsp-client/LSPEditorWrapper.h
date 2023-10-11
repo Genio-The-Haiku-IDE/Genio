@@ -2,8 +2,8 @@
  * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef FileWrapper_H
-#define FileWrapper_H
+#ifndef LSPEditorWrapper_H
+#define LSPEditorWrapper_H
 
 #include <iostream>
 #include <SupportDefs.h>
@@ -12,13 +12,12 @@
 #include <vector>
 #include "Sci_Position.h"
 #include "LSPTextDocument.h"
+#include "protocol_objects.h"
 
-struct Position;
-struct Range;
-class LSPClientWrapper;
+class LSPProjectWrapper;
 class Editor;
 
-class FileWrapper : public LSPTextDocument {
+class LSPEditorWrapper : public LSPTextDocument {
 	
 public:
 	enum GoToType {
@@ -28,11 +27,13 @@ public:
 	};
 	
 public:
-				FileWrapper(std::string fileURI, Editor* fEditor);
-		virtual	~FileWrapper() {};
+				LSPEditorWrapper(BPath filenamePath, Editor* fEditor);
+		virtual	~LSPEditorWrapper() {};
 		void	ApplySettings();
-		void	SetLSPClient(LSPClientWrapper* cW);
+		void	SetLSPClient(LSPProjectWrapper* cW);
 		void	UnsetLSPClient();
+		bool	HasLSPClient();
+
 private:
 		void	didOpen();
 public:
@@ -43,12 +44,11 @@ public:
 		void	StartCompletion();
 		void	SelectedCompletion(const char* text);
 		void	Format();
-		void	GoTo(FileWrapper::GoToType type);
+		void	GoTo(LSPEditorWrapper::GoToType type);
 		void	SwitchSourceHeader();
 		void	StartHover(Sci_Position sci_position);
 		void	EndHover();
 		
-		void	SignatureHelp();
 		
 		void	IndicatorClick(Sci_Position position);
 		
@@ -58,7 +58,7 @@ public:
 		void	ContinueCallTip();
 		void	UpdateCallTip(int deltaPos);
 		
-		const BString&	GetFileStatus(){ return fFileStatus;}
+		
 private:
 		/* experimental section */	
 		bool	StartCallTip(bool searchStart);
@@ -69,7 +69,7 @@ private:
 		int 	startCalltipWord;
 		Sci_Position calltipPosition;
 		Sci_Position calltipStartPosition;
-		nlohmann::json 	lastCalltip;
+		SignatureHelp 	lastCalltip;
 		int 	currentCalltip = 0;
 		int 	maxCalltip = 0;
 		std::string functionDefinition;
@@ -92,11 +92,10 @@ private:
 	};
 
 	Editor*				fEditor;
-	nlohmann::json		fCurrentCompletion;
+	CompletionList		fCurrentCompletion;
 	Sci_Position		fCompletionPosition;
 	BTextToolTip* 		fToolTip;
-	LSPClientWrapper*	fLSPClientWrapper;
-	bool				initialized = false; //use LSPClientWrapper pointer?
+	LSPProjectWrapper*	fLSPProjectWrapper;
 	BString				fFileStatus;
 
 	std::vector<InfoRange>		fLastDiagnostics;
@@ -124,10 +123,11 @@ private:
 	Sci_Position 	FromLSPPositionToSciPosition(const Position* lsp_position);
 	void 			GetCurrentLSPPosition(Position *lsp_position);
 	void 			FromSciPositionToRange(Sci_Position s_start, Sci_Position s_end, Range *range);
-	Sci_Position 	ApplyTextEdit(json &textEdit);
+	Sci_Position 	ApplyTextEdit(nlohmann::json &textEdit);
 	void			OpenFileURI(std::string uri, int32 line = -1, int32 character = -1);
-	std::string 	GetCurrentLine();                            
+	std::string 	GetCurrentLine();
+	bool			IsStatusValid();
 };
 
 
-#endif // FileWrapper_H
+#endif // LSPEditorWrapper_H

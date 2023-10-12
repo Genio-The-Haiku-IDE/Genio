@@ -90,7 +90,7 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 		B_ALIGN_VERTICAL_CENTER)); 
 	
 	// test
-	fURL->SetText("https://github.com/Genio-The-Haiku-IDE/Genio");
+	// fURL->SetText("https://github.com/Genio-The-Haiku-IDE/Genio");
 
 	fURL->SetTarget(this);
 	fURL->SetModificationMessage(new BMessage(kUrlModified));

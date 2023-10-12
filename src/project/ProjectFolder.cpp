@@ -172,34 +172,6 @@ ProjectFolder::GetCleanCommand()
 		return fSettings->GetString("project_debug_clean_command", "");
 }
 
-
-void
-ProjectFolder::SetBuildOnSave(bool enabled)
-{
-	fSettings->SetBool("build_on_save", enabled);
-}
-
-
-bool
-ProjectFolder::SaveOnBuild() const
-{
-	return fSettings->GetBool("save_on_build", false);
-}
-
-
-void
-ProjectFolder::SetSaveOnBuild(bool enabled)
-{
-	fSettings->SetBool("save_on_build", enabled);
-}
-
-
-bool
-ProjectFolder::BuildOnSave() const
-{
-	return fSettings->GetBool("build_on_save", false);
-}
-
 	
 void
 ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)

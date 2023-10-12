@@ -47,8 +47,6 @@ private:
 			BTextControl* 		fDebugBuildCommandText;
 			BTextControl* 		fReleaseCleanCommandText;
 			BTextControl* 		fDebugCleanCommandText;
-			BCheckBox*			fBuildOnSave;
-			BCheckBox*			fSaveOnBuild;
 			BTextControl* 		fReleaseExecuteArgsText;
 			BTextControl* 		fDebugExecuteArgsText;
 			BString				fTargetString;

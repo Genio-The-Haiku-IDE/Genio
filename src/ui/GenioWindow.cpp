@@ -1321,7 +1321,7 @@ GenioWindow::_BuildProject()
 	}
 
 	// TODO: Should ask if the user wants to save
-	if (fActiveProject->SaveOnBuild())
+	if (GenioNames::Settings.save_on_build == B_CONTROL_ON)
 		_FileSaveAll(fActiveProject);
 
 	fIsBuilding = true;
@@ -1745,7 +1745,8 @@ GenioWindow::_PostFileSave(Editor* editor)
 {
 	// TODO: Also handle cases where the file is saved from outside Genio ?
 	ProjectFolder* project = editor->GetProjectFolder();
-	if (project != nullptr && project->BuildOnSave()) {
+	if (GenioNames::Settings.build_on_save == B_CONTROL_ON &&
+		project != nullptr && project == fActiveProject) {
 		if (!fIsBuilding)
 			PostMessage(MSG_BUILD_PROJECT);
 	}

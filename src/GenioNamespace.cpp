@@ -122,6 +122,8 @@ SaveSettingsVars()
 	status += file.SetInt32("enable_notifications", Settings.enable_notifications);
 	status += file.SetInt32("wrap_console", Settings.wrap_console);
 	status += file.SetInt32("console_banner", Settings.console_banner);
+	status += file.SetInt32("build_on_save", Settings.build_on_save);
+	status += file.SetInt32("save_on_build", Settings.save_on_build);
 	status += file.SetInt32("editor_zoom", Settings.editor_zoom);
 	status += file.SetBool("find_wrap", 	  Settings.find_wrap);
 	status += file.SetBool("find_whole_word", Settings.find_whole_word);
@@ -132,6 +134,7 @@ SaveSettingsVars()
 
 	return status;
 }
+
 
 status_t
 LoadSettingsVars()
@@ -163,6 +166,8 @@ LoadSettingsVars()
 	status += file.FindInt32("enable_notifications", &Settings.enable_notifications);
 	status += file.FindInt32("wrap_console", &Settings.wrap_console);
 	status += file.FindInt32("console_banner", &Settings.console_banner);
+	status += file.FindInt32("build_on_save", &Settings.build_on_save);
+	status += file.FindInt32("save_on_build", &Settings.save_on_build);
 	status += file.FindInt32("editor_zoom", &Settings.editor_zoom);
 	status += file.FindBool("find_wrap", 	   &Settings.find_wrap);
 	status += file.FindBool("find_whole_word", &Settings.find_whole_word);
@@ -172,6 +177,8 @@ LoadSettingsVars()
 	status += file.FindInt32("trim_trailing_whitespace", &Settings.trim_trailing_whitespace);
 	return status;
 }
+
+
 
 /*
  * When new app version is created,

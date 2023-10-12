@@ -902,8 +902,8 @@ SettingsWindow::_PageBuildView()
 	BView* view = BGridLayoutBuilder(B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING)
 		.Add(fWrapConsoleEnabled, 0, 1)
 		.Add(fConsoleBannerEnabled, 1, 1)
-		.Add(fBuildOnSave, 2, 1)
-		.Add(fSaveOnBuild, 2, 2)
+		.Add(fBuildOnSave, 0, 2)
+		.Add(fSaveOnBuild, 1, 2)
 		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 3, 4)
 		.Add(BSpaceLayoutItem::CreateGlue(), 0, 4)
 		.SetInsets(10, 10, 10, 10)
@@ -1340,7 +1340,7 @@ SettingsWindow::_StoreToFileDefaults()
 	fWindowSettingsFile->SetInt32("brace_match", kSKBraceMatch);
 	fWindowSettingsFile->SetInt32("save_caret", kSKSaveCaret);
 	fWindowSettingsFile->SetBool("trim_trailing_whitespace", kSKTrimTrailingWhitespace);
-	
+
 	// Editor Visual Page
 	fWindowSettingsFile->SetInt32("show_linenumber", kSKShowLineNumber);
 	fWindowSettingsFile->SetInt32("show_commentmargin", kSKShowCommentMargin);
@@ -1359,7 +1359,7 @@ SettingsWindow::_StoreToFileDefaults()
 	fWindowSettingsFile->SetBool("find_wrap", kSKFindWrap);
 	fWindowSettingsFile->SetBool("find_whole_word", kSKFindWholeWord);
 	fWindowSettingsFile->SetBool("find_match_case", kSKFindMatchCase);
-	
+
 	fWindowSettingsFile->SetBool("build_on_save", kSKBuildOnSave);
 	fWindowSettingsFile->SetBool("save_on_build", kSKSaveOnBuild);
 	return B_OK;

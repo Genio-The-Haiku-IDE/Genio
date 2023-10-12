@@ -19,7 +19,9 @@ enum {
 	kDoClone,
 	kCancel,
 	kFinished,
-	kProgress
+	kProgress,
+	kUrlModified,
+	kQuit
 };
 
 class RemoteProjectWindow : public BWindow {
@@ -34,16 +36,22 @@ private:
 	const BMessenger			fTarget;
 	BButton* 					fClone;
 	BButton* 					fCancel;
+	BButton* 					fQuit;
 	BStatusBar*					fProgressBar;
 	BarberPole*					fBarberPole;
 	BCardLayout*				fProgressLayout;
+	BCardLayout*				fButtonsLayout;
 	BView*						fProgressView;
+	BView*						fButtonsView;
 	BStringView*				fStatusText;
+	BStringView*				fDestDirLabel;
+	BTextControl*				fDestDir;
 	
 	shared_ptr<Task<BPath>>		fCurrentTask;
 	
 	void						_OpenProject(const path& localPath);
 	void						_ResetControls();
+	BString						_ExtractRepositoryName(BString url);
 	void						_SetBusy();
 	void						_SetIdle();
 	void						_SetProgress(float value, const char* text);

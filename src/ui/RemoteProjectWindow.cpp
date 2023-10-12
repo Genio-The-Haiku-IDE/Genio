@@ -4,6 +4,7 @@
  */
  
 #include <stdio.h>
+#include <regex>
 
 #include <AppKit.h>
 #include <Catalog.h>
@@ -11,11 +12,14 @@
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
 #include <SupportKit.h>
+#include <Url.h>
 #include <Window.h>
 
 #include "RemoteProjectWindow.h"
 #include "Utils.h"
 #include "GenioWindowMessages.h"
+
+#include "BeDC.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "RemoteProjectWindow"
@@ -24,6 +28,9 @@ BHandler *this_handler = nullptr;
 
 #define VIEW_INDEX_BARBER_POLE	(int32) 0
 #define VIEW_INDEX_PROGRESS_BAR	(int32) 1
+#define VIEW_INDEX_CLONE_BUTTON	(int32) 0
+#define VIEW_INDEX_QUIT_BUTTON	(int32) 1
+
 static const BSize kStatusBarSize = BSize(600, be_plain_font->Size() * 2);
 
 RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BMessenger target)
@@ -47,21 +54,30 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fStatusText(nullptr)
 {
 	fURL = new BTextControl(B_TRANSLATE("URL:"), "", NULL);
-	fPathBox = new PathBox("pathbox", dirPath.String(), "Path:");
+	fPathBox = new PathBox("pathbox", dirPath.String(), B_TRANSLATE("Base path:"));
+	fDestDir = new BTextControl(B_TRANSLATE("Destination directory:"), "", nullptr);
 	fClone = new BButton("clone button", B_TRANSLATE("Clone"),
 			new BMessage(kDoClone));
 	fCancel = new BButton("cancel button", B_TRANSLATE("Cancel"),
 			new BMessage(kCancel));
+	fQuit = new BButton("quit button", B_TRANSLATE("Quit"),
+			new BMessage(kQuit));
 
 	fBarberPole = new BarberPole("barber pole");
 	fProgressBar = new BStatusBar("progress bar");
 	fProgressLayout = new BCardLayout();
 	fProgressView = new BView("progress view", 0);
 	fStatusText = new BStringView("status text", nullptr);
-
+	fButtonsView = new BView("buttons view", 0);
+	fButtonsLayout = new BCardLayout();
+	
 	fProgressView->SetLayout(fProgressLayout);
 	fProgressLayout->AddView(VIEW_INDEX_BARBER_POLE, fBarberPole);
 	fProgressLayout->AddView(VIEW_INDEX_PROGRESS_BAR, fProgressBar);
+	
+	fButtonsView->SetLayout(fButtonsLayout);
+	fButtonsLayout->AddView(VIEW_INDEX_CLONE_BUTTON, fClone);
+	fButtonsLayout->AddView(VIEW_INDEX_QUIT_BUTTON, fQuit);
 
 	fProgressBar->SetBarHeight(kStatusBarSize.Height());
 
@@ -72,21 +88,25 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 
 	fStatusText->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT,
 		B_ALIGN_VERTICAL_CENTER)); 
+	
 	// test
-	// fPathBox->SetPath("/boot/home/workspace/clone_test");
 	fURL->SetText("https://github.com/Genio-The-Haiku-IDE/Genio");
+
+	fURL->SetTarget(this);
+	fURL->SetModificationMessage(new BMessage(kUrlModified));
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 		.SetInsets(10)
 		.AddGlue()
 		.Add(fURL)
 		.Add(fPathBox)
+		.Add(fDestDir)
 		.Add(fProgressLayout)
 		.AddGroup(B_HORIZONTAL)
 			.Add(fStatusText)
 			.AddGlue()
 			.Add(fCancel)
-			.Add(fClone)
+			.Add(fButtonsLayout)
 		.End();
 
 	_SetIdle();
@@ -119,6 +139,7 @@ RemoteProjectWindow::_ResetControls()
 	fIsCloning = false;
 	fClone->SetEnabled(true);
 	fCancel->SetEnabled(false);
+	fDestDir->SetEnabled(true);
 	fPathBox->SetEnabled(true);
 	fURL->SetEnabled(true);
 }
@@ -133,6 +154,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				auto result = TaskResult<BPath>::Instantiate(msg)->GetResult();
 				_OpenProject(result.Path());
 				_SetProgress(100, "Finished!");
+				fButtonsLayout->SetVisibleItem(VIEW_INDEX_QUIT_BUTTON);
 			} catch(std::exception &ex) {
 				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ") 
 					<< ex.what(), B_INFO_ALERT);
@@ -147,6 +169,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			fIsCloning = true;
 			fClone->SetEnabled(false);
 			fCancel->SetEnabled(true);
+			fDestDir->SetEnabled(false);
 			fPathBox->SetEnabled(false);
 			fURL->SetEnabled(false);
 			
@@ -171,7 +194,9 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 								return 0;
 							};
 			
-			GitRepository repo(fPathBox->Path());  
+			BPath fullPath(fPathBox->Path());
+			fullPath.Append(fDestDir->Text());
+			GitRepository repo(fullPath.Path());  
 			fCurrentTask = make_shared<Task<BPath>>
 			(
 				"GitClone", 
@@ -181,14 +206,14 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 					&GitRepository::Clone, 
 					&repo , 
 					fURL->Text(), 
-					BPath(fPathBox->Path()), 
+					fullPath, 
 					callback
 				)
 			); 
 			
 			_SetProgress(0, nullptr);
 			fCurrentTask->Run();
-
+			
 			break;
 		}
 		case kCancel:
@@ -212,6 +237,11 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			}
 			break;
 		}
+		case kQuit:
+		{
+			Quit();
+		}
+		break;
 		case kProgress:
 		{
 			BString label;
@@ -225,9 +255,29 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			}
 		}
 		break;
+		case kUrlModified:
+		{
+			BString basedirPath = fPathBox->Path();
+			auto repoName = _ExtractRepositoryName(fURL->Text());
+			fDestDir->SetText(repoName);
+			// BPath path(fPathBox->Path());
+			// path.Append(repoName);
+			// fPathBox->SetPath(path.Path());
+			BeDC("Genio").SendMessage(repoName);
+		}
+		break;
 		default:
 			BWindow::MessageReceived(msg);
 	}
+}
+
+BString
+RemoteProjectWindow::_ExtractRepositoryName(BString url) {
+	
+	BString repoName(url);
+	repoName.Remove(0, url.FindLast('/')+1);
+	repoName.RemoveAll(".git");
+	return repoName;
 }
 
 void

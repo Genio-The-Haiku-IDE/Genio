@@ -76,7 +76,9 @@ enum {
 	MSG_LOG_DESTINATION_CHANGED				= 'lodc',
 	MSG_LOG_LEVEL_CHANGED					= 'lolc',
 	MSG_WRAP_CONSOLE_ENABLED				= 'wcen',
-	MSG_CONSOLE_BANNER_ENABLED				= 'cben'
+	MSG_CONSOLE_BANNER_ENABLED				= 'cben',
+	MSG_BUILD_ON_SAVE_ENABLED				= 'sabd',
+	MSG_SAVE_ON_BUILD_ENABLED				= 'bdsa'
 };
 
 SettingsWindow::SettingsWindow()
@@ -351,6 +353,18 @@ SettingsWindow::MessageReceived(BMessage *msg)
 			bool modified = fConsoleBannerEnabled->Value() !=
 								fWindowSettingsFile->FindInt32("console_banner");
 				_ManageModifications(fConsoleBannerEnabled, modified);
+			break;
+		}
+		case MSG_BUILD_ON_SAVE_ENABLED: {
+			bool modified = fBuildOnSave->Value() !=
+								fWindowSettingsFile->FindInt32("build_on_save");
+				_ManageModifications(fBuildOnSave, modified);
+			break;
+		}
+		case MSG_SAVE_ON_BUILD_ENABLED: {
+			bool modified = fSaveOnBuild->Value() !=
+								fWindowSettingsFile->FindInt32("save_on_build");
+				_ManageModifications(fSaveOnBuild, modified);
 			break;
 		}
 		default: {
@@ -790,7 +804,24 @@ SettingsWindow::_LoadFromFile(BControl* control, bool loadAll /*= false*/)
 		} else
 			fOrphansList->AddItem(fConsoleBannerEnabled);
 	}
-
+	if (control == fBuildOnSave || loadAll == true) {
+		status = fWindowSettingsFile->FindInt32("build_on_save", &intVal);
+		fControlsCount += loadAll == true;
+		if (status == B_OK) {
+			fBuildOnSave->SetValue(intVal);
+			fControlsDone += loadAll == true;
+		} else
+			fOrphansList->AddItem(fBuildOnSave);
+	}
+	if (control == fSaveOnBuild || loadAll == true) {
+		status = fWindowSettingsFile->FindInt32("save_on_build", &intVal);
+		fControlsCount += loadAll == true;
+		if (status == B_OK) {
+			fSaveOnBuild->SetValue(intVal);
+			fControlsDone += loadAll == true;
+		} else
+			fOrphansList->AddItem(fSaveOnBuild);
+	}
 	_UpdateText();
 	// Note: gets rewritten on reload defaults
 	_UpdateTrailing();
@@ -862,9 +893,17 @@ SettingsWindow::_PageBuildView()
 	fConsoleBannerEnabled = new BCheckBox("ConsoleBannerEnabled",
 		B_TRANSLATE("Console banner"), new BMessage(MSG_CONSOLE_BANNER_ENABLED));
 
+	fBuildOnSave = new BCheckBox("BuildOnSave",
+		B_TRANSLATE("Build target on resource save"), new BMessage(MSG_BUILD_ON_SAVE_ENABLED));
+
+	fSaveOnBuild = new BCheckBox("SaveOnBuild",
+		B_TRANSLATE("Save changed files on build"), new BMessage(MSG_SAVE_ON_BUILD_ENABLED));
+
 	BView* view = BGridLayoutBuilder(B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING)
 		.Add(fWrapConsoleEnabled, 0, 1)
 		.Add(fConsoleBannerEnabled, 1, 1)
+		.Add(fBuildOnSave, 2, 1)
+		.Add(fSaveOnBuild, 2, 2)
 		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER), 0, 3, 4)
 		.Add(BSpaceLayoutItem::CreateGlue(), 0, 4)
 		.SetInsets(10, 10, 10, 10)
@@ -1237,6 +1276,7 @@ SettingsWindow::_StoreToFile(BControl* control)
 		status = fWindowSettingsFile->SetInt32("save_caret", fSaveCaret->Value());
 	else if (control == fTrimWhitespace)
 		status = fWindowSettingsFile->SetInt32("trim_trailing_whitespace", fTrimWhitespace->Value());
+
 	// Editor Visual Page
 	else if (control == fShowLineNumber)
 		status = fWindowSettingsFile->SetInt32("show_linenumber", fShowLineNumber->Value());
@@ -1258,6 +1298,10 @@ SettingsWindow::_StoreToFile(BControl* control)
 		status = fWindowSettingsFile->SetInt32("wrap_console", fWrapConsoleEnabled->Value());
 	else if (control == fConsoleBannerEnabled)
 		status = fWindowSettingsFile->SetInt32("console_banner", fConsoleBannerEnabled->Value());
+	else if (control == fBuildOnSave)
+		status = fWindowSettingsFile->SetInt32("build_on_save", fBuildOnSave->Value());
+	else if (control == fSaveOnBuild)
+		status = fWindowSettingsFile->SetInt32("save_on_build", fSaveOnBuild->Value());
 
 	return status;
 }
@@ -1295,7 +1339,8 @@ SettingsWindow::_StoreToFileDefaults()
 	fWindowSettingsFile->SetInt32("tab_width", kSKTabWidth);
 	fWindowSettingsFile->SetInt32("brace_match", kSKBraceMatch);
 	fWindowSettingsFile->SetInt32("save_caret", kSKSaveCaret);
-
+	fWindowSettingsFile->SetBool("trim_trailing_whitespace", kSKTrimTrailingWhitespace);
+	
 	// Editor Visual Page
 	fWindowSettingsFile->SetInt32("show_linenumber", kSKShowLineNumber);
 	fWindowSettingsFile->SetInt32("show_commentmargin", kSKShowCommentMargin);
@@ -1314,7 +1359,9 @@ SettingsWindow::_StoreToFileDefaults()
 	fWindowSettingsFile->SetBool("find_wrap", kSKFindWrap);
 	fWindowSettingsFile->SetBool("find_whole_word", kSKFindWholeWord);
 	fWindowSettingsFile->SetBool("find_match_case", kSKFindMatchCase);
-
+	
+	fWindowSettingsFile->SetBool("build_on_save", kSKBuildOnSave);
+	fWindowSettingsFile->SetBool("save_on_build", kSKSaveOnBuild);
 	return B_OK;
 }
 

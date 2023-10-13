@@ -1747,8 +1747,10 @@ GenioWindow::_PostFileSave(Editor* editor)
 	ProjectFolder* project = editor->GetProjectFolder();
 	if (GenioNames::Settings.build_on_save == B_CONTROL_ON &&
 		project != nullptr && project == fActiveProject) {
-		if (!fIsBuilding)
-			PostMessage(MSG_BUILD_PROJECT);
+		// TODO: if we are already building we should stop / relaunch build here.
+		// at the moment we have an hack in place in ConsoleIOView::MessageReceived()
+		// in the MSG_RUN_PROCESS case to handle this situation
+		PostMessage(MSG_BUILD_PROJECT);
 	}
 }
 

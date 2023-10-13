@@ -163,13 +163,28 @@ ConsoleIOView::MessageReceived(BMessage* message)
 		case MSG_RUN_PROCESS:
 		{
 			if (fConsoleIOThread) {
-				//this should be prevented by the UI...
-				BString msg = "\n *** ";
-				msg << B_TRANSLATE("Another command is running.");
-				msg << "\n";
+				// TODO: Horrible hack to be able to stop and relaunch build.
+				// should be done differently
+				BString cmdType = NULL;
+				if (message->FindString("cmd_type", &cmdType) == B_OK
+					&& cmdType.Compare("build") == 0 && fCmdType == "build") {
+					fConsoleIOThread->InterruptExternal();
+					fConsoleIOThread->Kill();
+					delete fConsoleIOThread;
+					fConsoleIOThread = nullptr;
+					BString msg = "\n *** ";
+					msg << B_TRANSLATE("Restarting build" B_UTF8_ELLIPSIS);
+					msg << "\n";
+					ConsoleOutputReceived(1, msg);
+				} else {
+					//this should be prevented by the UI...
+					BString msg = "\n *** ";
+					msg << B_TRANSLATE("Another command is running.");
+					msg << "\n";
 
-				ConsoleOutputReceived(1, msg);
-				return;
+					ConsoleOutputReceived(1, msg);
+					return;
+				}
 			}
 			fStopButton->SetEnabled(true);
 			fConsoleIOThread = new ConsoleIOThread(message, BMessenger(this));

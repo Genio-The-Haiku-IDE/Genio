@@ -56,13 +56,8 @@ Genio requires libgit2 to implement Git features. The development files are avai
 Execute `pkgman install libgit2_devel` from Terminal
 
 ## Compiling
-<<<<<<< HEAD
-* Execute `make` in Genio's top directory  
-The executable is created in `app` subdirectory.
-=======
 * Execute `make deps && make` in Genio's top directory  
 The executable is created in `app` subdirectory.  
->>>>>>> remotes/origin/main
 
 If you would like to try a clang++ build:
 * Install `llvm_clang` hpkg from HaikuPorts

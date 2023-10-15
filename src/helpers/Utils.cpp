@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Nexus6 <nexus6.haiku@icloud.com>
  * Copyright 2017-2019 Kacper Kasper <kacperkasper@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
@@ -12,6 +13,7 @@
 #include <CheckBox.h>
 #include <IconUtils.h>
 #include <MessageFilter.h>
+#include <Notification.h>
 #include <RadioButton.h>
 #include <Resources.h>
 #include <Path.h>
@@ -194,6 +196,30 @@ find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
 		return ref;
 	}
 	return entry_ref();
+}
+
+
+void ProgressNotification(const char* group, const char* title, const char* messageID, 
+							const char* content, float progress, bigtime_t timeout)
+{
+	BNotification notification(B_PROGRESS_NOTIFICATION);
+	notification.SetGroup(group);
+	notification.SetTitle(title);
+	notification.SetMessageID(messageID);
+	notification.SetContent(content);
+	notification.SetProgress(progress);
+	notification.Send(timeout);
+}
+
+void ErrorNotification(const char* group, const char* title, const char* messageID, 
+							const char* content, bigtime_t timeout)
+{
+	BNotification notification(B_ERROR_NOTIFICATION);
+	notification.SetGroup(group);
+	notification.SetTitle(title);
+	notification.SetMessageID(messageID);
+	notification.SetContent(content);
+	notification.Send(timeout);
 }
 
 #define FIND_IN_ARRAY(ARRAY, VALUE) (std::find(std::begin(ARRAY), std::end(ARRAY), VALUE) != std::end(ARRAY));

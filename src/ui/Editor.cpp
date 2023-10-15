@@ -13,23 +13,26 @@
 #include <Application.h>
 #include <Catalog.h>
 #include <Control.h>
+#include <ILexer.h>
+#include <Lexilla.h>
 #include <NodeMonitor.h>
 #include <Path.h>
-#include <ILexer.h>
 #include <SciLexer.h>
-#include <Lexilla.h>
+#include <Url.h>
 #include <Volume.h>
 
 #include <iostream>
 #include <sstream>
 
+#include "EditorContextMenu.h"
+#include "EditorStatusView.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "keywords.h"
-#include "ProjectFolder.h"
-#include "EditorContextMenu.h"
-#include "ScintillaUtils.h"
 #include "Log.h"
+#include "LSPEditorWrapper.h"
+#include "ProjectFolder.h"
+#include "ScintillaUtils.h"
 #include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -44,10 +47,6 @@ using namespace Sci::Properties;
 // in scintilla messages
 #define UNSET 0
 #define UNUSED 0
-
-#include "LSPEditorWrapper.h"
-#include "EditorStatusView.h"
-#include <Url.h>
 
 
 Editor::Editor(entry_ref* ref, const BMessenger& target)
@@ -67,10 +66,10 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
 	SetTarget(target);
-	
+
 	fLSPEditorWrapper = new LSPEditorWrapper(BPath(&fFileRef), this);
-	
 }
+
 
 Editor::~Editor()
 {
@@ -85,22 +84,23 @@ Editor::~Editor()
 			node.WriteAttr("be:caret_position", B_INT32_TYPE, 0, &pos, sizeof(pos));
 		}
 	}
-	
+
 	fLSPEditorWrapper->UnsetLSPClient();
 	delete fLSPEditorWrapper;
 	fLSPEditorWrapper = NULL;
 }
 
+
 void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-
 		default:
 			BScintillaView::MessageReceived(message);
 			break;
 	}
 }
+
 
 void
 Editor::ApplySettings()
@@ -139,7 +139,6 @@ Editor::ApplySettings()
 	// Edge line
 	if (Settings.show_edgeline == true) {
 		SendMessage(SCI_SETEDGEMODE, EDGE_LINE, UNSET);
-
 		std::string column(Settings.edgeline_column);
 		int32 col;
 		std::istringstream (column) >>  col;
@@ -158,9 +157,7 @@ Editor::ApplySettings()
 	// MARGINS
 	SendMessage(SCI_SETMARGINS, 4, UNSET);
 	SendMessage(SCI_STYLESETBACK, STYLE_LINENUMBER, kLineNumberBack);
-
 	SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
-	
 
 	// Bookmark margin
 	SendMessage(SCI_SETMARGINTYPEN, sci_BOOKMARK_MARGIN, SC_MARGIN_SYMBOL);
@@ -179,12 +176,13 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12);
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	}
-	
+
 	fLSPEditorWrapper->ApplySettings();
-	
+
 	//custom ContextMenu!
 	SendMessage(SCI_USEPOPUP, SC_POPUP_NEVER, 0);
 }
+
 
 void
 Editor::BookmarkClearAll(int marker)
@@ -192,19 +190,20 @@ Editor::BookmarkClearAll(int marker)
 	SendMessage(SCI_MARKERDELETEALL, marker, UNSET);
 }
 
+
 bool
 Editor::BookmarkGoToNext()
 {
 	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS);
 	int64 line = SendMessage(SCI_LINEFROMPOSITION, pos);
 	int64 bookmark = SendMessage(SCI_MARKERNEXT, line + 1, (1 << sci_BOOKMARK));
-	if(bookmark == -1)
+	if (bookmark == -1)
 		bookmark = SendMessage(SCI_MARKERNEXT, 0, (1 << sci_BOOKMARK));
-	if(bookmark != -1)
+	if (bookmark != -1)
 		GoToLine(bookmark+1);
-	
 	return true;
 }
+
 
 bool
 Editor::BookmarkGoToPrevious()
@@ -212,25 +211,25 @@ Editor::BookmarkGoToPrevious()
 	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS);
 	int64 line = SendMessage(SCI_LINEFROMPOSITION, pos);
 	int64 bookmark = SendMessage(SCI_MARKERPREVIOUS, line - 1, (1 << sci_BOOKMARK));
-	if(bookmark == -1)
+	if (bookmark == -1)
 		bookmark = SendMessage(SCI_MARKERPREVIOUS, SendMessage(SCI_GETLINECOUNT), (1 << sci_BOOKMARK));
-	if(bookmark != -1)
+	if (bookmark != -1)
 		GoToLine(bookmark+1);
-
 	return true;
 }
+
 
 void
 Editor::BookmarkToggle(int position)
 {
 	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
 	int markerSet = SendMessage(SCI_MARKERGET, line, UNSET);
-
 	if ((markerSet & (1 << sci_BOOKMARK)) != 0)
 		SendMessage(SCI_MARKERDELETE, line, sci_BOOKMARK);
 	else
 		SendMessage(SCI_MARKERADD, line, sci_BOOKMARK);
 }
+
 
 void
 Editor::TrimTrailingWhitespace()
@@ -245,14 +244,14 @@ Editor::TrimTrailingWhitespace()
 	const std::string whitespace = "\\s+$";
 	int result;
 	do {
-		result = SendMessage(SCI_SEARCHINTARGET, whitespace.size(), (sptr_t) whitespace.c_str());
-		if(result != -1) {
-			SendMessage(SCI_REPLACETARGET, -1, (sptr_t) "");
-
+		result = SendMessage(SCI_SEARCHINTARGET, whitespace.size(), (sptr_t)whitespace.c_str());
+		if (result != -1) {
+			SendMessage(SCI_REPLACETARGET, -1, (sptr_t)"");
 			Set<SearchTarget>({Get<SearchTargetEnd>(), length});
 		}
 	} while(result != -1);
 }
+
 
 bool
 Editor::CanClear()
@@ -261,11 +260,14 @@ Editor::CanClear()
 				!IsReadOnly());
 }
 
+
 bool
 Editor::CanCopy()
 {
 	return (SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0);
 }
+
+
 bool
 Editor::CanCut()
 {
@@ -273,11 +275,13 @@ Editor::CanCut()
 				!IsReadOnly());
 }
 
+
 bool
 Editor::CanPaste()
 {
 	return SendMessage(SCI_CANPASTE, UNSET, UNSET);
 }
+
 
 bool
 Editor::CanRedo()
@@ -285,11 +289,13 @@ Editor::CanRedo()
 	return SendMessage(SCI_CANREDO, UNSET, UNSET);
 }
 
+
 bool
 Editor::CanUndo()
 {
 	return SendMessage(SCI_CANUNDO, UNSET, UNSET);
 }
+
 
 void
 Editor::Clear()
@@ -297,11 +303,13 @@ Editor::Clear()
 	SendMessage(SCI_CLEAR, UNSET, UNSET);
 }
 
+
 void
 Editor::Copy()
 {
 	SendMessage(SCI_COPY, UNSET, UNSET);
 }
+
 
 int32
 Editor::CountLines()
@@ -309,11 +317,13 @@ Editor::CountLines()
 	return SendMessage(SCI_GETLINECOUNT, UNSET, UNSET);
 }
 
+
 void
 Editor::Cut()
 {
 	SendMessage(SCI_CUT, UNSET, UNSET);
 }
+
 
 BString const
 Editor::EndOfLineString()
@@ -332,6 +342,7 @@ Editor::EndOfLineString()
 	}
 }
 
+
 void
 Editor::EndOfLineConvert(int32 eolMode)
 {
@@ -342,6 +353,7 @@ Editor::EndOfLineConvert(int32 eolMode)
 	SendMessage(SCI_CONVERTEOLS, eolMode, UNSET);
 }
 
+
 void
 Editor::EnsureVisiblePolicy()
 {
@@ -349,21 +361,20 @@ Editor::EnsureVisiblePolicy()
 		SendMessage(SCI_LINEFROMPOSITION, GetCurrentPosition(), UNSET), UNSET);
 }
 
+
 const BString
 Editor::FilePath() const
 {
 	BPath path(&fFileRef);
-
 	return path.Path();
 }
+
 
 int32
 Editor::Find(const BString&  text, int flags, bool backwards /* = false */)
 {
-	int position;
-
 	SendMessage(SCI_SEARCHANCHOR, UNSET, UNSET);
-
+	int position;
 	if (backwards == false)
 		position = SendMessage(SCI_SEARCHNEXT, flags, (sptr_t) text.String());
 	else
@@ -379,6 +390,7 @@ Editor::Find(const BString&  text, int flags, bool backwards /* = false */)
 	return position;
 }
 
+
 int
 Editor::FindInTarget(const BString& search, int flags, int startPosition, int endPosition)
 {
@@ -389,6 +401,7 @@ Editor::FindInTarget(const BString& search, int flags, int startPosition, int en
 
 	return position;
 }
+
 
 int32
 Editor::FindMarkAll(const BString& text, int flags)
@@ -434,7 +447,6 @@ Editor::FindMarkAll(const BString& text, int flags)
 	}
 
 	SendMessage(SCI_GOTOPOS, firstMark, UNSET);
-
 	BMessage message(EDITOR_FIND_COUNT);
 	message.AddString("text_to_find", text);
 	message.AddInt32("count", count);
@@ -443,7 +455,9 @@ Editor::FindMarkAll(const BString& text, int flags)
 	return count;
 }
 
+
 static bool sFound = false;
+
 
 int
 Editor::FindNext(const BString& search, int flags, bool wrap)
@@ -452,7 +466,6 @@ Editor::FindNext(const BString& search, int flags, bool wrap)
 		SendMessage(SCI_CHARRIGHT, UNSET, UNSET);
 
 	int position = Find(search, flags);
-
 	if (position != -1)
 		sFound = true;
 	else if (position == -1 && wrap == false) {
@@ -471,6 +484,7 @@ Editor::FindNext(const BString& search, int flags, bool wrap)
 	return position;
 }
 
+
 int
 Editor::FindPrevious(const BString& search, int flags, bool wrap)
 {
@@ -478,7 +492,6 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 		SendMessage(SCI_CHARLEFT, 0, 0);
 
 	int position = Find(search, flags, true);
-
 	if (position != -1)
 		sFound = true;
 	else if (position == -1 && wrap == false) {
@@ -498,11 +511,13 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 	return position;
 }
 
+
 int32
 Editor::GetCurrentPosition()
 {
 	return SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 }
+
 
 /*
  * Mind that first line is 0!
@@ -520,14 +535,16 @@ Editor::GoToLine(int32 line)
 	GrabFocus();
 }
 
+
 void
 Editor::GoToLSPPosition(int32 line, int character)
 {
-  Sci_Position  sci_position;
-  sci_position = SendMessage(SCI_POSITIONFROMLINE, line, 0);
-  sci_position = SendMessage(SCI_POSITIONRELATIVE, sci_position, character);
-  SendMessage(SCI_SETSEL, sci_position, sci_position);
+	Sci_Position  sci_position;
+	sci_position = SendMessage(SCI_POSITIONFROMLINE, line, 0);
+	sci_position = SendMessage(SCI_POSITIONRELATIVE, sci_position, character);
+	SendMessage(SCI_SETSEL, sci_position, sci_position);
 }
+
 
 void
 Editor::GrabFocus()
@@ -535,20 +552,22 @@ Editor::GrabFocus()
 	SendMessage(SCI_GRABFOCUS, UNSET, UNSET);
 }
 
+
 bool
 Editor::IsOverwrite()
 {
 	return SendMessage(SCI_GETOVERTYPE, UNSET, UNSET);
 }
 
+
 BString const
 Editor::IsOverwriteString()
 {
 	if (SendMessage(SCI_GETOVERTYPE, UNSET, UNSET) == true)
 		return "OVR";
-
 	return "INS";
 }
+
 
 bool
 Editor::IsReadOnly()
@@ -556,17 +575,18 @@ Editor::IsReadOnly()
 	return SendMessage(SCI_GETREADONLY, UNSET, UNSET);
 }
 
+
 bool
 Editor::IsSearchSelected(const BString& search, int flags)
 {
 	int start = SendMessage(SCI_GETSELECTIONSTART, UNSET, UNSET);
 	int end = SendMessage(SCI_GETSELECTIONEND, UNSET, UNSET);
-
 	if (FindInTarget(search, flags, start, end) == start)
 		return true;
 
 	return false;
 }
+
 
 bool
 Editor::IsTextSelected()
@@ -574,6 +594,7 @@ Editor::IsTextSelected()
 	return SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET) !=
 			SendMessage(SCI_GETANCHOR, UNSET, UNSET);
 }
+
 
 /*
  * Code (editable) taken from stylededit
@@ -583,14 +604,13 @@ Editor::LoadFromFile()
 {
 	status_t status;
 	BFile file;
-	struct stat st;
-
 	if ((status = file.SetTo(&fFileRef, B_READ_ONLY)) != B_OK)
 		return status;
 	if ((status = file.InitCheck()) != B_OK)
 		return status;
 	if ((status = file.Lock()) != B_OK)
 		return status;
+	struct stat st;
 	if ((status = file.GetStat(&st)) != B_OK)
 		return status;
 
@@ -602,13 +622,9 @@ Editor::LoadFromFile()
 
 	off_t size;
 	file.GetSize(&size);
-	
-		
 
 	char* buffer = new char[size + 1];
-
 	off_t len = file.Read(buffer, size);
-
 	buffer[size] = '\0';
 
 	SendMessage(SCI_SETTEXT, 0, (sptr_t) buffer);
@@ -619,7 +635,6 @@ Editor::LoadFromFile()
 	SendMessage(SCI_GETLINE, 0, (sptr_t)lineBuffer);
 	_EndOfLineAssign(lineBuffer, lineLength);
 	delete[] lineBuffer;
-
 	delete[] buffer;
 
 	if (len != size)
@@ -643,14 +658,15 @@ Editor::LoadFromFile()
 	return B_OK;
 }
 
+
 BString const
 Editor::ModeString()
 {
 	if (IsReadOnly())
-			return "RO";
-
+		return "RO";
 	return "RW";
 }
+
 
 void
 Editor::NotificationReceived(SCNotification* notification)
@@ -721,11 +737,9 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_UPDATEUI: {
-
 			_BraceHighlight();
 			// Selection/Position has changed
 			if (notification->updated & SC_UPDATE_SELECTION) {
-
 				// Ugly hack to enable mouse selection scrolling
 				// in both directions
 				int32 position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
@@ -743,36 +757,38 @@ Editor::NotificationReceived(SCNotification* notification)
 				// Update status bar
 				UpdateStatusBar();
 			}
-
 			break;
 		}
 	}
 }
 
-filter_result
-Editor::BeforeKeyDown(BMessage* message) {
 
+filter_result
+Editor::BeforeKeyDown(BMessage* message)
+{
 	int8 key = message->GetInt8("byte", 0);
 	switch (key) {
 		case B_UP_ARROW:
 		case B_DOWN_ARROW:
 			return OnArrowKey(key);
-		break;
 		default:
-		break;
+			break;
 	};
 
-  return B_DISPATCH_MESSAGE;
+	return B_DISPATCH_MESSAGE;
 }
 
+
 filter_result		
-Editor::OnArrowKey(int8 key) {
+Editor::OnArrowKey(int8 key)
+{
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
 		fLSPEditorWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
 		return B_SKIP_MESSAGE;
 	}
 	return B_DISPATCH_MESSAGE;
 }
+
 
 void				
 Editor::_UpdateSavePoint(bool modified)
@@ -784,12 +800,14 @@ Editor::_UpdateSavePoint(bool modified)
 	fTarget.SendMessage(&message);	
 }
 
+
 void
 Editor::OverwriteToggle()
 {
 	SendMessage(SCI_SETOVERTYPE, !IsOverwrite(), UNSET);
 	UpdateStatusBar();
 }
+
 
 void
 Editor::Paste()
@@ -799,31 +817,28 @@ Editor::Paste()
 }
 
 
-
 void
 Editor::Redo()
 {
 	SendMessage(SCI_REDO, UNSET, UNSET);
 }
 
+
 status_t
 Editor::Reload()
 {
 	status_t status;
 	BFile file;
-
 	//TODO errors should be notified
 	if ((status = file.SetTo(&fFileRef, B_READ_ONLY)) != B_OK)
 		return status;
 	if ((status = file.InitCheck()) != B_OK)
 		return status;
-
 	if ((status = file.Lock()) != B_OK)
 		return status;
 
 	// Enable external modifications of readonly file/buffer
 	bool readOnly = IsReadOnly();
-
 	if (readOnly == true)
 		SendMessage(SCI_SETREADONLY, 0, UNSET);
 
@@ -855,12 +870,12 @@ Editor::Reload()
 	return B_OK;
 }
 
+
 int
 Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
 															int flags, bool wrap)
 {
 	int retValue = REPLACE_NONE;
-
 	int position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 	int endPosition = SendMessage(SCI_GETTEXTLENGTH, UNSET, UNSET);
 
@@ -875,16 +890,15 @@ Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
 
 	position = SendMessage(SCI_SEARCHINTARGET, selection.Length(),
 											(sptr_t) selection.String());
-	if(position != -1) {
+	if (position != -1) {
 		SendMessage(SCI_SETSEL, position, position + selection.Length());
 		retValue = REPLACE_DONE;
 	} else if (wrap == true) {
 		// position == -1: not found or reached file end, ensue second case
 		SendMessage(SCI_TARGETWHOLEDOCUMENT, UNSET, UNSET);
-
 		position = SendMessage(SCI_SEARCHINTARGET, selection.Length(),
 												(sptr_t) selection.String());
-		if(position != -1) {
+		if (position != -1) {
 			SendMessage(SCI_SETSEL, position, position + selection.Length());
 			retValue = REPLACE_DONE;
 		}
@@ -910,7 +924,7 @@ Editor::ReplaceAll(const BString& selection, const BString& replacement, int fla
 	do {
 		position = SendMessage(SCI_SEARCHINTARGET, selection.Length(),
 												(sptr_t) selection.String());
-		if(position != -1) {
+		if (position != -1) {
 			SendMessage(SCI_REPLACETARGET, -1, (sptr_t) replacement.String());
 			count++;
 
@@ -919,7 +933,7 @@ Editor::ReplaceAll(const BString& selection, const BString& replacement, int fla
 
 			SendMessage(SCI_SETTARGETRANGE, position + replacement.Length(), endPosition);
 		}
-	} while(position != -1);
+	} while (position != -1);
 
 	SendMessage(SCI_ENDUNDOACTION, 0, 0);
 
@@ -929,6 +943,7 @@ Editor::ReplaceAll(const BString& selection, const BString& replacement, int fla
 
 	return count;
 }
+
 
 void
 Editor::ReplaceMessage(int position, const BString& selection,
@@ -946,12 +961,12 @@ Editor::ReplaceMessage(int position, const BString& selection,
 	fTarget.SendMessage(&message);
 }
 
+
 int
 Editor::ReplaceOne(const BString& selection, const BString& replacement)
 {
 	if (selection == Selection()) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
-
 		int position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 		// Found occurrence, message window
 		ReplaceMessage(position, selection, replacement);
@@ -961,13 +976,12 @@ Editor::ReplaceOne(const BString& selection, const BString& replacement)
 	return REPLACE_NONE;
 }
 
+
 ssize_t
 Editor::SaveToFile()
 {
 	BFile file;
-	status_t status;
-
-	status = file.SetTo(&fFileRef, B_READ_WRITE | B_ERASE_FILE | B_CREATE_FILE);
+	status_t status = file.SetTo(&fFileRef, B_READ_WRITE | B_ERASE_FILE | B_CREATE_FILE);
 	if (status != B_OK)
 		return 0;
 
@@ -991,11 +1005,12 @@ Editor::SaveToFile()
 	delete[] buffer;
 
 	SendMessage(SCI_SETSAVEPOINT, UNSET, UNSET);
-	
+
 	fLSPEditorWrapper->didSave();
 
 	return bytes;
 }
+
 
 void
 Editor::ScrollCaret()
@@ -1003,11 +1018,13 @@ Editor::ScrollCaret()
 	SendMessage(SCI_SCROLLCARET, UNSET, UNSET);
 }
 
+
 void
 Editor::SelectAll()
 {
 	SendMessage(SCI_SELECTALL, UNSET, UNSET);
 }
+
 
 const BString
 Editor::Selection()
@@ -1018,6 +1035,7 @@ Editor::Selection()
 	return text;
 }
 
+
 // it sends Selection/Position changes.
 void
 Editor::SendPositionChanges()
@@ -1025,7 +1043,6 @@ Editor::SendPositionChanges()
 	int32 position = GetCurrentPosition();
 	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
 	int column = SendMessage(SCI_GETCOLUMN, position, UNSET) + 1;
-
 	fCurrentLine = line;
 	fCurrentColumn = column;
 
@@ -1035,6 +1052,7 @@ Editor::SendPositionChanges()
 	message.AddInt32("column", fCurrentColumn);
 	fTarget.SendMessage(&message);
 }
+
 
 void
 Editor::UpdateStatusBar()
@@ -1048,9 +1066,10 @@ Editor::UpdateStatusBar()
 	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
 	update.AddString("readOnly", ModeString());
 	update.AddString("eol", EndOfLineString());
-	
+
 	fStatusView->SetStatus(&update);
 }
+
 
 status_t
 Editor::SetFileRef(entry_ref* ref)
@@ -1065,6 +1084,7 @@ Editor::SetFileRef(entry_ref* ref)
 	return B_OK;
 }
 
+
 void
 Editor::SetReadOnly(bool readOnly)
 {
@@ -1073,7 +1093,7 @@ Editor::SetReadOnly(bool readOnly)
 		UpdateStatusBar();
 		return;
 	}
-	
+
 	if (IsModified()) {
 		BString text(B_TRANSLATE("Save changes to file \"%filename%\"?"));
 		text.ReplaceFirst("%filename%", Name());
@@ -1081,11 +1101,10 @@ Editor::SetReadOnly(bool readOnly)
 		BAlert* alert = new BAlert(B_TRANSLATE("Save dialog"), text,
  			B_TRANSLATE("Cancel"), B_TRANSLATE("Don't save"), B_TRANSLATE("Save"),
  			B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
-   			 
-		alert->SetShortcut(0, B_ESCAPE);
-		
-		int32 choice = alert->Go();
 
+		alert->SetShortcut(0, B_ESCAPE);
+
+		int32 choice = alert->Go();
 		if (choice == 0)
 			return ;
 		else if (choice == 2) {
@@ -1096,9 +1115,9 @@ Editor::SetReadOnly(bool readOnly)
 	fModified = false;
 
 	SendMessage(SCI_SETREADONLY, 1, UNSET);
-	
 	UpdateStatusBar();
 }
+
 
 status_t
 Editor::SetSavedCaretPosition()
@@ -1114,10 +1133,8 @@ Editor::SetSavedCaretPosition()
 	int32 pos = 0;
 	ssize_t bytes = 0;
 	bytes = node.ReadAttr("be:caret_position", B_INT32_TYPE, 0, &pos, sizeof(pos));
-
 	if (bytes < (int32) sizeof(pos))
 		return B_ERROR; //TODO maybe tweak + cast
-
 
 	SendMessage(SCI_ENSUREVISIBLEENFORCEPOLICY,
 			SendMessage(SCI_LINEFROMPOSITION, pos, UNSET), UNSET);
@@ -1127,12 +1144,12 @@ Editor::SetSavedCaretPosition()
 	return B_OK;
 }
 
+
 int
 Editor::SetSearchFlags(bool matchCase, bool wholeWord, bool wordStart,
 			bool regExp, bool posix)
 {
 	int flags = 0;
-
 	if (matchCase == true)
 		flags |= SCFIND_MATCHCASE;
 	if (wholeWord == true)
@@ -1143,20 +1160,21 @@ Editor::SetSearchFlags(bool matchCase, bool wholeWord, bool wordStart,
 	return flags;
 }
 
+
 void
 Editor::SetTarget(const BMessenger& target)
 {
     fTarget = target;
 }
 
+
 status_t
 Editor::StartMonitoring()
 {
-	status_t status;
-
 	// start monitoring this file for changes
 	BEntry entry(&fFileRef, true);
 
+	status_t status;
 	if ((status = entry.GetNodeRef(&fNodeRef)) != B_OK) {
 		LogErrorF("Can't get a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
 		return status;
@@ -1167,6 +1185,7 @@ Editor::StartMonitoring()
 	}
 	return	B_OK;
 }
+
 
 status_t
 Editor::StopMonitoring()
@@ -1179,11 +1198,13 @@ Editor::StopMonitoring()
 	return B_OK;
 }
 
+
 void
 Editor::ToggleFolding()
 {
 	SendMessage(SCI_FOLDALL, SC_FOLDACTION_TOGGLE, UNSET);
 }
+
 
 void
 Editor::ShowLineEndings(bool show)
@@ -1191,11 +1212,13 @@ Editor::ShowLineEndings(bool show)
 	SendMessage(SCI_SETVIEWEOL, show ? 1 : 0, UNSET);
 }
 
+
 void
 Editor::ShowWhiteSpaces(bool show)
 {
 	SendMessage(SCI_SETVIEWWS, show ? SCWS_VISIBLEALWAYS : SCWS_INVISIBLE, UNSET);
 }
+
 
 bool
 Editor::LineEndingsVisible()
@@ -1203,11 +1226,13 @@ Editor::LineEndingsVisible()
 	return SendMessage(SCI_GETVIEWEOL, UNSET, UNSET);
 }
 
+
 bool
 Editor::WhiteSpacesVisible()
 {
 	return !(SendMessage(SCI_GETVIEWWS, UNSET, UNSET) == SCWS_INVISIBLE);
 }
+
 
 void
 Editor::Undo()
@@ -1215,12 +1240,13 @@ Editor::Undo()
 	SendMessage(SCI_UNDO, UNSET, UNSET);
 }
 
-void
 
+void
 Editor::Completion()
 {
 	fLSPEditorWrapper->StartCompletion();
 }
+
 		
 void
 Editor::Format()
@@ -1228,17 +1254,20 @@ Editor::Format()
 	fLSPEditorWrapper->Format();
 }
 
+
 void
 Editor::GoToDefinition()
 {
 	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_DEFINITION);
 }
 
+
 void
 Editor::GoToDeclaration()
 {
 	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_DECLARATION);
 }
+
 
 void
 Editor::GoToImplementation()
@@ -1258,6 +1287,7 @@ Editor::SwitchSourceHeader()
 	}
 }
 
+
 void
 Editor::SetProjectFolder(ProjectFolder* proj)
 {
@@ -1266,10 +1296,11 @@ Editor::SetProjectFolder(ProjectFolder* proj)
 		fLSPEditorWrapper->SetLSPClient(proj->GetLSPClient());
 	else
 		fLSPEditorWrapper->UnsetLSPClient();
-	
+
 	BMessage empty;
 	SetProblems(&empty);
 }
+
 
 void
 Editor::SetZoom(int32 zoom)
@@ -1278,11 +1309,13 @@ Editor::SetZoom(int32 zoom)
 	_RedrawNumberMargin(true);
 }
 
+
 void
 Editor::ContextMenu(BPoint point)
 {
 	EditorContextMenu::Show(this, point);
 }
+
 
 void
 Editor::_ApplyExtensionSettings()
@@ -1319,13 +1352,13 @@ Editor::_MaintainIndentation(char ch)
 	int currentLine = SendMessage(SCI_LINEFROMPOSITION, SendMessage(SCI_GETCURRENTPOS, 0, 0), 0);
 	int lastLine = currentLine - 1;
 
-	if(((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') ||
+	if (((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') ||
 		(eolMode == SC_EOL_CR && ch == '\r')) {
 		int indentAmount = 0;
-		if(lastLine >= 0) {
+		if (lastLine >= 0) {
 			indentAmount = SendMessage(SCI_GETLINEINDENTATION, lastLine, 0);
 		}
-		if(indentAmount > 0) {
+		if (indentAmount > 0) {
 			_SetLineIndentation(currentLine, indentAmount);
 		}
 	}
@@ -1335,7 +1368,7 @@ Editor::_MaintainIndentation(char ch)
 void
 Editor::_SetLineIndentation(int line, int indent)
 {
-	if(indent < 0)
+	if (indent < 0)
 		return;
 
 	Sci_CharacterRange crange;
@@ -1345,45 +1378,46 @@ Editor::_SetLineIndentation(int line, int indent)
 	SendMessage(SCI_SETLINEINDENTATION, line, indent);
 	int posAfter = SendMessage(SCI_GETLINEINDENTPOSITION, line, 0);
 	int posDifference = posAfter - posBefore;
-	if(posAfter > posBefore) {
-		if(crange.cpMin >= posBefore) {
+	if (posAfter > posBefore) {
+		if (crange.cpMin >= posBefore) {
 			crange.cpMin += posDifference;
 		}
-		if(crange.cpMax >= posBefore) {
+		if (crange.cpMax >= posBefore) {
 			crange.cpMax += posDifference;
 		}
 	} else if(posAfter < posBefore) {
-		if(crange.cpMin >= posAfter) {
-			if(crange.cpMin >= posBefore) {
+		if (crange.cpMin >= posAfter) {
+			if (crange.cpMin >= posBefore) {
 				crange.cpMin += posDifference;
 			} else {
 				crange.cpMin = posAfter;
 			}
 		}
-		if(crange.cpMax >= posAfter) {
-			if(crange.cpMax >= posBefore) {
+		if (crange.cpMax >= posAfter) {
+			if (crange.cpMax >= posBefore) {
 				crange.cpMax += posDifference;
 			} else {
 				crange.cpMax = posAfter;
 			}
 		}
 	}
-	if((crangeStart.cpMin != crange.cpMin) || (crangeStart.cpMax != crange.cpMax)) {
+	if ((crangeStart.cpMin != crange.cpMin) || (crangeStart.cpMax != crange.cpMax)) {
 		Set<Sci::Properties::Selection>({static_cast<int>(crange.cpMin), static_cast<int>(crange.cpMax)});
 	}
 }
 
+
 void
 Editor::_BraceHighlight()
 {
-	if(fBracingAvailable == true) {
+	if (fBracingAvailable == true) {
 		Sci_Position pos = SendMessage(SCI_GETCURRENTPOS, 0, 0);
 		// highlight indent guide
 		int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 		int indentation = SendMessage(SCI_GETLINEINDENTATION, line, 0);
 		SendMessage(SCI_SETHIGHLIGHTGUIDE, indentation, 0);
 		// highlight braces
-		if(_BraceMatch(pos - 1) == false) {
+		if (_BraceMatch(pos - 1) == false) {
 			_BraceMatch(pos);
 		}
 	} else {
@@ -1391,13 +1425,14 @@ Editor::_BraceHighlight()
 	}
 }
 
+
 bool
 Editor::_BraceMatch(int pos)
 {
 	char ch = SendMessage(SCI_GETCHARAT, pos, 0);
-	if(ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
+	if (ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
 		int match = SendMessage(SCI_BRACEMATCH, pos, 0);
-		if(match == -1) {
+		if (match == -1) {
 			SendMessage(SCI_BRACEBADLIGHT, pos, 0);
 		} else {
 			SendMessage(SCI_BRACEHIGHLIGHT, pos, match);
@@ -1427,10 +1462,9 @@ Editor::_CommentLine(int32 position)
 	delete[] lineBuffer;
 
 	// Calculate offset of first non-space
-	std::size_t offset = line.find_first_not_of("\t ");
-	
+	std::size_t offset = line.find_first_not_of("\t ");	
 	if (offset == std::string::npos)
-		return; 
+		return;
 
 	if (line.substr(offset, fCommenter.length()) != fCommenter) {
 		// Not starting with a comment, comment out
@@ -1442,11 +1476,14 @@ Editor::_CommentLine(int32 position)
 	}
 }
 
+
 void
-Editor::DuplicateCurrentLine() {
+Editor::DuplicateCurrentLine()
+{
 	int32 lineNumber = SendMessage(SCI_LINEFROMPOSITION, GetCurrentPosition(), UNSET);
 	SendMessage(SCI_LINEDUPLICATE, lineNumber, UNSET);
 }
+
 
 void
 Editor::DeleteSelectedLines() {
@@ -1455,11 +1492,12 @@ Editor::DeleteSelectedLines() {
 	int32 startLineNumber = SendMessage(SCI_LINEFROMPOSITION, start, UNSET);
 	int32 end = SendMessage(SCI_GETSELECTIONEND, 0, UNSET);
 	int32 endLineNumber = SendMessage(SCI_LINEFROMPOSITION, end, UNSET);
-	for (int32 i = startLineNumber; i<=endLineNumber; i++) {
+	for (int32 i = startLineNumber; i <= endLineNumber; i++) {
 		SendMessage(SCI_LINEDELETE, i, UNSET);
 	}
 	SendMessage(SCI_ENDUNDOACTION, 0, UNSET);
 }
+
 
 void
 Editor::CommentSelectedLines()
@@ -1469,18 +1507,20 @@ Editor::CommentSelectedLines()
 	int32 end = SendMessage(SCI_GETSELECTIONEND, 0, UNSET);
 	int32 endLineNumber = SendMessage(SCI_LINEFROMPOSITION, end, UNSET);
 	SendMessage(SCI_BEGINUNDOACTION, 0, UNSET);
-	for (int32 i = startLineNumber; i<=endLineNumber; i++) {
+	for (int32 i = startLineNumber; i <= endLineNumber; i++) {
 		int32 position = SendMessage(SCI_POSITIONFROMLINE, i, UNSET);
 		_CommentLine(position);
 	}
 	SendMessage(SCI_ENDUNDOACTION, 0, UNSET);
 }
 
+
 int32
 Editor::_EndOfLine()
 {
 	return SendMessage(SCI_GETEOLMODE, UNSET, UNSET);
 }
+
 
 void
 Editor::_EndOfLineAssign(char *buffer, int32 size)
@@ -1518,6 +1558,7 @@ Editor::_EndOfLineAssign(char *buffer, int32 size)
 	SendMessage(SCI_SETEOLMODE, eol, UNSET);
 }
 
+
 void
 Editor::_HighlightBraces()
 {
@@ -1531,6 +1572,7 @@ Editor::_HighlightBraces()
 		SendMessage(SCI_SETINDENTATIONGUIDES, SC_IV_REAL, UNSET);
 	}
 }
+
 
 void
 Editor::_HighlightFile()
@@ -1602,6 +1644,7 @@ Editor::_RedrawNumberMargin(bool forced)
 	}
 }
 
+
 void
 Editor::_SetFoldMargin()
 {
@@ -1639,6 +1682,8 @@ Editor::SetProblems(const BMessage* diagnostics)
 	fProblems.AddRef("ref", &fFileRef);
 	Window()->PostMessage(&fProblems);
 }
+
+
 void
 Editor::GetProblems(BMessage* diagnostics)
 {

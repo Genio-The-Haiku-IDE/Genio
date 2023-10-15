@@ -1,23 +1,26 @@
-1	English	application/x-vnd.Genio	2873557663
+1	English	application/x-vnd.Genio	101957421
 Copy	GenioWindow		Copy
 Enable brace matching	SettingsWindow		Enable brace matching
 Dos	GenioWindow		Dos
 Clear	ConsoleIOView		Clear
-Switch source/header	GenioWindow		Switch source/header
+Open remote project	GenioWindow		Open remote project
 Comment selected lines	GenioWindow		Comment selected lines
+Switch source/header	GenioWindow		Switch source/header
 Make file read-only	GenioWindow		Make file read-only
 Show toolbar	GenioWindow		Show toolbar
 Font:	SettingsWindow		Font:
 Project settings…	ProjectsFolderBrowser		Project settings…
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Replace selection	GenioWindow		Replace selection
-Problems	ProblemsPanel		Problems
+URL:	RemoteProjectWindow		URL:
 Open file	ProjectsFolderBrowser		Open file
+Problems	ProblemsPanel		Problems
 Edge column:	SettingsWindow		Edge column:
 Line endings	GenioWindow		Line endings
 Window	GenioWindow		Window
 Open files list	GenioWindow		Open files list
 Projects folder:	SettingsWindow		Projects folder:
+File modified on index	GitRepository		File modified on index
 Set active	ProjectsFolderBrowser		Set active
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
 Wrap	GenioWindow		Wrap
@@ -28,9 +31,11 @@ Log (oneline)	GenioWindow	The git command	Log (oneline)
 OK	GoToLineWindow		OK
 Select all	GenioWindow		Select all
 New folder	TemplateManager		New folder
+New file	GitRepository		New file
 Show/Hide find bar	GenioWindow		Show/Hide find bar
 Status	GenioWindow	The git command	Status
 Startup	SettingsWindow		Startup
+Continue	RemoteProjectWindow		Continue
 Close file	GenioWindow		Close file
 Build log	GenioWindow		Build log
 Find previous	GenioWindow		Find previous
@@ -38,8 +43,8 @@ Show projects pane	SettingsWindow		Show projects pane
 Redo	GenioWindow		Redo
 Console I/O	GenioWindow		Console I/O
 Run	GenioWindow		Run
-Save current file	GenioWindow		Save current file
 Open Terminal	ProjectsFolderBrowser		Open Terminal
+Save current file	GenioWindow		Save current file
 Reload	GenioWindow		Reload
 Default	ProjectSettingsWindow		Default
 Project	GenioWindow		Project
@@ -50,6 +55,7 @@ Cancel	GenioWindow		Cancel
 Switch to previous file	GenioWindow		Switch to previous file
 Log level:	SettingsWindow		Log level:
 Release project target:	ProjectSettingsWindow		Release project target:
+Clone	RemoteProjectWindow		Clone
 Genio	System name		Genio
 OK	ProjectsFolderBrowser		OK
 Keep	GenioWindow		Keep
@@ -59,6 +65,7 @@ Debug	GenioWindow		Debug
 Undo	GenioWindow		Undo
 Open recent…	GenioWindow		Open recent…
 Save	Editor		Save
+Destination directory:	RemoteProjectWindow		Destination directory:
 Autocomplete	GenioWindow		Autocomplete
 File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
 New file	GenioWindow		New file
@@ -67,6 +74,7 @@ Previous	GenioWindow	Bookmark menu	Previous
 Show output pane	GenioWindow		Show output pane
 Read-only	GenioWindow		Read-only
 Delete file	ProjectsFolderBrowser		Delete file
+The local path is not valid or does not exist	RemoteProjectWindow		The local path is not valid or does not exist
 Do you want to ignore, review or load defaults?	GenioApp		Do you want to ignore, review or load defaults?
 Find	GenioWindow		Find
 Discard	GenioWindow		Discard
@@ -95,9 +103,10 @@ Build	SettingsWindow		Build
 Another command is running.	ConsoleIOView		Another command is running.
 Duplicate current line	GenioWindow		Duplicate current line
 Clean project	GenioWindow		Clean project
+Open remote Git project	RemoteProjectWindow		Open remote Git project
 Default	SettingsWindow		Default
-Settings…	GenioWindow		Settings…
 General	SettingsWindow		General
+Settings…	GenioWindow		Settings…
 Delete	GenioWindow		Delete
 Message	ProblemsPanel		Message
 Go to line	GoToLineWindow		Go to line
@@ -106,9 +115,10 @@ There are unsaved changes.\nSelect the files to save.	QuitAlert		There are unsav
 Pull (rebase)	GenioWindow	The git command	Pull (rebase)
 Pull	GenioWindow	The git command	Pull
 Save	GenioWindow		Save
+Restarting build…	ConsoleIOView		Restarting build…
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
-Go to declaration	GenioWindow		Go to declaration
 Quit	GenioWindow		Quit
+Go to declaration	GenioWindow		Go to declaration
 Switch to next file	GenioWindow		Switch to next file
 Show projects pane	GenioWindow		Show projects pane
 Log destination:	SettingsWindow		Log destination:
@@ -120,21 +130,25 @@ stdout	ConsoleIOView		stdout
 Save selected	QuitAlert		Save selected
 Reload projects	SettingsWindow		Reload projects
 Console banner	SettingsWindow		Console banner
+New file staged	GitRepository		New file staged
 Overwrite	GenioWindow		Overwrite
 Enable notifications	SettingsWindow		Enable notifications
 Edit user templates…	TemplatesMenu		Edit user templates…
 Go to definition	GenioWindow		Go to definition
-Save dialog	Editor		Save dialog
+Stop	RemoteProjectWindow		Stop
+Cancel	RemoteProjectWindow		Cancel
 Rename file	ProjectsFolderBrowser		Rename file
+Save dialog	Editor		Save dialog
 Cancel	QuitAlert		Cancel
 Show output pane	SettingsWindow		Show output pane
+File deleted	GitRepository		File deleted
 Status (short)	GenioWindow	The git command	Status (short)
 Don't save	GenioWindow		Don't save
 Release execute arguments:	ProjectSettingsWindow		Release execute arguments:
 Search	GenioWindow		Search
 OK	ProjectSettingsWindow		OK
-Exclude settings file from Git	ProjectSettingsWindow		Exclude settings file from Git
 Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
+Exclude settings file from Git	ProjectSettingsWindow		Exclude settings file from Git
 Editor	SettingsWindow		Editor
 Banner	ConsoleIOView		Banner
 Error creating folder	GenioWindow		Error creating folder
@@ -151,6 +165,7 @@ Stop	ConsoleIOView		Stop
 Save changed files on build	SettingsWindow		Save changed files on build
 Tab width:  	SettingsWindow		Tab width:  
 Show toolbar	SettingsWindow		Show toolbar
+File modified	GitRepository		File modified
 Revert	SettingsWindow		Revert
 Settings file for a previous version detected.	GenioApp		Settings file for a previous version detected.
 Whole word	GenioWindow		Whole word
@@ -165,8 +180,8 @@ Cancel	GoToLineWindow		Cancel
 Bookmark all	GenioWindow		Bookmark all
 Appearance	GenioWindow		Appearance
 Cancel	Editor		Cancel
-File	GenioWindow		File
 Rename folder	ProjectsFolderBrowser		Rename folder
+File	GenioWindow		File
 Delete current line	GenioWindow		Delete current line
 Source control	ProjectSettingsWindow		Source control
 Reload files	SettingsWindow		Reload files
@@ -176,6 +191,7 @@ Set for app ver: 	SettingsWindow		Set for app ver:
 Font size:	SettingsWindow		Font size:
 Cancel	SettingsWindow		Cancel
 Zoom out	GenioWindow		Zoom out
+Base path:	RemoteProjectWindow		Base path:
 Save as…	GenioWindow		Save as…
 Mac	GenioWindow		Mac
 Build target on resource save	SettingsWindow		Build target on resource save
@@ -196,8 +212,8 @@ Save position	SettingsWindow		Save position
 Delete folder	ProjectsFolderBrowser		Delete folder
 Format	GenioWindow		Format
 Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
-Release build command:	ProjectSettingsWindow		Release build command:
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
+Release build command:	ProjectSettingsWindow		Release build command:
 Zoom in	GenioWindow		Zoom in
 Enable folding	SettingsWindow		Enable folding
 Apply	SettingsWindow		Apply
@@ -207,6 +223,7 @@ New	GenioWindow		New
 Bookmark	GenioWindow		Bookmark
 Close all	GenioWindow		Close all
 You can't create a new folder here, please select a project or another folder	GenioWindow		You can't create a new folder here, please select a project or another folder
+Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
 Wrap	ConsoleIOView		Wrap
 Next	GenioWindow	Bookmark menu	Next
 Clear all	GenioWindow	Bookmark menu	Clear all
@@ -230,6 +247,7 @@ Clean project	ProjectsFolderBrowser		Clean project
 Debug clean command:	ProjectSettingsWindow		Debug clean command:
 Search Results	SearchResultPanel		Search Results
 Build project	ProjectsFolderBrowser		Build project
+File deleted from index	GitRepository		File deleted from index
 Ignore	GenioApp		Ignore
 Edit	GenioWindow		Edit
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
@@ -245,5 +263,6 @@ Paste	GenioWindow		Paste
 Debug build command:	ProjectSettingsWindow		Debug build command:
 Visual	SettingsWindow		Visual
 Don't save	QuitAlert		Don't save
+Quit	RemoteProjectWindow		Quit
 Build commands	ProjectSettingsWindow		Build commands
 Save caret position	SettingsWindow		Save caret position

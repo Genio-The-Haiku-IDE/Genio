@@ -36,8 +36,29 @@ ProjectSettingsWindow::ProjectSettingsWindow(ProjectFolder *project)
 //													B_NOT_RESIZABLE |
 													B_AVOID_FRONT |
 													B_AUTO_UPDATE_SIZE_LIMITS |
-													B_CLOSE_ON_ESCAPE)
-	, fProject(project)
+													B_CLOSE_ON_ESCAPE),
+	fProject(project),
+	fProjectBox(),
+	fProjectBoxLabel(),
+	fProjectBoxProjectLabel(),
+	fBuildCommandsBox(nullptr),
+	fReleaseProjectTargetText(nullptr),
+	fDebugProjectTargetText(nullptr),
+	fReleaseBuildCommandText(nullptr),
+	fDebugBuildCommandText(nullptr),
+	fReleaseCleanCommandText(nullptr),
+	fDebugCleanCommandText(nullptr),
+	fReleaseExecuteArgsText(nullptr),
+	fDebugExecuteArgsText(nullptr),
+	fTargetString(),
+	fBuildString(),
+	fCleanString(),
+	fTargetBox(nullptr),
+	fRunInTerminal(nullptr),
+	fEnableGit(nullptr),
+	fExcludeSettingsGit(nullptr),
+	fSourceControlBox(nullptr),
+	fRunArgsString()
 {
 	_InitWindow();
 
@@ -96,11 +117,11 @@ ProjectSettingsWindow::_InitWindow()
 	fBuildCommandsBox = new BBox("BuildCommandsBox");
 	fBuildCommandsBox->SetLabel(B_TRANSLATE("Build commands"));
 
-	fReleaseBuildCommandText = new BTextControl(B_TRANSLATE("Release build comand:"), "", nullptr);
-	fDebugBuildCommandText = new BTextControl(B_TRANSLATE("Debug build comand:"), "", nullptr);
+	fReleaseBuildCommandText = new BTextControl(B_TRANSLATE("Release build command:"), "", nullptr);
+	fDebugBuildCommandText = new BTextControl(B_TRANSLATE("Debug build command:"), "", nullptr);
 
-	fReleaseCleanCommandText = new BTextControl(B_TRANSLATE("Release clean comand:"), "", nullptr);
-	fDebugCleanCommandText = new BTextControl(B_TRANSLATE("Debug clean comand:"), "", nullptr);
+	fReleaseCleanCommandText = new BTextControl(B_TRANSLATE("Release clean command:"), "", nullptr);
+	fDebugCleanCommandText = new BTextControl(B_TRANSLATE("Debug clean command:"), "", nullptr);
 
 	fReleaseProjectTargetText = new BTextControl(B_TRANSLATE("Release project target:"), "", nullptr);
 	fDebugProjectTargetText = new BTextControl(B_TRANSLATE("Debug project target:"), "", nullptr);
@@ -115,14 +136,14 @@ ProjectSettingsWindow::_InitWindow()
 
 	BLayoutBuilder::Grid<>(fBuildCommandsBox)
 	.SetInsets(10.0f, 24.0f, 10.0f, 10.0f)
-	.Add(fReleaseBuildCommandText->CreateLabelLayoutItem(), 0, 1)
-	.Add(fReleaseBuildCommandText->CreateTextViewLayoutItem(), 1, 1)
-	.Add(fReleaseCleanCommandText->CreateLabelLayoutItem(), 2, 1)
-	.Add(fReleaseCleanCommandText->CreateTextViewLayoutItem(), 3, 1)
-	.Add(fDebugBuildCommandText->CreateLabelLayoutItem(), 0, 2)
-	.Add(fDebugBuildCommandText->CreateTextViewLayoutItem(), 1, 2)
-	.Add(fDebugCleanCommandText->CreateLabelLayoutItem(), 2, 2)
-	.Add(fDebugCleanCommandText->CreateTextViewLayoutItem(), 3, 2)
+	.Add(fReleaseBuildCommandText->CreateLabelLayoutItem(), 0, 0)
+	.Add(fReleaseBuildCommandText->CreateTextViewLayoutItem(), 1, 0)
+	.Add(fReleaseCleanCommandText->CreateLabelLayoutItem(), 2, 0)
+	.Add(fReleaseCleanCommandText->CreateTextViewLayoutItem(), 3, 0)
+	.Add(fDebugBuildCommandText->CreateLabelLayoutItem(), 0, 1)
+	.Add(fDebugBuildCommandText->CreateTextViewLayoutItem(), 1, 1)
+	.Add(fDebugCleanCommandText->CreateLabelLayoutItem(), 2, 1)
+	.Add(fDebugCleanCommandText->CreateTextViewLayoutItem(), 3, 1)
 	.End()
 	;
 
@@ -142,7 +163,7 @@ ProjectSettingsWindow::_InitWindow()
 	.Add(fDebugExecuteArgsText->CreateTextViewLayoutItem(), 3, 1)
 	.Add(fRunInTerminal, 0, 2)
 	.End();
-	
+
 	// "Source Control" Box
 	fSourceControlBox = new BBox("SourceControlBox");
 	fSourceControlBox->SetLabel(B_TRANSLATE("Source control"));
@@ -254,7 +275,7 @@ ProjectSettingsWindow::_SaveChanges()
 	fProject->SetBuildCommand(fReleaseBuildCommandText->Text(), BuildMode::ReleaseMode);
 	fProject->SetCleanCommand(fReleaseCleanCommandText->Text(), BuildMode::ReleaseMode);
 	fProject->SetExecuteArgs(fReleaseExecuteArgsText->Text(), BuildMode::ReleaseMode);
-	
+
 	fProject->SetTarget(fDebugProjectTargetText->Text(), BuildMode::DebugMode);
 	fProject->SetBuildCommand(fDebugBuildCommandText->Text(), BuildMode::DebugMode);
 	fProject->SetCleanCommand(fDebugCleanCommandText->Text(), BuildMode::DebugMode);
@@ -264,16 +285,16 @@ ProjectSettingsWindow::_SaveChanges()
 		fProject->RunInTerminal(true);
 	else
 		fProject->RunInTerminal(false);
-		
+
 	if (fEnableGit->Value() == B_CONTROL_ON)
 		fProject->Git(true);
 	else
 		fProject->Git(false);
-		
+	
 	if (fExcludeSettingsGit->Value() == B_CONTROL_ON)
 		fProject->ExcludeSettingsOnGit(true);
 	else
 		fProject->ExcludeSettingsOnGit(false);
-		
+
 	fProject->SaveSettings();
 }

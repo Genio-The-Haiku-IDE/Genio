@@ -48,12 +48,15 @@ namespace GenioNames
 		int32 enable_notifications;
 		int32 wrap_console;
 		int32 console_banner;
+		int32 build_on_save;
+		int32 save_on_build;
 		int32 editor_zoom;
 		bool  find_wrap;
 		bool  find_whole_word;
 		bool  find_match_case;
 		int32 log_destination;
 		int32 log_level;
+		int32	trim_trailing_whitespace;
 		bool	show_white_space = false;
 		bool	show_line_endings = false;
 

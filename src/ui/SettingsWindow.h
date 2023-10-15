@@ -107,6 +107,7 @@ typedef std::map<BStringItem*, BString>::const_iterator ViewPageIterator;
 			BSpinner*			fTabWidthSpinner;
 			BCheckBox*			fBraceMatch;
 			BCheckBox*			fSaveCaret;
+			BCheckBox*			fTrimWhitespace;
 
 			// EditorVisual page
 			BBox*				fEditorVisualBox;
@@ -125,6 +126,8 @@ typedef std::map<BStringItem*, BString>::const_iterator ViewPageIterator;
 			BBox*				fBuildBox;
 			BCheckBox*			fWrapConsoleEnabled;
 			BCheckBox*			fConsoleBannerEnabled;
+			BCheckBox*			fBuildOnSave;
+			BCheckBox*			fSaveOnBuild;
 
 			// Buttons
 			BButton*			fApplyButton;

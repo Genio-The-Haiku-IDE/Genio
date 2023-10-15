@@ -9,10 +9,10 @@
 #ifndef CONSOLE_IO_VIEW_H_
 #define CONSOLE_IO_VIEW_H_
 
+#include "ConsoleIOThread.h"
+
 #include <GroupView.h>
 #include <ObjectList.h>
-
-#include "ConsoleIOThread.h"
 
 class BButton;
 class BCheckBox;
@@ -49,6 +49,7 @@ private:
 			void				_HandleConsoleOutput(OutputInfo* info);
 			void				_BannerMessage(BString status);
 			void				Pulse();
+			void				_StopThreads();
 			void				_StopCommand();
 
 private:

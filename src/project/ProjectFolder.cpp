@@ -172,7 +172,7 @@ ProjectFolder::GetCleanCommand()
 		return fSettings->GetString("project_debug_clean_command", "");
 }
 
-
+	
 void
 ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 {

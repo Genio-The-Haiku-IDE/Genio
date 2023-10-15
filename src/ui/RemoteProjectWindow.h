@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <InterfaceKit.h>
 #include <BarberPole.h>
 
 #include "GitRepository.h"
@@ -24,9 +23,12 @@ enum {
 	kQuit
 };
 
+class BCardLayout;
+class BStatusBar;
+class BStringView;
 class RemoteProjectWindow : public BWindow {
 public:
-								RemoteProjectWindow(BString repo, BString dirPath, 
+								RemoteProjectWindow(BString repo, BString dirPath,
 												const BMessenger target);
 	virtual void				MessageReceived(BMessage*);
 private:
@@ -46,9 +48,9 @@ private:
 	BStringView*				fStatusText;
 	BStringView*				fDestDirLabel;
 	BTextControl*				fDestDir;
-	
+
 	shared_ptr<Task<BPath>>		fCurrentTask;
-	
+
 	void						_OpenProject(const path& localPath);
 	void						_ResetControls();
 	BString						_ExtractRepositoryName(BString url);

@@ -2,7 +2,9 @@
  * Copyright 2023 Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
- 
+
+#include "RemoteProjectWindow.h"
+
 #include <stdio.h>
 #include <regex>
 
@@ -11,13 +13,13 @@
 #include <ControlLook.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
-#include <SupportKit.h>
+#include <StatusBar.h>
+#include <StringView.h>
 #include <Url.h>
 #include <Window.h>
 
-#include "RemoteProjectWindow.h"
-#include "Utils.h"
 #include "GenioWindowMessages.h"
+#include "Utils.h"
 
 #include "BeDC.h"
 
@@ -36,8 +38,8 @@ static const BSize kStatusBarSize = BSize(600, be_plain_font->Size() * 2);
 RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BMessenger target)
 	:
 	BWindow(BRect(0, 0, 600, 200), B_TRANSLATE("Open remote Git project"),
-			B_TITLED_WINDOW, 
-			B_ASYNCHRONOUS_CONTROLS | 
+			B_TITLED_WINDOW,
+			B_ASYNCHRONOUS_CONTROLS |
 			B_NOT_ZOOMABLE |
 			B_NOT_RESIZABLE |
 			B_AVOID_FRONT |
@@ -70,11 +72,11 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fStatusText = new BStringView("status text", nullptr);
 	fButtonsView = new BView("buttons view", 0);
 	fButtonsLayout = new BCardLayout();
-	
+
 	fProgressView->SetLayout(fProgressLayout);
 	fProgressLayout->AddView(VIEW_INDEX_BARBER_POLE, fBarberPole);
 	fProgressLayout->AddView(VIEW_INDEX_PROGRESS_BAR, fProgressBar);
-	
+
 	fButtonsView->SetLayout(fButtonsLayout);
 	fButtonsLayout->AddView(VIEW_INDEX_CLONE_BUTTON, fClone);
 	fButtonsLayout->AddView(VIEW_INDEX_QUIT_BUTTON, fQuit);
@@ -87,8 +89,8 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fURL->SetExplicitMinSize(BSize(500, B_SIZE_UNSET));
 
 	fStatusText->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT,
-		B_ALIGN_VERTICAL_CENTER)); 
-	
+		B_ALIGN_VERTICAL_CENTER));
+
 	// test
 	// fURL->SetText("https://github.com/Genio-The-Haiku-IDE/Genio");
 
@@ -114,9 +116,10 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	CenterOnScreen();
 	Layout(true);
 	Show();
-	
+
 	this_handler = this;
 }
+
 
 void
 RemoteProjectWindow::_OpenProject(const path& localPath)
@@ -133,8 +136,9 @@ RemoteProjectWindow::_OpenProject(const path& localPath)
 	}
 }
 
-void 
-RemoteProjectWindow::_ResetControls() 
+
+void
+RemoteProjectWindow::_ResetControls()
 {
 	fIsCloning = false;
 	fClone->SetEnabled(true);
@@ -143,6 +147,7 @@ RemoteProjectWindow::_ResetControls()
 	fPathBox->SetEnabled(true);
 	fURL->SetEnabled(true);
 }
+
 
 void
 RemoteProjectWindow::MessageReceived(BMessage* msg)
@@ -156,13 +161,13 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				_SetProgress(100, "Finished!");
 				fButtonsLayout->SetVisibleItem(VIEW_INDEX_QUIT_BUTTON);
 			} catch(std::exception &ex) {
-				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ") 
+				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ")
 					<< ex.what(), B_INFO_ALERT);
 				fStatusText->SetText("An error occurred!");
 			}
 			_ResetControls();
+			break;
 		}
-		break;
 		case kDoClone:
 		{
 			_SetBusy();
@@ -172,7 +177,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			fDestDir->SetEnabled(false);
 			fPathBox->SetEnabled(false);
 			fURL->SetEnabled(false);
-			
+
 			auto callback = [](const git_transfer_progress *stats, void *payload) -> int {
 
 								int current_progress = stats->total_objects > 0 ?
@@ -180,40 +185,40 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 									stats->total_objects :
 									0;
 								int kbytes = stats->received_bytes / 1024;
-								
+
 								BString progressString;
 								progressString << "Cloning "
 									<< stats->received_objects << "/"
 									<< stats->total_objects << " objects"
 									<< " (" << kbytes << " kb)";
-								
+
 								BMessage msg(kProgress);
 								msg.AddString("progress_text", progressString);
 								msg.AddFloat("progress_value", current_progress);
 								BMessenger(this_handler).SendMessage(&msg);
 								return 0;
 							};
-			
+
 			BPath fullPath(fPathBox->Path());
 			fullPath.Append(fDestDir->Text());
-			GitRepository repo(fullPath.Path());  
+			GitRepository repo(fullPath.Path());
 			fCurrentTask = make_shared<Task<BPath>>
 			(
-				"GitClone", 
-				new BMessenger(this), 
+				"GitClone",
+				new BMessenger(this),
 				std::bind
 				(
-					&GitRepository::Clone, 
-					&repo , 
-					fURL->Text(), 
-					fullPath, 
+					&GitRepository::Clone,
+					&repo ,
+					fURL->Text(),
+					fullPath,
 					callback
 				)
-			); 
-			
+			);
+
 			_SetProgress(0, nullptr);
 			fCurrentTask->Run();
-			
+
 			break;
 		}
 		case kCancel:
@@ -240,8 +245,8 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 		case kQuit:
 		{
 			Quit();
+			break;
 		}
-		break;
 		case kProgress:
 		{
 			BString label;
@@ -253,8 +258,8 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 					_SetProgress(progress, label);
 				UnlockLooper();
 			}
+			break;
 		}
-		break;
 		case kUrlModified:
 		{
 			BString basedirPath = fPathBox->Path();
@@ -264,21 +269,24 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			// path.Append(repoName);
 			// fPathBox->SetPath(path.Path());
 			BeDC("Genio").SendMessage(repoName);
+			break;
 		}
-		break;
 		default:
 			BWindow::MessageReceived(msg);
+			break;
 	}
 }
 
+
 BString
-RemoteProjectWindow::_ExtractRepositoryName(BString url) {
-	
+RemoteProjectWindow::_ExtractRepositoryName(BString url)
+{
 	BString repoName(url);
-	repoName.Remove(0, url.FindLast('/')+1);
+	repoName.Remove(0, url.FindLast('/') + 1);
 	repoName.RemoveAll(".git");
 	return repoName;
 }
+
 
 void
 RemoteProjectWindow::_SetBusy()

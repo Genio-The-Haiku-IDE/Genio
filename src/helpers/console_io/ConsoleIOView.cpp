@@ -10,20 +10,18 @@
 
 #include "ConsoleIOView.h"
 
-//#include <new>
-
+#include <AutoDeleter.h>
 #include <Button.h>
 #include <Catalog.h>
 #include <CheckBox.h>
 #include <LayoutBuilder.h>
 #include <ScrollView.h>
 #include <String.h>
-#include "WordTextView.h"
-
-#include <AutoDeleter.h>
 
 #include "GenioNamespace.h"
 #include "Log.h"
+#include "WordTextView.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ConsoleIOView"
@@ -47,6 +45,7 @@ struct ConsoleIOView::OutputInfo {
 	}
 };
 
+
 ConsoleIOView::ConsoleIOView(const BString& name, const BMessenger& target)
 	:
 	BGroupView(B_VERTICAL, 0.0f)
@@ -63,19 +62,21 @@ ConsoleIOView::ConsoleIOView(const BString& name, const BMessenger& target)
 		throw;
 	}
 
-	this->SetFlags(this->Flags() | B_PULSE_NEEDED);
+	SetFlags(Flags() | B_PULSE_NEEDED);
 }
+
 
 ConsoleIOView::~ConsoleIOView()
 {
 	delete fPendingOutput;
 }
 
-/*static*/ ConsoleIOView*
+
+/* static */
+ConsoleIOView*
 ConsoleIOView::Create(const BString& name, const BMessenger& target)
 {
 	ConsoleIOView* self = new ConsoleIOView(name, target);
-
 	try {
 		self->_Init();
 	} catch (...) {
@@ -86,6 +87,7 @@ ConsoleIOView::Create(const BString& name, const BMessenger& target)
 	return self;
 }
 
+
 status_t
 ConsoleIOView::RunCommand(BMessage* cmd_message)
 {
@@ -93,24 +95,35 @@ ConsoleIOView::RunCommand(BMessage* cmd_message)
 	return BMessenger(this).SendMessage(cmd_message);
 }
 
+
 void
 ConsoleIOView::Pulse()
 {
-	if (fConsoleIOThread && 
+	if (fConsoleIOThread &&
 		fConsoleIOThread->IsDone()) {
 			_StopCommand();
 	}
 }
 
+
+void
+ConsoleIOView::_StopThreads()
+{
+	if (fConsoleIOThread == NULL)
+		return;
+
+	fConsoleIOThread->InterruptExternal();
+	fConsoleIOThread->Kill();
+	delete fConsoleIOThread;
+	fConsoleIOThread = nullptr;
+}
+
+
 void
 ConsoleIOView::_StopCommand()
 {
 	if (fConsoleIOThread) {
-
-		fConsoleIOThread->InterruptExternal();
-		fConsoleIOThread->Kill();
-		delete fConsoleIOThread;
-		fConsoleIOThread = nullptr;
+		_StopThreads();
 
 		_BannerMessage("ended   --");
 
@@ -121,6 +134,7 @@ ConsoleIOView::_StopCommand()
 		fCmdType = "";
 	}
 }
+
 
 void
 ConsoleIOView::MessageReceived(BMessage* message)
@@ -167,11 +181,9 @@ ConsoleIOView::MessageReceived(BMessage* message)
 				// should be done differently
 				BString cmdType = NULL;
 				if (message->FindString("cmd_type", &cmdType) == B_OK
-					&& cmdType.Compare("build") == 0 && fCmdType == "build") {
-					fConsoleIOThread->InterruptExternal();
-					fConsoleIOThread->Kill();
-					delete fConsoleIOThread;
-					fConsoleIOThread = nullptr;
+						&& cmdType.Compare("build") == 0 && fCmdType == "build") {
+					_StopThreads();
+
 					BString msg = "\n *** ";
 					msg << B_TRANSLATE("Restarting build" B_UTF8_ELLIPSIS);
 					msg << "\n";
@@ -224,6 +236,7 @@ ConsoleIOView::_BannerMessage(BString status)
 	ConsoleOutputReceived(1, banner);
 }
 
+
 void
 ConsoleIOView::AttachedToWindow()
 {
@@ -243,11 +256,13 @@ ConsoleIOView::AttachedToWindow()
 	fStopButton->SetEnabled(false);
 }
 
+
 void
 ConsoleIOView::Clear()
 {
 	BMessenger(this).SendMessage(MSG_CLEAR_OUTPUT);
 }
+
 
 void
 ConsoleIOView::ConsoleOutputReceived(int32 fd, const BString& output)
@@ -269,11 +284,13 @@ ConsoleIOView::ConsoleOutputReceived(int32 fd, const BString& output)
 	BMessenger(this).SendMessage(MSG_POST_OUTPUT);
 }
 
+
 void
 ConsoleIOView::EnableStopButton(bool doIt)
 {
 	fStopButton->SetEnabled(doIt);
 }
+
 
 void
 ConsoleIOView::_Init()
@@ -310,6 +327,7 @@ ConsoleIOView::_Init()
 	.End();
 
 }
+
 
 void
 ConsoleIOView::_HandleConsoleOutput(OutputInfo* info)
@@ -350,7 +368,9 @@ ConsoleIOView::_HandleConsoleOutput(OutputInfo* info)
 	}
 }
 
+
 BTextView*
-ConsoleIOView::TextView() {
+ConsoleIOView::TextView()
+{
 	return fConsoleIOText;
 }

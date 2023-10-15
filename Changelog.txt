@@ -1,3 +1,35 @@
+v2.0
+	- UI: New icons (ZuMi).
+	- UI: Reorganized and improved menus.
+	- UI: Added new Search Results panel.
+	- Added "Open remote project".
+	- Added "Open recent" / "Open recent project".
+	- Added "Build on save".
+	- Added "Save on build".
+	- Added automatic trim trailing whitespace on save.
+	- Save build mode on change.
+	- Improved UI strings and translatability (Humdinger).
+	- Added local function to switch source/header.
+	- UI: Improve layout.
+	- Added Changelog.
+	- Added "trim trailing whitespace" function.
+	- UI: Use correct list color in project browser.
+	- Added alert on quit when closing multiple files.
+	- Notify the user when trying to build/clean with missing configuration.
+	- Improved LSP thread management.
+	- Updated LSP stack to latest main branch.
+	- When closing the active project, set another one as active.
+	- Improved first launch experience.
+	- Hide find/replace panel when no file is loaded.
+	- Fixed UI scaling with bigger fonts.
+	- Fixed rename function with FFM.
+	- Fixed bug in file type detection.
+	- Fixed replace panel not always appearing.
+	- Fixed LSP lock on close.
+	- Fixes for ConsoleIO.
+	- Fixed launching Debugger.
+	- Fixed build dependencies.
+---
 v1.0-beta
 	- First release.
 ---

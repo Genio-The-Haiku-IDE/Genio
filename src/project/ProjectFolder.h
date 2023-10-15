@@ -69,7 +69,7 @@ public:
 	
 	void						SetBuildCommand(BString const& command, BuildMode mode);
 	BString const				GetBuildCommand();
-	
+
 	void						SetExecuteArgs(BString const& args, BuildMode mode);
 	BString const				GetExecuteArgs();
 	

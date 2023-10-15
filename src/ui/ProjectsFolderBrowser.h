@@ -72,16 +72,8 @@ private:
 	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
 	
 private:
-	
-	BPopUpMenu*			fProjectMenu;
-	BMenuItem*			fCloseProjectMenuItem;
-	BMenuItem*			fRenameFileProjectMenuItem;
-	BMenuItem*			fSetActiveProjectMenuItem;
-	BMenuItem*			fDeleteFileProjectMenuItem;
-	BMenuItem*			fOpenFileProjectMenuItem;
 	TemplatesMenu*		fFileNewProjectMenuItem;
-	BMenuItem*			fShowInTrackerProjectMenuItem;
-	BMenuItem*			fOpenTerminalProjectMenuItem;
+	
 	bool				fIsBuilding = false;
 	GenioWatchingFilter* fGenioWatchingFilter;
 	

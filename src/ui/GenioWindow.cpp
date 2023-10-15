@@ -1334,6 +1334,10 @@ GenioWindow::_BuildProject()
 		return _AlertInvalidBuildConfig(message);
 	}
 
+	// TODO: Should ask if the user wants to save
+	if (GenioNames::Settings.save_on_build == B_CONTROL_ON)
+		_FileSaveAll(fActiveProject);
+
 	fIsBuilding = true;
 	fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
 	_UpdateProjectActivation(false);
@@ -1627,7 +1631,6 @@ GenioWindow::_FileSave(int32 index)
 	}
 
 	Editor* editor = fTabManager->EditorAt(index);
-
 	if (editor == nullptr) {
 		LogErrorF("NULL editor pointer (%d)", index);
 		return B_ERROR;
@@ -1638,6 +1641,8 @@ GenioWindow::_FileSave(int32 index)
 		LogErrorF("File is read-only (%s)", editor->FilePath().String());
 		return B_ERROR;
 	}
+
+	_PreFileSave(editor);
 
 	// Stop monitoring if needed
 	editor->StopMonitoring();
@@ -1652,18 +1657,18 @@ GenioWindow::_FileSave(int32 index)
 		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath(), length, written);
 	else
 		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
+
+	_PostFileSave(editor);
+
 	return B_OK;
 }
 
 void
-GenioWindow::_FileSaveAll()
+GenioWindow::_FileSaveAll(ProjectFolder* onlyThisProject)
 {
 	int32 filesCount = fTabManager->CountTabs();
-
 	for (int32 index = 0; index < filesCount; index++) {
-
 		Editor* editor = fTabManager->EditorAt(index);
-
 		if (editor == nullptr) {
 			BString notification;
 			notification << "Index " << index
@@ -1672,10 +1677,15 @@ GenioWindow::_FileSaveAll()
 			continue;
 		}
 
+		// If a project was specified and the file doesn't belong, skip
+		if (onlyThisProject != NULL && editor->GetProjectFolder() != onlyThisProject)
+			continue;
+
 		if (editor->IsModified())
 			_FileSave(index);
 	}
 }
+
 
 status_t
 GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
@@ -1734,6 +1744,30 @@ GenioWindow::_FilesNeedSave()
 
 	return count;
 }
+
+
+void
+GenioWindow::_PreFileSave(Editor* editor)
+{
+	if (GenioNames::Settings.trim_trailing_whitespace)
+		editor->TrimTrailingWhitespace();
+}
+
+
+void
+GenioWindow::_PostFileSave(Editor* editor)
+{
+	// TODO: Also handle cases where the file is saved from outside Genio ?
+	ProjectFolder* project = editor->GetProjectFolder();
+	if (GenioNames::Settings.build_on_save == B_CONTROL_ON &&
+		project != nullptr && project == fActiveProject) {
+		// TODO: if we are already building we should stop / relaunch build here.
+		// at the moment we have an hack in place in ConsoleIOView::MessageReceived()
+		// in the MSG_RUN_PROCESS case to handle this situation
+		PostMessage(MSG_BUILD_PROJECT);
+	}
+}
+
 
 void
 GenioWindow::_FindGroupShow(bool show)
@@ -3168,7 +3202,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	project->Close();
 
 	delete project;
-	
+
 	// Select a new active project
 	if (wasActive) {
 		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));

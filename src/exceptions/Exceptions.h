@@ -2,8 +2,10 @@
  * Copyright 2023 Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef BEXCEPTIONS_H
-#define BEXCEPTIONS_H
+
+#pragma once
+
+#include <exception>
 
 #include <Errors.h>
 
@@ -111,6 +113,3 @@
 							: BException(msg, B_DEVICE_ERROR_BASE, error)
 						{}
 	};
-
-
-#endif // BEXCEPTIONS_H

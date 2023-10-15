@@ -51,6 +51,10 @@ Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code 
 ## Configuring Clangd / LSP
 See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/Configuring-clangd-lsp.md)
 
+## Prerequirements
+Genio requires libgit2 to implement Git features. The development files are available in `libgit2_devel`.
+Execute `pkgman install libgit2_devel` from Terminal
+
 ## Compiling
 * Execute `make deps && make` in Genio's top directory  
 The executable is created in `app` subdirectory.  

@@ -46,7 +46,7 @@ SplitChangeLog(const char* changeLog)
 		} else
 			i++;
 	}
-	return list;		
+	return list;
 }
 
 
@@ -70,14 +70,14 @@ GenioApp::AboutRequested()
 {
 	BAboutWindow* window = new BAboutWindow(GenioNames::kApplicationName,
 											GenioNames::kApplicationSignature);
-	
+
 	// create the about window
 	const char* authors[] = {
 		"D. Alfano",
 		"A. Anzani",
 		"S. Ceccherini",
 		NULL
-	}; 
+	};
 
 	window->AddCopyright(2023, "The Genio Team");
 	window->AddAuthors(authors);
@@ -89,10 +89,10 @@ GenioApp::AboutRequested()
 		charArray[i] = (char*)list.StringAt(i).String();
 	}
 	charArray[stringCount] = NULL;
-	
+
 	window->AddVersionHistory((const char**)charArray);
 	delete[] charArray;
-	
+
 	BString extraInfo;
 	extraInfo << B_TRANSLATE("Genio is a fork of Ideam and available under the MIT license.");
 	extraInfo << "\nIdeam (c) 2017 A. Mosca\n\n";
@@ -124,12 +124,12 @@ GenioApp::MessageReceived(BMessage* message)
 			BApplication::MessageReceived(message);
 			break;
 	}
-	
+
 }
 
 bool
 GenioApp::QuitRequested()
-{	
+{
 	// Manage settings counter
 	int32 count;
 	if (fUISettingsFile->FindInt32("use_count", &count) != B_OK)
@@ -139,7 +139,7 @@ GenioApp::QuitRequested()
 	BRect actualFrame, savedFrame;
 	fUISettingsFile->FindRect("ui_bounds", &savedFrame);
 	actualFrame = fGenioWindow->ConvertToScreen(fGenioWindow->Bounds());
-	
+
 	// Automatically save window position via TPreferences
 	// only if modified
 	if (actualFrame != savedFrame) {
@@ -150,9 +150,9 @@ GenioApp::QuitRequested()
 			fUISettingsFile->SetInt32("use_count", ++count);
 		}
 	}
-	
+
 	delete fUISettingsFile;
-	
+
 	return BApplication::QuitRequested();
 }
 
@@ -204,40 +204,10 @@ GenioApp::_CheckSettingsVersion()
 	settings->FindString("app_version", &fileVersion);
 	delete settings;
 
-	// Settings file missing or corrupted
-	if (fileVersion.IsEmpty() || fileVersion == "0.0.0.0") {
-		GenioNames::UpdateSettingsFile();
-		GenioNames::LoadSettingsVars();
-	} else {
-		int32 result = GenioNames::CompareVersion(GenioNames::GetVersionInfo(), fileVersion);
-		// App version > file version
-		if (result > 0) {
-			BString text;
-			text << B_TRANSLATE("Settings file for a previous version detected.")
-				 << "\n"
-				 << B_TRANSLATE("Do you want to ignore, review or load defaults?");
-
-			BAlert* alert = new BAlert("SettingsUpdateDialog", text,
-				B_TRANSLATE("Ignore"), B_TRANSLATE("Review"), B_TRANSLATE("Load defaults"),
-				B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
-
-			alert->SetShortcut(0, B_ESCAPE);
-
-			int32 choice = alert->Go();
-		 
-			if (choice == 0)
-				;
-			else if (choice == 1) {
-				SettingsWindow* window = new SettingsWindow();
-				window->Show();
-			}
-			else if (choice == 2) {
-				GenioNames::UpdateSettingsFile();
-				GenioNames::LoadSettingsVars();
-			}
-		}
-	}
+	GenioNames::UpdateSettingsFile();
+	GenioNames::LoadSettingsVars();
 }
+
 
 void
 SetSessionLogLevel(char level)
@@ -272,9 +242,9 @@ SetSessionLogLevel(char level)
 int
 main(int argc, char* argv[])
 {
-	if (argc > 1) 
+	if (argc > 1)
 		SetSessionLogLevel(argv[1][0]);
-		
+
 	try {
 		GenioApp *app = new GenioApp();
 

@@ -6,11 +6,7 @@
 #define LOGGER_H
 
 #include <String.h>
-#include <File.h>
-#include <Path.h>
 
-#include <ctype.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 

@@ -7,6 +7,7 @@
 
 
 #include <Directory.h>
+#include <Path.h>
 #include <PathMonitor.h>
 
 #include "Log.h"
@@ -18,8 +19,8 @@
 class GenioWatchingFilter : public BPrivate::BPathMonitor::BWatchingInterface {
 public:
 	status_t WatchNode(const node_ref* node, uint32 flags, const BHandler* handler,
-							  		const BLooper* looper = NULL) 
-									
+							  		const BLooper* looper = NULL)
+
 	{
 		status_t status;
 		BDirectory dir(node);
@@ -36,9 +37,9 @@ public:
 			dir.GetEntry(&entry);
 			BPath path;
 			entry.GetPath(&path);
-			LogErrorF("Can't watch_node for directory [%s](%d) (%s) handler (%p) looper (%p) %d", 
-						path.Path(), 
-						node->node, 
+			LogErrorF("Can't watch_node for directory [%s](%d) (%s) handler (%p) looper (%p) %d",
+						path.Path(),
+						node->node,
 						strerror(status),
 						handler,
 						looper,

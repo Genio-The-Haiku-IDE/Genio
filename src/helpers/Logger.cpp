@@ -4,8 +4,10 @@
  */
 #include "Logger.h"
 
+#include <cctype>
 #include <stdarg.h>
 #include <syslog.h>
+
 #include "BeDC.h"
 
 log_level Logger::sLevel = LOG_LEVEL_INFO;

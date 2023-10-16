@@ -2,12 +2,14 @@
  * Copyright 2023 Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
  * Based on TrackGit (https://github.com/HaikuArchives/TrackGit)
- * Original author: Hrishikesh Hiraskar  
+ * Original author: Hrishikesh Hiraskar 
  * Copyright Hrishikesh Hiraskar and other HaikuArchives contributors (see GitHub repo for details)
  */
 
 
 #include "GitRepository.h"
+
+#include <Path.h>
 
 #include <stdexcept>
 #include <map>
@@ -15,7 +17,7 @@
 namespace Genio::Git {
 
 	GitRepository::GitRepository(const path& path)
-		: 
+		:
 		fRepository(nullptr),
 		fRepositoryPath(path),
 		fInitCheck(false)
@@ -36,7 +38,7 @@ namespace Genio::Git {
 		git_repository_free(fRepository);
 		git_libgit2_shutdown();
 	}
-	
+
 	vector<string>
 	GitRepository::GetBranches()
 	{
@@ -66,7 +68,7 @@ namespace Genio::Git {
 	}
 
 	vector<pair<string, string>>
-	GitRepository::GetFiles() 
+	GitRepository::GetFiles()
 	{
 		git_status_options statusopt;
 		git_status_list *status;
@@ -121,7 +123,7 @@ namespace Genio::Git {
 	}
 
 	string
-	GitRepository::_ExecuteCommand(const string& command) const 
+	GitRepository::_ExecuteCommand(const string& command) const
 	{
 		char buffer[128];
 		string result = "";
@@ -144,7 +146,7 @@ namespace Genio::Git {
 		}
 		return _ExecuteCommand(pullCommand);
 	}
-	
+
 	const BPath&
 	GitRepository::Clone(const string& url, const BPath& localPath, git_indexer_progress_cb callback)
 	{
@@ -153,14 +155,14 @@ namespace Genio::Git {
 		git_remote_callbacks callbacks = GIT_REMOTE_CALLBACKS_INIT;
 		callbacks.transfer_progress = callback;
 		clone_opts.fetch_opts.callbacks = callbacks;
-        
+
 		git_repository *repo = nullptr;
-		
+
 		int error = git_clone(&repo, url.c_str(), localPath.Path(), &clone_opts);
 		if (error != 0) {
 			throw std::runtime_error(git_error_last()->message);
 		}
 		return localPath;
 	}
-	
+
 }

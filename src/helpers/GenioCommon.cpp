@@ -2,18 +2,15 @@
  * Copyright 2018 A. Mosca 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
+
 #include "GenioCommon.h"
 
-#include <Entry.h>
-
-#include <cctype>
-#include <ctime>
-#include <sstream>
-#include <string>
-#include "Utils.h"
 #include <Path.h>
-#include "Log.h"
 #include <Url.h>
+
+#include "Log.h"
+#include "Utils.h"
+
 namespace Genio
 {
 
@@ -23,15 +20,16 @@ file_type(const std::string& fullpath)
 	BPath path(fullpath.c_str());
 
 	if (path.InitCheck() != B_OK) {
-		LogErrorF("Invalid path: %s", fullpath.c_str());
-		//should 'support' also the URI format
 		BUrl url(fullpath.c_str());
 		if (url.IsValid() && url.HasPath()) {
 			path = BPath(url.Path().String());
 			if (path.InitCheck() != B_OK) {
-			LogErrorF("Invalid URI: %s", fullpath.c_str());
+				LogErrorF("Invalid URI: %s", fullpath.c_str());
 				return "";
 			}
+		} else {
+			// Not an url, nor a path
+			LogErrorF("Invalid path: %s", fullpath.c_str());
 		}
 	}
 

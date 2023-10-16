@@ -21,7 +21,7 @@ std::string const
 file_type(const std::string& fullpath)
 {
 	BPath path(fullpath.c_str());
-	
+
 	if (path.InitCheck() != B_OK) {
 		LogErrorF("Invalid path: %s", fullpath.c_str());
 		//should 'support' also the URI format
@@ -34,18 +34,9 @@ file_type(const std::string& fullpath)
 			}
 		}
 	}
-	
+
 	std::string filename = path.Leaf(); //ensure InitCheck is checked!
-	
- 	if (filename.find("Jamfile") == 0) {
-		return "jam";
-	}
-	
-	if (filename.find("Makefile") == 0
-		|| filename.find("makefile") == 0) {
-		return "make";
-	}
-	
+
 	auto pos = filename.find_last_of('.');
 	if (pos != std::string::npos) {
 		std::string extension = filename.substr(pos);
@@ -54,6 +45,16 @@ file_type(const std::string& fullpath)
 		else if (extension == ".rs")
 			return "rust";
 	}
+
+	if (filename.find("Jamfile") == 0) {
+		return "jam";
+	}
+
+	if (filename.find("Makefile") == 0
+		|| filename.find("makefile") == 0) {
+		return "make";
+	}
+
 	return "";
 }
 

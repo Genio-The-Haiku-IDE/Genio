@@ -513,7 +513,7 @@ ProjectsFolderBrowser::AttachedToWindow()
 	BOutlineListView::SetTarget((BHandler*)this, Window());
 
 	if (Window()->LockLooper()) {
-		Window()->StartWatching(this, 'abcd');
+		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->UnlockLooper();
 	}
 }

@@ -26,6 +26,7 @@ public:
 	SourceItem		*GetSourceItem() const { return fSourceItem; };
 
 	void			SetNeedsSave(bool needs);
+	void			SetOpenedInEditor(bool open);
 
 	void			InitRename(BMessage* message);
 	void			AbortRename();
@@ -35,6 +36,7 @@ private:
 	SourceItem		*fSourceItem;
 	bool			fFirstTimeRendered;
 	bool			fNeedsSave;
+	bool			fOpenedInEditor;
 	bool			fInitRename;
 	BMessage*		fMessage;
 	BTextControl	*fTextControl;

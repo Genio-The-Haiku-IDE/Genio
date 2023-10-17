@@ -367,7 +367,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 				{
 					bool building = false;
 					message->FindBool("building", &building);
-					SetBuildingPhase(building);
+					fIsBuilding = building;
 					break;
 				}
 

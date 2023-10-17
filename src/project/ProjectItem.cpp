@@ -70,6 +70,7 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 	fSourceItem(sourceItem),
 	fFirstTimeRendered(true),
 	fNeedsSave(false),
+	fOpenedInEditor(false),
 	fInitRename(false),
 	fMessage(nullptr),
 	fTextControl(nullptr)
@@ -134,7 +135,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		textRect.right = bounds.right;
 		_DrawTextWidget(owner, textRect);
 	} else {
-		if (fNeedsSave) {
+		if (fOpenedInEditor) {
 			BFont font;
 			owner->GetFont(&font);
 			font.SetFace(B_ITALIC_FACE);
@@ -144,7 +145,10 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->SetDrawingMode(B_OP_COPY);
 		owner->MovePenTo(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
 							bounds.top + BaselineOffset());
-		owner->DrawString(Text());
+		BString text = Text();
+		if (fNeedsSave)
+			text.Append("*");
+		owner->DrawString(text.String());
 		owner->Sync();
 
 		if (fFirstTimeRendered) {
@@ -159,6 +163,13 @@ void
 ProjectItem::SetNeedsSave(bool needs)
 {
 	fNeedsSave = needs;
+}
+
+
+void
+ProjectItem::SetOpenedInEditor(bool open)
+{
+	fOpenedInEditor = open;
 }
 
 

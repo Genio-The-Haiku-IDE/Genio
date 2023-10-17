@@ -337,6 +337,19 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
+				case MSG_NOTIFY_EDITOR_FILE_OPENED:
+				case MSG_NOTIFY_EDITOR_FILE_CLOSED:
+				{
+					bool open = (code == MSG_NOTIFY_EDITOR_FILE_OPENED);
+					BString fileName;
+					message->FindString("file_name", &fileName);
+					ProjectItem* item = FindProjectItem(fileName);
+					if (item != nullptr) {
+						item->SetOpenedInEditor(open);
+						Invalidate();
+					}
+					break;
+				}
 				case MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED:
 				{
 					bool needsSave = false;
@@ -526,6 +539,8 @@ ProjectsFolderBrowser::AttachedToWindow()
 	BOutlineListView::SetTarget((BHandler*)this, Window());
 
 	if (Window()->LockLooper()) {
+		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
+		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->UnlockLooper();
@@ -538,6 +553,8 @@ void
 ProjectsFolderBrowser::DetachedFromWindow()
 {
 	if (Window()->LockLooper()) {
+		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
+		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
 		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->UnlockLooper();

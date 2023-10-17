@@ -1446,6 +1446,11 @@ GenioWindow::_RemoveTab(int32 index)
 	noticeMessage.AddBool("needs_save", false);
 	SendNotices(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED, &noticeMessage);
 
+	// notify listeners:
+	BMessage noticeCloseMessage(MSG_NOTIFY_EDITOR_FILE_CLOSED);
+	noticeCloseMessage.AddString("file_name", editor->FilePath());
+	SendNotices(MSG_NOTIFY_EDITOR_FILE_CLOSED, &noticeCloseMessage);
+
 	delete editor;
 
 	// Was it the last one?
@@ -1483,7 +1488,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 	int32 nextIndex;
 	BString notification;
 
-
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
@@ -1495,7 +1499,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 	bool openWithPreferred	= msg->GetBool("openWithPreferred", false);
 
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
-
 		if (!_FileIsSupported(&ref)) {
 			if (openWithPreferred)
 				_FileOpenWithPreferredApp(&ref); //TODO make this optional?
@@ -1506,15 +1509,13 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		// Do not reopen an already opened file
 		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
-
 			if (openedIndex != fTabManager->SelectedTabIndex()) {
 				fTabManager->SelectTab(openedIndex);
 			}
 
 			if (lsp_char >= 0 && be_line > -1) {
 				fTabManager->EditorAt(openedIndex)->GoToLSPPosition(be_line - 1, lsp_char);
-			}
-			else if (be_line > -1) {
+			} else if (be_line > -1) {
 				fTabManager->EditorAt(openedIndex)->GoToLine(be_line);
 			}
 
@@ -1523,14 +1524,12 @@ GenioWindow::_FileOpen(BMessage* msg)
 		}
 
 		int32 index = fTabManager->CountTabs();
-
 		if (_AddEditorTab(&ref, index, be_line, lsp_char) != B_OK)
 			continue;
 
 		assert(index >= 0);
 
 		Editor* editor = fTabManager->EditorAt(index);
-
 		if (editor == nullptr) {
 			notification << ref.name << ": NULL editor pointer";
 			_SendNotification(notification, "FILE_ERR");
@@ -1540,7 +1539,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 		/*
 			here we try to assign the right "LSPClientWrapper" to the Editor..
 		*/
-
 		// Check if already open
 		BString baseDir("");
 		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
@@ -1553,8 +1551,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 		}
 
 		status = editor->LoadFromFile();
-
-
 		if (status != B_OK) {
 			continue;
 		}
@@ -1568,19 +1564,20 @@ GenioWindow::_FileOpen(BMessage* msg)
 		if (index > 0)
 			fTabManager->SelectTab(index);
 
+		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
+		noticeMessage.AddString("file_name", editor->FilePath());
+		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
+
 		notification << "File open: " << editor->Name()
 			<< " [" << fTabManager->CountTabs() - 1 << "]";
 		_SendNotification(notification, "FILE_OPEN");
 		notification.SetTo("");
-
 	}
 
 	// If at least 1 item or more were added select the first
 	// of them.
 	if (nextIndex < fTabManager->CountTabs())
 		fTabManager->SelectTab(nextIndex);
-
-
 
 	return status;
 }

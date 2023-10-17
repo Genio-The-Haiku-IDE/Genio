@@ -342,8 +342,10 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 					message->FindBool("needs_save", &needsSave);
 					message->FindString("file_name", &fileName);
 					ProjectItem* item = FindProjectItem(fileName);
-					if (item != nullptr)
+					if (item != nullptr) {
 						item->SetNeedsSave(needsSave);
+						Invalidate();
+					}
 					break;
 				}
 				default:

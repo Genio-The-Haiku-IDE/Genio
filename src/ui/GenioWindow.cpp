@@ -1429,6 +1429,14 @@ GenioWindow::_RemoveTab(int32 index)
 	}
 	Editor* editor = fTabManager->EditorAt(index);
 	fTabManager->RemoveTab(index);
+
+	// notify listeners: file could have been modified, but user
+	// chose not to save
+	BMessage noticeMessage(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+	noticeMessage.AddString("file_name", editor->FilePath());
+	noticeMessage.AddBool("needs_save", false);
+	SendNotices(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED, &noticeMessage);
+
 	delete editor;
 
 	// Was it the last one?

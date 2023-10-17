@@ -117,10 +117,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
 	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
-
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);
-
 	if (icon != nullptr) {
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->DrawBitmapAsync(icon, iconStartingPoint);
@@ -135,20 +133,10 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		textRect.right = bounds.right;
 		_DrawTextWidget(owner, textRect);
 	} else {
-		if (fOpenedInEditor) {
-			BFont font;
-			owner->GetFont(&font);
-			font.SetFace(B_ITALIC_FACE);
-			owner->SetFont(&font);
-		}
-		// Draw string at the right of the icon
-		owner->SetDrawingMode(B_OP_COPY);
-		owner->MovePenTo(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
-							bounds.top + BaselineOffset());
-		BString text = Text();
-		if (fNeedsSave)
-			text.Append("*");
-		owner->DrawString(text.String());
+		BPoint textPoint(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
+						bounds.top + BaselineOffset());
+		_DrawText(owner, textPoint);
+
 		owner->Sync();
 
 		if (fFirstTimeRendered) {
@@ -189,6 +177,7 @@ ProjectItem::InitRename(BMessage* message)
 	fMessage = message;
 }
 
+
 void
 ProjectItem::AbortRename()
 {
@@ -196,6 +185,7 @@ ProjectItem::AbortRename()
 		_DestroyTextWidget();
 	fInitRename = false;
 }
+
 
 void
 ProjectItem::CommitRename()
@@ -207,6 +197,26 @@ ProjectItem::CommitRename()
 		_DestroyTextWidget();
 	}
 	fInitRename = false;
+}
+
+
+void
+ProjectItem::_DrawText(BView* owner, const BPoint& point)
+{
+	if (fOpenedInEditor) {
+		BFont font;
+		owner->GetFont(&font);
+		font.SetFace(B_ITALIC_FACE);
+		owner->SetFont(&font);
+	}
+	// Draw string at the right of the icon
+	owner->SetDrawingMode(B_OP_COPY);
+	owner->MovePenTo(point);
+	BString text = Text();
+	if (fNeedsSave)
+		text.Append("*");
+	owner->DrawString(text.String());
+	owner->Sync();
 }
 
 

@@ -277,6 +277,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 }
 
 
+/* virtual */
 void
 ProjectsFolderBrowser::MessageReceived(BMessage* message)
 {
@@ -465,6 +466,7 @@ ProjectsFolderBrowser::GetProjectFromCurrentItem()
 	return _GetProjectFromItem(GetCurrentProjectItem());
 }
 
+
 BString const
 ProjectsFolderBrowser::GetCurrentProjectFileFullPath()
 {
@@ -492,6 +494,7 @@ ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item)
 	return project;
 }
 
+
 status_t
 ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 {
@@ -506,6 +509,7 @@ ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 }
 
 
+/* virtual */
 void
 ProjectsFolderBrowser::AttachedToWindow()
 {
@@ -518,7 +522,18 @@ ProjectsFolderBrowser::AttachedToWindow()
 	}
 }
 
+/* virtual */
+void
+ProjectsFolderBrowser::DetachedFromWindow()
+{
+	if (Window()->LockLooper()) {
+		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+		Window()->UnlockLooper();
+	}
+}
 
+
+/* virtual */
 void
 ProjectsFolderBrowser::MouseDown(BPoint where)
 {

@@ -110,6 +110,7 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 
 	_SetIdle();
 
+	SetDefaultButton(fClone);
 	CenterOnScreen();
 	Show();
 

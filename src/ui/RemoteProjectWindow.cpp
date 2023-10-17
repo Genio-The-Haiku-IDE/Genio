@@ -164,6 +164,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ")
 					<< ex.what(), B_INFO_ALERT);
 				fStatusText->SetText("An error occurred!");
+				_SetIdle();
 			}
 			_ResetControls();
 			break;

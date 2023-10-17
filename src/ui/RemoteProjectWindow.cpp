@@ -5,8 +5,7 @@
 
 #include "RemoteProjectWindow.h"
 
-#include <stdio.h>
-#include <regex>
+#include <cstdio>
 
 #include <AppKit.h>
 #include <Catalog.h>
@@ -32,8 +31,6 @@ BHandler *this_handler = nullptr;
 #define VIEW_INDEX_PROGRESS_BAR	(int32) 1
 #define VIEW_INDEX_CLONE_BUTTON	(int32) 0
 #define VIEW_INDEX_QUIT_BUTTON	(int32) 1
-
-static const BSize kStatusBarSize = BSize(600, be_plain_font->Size() * 2);
 
 RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BMessenger target)
 	:
@@ -81,8 +78,6 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fButtonsLayout->AddView(VIEW_INDEX_CLONE_BUTTON, fClone);
 	fButtonsLayout->AddView(VIEW_INDEX_QUIT_BUTTON, fQuit);
 
-	fProgressBar->SetBarHeight(kStatusBarSize.Height());
-
 	fStatusText->SetDrawingMode(B_OP_ALPHA);
 
 	// TODO: Improve size
@@ -91,8 +86,10 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fStatusText->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT,
 		B_ALIGN_VERTICAL_CENTER));
 
+#if 0
 	// test
-	// fURL->SetText("https://github.com/Genio-The-Haiku-IDE/Genio");
+	fURL->SetText("https://github.com/Genio-The-Haiku-IDE/Genio");
+#endif
 
 	fURL->SetTarget(this);
 	fURL->SetModificationMessage(new BMessage(kUrlModified));
@@ -114,7 +111,6 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	_SetIdle();
 
 	CenterOnScreen();
-	Layout(true);
 	Show();
 
 	this_handler = this;
@@ -266,9 +262,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			BString basedirPath = fPathBox->Path();
 			auto repoName = _ExtractRepositoryName(fURL->Text());
 			fDestDir->SetText(repoName);
-			// BPath path(fPathBox->Path());
-			// path.Append(repoName);
-			// fPathBox->SetPath(path.Path());
+
 			BeDC("Genio").SendMessage(repoName);
 			break;
 		}

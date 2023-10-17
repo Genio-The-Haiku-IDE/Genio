@@ -48,6 +48,7 @@ ProjectsFolderBrowser::~ProjectsFolderBrowser()
 	delete fGenioWatchingFilter;
 }
 
+
 // TODO:
 // Optimize the search under a specific ProjectItem, tipically a
 // superitem (ProjectFolder)
@@ -349,6 +350,14 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 					}
 					break;
 				}
+				case MSG_NOTIFY_BUILDING_PHASE:
+				{
+					bool building = false;
+					message->FindBool("building", &building);
+					SetBuildingPhase(building);
+					break;
+				}
+
 				default:
 					break;
 			}
@@ -517,10 +526,12 @@ ProjectsFolderBrowser::AttachedToWindow()
 	BOutlineListView::SetTarget((BHandler*)this, Window());
 
 	if (Window()->LockLooper()) {
+		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->UnlockLooper();
 	}
 }
+
 
 /* virtual */
 void
@@ -528,6 +539,7 @@ ProjectsFolderBrowser::DetachedFromWindow()
 {
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->UnlockLooper();
 	}
 }
@@ -580,7 +592,7 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	Invalidate();
 	status_t status = BPrivate::BPathMonitor::StartWatching(project->Path(),
 			B_WATCH_RECURSIVELY, BMessenger(this));
-	if ( status != B_OK ){
+	if (status != B_OK ) {
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", project->Path(), strerror(status));
 	}
 }

@@ -41,7 +41,7 @@ private:
 	BMessage*		fMessage;
 	BTextControl	*fTextControl;
 
-	void			_DrawIcon(BView* owner);
+	void			_DrawText(BView* owner, const BPoint& textPoint);
 	void			_DrawTextWidget(BView* owner, const BRect& textRect);
 	void			_DestroyTextWidget();
 };

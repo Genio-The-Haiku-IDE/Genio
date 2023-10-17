@@ -16,13 +16,9 @@
 #include <String.h>
 #include <SupportDefs.h>
 
-// #include "TMessage.h"
-// #include "Utils.h"
-
 namespace Genio::Task {
 
 	using namespace std;
-	// using namespace Genio::Message;
 
 	namespace Private {
 
@@ -133,9 +129,6 @@ namespace Genio::Task {
 					type_code type = BMessageType<ResultType>::Get();
 					ResultType result = any_cast<ResultType>(fResult);
 					status = archive->AddData(fResultField, type, &result, sizeof(ResultType));
-					// TMessage *msg = (TMessage*)(archive);
-					// msg->Add<ResultType>(fResultFieldName, &result);
-					// OKAlert("", BString("fResult:") << any_cast<ResultType>(fResult) << " type:" << fResult.type().name() << " result:" << result, B_INFO_ALERT);
 				}
 			}
 			status = archive->AddInt32(fTaskIdField, fId);
@@ -178,7 +171,6 @@ namespace Genio::Task {
 	public:
 		using native_handle_type = thread_id;
 
-		// template<typename Name, typename Messenger, typename Function, typename... Args>
 		template<typename Function, typename... Args>
 		Task(const char *name, BMessenger *messenger, Function&& function, Args&&... args)
 		{

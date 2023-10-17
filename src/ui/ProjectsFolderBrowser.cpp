@@ -335,7 +335,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
-				case 'abcd':
+				case MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED:
 				{
 					bool needsSave = false;
 					BString fileName;

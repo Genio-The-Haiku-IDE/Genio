@@ -31,10 +31,9 @@ We also took inspiration and code from the editor [Koder](https://github.com/Kap
 
 * strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
   * gcc_syslibs_devel
-  * llvm12_clang
-  * llvm12_libs
+  * llvm17_clang
 ```
-pkgman install gcc_syslibs_devel llvm12_clang llvm12_libs
+pkgman install gcc_syslibs_devel llvm12_clang
 ```
 
 # Goals and roadmap

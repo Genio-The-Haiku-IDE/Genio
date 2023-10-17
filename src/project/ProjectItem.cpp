@@ -120,11 +120,6 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);
 
-	fTextRect.top = bounds.top - 0.5f;
-	fTextRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
-	fTextRect.bottom = bounds.bottom-1;
-	fTextRect.right = bounds.right;
-
 	if (icon != nullptr) {
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->DrawBitmapAsync(icon, iconStartingPoint);
@@ -132,7 +127,12 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	// Check if there is an InitRename request and show a TextControl
 	if (fInitRename) {
-		_DrawTextWidget(owner);
+		BRect textRect;
+		textRect.top = bounds.top - 0.5f;
+		textRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
+		textRect.bottom = bounds.bottom - 1;
+		textRect.right = bounds.right;
+		_DrawTextWidget(owner, textRect);
 	} else {
 		if (fNeedsSave) {
 			BFont font;
@@ -200,10 +200,10 @@ ProjectItem::CommitRename()
 
 
 void
-ProjectItem::_DrawTextWidget(BView* owner)
+ProjectItem::_DrawTextWidget(BView* owner, const BRect& textRect)
 {
 	if (fTextControl == nullptr) {
-		fTextControl = new TemporaryTextControl(fTextRect, "RenameTextWidget",
+		fTextControl = new TemporaryTextControl(textRect, "RenameTextWidget",
 											"", Text(), fMessage, this,
 											B_FOLLOW_NONE);
 		owner->AddChild(fTextControl);

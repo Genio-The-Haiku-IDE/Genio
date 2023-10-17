@@ -22,7 +22,6 @@ public:
 
 	void 			DrawItem(BView* owner, BRect bounds, bool complete);
 	void 			Update(BView* owner, const BFont* font);
-	BRect 			GetTextRect() { return fTextRect; }
 
 	SourceItem		*GetSourceItem() const { return fSourceItem; };
 
@@ -36,13 +35,12 @@ private:
 	SourceItem		*fSourceItem;
 	bool			fFirstTimeRendered;
 	bool			fNeedsSave;
-	BRect			fTextRect;
 	bool			fInitRename;
 	BMessage*		fMessage;
 	BTextControl	*fTextControl;
 
 	void			_DrawIcon(BView* owner);
-	void			_DrawTextWidget(BView* owner);
+	void			_DrawTextWidget(BView* owner, const BRect& textRect);
 	void			_DestroyTextWidget();
 };
 

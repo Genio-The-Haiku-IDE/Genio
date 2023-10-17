@@ -116,8 +116,9 @@ enum {
 
 // "notification" messages
 enum {
-	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch'	// file_name (string)
+	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch',	// file_name (string)
 													// needs_save (bool)
+	MSG_NOTIFY_BUILDING_PHASE			= 'blph'	// building (bool)
 };
 
 #endif // GenioWindowMessages_H

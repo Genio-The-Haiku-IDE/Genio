@@ -322,8 +322,10 @@ GenioWindow::MessageReceived(BMessage* message)
 				cmdType == "catkeys") {
 
 				fIsBuilding = false;
-				fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
 
+				BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
+				noticeMessage.AddBool("building", fIsBuilding);
+				SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 			}
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
@@ -1339,7 +1341,11 @@ GenioWindow::_BuildProject()
 		_FileSaveAll(fActiveProject);
 
 	fIsBuilding = true;
-	fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
+
+	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
+	noticeMessage.AddBool("building", fIsBuilding);
+	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
+
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
@@ -1385,7 +1391,10 @@ GenioWindow::_CleanProject()
 	LogInfoF("Clean started: [%s]", fActiveProject->Name().String());
 
 	fIsBuilding = true;
-	fProjectsFolderBrowser->SetBuildingPhase(fIsBuilding);
+
+	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
+	noticeMessage.AddBool("building", fIsBuilding);
+	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
 	BMessage message;
 	message.AddString("cmd", command);

@@ -3680,10 +3680,10 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 
 	// Notify all listeners
-	BMessage noticeMessage('abcd');
+	BMessage noticeMessage(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 	noticeMessage.AddString("file_name", editor->FilePath());
 	noticeMessage.AddBool("needs_save", editor->IsModified());
-	SendNotices('abcd', &noticeMessage);
+	SendNotices(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED, &noticeMessage);
 
 }
 

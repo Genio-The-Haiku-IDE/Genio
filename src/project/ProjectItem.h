@@ -19,25 +19,28 @@ class ProjectItem : public BStringItem {
 public:
 					ProjectItem(SourceItem *sourceFile);
 					~ProjectItem();
-						
+
 	void 			DrawItem(BView* owner, BRect bounds, bool complete);
 	void 			Update(BView* owner, const BFont* font);
 	BRect 			GetTextRect() { return fTextRect; }
 
 	SourceItem		*GetSourceItem() const { return fSourceItem; };
-	
+
+	void			SetNeedsSave(bool needs);
+
 	void			InitRename(BMessage* message);
 	void			AbortRename();
 	void			CommitRename();
-	
+
 private:
 	SourceItem		*fSourceItem;
 	bool			fFirstTimeRendered;
+	bool			fNeedsSave;
 	BRect			fTextRect;
 	bool			fInitRename;
 	BMessage*		fMessage;
 	BTextControl	*fTextControl;
-	
+
 	void			_DrawIcon(BView* owner);
 	void			_DrawTextWidget(BView* owner);
 	void			_DestroyTextWidget();

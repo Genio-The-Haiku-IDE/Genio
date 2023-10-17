@@ -926,12 +926,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_OPEN_REMOTE: {
 			// TODO: There is an attempt ongoing to refactor the whole way we manage the settings
 			// refactor and optimize the settings part
-			// 
+			//
 			TPreferences prefs(GenioNames::kSettingsFileName, GenioNames::kApplicationName, 'PRSE');
 			BEntry entry(prefs.GetString("projects_directory"), true);
 			BPath path;
 			entry.GetPath(&path);
-			
+
 			RemoteProjectWindow *window = new RemoteProjectWindow("", path.Path(), BMessenger(this));
 			window->Show();
 			break;
@@ -2482,7 +2482,7 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN,
 								   B_TRANSLATE("Open project"),
 								   "","",'O', B_OPTION_KEY);
-								   
+
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN_REMOTE,
 								   B_TRANSLATE("Open remote project"),
 								   "","",'O', B_SHIFT_KEY | B_OPTION_KEY);
@@ -3678,6 +3678,13 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	// or reload editor pointer
 	bool filesNeedSave = (_FilesNeedSave() > 0 ? true : false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
+
+	// Notify all listeners
+	BMessage noticeMessage('abcd');
+	noticeMessage.AddString("file_name", editor->FilePath());
+	noticeMessage.AddBool("needs_save", editor->IsModified());
+	SendNotices('abcd', &noticeMessage);
+
 }
 
 // Updating menu, toolbar, title.

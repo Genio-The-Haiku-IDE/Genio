@@ -20,10 +20,10 @@
 
 class ProjectItem;
 
-class TemporaryTextControl: public BTextControl {	
+class TemporaryTextControl: public BTextControl {
 	typedef	BTextControl _inherited;
-	
-	
+
+
 public:
 	ProjectItem *fProjectItem;
 
@@ -34,14 +34,14 @@ public:
 		BTextControl(frame, name, label, text, message, resizingMode, flags),
 		fProjectItem(item)
 	{
-		SetEventMask(B_POINTER_EVENTS|B_KEYBOARD_EVENTS);	
+		SetEventMask(B_POINTER_EVENTS|B_KEYBOARD_EVENTS);
 	}
-	
+
 	virtual void AllAttached()
 	{
 		TextView()->SelectAll();
 	}
-	
+
 	virtual void MouseDown(BPoint point)
 	{
 		if (Bounds().Contains(point))
@@ -51,7 +51,7 @@ public:
 		}
 		Invoke();
 	}
-	
+
 	virtual void KeyDown(const char* bytes, int32 numBytes)
 	{
 		if (numBytes == 1 && *bytes == B_ESCAPE) {
@@ -69,6 +69,7 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 	BStringItem(sourceItem->Name()),
 	fSourceItem(sourceItem),
 	fFirstTimeRendered(true),
+	fNeedsSave(false),
 	fInitRename(false),
 	fMessage(nullptr),
 	fTextControl(nullptr)
@@ -133,6 +134,12 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	if (fInitRename) {
 		_DrawTextWidget(owner);
 	} else {
+		if (fNeedsSave) {
+			BFont font;
+			owner->GetFont(&font);
+			font.SetFace(B_ITALIC_FACE);
+			owner->SetFont(&font);
+		}
 		// Draw string at the right of the icon
 		owner->SetDrawingMode(B_OP_COPY);
 		owner->MovePenTo(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
@@ -145,6 +152,13 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			fFirstTimeRendered = false;
 		}
 	}
+}
+
+
+void
+ProjectItem::SetNeedsSave(bool needs)
+{
+	fNeedsSave = needs;
 }
 
 

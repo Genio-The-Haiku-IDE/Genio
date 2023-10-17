@@ -35,7 +35,7 @@
 
 ProjectsFolderBrowser::ProjectsFolderBrowser():
 	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
-{	
+{
 	fGenioWatchingFilter = new GenioWatchingFilter();
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);
@@ -49,7 +49,7 @@ ProjectsFolderBrowser::~ProjectsFolderBrowser()
 }
 
 // TODO:
-// Optimize the search under a specific ProjectItem, tipically a 
+// Optimize the search under a specific ProjectItem, tipically a
 // superitem (ProjectFolder)
 ProjectItem*
 ProjectsFolderBrowser::FindProjectItem(BString const& path)
@@ -79,7 +79,7 @@ ProjectsFolderBrowser::_CreatePath(BPath pathToCreate)
 {
 	LogTrace("Create path for %s", pathToCreate.Path());
 	ProjectItem *item = FindProjectItem(pathToCreate.Path());
-	
+
 	if (!item) {
 		LogTrace("Can't find path %s", pathToCreate.Path());
 		BPath parent;
@@ -136,9 +136,9 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				if (LockLooper()) {
 					Select(IndexOf(item));
 					Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
-				
+
 					// It seems not possible to track the project folder to the new
-					// location outside of the watched path. So we close the project 
+					// location outside of the watched path. So we close the project
 					// and warn the user
 					auto alert = new BAlert("ProjectFolderChanged", B_TRANSLATE(
 						"The project folder has been deleted or moved to another location "
@@ -146,7 +146,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 						B_TRANSLATE("OK"), NULL, NULL,
 						B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 						alert->Go();
-				
+
 					UnlockLooper();
 				}
 			} else {
@@ -256,7 +256,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 									bool status = RemoveItem(item);
 									if (status) {
 										SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
-										
+
 										ProjectItem *newItem = _CreateNewProjectItem(item, bp_newPath);
 										status = AddUnder(newItem, destinationItem);
 										if (status) {
@@ -288,7 +288,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			_UpdateNode(message);
 			break;
 		}
-		case MSG_PROJECT_MENU_OPEN_FILE: 
+		case MSG_PROJECT_MENU_OPEN_FILE:
 		{
 			//message->PrintToStream();
 			int32 index = -1;
@@ -323,16 +323,37 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			BString newName;
 			if (message->FindString("_value", &newName) == B_OK) {
 				if (_RenameCurrentSelectedFile(newName) != B_OK) {
-					OKAlert("Rename", 
+					OKAlert("Rename",
 							BString(B_TRANSLATE("An error occurred attempting to rename file ")) <<
 								newName, B_WARNING_ALERT);
 				}
 			}
 			break;
 		}
+		case B_OBSERVER_NOTICE_CHANGE:
+		{
+			int32 code;
+			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+			switch (code) {
+				case 'abcd':
+				{
+					bool needsSave = false;
+					BString fileName;
+					message->FindBool("needs_save", &needsSave);
+					message->FindString("file_name", &fileName);
+					ProjectItem* item = FindProjectItem(fileName);
+					if (item != nullptr)
+						item->SetNeedsSave(needsSave);
+					break;
+				}
+				default:
+					break;
+			}
+		}
 		default:
 			break;
 	}
+
 	BOutlineListView::MessageReceived(message);
 }
 
@@ -355,7 +376,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		TemplateManager::GetDefaultTemplateDirectory(),
 		TemplateManager::GetUserTemplateDirectory(),
 		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
-	
+
 	fFileNewProjectMenuItem->SetEnabled(true);
 
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
@@ -488,6 +509,11 @@ ProjectsFolderBrowser::AttachedToWindow()
 {
 	BOutlineListView::AttachedToWindow();
 	BOutlineListView::SetTarget((BHandler*)this, Window());
+
+	if (Window()->LockLooper()) {
+		Window()->StartWatching(this, 'abcd');
+		Window()->UnlockLooper();
+	}
 }
 
 
@@ -562,7 +588,7 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 		newItem = item = new ProjectItem(projectFolder);
 		AddItem(newItem);
 	}
-	
+
 	if (entry.IsDirectory()) {
 		BPath _currentPath;
 		BDirectory dir(&entry);

@@ -33,7 +33,7 @@ We also took inspiration and code from the editor [Koder](https://github.com/Kap
   * gcc_syslibs_devel
   * llvm17_clang
 ```
-pkgman install gcc_syslibs_devel llvm12_clang
+pkgman install gcc_syslibs_devel llvm17_clang
 ```
 
 # Goals and roadmap

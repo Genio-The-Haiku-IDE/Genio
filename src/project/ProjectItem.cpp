@@ -15,7 +15,6 @@
 
 #include "IconCache.h"
 #include "ProjectFolder.h"
-#include "Utils.h"
 
 
 class ProjectItem;

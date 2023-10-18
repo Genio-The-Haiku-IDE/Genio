@@ -11,8 +11,6 @@
 #include <OutlineListView.h>
 #include <Path.h>
 
-#include <stdexcept>
-
 #include "LSPProjectWrapper.h"
 #include "GenioNamespace.h"
 #include "GSettings.h"
@@ -26,7 +24,7 @@ SourceItem::SourceItem(BString const& path)
 {
 	BPath _path(path);
 	fName = _path.Leaf();
-	
+
 	BEntry entry(path);
 	if (entry.IsDirectory())
 		fType = SourceItemType::FolderItem;
@@ -50,7 +48,7 @@ SourceItem::Rename(BString const& path)
 
 
 ProjectFolder::ProjectFolder(BString const& path)
-	: 
+	:
 	SourceItem(path),
 	fActive(false),
 	fBuildMode(BuildMode::ReleaseMode),
@@ -59,7 +57,7 @@ ProjectFolder::ProjectFolder(BString const& path)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
-	
+
 	fLSPProjectWrapper = new LSPProjectWrapper(fPath.String());
 }
 
@@ -127,8 +125,8 @@ ProjectFolder::SetBuildMode(BuildMode mode)
 
 
 BuildMode
-ProjectFolder::GetBuildMode() 
-{ 
+ProjectFolder::GetBuildMode()
+{
 	fBuildMode = (BuildMode)fSettings->GetInt32("build_mode", BuildMode::ReleaseMode);
 	return fBuildMode;
 }
@@ -145,7 +143,7 @@ ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 
 BString const
 ProjectFolder::GetBuildCommand()
-{	
+{
 	if (fBuildMode == BuildMode::ReleaseMode)
 		return fSettings->GetString("project_release_build_command", "");
 	else
@@ -172,7 +170,7 @@ ProjectFolder::GetCleanCommand()
 		return fSettings->GetString("project_debug_clean_command", "");
 }
 
-	
+
 void
 ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 {

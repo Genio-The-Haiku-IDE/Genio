@@ -6,6 +6,7 @@
 #include "RemoteProjectWindow.h"
 
 #include <cstdio>
+#include <regex>
 
 #include <AppKit.h>
 #include <Catalog.h>
@@ -277,9 +278,25 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 BString
 RemoteProjectWindow::_ExtractRepositoryName(BString url)
 {
-	BString repoName(url);
-	repoName.Remove(0, url.FindLast('/') + 1);
-	repoName.RemoveAll(".git");
+	BeDC dc("Genio");
+	BString repoName = "";
+	std::string surl = url.String();
+	std::string strPattern = "^(https|git)(:\\/\\/|@)([^\\/:]+)[\\/:]([^\\/:]+)\\/(.+)(.git)?*$";
+	std::smatch matches;
+	std::regex rgx(strPattern);
+
+	if(std::regex_search(surl, matches, rgx)) {
+		dc.SendMessage("Match found\n");
+		for (size_t i = 0; i < matches.size(); ++i) {
+			dc.SendFormat("%d: '%s'", i, matches[i].str().c_str());
+		}
+		repoName.SetToFormat("%s", matches[5].str().c_str());
+		repoName.RemoveAll(".git");
+		BeDC dc(repoName);
+	} else {
+		dc.SendMessage("Match not found\n");
+		repoName = "";
+	}
 	return repoName;
 }
 

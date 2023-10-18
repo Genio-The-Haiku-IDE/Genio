@@ -621,13 +621,8 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 void
 ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder)
 {
-	char name[B_FILE_NAME_LENGTH];
-	BEntry nextEntry;
-	BEntry entry(path);
-	entry.GetName(name);
-
 	ProjectItem *newItem;
-	if (item != NULL) {
+	if (item != nullptr) {
 		SourceItem *sourceItem = new SourceItem(path);
 		sourceItem->SetProjectFolder(projectFolder);
 		newItem = new ProjectItem(sourceItem);
@@ -638,6 +633,7 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 		AddItem(newItem);
 	}
 
+	BEntry entry(path);
 	BEntry parent;
 	BPath parentPath;
 	// Check if there's a Jamfile or makefile in the root path
@@ -645,7 +641,6 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 	if (entry.IsFile() && entry.GetParent(&parent) == B_OK
 		&& parent.GetPath(&parentPath) == B_OK
 		&& projectFolder->Path().Compare(parentPath.Path()) == 0) {
-		LogInfo("Guessing builder...");
 		// guess builder type
 		// TODO: do it for real: set a flag or setting in project
 		// TODO: move this away from here, into a specialized class
@@ -660,6 +655,7 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 	} else if (entry.IsDirectory()) {
 		BPath _currentPath;
 		BDirectory dir(&entry);
+		BEntry nextEntry;
 		while (dir.GetNextEntry(&nextEntry, false) != B_ENTRY_NOT_FOUND) {
 			nextEntry.GetPath(&_currentPath);
 			_ProjectFolderScan(newItem, _currentPath.Path(), projectFolder);

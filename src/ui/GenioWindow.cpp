@@ -926,12 +926,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_OPEN_REMOTE: {
 			// TODO: There is an attempt ongoing to refactor the whole way we manage the settings
 			// refactor and optimize the settings part
-			// 
+			//
 			TPreferences prefs(GenioNames::kSettingsFileName, GenioNames::kApplicationName, 'PRSE');
 			BEntry entry(prefs.GetString("projects_directory"), true);
 			BPath path;
 			entry.GetPath(&path);
-			
+
 			RemoteProjectWindow *window = new RemoteProjectWindow("", path.Path(), BMessenger(this));
 			window->Show();
 			break;
@@ -2482,7 +2482,7 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN,
 								   B_TRANSLATE("Open project"),
 								   "","",'O', B_OPTION_KEY);
-								   
+
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN_REMOTE,
 								   B_TRANSLATE("Open remote project"),
 								   "","",'O', B_SHIFT_KEY | B_OPTION_KEY);
@@ -2530,6 +2530,11 @@ GenioWindow::_InitActions()
 								  B_TRANSLATE("Debug project"),
 								  B_TRANSLATE("Debug project"),
 								  "kIconDebug");
+
+	ActionManager::RegisterAction(MSG_PROJECT_SETTINGS,
+								  B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
+								  B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
+								  "");
 
 	ActionManager::RegisterAction(MSG_BUFFER_LOCK,
 								  B_TRANSLATE("Read-only"),
@@ -2771,8 +2776,9 @@ GenioWindow::_InitMenu()
 	fMakeBindcatalogsItem->SetEnabled(false);
 
 	projectMenu->AddSeparatorItem();
-	projectMenu->AddItem(new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
-		new BMessage(MSG_PROJECT_SETTINGS)));
+	ActionManager::AddItem(MSG_PROJECT_SETTINGS, projectMenu);
+
+	ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, false);
 
 	fMenuBar->AddItem(projectMenu);
 
@@ -3617,13 +3623,14 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 
+		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, true);
+
 		// Target exists: enable run button
 		chdir(fActiveProject->Path());
 		BEntry entry(fActiveProject->GetTarget());
 		if (entry.Exists()) {
 			ActionManager::SetEnabled(MSG_RUN_TARGET, true);
 			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
-
 		} else {
 			ActionManager::SetEnabled(MSG_RUN_TARGET, false);
 			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
@@ -3632,6 +3639,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fGitMenu->SetEnabled(false);
 		ActionManager::SetEnabled(MSG_RUN_TARGET, false);
 		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
+		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, false);
 		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 	}
 

@@ -61,6 +61,7 @@ ProjectsFolderBrowser::FindProjectItem(BString const& path)
 		if (item->GetSourceItem()->Path() == path)
 			return item;
 	}
+
 	return nullptr;
 }
 
@@ -552,6 +553,8 @@ ProjectsFolderBrowser::AttachedToWindow()
 void
 ProjectsFolderBrowser::DetachedFromWindow()
 {
+	BOutlineListView::DetachedFromWindow();
+
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
@@ -635,12 +638,31 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 		AddItem(newItem);
 	}
 
-	if (entry.IsDirectory()) {
+	BEntry parent;
+	BPath parentPath;
+	// Check if there's a Jamfile or makefile in the root path
+	// of the project
+	if (entry.IsFile() && entry.GetParent(&parent) == B_OK
+		&& parent.GetPath(&parentPath) == B_OK
+		&& projectFolder->Path().Compare(parentPath.Path()) == 0) {
+		LogInfo("Guessing builder...");
+		// guess builder type
+		// TODO: do it for real: set a flag or setting in project
+		// TODO: move this away from here, into a specialized class
+		// and maybe into plugins
+		if (strcasecmp(entry.Name(), "makefile") == 0) {
+			// builder: make
+			LogInfo("Guessed builder: make");
+		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
+			// builder: jam
+			LogInfo("Guessed builder: jam");
+		}
+	} else if (entry.IsDirectory()) {
 		BPath _currentPath;
 		BDirectory dir(&entry);
 		while (dir.GetNextEntry(&nextEntry, false) != B_ENTRY_NOT_FOUND) {
 			nextEntry.GetPath(&_currentPath);
-			_ProjectFolderScan(newItem,_currentPath.Path(), projectFolder);
+			_ProjectFolderScan(newItem, _currentPath.Path(), projectFolder);
 		}
 	}
 }

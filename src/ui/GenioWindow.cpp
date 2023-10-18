@@ -1258,7 +1258,7 @@ GenioWindow::QuitRequested()
 		}
 	}
 
-	if(fGoToLineWindow != nullptr) {
+	if (fGoToLineWindow != nullptr) {
 		fGoToLineWindow->LockLooper();
 		fGoToLineWindow->Quit();
 	}
@@ -1309,7 +1309,7 @@ GenioWindow::_AlertInvalidBuildConfig(BString message)
 						nullptr, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
 	alert->SetShortcut(0, B_ESCAPE);
 	if (alert->Go() == 1) {
-			PostMessage(MSG_PROJECT_SETTINGS);
+		PostMessage(MSG_PROJECT_SETTINGS);
 	}
 	return B_OK;
 }
@@ -2572,7 +2572,7 @@ GenioWindow::_InitMenu()
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
 
-  //ActionManager::AddItem(MSG_FILE_NEW,      fileMenu);
+	//ActionManager::AddItem(MSG_FILE_NEW,      fileMenu);
 
 	fileMenu->AddItem(fFileNewMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
 			new BMessage(MSG_FILE_NEW), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
@@ -2580,9 +2580,9 @@ GenioWindow::_InitMenu()
 			TemplateManager::GetUserTemplateDirectory(),
 			TemplatesMenu::SHOW_ALL_VIEW_MODE,	true));
 
-  ActionManager::AddItem(MSG_FILE_OPEN,     fileMenu);
+	ActionManager::AddItem(MSG_FILE_OPEN,     fileMenu);
 
-  fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
+	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
 			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), nullptr, nullptr, this,
 			kRecentFilesNumber, true, nullptr, GenioNames::kApplicationSignature), nullptr));
 
@@ -2591,7 +2591,6 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FILE_SAVE,     fileMenu);
 	ActionManager::AddItem(MSG_FILE_SAVE_AS,  fileMenu);
 	ActionManager::AddItem(MSG_FILE_SAVE_ALL, fileMenu);
-
 
 	fileMenu->AddSeparatorItem();
 
@@ -2607,7 +2606,6 @@ GenioWindow::_InitMenu()
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);
 	ActionManager::SetEnabled(MSG_FILE_CLOSE, false);
 	ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, false);
-
 
 	fMenuBar->AddItem(fileMenu);
 
@@ -2765,6 +2763,8 @@ GenioWindow::_InitMenu()
 		new BMessage(MSG_MAKE_CATKEYS)));
 	projectMenu->AddItem(fMakeBindcatalogsItem = new BMenuItem ("Make bindcatalogs",
 		new BMessage(MSG_MAKE_BINDCATALOGS)));
+
+	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, false);
 
 	ActionManager::SetEnabled(MSG_BUILD_PROJECT, false);
 	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, false);
@@ -3172,7 +3172,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 			unsavedFiles.push_back(index);
 	}
 
-	if(!_FileRequestSaveList(unsavedFiles))
+	if (!_FileRequestSaveList(unsavedFiles))
 		return;
 
 	BString closed("Project close:");
@@ -3215,6 +3215,11 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		if (item != nullptr)
 			_ProjectFolderActivate((ProjectFolder*)item->GetSourceItem());
 	}
+
+	// Disable "Close project" action if no project
+	if (fProjectFolderObjectList->CountItems() == 0)
+		ActionManager::SetEnabled(MSG_PROJECT_CLOSE, false);
+
 	BString notification;
 	notification << closed << " "  << name;
 	_SendNotification(notification, "PROJ_CLOSE");
@@ -3268,6 +3273,8 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 		_ProjectFolderActivate(newProject);
 		opened = "Active project open: ";
 	}
+
+	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 
 	BString notification;
 	notification << opened << newProject->Name() << " at " << newProject->Path();
@@ -3599,6 +3606,7 @@ GenioWindow::_UpdateLabel(int32 index, bool isModified)
 
 	return B_ERROR;
 }
+
 
 void
 GenioWindow::_UpdateProjectActivation(bool active)

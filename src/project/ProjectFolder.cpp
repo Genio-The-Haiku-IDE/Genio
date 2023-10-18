@@ -131,6 +131,7 @@ ProjectFolder::GetBuildMode()
 	return fBuildMode;
 }
 
+
 void
 ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 {
@@ -144,9 +145,12 @@ ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 BString const
 ProjectFolder::GetBuildCommand()
 {
-	if (fBuildMode == BuildMode::ReleaseMode)
-		return fSettings->GetString("project_release_build_command", "");
-	else
+	if (fBuildMode == BuildMode::ReleaseMode) {
+		BString build = fSettings->GetString("project_release_build_command", "");
+		if (build == "")
+			build = fGuessedBuildCommand;
+		return build;
+	} else
 		return fSettings->GetString("project_debug_build_command", "");
 }
 
@@ -164,9 +168,12 @@ ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
 BString const
 ProjectFolder::GetCleanCommand()
 {
-	if (fBuildMode == BuildMode::ReleaseMode)
-		return fSettings->GetString("project_release_clean_command", "");
-	else
+	if (fBuildMode == BuildMode::ReleaseMode) {
+		BString clean = fSettings->GetString("project_release_clean_command", "");
+		if (clean == "")
+			clean = fGuessedCleanCommand;
+		return clean;
+	} else
 		return fSettings->GetString("project_debug_clean_command", "");
 }
 
@@ -250,4 +257,13 @@ bool
 ProjectFolder::ExcludeSettingsOnGit()
 {
 	return fSettings->GetBool("exclude_settings_git", false);
+}
+
+
+void
+ProjectFolder::SetGuessedBuilder(const BString& string)
+{
+	fGuessedBuildCommand = string;
+	fGuessedCleanCommand = string;
+	fGuessedCleanCommand.Append(" clean");
 }

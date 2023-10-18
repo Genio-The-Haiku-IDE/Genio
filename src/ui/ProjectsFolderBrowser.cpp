@@ -647,9 +647,11 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 		// and maybe into plugins
 		if (strcasecmp(entry.Name(), "makefile") == 0) {
 			// builder: make
+			projectFolder->SetGuessedBuilder("make");
 			LogInfo("Guessed builder: make");
 		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
 			// builder: jam
+			projectFolder->SetGuessedBuilder("jam");
 			LogInfo("Guessed builder: jam");
 		}
 	} else if (entry.IsDirectory()) {

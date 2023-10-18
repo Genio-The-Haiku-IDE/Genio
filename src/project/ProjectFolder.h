@@ -84,13 +84,15 @@ public:
 	void						ExcludeSettingsOnGit(bool enabled);
 	bool						ExcludeSettingsOnGit();
 
+	void						SetGuessedBuilder(const BString& string);
+
 	LSPProjectWrapper*			GetLSPClient() { return fLSPProjectWrapper; }
 
 private:
 	bool						fActive;
 	BuildMode					fBuildMode;
-	BString						fTarget;
-	BString						fBuildCommand;
+	BString						fGuessedBuildCommand;
+	BString						fGuessedCleanCommand;
 	LSPProjectWrapper*			fLSPProjectWrapper;
 	GSettings*					fSettings;
 };

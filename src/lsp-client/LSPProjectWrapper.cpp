@@ -71,8 +71,14 @@ LSPProjectWrapper::_Create()
 			logLevel += "verbose"; // Low level details
 			break;
 	};
-	const char* argv[] = {"clangd", logLevel.c_str(), "--offset-encoding=utf-8", "--pretty",
-		"--header-insertion-decorators=false", NULL};
+	const char* argv[] = {
+		"clangd",
+		logLevel.c_str(),
+		"--offset-encoding=utf-8",
+		"--pretty",
+		"--header-insertion-decorators=false",
+		NULL
+	};
 
 	if (fLSPPipeClient->Start(argv, 5) != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
@@ -80,7 +86,6 @@ LSPProjectWrapper::_Create()
 				"package.");
 		return false;
 	}
-
 
 	Initialize(string_ref(fRootURI));
 
@@ -132,7 +137,6 @@ LSPProjectWrapper::_DocumentByURI(const char* uri)
 			break;
 		}
 	}
-
 	return doc;
 }
 
@@ -152,7 +156,6 @@ LSPProjectWrapper::onNotify(std::string method, value& params)
 		}
 		return;
 	}
-
 	LogError("LSPProjectWrapper::onNotify not implemented! [%s]", method.c_str());
 }
 

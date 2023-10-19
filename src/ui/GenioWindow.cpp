@@ -3686,6 +3686,7 @@ GenioWindow::_UpdateReplaceMenuItems(const BString& text)
 // Savepoint Left
 // Undo
 // Redo
+// EDITOR_POSITION_CHANGED (Why ?)
 void
 GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 {
@@ -3709,12 +3710,16 @@ GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
 	bool filesNeedSave = (_FilesNeedSave() > 0 ? true : false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 
-	// Notify all listeners
-	BMessage noticeMessage(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
-	noticeMessage.AddString("file_name", editor->FilePath());
-	noticeMessage.AddBool("needs_save", editor->IsModified());
-	SendNotices(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED, &noticeMessage);
-
+	// Avoid notifiying listeners for every position change
+	// at least the ProjectFolderBrowser would invalidate() itself
+	// every time. Not needed for this case.
+	// TODO: is that even correct to be called for every position changed ?
+	if (caller != "EDITOR_POSITION_CHANGED") {
+		BMessage noticeMessage(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+		noticeMessage.AddString("file_name", editor->FilePath());
+		noticeMessage.AddBool("needs_save", editor->IsModified());
+		SendNotices(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED, &noticeMessage);
+	}
 }
 
 // Updating menu, toolbar, title.

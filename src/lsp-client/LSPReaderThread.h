@@ -19,4 +19,4 @@ private:
 	LSPPipeClient&	fTransport;
 };
 
-#endif // _H
+#endif // LSPReaderThread_H

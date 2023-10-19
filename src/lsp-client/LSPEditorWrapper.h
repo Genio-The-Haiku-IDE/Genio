@@ -5,27 +5,26 @@
 #ifndef LSPEditorWrapper_H
 #define LSPEditorWrapper_H
 
-#include <iostream>
-#include <SupportDefs.h>
-#include <ToolTip.h>
 #include <Autolock.h>
+#include <ToolTip.h>
+
 #include <vector>
-#include "Sci_Position.h"
+
 #include "LSPTextDocument.h"
+#include "Sci_Position.h"
 #include "protocol_objects.h"
+
 
 class LSPProjectWrapper;
 class Editor;
-
 class LSPEditorWrapper : public LSPTextDocument {
-	
 public:
 	enum GoToType {
 		GOTO_DEFINITION,
 		GOTO_DECLARATION,
 		GOTO_IMPLEMENTATION
 	};
-	
+
 public:
 				LSPEditorWrapper(BPath filenamePath, Editor* fEditor);
 		virtual	~LSPEditorWrapper() {};
@@ -48,23 +47,22 @@ public:
 		void	SwitchSourceHeader();
 		void	StartHover(Sci_Position sci_position);
 		void	EndHover();
-		
-		
+
+
 		void	IndicatorClick(Sci_Position position);
-		
+
 		void	CharAdded(const char ch /*utf-8?*/);
-		
-		/* experimental */	
+
+		/* experimental */
 		void	ContinueCallTip();
 		void	UpdateCallTip(int deltaPos);
-		
-		
+
 private:
-		/* experimental section */	
+		/* experimental section */
 		bool	StartCallTip(bool searchStart);
-		
-		
-		
+
+
+
 		int 	braceCount = 0;
 		int 	startCalltipWord;
 		Sci_Position calltipPosition;
@@ -81,8 +79,7 @@ public:
 		void onResponse(RequestID ID, value &result);
 		void onError(RequestID ID, value &error);
 		void onRequest(std::string method, value &params, value &ID);
-		
-		
+
 private:
 
 	struct InfoRange {
@@ -100,11 +97,11 @@ private:
 
 	std::vector<InfoRange>		fLastDiagnostics;
 	std::vector<InfoRange>		fLastDocumentLinks;
-	
+
 	void				_ShowToolTip(const char* text);
 	void				_RemoveAllDiagnostics();
 	void				_RemoveAllDocumentLinks();
-	
+
 private:
 	//callbacks:
 	void	_DoFormat(nlohmann::json& params);
@@ -116,7 +113,7 @@ private:
 	void	_DoDiagnostics(nlohmann::json& params);
 	void	_DoDocumentLink(nlohmann::json& params);
 	void	_DoFileStatus(nlohmann::json& params);
-	
+
 private:
 	//utils
 	void 			FromSciPositionToLSPPosition(const Sci_Position &pos, Position *lsp_position);
@@ -128,6 +125,5 @@ private:
 	std::string 	GetCurrentLine();
 	bool			IsStatusValid();
 };
-
 
 #endif // LSPEditorWrapper_H

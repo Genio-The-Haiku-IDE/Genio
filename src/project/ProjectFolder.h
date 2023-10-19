@@ -8,7 +8,6 @@
 #include <ObjectList.h>
 #include <String.h>
 
-#include "GenioNamespace.h"
 #include "GSettings.h"
 
 class LSPProjectWrapper;
@@ -30,16 +29,16 @@ class SourceItem {
 public:
 								SourceItem(BString const& path);
 								~SourceItem();
-								
+
 	BString	const				Path() { return fPath; }
 	BString	const				Name() { return fName; };
 	SourceItemType				Type() { return fType; };
-	
+
 	ProjectFolder				*GetProjectFolder()	{ return fProjectFolder; }
 	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
-	
+
 	void 						Rename(BString const& path);
-						
+
 protected:
 	BString						fPath;
 	BString						fName;
@@ -51,47 +50,49 @@ class ProjectFolder : public SourceItem {
 public:
 								ProjectFolder(BString const& path);
 								~ProjectFolder();
-	
+
 	status_t					Open();
 	status_t					Close();
-	
+
 	void						LoadDefaultSettings();
 	void						SaveSettings();
 
 	bool						Active() const { return fActive; }
-	void						Active(bool status) { fActive = status; }	
-	
+	void						Active(bool status) { fActive = status; }
+
 	void						SetBuildMode(BuildMode mode);
 	BuildMode					GetBuildMode();
-	
+
 	void						SetCleanCommand(BString const& command, BuildMode mode);
 	BString const				GetCleanCommand();
-	
+
 	void						SetBuildCommand(BString const& command, BuildMode mode);
 	BString const				GetBuildCommand();
 
 	void						SetExecuteArgs(BString const& args, BuildMode mode);
 	BString const				GetExecuteArgs();
-	
+
 	void						SetTarget(BString const& path, BuildMode mode);
 	BString const				GetTarget();
-	
+
 	void						RunInTerminal(bool enabled);
 	bool						RunInTerminal();
-	
+
 	void						Git(bool enabled);
 	bool						Git();
-	
+
 	void						ExcludeSettingsOnGit(bool enabled);
 	bool						ExcludeSettingsOnGit();
-	
+
+	void						SetGuessedBuilder(const BString& string);
+
 	LSPProjectWrapper*			GetLSPClient() { return fLSPProjectWrapper; }
 
 private:
 	bool						fActive;
 	BuildMode					fBuildMode;
-	BString						fTarget;
-	BString						fBuildCommand;
+	BString						fGuessedBuildCommand;
+	BString						fGuessedCleanCommand;
 	LSPProjectWrapper*			fLSPProjectWrapper;
 	GSettings*					fSettings;
 };

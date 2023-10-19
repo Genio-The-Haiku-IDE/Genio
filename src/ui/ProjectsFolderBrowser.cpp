@@ -35,7 +35,7 @@
 
 ProjectsFolderBrowser::ProjectsFolderBrowser():
 	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
-{	
+{
 	fGenioWatchingFilter = new GenioWatchingFilter();
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);
@@ -48,8 +48,9 @@ ProjectsFolderBrowser::~ProjectsFolderBrowser()
 	delete fGenioWatchingFilter;
 }
 
+
 // TODO:
-// Optimize the search under a specific ProjectItem, tipically a 
+// Optimize the search under a specific ProjectItem, tipically a
 // superitem (ProjectFolder)
 ProjectItem*
 ProjectsFolderBrowser::FindProjectItem(BString const& path)
@@ -60,6 +61,7 @@ ProjectsFolderBrowser::FindProjectItem(BString const& path)
 		if (item->GetSourceItem()->Path() == path)
 			return item;
 	}
+
 	return nullptr;
 }
 
@@ -79,7 +81,7 @@ ProjectsFolderBrowser::_CreatePath(BPath pathToCreate)
 {
 	LogTrace("Create path for %s", pathToCreate.Path());
 	ProjectItem *item = FindProjectItem(pathToCreate.Path());
-	
+
 	if (!item) {
 		LogTrace("Can't find path %s", pathToCreate.Path());
 		BPath parent;
@@ -136,9 +138,9 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				if (LockLooper()) {
 					Select(IndexOf(item));
 					Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
-				
+
 					// It seems not possible to track the project folder to the new
-					// location outside of the watched path. So we close the project 
+					// location outside of the watched path. So we close the project
 					// and warn the user
 					auto alert = new BAlert("ProjectFolderChanged", B_TRANSLATE(
 						"The project folder has been deleted or moved to another location "
@@ -146,7 +148,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 						B_TRANSLATE("OK"), NULL, NULL,
 						B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 						alert->Go();
-				
+
 					UnlockLooper();
 				}
 			} else {
@@ -256,7 +258,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 									bool status = RemoveItem(item);
 									if (status) {
 										SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
-										
+
 										ProjectItem *newItem = _CreateNewProjectItem(item, bp_newPath);
 										status = AddUnder(newItem, destinationItem);
 										if (status) {
@@ -277,6 +279,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 }
 
 
+/* virtual */
 void
 ProjectsFolderBrowser::MessageReceived(BMessage* message)
 {
@@ -288,7 +291,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			_UpdateNode(message);
 			break;
 		}
-		case MSG_PROJECT_MENU_OPEN_FILE: 
+		case MSG_PROJECT_MENU_OPEN_FILE:
 		{
 			//message->PrintToStream();
 			int32 index = -1;
@@ -323,16 +326,60 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			BString newName;
 			if (message->FindString("_value", &newName) == B_OK) {
 				if (_RenameCurrentSelectedFile(newName) != B_OK) {
-					OKAlert("Rename", 
+					OKAlert("Rename",
 							BString(B_TRANSLATE("An error occurred attempting to rename file ")) <<
 								newName, B_WARNING_ALERT);
 				}
 			}
 			break;
 		}
+		case B_OBSERVER_NOTICE_CHANGE:
+		{
+			int32 code;
+			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+			switch (code) {
+				case MSG_NOTIFY_EDITOR_FILE_OPENED:
+				case MSG_NOTIFY_EDITOR_FILE_CLOSED:
+				{
+					bool open = (code == MSG_NOTIFY_EDITOR_FILE_OPENED);
+					BString fileName;
+					message->FindString("file_name", &fileName);
+					ProjectItem* item = FindProjectItem(fileName);
+					if (item != nullptr) {
+						item->SetOpenedInEditor(open);
+						Invalidate();
+					}
+					break;
+				}
+				case MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED:
+				{
+					bool needsSave = false;
+					BString fileName;
+					message->FindBool("needs_save", &needsSave);
+					message->FindString("file_name", &fileName);
+					ProjectItem* item = FindProjectItem(fileName);
+					if (item != nullptr) {
+						item->SetNeedsSave(needsSave);
+						Invalidate();
+					}
+					break;
+				}
+				case MSG_NOTIFY_BUILDING_PHASE:
+				{
+					bool building = false;
+					message->FindBool("building", &building);
+					fIsBuilding = building;
+					break;
+				}
+
+				default:
+					break;
+			}
+		}
 		default:
 			break;
 	}
+
 	BOutlineListView::MessageReceived(message);
 }
 
@@ -355,7 +402,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		TemplateManager::GetDefaultTemplateDirectory(),
 		TemplateManager::GetUserTemplateDirectory(),
 		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
-	
+
 	fFileNewProjectMenuItem->SetEnabled(true);
 
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
@@ -442,6 +489,7 @@ ProjectsFolderBrowser::GetProjectFromCurrentItem()
 	return _GetProjectFromItem(GetCurrentProjectItem());
 }
 
+
 BString const
 ProjectsFolderBrowser::GetCurrentProjectFileFullPath()
 {
@@ -469,6 +517,7 @@ ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item)
 	return project;
 }
 
+
 status_t
 ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 {
@@ -483,14 +532,40 @@ ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 }
 
 
+/* virtual */
 void
 ProjectsFolderBrowser::AttachedToWindow()
 {
 	BOutlineListView::AttachedToWindow();
 	BOutlineListView::SetTarget((BHandler*)this, Window());
+
+	if (Window()->LockLooper()) {
+		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
+		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
+		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
+		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+		Window()->UnlockLooper();
+	}
 }
 
 
+/* virtual */
+void
+ProjectsFolderBrowser::DetachedFromWindow()
+{
+	BOutlineListView::DetachedFromWindow();
+
+	if (Window()->LockLooper()) {
+		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
+		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
+		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
+		Window()->UnlockLooper();
+	}
+}
+
+
+/* virtual */
 void
 ProjectsFolderBrowser::MouseDown(BPoint where)
 {
@@ -537,7 +612,7 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	Invalidate();
 	status_t status = BPrivate::BPathMonitor::StartWatching(project->Path(),
 			B_WATCH_RECURSIVELY, BMessenger(this));
-	if ( status != B_OK ){
+	if (status != B_OK ) {
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", project->Path(), strerror(status));
 	}
 }
@@ -546,13 +621,8 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 void
 ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder)
 {
-	char name[B_FILE_NAME_LENGTH];
-	BEntry nextEntry;
-	BEntry entry(path);
-	entry.GetName(name);
-
 	ProjectItem *newItem;
-	if (item != NULL) {
+	if (item != nullptr) {
 		SourceItem *sourceItem = new SourceItem(path);
 		sourceItem->SetProjectFolder(projectFolder);
 		newItem = new ProjectItem(sourceItem);
@@ -562,13 +632,35 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 		newItem = item = new ProjectItem(projectFolder);
 		AddItem(newItem);
 	}
-	
-	if (entry.IsDirectory()) {
+
+	BEntry entry(path);
+	BEntry parent;
+	BPath parentPath;
+	// Check if there's a Jamfile or makefile in the root path
+	// of the project
+	if (entry.IsFile() && entry.GetParent(&parent) == B_OK
+		&& parent.GetPath(&parentPath) == B_OK
+		&& projectFolder->Path().Compare(parentPath.Path()) == 0) {
+		// guess builder type
+		// TODO: do it for real: set a flag or setting in project
+		// TODO: move this away from here, into a specialized class
+		// and maybe into plugins
+		if (strcasecmp(entry.Name(), "makefile") == 0) {
+			// builder: make
+			projectFolder->SetGuessedBuilder("make");
+			LogInfo("Guessed builder: make");
+		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
+			// builder: jam
+			projectFolder->SetGuessedBuilder("jam");
+			LogInfo("Guessed builder: jam");
+		}
+	} else if (entry.IsDirectory()) {
 		BPath _currentPath;
 		BDirectory dir(&entry);
+		BEntry nextEntry;
 		while (dir.GetNextEntry(&nextEntry, false) != B_ENTRY_NOT_FOUND) {
 			nextEntry.GetPath(&_currentPath);
-			_ProjectFolderScan(newItem,_currentPath.Path(), projectFolder);
+			_ProjectFolderScan(newItem, _currentPath.Path(), projectFolder);
 		}
 	}
 }

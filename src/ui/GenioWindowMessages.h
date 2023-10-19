@@ -41,7 +41,7 @@ enum {
 	MSG_EOL_CONVERT_TO_MAC		= 'ectm',
 	MSG_FILE_TRIM_TRAILING_SPACE = 'trim',
 
-  MSG_AUTOCOMPLETION			= 'auto',	
+  MSG_AUTOCOMPLETION			= 'auto',
 	MSG_FORMAT					= 'form',
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
@@ -71,7 +71,7 @@ enum {
 	MSG_BOOKMARK_GOTO_NEXT		= 'bgne',
 	MSG_BOOKMARK_GOTO_PREVIOUS	= 'bgpr',
 	MSG_BOOKMARK_TOGGLE			= 'book',
-	
+
 	// Build menu
 	MSG_BUILD_PROJECT			= 'bupr',
 	MSG_BUILD_PROJECT_STOP		= 'bpst',
@@ -91,7 +91,7 @@ enum {
 	MSG_WINDOW_SETTINGS			= 'wise',
 	MSG_TOGGLE_TOOLBAR			= 'toto',
 
-	
+
 	// Toolbar
 	MSG_BUFFER_LOCK					= 'bulo',
 	MSG_FILE_MENU_SHOW				= 'fmsh',
@@ -106,11 +106,22 @@ enum {
 	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',
 	MSG_SELECT_TAB					= 'seta',
-		
+
 	MSG_ESCAPE_KEY					= 'escp',
-	
+
 	MSG_SHOW_TEMPLATE_USER_FOLDER	= 'stuf',
 	MSG_CREATE_NEW_PROJECT			= 'mcnp'
+};
+
+
+// "notification" messages
+enum {
+	MSG_NOTIFY_EDITOR_FILE_OPENED = 	  'efop',	// file_name (string)
+	MSG_NOTIFY_EDITOR_FILE_CLOSED = 	  'efcx',	// file_name (string)
+	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch',	// file_name (string)
+													// needs_save (bool)
+
+	MSG_NOTIFY_BUILDING_PHASE			= 'blph'	// building (bool)
 };
 
 #endif // GenioWindowMessages_H

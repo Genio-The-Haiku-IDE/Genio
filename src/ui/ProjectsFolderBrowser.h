@@ -32,51 +32,50 @@ class ProjectsFolderBrowser : public BOutlineListView {
 public:
 					 ProjectsFolderBrowser();
 	virtual 		~ProjectsFolderBrowser();
-	
-	void			MouseDown(BPoint where);
-	void			AttachedToWindow();
-	void			MessageReceived(BMessage* message);
-	
+
+	virtual void	MouseDown(BPoint where);
+	virtual void	AttachedToWindow();
+	virtual void	DetachedFromWindow();
+	virtual void	MessageReceived(BMessage* message);
+
 	ProjectFolder*	GetProjectFromCurrentItem();
-	
+
 	ProjectItem*	GetCurrentProjectItem();
-	
+
 	BString const	GetCurrentProjectFileFullPath();
-	
-	void			SetBuildingPhase(bool building) { fIsBuilding = building;};
-	
+
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
-	
+
 	virtual void	SelectionChanged();
-	
+
 	void			InitRename(ProjectItem *item);
-	
+
 private:
-	
+
 	ProjectItem*	FindProjectItem(BString const& path);
-	
+
 	ProjectItem*	_CreatePath(BPath pathToCreate);
-	
+
 	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
 	ProjectFolder*	_GetProjectFromItem(ProjectItem*);
-	
+
 	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
-	
+
 	void			_UpdateNode(BMessage *message);
-	
+
 	status_t		_RenameCurrentSelectedFile(const BString& newName);
 
 	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
-	
+
 private:
 	TemplatesMenu*		fFileNewProjectMenuItem;
-	
+
 	bool				fIsBuilding = false;
 	GenioWatchingFilter* fGenioWatchingFilter;
-	
+
 };
 
 

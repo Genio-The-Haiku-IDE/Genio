@@ -15,15 +15,14 @@
 
 #include "IconCache.h"
 #include "ProjectFolder.h"
-#include "Utils.h"
 
 
 class ProjectItem;
 
-class TemporaryTextControl: public BTextControl {	
+class TemporaryTextControl: public BTextControl {
 	typedef	BTextControl _inherited;
-	
-	
+
+
 public:
 	ProjectItem *fProjectItem;
 
@@ -34,14 +33,14 @@ public:
 		BTextControl(frame, name, label, text, message, resizingMode, flags),
 		fProjectItem(item)
 	{
-		SetEventMask(B_POINTER_EVENTS|B_KEYBOARD_EVENTS);	
+		SetEventMask(B_POINTER_EVENTS|B_KEYBOARD_EVENTS);
 	}
-	
+
 	virtual void AllAttached()
 	{
 		TextView()->SelectAll();
 	}
-	
+
 	virtual void MouseDown(BPoint point)
 	{
 		if (Bounds().Contains(point))
@@ -51,7 +50,7 @@ public:
 		}
 		Invoke();
 	}
-	
+
 	virtual void KeyDown(const char* bytes, int32 numBytes)
 	{
 		if (numBytes == 1 && *bytes == B_ESCAPE) {
@@ -69,6 +68,8 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 	BStringItem(sourceItem->Name()),
 	fSourceItem(sourceItem),
 	fFirstTimeRendered(true),
+	fNeedsSave(false),
+	fOpenedInEditor(false),
 	fInitRename(false),
 	fMessage(nullptr),
 	fTextControl(nullptr)
@@ -115,15 +116,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
 	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
-
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);
-
-	fTextRect.top = bounds.top - 0.5f;
-	fTextRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
-	fTextRect.bottom = bounds.bottom-1;
-	fTextRect.right = bounds.right;
-
 	if (icon != nullptr) {
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->DrawBitmapAsync(icon, iconStartingPoint);
@@ -131,13 +125,17 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	// Check if there is an InitRename request and show a TextControl
 	if (fInitRename) {
-		_DrawTextWidget(owner);
+		BRect textRect;
+		textRect.top = bounds.top - 0.5f;
+		textRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
+		textRect.bottom = bounds.bottom - 1;
+		textRect.right = bounds.right;
+		_DrawTextWidget(owner, textRect);
 	} else {
-		// Draw string at the right of the icon
-		owner->SetDrawingMode(B_OP_COPY);
-		owner->MovePenTo(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
-							bounds.top + BaselineOffset());
-		owner->DrawString(Text());
+		BPoint textPoint(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
+						bounds.top + BaselineOffset());
+		_DrawText(owner, textPoint);
+
 		owner->Sync();
 
 		if (fFirstTimeRendered) {
@@ -145,6 +143,20 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			fFirstTimeRendered = false;
 		}
 	}
+}
+
+
+void
+ProjectItem::SetNeedsSave(bool needs)
+{
+	fNeedsSave = needs;
+}
+
+
+void
+ProjectItem::SetOpenedInEditor(bool open)
+{
+	fOpenedInEditor = open;
 }
 
 
@@ -164,6 +176,7 @@ ProjectItem::InitRename(BMessage* message)
 	fMessage = message;
 }
 
+
 void
 ProjectItem::AbortRename()
 {
@@ -171,6 +184,7 @@ ProjectItem::AbortRename()
 		_DestroyTextWidget();
 	fInitRename = false;
 }
+
 
 void
 ProjectItem::CommitRename()
@@ -186,10 +200,30 @@ ProjectItem::CommitRename()
 
 
 void
-ProjectItem::_DrawTextWidget(BView* owner)
+ProjectItem::_DrawText(BView* owner, const BPoint& point)
+{
+	if (fOpenedInEditor) {
+		BFont font;
+		owner->GetFont(&font);
+		font.SetFace(B_ITALIC_FACE);
+		owner->SetFont(&font);
+	}
+	// Draw string at the right of the icon
+	owner->SetDrawingMode(B_OP_COPY);
+	owner->MovePenTo(point);
+	BString text = Text();
+	if (fNeedsSave)
+		text.Append("*");
+	owner->DrawString(text.String());
+	owner->Sync();
+}
+
+
+void
+ProjectItem::_DrawTextWidget(BView* owner, const BRect& textRect)
 {
 	if (fTextControl == nullptr) {
-		fTextControl = new TemporaryTextControl(fTextRect, "RenameTextWidget",
+		fTextControl = new TemporaryTextControl(textRect, "RenameTextWidget",
 											"", Text(), fMessage, this,
 											B_FOLLOW_NONE);
 		owner->AddChild(fTextControl);

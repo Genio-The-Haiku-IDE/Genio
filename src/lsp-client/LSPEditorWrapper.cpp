@@ -338,11 +338,11 @@ LSPEditorWrapper::StartCompletion()
 // TODO move these, check if they are all used.. and move to a config section
 // as these are c++/java parameters.. not sure they fit for all languages.
 
-std::string gCalltipParametersEnd(")");
-std::string gCalltipParametersStart("(");
-std::string gAutoCompleteStartCharacters(".>");
-std::string gCalltipWordCharacters("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-std::string gCalltipParametersSeparators(",");
+const std::string kCalltipParametersEnd(")");
+const std::string kCalltipParametersStart("(");
+const std::string kAutoCompleteStartCharacters(".>");
+const std::string kCalltipWordCharacters("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+const std::string kCalltipParametersSeparators(",");
 
 bool
 LSPEditorWrapper::StartCallTip(bool searchStart)
@@ -360,10 +360,10 @@ LSPEditorWrapper::StartCallTip(bool searchStart)
 		do {
 			int braces = 0;
 			while (
-				current > 0 && (braces || !Contains(gCalltipParametersStart, line[current - 1]))) {
-				if (Contains(gCalltipParametersStart, line[current - 1]))
+				current > 0 && (braces || !Contains(kCalltipParametersStart, line[current - 1]))) {
+				if (Contains(kCalltipParametersStart, line[current - 1]))
 					braces--;
-				else if (Contains(gCalltipParametersEnd, line[current - 1]))
+				else if (Contains(kCalltipParametersEnd, line[current - 1]))
 					braces++;
 				current--;
 				pos--;
@@ -377,14 +377,14 @@ LSPEditorWrapper::StartCallTip(bool searchStart)
 				current--;
 				pos--;
 			}
-		} while (current > 0 && !Contains(gCalltipWordCharacters, line[current - 1]));
+		} while (current > 0 && !Contains(kCalltipWordCharacters, line[current - 1]));
 
 		if (current <= 0)
 			return false;
 
 		fStartCalltipWord = current - 1;
 		while (
-			fStartCalltipWord > 0 && Contains(gCalltipWordCharacters, line[fStartCalltipWord - 1])) {
+			fStartCalltipWord > 0 && Contains(kCalltipWordCharacters, line[fStartCalltipWord - 1])) {
 			fStartCalltipWord--;
 		}
 
@@ -442,11 +442,11 @@ LSPEditorWrapper::ContinueCallTip()
 	int braces = 0;
 	size_t commas = 0;
 	for (Sci_Position i = fStartCalltipWord; i < current; i++) {
-		if (Contains(gCalltipParametersStart, line[i]))
+		if (Contains(kCalltipParametersStart, line[i]))
 			braces++;
-		else if (Contains(gCalltipParametersEnd, line[i]) && braces > 0)
+		else if (Contains(kCalltipParametersEnd, line[i]) && braces > 0)
 			braces--;
-		else if (braces == 1 && Contains(gCalltipParametersSeparators, line[i]))
+		else if (braces == 1 && Contains(kCalltipParametersSeparators, line[i]))
 			commas++;
 	}
 
@@ -490,36 +490,36 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 	const Sci_Position selEnd = fEditor->SendMessage(SCI_GETSELECTIONEND);
 	if ((selEnd == selStart) && (selStart > 0)) {
 		if (fEditor->SendMessage(SCI_CALLTIPACTIVE)) {
-			if (Contains(gCalltipParametersEnd, ch)) {
+			if (Contains(kCalltipParametersEnd, ch)) {
 				fBraceCount--;
 				if (fBraceCount < 1)
 					fEditor->SendMessage(SCI_CALLTIPCANCEL);
 				else
 					StartCallTip(true);
-			} else if (Contains(gCalltipParametersStart, ch)) {
+			} else if (Contains(kCalltipParametersStart, ch)) {
 				fBraceCount++;
 				StartCallTip(true);
 			} else {
 				ContinueCallTip();
 			}
 		} else if (fEditor->SendMessage(SCI_AUTOCACTIVE)) {
-			if (Contains(gCalltipParametersStart, ch)) {
+			if (Contains(kCalltipParametersStart, ch)) {
 				fBraceCount++;
 				StartCallTip(true);
-			} else if (Contains(gCalltipParametersEnd, ch)) {
+			} else if (Contains(kCalltipParametersEnd, ch)) {
 				fBraceCount--;
 			} else if (!Contains(wordCharacters, ch)) {
 				fEditor->SendMessage(SCI_AUTOCCANCEL);
-				if (Contains(gAutoCompleteStartCharacters, ch)) {
+				if (Contains(kAutoCompleteStartCharacters, ch)) {
 					StartCompletion();
 				}
 			}
 		} else {
-			if (Contains(gCalltipParametersStart, ch)) {
+			if (Contains(kCalltipParametersStart, ch)) {
 				fBraceCount = 1;
 				StartCallTip(true);
 			} else {
-				if (Contains(gAutoCompleteStartCharacters, ch)) {
+				if (Contains(kAutoCompleteStartCharacters, ch)) {
 					StartCompletion();
 				}
 			}

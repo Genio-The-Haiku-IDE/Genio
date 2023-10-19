@@ -11,10 +11,10 @@
 #include <String.h>
 #include <StringList.h>
 
-#include <iostream>
+#include <getopt.h>
+
 
 #include "GenioNamespace.h"
-#include "SettingsWindow.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
@@ -111,10 +111,27 @@ GenioApp::AboutRequested()
 	window->Show();
 }
 
+
 void
-GenioApp::ArgvReceived(int32 agrc, char** argv)
+GenioApp::ArgvReceived(int32 argc, char** argv)
 {
+	BApplication::ArgvReceived(argc, argv);
+	if (argc == 0)
+		return;
+
+	BMessage *message = new BMessage(B_REFS_RECEIVED);
+	int i = 0;
+	while (i < argc) {
+		entry_ref ref;
+		if (get_ref_for_path(argv[i], &ref) == B_OK) {
+			message->AddRef("refs", &ref);
+		}
+		i++;
+	}
+
+	PostMessage(message);
 }
+
 
 void
 GenioApp::MessageReceived(BMessage* message)
@@ -156,12 +173,14 @@ GenioApp::QuitRequested()
 	return BApplication::QuitRequested();
 }
 
+
 void
 GenioApp::RefsReceived(BMessage* message)
 {
 	if (fGenioWindow != NULL)
 		fGenioWindow->PostMessage(message);
 }
+
 
 void
 GenioApp::ReadyToRun()
@@ -212,7 +231,7 @@ GenioApp::_CheckSettingsVersion()
 void
 SetSessionLogLevel(char level)
 {
-	switch(level){
+	switch(level) {
 		case 'o':
 			sSessionLogLevel = log_level(1);
 			printf("Log level set to OFF\n");
@@ -239,15 +258,47 @@ SetSessionLogLevel(char level)
 	}
 }
 
+
+static
+struct option sLongOptions[] = {
+		{ "loglevel", required_argument, 0, 'l' },
+		{ 0, 0, 0, 0 }
+};
+
+
+static int
+HandleArgs(int argc, char **argv)
+{
+	int optIndex = 0;
+	int c = 0;
+	while ((c = ::getopt_long(argc, argv, "l:",
+			sLongOptions, &optIndex)) != -1) {
+		switch (c) {
+			case 'l':
+				SetSessionLogLevel(optarg[0]);
+				break;
+			case 0:
+			{
+				std::string optName = sLongOptions[optIndex].name;
+				if (optName == "loglevel")
+					SetSessionLogLevel(optarg[0]);
+				break;
+			}
+		}
+	}
+
+	return optIndex;
+}
+
+
 int
 main(int argc, char* argv[])
 {
-	if (argc > 1)
-		SetSessionLogLevel(argv[1][0]);
-
+	int nextArg = HandleArgs(argc, argv);
 	try {
 		GenioApp *app = new GenioApp();
-
+		if (nextArg < argc)
+			app->ArgvReceived(argc - nextArg, &argv[nextArg]);
 		app->Run();
 
 		delete app;

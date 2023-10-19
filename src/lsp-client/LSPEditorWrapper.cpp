@@ -25,12 +25,12 @@
 #define IND_DIAG 0
 #define IND_LINK 1
 
-LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor):
-						 LSPTextDocument(filenamePath),
-						 fEditor(editor),
-						 fToolTip(nullptr),
-						 fLSPProjectWrapper(nullptr)
-
+LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
+	:
+	LSPTextDocument(filenamePath),
+	fEditor(editor),
+	fToolTip(nullptr),
+	fLSPProjectWrapper(nullptr)
 {
 	assert(fEditor);
 }
@@ -317,7 +317,6 @@ LSPEditorWrapper::StartCompletion()
 		return;
 
 	// let's check if a completion is ongoing
-
 	if (fCurrentCompletion.items.size() > 0) {
 		// let's close the current Scintilla listbox
 		fEditor->SendMessage(SCI_AUTOCCANCEL, 0, 0);
@@ -332,25 +331,25 @@ LSPEditorWrapper::StartCompletion()
 	GetCurrentLSPPosition(&position);
 	CompletionContext context;
 
-	this->fCompletionPosition = fEditor->SendMessage(SCI_GETCURRENTPOS, 0, 0);
+	fCompletionPosition = fEditor->SendMessage(SCI_GETCURRENTPOS, 0, 0);
 	fLSPProjectWrapper->Completion(this, position, context);
 }
 
 // TODO move these, check if they are all used.. and move to a config section
 // as these are c++/java parameters.. not sure they fit for all languages.
 
-std::string calltipParametersEnd(")");
-std::string calltipParametersStart("(");
-std::string autoCompleteStartCharacters(".>");
-std::string calltipWordCharacters("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-std::string calltipParametersSeparators(",");
+std::string gCalltipParametersEnd(")");
+std::string gCalltipParametersStart("(");
+std::string gAutoCompleteStartCharacters(".>");
+std::string gCalltipWordCharacters("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+std::string gCalltipParametersSeparators(",");
 
 bool
 LSPEditorWrapper::StartCallTip(bool searchStart)
 {
 	Sci_Position pos = fEditor->SendMessage(SCI_GETCURRENTPOS);
-	calltipStartPosition = pos;
-	calltipPosition = pos;
+	fCalltipStartPosition = pos;
+	fCalltipPosition = pos;
 
 	Position position;
 	FromSciPositionToLSPPosition(pos, &position);
@@ -361,10 +360,10 @@ LSPEditorWrapper::StartCallTip(bool searchStart)
 		do {
 			int braces = 0;
 			while (
-				current > 0 && (braces || !Contains(calltipParametersStart, line[current - 1]))) {
-				if (Contains(calltipParametersStart, line[current - 1]))
+				current > 0 && (braces || !Contains(gCalltipParametersStart, line[current - 1]))) {
+				if (Contains(gCalltipParametersStart, line[current - 1]))
 					braces--;
-				else if (Contains(calltipParametersEnd, line[current - 1]))
+				else if (Contains(gCalltipParametersEnd, line[current - 1]))
 					braces++;
 				current--;
 				pos--;
@@ -378,21 +377,21 @@ LSPEditorWrapper::StartCallTip(bool searchStart)
 				current--;
 				pos--;
 			}
-		} while (current > 0 && !Contains(calltipWordCharacters, line[current - 1]));
+		} while (current > 0 && !Contains(gCalltipWordCharacters, line[current - 1]));
 
 		if (current <= 0)
 			return false;
 
-		startCalltipWord = current - 1;
+		fStartCalltipWord = current - 1;
 		while (
-			startCalltipWord > 0 && Contains(calltipWordCharacters, line[startCalltipWord - 1])) {
-			startCalltipWord--;
+			fStartCalltipWord > 0 && Contains(gCalltipWordCharacters, line[fStartCalltipWord - 1])) {
+			fStartCalltipWord--;
 		}
 
 		Position newPos;
 		newPos.line = position.line;
-		newPos.character = startCalltipWord;
-		calltipPosition = FromLSPPositionToSciPosition(&newPos);
+		newPos.character = fStartCalltipWord;
+		fCalltipPosition = FromLSPPositionToSciPosition(&newPos);
 	}
 
 	fLSPProjectWrapper->SignatureHelp(this, position);
@@ -404,27 +403,27 @@ LSPEditorWrapper::StartCallTip(bool searchStart)
 void
 LSPEditorWrapper::UpdateCallTip(int deltaPos)
 {
-	LogTraceF("BEFORE currentCalltip %d", currentCalltip);
-	if (deltaPos == 1 && currentCalltip > 0 && currentCalltip + 1)
-		currentCalltip--;
-	else if (deltaPos == 2 && currentCalltip + 1 < maxCalltip)
-		currentCalltip++;
+	LogTraceF("BEFORE currentCalltip %d", fCurrentCalltip);
+	if (deltaPos == 1 && fCurrentCalltip > 0 && fCurrentCalltip + 1)
+		fCurrentCalltip--;
+	else if (deltaPos == 2 && fCurrentCalltip + 1 < fMaxCalltip)
+		fCurrentCalltip++;
 
-	LogTraceF("AFTER currentCalltip %d", currentCalltip);
+	LogTraceF("AFTER currentCalltip %d", fCurrentCalltip);
 
-	functionDefinition = "";
+	fFunctionDefinition = "";
 
-	if (maxCalltip > 1)
-		functionDefinition += "\001 " + std::to_string(currentCalltip + 1) + " of "
-			+ std::to_string(maxCalltip) + " \002";
+	if (fMaxCalltip > 1)
+		fFunctionDefinition += "\001 " + std::to_string(fCurrentCalltip + 1) + " of "
+			+ std::to_string(fMaxCalltip) + " \002";
 
-	functionDefinition += lastCalltip.signatures[currentCalltip].label;
+	fFunctionDefinition += fLastCalltip.signatures[fCurrentCalltip].label;
 
-	LogTraceF("functionDefinition %s", functionDefinition.c_str());
+	LogTraceF("functionDefinition %s", fFunctionDefinition.c_str());
 
 	Sci_Position hackPos = fEditor->SendMessage(SCI_GETCURRENTPOS);
-	fEditor->SendMessage(SCI_SETCURRENTPOS, calltipStartPosition);
-	fEditor->SendMessage(SCI_CALLTIPSHOW, calltipPosition, (sptr_t) (functionDefinition.c_str()));
+	fEditor->SendMessage(SCI_SETCURRENTPOS, fCalltipStartPosition);
+	fEditor->SendMessage(SCI_CALLTIPSHOW, fCalltipPosition, (sptr_t) (fFunctionDefinition.c_str()));
 	fEditor->SendMessage(SCI_SETCURRENTPOS, hackPos);
 
 	ContinueCallTip();
@@ -442,23 +441,23 @@ LSPEditorWrapper::ContinueCallTip()
 
 	int braces = 0;
 	size_t commas = 0;
-	for (Sci_Position i = startCalltipWord; i < current; i++) {
-		if (Contains(calltipParametersStart, line[i]))
+	for (Sci_Position i = fStartCalltipWord; i < current; i++) {
+		if (Contains(gCalltipParametersStart, line[i]))
 			braces++;
-		else if (Contains(calltipParametersEnd, line[i]) && braces > 0)
+		else if (Contains(gCalltipParametersEnd, line[i]) && braces > 0)
 			braces--;
-		else if (braces == 1 && Contains(calltipParametersSeparators, line[i]))
+		else if (braces == 1 && Contains(gCalltipParametersSeparators, line[i]))
 			commas++;
 	}
 
 	// if the num of commas is not compatible with current calltip
 	// try to find a better one..
-	auto params = lastCalltip.signatures[currentCalltip].parameters;
+	auto params = fLastCalltip.signatures[fCurrentCalltip].parameters;
 	// printf("1) DEBUG:%s %ld, %ld\n", params.dump().c_str(), params.size(), commas);
 	if (commas > params.size()) {
-		for (int i = 0; i < maxCalltip; i++) {
-			if (commas < lastCalltip.signatures[i].parameters.size()) {
-				currentCalltip = i;
+		for (int i = 0; i < fMaxCalltip; i++) {
+			if (commas < fLastCalltip.signatures[i].parameters.size()) {
+				fCurrentCalltip = i;
 				UpdateCallTip(0);
 				return;
 			}
@@ -467,7 +466,7 @@ LSPEditorWrapper::ContinueCallTip()
 
 	if (params.size() > commas) {
 		// printf("2) DEBUG:%s\n", params.dump().c_str());
-		int base = functionDefinition.find("\002", 0);
+		int base = fFunctionDefinition.find("\002", 0);
 		int start = base + params[commas].labelOffsets.first;
 		int end = base + params[commas].labelOffsets.second;
 		// printf("DEBUG:%s %d,%d\n", params.dump().c_str(), start, end);
@@ -489,39 +488,38 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 	/* algo took from SciTE editor .. */
 	const Sci_Position selStart = fEditor->SendMessage(SCI_GETSELECTIONSTART);
 	const Sci_Position selEnd = fEditor->SendMessage(SCI_GETSELECTIONEND);
-
 	if ((selEnd == selStart) && (selStart > 0)) {
 		if (fEditor->SendMessage(SCI_CALLTIPACTIVE)) {
-			if (Contains(calltipParametersEnd, ch)) {
-				braceCount--;
-				if (braceCount < 1)
+			if (Contains(gCalltipParametersEnd, ch)) {
+				fBraceCount--;
+				if (fBraceCount < 1)
 					fEditor->SendMessage(SCI_CALLTIPCANCEL);
 				else
 					StartCallTip(true);
-			} else if (Contains(calltipParametersStart, ch)) {
-				braceCount++;
+			} else if (Contains(gCalltipParametersStart, ch)) {
+				fBraceCount++;
 				StartCallTip(true);
 			} else {
 				ContinueCallTip();
 			}
 		} else if (fEditor->SendMessage(SCI_AUTOCACTIVE)) {
-			if (Contains(calltipParametersStart, ch)) {
-				braceCount++;
+			if (Contains(gCalltipParametersStart, ch)) {
+				fBraceCount++;
 				StartCallTip(true);
-			} else if (Contains(calltipParametersEnd, ch)) {
-				braceCount--;
+			} else if (Contains(gCalltipParametersEnd, ch)) {
+				fBraceCount--;
 			} else if (!Contains(wordCharacters, ch)) {
 				fEditor->SendMessage(SCI_AUTOCCANCEL);
-				if (Contains(autoCompleteStartCharacters, ch)) {
+				if (Contains(gAutoCompleteStartCharacters, ch)) {
 					StartCompletion();
 				}
 			}
 		} else {
-			if (Contains(calltipParametersStart, ch)) {
-				braceCount = 1;
+			if (Contains(gCalltipParametersStart, ch)) {
+				fBraceCount = 1;
 				StartCallTip(true);
 			} else {
-				if (Contains(autoCompleteStartCharacters, ch)) {
+				if (Contains(gAutoCompleteStartCharacters, ch)) {
 					StartCompletion();
 				}
 			}
@@ -596,12 +594,12 @@ LSPEditorWrapper::_DoGoTo(nlohmann::json& items)
 void
 LSPEditorWrapper::_DoSignatureHelp(json& result)
 {
-	lastCalltip = result.get<SignatureHelp>(); // result["signatures"];
-	currentCalltip = 0;
-	maxCalltip = 0;
+	fLastCalltip = result.get<SignatureHelp>(); // result["signatures"];
+	fCurrentCalltip = 0;
+	fMaxCalltip = 0;
 
-	if (currentCalltip < (int) lastCalltip.signatures.size()) {
-		maxCalltip = lastCalltip.signatures.size();
+	if (fCurrentCalltip < (int)fLastCalltip.signatures.size()) {
+		fMaxCalltip = fLastCalltip.signatures.size();
 		UpdateCallTip(0);
 	}
 }
@@ -618,7 +616,6 @@ LSPEditorWrapper::_DoSwitchSourceHeader(json& result)
 void
 LSPEditorWrapper::_DoCompletion(json& params)
 {
-
 	CompletionList allItems = params.get<CompletionList>();
 	auto items = allItems.items;
 	std::string list;
@@ -632,7 +629,7 @@ LSPEditorWrapper::_DoCompletion(json& params)
 	}
 
 	if (list.length() > 0) {
-		this->fCurrentCompletion = allItems;
+		fCurrentCompletion = allItems;
 		fEditor->SendMessage(SCI_AUTOCSETSEPARATOR, (int) '\n', 0);
 		fEditor->SendMessage(SCI_AUTOCSETIGNORECASE, true);
 		fEditor->SendMessage(SCI_AUTOCGETCANCELATSTART, false);
@@ -789,7 +786,6 @@ LSPEditorWrapper::onRequest(std::string method, value& params, value& ID)
 void
 LSPEditorWrapper::FromSciPositionToLSPPosition(const Sci_Position& pos, Position* lsp_position)
 {
-
 	lsp_position->line = fEditor->SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 	Sci_Position end_pos = fEditor->SendMessage(SCI_POSITIONFROMLINE, lsp_position->line, 0);
 	lsp_position->character = fEditor->SendMessage(SCI_COUNTCHARACTERS, end_pos, pos);
@@ -799,7 +795,6 @@ LSPEditorWrapper::FromSciPositionToLSPPosition(const Sci_Position& pos, Position
 Sci_Position
 LSPEditorWrapper::FromLSPPositionToSciPosition(const Position* lsp_position)
 {
-
 	Sci_Position sci_position;
 	sci_position = fEditor->SendMessage(SCI_POSITIONFROMLINE, lsp_position->line, 0);
 	sci_position

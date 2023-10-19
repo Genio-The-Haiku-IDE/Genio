@@ -61,16 +61,14 @@ private:
 		/* experimental section */
 		bool	StartCallTip(bool searchStart);
 
-
-
-		int 	braceCount = 0;
-		int 	startCalltipWord;
-		Sci_Position calltipPosition;
-		Sci_Position calltipStartPosition;
-		SignatureHelp 	lastCalltip;
-		int 	currentCalltip = 0;
-		int 	maxCalltip = 0;
-		std::string functionDefinition;
+		int 	fBraceCount = 0;
+		int 	fStartCalltipWord;
+		Sci_Position fCalltipPosition;
+		Sci_Position fCalltipStartPosition;
+		SignatureHelp 	fLastCalltip;
+		int 	fCurrentCalltip = 0;
+		int 	fMaxCalltip = 0;
+		std::string fFunctionDefinition;
 		/************************/
 public:
 		//still experimental

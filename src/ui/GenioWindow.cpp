@@ -681,13 +681,23 @@ GenioWindow::MessageReceived(BMessage* message)
 				Editor* editor = fTabManager->SelectedEditor();
 				editor->GoToLine(line);
 			}
-		} break;
+			break;
+		}
 		case MSG_GOTO_LINE:
 			if(fGoToLineWindow == nullptr) {
 				fGoToLineWindow = new GoToLineWindow(this);
 			}
 			fGoToLineWindow->ShowCentered(Frame());
 			break;
+		case MSG_WHITE_SPACES_TOGGLE: {
+			GenioNames::Settings.show_white_space = !GenioNames::Settings.show_white_space;
+			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+				Editor* editor = fTabManager->EditorAt(index);
+				editor->ShowWhiteSpaces(GenioNames::Settings.show_white_space);
+			}
+			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, GenioNames::Settings.show_white_space);
+			break;
+		}
 		case MSG_LINE_ENDINGS_TOGGLE: {
 			GenioNames::Settings.show_line_endings = !GenioNames::Settings.show_line_endings;
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
@@ -1025,15 +1035,6 @@ GenioWindow::MessageReceived(BMessage* message)
 
 		case MSG_TOGGLE_TOOLBAR: {
 			_ShowView(fToolBar, fToolBar->IsHidden(), MSG_TOGGLE_TOOLBAR);
-			break;
-		}
-		case MSG_WHITE_SPACES_TOGGLE: {
-			GenioNames::Settings.show_white_space = !GenioNames::Settings.show_white_space;
-			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-				Editor* editor = fTabManager->EditorAt(index);
-				editor->ShowWhiteSpaces(GenioNames::Settings.show_white_space);
-			}
-			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, GenioNames::Settings.show_white_space);
 			break;
 		}
 		case MSG_WINDOW_SETTINGS: {
@@ -2885,35 +2886,38 @@ GenioWindow::_InitToolbar()
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, fToolBar);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   fToolBar);
 	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, fToolBar);
 	ActionManager::AddItem(B_UNDO, fToolBar);
 	ActionManager::AddItem(B_REDO, fToolBar);
-
 	ActionManager::AddItem(MSG_FILE_SAVE, fToolBar);
 	ActionManager::AddItem(MSG_FILE_SAVE_ALL, fToolBar);
-
 	fToolBar->AddSeparator();
+
+	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, fToolBar);
+	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_BUILD_PROJECT, fToolBar);
 	ActionManager::AddItem(MSG_CLEAN_PROJECT, fToolBar);
 	ActionManager::AddItem(MSG_RUN_TARGET, fToolBar);
 	ActionManager::AddItem(MSG_DEBUG_PROJECT, fToolBar);
-
 	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_FIND_GROUP_TOGGLED,		fToolBar);
 	ActionManager::AddItem(MSG_REPLACE_GROUP_TOGGLED,	fToolBar);
 	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_RUN_CONSOLE_PROGRAM_SHOW, fToolBar);
 	fToolBar->AddGlue();
 
 	ActionManager::AddItem(MSG_BUFFER_LOCK, fToolBar);
 	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, fToolBar);
 	ActionManager::AddItem(MSG_FILE_NEXT_SELECTED, fToolBar);
-
 	ActionManager::AddItem(MSG_FILE_CLOSE, fToolBar);
 
 	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Open files list"), "kIconFileList");
-
 
 	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
 	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);

@@ -34,7 +34,6 @@
 #include <SeparatorView.h>
 #include <iostream>
 
-#include "DefaultSettingsKeys.h"
 #include "GenioNamespace.h"
 #include "Logger.h"
 
@@ -93,14 +92,6 @@ SettingsWindow::SettingsWindow()
 	, fCurrentView("GeneralPage")
 	, fAppliedModifications(0)
 {
-	// General settings file
-	fWindowSettingsFile = new TPreferences(GenioNames::kSettingsFileName,
-											GenioNames::kApplicationName, 'IDSE');
-
-	if (fWindowSettingsFile->InitCheck() != B_OK) {
-		;// TODO Manage error
-	}
-
 	_InitWindow();
 
 	// Map Items
@@ -120,22 +111,15 @@ SettingsWindow::SettingsWindow()
 	// Modified and Applied Controls List
 	fModifiedList = new BObjectList<BControl>();
 	fAppliedList = new BObjectList<BControl>();
-	fOrphansList= new BObjectList<BControl>();
 
 	// Load control values from file
 	_LoadFromFile(nullptr, true);
-
-	// We may be called from App if a new version is detected.
-	// Orphans are new controls not yet tied to a file value
-	_ShowOrphans();
-
 }
 
 SettingsWindow::~SettingsWindow()
 {
 	delete fModifiedList;
 	delete fAppliedList;
-	delete fOrphansList;
 	delete fGeneralTitle;
 	delete fGeneralStartupItem;
 	delete fEditorTitle;
@@ -171,12 +155,11 @@ SettingsWindow::MessageReceived(BMessage *msg)
 	switch (msg->what) {
 		case MSG_BRACE_MATCHING_TOGGLED: {
 			bool modified = fBraceMatch->Value() !=
-								fWindowSettingsFile->FindInt32("brace_match");
+								GenioNames::Settings.brace_match;
 				_ManageModifications(fBraceMatch, modified);
 			break;
 		}
 		case MSG_BUTTON_APPLY_CLICKED:
-			_ApplyOrphans();
 			_ApplyModifications();
 			break;
 		case MSG_BUTTON_DEFAULT_CLICKED: {
@@ -184,13 +167,6 @@ SettingsWindow::MessageReceived(BMessage *msg)
 			_StoreToFileDefaults();
 			_LoadFromFile(nullptr, true);
 			_CleanApplied();
-
-			BString text;
-			text << B_TRANSLATE("Set for app ver: ")
-				<< fWindowSettingsFile->FindString("app_version") << ",\t"
-				<< B_TRANSLATE("Defaults loaded");
-			fStatusBar->SetTrailingText(text);
-
 			break;
 		}
 		case MSG_BUTTON_CANCEL_CLICKED: {
@@ -203,7 +179,7 @@ SettingsWindow::MessageReceived(BMessage *msg)
 		}
 		case MSG_EDGE_LINE_COLUMN_CHANGED: {
 			bool modified = strcmp(fEdgeLineColumn->Text(),
-					fWindowSettingsFile->FindString("edgeline_column"))  != 0;
+					GenioNames::Settings.edgeline_column)  != 0;
 				_ManageModifications(fEdgeLineColumn, modified);
 
 			break;
@@ -218,37 +194,36 @@ SettingsWindow::MessageReceived(BMessage *msg)
 			fPreviewText->SetFont(&fEditorFont);
 
 			bool modified = fEditorFontSizeOP->Value() !=
-								fWindowSettingsFile->FindInt32("edit_fontsize");
+								GenioNames::Settings.edit_fontsize;
 				_ManageModifications(fEditorFontSizeOP, modified);
 			break;
 		}
 		case MSG_ENABLE_NOTIFICATIONS_TOGGLED: {
 			bool modified = fEnableNotifications->Value() !=
-								fWindowSettingsFile->FindInt32("enable_notifications");
+								GenioNames::Settings.enable_notifications;
 				_ManageModifications(fEnableNotifications, modified);
 			break;
 		}
 		case MSG_FOLDING_ENABLED: {
 			bool modified = fEnableFolding->Value() !=
-								fWindowSettingsFile->FindInt32("enable_folding");
+								GenioNames::Settings.enable_folding;
 				_ManageModifications(fEnableFolding, modified);
 			break;
 		}
 		case MSG_FULL_PATH_TOGGLED: {
 			bool modified = fFullPathWindowTitle->Value() !=
-								fWindowSettingsFile->FindInt32("fullpath_title");
+								GenioNames::Settings.fullpath_title;
 				_ManageModifications(fFullPathWindowTitle, modified);
 			break;
 		}
 		case MSG_MARK_CARET_LINE_TOGGLED: {
 			bool modified = fMarkCaretLine->Value() !=
-								fWindowSettingsFile->FindInt32("mark_caretline");
+								GenioNames::Settings.mark_caretline;
 				_ManageModifications(fMarkCaretLine, modified);
 			break;
 		}
 		case MSG_PAGE_CHOSEN: {
 			int32 selection = fSettingsOutline->CurrentSelection();
-
 			if (selection >= 0) {
 				BStringItem *item = dynamic_cast<BStringItem*>(fSettingsOutline->ItemAt(selection));
 				if (item != nullptr)
@@ -258,112 +233,112 @@ SettingsWindow::MessageReceived(BMessage *msg)
 		}
 		case MSG_PROJECT_DIRECTORY_EDITED: {
 			bool modified = strcmp(fProjectsDirectory->Text(),
-					fWindowSettingsFile->FindString("projects_directory")) != 0;
+					GenioNames::Settings.projects_directory) != 0;
 				_ManageModifications(fProjectsDirectory, modified);
 
 			break;
 		}
 		case MSG_REOPEN_PROJECTS_TOGGLED: {
 			bool modified = fReopenProjects->Value() !=
-								fWindowSettingsFile->FindInt32("reopen_projects");
+								GenioNames::Settings.reopen_projects;
 				_ManageModifications(fReopenProjects, modified);
 			break;
 		}
 		case MSG_REOPEN_FILES_TOGGLED: {
 			bool modified = fReopenFiles->Value() !=
-								fWindowSettingsFile->FindInt32("reopen_files");
+								GenioNames::Settings.reopen_files;
 				_ManageModifications(fReopenFiles, modified);
 			break;
 		}
 		case MSG_SAVE_CARET_TOGGLED: {
 			bool modified = fSaveCaret->Value() !=
-								fWindowSettingsFile->FindInt32("save_caret");
+								GenioNames::Settings.save_caret;
 				_ManageModifications(fSaveCaret, modified);
 			break;
 		}
 		case MSG_TRIM_WHITESPACE_TOGGLED: {
 			bool modified = fTrimWhitespace->Value() !=
-								fWindowSettingsFile->FindInt32("trim_trailing_whitespace");
+								GenioNames::Settings.trim_trailing_whitespace;
 				_ManageModifications(fTrimWhitespace, modified);
 			break;
 		}
 		case MSG_SHOW_EDGE_LINE_TOGGLED: {
 			bool modified = fShowEdgeLine->Value() !=
-								fWindowSettingsFile->FindInt32("show_edgeline");
+								GenioNames::Settings.show_edgeline;
 				_ManageModifications(fShowEdgeLine, modified);
 			break;
 		}
 		case MSG_SHOW_LINE_NUMBER_TOGGLED: {
 			bool modified = fShowLineNumber->Value() !=
-								fWindowSettingsFile->FindInt32("show_linenumber");
+								GenioNames::Settings.show_linenumber;
 				_ManageModifications(fShowLineNumber, modified);
 			break;
 		}
 		case MSG_SHOW_COMMENT_MARGIN_TOGGLED: {
 			bool modified = fShowCommentMargin->Value() !=
-								fWindowSettingsFile->FindInt32("show_commentmargin");
+								GenioNames::Settings.show_commentmargin;
 				_ManageModifications(fShowCommentMargin, modified);
 			break;
 		}
 		case MSG_SHOW_OUTPUT_PANES_TOGGLED: {
-			bool modified = fShowOutputPanes->Value() != fWindowSettingsFile->FindInt32("show_output");
+			bool modified = fShowOutputPanes->Value() != GenioNames::Settings.show_output;
 				_ManageModifications(fShowOutputPanes, modified);
 		}
 		case MSG_SHOW_PROJECTS_PANES_TOGGLED: {
 			bool modified = fShowProjectsPanes->Value() !=
-								fWindowSettingsFile->FindInt32("show_projects");
+								GenioNames::Settings.show_projects;
 				_ManageModifications(fShowProjectsPanes, modified);
 			break;
 		}
 		case MSG_SHOW_TOOLBAR_TOGGLED: {
-			bool modified = fShowToolBar->Value() != fWindowSettingsFile->FindInt32("show_toolbar");
+			bool modified = fShowToolBar->Value() != GenioNames::Settings.show_toolbar;
 				_ManageModifications(fShowToolBar, modified);
 			break;
 		}
 		case MSG_SYNTAX_HIGHLIGHT_TOGGLED: {
 			bool modified = fSyntaxHighlight->Value() !=
-								fWindowSettingsFile->FindInt32("syntax_highlight");
+								GenioNames::Settings.syntax_highlight;
 				_ManageModifications(fSyntaxHighlight, modified);
 			break;
 		}
 		case MSG_TAB_WIDTH_CHANGED: {
 			// TODO SetViewColor not working
 			bool modified = fTabWidthSpinner->Value() !=
-								fWindowSettingsFile->FindInt32("tab_width");
+								GenioNames::Settings.tab_width;
 				_ManageModifications(fTabWidthSpinner, modified);
 			break;
 		}
 		case MSG_LOG_DESTINATION_CHANGED: {
 			bool modified = fLogDestination->Value() !=
-								fWindowSettingsFile->FindInt32("log_destination");
+								GenioNames::Settings.log_destination;
 				_ManageModifications(fLogDestination, modified);
 		}
 		case MSG_LOG_LEVEL_CHANGED: {
 			bool modified = fLogLevel->Value() !=
-								fWindowSettingsFile->FindInt32("log_level");
+								GenioNames::Settings.log_level;
 				_ManageModifications(fLogLevel, modified);
 		}
 		case MSG_WRAP_CONSOLE_ENABLED: {
 			bool modified = fWrapConsoleEnabled->Value() !=
-								fWindowSettingsFile->FindInt32("wrap_console");
+								GenioNames::Settings.wrap_console;
 				_ManageModifications(fWrapConsoleEnabled, modified);
 			break;
 		}
 		case MSG_CONSOLE_BANNER_ENABLED: {
 			bool modified = fConsoleBannerEnabled->Value() !=
-								fWindowSettingsFile->FindInt32("console_banner");
+								GenioNames::Settings.console_banner;
 				_ManageModifications(fConsoleBannerEnabled, modified);
 			break;
 		}
 		case MSG_BUILD_ON_SAVE_ENABLED: {
 			bool modified = fBuildOnSave->Value() !=
-								fWindowSettingsFile->FindInt32("build_on_save");
+								GenioNames::Settings.build_on_save;
 				_ManageModifications(fBuildOnSave, modified);
 			break;
 		}
 		case MSG_SAVE_ON_BUILD_ENABLED: {
 			bool modified = fSaveOnBuild->Value() !=
-								fWindowSettingsFile->FindInt32("save_on_build");
+								GenioNames::Settings.save_on_build;
 				_ManageModifications(fSaveOnBuild, modified);
 			break;
 		}
@@ -377,23 +352,19 @@ SettingsWindow::MessageReceived(BMessage *msg)
 bool
 SettingsWindow::QuitRequested()
 {
-	delete fWindowSettingsFile;
-	// Reload vars from file
-	GenioNames::LoadSettingsVars();
-
 	return true;
 }
+
 
 void
 SettingsWindow::_ApplyModifications()
 {
 	int32 modifications = fModifiedList->CountItems();
-	for (int32 item = fModifiedList->CountItems() -1; item >= 0 ; item--) {
+	for (int32 item = modifications - 1; item >= 0 ; item--) {
 		if (_StoreToFile(fModifiedList->ItemAt(item)) != B_OK) {
-			// TODO notify
+		// TODO notify
 			continue;
 		}
-
 		fModifiedList->ItemAt(item)->SetViewColor(kSettingsAzure);
 		fModifiedList->ItemAt(item)->Invalidate();
 		fAppliedList->AddItem(fModifiedList->ItemAt(item));
@@ -401,29 +372,18 @@ SettingsWindow::_ApplyModifications()
 		fAppliedModifications++;
 	}
 
-	// If not all modifications were applied, return
-	if (fAppliedModifications < modifications)
-		return;
+	GenioNames::SaveSettingsVars();
 
 	fApplyButton->SetEnabled(false);
 	fRevertButton->SetEnabled(false);
-
-	// If applied, update markers too
-	// TODO Check B_OK
-	int32 count = 0;
-	fWindowSettingsFile->FindInt32("use_count", &count);
-	fWindowSettingsFile->SetInt64("last_used", real_time_clock());
-	fWindowSettingsFile->SetInt32("use_count", ++count);
-	fWindowSettingsFile->FindInt32("use_count", &fUseCount);
-
-	_UpdateText();
-	_UpdateTrailing();
+	GenioNames::LoadSettingsVars();
 
 	// TODO: Advertise changed settings: currently they aren't "live",
 	// and often require closing and reopening editor windows, or
 	// even closing and reopening Genio
 
 	// If full path window title has been set off, clean title
+	// TODO: and do otherwise, if it's on
 	if (GenioNames::Settings.fullpath_title == false)
 		be_app->WindowAt(0)->SetTitle(GenioNames::kApplicationName);
 
@@ -432,40 +392,6 @@ SettingsWindow::_ApplyModifications()
 	Logger::SetLevel(log_level(GenioNames::Settings.log_level));
 }
 
-
-void
-SettingsWindow::_ApplyOrphans()
-{
-	int32 orphans = fOrphansList->CountItems();
-	int32 appliedOrphans = 0;
-
-	if (orphans > 0) {
-		for (int32 item = fOrphansList->CountItems() -1; item >= 0 ; item--) {
-			if (_StoreToFile(fOrphansList->ItemAt(item)) != B_OK) {
-				// TODO notify
-				continue;
-			}
-
-			fOrphansList->ItemAt(item)->SetViewColor(kSettingsAzure);
-			fOrphansList->ItemAt(item)->Invalidate();
-			fAppliedList->AddItem(fOrphansList->ItemAt(item));
-			fOrphansList->RemoveItem(fOrphansList->ItemAt(item));
-			appliedOrphans++;
-			fControlsDone++;
-		}
-		// If not all orphans were applied,
-		if (appliedOrphans < orphans)
-			return;
-
-		// Reset counter
-		fWindowSettingsFile->SetInt32("use_count", 0);
-		fWindowSettingsFile->SetInt64("last_used", real_time_clock());
-		// Reset app version
-		fWindowSettingsFile->SetString("app_version", GenioNames::GetVersionInfo());
-	}
-	_UpdateText();
-	_UpdateTrailing();
-}
 
 void
 SettingsWindow::_CleanApplied()
@@ -572,263 +498,174 @@ SettingsWindow::_LoadFromFile(BControl* control, bool loadAll /*= false*/)
 	}
 
 	// TODO manage/notify errors
-	status_t status;
-	if ((status = fWindowSettingsFile->InitCheck()) != B_OK)
-		return status;
-
-	if (fWindowSettingsFile->FindInt32("use_count", &fUseCount) != B_OK)
-		fUseCount = -1;
-
 	BString stringVal;
 	int32 intVal;
 
 	// General Page
 	if (control == fProjectsDirectory || loadAll == true) {
-		status = fWindowSettingsFile->FindString("projects_directory", &stringVal);
+		stringVal = GenioNames::Settings.projects_directory;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fProjectsDirectory->SetText(stringVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fProjectsDirectory);
+		fProjectsDirectory->SetText(stringVal);
 	}
 	if (control == fFullPathWindowTitle || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("fullpath_title", &intVal);
+		intVal = GenioNames::Settings.fullpath_title;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fFullPathWindowTitle->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fFullPathWindowTitle);
+		fFullPathWindowTitle->SetValue(intVal);
 	}
 	if (control == fLogDestination || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("log_destination", &intVal);
+		intVal = GenioNames::Settings.log_destination;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fLogDestination->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fLogDestination);
+		fLogDestination->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fLogLevel || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("log_level", &intVal);
+		intVal = GenioNames::Settings.log_level;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fLogLevel->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fLogLevel);
+		fLogLevel->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	// General Startup Page
 	if (control == fReopenProjects || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("reopen_projects", &intVal);
+		intVal = GenioNames::Settings.reopen_projects;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fReopenProjects->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fReopenProjects);
+		fReopenProjects->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fReopenFiles || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("reopen_files", &intVal);
+		intVal = GenioNames::Settings.reopen_files;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fReopenFiles->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fReopenFiles);
+		fReopenFiles->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fShowProjectsPanes || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("show_projects", &intVal);
+		intVal = GenioNames::Settings.show_projects;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fShowProjectsPanes->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fShowProjectsPanes);
+		fShowProjectsPanes->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fShowOutputPanes || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("show_output", &intVal);
+		intVal = GenioNames::Settings.show_output;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fShowOutputPanes->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fShowOutputPanes);
+		fShowOutputPanes->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fShowToolBar || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("show_toolbar", &intVal);
+		intVal = GenioNames::Settings.show_toolbar;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fShowToolBar->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fShowToolBar);
+		fShowToolBar->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 
 	// Editor Page
 	if (control == fEditorFontSizeOP || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("edit_fontsize", &intVal);
+		intVal = GenioNames::Settings.edit_fontsize;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fEditorFontSizeOP->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fEditorFontSizeOP);
+		fEditorFontSizeOP->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fSyntaxHighlight || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("syntax_highlight", &intVal);
+		intVal = GenioNames::Settings.syntax_highlight;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fSyntaxHighlight->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fSyntaxHighlight);
+		fSyntaxHighlight->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fTabWidthSpinner || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("tab_width", &intVal);
+		intVal = GenioNames::Settings.tab_width;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fTabWidthSpinner->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fTabWidthSpinner);
+		fTabWidthSpinner->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fBraceMatch || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("brace_match", &intVal);
+		intVal = GenioNames::Settings.brace_match;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fBraceMatch->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fBraceMatch);
+		fBraceMatch->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fSaveCaret || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("save_caret", &intVal);
+		intVal = GenioNames::Settings.save_caret;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fSaveCaret->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fSaveCaret);
+		fSaveCaret->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fTrimWhitespace || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("trim_trailing_whitespace", &intVal);
+		intVal = GenioNames::Settings.trim_trailing_whitespace;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fTrimWhitespace->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fTrimWhitespace);
+		fTrimWhitespace->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	// Editor Visual Page
 	if (control == fShowLineNumber || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("show_linenumber", &intVal);
+		intVal = GenioNames::Settings.show_linenumber;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fShowLineNumber->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fShowLineNumber);
+		fShowLineNumber->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fShowCommentMargin || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("show_commentmargin", &intVal);
+		intVal = GenioNames::Settings.show_commentmargin;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fShowCommentMargin->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fShowCommentMargin);
+		fShowCommentMargin->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fMarkCaretLine || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("mark_caretline", &intVal);
+		intVal = GenioNames::Settings.mark_caretline;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fMarkCaretLine->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fMarkCaretLine);
+		fMarkCaretLine->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fShowEdgeLine || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("show_edgeline", &intVal);
+		intVal = GenioNames::Settings.show_edgeline;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fShowEdgeLine->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fShowEdgeLine);
+		fShowEdgeLine->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fEdgeLineColumn || loadAll == true) {
-		status = fWindowSettingsFile->FindString("edgeline_column", &stringVal);
+		stringVal = GenioNames::Settings.edgeline_column;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fEdgeLineColumn->SetText(stringVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fEdgeLineColumn);
+		fEdgeLineColumn->SetText(stringVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fEnableFolding || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("enable_folding", &intVal);
+		intVal = GenioNames::Settings.enable_folding;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fEnableFolding->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fEnableFolding);
+		fEnableFolding->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	//  Notifications Page
 	if (control == fEnableNotifications || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("enable_notifications", &intVal);
+		intVal = GenioNames::Settings.enable_notifications;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fEnableNotifications->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fEnableNotifications);
+		fEnableNotifications->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	//  Build Page
 	if (control == fWrapConsoleEnabled || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("wrap_console", &intVal);
+		intVal = GenioNames::Settings.wrap_console;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fWrapConsoleEnabled->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fWrapConsoleEnabled);
+		fWrapConsoleEnabled->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fConsoleBannerEnabled || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("console_banner", &intVal);
+		intVal = GenioNames::Settings.console_banner;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fConsoleBannerEnabled->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fConsoleBannerEnabled);
+		fConsoleBannerEnabled->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fBuildOnSave || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("build_on_save", &intVal);
+		intVal = GenioNames::Settings.build_on_save;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fBuildOnSave->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fBuildOnSave);
+		fBuildOnSave->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
 	if (control == fSaveOnBuild || loadAll == true) {
-		status = fWindowSettingsFile->FindInt32("save_on_build", &intVal);
+		intVal = GenioNames::Settings.save_on_build;
 		fControlsCount += loadAll == true;
-		if (status == B_OK) {
-			fSaveOnBuild->SetValue(intVal);
-			fControlsDone += loadAll == true;
-		} else
-			fOrphansList->AddItem(fSaveOnBuild);
+		fSaveOnBuild->SetValue(intVal);
+		fControlsDone += loadAll == true;
 	}
-	_UpdateText();
-	// Note: gets rewritten on reload defaults
-	_UpdateTrailing();
 
-	return status;
+	return B_OK;
 }
+
 
 void
 SettingsWindow::_ManageModifications(BControl* control, bool isModified)
@@ -836,8 +673,10 @@ SettingsWindow::_ManageModifications(BControl* control, bool isModified)
 	// Item was modified
 	if (isModified == true) {
 		// Manage multiple modifications for the same control
-		if (!fModifiedList->HasItem(control))
+		if (!fModifiedList->HasItem(control)) {
+			std::cout << "modified " << control->Name() << std::endl;
 			fModifiedList->AddItem(control);
+		}
 		// Notify user with a deep red color TODO no numbers
 
 		control->SetViewColor(kSettingsOrange);
@@ -853,18 +692,11 @@ SettingsWindow::_ManageModifications(BControl* control, bool isModified)
 
 			fModifiedList->RemoveItem(control);
 			// Disable buttons if no modifications
-			if (fModifiedList->IsEmpty()){
-					// Probably reviewing a new version, let apply even if unmodified
-					if (fOrphansList->CountItems() > 0)
-						fApplyButton->SetEnabled(true);
-					else
-						fApplyButton->SetEnabled(false);
+			if (fModifiedList->IsEmpty()) {
 				fRevertButton->SetEnabled(false);
 			}
 		}
 	}
-
-	_UpdateText();
 }
 
 // Map BStringItem* - BView->Name
@@ -1167,49 +999,9 @@ SettingsWindow::_RevertModifications()
 		fModifiedList->RemoveItem(fModifiedList->ItemAt(item));
 	}
 
-	// Probably reviewing a new version, let apply even if unmodified
-	if (fOrphansList->CountItems() > 0)
-		fApplyButton->SetEnabled(true);
-	else
-		fApplyButton->SetEnabled(false);
-
 	fRevertButton->SetEnabled(false);
-
-	_UpdateText();
 }
 
-void
-SettingsWindow::_ShowOrphans()
-{
-	BString appVersion(GenioNames::GetVersionInfo());
-	BString fileVersion(fWindowSettingsFile->FindString("app_version"));
-
-	// If there is a new app version with no settings modifications
-	// ReadyToRun will keep asking to review forever so update version
-	if (GenioNames::CompareVersion(appVersion, fileVersion) > 0)
-		fWindowSettingsFile->SetString("app_version", appVersion);
-
-	if (fOrphansList->CountItems() == 0)
-		return;
-
-	// New controls were detected, load default values and reload file
-	delete fWindowSettingsFile;
-
-	GenioNames::UpdateSettingsFile();
-
-	fWindowSettingsFile = new TPreferences(GenioNames::kSettingsFileName,
-											GenioNames::kApplicationName, 'IDSE');
-
-	// Mark new controls with green
-	for (int32 item = fOrphansList->CountItems() -1; item >= 0 ; item--) {
-		_LoadFromFile(fOrphansList->ItemAt(item), false);
-		fOrphansList->ItemAt(item)->SetViewColor(kSettingsGreen);
-		fOrphansList->ItemAt(item)->Invalidate();
-	}
-
-	// Let user apply
-	fApplyButton->SetEnabled(true);
-}
 
 // Use a map to tie views with list views
 void
@@ -1235,74 +1027,72 @@ SettingsWindow::_ShowView(BStringItem * item)
 status_t
 SettingsWindow::_StoreToFile(BControl* control)
 {
-	status_t status = B_OK;
-
 	// General Page
 	if (control == fProjectsDirectory)
-		status = fWindowSettingsFile->SetString("projects_directory", fProjectsDirectory->Text());
+		GenioNames::Settings.projects_directory = fProjectsDirectory->Text();
 	else if (control == fFullPathWindowTitle)
-		status = fWindowSettingsFile->SetInt32("fullpath_title", fFullPathWindowTitle->Value());
+		GenioNames::Settings.fullpath_title = fFullPathWindowTitle->Value();
 	else if (control == fLogDestination)
-		status = fWindowSettingsFile->SetInt32("log_destination", fLogDestination->Value());
+		GenioNames::Settings.log_destination = fLogDestination->Value();
 	else if (control == fLogLevel)
-		status = fWindowSettingsFile->SetInt32("log_level", fLogLevel->Value());
+		GenioNames::Settings.log_level = fLogLevel->Value();
 	// General Startup Page
 	else if (control == fReopenProjects)
-		status = fWindowSettingsFile->SetInt32("reopen_projects", fReopenProjects->Value());
+		GenioNames::Settings.reopen_projects = fReopenProjects->Value();
 	else if (control == fReopenFiles)
-		status = fWindowSettingsFile->SetInt32("reopen_files", fReopenFiles->Value());
+		GenioNames::Settings.reopen_files = fReopenFiles->Value();
 	else if (control == fShowProjectsPanes)
-		status = fWindowSettingsFile->SetInt32("show_projects", fShowProjectsPanes->Value());
+		GenioNames::Settings.show_projects = fShowProjectsPanes->Value();
 	else if (control == fShowOutputPanes)
-		status = fWindowSettingsFile->SetInt32("show_output", fShowOutputPanes->Value());
+		GenioNames::Settings.show_output = fShowOutputPanes->Value();
 	else if (control == fShowToolBar)
-		status = fWindowSettingsFile->SetInt32("show_toolbar", fShowToolBar->Value());
+		GenioNames::Settings.show_toolbar = fShowToolBar->Value();
 	// Editor Page
 	else if (control == fEditorFontSizeOP)
-		status = fWindowSettingsFile->SetInt32("edit_fontsize", fEditorFontSizeOP->Value());
+		GenioNames::Settings.edit_fontsize = fEditorFontSizeOP->Value();
 	else if (control == fSyntaxHighlight)
-		status = fWindowSettingsFile->SetInt32("syntax_highlight", fSyntaxHighlight->Value());
+		GenioNames::Settings.syntax_highlight = fSyntaxHighlight->Value();
 	else if (control == fTabWidthSpinner)
-		status = fWindowSettingsFile->SetInt32("tab_width", fTabWidthSpinner->Value());
+		GenioNames::Settings.tab_width = fTabWidthSpinner->Value();
 	else if (control == fBraceMatch)
-		status = fWindowSettingsFile->SetInt32("brace_match", fBraceMatch->Value());
+		GenioNames::Settings.brace_match = fBraceMatch->Value();
 	else if (control == fSaveCaret)
-		status = fWindowSettingsFile->SetInt32("save_caret", fSaveCaret->Value());
+		GenioNames::Settings.save_caret = fSaveCaret->Value();
 	else if (control == fTrimWhitespace)
-		status = fWindowSettingsFile->SetInt32("trim_trailing_whitespace", fTrimWhitespace->Value());
-
+		GenioNames::Settings.trim_trailing_whitespace = fTrimWhitespace->Value();
 	// Editor Visual Page
 	else if (control == fShowLineNumber)
-		status = fWindowSettingsFile->SetInt32("show_linenumber", fShowLineNumber->Value());
+		GenioNames::Settings.show_linenumber = fShowLineNumber->Value();
 	else if (control == fShowCommentMargin)
-		status = fWindowSettingsFile->SetInt32("show_commentmargin", fShowCommentMargin->Value());
+		GenioNames::Settings.show_commentmargin = fShowCommentMargin->Value();
 	else if (control == fMarkCaretLine)
-		status = fWindowSettingsFile->SetInt32("mark_caretline", fMarkCaretLine->Value());
+		GenioNames::Settings.mark_caretline = fMarkCaretLine->Value();
 	else if (control == fShowEdgeLine)
-		status = fWindowSettingsFile->SetInt32("show_edgeline", fShowEdgeLine->Value());
+		GenioNames::Settings.show_edgeline = fShowEdgeLine->Value();
 	else if (control == fEdgeLineColumn)
-		status = fWindowSettingsFile->SetString("edgeline_column", fEdgeLineColumn->Text());
+		GenioNames::Settings.edgeline_column = fEdgeLineColumn->Text();
 	else if (control == fEnableFolding)
-		status = fWindowSettingsFile->SetInt32("enable_folding", fEnableFolding->Value());
+		GenioNames::Settings.enable_folding = fEnableFolding->Value();
+
 	// Notifications Page
 	else if (control == fEnableNotifications)
-		status = fWindowSettingsFile->SetInt32("enable_notifications", fEnableNotifications->Value());
+		GenioNames::Settings.enable_notifications = fEnableNotifications->Value();
+
 	// Build Page
 	else if (control == fWrapConsoleEnabled)
-		status = fWindowSettingsFile->SetInt32("wrap_console", fWrapConsoleEnabled->Value());
+		GenioNames::Settings.wrap_console = fWrapConsoleEnabled->Value();
 	else if (control == fConsoleBannerEnabled)
-		status = fWindowSettingsFile->SetInt32("console_banner", fConsoleBannerEnabled->Value());
-	else if (control == fBuildOnSave)
-		status = fWindowSettingsFile->SetInt32("build_on_save", fBuildOnSave->Value());
-	else if (control == fSaveOnBuild)
-		status = fWindowSettingsFile->SetInt32("save_on_build", fSaveOnBuild->Value());
+		GenioNames::Settings.console_banner = fConsoleBannerEnabled->Value();
 
-	return status;
+	GenioNames::SaveSettingsVars();
+	return B_OK;
 }
+
 
 status_t
 SettingsWindow::_StoreToFileDefaults()
 {
+	/*
 	status_t status = fWindowSettingsFile->InitCheck();
 	if (status != B_OK)
 		return status; // TODO notify
@@ -1355,30 +1145,17 @@ SettingsWindow::_StoreToFileDefaults()
 	fWindowSettingsFile->SetBool("find_match_case", kSKFindMatchCase);
 
 	fWindowSettingsFile->SetBool("build_on_save", kSKBuildOnSave);
-	fWindowSettingsFile->SetBool("save_on_build", kSKSaveOnBuild);
+	fWindowSettingsFile->SetBool("save_on_build", kSKSaveOnBuild);*/
 	return B_OK;
 }
 
 void
 SettingsWindow::_UpdateText()
 {
-	BString text;
-
-	text << fControlsDone << "/" << fControlsCount;
-	text << " " << "Controls loaded. Modifications " << fModifiedList->CountItems();
-	text << ", applied " << fAppliedModifications;
-	fStatusBar->SetText(text.String());
 }
+
 
 void
 SettingsWindow::_UpdateTrailing()
 {
-	BString text;
-
-	text << "Set for app ver: " << fWindowSettingsFile->FindString("app_version") << ",\t";
-
-	BString option = fUseCount == 1	? "time" : "times";
-	text << "tuned " << fUseCount << " " << option;
-
-	fStatusBar->SetTrailingText(text.String());
 }

@@ -453,7 +453,7 @@ LSPEditorWrapper::ContinueCallTip()
 	// if the num of commas is not compatible with current calltip
 	// try to find a better one..
     if (fLastCalltip.signatures.size() <= 0)
-        return;
+		return;
 
 	auto params = fLastCalltip.signatures[fCurrentCalltip].parameters;
 	// printf("1) DEBUG:%s %ld, %ld\n", params.dump().c_str(), params.size(), commas);

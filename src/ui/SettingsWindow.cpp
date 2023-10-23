@@ -381,17 +381,6 @@ SettingsWindow::QuitRequested()
 	// Reload vars from file
 	GenioNames::LoadSettingsVars();
 
-	// Do some cleaning
-	// If full path window title has been set off, clean title
-	if (GenioNames::Settings.fullpath_title == false)
-		be_app->WindowAt(0)->SetTitle(GenioNames::kApplicationName);
-
-	// TODO: Move this to the proper place
-	Logger::SetDestination(GenioNames::Settings.log_destination);
-	Logger::SetLevel(log_level(GenioNames::Settings.log_level));
-
-	// TODO Send a message to reload file settings
-
 	return true;
 }
 
@@ -399,7 +388,6 @@ void
 SettingsWindow::_ApplyModifications()
 {
 	int32 modifications = fModifiedList->CountItems();
-
 	for (int32 item = fModifiedList->CountItems() -1; item >= 0 ; item--) {
 		if (_StoreToFile(fModifiedList->ItemAt(item)) != B_OK) {
 			// TODO notify
@@ -430,7 +418,20 @@ SettingsWindow::_ApplyModifications()
 
 	_UpdateText();
 	_UpdateTrailing();
+
+	// TODO: Advertise changed settings: currently they aren't "live",
+	// and often require closing and reopening editor windows, or
+	// even closing and reopening Genio
+
+	// If full path window title has been set off, clean title
+	if (GenioNames::Settings.fullpath_title == false)
+		be_app->WindowAt(0)->SetTitle(GenioNames::kApplicationName);
+
+	// TODO: Move this to the proper place
+	Logger::SetDestination(GenioNames::Settings.log_destination);
+	Logger::SetLevel(log_level(GenioNames::Settings.log_level));
 }
+
 
 void
 SettingsWindow::_ApplyOrphans()
@@ -1059,12 +1060,6 @@ SettingsWindow::_PageGeneralView()
 //		new BMessage(MSG_BUTTON_BROWSE_CLICKED));
 	fBrowseProjectsButton->SetEnabled(false);
 
-	// Check Box disabled TODO This comes from ui.settings, just show
-	BCheckBox* saveWindowPosition = new BCheckBox("saveWindowPosition",
-		B_TRANSLATE("Save position"), nullptr); //TODO var name
-	saveWindowPosition->SetValue(B_CONTROL_ON);
-	saveWindowPosition->SetEnabled(false);
-
 	// Check Box
 	fFullPathWindowTitle = new BCheckBox("FullPathWindowTitle",
 		B_TRANSLATE("Show full path in window title"), new BMessage(MSG_FULL_PATH_TOGGLED));
@@ -1088,7 +1083,6 @@ SettingsWindow::_PageGeneralView()
 		.Add(fProjectsDirectory->CreateLabelLayoutItem(), 0, 0)
 		.Add(fProjectsDirectory->CreateTextViewLayoutItem(), 1, 0, 2)
 		.Add(fBrowseProjectsButton, 3, 0)
-		.Add(saveWindowPosition, 0, 1)
 		.Add(fFullPathWindowTitle, 1, 1)
 		.Add(fLogDestination, 0, 2)
 		.Add(fLogLevel, 1, 2)

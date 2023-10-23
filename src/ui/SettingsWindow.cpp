@@ -34,6 +34,7 @@
 #include <SeparatorView.h>
 #include <iostream>
 
+#include "DefaultSettingsKeys.h"
 #include "GenioNamespace.h"
 #include "Logger.h"
 
@@ -1095,59 +1096,48 @@ SettingsWindow::_StoreToFile(BControl* control)
 status_t
 SettingsWindow::_StoreToFileDefaults()
 {
-	/*
-	status_t status = fWindowSettingsFile->InitCheck();
-	if (status != B_OK)
-		return status; // TODO notify
-
 	// TODO check individual Setting
-	// Reset counter
-	fWindowSettingsFile->SetInt32("use_count", 0);
-
-	fWindowSettingsFile->SetInt64("last_used", real_time_clock());
-	// Reset app version
-	fWindowSettingsFile->SetString("app_version", GenioNames::GetVersionInfo());
-
+	
 	// General Page
-	fWindowSettingsFile->SetString("projects_directory", kSKProjectsDirectory);
-	fWindowSettingsFile->SetInt32("fullpath_title", kSKFullPathTitle);
-	fWindowSettingsFile->SetInt32("log_destination", Logger::LOGGER_DEST_STDOUT);
+	GenioNames::Settings.projects_directory = kSKProjectsDirectory;
+	GenioNames::Settings.fullpath_title = kSKFullPathTitle;
+	GenioNames::Settings.log_destination = Logger::LOGGER_DEST_STDOUT;
 
 	// General Startup Page
-	fWindowSettingsFile->SetInt32("reopen_projects", kSKReopenProjects);
-	fWindowSettingsFile->SetInt32("reopen_files", kSKReopenFiles);
-	fWindowSettingsFile->SetInt32("show_projects", kSKShowProjects);
-	fWindowSettingsFile->SetInt32("show_output", kSKShowOutput);
-	fWindowSettingsFile->SetInt32("show_toolbar", kSKShowToolBar);
+	GenioNames::Settings.reopen_projects = kSKReopenProjects;
+	GenioNames::Settings.reopen_files = kSKReopenFiles;
+	GenioNames::Settings.show_projects = kSKShowProjects;
+	GenioNames::Settings.show_output = kSKShowOutput;
+	GenioNames::Settings.show_toolbar = kSKShowToolBar;
 
 	// Editor Page
-	fWindowSettingsFile->SetInt32("edit_fontsize", kSKEditorFontSize);
-	fWindowSettingsFile->SetInt32("syntax_highlight", kSKSyntaxHighlight);
-	fWindowSettingsFile->SetInt32("tab_width", kSKTabWidth);
-	fWindowSettingsFile->SetInt32("brace_match", kSKBraceMatch);
-	fWindowSettingsFile->SetInt32("save_caret", kSKSaveCaret);
-	fWindowSettingsFile->SetBool("trim_trailing_whitespace", kSKTrimTrailingWhitespace);
+	GenioNames::Settings.edit_fontsize = kSKEditorFontSize;
+	GenioNames::Settings.syntax_highlight = kSKSyntaxHighlight;
+	GenioNames::Settings.tab_width = kSKTabWidth;
+	GenioNames::Settings.brace_match = kSKBraceMatch;
+	GenioNames::Settings.save_caret = kSKSaveCaret;
+	GenioNames::Settings.trim_trailing_whitespace = kSKTrimTrailingWhitespace;
 
 	// Editor Visual Page
-	fWindowSettingsFile->SetInt32("show_linenumber", kSKShowLineNumber);
-	fWindowSettingsFile->SetInt32("show_commentmargin", kSKShowCommentMargin);
-	fWindowSettingsFile->SetInt32("mark_caretline", kSKMarkCaretLine);
-	fWindowSettingsFile->SetInt32("show_edgeline", kSKShowEdgeLine);
-	fWindowSettingsFile->SetString("edgeline_column", kSKEdgeLineColumn);
-	fWindowSettingsFile->SetInt32("enable_folding", kSKEnableFolding);
+	GenioNames::Settings.show_linenumber = kSKShowLineNumber;
+	GenioNames::Settings.show_commentmargin = kSKShowCommentMargin;
+	GenioNames::Settings.mark_caretline = kSKMarkCaretLine;
+	GenioNames::Settings.show_edgeline = kSKShowEdgeLine;
+	GenioNames::Settings.edgeline_column = kSKEdgeLineColumn;
+	GenioNames::Settings.enable_folding = kSKEnableFolding;
 
 	// Notifications Page
-	fWindowSettingsFile->SetInt32("enable_notifications", kSKEnableNotifications);
+	GenioNames::Settings.enable_notifications = kSKEnableNotifications;
 
 	// Build Page
-	fWindowSettingsFile->SetInt32("wrap_console", kSKWrapConsole);
-	fWindowSettingsFile->SetInt32("console_banner", kSKConsoleBanner);
-	fWindowSettingsFile->SetInt32("editor_zoom", kSKEditorZoom);
-	fWindowSettingsFile->SetBool("find_wrap", kSKFindWrap);
-	fWindowSettingsFile->SetBool("find_whole_word", kSKFindWholeWord);
-	fWindowSettingsFile->SetBool("find_match_case", kSKFindMatchCase);
+	GenioNames::Settings.wrap_console = kSKWrapConsole;
+	GenioNames::Settings.console_banner = kSKConsoleBanner;
+	GenioNames::Settings.editor_zoom = kSKEditorZoom;
+	GenioNames::Settings.find_wrap = kSKFindWrap;
+	GenioNames::Settings.find_whole_word = kSKFindWholeWord;
+	GenioNames::Settings.find_match_case = kSKFindMatchCase;
 
-	fWindowSettingsFile->SetBool("build_on_save", kSKBuildOnSave);
-	fWindowSettingsFile->SetBool("save_on_build", kSKSaveOnBuild);*/
+	GenioNames::Settings.build_on_save = kSKBuildOnSave;
+	GenioNames::Settings.save_on_build = kSKSaveOnBuild;
 	return B_OK;
 }

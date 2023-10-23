@@ -185,7 +185,9 @@ GenioApp::RefsReceived(BMessage* message)
 void
 GenioApp::ReadyToRun()
 {
-	// Fill Settings vars before using
+	// Load default settings
+	GenioNames::UpdateSettingsFile();
+	// Init settings
 	GenioNames::LoadSettingsVars();
 
 	Logger::SetDestination(GenioNames::Settings.log_destination);

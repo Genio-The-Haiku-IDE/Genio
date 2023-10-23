@@ -12,6 +12,7 @@
 #include "DefaultSettingsKeys.h"
 #include "TPreferences.h"
 
+#include <iostream>
 
 namespace GenioNames
 {
@@ -97,7 +98,6 @@ SaveSettingsVars()
 {
 	status_t status;
 	TPreferences file(kSettingsFileName, kApplicationName, 'IDSE');
-
 	if ((status = file.InitCheck()) != B_OK)
 		return status;
 
@@ -141,7 +141,6 @@ LoadSettingsVars()
 {
 	status_t status;
 	TPreferences file(kSettingsFileName, kApplicationName, 'IDSE');
-
 	if ((status = file.InitCheck()) != B_OK)
 		return status;
 
@@ -192,9 +191,9 @@ UpdateSettingsFile()
 	bool	boolVal;
 
 	TPreferences settings(kSettingsFileName, kApplicationName, 'IDSE');
-
-	if ((status = settings.InitCheck()) != B_OK)
-		return status;
+	if ((status = settings.InitCheck()) != B_OK) {
+		std::cout << "No settings file. Will create one" << std::endl;
+	}
 
 	// General Page
 	if (settings.FindString("projects_directory", &stringVal) != B_OK)
@@ -276,9 +275,4 @@ UpdateSettingsFile()
 }
 
 
-
-
-
 } // namespace GenioNames
-
-

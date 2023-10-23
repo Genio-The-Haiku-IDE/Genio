@@ -49,12 +49,10 @@ private:
 			BView*				_PageGeneralViewStartup();
 			BView*				_PageNotificationsView();
 			void				_RevertModifications();
-			void				_ShowOrphans();
 			void				_ShowView(BStringItem *);
 			status_t			_StoreToFile(BControl* control);
 			status_t			_StoreToFileDefaults();
-			void				_UpdateText();
-			void				_UpdateTrailing();
+
 private: // Controls
 
 typedef std::map<BStringItem*, BString> ViewPageMap;

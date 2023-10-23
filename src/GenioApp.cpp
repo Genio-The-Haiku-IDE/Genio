@@ -185,20 +185,10 @@ GenioApp::RefsReceived(BMessage* message)
 void
 GenioApp::ReadyToRun()
 {
-	// Window Settings file needs updating?
-	_CheckSettingsVersion();
-
-	// Global settings file check.
-	BPath path;
-	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
-	path.Append(GenioNames::kApplicationName);
-	path.Append(GenioNames::kSettingsFileName);
-
 	// Fill Settings vars before using
 	GenioNames::LoadSettingsVars();
 
 	Logger::SetDestination(GenioNames::Settings.log_destination);
-
 	if (sSessionLogLevel == LOG_LEVEL_UNSET)
 		Logger::SetLevel(log_level(GenioNames::Settings.log_level));
 	else
@@ -211,20 +201,6 @@ GenioApp::ReadyToRun()
 
 	fGenioWindow = new GenioWindow(frame);
 	fGenioWindow->Show();
-}
-
-void
-GenioApp::_CheckSettingsVersion()
-{
-	BString fileVersion("");
-
-	TPreferences* settings = new TPreferences(GenioNames::kSettingsFileName,
-												GenioNames::kApplicationName, 'IDSE');
-	settings->FindString("app_version", &fileVersion);
-	delete settings;
-
-	GenioNames::UpdateSettingsFile();
-	GenioNames::LoadSettingsVars();
 }
 
 

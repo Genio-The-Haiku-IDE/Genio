@@ -20,7 +20,6 @@
 #include <map>
 
 #include "TitleItem.h"
-#include "TPreferences.h"
 
 
 class SettingsWindow : public BWindow
@@ -63,10 +62,8 @@ typedef std::pair<BStringItem*, BString> ViewPagePair;
 typedef std::map<BStringItem*, BString>::const_iterator ViewPageIterator;
 
 			ViewPageMap			fViewPageMap;
-			TPreferences*		fWindowSettingsFile;
 			BObjectList<BControl>*		fModifiedList;
 			BObjectList<BControl>*		fAppliedList;
-			BObjectList<BControl>*		fOrphansList;
 
 			BOutlineListView*	fSettingsOutline;
 			BScrollView*		fSettingsScroll;

@@ -1083,7 +1083,10 @@ SettingsWindow::_StoreToFile(BControl* control)
 		GenioNames::Settings.wrap_console = fWrapConsoleEnabled->Value();
 	else if (control == fConsoleBannerEnabled)
 		GenioNames::Settings.console_banner = fConsoleBannerEnabled->Value();
-
+	else if (control == fBuildOnSave)
+		GenioNames::Settings.build_on_save = fBuildOnSave->Value();
+	else if (control == fSaveOnBuild)
+		GenioNames::Settings.save_on_build = fSaveOnBuild->Value();
 	GenioNames::SaveSettingsVars();
 	return B_OK;
 }
@@ -1147,15 +1150,4 @@ SettingsWindow::_StoreToFileDefaults()
 	fWindowSettingsFile->SetBool("build_on_save", kSKBuildOnSave);
 	fWindowSettingsFile->SetBool("save_on_build", kSKSaveOnBuild);*/
 	return B_OK;
-}
-
-void
-SettingsWindow::_UpdateText()
-{
-}
-
-
-void
-SettingsWindow::_UpdateTrailing()
-{
 }

@@ -24,8 +24,6 @@
 
 static log_level sSessionLogLevel = log_level(LOG_LEVEL_UNSET);
 
-ConfigManager gConfigManager;
-ConfigManager& gCFG = gConfigManager;
 
 const char kChangeLog[] = {
 #include "Changelog.h"
@@ -194,8 +192,8 @@ GenioApp::ReadyToRun()
 	// Init settings
 	//GenioNames::LoadSettingsVars();
 
-	PrepareConfig(gConfigManager);
-	gConfigManager.ResetToDefault();
+	PrepareConfig(gCFG);
+	gCFG.ResetToDefault();
 
 	Logger::SetDestination(gCFG["log_destination"]);
 	if (sSessionLogLevel == LOG_LEVEL_UNSET)

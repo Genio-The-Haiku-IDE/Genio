@@ -93,4 +93,5 @@ protected:
 
 };
 
-
+// TODO: Use a static method ?
+extern ConfigManager& gCFG;

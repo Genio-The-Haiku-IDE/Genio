@@ -40,15 +40,14 @@ public:
 		}
 		void MessageReceived(BMessage* msg) {
 			if (msg->what == ON_NEW_VALUE) {
-				GMessage& gsm = *((GMessage*)msg);
-				RetriveValue(gsm);
-				fConfigManager.UpdateValue(gsm);
+				GMessage& gsm = *((GMessage*)msg);				
+				fConfigManager[gsm["key"]] = RetriveValue();
 			}
 			C::MessageReceived(msg);
 		}
 
-		void RetriveValue(GMessage& dest) {
-			dest["value"] = (T)C::Value();
+		T RetriveValue() {
+			return (T)C::Value();
 		}
 
 		void LoadValue(T value) {
@@ -59,8 +58,8 @@ private:
 		ConfigManager&	fConfigManager;
 };
 template<>
-void GControl<BTextControl, const char*>::RetriveValue(GMessage& dest) {
-       dest["value"] = BTextControl::Text();
+const char* GControl<BTextControl, const char*>::RetriveValue() {
+       return BTextControl::Text();
 }
 template<>
 void GControl<BTextControl, const char*>::LoadValue(const char* value) {

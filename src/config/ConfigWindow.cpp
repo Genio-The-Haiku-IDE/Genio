@@ -19,8 +19,10 @@
 template<class C, typename T>
 class GControl : public C {
 public:
-		GControl(GMessage& msg, T value, ConfigManager& cfg):fConfigManager(cfg),
-			C("", "", nullptr){
+		GControl(GMessage& msg, T value, ConfigManager& cfg)
+			:
+			C("", "", nullptr),
+			fConfigManager(cfg){
 
 				C::SetName(msg["key"]);
 				C::SetLabel(msg["label"]);

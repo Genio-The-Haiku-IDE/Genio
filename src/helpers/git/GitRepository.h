@@ -56,14 +56,14 @@ namespace Genio::Git {
 											GitRepository(const path& path);
 											~GitRepository();
 											
-		const BPath&					Clone(const string& url, const BPath& localPath, 
+		const BPath&						Clone(const string& url, const BPath& localPath, 
 													git_indexer_progress_cb callback);
 		
 		bool								InitCheck() { return fInitCheck; };
 		void								Init(const path& repo, const path& localPath);
 
-		vector<string> 						GetBranches();
-		int									SwitchBranch(string branch);
+		vector<BString>						GetBranches();
+		int									SwitchBranch(BString &branch);
 		
 		vector<pair<string, string>>		GetFiles();
 		

@@ -1579,12 +1579,11 @@ GenioWindow::_FileOpen(BMessage* msg)
 		}
 
 		editor->ApplySettings();
-#if 0
-		// TODO: For some reason, it DIES here
+
 		editor->SetZoom(gCFG["editor_zoom"]);
 		editor->ShowLineEndings(gCFG["show_line_endings"]);
 		editor->ShowWhiteSpaces(gCFG["show_white_space"]);
-#endif
+
 		// First tab gets selected by tabview
 		if (index > 0)
 			fTabManager->SelectTab(index);

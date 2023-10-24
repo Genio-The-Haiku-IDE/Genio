@@ -265,13 +265,16 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	GMessage tabs = {{ {"min",1},{"max",8} }};
 	cfg.AddConfig("Editor", "tab_width", B_TRANSLATE("Tab width:  "), 4, &tabs);
 	GMessage zooms = {{ {"min", -9}, {"max", 19} }};
-	cfg.AddConfig("Editor", "editor_zoom", B_TRANSLATE("Editor zoom:"), 1, &zooms);
+	cfg.AddConfig("Editor", "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
 	cfg.AddConfig("Editor/Visual", "show_linenumber", B_TRANSLATE("Show line number"), true);
 	cfg.AddConfig("Editor/Visual", "show_commentmargin", B_TRANSLATE("Show comment margin"), true);
 	cfg.AddConfig("Editor/Visual", "mark_caretline", B_TRANSLATE("Mark caret line"), true);
 	cfg.AddConfig("Editor/Visual", "show_edgeline", B_TRANSLATE("Show edge line"), true);
 	cfg.AddConfig("Editor/Visual", "enable_folding", B_TRANSLATE("Enable folding"), true);
+	cfg.AddConfig("Editor/Visual", "show_white_space", B_TRANSLATE("Show whitespace"), false);
+	cfg.AddConfig("Editor/Visual", "show_line_endings", B_TRANSLATE("Show line endings"), false);
+	
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
 	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Show edge line"), 80, &limits);
 

@@ -66,16 +66,20 @@ void GControl<BTextControl, const char*>::LoadValue(const char* value) {
        BTextControl::SetText(value);
 }
 
+
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
     : BWindow(BRect(100, 100, 700, 500), "Settings", B_TITLED_WINDOW,
               B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE),
-      fConfigManager(configManager) {
-
-  AddChild(_Init());
+      fConfigManager(configManager)
+{
+	CenterOnScreen();
+	AddChild(_Init());
 }
 
+
 BView*
-ConfigWindow::_Init() {
+ConfigWindow::_Init()
+{
 	BView* theView = new BView("theView", B_WILL_DRAW);
 	// Add the translators list view
 	fGroupList = new BOutlineListView("Groups");
@@ -112,6 +116,7 @@ ConfigWindow::_Init() {
 	return theView;
 }
 
+
 void
 ConfigWindow::MessageReceived(BMessage* message)
 {
@@ -127,6 +132,7 @@ ConfigWindow::MessageReceived(BMessage* message)
 	}
 	BWindow::MessageReceived(message);
 }
+
 
 void
 ConfigWindow::_PopulateListView()
@@ -182,7 +188,6 @@ ConfigWindow::_PopulateListView()
 		iter++;
 	}
 }
-
 
 
 BView*
@@ -273,7 +278,6 @@ ConfigWindow::MakeSelfHostingViewFor(GMessage& config)
 
 	return view;
 }
-
 
 
 BView*

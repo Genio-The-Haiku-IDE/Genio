@@ -190,6 +190,7 @@ GenioApp::ReadyToRun()
 	PrepareConfig(gCFG);
 	gCFG.ResetToDefault();
 
+	gCFG.Print();
 	Logger::SetDestination(gCFG["log_destination"]);
 	if (sSessionLogLevel == LOG_LEVEL_UNSET)
 		Logger::SetLevel(log_level(int32(gCFG["log_level"])));
@@ -264,7 +265,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	GMessage tabs = {{ {"min",1},{"max",8} }};
 	cfg.AddConfig("Editor", "tab_width", B_TRANSLATE("Tab width:  "), 4, &tabs);
 	GMessage zooms = {{ {"min", -9}, {"max", 19} }};
-	cfg.AddConfig("Editor", "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
+	cfg.AddConfig("Editor", "editor_zoom", B_TRANSLATE("Editor zoom:"), 1, &zooms);
 
 	cfg.AddConfig("Editor/Visual", "show_linenumber", B_TRANSLATE("Show line number"), true);
 	cfg.AddConfig("Editor/Visual", "show_commentmargin", B_TRANSLATE("Show comment margin"), true);

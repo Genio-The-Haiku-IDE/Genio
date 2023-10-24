@@ -187,11 +187,6 @@ GenioApp::RefsReceived(BMessage* message)
 void
 GenioApp::ReadyToRun()
 {
-	// Load default settings
-	//GenioNames::UpdateSettingsFile();
-	// Init settings
-	//GenioNames::LoadSettingsVars();
-
 	PrepareConfig(gCFG);
 	gCFG.ResetToDefault();
 

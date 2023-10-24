@@ -14,6 +14,9 @@ public:
 
 		template< typename Return >
         operator Return() { BAutolock lock(fLocker); return fMsg[fKey]; };
+		
+		template< typename T >
+		void operator =(T n) { BAutolock lock(fLocker); fMsg[fKey] = n; };
 private:
 	GMessage& fMsg;
 	const char* fKey;
@@ -25,12 +28,6 @@ class ConfigManager {
 public:
 		explicit ConfigManager(){
 			fLocker.InitCheck();
-		}
-
-		void UpdateValue(GMessage&newValue) {
-			BAutolock lock(fLocker);
-			storage[newValue["key"]] = newValue["value"];
-			printf("Updated: "); newValue.PrintToStream();
 		}
 
 		template<typename T>

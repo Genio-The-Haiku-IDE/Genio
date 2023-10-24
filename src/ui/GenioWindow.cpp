@@ -603,12 +603,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_VIEW_ZOOMIN:
 		{
-			int zoom = gCFG["editor_zoom"];
+			int32 zoom = gCFG["editor_zoom"];
 			if (zoom < 20) {
 				zoom++;
-#if 0
-				gCFG.UpdateValue("editor_zoom", zoom);
-#endif
+				gCFG["editor_zoom"] = zoom;
 				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 					Editor* editor = fTabManager->EditorAt(index);
 					editor->SetZoom(zoom);
@@ -618,12 +616,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_VIEW_ZOOMOUT:
 		{
-			int zoom = gCFG["editor_zoom"];
+			int32 zoom = gCFG["editor_zoom"];
 			if (zoom > -10) {
 				zoom--;
-#if 0
-				gCFG.UpdateValue("editor_zoom", zoom);
-#endif
+				gCFG["editor_zoom"] = zoom;
 				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 					Editor* editor = fTabManager->EditorAt(index);
 					editor->SetZoom(zoom);
@@ -632,9 +628,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_VIEW_ZOOMRESET:
-#if 0
-			gCFG.UpdateValue("editor_zoom", 0);
-#endif
+			gCFG["editor_zoom"] = 0;
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
 				editor->SetZoom(gCFG["editor_zoom"]);
@@ -705,9 +699,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			fGoToLineWindow->ShowCentered(Frame());
 			break;
 		case MSG_WHITE_SPACES_TOGGLE: {
-#if 0
-			gCFG.UpdateValue("show_white_space", = !gCFG["show_white_space"]);
-#endif
+			gCFG["show_white_space"] = !gCFG["show_white_space"];
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
 				editor->ShowWhiteSpaces(gCFG["show_white_space"]);
@@ -716,9 +708,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_LINE_ENDINGS_TOGGLE: {
-#if 0
-			gCFG.UpdateValue("show_line_endings", !gCFG["show_line_endings"]);
-#endif
+			gCFG["show_line_endings"] = !gCFG["show_line_endings"];
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
 				editor->ShowLineEndings(gCFG["show_line_endings"]);
@@ -1287,16 +1277,17 @@ GenioWindow::QuitRequested()
 		fGoToLineWindow->Quit();
 	}
 
-#if 0
-	gCFG.UpdateValue("find_wrap", (bool)fFindWrapCheck->Value());
-	gCFG.UpdateValue("find_whole_word", (bool)fFindWholeWordCheck->Value());
-	gCFG.UpdateValue("find_match_case", (bool)fFindCaseSensitiveCheck->Value());
-	gCFG.UpdateValue("show_projects", ActionManager::IsPressed(MSG_SHOW_HIDE_PROJECTS));
-	gCFG.UpdateValue("show_output", ActionManager::IsPressed(MSG_SHOW_HIDE_OUTPUT));
-	gCFG.UpdateValue("show_toolbar", ActionManager::IsPressed(MSG_TOGGLE_TOOLBAR));
-	GenioNames::SaveSettingsVars();
 
+	gCFG["find_wrap"] = (bool)fFindWrapCheck->Value();
+	gCFG["find_whole_word"] = (bool)fFindWholeWordCheck->Value();
+	gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
+	gCFG["show_projects"] = ActionManager::IsPressed(MSG_SHOW_HIDE_PROJECTS);
+	gCFG["show_output"] = ActionManager::IsPressed(MSG_SHOW_HIDE_OUTPUT);
+	gCFG["show_toolbar"] = ActionManager::IsPressed(MSG_TOGGLE_TOOLBAR);
+#if 0
+	GenioNames::SaveSettingsVars();
 #endif
+
 
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;

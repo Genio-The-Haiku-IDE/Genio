@@ -34,7 +34,9 @@
 
 
 #include "exceptions/Exceptions.h"
+#include "ConfigWindow.h"
 #include "FSUtils.h"
+#include "GenioApp.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
@@ -1038,7 +1040,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_WINDOW_SETTINGS: {
-			SettingsWindow *window = new SettingsWindow();
+			ConfigWindow* window = new ConfigWindow(*gConfigManager);
+			// TODO: Should be optional
+			window->SetLayout(new BGroupLayout(B_HORIZONTAL));
 			window->Show();
 
 			break;

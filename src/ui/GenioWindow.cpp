@@ -1048,8 +1048,6 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_WINDOW_SETTINGS: {
 			ConfigWindow* window = new ConfigWindow(gCFG);
-			// TODO: Should be optional
-			window->SetLayout(new BGroupLayout(B_HORIZONTAL));
 			window->Show();
 
 			break;

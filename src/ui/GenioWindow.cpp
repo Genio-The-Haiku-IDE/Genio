@@ -34,6 +34,7 @@
 
 
 #include "exceptions/Exceptions.h"
+#include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "FSUtils.h"
 #include "GenioApp.h"
@@ -160,7 +161,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorKeyDownMessageFilter());
 
 	// Load workspace - reopen projects
-	if (GenioNames::Settings.reopen_projects == true) {
+	if (gCFG["reopen_projects") {
 		TPreferences projects(GenioNames::kSettingsProjectsToReopen,
 								GenioNames::kApplicationName, 'PRRE');
 		if (!projects.IsEmpty()) {
@@ -202,9 +203,9 @@ GenioWindow::Show()
 
 	if (LockLooper()) {
 
-		_ShowView(fProjectsTabView, GenioNames::Settings.show_projects, MSG_SHOW_HIDE_PROJECTS);
-		_ShowView(fOutputTabView,   GenioNames::Settings.show_output,	MSG_SHOW_HIDE_OUTPUT);
-		_ShowView(fToolBar,  		GenioNames::Settings.show_toolbar,	MSG_TOGGLE_TOOLBAR);
+		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
+		_ShowView(fOutputTabView,   gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowView(fToolBar,  		gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 
 		UnlockLooper();
 	}
@@ -701,7 +702,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_LINE_ENDINGS_TOGGLE: {
-			GenioNames::Settings.show_line_endings = !GenioNames::Settings.show_line_endings;
+			gCFG.UpdateValue("show_line_endings", !gCFG["show_line_endings"]);
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
 				editor->ShowLineEndings(GenioNames::Settings.show_line_endings);
@@ -1040,7 +1041,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_WINDOW_SETTINGS: {
-			ConfigWindow* window = new ConfigWindow(*gConfigManager);
+			ConfigWindow* window = new ConfigWindow(gCFG);
 			// TODO: Should be optional
 			window->SetLayout(new BGroupLayout(B_HORIZONTAL));
 			window->Show();
@@ -1222,7 +1223,7 @@ GenioWindow::QuitRequested()
 		return false;
 
 	// Files to reopen
-	if (GenioNames::Settings.reopen_files == true) {
+	if (gCFG["reopen_files"]) {
 		TPreferences files(GenioNames::kSettingsFilesToReopen,
 							GenioNames::kApplicationName, 'FIRE');
 		// Just empty it for now TODO check if equal
@@ -1271,12 +1272,12 @@ GenioWindow::QuitRequested()
 	}
 
 
-	GenioNames::Settings.find_wrap = (bool)fFindWrapCheck->Value();
-	GenioNames::Settings.find_whole_word = (bool)fFindWholeWordCheck->Value();
-	GenioNames::Settings.find_match_case = (bool)fFindCaseSensitiveCheck->Value();
-	GenioNames::Settings.show_projects = ActionManager::IsPressed(MSG_SHOW_HIDE_PROJECTS);
-	GenioNames::Settings.show_output   = ActionManager::IsPressed(MSG_SHOW_HIDE_OUTPUT);
-	GenioNames::Settings.show_toolbar  = ActionManager::IsPressed(MSG_TOGGLE_TOOLBAR);
+	gCFG.UpdateValue("find_wrap", (bool)fFindWrapCheck->Value());
+	gCFG.UpdateValue("find_whole_word", (bool)fFindWholeWordCheck->Value());
+	gCFG.UpdateValue("find_match_case", (bool)fFindCaseSensitiveCheck->Value());
+	gCFG.UpdateValue("show_projects", ActionManager::IsPressed(MSG_SHOW_HIDE_PROJECTS));
+	gCFG.UpdateValue("show_output", ActionManager::IsPressed(MSG_SHOW_HIDE_OUTPUT));
+	gCFG.UpdateValue("show_toolbar", ActionManager::IsPressed(MSG_TOGGLE_TOOLBAR));
 
 
 	GenioNames::SaveSettingsVars();
@@ -1342,7 +1343,7 @@ GenioWindow::_BuildProject()
 	}
 
 	// TODO: Should ask if the user wants to save
-	if (GenioNames::Settings.save_on_build == B_CONTROL_ON)
+	if (gCFG["save_on_build"])
 		_FileSaveAll(fActiveProject);
 
 	fIsBuilding = true;
@@ -1561,9 +1562,9 @@ GenioWindow::_FileOpen(BMessage* msg)
 		}
 
 		editor->ApplySettings();
-		editor->SetZoom(GenioNames::Settings.editor_zoom);
-		editor->ShowLineEndings(GenioNames::Settings.show_line_endings);
-		editor->ShowWhiteSpaces(GenioNames::Settings.show_white_space);
+		editor->SetZoom(gCFG["editor_zoom"]);
+		editor->ShowLineEndings(gCFG["show_line_endings"]);
+		editor->ShowWhiteSpaces(gCFG["show_white_space"]);
 
 		// First tab gets selected by tabview
 		if (index > 0)
@@ -1768,7 +1769,7 @@ GenioWindow::_FilesNeedSave()
 void
 GenioWindow::_PreFileSave(Editor* editor)
 {
-	if (GenioNames::Settings.trim_trailing_whitespace)
+	if (gCFG["trim_trailing_whitespace"])
 		editor->TrimTrailingWhitespace();
 }
 
@@ -1778,7 +1779,7 @@ GenioWindow::_PostFileSave(Editor* editor)
 {
 	// TODO: Also handle cases where the file is saved from outside Genio ?
 	ProjectFolder* project = editor->GetProjectFolder();
-	if (GenioNames::Settings.build_on_save == B_CONTROL_ON &&
+	if (gCFG["build_on_save"] &&
 		project != nullptr && project == fActiveProject) {
 		// TODO: if we are already building we should stop / relaunch build here.
 		// at the moment we have an hack in place in ConsoleIOView::MessageReceived()
@@ -2266,9 +2267,9 @@ GenioWindow::_InitCentralSplit()
 	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"));
 	fFindWrapCheck = new BCheckBox(B_TRANSLATE("Wrap"));
 
-	fFindWrapCheck->SetValue((int32)GenioNames::Settings.find_wrap);
-	fFindWholeWordCheck->SetValue((int32)GenioNames::Settings.find_whole_word);
-	fFindCaseSensitiveCheck->SetValue((int32)GenioNames::Settings.find_match_case);
+	fFindWrapCheck->SetValue((int32)gCFG["find_wrap"]);
+	fFindWholeWordCheck->SetValue((int32)gCFG["find_whole_word"]);
+	fFindCaseSensitiveCheck->SetValue((int32)gCFG["find_match_case"]);
 
 
 	fFindGroup = new ToolBar(this);
@@ -2319,7 +2320,7 @@ GenioWindow::_InitCentralSplit()
 		B_TRANSLATE("Run"), new BMessage(MSG_RUN_CONSOLE_PROGRAM));
 
 	BString tooltip("cwd: ");
-	tooltip << GenioNames::Settings.projects_directory;
+	tooltip << (BString)gCFG["projects_directory"];
 	fRunConsoleProgramText->SetToolTip(tooltip);
 
 	fRunConsoleProgramGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
@@ -3209,7 +3210,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		_UpdateProjectActivation(false);
 		// Update run command working directory tooltip too
 		BString tooltip;
-		tooltip << "cwd: " << GenioNames::Settings.projects_directory;
+		tooltip << "cwd: " << (BString)gCFG["projects_directory"];
 		fRunConsoleProgramText->SetToolTip(tooltip);
 	}
 
@@ -3506,7 +3507,7 @@ GenioWindow::_RunInConsole(const BString& command)
 {
 	// If no active project go to projects directory
 	if (fActiveProject == nullptr)
-		chdir(GenioNames::Settings.projects_directory);
+		chdir(gCFG["projects_directory"]);
 	else
 		chdir(fActiveProject->Path());
 
@@ -3574,7 +3575,7 @@ GenioWindow::_RunTarget()
 void
 GenioWindow::_SendNotification(BString message, BString type)
 {
-	if (GenioNames::Settings.enable_notifications == false)
+	if (!gCFG["enable_notifications"])
 		return;
 
 	LogInfo("Notification: %s - %s", type.String(), message.String());
@@ -3788,7 +3789,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 		fBookmarksMenu->SetEnabled(false);
 
-		if (GenioNames::Settings.fullpath_title == true)
+		if (gCFG["fullpath_title"])
 			SetTitle(GenioNames::kApplicationName);
 
 		fProblemsPanel->ClearProblems();
@@ -3853,7 +3854,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fBookmarksMenu->SetEnabled(true);
 
 	// File full path in window title
-	if (GenioNames::Settings.fullpath_title == true) {
+	if (gCFG["fullpath_title"]) {
 		BString title;
 		title << GenioNames::kApplicationName << ": " << editor->FilePath();
 		SetTitle(title.String());

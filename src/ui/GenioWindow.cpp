@@ -161,7 +161,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorKeyDownMessageFilter());
 
 	// Load workspace - reopen projects
-	if (gCFG["reopen_projects") {
+	if (gCFG["reopen_projects"]) {
 		TPreferences projects(GenioNames::kSettingsProjectsToReopen,
 								GenioNames::kApplicationName, 'PRRE');
 		if (!projects.IsEmpty()) {
@@ -175,7 +175,7 @@ GenioWindow::GenioWindow(BRect frame)
 	}
 
 	// Reopen files
-	if (GenioNames::Settings.reopen_files == true) {
+	if (gCFG["reopen_files"]) {
 		TPreferences files(GenioNames::kSettingsFilesToReopen,
 							GenioNames::kApplicationName, 'FIRE');
 		if (!files.IsEmpty()) {
@@ -604,28 +604,42 @@ GenioWindow::MessageReceived(BMessage* message)
 			_FileSaveAll();
 			break;
 		case MSG_VIEW_ZOOMIN:
-			if (GenioNames::Settings.editor_zoom < 20) {
-				GenioNames::Settings.editor_zoom++;
+		{
+			int zoom = gCFG["editor_zoom"];
+			if (zoom < 20) {
+				zoom++;
+#if 0
+				gCFG.UpdateValue("editor_zoom", zoom);
+#endif
 				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 					Editor* editor = fTabManager->EditorAt(index);
-					editor->SetZoom(GenioNames::Settings.editor_zoom);
+					editor->SetZoom(zoom);
 				}
 			}
-		break;
+			break;
+		}
 		case MSG_VIEW_ZOOMOUT:
-			if (GenioNames::Settings.editor_zoom > -10) {
-				GenioNames::Settings.editor_zoom--;
+		{
+			int zoom = gCFG["editor_zoom"];
+			if (zoom > -10) {
+				zoom--;
+#if 0
+				gCFG.UpdateValue("editor_zoom", zoom);
+#endif
 				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 					Editor* editor = fTabManager->EditorAt(index);
-					editor->SetZoom(GenioNames::Settings.editor_zoom);
+					editor->SetZoom(zoom);
 				}
 			}
-		break;
+			break;
+		}
 		case MSG_VIEW_ZOOMRESET:
-			GenioNames::Settings.editor_zoom = 0;
+#if 0
+			gCFG.UpdateValue("editor_zoom", 0);
+#endif
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
-				editor->SetZoom(GenioNames::Settings.editor_zoom);
+				editor->SetZoom(gCFG["editor_zoom"]);
 			}
 		break;
 		case MSG_FIND_GROUP_SHOW:
@@ -693,21 +707,25 @@ GenioWindow::MessageReceived(BMessage* message)
 			fGoToLineWindow->ShowCentered(Frame());
 			break;
 		case MSG_WHITE_SPACES_TOGGLE: {
-			GenioNames::Settings.show_white_space = !GenioNames::Settings.show_white_space;
+#if 0
+			gCFG.UpdateValue("show_white_space", = !gCFG["show_white_space"]);
+#endif
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
-				editor->ShowWhiteSpaces(GenioNames::Settings.show_white_space);
+				editor->ShowWhiteSpaces(gCFG["show_white_space"]);
 			}
-			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, GenioNames::Settings.show_white_space);
+			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 			break;
 		}
 		case MSG_LINE_ENDINGS_TOGGLE: {
+#if 0
 			gCFG.UpdateValue("show_line_endings", !gCFG["show_line_endings"]);
+#endif
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
-				editor->ShowLineEndings(GenioNames::Settings.show_line_endings);
+				editor->ShowLineEndings(gCFG["show_line_endings"]);
 			}
-			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, GenioNames::Settings.show_line_endings);
+			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 			break;
 		}
 		case MSG_DUPLICATE_LINE: {
@@ -1248,7 +1266,7 @@ GenioWindow::QuitRequested()
 	}
 
 	// Projects to reopen
-	if (GenioNames::Settings.reopen_projects == true) {
+	if (gCFG["reopen_projects"]) {
 
 		TPreferences projects(GenioNames::kSettingsProjectsToReopen,
 								GenioNames::kApplicationName, 'PRRE');
@@ -1271,16 +1289,17 @@ GenioWindow::QuitRequested()
 		fGoToLineWindow->Quit();
 	}
 
-
+#if 0
 	gCFG.UpdateValue("find_wrap", (bool)fFindWrapCheck->Value());
 	gCFG.UpdateValue("find_whole_word", (bool)fFindWholeWordCheck->Value());
 	gCFG.UpdateValue("find_match_case", (bool)fFindCaseSensitiveCheck->Value());
 	gCFG.UpdateValue("show_projects", ActionManager::IsPressed(MSG_SHOW_HIDE_PROJECTS));
 	gCFG.UpdateValue("show_output", ActionManager::IsPressed(MSG_SHOW_HIDE_OUTPUT));
 	gCFG.UpdateValue("show_toolbar", ActionManager::IsPressed(MSG_TOGGLE_TOOLBAR));
-
-
 	GenioNames::SaveSettingsVars();
+
+#endif
+
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;
 }
@@ -2320,7 +2339,7 @@ GenioWindow::_InitCentralSplit()
 		B_TRANSLATE("Run"), new BMessage(MSG_RUN_CONSOLE_PROGRAM));
 
 	BString tooltip("cwd: ");
-	tooltip << (BString)gCFG["projects_directory"];
+	tooltip << (const char*)gCFG["projects_directory"];
 	fRunConsoleProgramText->SetToolTip(tooltip);
 
 	fRunConsoleProgramGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
@@ -3210,7 +3229,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		_UpdateProjectActivation(false);
 		// Update run command working directory tooltip too
 		BString tooltip;
-		tooltip << "cwd: " << (BString)gCFG["projects_directory"];
+		tooltip << "cwd: " << (const char*)gCFG["projects_directory"];
 		fRunConsoleProgramText->SetToolTip(tooltip);
 	}
 

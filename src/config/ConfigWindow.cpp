@@ -22,8 +22,7 @@ public:
 		GControl(GMessage& msg, T value, ConfigManager& cfg)
 			:
 			C("", "", nullptr),
-			fConfigManager(cfg){
-
+			fConfigManager(cfg) {
 				C::SetName(msg["key"]);
 				C::SetLabel(msg["label"]);
 				LoadValue(value);
@@ -73,6 +72,7 @@ ConfigWindow::ConfigWindow(ConfigManager &configManager)
       fConfigManager(configManager)
 {
 	CenterOnScreen();
+	SetLayout(new BGroupLayout(B_HORIZONTAL));
 	AddChild(_Init());
 }
 

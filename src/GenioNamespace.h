@@ -22,9 +22,6 @@ namespace GenioNames
 	int32 CompareVersion(const BString appVersion, const BString fileVersion);
 	BString GetSignature();
 	BString GetVersionInfo();
-	status_t LoadSettingsVars();
-	status_t SaveSettingsVars();
-	status_t UpdateSettingsFile();
 }
 
 #endif // Genio_NAMESPACE_H

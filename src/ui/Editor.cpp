@@ -24,9 +24,9 @@
 #include <iostream>
 #include <sstream>
 
+#include "ConfigManager.h"
 #include "EditorContextMenu.h"
 #include "EditorStatusView.h"
-#include "GenioApp.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "keywords.h"
@@ -116,31 +116,31 @@ Editor::ApplySettings()
 
 	// Font & Size
 	SendMessage(SCI_STYLESETFONT, STYLE_DEFAULT, (sptr_t) "Noto Sans Mono");
-	int32 fontSize = Settings.edit_fontsize;
+	int32 fontSize = gCFG["edit_fontsize"];
 	if (fontSize < 0)
 		fontSize = be_plain_font->Size();
 	SendMessage(SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
 	SendMessage(SCI_STYLECLEARALL, UNSET, UNSET);
 
 	// Highlighting
-	if (Settings.syntax_highlight == B_CONTROL_ON) {
+	if (gCFG["syntax_highlight"]) {
 		_ApplyExtensionSettings();
 		_HighlightFile();
 	}
 	// Brace match
-	if (Settings.brace_match == B_CONTROL_ON)
+	if (gCFG["brace_match"])
 		_HighlightBraces();
 
 	// Caret line visible
-	if (Settings.mark_caretline == true) {
+	if (gCFG["mark_caretline"]) {
 		SendMessage(SCI_SETCARETLINEVISIBLE, 1, UNSET);
 		SendMessage(SCI_SETCARETLINEBACK, kCaretLineBackColor, UNSET);
 	}
 
 	// Edge line
-	if (Settings.show_edgeline == true) {
+	if (gCFG["show_edgeline"]) {
 		SendMessage(SCI_SETEDGEMODE, EDGE_LINE, UNSET);
-		std::string column(Settings.edgeline_column);
+		std::string column((const char*)gCFG["edgeline_column"]);
 		int32 col;
 		std::istringstream (column) >>  col;
 		SendMessage(SCI_SETEDGECOLUMN, col, UNSET);
@@ -153,7 +153,7 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETTABWIDTH, 4, UNSET);
 		SendMessage(SCI_SETUSETABS, false, UNSET);
 	} else
-		SendMessage(SCI_SETTABWIDTH, Settings.tab_width, UNSET);
+		SendMessage(SCI_SETTABWIDTH, (int)gCFG["tab_width"], UNSET);
 
 	// MARGINS
 	SendMessage(SCI_SETMARGINS, 4, UNSET);
@@ -169,11 +169,11 @@ Editor::ApplySettings()
  	SendMessage(SCI_SETMARGINMASKN, sci_BOOKMARK_MARGIN, (1 << sci_BOOKMARK));
 
 	// Folding
-	if (Settings.enable_folding == B_CONTROL_ON)
+	if (gCFG["enable_folding"])
 		_SetFoldMargin();
 
 	// Line commenter margin
-	if (Settings.show_commentmargin == true && !fCommenter.empty()) {
+	if (gCFG["show_commentmargin"] && !fCommenter.empty()) {
 		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12);
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	}

@@ -5,6 +5,8 @@
  */
 
 #include "GenioWindow.h"
+#include "GitRepository.h"
+#include "BeDC.h"
 
 #include <cassert>
 #include <fstream>
@@ -44,6 +46,7 @@
 #include "ProjectItem.h"
 #include "RemoteProjectWindow.h"
 #include "SettingsWindow.h"
+#include "SwitchBranchMenu.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
 #include "TPreferences.h"
@@ -673,6 +676,21 @@ GenioWindow::MessageReceived(BMessage* message)
 			BString command;
 			if (message->FindString("command", &command) == B_OK)
 				_Git(command);
+			break;
+		}
+		case MSG_GIT_SWITCH_BRANCH: {
+			try {
+				Genio::Git::GitRepository repo(fActiveProject->Path().String());
+				BString new_branch = message->GetString("branch", nullptr);
+				if (new_branch)
+					repo.SwitchBranch(new_branch);
+			} catch (GitException &ex) {
+				BString message;
+				message << B_TRANSLATE("An error occurred while switching branch:")
+						<< " "
+						<< ex.Message();
+				OKAlert("GitSwitchBranch", message, B_INFO_ALERT);
+			}
 			break;
 		}
 		case GTLW_GO: {
@@ -2802,6 +2820,8 @@ GenioWindow::_InitMenu()
 	BMessage* git_branch_message = new BMessage(MSG_GIT_COMMAND);
 	git_branch_message->AddString("command", "branch");
 	fGitBranchItem->SetMessage(git_branch_message);
+	fGitMenu->AddItem(new SwitchBranchMenu(this, B_TRANSLATE("Switch to"),
+						new BMessage(MSG_GIT_SWITCH_BRANCH)));
 
 	fGitMenu->AddItem(fGitLogItem = new BMenuItem(B_TRANSLATE_COMMENT("Log",
 		"The git command"), nullptr));
@@ -2926,13 +2946,13 @@ GenioWindow::_InitOutputSplit()
 	fOutputTabView = new BTabView("OutputTabview");
 
 	fProblemsPanel = new ProblemsPanel(fOutputTabView);
-
+	
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
 
 	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
 	fSearchResultPanel = new SearchResultPanel(fOutputTabView);
-
+	
 	fOutputTabView->AddTab(fProblemsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
 	fOutputTabView->AddTab(fConsoleIOView);
@@ -3071,6 +3091,10 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		project->Active(true);
 		_UpdateProjectActivation(true);
 	}
+	
+	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+	noticeMessage.AddPointer("active_project", fActiveProject);
+	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 
 	// Update run command working directory tooltip too
 	BString tooltip;

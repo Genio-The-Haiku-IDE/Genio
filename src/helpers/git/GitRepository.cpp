@@ -8,6 +8,7 @@
 
 
 #include "GitRepository.h"
+#include "BeDC.h"
 
 #include <Path.h>
 
@@ -39,32 +40,111 @@ namespace Genio::Git {
 		git_libgit2_shutdown();
 	}
 
-	vector<string>
+	vector<BString>
 	GitRepository::GetBranches()
 	{
 		git_branch_iterator *it;
 		git_reference *ref;
-		vector<string> branches;
+		git_branch_t type;
+		vector<BString> branches;
 
-		int error = git_branch_iterator_new(&it, fRepository, GIT_BRANCH_LOCAL);
+		int error = git_branch_iterator_new(&it, fRepository, GIT_BRANCH_ALL);
 		if (error != 0) {
 			throw GitException(error, git_error_last()->message);
 		}
 
-		while ((error = git_branch_next(&ref, NULL, it)) == 0) {
+		while ((error = git_branch_next(&ref, &type, it)) == 0) {
 			const char *branchName;
 			error = git_branch_name(&branchName, ref);
 			if (error != 0) {
 				git_reference_free(ref);
 				throw GitException(error, git_error_last()->message);
 			}
-			branches.push_back(branchName);
+			BString bBranchName(branchName);
+			if (bBranchName.FindFirst("HEAD") == B_ERROR)
+				branches.push_back(branchName);
 			git_reference_free(ref);
 		}
 
 		git_branch_iterator_free(it);
 
 		return branches;
+	}
+	
+
+	int 
+	checkout_notify(git_checkout_notify_t why, const char *path,
+									const git_diff_file *baseline,
+									const git_diff_file *target,
+									const git_diff_file *workdir,
+									void *payload)
+	{
+		BeDC dc("Genio");
+		dc.SendFormat("path '%s' - ", path);
+		switch (why) {
+			case GIT_CHECKOUT_NOTIFY_CONFLICT:
+				dc.SendFormat("conflict");
+			break;
+			case GIT_CHECKOUT_NOTIFY_DIRTY:
+				dc.SendFormat("dirty");
+			break;
+			case GIT_CHECKOUT_NOTIFY_UPDATED:
+				dc.SendFormat("updated");
+			break;
+			case GIT_CHECKOUT_NOTIFY_UNTRACKED:
+				dc.SendFormat("untracked");
+			break;
+			case GIT_CHECKOUT_NOTIFY_IGNORED:
+				dc.SendFormat("ignored");
+			break;
+			default:
+			break;
+		}
+
+		return 0;
+	}
+	
+	int
+	GitRepository::SwitchBranch(BString &branchName)
+	{
+	
+		// auto files = GetFiles();
+		// for (auto &file : files)
+			// BeDC("Genio files").SendFormat("%s %s", file.first.c_str(), file.second.c_str());
+	
+		git_object* tree = NULL;
+		git_checkout_options opts;
+		int status = 0;
+		
+		status = git_checkout_init_options(&opts, GIT_CHECKOUT_OPTIONS_VERSION);
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+		
+		opts.notify_flags =
+			GIT_CHECKOUT_NOTIFY_CONFLICT |
+			GIT_CHECKOUT_NOTIFY_DIRTY |
+			GIT_CHECKOUT_NOTIFY_UPDATED |
+			GIT_CHECKOUT_NOTIFY_UNTRACKED |
+			GIT_CHECKOUT_NOTIFY_IGNORED;
+		opts.checkout_strategy = GIT_CHECKOUT_SAFE;
+		opts.notify_cb = checkout_notify;
+		
+		status = git_revparse_single(&tree, fRepository, branchName.String());
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+
+		status = git_checkout_tree(fRepository, tree, &opts);
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+		
+		BString ref("refs/heads/%s");
+		branchName.RemoveFirst("origin/");
+		ref.ReplaceFirst("%s", branchName.String());
+		status = git_repository_set_head(fRepository, ref.String());
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+
+		return status;
 	}
 
 	vector<pair<string, string>>

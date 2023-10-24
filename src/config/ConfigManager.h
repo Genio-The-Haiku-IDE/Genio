@@ -44,6 +44,8 @@ public:
 
 			configuration.AddMessage("config", &configKey);
 		}
+		
+		status_t	LoadFromFile(BPath path);
 
 
 		void ResetToDefault() {

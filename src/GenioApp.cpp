@@ -189,8 +189,16 @@ GenioApp::ReadyToRun()
 {
 	PrepareConfig(gCFG);
 	gCFG.ResetToDefault();
+	
+	// Global settings file check.
+	BPath path;
+	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
+	path.Append(GenioNames::kApplicationName);
+	path.Append(GenioNames::kSettingsFileName);
+	
+	gCFG.LoadFromFile(path);
 
-	gCFG.Print();
+	//gCFG.Print();
 	Logger::SetDestination(gCFG["log_destination"]);
 	if (sSessionLogLevel == LOG_LEVEL_UNSET)
 		Logger::SetLevel(log_level(int32(gCFG["log_level"])));

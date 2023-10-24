@@ -91,12 +91,12 @@ GetVersionInfo()
 	return version;
 }
 
-SettingsVars Settings;
+//SettingsVars Settings;
 
 status_t
 SaveSettingsVars()
 {
-	status_t status;
+	/*status_t status;
 	TPreferences file(kSettingsFileName, kApplicationName, 'IDSE');
 	if ((status = file.InitCheck()) != B_OK)
 		return status;
@@ -132,15 +132,17 @@ SaveSettingsVars()
 	status += file.SetInt32("log_level", Settings.log_level);
 	status += file.SetInt32("trim_trailing_whitespace", Settings.trim_trailing_whitespace);
 
-	return status;
+	return status;*/
+	
+	return B_OK;
 }
 
 
 status_t
 LoadSettingsVars()
 {
-	status_t status;
-	TPreferences file(kSettingsFileName, kApplicationName, 'IDSE');
+	status_t status = B_OK;
+	/*TPreferences file(kSettingsFileName, kApplicationName, 'IDSE');
 	if ((status = file.InitCheck()) != B_OK)
 		return status;
 
@@ -173,7 +175,7 @@ LoadSettingsVars()
 	status += file.FindBool("find_match_case", &Settings.find_match_case);
 	status += file.FindInt32("log_destination", &Settings.log_destination);
 	status += file.FindInt32("log_level", &Settings.log_level);
-	status += file.FindInt32("trim_trailing_whitespace", &Settings.trim_trailing_whitespace);
+	status += file.FindInt32("trim_trailing_whitespace", &Settings.trim_trailing_whitespace);*/
 	return status;
 }
 

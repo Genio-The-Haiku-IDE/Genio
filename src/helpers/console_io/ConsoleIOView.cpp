@@ -18,6 +18,8 @@
 #include <ScrollView.h>
 #include <String.h>
 
+#include "ConfigManager.h"
+#include "GenioApp.h"
 #include "GenioNamespace.h"
 #include "Log.h"
 #include "WordTextView.h"
@@ -158,9 +160,9 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			fPendingOutput->MakeEmpty();
 
 			// Used to reload settings too
-			fWrapEnabled->SetValue(GenioNames::Settings.wrap_console);
+			fWrapEnabled->SetValue(gCFG["wrap_console"] ? B_CONTROL_ON : B_CONTROL_OFF);
 			fConsoleIOText->SetWordWrap(fWrapEnabled->Value());
-			fBannerEnabled->SetValue(GenioNames::Settings.console_banner);
+			fBannerEnabled->SetValue(gCFG["console_banner"]);
 
 			break;
 		}
@@ -222,7 +224,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 void
 ConsoleIOView::_BannerMessage(BString status)
 {
-	if (GenioNames::Settings.console_banner == false)
+	if (!gCFG["console_banner"])
 		return;
 
 	BString banner;
@@ -247,9 +249,9 @@ ConsoleIOView::AttachedToWindow()
 	fWrapEnabled->SetEnabled(false);
 	fBannerEnabled->SetEnabled(false);
 
-	fWrapEnabled->SetValue(GenioNames::Settings.wrap_console);
+	fWrapEnabled->SetValue(gCFG["wrap_console"]);
 	fConsoleIOText->SetWordWrap(fWrapEnabled->Value());
-	fBannerEnabled->SetValue(GenioNames::Settings.console_banner);
+	fBannerEnabled->SetValue(gCFG["console_banner"]);
 
 	fClearButton->SetTarget(this);
 	fStopButton->SetTarget(this);

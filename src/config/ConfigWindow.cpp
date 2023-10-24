@@ -69,8 +69,7 @@ void GControl<BTextControl, const char*>::LoadValue(const char* value) {
 
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
     : BWindow(BRect(100, 100, 700, 500), "Settings", B_TITLED_WINDOW,
-              B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE |
-                  B_QUIT_ON_WINDOW_CLOSE),
+              B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE),
       fConfigManager(configManager) {
 
   AddChild(_Init());

@@ -78,7 +78,6 @@ SRCS +=  src/ui/ProblemsPanel.cpp
 SRCS +=  src/ui/SearchResultPanel.cpp
 SRCS +=  src/ui/ProjectsFolderBrowser.cpp
 SRCS +=  src/ui/RemoteProjectWindow.cpp
-SRCS +=  src/ui/SettingsWindow.cpp
 SRCS +=  src/ui/ToolBar.cpp
 SRCS +=  src/ui/QuitAlert.cpp
 SRCS +=  src/templates/IconMenuItem.cpp

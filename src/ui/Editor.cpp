@@ -26,6 +26,7 @@
 
 #include "EditorContextMenu.h"
 #include "EditorStatusView.h"
+#include "GenioApp.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "keywords.h"
@@ -77,7 +78,7 @@ Editor::~Editor()
 	StopMonitoring();
 
 	// Set caret position
-	if (Settings.save_caret == true) {
+	if (gCFG["save_caret"]) {
 		BNode node(&fFileRef);
 		if (node.InitCheck() == B_OK) {
 			int32 pos = GetCurrentPosition();
@@ -699,7 +700,7 @@ Editor::NotificationReceived(SCNotification* notification)
 		case SCN_MODIFIED: {
 			if (notification->modificationType & SC_MOD_INSERTTEXT) {
 				fLSPEditorWrapper->didChange(notification->text, notification->length, notification->position, 0);
-			} 
+			}
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
 				fLSPEditorWrapper->didChange("", 0, notification->position, notification->length);
 			}
@@ -708,7 +709,7 @@ Editor::NotificationReceived(SCNotification* notification)
 					fLSPEditorWrapper->ContinueCallTip();
 			}
 			if (notification->linesAdded != 0)
-				if (Settings.show_linenumber == true)
+				if (gCFG["show_linenumber"])
 					_RedrawNumberMargin(false);
 			break;
 		}
@@ -779,7 +780,7 @@ Editor::BeforeKeyDown(BMessage* message)
 }
 
 
-filter_result		
+filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
@@ -790,14 +791,14 @@ Editor::OnArrowKey(int8 key)
 }
 
 
-void				
+void
 Editor::_UpdateSavePoint(bool modified)
 {
 	fModified = modified;
 	BMessage message(EDITOR_UPDATE_SAVEPOINT);
 	message.AddRef("ref", &fFileRef);
 	message.AddBool("modified", fModified);
-	fTarget.SendMessage(&message);	
+	fTarget.SendMessage(&message);
 }
 
 
@@ -1056,7 +1057,7 @@ Editor::SendPositionChanges()
 
 void
 Editor::UpdateStatusBar()
-{	
+{
 	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS, 0, 0);
 	int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 	int column = SendMessage(SCI_GETCOLUMN, pos, 0);
@@ -1122,7 +1123,7 @@ Editor::SetReadOnly(bool readOnly)
 status_t
 Editor::SetSavedCaretPosition()
 {
-	if (Settings.save_caret == false)
+	if (!gCFG["save_caret"])
 		return B_ERROR; //TODO maybe tweak
 
 	status_t status;
@@ -1181,7 +1182,7 @@ Editor::StartMonitoring()
 	}
 	if ((status = watch_node(&fNodeRef, B_WATCH_NAME | B_WATCH_STAT, fTarget)) != B_OK) {
 		LogErrorF("Can't start watch_node a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
-		return status;		
+		return status;
 	}
 	return	B_OK;
 }
@@ -1193,7 +1194,7 @@ Editor::StopMonitoring()
 	status_t status;
 	if ((status = watch_node(&fNodeRef, B_STOP_WATCHING, fTarget)) != B_OK) {
 		LogErrorF("Can't stop watch_node a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
-		return status;		
+		return status;
 	}
 	return B_OK;
 }
@@ -1247,7 +1248,7 @@ Editor::Completion()
 	fLSPEditorWrapper->StartCompletion();
 }
 
-		
+
 void
 Editor::Format()
 {
@@ -1462,7 +1463,7 @@ Editor::_CommentLine(int32 position)
 	delete[] lineBuffer;
 
 	// Calculate offset of first non-space
-	std::size_t offset = line.find_first_not_of("\t ");	
+	std::size_t offset = line.find_first_not_of("\t ");
 	if (offset == std::string::npos)
 		return;
 
@@ -1638,7 +1639,7 @@ Editor::_RedrawNumberMargin(bool forced)
 
 	if (linesLog10 != fLinesLog10 || forced) {
 		fLinesLog10 = linesLog10;
-		float zoom = 1 + ((float)SendMessage(SCI_GETZOOM)/100.0); 
+		float zoom = 1 + ((float)SendMessage(SCI_GETZOOM)/100.0);
 		int pixelWidth = SendMessage(SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "9") * zoom;
 		SendMessage(SCI_SETMARGINWIDTHN, sci_NUMBER_MARGIN, pixelWidth * fLinesLog10);
 	}

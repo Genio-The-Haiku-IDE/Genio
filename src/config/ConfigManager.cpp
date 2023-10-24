@@ -20,3 +20,5 @@
 #include <TextControl.h>
 #include <CardView.h>
 
+ConfigManager gConfigManager;
+ConfigManager& gCFG = gConfigManager;

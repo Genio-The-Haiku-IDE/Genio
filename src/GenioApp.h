@@ -32,8 +32,5 @@ private:
 };
 
 
-// TODO: Use a static method ?
-extern ConfigManager& gCFG;
-
 
 #endif //GenioAPP_H

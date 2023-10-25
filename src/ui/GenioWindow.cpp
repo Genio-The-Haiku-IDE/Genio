@@ -200,16 +200,14 @@ GenioWindow::Show()
 	BWindow::Show();
 
 	if (LockLooper()) {
-
 		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
 		_ShowView(fOutputTabView,   gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 		_ShowView(fToolBar,  		gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
-
-		assert(be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED) == B_OK);
-
+		be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 		UnlockLooper();
 	}
 }
+
 
 GenioWindow::~GenioWindow()
 {
@@ -218,6 +216,7 @@ GenioWindow::~GenioWindow()
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
 }
+
 
 void
 GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
@@ -240,6 +239,7 @@ GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 	BWindow::DispatchMessage(message, handler);
 }
 
+
 void
 GenioWindow::MessageReceived(BMessage* message)
 {
@@ -248,15 +248,16 @@ GenioWindow::MessageReceived(BMessage* message)
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
-				case MSG_NOTIFY_CONFIGURATION_UPDATED: {
-					//debugger("new config");
+				case MSG_NOTIFY_CONFIGURATION_UPDATED:
+				{
+					_HandleConfigurationChanged(message);
+					break;
 				}
-				break;
 				default:
-				break;
-			};
+					break;
+			}
+			break;
 		}
-		break;
 		case MSG_ESCAPE_KEY:{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 					_FindGroupShow(false);
@@ -3880,6 +3881,22 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fProblemsPanel->UpdateProblems(&diagnostics);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
+}
+
+
+void
+GenioWindow::_HandleConfigurationChanged(BMessage* message)
+{
+	// TODO: Should editors handle these things on their own ?
+	const char* key = NULL;
+	message->FindString("key", &key);
+	if (key == NULL)
+		return;
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
+		if (::strcmp(key, "show_white_space") == 0)
+			editor->ShowWhiteSpaces(gCFG["show_white_space"]);
+	}
 }
 
 

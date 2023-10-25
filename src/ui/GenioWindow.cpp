@@ -462,7 +462,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (!editor->BookmarkGoToNext())
 					_SendNotification("Next Bookmark not found", "FIND_MISS");
 			}
-
 			break;
 		}
 		case MSG_BOOKMARK_GOTO_PREVIOUS: {
@@ -1109,6 +1108,15 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case MSG_FIND_WRAP:
+			gCFG["find_wrap"] = (bool)fFindWrapCheck->Value();
+		break;
+		case MSG_FIND_WHOLE_WORD:
+			gCFG["find_whole_word"] = (bool)fFindWholeWordCheck->Value();
+		break;
+		case MSG_FIND_MATCH_CASE:
+			gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
+		break;
 		default:
 			BWindow::MessageReceived(message);
 			break;
@@ -2274,9 +2282,9 @@ GenioWindow::_InitCentralSplit()
 	fFindTextControl->SetExplicitMaxSize(fFindTextControl->MinSize());
 
 
-	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE("Match case"));
-	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"));
-	fFindWrapCheck = new BCheckBox(B_TRANSLATE("Wrap"));
+	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE("Match case"), new BMessage(MSG_FIND_MATCH_CASE));
+	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"), new BMessage(MSG_FIND_WHOLE_WORD));
+	fFindWrapCheck = new BCheckBox(B_TRANSLATE("Wrap"), new BMessage(MSG_FIND_WRAP));
 
 	fFindWrapCheck->SetValue(gCFG["find_wrap"] ? B_CONTROL_ON : B_CONTROL_OFF);
 	fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
@@ -2359,6 +2367,9 @@ GenioWindow::_InitCentralSplit()
 		.Add(fTabManager->ContainerView())
 	;
 
+	fFindWrapCheck->SetTarget(this);
+	fFindWholeWordCheck->SetTarget(this);
+	fFindCaseSensitiveCheck->SetTarget(this);
 }
 
 void
@@ -3887,15 +3898,20 @@ void
 GenioWindow::_HandleConfigurationChanged(BMessage* message)
 {
 	// TODO: Should editors handle these things on their own ?
-	const char* key = NULL;
-	message->FindString("key", &key);
-	if (key == NULL)
+	BString key ( message->GetString("key", "") );
+	if (key.IsEmpty())
 		return;
-	
+
 	// TODO: apply other settings
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 		Editor* editor = fTabManager->EditorAt(index);
 		editor->ApplySettings();
+	}
+
+	if (key.StartsWith("find_")) {
+		fFindWrapCheck->SetValue(gCFG["find_wrap"] ? B_CONTROL_ON : B_CONTROL_OFF);
+		fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
+		fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
 	}
 }
 

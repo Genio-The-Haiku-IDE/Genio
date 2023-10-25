@@ -327,9 +327,9 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Build", "save_on_build",  B_TRANSLATE("Save changed files on build"), false);
 
 	//New config, in Genio currently without a UI
-	cfg.AddConfig("Editor/Find", "find_wrap", "FIXME: Wrap", false);
-	cfg.AddConfig("Editor/Find", "find_whole_word", "FIXME: Whole word", false);
-	cfg.AddConfig("Editor/Find", "find_match_case", "FIXME: Match case", false);
+	cfg.AddConfig("Editor/Find", "find_wrap", B_TRANSLATE("Wrap"), false);
+	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
+	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
 }
 
 

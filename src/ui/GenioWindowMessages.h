@@ -110,7 +110,11 @@ enum {
 	MSG_ESCAPE_KEY					= 'escp',
 
 	MSG_SHOW_TEMPLATE_USER_FOLDER	= 'stuf',
-	MSG_CREATE_NEW_PROJECT			= 'mcnp'
+	MSG_CREATE_NEW_PROJECT			= 'mcnp',
+
+	MSG_FIND_WRAP					= 'fiwr',
+	MSG_FIND_WHOLE_WORD				= 'fiww',
+	MSG_FIND_MATCH_CASE				= 'fimc'
 };
 
 

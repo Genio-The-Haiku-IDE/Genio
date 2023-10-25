@@ -32,7 +32,8 @@ bool ConfigManager::Has(GMessage& msg, const char* key) {
 }
 
 status_t	
-ConfigManager::LoadFromFile(BPath path) {
+ConfigManager::LoadFromFile(BPath path)
+{
 	GMessage fromFile;
 	BFile file;
 	status_t status = file.SetTo(path.Path(), B_READ_ONLY);
@@ -41,9 +42,9 @@ ConfigManager::LoadFromFile(BPath path) {
 		if (status == B_OK) {
 			//printf("configs from file:"); fromFile.PrintToStream();
 			GMessage msg;
-			int i=0;
-			while(configuration.FindMessage("config", i++, &msg) == B_OK) {
-				if (fromFile.Has(msg["key"])){ //TODO check the type!! 
+			int i = 0;
+			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
+				if (fromFile.Has(msg["key"])) { //TODO check the type!! 
 					(*this)[msg["key"]] = fromFile[msg["key"]];
 					LogInfo("Configuration files loading value for key [%s]", (const char*)msg["key"]);
 				} else {
@@ -56,24 +57,29 @@ ConfigManager::LoadFromFile(BPath path) {
 	return status;
 }
 
+
 status_t
-ConfigManager::SaveToFile(BPath path) {
+ConfigManager::SaveToFile(BPath path)
+{
 	BFile file;
-	status_t status = file.SetTo(path.Path(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
+	status_t status = file.SetTo(path.Path(), B_WRITE_ONLY | B_CREATE_FILE);
 	if (status == B_OK) {
 		status = storage.Flatten(&file);
 	}
 	return status;
 }
 
+
 void 
-ConfigManager::ResetToDefault() {
+ConfigManager::ResetToDefault()
+{
 	GMessage msg;
-	int i=0;
-	while(configuration.FindMessage("config", i++, &msg) == B_OK) {
+	int i = 0;
+	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
 		storage[msg["key"]] = msg["default_value"];
 	}
 }
+
 
 void
 ConfigManager::PrintAll()
@@ -81,6 +87,8 @@ ConfigManager::PrintAll()
 	PrintValues();
 	configuration.PrintToStream();
 }
+
+
 void
 ConfigManager::PrintValues()
 {

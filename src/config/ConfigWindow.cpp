@@ -81,7 +81,7 @@ BView*
 ConfigWindow::_Init()
 {
 	BView* theView = new BView("theView", B_WILL_DRAW);
-	// Add the translators list view
+	// Add the list view
 	fGroupList = new BOutlineListView("Groups");
 	fGroupList->SetSelectionMessage(new BMessage(ITEM_SELECTED));
 
@@ -94,14 +94,8 @@ ConfigWindow::_Init()
 	fCardView->SetExplicitAlignment(BAlignment(B_ALIGN_USE_FULL_WIDTH,
 		B_ALIGN_USE_FULL_HEIGHT));
 
-	// Populate the translators list view
+	// Populate the list view
 	_PopulateListView();
-
-	// Add the translator info button
-	fButton = new BButton("info", "Info",
-		new BMessage('info'),
-		B_WILL_DRAW | B_FRAME_EVENTS | B_NAVIGABLE);
-	fButton->SetEnabled(false);
 
 	// Build the layout
 	BLayoutBuilder::Group<>(theView, B_HORIZONTAL, 10)
@@ -161,8 +155,6 @@ ConfigWindow::_PopulateListView()
 	while(iter != divededByGroup.end())  {
 		// printf("Working for %s ", (const char*)(*iter)["group"]);
 		// (*iter).PrintToStream();
-
-
 		BView *groupView = MakeViewFor((const char*)(*iter)["group"], *iter);
 		groupView->SetName((const char*)(*iter)["group"]);
 		if (groupView != NULL) {
@@ -326,7 +318,10 @@ ConfigWindow::MakeViewFor(GMessage& config)
 		case B_STRING_TYPE:
 		{
 			//TODO: handle the 'mode'
-			return new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]], fConfigManager);
+			GControl<BTextControl, const char*>* control = new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]], fConfigManager);
+			// TODO: Improve
+			control->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
+			return control;
 		}
 /*
 		default:

@@ -3892,10 +3892,11 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	message->FindString("key", &key);
 	if (key == NULL)
 		return;
+	
+	// TODO: apply other settings
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 		Editor* editor = fTabManager->EditorAt(index);
-		if (::strcmp(key, "show_white_space") == 0)
-			editor->ShowWhiteSpaces(gCFG["show_white_space"]);
+		editor->ApplySettings();
 	}
 }
 

@@ -176,7 +176,12 @@ ConfigWindow::_PopulateListView()
 				for(int y=0;y<fGroupList->FullListCountItems();y++) {
 					BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(y);
 					if (leaf.Compare(item->Text()) == 0) {
-						fGroupList->AddUnder(new BStringItem(groupName), item);
+						int32 count = fGroupList->CountItemsUnder(item, false);
+						count = count + fGroupList->FullListIndexOf(item) + 1;
+						BStringItem *newItem = new BStringItem(groupName);
+						newItem->SetOutlineLevel(item->OutlineLevel() + 1);
+						fGroupList->AddItem(newItem, count);
+
 						groupView->SetName(groupName);
 						break;
 					}

@@ -29,6 +29,7 @@ private:
 private:
 		GenioWindow*			fGenioWindow;
 		TPreferences*			fUISettingsFile;
+		BPath					fConfigurationPath;
 };
 
 

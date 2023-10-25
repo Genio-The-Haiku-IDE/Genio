@@ -65,6 +65,13 @@ GenioApp::GenioApp()
 
 GenioApp::~GenioApp()
 {
+	// Save settings on quit, anyway
+	BPath path;
+	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
+	path.Append(GenioNames::kApplicationName);
+	path.Append(GenioNames::kSettingsFileName);
+			
+	gCFG.SaveToFile(path);
 }
 
 void
@@ -144,7 +151,7 @@ GenioApp::MessageReceived(BMessage* message)
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
 				case MSG_NOTIFY_CONFIGURATION_UPDATED: {
-					//TODO: move this path calculation somewhere else
+					// TODO: move this path calculation somewhere else
 					// (also used by LoadFromFile.
 					BPath path;
 					find_directory(B_USER_SETTINGS_DIRECTORY, &path);
@@ -155,7 +162,7 @@ GenioApp::MessageReceived(BMessage* message)
 					LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
 				}
 				break;
-				default:
+			default:
 				break;
 			};
 		}
@@ -218,12 +225,15 @@ GenioApp::ReadyToRun()
 	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
 	path.Append(GenioNames::kApplicationName);
 	path.Append(GenioNames::kSettingsFileName);
-	
-	gCFG.LoadFromFile(path);
+	if (gCFG.LoadFromFile(path) != B_OK) {
+		LogInfo("Cannot load global settings file");
+	}
 	
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 
+	gCFG.PrintAll();
+	
 	Logger::SetDestination(gCFG["log_destination"]);
 	if (sSessionLogLevel == LOG_LEVEL_UNSET)
 		Logger::SetLevel(log_level(int32(gCFG["log_level"])));

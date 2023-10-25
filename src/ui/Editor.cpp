@@ -127,6 +127,7 @@ Editor::ApplySettings()
 		_ApplyExtensionSettings();
 		_HighlightFile();
 	}
+	
 	// Brace match
 	if (gCFG["brace_match"])
 		_HighlightBraces();
@@ -147,6 +148,9 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETEDGECOLOUR, kEdgeColor, UNSET);
 	}
 
+	ShowWhiteSpaces(gCFG["show_white_space"]);
+	ShowLineEndings(gCFG["show_line_endings"]);
+	
 	// Tab width
 	if (fFileType == "rust") {
 		// Use rust style (4 spaces)

@@ -200,7 +200,9 @@ GenioApp::QuitRequested()
 
 	delete fUISettingsFile;
 
-	gCFG.PrintValues();
+	if (Logger::IsDebugEnabled()) {
+		gCFG.PrintValues();
+	}
 
 	return BApplication::QuitRequested();
 }
@@ -232,7 +234,7 @@ GenioApp::ReadyToRun()
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 
-	gCFG.PrintAll();
+//	gCFG.PrintAll();
 	
 	Logger::SetDestination(gCFG["log_destination"]);
 	if (sSessionLogLevel == LOG_LEVEL_UNSET)

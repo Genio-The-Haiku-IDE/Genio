@@ -13,11 +13,14 @@
 ConfigManager gConfigManager;
 ConfigManager& gCFG = gConfigManager;
 
-ConfigManager::ConfigManager(){
+ConfigManager::ConfigManager()
+{
 	assert(fLocker.InitCheck() == B_OK);
 }
 
-auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn {
+
+auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
+{
 	type_code type;
 	if (storage.GetInfo(key, &type) != B_OK) {
 		printf("No info for key [%s]\n", key);
@@ -26,10 +29,14 @@ auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn {
 	return ConfigManagerReturn(storage, key, fLocker);
 }
 
-bool ConfigManager::Has(GMessage& msg, const char* key) {
+
+bool
+ConfigManager::Has(GMessage& msg, const char* key)
+{
 	type_code type;
 	return (msg.GetInfo(key, &type) == B_OK);
 }
+
 
 status_t	
 ConfigManager::LoadFromFile(BPath path)

@@ -52,7 +52,7 @@ public:
 		type_code type;
 		return (GetInfo(key, &type) == B_OK);
 	}
-	
+
 	type_code Type(const char* key) {
 		type_code type;
 		return (GetInfo(key, &type) == B_OK ? type : B_ANY_TYPE);
@@ -105,6 +105,7 @@ MESSAGE_VALUE(Bool, bool, B_BOOL_TYPE, false);
 MESSAGE_VALUE(String, const char*, B_STRING_TYPE, "");
 MESSAGE_VALUE(Int32, int32, B_INT32_TYPE, -1);
 MESSAGE_VALUE(UInt32, uint32, B_UINT32_TYPE, 0);
+MESSAGE_VALUE(Rect, BRect, B_RECT_TYPE, BRect());
 MESSAGE_VALUE_REF(Message, GMessage, B_MESSAGE_TYPE, GMessage());
 MESSAGE_VALUE_REF(Message, BMessage, B_MESSAGE_TYPE, BMessage());
 

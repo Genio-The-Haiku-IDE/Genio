@@ -6,6 +6,7 @@
 #include "ProjectItem.h"
 
 #include <Bitmap.h>
+#include <Catalog.h>
 #include <ControlLook.h>
 #include <Font.h>
 #include <NodeInfo.h>
@@ -14,8 +15,11 @@
 #include <Window.h>
 
 #include "IconCache.h"
+#include "GitRepository.h"
 #include "ProjectFolder.h"
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
 class ProjectItem;
 
@@ -72,7 +76,9 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 	fOpenedInEditor(false),
 	fInitRename(false),
 	fMessage(nullptr),
-	fTextControl(nullptr)
+	fTextControl(nullptr),
+	fPrimaryText(Text()),
+	fSecondaryText(nullptr)
 {
 }
 
@@ -105,10 +111,26 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	owner->SetFont(be_plain_font);
 
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+		BString branchName, projectName, projectPath;
+		
 		ProjectFolder *projectFolder = (ProjectFolder *)GetSourceItem();
+		projectName = Text();
+		projectPath = projectFolder->Path();
+		
 		if (projectFolder->Active()) {
 			owner->SetFont(be_bold_font);
 		}
+		try {
+			Genio::Git::GitRepository repo(projectPath.String());
+			branchName = repo.GetCurrentBranch();
+			fSecondaryText.SetTo(branchName);
+		} catch(Genio::Git::GitException &ex) {
+		}
+		
+		fToolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s", 
+									B_TRANSLATE("Project"), Text(), 
+									B_TRANSLATE("Path"), projectPath.String(), 
+									B_TRANSLATE("Current branch"), branchName.String());
 	}
 	if (IsSelected())
 		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
@@ -215,6 +237,17 @@ ProjectItem::_DrawText(BView* owner, const BPoint& point)
 	if (fNeedsSave)
 		text.Append("*");
 	owner->DrawString(text.String());
+		
+	if (!fSecondaryText.IsEmpty()) {
+		BFont font;
+		owner->GetFont(&font);
+		owner->SetFont(&font);
+		
+		BString text;
+		text << "  [" << fSecondaryText.String() << "]";
+		owner->DrawString(text.String());
+	}
+	
 	owner->Sync();
 }
 

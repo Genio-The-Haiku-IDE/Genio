@@ -2820,8 +2820,9 @@ GenioWindow::_InitMenu()
 	BMessage* git_branch_message = new BMessage(MSG_GIT_COMMAND);
 	git_branch_message->AddString("command", "branch");
 	fGitBranchItem->SetMessage(git_branch_message);
-	fGitMenu->AddItem(new SwitchBranchMenu(this, B_TRANSLATE("Switch to"),
-						new BMessage(MSG_GIT_SWITCH_BRANCH)));
+
+	fGitMenu->AddItem(new SwitchBranchMenu(this, B_TRANSLATE("Switch to branch"),
+											new BMessage(MSG_GIT_SWITCH_BRANCH)));
 
 	fGitMenu->AddItem(fGitLogItem = new BMenuItem(B_TRANSLATE_COMMENT("Log",
 		"The git command"), nullptr));

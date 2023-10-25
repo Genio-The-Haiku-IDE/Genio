@@ -12,6 +12,7 @@
 #include "Log.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "SwitchBranchMenu.h"
 #include "TemplateManager.h"
 #include "Utils.h"
 
@@ -417,6 +418,9 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		projectMenu->AddItem(projectSettingsMenuItem);
 		closeProjectMenuItem->SetEnabled(true);
 		projectMenu->AddSeparatorItem();
+		projectMenu->AddItem(new SwitchBranchMenu(this->Window(), B_TRANSLATE("Switch to branch"),
+													new BMessage(MSG_GIT_SWITCH_BRANCH), project->Path()));
+		projectMenu->AddSeparatorItem();
 		BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),
 			new BMessage(MSG_BUILD_PROJECT));
 		BMenuItem* cleanMenuItem = new BMenuItem(B_TRANSLATE("Clean project"),
@@ -583,6 +587,23 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 	}
 }
 
+
+void
+ProjectsFolderBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message) 
+{
+	if ((transit == B_ENTERED_VIEW) | (B_INSIDE_VIEW)) {
+		auto index = IndexOf(point);
+		if (index >= 0) {
+			ProjectItem *item = reinterpret_cast<ProjectItem*>(ItemAt(index));
+			if (item->HasToolTip()) {
+				SetToolTip(item->GetToolTipText());
+			} else {
+				SetToolTip("");
+			}
+		}
+	} else {
+	}
+}
 
 void
 ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)

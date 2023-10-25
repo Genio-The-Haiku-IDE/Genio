@@ -146,6 +146,31 @@ namespace Genio::Git {
 
 		return status;
 	}
+	
+	BString&
+	GitRepository::GetCurrentBranch()
+	{
+		int error = 0;
+		const char *branch = NULL;
+		git_reference *head = NULL;
+
+		error = git_repository_head(&head, fRepository);
+
+		if (error == GIT_EUNBORNBRANCH || error == GIT_ENOTFOUND)
+			branch = NULL;
+		else if (!error) {
+			branch = git_reference_shorthand(head);
+		} else {
+			throw GitException(error, git_error_last()->message);
+		}
+
+		auto branchText = new BString("");
+		branchText->SetTo((branch) ? branch : "");
+
+		git_reference_free(head);
+		
+		return *branchText;
+	}
 
 	vector<pair<string, string>>
 	GitRepository::GetFiles()

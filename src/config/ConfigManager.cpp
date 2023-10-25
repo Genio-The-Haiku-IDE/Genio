@@ -46,7 +46,7 @@ ConfigManager::LoadFromFile(BPath path)
 			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
 				if (fromFile.Has(msg["key"])) { //TODO check the type!! 
 					(*this)[msg["key"]] = fromFile[msg["key"]];
-					LogInfo("Configuration files loading value for key [%s]", (const char*)msg["key"]);
+					LogInfo("Configuration files loading value for key [%s]: %s", (const char*)msg["key"], (const char*)fromFile[msg["key"]]);
 				} else {
 					LogError("Configuration files does not contain key [%s]", (const char*)msg["key"]);
 				}

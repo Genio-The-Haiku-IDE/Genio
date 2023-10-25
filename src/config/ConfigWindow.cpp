@@ -39,7 +39,7 @@ public:
 		}
 		void MessageReceived(BMessage* msg) {
 			if (msg->what == ON_NEW_VALUE) {
-				GMessage& gsm = *((GMessage*)msg);				
+				GMessage& gsm = *((GMessage*)msg);
 				fConfigManager[gsm["key"]] = RetriveValue();
 			}
 			C::MessageReceived(msg);
@@ -144,7 +144,7 @@ ConfigWindow::_PopulateListView()
 			}
 			i++;
 		}
-		if (i == divededByGroup.end()) {
+		if (i == divededByGroup.end() && strcmp((const char*)msg["group"], "Hidden") != 0 ) {
 			GMessage first = {{ {"group",(const char*)msg["group"]} }};
 			first.AddMessage("config", &msg);
 			divededByGroup.push_back(first);
@@ -156,8 +156,8 @@ ConfigWindow::_PopulateListView()
 		// printf("Working for %s ", (const char*)(*iter)["group"]);
 		// (*iter).PrintToStream();
 		BView *groupView = MakeViewFor((const char*)(*iter)["group"], *iter);
-		groupView->SetName((const char*)(*iter)["group"]);
 		if (groupView != NULL) {
+			groupView->SetName((const char*)(*iter)["group"]);
 			fCardView->AddChild(groupView);
 			BString groupName = (const char*)(*iter)["group"];
 			int position = groupName.FindFirstChars("/", 0);

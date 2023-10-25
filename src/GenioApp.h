@@ -28,7 +28,6 @@ private:
 			void				_CheckSettingsVersion();
 private:
 		GenioWindow*			fGenioWindow;
-		TPreferences*			fUISettingsFile;
 		BPath					fConfigurationPath;
 };
 

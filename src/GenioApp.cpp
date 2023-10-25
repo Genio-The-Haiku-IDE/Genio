@@ -54,13 +54,8 @@ SplitChangeLog(const char* changeLog)
 GenioApp::GenioApp()
 	:
 	BApplication(GenioNames::kApplicationSignature),
-	fGenioWindow(nullptr),
-	fUISettingsFile(nullptr)
+	fGenioWindow(nullptr)
 {
-	// Load UI settings
-	fUISettingsFile = new TPreferences(GenioNames::kUISettingsFileName,
-										GenioNames::kApplicationName, 'UISE');
-
 	find_directory(B_USER_SETTINGS_DIRECTORY, &fConfigurationPath);
 	fConfigurationPath.Append(GenioNames::kApplicationName);
 	fConfigurationPath.Append(GenioNames::kSettingsFileName);
@@ -180,28 +175,8 @@ GenioApp::MessageReceived(BMessage* message)
 bool
 GenioApp::QuitRequested()
 {
-	// Manage settings counter
-	int32 count;
-	if (fUISettingsFile->FindInt32("use_count", &count) != B_OK)
-		count = 0;
+	gCFG["ui_bounds"] = fGenioWindow->ConvertToScreen(fGenioWindow->Bounds());
 
-	// Check if window position was modified
-	BRect actualFrame, savedFrame;
-	fUISettingsFile->FindRect("ui_bounds", &savedFrame);
-	actualFrame = fGenioWindow->ConvertToScreen(fGenioWindow->Bounds());
-
-	// Automatically save window position via TPreferences
-	// only if modified
-	if (actualFrame != savedFrame) {
-		// Check if settings are available and apply
-		if (fUISettingsFile->InitCheck() == B_OK) {
-			fUISettingsFile->SetRect("ui_bounds", actualFrame);
-			fUISettingsFile->SetInt64("last_used", real_time_clock());
-			fUISettingsFile->SetInt32("use_count", ++count);
-		}
-	}
-
-	delete fUISettingsFile;
 
 	if (Logger::IsDebugEnabled()) {
 		gCFG.PrintValues();
@@ -238,12 +213,7 @@ GenioApp::ReadyToRun()
 	else
 		Logger::SetLevel(sSessionLogLevel);
 
-	// Load frame from settings if present or use default
-	BRect frame;
-	if (fUISettingsFile->FindRect("ui_bounds", &frame) != B_OK)
-		frame.Set(40, 40, 839, 639);
-
-	fGenioWindow = new GenioWindow(frame);
+	fGenioWindow = new GenioWindow(gCFG["ui_bounds"]);
 	fGenioWindow->Show();
 }
 
@@ -330,6 +300,8 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_wrap", B_TRANSLATE("Wrap"), false);
 	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
+
+	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
 }
 
 

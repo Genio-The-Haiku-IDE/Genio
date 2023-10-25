@@ -141,10 +141,7 @@ Editor::ApplySettings()
 	// Edge line
 	if (gCFG["show_edgeline"]) {
 		SendMessage(SCI_SETEDGEMODE, EDGE_LINE, UNSET);
-		std::string column((const char*)gCFG["edgeline_column"]);
-		int32 col;
-		std::istringstream (column) >>  col;
-		SendMessage(SCI_SETEDGECOLUMN, col, UNSET);
+		SendMessage(SCI_SETEDGECOLUMN, int32(gCFG["edgeline_column"]), UNSET);
 		SendMessage(SCI_SETEDGECOLOUR, kEdgeColor, UNSET);
 	}
 

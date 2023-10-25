@@ -44,11 +44,11 @@ ConfigManager::LoadFromFile(BPath path)
 			GMessage msg;
 			int i = 0;
 			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
-				if (fromFile.Has(msg["key"])) { //TODO check the type!! 
+				if (fromFile.Has(msg["key"]) && fromFile.Type(msg["key"]) == storage.Type(msg["key"])) {
 					(*this)[msg["key"]] = fromFile[msg["key"]];
 					LogInfo("Configuration files loading value for key [%s]: %s", (const char*)msg["key"], (const char*)fromFile[msg["key"]]);
 				} else {
-					LogError("Configuration files does not contain key [%s]", (const char*)msg["key"]);
+					LogError("Configuration files does not contain the vaid key [%s]", (const char*)msg["key"]);
 				}
 			}
 			//printf("configs after the file:"); storage.PrintToStream();

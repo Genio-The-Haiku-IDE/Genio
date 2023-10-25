@@ -52,6 +52,11 @@ public:
 		type_code type;
 		return (GetInfo(key, &type) == B_OK);
 	}
+	
+	type_code Type(const char* key) {
+		type_code type;
+		return (GetInfo(key, &type) == B_OK ? type : B_ANY_TYPE);
+	}
 
 private:
 	void _HandleVariantList(variant_list& list);

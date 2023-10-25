@@ -2278,10 +2278,9 @@ GenioWindow::_InitCentralSplit()
 	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"));
 	fFindWrapCheck = new BCheckBox(B_TRANSLATE("Wrap"));
 
-	fFindWrapCheck->SetValue((int32)gCFG["find_wrap"]);
-	fFindWholeWordCheck->SetValue((int32)gCFG["find_whole_word"]);
-	fFindCaseSensitiveCheck->SetValue((int32)gCFG["find_match_case"]);
-
+	fFindWrapCheck->SetValue(gCFG["find_wrap"] ? B_CONTROL_ON : B_CONTROL_OFF);
+	fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
+	fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
 
 	fFindGroup = new ToolBar(this);
 	fFindGroup->ChangeIconSize(kDefaultIconSize);

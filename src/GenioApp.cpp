@@ -150,7 +150,18 @@ GenioApp::MessageReceived(BMessage* message)
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
-				case MSG_NOTIFY_CONFIGURATION_UPDATED: {
+				case MSG_NOTIFY_CONFIGURATION_UPDATED:
+				{
+					// TODO: Long list of strcmp
+					const char* key = NULL;
+					message->FindString("key", &key);
+					if (key != NULL) {
+						if (strcmp(key, "log_destination") == 0)
+							Logger::SetDestination(gCFG["log_destination"]);
+						else if (strcmp(key, "log_level") == 0
+							&& sSessionLogLevel == LOG_LEVEL_UNSET)
+							Logger::SetLevel(log_level(int32(gCFG["log_level"])));
+					}
 					// TODO: move this path calculation somewhere else
 					// (also used by LoadFromFile.
 					BPath path;

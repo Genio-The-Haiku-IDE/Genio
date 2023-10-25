@@ -31,7 +31,6 @@ private:
 	void _PopulateListView();
 
 	BOutlineListView* 	fGroupList;
-	BButton* 	fButton;
 	BCardView* 	fCardView;
 
 };

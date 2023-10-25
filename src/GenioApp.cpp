@@ -13,7 +13,6 @@
 
 #include <getopt.h>
 
-
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 
@@ -73,6 +72,7 @@ GenioApp::~GenioApp()
 			
 	gCFG.SaveToFile(path);
 }
+
 
 void
 GenioApp::AboutRequested()

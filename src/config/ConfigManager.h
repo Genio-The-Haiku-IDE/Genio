@@ -26,7 +26,7 @@ public:
 					noticeMessage["key"]  	= fKey;
 					noticeMessage["value"]  = fMsg[fKey];
 					be_app->SendNotices(MSG_NOTIFY_CONFIGURATION_UPDATED, &noticeMessage);
-					//printf("Config update! [%s] -> ", fKey); noticeMessage.PrintToStream();
+					printf("Config update! [%s] -> ", fKey); noticeMessage.PrintToStream();
 		};
 private:
 	GMessage& fMsg;

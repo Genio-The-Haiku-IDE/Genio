@@ -205,7 +205,7 @@ GenioWindow::Show()
 		_ShowView(fOutputTabView,   gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 		_ShowView(fToolBar,  		gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 
-		assert(StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED) == B_OK);
+		assert(be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED) == B_OK);
 
 		UnlockLooper();
 	}
@@ -249,7 +249,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
 				case MSG_NOTIFY_CONFIGURATION_UPDATED: {
-					debugger("new config");
+					//debugger("new config");
 				}
 				break;
 				default:

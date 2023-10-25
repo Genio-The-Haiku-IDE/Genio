@@ -182,6 +182,8 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	}
 
+	SetZoom(gCFG["editor_zoom"]);
+
 	fLSPEditorWrapper->ApplySettings();
 
 	//custom ContextMenu!

@@ -60,17 +60,16 @@ GenioApp::GenioApp()
 	// Load UI settings
 	fUISettingsFile = new TPreferences(GenioNames::kUISettingsFileName,
 										GenioNames::kApplicationName, 'UISE');
+
+	find_directory(B_USER_SETTINGS_DIRECTORY, &fConfigurationPath);
+	fConfigurationPath.Append(GenioNames::kApplicationName);
+	fConfigurationPath.Append(GenioNames::kSettingsFileName);
 }
 
 GenioApp::~GenioApp()
 {
 	// Save settings on quit, anyway
-	BPath path;
-	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
-	path.Append(GenioNames::kApplicationName);
-	path.Append(GenioNames::kSettingsFileName);
-			
-	gCFG.SaveToFile(path);
+	gCFG.SaveToFile(fConfigurationPath);
 }
 
 
@@ -162,14 +161,7 @@ GenioApp::MessageReceived(BMessage* message)
 							&& sSessionLogLevel == LOG_LEVEL_UNSET)
 							Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 					}
-					// TODO: move this path calculation somewhere else
-					// (also used by LoadFromFile.
-					BPath path;
-					find_directory(B_USER_SETTINGS_DIRECTORY, &path);
-					path.Append(GenioNames::kApplicationName);
-					path.Append(GenioNames::kSettingsFileName);
-					
-					gCFG.SaveToFile(path);
+					gCFG.SaveToFile(fConfigurationPath);
 					LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
 				}
 				break;
@@ -226,27 +218,20 @@ GenioApp::RefsReceived(BMessage* message)
 		fGenioWindow->PostMessage(message);
 }
 
-
 void
 GenioApp::ReadyToRun()
 {
 	PrepareConfig(gCFG);
 	gCFG.ResetToDefault();
-	
+
 	// Global settings file check.
-	BPath path;
-	find_directory(B_USER_SETTINGS_DIRECTORY, &path);
-	path.Append(GenioNames::kApplicationName);
-	path.Append(GenioNames::kSettingsFileName);
-	if (gCFG.LoadFromFile(path) != B_OK) {
+	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {
 		LogInfo("Cannot load global settings file");
 	}
-	
+
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 
-//	gCFG.PrintAll();
-	
 	Logger::SetDestination(gCFG["log_destination"]);
 	if (sSessionLogLevel == LOG_LEVEL_UNSET)
 		Logger::SetLevel(log_level(int32(gCFG["log_level"])));
@@ -330,7 +315,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Visual", "enable_folding", B_TRANSLATE("Enable folding"), true);
 	cfg.AddConfig("Editor/Visual", "show_white_space", B_TRANSLATE("Show whitespace"), false);
 	cfg.AddConfig("Editor/Visual", "show_line_endings", B_TRANSLATE("Show line endings"), false);
-	
+
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
 	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Show edge line"), 80, &limits);
 

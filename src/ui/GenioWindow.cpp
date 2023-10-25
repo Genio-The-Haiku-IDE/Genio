@@ -205,6 +205,8 @@ GenioWindow::Show()
 		_ShowView(fOutputTabView,   gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 		_ShowView(fToolBar,  		gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 
+		assert(StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED) == B_OK);
+
 		UnlockLooper();
 	}
 }
@@ -242,6 +244,19 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case B_OBSERVER_NOTICE_CHANGE: {
+			int32 code;
+			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+			switch (code) {
+				case MSG_NOTIFY_CONFIGURATION_UPDATED: {
+					debugger("new config");
+				}
+				break;
+				default:
+				break;
+			};
+		}
+		break;
 		case MSG_ESCAPE_KEY:{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 					_FindGroupShow(false);
@@ -1274,18 +1289,6 @@ GenioWindow::QuitRequested()
 		fGoToLineWindow->LockLooper();
 		fGoToLineWindow->Quit();
 	}
-
-
-	gCFG["find_wrap"] = (bool)fFindWrapCheck->Value();
-	gCFG["find_whole_word"] = (bool)fFindWholeWordCheck->Value();
-	gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
-	gCFG["show_projects"] = ActionManager::IsPressed(MSG_SHOW_HIDE_PROJECTS);
-	gCFG["show_output"] = ActionManager::IsPressed(MSG_SHOW_HIDE_OUTPUT);
-	gCFG["show_toolbar"] = ActionManager::IsPressed(MSG_TOGGLE_TOOLBAR);
-#if 0
-	GenioNames::SaveSettingsVars();
-#endif
-
 
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;

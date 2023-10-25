@@ -36,13 +36,29 @@
 #define B_TRANSLATION_CONTEXT "SwitchBranchMenu"
 
 
-SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label, BMessage *message)
+SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label, 
+									BMessage *message)
 	:
 	BMenu(label),
 	fTarget(target),
 	fMessage(message),
-	fActiveProjectPath(nullptr)
+	fActiveProjectPath(nullptr),
+	fDetectActiveProject(true)
 {
+	SetRadioMode(true);
+}
+
+
+SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label, 
+									BMessage *message, const char *projectPath)
+	:
+	BMenu(label),
+	fTarget(target),
+	fMessage(message),
+	fActiveProjectPath(projectPath),
+	fDetectActiveProject(false)
+{
+	SetRadioMode(true);
 }
 
 
@@ -54,8 +70,10 @@ SwitchBranchMenu::~SwitchBranchMenu()
 void
 SwitchBranchMenu::AttachedToWindow()
 {
-	GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
-	fActiveProjectPath = window->GetActiveProject()->Path().String();
+	if (fDetectActiveProject) {
+		GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
+		fActiveProjectPath = window->GetActiveProject()->Path().String();
+	}
 	_BuildMenu();
 	BMenu::AttachedToWindow();
 	SetTargetForItems(fTarget);
@@ -97,11 +115,14 @@ SwitchBranchMenu::_BuildMenu()
 	if (fActiveProjectPath) {
 		Genio::Git::GitRepository repo(fActiveProjectPath);
 		auto branches = repo.GetBranches();
+		auto current_branch = repo.GetCurrentBranch();
 		for(auto &branch : branches) {
 			BMessage *message = new BMessage(fMessage->what);
 			message->AddString("branch", branch);
 			auto item = new BMenuItem(branch, message);
 			AddItem(item);
+			if (branch == current_branch)
+				item->SetMarked(true);
 		}
 	}
 	return count > 0;

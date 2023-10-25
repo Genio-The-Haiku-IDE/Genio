@@ -122,7 +122,7 @@ ConfigWindow::MessageReceived(BMessage* message)
 {
 	if (message->what == ITEM_SELECTED) {
 		int32 index = message->GetInt32("index", 0);
-		message->PrintToStream();
+//		message->PrintToStream();
 		if (index >= 0) {
 			BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(index);
 			BView* card = fCardView->FindView(item->Text());
@@ -208,7 +208,7 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	GMessage msg;
 	int i=0;
 	while(list.FindMessage("config", i++, &msg) == B_OK)  {
-		msg.PrintToStream();
+//		msg.PrintToStream();
 		BView *parameterView = MakeSelfHostingViewFor(msg);
 		if (parameterView == NULL)
 			return nullptr;

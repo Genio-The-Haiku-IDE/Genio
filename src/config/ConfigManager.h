@@ -1,8 +1,11 @@
 #pragma once
 #include "GMessage.h"
 #include <Autolock.h>
+#include <Application.h>
+#include "Logger.h"
 class BView;
 
+#define MSG_NOTIFY_CONFIGURATION_UPDATED	'noCU'
 
 class ConfigManagerReturn {
 public:
@@ -16,19 +19,27 @@ public:
         operator Return() { BAutolock lock(fLocker); return fMsg[fKey]; };
 		
 		template< typename T >
-		void operator =(T n) { BAutolock lock(fLocker); fMsg[fKey] = n; };
+		void operator =(T n) { 
+					BAutolock lock(fLocker); 
+					fMsg[fKey] = n; 
+					GMessage noticeMessage(MSG_NOTIFY_CONFIGURATION_UPDATED);
+					noticeMessage["key"]  	= fKey;
+					noticeMessage["value"]  = fMsg[fKey];
+					be_app->SendNotices(MSG_NOTIFY_CONFIGURATION_UPDATED, &noticeMessage);
+					//printf("Config update! [%s] -> ", fKey); noticeMessage.PrintToStream();
+		};
 private:
 	GMessage& fMsg;
 	const char* fKey;
 	BLocker& fLocker;
 };
 
+class ConfigManagerReturn;
+
 class ConfigManager {
 
 public:
-		explicit ConfigManager(){
-			fLocker.InitCheck();
-		}
+		explicit ConfigManager();
 
 		template<typename T>
 		void AddConfig(const char* group, const char* key, const char* label, T default_value, GMessage* cfg = nullptr) {
@@ -46,50 +57,25 @@ public:
 		}
 		
 		status_t	LoadFromFile(BPath path);
+		status_t	SaveToFile(BPath path);
 
 
-		void ResetToDefault() {
-			GMessage msg;
-			int i=0;
-			while(configuration.FindMessage("config", i++, &msg) == B_OK) {
-				storage[msg["key"]] = msg["default_value"];
-			}
-		}
+		void ResetToDefault();
 
-		void Print() {
-			storage.PrintToStream();
-			configuration.PrintToStream();
-		}
+		void PrintAll();
+		void PrintValues();
+		
+		auto operator[](const char* key) -> ConfigManagerReturn;
 
-		auto operator[](const char* key) -> ConfigManagerReturn {
-			type_code type;
-			if (storage.GetInfo(key, &type) != B_OK) {
-				printf("No info for key [%s]\n", key);
-				throw new std::exception();
-			}
-			return ConfigManagerReturn(storage, key, fLocker);
-		}
-
-		bool Has(GMessage& msg, const char* key) {
-			type_code type;
-			return (msg.GetInfo(key, &type) == B_OK);
-		}
+		bool Has(GMessage& msg, const char* key);
 
 		GMessage&	Configuration() { return configuration; }
-
-		BView* MakeView();
-		//BView* MakeView2();
-		BView* MakeViewFor(const char* groupName, GMessage& config);
-		BView* MakeSelfHostingViewFor(GMessage& config);
-		BView* MakeViewFor(GMessage& config);
 
 
 protected:
 		GMessage storage;
 		GMessage configuration;
 		BLocker	 fLocker;
-
-
 };
 
 // TODO: Use a static method ?

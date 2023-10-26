@@ -7,12 +7,12 @@
 
 #include "GMessage.h"
 
-#include <Box.h>
-#include <LayoutBuilder.h>
-#include <OutlineListView.h>
 #include <Window.h>
 
 class BButton;
+class BCardView;
+class BOutlineListView;
+class BView;
 class ConfigManager;
 class ConfigWindow : public BWindow {
 public:

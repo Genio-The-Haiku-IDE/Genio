@@ -133,7 +133,7 @@ public:
 			GMessage xmsg(n);
 			MessageValue<GMessage>::Set(fMsg, fKey, xmsg);
 		}
-		
+
 		auto operator[](const char* key) -> GMessageReturn {
 			GMessage* newMsg = new GMessage();
 			fMsg->FindMessage(fKey, newMsg);
@@ -164,7 +164,3 @@ private:
 		const char* fKey;
 		GMessageReturn* fSyncParent;
 };
-
-
-
-

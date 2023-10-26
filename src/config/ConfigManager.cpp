@@ -100,7 +100,7 @@ ConfigManager::ResetToDefaults()
 
 
 void
-ConfigManager::PrintAll()
+ConfigManager::PrintAll() const
 {
 	PrintValues();
 	configuration.PrintToStream();
@@ -108,7 +108,7 @@ ConfigManager::PrintAll()
 
 
 void
-ConfigManager::PrintValues()
+ConfigManager::PrintValues() const
 {
 	storage.PrintToStream();
 }

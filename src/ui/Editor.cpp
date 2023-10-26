@@ -1636,6 +1636,11 @@ Editor::_HighlightFile()
 void
 Editor::_RedrawNumberMargin(bool forced)
 {
+	if (!gCFG["show_linenumber"]) {
+		SendMessage(SCI_SETMARGINWIDTHN, sci_NUMBER_MARGIN, 0);
+		return;
+	}
+
 	int linesLog10 = log10(SendMessage(SCI_GETLINECOUNT, UNSET, UNSET));
 	linesLog10 += 2;
 

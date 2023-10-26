@@ -141,9 +141,9 @@ ConfigWindow::MessageReceived(BMessage* message)
 				BView* card = fCardView->FindView(item->Text());
 				fCardView->CardLayout()->SetVisibleItem(fCardView->CardLayout()->IndexOfView(card));
 			}
-			break;
 			// TODO: For testing
 			fDefaultsButton->SetEnabled(true);
+			break;
 		}
 		case 'defa':
 			gCFG.ResetToDefault();

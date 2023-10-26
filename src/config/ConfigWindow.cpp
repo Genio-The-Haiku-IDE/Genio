@@ -16,8 +16,10 @@
 
 #include "ConfigManager.h"
 
-#define ON_NEW_VALUE	'ONVA'
-#define ITEM_SELECTED		'ITSE'
+const int32 kOnNewValue = 'ONVA';
+const int32 kSetValueNoUpdate = 'SVNU';
+const int32 kItemSelected = 'ITSE';
+const int32 kDefaultPressed = 'DEFA';
 
 template<class C, typename T>
 class GControl : public C {
@@ -30,7 +32,7 @@ public:
 				C::SetLabel(msg["label"]);
 				LoadValue(value);
 
-				GMessage* invoke = new GMessage(ON_NEW_VALUE);
+				GMessage* invoke = new GMessage(kOnNewValue);
 				(*invoke)["key"] = msg["key"];
 
 				C::SetMessage(invoke);
@@ -41,11 +43,13 @@ public:
 			C::SetTarget(this);
 		}
 		void MessageReceived(BMessage* msg) {
-			if (msg->what == ON_NEW_VALUE) {
-				GMessage& gsm = *((GMessage*)msg);
+			GMessage& gsm = *((GMessage*)msg);
+			if (msg->what == kOnNewValue) {
 				fConfigManager[gsm["key"]] = RetrieveValue();
-			}
-			C::MessageReceived(msg);
+			} else if (msg->what == kSetValueNoUpdate) {
+				LoadValue(fConfigManager[gsm["key"]]);
+			} else
+				C::MessageReceived(msg);
 		}
 
 		T RetrieveValue() {
@@ -92,13 +96,13 @@ ConfigWindow::_Init()
 	BView* theView = new BView("theView", B_WILL_DRAW);
 	// Add the list view
 	fGroupList = new BOutlineListView("Groups");
-	fGroupList->SetSelectionMessage(new BMessage(ITEM_SELECTED));
+	fGroupList->SetSelectionMessage(new BMessage(kItemSelected));
 
 	BScrollView* scrollView = new BScrollView("scroll_trans",
 		fGroupList, B_WILL_DRAW | B_FRAME_EVENTS, false,
 		true, B_FANCY_BORDER);
 	
-	fDefaultsButton = new BButton("Defaults", new BMessage('defa'));
+	fDefaultsButton = new BButton("Defaults", new BMessage(kDefaultPressed));
 	fDefaultsButton->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
 	fDefaultsButton->SetEnabled(false);
 
@@ -118,12 +122,14 @@ ConfigWindow::_Init()
 			.Add(fCardView, 3)
 		.End()
 		.Add(fDefaultsButton);
-		
 
 	fGroupList->MakeFocus();
 	// fCardView->CardLayout()->SetVisibleItem(0);
 
 	fGroupList->Select(0);
+	
+	be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
+	
 	return theView;
 }
 
@@ -132,7 +138,7 @@ void
 ConfigWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case ITEM_SELECTED:
+		case kItemSelected:
 		{
 			int32 index = message->GetInt32("index", 0);
 //			message->PrintToStream();
@@ -145,10 +151,36 @@ ConfigWindow::MessageReceived(BMessage* message)
 			fDefaultsButton->SetEnabled(true);
 			break;
 		}
-		case 'defa':
+		case kDefaultPressed:
 			gCFG.ResetToDefault();
 			fDefaultsButton->SetEnabled(false);
 			break;
+		case B_OBSERVER_NOTICE_CHANGE:
+		{
+			int32 code;
+			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
+				break;
+			switch (code) {
+				case MSG_NOTIFY_CONFIGURATION_UPDATED:
+				{
+					// TODO: Review this!
+					BString key;
+					if (message->FindString("key", &key) == B_OK) {
+						BView* control = FindView(key.String());
+						if (control != nullptr) {
+							// TODO: Message ownership ?
+							BMessage* m = new BMessage(kSetValueNoUpdate);
+							m->AddString("key", key);
+							control->MessageReceived(m);
+						}
+					}
+					break;
+				}
+				default:
+					break;
+			}
+			break;
+		}
 		default:
 			BWindow::MessageReceived(message);
 			break;

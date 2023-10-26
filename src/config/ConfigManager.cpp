@@ -41,7 +41,7 @@ ConfigManager::Has(GMessage& msg, const char* key)
 }
 
 
-status_t	
+status_t
 ConfigManager::LoadFromFile(BPath path)
 {
 	GMessage fromFile;
@@ -80,7 +80,7 @@ ConfigManager::SaveToFile(BPath path)
 }
 
 
-void 
+void
 ConfigManager::ResetToDefault()
 {
 	// Will also send notifications for every setting change

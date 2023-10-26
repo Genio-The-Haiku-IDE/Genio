@@ -9,7 +9,9 @@
 #include <Button.h>
 #include <CardView.h>
 #include <CheckBox.h>
+#include <LayoutBuilder.h>
 #include <OptionPopUp.h>
+#include <OutlineListView.h>
 #include <Spinner.h>
 #include <TextControl.h>
 #include <ScrollView.h>
@@ -101,7 +103,7 @@ ConfigWindow::_Init()
 	BScrollView* scrollView = new BScrollView("scroll_trans",
 		fGroupList, B_WILL_DRAW | B_FRAME_EVENTS, false,
 		true, B_FANCY_BORDER);
-	
+
 	fDefaultsButton = new BButton("Defaults", new BMessage(kDefaultPressed));
 	fDefaultsButton->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
 	fDefaultsButton->SetEnabled(false);
@@ -127,9 +129,9 @@ ConfigWindow::_Init()
 	// fCardView->CardLayout()->SetVisibleItem(0);
 
 	fGroupList->Select(0);
-	
+
 	be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
-	
+
 	return theView;
 }
 

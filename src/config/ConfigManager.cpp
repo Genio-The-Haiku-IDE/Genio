@@ -5,9 +5,12 @@
 
 
 #include "ConfigManager.h"
-#include <Path.h>
+
+#include <cassert>
+
 #include <File.h>
-#include <assert.h>
+#include <Path.h>
+
 #include "Log.h"
 
 ConfigManager gConfigManager;

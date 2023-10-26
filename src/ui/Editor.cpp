@@ -127,7 +127,7 @@ Editor::ApplySettings()
 		_ApplyExtensionSettings();
 		_HighlightFile();
 	}
-	
+
 	// Brace match
 	if (gCFG["brace_match"])
 		_HighlightBraces();
@@ -139,15 +139,14 @@ Editor::ApplySettings()
 	}
 
 	// Edge line
-	if (gCFG["show_edgeline"]) {
-		SendMessage(SCI_SETEDGEMODE, EDGE_LINE, UNSET);
-		SendMessage(SCI_SETEDGECOLUMN, int32(gCFG["edgeline_column"]), UNSET);
-		SendMessage(SCI_SETEDGECOLOUR, kEdgeColor, UNSET);
-	}
+	const bool edgeLine = gCFG["show_edgeline"];
+	SendMessage(SCI_SETEDGEMODE, edgeLine ? EDGE_LINE : EDGE_NONE, UNSET);
+	SendMessage(SCI_SETEDGECOLUMN, int32(gCFG["edgeline_column"]), UNSET);
+	SendMessage(SCI_SETEDGECOLOUR, kEdgeColor, UNSET);
 
 	ShowWhiteSpaces(gCFG["show_white_space"]);
 	ShowLineEndings(gCFG["show_line_endings"]);
-	
+
 	// Tab width
 	if (fFileType == "rust") {
 		// Use rust style (4 spaces)

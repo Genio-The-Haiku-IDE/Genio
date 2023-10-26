@@ -1,9 +1,9 @@
 #pragma once
-#include "GMessage.h"
+
 #include <Autolock.h>
 #include <Application.h>
-#include "Logger.h"
-class BView;
+
+#include "GMessage.h"
 
 #define MSG_NOTIFY_CONFIGURATION_UPDATED	'noCU'
 
@@ -35,10 +35,9 @@ private:
 	BLocker& fLocker;
 };
 
+
 class ConfigManagerReturn;
-
 class ConfigManager {
-
 public:
 		explicit ConfigManager();
 
@@ -68,10 +67,9 @@ public:
 
 		auto operator[](const char* key) -> ConfigManagerReturn;
 
-		bool Has(GMessage& msg, const char* key);
+		bool Has(GMessage& msg, const char* key) const;
 
 		GMessage&	Configuration() { return configuration; }
-
 
 protected:
 		GMessage storage;

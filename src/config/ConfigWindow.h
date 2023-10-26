@@ -4,15 +4,16 @@
  */
 #ifndef ConfigWindow_H
 #define ConfigWindow_H
+
 #include "GMessage.h"
-#include <OutlineListView.h>
+
 #include <Box.h>
 #include <LayoutBuilder.h>
-#include <Button.h>
+#include <OutlineListView.h>
 #include <Window.h>
 
+class BButton;
 class ConfigManager;
-
 class ConfigWindow : public BWindow {
 public:
 		ConfigWindow(ConfigManager& configManager);
@@ -32,7 +33,7 @@ private:
 
 	BOutlineListView* 	fGroupList;
 	BCardView* 	fCardView;
-
+	BButton* fDefaultsButton;
 };
 
 

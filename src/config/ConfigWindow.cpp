@@ -5,13 +5,19 @@
 
 
 #include "ConfigWindow.h"
-#include <ScrollView.h>
-#include "ConfigManager.h"
-#include <OptionPopUp.h>
+
+#include <Button.h>
+
+
+#include <Button.h>
+#include <CardView.h>
 #include <CheckBox.h>
+#include <OptionPopUp.h>
 #include <Spinner.h>
 #include <TextControl.h>
-#include <CardView.h>
+#include <ScrollView.h>
+
+#include "ConfigManager.h"
 
 #define ON_NEW_VALUE	'ONVA'
 #define ITEM_SELECTED		'ITSE'
@@ -94,6 +100,10 @@ ConfigWindow::_Init()
 	BScrollView* scrollView = new BScrollView("scroll_trans",
 		fGroupList, B_WILL_DRAW | B_FRAME_EVENTS, false,
 		true, B_FANCY_BORDER);
+	
+	fDefaultsButton = new BButton("Defaults", new BMessage('defa'));
+	fDefaultsButton->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+	fDefaultsButton->SetEnabled(false);
 
 	// Box around the config and info panels
 	fCardView = new BCardView("Right_Side");
@@ -104,10 +114,14 @@ ConfigWindow::_Init()
 	_PopulateListView();
 
 	// Build the layout
-	BLayoutBuilder::Group<>(theView, B_HORIZONTAL, 10)
+	BLayoutBuilder::Group<>(theView, B_VERTICAL, 10)
 		.SetInsets(B_USE_WINDOW_SPACING)
-		.Add(scrollView, 1)
-		.Add(fCardView, 3);
+		.AddGroup(B_HORIZONTAL)
+			.Add(scrollView, 1)
+			.Add(fCardView, 3)
+		.End()
+		.Add(fDefaultsButton);
+		
 
 	fGroupList->MakeFocus();
 	// fCardView->CardLayout()->SetVisibleItem(0);

@@ -1581,10 +1581,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		editor->ApplySettings();
 
-		editor->SetZoom(gCFG["editor_zoom"]);
-		editor->ShowLineEndings(gCFG["show_line_endings"]);
-		editor->ShowWhiteSpaces(gCFG["show_white_space"]);
-
 		// First tab gets selected by tabview
 		if (index > 0)
 			fTabManager->SelectTab(index);

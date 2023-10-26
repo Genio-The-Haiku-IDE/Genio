@@ -83,7 +83,7 @@ void GControl<BTextControl, const char*>::LoadValue(const char* value)
 
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
     : BWindow(BRect(100, 100, 700, 500), "Settings", B_TITLED_WINDOW,
-              B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE),
+              B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
       fConfigManager(configManager)
 {
 	CenterOnScreen();
@@ -99,6 +99,8 @@ ConfigWindow::_Init()
 	// Add the list view
 	fGroupList = new BOutlineListView("Groups");
 	fGroupList->SetSelectionMessage(new BMessage(kItemSelected));
+	// TODO: Improve: don't use fixed size
+	fGroupList->SetExplicitMinSize(BSize(180, B_SIZE_UNSET));
 
 	BScrollView* scrollView = new BScrollView("scroll_trans",
 		fGroupList, B_WILL_DRAW | B_FRAME_EVENTS, false,

@@ -83,10 +83,18 @@ ConfigManager::SaveToFile(BPath path)
 void 
 ConfigManager::ResetToDefault()
 {
+	// Will also send notifications for every setting change
 	GMessage msg;
 	int i = 0;
 	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
 		storage[msg["key"]] = msg["default_value"];
+		// TODO: Duplicated code between here and ConfigManagerReturn::operator[]
+		// for some reason, calling (*this)[msg["key"]] bombs.
+		GMessage noticeMessage(MSG_NOTIFY_CONFIGURATION_UPDATED);
+		noticeMessage["key"] = msg["key"];
+		noticeMessage["value"] = msg["default_value"];
+		if (be_app != nullptr)
+			be_app->SendNotices(MSG_NOTIFY_CONFIGURATION_UPDATED, &noticeMessage);
 	}
 }
 

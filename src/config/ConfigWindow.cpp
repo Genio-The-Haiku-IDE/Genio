@@ -8,15 +8,20 @@
 
 #include <Button.h>
 #include <CardView.h>
+#include <Catalog.h>
 #include <CheckBox.h>
 #include <LayoutBuilder.h>
 #include <OptionPopUp.h>
 #include <OutlineListView.h>
 #include <Spinner.h>
-#include <TextControl.h>
 #include <ScrollView.h>
+#include <TextControl.h>
+#include <Window.h>
 
 #include "ConfigManager.h"
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "ConfigWindow"
 
 const int32 kOnNewValue = 'ONVA';
 const int32 kSetValueNoUpdate = 'SVNU';
@@ -106,9 +111,11 @@ ConfigWindow::_Init()
 		fGroupList, B_WILL_DRAW | B_FRAME_EVENTS, false,
 		true, B_FANCY_BORDER);
 
-	fDefaultsButton = new BButton("Defaults", new BMessage(kDefaultPressed));
+	fDefaultsButton = new BButton("defaults", B_TRANSLATE("Defaults"), new BMessage(kDefaultPressed));
 	fDefaultsButton->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-	fDefaultsButton->SetEnabled(false);
+	
+	// TODO: Find a way to handle enabling/disabling
+	fDefaultsButton->SetEnabled(true);
 
 	// Box around the config and info panels
 	fCardView = new BCardView("Right_Side");
@@ -151,13 +158,10 @@ ConfigWindow::MessageReceived(BMessage* message)
 				BView* card = fCardView->FindView(item->Text());
 				fCardView->CardLayout()->SetVisibleItem(fCardView->CardLayout()->IndexOfView(card));
 			}
-			// TODO: For testing
-			fDefaultsButton->SetEnabled(true);
 			break;
 		}
 		case kDefaultPressed:
 			gCFG.ResetToDefault();
-			fDefaultsButton->SetEnabled(false);
 			break;
 		case B_OBSERVER_NOTICE_CHANGE:
 		{
@@ -172,7 +176,7 @@ ConfigWindow::MessageReceived(BMessage* message)
 					if (message->FindString("key", &key) == B_OK) {
 						BView* control = FindView(key.String());
 						if (control != nullptr) {
-							// TODO: Message ownership ?
+							// TODO: Message ownership ? are we leaking ?
 							BMessage* m = new BMessage(kSetValueNoUpdate);
 							m->AddString("key", key);
 							control->MessageReceived(m);
@@ -280,8 +284,6 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 
 	settingLayout->AddItem(BSpaceLayoutItem::CreateHorizontalStrut(10));
 	layout->AddView(settingView);
-
-
 
 	// Add the sub-group views
 /*	for (int32 i = 0; i < group.size(); i++) {

@@ -161,7 +161,7 @@ ConfigWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case kDefaultPressed:
-			gCFG.ResetToDefault();
+			gCFG.ResetToDefaults();
 			break;
 		case B_OBSERVER_NOTICE_CHANGE:
 		{

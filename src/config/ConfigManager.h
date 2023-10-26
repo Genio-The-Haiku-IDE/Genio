@@ -17,11 +17,11 @@ public:
 
 		template< typename Return >
         operator Return() { BAutolock lock(fLocker); return fMsg[fKey]; };
-		
+
 		template< typename T >
-		void operator =(T n) { 
-					BAutolock lock(fLocker); 
-					fMsg[fKey] = n; 
+		void operator =(T n) {
+					BAutolock lock(fLocker);
+					fMsg[fKey] = n;
 					GMessage noticeMessage(MSG_NOTIFY_CONFIGURATION_UPDATED);
 					noticeMessage["key"]  	= fKey;
 					noticeMessage["value"]  = fMsg[fKey];
@@ -56,16 +56,16 @@ public:
 
 			configuration.AddMessage("config", &configKey);
 		}
-		
+
 		status_t	LoadFromFile(BPath path);
 		status_t	SaveToFile(BPath path);
 
 		void ResetToDefaults();
 		bool HasAllDefaultValues();
 
-		void PrintAll();
-		void PrintValues();
-		
+		void PrintAll() const;
+		void PrintValues() const;
+
 		auto operator[](const char* key) -> ConfigManagerReturn;
 
 		bool Has(GMessage& msg, const char* key);

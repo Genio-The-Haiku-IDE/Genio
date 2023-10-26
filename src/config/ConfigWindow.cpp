@@ -7,9 +7,6 @@
 #include "ConfigWindow.h"
 
 #include <Button.h>
-
-
-#include <Button.h>
 #include <CardView.h>
 #include <CheckBox.h>
 #include <OptionPopUp.h>
@@ -134,17 +131,28 @@ ConfigWindow::_Init()
 void
 ConfigWindow::MessageReceived(BMessage* message)
 {
-	if (message->what == ITEM_SELECTED) {
-		int32 index = message->GetInt32("index", 0);
-//		message->PrintToStream();
-		if (index >= 0) {
-			BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(index);
-			BView* card = fCardView->FindView(item->Text());
-			fCardView->CardLayout()->SetVisibleItem(fCardView->CardLayout()->IndexOfView(card));
+	switch (message->what) {
+		case ITEM_SELECTED:
+		{
+			int32 index = message->GetInt32("index", 0);
+//			message->PrintToStream();
+			if (index >= 0) {
+				BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(index);
+				BView* card = fCardView->FindView(item->Text());
+				fCardView->CardLayout()->SetVisibleItem(fCardView->CardLayout()->IndexOfView(card));
+			}
+			break;
+			// TODO: For testing
+			fDefaultsButton->SetEnabled(true);
 		}
-		return;
+		case 'defa':
+			gCFG.ResetToDefault();
+			fDefaultsButton->SetEnabled(false);
+			break;
+		default:
+			BWindow::MessageReceived(message);
+			break;
 	}
-	BWindow::MessageReceived(message);
 }
 
 

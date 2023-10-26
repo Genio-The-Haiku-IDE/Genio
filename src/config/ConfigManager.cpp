@@ -81,7 +81,7 @@ ConfigManager::SaveToFile(BPath path)
 
 
 void
-ConfigManager::ResetToDefault()
+ConfigManager::ResetToDefaults()
 {
 	// Will also send notifications for every setting change
 	GMessage msg;

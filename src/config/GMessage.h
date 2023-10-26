@@ -23,10 +23,13 @@
 #pragma once
 #include <Message.h>
 //
+#include <cstring>
+#include <memory>
+#include <string>
 #include <variant>
 #include <vector>
-#include <string>
-#include <memory>
+
+#include <iostream>
 
 using generic_type = std::variant<bool, int32, const char*>;
 struct key_value {
@@ -37,10 +40,7 @@ struct key_value {
 using variant_list = std::vector<key_value>;
 
 class GMessageReturn;
-
-
 class GMessage : public BMessage {
-
 public:
 	explicit GMessage():BMessage() {};
 	explicit GMessage(uint32 what):BMessage(what){};
@@ -48,12 +48,12 @@ public:
 
 	auto operator[](const char* key) -> GMessageReturn;
 
-	bool Has(const char* key) {
+	bool Has(const char* key) const {
 		type_code type;
 		return (GetInfo(key, &type) == B_OK);
 	}
 
-	type_code Type(const char* key) {
+	type_code Type(const char* key) const {
 		type_code type;
 		return (GetInfo(key, &type) == B_OK ? type : B_ANY_TYPE);
 	}
@@ -61,6 +61,7 @@ public:
 private:
 	void _HandleVariantList(variant_list& list);
 };
+
 
 template<typename T>
 class MessageValue {
@@ -111,7 +112,7 @@ MESSAGE_VALUE_REF(Message, BMessage, B_MESSAGE_TYPE, BMessage());
 
 class GMessageReturn {
 public:
-		GMessageReturn(GMessage* msg, const char* key, GMessageReturn* parent = nullptr){
+		GMessageReturn(GMessage* msg, const char* key, GMessageReturn* parent = nullptr) {
 			fMsg=msg; fKey=key; fSyncParent = parent;
 		}
 
@@ -126,26 +127,25 @@ public:
         operator Return() { return MessageValue<Return>::Get(fMsg, fKey); };
 
 		template< typename T >
-		void operator =(T n) { MessageValue<T>::Set(fMsg, fKey, n); }
+		void operator=(T n) { MessageValue<T>::Set(fMsg, fKey, n); }
 
-		void operator =(variant_list n){
-				GMessage xmsg(n);
-				MessageValue<GMessage>::Set(fMsg, fKey, xmsg);
+		void operator=(variant_list n){
+			GMessage xmsg(n);
+			MessageValue<GMessage>::Set(fMsg, fKey, xmsg);
 		}
-
+		
 		auto operator[](const char* key) -> GMessageReturn {
 			GMessage* newMsg = new GMessage();
 			fMsg->FindMessage(fKey, newMsg);
 			return GMessageReturn(newMsg, key, this);
 		};
 
-		void operator =(GMessageReturn n) {
+		void operator=(GMessageReturn n) {
 			type_code typeFound;
 			if (n.fKey == fKey && fMsg == n.fMsg)
 				return;
 
 			if (n.fMsg->GetInfo(n.fKey, &typeFound) == B_OK) {
-
 				const void* data = nullptr;
 				ssize_t numBytes = 0;
 				if (n.fMsg->FindData(n.fKey, typeFound, &data, &numBytes) == B_OK) {
@@ -155,7 +155,7 @@ public:
 			}
 		}
 
-		void Print() {
+		void Print() const {
 			fMsg->PrintToStream();
 		}
 

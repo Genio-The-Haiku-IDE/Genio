@@ -60,8 +60,8 @@ public:
 		status_t	LoadFromFile(BPath path);
 		status_t	SaveToFile(BPath path);
 
-
-		void ResetToDefault();
+		void ResetToDefaults();
+		bool HasAllDefaultValues();
 
 		void PrintAll();
 		void PrintValues();

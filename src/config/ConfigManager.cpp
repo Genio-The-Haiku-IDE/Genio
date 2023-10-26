@@ -34,7 +34,7 @@ auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 
 
 bool
-ConfigManager::Has(GMessage& msg, const char* key)
+ConfigManager::Has(GMessage& msg, const char* key) const
 {
 	type_code type;
 	return (msg.GetInfo(key, &type) == B_OK);

@@ -32,8 +32,6 @@
 
 #include <DirMenu.h>
 
-
-#include "exceptions/Exceptions.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "FSUtils.h"
@@ -282,14 +280,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case 'NOTI': {
-			BString notification, type;
-			if (message->FindString("notification", &notification) == B_OK
-				&& message->FindString("type", &type) == B_OK) {
-					_SendNotification(notification, type);
-			}
-			break;
-		}
 		case B_ABOUT_REQUESTED:
 			be_app->PostMessage(B_ABOUT_REQUESTED);
 			break;
@@ -358,18 +348,18 @@ GenioWindow::MessageReceived(BMessage* message)
 					if (message->FindInt32("line", &line) == B_OK) {
 						BString text;
 						text << editor->Name() << " :" << line;
-						_SendNotification(text, "FIND_MARK");
+						LogInfo(text.String());
 					}
 				}
 			}
 			break;
 		}
 		case EDITOR_FIND_NEXT_MISS: {
-			_SendNotification("Find next not found", "FIND_MISS");
+			LogInfo("Find next not found");
 			break;
 		}
 		case EDITOR_FIND_PREV_MISS: {
-			_SendNotification("Find previous not found", "FIND_MISS");
+			LogInfo("Find previous not found");
 			break;
 		}
 		case EDITOR_FIND_COUNT: {
@@ -381,9 +371,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				BString notification;
 				notification << "\"" << text << "\""
 					<< " occurrences found: " << count;
-
-				_ShowLog(kNotificationLog);
-				_SendNotification(notification, "FIND_COUNT");
+				LogInfo(notification.String());
 			}
 			break;
 		}
@@ -393,9 +381,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (message->FindInt32("count", &count) == B_OK) {
 				BString notification;
 				notification << "Replacements done: " << count;
-
-				_ShowLog(kNotificationLog);
-				_SendNotification(notification, "REPL_COUNT");
+				LogInfo(notification.String());
 			}
 			break;
 		}
@@ -415,8 +401,7 @@ GenioWindow::MessageReceived(BMessage* message)
 						notification << editor->Name() << " " << line  << ":" << column
 							 << " \"" << sel << "\" => \""<< repl<< "\"";
 
-						_ShowLog(kNotificationLog);
-						_SendNotification(notification, "REPL_DONE");
+						LogInfo(notification.String());
 					}
 				}
 			}
@@ -460,7 +445,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				if (!editor->BookmarkGoToNext())
-					_SendNotification("Next Bookmark not found", "FIND_MISS");
+					LogInfo("Next Bookmark not found");
 			}
 			break;
 		}
@@ -468,7 +453,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				if (!editor->BookmarkGoToPrevious())
-					_SendNotification("Previous Bookmark not found", "FIND_MISS");
+					LogInfo("Previous Bookmark not found");
 			}
 
 
@@ -1540,7 +1525,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		Editor* editor = fTabManager->EditorAt(index);
 		if (editor == nullptr) {
 			notification << ref.name << ": NULL editor pointer";
-			_SendNotification(notification, "FILE_ERR");
+			LogInfo(notification.String());
 			return B_ERROR;
 		}
 
@@ -1575,7 +1560,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		notification << "File open: " << editor->Name()
 			<< " [" << fTabManager->CountTabs() - 1 << "]";
-		_SendNotification(notification, "FILE_OPEN");
+		LogInfo(notification.String());
 		notification.SetTo("");
 	}
 
@@ -1692,7 +1677,7 @@ GenioWindow::_FileSaveAll(ProjectFolder* onlyThisProject)
 			BString notification;
 			notification << "Index " << index
 				<< ": " << "NULL editor pointer";
-			_SendNotification(notification, "FILE_ERR");
+			LogInfo(notification.String());
 			continue;
 		}
 
@@ -1732,7 +1717,7 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 		BString notification;
 		notification
 			<< "Index " << selection << ": NULL editor pointer";
-		_SendNotification(notification, "FILE_ERR");
+		LogInfo(notification.String());
 		return B_ERROR;
 	}
 
@@ -1893,7 +1878,7 @@ GenioWindow::_GetEditorIndex(entry_ref* ref, bool checkExists)
 			BString notification;
 			notification
 				<< "Index " << index << ": NULL editor pointer";
-			_SendNotification(notification, "FILE_ERR");
+			LogInfo(notification.String());
 			continue;
 		}
 
@@ -1918,7 +1903,7 @@ GenioWindow::_GetEditorIndex(node_ref* nref)
 			BString notification;
 			notification
 				<< "Index " << index << ": NULL editor pointer";
-			_SendNotification(notification, "FILE_ERR");
+			LogInfo(notification.String());
 			continue;
 		}
 
@@ -2028,7 +2013,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 		BString notification;
 		notification << "File info: " << oldPath.Path()
 			<< " moved externally to " << newPath.Path();
-		_SendNotification(notification, "FILE_INFO");
+		LogInfo(notification.String());
 	}
 }
 
@@ -2069,7 +2054,7 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 
 		BString notification;
 		notification << "File info: " << fileName << " removed externally";
-		_SendNotification(notification, "FILE_INFO");
+		LogInfo(notification.String());
 	}
 }
 
@@ -3246,8 +3231,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	BString notification;
 	notification << closed << " "  << name;
-	_SendNotification(notification, "PROJ_CLOSE");
-
+	LogInfo(notification.String());
 }
 
 void
@@ -3283,7 +3267,7 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	if (newProject->Open() != B_OK) {
 		BString notification;
 		notification << "Project open fail: " << newProject->Name();
-		_SendNotification( notification.String(), "PROJ_OPEN_FAIL");
+		LogInfo(notification.String());
 		delete newProject;
 
 		return;
@@ -3302,7 +3286,7 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 
 	BString notification;
 	notification << opened << newProject->Name() << " at " << newProject->Path();
-	_SendNotification(notification, "PROJ_OPEN");
+	LogInfo(notification.String());
 
 	//let's check if any open editor is related to this project
 	BString projectPath = newProject->Path();
@@ -3346,7 +3330,7 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 			"Terminal successfully opened with working directory: ";
 	}
 	notification << itemPath;
-	_SendNotification(notification, "PROJ_TERM");
+	LogInfo(notification.String());
 	return returnStatus == 0 ? B_OK : errno;
 }
 
@@ -3373,11 +3357,11 @@ GenioWindow::_ShowCurrentItemInTracker()
 			returnStatus = system(commandLine);
 		} else {
 			notification << "An error occurred when showing an item in Tracker: " << directoryPath.Path();
-			_SendNotification(notification, "PROJ_SHOW");
+			LogInfo(notification.String());
 		}
 	} else {
 		notification << "An error occurred while retrieving parent directory of " << itemPath;
-		_SendNotification(notification, "PROJ_TRACK");
+		LogInfo(notification.String());
 	}
 	return returnStatus == 0 ? B_OK : errno;
 }
@@ -3571,15 +3555,6 @@ GenioWindow::_RunTarget()
 		entry.GetRef(&ref);
 		be_roster->Launch(&ref, 1, NULL);
 	}
-}
-
-void
-GenioWindow::_SendNotification(BString message, BString type)
-{
-	if (!gCFG["enable_notifications"])
-		return;
-
-	LogInfo("Notification: %s - %s", type.String(), message.String());
 }
 
 void

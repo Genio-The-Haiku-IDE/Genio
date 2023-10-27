@@ -66,7 +66,7 @@ ProjectFolder::~ProjectFolder()
 {
 	if (fLSPProjectWrapper != nullptr) {
 		fLSPProjectWrapper->Dispose();
-//		delete fLSPClientWrapper; //TODO: BLooper autodeletes itself?
+		delete fLSPProjectWrapper; //TODO: BLooper autodeletes itself?
 	}
 	delete fSettings;
 }

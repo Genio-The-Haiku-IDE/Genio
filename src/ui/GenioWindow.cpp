@@ -622,10 +622,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (zoom < 20) {
 				zoom++;
 				gCFG["editor_zoom"] = zoom;
-				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-					Editor* editor = fTabManager->EditorAt(index);
-					editor->SetZoom(zoom);
-				}
 			}
 			break;
 		}
@@ -635,19 +631,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (zoom > -10) {
 				zoom--;
 				gCFG["editor_zoom"] = zoom;
-				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-					Editor* editor = fTabManager->EditorAt(index);
-					editor->SetZoom(zoom);
-				}
 			}
 			break;
 		}
 		case MSG_VIEW_ZOOMRESET:
 			gCFG["editor_zoom"] = 0;
-			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-				Editor* editor = fTabManager->EditorAt(index);
-				editor->SetZoom(gCFG["editor_zoom"]);
-			}
 		break;
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow(true);

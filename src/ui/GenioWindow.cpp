@@ -1066,10 +1066,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				}
 
 				editor->GrabFocus();
-				// In multifile open not-focused files place scroll just after
-				// caret line when reselected. Ensure visibility.
-				// TODO caret policy
-				editor->EnsureVisiblePolicy();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 			}
 			break;

@@ -148,7 +148,7 @@ public:
 			return GMessageReturn(newMsg, key, this);
 		};
 
-		void operator=(GMessageReturn n) {
+		void operator=(const GMessageReturn& n) {
 			type_code typeFound;
 			if (n.fKey == fKey && fMsg == n.fMsg)
 				return;
@@ -162,9 +162,11 @@ public:
 				}
 			}
 		}
-		bool operator !=(GMessageReturn n) {
+		
+		bool operator !=(const GMessageReturn& n) {
 			return !operator==(n);
 		}
+		
 		bool operator ==(GMessageReturn n) {
 			type_code typeLeft;
 			type_code typeRight;
@@ -174,27 +176,25 @@ public:
 			ssize_t numBytesRight = 0;
 
 			bool comparison = false;
-
 			if (n.fMsg->GetInfo(n.fKey, &typeRight) == B_OK &&
 				  fMsg->GetInfo(fKey, &typeLeft) == B_OK) {
 
-				if (  typeLeft == typeRight &&
+				if (typeLeft == typeRight &&
 					n.fMsg->FindData(n.fKey, typeRight, &dataRight, &numBytesRight) == B_OK &&
 					  fMsg->FindData(fKey, typeLeft, &dataLeft, &numBytesLeft) == B_OK) {
 
 					if (numBytesLeft == numBytesRight) {
 						comparison = (memcmp(dataRight, dataLeft, numBytesRight) == 0);
 					}
-
 				}
 			}
 
 			return comparison;
 		}
+		
 		void Print() const {
 			fMsg->PrintToStream();
 		}
-
 private:
 		GMessage* fMsg;
 		const char* fKey;

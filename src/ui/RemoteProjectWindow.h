@@ -20,7 +20,7 @@ enum {
 	kFinished,
 	kProgress,
 	kUrlModified,
-	kQuit
+	kClose
 };
 
 class BCardLayout;
@@ -38,7 +38,7 @@ private:
 	const BMessenger			fTarget;
 	BButton* 					fClone;
 	BButton* 					fCancel;
-	BButton* 					fQuit;
+	BButton* 					fClose;
 	BStatusBar*					fProgressBar;
 	BarberPole*					fBarberPole;
 	BCardLayout*				fProgressLayout;

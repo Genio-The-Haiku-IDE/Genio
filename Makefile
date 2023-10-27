@@ -35,6 +35,9 @@ APP_MIME_SIG := "application/x-vnd.Genio"
 
 SRCS :=  src/GenioApp.cpp
 SRCS +=  src/GenioNamespace.cpp
+SRCS +=	 src/config/ConfigManager.cpp
+SRCS +=	 src/config/ConfigWindow.cpp
+SRCS +=	 src/config/GMessage.cpp
 SRCS +=  src/helpers/ActionManager.cpp
 SRCS +=  src/helpers/FSUtils.cpp
 SRCS +=  src/helpers/GenioCommon.cpp
@@ -76,7 +79,6 @@ SRCS +=  src/ui/ProblemsPanel.cpp
 SRCS +=  src/ui/SearchResultPanel.cpp
 SRCS +=  src/ui/ProjectsFolderBrowser.cpp
 SRCS +=  src/ui/RemoteProjectWindow.cpp
-SRCS +=  src/ui/SettingsWindow.cpp
 SRCS +=  src/ui/ToolBar.cpp
 SRCS +=  src/ui/QuitAlert.cpp
 SRCS +=  src/templates/IconMenuItem.cpp
@@ -131,7 +133,7 @@ $(OBJ_DIR)/%.o : %.cpp
 
 deps:
 	$(MAKE) -C src/lexilla/src
-	$(MAKE) -C src/scintilla/haiku  
+	$(MAKE) -C src/scintilla/haiku
 
 .PHONY: clean deps
 
@@ -140,7 +142,7 @@ cleanall: clean
 	$(MAKE) clean -C src/lexilla/src
 	rm -f txt2header
 	rm -f Changelog.h
-       
+
 $(TARGET): deps
 
 GenioApp.cpp : Changelog.h

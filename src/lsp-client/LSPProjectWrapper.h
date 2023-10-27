@@ -5,14 +5,14 @@
 #ifndef _H_LSPProjectWrapper
 #define _H_LSPProjectWrapper
 
-#include <SupportDefs.h>
 #include <Locker.h>
+#include <Path.h>
+
+#include <atomic>
+
 #include "MessageHandler.h"
 #include "json_fwd.hpp"
-#include <atomic>
-#include <thread>
-#include <optional>
-#include <Path.h>
+
 
 class  LSPTextDocument;
 struct TextDocumentContentChangeEvent;
@@ -31,14 +31,13 @@ class LSPPipeClient;
 using json = nlohmann::json;
 
 class LSPProjectWrapper : public MessageHandler {
-	
+
 public:
 			LSPProjectWrapper(BPath rootPath);
 	virtual ~LSPProjectWrapper() = default;
-		
-	
+
 	bool	Dispose();
-	
+
 	bool	RegisterTextDocument(LSPTextDocument* fw);
 	void	UnregisterTextDocument(LSPTextDocument* fw);
 
@@ -53,7 +52,7 @@ public:
     RequestID Sync();
     void Exit();
     void Initialized(json& result);
-    
+
     RequestID RegisterCapability();
     void DidOpen(LSPTextDocument* textDocument, string_ref text, string_ref languageId = "cpp");
     void DidClose(LSPTextDocument* textDocument);
@@ -68,8 +67,8 @@ public:
     RequestID CodeAction(LSPTextDocument* textDocument, Range range, CodeActionContext context);
     RequestID Completion(LSPTextDocument* textDocument, Position position, CompletionContext& context);
     RequestID SignatureHelp(LSPTextDocument* textDocument, Position position);
-    RequestID GoToDefinition(LSPTextDocument* textDocument, Position position);    
-    RequestID GoToImplementation(LSPTextDocument* textDocument, Position position);    
+    RequestID GoToDefinition(LSPTextDocument* textDocument, Position position);
+    RequestID GoToImplementation(LSPTextDocument* textDocument, Position position);
     RequestID GoToDeclaration(LSPTextDocument* textDocument, Position position);
     RequestID References(LSPTextDocument* textDocument, Position position);
     RequestID SwitchSourceHeader(LSPTextDocument* textDocument);
@@ -84,7 +83,7 @@ public:
 
     RequestID 	SendRequest(RequestID id, string_ref method, value params);
     void 		SendNotify(string_ref method, value params);
-    
+
     std::string&	allCommitCharacters() { return fAllCommitCharacters; }
     std::string&	triggerCharacters() { return fTriggerCharacters; }
 
@@ -101,10 +100,8 @@ private:
 
 	std::string fAllCommitCharacters;
 	std::string fTriggerCharacters;
-	
+
 	std::string fRootURI;
-
 };
-
 
 #endif // _H_LSPProjectWrapper

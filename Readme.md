@@ -2,7 +2,7 @@ Genio
 ================================================================================
 [![CodeFactor](https://www.codefactor.io/repository/github/genio-the-haiku-ide/genio/badge)](https://www.codefactor.io/repository/github/genio-the-haiku-ide/genio)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/26f32bc4ecf2440d89c1932000405a4d)](https://app.codacy.com/gh/Genio-The-Haiku-IDE/Genio/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-![Screenshot](https://github.com/nexus6-haiku/Genio/blob/main/data/screenshot/Genio-screenshot-1.0.png)
+![Screenshot](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/data/screenshot/Genio-screenshot-2.0.png)
     Genio.png
 
 # Introduction

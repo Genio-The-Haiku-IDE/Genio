@@ -174,7 +174,8 @@ Editor::ApplySettings()
 	if (gCFG["show_commentmargin"] && !fCommenter.empty()) {
 		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12);
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
-	}
+	} else
+		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 0);
 
 	SetZoom(gCFG["editor_zoom"]);
 

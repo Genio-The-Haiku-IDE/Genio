@@ -144,6 +144,7 @@ private:
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
 			status_t		_AlertInvalidBuildConfig(BString text);
 			void				_CloseMultipleTabs(BMessage* msg);
+			void				_HandleConfigurationChanged(BMessage* msg);
 
 private:
 			BMenuBar*			fMenuBar;

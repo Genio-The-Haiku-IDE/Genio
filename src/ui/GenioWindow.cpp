@@ -34,6 +34,8 @@
 
 
 #include "exceptions/Exceptions.h"
+#include "ConfigManager.h"
+#include "ConfigWindow.h"
 #include "FSUtils.h"
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
@@ -43,7 +45,6 @@
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "RemoteProjectWindow.h"
-#include "SettingsWindow.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
 #include "TPreferences.h"
@@ -158,7 +159,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorKeyDownMessageFilter());
 
 	// Load workspace - reopen projects
-	if (GenioNames::Settings.reopen_projects == true) {
+	if (gCFG["reopen_projects"]) {
 		TPreferences projects(GenioNames::kSettingsProjectsToReopen,
 								GenioNames::kApplicationName, 'PRRE');
 		if (!projects.IsEmpty()) {
@@ -172,7 +173,7 @@ GenioWindow::GenioWindow(BRect frame)
 	}
 
 	// Reopen files
-	if (GenioNames::Settings.reopen_files == true) {
+	if (gCFG["reopen_files"]) {
 		TPreferences files(GenioNames::kSettingsFilesToReopen,
 							GenioNames::kApplicationName, 'FIRE');
 		if (!files.IsEmpty()) {
@@ -199,14 +200,14 @@ GenioWindow::Show()
 	BWindow::Show();
 
 	if (LockLooper()) {
-
-		_ShowView(fProjectsTabView, GenioNames::Settings.show_projects, MSG_SHOW_HIDE_PROJECTS);
-		_ShowView(fOutputTabView,   GenioNames::Settings.show_output,	MSG_SHOW_HIDE_OUTPUT);
-		_ShowView(fToolBar,  		GenioNames::Settings.show_toolbar,	MSG_TOGGLE_TOOLBAR);
-
+		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
+		_ShowView(fOutputTabView,   gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowView(fToolBar,  		gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
+		be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 		UnlockLooper();
 	}
 }
+
 
 GenioWindow::~GenioWindow()
 {
@@ -215,6 +216,7 @@ GenioWindow::~GenioWindow()
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
 }
+
 
 void
 GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
@@ -237,10 +239,25 @@ GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
 	BWindow::DispatchMessage(message, handler);
 }
 
+
 void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case B_OBSERVER_NOTICE_CHANGE: {
+			int32 code;
+			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+			switch (code) {
+				case MSG_NOTIFY_CONFIGURATION_UPDATED:
+				{
+					_HandleConfigurationChanged(message);
+					break;
+				}
+				default:
+					break;
+			}
+			break;
+		}
 		case MSG_ESCAPE_KEY:{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 					_FindGroupShow(false);
@@ -445,7 +462,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (!editor->BookmarkGoToNext())
 					_SendNotification("Next Bookmark not found", "FIND_MISS");
 			}
-
 			break;
 		}
 		case MSG_BOOKMARK_GOTO_PREVIOUS: {
@@ -601,29 +617,25 @@ GenioWindow::MessageReceived(BMessage* message)
 			_FileSaveAll();
 			break;
 		case MSG_VIEW_ZOOMIN:
-			if (GenioNames::Settings.editor_zoom < 20) {
-				GenioNames::Settings.editor_zoom++;
-				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-					Editor* editor = fTabManager->EditorAt(index);
-					editor->SetZoom(GenioNames::Settings.editor_zoom);
-				}
+		{
+			int32 zoom = gCFG["editor_zoom"];
+			if (zoom < 20) {
+				zoom++;
+				gCFG["editor_zoom"] = zoom;
 			}
-		break;
+			break;
+		}
 		case MSG_VIEW_ZOOMOUT:
-			if (GenioNames::Settings.editor_zoom > -10) {
-				GenioNames::Settings.editor_zoom--;
-				for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-					Editor* editor = fTabManager->EditorAt(index);
-					editor->SetZoom(GenioNames::Settings.editor_zoom);
-				}
+		{
+			int32 zoom = gCFG["editor_zoom"];
+			if (zoom > -10) {
+				zoom--;
+				gCFG["editor_zoom"] = zoom;
 			}
-		break;
+			break;
+		}
 		case MSG_VIEW_ZOOMRESET:
-			GenioNames::Settings.editor_zoom = 0;
-			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-				Editor* editor = fTabManager->EditorAt(index);
-				editor->SetZoom(GenioNames::Settings.editor_zoom);
-			}
+			gCFG["editor_zoom"] = 0;
 		break;
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow(true);
@@ -681,20 +693,30 @@ GenioWindow::MessageReceived(BMessage* message)
 				Editor* editor = fTabManager->SelectedEditor();
 				editor->GoToLine(line);
 			}
-		} break;
+			break;
+		}
 		case MSG_GOTO_LINE:
 			if(fGoToLineWindow == nullptr) {
 				fGoToLineWindow = new GoToLineWindow(this);
 			}
 			fGoToLineWindow->ShowCentered(Frame());
 			break;
-		case MSG_LINE_ENDINGS_TOGGLE: {
-			GenioNames::Settings.show_line_endings = !GenioNames::Settings.show_line_endings;
+		case MSG_WHITE_SPACES_TOGGLE: {
+			gCFG["show_white_space"] = !gCFG["show_white_space"];
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
-				editor->ShowLineEndings(GenioNames::Settings.show_line_endings);
+				editor->ShowWhiteSpaces(gCFG["show_white_space"]);
 			}
-			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, GenioNames::Settings.show_line_endings);
+			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
+			break;
+		}
+		case MSG_LINE_ENDINGS_TOGGLE: {
+			gCFG["show_line_endings"] = !gCFG["show_line_endings"];
+			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+				Editor* editor = fTabManager->EditorAt(index);
+				editor->ShowLineEndings(gCFG["show_line_endings"]);
+			}
+			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 			break;
 		}
 		case MSG_DUPLICATE_LINE: {
@@ -1027,17 +1049,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ShowView(fToolBar, fToolBar->IsHidden(), MSG_TOGGLE_TOOLBAR);
 			break;
 		}
-		case MSG_WHITE_SPACES_TOGGLE: {
-			GenioNames::Settings.show_white_space = !GenioNames::Settings.show_white_space;
-			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-				Editor* editor = fTabManager->EditorAt(index);
-				editor->ShowWhiteSpaces(GenioNames::Settings.show_white_space);
-			}
-			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, GenioNames::Settings.show_white_space);
-			break;
-		}
 		case MSG_WINDOW_SETTINGS: {
-			SettingsWindow *window = new SettingsWindow();
+			ConfigWindow* window = new ConfigWindow(gCFG);
 			window->Show();
 
 			break;
@@ -1083,6 +1096,15 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case MSG_FIND_WRAP:
+			gCFG["find_wrap"] = (bool)fFindWrapCheck->Value();
+		break;
+		case MSG_FIND_WHOLE_WORD:
+			gCFG["find_whole_word"] = (bool)fFindWholeWordCheck->Value();
+		break;
+		case MSG_FIND_MATCH_CASE:
+			gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
+		break;
 		default:
 			BWindow::MessageReceived(message);
 			break;
@@ -1217,7 +1239,7 @@ GenioWindow::QuitRequested()
 		return false;
 
 	// Files to reopen
-	if (GenioNames::Settings.reopen_files == true) {
+	if (gCFG["reopen_files"]) {
 		TPreferences files(GenioNames::kSettingsFilesToReopen,
 							GenioNames::kApplicationName, 'FIRE');
 		// Just empty it for now TODO check if equal
@@ -1242,7 +1264,7 @@ GenioWindow::QuitRequested()
 	}
 
 	// Projects to reopen
-	if (GenioNames::Settings.reopen_projects == true) {
+	if (gCFG["reopen_projects"]) {
 
 		TPreferences projects(GenioNames::kSettingsProjectsToReopen,
 								GenioNames::kApplicationName, 'PRRE');
@@ -1265,16 +1287,6 @@ GenioWindow::QuitRequested()
 		fGoToLineWindow->Quit();
 	}
 
-
-	GenioNames::Settings.find_wrap = (bool)fFindWrapCheck->Value();
-	GenioNames::Settings.find_whole_word = (bool)fFindWholeWordCheck->Value();
-	GenioNames::Settings.find_match_case = (bool)fFindCaseSensitiveCheck->Value();
-	GenioNames::Settings.show_projects = ActionManager::IsPressed(MSG_SHOW_HIDE_PROJECTS);
-	GenioNames::Settings.show_output   = ActionManager::IsPressed(MSG_SHOW_HIDE_OUTPUT);
-	GenioNames::Settings.show_toolbar  = ActionManager::IsPressed(MSG_TOGGLE_TOOLBAR);
-
-
-	GenioNames::SaveSettingsVars();
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;
 }
@@ -1337,7 +1349,7 @@ GenioWindow::_BuildProject()
 	}
 
 	// TODO: Should ask if the user wants to save
-	if (GenioNames::Settings.save_on_build == B_CONTROL_ON)
+	if (gCFG["save_on_build"])
 		_FileSaveAll(fActiveProject);
 
 	fIsBuilding = true;
@@ -1556,9 +1568,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 		}
 
 		editor->ApplySettings();
-		editor->SetZoom(GenioNames::Settings.editor_zoom);
-		editor->ShowLineEndings(GenioNames::Settings.show_line_endings);
-		editor->ShowWhiteSpaces(GenioNames::Settings.show_white_space);
 
 		// First tab gets selected by tabview
 		if (index > 0)
@@ -1763,7 +1772,7 @@ GenioWindow::_FilesNeedSave()
 void
 GenioWindow::_PreFileSave(Editor* editor)
 {
-	if (GenioNames::Settings.trim_trailing_whitespace)
+	if (gCFG["trim_trailing_whitespace"])
 		editor->TrimTrailingWhitespace();
 }
 
@@ -1773,7 +1782,7 @@ GenioWindow::_PostFileSave(Editor* editor)
 {
 	// TODO: Also handle cases where the file is saved from outside Genio ?
 	ProjectFolder* project = editor->GetProjectFolder();
-	if (GenioNames::Settings.build_on_save == B_CONTROL_ON &&
+	if (gCFG["build_on_save"] &&
 		project != nullptr && project == fActiveProject) {
 		// TODO: if we are already building we should stop / relaunch build here.
 		// at the moment we have an hack in place in ConsoleIOView::MessageReceived()
@@ -2257,14 +2266,13 @@ GenioWindow::_InitCentralSplit()
 	fFindTextControl->SetExplicitMaxSize(fFindTextControl->MinSize());
 
 
-	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE("Match case"));
-	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"));
-	fFindWrapCheck = new BCheckBox(B_TRANSLATE("Wrap"));
+	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE("Match case"), new BMessage(MSG_FIND_MATCH_CASE));
+	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"), new BMessage(MSG_FIND_WHOLE_WORD));
+	fFindWrapCheck = new BCheckBox(B_TRANSLATE("Wrap"), new BMessage(MSG_FIND_WRAP));
 
-	fFindWrapCheck->SetValue((int32)GenioNames::Settings.find_wrap);
-	fFindWholeWordCheck->SetValue((int32)GenioNames::Settings.find_whole_word);
-	fFindCaseSensitiveCheck->SetValue((int32)GenioNames::Settings.find_match_case);
-
+	fFindWrapCheck->SetValue(gCFG["find_wrap"] ? B_CONTROL_ON : B_CONTROL_OFF);
+	fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
+	fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
 
 	fFindGroup = new ToolBar(this);
 	fFindGroup->ChangeIconSize(kDefaultIconSize);
@@ -2314,7 +2322,7 @@ GenioWindow::_InitCentralSplit()
 		B_TRANSLATE("Run"), new BMessage(MSG_RUN_CONSOLE_PROGRAM));
 
 	BString tooltip("cwd: ");
-	tooltip << GenioNames::Settings.projects_directory;
+	tooltip << (const char*)gCFG["projects_directory"];
 	fRunConsoleProgramText->SetToolTip(tooltip);
 
 	fRunConsoleProgramGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
@@ -2343,6 +2351,9 @@ GenioWindow::_InitCentralSplit()
 		.Add(fTabManager->ContainerView())
 	;
 
+	fFindWrapCheck->SetTarget(this);
+	fFindWholeWordCheck->SetTarget(this);
+	fFindCaseSensitiveCheck->SetTarget(this);
 }
 
 void
@@ -2885,35 +2896,38 @@ GenioWindow::_InitToolbar()
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, fToolBar);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   fToolBar);
 	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, fToolBar);
 	ActionManager::AddItem(B_UNDO, fToolBar);
 	ActionManager::AddItem(B_REDO, fToolBar);
-
 	ActionManager::AddItem(MSG_FILE_SAVE, fToolBar);
 	ActionManager::AddItem(MSG_FILE_SAVE_ALL, fToolBar);
-
 	fToolBar->AddSeparator();
+
+	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, fToolBar);
+	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_BUILD_PROJECT, fToolBar);
 	ActionManager::AddItem(MSG_CLEAN_PROJECT, fToolBar);
 	ActionManager::AddItem(MSG_RUN_TARGET, fToolBar);
 	ActionManager::AddItem(MSG_DEBUG_PROJECT, fToolBar);
-
 	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_FIND_GROUP_TOGGLED,		fToolBar);
 	ActionManager::AddItem(MSG_REPLACE_GROUP_TOGGLED,	fToolBar);
 	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_RUN_CONSOLE_PROGRAM_SHOW, fToolBar);
 	fToolBar->AddGlue();
 
 	ActionManager::AddItem(MSG_BUFFER_LOCK, fToolBar);
 	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, fToolBar);
 	ActionManager::AddItem(MSG_FILE_NEXT_SELECTED, fToolBar);
-
 	ActionManager::AddItem(MSG_FILE_CLOSE, fToolBar);
 
 	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Open files list"), "kIconFileList");
-
 
 	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
 	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
@@ -3201,7 +3215,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		_UpdateProjectActivation(false);
 		// Update run command working directory tooltip too
 		BString tooltip;
-		tooltip << "cwd: " << GenioNames::Settings.projects_directory;
+		tooltip << "cwd: " << (const char*)gCFG["projects_directory"];
 		fRunConsoleProgramText->SetToolTip(tooltip);
 	}
 
@@ -3498,7 +3512,7 @@ GenioWindow::_RunInConsole(const BString& command)
 {
 	// If no active project go to projects directory
 	if (fActiveProject == nullptr)
-		chdir(GenioNames::Settings.projects_directory);
+		chdir(gCFG["projects_directory"]);
 	else
 		chdir(fActiveProject->Path());
 
@@ -3566,7 +3580,7 @@ GenioWindow::_RunTarget()
 void
 GenioWindow::_SendNotification(BString message, BString type)
 {
-	if (GenioNames::Settings.enable_notifications == false)
+	if (!gCFG["enable_notifications"])
 		return;
 
 	LogInfo("Notification: %s - %s", type.String(), message.String());
@@ -3780,7 +3794,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 		fBookmarksMenu->SetEnabled(false);
 
-		if (GenioNames::Settings.fullpath_title == true)
+		if (gCFG["fullpath_title"])
 			SetTitle(GenioNames::kApplicationName);
 
 		fProblemsPanel->ClearProblems();
@@ -3845,7 +3859,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fBookmarksMenu->SetEnabled(true);
 
 	// File full path in window title
-	if (GenioNames::Settings.fullpath_title == true) {
+	if (gCFG["fullpath_title"]) {
 		BString title;
 		title << GenioNames::kApplicationName << ": " << editor->FilePath();
 		SetTitle(title.String());
@@ -3861,6 +3875,28 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fProblemsPanel->UpdateProblems(&diagnostics);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
+}
+
+
+void
+GenioWindow::_HandleConfigurationChanged(BMessage* message)
+{
+	// TODO: Should editors handle these things on their own ?
+	BString key ( message->GetString("key", "") );
+	if (key.IsEmpty())
+		return;
+
+	// TODO: apply other settings
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
+		editor->ApplySettings();
+	}
+
+	if (key.StartsWith("find_")) {
+		fFindWrapCheck->SetValue(gCFG["find_wrap"] ? B_CONTROL_ON : B_CONTROL_OFF);
+		fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
+		fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
+	}
 }
 
 

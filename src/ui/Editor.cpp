@@ -24,6 +24,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "ConfigManager.h"
 #include "EditorContextMenu.h"
 #include "EditorStatusView.h"
 #include "GenioCommon.h"
@@ -77,7 +78,7 @@ Editor::~Editor()
 	StopMonitoring();
 
 	// Set caret position
-	if (Settings.save_caret == true) {
+	if (gCFG["save_caret"]) {
 		BNode node(&fFileRef);
 		if (node.InitCheck() == B_OK) {
 			int32 pos = GetCurrentPosition();
@@ -115,36 +116,36 @@ Editor::ApplySettings()
 
 	// Font & Size
 	SendMessage(SCI_STYLESETFONT, STYLE_DEFAULT, (sptr_t) "Noto Sans Mono");
-	int32 fontSize = Settings.edit_fontsize;
+	int32 fontSize = gCFG["edit_fontsize"];
 	if (fontSize < 0)
 		fontSize = be_plain_font->Size();
 	SendMessage(SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
 	SendMessage(SCI_STYLECLEARALL, UNSET, UNSET);
 
 	// Highlighting
-	if (Settings.syntax_highlight == B_CONTROL_ON) {
+	if (gCFG["syntax_highlight"]) {
 		_ApplyExtensionSettings();
 		_HighlightFile();
 	}
+
 	// Brace match
-	if (Settings.brace_match == B_CONTROL_ON)
+	if (gCFG["brace_match"])
 		_HighlightBraces();
 
 	// Caret line visible
-	if (Settings.mark_caretline == true) {
+	if (gCFG["mark_caretline"]) {
 		SendMessage(SCI_SETCARETLINEVISIBLE, 1, UNSET);
 		SendMessage(SCI_SETCARETLINEBACK, kCaretLineBackColor, UNSET);
 	}
 
 	// Edge line
-	if (Settings.show_edgeline == true) {
-		SendMessage(SCI_SETEDGEMODE, EDGE_LINE, UNSET);
-		std::string column(Settings.edgeline_column);
-		int32 col;
-		std::istringstream (column) >>  col;
-		SendMessage(SCI_SETEDGECOLUMN, col, UNSET);
-		SendMessage(SCI_SETEDGECOLOUR, kEdgeColor, UNSET);
-	}
+	const bool edgeLine = gCFG["show_edgeline"];
+	SendMessage(SCI_SETEDGEMODE, edgeLine ? EDGE_LINE : EDGE_NONE, UNSET);
+	SendMessage(SCI_SETEDGECOLUMN, int32(gCFG["edgeline_column"]), UNSET);
+	SendMessage(SCI_SETEDGECOLOUR, kEdgeColor, UNSET);
+
+	ShowWhiteSpaces(gCFG["show_white_space"]);
+	ShowLineEndings(gCFG["show_line_endings"]);
 
 	// Tab width
 	if (fFileType == "rust") {
@@ -152,7 +153,7 @@ Editor::ApplySettings()
 		SendMessage(SCI_SETTABWIDTH, 4, UNSET);
 		SendMessage(SCI_SETUSETABS, false, UNSET);
 	} else
-		SendMessage(SCI_SETTABWIDTH, Settings.tab_width, UNSET);
+		SendMessage(SCI_SETTABWIDTH, (int)gCFG["tab_width"], UNSET);
 
 	// MARGINS
 	SendMessage(SCI_SETMARGINS, 4, UNSET);
@@ -168,14 +169,16 @@ Editor::ApplySettings()
  	SendMessage(SCI_SETMARGINMASKN, sci_BOOKMARK_MARGIN, (1 << sci_BOOKMARK));
 
 	// Folding
-	if (Settings.enable_folding == B_CONTROL_ON)
+	if (gCFG["enable_folding"])
 		_SetFoldMargin();
 
 	// Line commenter margin
-	if (Settings.show_commentmargin == true && !fCommenter.empty()) {
+	if (gCFG["show_commentmargin"] && !fCommenter.empty()) {
 		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12);
 		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	}
+
+	SetZoom(gCFG["editor_zoom"]);
 
 	fLSPEditorWrapper->ApplySettings();
 
@@ -699,7 +702,7 @@ Editor::NotificationReceived(SCNotification* notification)
 		case SCN_MODIFIED: {
 			if (notification->modificationType & SC_MOD_INSERTTEXT) {
 				fLSPEditorWrapper->didChange(notification->text, notification->length, notification->position, 0);
-			} 
+			}
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
 				fLSPEditorWrapper->didChange("", 0, notification->position, notification->length);
 			}
@@ -708,7 +711,7 @@ Editor::NotificationReceived(SCNotification* notification)
 					fLSPEditorWrapper->ContinueCallTip();
 			}
 			if (notification->linesAdded != 0)
-				if (Settings.show_linenumber == true)
+				if (gCFG["show_linenumber"])
 					_RedrawNumberMargin(false);
 			break;
 		}
@@ -779,7 +782,7 @@ Editor::BeforeKeyDown(BMessage* message)
 }
 
 
-filter_result		
+filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
@@ -790,14 +793,14 @@ Editor::OnArrowKey(int8 key)
 }
 
 
-void				
+void
 Editor::_UpdateSavePoint(bool modified)
 {
 	fModified = modified;
 	BMessage message(EDITOR_UPDATE_SAVEPOINT);
 	message.AddRef("ref", &fFileRef);
 	message.AddBool("modified", fModified);
-	fTarget.SendMessage(&message);	
+	fTarget.SendMessage(&message);
 }
 
 
@@ -1056,7 +1059,7 @@ Editor::SendPositionChanges()
 
 void
 Editor::UpdateStatusBar()
-{	
+{
 	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS, 0, 0);
 	int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 	int column = SendMessage(SCI_GETCOLUMN, pos, 0);
@@ -1122,7 +1125,7 @@ Editor::SetReadOnly(bool readOnly)
 status_t
 Editor::SetSavedCaretPosition()
 {
-	if (Settings.save_caret == false)
+	if (!gCFG["save_caret"])
 		return B_ERROR; //TODO maybe tweak
 
 	status_t status;
@@ -1181,7 +1184,7 @@ Editor::StartMonitoring()
 	}
 	if ((status = watch_node(&fNodeRef, B_WATCH_NAME | B_WATCH_STAT, fTarget)) != B_OK) {
 		LogErrorF("Can't start watch_node a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
-		return status;		
+		return status;
 	}
 	return	B_OK;
 }
@@ -1193,7 +1196,7 @@ Editor::StopMonitoring()
 	status_t status;
 	if ((status = watch_node(&fNodeRef, B_STOP_WATCHING, fTarget)) != B_OK) {
 		LogErrorF("Can't stop watch_node a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
-		return status;		
+		return status;
 	}
 	return B_OK;
 }
@@ -1247,7 +1250,7 @@ Editor::Completion()
 	fLSPEditorWrapper->StartCompletion();
 }
 
-		
+
 void
 Editor::Format()
 {
@@ -1462,7 +1465,7 @@ Editor::_CommentLine(int32 position)
 	delete[] lineBuffer;
 
 	// Calculate offset of first non-space
-	std::size_t offset = line.find_first_not_of("\t ");	
+	std::size_t offset = line.find_first_not_of("\t ");
 	if (offset == std::string::npos)
 		return;
 
@@ -1633,12 +1636,17 @@ Editor::_HighlightFile()
 void
 Editor::_RedrawNumberMargin(bool forced)
 {
+	if (!gCFG["show_linenumber"]) {
+		SendMessage(SCI_SETMARGINWIDTHN, sci_NUMBER_MARGIN, 0);
+		return;
+	}
+
 	int linesLog10 = log10(SendMessage(SCI_GETLINECOUNT, UNSET, UNSET));
 	linesLog10 += 2;
 
 	if (linesLog10 != fLinesLog10 || forced) {
 		fLinesLog10 = linesLog10;
-		float zoom = 1 + ((float)SendMessage(SCI_GETZOOM)/100.0); 
+		float zoom = 1 + ((float)SendMessage(SCI_GETZOOM)/100.0);
 		int pixelWidth = SendMessage(SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "9") * zoom;
 		SendMessage(SCI_SETMARGINWIDTHN, sci_NUMBER_MARGIN, pixelWidth * fLinesLog10);
 	}

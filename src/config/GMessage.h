@@ -105,6 +105,14 @@ public: \
 MESSAGE_VALUE(Bool, bool, B_BOOL_TYPE, false);
 MESSAGE_VALUE(String, const char*, B_STRING_TYPE, "");
 MESSAGE_VALUE(Int32, int32, B_INT32_TYPE, -1);
+
+#if __HAIKU_BEOS_COMPATIBLE_TYPES
+	// on Haiku x86_32 bit, due to this define, int32 is defined as
+	// "signed long int" instead of "signed int" like on other platforms
+	// so we need this extra line to handle "int".
+MESSAGE_VALUE(Int32, int, B_INT32_TYPE, -1);
+#endif
+
 MESSAGE_VALUE(UInt32, uint32, B_UINT32_TYPE, 0);
 MESSAGE_VALUE(Rect, BRect, B_RECT_TYPE, BRect());
 MESSAGE_VALUE_REF(Message, GMessage, B_MESSAGE_TYPE, GMessage());

@@ -9,11 +9,6 @@
 #include <Roster.h>
 #include <StringList.h>
 
-#include "DefaultSettingsKeys.h"
-#include "TPreferences.h"
-
-#include <iostream>
-
 namespace GenioNames
 {
 

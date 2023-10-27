@@ -31,7 +31,7 @@ BHandler *this_handler = nullptr;
 #define VIEW_INDEX_BARBER_POLE	(int32) 0
 #define VIEW_INDEX_PROGRESS_BAR	(int32) 1
 #define VIEW_INDEX_CLONE_BUTTON	(int32) 0
-#define VIEW_INDEX_QUIT_BUTTON	(int32) 1
+#define VIEW_INDEX_CLOSE_BUTTON	(int32) 1
 
 RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BMessenger target)
 	:
@@ -60,8 +60,8 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 			new BMessage(kDoClone));
 	fCancel = new BButton("cancel button", B_TRANSLATE("Cancel"),
 			new BMessage(kCancel));
-	fQuit = new BButton("quit button", B_TRANSLATE("Quit"),
-			new BMessage(kQuit));
+	fClose = new BButton("close button", B_TRANSLATE("Close"),
+			new BMessage(kClose));
 
 	fBarberPole = new BarberPole("barber pole");
 	fProgressBar = new BStatusBar("progress bar");
@@ -77,7 +77,7 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 
 	fButtonsView->SetLayout(fButtonsLayout);
 	fButtonsLayout->AddView(VIEW_INDEX_CLONE_BUTTON, fClone);
-	fButtonsLayout->AddView(VIEW_INDEX_QUIT_BUTTON, fQuit);
+	fButtonsLayout->AddView(VIEW_INDEX_CLOSE_BUTTON, fClose);
 
 	fStatusText->SetDrawingMode(B_OP_ALPHA);
 
@@ -157,7 +157,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				auto result = TaskResult<BPath>::Instantiate(msg)->GetResult();
 				_OpenProject(result.Path());
 				_SetProgress(100, "Finished!");
-				fButtonsLayout->SetVisibleItem(VIEW_INDEX_QUIT_BUTTON);
+				fButtonsLayout->SetVisibleItem(VIEW_INDEX_CLOSE_BUTTON);
 			} catch(std::exception &ex) {
 				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ")
 					<< ex.what(), B_INFO_ALERT);
@@ -241,7 +241,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			}
 			break;
 		}
-		case kQuit:
+		case kClose:
 		{
 			Quit();
 			break;

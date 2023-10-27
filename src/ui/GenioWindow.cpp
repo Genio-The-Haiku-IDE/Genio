@@ -2418,7 +2418,7 @@ GenioWindow::_InitActions()
 								   "App_OpenTargetFolder");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
 								   B_TRANSLATE("Show white spaces"),
-								   "", "");
+								   "", "kIconShowPunctuation");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
 								   B_TRANSLATE("Show line endings"),
 								   "", "");

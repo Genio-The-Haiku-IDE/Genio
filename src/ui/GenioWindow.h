@@ -25,13 +25,10 @@
 #include "ToolBar.h"
 #include "GoToLineWindow.h"
 #include "ProblemsPanel.h"
-#include "ConsoleIOThread.h"
 #include "ConsoleIOView.h"
 #include "Editor.h"
 #include "ProjectFolder.h"
-#include "ProjectItem.h"
 #include "EditorTabManager.h"
-#include "TPreferences.h"
 #include "ProjectsFolderBrowser.h"
 #include "TemplatesMenu.h"
 #include "SearchResultPanel.h"
@@ -43,7 +40,7 @@ enum {
 
 
 enum {
-	kNotificationLog = 0,
+	kProblems = 0,
 	kBuildLog,
 	kOutputLog
 };
@@ -131,7 +128,6 @@ private:
 			void				_ReplaceGroupShow(bool show);
 			status_t			_RunInConsole(const BString& command);
 			void				_RunTarget();
-			void				_SendNotification(BString message, BString type);
 			void				_SetMakefileBuildMode();
 			void				_ShowLog(int32 index);
 			void				_UpdateFindMenuItems(const BString& text);

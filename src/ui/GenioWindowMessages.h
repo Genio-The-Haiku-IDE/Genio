@@ -8,7 +8,7 @@
 
 // Self enum names begin with MSG_ and values are all lowercase
 // External enum names begin with MODULENAME_ and values are Capitalized
-// 'NOTI' temporary
+
 enum {
 	// Project menu
 	MSG_PROJECT_CLOSE			= 'prcl',

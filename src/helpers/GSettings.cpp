@@ -1,16 +1,13 @@
 /*
  * Copyright 2022 Nexus6 ()
  * All rights reserved. Distributed under the terms of the MIT license.
- * 
- * Parts are taken from 
+ *
+ * Parts are taken from
  * TPreferences by Eric Shepard from Be Newsletter Issue 3-35, September 2, 1998
  * All rights reserved. Distributed under the terms of the Be Sample Code
  * license.
  */
 #include "GSettings.h"
-
-#include <memory>
-#include <typeinfo>
 
 #include <Directory.h>
 #include <Message.h>
@@ -18,16 +15,15 @@
 #include <NodeInfo.h>
 #include <String.h>
 
-#include "exceptions/Exceptions.h"
 
 GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 command)
-	: 
+	:
  	BMessage(command)
 {
 	BFile file;
-	
+
 	fPath.SetTo(folderPath);
-	fPath.Append(fileName);		
+	fPath.Append(fileName);
 	fStatus = file.SetTo(fPath.Path(), B_READ_ONLY);
 	if (fStatus == B_OK) {
 		fStatus = Unflatten(&file);

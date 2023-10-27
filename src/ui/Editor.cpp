@@ -132,11 +132,9 @@ Editor::ApplySettings()
 	if (gCFG["brace_match"])
 		_HighlightBraces();
 
-	// Caret line visible
-	if (gCFG["mark_caretline"]) {
-		SendMessage(SCI_SETCARETLINEVISIBLE, 1, UNSET);
-		SendMessage(SCI_SETCARETLINEBACK, kCaretLineBackColor, UNSET);
-	}
+	// Caret line visible / not visible
+	SendMessage(SCI_SETCARETLINEBACK, kCaretLineBackColor, UNSET);
+	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), UNSET);
 
 	// Edge line
 	const bool edgeLine = gCFG["show_edgeline"];

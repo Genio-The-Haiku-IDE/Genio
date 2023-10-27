@@ -216,6 +216,11 @@ GenioApp::ReadyToRun()
 	fGenioWindow->Show();
 }
 
+// These settings will show up in the ConfigWindow.
+// Use this context to avoid invalidating previous translations
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "SettingsWindow"
+
 
 void
 GenioApp::PrepareConfig(ConfigManager& cfg)
@@ -303,6 +308,9 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
 }
 
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "GenioApp"
 
 void
 SetSessionLogLevel(char level)

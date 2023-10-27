@@ -113,7 +113,7 @@ ConfigWindow::_Init()
 
 	fDefaultsButton = new BButton("defaults", B_TRANSLATE("Defaults"), new BMessage(kDefaultPressed));
 	fDefaultsButton->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-	
+
 	// TODO: Find a way to handle enabling/disabling
 	fDefaultsButton->SetEnabled(true);
 
@@ -140,6 +140,8 @@ ConfigWindow::_Init()
 	fGroupList->Select(0);
 
 	be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
+
+	fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 
 	return theView;
 }
@@ -176,10 +178,10 @@ ConfigWindow::MessageReceived(BMessage* message)
 					if (message->FindString("key", &key) == B_OK) {
 						BView* control = FindView(key.String());
 						if (control != nullptr) {
-							// TODO: Message ownership ? are we leaking ?
-							BMessage* m = new BMessage(kSetValueNoUpdate);
-							m->AddString("key", key);
-							control->MessageReceived(m);
+							GMessage m(kSetValueNoUpdate);
+							m["key"] = key.String();
+							control->MessageReceived(&m);
+							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 						}
 					}
 					break;

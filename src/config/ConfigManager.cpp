@@ -26,7 +26,10 @@ auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 {
 	type_code type;
 	if (storage.GetInfo(key, &type) != B_OK) {
-		printf("No info for key [%s]\n", key);
+		BString detail("No config key: ");
+		detail << key;
+		debugger(detail.String());
+		LogFatal(detail.String());
 		throw new std::exception();
 	}
 	return ConfigManagerReturn(storage, key, fLocker);
@@ -56,7 +59,7 @@ ConfigManager::LoadFromFile(BPath path)
 			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
 				if (fromFile.Has(msg["key"]) && fromFile.Type(msg["key"]) == storage.Type(msg["key"])) {
 					(*this)[msg["key"]] = fromFile[msg["key"]];
-					LogInfo("Configuration files loading value for key [%s]: %s", (const char*)msg["key"], (const char*)fromFile[msg["key"]]);
+					LogInfo("Configuration files loading value for key [%s]", (const char*)msg["key"]);
 				} else {
 					LogError("Configuration files does not contain the vaid key [%s]", (const char*)msg["key"]);
 				}
@@ -87,15 +90,22 @@ ConfigManager::ResetToDefaults()
 	GMessage msg;
 	int i = 0;
 	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
-		storage[msg["key"]] = msg["default_value"];
-		// TODO: Duplicated code between here and ConfigManagerReturn::operator[]
-		// for some reason, calling (*this)[msg["key"]] bombs.
-		GMessage noticeMessage(MSG_NOTIFY_CONFIGURATION_UPDATED);
-		noticeMessage["key"] = msg["key"];
-		noticeMessage["value"] = msg["default_value"];
-		if (be_app != nullptr)
-			be_app->SendNotices(MSG_NOTIFY_CONFIGURATION_UPDATED, &noticeMessage);
+		storage[msg["key"]] = msg["default_value"]; //to force the key creation
+		(*this)[msg["key"]] = msg["default_value"]; //to force the update
 	}
+}
+
+bool
+ConfigManager::HasAllDefaultValues() {
+	GMessage msg;
+	int i = 0;
+	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
+		if (storage[msg["key"]] != msg["default_value"]) {
+			LogDebug("Differs for key %s\n", (const char*)msg["key"]);
+			return false;
+		}
+	}
+	return true;
 }
 
 

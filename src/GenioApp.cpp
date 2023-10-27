@@ -177,7 +177,6 @@ GenioApp::QuitRequested()
 {
 	gCFG["ui_bounds"] = fGenioWindow->ConvertToScreen(fGenioWindow->Bounds());
 
-
 	if (Logger::IsDebugEnabled()) {
 		gCFG.PrintValues();
 	}

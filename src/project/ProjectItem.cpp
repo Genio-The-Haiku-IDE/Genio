@@ -124,8 +124,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			Genio::Git::GitRepository repo(projectPath.String());
 			branchName = repo.GetCurrentBranch();
 			fSecondaryText.SetTo(branchName);
-		} catch(Genio::Git::GitException &ex) {
-		}
+		} catch(Genio::Git::GitException &ex) {	}
 		
 		fToolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s", 
 									B_TRANSLATE("Project"), Text(), 
@@ -239,12 +238,9 @@ ProjectItem::_DrawText(BView* owner, const BPoint& point)
 	owner->DrawString(text.String());
 		
 	if (!fSecondaryText.IsEmpty()) {
-		BFont font;
-		owner->GetFont(&font);
-		owner->SetFont(&font);
-		
 		BString text;
 		text << "  [" << fSecondaryText.String() << "]";
+		// Apply any style change here (i.e. bold, italic)
 		owner->DrawString(text.String());
 	}
 	

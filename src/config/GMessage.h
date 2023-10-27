@@ -154,7 +154,35 @@ public:
 				}
 			}
 		}
+		bool operator !=(GMessageReturn n) {
+			return !operator==(n);
+		}
+		bool operator ==(GMessageReturn n) {
+			type_code typeLeft;
+			type_code typeRight;
+			const void* dataLeft = nullptr;
+			const void* dataRight = nullptr;
+			ssize_t numBytesLeft = 0;
+			ssize_t numBytesRight = 0;
 
+			bool comparison = false;
+
+			if (n.fMsg->GetInfo(n.fKey, &typeRight) == B_OK &&
+				  fMsg->GetInfo(fKey, &typeLeft) == B_OK) {
+
+				if (  typeLeft == typeRight &&
+					n.fMsg->FindData(n.fKey, typeRight, &dataRight, &numBytesRight) == B_OK &&
+					  fMsg->FindData(fKey, typeLeft, &dataLeft, &numBytesLeft) == B_OK) {
+
+					if (numBytesLeft == numBytesRight) {
+						comparison = (memcmp(dataRight, dataLeft, numBytesRight) == 0);
+					}
+
+				}
+			}
+
+			return comparison;
+		}
 		void Print() const {
 			fMsg->PrintToStream();
 		}

@@ -154,7 +154,6 @@ ConfigWindow::MessageReceived(BMessage* message)
 		case kItemSelected:
 		{
 			int32 index = message->GetInt32("index", 0);
-//			message->PrintToStream();
 			if (index >= 0) {
 				BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(index);
 				BView* card = fCardView->FindView(item->Text());
@@ -173,7 +172,6 @@ ConfigWindow::MessageReceived(BMessage* message)
 			switch (code) {
 				case MSG_NOTIFY_CONFIGURATION_UPDATED:
 				{
-					// TODO: Review this!
 					BString key;
 					if (message->FindString("key", &key) == B_OK) {
 						BView* control = FindView(key.String());
@@ -275,78 +273,23 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	GMessage msg;
 	int i=0;
 	while(list.FindMessage("config", i++, &msg) == B_OK)  {
-//		msg.PrintToStream();
-		BView *parameterView = MakeSelfHostingViewFor(msg);
+		BView *parameterView = MakeControlFor(msg);
 		if (parameterView == NULL)
 			return nullptr;
 
 		settingLayout->AddView(parameterView);
-
 	}
 
 	settingLayout->AddItem(BSpaceLayoutItem::CreateHorizontalStrut(10));
 	layout->AddView(settingView);
-
-	// Add the sub-group views
-/*	for (int32 i = 0; i < group.size(); i++) {
-		SettingGroup *subGroup = group.at(i);
-		if (subGroup == NULL)
-			continue;
-
-		BView *groupView = MakeViewFor(*subGroup);
-		if (groupView == NULL)
-			continue;
-
-		if (i > 0)
-			layout->AddView(new SeparatorView(B_VERTICAL));
-
-		layout->AddView(groupView);
-	}*/
-
 	layout->AddItem(BSpaceLayoutItem::CreateGlue());
 	return view;
 }
 
 
-BView*
-ConfigWindow::MakeSelfHostingViewFor(GMessage& config)
-{
-	/*if (parameter.Flags() & B_HIDDEN_PARAMETER
-		|| parameter_should_be_hidden(parameter))
-		return NULL;
-*/
-	BView *view = MakeViewFor(config);
-	if (view == NULL) {
-		// The MakeViewFor() method above returns a BControl - which we
-		// don't need for a null parameter; that's why it returns NULL.
-		// But we want to see something anyway, so we add a string view
-		// here.
-		/*if (parameter.Type() == Setting::B_NULL_PARAMETER) {
-			if (parameter.Group()->ParameterAt(0) == &parameter) {
-				// this is the first parameter in this group, so
-				// let's use a nice title view
-				return new TitleView(parameter.Name());
-			}
-			BStringView *stringView = new BStringView(parameter.Name(),
-				parameter.Name());
-			stringView->SetAlignment(B_ALIGN_CENTER);
-
-			return stringView;
-		}*/
-
-		return NULL;
-	}
-
-	/*MessageFilter *filter = MessageFilter::FilterFor(view, setting);
-	if (filter != NULL)
-		view->AddFilter(filter);*/
-
-	return view;
-}
-
 
 BView*
-ConfigWindow::MakeViewFor(GMessage& config)
+ConfigWindow::MakeControlFor(GMessage& config)
 {
 	type_code type = config["type_code"];
 	switch (type) {
@@ -391,13 +334,14 @@ ConfigWindow::MakeViewFor(GMessage& config)
 			control->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
 			return control;
 		}
-/*
+
 		default:
 		{
 			BString errorString;
-			errorString.SetToFormat("Setting: Don't know setting type: 0x%x\n", setting->Type());
+			errorString.SetToFormat("Setting: Don't know setting type for key [%s]\n", (const char*)config["key"]);
 			debugger(errorString.String());
-		}*/
+		}
+		break;
 	}
 	return NULL;
 }

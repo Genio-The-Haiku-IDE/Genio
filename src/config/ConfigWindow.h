@@ -21,8 +21,7 @@ public:
 		void MessageReceived(BMessage* message);
 
 		BView* MakeViewFor(const char* groupName, GMessage& config);
-		BView* MakeSelfHostingViewFor(GMessage& config);
-		BView* MakeViewFor(GMessage& config);
+		BView* MakeControlFor(GMessage& config);
 
 private:
 

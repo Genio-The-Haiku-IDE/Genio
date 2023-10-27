@@ -5,10 +5,10 @@ resource app_flags B_SINGLE_LAUNCH;
 
 resource app_version {
 	major  = 1,
-	middle = 0,
-	minor  = 0,
+	middle = 9,
+	minor  = 9,
 
-	variety = B_APPV_BETA,
+	variety = B_APPV_DEVELOPMENT,
 	internal = 1,
 
 	short_info = "An IDE for Haiku",

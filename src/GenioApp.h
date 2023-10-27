@@ -10,6 +10,7 @@
 #include "GenioWindow.h"
 #include "TPreferences.h"
 
+class ConfigManager;
 class GenioApp : public BApplication {
 public:
 								GenioApp();
@@ -21,12 +22,15 @@ public:
 	virtual	bool				QuitRequested();
 	virtual	void				ReadyToRun();
 	virtual	void				RefsReceived(BMessage* message);
+	void						PrepareConfig(ConfigManager& cfg);
 
 private:
 			void				_CheckSettingsVersion();
 private:
 		GenioWindow*			fGenioWindow;
-		TPreferences*			fUISettingsFile;
+		BPath					fConfigurationPath;
 };
+
+
 
 #endif //GenioAPP_H

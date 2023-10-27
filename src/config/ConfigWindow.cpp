@@ -87,8 +87,8 @@ void GControl<BTextControl, const char*>::LoadValue(const char* value)
 
 
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
-    : BWindow(BRect(100, 100, 700, 500), "Settings", B_TITLED_WINDOW,
-              B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
+    : BWindow(BRect(100, 100, 700, 500), "Settings", B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
+              B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
       fConfigManager(configManager)
 {
 	CenterOnScreen();

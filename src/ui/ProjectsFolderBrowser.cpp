@@ -605,11 +605,10 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
 	ProjectItem *projectItem = NULL;
 	_ProjectFolderScan(projectItem, project->Path(), project);
+
+	LockLooper();
 	SortItemsUnder(projectItem, false, ProjectsFolderBrowser::_CompareProjectItems);
-
-	update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
-
-	Invalidate();
+	UnlockLooper();
 	status_t status = BPrivate::BPathMonitor::StartWatching(project->Path(),
 			B_WATCH_RECURSIVELY, BMessenger(this));
 	if (status != B_OK ) {
@@ -621,6 +620,8 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 void
 ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder)
 {
+	LockLooper();
+
 	ProjectItem *newItem;
 	if (item != nullptr) {
 		SourceItem *sourceItem = new SourceItem(path);
@@ -660,9 +661,12 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 		BEntry nextEntry;
 		while (dir.GetNextEntry(&nextEntry, false) != B_ENTRY_NOT_FOUND) {
 			nextEntry.GetPath(&_currentPath);
+			UnlockLooper();
 			_ProjectFolderScan(newItem, _currentPath.Path(), projectFolder);
+			LockLooper();
 		}
 	}
+	UnlockLooper();
 }
 
 
@@ -700,6 +704,28 @@ ProjectsFolderBrowser::_CompareProjectItems(const BListItem* a, const BListItem*
 		return BPrivate::NaturalCompare(nameA, nameB);
 
 	return 0;
+}
+
+
+void
+ProjectsFolderBrowser::ProjectFolderPopulateThread(ProjectFolder* item)
+{
+	fCurrentTask = make_shared<Task<status_t>>
+	(
+		"PopulateProject",
+		new BMessenger(this),
+		std::bind
+		(
+			&ProjectsFolderBrowser::ProjectFolderPopulate,
+			this ,
+			item
+		)
+	);
+
+	fCurrentTask->Run();
+	//update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
+
+	//Invalidate();
 }
 
 

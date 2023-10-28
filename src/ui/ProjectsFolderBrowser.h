@@ -5,12 +5,16 @@
 #ifndef ProjectsFolderBrowser_H
 #define ProjectsFolderBrowser_H
 
+#include <memory>
 
 #include <SupportDefs.h>
 #include <OutlineListView.h>
 #include <PopUpMenu.h>
 
+#include "Task.h"
 #include "TemplatesMenu.h"
+
+using namespace Genio::Task;
 
 enum {
 	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
@@ -47,6 +51,7 @@ public:
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 
+	void		ProjectFolderPopulateThread(ProjectFolder* project);
 	virtual void	SelectionChanged();
 
 	void			InitRename(ProjectItem *item);
@@ -75,7 +80,7 @@ private:
 
 	bool				fIsBuilding = false;
 	GenioWatchingFilter* fGenioWatchingFilter;
-
+	shared_ptr<Task<status_t>>		fCurrentTask;
 };
 
 

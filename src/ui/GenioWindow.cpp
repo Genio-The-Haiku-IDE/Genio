@@ -3273,7 +3273,7 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 		return;
 	}
 
-	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
+	fProjectsFolderBrowser->ProjectFolderPopulateThread(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
 
 	BString opened("Project open: ");

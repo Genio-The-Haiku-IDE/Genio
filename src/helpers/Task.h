@@ -11,6 +11,7 @@
 #include <stdexcept>
 
 #include <Alignment.h>
+#include <Archivable.h>
 #include <Message.h>
 #include <Messenger.h>
 #include <String.h>

@@ -9,6 +9,7 @@
 #include <String.h>
 
 #include "GSettings.h"
+#include "Task.h"
 
 class LSPProjectWrapper;
 
@@ -88,6 +89,7 @@ public:
 
 	LSPProjectWrapper*			GetLSPClient() { return fLSPProjectWrapper; }
 
+	void						AssignTask(shared_ptr<Genio::Task::Task<status_t>> task);
 private:
 	bool						fActive;
 	BuildMode					fBuildMode;
@@ -95,6 +97,7 @@ private:
 	BString						fGuessedCleanCommand;
 	LSPProjectWrapper*			fLSPProjectWrapper;
 	GSettings*					fSettings;
+	shared_ptr<Genio::Task::Task<status_t>>		fCurrentTask;
 };
 
 #endif // PROJECT_FOLDER_H

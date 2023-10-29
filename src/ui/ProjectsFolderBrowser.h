@@ -14,7 +14,6 @@
 #include "Task.h"
 #include "TemplatesMenu.h"
 
-using namespace Genio::Task;
 
 enum {
 	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
@@ -80,7 +79,6 @@ private:
 
 	bool				fIsBuilding = false;
 	GenioWatchingFilter* fGenioWatchingFilter;
-	shared_ptr<Task<status_t>>		fCurrentTask;
 };
 
 

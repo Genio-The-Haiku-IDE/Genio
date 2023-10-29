@@ -614,6 +614,8 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	if (status != B_OK ) {
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", project->Path(), strerror(status));
 	}
+
+	update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
 }
 
 
@@ -710,9 +712,11 @@ ProjectsFolderBrowser::_CompareProjectItems(const BListItem* a, const BListItem*
 void
 ProjectsFolderBrowser::ProjectFolderPopulateThread(ProjectFolder* item)
 {
-	fCurrentTask = make_shared<Task<status_t>>
+	BString taskName;
+	taskName << item->Name() << " PopulateProject task";
+	shared_ptr<Genio::Task::Task<status_t>> task = make_shared<Genio::Task::Task<status_t>>
 	(
-		"PopulateProject",
+		taskName.String(),
 		new BMessenger(this),
 		std::bind
 		(
@@ -722,10 +726,8 @@ ProjectsFolderBrowser::ProjectFolderPopulateThread(ProjectFolder* item)
 		)
 	);
 
-	fCurrentTask->Run();
-	//update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
-
-	//Invalidate();
+	item->AssignTask(task);
+	task->Run();
 }
 
 

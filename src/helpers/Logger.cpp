@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020, Andrew Lindesay .
+ * Copyright 2023 Genio
  * All rights reserved. Distributed under the terms of the MIT License.
  */
 #include "Logger.h"
@@ -13,7 +14,7 @@
 log_level Logger::sLevel = LOG_LEVEL_INFO;
 int	Logger::sDestination = LOGGER_DEST_STDOUT;
 
-BeDC	be_dc("Genio");
+static BeDC sBeDC("Genio");
 
 /*static*/
 void
@@ -163,7 +164,7 @@ Logger::_DoLog(log_level level, const char* string)
 			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "Genio: %s", (const char* const)string);
 			break;
 		case Logger::LOGGER_DEST_BEDC:
-			be_dc.SendMessage(string, level == LOG_LEVEL_ERROR ? DC_ERROR : DC_MESSAGE);
+			sBeDC.SendMessage(string, level == LOG_LEVEL_ERROR ? DC_ERROR : DC_MESSAGE);
 			break;
 		case Logger::LOGGER_DEST_STDOUT:
 		default:

@@ -120,12 +120,24 @@ ConsoleIOThread::ExecuteUnit(void)
 		BString outStr("");
 		BString errStr("");
 		status = GetFromPipe(outStr, errStr);
-		if (status == B_OK) {
-			if (outStr != "")
-				OnStdOutputLine(outStr);
 
-			if (errStr != "")
-				OnStdErrorLine(errStr);
+		if (status == B_OK) {
+			fLastOutputString += outStr;
+			fLastErrorString  += errStr;
+
+			if (!fLastOutputString.IsEmpty()) {
+				if (fLastOutputString.EndsWith("\n")) {
+					OnStdOutputLine(fLastOutputString);
+					fLastOutputString = "";
+				}
+			}
+
+			if (!fLastErrorString.IsEmpty()) {
+				if (fLastErrorString.EndsWith("\n")) {
+					OnStdErrorLine(fLastErrorString);
+					fLastErrorString = "";
+				}
+			}
 
 			if (IsProcessAlive() != B_OK && outStr.IsEmpty() && errStr.IsEmpty()) {
 				return EOF;

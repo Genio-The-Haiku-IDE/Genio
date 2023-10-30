@@ -2416,7 +2416,7 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_FILE_FOLD_TOGGLE,
 								   B_TRANSLATE("Fold/Unfold all"),
 								   B_TRANSLATE("Fold/Unfold all"),
-								   "App_OpenTargetFolder");
+								   "kIconFold_4");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
 								   B_TRANSLATE("Show white spaces"),
 								   "", "kIconShowPunctuation");

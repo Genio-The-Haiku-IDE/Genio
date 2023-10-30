@@ -313,6 +313,7 @@ ConfigWindow::MakeControlFor(GMessage& config)
 						popUp->AddOption(config[key.String()]["label"], config[key.String()]["value"]);
 						c++;
 					}
+					popUp->SetValue(fConfigManager[config["key"]]);
 					return popUp;
 				}
 			} else {

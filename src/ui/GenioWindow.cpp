@@ -1849,14 +1849,15 @@ GenioWindow::_FindInFiles()
 
 	  text.CharacterEscape("\\\n\"", '\\');
 
-	  BString grepCommand("grep -IHrn");
+	  BString grepCommand("grep --exclude-dir=.git -IHrn");
 	  grepCommand += extraParameters;
 	  grepCommand += " -- ";
 	  grepCommand += EscapeQuotesWrap(text);
 	  grepCommand += " ";
 	  grepCommand += EscapeQuotesWrap(fActiveProject->Path());
 
-	 fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
+	  LogInfo("Find in file, executing: [%s]", grepCommand.String());
+	  fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
 }
 
 int32

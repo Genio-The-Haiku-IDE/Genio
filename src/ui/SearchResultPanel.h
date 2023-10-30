@@ -21,11 +21,11 @@ public:
 
 		virtual void MessageReceived(BMessage* msg);
 		virtual void	AttachedToWindow();
-		
+
 		void	SetTabLabel(BString label);
 
 private:
-		void	_UpdateTabLabel();
+		void	_UpdateTabLabel(const char* txt = nullptr);
 		void	ClearSearch();
 		void 	UpdateSearch(BMessage* msg);
 		GrepThread*	fGrepThread;

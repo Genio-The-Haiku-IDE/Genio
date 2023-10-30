@@ -72,3 +72,13 @@ ToolBar::ChangeIconSize(float newSize)
 		BToolBar::FindButton(action.first)->SetIcon(&icon);
 	}
 }
+
+void
+ToolBar::SetEnabled(bool enable) {
+	for (int32 i=0; i<GroupLayout()->CountItems();i++){
+		BControl*	control = dynamic_cast<BControl*>(GroupLayout()->ItemAt(i)->View());
+		if (control)
+			control->SetEnabled(enable);
+
+	}
+}

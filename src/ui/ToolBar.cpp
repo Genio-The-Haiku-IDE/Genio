@@ -52,7 +52,7 @@ ToolBar::AddAction(uint32 command, const char* toolTipText,
 	const char* iconName, bool lockable)
 {
 	BBitmap *icon = nullptr;
-	if(iconName != nullptr) {
+	if (iconName != nullptr) {
 		icon = new BBitmap(BRect(fIconSize - 1.0f), 0, B_RGBA32);
 		GetVectorIcon(iconName, icon);
 		fActionIcons.emplace(std::make_pair(command, iconName));
@@ -67,18 +67,19 @@ ToolBar::ChangeIconSize(float newSize)
 {
 	fIconSize = newSize;
 	BBitmap icon(BRect(fIconSize - 1.0f), 0, B_RGBA32);
-	for(const auto& action : fActionIcons) {
+	for (const auto& action : fActionIcons) {
 		GetVectorIcon(action.second.c_str(), &icon);
 		BToolBar::FindButton(action.first)->SetIcon(&icon);
 	}
 }
 
+
 void
-ToolBar::SetEnabled(bool enable) {
-	for (int32 i=0; i<GroupLayout()->CountItems();i++){
-		BControl*	control = dynamic_cast<BControl*>(GroupLayout()->ItemAt(i)->View());
+ToolBar::SetEnabled(bool enable)
+{
+	for (int32 i = 0; i < GroupLayout()->CountItems(); i++){
+		BControl* control = dynamic_cast<BControl*>(GroupLayout()->ItemAt(i)->View());
 		if (control)
 			control->SetEnabled(enable);
-
 	}
 }

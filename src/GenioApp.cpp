@@ -304,7 +304,10 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
 
 
-	GMessage lsplevels = {{ {"mode", "options"} }};
+	GMessage lsplevels = {{ {"mode", "options"},
+							{"note", B_TRANSLATE("This setting will be updated on restart")}
+						 }};
+
 	lsplevels["option_1"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR;
 	lsplevels["option_1"]["label"] = "Error";
 	lsplevels["option_2"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_INFO;

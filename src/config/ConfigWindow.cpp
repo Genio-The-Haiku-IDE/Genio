@@ -17,6 +17,7 @@
 #include <ScrollView.h>
 #include <TextControl.h>
 #include <Window.h>
+#include <StringView.h>
 
 #include "ConfigManager.h"
 
@@ -278,6 +279,8 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 			return nullptr;
 
 		settingLayout->AddView(parameterView);
+		if (msg.Has("note"))
+			settingLayout->AddView(MakeNoteView(msg));
 	}
 
 	settingLayout->AddItem(BSpaceLayoutItem::CreateHorizontalStrut(10));
@@ -286,7 +289,14 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	return view;
 }
 
-
+BView*
+ConfigWindow::MakeNoteView(GMessage& config)
+{
+	BString name((const char*)config["key"]);
+	name << "_note";
+	BStringView* view = new BStringView(name.String(), config["note"]);
+	return view;
+}
 
 BView*
 ConfigWindow::MakeControlFor(GMessage& config)

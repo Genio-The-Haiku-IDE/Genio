@@ -22,6 +22,7 @@ public:
 
 		BView* MakeViewFor(const char* groupName, GMessage& config);
 		BView* MakeControlFor(GMessage& config);
+		BView* MakeNoteView(GMessage& config);
 
 private:
 

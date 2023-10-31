@@ -7,7 +7,7 @@
 
 #include <ObjectList.h>
 #include <String.h>
-
+#include <Messenger.h>
 #include "GSettings.h"
 
 class LSPProjectWrapper;
@@ -48,7 +48,7 @@ protected:
 
 class ProjectFolder : public SourceItem {
 public:
-								ProjectFolder(BString const& path);
+								ProjectFolder(BString const& path, BMessenger& msgr);
 								~ProjectFolder();
 
 	status_t					Open();

@@ -2,7 +2,7 @@
  * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
- 
+
 #ifndef MessageHandler_H
 #define MessageHandler_H
 

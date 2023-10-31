@@ -7,12 +7,12 @@
 
 #include <Locker.h>
 #include <Path.h>
-
+#include <Locker.h>
 #include <atomic>
-
+#include <MessageFilter.h>
 #include "MessageHandler.h"
 #include "json_fwd.hpp"
-
+#include <Messenger.h>
 
 class  LSPTextDocument;
 struct TextDocumentContentChangeEvent;
@@ -30,11 +30,14 @@ class LSPPipeClient;
 
 using json = nlohmann::json;
 
-class LSPProjectWrapper : public MessageHandler {
+
+class LSPProjectWrapper : public BMessageFilter {
 
 public:
-			LSPProjectWrapper(BPath rootPath);
+			LSPProjectWrapper(BPath rootPath, BMessenger& msgr);
 	virtual ~LSPProjectWrapper() = default;
+
+	virtual	filter_result		Filter(BMessage* message, BHandler** _target);
 
 	bool	Dispose();
 
@@ -102,6 +105,8 @@ private:
 	std::string fTriggerCharacters;
 
 	std::string fRootURI;
+	BMessenger fMessenger;
+	uint32		fWhat;
 };
 
 #endif // _H_LSPProjectWrapper

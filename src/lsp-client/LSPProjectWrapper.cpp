@@ -5,24 +5,17 @@
 #include "LSPProjectWrapper.h"
 
 #include "GenioCommon.h"
-#include "Log.h"
 #include "LSPPipeClient.h"
 #include "LSPReaderThread.h"
 #include "LSPTextDocument.h"
+#include "Log.h"
 #include "protocol.h"
 #include <Autolock.h>
 #include <Url.h>
 
-#define LSP_MESSAGE_BASE	'LSP'
+#define LSP_MESSAGE 'LSP!'
 
-uint32
-generate_id() {
-	static uint32 currentCounter = 0;
-	return LSP_MESSAGE_BASE + currentCounter++;
-}
-
-LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, BMessenger& msgr)
-				  : BMessageFilter(( fWhat = generate_id()))
+LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, BMessenger& msgr) : BHandler(rootPath.Path())
 {
 	BUrl url(rootPath);
 	url.SetAuthority("");
@@ -34,37 +27,35 @@ LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, BMessenger& msgr)
 	fMessenger = msgr;
 }
 
-filter_result
-LSPProjectWrapper::Filter(BMessage* msg, BHandler** _target)
+void
+LSPProjectWrapper::MessageReceived(BMessage* msg)
 {
-	if (msg->what == fWhat) {
-			const char* json;
-			if (msg->FindString("data", &json) == B_OK && fLSPPipeClient) {
-				try {
-					auto value = nlohmann::json::parse(json);
+	if (msg->what == LSP_MESSAGE) {
+		const char* json;
+		if (msg->FindString("data", &json) == B_OK && fLSPPipeClient) {
+			try {
+				auto value = nlohmann::json::parse(json);
 
-					if (value.count("id")) {
-					  if (value.contains("method")) {
-						onRequest(value["method"].get<std::string>(),
-										  value["params"], value["id"]);
-					  } else if (value.contains("result")) {
+				if (value.count("id")) {
+					if (value.contains("method")) {
+						onRequest(value["method"].get<std::string>(), value["params"], value["id"]);
+					} else if (value.contains("result")) {
 						onResponse(value["id"].get<std::string>(), value["result"]);
-					  } else if (value.contains("error")) {
+					} else if (value.contains("error")) {
 						onError(value["id"].get<std::string>(), value["error"]);
-					  }
-					} else if (value.contains("method")) {
-					  if (value.contains("params")) {
-						onNotify(value["method"].get<std::string>(),
-										 value["params"]);
-					  }
 					}
-
-				} catch (std::exception &e) {
-					return B_SKIP_MESSAGE;
+				} else if (value.contains("method")) {
+					if (value.contains("params")) {
+						onNotify(value["method"].get<std::string>(), value["params"]);
+					}
 				}
 			}
+			catch (std::exception& e) {
+				return;
+			}
+		}
 	}
-	return B_SKIP_MESSAGE;
+	return;
 }
 
 
@@ -95,13 +86,15 @@ LSPProjectWrapper::UnregisterTextDocument(LSPTextDocument* textDocument)
 bool
 LSPProjectWrapper::_Create()
 {
-	BLooper*	looper = nullptr;
+	BLooper* looper = nullptr;
 	fMessenger.Target(&looper);
-	if (looper) {
-		looper->AddFilter(this);
-	}
+	if (!looper)
+		return false;
 
-	fLSPPipeClient = new LSPPipeClient(fWhat, fMessenger);
+	looper->AddHandler(this);
+	BMessenger thisProject = BMessenger(this, looper);
+
+	fLSPPipeClient = new LSPPipeClient(LSP_MESSAGE, thisProject);
 	/** configuration for clangd */
 	std::string logLevel("--log=");
 	switch (Logger::Level()) {
@@ -118,19 +111,13 @@ LSPProjectWrapper::_Create()
 			logLevel += "verbose"; // Low level details
 			break;
 	};
-	const char* argv[] = {
-		"clangd",
-		logLevel.c_str(),
-		"--offset-encoding=utf-8",
-		"--pretty",
-		"--header-insertion-decorators=false",
-		"--pch-storage=memory",
-		NULL
-	};
+	const char* argv[] = {"clangd", logLevel.c_str(), "--offset-encoding=utf-8", "--pretty",
+		"--header-insertion-decorators=false", "--pch-storage=memory", NULL};
 
 	if (fLSPPipeClient->Start(argv, 5) != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
-		LogInfo("Can't execute clangd tool to provide advanced features! Please install llvm12/llvm16/llvm17 "
+		LogInfo("Can't execute clangd tool to provide advanced features! Please install "
+				"llvm12/llvm16/llvm17 "
 				"package.");
 		return false;
 	}
@@ -144,10 +131,10 @@ LSPProjectWrapper::_Create()
 bool
 LSPProjectWrapper::Dispose()
 {
-	BLooper*	looper = nullptr;
+	BLooper* looper = nullptr;
 	fMessenger.Target(&looper);
 	if (looper) {
-		looper->RemoveFilter(this);
+		looper->RemoveHandler(this);
 	}
 
 	if (!fInitialized) {

@@ -10,8 +10,9 @@
 #include "LSPPipeClient.h"
 #include "Log.h"
 #include "LSPReaderThread.h"
+#include <Messenger.h>
 
-status_t 
+status_t
 LSPPipeClient::Start(const char *argv[], int32 argc)
 {
 	status_t image_status = fPipeImage.Init(argv, argc);
@@ -20,7 +21,7 @@ LSPPipeClient::Start(const char *argv[], int32 argc)
 	return image_status;
 }
 
-void	
+void
 LSPPipeClient::Close()
 {
 	fPipeImage.Close();
@@ -101,8 +102,8 @@ LSPPipeClient::Write(std::string &in)
 	return (hasWritten != 0);
 }
 
-	
-bool 
+
+bool
 LSPPipeClient::readMessage(std::string &json)
 {
 	json.clear();
@@ -116,7 +117,7 @@ LSPPipeClient::readMessage(std::string &json)
 	LogTrace("Client - rcv %d:\n%s\n", length, json.c_str());
 	return true;
 }
-bool 
+bool
 LSPPipeClient::writeMessage(std::string &content)
 {
 	std::string header = "Content-Length: " + std::to_string(content.length()) +
@@ -126,8 +127,11 @@ LSPPipeClient::writeMessage(std::string &content)
 }
 
 
-LSPPipeClient::LSPPipeClient(MessageHandler& h):AsyncJsonTransport(h),fReaderThread(nullptr)
+LSPPipeClient::LSPPipeClient(uint32 what, BMessenger& msgr)
+			   : AsyncJsonTransport(what, msgr)
+			   , fReaderThread(nullptr)
 {
+
 }
 
 pid_t
@@ -135,17 +139,17 @@ LSPPipeClient::GetChildPid()
 {
 	return fPipeImage.GetChildPid();
 }
-void	
+void
 LSPPipeClient::ForceQuit()
 {
 	if (fReaderThread)
 		fReaderThread->Suspend();
-	
+
 	Close();
 	PostMessage(B_QUIT_REQUESTED);
 }
 
-void	
+void
 LSPPipeClient::KillThread()
 {
 	if (fReaderThread)
@@ -157,7 +161,7 @@ LSPPipeClient::HasQuitBeenRequested()
 {
 	return fReaderThread && fReaderThread->HasQuitBeenRequested();
 }
-	
+
 thread_id
 LSPPipeClient::Run()
 {

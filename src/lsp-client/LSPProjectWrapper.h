@@ -31,13 +31,13 @@ class LSPPipeClient;
 using json = nlohmann::json;
 
 
-class LSPProjectWrapper : public BMessageFilter {
+class LSPProjectWrapper : public BHandler {
 
 public:
 			LSPProjectWrapper(BPath rootPath, BMessenger& msgr);
 	virtual ~LSPProjectWrapper() = default;
 
-	virtual	filter_result		Filter(BMessage* message, BHandler** _target);
+	virtual	void	MessageReceived(BMessage* message);
 
 	bool	Dispose();
 

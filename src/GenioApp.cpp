@@ -12,7 +12,7 @@
 #include <StringList.h>
 
 #include <getopt.h>
-
+#include "LSPLogLevels.h"
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 
@@ -302,6 +302,17 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_wrap", B_TRANSLATE("Wrap"), false);
 	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
+
+
+	GMessage lsplevels = {{ {"mode", "options"} }};
+	lsplevels["option_1"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR;
+	lsplevels["option_1"]["label"] = "Error";
+	lsplevels["option_2"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_INFO;
+	lsplevels["option_2"]["label"] = "Info";
+	lsplevels["option_3"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_TRACE;
+	lsplevels["option_3"]["label"] = "Trace";
+
+	cfg.AddConfig("LSP", "lsp_log_level", B_TRANSLATE("Log level:"), (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
 
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
 }

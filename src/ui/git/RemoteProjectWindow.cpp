@@ -203,7 +203,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			};
 
 			// taken from TrackGit
-			auto authentication_callback = [](git_cred** out, const char* url,
+/*			auto authentication_callback = [](git_cred** out, const char* url,
 												const char* username_from_url,
 												unsigned int allowed_types,
 												void* payload) -> int {
@@ -218,24 +218,19 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				status_t win_status = B_OK;
 				wait_for_thread(thread, &win_status);
 
-				if (BString(username) != "" && BString(password) != "") {
+				if (strlen(username) != 0 && strlen(password) != 0) {
 					if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
-						// error = git_credential_ssh_key_new(out, username, pubkey, privkey, password);
 						error = git_credential_ssh_key_from_agent(out, username);
 					} else {
 						error = git_cred_userpass_plaintext_new(out, username, password);
 					}
 				}
 
-				/**
-				 * If user cancels the credentials prompt, the username is empty.
-				 * Cancel the command in such case.
-				 */
 				if (strlen(username) == 0)
 					return CANCEL_CREDENTIALS;
 
 				return error;
-			};
+			};*/
 
 			BPath fullPath(fPathBox->Path());
 			fullPath.Append(fDestDir->Text());
@@ -251,7 +246,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 					fURL->Text(),
 					fullPath,
 					callback,
-					authentication_callback
+					&GitCredentialsWindow::authentication_callback
 				)
 			);
 

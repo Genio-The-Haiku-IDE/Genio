@@ -3,7 +3,6 @@
  * Copyright 2023 Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#include "GitCredentialsWindow.h"
 
 #include <cstdio>
 #include <cstring>
@@ -13,18 +12,21 @@
 #include <LayoutBuilder.h>
 #include <TextControl.h>
 
+#include "GitCredentialsWindow.h"
+#include "GitRepository.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GitCredentialsWindow"
 
-GitCredentialsWindow::GitCredentialsWindow(const char* username, const char* password)
+GitCredentialsWindow::GitCredentialsWindow(BString &username, BString &password)
 	:
 	BWindow(BRect(0, 0, 300, 150), B_TRANSLATE("Git - User Credentials"),
 			B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE
 			| B_AUTO_UPDATE_SIZE_LIMITS | B_NOT_CLOSABLE)
 {
-	fUsernameString = username;
-	fPasswordString = password;
+	fUsernameString = &username;
+	fPasswordString = &password;
 
 	fUsername = new BTextControl(B_TRANSLATE("Username:"), "", NULL);
 	fPassword = new BTextControl(B_TRANSLATE("Password:"), "", NULL);
@@ -56,16 +58,51 @@ GitCredentialsWindow::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
 		case kCredOK:
-			fUsernameString = fUsername->Text();
-			fPasswordString = fPassword->Text();
+			fUsernameString->SetTo(fUsername->Text());
+			fPasswordString->SetTo(fPassword->Text());
 			Quit();
 			break;
 		case kCredCancel:
-			fUsernameString = "";
-			fPasswordString = "";
+			fUsernameString->SetTo("");
+			fPasswordString->SetTo("");
 			Quit();
 			break;
 		// default:
 			// BWindow::MessageReceived(msg);
 	}
+}
+
+int
+GitCredentialsWindow::authentication_callback(git_cred** out, const char* url,
+									const char* username_from_url,
+									unsigned int allowed_types,
+									void* payload)
+{
+	BString username, password;
+	int error = 0;
+
+	// strcpy(username, username_from_url);
+
+	GitCredentialsWindow* window = new GitCredentialsWindow(username, password);
+
+	thread_id thread = window->Thread();
+	status_t win_status = B_OK;
+	wait_for_thread(thread, &win_status);
+
+	if (strlen(username) != 0 && strlen(password) != 0) {
+		if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
+			error = git_credential_ssh_key_from_agent(out, username);
+		} else {
+			error = git_cred_userpass_plaintext_new(out, username, password);
+		}
+	}
+
+	/**
+	 * If user cancels the credentials prompt, the username is empty.
+	 * Cancel the command in such case.
+	 */
+	if (strlen(username) == 0)
+		return Genio::Git::CANCEL_CREDENTIALS;
+
+	return error;
 }

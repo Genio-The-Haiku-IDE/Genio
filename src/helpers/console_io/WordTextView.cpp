@@ -8,17 +8,20 @@
 
 
 #include "WordTextView.h"
-#include <stdio.h>
+
 #include <string>
+
 #include <Array.h>
+#include <FindDirectory.h>
 #include <Path.h>
-#include "storage/FindDirectory.h"
 #include <Window.h>
+
 #include "TextUtils.h"
 //// TODO: move these function in a common TextUtilities class..
 
-std::string numericChars("1234567890");
-std::string kDefaultAdditionalWordCharacters(":@-+./_~");
+const std::string kNumericChars("1234567890");
+const std::string kDefaultAdditionalWordCharacters(":@-+./_~");
+
 
 bool
 WordTextView::_Classify(char c)
@@ -35,6 +38,7 @@ WordTextView::_Classify(char c)
 	return false;
 }
 
+
 void	
 WordTextView::_SetStyle(bool underline)
 {
@@ -49,8 +53,9 @@ WordTextView::_SetStyle(bool underline)
 		SetRunArray(fStartPosition, fStopPosition + 1, tra);
 	}
 	
-	free( tra );
+	BTextView::FreeRunArray(tra);
 }
+
 
 void	
 WordTextView::_ResetStyle() 
@@ -60,16 +65,16 @@ WordTextView::_ResetStyle()
 	
 	_SetStyle(false);
 }
+
+
 void	
-WordTextView::MouseDown (BPoint where)
+WordTextView::MouseDown(BPoint where)
 {
 	BTextView::MouseDown(where);
 	int32 pointPosition = OffsetAt(where);
-	if (pointPosition >= fStartPosition && pointPosition <= fStopPosition)
-	{
+	if (pointPosition >= fStartPosition && pointPosition <= fStopPosition) {
 		entry_ref  	ref;
-		if (get_ref_for_path(fCurrentPath.String(), &ref) == B_OK)
-		{
+		if (get_ref_for_path(fCurrentPath.String(), &ref) == B_OK) {
 			BMessage msg(B_REFS_RECEIVED);
 			msg.AddRef("refs", &ref);
 			if (fCurrentPositions[0] != 0)
@@ -80,11 +85,11 @@ WordTextView::MouseDown (BPoint where)
 	}
 }
 
+
 void	
-WordTextView::MouseMoved (BPoint where, uint32 code, const BMessage *dragMessage)
+WordTextView::MouseMoved(BPoint where, uint32 code, const BMessage *dragMessage)
 {
 	BTextView::MouseMoved(where, code, dragMessage);
-	
 	
 	int32 pointPosition = OffsetAt(where);
 	if (pointPosition >= fStartPosition && pointPosition <= fStopPosition)
@@ -105,11 +110,12 @@ WordTextView::MouseMoved (BPoint where, uint32 code, const BMessage *dragMessage
 	
 	if (found)
 		_SetStyle(true);
-	
 }
 
+
 bool
-WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word, int32& startPosition, int32& stopPosition)
+WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
+	int32& startPosition, int32& stopPosition)
 {
 	int32 line = LineAt(where);
 	if (line >= CountLines())
@@ -122,7 +128,7 @@ WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
 	stopPosition  = pointPosition;
 	
 	//backward:
-	for(;;) {
+	for (;;) {
 		if (_Classify(ByteAt(startPosition))) {
 			if (startLine == startPosition){
 				break;
@@ -136,7 +142,7 @@ WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
 	}
 	
 	//forward:
-	for(;;) {
+	for (;;) {
 		if (_Classify(ByteAt(stopPosition))) {
 			if (maxPosition == stopPosition) {
 				break;
@@ -149,14 +155,13 @@ WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
 		}	
 	}
 
-	
 	int32 len = stopPosition - startPosition + 1 ;
 	if (len < 1 || len > MAX_WORD_SIZE)
 		return false;
 
 	fBuffer[len] = '\0';
 	
-	GetText	(startPosition, len, fBuffer);
+	GetText(startPosition, len, fBuffer);
 	word.SetTo(fBuffer, len);
 	
 	// let's try to find the ':' chars and decide if we can extract line and column
@@ -166,24 +171,18 @@ WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
 	int32 indexPosition = -1;
 	fCurrentPositions[0] = 0;
 	fCurrentPositions[1] = 0;
-	if ((index = word.FindFirst(':', index)) >= 0)
-	{
+	if ((index = word.FindFirst(':', index)) >= 0) {
 		firstIndex = index;
 		indexPosition = 0;
 		index++;
-		while(index < len) {
-			if(Contains(numericChars, fBuffer[index]))
-			{
+		while (index < len) {
+			if (Contains(kNumericChars, fBuffer[index])) {
 				fCurrentPositions[indexPosition] = fCurrentPositions[indexPosition] * 10 + (fBuffer[index] - '0');
-			}
-			else if (fBuffer[index] == ':')
-			{
+			} else if (fBuffer[index] == ':') {
 				indexPosition++;
 				if (indexPosition > 1)
 					break;
-			}
-			else
-			{
+			} else {
 				break;
 			}
 			index++;
@@ -195,6 +194,7 @@ WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
 		
 	return _EntryExists(word, fCurrentPath);
 }
+
 
 bool
 WordTextView::_EntryExists(const BString& path,	BString& _actualPath) const
@@ -220,4 +220,3 @@ WordTextView::_EntryExists(const BString& path,	BString& _actualPath) const
 	struct stat st;
 	return lstat(_actualPath, &st) == 0;
 }
-

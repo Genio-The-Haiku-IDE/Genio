@@ -651,7 +651,11 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FIND_INVOKED: {
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 				const BString& text(fFindTextControl->Text());
-				_FindNext(text, false);
+				if (fTabManager->SelectedEditor())
+					_FindNext(text, false);
+				else
+					_FindInFiles();
+
 				fFindTextControl->MakeFocus(true);
 			}
 			break;
@@ -1600,24 +1604,20 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	if (entry.InitCheck() != B_OK || entry.IsDirectory())
 		return false;
 
-
 	std::string fileType = Genio::file_type(BPath(ref).Path());
 
 	if (fileType != "")
 		return true;
 
 	BNodeInfo info(&entry);
-
 	if (info.InitCheck() == B_OK) {
 		char mime[B_MIME_TYPE_LENGTH + 1];
 		if (info.GetType(mime) != B_OK) {
 			LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
 			mime[0]='\0';
 		}
-		if (strlen(mime) == 0 || strcmp(mime, "application/octet-stream") == 0)
-		{
-			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK)
-			{
+		if (mime[0] == '\0' || strcmp(mime, "application/octet-stream") == 0) {
+			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
 				if (info.GetType(mime) != B_OK) {
 					LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
 					mime[0]='\0';
@@ -1810,6 +1810,8 @@ int32
 GenioWindow::_FindMarkAll(const BString text)
 {
 	Editor* editor = fTabManager->SelectedEditor();
+	if (!editor)
+		return 0;
 
 	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
 										fFindWholeWordCheck->Value(),
@@ -1831,6 +1833,9 @@ GenioWindow::_FindNext(const BString& strToFind, bool backwards)
 		return;
 
 	Editor* editor = fTabManager->SelectedEditor();
+
+	if (!editor)
+		return;
 
 	editor->GrabFocus();
 
@@ -1867,14 +1872,15 @@ GenioWindow::_FindInFiles()
 
 	  text.CharacterEscape("\\\n\"", '\\');
 
-	  BString grepCommand("grep -IHrn");
+	  BString grepCommand("grep --exclude-dir=.git -IHrn");
 	  grepCommand += extraParameters;
 	  grepCommand += " -- ";
 	  grepCommand += EscapeQuotesWrap(text);
 	  grepCommand += " ";
 	  grepCommand += EscapeQuotesWrap(fActiveProject->Path());
 
-	 fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
+	  LogInfo("Find in file, executing: [%s]", grepCommand.String());
+	  fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
 }
 
 int32
@@ -2286,7 +2292,7 @@ GenioWindow::_InitCentralSplit()
 												.Add(fFindWholeWordCheck)
 												.Add(fFindCaseSensitiveCheck).View());
 
-	fFindGroup->AddAction(MSG_FIND_MARK_ALL, B_TRANSLATE("Bookmark all"), "kIconBookmarkPen");
+	ActionManager::AddItem(MSG_FIND_MARK_ALL, fFindGroup);
 	ActionManager::AddItem(MSG_FIND_IN_FILES, fFindGroup);
 	fFindGroup->AddGlue();
 
@@ -2314,6 +2320,7 @@ GenioWindow::_InitCentralSplit()
 	fReplaceGroup->AddAction(MSG_REPLACE_ALL, B_TRANSLATE("Replace all"), "kIconReplaceAll");
 	fReplaceGroup->AddGlue();
 	fReplaceGroup->Hide();
+
 
 	// Run group
 	fRunConsoleProgramText = new BTextControl("ReplaceTextControl", "", "", nullptr);
@@ -2433,7 +2440,7 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_FILE_FOLD_TOGGLE,
 								   B_TRANSLATE("Fold/Unfold all"),
 								   B_TRANSLATE("Fold/Unfold all"),
-								   "App_OpenTargetFolder");
+								   "kIconFold_4");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
 								   B_TRANSLATE("Show white spaces"),
 								   "", "kIconShowPunctuation");
@@ -2586,6 +2593,12 @@ GenioWindow::_InitActions()
 								  B_TRANSLATE("Find in project"),
 								  B_TRANSLATE("Find in project"),
 								  "kIconFindInFiles");
+
+	ActionManager::RegisterAction(MSG_FIND_MARK_ALL,
+								  B_TRANSLATE("Bookmark all"),
+								  B_TRANSLATE("Bookmark all"),
+								  "kIconBookmarkPen");
+
 }
 
 void
@@ -2721,8 +2734,6 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_GOTO_LINE, searchMenu);
 
-	ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, false);
-	ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, false);
 	ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 
 	fBookmarksMenu = new BMenu(B_TRANSLATE("Bookmark"));
@@ -2932,8 +2943,8 @@ GenioWindow::_InitToolbar()
 
 	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Open files list"), "kIconFileList");
 
-	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
-	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
+	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, true);
+	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
 }
 
 void
@@ -3741,7 +3752,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// All files are closed
 	if (editor == nullptr) {
 		// ToolBar Items
-		_FindGroupShow(false);
+		//_FindGroupShow(false);
 		ActionManager::SetEnabled(MSG_FILE_FOLD_TOGGLE, false);
 		ActionManager::SetEnabled(B_UNDO, false);
 		ActionManager::SetEnabled(B_REDO, false);
@@ -3753,8 +3764,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, false);
 
 		ActionManager::SetEnabled(MSG_BUFFER_LOCK, false);
-		ActionManager::SetEnabled(MSG_FIND_PREVIOUS, false);
-		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
 		fToolBar->SetActionEnabled(MSG_FILE_MENU_SHOW, false);
 
 		ActionManager::SetEnabled(MSG_FILE_NEXT_SELECTED, false);
@@ -3782,12 +3791,11 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 
 		fLineEndingsMenu->SetEnabled(false);
-		ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, false);
-		ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, false);
-		ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, false);
-		ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, false);
 		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
 		ActionManager::SetEnabled(MSG_FIND_PREVIOUS, false);
+		ActionManager::SetEnabled(MSG_FIND_MARK_ALL, false);
+		fReplaceGroup->SetEnabled(false);
+
 		ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 		fBookmarksMenu->SetEnabled(false);
 
@@ -3845,12 +3853,10 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (Genio::file_type(editor->Name().String()).compare("c++") == 0));
 
-	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, true);
-	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
-	ActionManager::SetEnabled(MSG_FIND_GROUP_SHOW, true);
-	ActionManager::SetEnabled(MSG_REPLACE_GROUP_SHOW, true);
 	ActionManager::SetEnabled(MSG_FIND_NEXT, true);
 	ActionManager::SetEnabled(MSG_FIND_PREVIOUS, true);
+	ActionManager::SetEnabled(MSG_FIND_MARK_ALL, true);
+	fReplaceGroup->SetEnabled(true);
 	ActionManager::SetEnabled(MSG_GOTO_LINE, true);
 
 	fBookmarksMenu->SetEnabled(true);

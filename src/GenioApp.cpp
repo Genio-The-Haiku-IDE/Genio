@@ -12,7 +12,7 @@
 #include <StringList.h>
 
 #include <getopt.h>
-
+#include "LSPLogLevels.h"
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 
@@ -293,8 +293,6 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
 	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column"), 80, &limits);
 
-	cfg.AddConfig("Notifications", "enable_notifications", B_TRANSLATE("Enable notifications"), true);
-
 	cfg.AddConfig("Build", "wrap_console",   B_TRANSLATE("Wrap console"), false);
 	cfg.AddConfig("Build", "console_banner", B_TRANSLATE("Console banner"), true);
 	cfg.AddConfig("Build", "build_on_save",  B_TRANSLATE("Auto-Build on resource save"), false);
@@ -304,6 +302,20 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_wrap", B_TRANSLATE("Wrap"), false);
 	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
+
+
+	GMessage lsplevels = {{ {"mode", "options"},
+							{"note", B_TRANSLATE("This setting will be updated on restart")}
+						 }};
+
+	lsplevels["option_1"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR;
+	lsplevels["option_1"]["label"] = "Error";
+	lsplevels["option_2"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_INFO;
+	lsplevels["option_2"]["label"] = "Info";
+	lsplevels["option_3"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_TRACE;
+	lsplevels["option_3"]["label"] = "Trace";
+
+	cfg.AddConfig("LSP", "lsp_log_level", B_TRANSLATE("Log level:"), (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
 
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
 }

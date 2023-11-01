@@ -69,7 +69,7 @@ private:
 	virtual	status_t			ExecuteUnit();
 	virtual	status_t			ThreadShutdown();
 	virtual	void				ExecuteUnitFailed(status_t a_status);
-			
+
 
 			thread_id			PipeCommand(int argc, const char** argv,
 									int& in, int& out, int& err,
@@ -78,7 +78,7 @@ private:
 			void				_CleanPipes();
 			status_t			_RunExternalProcess();
 
-			
+
 
 			thread_id			fProcessId;
 			int					fStdIn;
@@ -89,6 +89,8 @@ private:
 			char				fConsoleOutputBuffer[LINE_MAX];
 			BString 			fCmdType;
 			bool				fIsDone;
+			BString				fLastOutputString;
+			BString				fLastErrorString;
 };
 
 

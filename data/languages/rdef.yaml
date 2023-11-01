@@ -1,0 +1,39 @@
+# RDef
+lexer: cpp
+properties:
+    fold: 1
+keywords:
+    0: resource
+    1: vector_icon message array
+identifiers:
+    11:
+        - >
+            app_signature app_name_catalog_entry app_flags app_version
+            file_types major middle minor variety internal short_info long_info
+        - >
+            B_SINGLE_LAUNCH B_EXCLUSIVE_LAUNCH B_MULTIPLE_LAUNCH
+            B_APPV_DEVELOPMENT B_APPV_ALPHA B_APPV_BETA B_APPV_GAMMA
+            B_APPV_GOLDEN_MASTER B_APPV_FINAL
+comments:
+    line: //
+    block: [ "/*", "*/" ]
+styles:
+    11: 32
+    10: 110
+    6: 106
+    7: 106
+    4: 104
+    5: 105
+    16: 105
+    1: 101
+    2: 101
+    3: 103
+    15: 103
+    17: 117
+    18: 117
+    19: 119
+    13: 113
+    14: 114
+    9: 109
+substyles:
+    11: [ 119, 120 ]

@@ -35,6 +35,7 @@
 #include "ProjectFolder.h"
 #include "ScintillaUtils.h"
 #include "Utils.h"
+#include "Languages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -654,7 +655,8 @@ Editor::LoadFromFile()
 	// Monitor node
 	StartMonitoring();
 
-	fFileType = Genio::file_type(fFileName.String());
+	fFileType = "";
+	Languages::GetLanguageForExtension(Genio::GetFileExtension(fFileName.String()), fFileType);
 
 	UpdateStatusBar();
 	return B_OK;
@@ -1322,27 +1324,14 @@ Editor::ContextMenu(BPoint point)
 void
 Editor::_ApplyExtensionSettings()
 {
-	if (fFileType == "c++") {
+	if (fFileType != "") {
 		fSyntaxAvailable = true;
 		fFoldingAvailable = true;
 		fBracingAvailable = true;
 		fParsingAvailable = true;
-		fCommenter = "//";
-		SendMessage(SCI_SETILEXER, 0, (sptr_t)CreateLexer("cpp"));
-		SendMessage(SCI_SETKEYWORDS, 0, (sptr_t)cppKeywords);
-		SendMessage(SCI_SETKEYWORDS, 1, (sptr_t)haikuClasses);
-	} else if (fFileType == "rust") {
-		fSyntaxAvailable = true;
-		fFoldingAvailable = true;
-		fBracingAvailable = true;
-		fCommenter = "//";
-		SendMessage(SCI_SETILEXER, 0, (sptr_t)CreateLexer("rust"));
-		SendMessage(SCI_SETKEYWORDS, 0, (sptr_t)rustKeywords);
-	} else if (fFileType == "make") {
-		fSyntaxAvailable = true;
-		fBracingAvailable = true;
-		fCommenter = "#";
-		SendMessage(SCI_SETILEXER, 0, (sptr_t)CreateLexer("make"));
+		fCommenter = "//";// FixMe: check _ApplyLanguage for details
+
+		Languages::_ApplyLanguage(this, fFileType.c_str(), "/boot/data/genio/Genio/data");
 	}
 }
 

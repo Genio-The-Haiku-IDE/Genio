@@ -16,6 +16,7 @@
 #include "GenioNamespace.h"
 #include "Log.h"
 #include "TemplateManager.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplateManager"
@@ -109,30 +110,11 @@ TemplateManager::CreateNewFolder(const entry_ref* destination)
 BString
 TemplateManager::GetDefaultTemplateDirectory()
 {
+
 	// Default template directory
 	app_info info;
-	BPath templatePath;
-	if (be_app->GetAppInfo(&info) == B_OK) {
-		// This code should work both for the case where Genio is
-		// in the "app" subdirectory, like in the repo,
-		// and when it's in the package.
-		BPath genioPath(&info.ref);
-		BPath parentPath;
-		if (genioPath.GetParent(&parentPath) == B_OK) {
-			templatePath = parentPath;
-			templatePath.Append("data");
-			templatePath.Append(kTemplateDirectory);
-			// Genio
-			// data/templates/
-			if (!BEntry(templatePath.Path()).IsDirectory()) {
-				// app/Genio
-				// data/templates/
-				parentPath.GetParent(&templatePath);
-				templatePath.Append("data");
-				templatePath.Append(kTemplateDirectory);
-			}
-		}
-	}
+	BPath templatePath = GetDataDirectory();
+	templatePath.Append(kTemplateDirectory);
 	return templatePath.Path();
 }
 

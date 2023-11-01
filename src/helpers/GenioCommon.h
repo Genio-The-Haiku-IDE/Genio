@@ -12,6 +12,7 @@
 namespace Genio
 {
 	std::string const	file_type(const std::string& filename);
+	std::string GetFileExtension(const char* fileName);
 }
 
 

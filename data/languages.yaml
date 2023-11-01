@@ -1,0 +1,83 @@
+text:
+    name: Text file
+    extensions: [ txt ]
+awk:
+    name: AWK
+    extensions: [ awk ]
+bash:
+    name: Bash
+    extensions: [ sh, bash, bsh, csh, ksh, configure ]
+c:
+    name: C
+    extensions: [ c ]
+cmake:
+    name: CMake
+    extensions: [ cmake, CMakeLists.txt, CMakeCache.txt ]
+cpp:
+    name: C++
+    extensions: [ cc, cpp, cxx, h, hh, hpp, hxx, dox ]
+css:
+    name: CSS
+    extensions: [ css ]
+diff:
+    name: Diff
+    extensions: [ diff, patch, patchset ]
+gdscript:
+    name: GDScript
+    extensions: [ gd ]
+html:
+    name: HTML
+    extensions: [ html, htm, shtml, shtm, xhtml, xht, hta ]
+jam:
+    name: Jam
+    extensions: [ Jamfile, Jamrules, Jambase ]
+javascript:
+    name: JavaScript
+    extensions: [ js, jsm, json ]
+lua:
+    name: Lua
+    extensions: [ lua ]
+makefile:
+    name: Makefile
+    extensions: [ mk, mak, Makefile, Makefile.am, makefile ]
+markdown:
+    name: Markdown
+    extensions: [ md, markdown ]
+ocaml:
+    name: OCaml
+    extensions: [ ml, mli, sml, thy ]
+perl:
+    name: Perl
+    extensions: [ pl, pm, pod ]
+php:
+    name: PHP
+    extensions: [ php, php3, php4, php5, phps, phpt, phtml ]
+python:
+    name: Python
+    extensions: [ py, pyw ]
+rdef:
+    name: RDef
+    extensions: [ rdef ]
+recipe:
+    name: Recipe
+    extensions: [ recipe ]
+ruby:
+    name: Ruby
+    extensions: [ rb, rbw, rake, rjs, Rakefile ]
+rust:
+    name: Rust
+    extensions: [ rs ]
+yab:
+    name: YAB
+    extensions: [ yab ]
+xml:
+    name: XML
+    extensions: [ xml, xaml, xsl, xslt, xsd, xul, kml, svg, mxml, xsml, wsdl,
+                  xlf, xliff, xbl, sxbl, pimx, config, vsixmanifest, manifest,
+                  proj, csproj, vbproj, fsproj, vcproj, vcxproj, nproj, pyproj,
+                  javaproj, wixproj, filters, settings, testsettings, vsmdi,
+                  ruleset, rules, targets, props, vsprops, propdesc, resx,
+                  rdlc rdl swidtag gml gtt gpx ]
+yaml:
+    name: YAML
+    extensions: [ yml, yaml ]

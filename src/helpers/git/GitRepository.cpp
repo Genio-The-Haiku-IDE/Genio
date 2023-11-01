@@ -253,19 +253,25 @@ namespace Genio::Git {
 	}
 
 	const BPath&
-	GitRepository::Clone(const string& url, const BPath& localPath, git_indexer_progress_cb callback)
+	GitRepository::Clone(const string& url, const BPath& localPath,
+							git_indexer_progress_cb callback,
+							git_credential_acquire_cb authentication_callback)
 	{
 		git_libgit2_init();
 		git_clone_options clone_opts = GIT_CLONE_OPTIONS_INIT;
 		git_remote_callbacks callbacks = GIT_REMOTE_CALLBACKS_INIT;
 		callbacks.transfer_progress = callback;
 		clone_opts.fetch_opts.callbacks = callbacks;
+		clone_opts.fetch_opts.callbacks.credentials = authentication_callback;
 
 		git_repository *repo = nullptr;
 
 		int error = git_clone(&repo, url.c_str(), localPath.Path(), &clone_opts);
-		if (error != 0) {
-			throw std::runtime_error(git_error_last()->message);
+		if (error < 0) {
+			if (error == CANCEL_CREDENTIALS)
+				throw std::runtime_error("CANCEL_CREDENTIALS");
+			else
+				throw std::runtime_error(git_error_last()->message);
 		}
 		return localPath;
 	}

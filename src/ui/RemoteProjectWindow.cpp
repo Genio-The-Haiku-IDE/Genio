@@ -11,6 +11,7 @@
 #include <AppKit.h>
 #include <Catalog.h>
 #include <ControlLook.h>
+#include <git2.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
 #include <StatusBar.h>
@@ -19,6 +20,8 @@
 #include <Window.h>
 
 #include "GenioWindowMessages.h"
+#include "GitCredentialsWindow.h"
+#include "GitRepository.h"
 #include "Utils.h"
 
 #include "BeDC.h"
@@ -159,9 +162,11 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				_SetProgress(100, "Finished!");
 				fButtonsLayout->SetVisibleItem(VIEW_INDEX_CLOSE_BUTTON);
 			} catch(std::exception &ex) {
-				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ")
-					<< ex.what(), B_INFO_ALERT);
-				fStatusText->SetText("An error occurred!");
+				if (BString(ex.what()) != "CANCEL_CREDENTIALS") {
+					OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ")
+						<< ex.what(), B_INFO_ALERT);
+					fStatusText->SetText("An error occurred!");
+				}
 				_SetIdle();
 			}
 			_ResetControls();
@@ -178,25 +183,59 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			fURL->SetEnabled(false);
 
 			auto callback = [](const git_transfer_progress *stats, void *payload) -> int {
+				int current_progress = stats->total_objects > 0 ?
+					(100*stats->received_objects) /
+					stats->total_objects :
+					0;
+				int kbytes = stats->received_bytes / 1024;
 
-								int current_progress = stats->total_objects > 0 ?
-									(100*stats->received_objects) /
-									stats->total_objects :
-									0;
-								int kbytes = stats->received_bytes / 1024;
+				BString progressString;
+				progressString << "Cloning "
+					<< stats->received_objects << "/"
+					<< stats->total_objects << " objects"
+					<< " (" << kbytes << " kb)";
 
-								BString progressString;
-								progressString << "Cloning "
-									<< stats->received_objects << "/"
-									<< stats->total_objects << " objects"
-									<< " (" << kbytes << " kb)";
+				BMessage msg(kProgress);
+				msg.AddString("progress_text", progressString);
+				msg.AddFloat("progress_value", current_progress);
+				BMessenger(this_handler).SendMessage(&msg);
+				return 0;
+			};
 
-								BMessage msg(kProgress);
-								msg.AddString("progress_text", progressString);
-								msg.AddFloat("progress_value", current_progress);
-								BMessenger(this_handler).SendMessage(&msg);
-								return 0;
-							};
+			// taken from TrackGit
+			auto authentication_callback = [](git_cred** out, const char* url,
+												const char* username_from_url,
+												unsigned int allowed_types,
+												void* payload) -> int {
+				char username[39], password[128];
+				int error = 0;
+
+				// strcpy(username, username_from_url);
+
+				GitCredentialsWindow* window = new GitCredentialsWindow(username, password);
+
+				thread_id thread = window->Thread();
+				status_t win_status = B_OK;
+				wait_for_thread(thread, &win_status);
+
+				if (BString(username) != "" && BString(password) != "") {
+					if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
+						// error = git_credential_ssh_key_new(out, username, pubkey, privkey, password);
+						error = git_credential_ssh_key_from_agent(out, username);
+					} else {
+						error = git_cred_userpass_plaintext_new(out, username, password);
+					}
+				}
+
+				/**
+				 * If user cancels the credentials prompt, the username is empty.
+				 * Cancel the command in such case.
+				 */
+				if (strlen(username) == 0)
+					return CANCEL_CREDENTIALS;
+
+				return error;
+			};
 
 			BPath fullPath(fPathBox->Path());
 			fullPath.Append(fDestDir->Text());
@@ -208,10 +247,11 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				std::bind
 				(
 					&GitRepository::Clone,
-					&repo ,
+					&repo,
 					fURL->Text(),
 					fullPath,
-					callback
+					callback,
+					authentication_callback
 				)
 			);
 

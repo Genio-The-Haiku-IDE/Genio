@@ -25,6 +25,8 @@ public:
 						const char* iconName = nullptr, bool lockable = false);
 	void			ChangeIconSize(float newSize);
 
+	void			SetEnabled(bool enable);
+
 private:
 	BHandler*	fDefaultTarget;
 	float		fIconSize;

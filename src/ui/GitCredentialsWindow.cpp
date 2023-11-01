@@ -5,25 +5,26 @@
  */
 #include "GitCredentialsWindow.h"
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
-#include <AppKit.h>
+#include <Button.h>
 #include <Catalog.h>
 #include <LayoutBuilder.h>
-#include <SupportKit.h>
+#include <TextControl.h>
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GitCredentialsWindow"
 
-GitCredentialsWindow::GitCredentialsWindow(char* usernamePtr, char* passwordPtr)
+GitCredentialsWindow::GitCredentialsWindow(const char* username, const char* password)
 	:
 	BWindow(BRect(0, 0, 300, 150), B_TRANSLATE("Git - User Credentials"),
 			B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE
 			| B_AUTO_UPDATE_SIZE_LIMITS | B_NOT_CLOSABLE)
 {
-	fUsernamePtr = usernamePtr;
-	fPasswordPtr = passwordPtr;
+	fUsernameString = username;
+	fPasswordString = password;
 
 	fUsername = new BTextControl(B_TRANSLATE("Username:"), "", NULL);
 	fPassword = new BTextControl(B_TRANSLATE("Password:"), "", NULL);
@@ -55,13 +56,13 @@ GitCredentialsWindow::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
 		case kCredOK:
-			strcpy(fUsernamePtr, fUsername->Text());
-			strcpy(fPasswordPtr, fPassword->Text());
+			fUsernameString = fUsername->Text();
+			fPasswordString = fPassword->Text();
 			Quit();
 			break;
 		case kCredCancel:
-			strcpy(fUsernamePtr, "");
-			strcpy(fPasswordPtr, "");
+			fUsernameString = "";
+			fPasswordString = "";
 			Quit();
 			break;
 		// default:

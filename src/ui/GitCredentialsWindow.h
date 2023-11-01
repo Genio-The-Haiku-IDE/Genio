@@ -6,19 +6,27 @@
 #ifndef _CREDENTIALS_WINDOW_H_
 #define _CREDENTIALS_WINDOW_H_
 
-#include <posix/sys/time.h>
+#include <sys/time.h>
 
-#include <InterfaceKit.h>
+#include <String.h>
+#include <Window.h>
+
 
 enum {
 	kCredOK,
 	kCredCancel
 };
 
+class BTextControl;
 /**
  * The Credentials Window class.
  */
 class GitCredentialsWindow : public BWindow {
+public:
+							GitCredentialsWindow(const char* username,
+												const char* password);
+	virtual void			MessageReceived(BMessage* message);
+private:
 	/**
 	 * The text control for username.
 	 */
@@ -27,17 +35,10 @@ class GitCredentialsWindow : public BWindow {
 	 * The text control for password.
 	 */
 	BTextControl* 			fPassword;
-	/**
-	 * The username pointer.
-	 */
-	char*					fUsernamePtr;
-	/**
-	 * The password pointer.
-	 */
-	char*					fPasswordPtr;
-	public:
-							GitCredentialsWindow(char*, char*);
-	virtual void			MessageReceived(BMessage*);
+	
+	BString					fUsernameString;
+	BString					fPasswordString;
+
 };
 
 #endif

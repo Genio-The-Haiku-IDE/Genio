@@ -202,36 +202,6 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				return 0;
 			};
 
-			// taken from TrackGit
-/*			auto authentication_callback = [](git_cred** out, const char* url,
-												const char* username_from_url,
-												unsigned int allowed_types,
-												void* payload) -> int {
-				char username[39], password[128];
-				int error = 0;
-
-				// strcpy(username, username_from_url);
-
-				GitCredentialsWindow* window = new GitCredentialsWindow(username, password);
-
-				thread_id thread = window->Thread();
-				status_t win_status = B_OK;
-				wait_for_thread(thread, &win_status);
-
-				if (strlen(username) != 0 && strlen(password) != 0) {
-					if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
-						error = git_credential_ssh_key_from_agent(out, username);
-					} else {
-						error = git_cred_userpass_plaintext_new(out, username, password);
-					}
-				}
-
-				if (strlen(username) == 0)
-					return CANCEL_CREDENTIALS;
-
-				return error;
-			};*/
-
 			BPath fullPath(fPathBox->Path());
 			fullPath.Append(fDestDir->Text());
 			GitRepository repo(fullPath.Path());

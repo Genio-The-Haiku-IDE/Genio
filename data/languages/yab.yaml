@@ -1,0 +1,36 @@
+# YAB
+lexer: yab
+properties:
+    fold: 1
+keywords:
+    0: >
+        and alert arraydim arraysize boxview break button case calendar
+        checkbox chr$ circle clear clipboard close collapse color colorcontrol
+        column columnbox compile continue copy count curve dim data date$
+        default draw dropbox dropzone ellipse else elseif elsif end endif
+        endsub eof eor error euler execute exit expand export false filepanel
+        flush for frac getscreen$ glob gosub goto hashmarks hide if image
+        import inkey$ input instr interrupt ismousein keyboard label layout
+        left$ len let line listbox load$ local localize log loop lower$ ltrim$
+        max menu message$ mid$ min mod mouse msg$ new next not on open option or
+        paste$ pause peek peek$ pi poke popupmenu print printer putscreen
+        radiobutton ran read reading rect rect redim remove repeat resize
+        restore return reverse right$ rinstr rtrim$ save$ screen scrollbar seek
+        select set setup show sig sin sleep slider sort soundplay spincontrol
+        split split$ splitview sqr sqrt stackview static step str$ sub submenu
+        subroutine svg switch system system$ tabview tan tell text textcontrol
+        textedit texturl then time$ token token$ tooltip translate$ treebox
+        trim$ true until upper$ using val view wait wend while window writing
+        xor
+comments:
+    line: "#"
+styles:
+    0: 32
+    7: 32
+    1: 101
+    2: 104
+    3: 105
+    4: 106
+    5: 109
+    6: 110
+    8: 103

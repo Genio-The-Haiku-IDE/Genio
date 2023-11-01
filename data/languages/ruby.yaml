@@ -1,0 +1,34 @@
+# Ruby
+# adapted from SciTE
+lexer: ruby
+keywords:
+    0: >
+        __FILE__ and def end in or self unless __LINE__ begin \
+        defined? ensure module redo super until BEGIN break do false next rescue
+        then when END case else for nil retry true while alias class elsif if
+        not return undef yield
+comments:
+    line: "#"
+styles:
+    0: 32
+    1: 148
+    2: 101
+    3: 32
+    4: 104
+    5: 105
+    6: 106
+    7: 106
+    8: 32
+    9: 129
+    10: 32
+    11: 32
+    12: 114
+    13: 152
+    14: 32
+    15: 109
+    16: 32
+    17: 32
+    18: 151
+    19: 113
+    24: 106
+    29: 105

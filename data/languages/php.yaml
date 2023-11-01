@@ -1,0 +1,28 @@
+# PHP
+lexer: phpscript
+keywords:
+    4: >
+        __CLASS__ __DIR__ __FILE__ __FUNCTION__ __LINE__ __METHOD__
+        __NAMESPACE__ __TRAIT__ __halt_compiler
+        abstract and array as break callable case catch class
+        clone const continue declare default die do echo else elseif empty
+        enddeclare endfor endforeach endif endswitch endwhile eval exit extends
+        final for foreach function global goto if implements include
+        include_once instanceof insteadof interface isset list namespace new or
+        parent print private protected public require require_once return self
+        static switch throw trait try unset use var while xor
+comments:
+    line: "//"
+    block: [ "/*", "*/" ]
+styles:
+    18: 117
+    118: 32
+    119: 106
+    126: 32
+    120: 106
+    121: 105
+    122: 104
+    123: 152
+    124: 101
+    125: 101
+    127: 32

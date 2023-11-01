@@ -1,0 +1,79 @@
+# HTML
+lexer: hypertext
+properties:
+    fold: 1
+    fold.html: 1
+keywords:
+    0: >
+        a abbr acronym address applet area article aside audio b base basefont
+        bdi bdo big blockquote body br button canvas caption center cite code
+        col colgroup datalist dd del details dfn dialog dir div dl dt em embed
+        fieldset figcaption figure font footer form frame frameset h1 h2 h3 h4
+        h5 h6 head header hr html i iframe img input ins kbd keygen label legend
+        li link main map mark menu menuitem meta meter nav noframes noscript
+        object ol optgroup option output p param picture pre progress q rp rt
+        ruby s samp script section select small source span strike strong style
+        sub summary sup table tbody td textarea tfoot th thead time title tr
+        track tt u ul var video wbr
+    1: >
+        abstract arguments await boolean break byte case catch char class const
+        continue debugger default delete do double else enum eval export extends
+        false final finally float for function goto if implements import in
+        instanceof int interface let long native new null package private
+        protected public return short static super switch synchronized this
+        throw throws transient true try typeof var void volatile while with
+        yield
+    4: >
+        __CLASS__ __DIR__ __FILE__ __FUNCTION__ __LINE__ __METHOD__
+        __NAMESPACE__ __TRAIT__ __halt_compiler
+        abstract and array as break callable case catch class
+        clone const continue declare default die do echo else elseif empty
+        enddeclare endfor endforeach endif endswitch endwhile eval exit extends
+        final for foreach function global goto if implements include
+        include_once instanceof insteadof interface isset list namespace new or
+        parent print private protected public require require_once return self
+        static switch throw trait try unset use var while xor
+comments:
+    block: [ "<!--", "-->" ]
+styles:
+    0: 32
+    12: 155
+    13: 155
+    9: 101
+    5: 104
+    6: 106
+    7: 106
+    1: 155
+    11: 155
+    2: 32
+    3: 156
+    4: 32
+    21: 161
+    17: 32
+    19: 32
+    10: 106
+    18: 117
+    # JavaScript
+    41: 32
+    42: 101
+    43: 101
+    44: 103
+    45: 104
+    46: 32
+    47: 105
+    48: 106
+    49: 106
+    50: 32
+    51: 106
+    52: 114
+    # PHP
+    118: 32
+    119: 106
+    126: 32
+    120: 106
+    121: 105
+    122: 104
+    123: 152
+    124: 101
+    125: 101
+    127: 32

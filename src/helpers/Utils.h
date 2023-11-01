@@ -37,9 +37,9 @@ bool IsCppSourceExtension(std::string extension);
 bool IsCppHeaderExtension(std::string extension);
 
 double Round(double value, int precision);
-void ProgressNotification(const char* group, const char* title, const char* messageID, 
+void ProgressNotification(const char* group, const char* title, const char* messageID,
 							const char* content, float progress, bigtime_t timeout = -1);
-void ErrorNotification(const char* group, const char* title, const char* messageID, 
+void ErrorNotification(const char* group, const char* title, const char* messageID,
 							const char* content, bigtime_t timeout = -1);
 
 template<typename T>
@@ -154,6 +154,8 @@ public:
 		return 0; // FIXME: throw an exception here
 	}
 };
+
+BPath	GetDataDirectory();
 
 
 #endif // UTILS_H

@@ -1,0 +1,91 @@
+lexer: bash
+properties:
+    fold: 1
+    fold.comment: 1
+keywords:
+    0: >
+        alias ar asa awk banner basename bash bc bdiff break bunzip2 bzip2 cal
+        calendar case cat cc cd chmod cksum clear cmp col comm compress continue
+        cp cpio crypt csplit ctags cut date dc dd declare deroff dev df diff
+        diff3 dircmp dirname do done du echo ed egrep elif else env esac eval
+        ex exec exit expand export expr false fc fgrep fi file find fmt fold
+        for function functions getarch getconf getopt getopts grep gres hash
+        head help history iconv id if in integer jobs join kill local lc let
+        line ln logname look ls m4 mail mailx make man mkdir more mt mv newgrp
+        nl nm nohup ntps od pack paste patch pathchk pax pcat perl pg pr print
+        printf ps pwd read readonly red return rev rm rmdir sed select set
+        setarch sh shift size sleep sort spell split start stop strings strip
+        stty sum suspend sync tail tar tee test then time times touch tr trap
+        true tsort tty type typeset ulimit umask unalias uname uncompress
+        unexpand uniq unpack unset until uudecode uuencode vi vim vpax wait wc
+        whence which while who wpaste wstart xargs zcat
+identifiers:
+    8:
+        - >
+            BUILD PATCH INSTALL TEST
+            ADDITIONAL_FILES ARCHITECTURES BUILD_PACKAGE_ACTIVATION_PHASE
+            BUILD_PACKAGE_ACTIVATION_FILE BUILD_PREREQUIRES BUILD_REQUIRES
+            CHECKSUM_SHA256 CHECKSUM_SHA256_2
+            CHECKSUM_SHA256_3 CHECKSUM_SHA256_4 CHECKSUM_SHA256_5
+            CHECKSUM_SHA256_6 CHECKSUM_SHA256_7 CHECKSUM_SHA256_8
+            CHECKSUM_SHA256_9 CONFLICTS COPYRIGHT DESCRIPTION
+            DISABLE_SOURCE_PACKAGE FRESHENS GLOBAL_WRITABLE_FILES HOMEPAGE
+            LICENSE MESSAGE PACKAGE_GROUPS PACKAGE_USERS PATCHES
+            POST_INSTALL_SCRIPTS PROVIDES PROVIDES_devel REPLACES REQUIRES
+            REQUIRES_devel REVISION SECONDARY_ARCHITECTURES
+            SOURCE_DIR SOURCE_DIR_2 SOURCE_DIR_3
+            SOURCE_DIR_4 SOURCE_DIR_5 SOURCE_DIR_6 SOURCE_DIR_7 SOURCE_DIR_8
+            SOURCE_DIR_9 SOURCE_FILENAME SOURCE_URI SOURCE_URI_2 SOURCE_URI_3
+            SOURCE_URI_4 SOURCE_URI_5 SOURCE_URI_6 SOURCE_URI_7 SOURCE_URI_8
+            SOURCE_URI_9 SUMMARY SUPPLEMENTS TEST_REQUIRES USER_SETTINGS_FILES
+        - >
+            addAppDeskbarSymlink addPreferencesDeskbarSymlink
+            addResourcesToBinaries checkedUnmount defineDebugInfoPackage
+            extractDebugInfo fixDevelopLibDirReferences
+            fixPkgconfig getPackagePrefix getTargetArchitectureCommand
+            packageDebugInfos packageEntries prepareInstalledDevelLib
+            prepareInstalledDevelLibs runConfigure symlinkRelative
+            updateRevisionVariables
+    9:
+        - >
+            addOnsDir appsDir binDir buildArchitecture buildMachineTriple
+            buildMachineTripleAsName configureDirArgs configureDirVariables
+            crossSysrootDir dataDir dataRootDir debugInfoDir developDir
+            developDocDir developLibDir docDir documentationDir fontsDir
+            includeDir infoDir installDestDir isCrossRepository jobArgs
+            jobs libDir libExecDir localStateDir manDir oldIncludeDir
+            portBaseDir portDir portFullVersion portName
+            portPackageLinksDir portRevision portRevisionedName portVersion
+            portVersionedName postInstallDir preferencesDir prefix
+            relativDebugInfoDir relativeAddOnsDir relativeAppsDir
+            relativeBinDir relativeDataDir relativeDataRootDir
+            relativeDevelopDir relativeDevelopDocDir relativeDevelopLibDir
+            relativeDocDir relativeDocumentationDir relativeFontsDir
+            relativeIncludeDir relativeInfoDir relativeLibDir
+            relativeLibExecDir relativeLocalStateDir relativeManDir
+            relativeOldIncludeDir relativePostInstallDir
+            relativePreferencesDir relativeSbinDir relativeSettingsDir
+            relativeSharedStateDir sbinDir secondaryArchSuffix settingsDir
+            sharedStateDir sourceDir sourceDir2 sourceDir3 sourceDir4
+            sourceDir5 sourceDir6 sourceDir7 sourceDir8 sourceDir9
+            targetArchitecture targetMachineTriple targetMachineTripleAsName
+comments:
+    line: "#"
+styles:
+    0: 32
+    1: 148
+    3: 104
+    4: 105
+    5: 106
+    6: 106
+    7: 110
+    8: 32
+    9: 152
+    2: 101
+    10: 152
+    11: 151
+    12: 113
+    13: 113
+substyles:
+    8: [ 180, 181 ]
+    9: [ 182 ]

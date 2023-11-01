@@ -1,0 +1,81 @@
+# GDScript
+lexer: python
+properties:
+    fold: 1
+keywords:
+    # keywords 0 - style: 5
+    0: as assert break breakpoint class const continue elif else enum export extends for func if is match master mastersync onready pass preload print puppet puppetsync remote remotesync return self setget signal static tool var while yield PI TAU INF NAN false true bool float int null and in or not
+    # keywords 1 - style: 14
+    1: _get _get_property_list _init _notification _set _enter_tree _exit_tree _get_configuration_warning _input _physics_process _process _ready _unhandled_input _unhandled_key_input _input_event _draw
+identifiers:
+    11:
+        - > # built in types
+            Vector2 Rect2 Vector3 Transform2D Plane Quat AABB Basis Transform Color NodePath Object Array Dictionary String PoolByteArray PoolIntArray PoolRealArray PoolStringArray PoolVector2Array PoolVector3Array PoolColorArray RID
+        - > # Nodes 2D
+            Node2D AnimatedSprite CollisionObject2D Area2D PhysicsBody2D KinematicBody2D RigidBody2D StaticBody2D AudioStreamPlayer2D BackBufferCopy Bone2D CPUParticles2D Camera2D CanvasModulate CollisionPolygon2D CollisionShape2D Joint2D DampedSpringJoint2D GrooveJoint2D PinJoint2D Light2D LightOccluder2D Line2D MeshInstance2D Navigation2D NavigationPolygonInstance ParallaxLayer Particles2D Path2D PathFollow2D Polygon2D Position2D RayCast2D RemoteTransform2D Skeleton2D Sprite TileMap TouchScreenButton VisibilityNotifier2D YSort
+        - > # Nodes 3D
+            Node Spatial ARVRAnchor Camera ARVRCamera ClippedCamera InterpolatedCamera ARVRController ARVROrigin VisualInstance GeometryInstance SpriteBase3D AnimatedSprite3D Sprite3D CPUParticles ImmediateGeometry MeshInstance SoftBody MultiMeshInstance Particles BakedLightmap CSGShape CSGPrimitive CSGBox CSGCylinder CSGMesh CSGPolygon CSGSphere CSGTorus CSGCombiner Light DirectionalLight OmniLight SpotLight GIProbe ReflectionProbe RootMotionView CollisionObject Area PhysicsBody KinematicBody PhysicalBone RigidBody VehicleBody StaticBody AudioStreamPlayer3D BoneAttachment CollisionPolygon CollisionShape Joint ConeTwistJoint Generic6DOFJoint HingeJoint PinJoint SliderJoint GridMap Listener Navigation NavigationMeshInstance Path PathFollow Position3D ProximityGroup RayCast RemoteTransform Skeleton SpringArm VehicleWheel VisibilityNotifier VisibilityEnabler
+        - > # GUI Nodes
+            Control Popup WindowDialog AcceptDialog ConfirmationDialog FileDialog PopupDialog PopupMenu PopupPanel BaseButton Button CheckBox CheckButton ColorPickerButton MenuButton OptionButton ToolButton LinkButton TextureButton Container CenterContainer BoxContainer ColorPicker HBoxContainer VBoxContainer GraphNode GridContainer SplitContainer HSplitContainer VSplitContainer MarginContainer PanelContainer ScrollContainer TabContainer ViewportContainer ColorRect GraphEdit Range ScrollBar HScrollBar VScrollBar Slider HSlider VSlider ProgressBar SpinBox TextureProgress Separator HSepparator VSeparator ItemList Label LineEdit NinePatchRect Panel ReferenceRect RichTextLabel Tabs TextEdit TextureRect Tree
+        - > # Color Names
+            aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflower cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray webgray green webgreen greenyellow honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrod lightgray lightgreen lightpink lightsalmon lightseagreen lightskyblue lightslategray lightsteelblue lightyellow lime limegreen linen magenta maroon webmaroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navyblue oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple webpurple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen
+        - > # other nodes
+            CanvasItem AnimationPlayer AnimationTree AnimationTreePlayer AudioStreamPlayer CanvasLayer ParallaxBackground HTTPRequest ResourcePreloader SkeletonIK Timer Tween Viewport WorldEnvironment
+        - > # classes
+            Object Input InputDefault Reference Resource InputEvent InputEventAction InputEventWithModifiers InputEventGesture InputEventMagnifyGesture InputEventPanGesture InputEventKey InputEventMouse InputEventMouseButton InputEventMouseMotion InputEventJoypadButton InputEventJoypadMotion InputEventMIDI InputEventScreenDrag InputEventScreenTouch VisualScriptNode VisualScriptInputAction VisualShaderNode VisualShaderNodeInput InputMap
+        - > # methods
+            # input
+            action_press action_release add_joy_mapping get_accelerometer get_action_strength get_connected_joypads get_gravity get_gyroscope get_joy_axis get_joy_axis_index_from_string get_joy_axis_string get_joy_button_index_from_string get_joy_button_string get_joy_guid get_joy_name get_joy_vibration_duration get_joy_vibration_strength get_last_mouse_speed get_magnetometer get_mouse_button_mask get_mouse_mode is_action_just_pressed is_action_just_released is_action_pressed is_joy_button_pressed is_joy_known is_key_pressed is_mouse_button_pressed joy_connection_changed parse_input_event remove_joy_mapping set_custom_mouse_cursor set_default_cursor_shape set_mouse_mode set_use_accumulated_input start_joy_vibration stop_joy_vibration warp_mouse_position
+            # canvas item
+            draw_char draw_circle draw_colored_polygon draw_line draw_mesh draw_multiline draw_multiline_colors draw_multimesh draw_polygon draw_polyline draw_polyline_colors draw_primitive draw_rect draw_set_trasform draw_set_transform_matrix draw_string draw_style_box draw_texture draw_texture_rect draw_texture_rect_region force_update_transform get_canvas get_canvas_item get_canvas_transform get_global_transform_with_canvas get_local_mouse_position get_world_2d hide is_local_transform_notification_enabled is_set_as_toplevel is_transform_notification_enabled is_visible_in_tree make_canvas_position_local make_input_local set_as_toplevel set_notify_local_transform set_notify_transform show update
+            # area
+            get_collision_layer_bit get_collision_mask_bit get_overlapping_areas get_overlapping_bodies overlaps_area overlaps_body set_collision_layer_bit set_collision_layer_mask_bit
+            # collision object
+            create_chape_owner get_rid get_shape_owners is_shape_owner_disabled remove_shape_owner shape_find_owner shape_owner_add_shape shape_owner_clear_shapes shape_owner_get_owner shape_owner_get_shape shape_owner_get_shape_count shape_owner_get_shape_index shape_owner_remove_shape shape_owner_get_transform shape_owner_set_disabled shape_owner_set_transform
+            # spatial
+            force_update_transform get_parent_spatial get_world global_rotate global_scale global_translate hide is_local_transform_notification_enabled is_scale_disabled is_set_as_toplevel is_transform_notification_enabled is_visible_in_tree look_at look_at_from_position orthonormalize rotate rotate_object_local rotate_x rotate_y rotate_z scale_object_local set_as_toplevel set_disable_scale set_identity set_ignore_transform_notification set_notify_local_transform set_notify_transform show to_global to_local translate translate_object_local update_gizmo
+            # node
+            add_child add_child_below_node add_to_group can_process duplicate find_node find_parent get_child get_child_count get_children get_groups get_index get_network_master get_node get_node_and_resource get_node_or_null get_parent get_path get_path_to get_physics_process_delta_time get_position_in_parent get_process_delta_time get_scene_instance_load_placeholder get_tree get_viewport has_node has_node_and_resource is_a_parent_of is_displayed_folded is_greater_than is_in_group is_inside_tree is_network_master is_physics_processing is_physics_processing_internal is_processing is_processing_input is_processing_internal is_processing_unhandled_input is_processing_unhandled_key_input move_child print_stray_nodes print_tree print_tree_pretty propagate_call propagate_notification queue_free raise remove_and_skip remove_child remove_from_group replace_by request_ready rpc rpc_config rpc_id rpc_unreliable rpc_unreliable_id rset rset_config rset_id rset_unreliable rset_unreliable_id set_display_folded set_network_master set_physics_process set_physics_process_internal set_process set_process_input set_process_internal set_process_priority set_process_unhandled_input set_process_unhandled_key_input set_scene_instance_load_placeholder
+            # object
+            callv can_translate_message connect disconnect emit_signal free get get_class get_incoming_connections get_indexed get_instance_id get_meta get_meta_list get_method_list get_property_list get_script get_signal_connection_list get_signal_list has_meta has_method has_user_signal is_blocking_signals is_class is_connected is_queued_for_deletion notification property_list_changed_notify set set_block_signals set_deferred set_indexed set_message_translation set_meta set_script tr
+        - > # signals
+            script_changed ready renamed tree_entered tree_exited tree_exiting visibility_changed input_event mouse_entered mouse_exited area_entered area_exited area_shape_entered area_shape_exited body_entered body_exited body_shape_entered body_shape_exited draw hide item_rect_changed joy_connection_changed
+comments:
+    line: "#"
+    # block: ['"""', '"""']
+styles:
+    0: 32 # default white-space
+    1: 101 # comment
+    2: 104 # number
+    3: 106 # string
+    4: 106 # character
+    5: 105 # keywords 0 (for keywords)
+    6: 126 # triple quotes
+    7: 126 # triple double quotes
+    8: 119 # class name
+    9: 119 # defname - identifier
+    10: 110 # operator
+    11: 32 #  >> all identifiers
+    12: 104 # comment block
+    13: 113 # error literal string
+    14: 105 # keywords 1 (methods)
+    15: 109 # preprocessor
+    16: 106 # literal string interpolated - f-string
+    17: 106 # literal string interpolated - single quoted f-string
+    18: 126 # literal string interpolated - triple quoted f-string
+    19: 126 # literal string interpolated - triple double quoated f-string
+substyles:
+    # [ builtin, nodes2d, nodes3d, guiNodes, colors, otherNodes, classes, methods, signals ]
+    11: [ 135, 121, 121, 121, 117, 121, 119, 119, 129 ]
+
+# substiles for "identifiers": 11:[
+# 0 - Builtin-Types
+# 1 - Nodes 2D
+# 2 - Nodes 3D
+# 3 - GUI Nodes
+# 4 - Color names
+# 5 - Other Nodes
+# 6 - Classes
+# 7 - Methods
+# 8 - Signals
+# ]

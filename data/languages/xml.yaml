@@ -1,0 +1,23 @@
+# XML
+lexer: xml
+properties:
+    fold: 1
+    fold.html: 1
+    html.tags.case.sensitive: 1
+comments:
+    block: [ "<!--", "-->" ]
+styles:
+    0: 32
+    12: 155
+    13: 155
+    9: 101
+    5: 104
+    6: 106
+    7: 106
+    1: 155
+    11: 155
+    2: 32
+    3: 156
+    4: 32
+    21: 161
+    17: 32

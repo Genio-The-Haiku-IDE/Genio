@@ -192,6 +192,10 @@ GenioApp::RefsReceived(BMessage* message)
 		fGenioWindow->PostMessage(message);
 }
 
+//temp xed //FIXME
+
+#include "Languages.h"
+
 void
 GenioApp::ReadyToRun()
 {
@@ -202,6 +206,8 @@ GenioApp::ReadyToRun()
 	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {
 		LogInfo("Cannot load global settings file");
 	}
+
+	Languages::_LoadLanguages("/boot/data/genio/Genio/data");
 
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);

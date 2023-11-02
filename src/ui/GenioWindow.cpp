@@ -7,9 +7,6 @@
 #include "GenioWindow.h"
 
 #include <cassert>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
 
 #include <Alert.h>
@@ -35,7 +32,7 @@
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "FSUtils.h"
-#include "GenioCommon.h"
+#include "Languages.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
 #include "Log.h"
@@ -1586,9 +1583,8 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	if (entry.InitCheck() != B_OK || entry.IsDirectory())
 		return false;
 
-	std::string fileType = Genio::file_type(BPath(ref).Path());
-
-	if (fileType != "")
+	std::string fileType = "";
+	if (Languages::GetLanguageForExtension(GetFileExtension(BPath(ref).Path()), fileType))
 		return true;
 
 	BNodeInfo info(&entry);
@@ -3825,7 +3821,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->GetProjectFolder());
-	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (Genio::file_type(editor->Name().String()).compare("c++") == 0));
+	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (editor->FileType().compare("cpp") == 0));
 
 	ActionManager::SetEnabled(MSG_FIND_NEXT, true);
 	ActionManager::SetEnabled(MSG_FIND_PREVIOUS, true);

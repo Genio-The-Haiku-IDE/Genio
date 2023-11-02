@@ -11,8 +11,8 @@
 //TODO: move this function inside other
 namespace Genio
 {
-	std::string const	file_type(const std::string& filename);
-	std::string GetFileExtension(const char* fileName);
+	std::string const	DEP_file_type(const std::string& filename);
+
 }
 
 

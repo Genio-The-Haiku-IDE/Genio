@@ -29,8 +29,9 @@ LSPProjectWrapper::LSPProjectWrapper(BPath rootPath)
 bool
 LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 {
-	std::string fileType = Genio::file_type(textDocument->GetFilenameURI().String());
-	if (fileType.compare("c++") != 0 && fileType.compare("make") != 0)
+	debugger(textDocument->FileType());
+	if (textDocument->FileType().Compare("cpp")  != 0 &&
+	    textDocument->FileType().Compare("make") != 0)
 		return false;
 
 	if (!fLSPPipeClient)

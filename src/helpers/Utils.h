@@ -155,7 +155,6 @@ public:
 	}
 };
 
-BPath	GetDataDirectory();
-
+BPath		GetDataDirectory();
 
 #endif // UTILS_H

@@ -962,11 +962,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_OPEN_REMOTE: {
-			// TODO: There is an attempt ongoing to refactor the whole way we manage the settings
-			// refactor and optimize the settings part
-			//
-			TPreferences prefs(GenioNames::kSettingsFileName, GenioNames::kApplicationName, 'PRSE');
-			BEntry entry(prefs.GetString("projects_directory"), true);
+			const char* projectsPath = gCFG["projects_directory"];
+			BEntry entry(projectsPath, true);
 			BPath path;
 			entry.GetPath(&path);
 
@@ -3016,10 +3013,8 @@ GenioWindow::_InitWindow()
 	;
 
 	// Panels
-	TPreferences prefs(GenioNames::kSettingsFileName,
-		GenioNames::kApplicationName, 'PRSE');
-
-	BEntry entry(prefs.GetString("projects_directory"), true);
+	const char* projectsDirectory = gCFG["projects_directory"];
+	BEntry entry(projectsDirectory, true);
 
 	entry_ref ref;
 	entry.GetRef(&ref);

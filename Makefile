@@ -67,6 +67,7 @@ SRCS +=  src/override/OutlineListView.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp
 SRCS +=  src/project/ProjectItem.cpp
+SRCS +=  src/ui/git/GitAlert.cpp
 SRCS +=  src/ui/git/GitCredentialsWindow.cpp
 SRCS +=  src/ui/git/RemoteProjectWindow.cpp
 SRCS +=  src/ui/git/SwitchBranchMenu.cpp

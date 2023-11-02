@@ -89,7 +89,7 @@ GitCredentialsWindow::authentication_callback(git_cred** out, const char* url,
 	status_t win_status = B_OK;
 	wait_for_thread(thread, &win_status);
 
-	if (strlen(username) != 0 && strlen(password) != 0) {
+	if (!username.IsEmpty() && !password.IsEmpty()) {
 		if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
 			error = git_credential_ssh_key_from_agent(out, username);
 		} else {
@@ -101,7 +101,7 @@ GitCredentialsWindow::authentication_callback(git_cred** out, const char* url,
 	 * If user cancels the credentials prompt, the username is empty.
 	 * Cancel the command in such case.
 	 */
-	if (strlen(username) == 0)
+	if (username.IsEmpty())
 		return Genio::Git::CANCEL_CREDENTIALS;
 
 	return error;

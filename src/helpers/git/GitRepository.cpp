@@ -8,8 +8,8 @@
 
 
 #include "GitRepository.h"
-#include "BeDC.h"
 
+#include <Application.h>
 #include <Path.h>
 
 #include <stdexcept>
@@ -70,73 +70,66 @@ namespace Genio::Git {
 
 		return branches;
 	}
-	
 
-	int 
+
+	int
 	checkout_notify(git_checkout_notify_t why, const char *path,
 									const git_diff_file *baseline,
 									const git_diff_file *target,
 									const git_diff_file *workdir,
 									void *payload)
 	{
-		BeDC dc("Genio");
-		dc.SendFormat("path '%s' - ", path);
+		std::vector<std::string> *files = reinterpret_cast<std::vector<std::string>*>(payload);
+
+		BString temp;
+		temp.SetToFormat("'%s' - ", path);
 		switch (why) {
 			case GIT_CHECKOUT_NOTIFY_CONFLICT:
-				dc.SendFormat("conflict");
+				files->push_back(path);
+				temp.Append("conflict\n");
 			break;
 			case GIT_CHECKOUT_NOTIFY_DIRTY:
-				dc.SendFormat("dirty");
 			break;
 			case GIT_CHECKOUT_NOTIFY_UPDATED:
-				dc.SendFormat("updated");
 			break;
 			case GIT_CHECKOUT_NOTIFY_UNTRACKED:
-				dc.SendFormat("untracked");
 			break;
 			case GIT_CHECKOUT_NOTIFY_IGNORED:
-				dc.SendFormat("ignored");
 			break;
 			default:
 			break;
 		}
 
+		LogInfo(temp.String());
 		return 0;
 	}
-	
+
 	int
 	GitRepository::SwitchBranch(BString &branchName)
 	{
-	
-		// auto files = GetFiles();
-		// for (auto &file : files)
-			// BeDC("Genio files").SendFormat("%s %s", file.first.c_str(), file.second.c_str());
-	
 		git_object* tree = NULL;
 		git_checkout_options opts;
 		int status = 0;
-		
+		std::vector<std::string> files;
+
 		status = git_checkout_init_options(&opts, GIT_CHECKOUT_OPTIONS_VERSION);
 		if (status < 0)
 			throw GitException(status, git_error_last()->message);
-		
-		opts.notify_flags =
-			GIT_CHECKOUT_NOTIFY_CONFLICT |
-			GIT_CHECKOUT_NOTIFY_DIRTY |
-			GIT_CHECKOUT_NOTIFY_UPDATED |
-			GIT_CHECKOUT_NOTIFY_UNTRACKED |
-			GIT_CHECKOUT_NOTIFY_IGNORED;
+
+		opts.notify_flags =	GIT_CHECKOUT_NOTIFY_CONFLICT;
 		opts.checkout_strategy = GIT_CHECKOUT_SAFE;
 		opts.notify_cb = checkout_notify;
-		
+		opts.notify_payload = &files;
+
 		status = git_revparse_single(&tree, fRepository, branchName.String());
 		if (status < 0)
 			throw GitException(status, git_error_last()->message);
 
 		status = git_checkout_tree(fRepository, tree, &opts);
-		if (status < 0)
-			throw GitException(status, git_error_last()->message);
-		
+		if (status < 0) {
+			throw GitException(status, git_error_last()->message, files);
+		}
+
 		BString ref("refs/heads/%s");
 		branchName.RemoveFirst("origin/");
 		ref.ReplaceFirst("%s", branchName.String());
@@ -146,7 +139,7 @@ namespace Genio::Git {
 
 		return status;
 	}
-	
+
 	BString&
 	GitRepository::GetCurrentBranch()
 	{
@@ -168,7 +161,7 @@ namespace Genio::Git {
 		branchText->SetTo((branch) ? branch : "");
 
 		git_reference_free(head);
-		
+
 		return *branchText;
 	}
 

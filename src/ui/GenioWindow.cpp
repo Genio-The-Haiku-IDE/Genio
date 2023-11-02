@@ -6,7 +6,6 @@
 
 #include "GenioWindow.h"
 #include "GitRepository.h"
-#include "BeDC.h"
 
 #include <cassert>
 #include <fstream>
@@ -40,6 +39,7 @@
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
+#include "GitAlert.h"
 #include "Log.h"
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
@@ -681,16 +681,23 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_GIT_SWITCH_BRANCH: {
 			try {
-				Genio::Git::GitRepository repo(fActiveProject->Path().String());
+				BString project_path = message->GetString("project_path", fActiveProject->Path().String());
+				Genio::Git::GitRepository repo(project_path.String());
 				BString new_branch = message->GetString("branch", nullptr);
-				if (new_branch)
+				if (new_branch != nullptr)
 					repo.SwitchBranch(new_branch);
 			} catch (GitException &ex) {
 				BString message;
 				message << B_TRANSLATE("An error occurred while switching branch:")
 						<< " "
 						<< ex.Message();
-				OKAlert("GitSwitchBranch", message, B_INFO_ALERT);
+				if (ex.Error() == -13) {
+					auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
+												B_TRANSLATE(message), ex.GetFiles());
+					alert->Go();
+				} else {
+					OKAlert("GitSwitchBranch", message, B_INFO_ALERT);
+				}
 			}
 			break;
 		}

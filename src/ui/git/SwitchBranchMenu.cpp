@@ -119,6 +119,7 @@ SwitchBranchMenu::_BuildMenu()
 		for(auto &branch : branches) {
 			BMessage *message = new BMessage(fMessage->what);
 			message->AddString("branch", branch);
+			message->AddString("project_path", fActiveProjectPath);
 			auto item = new BMenuItem(branch, message);
 			AddItem(item);
 			if (branch == current_branch)

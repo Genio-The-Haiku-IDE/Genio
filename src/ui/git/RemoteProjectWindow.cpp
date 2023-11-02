@@ -24,8 +24,6 @@
 #include "GitRepository.h"
 #include "Utils.h"
 
-#include "BeDC.h"
-
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "RemoteProjectWindow"
 
@@ -270,7 +268,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			auto repoName = _ExtractRepositoryName(fURL->Text());
 			fDestDir->SetText(repoName);
 
-			BeDC("Genio").SendMessage(repoName);
+			LogInfo(repoName);
 			break;
 		}
 		default:
@@ -283,7 +281,6 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 BString
 RemoteProjectWindow::_ExtractRepositoryName(BString url)
 {
-	BeDC dc("Genio");
 	BString repoName = "";
 	std::string surl = url.String();
 	std::string strPattern = "^(https|git)(:\\/\\/|@)([^\\/:]+)[\\/:]([^\\/:]+)\\/(.+)(.git)?*$";
@@ -291,15 +288,14 @@ RemoteProjectWindow::_ExtractRepositoryName(BString url)
 	std::regex rgx(strPattern);
 
 	if(std::regex_search(surl, matches, rgx)) {
-		dc.SendMessage("Match found\n");
+		LogInfo("Match found\n");
 		for (size_t i = 0; i < matches.size(); ++i) {
-			dc.SendFormat("%d: '%s'", i, matches[i].str().c_str());
+			LogInfo("%d: '%s'", i, matches[i].str().c_str());
 		}
 		repoName.SetToFormat("%s", matches[5].str().c_str());
 		repoName.RemoveAll(".git");
-		BeDC dc(repoName);
 	} else {
-		dc.SendMessage("Match not found\n");
+		LogInfo("Match not found\n");
 		repoName = "";
 	}
 	return repoName;

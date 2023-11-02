@@ -2984,10 +2984,8 @@ GenioWindow::_InitWindow()
 	;
 
 	// Panels
-	TPreferences prefs(GenioNames::kSettingsFileName,
-		GenioNames::kApplicationName, 'PRSE');
-
-	BEntry entry(prefs.GetString("projects_directory"), true);
+	const char* projectsDirectory = gCFG["projects_directory"];
+	BEntry entry(projectsDirectory, true);
 
 	entry_ref ref;
 	entry.GetRef(&ref);

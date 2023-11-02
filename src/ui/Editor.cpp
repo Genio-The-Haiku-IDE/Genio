@@ -656,7 +656,8 @@ Editor::LoadFromFile()
 	StartMonitoring();
 
 	fFileType = "";
-	Languages::GetLanguageForExtension(Genio::GetFileExtension(fFileName.String()), fFileType);
+	Languages::GetLanguageForExtension(GetFileExtension(fFileName.String()), fFileType);
+	debugger("qui!");
 
 	UpdateStatusBar();
 	return B_OK;

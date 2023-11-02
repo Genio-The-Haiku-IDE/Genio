@@ -14,20 +14,11 @@
 namespace Genio
 {
 
-std::string
-GetFileExtension(const char* fileName)
-{
-	std::string filename(fileName);
-	auto pos = filename.find_last_of('.');
-	if (pos != std::string::npos) {
-		return filename.substr(pos + 1);
-	}
-	return "";
-}
+
 
 //TODO deprecate!
 std::string const
-file_type(const std::string& fullpath)
+DEP_file_type(const std::string& fullpath)
 {
 	BPath path(fullpath.c_str());
 

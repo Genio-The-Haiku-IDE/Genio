@@ -27,7 +27,7 @@
 
 LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	:
-	LSPTextDocument(filenamePath),
+	LSPTextDocument(filenamePath, editor->FileType().c_str()),
 	fEditor(editor),
 	fToolTip(nullptr),
 	fLSPProjectWrapper(nullptr)

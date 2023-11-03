@@ -41,7 +41,6 @@ private:
 	BScrollView*					fScrollView;
 	BButton*						fOK;
 	std::vector<BStringView*>		fFileStringView;
-	std::vector<bool>				fAlertValue;
 	sem_id							fAlertSem;
 
 	void							_InitInterface();

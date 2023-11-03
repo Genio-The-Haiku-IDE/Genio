@@ -8,6 +8,7 @@
 
 #include <sys/time.h>
 
+#include <git2.h>
 #include <String.h>
 #include <Window.h>
 
@@ -23,9 +24,14 @@ class BTextControl;
  */
 class GitCredentialsWindow : public BWindow {
 public:
-							GitCredentialsWindow(const char* username,
-												const char* password);
+							GitCredentialsWindow(BString &username,
+												BString &password);
 	virtual void			MessageReceived(BMessage* message);
+
+	static int 				authentication_callback(git_cred** out, const char* url,
+													const char* username_from_url,
+													unsigned int allowed_types,
+													void* payload);
 private:
 	/**
 	 * The text control for username.
@@ -35,9 +41,9 @@ private:
 	 * The text control for password.
 	 */
 	BTextControl* 			fPassword;
-	
-	BString					fUsernameString;
-	BString					fPasswordString;
+
+	BString*				fUsernameString;
+	BString*				fPasswordString;
 
 };
 

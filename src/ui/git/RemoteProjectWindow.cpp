@@ -24,8 +24,6 @@
 #include "GitRepository.h"
 #include "Utils.h"
 
-#include "BeDC.h"
-
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "RemoteProjectWindow"
 
@@ -202,41 +200,6 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				return 0;
 			};
 
-			// taken from TrackGit
-			auto authentication_callback = [](git_cred** out, const char* url,
-												const char* username_from_url,
-												unsigned int allowed_types,
-												void* payload) -> int {
-				char username[39], password[128];
-				int error = 0;
-
-				// strcpy(username, username_from_url);
-
-				GitCredentialsWindow* window = new GitCredentialsWindow(username, password);
-
-				thread_id thread = window->Thread();
-				status_t win_status = B_OK;
-				wait_for_thread(thread, &win_status);
-
-				if (BString(username) != "" && BString(password) != "") {
-					if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
-						// error = git_credential_ssh_key_new(out, username, pubkey, privkey, password);
-						error = git_credential_ssh_key_from_agent(out, username);
-					} else {
-						error = git_cred_userpass_plaintext_new(out, username, password);
-					}
-				}
-
-				/**
-				 * If user cancels the credentials prompt, the username is empty.
-				 * Cancel the command in such case.
-				 */
-				if (strlen(username) == 0)
-					return CANCEL_CREDENTIALS;
-
-				return error;
-			};
-
 			BPath fullPath(fPathBox->Path());
 			fullPath.Append(fDestDir->Text());
 			GitRepository repo(fullPath.Path());
@@ -251,7 +214,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 					fURL->Text(),
 					fullPath,
 					callback,
-					authentication_callback
+					&GitCredentialsWindow::authentication_callback
 				)
 			);
 
@@ -305,7 +268,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			auto repoName = _ExtractRepositoryName(fURL->Text());
 			fDestDir->SetText(repoName);
 
-			BeDC("Genio").SendMessage(repoName);
+			LogInfo(repoName);
 			break;
 		}
 		default:
@@ -318,7 +281,6 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 BString
 RemoteProjectWindow::_ExtractRepositoryName(BString url)
 {
-	BeDC dc("Genio");
 	BString repoName = "";
 	std::string surl = url.String();
 	std::string strPattern = "^(https|git)(:\\/\\/|@)([^\\/:]+)[\\/:]([^\\/:]+)\\/(.+)(.git)?*$";
@@ -326,15 +288,14 @@ RemoteProjectWindow::_ExtractRepositoryName(BString url)
 	std::regex rgx(strPattern);
 
 	if(std::regex_search(surl, matches, rgx)) {
-		dc.SendMessage("Match found\n");
+		LogInfo("Match found\n");
 		for (size_t i = 0; i < matches.size(); ++i) {
-			dc.SendFormat("%d: '%s'", i, matches[i].str().c_str());
+			LogInfo("%d: '%s'", i, matches[i].str().c_str());
 		}
 		repoName.SetToFormat("%s", matches[5].str().c_str());
 		repoName.RemoveAll(".git");
-		BeDC dc(repoName);
 	} else {
-		dc.SendMessage("Match not found\n");
+		LogInfo("Match not found\n");
 		repoName = "";
 	}
 	return repoName;

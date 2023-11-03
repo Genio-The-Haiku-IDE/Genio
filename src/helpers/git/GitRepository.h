@@ -37,20 +37,32 @@ namespace Genio::Git {
 
 	class GitException {
 	public:
-						GitException(int error, BString const& message)
-							:
-							_error(error),
-							_message(message)
-						{
-							LogError("GitException %s, error = %d" , message.String(), error);
-						}
+									GitException(int error, BString const& message)
+										:
+										_error(error),
+										_message(message)
+									{
+										LogError("GitException %s, error = %d" , message.String(), error);
+									}
 
-		int				Error() noexcept { return _error; }
-		BString			Message() noexcept { return _message; }
+									GitException(int error, BString const& message,
+													std::vector<std::string> files)
+										:
+										_error(error),
+										_message(message),
+										_files(files)
+									{
+										LogError("GitException %s, error = %d" , message.String(), error);
+									}
+
+		int							Error() noexcept { return _error; }
+		BString						Message() noexcept { return _message; }
+		std::vector<std::string>	GetFiles() noexcept { return _files; }
 
 	private:
-		int				_error;
-		BString			_message;
+		int							_error;
+		BString						_message;
+		std::vector<std::string> 	_files;
 	};
 
 	class GitRepository {
@@ -65,8 +77,9 @@ namespace Genio::Git {
 		bool								InitCheck() { return fInitCheck; };
 		void								Init(const path& repo, const path& localPath);
 
-		vector<string> 						GetBranches();
-		int									SwitchBranch(string branch);
+		vector<BString>						GetBranches();
+		int									SwitchBranch(BString &branch);
+		BString								GetCurrentBranch();
 
 		vector<pair<string, string>>		GetFiles();
 

@@ -9,6 +9,7 @@
 
 #include "GitRepository.h"
 
+#include <Application.h>
 #include <Path.h>
 
 #include <stdexcept>
@@ -39,32 +40,127 @@ namespace Genio::Git {
 		git_libgit2_shutdown();
 	}
 
-	vector<string>
+	vector<BString>
 	GitRepository::GetBranches()
 	{
 		git_branch_iterator *it;
 		git_reference *ref;
-		vector<string> branches;
+		git_branch_t type;
+		vector<BString> branches;
 
-		int error = git_branch_iterator_new(&it, fRepository, GIT_BRANCH_LOCAL);
+		int error = git_branch_iterator_new(&it, fRepository, GIT_BRANCH_ALL);
 		if (error != 0) {
 			throw GitException(error, git_error_last()->message);
 		}
 
-		while ((error = git_branch_next(&ref, NULL, it)) == 0) {
+		while ((error = git_branch_next(&ref, &type, it)) == 0) {
 			const char *branchName;
 			error = git_branch_name(&branchName, ref);
 			if (error != 0) {
 				git_reference_free(ref);
 				throw GitException(error, git_error_last()->message);
 			}
-			branches.push_back(branchName);
+			BString bBranchName(branchName);
+			if (bBranchName.FindFirst("HEAD") == B_ERROR)
+				branches.push_back(branchName);
 			git_reference_free(ref);
 		}
 
 		git_branch_iterator_free(it);
 
 		return branches;
+	}
+
+
+	int
+	checkout_notify(git_checkout_notify_t why, const char *path,
+									const git_diff_file *baseline,
+									const git_diff_file *target,
+									const git_diff_file *workdir,
+									void *payload)
+	{
+		std::vector<std::string> *files = reinterpret_cast<std::vector<std::string>*>(payload);
+
+		BString temp;
+		temp.SetToFormat("'%s' - ", path);
+		switch (why) {
+			case GIT_CHECKOUT_NOTIFY_CONFLICT:
+				files->push_back(path);
+				temp.Append("conflict\n");
+			break;
+			case GIT_CHECKOUT_NOTIFY_DIRTY:
+			break;
+			case GIT_CHECKOUT_NOTIFY_UPDATED:
+			break;
+			case GIT_CHECKOUT_NOTIFY_UNTRACKED:
+			break;
+			case GIT_CHECKOUT_NOTIFY_IGNORED:
+			break;
+			default:
+			break;
+		}
+
+		LogInfo(temp.String());
+		return 0;
+	}
+
+	int
+	GitRepository::SwitchBranch(BString &branchName)
+	{
+		git_object* tree = NULL;
+		git_checkout_options opts;
+		int status = 0;
+		std::vector<std::string> files;
+
+		status = git_checkout_init_options(&opts, GIT_CHECKOUT_OPTIONS_VERSION);
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+
+		opts.notify_flags =	GIT_CHECKOUT_NOTIFY_CONFLICT;
+		opts.checkout_strategy = GIT_CHECKOUT_SAFE;
+		opts.notify_cb = checkout_notify;
+		opts.notify_payload = &files;
+
+		status = git_revparse_single(&tree, fRepository, branchName.String());
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+
+		status = git_checkout_tree(fRepository, tree, &opts);
+		if (status < 0) {
+			throw GitException(status, git_error_last()->message, files);
+		}
+
+		BString ref("refs/heads/%s");
+		branchName.RemoveFirst("origin/");
+		ref.ReplaceFirst("%s", branchName.String());
+		status = git_repository_set_head(fRepository, ref.String());
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+
+		return status;
+	}
+
+	BString
+	GitRepository::GetCurrentBranch()
+	{
+		int error = 0;
+		const char *branch = NULL;
+		git_reference *head = NULL;
+
+		error = git_repository_head(&head, fRepository);
+
+		if (error == GIT_EUNBORNBRANCH || error == GIT_ENOTFOUND)
+			branch = NULL;
+		else if (!error) {
+			branch = git_reference_shorthand(head);
+		} else {
+			throw GitException(error, git_error_last()->message);
+		}
+
+		git_reference_free(head);
+
+		BString branchText((branch) ? branch : "");
+		return branchText;
 	}
 
 	vector<pair<string, string>>

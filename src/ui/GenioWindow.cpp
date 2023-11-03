@@ -5,6 +5,7 @@
  */
 
 #include "GenioWindow.h"
+#include "GitRepository.h"
 
 #include <cassert>
 #include <fstream>
@@ -38,11 +39,13 @@
 #include "GenioCommon.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
+#include "GitAlert.h"
 #include "Log.h"
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "RemoteProjectWindow.h"
+#include "SwitchBranchMenu.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
 #include "TPreferences.h"
@@ -674,6 +677,28 @@ GenioWindow::MessageReceived(BMessage* message)
 			BString command;
 			if (message->FindString("command", &command) == B_OK)
 				_Git(command);
+			break;
+		}
+		case MSG_GIT_SWITCH_BRANCH: {
+			try {
+				BString project_path = message->GetString("project_path", fActiveProject->Path().String());
+				Genio::Git::GitRepository repo(project_path.String());
+				BString new_branch = message->GetString("branch", nullptr);
+				if (new_branch != nullptr)
+					repo.SwitchBranch(new_branch);
+			} catch (GitException &ex) {
+				BString message;
+				message << B_TRANSLATE("An error occurred while switching branch:")
+						<< " "
+						<< ex.Message();
+				if (ex.Error() == -13) {
+					auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
+												B_TRANSLATE(message), ex.GetFiles());
+					alert->Go();
+				} else {
+					OKAlert("GitSwitchBranch", message, B_INFO_ALERT);
+				}
+			}
 			break;
 		}
 		case GTLW_GO: {
@@ -2797,11 +2822,15 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(projectMenu);
 
 	fGitMenu = new BMenu(B_TRANSLATE("Git"));
+
 	fGitMenu->AddItem(fGitBranchItem = new BMenuItem(B_TRANSLATE_COMMENT("Branch",
 		"The git command"), nullptr));
 	BMessage* git_branch_message = new BMessage(MSG_GIT_COMMAND);
 	git_branch_message->AddString("command", "branch");
 	fGitBranchItem->SetMessage(git_branch_message);
+
+	fGitMenu->AddItem(new SwitchBranchMenu(this, B_TRANSLATE("Switch to branch"),
+											new BMessage(MSG_GIT_SWITCH_BRANCH)));
 
 	fGitMenu->AddItem(fGitLogItem = new BMenuItem(B_TRANSLATE_COMMENT("Log",
 		"The git command"), nullptr));
@@ -3072,6 +3101,10 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		project->Active(true);
 		_UpdateProjectActivation(true);
 	}
+
+	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+	noticeMessage.AddPointer("active_project", fActiveProject);
+	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 
 	// Update run command working directory tooltip too
 	BString tooltip;

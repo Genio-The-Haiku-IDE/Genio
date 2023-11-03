@@ -59,6 +59,7 @@ public:
 	virtual void				Show();
 
 	void						UpdateMenu();
+	ProjectFolder*				GetActiveProject() { return fActiveProject; }
 
 private:
 
@@ -138,7 +139,7 @@ private:
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
-			status_t		_AlertInvalidBuildConfig(BString text);
+			status_t			_AlertInvalidBuildConfig(BString text);
 			void				_CloseMultipleTabs(BMessage* msg);
 			void				_HandleConfigurationChanged(BMessage* msg);
 

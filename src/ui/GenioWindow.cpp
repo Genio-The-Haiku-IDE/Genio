@@ -937,11 +937,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_OPEN_REMOTE: {
-			// TODO: There is an attempt ongoing to refactor the whole way we manage the settings
-			// refactor and optimize the settings part
-			//
-			TPreferences prefs(GenioNames::kSettingsFileName, GenioNames::kApplicationName, 'PRSE');
-			BEntry entry(prefs.GetString("projects_directory"), true);
+			const char* projectsPath = gCFG["projects_directory"];
+			BEntry entry(projectsPath, true);
 			BPath path;
 			entry.GetPath(&path);
 
@@ -1586,24 +1583,20 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	if (entry.InitCheck() != B_OK || entry.IsDirectory())
 		return false;
 
-
 	std::string fileType = Genio::file_type(BPath(ref).Path());
 
 	if (fileType != "")
 		return true;
 
 	BNodeInfo info(&entry);
-
 	if (info.InitCheck() == B_OK) {
 		char mime[B_MIME_TYPE_LENGTH + 1];
 		if (info.GetType(mime) != B_OK) {
 			LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
 			mime[0]='\0';
 		}
-		if (strlen(mime) == 0 || strcmp(mime, "application/octet-stream") == 0)
-		{
-			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK)
-			{
+		if (mime[0] == '\0' || strcmp(mime, "application/octet-stream") == 0) {
+			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
 				if (info.GetType(mime) != B_OK) {
 					LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
 					mime[0]='\0';
@@ -2991,10 +2984,8 @@ GenioWindow::_InitWindow()
 	;
 
 	// Panels
-	TPreferences prefs(GenioNames::kSettingsFileName,
-		GenioNames::kApplicationName, 'PRSE');
-
-	BEntry entry(prefs.GetString("projects_directory"), true);
+	const char* projectsDirectory = gCFG["projects_directory"];
+	BEntry entry(projectsDirectory, true);
 
 	entry_ref ref;
 	entry.GetRef(&ref);

@@ -691,7 +691,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				message << B_TRANSLATE("An error occurred while switching branch:")
 						<< " "
 						<< ex.Message();
-				if (ex.Error() == -13) {
+				if (ex.Error() == GIT_ECONFLICT) {
 					auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
 												B_TRANSLATE(message), ex.GetFiles());
 					alert->Go();

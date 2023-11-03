@@ -37,8 +37,12 @@ GitAlert::GitAlert(const char *title, const char *message, const std::vector<std
 	fTitle(title),
 	fMessage(message),
 	fFiles(files),
+	fMessageString(nullptr),
+	fScrollView(nullptr),
+	fOK(nullptr),
 	fFileStringView(files.size(), nullptr),
-	fAlertValue(0)
+	fAlertSem(0)
+	
 {
 	_InitInterface();
 	CenterOnScreen();
@@ -131,8 +135,6 @@ GitAlert::Go()
 		}
 	}
 
-	// Have to cache the value since we delete on Quit()
-	auto value = fAlertValue;
 	if (Lock())
 		Quit();
 }

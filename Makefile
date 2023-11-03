@@ -72,6 +72,7 @@ SRCS +=  src/ui/Editor.cpp
 SRCS +=  src/ui/EditorContextMenu.cpp
 SRCS +=  src/ui/EditorTabManager.cpp
 SRCS +=  src/ui/GenioWindow.cpp
+SRCS +=  src/ui/GitCredentialsWindow.cpp
 SRCS +=  src/ui/GoToLineWindow.cpp
 SRCS +=  src/ui/IconCache.cpp
 SRCS +=  src/ui/ProblemsPanel.cpp
@@ -121,7 +122,7 @@ CXXFLAGS := -std=c++17 -fPIC
 	endif
 #endif
 
-LOCALES := en it
+LOCALES := ca de en en_AU es-419 tr 
 
 ## Include the Makefile-Engine
 include $(BUILDHOME)/etc/makefile-engine

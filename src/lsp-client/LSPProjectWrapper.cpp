@@ -10,7 +10,8 @@
 #include "LSPTextDocument.h"
 #include "Log.h"
 #include "protocol.h"
-#include <Autolock.h>
+#include "LSPLogLevels.h"
+#include "ConfigManager.h"
 #include <Url.h>
 
 #define LSP_MESSAGE 'LSP!'
@@ -97,17 +98,14 @@ LSPProjectWrapper::_Create()
 	fLSPPipeClient = new LSPPipeClient(LSP_MESSAGE, thisProject);
 	/** configuration for clangd */
 	std::string logLevel("--log=");
-	switch (Logger::Level()) {
-		case LOG_LEVEL_UNSET:
-		case LOG_LEVEL_OFF:
-		case LOG_LEVEL_ERROR:
+	switch ((int32)gCFG["lsp_log_level"]) {
+		case LSP_LOG_LEVEL_ERROR:
 			logLevel += "error"; // Error messages only
 			break;
-		case LOG_LEVEL_INFO:
+		case LSP_LOG_LEVEL_INFO:
 			logLevel += "info"; // High level execution tracing
 			break;
-		case LOG_LEVEL_DEBUG:
-		case LOG_LEVEL_TRACE:
+		case LSP_LOG_LEVEL_TRACE:
 			logLevel += "verbose"; // Low level details
 			break;
 	};

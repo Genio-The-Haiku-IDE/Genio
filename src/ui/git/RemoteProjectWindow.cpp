@@ -6,6 +6,7 @@
 #include "RemoteProjectWindow.h"
 
 #include <cstdio>
+#include <functional>
 #include <regex>
 
 #include <AppKit.h>
@@ -206,7 +207,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			fCurrentTask = make_shared<Task<BPath>>
 			(
 				"GitClone",
-				new BMessenger(this),
+				BMessenger(this),
 				std::bind
 				(
 					&GitRepository::Clone,

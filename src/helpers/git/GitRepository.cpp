@@ -140,7 +140,7 @@ namespace Genio::Git {
 		return status;
 	}
 
-	BString&
+	BString
 	GitRepository::GetCurrentBranch()
 	{
 		int error = 0;
@@ -157,12 +157,10 @@ namespace Genio::Git {
 			throw GitException(error, git_error_last()->message);
 		}
 
-		auto branchText = new BString("");
-		branchText->SetTo((branch) ? branch : "");
-
 		git_reference_free(head);
 
-		return *branchText;
+		BString branchText((branch) ? branch : "");
+		return branchText;
 	}
 
 	vector<pair<string, string>>

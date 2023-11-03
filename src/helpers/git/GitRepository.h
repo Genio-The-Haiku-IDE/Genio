@@ -79,7 +79,7 @@ namespace Genio::Git {
 
 		vector<BString>						GetBranches();
 		int									SwitchBranch(BString &branch);
-		BString&							GetCurrentBranch();
+		BString								GetCurrentBranch();
 
 		vector<pair<string, string>>		GetFiles();
 

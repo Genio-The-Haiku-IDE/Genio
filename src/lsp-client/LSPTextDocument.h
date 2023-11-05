@@ -22,6 +22,7 @@ public:
 	const BString	GetFileStatus()	  { return fFileStatus; }
 
 			void	SetFileStatus(BString newStatus) { fFileStatus = newStatus; }
+			void	SetFileType(BString newType) { fFileType = newType; }
 
 	const BString FileType() { return fFileType; }
 

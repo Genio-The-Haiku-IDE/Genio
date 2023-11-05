@@ -657,7 +657,6 @@ Editor::LoadFromFile()
 
 	fFileType = "";
 	Languages::GetLanguageForExtension(GetFileExtension(fFileName.String()), fFileType);
-	debugger("qui!");
 
 	UpdateStatusBar();
 	return B_OK;
@@ -1330,9 +1329,9 @@ Editor::_ApplyExtensionSettings()
 		fFoldingAvailable = true;
 		fBracingAvailable = true;
 		fParsingAvailable = true;
-		fCommenter = "//";// FixMe: check _ApplyLanguage for details
+		fCommenter = "//";
 
-		Languages::_ApplyLanguage(this, fFileType.c_str(), "/boot/data/genio/Genio/data");
+		Languages::ApplyLanguage(this, fFileType.c_str());
 	}
 }
 

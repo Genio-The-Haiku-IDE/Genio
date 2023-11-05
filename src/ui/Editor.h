@@ -176,6 +176,9 @@ public:
 
 			std::string			FileType() { return fFileType; }
 
+			void				SetCommentLineToken(std::string commenter){ fCommenter = commenter; }
+			void				SetCommentBlockTokens(std::string startBlock, std::string endBlock){ /*TODO! */}
+
 private:
 			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();

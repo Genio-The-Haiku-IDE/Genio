@@ -1530,6 +1530,11 @@ GenioWindow::_FileOpen(BMessage* msg)
 			return B_ERROR;
 		}
 
+		status = editor->LoadFromFile();
+		if (status != B_OK) {
+			continue;
+		}
+
 		/*
 			here we try to assign the right "LSPClientWrapper" to the Editor..
 		*/
@@ -1544,10 +1549,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 			}
 		}
 
-		status = editor->LoadFromFile();
-		if (status != B_OK) {
-			continue;
-		}
+
 
 		editor->ApplySettings();
 

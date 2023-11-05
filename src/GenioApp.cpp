@@ -15,6 +15,7 @@
 
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
+#include "Languages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
@@ -192,10 +193,6 @@ GenioApp::RefsReceived(BMessage* message)
 		fGenioWindow->PostMessage(message);
 }
 
-//temp xed //FIXME
-
-#include "Languages.h"
-
 void
 GenioApp::ReadyToRun()
 {
@@ -207,7 +204,7 @@ GenioApp::ReadyToRun()
 		LogInfo("Cannot load global settings file");
 	}
 
-	Languages::_LoadLanguages("/boot/data/genio/Genio/data");
+	Languages::LoadLanguages();
 
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);

@@ -29,7 +29,6 @@ LSPProjectWrapper::LSPProjectWrapper(BPath rootPath)
 bool
 LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 {
-	debugger(textDocument->FileType());
 	if (textDocument->FileType().Compare("cpp")  != 0 &&
 	    textDocument->FileType().Compare("make") != 0)
 		return false;

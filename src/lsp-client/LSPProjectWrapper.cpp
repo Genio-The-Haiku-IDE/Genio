@@ -14,7 +14,7 @@
 #include "ConfigManager.h"
 #include <Url.h>
 
-#define LSP_MESSAGE 'LSP!'
+const int32 kLSPMessage = 'LSP!';
 
 LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, BMessenger& msgr) : BHandler(rootPath.Path())
 {
@@ -31,7 +31,7 @@ LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, BMessenger& msgr) : BHandle
 void
 LSPProjectWrapper::MessageReceived(BMessage* msg)
 {
-	if (msg->what == LSP_MESSAGE) {
+	if (msg->what == kLSPMessage) {
 		const char* json;
 		if (msg->FindString("data", &json) == B_OK && fLSPPipeClient) {
 			try {
@@ -95,7 +95,7 @@ LSPProjectWrapper::_Create()
 	looper->AddHandler(this);
 	BMessenger thisProject = BMessenger(this, looper);
 
-	fLSPPipeClient = new LSPPipeClient(LSP_MESSAGE, thisProject);
+	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 	/** configuration for clangd */
 	std::string logLevel("--log=");
 	switch ((int32)gCFG["lsp_log_level"]) {

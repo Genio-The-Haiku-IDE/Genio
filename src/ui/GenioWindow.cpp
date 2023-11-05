@@ -1112,6 +1112,11 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FIND_MATCH_CASE:
 			gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
 		break;
+		case MSG_HELP_GITHUB: {
+			char *argv[2] = {(char*)"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
+			be_roster->Launch("text/html", 1, argv);
+		}
+		break;
 		default:
 			BWindow::MessageReceived(message);
 			break;
@@ -2899,8 +2904,11 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(windowMenu);
 
 	BMenu* helpMenu = new BMenu(B_TRANSLATE("Help"));
+	helpMenu->AddItem(new BMenuItem(B_TRANSLATE("Github page" B_UTF8_ELLIPSIS),
+		new BMessage(MSG_HELP_GITHUB)));
 	helpMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
 		new BMessage(B_ABOUT_REQUESTED)));
+
 
 	fMenuBar->AddItem(helpMenu);
 }

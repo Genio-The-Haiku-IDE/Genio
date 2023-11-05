@@ -196,7 +196,6 @@ void
 GenioApp::ReadyToRun()
 {
 	PrepareConfig(gCFG);
-	gCFG.ResetToDefaults();
 
 	// Global settings file check.
 	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {

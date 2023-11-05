@@ -81,6 +81,8 @@ LSPEditorWrapper::SetLSPClient(LSPProjectWrapper* cW) {
 	assert(!fLSPProjectWrapper);
 	assert(fEditor);
 
+	SetFileType(fEditor->FileType().c_str());
+
 	if (cW->RegisterTextDocument(this)) {
 		fLSPProjectWrapper = cW;
 		didOpen();

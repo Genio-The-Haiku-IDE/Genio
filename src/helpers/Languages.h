@@ -1,8 +1,10 @@
 /*
+ * Copyright 2023, Andrea Anzani 
+ *
+ * Code derived from Koder:
  * Copyright 2015-2018 Kacper Kasper 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-
 #ifndef LANGUAGES_H
 #define LANGUAGES_H
 
@@ -26,7 +28,7 @@ public:
 	static	std::map<int, int>					ApplyLanguage(Editor* editor, const char* lang);
 	static	void								LoadLanguages();
 
-//fixme private:
+private:
 	static	void								_LoadLanguages(const BPath& path);
 	static	std::map<int, int>					_ApplyLanguage(Editor* editor, const char* lang, const BPath &path);
 	static	std::vector<std::string>			sLanguages;

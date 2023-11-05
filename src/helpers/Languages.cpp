@@ -1,4 +1,7 @@
 /*
+ * Copyright 2023, Andrea Anzani 
+ *
+ * Code derived from Koder:
  * Copyright 2015-2018 Kacper Kasper 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
@@ -24,8 +27,7 @@
 
 #include "Editor.h"
 
-//temp //xed //FIXME
-#define gAppName ""
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Languages"
@@ -34,77 +36,6 @@
 std::vector<std::string>			Languages::sLanguages;
 std::map<std::string, std::string>	Languages::sMenuItems;
 std::map<std::string, std::string> 	Languages::sExtensions;
-
-
-namespace {
-
-/**
- * Executes a specified function for each data directory, going from system to
- * user, packaged to non-packaged. The path is available as a parameter to the
- * user supplied function.
- */
-void
-DoInAllDataDirectories(std::function<void(const BPath&)> func) {
-	BPath dataPath;
-	find_directory(B_SYSTEM_DATA_DIRECTORY, &dataPath);
-	func(dataPath);
-	find_directory(B_USER_DATA_DIRECTORY, &dataPath);
-	func(dataPath);
-	find_directory(B_SYSTEM_NONPACKAGED_DATA_DIRECTORY, &dataPath);
-	func(dataPath);
-	find_directory(B_USER_NONPACKAGED_DATA_DIRECTORY, &dataPath);
-	func(dataPath);
-}
-
-void
-DoInAllLibDirectories(std::function<void(const BPath&)> func) {
-	BPath libPath;
-	find_directory(B_SYSTEM_LIB_DIRECTORY, &libPath);
-	func(libPath);
-	find_directory(B_USER_LIB_DIRECTORY, &libPath);
-	func(libPath);
-	find_directory(B_SYSTEM_NONPACKAGED_LIB_DIRECTORY, &libPath);
-	func(libPath);
-	find_directory(B_USER_NONPACKAGED_LIB_DIRECTORY, &libPath);
-	func(libPath);
-}
-
-class LexerLibrary {
-public:
-	LexerLibrary(const char* path) {
-		fLibrary = load_add_on(path);
-		if(fLibrary > 0) {
-			if(get_image_symbol(fLibrary, LEXILLA_CREATELEXER, B_SYMBOL_TYPE_TEXT,
-					reinterpret_cast<void**>(&fCreateLexer)) != B_OK) {
-				fCreateLexer = nullptr;
-			}
-		}
-	}
-
-	~LexerLibrary() {
-		if(fLibrary > 0) {
-			unload_add_on(fLibrary);
-		}
-		fLibrary = 0;
-	}
-
-	bool IsValid() {
-		return fLibrary > 0 && fCreateLexer != nullptr;
-	}
-
-	Scintilla::ILexer5* CreateLexer(const char* name) {
-		return fCreateLexer(name);
-	}
-
-private:
-	image_id fLibrary;
-	Lexilla::CreateLexerFn fCreateLexer;
-};
-
-std::vector<std::unique_ptr<LexerLibrary>> sLexerLibraries;
-
-}
-
 
 /* static */ bool
 Languages::GetLanguageForExtension(const std::string ext, std::string& lang)
@@ -134,13 +65,14 @@ Languages::ApplyLanguage(Editor* editor, const char* lang)
 {
 	editor->SendMessage(SCI_FREESUBSTYLES);
 	std::map<int, int> styleMapping;
-	DoInAllDataDirectories([&](const BPath& path) {
-			try {
-				auto m = _ApplyLanguage(editor, lang, path);
-				m.merge(styleMapping);
-				std::swap(styleMapping, m);
-			} catch (YAML::BadFile &) {}
-		});
+
+	try {
+		BPath path = GetDataDirectory();
+		auto m = _ApplyLanguage(editor, lang, path);
+		m.merge(styleMapping);
+		std::swap(styleMapping, m);
+	} catch (YAML::BadFile &) {}
+
 	return styleMapping;
 }
 
@@ -169,29 +101,18 @@ Languages::ApplyLanguage(Editor* editor, const char* lang)
 /* static */ std::map<int, int>
 Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
 {
-	// if(sLexerLibraries.empty() == true)
-		// return {};
-
 	// TODO: early exit if lexer not changed
 
-	BPath p(path);
-	p.Append(gAppName);
+	BPath p = GetDataDirectory();
 	p.Append("languages");
 	p.Append(lang);
 	const YAML::Node language = YAML::LoadFile(std::string(p.Path()) + ".yaml");
 	std::string lexerName = language["lexer"].as<std::string>();
-	Scintilla::ILexer5* lexer;
-	// sLexerLibraries contains libraries in the following order:
-	// * system
-	// * user
-	// * non-packaged system
-	// * non-packaged user
-	// Going in reverse results in correct override hierarchy.
-	//for(auto it = sLexerLibraries.rbegin(); it != sLexerLibraries.rend(); ++it) {
-		lexer = CreateLexer(lexerName.c_str());
-		if(lexer == nullptr)
-			return std::map<int, int>();
-	//}
+	Scintilla::ILexer5* lexer = CreateLexer(lexerName.c_str());
+
+	if(lexer == nullptr)
+		return std::map<int, int>();
+
 	editor->SendMessage(SCI_SETILEXER, 0, reinterpret_cast<sptr_t>(lexer));
 
 	for(const auto& property : language["properties"]) {
@@ -227,8 +148,7 @@ Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
 	}
 
 	const YAML::Node comments = language["comments"];
-//xed FIXME
-/*
+
 	if(comments) {
 		const YAML::Node line = comments["line"];
 		if(line)
@@ -237,7 +157,7 @@ Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
 		if(block && block.IsSequence())
 			editor->SetCommentBlockTokens(block[0].as<std::string>(),
 				block[1].as<std::string>());
-	}*/
+	}
 
 	std::map<int, int> styleMap;
 	const YAML::Node styles = language["styles"];
@@ -264,40 +184,10 @@ Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
 /* static */ void
 Languages::LoadLanguages()
 {
-	DoInAllDataDirectories([](const BPath& path) {
-			try {
-				_LoadLanguages(path);
-			} catch (YAML::BadFile &) {}
-		});
-
-	DoInAllLibDirectories([](const BPath& path) {
-		BPath p(path);
-		p.Append(LEXILLA_LIB LEXILLA_EXTENSION);
-		auto lexilla = std::make_unique<LexerLibrary>(p.Path());
-		if(lexilla->IsValid() == true) {
-			sLexerLibraries.push_back(std::move(lexilla));
-		}
-	});
-
-	DoInAllLibDirectories([](const BPath& path) {
-		BPath p(path);
-		p.Append("lexilla");
-		BDirectory lexersDir(p.Path());
-		if (lexersDir.InitCheck() != B_OK)
-			return;
-
-		BEntry lexerEntry;
-		while(lexersDir.GetNextEntry(&lexerEntry, true) == B_OK) {
-			if(lexerEntry.IsDirectory())
-				continue;
-			BPath lexerPath;
-			lexerEntry.GetPath(&lexerPath);
-			auto lexer = std::make_unique<LexerLibrary>(lexerPath.Path());
-			if(lexer->IsValid() == true) {
-				sLexerLibraries.push_back(std::move(lexer));
-			}
-		}
-	});
+	try {
+		BPath path = GetDataDirectory();
+		_LoadLanguages(path);
+	} catch (YAML::BadFile &) {}
 }
 
 
@@ -305,7 +195,6 @@ Languages::LoadLanguages()
 Languages::_LoadLanguages(const BPath& path)
 {
 	BPath p(path);
-	p.Append(gAppName);
 	p.Append("languages");
 	const YAML::Node languages = YAML::LoadFile(std::string(p.Path()) + ".yaml");
 	for(const auto& language : languages) {

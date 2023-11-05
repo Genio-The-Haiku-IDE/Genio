@@ -129,10 +129,8 @@ LSPProjectWrapper::_Create()
 bool
 LSPProjectWrapper::Dispose()
 {
-	BLooper* looper = nullptr;
-	fMessenger.Target(&looper);
-	if (looper) {
-		looper->RemoveHandler(this);
+	if (Looper()) {
+		Looper()->RemoveHandler(this);
 	}
 
 	if (!fInitialized) {

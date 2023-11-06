@@ -162,6 +162,7 @@ public:
 			filter_result		OnArrowKey(int8 ch);
 
 			std::string			FileType() { return fFileType; }
+			void				SetFileType(std::string fileType) { fFileType = fileType; }
 
 			void				SetCommentLineToken(std::string commenter){ fCommenter = commenter; }
 			void				SetCommentBlockTokens(std::string startBlock, std::string endBlock){ /*TODO! */}

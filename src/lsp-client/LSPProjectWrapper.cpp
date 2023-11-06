@@ -29,7 +29,8 @@ bool
 LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 {
 	if (textDocument->FileType().Compare("cpp")  != 0 &&
-	    textDocument->FileType().Compare("make") != 0)
+		textDocument->FileType().Compare("c")    != 0 &&
+	    textDocument->FileType().Compare("makefile") != 0)
 		return false;
 
 	if (!fLSPPipeClient)

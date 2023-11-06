@@ -18,7 +18,7 @@ class LSPPipeClient : public AsyncJsonTransport {
 
 public:
 
-	explicit LSPPipeClient(uint32 what, BMessenger& msgr);
+			 LSPPipeClient(uint32 what, BMessenger& msgr);
 	virtual ~LSPPipeClient();
 
 	status_t Start(const char *argv[], int32 argc);

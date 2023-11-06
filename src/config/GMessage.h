@@ -202,4 +202,8 @@ private:
 };
 
 // Stack Message
-#define SMSG(WHAT, LIST...) ((new GMessage({{{ LIST }}}))->what = WHAT)
+GMessage* set_what(uint32 what, GMessage* gms);
+#define SMSG(WHAT, LIST...) set_what(WHAT, new GMessage({{{ LIST }}}))
+
+//BMessage wrapper
+#define BMSG(in, out) GMessage& out = *((GMessage*)in);

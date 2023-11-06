@@ -160,7 +160,7 @@ Editor::ApplySettings()
 	SendMessage(SCI_SETEDGEMODE, (bool)gCFG["show_edgeline"], UNSET);
 	SendMessage(SCI_SETEDGECOLUMN, int32(gCFG["edgeline_column"]), UNSET);
 
-	// TODO: Implement this settings:
+	// TODO: Implement this settings (right now managed by _HighlightBraces)
 	/*if(fPreferences->fIndentGuidesShow == true) {
 		fEditor->SendMessage(SCI_SETINDENTATIONGUIDES, fPreferences->fIndentGuidesMode, 0);
 	} else {

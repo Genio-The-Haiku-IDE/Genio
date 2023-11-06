@@ -18,3 +18,6 @@ void GMessage::_HandleVariantList(variant_list& list) {
 }
 
 auto GMessage::operator[](const char* key) -> GMessageReturn { return GMessageReturn(this, key); }
+
+
+GMessage* set_what(uint32 what, GMessage* gms) { gms->what = what; return gms; }

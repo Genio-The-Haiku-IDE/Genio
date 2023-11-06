@@ -1092,6 +1092,16 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FIND_MATCH_CASE:
 			gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
 		break;
+		case MSG_SET_LANGUAGE: {
+			BMSG(message, gms);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
+				editor->SetFileType(std::string((const char*)gms["lang"]));
+				editor->ApplySettings();
+				//NOTE (TODO?) we are not changing any LSP configuration!
+			}
+		}
+		break;
 		default:
 			BWindow::MessageReceived(message);
 			break;
@@ -1661,7 +1671,7 @@ GenioWindow::_FileSave(int32 index)
 	editor->StartMonitoring();
 
 	if (length == written)
-		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath(), length, written);
+		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
 	else
 		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
 
@@ -2892,9 +2902,7 @@ GenioWindow::_CreateLanguagesMenu()
 	for(size_t i = 0; i < Languages::GetCount(); ++i) {
 		std::string lang = Languages::GetLanguage(i);
 		std::string name = Languages::GetMenuItemName(lang);
-		BMessage* langMsg = new BMessage(MSG_SET_LANGUAGE);
-		langMsg->AddString("lang", lang.c_str());
-		fLanguageMenu->AddItem(new BMenuItem(name.c_str(), langMsg));
+		fLanguageMenu->AddItem(new BMenuItem(name.c_str(), SMSG(MSG_SET_LANGUAGE, {"lang", lang.c_str()})));
 	}
 	fLanguageMenu->SetRadioMode(true);
 	fLanguageMenu->SetEnabled(false);

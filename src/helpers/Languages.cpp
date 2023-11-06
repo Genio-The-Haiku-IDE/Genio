@@ -24,7 +24,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "Editor.h"
-
+#include "Log.h"
 #include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -201,7 +201,7 @@ Languages::_LoadLanguages(const BPath& path)
 		auto extensions = language.second["extensions"].as<std::vector<std::string>>();
 		for(auto extension : extensions) {
 			sExtensions[extension] = name;
-			printf("Extension %s for name %s\n", extension.c_str(), name.c_str());
+			LogInfo("Extension [%s] for language [%s]", extension.c_str(), name.c_str());
 		}
 		if(std::find(sLanguages.begin(), sLanguages.end(), name) == sLanguages.end())
 			sLanguages.push_back(name);

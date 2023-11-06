@@ -70,12 +70,16 @@ SwitchBranchMenu::~SwitchBranchMenu()
 void
 SwitchBranchMenu::AttachedToWindow()
 {
-	BMenu::AttachedToWindow();
 	if (fDetectActiveProject) {
 		GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
 		fActiveProjectPath = window->GetActiveProject()->Path().String();
 	}
 	_BuildMenu();
+	
+	// This has to be done AFTER _BuildMenu, since
+	// it layouts the menu and resizes the window.
+	// So we need to have the menuitems already added.
+	BMenu::AttachedToWindow();
 	
 	SetTargetForItems(fTarget);
 }
@@ -113,8 +117,7 @@ SwitchBranchMenu::_BuildMenu()
 {
 	// clear everything...
 	int32 count = CountItems();
-	while (count--)
-		delete RemoveItem((int32)0);
+	RemoveItems(0, count, true);
 	
 	if (fActiveProjectPath) {
 		Genio::Git::GitRepository repo(fActiveProjectPath);

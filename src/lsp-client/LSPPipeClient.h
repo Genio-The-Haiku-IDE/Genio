@@ -2,7 +2,7 @@
  * Copyright 2023, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
- 
+
 #ifndef LSP_CLIENT_H
 #define LSP_CLIENT_H
 
@@ -15,25 +15,25 @@
 class LSPReaderThread;
 
 class LSPPipeClient : public AsyncJsonTransport {
-	
+
 public:
 
-	explicit LSPPipeClient(MessageHandler& handler);
+			 LSPPipeClient(uint32 what, BMessenger& msgr);
 	virtual ~LSPPipeClient();
 
 	status_t Start(const char *argv[], int32 argc);
 
-	void	Close(); 
+	void	Close();
 
 	bool 	readMessage(std::string &json) override;
 	bool 	writeMessage(std::string &json) override;
 
 	pid_t	GetChildPid();
-		
+
 	void	ForceQuit(); //quite the looper and the kill the thread
 	bool	HasQuitBeenRequested();
 	void	KillThread();
-  
+
 private:
 
   void 	SkipLine();
@@ -42,7 +42,7 @@ private:
   bool 	Write(std::string &in);
   void	Quit() override;
   thread_id	Run() override;
-  
+
   BLocker 			fWriteLock;
   LSPReaderThread*	fReaderThread;
   PipeImage			fPipeImage;

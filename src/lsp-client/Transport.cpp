@@ -2,9 +2,8 @@
 // Copyright 2023, Andrea Anzani 
 
 #include "Transport.h"
-#include "Log.h"
 #include "json.hpp"
-
+#include <Messenger.h>
 #define    jsonrpc  "2.0"
 ///////////////////////
 
@@ -14,8 +13,12 @@ enum {
 };
 
 
-AsyncJsonTransport::AsyncJsonTransport(MessageHandler& handler):BLooper("AsyncJsonTransport"),fHandler(handler)
+AsyncJsonTransport::AsyncJsonTransport(uint32 what, BMessenger& msgr)
+					: BLooper("AsyncJsonTransport")
+					, fWhat(what)
+					, fMessenger(msgr)
 {
+
 }
 
 
@@ -29,35 +32,7 @@ void AsyncJsonTransport::request(string_ref method, value &params, RequestID &id
   writeJson(rpc);
 }
 
-
-void	
-AsyncJsonTransport::DispatchResult(const char* json)
-{
-	try {
-		auto value = nlohmann::json::parse(json);
-
-		if (value.count("id")) {
-		  if (value.contains("method")) {
-			fHandler.onRequest(value["method"].get<std::string>(),
-							  value["params"], value["id"]);
-		  } else if (value.contains("result")) {
-			fHandler.onResponse(value["id"].get<std::string>(), value["result"]);
-		  } else if (value.contains("error")) {
-			fHandler.onError(value["id"].get<std::string>(), value["error"]);
-		  }
-		} else if (value.contains("method")) {
-		  if (value.contains("params")) {
-			fHandler.onNotify(value["method"].get<std::string>(),
-							 value["params"]);
-		  }
-		}
-	
-	} catch (std::exception &e) {
-		return;
-	}
-}
-
-bool  
+bool
 AsyncJsonTransport::readStep()
 {
 	std::string data;
@@ -70,19 +45,20 @@ AsyncJsonTransport::readStep()
     return result;
 }
 
-void 
+void
 AsyncJsonTransport::MessageReceived(BMessage* msg)
 {
 	switch(msg->what) {
-	
+
 		case kReadResult: {
 			const char* data;
 			if (msg->FindString("data", &data) == B_OK) {
-				DispatchResult(data);
+				msg->what = fWhat;
+				fMessenger.SendMessage(msg);
 			}
 			break;
 		}
-		
+
 		case kWriteRequest: {
 			const char* data;
 			if (msg->FindString("data", &data) == B_OK) {
@@ -91,12 +67,12 @@ AsyncJsonTransport::MessageReceived(BMessage* msg)
 			}
 			break;
 		}
-			
+
 		break;
 		default:
 			BLooper::MessageReceived(msg);
 		break;
-		
+
 	};
 }
 
@@ -108,4 +84,4 @@ AsyncJsonTransport::writeJson(value& msg) {
 }
 
 
-	
+

@@ -36,6 +36,7 @@
 #include "ScintillaUtils.h"
 #include "Utils.h"
 #include "Languages.h"
+#include "Styler.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -656,7 +657,12 @@ Editor::LoadFromFile()
 	StartMonitoring();
 
 	fFileType = "";
-	Languages::GetLanguageForExtension(GetFileExtension(fFileName.String()), fFileType);
+	if (!Languages::GetLanguageForExtension(GetFileExtension(fFileName.String()), fFileType)) {
+		BPath path(fFileName.String());
+		if (path.InitCheck() == B_OK) {
+			Languages::GetLanguageForExtension(path.Leaf(), fFileType);
+		}
+	}
 
 	UpdateStatusBar();
 	return B_OK;
@@ -1331,7 +1337,9 @@ Editor::_ApplyExtensionSettings()
 		fParsingAvailable = true;
 		fCommenter = "//";
 
-		Languages::ApplyLanguage(this, fFileType.c_str());
+		auto styles = Languages::ApplyLanguage(this, fFileType.c_str());
+		Styler::ApplyGlobal(this, "default", nullptr);
+		Styler::ApplyLanguage(this, styles);
 	}
 }
 

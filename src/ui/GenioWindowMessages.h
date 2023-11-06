@@ -41,12 +41,14 @@ enum {
 	MSG_EOL_CONVERT_TO_MAC		= 'ectm',
 	MSG_FILE_TRIM_TRAILING_SPACE = 'trim',
 
-  MSG_AUTOCOMPLETION			= 'auto',
+	MSG_AUTOCOMPLETION			= 'auto',
 	MSG_FORMAT					= 'form',
+	MSG_SET_LANGUAGE			= 'sela',
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
 	MSG_GOTOIMPLEMENTATION		= 'goim',
 	MSG_SWITCHSOURCE			= 'swit',
+
 
 	// view
 	MSG_VIEW_ZOOMIN				= 'zoin',

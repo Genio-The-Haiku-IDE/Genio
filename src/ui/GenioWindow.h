@@ -138,15 +138,17 @@ private:
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
-			status_t		_AlertInvalidBuildConfig(BString text);
+			status_t			_AlertInvalidBuildConfig(BString text);
 			void				_CloseMultipleTabs(BMessage* msg);
 			void				_HandleConfigurationChanged(BMessage* msg);
+			BMenu*				_CreateLanguagesMenu();
 
 private:
 			BMenuBar*			fMenuBar;
 			TemplatesMenu*	fFileNewMenuItem;
 
-      BMenu*				fLineEndingsMenu;
+			BMenu*				fLineEndingsMenu;
+			BMenu*				fLanguageMenu;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;
 			BMenuItem*			fBookmarkClearAllItem;

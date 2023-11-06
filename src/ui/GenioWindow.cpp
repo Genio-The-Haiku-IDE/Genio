@@ -79,6 +79,7 @@ GenioWindow::GenioWindow(BRect frame)
 												B_QUIT_ON_WINDOW_CLOSE)
 	, fMenuBar(nullptr)
 	, fLineEndingsMenu(nullptr)
+	, fLanguageMenu(nullptr)
 	, fBookmarksMenu(nullptr)
 	, fBookmarkToggleItem(nullptr)
 	, fBookmarkClearAllItem(nullptr)
@@ -2686,6 +2687,8 @@ GenioWindow::_InitMenu()
 	fLineEndingsMenu->SetEnabled(false);
 
 	editMenu->AddItem(fLineEndingsMenu);
+	editMenu->AddItem(_CreateLanguagesMenu());
+
 	fMenuBar->AddItem(editMenu);
 
 	BMenu* viewMenu = new BMenu(B_TRANSLATE("View"));
@@ -2875,6 +2878,23 @@ GenioWindow::_InitMenu()
 		new BMessage(B_ABOUT_REQUESTED)));
 
 	fMenuBar->AddItem(helpMenu);
+}
+
+BMenu*
+GenioWindow::_CreateLanguagesMenu()
+{
+	fLanguageMenu = new BMenu(B_TRANSLATE("Language"));
+
+	for(size_t i = 0; i < Languages::GetCount(); ++i) {
+		std::string lang = Languages::GetLanguage(i);
+		std::string name = Languages::GetMenuItemName(lang);
+		BMessage* langMsg = new BMessage(MSG_SET_LANGUAGE);
+		langMsg->AddString("lang", lang.c_str());
+		fLanguageMenu->AddItem(new BMenuItem(name.c_str(), langMsg));
+	}
+	fLanguageMenu->SetRadioMode(true);
+	fLanguageMenu->SetEnabled(false);
+	return fLanguageMenu;
 }
 
 void
@@ -3763,6 +3783,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 
 		fLineEndingsMenu->SetEnabled(false);
+		fLanguageMenu->SetEnabled(false);
 		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
 		ActionManager::SetEnabled(MSG_FIND_PREVIOUS, false);
 		ActionManager::SetEnabled(MSG_FIND_MARK_ALL, false);
@@ -3812,6 +3833,15 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, true);
 
 	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
+	fLanguageMenu->SetEnabled(true);
+	//Setting the right message type:
+	std::string languageName = Languages::GetMenuItemName(editor->FileType());
+	for (int32 i=0;i<fLanguageMenu->CountItems();i++) {
+		if (languageName.compare(fLanguageMenu->ItemAt(i)->Label()) == 0)  {
+			//fLanguageMenu->
+			fLanguageMenu->ItemAt(i)->SetMarked(true);
+		}
+	}
 
 	ActionManager::SetEnabled(MSG_DUPLICATE_LINE, !editor->IsReadOnly());
 	ActionManager::SetEnabled(MSG_DELETE_LINES, !editor->IsReadOnly());

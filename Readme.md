@@ -7,27 +7,31 @@
 
 ## Introduction
 
-Genio is an IDE for the [Haiku operating system](https://www.haiku-os.org).
-Despite being in an early stage, Genio can already be used to develop and build applications.
+Genio is a native IDE for the [Haiku operating system](https://www.haiku-os.org) 
+Genio can already be used to develop and build applications.
 In fact, the Genio team uses it as the main development tool to develop and build Genio.
 
-Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), but we already implemented some new features:
+Some of the features of the Genio IDE are:
 
 * LSP (autocompletion, signature help, go to definition/implementation/declaration)
+* Project browser
+* Source control with GIT 
 * Find in files
 * Links to file and build errors in Build Log and Console I/O
 * "Problems" tab
-* Project browser
-* Improved handling of Editor tabs:
-  * Movable tabs
-  * Close all/other
-* New Editor commands:
+* Build on save / Save on build
+* User templates
+* Rich editor with many features:
+  * Multiple tabs
+  * Syntax highlighting for many languages
+  * Highlight/Trim whitespace
+  * Comment/uncomment lines
   * Duplicate current line
   * Delete lines
-  * Comment/uncomment lines
   * Switch between source and header
-
-The editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
+  
+Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), and the
+editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
 
 We also took inspiration and code from the editor [Koder](https://github.com/KapiX/Koder).
 
@@ -44,14 +48,9 @@ pkgman install gcc_syslibs_devel llvm17_clang
 
 Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code and Nova.
 
-## Main goals
-
-* Workspace Manager and Project folders
-* Language Server Protocol via clangd: autocompletion, jump to definition, and more
-* Bring the editor up-to-date and on par with other Haiku editors (Koder, Pe)
 * Plug-in architecture
+* Bring the editor up-to-date and on par with other Haiku editors (Koder, Pe)
 * Compiler error parser
-* Refactor the source file and project management module by implementing a Workspace Manager and Project folders
 
 ## Configuring Clangd / LSP
 

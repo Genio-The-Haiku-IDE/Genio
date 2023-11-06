@@ -3299,8 +3299,9 @@ void
 GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 {
 	BPath path(folder);
+	BMessenger	msgr(this);
 
-	ProjectFolder* newProject = new ProjectFolder(path.Path());
+	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
 
 	// Check if already open
 	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {

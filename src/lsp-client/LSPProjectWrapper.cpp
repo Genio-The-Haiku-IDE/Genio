@@ -5,17 +5,18 @@
 #include "LSPProjectWrapper.h"
 
 #include "GenioCommon.h"
-#include "Log.h"
 #include "LSPPipeClient.h"
 #include "LSPReaderThread.h"
 #include "LSPTextDocument.h"
+#include "Log.h"
 #include "protocol.h"
 #include "LSPLogLevels.h"
 #include "ConfigManager.h"
 #include <Url.h>
 
+const int32 kLSPMessage = 'LSP!';
 
-LSPProjectWrapper::LSPProjectWrapper(BPath rootPath)
+LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, BMessenger& msgr) : BHandler(rootPath.Path())
 {
 	BUrl url(rootPath);
 	url.SetAuthority("");
@@ -23,6 +24,39 @@ LSPProjectWrapper::LSPProjectWrapper(BPath rootPath)
 	fRootURI = url.UrlString();
 	fLSPPipeClient = nullptr;
 	fInitialized.store(false);
+
+	fMessenger = msgr;
+}
+
+void
+LSPProjectWrapper::MessageReceived(BMessage* msg)
+{
+	if (msg->what == kLSPMessage) {
+		const char* json;
+		if (msg->FindString("data", &json) == B_OK && fLSPPipeClient) {
+			try {
+				auto value = nlohmann::json::parse(json);
+
+				if (value.count("id")) {
+					if (value.contains("method")) {
+						onRequest(value["method"].get<std::string>(), value["params"], value["id"]);
+					} else if (value.contains("result")) {
+						onResponse(value["id"].get<std::string>(), value["result"]);
+					} else if (value.contains("error")) {
+						onError(value["id"].get<std::string>(), value["error"]);
+					}
+				} else if (value.contains("method")) {
+					if (value.contains("params")) {
+						onNotify(value["method"].get<std::string>(), value["params"]);
+					}
+				}
+			}
+			catch (std::exception& e) {
+				return;
+			}
+		}
+	}
+	return;
 }
 
 
@@ -37,7 +71,6 @@ LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 	if (!fLSPPipeClient)
 		_Create();
 
-	// protect access? who should call this?
 	fTextDocs[X(textDocument)] = textDocument;
 	return true;
 }
@@ -46,7 +79,6 @@ LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 void
 LSPProjectWrapper::UnregisterTextDocument(LSPTextDocument* textDocument)
 {
-	// protect access? who should call this?
 	if (fTextDocs.find(X(textDocument)) != fTextDocs.end())
 		fTextDocs.erase(X(textDocument));
 }
@@ -55,7 +87,15 @@ LSPProjectWrapper::UnregisterTextDocument(LSPTextDocument* textDocument)
 bool
 LSPProjectWrapper::_Create()
 {
-	fLSPPipeClient = new LSPPipeClient(*((MessageHandler*) this));
+	BLooper* looper = nullptr;
+	fMessenger.Target(&looper);
+	if (!looper)
+		return false;
+
+	looper->AddHandler(this);
+	BMessenger thisProject = BMessenger(this, looper);
+
+	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 	/** configuration for clangd */
 	std::string logLevel("--log=");
 	switch ((int32)gCFG["lsp_log_level"]) {
@@ -69,38 +109,34 @@ LSPProjectWrapper::_Create()
 			logLevel += "verbose"; // Low level details
 			break;
 	};
-	const char* argv[] = {
-		"clangd",
-		logLevel.c_str(),
-		"--offset-encoding=utf-8",
-		"--pretty",
-		"--header-insertion-decorators=false",
-		NULL
-	};
+	const char* argv[] = {"clangd", logLevel.c_str(), "--offset-encoding=utf-8", "--pretty",
+		"--header-insertion-decorators=false", "--pch-storage=memory", NULL};
 
 	if (fLSPPipeClient->Start(argv, 5) != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
-		LogInfo("Can't execute clangd tool to provide advanced features! Please install llvm12 "
+		LogInfo("Can't execute clangd tool to provide advanced features! Please install "
+				"llvm12/llvm16/llvm17 "
 				"package.");
 		return false;
 	}
 
 	Initialize(string_ref(fRootURI));
 
-	while (!fInitialized.load() && !fLSPPipeClient->HasQuitBeenRequested()) {
-		LogDebug("Waiting for clangd initialization.. \n");
-		snooze(50000);
-	}
-	return !fLSPPipeClient->HasQuitBeenRequested();
+	return true;
 }
 
 
 bool
 LSPProjectWrapper::Dispose()
 {
+	if (Looper()) {
+		Looper()->RemoveHandler(this);
+	}
+
 	if (!fInitialized) {
-		if (fLSPPipeClient)
+		if (fLSPPipeClient) {
 			fLSPPipeClient->ForceQuit();
+		}
 		return true;
 	}
 
@@ -145,6 +181,7 @@ LSPProjectWrapper::onNotify(std::string method, value& params)
 	if (method.compare("textDocument/publishDiagnostics") == 0
 		|| method.compare("textDocument/clangd.fileStatus") == 0) {
 		auto uri = params["uri"].get<std::string>();
+
 		LSPTextDocument* doc = _DocumentByURI(uri.c_str());
 		if (doc) {
 			doc->onNotify(method, params);

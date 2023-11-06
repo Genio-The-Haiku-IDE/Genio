@@ -198,7 +198,11 @@ GenioWindow::Show()
 	if (LockLooper()) {
 		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
 		_ShowView(fOutputTabView,   gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
-		_ShowView(fToolBar,  		gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
+		_ShowView(fToolBar,         gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
+
+		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
+		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
+
 		be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 		UnlockLooper();
 	}
@@ -2424,10 +2428,10 @@ GenioWindow::_InitActions()
 								   "kIconFold_4");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
 								   B_TRANSLATE("Show white spaces"),
-								   "", "kIconShowPunctuation");
+								   B_TRANSLATE("Show white spaces"), "kIconShowPunctuation");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
 								   B_TRANSLATE("Show line endings"),
-								   "", "");
+								   B_TRANSLATE("Show line endings"), "");
 
 	ActionManager::RegisterAction(MSG_FILE_TRIM_TRAILING_SPACE,
 								  B_TRANSLATE("Trim trailing whitespace"),

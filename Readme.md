@@ -23,13 +23,13 @@ Some of the features of the Genio IDE are:
 *   User templates
 *   Rich editor with many features:
 
-  *   Multiple tabs
-  *   Syntax highlighting for many languages
-  *   Highlight/Trim whitespace
-  *   Comment/uncomment lines
-  *   Duplicate current line
-  *   Delete lines
-  *   Switch between source and header
+ *   Multiple tabs
+ *   Syntax highlighting for many languages
+ *   Highlight/Trim whitespace
+ *   Comment/uncomment lines
+ *   Duplicate current line
+ *   Delete lines
+ *   Switch between source and header
   
 Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), and the
 editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
@@ -38,8 +38,8 @@ We also took inspiration and code from the editor [Koder](https://github.com/Kap
 
 *   strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
 
-  *   gcc_syslibs_devel
-  *   llvm17_clang
+ *   gcc_syslibs_devel
+ *   llvm17_clang
 
 ```bash
 pkgman install gcc_syslibs_devel llvm17_clang

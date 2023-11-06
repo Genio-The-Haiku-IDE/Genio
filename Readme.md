@@ -22,24 +22,22 @@ Some of the features of the Genio IDE are:
 *   Build on save / Save on build
 *   User templates
 *   Rich editor with many features:
-
- *   Multiple tabs
- *   Syntax highlighting for many languages
- *   Highlight/Trim whitespace
- *   Comment/uncomment lines
- *   Duplicate current line
- *   Delete lines
- *   Switch between source and header
+   *   Multiple tabs
+   *   Syntax highlighting for many languages
+   *   Highlight/Trim whitespace
+   *   Comment/uncomment lines
+   *   Duplicate current line
+   *   Delete lines
+   *   Switch between source and header
   
-Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), and the
-editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
+Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), and
+ the editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
 
 We also took inspiration and code from the editor [Koder](https://github.com/KapiX/Koder).
 
 *   strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
-
- *   gcc_syslibs_devel
- *   llvm17_clang
+   *   gcc_syslibs_devel
+   *   llvm17_clang
 
 ```bash
 pkgman install gcc_syslibs_devel llvm17_clang
@@ -61,7 +59,8 @@ See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blo
 
 ### Prerequirements
 
-Genio requires libgit2 to implement Git features. The development files are available in `libgit2_devel`.
+Genio requires libgit2 to implement Git features. 
+The development files are available in `libgit2_devel`.
 Execute `pkgman install libgit2_devel` from Terminal
 
 If you would like to try a clang++ build:

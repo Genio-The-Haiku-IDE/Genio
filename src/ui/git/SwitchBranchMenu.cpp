@@ -70,23 +70,27 @@ SwitchBranchMenu::~SwitchBranchMenu()
 void
 SwitchBranchMenu::AttachedToWindow()
 {
+	BMenu::AttachedToWindow();
 	if (fDetectActiveProject) {
 		GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
 		fActiveProjectPath = window->GetActiveProject()->Path().String();
 	}
 	_BuildMenu();
-	BMenu::AttachedToWindow();
+	
 	SetTargetForItems(fTarget);
 }
 
 void 
 SwitchBranchMenu::DetachedFromWindow()
 {
+	BMenu::DetachedFromWindow();
 }
+
 
 void
 SwitchBranchMenu::MessageReceived(BMessage *message)
 {
+	BMenu::MessageReceived(message);
 }
 
 

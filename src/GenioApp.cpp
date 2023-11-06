@@ -205,8 +205,6 @@ GenioApp::ReadyToRun()
 		LogInfo("Cannot load global settings file");
 	}
 
-	Languages::LoadLanguages();
-
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 
@@ -215,6 +213,8 @@ GenioApp::ReadyToRun()
 		Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 	else
 		Logger::SetLevel(sSessionLogLevel);
+
+	Languages::LoadLanguages();
 
 	fGenioWindow = new GenioWindow(gCFG["ui_bounds"]);
 	fGenioWindow->Show();

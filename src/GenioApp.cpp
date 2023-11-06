@@ -16,6 +16,7 @@
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 #include "Languages.h"
+#include "GMessage.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"

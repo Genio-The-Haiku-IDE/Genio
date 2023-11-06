@@ -162,11 +162,11 @@ public:
 				}
 			}
 		}
-		
+
 		bool operator !=(const GMessageReturn& n) {
 			return !operator==(n);
 		}
-		
+
 		bool operator ==(GMessageReturn n) {
 			type_code typeLeft;
 			type_code typeRight;
@@ -191,7 +191,7 @@ public:
 
 			return comparison;
 		}
-		
+
 		void Print() const {
 			fMsg->PrintToStream();
 		}
@@ -200,3 +200,6 @@ private:
 		const char* fKey;
 		GMessageReturn* fSyncParent;
 };
+
+// Stack Message
+#define SMSG(WHAT, LIST...) ((new GMessage({{{ LIST }}}))->what = WHAT)

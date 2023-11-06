@@ -1,8 +1,8 @@
 /*
- * Copyright 2014-2018 Kacper Kasper 
+ * Copyright 2023, Andrea Anzani 
+ * Copyright 2014-2018 Kacper Kasper  (from Koder editor)
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-
 #ifndef STYLER_H
 #define STYLER_H
 

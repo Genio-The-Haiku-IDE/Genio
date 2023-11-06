@@ -1,8 +1,6 @@
 /*
  * Copyright 2023, Andrea Anzani 
- *
- * Code derived from Koder:
- * Copyright 2015-2018 Kacper Kasper 
+ * Copyright 2014-2018 Kacper Kasper  (from Koder editor)
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 

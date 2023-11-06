@@ -21,15 +21,9 @@
 #include <Url.h>
 #include <Volume.h>
 
-#include <iostream>
-#include <sstream>
-
 #include "ConfigManager.h"
 #include "EditorContextMenu.h"
 #include "EditorStatusView.h"
-#include "GenioCommon.h"
-#include "GenioNamespace.h"
-#include "keywords.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
 #include "ProjectFolder.h"
@@ -41,7 +35,6 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
 
-using namespace GenioNames;
 namespace Sci = Scintilla;
 using namespace Sci::Properties;
 
@@ -71,6 +64,47 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	SetTarget(target);
 
 	fLSPEditorWrapper = new LSPEditorWrapper(BPath(&fFileRef), this);
+
+	// MARGINS
+	SendMessage(SCI_SETMARGINS, 4, UNSET);
+
+	//Line number margins.
+	SendMessage(SCI_SETMARGINTYPEN, sci_NUMBER_MARGIN, SC_MARGIN_NUMBER);
+
+	//Bookmark margin
+	SendMessage(SCI_SETMARGINTYPEN, sci_BOOKMARK_MARGIN, SC_MARGIN_SYMBOL);
+	SendMessage(SCI_SETMARGINSENSITIVEN, sci_BOOKMARK_MARGIN, 1);
+	SendMessage(SCI_MARKERDEFINE, sci_BOOKMARK, SC_MARK_BOOKMARK);
+ 	SendMessage(SCI_SETMARGINMASKN, sci_BOOKMARK_MARGIN, (1 << sci_BOOKMARK));
+
+	//Fold margin
+	SendMessage(SCI_SETMARGINTYPEN, sci_FOLD_MARGIN, SC_MARGIN_SYMBOL);
+	SendMessage(SCI_SETMARGINMASKN, sci_FOLD_MARGIN, SC_MASK_FOLDERS);
+	SendMessage(SCI_SETMARGINSENSITIVEN, sci_FOLD_MARGIN, 1);
+
+	SendMessage(SCI_SETPROPERTY, (sptr_t) "fold", (sptr_t) "1");
+	SendMessage(SCI_SETPROPERTY, (sptr_t) "fold.comment", (sptr_t) "1");
+
+	SendMessage(SCI_SETMARGINTYPEN, sci_FOLD_MARGIN, SC_MARGIN_SYMBOL);
+	SendMessage(SCI_SETMARGINMASKN, sci_FOLD_MARGIN, SC_MASK_FOLDERS);
+	SendMessage(SCI_SETMARGINWIDTHN, sci_FOLD_MARGIN, 16);
+	SendMessage(SCI_SETMARGINSENSITIVEN, sci_FOLD_MARGIN, 1);
+
+	SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS);
+	SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS);
+	SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED);
+	SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER);
+	SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED);
+	SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);
+	SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER);
+	SendMessage(SCI_SETFOLDFLAGS, SC_FOLDFLAG_LINEAFTER_CONTRACTED, 0);
+
+	SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW, 1);
+	SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_CHANGE, 4);
+	SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_CLICK, 2);
+
+	// Comment margin
+	SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 }
 
 
@@ -104,89 +138,62 @@ Editor::MessageReceived(BMessage* message)
 	}
 }
 
-
 void
 Editor::ApplySettings()
 {
-	// White spaces color
-	SendMessage(SCI_SETWHITESPACESIZE, 4, UNSET);
-	SendMessage(SCI_SETWHITESPACEFORE, 1, kWhiteSpaceFore);
-	SendMessage(SCI_SETWHITESPACEBACK, 1, kWhiteSpaceBack);
-
-	// Selection background
-	SendMessage(SCI_SETSELBACK, 1, kSelectionBackColor);
-
-	// Font & Size
-	SendMessage(SCI_STYLESETFONT, STYLE_DEFAULT, (sptr_t) "Noto Sans Mono");
-	int32 fontSize = gCFG["edit_fontsize"];
-	if (fontSize < 0)
-		fontSize = be_plain_font->Size();
-	SendMessage(SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
 	SendMessage(SCI_STYLECLEARALL, UNSET, UNSET);
 
-	// Highlighting
-	if (gCFG["syntax_highlight"]) {
-		_ApplyExtensionSettings();
-		_HighlightFile();
-	}
-
-	// Brace match
-	if (gCFG["brace_match"])
-		_HighlightBraces();
-
-	// Caret line visible / not visible
-	SendMessage(SCI_SETCARETLINEBACK, kCaretLineBackColor, UNSET);
-	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), UNSET);
-
-	// Edge line
-	const bool edgeLine = gCFG["show_edgeline"];
-	SendMessage(SCI_SETEDGEMODE, edgeLine ? EDGE_LINE : EDGE_NONE, UNSET);
-	SendMessage(SCI_SETEDGECOLUMN, int32(gCFG["edgeline_column"]), UNSET);
-	SendMessage(SCI_SETEDGECOLOUR, kEdgeColor, UNSET);
+	_ApplyExtensionSettings();
 
 	ShowWhiteSpaces(gCFG["show_white_space"]);
 	ShowLineEndings(gCFG["show_line_endings"]);
 
-	// Tab width
-	if (fFileType == "rust") {
-		// Use rust style (4 spaces)
-		SendMessage(SCI_SETTABWIDTH, 4, UNSET);
-		SendMessage(SCI_SETUSETABS, false, UNSET);
-	} else
-		SendMessage(SCI_SETTABWIDTH, (int)gCFG["tab_width"], UNSET);
+	SendMessage(SCI_SETTABWIDTH, (int) gCFG["tab_width"], 0);
+	// TODO add settings: SendMessage(SCI_SETUSETABS, fPreferences->fTabsToSpaces, 0);
+	// FIXME: understand fEditor->SendMessage(SCI_SETINDENT, 0, 0);
+	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), 0);
+	SendMessage(SCI_SETCARETLINEVISIBLEALWAYS, true, 0);
+	// TODO add settings: SendMessage(SCI_SETCARETLINEFRAME, fPreferences->fLineHighlightingMode ? 2
+	// : 0);
 
-	// MARGINS
-	SendMessage(SCI_SETMARGINS, 4, UNSET);
-	SendMessage(SCI_STYLESETBACK, STYLE_LINENUMBER, kLineNumberBack);
-	SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
+	// Edge line
+	SendMessage(SCI_SETEDGEMODE, (bool)gCFG["show_edgeline"], UNSET);
+	SendMessage(SCI_SETEDGECOLUMN, int32(gCFG["edgeline_column"]), UNSET);
 
-	// Bookmark margin
-	SendMessage(SCI_SETMARGINTYPEN, sci_BOOKMARK_MARGIN, SC_MARGIN_SYMBOL);
-	SendMessage(SCI_SETMARGINSENSITIVEN, sci_BOOKMARK_MARGIN, 1);
-	SendMessage(SCI_MARKERDEFINE, sci_BOOKMARK, SC_MARK_BOOKMARK);
-	SendMessage(SCI_MARKERSETFORE, sci_BOOKMARK, kMarkerForeColor);
-	SendMessage(SCI_MARKERSETBACK, sci_BOOKMARK, kMarkerBackColor);
- 	SendMessage(SCI_SETMARGINMASKN, sci_BOOKMARK_MARGIN, (1 << sci_BOOKMARK));
+	// TODO: Implement this settings:
+	/*if(fPreferences->fIndentGuidesShow == true) {
+		fEditor->SendMessage(SCI_SETINDENTATIONGUIDES, fPreferences->fIndentGuidesMode, 0);
+	} else {
+		fEditor->SendMessage(SCI_SETINDENTATIONGUIDES, 0, 0);
+	}*/
 
+	_HighlightBraces();
+
+	// TODO: Implement this settings:
+	/*if(fPreferences->fWrapLines == true) {
+		fEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_WORD, 0);
+	} else {
+		fEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_NONE, 0);
+	}
+
+	*/
 	// Folding
-	if (gCFG["enable_folding"])
-		_SetFoldMargin();
+	_SetFoldMargin(gCFG["enable_folding"]);
 
 	// Line commenter margin
 	if (gCFG["show_commentmargin"] && !fCommenter.empty()) {
-		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12);
-		SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
-	} else
+		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 12); //TODO make it relative to font size
+	} else {
 		SendMessage(SCI_SETMARGINWIDTHN, sci_COMMENT_MARGIN, 0);
+	}
 
 	SetZoom(gCFG["editor_zoom"]);
 
 	fLSPEditorWrapper->ApplySettings();
 
-	//custom ContextMenu!
+	// custom ContextMenu!
 	SendMessage(SCI_USEPOPUP, SC_POPUP_NEVER, 0);
 }
-
 
 void
 Editor::BookmarkClearAll(int marker)
@@ -1330,16 +1337,23 @@ Editor::ContextMenu(BPoint point)
 void
 Editor::_ApplyExtensionSettings()
 {
-	if (fFileType != "") {
+	BFont font = be_fixed_font;
+	int32 fontSize = gCFG["edit_fontsize"];
+	if (fontSize > 0)
+		font.SetSize(fontSize);
+
+	if (gCFG["syntax_highlight"] && fFileType != "") {
 		fSyntaxAvailable = true;
 		fFoldingAvailable = true;
 		fBracingAvailable = true;
 		fParsingAvailable = true;
-		fCommenter = "//";
+		fCommenter = "";
 
 		auto styles = Languages::ApplyLanguage(this, fFileType.c_str());
-		Styler::ApplyGlobal(this, "default", nullptr);
+		Styler::ApplyGlobal(this, "default", &font);
 		Styler::ApplyLanguage(this, styles);
+	} else {
+		Styler::ApplyGlobal(this, "default", &font);
 	}
 }
 
@@ -1574,62 +1588,6 @@ Editor::_HighlightBraces()
 
 
 void
-Editor::_HighlightFile()
-{
-	if (fSyntaxAvailable == true) {
-		// Rust colors taken from rustbook, second edition
-		if (fFileType == "rust") {
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_DEFAULT, 0x000000);
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_COMMENTBLOCK, 0x6E5B5E);
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_COMMENTBLOCKDOC, 0x6E5B5E);
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_COMMENTLINE, 0x6E5B5E);
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_COMMENTLINEDOC, 0x6E5B5E);
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_NUMBER, 0x6684E1);
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_WORD, 0xB854D4);
-			SendMessage(SCI_STYLESETBOLD, SCE_RUST_WORD, 1);
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_WORD2, );
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_WORD3, );
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_WORD4, );
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_WORD5, );
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_WORD6, );
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_WORD7, );
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_STRING, 0x60AC39);
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_STRINGR, 0x60AC39);
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_CHARACTER, );
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_OPERATOR, );
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_IDENTIFIER, );
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_LIFETIME, );
-			SendMessage(SCI_STYLESETFORE, SCE_RUST_MACRO, 0x6684E1);
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_LEXERROR, );
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_BYTESTRING, 0x60AC39);
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_BYTESTRINGR, 0x60AC39);
-//			SendMessage(SCI_STYLESETFORE, SCE_RUST_BYTECHARACTER, );
-		} else {
-			SendMessage(SCI_STYLESETFORE, SCE_C_DEFAULT, 0x000000);
-			SendMessage(SCI_STYLESETFORE, SCE_C_COMMENT, 0xAA0000);
-		//	SendMessage(SCI_STYLESETFORE, SCE_C_COMMENTLINE, 0x007F00);
-			SendMessage(SCI_STYLESETFORE, SCE_C_COMMENTLINE, 0x007F3F);
-			SendMessage(SCI_STYLESETFORE, SCE_C_COMMENTDOC, 0x3F703F);
-			SendMessage(SCI_STYLESETFORE, SCE_C_NUMBER, 0x3030C0);
-			SendMessage(SCI_STYLESETFORE, SCE_C_WORD, 0x7F0000);
-			SendMessage(SCI_STYLESETBOLD, SCE_C_WORD, 1);
-			SendMessage(SCI_STYLESETFORE, SCE_C_STRING, 0x7F007F);
-			SendMessage(SCI_STYLESETFORE, SCE_C_CHARACTER, 0x7F007F);
-			SendMessage(SCI_STYLESETFORE, SCE_C_UUID, 0x804080);
-			SendMessage(SCI_STYLESETFORE, SCE_C_PREPROCESSOR, 0x1E6496); //0x10C0D0 //0x37B0B0 0x007F7F);
-		//	SendMessage(SCI_STYLESETFORE, SCE_C_OPERATOR, 0x007F00);
-		//	SendMessage(SCI_STYLESETBOLD, SCE_C_OPERATOR, 1);
-		//	SendMessage(SCI_STYLESETFORE, SCE_C_IDENTIFIER, 0x808080);
-			SendMessage(SCI_STYLESETFORE, SCE_C_WORD2, 0x986633);
-		//	SendMessage(SCI_STYLESETBOLD, SCE_C_WORD2, 1);SCE_C_PREPROCESSORCOMMENT
-			SendMessage(SCI_STYLESETFORE, SCE_C_PREPROCESSORCOMMENT, 0x808080);
-			SendMessage(SCI_STYLESETFORE, SCE_C_GLOBALCLASS, 0x808080);
-		}
-	}
-}
-
-
-void
 Editor::_RedrawNumberMargin(bool forced)
 {
 	if (!gCFG["show_linenumber"]) {
@@ -1650,30 +1608,12 @@ Editor::_RedrawNumberMargin(bool forced)
 
 
 void
-Editor::_SetFoldMargin()
+Editor::_SetFoldMargin(bool enabled)
 {
-	if (IsFoldingAvailable() == true) {
-		SendMessage(SCI_SETPROPERTY, (sptr_t) "fold", (sptr_t) "1");
-		SendMessage(SCI_SETPROPERTY, (sptr_t) "fold.comment", (sptr_t) "1");
-
-		SendMessage(SCI_SETMARGINTYPEN, sci_FOLD_MARGIN, SC_MARGIN_SYMBOL);
-		SendMessage(SCI_SETMARGINMASKN, sci_FOLD_MARGIN, SC_MASK_FOLDERS);
-		SendMessage(SCI_SETMARGINWIDTHN, sci_FOLD_MARGIN, 16);
-		SendMessage(SCI_SETMARGINSENSITIVEN, sci_FOLD_MARGIN, 1);
-
-		SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS);
-		SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS);
-		SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED);
-		SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER);
-		SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED);
-		SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);
-		SendMessage(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER);
-		SendMessage(SCI_SETFOLDFLAGS, SC_FOLDFLAG_LINEAFTER_CONTRACTED, 0);
-
-		SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW, 1);
-		SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_CHANGE, 4);
-		SendMessage(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_CLICK, 2);
-	}
+	const int foldEnabled = SendMessage(SCI_GETPROPERTYINT, (uptr_t) "fold", 0);
+	const int32 fontSize = SendMessage(SCI_STYLEGETSIZE, 32);
+	const int32 foldWidth = IsFoldingAvailable() && foldEnabled && enabled ? fontSize * 0.95 : 0;
+	SendMessage(SCI_SETMARGINWIDTHN, sci_FOLD_MARGIN, foldWidth);
 }
 
 

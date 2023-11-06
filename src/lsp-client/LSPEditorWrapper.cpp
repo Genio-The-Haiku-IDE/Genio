@@ -22,8 +22,8 @@
 
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
-#define IND_DIAG 0
-#define IND_LINK 1
+#define IND_DIAG 1 //Style for Problems
+#define IND_LINK 2 //Style for Links
 
 LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	:
@@ -39,10 +39,15 @@ LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 void
 LSPEditorWrapper::ApplySettings()
 {
-	fEditor->SendMessage(SCI_INDICSETFORE, IND_DIAG, (255 | (0 << 8) | (0 << 16)));
+	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, (255 | (0 << 8) | (0 << 16)));
+	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_DIAG, INDIC_SQUIGGLE);
+	fEditor->SendMessage(SCI_INDICSETALPHA, IND_DIAG, 100);
 
-	fEditor->SendMessage(SCI_INDICSETFORE, IND_LINK, 0xff0000);
+	fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
+	fEditor->SendMessage(SCI_INDICSETALPHA, IND_LINK, 100);
+
+	fEditor->SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 
 	// int margins = fEditor->SendMessage(SCI_GETMARGINS);
 	// fEditor->SendMessage(SCI_SETMARGINS, margins + 1);

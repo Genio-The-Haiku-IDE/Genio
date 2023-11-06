@@ -40,7 +40,6 @@ SRCS +=	 src/config/ConfigWindow.cpp
 SRCS +=	 src/config/GMessage.cpp
 SRCS +=  src/helpers/ActionManager.cpp
 SRCS +=  src/helpers/FSUtils.cpp
-SRCS +=  src/helpers/GenioCommon.cpp
 SRCS +=  src/helpers/GSettings.cpp
 SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/helpers/PathBox.cpp

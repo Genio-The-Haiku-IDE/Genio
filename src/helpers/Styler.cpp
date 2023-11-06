@@ -1,5 +1,6 @@
 /*
- * Copyright 2014-2018 Kacper Kasper <kacperkasper@gmail.com>
+ * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ * Copyright 2014-2018 Kacper Kasper <kacperkasper@gmail.com> (from Koder editor)
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -88,22 +89,10 @@ std::unordered_map<int, Styler::Style>	Styler::sStylesMapping;
 Styler::ApplyGlobal(Editor* editor, const char* style, const BFont* font)
 {
 	sStylesMapping.clear();
-
-/*	static bool alertShown = false;
-	bool found = false;
-	BPath dataPath;
-*/
 	try {
 		_ApplyGlobal(editor, style, GetDataDirectory(), font);
-		//found = true;
 	} catch (YAML::BadFile &) {
-	}/*
-	if(found == false && alertShown == false) {
-		alertShown = true;
-		OKAlert(B_TRANSLATE("Style files"), B_TRANSLATE("Couldn't find style "
-			"files. Make sure you have them installed in one of your data "
-			"directories."), B_WARNING_ALERT);
-	}*/
+	}
 }
 
 
@@ -206,10 +195,10 @@ Styler::_ApplyGlobal(Editor* editor, const char* style, const BPath &path, const
 				}
 			} else if(name == "Bookmark marker") {
 				if(s.fgColor != -1) {
-//fixme xed					editor->SendMessage(SCI_MARKERSETFORE, Editor::Marker::BOOKMARK, s.fgColor);
+					editor->SendMessage(SCI_MARKERSETFORE, sci_BOOKMARK, s.fgColor);
 				}
 				if(s.bgColor != -1) {
-//fixme xed							editor->SendMessage(SCI_MARKERSETBACK, Editor::Marker::BOOKMARK, s.bgColor);
+					editor->SendMessage(SCI_MARKERSETBACK, sci_BOOKMARK, s.bgColor);
 				}
 			}
 		}

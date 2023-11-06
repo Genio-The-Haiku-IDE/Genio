@@ -4,7 +4,6 @@
  */
 #include "LSPProjectWrapper.h"
 
-#include "GenioCommon.h"
 #include "Log.h"
 #include "LSPPipeClient.h"
 #include "LSPReaderThread.h"

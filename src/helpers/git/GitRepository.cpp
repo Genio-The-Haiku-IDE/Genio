@@ -15,8 +15,6 @@
 #include <stdexcept>
 #include <map>
 
-#include "Utils.h"
-
 namespace Genio::Git {
 
 	GitRepository::GitRepository(const path& path)

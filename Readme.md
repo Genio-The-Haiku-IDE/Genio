@@ -7,20 +7,18 @@
 
 ## Introduction
 
-Genio is a native IDE for the [Haiku operating system](https://www.haiku-os.org) 
-Genio can already be used to develop and build applications.
-In fact, the Genio team uses it as the main development tool to develop and build Genio.
+Genio is a native and fully functional IDE for the [Haiku operating system](https://www.haiku-os.org) 
 
 Some of the features of the Genio IDE are:
 
-*   LSP (autocompletion, signature help, go to definition/implementation/declaration)
-*   Project browser
-*   Source control with GIT 
+*   LSP Server support (autocompletion, signature help, go to definition/implementation/declaration)
+*   Multi-project browser
+*   Integrated source control with GIT (including opening a remote project) 
 *   Find in files
 *   Links to file and build errors in Build Log and Console I/O
 *   "Problems" tab
 *   Build on save / Save on build
-*   User templates
+*   User templates for quickly creating new files and projects
 *   Rich editor with many features:
     *   Multiple tabs
     *   Syntax highlighting for many languages
@@ -84,13 +82,6 @@ The makefile has been updated to accept the *debug* parameter:
 We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
 For code contributions, prefer Haiku API over posix, where applicable.
 We (try to) stick to the Haiku style for code, although with a few differences.
-
-## Branches
-
-Currently there are various branches on the Github repository:
-
-*   main - this is the main branch, which we always try to keep in a relatively stable state
-*   feature/* - these branches are where we develop new features, before merging into main
 
 ## License
 

@@ -15,6 +15,8 @@
 #include <stdexcept>
 #include <map>
 
+#include "Utils.h"
+
 namespace Genio::Git {
 
 	GitRepository::GitRepository(const path& path)
@@ -116,34 +118,32 @@ namespace Genio::Git {
 		status = git_checkout_init_options(&opts, GIT_CHECKOUT_OPTIONS_VERSION);
 		if (status < 0)
 			throw GitException(status, git_error_last()->message);
-			
+
 		opts.notify_flags =	GIT_CHECKOUT_NOTIFY_CONFLICT;
 		opts.checkout_strategy = GIT_CHECKOUT_SAFE;
 		opts.notify_cb = checkout_notify;
 		opts.notify_payload = &files;
-		
+
 		status = git_revparse_single(&tree, fRepository, branchName.String());
 		if (status < 0)
 			throw GitException(status, git_error_last()->message);
-			
+
 		// if the target branch is remote and a corresponding local branch does not exist, we need
 		// to create a local branch first, set the remote tracking then checkout
 		if (branchName.StartsWith("origin")) {
 			remoteBranchName = branchName;
 			branchName.RemoveFirst("origin/");
-			
+
 			git_reference* ref = nullptr;
 			status = git_branch_create(&ref, fRepository, branchName.String(), (git_commit*)tree, false);
-			if (status > 0) {
+			if (status >= 0) {
 				status = git_branch_set_upstream(ref, remoteBranchName.String());
 				if (status < 0)
 					throw GitException(status, git_error_last()->message);
-					
 				git_reference_free(ref);
 			}
-			
 		}
-			
+
 		status = git_checkout_tree(fRepository, tree, &opts);
 		if (status < 0) {
 			throw GitException(status, git_error_last()->message, files);

@@ -1122,6 +1122,8 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->ApplySettings();
 				//NOTE (TODO?) we are not changing any LSP configuration!
 			}
+		}
+		break;
 		case MSG_HELP_GITHUB: {
 			char *argv[2] = {(char*)"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
 			be_roster->Launch("text/html", 1, argv);

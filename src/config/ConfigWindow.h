@@ -14,6 +14,7 @@ class BCardView;
 class BOutlineListView;
 class BView;
 class ConfigManager;
+
 class ConfigWindow : public BWindow {
 public:
 		ConfigWindow(ConfigManager& configManager);
@@ -34,6 +35,7 @@ private:
 	BOutlineListView* 	fGroupList;
 	BCardView* 	fCardView;
 	BButton* fDefaultsButton;
+	bool	fShowHidden;
 };
 
 

@@ -16,7 +16,6 @@
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 #include "Languages.h"
-#include "GMessage.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
@@ -306,7 +305,6 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
 
-
 	GMessage lsplevels = {{ {"mode", "options"},
 							{"note", B_TRANSLATE("This setting will be updated on restart")}
 						 }};
@@ -321,6 +319,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("LSP", "lsp_log_level", B_TRANSLATE("Log level:"), (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
 
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
+	cfg.AddConfig("Hidden", "editor_style", "Editor Style", "default");
 }
 
 

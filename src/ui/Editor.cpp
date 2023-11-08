@@ -1342,6 +1342,8 @@ Editor::_ApplyExtensionSettings()
 	if (fontSize > 0)
 		font.SetSize(fontSize);
 
+	Styler::ApplyGlobal(this, gCFG["editor_style"], &font);
+
 	if (gCFG["syntax_highlight"] && fFileType != "") {
 		fSyntaxAvailable = true;
 		fFoldingAvailable = true;
@@ -1350,10 +1352,7 @@ Editor::_ApplyExtensionSettings()
 		fCommenter = "";
 
 		auto styles = Languages::ApplyLanguage(this, fFileType.c_str());
-		Styler::ApplyGlobal(this, "default", &font);
 		Styler::ApplyLanguage(this, styles);
-	} else {
-		Styler::ApplyGlobal(this, "default", &font);
 	}
 }
 

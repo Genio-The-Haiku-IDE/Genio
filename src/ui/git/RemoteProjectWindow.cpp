@@ -6,11 +6,13 @@
 #include "RemoteProjectWindow.h"
 
 #include <cstdio>
+#include <functional>
 #include <regex>
 
 #include <AppKit.h>
 #include <Catalog.h>
 #include <ControlLook.h>
+#include <git2.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
 #include <StatusBar.h>
@@ -19,9 +21,9 @@
 #include <Window.h>
 
 #include "GenioWindowMessages.h"
+#include "GitCredentialsWindow.h"
+#include "GitRepository.h"
 #include "Utils.h"
-
-#include "BeDC.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "RemoteProjectWindow"
@@ -159,9 +161,11 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				_SetProgress(100, "Finished!");
 				fButtonsLayout->SetVisibleItem(VIEW_INDEX_CLOSE_BUTTON);
 			} catch(std::exception &ex) {
-				OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ")
-					<< ex.what(), B_INFO_ALERT);
-				fStatusText->SetText("An error occurred!");
+				if (BString(ex.what()) != "CANCEL_CREDENTIALS") {
+					OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ")
+						<< ex.what(), B_INFO_ALERT);
+					fStatusText->SetText("An error occurred!");
+				}
 				_SetIdle();
 			}
 			_ResetControls();
@@ -178,25 +182,24 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			fURL->SetEnabled(false);
 
 			auto callback = [](const git_transfer_progress *stats, void *payload) -> int {
+				int current_progress = stats->total_objects > 0 ?
+					(100*stats->received_objects) /
+					stats->total_objects :
+					0;
+				int kbytes = stats->received_bytes / 1024;
 
-								int current_progress = stats->total_objects > 0 ?
-									(100*stats->received_objects) /
-									stats->total_objects :
-									0;
-								int kbytes = stats->received_bytes / 1024;
+				BString progressString;
+				progressString << "Cloning "
+					<< stats->received_objects << "/"
+					<< stats->total_objects << " objects"
+					<< " (" << kbytes << " kb)";
 
-								BString progressString;
-								progressString << "Cloning "
-									<< stats->received_objects << "/"
-									<< stats->total_objects << " objects"
-									<< " (" << kbytes << " kb)";
-
-								BMessage msg(kProgress);
-								msg.AddString("progress_text", progressString);
-								msg.AddFloat("progress_value", current_progress);
-								BMessenger(this_handler).SendMessage(&msg);
-								return 0;
-							};
+				BMessage msg(kProgress);
+				msg.AddString("progress_text", progressString);
+				msg.AddFloat("progress_value", current_progress);
+				BMessenger(this_handler).SendMessage(&msg);
+				return 0;
+			};
 
 			BPath fullPath(fPathBox->Path());
 			fullPath.Append(fDestDir->Text());
@@ -204,14 +207,15 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			fCurrentTask = make_shared<Task<BPath>>
 			(
 				"GitClone",
-				new BMessenger(this),
+				BMessenger(this),
 				std::bind
 				(
 					&GitRepository::Clone,
-					&repo ,
+					&repo,
 					fURL->Text(),
 					fullPath,
-					callback
+					callback,
+					&GitCredentialsWindow::authentication_callback
 				)
 			);
 
@@ -265,7 +269,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			auto repoName = _ExtractRepositoryName(fURL->Text());
 			fDestDir->SetText(repoName);
 
-			BeDC("Genio").SendMessage(repoName);
+			LogInfo(repoName);
 			break;
 		}
 		default:
@@ -278,7 +282,6 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 BString
 RemoteProjectWindow::_ExtractRepositoryName(BString url)
 {
-	BeDC dc("Genio");
 	BString repoName = "";
 	std::string surl = url.String();
 	std::string strPattern = "^(https|git)(:\\/\\/|@)([^\\/:]+)[\\/:]([^\\/:]+)\\/(.+)(.git)?*$";
@@ -286,15 +289,14 @@ RemoteProjectWindow::_ExtractRepositoryName(BString url)
 	std::regex rgx(strPattern);
 
 	if(std::regex_search(surl, matches, rgx)) {
-		dc.SendMessage("Match found\n");
+		LogInfo("Match found\n");
 		for (size_t i = 0; i < matches.size(); ++i) {
-			dc.SendFormat("%d: '%s'", i, matches[i].str().c_str());
+			LogInfo("%d: '%s'", i, matches[i].str().c_str());
 		}
 		repoName.SetToFormat("%s", matches[5].str().c_str());
 		repoName.RemoveAll(".git");
-		BeDC dc(repoName);
 	} else {
-		dc.SendMessage("Match not found\n");
+		LogInfo("Match not found\n");
 		repoName = "";
 	}
 	return repoName;

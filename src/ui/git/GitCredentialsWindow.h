@@ -1,0 +1,50 @@
+/*
+ * Copyright 2018, Hrishikesh Hiraskar 
+ * All rights reserved. Distributed under the terms of the MIT license.
+ */
+
+#ifndef _CREDENTIALS_WINDOW_H_
+#define _CREDENTIALS_WINDOW_H_
+
+#include <sys/time.h>
+
+#include <git2.h>
+#include <String.h>
+#include <Window.h>
+
+
+enum {
+	kCredOK,
+	kCredCancel
+};
+
+class BTextControl;
+/**
+ * The Credentials Window class.
+ */
+class GitCredentialsWindow : public BWindow {
+public:
+							GitCredentialsWindow(BString &username,
+												BString &password);
+	virtual void			MessageReceived(BMessage* message);
+
+	static int 				authentication_callback(git_cred** out, const char* url,
+													const char* username_from_url,
+													unsigned int allowed_types,
+													void* payload);
+private:
+	/**
+	 * The text control for username.
+	 */
+	BTextControl* 			fUsername;
+	/**
+	 * The text control for password.
+	 */
+	BTextControl* 			fPassword;
+
+	BString*				fUsernameString;
+	BString*				fPasswordString;
+
+};
+
+#endif

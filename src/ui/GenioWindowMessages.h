@@ -87,6 +87,7 @@ enum {
 
 	// Scm menu
 	MSG_GIT_COMMAND				= 'gitc',
+	MSG_GIT_SWITCH_BRANCH		= 'gtsb',
 	MSG_HG_COMMAND				= 'hgco',
 
 	// Window menu
@@ -116,18 +117,21 @@ enum {
 
 	MSG_FIND_WRAP					= 'fiwr',
 	MSG_FIND_WHOLE_WORD				= 'fiww',
-	MSG_FIND_MATCH_CASE				= 'fimc'
+	MSG_FIND_MATCH_CASE				= 'fimc',
+
+	MSG_HELP_GITHUB					= 'hegh'
 };
 
 
 // "notification" messages
 enum {
-	MSG_NOTIFY_EDITOR_FILE_OPENED = 	  'efop',	// file_name (string)
-	MSG_NOTIFY_EDITOR_FILE_CLOSED = 	  'efcx',	// file_name (string)
+	MSG_NOTIFY_EDITOR_FILE_OPENED 		= 'efop',	// file_name (string)
+	MSG_NOTIFY_EDITOR_FILE_CLOSED 		= 'efcx',	// file_name (string)
 	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch',	// file_name (string)
 													// needs_save (bool)
 
-	MSG_NOTIFY_BUILDING_PHASE			= 'blph'	// building (bool)
+	MSG_NOTIFY_BUILDING_PHASE			= 'blph',	// building (bool)
+	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa'	// active_project (pointer)
 };
 
 #endif // GenioWindowMessages_H

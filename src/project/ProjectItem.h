@@ -31,6 +31,10 @@ public:
 	void			InitRename(BMessage* message);
 	void			AbortRename();
 	void			CommitRename();
+	
+	bool			HasToolTip() { return !fToolTipText.IsEmpty(); };
+	void			SetToolTipText(const char *text) { fToolTipText = text; }
+	const char*		GetToolTipText() { return fToolTipText.String(); }
 
 private:
 	SourceItem		*fSourceItem;
@@ -40,6 +44,9 @@ private:
 	bool			fInitRename;
 	BMessage*		fMessage;
 	BTextControl	*fTextControl;
+	BString			fPrimaryText;
+	BString			fSecondaryText;
+	BString			fToolTipText;
 
 	void			_DrawText(BView* owner, const BPoint& textPoint);
 	void			_DrawTextWidget(BView* owner, const BRect& textRect);

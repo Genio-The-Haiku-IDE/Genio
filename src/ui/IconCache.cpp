@@ -4,22 +4,26 @@
  */
 
 #include "IconCache.h"
+
+#include <Bitmap.h>
+#include <ControlLook.h>
+#include <NodeInfo.h>
+
 #include "Log.h"
 
 #define DIR_FILETYPE "application/x-vnd.Be-directory"
-#define FILE_FILETYPE "application/octet-stream"
 
 
-IconCache IconCache::instance;
+IconCache IconCache::sInstance;
 
 IconCache::IconCache()
 {
 }
 
 
-BBitmap*
+const BBitmap*
 IconCache::GetIcon(entry_ref *ref)
-{	
+{
 	BNode node(ref);
 	BNodeInfo nodeInfo(&node);
 	char mimeType[B_MIME_TYPE_LENGTH];
@@ -29,13 +33,13 @@ IconCache::GetIcon(entry_ref *ref)
 		if (node.IsDirectory())
 			strncpy(mimeType, DIR_FILETYPE, B_MIME_TYPE_LENGTH - 1);
 		else
-			strncpy(mimeType, FILE_FILETYPE, B_MIME_TYPE_LENGTH - 1);
+			strncpy(mimeType, B_FILE_MIME_TYPE, B_MIME_TYPE_LENGTH - 1);
 	}
 
 	LogTrace("IconCache: [%s] - [%s]", mimeType, ref->name);
 
-	auto it = instance.cache.find(mimeType);
-	if (it != instance.cache.end()) {
+	auto it = sInstance.fCache.find(mimeType);
+	if (it != sInstance.fCache.end()) {
 		LogTrace("IconCache: return icon from cache for %s",mimeType);
 		return it->second;
 	} else {
@@ -45,7 +49,7 @@ IconCache::GetIcon(entry_ref *ref)
 		BBitmap *icon = new BBitmap(rect, B_RGBA32);
 		icon_size iconSize = (icon_size)(icon->Bounds().IntegerWidth() - 1);
 		status_t status = nodeInfo.GetTrackerIcon(icon, (icon_size)iconSize);
-		instance.cache.emplace(mimeType, icon);
+		sInstance.fCache.emplace(mimeType, icon);
 		LogTrace("IconCache: GetTrackerIcon returned - %d", status);
 		return icon;
 	}
@@ -53,8 +57,8 @@ IconCache::GetIcon(entry_ref *ref)
 }
 
 
-BBitmap*
-IconCache::GetIcon(BString path)
+const BBitmap*
+IconCache::GetIcon(const BString& path)
 {
 	BEntry entry(path);
 	entry_ref ref;
@@ -66,8 +70,8 @@ IconCache::GetIcon(BString path)
 void
 IconCache::PrintToStream()
 {
-	printf("IconCache %p: cache content\n", &instance);
-	for (auto const& x : instance.cache) {
+	printf("IconCache %p: cache content\n", &sInstance);
+	for (auto const& x : sInstance.fCache) {
 		printf("IconCache: %s\n", x.first.c_str());
 	}
 	printf("----------------------------\n");

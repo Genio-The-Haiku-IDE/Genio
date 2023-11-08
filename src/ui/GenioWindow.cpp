@@ -5,6 +5,7 @@
  */
 
 #include "GenioWindow.h"
+#include "GitRepository.h"
 
 #include <cassert>
 #include <string>
@@ -35,11 +36,13 @@
 #include "Languages.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
+#include "GitAlert.h"
 #include "Log.h"
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "RemoteProjectWindow.h"
+#include "SwitchBranchMenu.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
 #include "TPreferences.h"
@@ -678,6 +681,28 @@ GenioWindow::MessageReceived(BMessage* message)
 				_Git(command);
 			break;
 		}
+		case MSG_GIT_SWITCH_BRANCH: {
+			try {
+				BString project_path = message->GetString("project_path", fActiveProject->Path().String());
+				Genio::Git::GitRepository repo(project_path.String());
+				BString new_branch = message->GetString("branch", nullptr);
+				if (new_branch != nullptr)
+					repo.SwitchBranch(new_branch);
+			} catch (GitException &ex) {
+				BString message;
+				message << B_TRANSLATE("An error occurred while switching branch:")
+						<< " "
+						<< ex.Message();
+				if (ex.Error() == GIT_ECONFLICT) {
+					auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
+												B_TRANSLATE(message), ex.GetFiles());
+					alert->Go();
+				} else {
+					OKAlert("GitSwitchBranch", message, B_INFO_ALERT);
+				}
+			}
+			break;
+		}
 		case GTLW_GO: {
 			int32 line;
 			if(message->FindInt32("line", &line) == B_OK) {
@@ -939,11 +964,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_OPEN_REMOTE: {
-			// TODO: There is an attempt ongoing to refactor the whole way we manage the settings
-			// refactor and optimize the settings part
-			//
-			TPreferences prefs(GenioNames::kSettingsFileName, GenioNames::kApplicationName, 'PRSE');
-			BEntry entry(prefs.GetString("projects_directory"), true);
+			const char* projectsPath = gCFG["projects_directory"];
+			BEntry entry(projectsPath, true);
 			BPath path;
 			entry.GetPath(&path);
 
@@ -1100,6 +1122,9 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->ApplySettings();
 				//NOTE (TODO?) we are not changing any LSP configuration!
 			}
+		case MSG_HELP_GITHUB: {
+			char *argv[2] = {(char*)"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
+			be_roster->Launch("text/html", 1, argv);
 		}
 		break;
 		default:
@@ -2815,11 +2840,15 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(projectMenu);
 
 	fGitMenu = new BMenu(B_TRANSLATE("Git"));
+
 	fGitMenu->AddItem(fGitBranchItem = new BMenuItem(B_TRANSLATE_COMMENT("Branch",
 		"The git command"), nullptr));
 	BMessage* git_branch_message = new BMessage(MSG_GIT_COMMAND);
 	git_branch_message->AddString("command", "branch");
 	fGitBranchItem->SetMessage(git_branch_message);
+
+	fGitMenu->AddItem(new SwitchBranchMenu(this, B_TRANSLATE("Switch to branch"),
+											new BMessage(MSG_GIT_SWITCH_BRANCH)));
 
 	fGitMenu->AddItem(fGitLogItem = new BMenuItem(B_TRANSLATE_COMMENT("Log",
 		"The git command"), nullptr));
@@ -2888,8 +2917,11 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(windowMenu);
 
 	BMenu* helpMenu = new BMenu(B_TRANSLATE("Help"));
+	helpMenu->AddItem(new BMenuItem(B_TRANSLATE("Github page" B_UTF8_ELLIPSIS),
+		new BMessage(MSG_HELP_GITHUB)));
 	helpMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
 		new BMessage(B_ABOUT_REQUESTED)));
+
 
 	fMenuBar->AddItem(helpMenu);
 }
@@ -3017,10 +3049,8 @@ GenioWindow::_InitWindow()
 	;
 
 	// Panels
-	TPreferences prefs(GenioNames::kSettingsFileName,
-		GenioNames::kApplicationName, 'PRSE');
-
-	BEntry entry(prefs.GetString("projects_directory"), true);
+	const char* projectsDirectory = gCFG["projects_directory"];
+	BEntry entry(projectsDirectory, true);
 
 	entry_ref ref;
 	entry.GetRef(&ref);
@@ -3107,6 +3137,10 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		project->Active(true);
 		_UpdateProjectActivation(true);
 	}
+
+	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+	noticeMessage.AddPointer("active_project", fActiveProject);
+	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 
 	// Update run command working directory tooltip too
 	BString tooltip;
@@ -3293,8 +3327,9 @@ void
 GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 {
 	BPath path(folder);
+	BMessenger	msgr(this);
 
-	ProjectFolder* newProject = new ProjectFolder(path.Path());
+	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
 
 	// Check if already open
 	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {

@@ -59,6 +59,7 @@ public:
 	virtual void				Show();
 
 	void						UpdateMenu();
+	ProjectFolder*				GetActiveProject() { return fActiveProject; }
 
 private:
 

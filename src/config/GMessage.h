@@ -150,15 +150,16 @@ public:
 
 		void operator=(const GMessageReturn& n) {
 			type_code typeFound;
-			if (n.fKey == fKey && fMsg == n.fMsg)
+			bool fixedSize;
+			if (fMsg == n.fMsg && strcmp(n.fKey, fKey) == 0)
 				return;
 
-			if (n.fMsg->GetInfo(n.fKey, &typeFound) == B_OK) {
+			if (n.fMsg->GetInfo(n.fKey, &typeFound, &fixedSize) == B_OK) {
 				const void* data = nullptr;
 				ssize_t numBytes = 0;
 				if (n.fMsg->FindData(n.fKey, typeFound, &data, &numBytes) == B_OK) {
-					fMsg->RemoveName(fKey); //remove the key
-					fMsg->SetData(fKey, typeFound, data, numBytes);
+					fMsg->RemoveData(fKey); //remove the key
+					fMsg->SetData(fKey, typeFound, data, numBytes, fixedSize);
 				}
 			}
 		}

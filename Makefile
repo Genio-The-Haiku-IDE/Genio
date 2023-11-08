@@ -68,6 +68,10 @@ SRCS +=  src/override/OutlineListView.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp
 SRCS +=  src/project/ProjectItem.cpp
+SRCS +=  src/ui/git/GitAlert.cpp
+SRCS +=  src/ui/git/GitCredentialsWindow.cpp
+SRCS +=  src/ui/git/RemoteProjectWindow.cpp
+SRCS +=  src/ui/git/SwitchBranchMenu.cpp
 SRCS +=  src/ui/EditorStatusView.cpp
 SRCS +=  src/ui/Editor.cpp
 SRCS +=  src/ui/EditorContextMenu.cpp
@@ -78,7 +82,6 @@ SRCS +=  src/ui/IconCache.cpp
 SRCS +=  src/ui/ProblemsPanel.cpp
 SRCS +=  src/ui/SearchResultPanel.cpp
 SRCS +=  src/ui/ProjectsFolderBrowser.cpp
-SRCS +=  src/ui/RemoteProjectWindow.cpp
 SRCS +=  src/ui/ToolBar.cpp
 SRCS +=  src/ui/QuitAlert.cpp
 SRCS +=  src/templates/IconMenuItem.cpp
@@ -123,7 +126,7 @@ CXXFLAGS := -std=c++17 -fPIC
 	endif
 #endif
 
-LOCALES := en it
+LOCALES := ca de en en_AU es-419 tr 
 
 ## Include the Makefile-Engine
 include $(BUILDHOME)/etc/makefile-engine

@@ -47,7 +47,7 @@ SourceItem::Rename(BString const& path)
 }
 
 
-ProjectFolder::ProjectFolder(BString const& path)
+ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 	:
 	SourceItem(path),
 	fActive(false),
@@ -58,7 +58,10 @@ ProjectFolder::ProjectFolder(BString const& path)
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
 
-	fLSPProjectWrapper = new LSPProjectWrapper(fPath.String());
+
+
+
+	fLSPProjectWrapper = new LSPProjectWrapper(fPath.String(), msgr);
 }
 
 

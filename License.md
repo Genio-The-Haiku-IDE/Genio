@@ -1,7 +1,8 @@
+# Licence
+
 Genio is Copyright (c) 2022-2023 by D. Alfano, A. Anzani, S. Ceccherini
 Genio icon is Copyright (c) 2022-2023 by M. Frau
 Ideam is Copyright (c) 2017 A. Mosca
-
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

@@ -53,6 +53,8 @@ public:
 			configKey["default_value"]  = default_value;
 			configKey["type_code"] 		= MessageValue<T>::Type();
 
+			storage[key] = default_value;
+
 			configuration.AddMessage("config", &configKey);
 		}
 
@@ -71,10 +73,14 @@ public:
 
 		GMessage&	Configuration() { return configuration; }
 
+
 protected:
 		GMessage storage;
 		GMessage configuration;
 		BLocker	 fLocker;
+private:
+		bool	_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
+									  BMessage* msgR, const char* keyR);
 };
 
 // TODO: Use a static method ?

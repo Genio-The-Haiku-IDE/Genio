@@ -34,6 +34,7 @@ public:
 	virtual 		~ProjectsFolderBrowser();
 
 	virtual void	MouseDown(BPoint where);
+	virtual void	MouseMoved(BPoint point, uint32 transit, const BMessage* message);
 	virtual void	AttachedToWindow();
 	virtual void	DetachedFromWindow();
 	virtual void	MessageReceived(BMessage* message);

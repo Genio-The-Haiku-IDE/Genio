@@ -6,15 +6,14 @@
 #pragma once
 
 #include <any>
-#include <functional>
 #include <map>
 #include <stdexcept>
 
 #include <Alignment.h>
+#include <Archivable.h>
 #include <Message.h>
 #include <Messenger.h>
 #include <String.h>
-#include <SupportDefs.h>
 
 namespace Genio::Task {
 
@@ -24,7 +23,7 @@ namespace Genio::Task {
 
 		struct ThreadData {
 			void *target_function;
-			BMessenger *messenger;
+			BMessenger messenger;
 			thread_id id;
 			const char *name;
 		};
@@ -172,7 +171,7 @@ namespace Genio::Task {
 		using native_handle_type = thread_id;
 
 		template<typename Function, typename... Args>
-		Task(const char *name, BMessenger *messenger, Function&& function, Args&&... args)
+		Task(const char *name, const BMessenger& messenger, Function&& function, Args&&... args)
 		{
 			auto *target_function =
 				new arguments_wrapper<Function, Args...>(std::forward<Function>(function),
@@ -221,7 +220,7 @@ namespace Genio::Task {
 			BMessage msg(TASK_RESULT_MESSAGE);
 			Data *data;
 			Lambda *lambda;
-			BMessenger *messenger;
+			BMessenger messenger;
 
 			try {
 				data = reinterpret_cast<Data *>(target);
@@ -247,8 +246,8 @@ namespace Genio::Task {
 
 			if (task_result.Archive(&msg, false) == B_OK)
 			{
-				if (messenger->IsValid()) {
-					messenger->SendMessage(&msg);
+				if (messenger.IsValid()) {
+					messenger.SendMessage(&msg);
 				}
 			} else {
 				throw runtime_error("Can't create TaskResult message");

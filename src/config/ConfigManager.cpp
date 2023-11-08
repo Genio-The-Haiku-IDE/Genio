@@ -57,7 +57,8 @@ ConfigManager::LoadFromFile(BPath path)
 			GMessage msg;
 			int i = 0;
 			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
-				if (fromFile.Has(msg["key"]) && fromFile.Type(msg["key"]) == storage.Type(msg["key"])) {
+				const char* key = msg["key"];
+				if (fromFile.Has(key) && _SameTypeAndFixedSize(&fromFile, key, &storage, key)) {
 					(*this)[msg["key"]] = fromFile[msg["key"]];
 					LogInfo("Configuration files loading value for key [%s]", (const char*)msg["key"]);
 				} else {
@@ -69,6 +70,23 @@ ConfigManager::LoadFromFile(BPath path)
 	}
 	return status;
 }
+
+bool
+ConfigManager::_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
+									  BMessage* msgR, const char* keyR)
+{
+	type_code typeL = 0;
+	bool fixedSizeL = false;
+	if (msgL->GetInfo(keyL, &typeL, &fixedSizeL) == B_OK) {
+		type_code typeR = 0;
+		bool fixedSizeR = false;
+		if (msgR->GetInfo(keyR, &typeR, &fixedSizeR) == B_OK) {
+			return (typeL == typeR && fixedSizeL == fixedSizeR);
+		}
+	}
+	return false;
+}
+
 
 
 status_t

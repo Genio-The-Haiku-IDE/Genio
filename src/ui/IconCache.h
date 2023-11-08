@@ -5,35 +5,29 @@
 #ifndef ICON_CACHE_H
 #define ICON_CACHE_H
 
-#include <Bitmap.h>
-#include <ControlLook.h>
-#include <MimeType.h>
-#include <NodeInfo.h>
+#include <string>
+#include <unordered_map>
+
 #include <String.h>
 
-#include <map>
-#include <unordered_map>
-#include <memory>
-#include <string>
+struct entry_ref;
 
-class IconCache
-{
-	public:
-	
-		static BBitmap* GetIcon(entry_ref *ref);
-		static BBitmap* GetIcon(BString path);
-		static void 	PrintToStream();
-		
-    private:
-		IconCache();
+class BBitmap;
+class IconCache {
+public:
+	IconCache(IconCache const&) = delete;
+	void operator=(IconCache const&) = delete;
 
-		std::unordered_map<std::string, BBitmap*> cache;
-				
-		static IconCache instance;
-		
-	public:
-		IconCache(IconCache const&) = delete;
-		void operator=(IconCache const&) = delete;
+	static const BBitmap* GetIcon(entry_ref *ref);
+	static const BBitmap* GetIcon(const BString& path);
+	static void 	PrintToStream();
+
+private:
+	IconCache();
+
+	std::unordered_map<std::string, BBitmap*> fCache;
+
+	static IconCache sInstance;
 };
 
 #endif // ICON_CACHE_H

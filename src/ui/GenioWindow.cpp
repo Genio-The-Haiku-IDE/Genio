@@ -1075,6 +1075,14 @@ GenioWindow::MessageReceived(BMessage* message)
 					LogError("Selecting editor but it's null! (index %d)", index);
 					break;
 				}
+				const int32 be_line   = message->GetInt32("be:line", -1);
+				const int32 lsp_char  = message->GetInt32("lsp:character", -1);
+
+				if (lsp_char >= 0 && be_line > -1) {
+					editor->GoToLSPPosition(be_line - 1, lsp_char);
+				} else if (be_line > -1) {
+					editor->GoToLine(be_line);
+				}
 
 				editor->GrabFocus();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
@@ -1086,19 +1094,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case TABMANAGER_TAB_NEW_OPENED: {
-			int32 index;
-			int32 be_line = message->GetInt32("be:line",  -1);
-			int32 lsp_char = message->GetInt32("lsp:character", -1);
-
-			if (message->FindInt32("index", &index) == B_OK) {
+			int32 index =  message->GetInt32("index", -1);
+			bool set_caret = message->GetBool("caret_position", false);
+			if (set_caret && index >= 0) {
 				Editor* editor = fTabManager->EditorAt(index);
-
-				if (lsp_char >= 0 && be_line > 0)
-					editor->GoToLSPPosition(be_line - 1, lsp_char);
-				else
-				if (be_line > 0)
-					editor->GoToLine(be_line);
-				else
+				if (editor)
 					editor->SetSavedCaretPosition();
 			}
 			break;
@@ -1305,23 +1305,10 @@ GenioWindow::QuitRequested()
 
 
 status_t
-GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int32 lsp_char)
+GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
 {
-	// Check existence
-	BEntry entry(ref);
-
-	if (entry.Exists() == false)
-		return B_ERROR;
-
 	Editor* editor = new Editor(ref, BMessenger(this));
-
-	if (editor == nullptr)
-		return B_ERROR;
-
-
-	fTabManager->AddTab(editor, ref->name, index, be_line, lsp_char);
-
-
+	fTabManager->AddTab(editor, ref->name, index, addInfo);
 
 	return B_OK;
 }
@@ -1502,6 +1489,7 @@ GenioWindow::_FileCloseAll()
 	}
 }
 
+//
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
 {
@@ -1510,7 +1498,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 	int32 refsCount = 0;
 	int32 openedIndex;
 	int32 nextIndex;
-	BString notification;
 
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
@@ -1518,50 +1505,66 @@ GenioWindow::_FileOpen(BMessage* msg)
 		nextIndex = fTabManager->CountTabs();
 
 	const int32 be_line   = msg->GetInt32("be:line", -1);
-	const int32 lsp_char	= msg->GetInt32("lsp:character", -1);
+	const int32 lsp_char  = msg->GetInt32("lsp:character", -1);
+
+	BMessage selectTabInfo;
+	selectTabInfo.AddInt32("be:line", be_line);
+	selectTabInfo.AddInt32("lsp:character", lsp_char);
 
 	bool openWithPreferred	= msg->GetBool("openWithPreferred", false);
 
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
+
+		// Check existence
+		BEntry entry(&ref);
+
+		if (entry.Exists() == false)
+			continue;
+
+		//first let's see if it's already opened.
+		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
+			if (openedIndex != fTabManager->SelectedTabIndex()) {
+				fTabManager->SelectTab(openedIndex, &selectTabInfo);
+			} else {
+
+				if (lsp_char >= 0 && be_line > -1) {
+					fTabManager->SelectedEditor()->GoToLSPPosition(be_line - 1, lsp_char);
+				} else if (be_line > -1) {
+					fTabManager->SelectedEditor()->GoToLine(be_line);
+				}
+				fTabManager->SelectedEditor()->GrabFocus();
+			}
+			continue;
+		}
+
 		if (!_FileIsSupported(&ref)) {
 			if (openWithPreferred)
 				_FileOpenWithPreferredApp(&ref); //TODO make this optional?
-			continue;
-		}	else {
-			be_roster->AddToRecentDocuments(&ref, GenioNames::GetSignature());
-		}
 
-		// Do not reopen an already opened file
-		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
-			if (openedIndex != fTabManager->SelectedTabIndex()) {
-				fTabManager->SelectTab(openedIndex);
-			}
-
-			if (lsp_char >= 0 && be_line > -1) {
-				fTabManager->EditorAt(openedIndex)->GoToLSPPosition(be_line - 1, lsp_char);
-			} else if (be_line > -1) {
-				fTabManager->EditorAt(openedIndex)->GoToLine(be_line);
-			}
-
-			fTabManager->SelectedEditor()->GrabFocus();
 			continue;
 		}
 
+		// register the file as a recent one.
+		be_roster->AddToRecentDocuments(&ref, GenioNames::GetSignature());
+
+		//new file to load..
+		selectTabInfo.AddBool("caret_position", true);
 		int32 index = fTabManager->CountTabs();
-		if (_AddEditorTab(&ref, index, be_line, lsp_char) != B_OK)
+		if (_AddEditorTab(&ref, index, &selectTabInfo) != B_OK) {
+			//Error.
 			continue;
-
-		assert(index >= 0);
-
+		}
 		Editor* editor = fTabManager->EditorAt(index);
-		if (editor == nullptr) {
-			notification << ref.name << ": NULL editor pointer";
-			LogInfo(notification.String());
-			return B_ERROR;
+		assert(index >= 0 && editor);
+
+		status = editor->LoadFromFile();
+		if (status != B_OK) {
+			continue;
 		}
 
+		editor->ApplySettings();
 		/*
-			here we try to assign the right "LSPClientWrapper" to the Editor..
+			Let's assign the right "LSPClientWrapper" to the Editor..
 		*/
 		// Check if already open
 		BString baseDir("");
@@ -1574,25 +1577,14 @@ GenioWindow::_FileOpen(BMessage* msg)
 			}
 		}
 
-		status = editor->LoadFromFile();
-		if (status != B_OK) {
-			continue;
-		}
 
-		editor->ApplySettings();
-
-		// First tab gets selected by tabview
-		if (index > 0)
-			fTabManager->SelectTab(index);
+		fTabManager->SelectTab(index, &selectTabInfo);
 
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
 		noticeMessage.AddString("file_name", editor->FilePath());
 		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
 
-		notification << "File open: " << editor->Name()
-			<< " [" << fTabManager->CountTabs() - 1 << "]";
-		LogInfo(notification.String());
-		notification.SetTo("");
+		LogInfo("File open: %s [%d]", editor->Name().String(), fTabManager->CountTabs() - 1);
 	}
 
 	// If at least 1 item or more were added select the first

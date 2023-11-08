@@ -70,7 +70,7 @@ constexpr auto kBraceMatch = 1;
 constexpr auto kBraceBad = 2;
 
 class Editor : public BScintillaView {
-	
+
 public:
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
@@ -153,7 +153,7 @@ public:
 			bool				LineEndingsVisible();
 			bool				WhiteSpacesVisible();
 
-			
+
 			void				SetProjectFolder(ProjectFolder*);
 			ProjectFolder*		GetProjectFolder() { return fProjectFolder; }
 			void				SetZoom(int32 zoom);
@@ -165,12 +165,12 @@ public:
 			void				GoToImplementation();
 			void				SwitchSourceHeader();
 			void				UncommentSelection();
-			
+
 			void 				ContextMenu(BPoint point);
-			
+
 			void				SetProblems(const BMessage* diagnostics);
 			void				GetProblems(BMessage* diagnostics);
-			
+
 			filter_result		BeforeKeyDown(BMessage*);
 			filter_result		OnArrowKey(int8 ch);
 
@@ -189,7 +189,7 @@ private:
 			void				_RedrawNumberMargin(bool forced = false);
 			void				_SetFoldMargin();
 			void				_UpdateSavePoint(bool modified);
-			
+
 			template<typename T>
 			typename T::type	Get() { return T::Get(this); }
 			template<typename T>
@@ -213,11 +213,11 @@ private:
 
 			int					fCurrentLine;
 			int					fCurrentColumn;
-			
+
 			LSPEditorWrapper*		fLSPEditorWrapper;
 			ProjectFolder*		fProjectFolder;
 			editor::StatusView*			fStatusView;
-			
+
 			BMessage	fProblems;
 			BLocker		fProblemsLock;
 

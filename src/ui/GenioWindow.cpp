@@ -55,6 +55,7 @@
 
 #include "ActionManager.h"
 #include "QuitAlert.h"
+#include "IconMenuItem.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -2616,6 +2617,13 @@ GenioWindow::_InitMenu()
 	// Menu
 	fMenuBar = new BMenuBar("menubar");
 
+	BMenu* appMenu = new BMenu("");
+	appMenu->AddItem(new BMenuItem(B_TRANSLATE("Github page" B_UTF8_ELLIPSIS),
+		new BMessage(MSG_HELP_GITHUB)));
+	appMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
+		new BMessage(B_ABOUT_REQUESTED)));
+	fMenuBar->AddItem(new IconMenuItem(appMenu, nullptr, GenioNames::kApplicationSignature, B_MINI_ICON));
+
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
 
 	//ActionManager::AddItem(MSG_FILE_NEW,      fileMenu);
@@ -2902,15 +2910,6 @@ GenioWindow::_InitMenu()
 	windowMenu->AddItem(new BMenuItem(B_TRANSLATE("Settings" B_UTF8_ELLIPSIS),
 		new BMessage(MSG_WINDOW_SETTINGS), 'P', B_OPTION_KEY));
 	fMenuBar->AddItem(windowMenu);
-
-	BMenu* helpMenu = new BMenu(B_TRANSLATE("Help"));
-	helpMenu->AddItem(new BMenuItem(B_TRANSLATE("Github page" B_UTF8_ELLIPSIS),
-		new BMessage(MSG_HELP_GITHUB)));
-	helpMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
-		new BMessage(B_ABOUT_REQUESTED)));
-
-
-	fMenuBar->AddItem(helpMenu);
 }
 
 void

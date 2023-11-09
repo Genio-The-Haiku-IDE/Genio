@@ -142,12 +142,14 @@ private:
 			status_t			_AlertInvalidBuildConfig(BString text);
 			void				_CloseMultipleTabs(BMessage* msg);
 			void				_HandleConfigurationChanged(BMessage* msg);
+			BMenu*				_CreateLanguagesMenu();
 
 private:
 			BMenuBar*			fMenuBar;
 			TemplatesMenu*	fFileNewMenuItem;
 
-      BMenu*				fLineEndingsMenu;
+			BMenu*				fLineEndingsMenu;
+			BMenu*				fLanguageMenu;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;
 			BMenuItem*			fBookmarkClearAllItem;

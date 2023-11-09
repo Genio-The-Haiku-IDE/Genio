@@ -4,7 +4,7 @@
  */
 #include "LSPProjectWrapper.h"
 
-#include "GenioCommon.h"
+#include "Log.h"
 #include "LSPPipeClient.h"
 #include "LSPReaderThread.h"
 #include "LSPTextDocument.h"
@@ -64,8 +64,9 @@ LSPProjectWrapper::MessageReceived(BMessage* msg)
 bool
 LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 {
-	std::string fileType = Genio::file_type(textDocument->GetFilenameURI().String());
-	if (fileType.compare("c++") != 0 && fileType.compare("make") != 0)
+	if (textDocument->FileType().Compare("cpp")  != 0 &&
+		textDocument->FileType().Compare("c")    != 0 &&
+	    textDocument->FileType().Compare("makefile") != 0)
 		return false;
 
 	if (!fLSPPipeClient)

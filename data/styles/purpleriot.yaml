@@ -1,0 +1,141 @@
+# based on Themer default color scheme
+# Copyright (c) 2018 Mikael Konradsson
+# with tweaks for languages other than C++ by Kacper Kasper
+# MIT licensed
+Global:
+    Default:
+        id: 32
+        foreground: "#E0DCE0"
+        background: "#24003E"
+    Current line:
+        background: "#322543"
+    Whitespace:
+        foreground: "#66BFFF"
+    Selected text:
+        background: "#05000C"
+    Caret:
+        foreground: "#FF4050"
+    Edge:
+        foreground: "#322543"
+    Fold:
+        foreground: "#24003E"
+        background: "#322543"
+    Indent guideline:
+        id: 37
+        foreground: "#5F2B48"
+        background: "#24003E"
+    Brace highlight:
+        id: 34
+        foreground: "#26C99E"
+        background: "#24003E"
+        style: [ bold ]
+    Bad brace:
+        id: 35
+        foreground: "#FF4050"
+        background: "#24003E"
+        style: [ bold ]
+    Line number:
+        id: 33
+        foreground: "#C498EB"
+        background: "#24003E"
+    Smart highlight:
+        background: "#66BFFF"
+    Find mark:
+        background: "#F553BF"
+    Incremental highlight:
+        background: "#00ffff"
+    Tags match highlight:
+        background: "#CC78FA"
+    Tags attributes:
+        background: "#F553BF"
+# C++
+Preprocessor:
+    id: 109
+    foreground: "#5F2B48"
+    style: [ bold ]
+Keyword:
+    id: 105
+    foreground: "#FFA40B"
+    style: [ bold ]
+Number:
+    id: 104
+    foreground: "#FD0B10"
+String:
+    id: 106
+    foreground: "#C498EB"
+Operator:
+    id: 110
+    foreground: "#FD3174"
+    style: [ bold ]
+Verbatim:
+    id: 113
+    foreground: "#5F2B48"
+Regexp:
+    id: 114
+    foreground: "#F28144"
+Global class:
+    id: 119
+    foreground: "#FFA40B"
+Comment:
+    id: 101
+    foreground: "#A29DA3"
+Comment doc:
+    id: 103
+    foreground: "#A29DA3"
+Comment doc keyword:
+    id: 117
+    foreground: "#A29DA3"
+    style: [ bold ]
+# Python/Ruby
+Triple:
+    id: 126
+    foreground: "#646464"
+Defname:
+    id: 129
+    foreground: "#66BFFF"
+    style: [ bold ]
+Decorator:
+    id: 135
+    foreground: "#F28144"
+    style: [ italic ]
+# YAML
+Reference:
+    id: 145
+    foreground: "#F28144"
+Error:
+    id: 148
+    foreground: "#F03E4D"
+# AWK/Bash/Diff/Makefile
+Backticks:
+    id: 151
+    foreground: "#CC78FA"
+    style: [ bold ]
+Scalar/Array/Diff header:
+    id: 152
+    foreground: "#F28144"
+    style: [ italic ]
+Deleted:
+    id: 165
+    foreground: "#F03E4D"
+Added:
+    id: 166
+    foreground: "#1FC598"
+# CMake
+String L:
+    id: 153
+    foreground: "#A4CC35"
+    style: [ italic ]
+String R:
+    id: 154
+    foreground: "#A4CC35"
+    style: [ underline ]
+# HTML/XML/CSS
+Tag Start/End:
+    id: 155
+    foreground: "#F28144"
+Attribute:
+    id: 156
+    foreground: "#26C99E"
+SGML default:
+    id: 161
+    foreground: "#282629"

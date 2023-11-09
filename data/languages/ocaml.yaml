@@ -1,0 +1,31 @@
+# OCaml
+lexer: caml
+keywords:
+    0: >
+        and as assert begin class constraint do done downto else end exception
+        external false for fun function functor if in include inherit
+        initializer lazy let match method module mutable new object of open or
+        private rec sig struct then to true try type val virtual when while with
+    1: >
+        option Some None ignore ref lnot succ pred
+    2: >
+        array bool char float int list string unit
+comments:
+    block: [ "(*", "*)" ]
+styles:
+    0: 32
+    1: 32
+    2: 32
+    3: 105
+    4: 105
+    5: 105
+    6: 113
+    7: 32
+    8: 104
+    9: 106
+    #10: 
+    11: 106
+    12: 101
+    13: 101
+    14: 103
+    15: 103

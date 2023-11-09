@@ -23,6 +23,11 @@
 
 static log_level sSessionLogLevel = log_level(LOG_LEVEL_UNSET);
 
+static
+struct option sLongOptions[] = {
+		{ "loglevel", required_argument, 0, 'l' },
+		{ 0, 0, 0, 0 }
+};
 
 const char kChangeLog[] = {
 #include "Changelog.h"
@@ -48,6 +53,62 @@ SplitChangeLog(const char* changeLog)
 			i++;
 	}
 	return list;
+}
+
+
+void
+SetSessionLogLevel(char level)
+{
+	switch(level) {
+		case 'o':
+			sSessionLogLevel = log_level(1);
+			printf("Log level set to OFF\n");
+		break;
+		case 'e':
+			sSessionLogLevel = log_level(2);
+			printf("Log level set to ERROR\n");
+		break;
+		case 'i':
+			sSessionLogLevel = log_level(3);
+			printf("Log level set to INFO\n");
+		break;
+		case 'd':
+			sSessionLogLevel = log_level(4);
+			printf("Log level set to DEBUG\n");
+		break;
+		case 't':
+			sSessionLogLevel = log_level(5);
+			printf("Log level set to TRACE\n");
+		break;
+		default:
+			LogFatal("Invalid log level, valid levels are: o, e, i, d, t");
+		break;
+	}
+}
+
+
+static int
+HandleArgs(int argc, char **argv)
+{
+	int optIndex = 0;
+	int c = 0;
+	while ((c = ::getopt_long(argc, argv, "l:",
+			sLongOptions, &optIndex)) != -1) {
+		switch (c) {
+			case 'l':
+				SetSessionLogLevel(optarg[0]);
+				break;
+			case 0:
+			{
+				std::string optName = sLongOptions[optIndex].name;
+				if (optName == "loglevel")
+					SetSessionLogLevel(optarg[0]);
+				break;
+			}
+		}
+	}
+
+	return optIndex;
 }
 
 
@@ -121,9 +182,9 @@ GenioApp::ArgvReceived(int32 argc, char** argv)
 	BApplication::ArgvReceived(argc, argv);
 	if (argc == 0)
 		return;
-
+	
 	BMessage *message = new BMessage(B_REFS_RECEIVED);
-	int i = 0;
+	int i = HandleArgs(argc, argv);
 	while (i < argc) {
 		entry_ref ref;
 		if (get_ref_for_path(argv[i], &ref) == B_OK) {
@@ -323,77 +384,13 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
 
-void
-SetSessionLogLevel(char level)
-{
-	switch(level) {
-		case 'o':
-			sSessionLogLevel = log_level(1);
-			printf("Log level set to OFF\n");
-		break;
-		case 'e':
-			sSessionLogLevel = log_level(2);
-			printf("Log level set to ERROR\n");
-		break;
-		case 'i':
-			sSessionLogLevel = log_level(3);
-			printf("Log level set to INFO\n");
-		break;
-		case 'd':
-			sSessionLogLevel = log_level(4);
-			printf("Log level set to DEBUG\n");
-		break;
-		case 't':
-			sSessionLogLevel = log_level(5);
-			printf("Log level set to TRACE\n");
-		break;
-		default:
-			LogFatal("Invalid log level, valid levels are: o, e, i, d, t");
-		break;
-	}
-}
-
-
-static
-struct option sLongOptions[] = {
-		{ "loglevel", required_argument, 0, 'l' },
-		{ 0, 0, 0, 0 }
-};
-
-
-static int
-HandleArgs(int argc, char **argv)
-{
-	int optIndex = 0;
-	int c = 0;
-	while ((c = ::getopt_long(argc, argv, "l:",
-			sLongOptions, &optIndex)) != -1) {
-		switch (c) {
-			case 'l':
-				SetSessionLogLevel(optarg[0]);
-				break;
-			case 0:
-			{
-				std::string optName = sLongOptions[optIndex].name;
-				if (optName == "loglevel")
-					SetSessionLogLevel(optarg[0]);
-				break;
-			}
-		}
-	}
-
-	return optIndex;
-}
-
 
 int
 main(int argc, char* argv[])
 {
-	int nextArg = HandleArgs(argc, argv);
+	//int nextArg = HandleArgs(argc, argv);
 	try {
 		GenioApp *app = new GenioApp();
-		if (nextArg < argc)
-			app->ArgvReceived(argc - nextArg, &argv[nextArg]);
 		app->Run();
 
 		delete app;

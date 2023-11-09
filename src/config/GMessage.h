@@ -163,11 +163,11 @@ public:
 				}
 			}
 		}
-		
+
 		bool operator !=(const GMessageReturn& n) {
 			return !operator==(n);
 		}
-		
+
 		bool operator ==(GMessageReturn n) {
 			type_code typeLeft;
 			type_code typeRight;
@@ -192,7 +192,7 @@ public:
 
 			return comparison;
 		}
-		
+
 		void Print() const {
 			fMsg->PrintToStream();
 		}
@@ -201,3 +201,10 @@ private:
 		const char* fKey;
 		GMessageReturn* fSyncParent;
 };
+
+// Stack Message
+GMessage* set_what(uint32 what, GMessage* gms);
+#define SMSG(WHAT, LIST...) set_what(WHAT, new GMessage({{{ LIST }}}))
+
+//BMessage wrapper
+#define BMSG(in, out) GMessage& out = *((GMessage*)in);

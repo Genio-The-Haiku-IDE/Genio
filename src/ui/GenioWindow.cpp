@@ -8,9 +8,6 @@
 #include "GitRepository.h"
 
 #include <cassert>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
 
 #include <Alert.h>
@@ -36,7 +33,7 @@
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "FSUtils.h"
-#include "GenioCommon.h"
+#include "Languages.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
@@ -85,6 +82,7 @@ GenioWindow::GenioWindow(BRect frame)
 												B_QUIT_ON_WINDOW_CLOSE)
 	, fMenuBar(nullptr)
 	, fLineEndingsMenu(nullptr)
+	, fLanguageMenu(nullptr)
 	, fBookmarksMenu(nullptr)
 	, fBookmarkToggleItem(nullptr)
 	, fBookmarkClearAllItem(nullptr)
@@ -203,7 +201,11 @@ GenioWindow::Show()
 	if (LockLooper()) {
 		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
 		_ShowView(fOutputTabView,   gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
-		_ShowView(fToolBar,  		gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
+		_ShowView(fToolBar,         gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
+
+		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
+		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
+
 		be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 		UnlockLooper();
 	}
@@ -1112,6 +1114,16 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FIND_MATCH_CASE:
 			gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
 		break;
+		case MSG_SET_LANGUAGE: {
+			BMSG(message, gms);
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor) {
+				editor->SetFileType(std::string((const char*)gms["lang"]));
+				editor->ApplySettings();
+				//NOTE (TODO?) we are not changing any LSP configuration!
+			}
+		}
+		break;
 		case MSG_HELP_GITHUB: {
 			char *argv[2] = {(char*)"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
 			be_roster->Launch("text/html", 1, argv);
@@ -1563,6 +1575,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		}
 
 		editor->ApplySettings();
+
 		/*
 			Let's assign the right "LSPClientWrapper" to the Editor..
 		*/
@@ -1576,7 +1589,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 				editor->SetProjectFolder(project);
 			}
 		}
-
 
 		fTabManager->SelectTab(index, &selectTabInfo);
 
@@ -1605,9 +1617,8 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	if (entry.InitCheck() != B_OK || entry.IsDirectory())
 		return false;
 
-	std::string fileType = Genio::file_type(BPath(ref).Path());
-
-	if (fileType != "")
+	std::string fileType = "";
+	if (Languages::GetLanguageForExtension(GetFileExtension(BPath(ref).Path()), fileType))
 		return true;
 
 	BNodeInfo info(&entry);
@@ -1677,7 +1688,7 @@ GenioWindow::_FileSave(int32 index)
 	editor->StartMonitoring();
 
 	if (length == written)
-		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath(), length, written);
+		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
 	else
 		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
 
@@ -2444,10 +2455,10 @@ GenioWindow::_InitActions()
 								   "kIconFold_4");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
 								   B_TRANSLATE("Show white spaces"),
-								   "", "kIconShowPunctuation");
+								   B_TRANSLATE("Show white spaces"), "kIconShowPunctuation");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
 								   B_TRANSLATE("Show line endings"),
-								   "", "");
+								   B_TRANSLATE("Show line endings"), "");
 
 	ActionManager::RegisterAction(MSG_FILE_TRIM_TRAILING_SPACE,
 								  B_TRANSLATE("Trim trailing whitespace"),
@@ -2707,6 +2718,8 @@ GenioWindow::_InitMenu()
 	fLineEndingsMenu->SetEnabled(false);
 
 	editMenu->AddItem(fLineEndingsMenu);
+	editMenu->AddItem(_CreateLanguagesMenu());
+
 	fMenuBar->AddItem(editMenu);
 
 	BMenu* viewMenu = new BMenu(B_TRANSLATE("View"));
@@ -2903,6 +2916,21 @@ GenioWindow::_InitMenu()
 
 
 	fMenuBar->AddItem(helpMenu);
+}
+
+BMenu*
+GenioWindow::_CreateLanguagesMenu()
+{
+	fLanguageMenu = new BMenu(B_TRANSLATE("Language"));
+
+	for(size_t i = 0; i < Languages::GetCount(); ++i) {
+		std::string lang = Languages::GetLanguage(i);
+		std::string name = Languages::GetMenuItemName(lang);
+		fLanguageMenu->AddItem(new BMenuItem(name.c_str(), SMSG(MSG_SET_LANGUAGE, {"lang", lang.c_str()})));
+	}
+	fLanguageMenu->SetRadioMode(true);
+	fLanguageMenu->SetEnabled(false);
+	return fLanguageMenu;
 }
 
 void
@@ -3794,6 +3822,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 
 		fLineEndingsMenu->SetEnabled(false);
+		fLanguageMenu->SetEnabled(false);
 		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
 		ActionManager::SetEnabled(MSG_FIND_PREVIOUS, false);
 		ActionManager::SetEnabled(MSG_FIND_MARK_ALL, false);
@@ -3843,6 +3872,15 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, true);
 
 	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
+	fLanguageMenu->SetEnabled(true);
+	//Setting the right message type:
+	std::string languageName = Languages::GetMenuItemName(editor->FileType());
+	for (int32 i=0;i<fLanguageMenu->CountItems();i++) {
+		if (languageName.compare(fLanguageMenu->ItemAt(i)->Label()) == 0)  {
+			//fLanguageMenu->
+			fLanguageMenu->ItemAt(i)->SetMarked(true);
+		}
+	}
 
 	ActionManager::SetEnabled(MSG_DUPLICATE_LINE, !editor->IsReadOnly());
 	ActionManager::SetEnabled(MSG_DELETE_LINES, !editor->IsReadOnly());
@@ -3854,7 +3892,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->GetProjectFolder());
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->GetProjectFolder());
-	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (Genio::file_type(editor->Name().String()).compare("c++") == 0));
+	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (editor->FileType().compare("cpp") == 0));
 
 	ActionManager::SetEnabled(MSG_FIND_NEXT, true);
 	ActionManager::SetEnabled(MSG_FIND_PREVIOUS, true);

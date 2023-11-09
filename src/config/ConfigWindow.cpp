@@ -92,6 +92,8 @@ ConfigWindow::ConfigWindow(ConfigManager &configManager)
               B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
       fConfigManager(configManager)
 {
+	fShowHidden = modifiers() & B_COMMAND_KEY;
+
 	CenterOnScreen();
 	SetLayout(new BGroupLayout(B_HORIZONTAL));
 	AddChild(_Init());
@@ -196,7 +198,6 @@ ConfigWindow::MessageReceived(BMessage* message)
 	}
 }
 
-
 void
 ConfigWindow::_PopulateListView()
 {
@@ -213,7 +214,8 @@ ConfigWindow::_PopulateListView()
 			}
 			i++;
 		}
-		if (i == divededByGroup.end() && strcmp((const char*)msg["group"], "Hidden") != 0 ) {
+
+		if (i == divededByGroup.end() && (fShowHidden || (strcmp((const char*)msg["group"], "Hidden") != 0)) ) {
 			GMessage first = {{ {"group",(const char*)msg["group"]} }};
 			first.AddMessage("config", &msg);
 			divededByGroup.push_back(first);
@@ -348,9 +350,9 @@ ConfigWindow::MakeControlFor(GMessage& config)
 
 		default:
 		{
-			BString errorString;
-			errorString.SetToFormat("Setting: Don't know setting type for key [%s]\n", (const char*)config["key"]);
-			debugger(errorString.String());
+			BString label;
+			label.SetToFormat("Can't create control for setting [%s]\n", (const char*)config["key"]);
+			return new BStringView("view", label.String());
 		}
 		break;
 	}

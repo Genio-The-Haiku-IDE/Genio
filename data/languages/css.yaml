@@ -1,0 +1,75 @@
+# CSS
+lexer: css
+properties:
+keywords:
+    0: >
+        background background-attachment background-color background-image
+        background-position background-repeat border border-bottom
+        border-bottom-width border-color border-left border-left-width
+        border-right border-right-width border-style border-top
+        border-top-width border-width clear color display float font
+        font-family font-size font-style font-variant font-weight height
+        letter-spacing line-height list-style list-style-image
+        list-style-position list-style-type margin margin-bottom margin-left
+        margin-right margin-top padding padding-bottom padding-left
+        padding-right padding-top text-align text-decoration text-indent
+        text-transform vertical-align white-space width word-spacing
+    1: >
+        active checked disabled empty enabled first-child first-of-type focus
+        hover in-range invalid lang last-child last-of-type link not nth-child
+        nth-last-child nth-last-of-type nth-of-type only-of-type only-child
+        optional out-of-range read-only read-write required root target valid
+        visited
+    2: >
+        azimuth border-bottom-color border-bottom-style border-collapse
+        border-left-color border-left-style border-right-color
+        border-right-style border-spacing border-top-color border-top-style
+        bottom caption-side clip content counter-increment counter-reset cue
+        cue-after cue-before cursor direction elevation empty-cells inline-table
+        left ltr max-height max-width min-height min-width orphans outline
+        outline-color outline-style outline-width overflow page-break-after
+        page-break-before page-break-inside pause pause-after pause-before
+        pitch pitch-range play-during position quotes richness right rtl
+        speak speak-header speak-numeral speak-punctuation speech-rate stress
+        table table-caption table-cell table-layout top unicode-bidi visibility
+        voice-family volume widows z-index
+    3: >
+        align-content align-items align-self animation animation-delay
+        animation-direction animation-duration animation-fill-mode
+        animation-iteration-count animation-name animation-play-state
+        animation-timing-function backface-visibility background-clip
+        background-origin background-size border-bottom-left-radius
+        border-bottom-right-radius border-image border-image-outset
+        border-image-repeat border-image-slice border-image-source
+        border-image-width border-radius border-top-left-radius
+        border-top-right-radius box-shadow box-sizing column-count column-fill
+        column-gap column-rule column-rule-color column-rule-style
+        column-rule-width column-span column-width columns flex flex-basis
+        flex-direction flex-flow flex-grow flex-shrink flex-wrap
+        font-size-adjust font-stretch justify-content opacity order
+        outline-offset overflow-x overflow-y perspective perspective-origin
+        resize tab-size text-align-last text-decoration-color
+        text-decoration-line text-decoration-style text-justify
+        text-overflow text-shadow transform transform-origin
+        transform-style transition transition-delay transition-duration
+        transition-property transition-timing-function word-break word-wrap
+    4: >
+        after before first-letter first-line selection
+comments:
+    block: [ "/*", "*/" ]
+styles:
+    0: 32
+    1: 155
+    2: 155
+    3: 155
+    4: 32
+    5: 32
+    6: 156
+    15: 156
+    17: 156
+    7: 32
+    8: 32
+    9: 101
+    10: 32
+    11: 148
+    12: 117

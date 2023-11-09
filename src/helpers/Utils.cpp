@@ -19,6 +19,8 @@
 #include <Path.h>
 #include <string>
 #include <algorithm>
+#include <Roster.h>
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Utilities"
@@ -171,8 +173,8 @@ KeyDownMessageFilter::AllowedModifiers()
 filter_result
 KeyDownMessageFilter::Filter(BMessage* message, BHandler** target)
 {
-	
-	if(message->what == B_KEY_DOWN) {		
+
+	if(message->what == B_KEY_DOWN) {
 		const char* bytes;
 		uint32 modifiers;
 		message->FindString("bytes", &bytes);
@@ -199,7 +201,7 @@ find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
 }
 
 
-void ProgressNotification(const char* group, const char* title, const char* messageID, 
+void ProgressNotification(const char* group, const char* title, const char* messageID,
 							const char* content, float progress, bigtime_t timeout)
 {
 	BNotification notification(B_PROGRESS_NOTIFICATION);
@@ -211,7 +213,7 @@ void ProgressNotification(const char* group, const char* title, const char* mess
 	notification.Send(timeout);
 }
 
-void ErrorNotification(const char* group, const char* title, const char* messageID, 
+void ErrorNotification(const char* group, const char* title, const char* messageID,
 							const char* content, bigtime_t timeout)
 {
 	BNotification notification(B_ERROR_NOTIFICATION);
@@ -227,23 +229,23 @@ void ErrorNotification(const char* group, const char* title, const char* message
 std::string sourceExt[] = {".cpp", ".c", ".cc", ".cxx", ".c++"}; //, ".m", ".mm"};
 std::string headerExt[] = {".h", ".hh", ".hpp", ".hxx"}; //, ".inc"};
 
-bool 
+bool
 IsCppSourceExtension(std::string extension)
 {
 	return FIND_IN_ARRAY(sourceExt, extension);
 }
 
-bool 
+bool
 IsCppHeaderExtension(std::string extension)
 {
 	return FIND_IN_ARRAY(headerExt, extension);
 }
 
-status_t	
+status_t
 FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 {
 	//TODO this is not language specific!
-	
+
 	status_t status;
 	BEntry entry;
 	if ((status = entry.SetTo(editorRef)) != B_OK)
@@ -282,10 +284,37 @@ FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 				return foundFile.Exists();
 			});
 	}
-	
+
 	if (!found)
 		return B_ERROR;
 
 	return foundFile.GetRef(foundRef);
 }
 
+BPath
+GetDataDirectory()
+{
+	// Default template directory
+	app_info info;
+	BPath dataPath;
+	if (be_app->GetAppInfo(&info) == B_OK) {
+		// This code should work both for the case where Genio is
+		// in the "app" subdirectory, like in the repo,
+		// and when it's in the package.
+		BPath genioPath(&info.ref);
+		BPath parentPath;
+		if (genioPath.GetParent(&parentPath) == B_OK) {
+			dataPath = parentPath;
+			dataPath.Append("data");
+			// Genio
+			// data/templates/
+			if (!BEntry(dataPath.Path()).IsDirectory()) {
+				// app/Genio
+				// data/templates/
+				parentPath.GetParent(&dataPath);
+				dataPath.Append("data");
+			}
+		}
+	}
+	return dataPath;
+}

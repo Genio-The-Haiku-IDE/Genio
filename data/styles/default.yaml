@@ -1,0 +1,170 @@
+# based on Eclipse theme for Notepad++
+# Copyright (c) 2009 Fesenko Alexander <http://return0x000.blogspot.com/>
+# MIT licensed
+Global:
+    Default:
+        id: 32
+        foreground: "#000000"
+        background: "#ffffff"
+    Current line:
+        background: "#e8f2fe"
+    Whitespace:
+        foreground: "#7f9fbf"
+    Selected text:
+        background: "#d4d4d4"
+    Caret:
+        foreground: "#000000"
+    Edge:
+        foreground: "#7f9fbf"
+    Fold:
+        foreground: "#e4e4e4"
+        background: "#e4e4e4"
+    Fold marker:
+        foreground: "#e4e4e4"
+        background: "#808080"
+    Indent guideline:
+        id: 37
+        foreground: "#c0c0c0"
+        background: "#ffffff"
+    Brace highlight:
+        id: 34
+        foreground: "#0000ff"
+        background: "#ffffff"
+        style: [ bold ]
+    Bad brace:
+        id: 35
+        foreground: "#ff0000"
+        background: "#ffffff"
+        style: [ bold ]
+    Line number:
+        id: 33
+        foreground: "#808080"
+        background: "#e4e4e4"
+    Smart highlight:
+        background: "#a3a3a3"
+    Find mark:
+        background: "#0000ff"
+    Incremental highlight:
+        background: "#00ffff"
+    Tags match highlight:
+        background: "#00ffff"
+    Tags attributes:
+        background: "#ffffff"
+    Bookmark marker:
+        foreground: "#7f9fbf"
+        background: "#e8f2fe"
+# C++
+Preprocessor:
+    id: 109
+    foreground: "#7f7f9f"
+    style: [ bold ]
+Keyword:
+    id: 105
+    foreground: "#7f0055"
+    style: [ bold ]
+Number:
+    id: 104
+    foreground: "#af0f91"
+String:
+    id: 106
+    foreground: "#2a00ff"
+Operator:
+    id: 110
+    foreground: "#3f5fbf"
+Verbatim:
+    id: 113
+    foreground: "#646464"
+Regexp:
+    id: 114
+    foreground: "#646464"
+Global class:
+    id: 119
+    foreground: "#006600"
+Constant:
+    id: 120
+    foreground: "#552200"
+Namespace:
+    id: 121
+    foreground: "#408080"
+Comment:
+    id: 101
+    foreground: "#557f5f"
+Comment doc:
+    id: 103
+    foreground: "#3f55bf"
+Comment doc keyword:
+    id: 117
+    foreground: "#7f9fbf"
+    style: [ bold ]
+# Python/Ruby
+Triple:
+    id: 126
+    foreground: "#646464"
+Defname:
+    id: 129
+    foreground: "#3f5fbf"
+    style: [ bold ]
+Decorator:
+    id: 135
+    foreground: "#3f5fbf"
+    style: [ italic ]
+# YAML
+Reference:
+    id: 145
+    foreground: "#3f3fbf"
+Error:
+    id: 148
+    foreground: "#ff4136"
+# AWK/Bash/Diff/Makefile
+Backticks:
+    id: 151
+    foreground: "#646464"
+    style: [ bold ]
+Scalar/Array/Diff header:
+    id: 152
+    foreground: "#0000c0"
+    style: [ italic ]
+Recipe env variables:
+    id: 180
+    foreground: "#006600"
+Recipe shell functions:
+    id: 181
+    foreground: "#552200"
+    style: [ bold ]
+Recipe Scalar:
+    id: 182
+    foreground: "#408080"
+    style: [ italic ]
+Deleted:
+    id: 165
+    foreground: "#ff4136"
+Added:
+    id: 166
+    foreground: "#2ecc40"
+# CMake
+String L:
+    id: 153
+    foreground: "#2a00ff"
+    style: [ italic ]
+String R:
+    id: 154
+    foreground: "#2a00ff"
+    style: [ underline ]
+# HTML/XML/CSS
+Tag Start/End:
+    id: 155
+    foreground: "#3f7f7f"
+Attribute:
+    id: 156
+    foreground: "#7f007f"
+SGML default:
+    id: 161
+    foreground: "#000000"
+    background: "#a6caf0"
+# Markdown
+Strong:
+    id: 200
+    style: [ bold ]
+Emphasis:
+    id: 201
+    style: [ italic ]

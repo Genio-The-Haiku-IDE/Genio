@@ -1,0 +1,35 @@
+lexer: jam
+properties:
+    fold: 1
+    fold.comment: 1
+keywords:
+    0: >
+        actions bind break case continue default else existing for if ignore in
+        include jumptoeof local maxline on piecemeal quietly return rule switch
+        together updated while
+identifiers:
+    6:
+        - >
+            As Bulk Cc C++ Clean File Fortran GenFile HardLink HdrRule
+            InstallInto InstallBin InstallLib InstallFile InstallMan
+            InstallShell Lex Library LibraryFromObjects LinkLibraries LocalClean
+            LocalDepends Main MainFromObjects MakeLocate MkDir Object
+            ObjectCcFlags ObjectC++Flags ObjectHdrs Objects RmTemps Setuid
+            SoftLink SubDir SubDirCcFlags SubDirC++Flags SubDirHdrs SubInclude
+            Shell Undefines UserObject Yacc
+            FAppendSuffix FDirName FGrist FGristFiles FGristSourceFiles
+            FIsPrefix FStripCommon FReverse FRelPath FSubDir
+            Always Depends Echo Exit Includes NoCare NoUpdate NotFile Temporary
+comments:
+    line: "#"
+styles:
+    0: 32
+    1: 101
+    2: 104
+    3: 106
+    4: 105
+    5: 110
+    6: 32
+    7: 152
+substyles:
+    6: [ 120 ]

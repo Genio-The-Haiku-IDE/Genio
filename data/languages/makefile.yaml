@@ -1,0 +1,12 @@
+# Makefile
+lexer: makefile
+comments:
+    line: "#"
+styles:
+    0: 32
+    1: 101
+    2: 109
+    3: 152
+    4: 32
+    5: 103
+    9: 32

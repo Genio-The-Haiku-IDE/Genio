@@ -2795,9 +2795,9 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_DEBUG_PROJECT, projectMenu);
 
 	projectMenu->AddSeparatorItem();
-	projectMenu->AddItem(fMakeCatkeysItem = new BMenuItem ("Make catkeys",
+	projectMenu->AddItem(fMakeCatkeysItem = new BMenuItem (B_TRANSLATE("Make catkeys"),
 		new BMessage(MSG_MAKE_CATKEYS)));
-	projectMenu->AddItem(fMakeBindcatalogsItem = new BMenuItem ("Make bindcatalogs",
+	projectMenu->AddItem(fMakeBindcatalogsItem = new BMenuItem (B_TRANSLATE("Make bindcatalogs"),
 		new BMessage(MSG_MAKE_BINDCATALOGS)));
 
 	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, false);

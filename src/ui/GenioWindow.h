@@ -63,7 +63,7 @@ public:
 
 private:
 
-			status_t			_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int32 sci_pos);
+			status_t			_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
 
 			void				_BuildDone(BMessage* msg);
 			status_t			_BuildProject();

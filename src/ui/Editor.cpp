@@ -541,11 +541,9 @@ Editor::GoToLine(int32 line)
 		return;
 
 	line -= 1;
-	SendMessage(SCI_ENSUREVISIBLEENFORCEPOLICY, line, UNSET);
 	SendMessage(SCI_GOTOLINE, line, UNSET);
-	GrabFocus();
+	EnsureVisiblePolicy();
 }
-
 
 void
 Editor::GoToLSPPosition(int32 line, int character)
@@ -554,6 +552,8 @@ Editor::GoToLSPPosition(int32 line, int character)
 	sci_position = SendMessage(SCI_POSITIONFROMLINE, line, 0);
 	sci_position = SendMessage(SCI_POSITIONRELATIVE, sci_position, character);
 	SendMessage(SCI_SETSEL, sci_position, sci_position);
+
+	EnsureVisiblePolicy();
 }
 
 

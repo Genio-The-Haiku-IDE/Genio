@@ -7,34 +7,35 @@
 
 ## Introduction
 
-Genio is an IDE for the [Haiku operating system](https://www.haiku-os.org).
-Despite being in an early stage, Genio can already be used to develop and build applications.
-In fact, the Genio team uses it as the main development tool to develop and build Genio.
+Genio is a native and fully functional IDE for the [Haiku operating system](https://www.haiku-os.org) 
 
-Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), but we already implemented some new features:
+Some of the features of the Genio IDE are:
 
-* LSP (autocompletion, signature help, go to definition/implementation/declaration)
-* Find in files
-* Links to file and build errors in Build Log and Console I/O
-* "Problems" tab
-* Project browser
-* Improved handling of Editor tabs:
-  * Movable tabs
-  * Close all/other
-* New Editor commands:
-  * Duplicate current line
-  * Delete lines
-  * Comment/uncomment lines
-  * Switch between source and header
-
-The editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
+*   LSP Server support (autocompletion, signature help, go to definition/implementation/declaration)
+*   Multi-project browser
+*   Integrated source control with GIT (including opening a remote project) 
+*   Find in files
+*   Links to file and build errors in Build Log and Console I/O
+*   "Problems" tab
+*   Build on save / Save on build
+*   User templates for quickly creating new files and projects
+*   Rich editor with many features:
+    *   Multiple tabs
+    *   Syntax highlighting for many languages
+    *   Highlight/Trim whitespace
+    *   Comment/uncomment lines
+    *   Duplicate current line
+    *   Delete lines
+    *   Switch between source and header
+  
+Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), and
+ the editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
 
 We also took inspiration and code from the editor [Koder](https://github.com/KapiX/Koder).
 
-* strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
-
-  * gcc_syslibs_devel
-  * llvm17_clang
+*   strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
+    *   gcc_syslibs_devel
+    *   llvm17_clang
 
 ```bash
 pkgman install gcc_syslibs_devel llvm17_clang
@@ -44,14 +45,9 @@ pkgman install gcc_syslibs_devel llvm17_clang
 
 Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code and Nova.
 
-## Main goals
-
-* Workspace Manager and Project folders
-* Language Server Protocol via clangd: autocompletion, jump to definition, and more
-* Bring the editor up-to-date and on par with other Haiku editors (Koder, Pe)
-* Plug-in architecture
-* Compiler error parser
-* Refactor the source file and project management module by implementing a Workspace Manager and Project folders
+*   Plug-in architecture
+*   Bring the editor up-to-date and on par with other Haiku editors (Koder, Pe)
+*   Compiler error parser
 
 ## Configuring Clangd / LSP
 
@@ -61,13 +57,14 @@ See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blo
 
 ### Prerequirements
 
-Genio requires libgit2 to implement Git features. The development files are available in `libgit2_devel`.
+Genio requires libgit2 to implement Git features. 
+The development files are available in `libgit2_devel`.
 Execute `pkgman install libgit2_devel` from Terminal
 
 If you would like to try a clang++ build:
 
-* Install `llvm_clang` hpkg from HaikuPorts
-* Set `BUILD_WITH_CLANG` to `1` in `Makefile`
+*   Install `llvm_clang` hpkg from HaikuPorts
+*   Set `BUILD_WITH_CLANG` to `1` in `Makefile`
 
 ### Compiling
 
@@ -77,21 +74,14 @@ The executable is created in `app` subdirectory.
 Genio can already be opened and built within Genio itself.
 The makefile has been updated to accept the *debug* parameter:
 
-* debug=1 - Genio is built in debug mode
-* debug=0 or parameter omitted - Genio is built in release mode
+*   debug=1 - Genio is built in debug mode
+*   debug=0 or parameter omitted - Genio is built in release mode
 
 ## Contributions
 
 We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
 For code contributions, prefer Haiku API over posix, where applicable.
 We (try to) stick to the Haiku style for code, although with a few differences.
-
-## Branches
-
-Currently there are various branches on the Github repository:
-
-* main - this is the main branch, which we always try to keep in a relatively stable state
-* feature/* - these branches are where we develop new features, before merging into main
 
 ## License
 

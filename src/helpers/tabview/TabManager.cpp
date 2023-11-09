@@ -356,9 +356,10 @@ public:
 
 	virtual ~TabManagerController();
 
-	virtual void TabSelected(int32 index)
+	virtual void TabSelected(int32 index, BMessage* selInfo)
 	{
-		fManager->SelectTab(index, true);
+		fManager->DisplayTab(index);
+		fManager->TabSelected(index, selInfo);
 	}
 
 	virtual bool HasFrames()
@@ -918,28 +919,33 @@ extern BRect dirtyFrameHack;
  */
 
 
+void
+TabManager::TabSelected(int32 index, BMessage* selInfo)
+{
+	BMessage message;
+	if (selInfo) {
+		message = *selInfo;
+	}
+	message.what = TABMANAGER_TAB_SELECTED;
+	message.AddInt32("index", index);
+	fTarget.SendMessage(&message);
+}
 
 void
-TabManager::SelectTab(int32 tabIndex, bool sendMessage /*= false */)
+TabManager::SelectTab(int32 tabIndex, BMessage* selInfo)
 {
-// if(tabIndex == SelectedTabIndex() && sendMessage == false) return;
+	fTabContainerView->SelectTab(tabIndex, selInfo);
+}
+
+void
+TabManager::DisplayTab(int32 tabIndex)
+{
 #if defined DIRTY_HACK
 	fCardLayout->SetFrame(dirtyFrameHack);
 #endif
 
 	fCardLayout->SetVisibleItem(tabIndex);
-
-	fTabContainerView->SelectTab(tabIndex);
-
-	LogDebugF("index: %d sendMessage: %d",  tabIndex , sendMessage);
-
-	if (sendMessage == true) {
-		BMessage message(TABMANAGER_TAB_SELECTED);
-		message.AddInt32("index", tabIndex);
-		fTarget.SendMessage(&message);
-	}
 }
-
 
 void
 TabManager::SelectTab(const BView* containedView)
@@ -979,7 +985,7 @@ TabManager::CloseTabs(int32 tabIndex[], int32 size)
 
 
 void
-TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line, int32 lsp_char)
+TabManager::AddTab(BView* view, const char* label, int32 index, BMessage* addInfo)
 {
 	fTabContainerView->AddTab(label, index);
 #if defined DIRTY_HACK
@@ -988,10 +994,11 @@ TabManager::AddTab(BView* view, const char* label, int32 index, int32 be_line, i
 	fCardLayout->AddView(index, view);
 
 	// Assuming nothing went wrong ...
-	BMessage message(TABMANAGER_TAB_NEW_OPENED);
+	BMessage message;
+	if (addInfo)
+		message = *addInfo;
+	message.what = TABMANAGER_TAB_NEW_OPENED;
 	message.AddInt32("index", index);
-	message.AddInt32("be:line", be_line);
-	message.AddInt32("lsp:character", lsp_char);
 
 	fTarget.SendMessage(&message);
 }

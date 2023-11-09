@@ -26,8 +26,8 @@ class TabContainerView : public BGroupView, public Draggable {
 public:
 	class Controller {
 	public:
-		virtual	void			TabSelected(int32 tabIndex) = 0;
-		
+		virtual	void			TabSelected(int32 tabIndex, BMessage* selInfo = nullptr) = 0;
+
 		virtual	bool			HasFrames() = 0;
 		virtual	TabView*		CreateTabView() = 0;
 
@@ -36,9 +36,9 @@ public:
 		virtual	void			UpdateTabScrollability(bool canScrollLeft,
 									bool canScrollRight) = 0;
 		virtual	void			SetToolTip(const BString& text) = 0;
-		
+
 		virtual	void			MoveTabs(int32 fromIndex, int32 toIndex) = 0;
-		
+
 		virtual void			HandleTabMenuAction(BMessage* message) = 0;
 
 	};
@@ -68,8 +68,8 @@ public:
 
 			int32				IndexOf(TabView* tab) const;
 
-			void				SelectTab(int32 tabIndex);
-			void				SelectTab(TabView* tab);
+			void				SelectTab(int32 tabIndex, BMessage* selInfo = nullptr);
+			void				SelectTab(TabView* tab, BMessage* selInfo = nullptr);
 
 			void				SetTabLabel(int32 tabIndex, const char* label);
 

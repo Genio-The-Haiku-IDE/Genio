@@ -352,17 +352,6 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	GMessage zooms = {{ {"min", -9}, {"max", 19} }};
 	cfg.AddConfig("Editor", "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
-	cfg.AddConfig("Editor/Visual", "show_linenumber", B_TRANSLATE("Show line number"), true);
-	cfg.AddConfig("Editor/Visual", "show_commentmargin", B_TRANSLATE("Show comment margin"), true);
-	cfg.AddConfig("Editor/Visual", "mark_caretline", B_TRANSLATE("Mark caret line"), true);
-	cfg.AddConfig("Editor/Visual", "enable_folding", B_TRANSLATE("Enable folding"), true);
-	cfg.AddConfig("Editor/Visual", "show_white_space", B_TRANSLATE("Show whitespace"), false);
-	cfg.AddConfig("Editor/Visual", "show_line_endings", B_TRANSLATE("Show line endings"), false);
-
-	cfg.AddConfig("Editor/Visual", "show_edgeline", B_TRANSLATE("Show edge line"), true);
-	GMessage limits = {{ {"min", 0}, {"max", 500} }};
-	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column"), 80, &limits);
-
 	GMessage styles = {{ {"mode", "options"} }};
 	std::set<std::string> allStyles;
 	Styler::GetAvailableStyles(allStyles);
@@ -376,6 +365,17 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 		style_index++;
 	}
 	cfg.AddConfig("Editor/Visual", "editor_style", "Editor Style", "default", &styles);
+
+	cfg.AddConfig("Editor/Visual", "show_linenumber", B_TRANSLATE("Show line number"), true);
+	cfg.AddConfig("Editor/Visual", "show_commentmargin", B_TRANSLATE("Show comment margin"), true);
+	cfg.AddConfig("Editor/Visual", "mark_caretline", B_TRANSLATE("Mark caret line"), true);
+	cfg.AddConfig("Editor/Visual", "enable_folding", B_TRANSLATE("Enable folding"), true);
+	cfg.AddConfig("Editor/Visual", "show_white_space", B_TRANSLATE("Show whitespace"), false);
+	cfg.AddConfig("Editor/Visual", "show_line_endings", B_TRANSLATE("Show line endings"), false);
+
+	cfg.AddConfig("Editor/Visual", "show_edgeline", B_TRANSLATE("Show edge line"), true);
+	GMessage limits = {{ {"min", 0}, {"max", 500} }};
+	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column"), 80, &limits);
 
 	cfg.AddConfig("Build", "wrap_console",   B_TRANSLATE("Wrap console"), false);
 	cfg.AddConfig("Build", "console_banner", B_TRANSLATE("Console banner"), true);

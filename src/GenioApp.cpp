@@ -124,6 +124,7 @@ GenioApp::GenioApp()
 	fConfigurationPath.Append(GenioNames::kSettingsFileName);
 }
 
+
 GenioApp::~GenioApp()
 {
 	// Save settings on quit, anyway
@@ -185,8 +186,11 @@ GenioApp::ArgvReceived(int32 argc, char** argv)
 	if (argc == 1)
 		return;
 	
-	BMessage *message = new BMessage(B_REFS_RECEIVED);
 	int i = HandleArgs(argc, argv);
+	if (i <= 0)
+		return;
+
+	BMessage *message = new BMessage(B_REFS_RECEIVED);
 	while (i < argc) {
 		entry_ref ref;
 		if (get_ref_for_path(argv[i], &ref) == B_OK) {

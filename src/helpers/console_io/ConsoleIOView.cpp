@@ -345,13 +345,9 @@ ConsoleIOView::_HandleConsoleOutput(OutputInfo* info)
 	run.runs[0].offset = 0;
 	// stderr goes orange
 	if (info->fd == 2) {
-		run.runs[0].color.red = 236;
-		run.runs[0].color.green = 126;
-		run.runs[0].color.blue = 14;
+		run.runs[0].color = ui_color(B_FAILURE_COLOR);
 	} else {
-		run.runs[0].color.red = 0;
-		run.runs[0].color.green = 0;
-		run.runs[0].color.blue = 0;
+		run.runs[0].color = ui_color(B_LIST_ITEM_TEXT_COLOR);
 	}
 	run.runs[0].color.alpha = 255;
 

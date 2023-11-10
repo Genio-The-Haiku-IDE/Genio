@@ -230,15 +230,7 @@ Styler::ApplyLanguage(Editor* editor, const std::map<int, int>& styleMapping)
 /* static */ void
 Styler::GetAvailableStyles(std::set<std::string> &styles)
 {
-	BPath dataPath;
-	find_directory(B_SYSTEM_DATA_DIRECTORY, &dataPath);
-	_GetAvailableStyles(styles, dataPath);
-	find_directory(B_USER_DATA_DIRECTORY, &dataPath);
-	_GetAvailableStyles(styles, dataPath);
-	find_directory(B_SYSTEM_NONPACKAGED_DATA_DIRECTORY, &dataPath);
-	_GetAvailableStyles(styles, dataPath);
-	find_directory(B_USER_NONPACKAGED_DATA_DIRECTORY, &dataPath);
-	_GetAvailableStyles(styles, dataPath);
+	_GetAvailableStyles(styles, GetDataDirectory());
 }
 
 

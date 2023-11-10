@@ -5,7 +5,6 @@
  */
 
 #include "GenioWindow.h"
-#include "GitRepository.h"
 
 #include <cassert>
 #include <string>
@@ -33,10 +32,12 @@
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "FSUtils.h"
-#include "Languages.h"
+#include "GenioApp.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
+#include "GitRepository.h"
+#include "Languages.h"
 #include "Log.h"
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"

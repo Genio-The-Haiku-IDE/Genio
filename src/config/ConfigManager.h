@@ -81,8 +81,3 @@ private:
 	const char* fKey;
 	BLocker& fLocker;
 };
-
-
-// TODO: Move away from here
-// We could have different configmanagers
-extern ConfigManager& gCFG;

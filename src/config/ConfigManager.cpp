@@ -13,8 +13,6 @@
 
 #include "Log.h"
 
-ConfigManager gConfigManager;
-ConfigManager& gCFG = gConfigManager;
 
 ConfigManager::ConfigManager()
 {

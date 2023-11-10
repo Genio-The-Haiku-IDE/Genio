@@ -8,13 +8,16 @@
 #include <Alert.h>
 #include <AboutWindow.h>
 #include <Catalog.h>
+#include <FindDirectory.h>
 #include <String.h>
 #include <StringList.h>
 
 #include <getopt.h>
+
 #include "LSPLogLevels.h"
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
+#include "GenioWindow.h"
 #include "Languages.h"
 #include "Styler.h"
 
@@ -22,6 +25,8 @@
 #define B_TRANSLATION_CONTEXT "GenioApp"
 
 #include "Log.h"
+
+ConfigManager gCFG;
 
 static log_level sSessionLogLevel = log_level(LOG_LEVEL_UNSET);
 

@@ -158,6 +158,12 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorKeyDownMessageFilter());
 
+	//TODO: remove this as soon as we review in a more consistent way
+	//      how the menu and the focus view manage these shortcuts.
+	RemoveShortcut('C', B_COMMAND_KEY);
+	RemoveShortcut('X', B_COMMAND_KEY);
+	RemoveShortcut('V', B_COMMAND_KEY);
+
 	// Load workspace - reopen projects
 	if (gCFG["reopen_projects"]) {
 		TPreferences projects(GenioNames::kSettingsProjectsToReopen,

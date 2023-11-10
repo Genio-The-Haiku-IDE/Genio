@@ -3,8 +3,10 @@ v2.0
 	- UI: Reorganized and improved menus.
 	- UI: Added new Search Results panel.
 	- UI: Improve layout.
-	- Rewrote settings handling. All settings are now applied live.
+	- Added syntax highlighting for many languages.
+	- Added editor styling functionalities.
 	- New settings window.
+	- Rewrote settings handling. All settings are now applied live.
 	- Added "Open remote project".
 	- Added "Open recent" / "Open recent project".
 	- Added autobuild on save.

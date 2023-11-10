@@ -7,35 +7,6 @@
 
 #define MSG_NOTIFY_CONFIGURATION_UPDATED	'noCU'
 
-class ConfigManagerReturn {
-public:
-		ConfigManagerReturn(GMessage& msg, const char* key, BLocker& lock):
-			fMsg(msg),
-			fKey(key),
-			fLocker(lock){
-		}
-
-		template< typename Return >
-        operator Return() { BAutolock lock(fLocker); return fMsg[fKey]; };
-
-		template< typename T >
-		void operator =(T n) {
-					BAutolock lock(fLocker);
-					fMsg[fKey] = n;
-					GMessage noticeMessage(MSG_NOTIFY_CONFIGURATION_UPDATED);
-					noticeMessage["key"]  	= fKey;
-					noticeMessage["value"]  = fMsg[fKey];
-					if (be_app != nullptr)
-						be_app->SendNotices(MSG_NOTIFY_CONFIGURATION_UPDATED, &noticeMessage);
-					//printf("Config update! [%s] -> ", fKey); noticeMessage.PrintToStream();
-		};
-private:
-	GMessage& fMsg;
-	const char* fKey;
-	BLocker& fLocker;
-};
-
-
 class ConfigManagerReturn;
 class ConfigManager {
 public:
@@ -80,8 +51,38 @@ protected:
 		BLocker	 fLocker;
 private:
 		bool	_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
-									  BMessage* msgR, const char* keyR);
+									  BMessage* msgR, const char* keyR) const;
 };
 
-// TODO: Use a static method ?
+
+class ConfigManagerReturn {
+public:
+		ConfigManagerReturn(GMessage& msg, const char* key, BLocker& lock):
+			fMsg(msg),
+			fKey(key),
+			fLocker(lock){
+		}
+
+		template< typename Return >
+        operator Return() { BAutolock lock(fLocker); return fMsg[fKey]; };
+
+		template< typename T >
+		void operator =(T n) {
+					BAutolock lock(fLocker);
+					fMsg[fKey] = n;
+					GMessage noticeMessage(MSG_NOTIFY_CONFIGURATION_UPDATED);
+					noticeMessage["key"]  	= fKey;
+					noticeMessage["value"]  = fMsg[fKey];
+					if (be_app != nullptr)
+						be_app->SendNotices(MSG_NOTIFY_CONFIGURATION_UPDATED, &noticeMessage);
+		};
+private:
+	GMessage& fMsg;
+	const char* fKey;
+	BLocker& fLocker;
+};
+
+
+// TODO: Move away from here
+// We could have different configmanagers
 extern ConfigManager& gCFG;

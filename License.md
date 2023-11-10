@@ -1,4 +1,4 @@
-# Licence
+# License
 
 Genio is Copyright (c) 2022-2023 by Nexus6, A. Anzani, S. Ceccherini
 Genio icon is Copyright (c) 2022-2023 by M. Frau

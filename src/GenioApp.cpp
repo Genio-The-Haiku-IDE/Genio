@@ -25,8 +25,8 @@ static log_level sSessionLogLevel = log_level(LOG_LEVEL_UNSET);
 
 static
 struct option sLongOptions[] = {
-		{ "loglevel", required_argument, 0, 'l' },
-		{ 0, 0, 0, 0 }
+		{ "loglevel", required_argument, nullptr, 'l' },
+		{ nullptr, 0, nullptr, 0 }
 };
 
 const char kChangeLog[] = {
@@ -105,10 +105,12 @@ HandleArgs(int argc, char **argv)
 					SetSessionLogLevel(optarg[0]);
 				break;
 			}
+			default:
+				break;
 		}
 	}
 
-	return optIndex;
+	return optind;
 }
 
 
@@ -180,7 +182,7 @@ void
 GenioApp::ArgvReceived(int32 argc, char** argv)
 {
 	BApplication::ArgvReceived(argc, argv);
-	if (argc == 0)
+	if (argc == 1)
 		return;
 	
 	BMessage *message = new BMessage(B_REFS_RECEIVED);
@@ -388,7 +390,6 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 int
 main(int argc, char* argv[])
 {
-	//int nextArg = HandleArgs(argc, argv);
 	try {
 		GenioApp *app = new GenioApp();
 		app->Run();

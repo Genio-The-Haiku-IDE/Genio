@@ -72,13 +72,11 @@ private:
 		ConfigManager&	fConfigManager;
 };
 
-
 template<>
 const char* GControl<BTextControl, const char*>::RetrieveValue()
 {
        return BTextControl::Text();
 }
-
 
 template<>
 void GControl<BTextControl, const char*>::LoadValue(const char* value)
@@ -86,6 +84,27 @@ void GControl<BTextControl, const char*>::LoadValue(const char* value)
        BTextControl::SetText(value);
 }
 
+template<>
+const char* GControl<BOptionPopUp, const char*>::RetrieveValue()
+{
+	   const char* label = nullptr;
+	   BOptionPopUp::SelectedOption(&label, nullptr);
+	   return label;
+}
+
+template<>
+void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
+{
+	const char* label = nullptr;
+	int32 intValue = 0;
+	for (int32 i = 0; i < CountOptions(); i++) {
+		if (GetOptionAt(i, &label, &intValue)) {
+			if (strcmp(label, value) == 0)
+				break;
+		}
+	}
+	SetValue(intValue);
+}
 
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
     : BWindow(BRect(100, 100, 700, 500), "Settings", B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
@@ -314,19 +333,7 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		{
 			if (config.Has("mode")) {
 				if (BString((const char*)config["mode"]).Compare("options") == 0){
-
-					BOptionPopUp* popUp = new GControl<BOptionPopUp, int32>(config, fConfigManager[config["key"]], fConfigManager);
-					int32 c=1;
-					while(true) {
-						BString key("option_");
-						key << c;
-						if (!config.Has(key.String()))
-							break;
-						popUp->AddOption(config[key.String()]["label"], config[key.String()]["value"]);
-						c++;
-					}
-					popUp->SetValue(fConfigManager[config["key"]]);
-					return popUp;
+					return _CreatePopUp<int32>(config);
 				}
 			} else {
 				BSpinner* sp = new GControl<BSpinner, int32>(config, fConfigManager[config["key"]], fConfigManager);
@@ -341,11 +348,16 @@ ConfigWindow::MakeControlFor(GMessage& config)
 
 		case B_STRING_TYPE:
 		{
-			//TODO: handle the 'mode'
-			GControl<BTextControl, const char*>* control = new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]], fConfigManager);
-			// TODO: Improve
-			control->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
-			return control;
+			if (config.Has("mode")) {
+				if (BString((const char*)config["mode"]).Compare("options") == 0){
+					return _CreatePopUp<const char*>(config);
+				}
+			} else {
+				GControl<BTextControl, const char*>* control = new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]], fConfigManager);
+				// TODO: Improve
+				control->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
+				return control;
+			}
 		}
 
 		default:
@@ -357,4 +369,22 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		break;
 	}
 	return NULL;
+}
+
+template<typename T>
+BOptionPopUp*
+ConfigWindow::_CreatePopUp(GMessage& config)
+{
+	auto popUp = new GControl<BOptionPopUp, T>(config, fConfigManager[config["key"]], fConfigManager);
+	int32 c=1;
+	while(true) {
+		BString key("option_");
+		key << c;
+		if (!config.Has(key.String()))
+			break;
+		popUp->AddOption(config[key.String()]["label"], config[key.String()]["value"]);
+		c++;
+	}
+	popUp->LoadValue(fConfigManager[config["key"]]);
+	return popUp;
 }

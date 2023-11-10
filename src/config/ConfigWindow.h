@@ -14,6 +14,7 @@ class BCardView;
 class BOutlineListView;
 class BView;
 class ConfigManager;
+class BOptionPopUp;
 
 class ConfigWindow : public BWindow {
 public:
@@ -30,7 +31,10 @@ private:
 	ConfigManager& fConfigManager;
 
 	BView*	_Init();
-	void _PopulateListView();
+	void 	_PopulateListView();
+
+	template<typename T>
+	BOptionPopUp*	_CreatePopUp(GMessage& config);
 
 	BOutlineListView* 	fGroupList;
 	BCardView* 	fCardView;

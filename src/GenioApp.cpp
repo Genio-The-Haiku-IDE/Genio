@@ -16,6 +16,7 @@
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 #include "Languages.h"
+#include "Styler.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
@@ -295,6 +296,20 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
 	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column"), 80, &limits);
 
+	GMessage styles = {{ {"mode", "options"} }};
+	std::set<std::string> allStyles;
+	Styler::GetAvailableStyles(allStyles);
+	int32 style_index = 1;
+	for(auto style : allStyles) {
+		BString opt("option_");
+		opt << style_index;
+
+		styles[opt.String()]["value"] = style_index - 1;
+		styles[opt.String()]["label"] = style.c_str();
+		style_index++;
+	}
+	cfg.AddConfig("Editor/Visual", "editor_style", "Editor Style", "default", &styles);
+
 	cfg.AddConfig("Build", "wrap_console",   B_TRANSLATE("Wrap console"), false);
 	cfg.AddConfig("Build", "console_banner", B_TRANSLATE("Console banner"), true);
 	cfg.AddConfig("Build", "build_on_save",  B_TRANSLATE("Auto-Build on resource save"), false);
@@ -319,7 +334,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("LSP", "lsp_log_level", B_TRANSLATE("Log level:"), (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
 
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
-	cfg.AddConfig("Hidden", "editor_style", "Editor Style", "default");
+
 }
 
 

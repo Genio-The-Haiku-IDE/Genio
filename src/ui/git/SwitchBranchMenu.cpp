@@ -1,8 +1,8 @@
 /*
  * Copyright 2023 Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
- * Parts are taken from the TemplatesMenu class from Haiku (Tracker) under the 
- * Open Tracker Licence 
+ * Parts are taken from the TemplatesMenu class from Haiku (Tracker) under the
+ * Open Tracker Licence
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.
  */
 
@@ -36,7 +36,7 @@
 #define B_TRANSLATION_CONTEXT "SwitchBranchMenu"
 
 
-SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label, 
+SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label,
 									BMessage *message)
 	:
 	BMenu(label),
@@ -49,7 +49,7 @@ SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label,
 }
 
 
-SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label, 
+SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label,
 									BMessage *message, const char *projectPath)
 	:
 	BMenu(label),
@@ -75,16 +75,16 @@ SwitchBranchMenu::AttachedToWindow()
 		fActiveProjectPath = window->GetActiveProject()->Path().String();
 	}
 	_BuildMenu();
-	
+
 	// This has to be done AFTER _BuildMenu, since
 	// it layouts the menu and resizes the window.
 	// So we need to have the menuitems already added.
 	BMenu::AttachedToWindow();
-	
+
 	SetTargetForItems(fTarget);
 }
 
-void 
+void
 SwitchBranchMenu::DetachedFromWindow()
 {
 	BMenu::DetachedFromWindow();
@@ -112,26 +112,28 @@ SwitchBranchMenu::UpdateMenuState()
 }
 
 
-bool
+void
 SwitchBranchMenu::_BuildMenu()
 {
 	// clear everything...
 	int32 count = CountItems();
 	RemoveItems(0, count, true);
-	
+
 	if (fActiveProjectPath) {
 		Genio::Git::GitRepository repo(fActiveProjectPath);
-		auto branches = repo.GetBranches();
-		auto current_branch = repo.GetCurrentBranch();
-		for(auto &branch : branches) {
-			BMessage *message = new BMessage(fMessage->what);
-			message->AddString("branch", branch);
-			message->AddString("project_path", fActiveProjectPath);
-			auto item = new BMenuItem(branch, message);
-			AddItem(item);
-			if (branch == current_branch)
-				item->SetMarked(true);
+		try {
+			auto branches = repo.GetBranches();
+			auto current_branch = repo.GetCurrentBranch();
+			for(auto &branch : branches) {
+				BMessage *message = new BMessage(fMessage->what);
+				message->AddString("branch", branch);
+				message->AddString("project_path", fActiveProjectPath);
+				auto item = new BMenuItem(branch, message);
+				AddItem(item);
+				if (branch == current_branch)
+					item->SetMarked(true);
+			}
+		} catch(...){
 		}
 	}
-	return count > 0;
 }

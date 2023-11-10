@@ -153,6 +153,7 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 		break;
 		default:
 			BColumnListView::MessageReceived(msg);
+			break;
 	};
 }
 

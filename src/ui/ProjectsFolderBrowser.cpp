@@ -374,14 +374,14 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 				}
 
 				default:
+					BOutlineListView::MessageReceived(message);
 					break;
 			}
 		}
 		default:
+			BOutlineListView::MessageReceived(message);
 			break;
 	}
-
-	BOutlineListView::MessageReceived(message);
 }
 
 

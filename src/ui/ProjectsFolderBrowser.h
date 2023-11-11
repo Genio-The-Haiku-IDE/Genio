@@ -40,10 +40,10 @@ public:
 	virtual void	MessageReceived(BMessage* message);
 
 	ProjectItem*	GetProjectItem(const BString& projectName) const;
-	ProjectFolder*	GetProjectFromCurrentItem();
-	ProjectItem*	GetCurrentProjectItem();
+	ProjectFolder*	GetProjectFromCurrentItem() const;
+	ProjectItem*	GetCurrentProjectItem() const;
 
-	BString const	GetCurrentProjectFileFullPath();
+	BString const	GetCurrentProjectFileFullPath() const;
 	
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
@@ -53,14 +53,14 @@ public:
 	void			InitRename(ProjectItem *item);
 
 private:
-	ProjectItem*	FindProjectItem(const BString& name);
+	ProjectItem*	FindProjectItem(const BString& name) const;
 	
 	ProjectItem*	_CreatePath(BPath pathToCreate);
 
 	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
-	ProjectFolder*	_GetProjectFromItem(ProjectItem*);
+	ProjectFolder*	_GetProjectFromItem(ProjectItem*) const;
 
 	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
 

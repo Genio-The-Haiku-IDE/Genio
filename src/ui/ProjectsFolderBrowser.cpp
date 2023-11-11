@@ -54,7 +54,7 @@ ProjectsFolderBrowser::~ProjectsFolderBrowser()
 // Optimize the search under a specific ProjectItem, tipically a
 // superitem (ProjectFolder)
 ProjectItem*
-ProjectsFolderBrowser::FindProjectItem(BString const& path)
+ProjectsFolderBrowser::FindProjectItem(BString const& path) const
 {
 	int32 countItems = FullListCountItems();
 	for(int32 i=0; i<countItems; i++) {
@@ -497,7 +497,7 @@ ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
 
 
 ProjectItem*
-ProjectsFolderBrowser::GetCurrentProjectItem()
+ProjectsFolderBrowser::GetCurrentProjectItem() const
 {
 	int32 selection = CurrentSelection();
 	if (selection < 0)
@@ -508,14 +508,14 @@ ProjectsFolderBrowser::GetCurrentProjectItem()
 
 
 ProjectFolder*
-ProjectsFolderBrowser::GetProjectFromCurrentItem()
+ProjectsFolderBrowser::GetProjectFromCurrentItem() const
 {
 	return _GetProjectFromItem(GetCurrentProjectItem());
 }
 
 
 BString const
-ProjectsFolderBrowser::GetCurrentProjectFileFullPath()
+ProjectsFolderBrowser::GetCurrentProjectFileFullPath() const
 {
 	ProjectItem* selectedProjectItem = GetCurrentProjectItem();
 	// if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
@@ -526,7 +526,7 @@ ProjectsFolderBrowser::GetCurrentProjectFileFullPath()
 
 
 ProjectFolder*
-ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item)
+ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item) const
 {
 	if (item == nullptr)
 		return nullptr;

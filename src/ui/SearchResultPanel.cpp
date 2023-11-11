@@ -127,6 +127,12 @@ void
 SearchResultPanel::MessageReceived(BMessage* msg)
 {
 	switch(msg->what) {
+		case B_COPY:
+		case B_CUT:
+		case B_PASTE:
+		case B_SELECT_ALL:
+			//to avoid crash! (WIP)
+			break;
 		case MSG_REPORT_RESULT:
 			UpdateSearch(msg);
 		break;

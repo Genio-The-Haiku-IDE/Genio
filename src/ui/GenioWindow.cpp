@@ -3112,10 +3112,12 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		fActiveProject = project;
 		project->Active(true);
 		_UpdateProjectActivation(true);
-	}
-	else {
+	} else {
 		// There was an active project already
 		fActiveProject->Active(false);
+		ProjectItem* activeProjectItem = fProjectsFolderBrowser->GetProjectItem(fActiveProject->Name());
+		if (activeProjectItem != nullptr)
+			fProjectsFolderBrowser->Collapse(activeProjectItem);
 		fActiveProject = project;
 		project->Active(true);
 		_UpdateProjectActivation(true);

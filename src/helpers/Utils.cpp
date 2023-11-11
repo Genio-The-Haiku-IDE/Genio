@@ -308,7 +308,7 @@ GetDataDirectory()
 			dataPath.Append("data");
 			// Genio
 			// data/templates/
-			if (!BEntry(dataPath.Path()).IsDirectory()) {
+			if (!BEntry(dataPath.Path(), true).IsDirectory()) {
 				// app/Genio
 				// data/templates/
 				parentPath.GetParent(&dataPath);

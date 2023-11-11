@@ -46,7 +46,6 @@
 #include "SwitchBranchMenu.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
-#include "TPreferences.h"
 #include "TextUtils.h"
 #include "Utils.h"
 #include "EditorKeyDownMessageFilter.h"
@@ -167,8 +166,7 @@ GenioWindow::GenioWindow(BRect frame)
 
 	// Load workspace - reopen projects
 	if (gCFG["reopen_projects"]) {
-		TPreferences projects(GenioNames::kSettingsProjectsToReopen,
-								GenioNames::kApplicationName, 'PRRE');
+		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
 		if (!projects.IsEmpty()) {
 			BString projectName, activeProject = "";
 
@@ -181,8 +179,7 @@ GenioWindow::GenioWindow(BRect frame)
 
 	// Reopen files
 	if (gCFG["reopen_files"]) {
-		TPreferences files(GenioNames::kSettingsFilesToReopen,
-							GenioNames::kApplicationName, 'FIRE');
+		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
 		if (!files.IsEmpty()) {
 			entry_ref ref;
 			int32 index = -1, count;
@@ -1266,8 +1263,7 @@ GenioWindow::QuitRequested()
 
 	// Files to reopen
 	if (gCFG["reopen_files"]) {
-		TPreferences files(GenioNames::kSettingsFilesToReopen,
-							GenioNames::kApplicationName, 'FIRE');
+		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
 		// Just empty it for now TODO check if equal
 		files.MakeEmpty();
 
@@ -1282,6 +1278,7 @@ GenioWindow::QuitRequested()
 				files.AddRef("file_to_reopen", editor->FileRef());
 			}
 		}
+		files.Save();
 	}
 
 	// remove link between all editors and all projects
@@ -1292,8 +1289,7 @@ GenioWindow::QuitRequested()
 	// Projects to reopen
 	if (gCFG["reopen_projects"]) {
 
-		TPreferences projects(GenioNames::kSettingsProjectsToReopen,
-								GenioNames::kApplicationName, 'PRRE');
+		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
 
 		projects.MakeEmpty();
 
@@ -1306,6 +1302,7 @@ GenioWindow::QuitRequested()
 			//TODO:---> _ProjectOutlineDepopulate(project);
 			delete project;
 		}
+		projects.Save();
 	}
 
 	if (fGoToLineWindow != nullptr) {

@@ -45,7 +45,6 @@ SRCS +=  src/helpers/Logger.cpp
 SRCS +=  src/helpers/PathBox.cpp
 SRCS +=  src/helpers/StatusView.cpp
 SRCS +=  src/helpers/TextUtils.cpp
-SRCS +=  src/helpers/TPreferences.cpp
 SRCS +=  src/helpers/Utils.cpp
 SRCS +=  src/helpers/GrepThread.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
@@ -126,7 +125,7 @@ CXXFLAGS := -std=c++17 -fPIC
 	endif
 #endif
 
-LOCALES := ca de en en_AU es-419 tr 
+LOCALES := ca de en en_AU es-419 tr
 
 ## Include the Makefile-Engine
 include $(BUILDHOME)/etc/makefile-engine

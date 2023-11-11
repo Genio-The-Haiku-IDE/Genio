@@ -194,7 +194,7 @@ GenioApp::ArgvReceived(int32 argc, char** argv)
 	BApplication::ArgvReceived(argc, argv);
 	if (argc == 1)
 		return;
-	
+
 	int i = HandleArgs(argc, argv);
 	if (i <= 0)
 		return;
@@ -298,28 +298,42 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 {
 	cfg.AddConfig("General", "projects_directory", B_TRANSLATE("Projects folder:"), "/boot/home/workspace");
 	cfg.AddConfig("General", "fullpath_title", B_TRANSLATE("Show full path in window title"), true);
-	GMessage loggers = {{ {"mode", "options"} }};
-	loggers["option_1"]["value"] = (int32)Logger::LOGGER_DEST_STDOUT;
-	loggers["option_1"]["label"] = "Stdout";
-	loggers["option_2"]["value"] = (int32)Logger::LOGGER_DEST_STDERR;
-	loggers["option_2"]["label"] = "Stderr";
-	loggers["option_3"]["value"] = (int32)Logger::LOGGER_DEST_SYSLOG;
-	loggers["option_3"]["label"] = "Syslog";
-	loggers["option_4"]["value"] = (int32)Logger::LOGGER_DEST_BEDC;
-	loggers["option_4"]["label"] = "BeDC";
+	GMessage loggers = {
+		{"mode", "options"},
+		{"option_1", {
+			{"value", (int32)Logger::LOGGER_DEST_STDOUT },
+			{"label", "Stdout" }}},
+		{"option_2", {
+			{"value", (int32)Logger::LOGGER_DEST_STDERR },
+			{"label", "Stderr"}}},
+		{"option_3", {
+			{"value", (int32)Logger::LOGGER_DEST_SYSLOG },
+			{"label", "Syslog"}}},
+		{"option_4", {
+			{"value", (int32)Logger::LOGGER_DEST_BEDC },
+			{"label", "BeDC"}}}
+	};
 	cfg.AddConfig("General", "log_destination", B_TRANSLATE("Log destination:"), (int32)Logger::LOGGER_DEST_STDOUT, &loggers);
 
-	GMessage levels = {{ {"mode", "options"} }};
-	levels["option_1"]["value"] = (int32)LOG_LEVEL_OFF;
-	levels["option_1"]["label"] = "Off";
-	levels["option_2"]["value"] = (int32)LOG_LEVEL_ERROR;
-	levels["option_2"]["label"] = "Error";
-	levels["option_3"]["value"] = (int32)LOG_LEVEL_INFO;
-	levels["option_3"]["label"] = "Info";
-	levels["option_4"]["value"] = (int32)LOG_LEVEL_DEBUG;
-	levels["option_4"]["label"] = "Debug";
-	levels["option_5"]["value"] = (int32)LOG_LEVEL_TRACE;
-	levels["option_5"]["label"] = "Trace";
+	GMessage levels = {
+		{"mode", "options"},
+		{"option_1", {
+			{"value", (int32)LOG_LEVEL_OFF },
+			{"label", "Off" }}},
+		{"option_2", {
+			{"value", (int32)LOG_LEVEL_ERROR },
+			{"label", "Error"}}},
+		{"option_3", {
+			{"value", (int32)LOG_LEVEL_INFO },
+			{"label", "Info"}}},
+		{"option_4", {
+			{"value", (int32)LOG_LEVEL_DEBUG },
+			{"label", "Debug"}}},
+		{"option_5", {
+			{"value", (int32)LOG_LEVEL_TRACE },
+			{"label", "Trace"}}}
+	};
+
 	cfg.AddConfig("General", "log_level", B_TRANSLATE("Log level:"), (int32)LOG_LEVEL_ERROR, &levels);
 
 	cfg.AddConfig("General/Startup", "reopen_projects", B_TRANSLATE("Reload projects"), true);
@@ -329,17 +343,16 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("General/Startup", "show_toolbar", B_TRANSLATE("Show toolbar"), true);
 
 	GMessage sizes;
-	sizes = {{ {"mode","options"} }};
-	sizes["option_1"]["value"] = -1;
-	sizes["option_1"]["label"] = B_TRANSLATE("Default size");
+	sizes = { {"mode","options"},
+			  {"option_1", { {"value", -1}, {"label", B_TRANSLATE("Default size") } } }
+			};
 	int32 c = 2;
 	for (int32 i = 10; i <= 18; i++) {
 		BString key("option_");
 		key << c;
 		BString text;
 		text << i;
-		sizes[key.String()]["value"] = i;
-		sizes[key.String()]["label"] = text.String();
+		sizes[key.String()] = { {"value", i}, {"label", text.String() } };
 		c++;
 	}
 
@@ -348,12 +361,12 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor", "brace_match", B_TRANSLATE("Enable brace matching"), true);
 	cfg.AddConfig("Editor", "save_caret", B_TRANSLATE("Save caret position"), true);
 	cfg.AddConfig("Editor", "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
-	GMessage tabs = {{ {"min",1},{"max",8} }};
+	GMessage tabs = { {"min",1},{"max",8} };
 	cfg.AddConfig("Editor", "tab_width", B_TRANSLATE("Tab width:  "), 4, &tabs);
-	GMessage zooms = {{ {"min", -9}, {"max", 19} }};
+	GMessage zooms = { {"min", -9}, {"max", 19} };
 	cfg.AddConfig("Editor", "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
-	GMessage styles = {{ {"mode", "options"} }};
+	GMessage styles = { {"mode", "options"} };
 	std::set<std::string> allStyles;
 	Styler::GetAvailableStyles(allStyles);
 	int32 style_index = 1;
@@ -361,8 +374,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 		BString opt("option_");
 		opt << style_index;
 
-		styles[opt.String()]["value"] = style_index - 1;
-		styles[opt.String()]["label"] = style.c_str();
+		styles[opt.String()] = { {"value", style_index - 1}, {"label", style.c_str() } };
 		style_index++;
 	}
 	cfg.AddConfig("Editor/Visual", "editor_style", "Editor Style", "default", &styles);
@@ -388,16 +400,18 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
 
-	GMessage lsplevels = {{ {"mode", "options"},
-							{"note", B_TRANSLATE("This setting will be updated on restart")}
-						 }};
-
-	lsplevels["option_1"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR;
-	lsplevels["option_1"]["label"] = "Error";
-	lsplevels["option_2"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_INFO;
-	lsplevels["option_2"]["label"] = "Info";
-	lsplevels["option_3"]["value"] = (int32)lsp_log_level::LSP_LOG_LEVEL_TRACE;
-	lsplevels["option_3"]["label"] = "Trace";
+	GMessage lsplevels = { {"mode", "options"},
+						   {"note", B_TRANSLATE("This setting will be updated on restart")},
+						   {"option_1", {
+								{"value", (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR },
+								{"label", "Error" }}},
+						   {"option_2", {
+								{"value", (int32)lsp_log_level::LSP_LOG_LEVEL_INFO },
+								{"label", "Info" }}},
+						   {"option_3", {
+								{"value", (int32)lsp_log_level::LSP_LOG_LEVEL_TRACE },
+								{"label", "Trace" }}},
+						 };
 
 	cfg.AddConfig("LSP", "lsp_log_level", B_TRANSLATE("Log level:"), (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
 

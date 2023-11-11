@@ -14,6 +14,7 @@
 #include <Messenger.h>
 #include <NodeInfo.h>
 #include <String.h>
+#include "GenioNamespace.h"
 
 
 GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 command)
@@ -31,6 +32,31 @@ GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 
 			fSaved = false;
 	}
 }
+
+GSettings::GSettings(const BString& fileName, uint32 command)
+	:
+ 	BMessage(command)
+{
+	BFile file;
+
+	fStatus = find_directory(B_USER_SETTINGS_DIRECTORY, &fPath);
+	if (fStatus != B_OK) {
+		return;
+	}
+
+	BDirectory appFolder;
+	fPath.Append(GenioNames::kApplicationName);
+
+	fStatus = appFolder.CreateDirectory(fPath.Path(), NULL);
+
+	fPath.Append(fileName);
+
+	fStatus = file.SetTo(fPath.Path(), B_READ_ONLY);
+	if (fStatus == B_OK) {
+		fStatus = Unflatten(&file);
+	}
+}
+
 
 GSettings::~GSettings()
 {

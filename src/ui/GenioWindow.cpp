@@ -5,7 +5,6 @@
  */
 
 #include "GenioWindow.h"
-#include "GitRepository.h"
 
 #include <cassert>
 #include <string>
@@ -33,10 +32,12 @@
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "FSUtils.h"
-#include "Languages.h"
+#include "GenioApp.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
+#include "GitRepository.h"
+#include "Languages.h"
 #include "Log.h"
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
@@ -213,7 +214,7 @@ GenioWindow::Show()
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 
-		be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
+		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		UnlockLooper();
 	}
 }
@@ -257,14 +258,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_OBSERVER_NOTICE_CHANGE: {
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
-			switch (code) {
-				case MSG_NOTIFY_CONFIGURATION_UPDATED:
-				{
-					_HandleConfigurationChanged(message);
-					break;
-				}
-				default:
-					break;
+			if (code == gCFG.UpdateMessageWhat()) {
+				_HandleConfigurationChanged(message);
 			}
 			break;
 		}

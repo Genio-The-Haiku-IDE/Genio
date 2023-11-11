@@ -4,14 +4,16 @@
  */
 #include "LSPProjectWrapper.h"
 
+#include "ConfigManager.h"
+#include "GenioApp.h"
 #include "Log.h"
+#include "LSPLogLevels.h"
 #include "LSPPipeClient.h"
 #include "LSPReaderThread.h"
 #include "LSPTextDocument.h"
-#include "Log.h"
 #include "protocol.h"
-#include "LSPLogLevels.h"
-#include "ConfigManager.h"
+
+
 #include <Url.h>
 
 const int32 kLSPMessage = 'LSP!';

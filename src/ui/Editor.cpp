@@ -24,6 +24,7 @@
 #include "ConfigManager.h"
 #include "EditorContextMenu.h"
 #include "EditorStatusView.h"
+#include "GenioApp.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
 #include "ProjectFolder.h"

@@ -13,11 +13,11 @@
 #include <LayoutBuilder.h>
 #include <OptionPopUp.h>
 #include <OutlineListView.h>
-#include <Spinner.h>
 #include <ScrollView.h>
+#include <Spinner.h>
 #include <TextControl.h>
-#include <Window.h>
 #include <StringView.h>
+#include <Window.h>
 
 #include "ConfigManager.h"
 
@@ -72,17 +72,20 @@ private:
 		ConfigManager&	fConfigManager;
 };
 
+
 template<>
 const char* GControl<BTextControl, const char*>::RetrieveValue()
 {
        return BTextControl::Text();
 }
 
+
 template<>
 void GControl<BTextControl, const char*>::LoadValue(const char* value)
 {
        BTextControl::SetText(value);
 }
+
 
 template<>
 const char* GControl<BOptionPopUp, const char*>::RetrieveValue()
@@ -91,6 +94,7 @@ const char* GControl<BOptionPopUp, const char*>::RetrieveValue()
 	   BOptionPopUp::SelectedOption(&label, nullptr);
 	   return label;
 }
+
 
 template<>
 void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
@@ -105,6 +109,7 @@ void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
 	}
 	SetValue(intValue);
 }
+
 
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
     : BWindow(BRect(100, 100, 700, 500), "Settings", B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
@@ -161,7 +166,7 @@ ConfigWindow::_Init()
 
 	fGroupList->Select(0);
 
-	be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
+	be_app->StartWatching(this, fConfigManager.UpdateMessageWhat());
 
 	fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 
@@ -184,30 +189,24 @@ ConfigWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case kDefaultPressed:
-			gCFG.ResetToDefaults();
+			fConfigManager.ResetToDefaults();
 			break;
 		case B_OBSERVER_NOTICE_CHANGE:
 		{
 			int32 code;
 			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
 				break;
-			switch (code) {
-				case MSG_NOTIFY_CONFIGURATION_UPDATED:
-				{
-					BString key;
-					if (message->FindString("key", &key) == B_OK) {
-						BView* control = FindView(key.String());
-						if (control != nullptr) {
-							GMessage m(kSetValueNoUpdate);
-							m["key"] = key.String();
-							control->MessageReceived(&m);
-							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
-						}
+			if (code == fConfigManager.UpdateMessageWhat()) {
+				BString key;
+				if (message->FindString("key", &key) == B_OK) {
+					BView* control = FindView(key.String());
+					if (control != nullptr) {
+						GMessage m(kSetValueNoUpdate);
+						m["key"] = key.String();
+						control->MessageReceived(&m);
+						fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 					}
-					break;
 				}
-				default:
-					break;
 			}
 			break;
 		}
@@ -217,13 +216,14 @@ ConfigWindow::MessageReceived(BMessage* message)
 	}
 }
 
+
 void
 ConfigWindow::_PopulateListView()
 {
 	std::vector<GMessage> divededByGroup;
 	GMessage msg;
-	int i=0;
-	while(fConfigManager.Configuration().FindMessage("config", i++, &msg) == B_OK)  {
+	int i = 0;
+	while (fConfigManager.Configuration().FindMessage("config", i++, &msg) == B_OK)  {
 		//printf("Adding for %s -> %s\n", (const char*)msg["group"], (const char*)msg["label"]);
 		std::vector<GMessage>::iterator i = divededByGroup.begin();
 		while (i != divededByGroup.end()) {
@@ -242,20 +242,18 @@ ConfigWindow::_PopulateListView()
 	}
 
 	std::vector<GMessage>::iterator iter = divededByGroup.begin();
-	while(iter != divededByGroup.end())  {
-		// printf("Working for %s ", (const char*)(*iter)["group"]);
-		// (*iter).PrintToStream();
+	while (iter != divededByGroup.end())  {
 		BView *groupView = MakeViewFor((const char*)(*iter)["group"], *iter);
 		if (groupView != NULL) {
 			groupView->SetName((const char*)(*iter)["group"]);
 			fCardView->AddChild(groupView);
 			BString groupName = (const char*)(*iter)["group"];
-			int position = groupName.FindFirstChars("/", 0);
+			int32 position = groupName.FindFirstChars("/", 0);
 			if (position > 0) {
 				BString leaf;
 				groupName.CopyCharsInto(leaf,0,position);
 				groupName.Remove(0, position + 1);
-				for(int y=0;y<fGroupList->FullListCountItems();y++) {
+				for (int y = 0;y < fGroupList->FullListCountItems(); y++) {
 					BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(y);
 					if (leaf.Compare(item->Text()) == 0) {
 						int32 count = fGroupList->CountItemsUnder(item, false);
@@ -280,7 +278,6 @@ ConfigWindow::_PopulateListView()
 BView*
 ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 {
-	// printf("Making for %s\n", (const char*)config["key"]);
 	// Create and add the setting views
 	BGroupView *view = new BGroupView(groupName, B_HORIZONTAL,
 		B_USE_HALF_ITEM_SPACING);
@@ -293,8 +290,8 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	settingLayout->SetInsets(B_USE_HALF_ITEM_INSETS);
 
 	GMessage msg;
-	int i=0;
-	while(list.FindMessage("config", i++, &msg) == B_OK)  {
+	int i = 0;
+	while (list.FindMessage("config", i++, &msg) == B_OK)  {
 		BView *parameterView = MakeControlFor(msg);
 		if (parameterView == NULL)
 			return nullptr;
@@ -310,6 +307,7 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	return view;
 }
 
+
 BView*
 ConfigWindow::MakeNoteView(GMessage& config)
 {
@@ -318,6 +316,7 @@ ConfigWindow::MakeNoteView(GMessage& config)
 	BStringView* view = new BStringView(name.String(), config["note"]);
 	return view;
 }
+
 
 BView*
 ConfigWindow::MakeControlFor(GMessage& config)
@@ -345,7 +344,6 @@ ConfigWindow::MakeControlFor(GMessage& config)
 				return sp;
 			}
 		}
-
 		case B_STRING_TYPE:
 		{
 			if (config.Has("mode")) {
@@ -359,7 +357,6 @@ ConfigWindow::MakeControlFor(GMessage& config)
 				return control;
 			}
 		}
-
 		default:
 		{
 			BString label;
@@ -371,13 +368,14 @@ ConfigWindow::MakeControlFor(GMessage& config)
 	return NULL;
 }
 
+
 template<typename T>
 BOptionPopUp*
 ConfigWindow::_CreatePopUp(GMessage& config)
 {
 	auto popUp = new GControl<BOptionPopUp, T>(config, fConfigManager[config["key"]], fConfigManager);
-	int32 c=1;
-	while(true) {
+	int32 c = 1;
+	while (true) {
 		BString key("option_");
 		key << c;
 		if (!config.Has(key.String()))

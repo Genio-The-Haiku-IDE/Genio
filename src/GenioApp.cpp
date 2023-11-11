@@ -8,13 +8,16 @@
 #include <Alert.h>
 #include <AboutWindow.h>
 #include <Catalog.h>
+#include <FindDirectory.h>
 #include <String.h>
 #include <StringList.h>
 
 #include <getopt.h>
+
 #include "LSPLogLevels.h"
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
+#include "GenioWindow.h"
 #include "Languages.h"
 #include "Styler.h"
 
@@ -22,6 +25,10 @@
 #define B_TRANSLATION_CONTEXT "GenioApp"
 
 #include "Log.h"
+
+const int32 MSG_NOTIFY_CONFIGURATION_UPDATED = 'noCU';
+
+ConfigManager gCFG(MSG_NOTIFY_CONFIGURATION_UPDATED);
 
 static log_level sSessionLogLevel = log_level(LOG_LEVEL_UNSET);
 
@@ -212,28 +219,22 @@ GenioApp::MessageReceived(BMessage* message)
 		case B_OBSERVER_NOTICE_CHANGE: {
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
-			switch (code) {
-				case MSG_NOTIFY_CONFIGURATION_UPDATED:
-				{
-					// TODO: Long list of strcmp
-					const char* key = NULL;
-					message->FindString("key", &key);
-					if (key != NULL) {
-						if (strcmp(key, "log_destination") == 0)
-							Logger::SetDestination(gCFG["log_destination"]);
-						else if (strcmp(key, "log_level") == 0
-							&& sSessionLogLevel == LOG_LEVEL_UNSET)
-							Logger::SetLevel(log_level(int32(gCFG["log_level"])));
-					}
-					gCFG.SaveToFile(fConfigurationPath);
-					LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
+			if (code == gCFG.UpdateMessageWhat()) {
+				// TODO: Long list of strcmp
+				const char* key = NULL;
+				message->FindString("key", &key);
+				if (key != NULL) {
+					if (strcmp(key, "log_destination") == 0)
+						Logger::SetDestination(gCFG["log_destination"]);
+					else if (strcmp(key, "log_level") == 0
+						&& sSessionLogLevel == LOG_LEVEL_UNSET)
+						Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 				}
-				break;
-			default:
-				break;
-			};
+				gCFG.SaveToFile(fConfigurationPath);
+				LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
+			}
+			break;
 		}
-		break;
 		default:
 			BApplication::MessageReceived(message);
 			break;

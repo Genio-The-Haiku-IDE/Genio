@@ -3107,6 +3107,7 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	if (project == nullptr)
 		return;
 
+	bool autoCollapse = gCFG["projects_autocollapse"];
 	// There is no active project
 	if (fActiveProject == nullptr) {
 		fActiveProject = project;
@@ -3115,13 +3116,20 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	} else {
 		// There was an active project already
 		fActiveProject->Active(false);
-		ProjectItem* activeProjectItem = fProjectsFolderBrowser->GetProjectItem(fActiveProject->Name());
-		if (activeProjectItem != nullptr)
-			fProjectsFolderBrowser->Collapse(activeProjectItem);
+
+		if (autoCollapse) {
+			ProjectItem* activeProjectItem = fProjectsFolderBrowser->GetProjectItem(fActiveProject->Name());
+			if (activeProjectItem != nullptr)
+				fProjectsFolderBrowser->Collapse(activeProjectItem);
+		}
 		fActiveProject = project;
 		project->Active(true);
 		_UpdateProjectActivation(true);
 	}
+
+	// Expand active project
+	if (autoCollapse)
+		fProjectsFolderBrowser->Expand(fProjectsFolderBrowser->GetProjectItem(fActiveProject->Name()));
 
 	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 	noticeMessage.AddPointer("active_project", fActiveProject);

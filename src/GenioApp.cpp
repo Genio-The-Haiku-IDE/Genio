@@ -297,6 +297,7 @@ void
 GenioApp::PrepareConfig(ConfigManager& cfg)
 {
 	cfg.AddConfig("General", "projects_directory", B_TRANSLATE("Projects folder:"), "/boot/home/workspace");
+	cfg.AddConfig("General", "projects_autocollapse", B_TRANSLATE("Auto collapse/expand projects"), false);
 	cfg.AddConfig("General", "fullpath_title", B_TRANSLATE("Show full path in window title"), true);
 	GMessage loggers = {{ {"mode", "options"} }};
 	loggers["option_1"]["value"] = (int32)Logger::LOGGER_DEST_STDOUT;

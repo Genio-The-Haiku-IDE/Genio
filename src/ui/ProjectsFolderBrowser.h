@@ -39,12 +39,12 @@ public:
 	virtual void	DetachedFromWindow();
 	virtual void	MessageReceived(BMessage* message);
 
+	ProjectItem*	GetProjectItem(const BString& projectName) const;
 	ProjectFolder*	GetProjectFromCurrentItem();
-
 	ProjectItem*	GetCurrentProjectItem();
 
 	BString const	GetCurrentProjectFileFullPath();
-
+	
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 
@@ -53,9 +53,8 @@ public:
 	void			InitRename(ProjectItem *item);
 
 private:
-
-	ProjectItem*	FindProjectItem(BString const& path);
-
+	ProjectItem*	FindProjectItem(const BString& name);
+	
 	ProjectItem*	_CreatePath(BPath pathToCreate);
 
 	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);

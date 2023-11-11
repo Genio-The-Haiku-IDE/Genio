@@ -482,6 +482,20 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 }
 
 
+ProjectItem* 
+ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
+{
+	int32 countItems = CountItems();
+	for (int32 i = 0; i< countItems; i++) {
+		ProjectItem *item = static_cast<ProjectItem*>(ItemAt(i));
+		if (item->Text() == projectName)
+			return item;
+	}
+
+	return nullptr;
+}
+
+
 ProjectItem*
 ProjectsFolderBrowser::GetCurrentProjectItem()
 {

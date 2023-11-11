@@ -38,6 +38,7 @@ public:
 	virtual void	MessageReceived(BMessage* message);
 
 	ProjectItem*	GetProjectItem(const BString& projectName) const;
+	ProjectItem*	GetProjectItemAt(const int32& index) const;
 	ProjectFolder*	GetProjectFromCurrentItem() const;
 	ProjectItem*	GetCurrentProjectItem() const;
 

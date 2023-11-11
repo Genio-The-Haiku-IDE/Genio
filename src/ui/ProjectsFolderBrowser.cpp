@@ -498,6 +498,17 @@ ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
 
 
 ProjectItem*
+ProjectsFolderBrowser::GetProjectItemAt(const int32& index) const
+{
+	const int32 countItems = CountItems();
+	if (index < 0 || index >= countItems)
+		return nullptr;
+
+	return dynamic_cast<ProjectItem*>(ItemAt(index));
+}
+
+
+ProjectItem*
 ProjectsFolderBrowser::GetCurrentProjectItem() const
 {
 	const int32 selection = CurrentSelection();

@@ -6,9 +6,7 @@
 #define ProjectsFolderBrowser_H
 
 
-#include <SupportDefs.h>
 #include <OutlineListView.h>
-#include <PopUpMenu.h>
 
 #include "TemplatesMenu.h"
 

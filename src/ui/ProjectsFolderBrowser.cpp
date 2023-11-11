@@ -34,7 +34,8 @@
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
 
-ProjectsFolderBrowser::ProjectsFolderBrowser():
+ProjectsFolderBrowser::ProjectsFolderBrowser()
+	:
 	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
 {
 	fGenioWatchingFilter = new GenioWatchingFilter();
@@ -56,10 +57,10 @@ ProjectsFolderBrowser::~ProjectsFolderBrowser()
 ProjectItem*
 ProjectsFolderBrowser::FindProjectItem(BString const& path) const
 {
-	int32 countItems = FullListCountItems();
-	for(int32 i=0; i<countItems; i++) {
-		ProjectItem *item = (ProjectItem*)FullListItemAt(i);
-		if (item->GetSourceItem()->Path() == path)
+	const int32 countItems = FullListCountItems();
+	for (int32 i = 0; i < countItems; i++) {
+		ProjectItem *item = dynamic_cast<ProjectItem*>(FullListItemAt(i));
+		if (item != nullptr && item->GetSourceItem()->Path() == path)
 			return item;
 	}
 
@@ -485,10 +486,10 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 ProjectItem* 
 ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
 {
-	int32 countItems = CountItems();
+	const int32 countItems = CountItems();
 	for (int32 i = 0; i< countItems; i++) {
-		ProjectItem *item = static_cast<ProjectItem*>(ItemAt(i));
-		if (item->Text() == projectName)
+		ProjectItem *item = dynamic_cast<ProjectItem*>(ItemAt(i));
+		if (item != nullptr && item->Text() == projectName)
 			return item;
 	}
 
@@ -499,7 +500,7 @@ ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
 ProjectItem*
 ProjectsFolderBrowser::GetCurrentProjectItem() const
 {
-	int32 selection = CurrentSelection();
+	const int32 selection = CurrentSelection();
 	if (selection < 0)
 		return nullptr;
 
@@ -611,7 +612,7 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 void
 ProjectsFolderBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 {
-	if ((transit == B_ENTERED_VIEW) | (B_INSIDE_VIEW)) {
+	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
 		auto index = IndexOf(point);
 		if (index >= 0) {
 			ProjectItem *item = reinterpret_cast<ProjectItem*>(ItemAt(index));
@@ -624,6 +625,7 @@ ProjectsFolderBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* 
 	} else {
 	}
 }
+
 
 void
 ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)

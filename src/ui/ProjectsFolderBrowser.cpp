@@ -285,6 +285,12 @@ void
 ProjectsFolderBrowser::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case B_COPY:
+		case B_CUT:
+		case B_PASTE:
+		case B_SELECT_ALL:
+			//to avoid crash! (WIP)
+			break;
 		case B_PATH_MONITOR:
 		{
 			if (Logger::IsDebugEnabled())
@@ -589,7 +595,7 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 
 
 void
-ProjectsFolderBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message) 
+ProjectsFolderBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 {
 	if ((transit == B_ENTERED_VIEW) | (B_INSIDE_VIEW)) {
 		auto index = IndexOf(point);

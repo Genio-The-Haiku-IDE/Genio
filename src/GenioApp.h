@@ -6,11 +6,10 @@
 #define GenioAPP_H
 
 #include <Application.h>
-
-#include "GenioWindow.h"
-#include "TPreferences.h"
+#include <Path.h>
 
 class ConfigManager;
+class GenioWindow;
 class GenioApp : public BApplication {
 public:
 								GenioApp();
@@ -31,6 +30,6 @@ private:
 		BPath					fConfigurationPath;
 };
 
-
+extern ConfigManager gCFG;
 
 #endif //GenioAPP_H

@@ -43,11 +43,26 @@ public:
 		GMessage&	Configuration() { return configuration; }
 
 		int32 UpdateMessageWhat() const { return fWhat; }
-		BLocker& Locker() { return fLocker; }
-
-		void SendNotifications(BMessage* message);
 
 protected:
+friend ConfigManagerReturn;
+
+		template< typename Return >
+		Return get(const char* key) { BAutolock lock(fLocker); return storage[key]; };
+
+		template< typename T >
+		void set(const char* key, T n) {
+			BAutolock lock(fLocker);
+			if (!_CheckKeyIsValid(key))
+				return;
+			storage[key] = n;
+			GMessage noticeMessage(fWhat);
+			noticeMessage["key"]  	= key;
+			noticeMessage["value"]  = storage[key];
+			if (be_app != nullptr)
+				be_app->SendNotices(fWhat, &noticeMessage);
+		}
+
 		GMessage storage;
 		GMessage configuration;
 		BLocker	 fLocker;
@@ -55,35 +70,23 @@ protected:
 private:
 		bool	_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
 									  BMessage* msgR, const char* keyR) const;
+		bool	_CheckKeyIsValid(const char* key) const;
 };
-
 
 class ConfigManagerReturn {
 public:
-		ConfigManagerReturn(GMessage& msg, const char* key, ConfigManager& config)
-			:
-			fMsg(msg),
+		ConfigManagerReturn(const char* key, ConfigManager& manager):
 			fKey(key),
-			fConfigManager(config) {
+			fConfigManager(manager){
 		}
 
 		template< typename Return >
-        operator Return() {
-			BAutolock lock(fConfigManager.Locker());
-			return fMsg[fKey];
-		};
+        operator Return() { return fConfigManager.get<Return>(fKey);  };
 
 		template< typename T >
-		void operator =(T n) {
-			BAutolock lock(fConfigManager.Locker());
-			fMsg[fKey] = n;
-			GMessage noticeMessage(fConfigManager.UpdateMessageWhat());
-			noticeMessage["key"]  	= fKey;
-			noticeMessage["value"]  = fMsg[fKey];
-			fConfigManager.SendNotifications(&noticeMessage);
-		};
+		void operator =(T n) { fConfigManager.set<T>(fKey, n); };
 private:
-	GMessage& fMsg;
 	const char* fKey;
 	ConfigManager& fConfigManager;
 };
+

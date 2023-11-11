@@ -25,6 +25,12 @@ ConfigManager::ConfigManager(const int32 messageWhat)
 
 auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 {
+	return ConfigManagerReturn(key, *this);
+}
+
+bool
+ConfigManager::_CheckKeyIsValid(const char* key) const
+{
 	type_code type;
 	if (storage.GetInfo(key, &type) != B_OK) {
 		BString detail("No config key: ");
@@ -33,9 +39,8 @@ auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 		LogFatal(detail.String());
 		throw new std::exception();
 	}
-	return ConfigManagerReturn(storage, key, *this);
+	return true;
 }
-
 
 bool
 ConfigManager::Has(GMessage& msg, const char* key) const
@@ -140,12 +145,4 @@ void
 ConfigManager::PrintValues() const
 {
 	storage.PrintToStream();
-}
-
-
-void
-ConfigManager::SendNotifications(BMessage* message)
-{
-	if (be_app != nullptr)
-		be_app->SendNotices(UpdateMessageWhat(), message);
 }

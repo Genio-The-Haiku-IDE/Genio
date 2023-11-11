@@ -14,7 +14,10 @@
 #include "Log.h"
 
 
-ConfigManager::ConfigManager()
+ConfigManager::ConfigManager(const int32 messageWhat)
+	:
+	fLocker("ConfigManager lock"),
+	fWhat(messageWhat)
 {
 	assert(fLocker.InitCheck() == B_OK);
 }
@@ -30,7 +33,7 @@ auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 		LogFatal(detail.String());
 		throw new std::exception();
 	}
-	return ConfigManagerReturn(storage, key, fLocker);
+	return ConfigManagerReturn(storage, key, *this);
 }
 
 
@@ -137,4 +140,12 @@ void
 ConfigManager::PrintValues() const
 {
 	storage.PrintToStream();
+}
+
+
+void
+ConfigManager::SendNotifications(BMessage* message)
+{
+	if (be_app != nullptr)
+		be_app->SendNotices(UpdateMessageWhat(), message);
 }

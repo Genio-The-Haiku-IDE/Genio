@@ -5,12 +5,10 @@
 
 #include "GMessage.h"
 
-#define MSG_NOTIFY_CONFIGURATION_UPDATED	'noCU'
-
 class ConfigManagerReturn;
 class ConfigManager {
 public:
-		explicit ConfigManager();
+		explicit ConfigManager(const int32 messageWhat);
 
 		template<typename T>
 		void AddConfig(const char* group, const char* key, const char* label, T default_value, GMessage* cfg = nullptr) {
@@ -44,11 +42,16 @@ public:
 
 		GMessage&	Configuration() { return configuration; }
 
+		int32 UpdateMessageWhat() const { return fWhat; }
+		BLocker& Locker() { return fLocker; }
+
+		void SendNotifications(BMessage* message);
 
 protected:
 		GMessage storage;
 		GMessage configuration;
 		BLocker	 fLocker;
+		int32	 fWhat;
 private:
 		bool	_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
 									  BMessage* msgR, const char* keyR) const;
@@ -57,27 +60,30 @@ private:
 
 class ConfigManagerReturn {
 public:
-		ConfigManagerReturn(GMessage& msg, const char* key, BLocker& lock):
+		ConfigManagerReturn(GMessage& msg, const char* key, ConfigManager& config)
+			:
 			fMsg(msg),
 			fKey(key),
-			fLocker(lock){
+			fConfigManager(config) {
 		}
 
 		template< typename Return >
-        operator Return() { BAutolock lock(fLocker); return fMsg[fKey]; };
+        operator Return() {
+			BAutolock lock(fConfigManager.Locker());
+			return fMsg[fKey];
+		};
 
 		template< typename T >
 		void operator =(T n) {
-					BAutolock lock(fLocker);
-					fMsg[fKey] = n;
-					GMessage noticeMessage(MSG_NOTIFY_CONFIGURATION_UPDATED);
-					noticeMessage["key"]  	= fKey;
-					noticeMessage["value"]  = fMsg[fKey];
-					if (be_app != nullptr)
-						be_app->SendNotices(MSG_NOTIFY_CONFIGURATION_UPDATED, &noticeMessage);
+			BAutolock lock(fConfigManager.Locker());
+			fMsg[fKey] = n;
+			GMessage noticeMessage(fConfigManager.UpdateMessageWhat());
+			noticeMessage["key"]  	= fKey;
+			noticeMessage["value"]  = fMsg[fKey];
+			fConfigManager.SendNotifications(&noticeMessage);
 		};
 private:
 	GMessage& fMsg;
 	const char* fKey;
-	BLocker& fLocker;
+	ConfigManager& fConfigManager;
 };

@@ -166,7 +166,7 @@ ConfigWindow::_Init()
 
 	fGroupList->Select(0);
 
-	be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
+	be_app->StartWatching(this, fConfigManager.UpdateMessageWhat());
 
 	fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 
@@ -196,23 +196,17 @@ ConfigWindow::MessageReceived(BMessage* message)
 			int32 code;
 			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
 				break;
-			switch (code) {
-				case MSG_NOTIFY_CONFIGURATION_UPDATED:
-				{
-					BString key;
-					if (message->FindString("key", &key) == B_OK) {
-						BView* control = FindView(key.String());
-						if (control != nullptr) {
-							GMessage m(kSetValueNoUpdate);
-							m["key"] = key.String();
-							control->MessageReceived(&m);
-							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
-						}
+			if (code == fConfigManager.UpdateMessageWhat()) {
+				BString key;
+				if (message->FindString("key", &key) == B_OK) {
+					BView* control = FindView(key.String());
+					if (control != nullptr) {
+						GMessage m(kSetValueNoUpdate);
+						m["key"] = key.String();
+						control->MessageReceived(&m);
+						fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 					}
-					break;
 				}
-				default:
-					break;
 			}
 			break;
 		}

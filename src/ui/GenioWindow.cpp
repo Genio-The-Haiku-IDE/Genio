@@ -3112,8 +3112,7 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		fActiveProject = project;
 		project->Active(true);
 		_UpdateProjectActivation(true);
-	}
-	else {
+	} else {
 		// There was an active project already
 		fActiveProject->Active(false);
 		fActiveProject = project;
@@ -3121,6 +3120,16 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		_UpdateProjectActivation(true);
 	}
 
+	// Expand active project, collapse other
+	if (gCFG["auto_expand_collapse_projects"]) {
+		// TODO: Improve by adding necessary APIs to ProjectFolderBrowser
+		for (int32 i = 0; i < fProjectsFolderBrowser->CountItems(); i++) {
+			if ((ProjectFolder*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
+				fProjectsFolderBrowser->Expand(fProjectsFolderBrowser->GetProjectItemAt(i));
+			else
+				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
+		}
+	}
 	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 	noticeMessage.AddPointer("active_project", fActiveProject);
 	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
@@ -3334,6 +3343,9 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
+
+	if (gCFG["auto_expand_collapse_projects"])
+		fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItem(newProject->Name()));
 
 	BString opened("Project open: ");
 	if (fProjectFolderObjectList->CountItems() == 1 || activate == true) {

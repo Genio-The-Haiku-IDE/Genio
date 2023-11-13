@@ -34,7 +34,8 @@
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
 
-ProjectsFolderBrowser::ProjectsFolderBrowser():
+ProjectsFolderBrowser::ProjectsFolderBrowser()
+	:
 	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
 {
 	fGenioWatchingFilter = new GenioWatchingFilter();
@@ -54,12 +55,12 @@ ProjectsFolderBrowser::~ProjectsFolderBrowser()
 // Optimize the search under a specific ProjectItem, tipically a
 // superitem (ProjectFolder)
 ProjectItem*
-ProjectsFolderBrowser::FindProjectItem(BString const& path)
+ProjectsFolderBrowser::FindProjectItem(BString const& path) const
 {
-	int32 countItems = FullListCountItems();
-	for(int32 i=0; i<countItems; i++) {
-		ProjectItem *item = (ProjectItem*)FullListItemAt(i);
-		if (item->GetSourceItem()->Path() == path)
+	const int32 countItems = FullListCountItems();
+	for (int32 i = 0; i < countItems; i++) {
+		ProjectItem *item = dynamic_cast<ProjectItem*>(FullListItemAt(i));
+		if (item != nullptr && item->GetSourceItem()->Path() == path)
 			return item;
 	}
 
@@ -482,10 +483,35 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 }
 
 
-ProjectItem*
-ProjectsFolderBrowser::GetCurrentProjectItem()
+ProjectItem* 
+ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
 {
-	int32 selection = CurrentSelection();
+	const int32 countItems = CountItems();
+	for (int32 i = 0; i< countItems; i++) {
+		ProjectItem *item = dynamic_cast<ProjectItem*>(ItemAt(i));
+		if (item != nullptr && item->Text() == projectName)
+			return item;
+	}
+
+	return nullptr;
+}
+
+
+ProjectItem*
+ProjectsFolderBrowser::GetProjectItemAt(const int32& index) const
+{
+	const int32 countItems = CountItems();
+	if (index < 0 || index >= countItems)
+		return nullptr;
+
+	return dynamic_cast<ProjectItem*>(ItemAt(index));
+}
+
+
+ProjectItem*
+ProjectsFolderBrowser::GetCurrentProjectItem() const
+{
+	const int32 selection = CurrentSelection();
 	if (selection < 0)
 		return nullptr;
 
@@ -494,14 +520,14 @@ ProjectsFolderBrowser::GetCurrentProjectItem()
 
 
 ProjectFolder*
-ProjectsFolderBrowser::GetProjectFromCurrentItem()
+ProjectsFolderBrowser::GetProjectFromCurrentItem() const
 {
 	return _GetProjectFromItem(GetCurrentProjectItem());
 }
 
 
 BString const
-ProjectsFolderBrowser::GetCurrentProjectFileFullPath()
+ProjectsFolderBrowser::GetCurrentProjectFileFullPath() const
 {
 	ProjectItem* selectedProjectItem = GetCurrentProjectItem();
 	// if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
@@ -512,7 +538,7 @@ ProjectsFolderBrowser::GetCurrentProjectFileFullPath()
 
 
 ProjectFolder*
-ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item)
+ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item) const
 {
 	if (item == nullptr)
 		return nullptr;
@@ -597,7 +623,7 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 void
 ProjectsFolderBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 {
-	if ((transit == B_ENTERED_VIEW) | (B_INSIDE_VIEW)) {
+	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
 		auto index = IndexOf(point);
 		if (index >= 0) {
 			ProjectItem *item = reinterpret_cast<ProjectItem*>(ItemAt(index));
@@ -610,6 +636,7 @@ ProjectsFolderBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* 
 	} else {
 	}
 }
+
 
 void
 ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)

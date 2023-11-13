@@ -6,9 +6,7 @@
 #define ProjectsFolderBrowser_H
 
 
-#include <SupportDefs.h>
 #include <OutlineListView.h>
-#include <PopUpMenu.h>
 
 #include "TemplatesMenu.h"
 
@@ -39,12 +37,13 @@ public:
 	virtual void	DetachedFromWindow();
 	virtual void	MessageReceived(BMessage* message);
 
-	ProjectFolder*	GetProjectFromCurrentItem();
+	ProjectItem*	GetProjectItem(const BString& projectName) const;
+	ProjectItem*	GetProjectItemAt(const int32& index) const;
+	ProjectFolder*	GetProjectFromCurrentItem() const;
+	ProjectItem*	GetCurrentProjectItem() const;
 
-	ProjectItem*	GetCurrentProjectItem();
-
-	BString const	GetCurrentProjectFileFullPath();
-
+	BString const	GetCurrentProjectFileFullPath() const;
+	
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 
@@ -53,15 +52,14 @@ public:
 	void			InitRename(ProjectItem *item);
 
 private:
-
-	ProjectItem*	FindProjectItem(BString const& path);
-
+	ProjectItem*	FindProjectItem(const BString& name) const;
+	
 	ProjectItem*	_CreatePath(BPath pathToCreate);
 
 	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
-	ProjectFolder*	_GetProjectFromItem(ProjectItem*);
+	ProjectFolder*	_GetProjectFromItem(ProjectItem*) const;
 
 	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
 

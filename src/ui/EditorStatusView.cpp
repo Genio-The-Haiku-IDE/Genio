@@ -87,7 +87,6 @@ StatusView::Draw(BRect updateRect)
 	if (width <= 0)
 		return;
 
-	rgb_color highColor = HighColor();
 	BRect bounds(Bounds());
 	bounds.bottom = height;
 	bounds.right = width;
@@ -111,7 +110,7 @@ StatusView::Draw(BRect updateRect)
 	bounds.left = navRect.right + 1;
 
 	// BControlLook mutates color
-	SetHighColor(tint_color(ViewColor(), B_DARKEN_2_TINT));
+	SetHighColor(ui_color(B_PANEL_TEXT_COLOR));
 
 	float x = bounds.left;
 	for (size_t i = 0; i < kStatusCellCount - 1; i++) {
@@ -123,7 +122,7 @@ StatusView::Draw(BRect updateRect)
 	}
 
 	SetLowColor(ViewColor());
-	SetHighColor(highColor);
+	SetHighColor(ui_color(B_PANEL_TEXT_COLOR));
 
 	font_height fontHeight;
 	GetFontHeight(&fontHeight);

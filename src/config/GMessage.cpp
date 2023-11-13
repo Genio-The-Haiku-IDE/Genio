@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Your Name <your@email.address>
+ * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -8,16 +8,22 @@
 
 void GMessage::_HandleVariantList(variant_list& list) {
 	MakeEmpty();
-	auto i = list.begin();
-	while(i != list.end()) {
-		std::visit([&] (const auto& k) {
-			(*this)[(*i).key] = k;
-		}, (*i).value);
-		i++;
-	}
+    for (auto &[k, v]: list)
+    {
+		std::visit([&] (const auto& z) {
+			(*this)[k.c_str()] = z;
+		}, *v);
+    }
 }
 
 auto GMessage::operator[](const char* key) -> GMessageReturn { return GMessageReturn(this, key); }
 
+template<>
+bool
+GMessageReturn::is_what<int>(int w) { if (strcmp(fKey, "what") == 0) {fMsg->what = w; return true;} return false; }
 
-GMessage* set_what(uint32 what, GMessage* gms) { gms->what = what; return gms; }
+#if __HAIKU_BEOS_COMPATIBLE_TYPES
+template<>
+bool
+GMessageReturn::is_what<int>(int w) { if (strcmp(fKey, "what") == 0) {fMsg->what = w; return true;} return false; }
+#endif

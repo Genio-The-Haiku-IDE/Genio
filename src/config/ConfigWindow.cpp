@@ -18,7 +18,7 @@
 #include <TextControl.h>
 #include <StringView.h>
 #include <Window.h>
-
+#include <vector>
 #include "ConfigManager.h"
 
 #undef B_TRANSLATION_CONTEXT

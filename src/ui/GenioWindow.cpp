@@ -3344,6 +3344,9 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
 
+	if (gCFG["projects_autocollapse"])
+		fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItem(newProject->Name()));
+
 	BString opened("Project open: ");
 	if (fProjectFolderObjectList->CountItems() == 1 || activate == true) {
 		_ProjectFolderActivate(newProject);

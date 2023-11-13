@@ -3121,7 +3121,7 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	}
 
 	// Expand active project, collapse other
-	if (gCFG["projects_autocollapse"]) {
+	if (gCFG["auto_expand_collapse_projects"]) {
 		// TODO: Improve by adding necessary APIs to ProjectFolderBrowser
 		for (int32 i = 0; i < fProjectsFolderBrowser->CountItems(); i++) {
 			if ((ProjectFolder*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
@@ -3344,7 +3344,7 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
 
-	if (gCFG["projects_autocollapse"])
+	if (gCFG["auto_expand_collapse_projects"])
 		fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItem(newProject->Name()));
 
 	BString opened("Project open: ");

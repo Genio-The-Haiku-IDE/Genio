@@ -1317,6 +1317,13 @@ GenioWindow::QuitRequested()
 	if (!_FileRequestSaveAllModified())
 		return false;
 
+	if (fScreenMode != kDefault)
+		_ToogleScreenMode(-1);
+
+	gCFG["show_projects"] = !fProjectsTabView->IsHidden();
+	gCFG["show_output"]   = !fOutputTabView->IsHidden();
+	gCFG["show_toolbar"]  = !fToolBar->IsHidden();
+
 	// Files to reopen
 	if (gCFG["reopen_files"]) {
 		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');

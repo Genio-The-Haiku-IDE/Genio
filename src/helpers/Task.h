@@ -74,21 +74,18 @@ namespace Genio::Task {
 	template <typename ResultType>
 	class TaskResult: public BArchivable {
 	public:
-
 		TaskResult(const BMessage &archive)
 			: fResult(nullptr)
 		{
-			ssize_t size = 0;
 			type_code type;
-			const void *result;
 			if constexpr (std::is_void<ResultType>::value == false) {
 				if (archive.GetInfo(fResultField, &type) == B_OK) {
+					ssize_t size = 0;
+					const void *result;
 					status_t error = archive.FindData(fResultField, type,
 						reinterpret_cast<const void**>(&result), &size);
 					if (error == B_OK) {
-						fResult = *(ResultType*)result;
-						// OKAlert("", BString("result:") << *(ResultType*)result, B_INFO_ALERT);
-						// OKAlert("", BString("fResult:") << any_cast<ResultType>(fResult) << " type:" << fResult.type().name(), B_INFO_ALERT);
+						fResult = *reinterpret_cast<const ResultType*>(result);
 					}
 				}
 			}
@@ -99,13 +96,11 @@ namespace Genio::Task {
 			if (archive.FindString(fTaskNameField, &fName) != B_OK) {
 					throw runtime_error("Can't unarchive TaskResult instance: Task Name not available");
 			}
-
-			// archive.PrintToStream();
 		}
 
 		~TaskResult() {}
 
-		ResultType	GetResult()
+		ResultType	GetResult() const
 		{
 			auto ptr = TaskExceptionMap[fId];
 			if (ptr) {

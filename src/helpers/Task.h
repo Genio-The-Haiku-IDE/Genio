@@ -71,7 +71,6 @@ namespace Genio::Task {
 	template <typename ResultType>
 	class Task;
 
-
 	template <typename ResultType>
 	class TaskResult: public BArchivable {
 	public:
@@ -81,11 +80,11 @@ namespace Genio::Task {
 		{
 			ssize_t size = 0;
 			type_code type;
-			void *result;
-
+			const void *result;
 			if constexpr (std::is_void<ResultType>::value == false) {
 				if (archive.GetInfo(fResultField, &type) == B_OK) {
-					status_t error = archive.FindData(fResultField, type, (const void **)&result, &size);
+					status_t error = archive.FindData(fResultField, type,
+						reinterpret_cast<const void**>(&result), &size);
 					if (error == B_OK) {
 						fResult = *(ResultType*)result;
 						// OKAlert("", BString("result:") << *(ResultType*)result, B_INFO_ALERT);
@@ -120,9 +119,9 @@ namespace Genio::Task {
 
 		virtual status_t Archive(BMessage *archive, bool deep) const
 		{
-			status_t status;
-			status = BArchivable::Archive(archive, deep);
-
+			status_t status = BArchivable::Archive(archive, deep);
+			if (status != B_OK)
+				return status;
 			if constexpr (std::is_void<ResultType>::value == false) {
 				if (fResult.has_value()) {
 					type_code type = BMessageType<ResultType>::Get();
@@ -130,9 +129,14 @@ namespace Genio::Task {
 					status = archive->AddData(fResultField, type, &result, sizeof(ResultType));
 				}
 			}
+			if (status != B_OK)
+				return status;
 			status = archive->AddInt32(fTaskIdField, fId);
+			if (status != B_OK)
+				return status;
 			status = archive->AddString(fTaskNameField, fName);
-
+			if (status != B_OK)
+				return status;
 			status = archive->AddString("class", "TaskResult");
 			// archive->PrintToStream();
 			return status;
@@ -140,15 +144,13 @@ namespace Genio::Task {
 
 		static TaskResult<ResultType>* Instantiate(BMessage* archive)
 		{
-			if (validate_instantiation(archive, "TaskResult")) {
+			if (validate_instantiation(archive, "TaskResult"))
 				return new TaskResult<ResultType>(*archive);
-			} else {
-				return nullptr;
-			}
+			return nullptr;
 		}
 
-		thread_id GetTaskID() { return fId; }
-		const char* GetTaskName() { return fName; }
+		thread_id GetTaskID() const { return fId; }
+		const char* GetTaskName() const { return fName; }
 
 	private:
 		friend class	Task<ResultType>;
@@ -184,14 +186,13 @@ namespace Genio::Task {
 			thread_data->messenger = messenger;
 			thread_data->name = name;
 
-			thread_handle = spawn_thread(&_CallTarget<ThreadData, lambda_type>,
+			fThreadHandle = spawn_thread(&_CallTarget<ThreadData, lambda_type>,
 										name,
 										B_NORMAL_PRIORITY,
 										thread_data);
 
-			thread_data->id = thread_handle;
-
-			if (thread_handle == 0) {
+			thread_data->id = fThreadHandle;
+			if (fThreadHandle < 0) {
 				delete target_function;
 				delete thread_data;
 				throw runtime_error("Can't create task");
@@ -202,16 +203,15 @@ namespace Genio::Task {
 
 		status_t Run()
 		{
-			return resume_thread(thread_handle);
+			return resume_thread(fThreadHandle);
 		}
 
 		status_t Stop()
 		{
-			return kill_thread(thread_handle);
+			return kill_thread(fThreadHandle);
 		}
-
 	private:
-		native_handle_type thread_handle;
+		native_handle_type fThreadHandle;
 
 		template<typename Data, typename Lambda>
 		static int32 _CallTarget(void *target)
@@ -221,10 +221,9 @@ namespace Genio::Task {
 			Data *data;
 			Lambda *lambda;
 			BMessenger messenger;
-
 			try {
-				data = reinterpret_cast<Data *>(target);
-				lambda = reinterpret_cast<Lambda *>(data->target_function);
+				data = reinterpret_cast<Data*>(target);
+				lambda = reinterpret_cast<Lambda*>(data->target_function);
 				messenger = data->messenger;
 				task_result.fId = data->id;
 				task_result.fName = data->name;
@@ -244,8 +243,7 @@ namespace Genio::Task {
 			delete lambda;
 			delete data;
 
-			if (task_result.Archive(&msg, false) == B_OK)
-			{
+			if (task_result.Archive(&msg, false) == B_OK) {
 				if (messenger.IsValid()) {
 					messenger.SendMessage(&msg);
 				}
@@ -257,15 +255,16 @@ namespace Genio::Task {
 		}
 
 		template <typename Function, typename ... Args>
-		class arguments_wrapper
-		{
+		class arguments_wrapper {
 			Function callable;
 			std::tuple<std::decay_t<Args>...> args;
 		public:
-			arguments_wrapper(Function&& callable, Args&& ... args) :
+			arguments_wrapper(Function&& callable, Args&& ... args)
+				:
 				callable(std::forward<Function>(callable)),
 				args{std::forward<Args>(args)...}
-			{}
+			{
+			}
 
 			constexpr decltype(auto) operator()()
 			{
@@ -281,5 +280,4 @@ namespace Genio::Task {
 
 		};
 	};
-
 }

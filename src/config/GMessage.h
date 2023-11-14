@@ -33,6 +33,7 @@
 
 #pragma once
 #include <Message.h>
+#include <String.h>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -40,8 +41,8 @@
 
 #define KV(T) kv_pair(const std::string &k, T v) : pair(k, std::make_shared<mapped_type>(v)) {}
 
-#define SUPPORTED_1		int32, bool, const char*, GMessage
-#define SUPPORTED_2		KV(int32); KV(bool); KV(const char*); KV(GMessage);
+#define SUPPORTED_1		int32, bool, const char*, BString, GMessage
+#define SUPPORTED_2		KV(int32); KV(bool); KV(const char*); KV(BString); KV(GMessage);
 
 class GMessageReturn;
 class GMessage : public BMessage {
@@ -125,6 +126,7 @@ MESSAGE_VALUE(Int32, int, B_INT32_TYPE, -1);
 
 MESSAGE_VALUE(UInt32, uint32, B_UINT32_TYPE, 0);
 MESSAGE_VALUE(Rect, BRect, B_RECT_TYPE, BRect());
+MESSAGE_VALUE(String, BString, B_STRING_TYPE, BString(""));
 MESSAGE_VALUE_REF(Message, GMessage, B_MESSAGE_TYPE);
 MESSAGE_VALUE_REF(Message, BMessage, B_MESSAGE_TYPE);
 

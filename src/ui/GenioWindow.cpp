@@ -1368,10 +1368,16 @@ GenioWindow::_BuildProject()
 	_ShowLog(kBuildLog);
 
 	LogInfoF("Build started: [%s]", fActiveProject->Name().String());
+	
+	BString claim("Build ");
+	claim << fActiveProject->Name();
+	claim << " (";
+	claim << (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
+	claim << ")";
 
-	BMessage message;
-	message.AddString("cmd", command);
-	message.AddString("cmd_type", "build");
+	GMessage message = {{"cmd", command},
+						{"cmd_type", "build"},
+						{"banner_claim", claim }};
 
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
@@ -1412,9 +1418,15 @@ GenioWindow::_CleanProject()
 	noticeMessage.AddBool("building", fIsBuilding);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-	BMessage message;
-	message.AddString("cmd", command);
-	message.AddString("cmd_type", "clean");
+	BString claim("Build ");
+	claim << fActiveProject->Name();
+	claim << " (";
+	claim << (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
+	claim << ")";
+
+	GMessage message = {{"cmd", command},
+						{"cmd_type", "build"},
+						{"banner_claim", claim }};
 
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
@@ -3611,9 +3623,15 @@ GenioWindow::_RunTarget()
 			// chdir(...);
 		// }
 
-		BMessage message;
-		message.AddString("cmd", command);
-		message.AddString("cmd_type", "run");
+		BString claim("Run ");
+		claim << fActiveProject->Name();
+		claim << " (";
+		claim << (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
+		claim << ")";
+
+		GMessage message = {{"cmd", command},
+							{"cmd_type", "build"},
+							{"banner_claim", claim }};
 
 		fConsoleIOView->MakeFocus(true);
 

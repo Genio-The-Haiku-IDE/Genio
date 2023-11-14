@@ -134,6 +134,7 @@ ConsoleIOView::_StopCommand()
 		message.AddString("cmd_type", fCmdType);
 		Window()->PostMessage(&message);
 		fCmdType = "";
+		fBannerClaim = "";
 	}
 }
 
@@ -204,6 +205,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			fConsoleIOThread = new ConsoleIOThread(message, BMessenger(this));
 			fConsoleIOThread->Start();
 			fCmdType = message->GetString("cmd_type", "");
+			fBannerClaim = message->GetString("banner_claim", fCmdType);
 			_BannerMessage("started   ");
 
 			break;
@@ -230,7 +232,7 @@ ConsoleIOView::_BannerMessage(BString status)
 	BString banner;
 	banner  << "--------------------------------"
 			<< "   "
-			<< fCmdType
+			<< fBannerClaim
 			<< " "
 			<< status
 			<< "--------------------------------\n";

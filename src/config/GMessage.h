@@ -182,7 +182,7 @@ public:
 			return !operator==(n);
 		}
 
-		bool operator ==(GMessageReturn n) {
+		bool operator ==(const GMessageReturn& n) {
 			type_code typeLeft;
 			type_code typeRight;
 			const void* dataLeft = nullptr;

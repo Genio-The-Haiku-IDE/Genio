@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <functional>
 #include <map>
-#include <memory>
 #include <string>
 
 #include <Catalog.h>
@@ -35,6 +34,12 @@ std::vector<std::string>			Languages::sLanguages;
 std::map<std::string, std::string>	Languages::sMenuItems;
 std::map<std::string, std::string> 	Languages::sExtensions;
 
+void
+DoInAllDataDirectories(std::function<void(const BPath&)> func) {
+	func(GetDataDirectory());
+	func(GetUserSettingsDirectory());
+}
+
 /* static */ bool
 Languages::GetLanguageForExtension(const std::string ext, std::string& lang)
 {
@@ -56,21 +61,20 @@ Languages::SortAlphabetically()
 
 /**
  * Reads YAML files from all data directories and creates a single style map,
- * where repeated keys are overridden (user non-packaged being final).
+ * where repeated keys are overridden.
  */
 /* static */ std::map<int, int>
 Languages::ApplyLanguage(Editor* editor, const char* lang)
 {
 	editor->SendMessage(SCI_FREESUBSTYLES);
 	std::map<int, int> styleMapping;
-
-	try {
-		BPath path = GetDataDirectory();
-		auto m = _ApplyLanguage(editor, lang, path);
-		m.merge(styleMapping);
-		std::swap(styleMapping, m);
-	} catch (YAML::BadFile &) {}
-
+	DoInAllDataDirectories([&](const BPath& path) {
+			try {
+				auto m = _ApplyLanguage(editor, lang, path);
+				m.merge(styleMapping);
+				std::swap(styleMapping, m);
+			} catch (YAML::BadFile &) {}
+		});
 	return styleMapping;
 }
 
@@ -101,7 +105,7 @@ Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
 {
 	// TODO: early exit if lexer not changed
 
-	BPath p = GetDataDirectory();
+	BPath p = path;
 	p.Append("languages");
 	p.Append(lang);
 	const YAML::Node language = YAML::LoadFile(std::string(p.Path()) + ".yaml");
@@ -182,10 +186,13 @@ Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
 /* static */ void
 Languages::LoadLanguages()
 {
-	try {
-		BPath path = GetDataDirectory();
-		_LoadLanguages(path);
-	} catch (YAML::BadFile &) {}
+	DoInAllDataDirectories([](const BPath& path) {
+			try {
+				_LoadLanguages(path);
+			} catch (YAML::BadFile &) {}
+		});
+
+	Languages::SortAlphabetically();
 }
 
 

@@ -156,5 +156,6 @@ public:
 };
 
 BPath		GetDataDirectory();
+BPath		GetUserSettingsDirectory();
 
 #endif // UTILS_H

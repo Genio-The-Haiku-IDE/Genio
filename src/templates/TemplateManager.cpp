@@ -13,7 +13,6 @@
 #include <Roster.h>
 
 #include "FSUtils.h"
-#include "GenioNamespace.h"
 #include "Log.h"
 #include "TemplateManager.h"
 #include "Utils.h"
@@ -124,14 +123,11 @@ TemplateManager::GetUserTemplateDirectory()
 {
 	// User template directory
 	BString retString;
-	BPath userPath;
+	BPath userPath = GetUserSettingsDirectory();
 
-	status_t status = find_directory (B_USER_SETTINGS_DIRECTORY, &userPath, true);
-	if (status == B_OK) {
-		userPath.Append(GenioNames::kApplicationName);
-		userPath.Append(kTemplateDirectory);
-		mkdir(userPath.Path(), 0777);
-		retString = userPath.Path();
-	}
-	return retString;
+	userPath.Append(kTemplateDirectory);
+	mkdir(userPath.Path(), 0777);
+	retString = userPath.Path();
+
+	return  userPath.Path();
 }

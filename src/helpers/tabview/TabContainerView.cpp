@@ -379,7 +379,7 @@ TabContainerView::AddTab(TabView* tab, int32 index)
 	tab->Update(isFirst, isLast, isFront);
 
 	GroupLayout()->AddItem(index, tab->LayoutItem());
-#if 1
+#if 0
 	if (isFront)
 		SelectTab(tab);
 #endif

@@ -20,6 +20,8 @@
 #include <string>
 #include <algorithm>
 #include <Roster.h>
+#include <FindDirectory.h>
+#include "GenioNamespace.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -289,6 +291,17 @@ FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 		return B_ERROR;
 
 	return foundFile.GetRef(foundRef);
+}
+
+BPath
+GetUserSettingsDirectory()
+{
+	BPath userPath;
+
+	status_t status = find_directory (B_USER_SETTINGS_DIRECTORY, &userPath, true);
+	if (status == B_OK)
+		userPath.Append(GenioNames::kApplicationName);
+	return userPath;
 }
 
 BPath

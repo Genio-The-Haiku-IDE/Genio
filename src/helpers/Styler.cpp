@@ -93,6 +93,10 @@ Styler::ApplyGlobal(Editor* editor, const char* style, const BFont* font)
 		_ApplyGlobal(editor, style, GetDataDirectory(), font);
 	} catch (YAML::BadFile &) {
 	}
+	try {
+		_ApplyGlobal(editor, style, GetUserSettingsDirectory(), font);
+	} catch (YAML::BadFile &) {
+	}
 }
 
 
@@ -231,6 +235,7 @@ Styler::ApplyLanguage(Editor* editor, const std::map<int, int>& styleMapping)
 Styler::GetAvailableStyles(std::set<std::string> &styles)
 {
 	_GetAvailableStyles(styles, GetDataDirectory());
+	_GetAvailableStyles(styles, GetUserSettingsDirectory());
 }
 
 

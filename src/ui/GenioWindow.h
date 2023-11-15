@@ -32,6 +32,7 @@
 #include "ProjectsFolderBrowser.h"
 #include "TemplatesMenu.h"
 #include "SearchResultPanel.h"
+#include "SourceControlPanel.h"
 #include <vector>
 
 enum {
@@ -185,6 +186,8 @@ private:
 			ProjectsFolderBrowser*	fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
+			SourceControlPanel*	fSourceControlPanel;
+			BScrollView*		fSourceControlPanelScroll;
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;

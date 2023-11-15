@@ -14,13 +14,14 @@
 
 #include <git2.h>
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <filesystem>
-#include <stdexcept>
 #include <cstdio>
+#include <filesystem>
+#include <functional>
+#include <iostream>
 #include <memory>
+#include <string>
+#include <stdexcept>
+#include <vector>
 
 #include "Utils.h"
 #include "Log.h"
@@ -67,6 +68,7 @@ namespace Genio::Git {
 
 	class GitRepository {
 	public:
+
 											GitRepository(const path& path);
 											~GitRepository();
 
@@ -75,22 +77,37 @@ namespace Genio::Git {
 													git_credential_acquire_cb authentication_callback);
 
 		bool								InitCheck() { return fInitCheck; };
+
 		void								Init(const path& repo, const path& localPath);
 
-		vector<BString>						GetBranches();
+		vector<BString>						GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
 		int									SwitchBranch(BString &branch);
 		BString								GetCurrentBranch();
 
+		void								Fetch(bool prune = false);
+		void								Merge(BString &source, BString &dest);
+		void 								Pull(bool rebase = false);
+		void 								Push();
+
+		void 								StashSave();
+		void 								StashPop();
+		void 								StashApply();
+
 		vector<pair<string, string>>		GetFiles();
 
-		string 								PullChanges(bool rebase);
-
 	private:
+
 		git_repository 						*fRepository;
 		path 								fRepositoryPath;
 		bool								fInitCheck;
 
-		string 								_ExecuteCommand(const string& command) const;
+		BString								_ConfigGet(git_config *cfg,
+														const char *key);
+		void								_ConfigSet(git_config *cfg,
+														const char *key, const char* value);
+
+		int 								check(int status,
+													std::function<bool(const int)> checker = nullptr);
 
 	};
 

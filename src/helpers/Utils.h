@@ -12,6 +12,12 @@
 
 #include <Alert.h>
 #include <MessageFilter.h>
+#include <MenuField.h>
+#include <MenuItem.h>
+#include <ObjectList.h>
+
+#include "GMessage.h"
+#include "BeDC.h"
 
 
 class BBitmap;
@@ -157,5 +163,62 @@ public:
 
 BPath		GetDataDirectory();
 BPath		GetUserSettingsDirectory();
+
+template <typename T>
+void Menu_AddItem(BMenu *menu, BString &name, T *value,
+						uint32 command, bool marked = false)
+{
+	// GMessage *message = new GMessage(command);
+	// (*message)["value"] = (void*)value;
+	// message->what = command;
+	BMessage *message = new BMessage(command);
+	message->AddPointer("value", (void*)value);
+	BeDC("Genio").DumpBMessage(message);
+	auto menu_item = new BMenuItem(name, message);
+	menu_item->SetMarked(marked);
+	menu->AddItem(menu_item);
+}
+
+
+template <typename T>
+void Menu_AddList(BMenu *menu, BObjectList<T> *list,
+						uint32 command,
+						const auto& get_name_lambda,
+						const auto& set_mark_lambda = nullptr)
+						// std::function<BString(T *)> get_name_lambda,
+						// std::function<bool(T *)> set_mark_lambda = nullptr)
+{
+	for (int index = 0; index < list->CountItems(); index++) {
+		T *list_item = list->ItemAt(index);
+		auto name = get_name_lambda(list_item);
+		Menu_AddItem<T>(menu, name, list_item, command,
+							// (set_mark_lambda != nullptr) ? set_mark_lambda(list_item) : false);
+							set_mark_lambda(list_item));
+	}
+}
+
+
+template <typename T, typename I>
+void Menu_AddContainer(BMenu *menu, I const& list,
+							uint32 command,
+							const auto& get_name_lambda,
+							const auto& set_mark_lambda = nullptr)
+							// std::function<BString(T&)> get_name_lambda,
+							// std::function<bool(T&)> set_mark_lambda = nullptr)
+{
+	 typename I::const_iterator sit;
+     // for(sit=list.begin(); sit!=list.end(); ++sit)
+     for(auto& element : list)
+     {
+		T list_item = element;
+		auto name = get_name_lambda(list_item);
+		Menu_AddItem<T>(menu, name, &list_item, command,
+							// (set_mark_lambda != nullptr) ? set_mark_lambda(list_item) : false);
+							set_mark_lambda(list_item));
+     }
+}
+
+
+void Menu_MakeEmpty(BMenu *menu);
 
 #endif // UTILS_H

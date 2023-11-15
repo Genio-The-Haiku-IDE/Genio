@@ -58,7 +58,7 @@ class BeDC
 		}
 		
 		~BeDC(){
-			delete name;
+			free(name);
 		}
 		
 		//Send a message

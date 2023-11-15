@@ -2,19 +2,20 @@
  * Copyright 2023, Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-
+#include "TemplateManager.h"
 
 #include <Application.h>
 #include <AppFileInfo.h>
 #include <Catalog.h>
 #include <CopyEngine.h>
+#include <Directory.h>
 #include <Entry.h>
 #include <EntryOperationEngineBase.h>
+#include <Path.h>
 #include <Roster.h>
 
 #include "FSUtils.h"
 #include "Log.h"
-#include "TemplateManager.h"
 #include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -34,11 +35,10 @@ TemplateManager::~TemplateManager()
 {
 }
 
+
 status_t
 TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* destination)
 {
-	status_t status = B_NOT_INITIALIZED;
-
 	// Copy template file to destination
 	BPath sourcePath(source);
 	Entry sourceEntry(sourcePath.Path());
@@ -47,7 +47,7 @@ TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* dest
 	destPath.Append(source->name);
 	Entry destEntry(destPath.Path());
 
-	status = BCopyEngine().CopyEntry(sourceEntry, destEntry);
+	status_t status = BCopyEngine().CopyEntry(sourceEntry, destEntry);
 	if (status != B_OK) {
 		BString err(strerror(status));
 		LogError("Error creating new file %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
@@ -63,8 +63,6 @@ status_t
 TemplateManager::CopyProjectTemplate(const entry_ref* source, const entry_ref* destination,
 										const char* name)
 {
-	status_t status = B_NOT_INITIALIZED;
-
 	BPath sourcePath(source);
 	Entry sourceEntry(sourcePath.Path());
 
@@ -72,7 +70,7 @@ TemplateManager::CopyProjectTemplate(const entry_ref* source, const entry_ref* d
 	destPath.Append(name);
 	Entry destEntry(destPath.Path());
 
-	status = BCopyEngine(BCopyEngine::COPY_RECURSIVELY).CopyEntry(sourceEntry, destEntry);
+	status_t status = BCopyEngine(BCopyEngine::COPY_RECURSIVELY).CopyEntry(sourceEntry, destEntry);
 	if (status != B_OK) {
 		BString err(strerror(status));
 		LogError("Error creating new template %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
@@ -96,9 +94,8 @@ TemplateManager::CreateTemplate(const entry_ref* file)
 status_t
 TemplateManager::CreateNewFolder(const entry_ref* destination)
 {
-	status_t status = B_NOT_INITIALIZED;
 	BDirectory dir(destination);
-	status = dir.CreateDirectory(B_TRANSLATE("New folder"), nullptr);
+	status_t status = dir.CreateDirectory(B_TRANSLATE("New folder"), nullptr);
 	if (status != B_OK) {
 		LogError("Invalid destination directory [%s]", destination->name);
 	}
@@ -109,9 +106,7 @@ TemplateManager::CreateNewFolder(const entry_ref* destination)
 BString
 TemplateManager::GetDefaultTemplateDirectory()
 {
-
 	// Default template directory
-	app_info info;
 	BPath templatePath = GetDataDirectory();
 	templatePath.Append(kTemplateDirectory);
 	return templatePath.Path();
@@ -122,12 +117,9 @@ BString
 TemplateManager::GetUserTemplateDirectory()
 {
 	// User template directory
-	BString retString;
 	BPath userPath = GetUserSettingsDirectory();
-
 	userPath.Append(kTemplateDirectory);
-	mkdir(userPath.Path(), 0777);
-	retString = userPath.Path();
+	create_directory(userPath.Path(), 0777);
 
-	return  userPath.Path();
+	return userPath.Path();
 }

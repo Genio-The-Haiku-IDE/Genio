@@ -13,7 +13,7 @@
 #include <Path.h>
 
 #include <stdexcept>
-#include <map>vvv
+#include <map>
 
 #include "GitCredentialsWindow.h"
 

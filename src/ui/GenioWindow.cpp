@@ -1368,7 +1368,7 @@ GenioWindow::_BuildProject()
 	_ShowLog(kBuildLog);
 
 	LogInfoF("Build started: [%s]", fActiveProject->Name().String());
-	
+
 	BString claim("Build ");
 	claim << fActiveProject->Name();
 	claim << " (";
@@ -3015,6 +3015,10 @@ GenioWindow::_InitSideSplit()
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
+
+	// Source Control
+	fSourceControlPanel = new SourceControlPanel();
+	fProjectsTabView->AddTab(fSourceControlPanel);
 }
 
 void
@@ -3293,6 +3297,11 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
 	fProjectFolderObjectList->RemoveItem(project);
 
+	// Notify subscribers that the project list has changed
+	BMessage notify_message(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+	notify_message.AddPointer("project_list", fProjectFolderObjectList);
+	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED, &notify_message);
+
 	project->Close();
 
 	delete project;
@@ -3355,6 +3364,11 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
+
+	// Notify subscribers that project list has changed
+	BMessage notify_message(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+	notify_message.AddPointer("project_list", fProjectFolderObjectList);
+	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED, &notify_message);
 
 	if (gCFG["auto_expand_collapse_projects"])
 		fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItem(newProject->Name()));

@@ -331,3 +331,9 @@ GetDataDirectory()
 	}
 	return dataPath;
 }
+
+void Menu_MakeEmpty(BMenu *menu)
+{
+	for (int32 index = menu->CountItems() - 1; index > -1; index--)
+		menu->RemoveItem(index);
+}

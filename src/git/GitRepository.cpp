@@ -15,6 +15,8 @@
 #include <stdexcept>
 #include <map>
 
+#include "GitCredentialsWindow.h"
+
 namespace Genio::Git {
 
 	GitRepository::GitRepository(const path& path)
@@ -41,14 +43,14 @@ namespace Genio::Git {
 	}
 
 	vector<BString>
-	GitRepository::GetBranches()
+	GitRepository::GetBranches(git_branch_t branchType)
 	{
 		git_branch_iterator *it;
 		git_reference *ref;
 		git_branch_t type;
 		vector<BString> branches;
 
-		int error = git_branch_iterator_new(&it, fRepository, GIT_BRANCH_ALL);
+		int error = git_branch_iterator_new(&it, fRepository, branchType);
 		if (error != 0) {
 			throw GitException(error, git_error_last()->message);
 		}
@@ -235,31 +237,6 @@ namespace Genio::Git {
 		return fileStatuses;
 	}
 
-	string
-	GitRepository::_ExecuteCommand(const string& command) const
-	{
-		char buffer[128];
-		string result = "";
-		unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
-		if (!pipe) {
-			throw runtime_error("popen() failed!");
-		}
-		while (fgets(buffer, sizeof buffer, pipe.get()) != nullptr) {
-			result += buffer;
-		}
-		return result;
-	}
-
-	string
-	GitRepository::PullChanges(bool rebase)
-	{
-		string pullCommand = "git -C " + fRepositoryPath.string() + " pull";
-		if (rebase) {
-			pullCommand += " --rebase";
-		}
-		return _ExecuteCommand(pullCommand);
-	}
-
 	const BPath&
 	GitRepository::Clone(const string& url, const BPath& localPath,
 							git_indexer_progress_cb callback,
@@ -276,6 +253,7 @@ namespace Genio::Git {
 
 		int error = git_clone(&repo, url.c_str(), localPath.Path(), &clone_opts);
 		if (error < 0) {
+			// TODO: Change to GitException and maybe refactor inheriting from std:exception
 			if (error == CANCEL_CREDENTIALS)
 				throw std::runtime_error("CANCEL_CREDENTIALS");
 			else
@@ -284,4 +262,116 @@ namespace Genio::Git {
 		return localPath;
 	}
 
+	void
+	GitRepository::Fetch(bool prune)
+	{
+		git_remote *remote;
+		git_fetch_options fetch_opts = GIT_FETCH_OPTIONS_INIT;
+		fetch_opts.callbacks.credentials = GitCredentialsWindow::authentication_callback;
+		if (prune)
+			fetch_opts.prune = GIT_FETCH_PRUNE;
+		else
+			fetch_opts.prune = GIT_FETCH_NO_PRUNE;
+
+		/* lookup the remote */
+		check(git_remote_lookup(&remote, fRepository, "origin"));
+		check(git_remote_fetch(remote, nullptr, &fetch_opts, nullptr));
+	}
+
+	void
+	GitRepository::Merge(BString &source, BString &dest)
+	{
+	}
+
+	void
+	GitRepository::Pull(bool rebase)
+	{
+	}
+
+	void
+	GitRepository::Push()
+	{
+	}
+
+	BString
+	GitRepository::_ConfigGet(git_config *cfg, const char *key)
+	{
+
+	  git_config_entry *entry;
+	  BString ret("");
+
+	  // int status;
+	  // if ((status = git_config_get_entry(&entry, cfg, key)) < 0) {
+		// if (status != GIT_ENOTFOUND)
+		  // throw GitException(status, git_error_last()->message);
+		// return ret;
+	  // }
+
+	  check(git_config_get_entry(&entry, cfg, key),
+			[](const int x) { return (x != GIT_ENOTFOUND); });
+
+	  ret = entry->value;
+
+	  git_config_entry_free(entry);
+
+	  return ret;
+	}
+
+	void
+	GitRepository::_ConfigSet(git_config *cfg, const char *key, const char *value)
+	{
+		check(git_config_set_string(cfg, key, value));
+	}
+
+	int
+	GitRepository::check(const int status, std::function<bool(const int)> checker)
+	{
+		if (checker != nullptr) {
+			if (checker(status))
+				throw GitException(status, git_error_last()->message);
+		} else {
+			if (status < 0)
+				throw GitException(status, git_error_last()->message);
+		}
+		return status;
+	}
+
+	void
+	GitRepository::StashSave()
+	{
+		git_oid saved_stash;
+		git_signature *signature;
+		int status;
+
+		// create a test signature
+		// TODO - Put this into Genio Prefs
+		git_signature_new(&signature, "no name", "no.name@gmail.com", 1323847743, 60);
+
+		// TODO - We need a BAlert like requester?
+		BString stash_message;
+		stash_message << "WIP on " << GetCurrentBranch() << B_UTF8_ELLIPSIS;
+		status = git_stash_save(&saved_stash, fRepository, signature,
+				   stash_message.String(), /*GIT_STASH_INCLUDE_UNTRACKED*/0);
+		if (status < 0) {
+			git_signature_free(signature);
+			throw GitException(status, git_error_last()->message);
+		}
+
+		// free signature
+		git_signature_free(signature);
+	}
+
+	void
+	GitRepository::StashPop()
+	{
+	}
+
+	void
+	GitRepository::StashApply()
+	{
+		git_stash_apply_options opts = GIT_STASH_APPLY_OPTIONS_INIT;
+		int error = git_stash_apply(fRepository, 0, &opts);
+		if (error < 0)
+			throw GitException(error, git_error_last()->message);
+	}
 }

@@ -148,8 +148,6 @@ GitAlert::MessageReceived(BMessage* message)
 			BWindow::MessageReceived(message);
 		} return;
 	}
-	
-	// TODO: Dead code
 	delete_sem(fAlertSem);
 	fAlertSem = -1;
 }

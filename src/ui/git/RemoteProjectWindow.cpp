@@ -9,10 +9,13 @@
 #include <functional>
 #include <regex>
 
-#include <AppKit.h>
+#include <git2.h>
+
+#include <BarberPole.h>
+#include <Button.h>
 #include <Catalog.h>
 #include <ControlLook.h>
-#include <git2.h>
+#include <FilePanel.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
 #include <StatusBar.h>
@@ -35,6 +38,9 @@ BHandler *this_handler = nullptr;
 #define VIEW_INDEX_CLONE_BUTTON	(int32) 0
 #define VIEW_INDEX_CLOSE_BUTTON	(int32) 1
 
+const int32 kOpenFilePanel = 'opFP';
+const int32 kPathChosen = 'paCH';
+
 RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BMessenger target)
 	:
 	BWindow(BRect(0, 0, 600, 200), B_TRANSLATE("Open remote Git project"),
@@ -45,6 +51,9 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 			B_AVOID_FRONT |
 			B_AUTO_UPDATE_SIZE_LIMITS |
 			B_CLOSE_ON_ESCAPE),
+	fURL(nullptr),
+	fPathBox(nullptr),
+	fBrowseButton(nullptr),
 	fIsCloning(false),
 	fTarget(target),
 	fClone(nullptr),
@@ -53,10 +62,16 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fBarberPole(nullptr),
 	fProgressLayout(nullptr),
 	fProgressView(nullptr),
-	fStatusText(nullptr)
+	fButtonsView(nullptr),
+	fStatusText(nullptr),
+	fDestDirLabel(nullptr),
+	fDestDir(nullptr),
+	fFilePanel(nullptr)
 {
 	fURL = new BTextControl(B_TRANSLATE("URL:"), "", NULL);
-	fPathBox = new PathBox("pathbox", dirPath.String(), B_TRANSLATE("Base path:"));
+	fPathBox = new BTextControl(B_TRANSLATE("Base path:"), dirPath.String(), nullptr);
+	fBrowseButton = new BButton("browse", B_TRANSLATE("Browse" B_UTF8_ELLIPSIS),
+		new BMessage(kOpenFilePanel));
 	fDestDir = new BTextControl(B_TRANSLATE("Destination directory:"), "", nullptr);
 	fClone = new BButton("clone button", B_TRANSLATE("Clone"),
 			new BMessage(kDoClone));
@@ -96,12 +111,17 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 
 	fURL->SetTarget(this);
 	fURL->SetModificationMessage(new BMessage(kUrlModified));
+	fBrowseButton->SetTarget(this);
 
+	// TODO: We should use a Grid instead, to align the controls more nicely
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 		.SetInsets(10)
 		.AddGlue()
 		.Add(fURL)
-		.Add(fPathBox)
+		.AddGroup(B_HORIZONTAL)
+			.Add(fPathBox)
+			.Add(fBrowseButton)
+		.End()
 		.Add(fDestDir)
 		.Add(fProgressLayout)
 		.AddGroup(B_HORIZONTAL)
@@ -110,7 +130,6 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 			.Add(fCancel)
 			.Add(fButtonsLayout)
 		.End();
-
 	_SetIdle();
 
 	SetDefaultButton(fClone);
@@ -122,12 +141,12 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 
 
 void
-RemoteProjectWindow::_OpenProject(const path& localPath)
+RemoteProjectWindow::_OpenProject(const BString& localPath)
 {
 	// open the project folder
 	BMessage *msg = new BMessage(MSG_PROJECT_FOLDER_OPEN);
 	entry_ref ref;
-	BEntry entry(localPath.c_str());
+	BEntry entry(localPath.String());
 	if (entry.GetRef(&ref) == B_OK) {
 		msg->AddRef("refs",&ref);
 		fTarget.SendMessage(msg);
@@ -183,7 +202,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 
 			auto callback = [](const git_transfer_progress *stats, void *payload) -> int {
 				int current_progress = stats->total_objects > 0 ?
-					(100*stats->received_objects) /
+					(100 * stats->received_objects) /
 					stats->total_objects :
 					0;
 				int kbytes = stats->received_bytes / 1024;
@@ -201,16 +220,16 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				return 0;
 			};
 
-			BPath fullPath(fPathBox->Path());
+			BPath fullPath(fPathBox->Text());
 			fullPath.Append(fDestDir->Text());
-			GitRepository repo(fullPath.Path());
+			Genio::Git::GitRepository repo(fullPath.Path());
 			fCurrentTask = make_shared<Task<BPath>>
 			(
 				"GitClone",
 				BMessenger(this),
 				std::bind
 				(
-					&GitRepository::Clone,
+					&Genio::Git::GitRepository::Clone,
 					&repo,
 					fURL->Text(),
 					fullPath,
@@ -221,20 +240,19 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 
 			_SetProgress(0, nullptr);
 			fCurrentTask->Run();
-
 			break;
 		}
 		case kCancel:
 		{
 			if (fIsCloning) {
-				BAlert* alert = new BAlert("OpenRemoteProject", B_TRANSLATE("Do you want to stop cloning the repository?"),
+				BAlert* alert = new BAlert("OpenRemoteProject",
+					B_TRANSLATE("Do you want to stop cloning the repository?"),
 					B_TRANSLATE("Continue"), B_TRANSLATE("Stop"), nullptr,
 					B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 
 				alert->SetShortcut(0, B_ESCAPE);
 
 				int32 choice = alert->Go();
-
 				if (choice == 1) {
 					fCurrentTask->Stop();
 					_ResetControls();
@@ -265,13 +283,41 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 		}
 		case kUrlModified:
 		{
-			BString basedirPath = fPathBox->Path();
+			BString basedirPath = fPathBox->Text();
 			auto repoName = _ExtractRepositoryName(fURL->Text());
 			fDestDir->SetText(repoName);
-
 			LogInfo(repoName);
 			break;
 		}
+		case kOpenFilePanel:
+		{
+			BEntry entry(fPathBox->Text());
+			entry_ref ref;
+			if (entry.GetRef(&ref) != B_OK)
+				break;
+			BMessenger messenger(this);
+			if (fFilePanel == nullptr) {
+				fFilePanel = new BFilePanel(B_OPEN_PANEL, &messenger, &ref,
+					B_DIRECTORY_NODE | B_SYMLINK_NODE, false, new BMessage(kPathChosen),
+					NULL, false, true);
+			}
+			fFilePanel->Show();
+			break;
+		}
+		case kPathChosen:
+		{
+			entry_ref ref;
+			if (msg->FindRef("refs", &ref) == B_OK) {
+				BPath path(&ref);
+				fPathBox->SetText(path.Path());
+			}
+		}
+		// fall through:
+		case B_CANCEL:
+			// Clicked cancel on filepanel
+			delete fFilePanel;
+			fFilePanel = nullptr;
+			break;
 		default:
 			BWindow::MessageReceived(msg);
 			break;
@@ -280,7 +326,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 
 
 BString
-RemoteProjectWindow::_ExtractRepositoryName(BString url)
+RemoteProjectWindow::_ExtractRepositoryName(const BString& url)
 {
 	BString repoName = "";
 	std::string surl = url.String();

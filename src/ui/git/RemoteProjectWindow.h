@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include <BarberPole.h>
 
-#include "GitRepository.h"
-#include "PathBox.h"
+#include <Window.h>
+
+#include <memory>
+
 #include "Task.h"
 
 using namespace Genio::Task;
-using namespace Genio::Git;
 
 enum {
 	kDoClone,
@@ -23,9 +23,14 @@ enum {
 	kClose
 };
 
+class BarberPole;
+class BButton;
 class BCardLayout;
+class BFilePanel;
 class BStatusBar;
+class BString;
 class BStringView;
+class BTextControl;
 class RemoteProjectWindow : public BWindow {
 public:
 								RemoteProjectWindow(BString repo, BString dirPath,
@@ -33,7 +38,8 @@ public:
 	virtual void				MessageReceived(BMessage*);
 private:
 	BTextControl* 				fURL;
-	PathBox* 					fPathBox;
+	BTextControl* 				fPathBox;
+	BButton*					fBrowseButton;
 	bool						fIsCloning;
 	const BMessenger			fTarget;
 	BButton* 					fClone;
@@ -48,12 +54,13 @@ private:
 	BStringView*				fStatusText;
 	BStringView*				fDestDirLabel;
 	BTextControl*				fDestDir;
+	BFilePanel*					fFilePanel;
 
 	shared_ptr<Task<BPath>>		fCurrentTask;
 
-	void						_OpenProject(const path& localPath);
+	void						_OpenProject(const BString& localPath);
 	void						_ResetControls();
-	BString						_ExtractRepositoryName(BString url);
+	BString						_ExtractRepositoryName(const BString& url);
 	void						_SetBusy();
 	void						_SetIdle();
 	void						_SetProgress(float value, const char* text);

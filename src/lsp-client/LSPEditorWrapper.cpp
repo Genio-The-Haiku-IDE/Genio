@@ -102,7 +102,7 @@ LSPEditorWrapper::didOpen()
 		return;
 	const char* text = (const char*) fEditor->SendMessage(SCI_GETCHARACTERPOINTER);
 
-	fLSPProjectWrapper->DidOpen(this, text, "cpp");
+	fLSPProjectWrapper->DidOpen(this, text, FileType().String());
 	// fLSPProjectWrapper->Sync();
 }
 

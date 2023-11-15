@@ -8,14 +8,7 @@
 
 
 #include <Entry.h>
-#include <FindDirectory.h>
-#include <Directory.h>
-#include <Path.h>
-#include <SupportDefs.h>
-
-#include <list>
-#include <string>
-
+#include <String.h>
 
 class TemplateManager {
 

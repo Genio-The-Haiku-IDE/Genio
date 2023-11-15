@@ -13,7 +13,7 @@
 #include <Path.h>
 
 #include <stdexcept>
-#include <map>
+#include <map>vvv
 
 #include "GitCredentialsWindow.h"
 
@@ -364,6 +364,10 @@ namespace Genio::Git {
 	void
 	GitRepository::StashPop()
 	{
+		git_stash_apply_options opts = GIT_STASH_APPLY_OPTIONS_INIT;
+		int error = git_stash_pop(fRepository, 0, &opts);
+		if (error < 0)
+			throw GitException(error, git_error_last()->message);
 	}
 
 	void

@@ -57,7 +57,7 @@ public:
     void Initialized(json& result);
 
     RequestID RegisterCapability();
-    void DidOpen(LSPTextDocument* textDocument, string_ref text, string_ref languageId = "cpp");
+    void DidOpen(LSPTextDocument* textDocument, string_ref text, string_ref languageId);
     void DidClose(LSPTextDocument* textDocument);
     void DidChange(LSPTextDocument* textDocument, std::vector<TextDocumentContentChangeEvent> &changes,
                    option<bool> wantDiagnostics = {});

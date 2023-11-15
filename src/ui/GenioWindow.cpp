@@ -681,7 +681,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				BString new_branch = message->GetString("branch", nullptr);
 				if (new_branch != nullptr)
 					repo.SwitchBranch(new_branch);
-			} catch (GitException &ex) {
+			} catch (Genio::Git::GitException &ex) {
 				BString message;
 				message << B_TRANSLATE("An error occurred while switching branch:")
 						<< " "

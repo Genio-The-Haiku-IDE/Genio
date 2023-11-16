@@ -115,6 +115,8 @@ public:
 			status_t			Reload();
 			int					ReplaceAndFindNext(const BString& selection,
 									const BString& replacement, int flags, bool wrap);
+			int					ReplaceAndFindPrevious(const BString& selection,
+									const BString& replacement, int flags, bool wrap);
 			int32				ReplaceAll(const BString& selection,
 									const BString& replacement, int flags);
 			void 				ReplaceMessage(int position, const BString& selection,

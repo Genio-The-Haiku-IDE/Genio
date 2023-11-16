@@ -175,10 +175,12 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 		case TASK_RESULT_MESSAGE:
 		{
 			try {
-				auto result = TaskResult<BPath>::Instantiate(msg)->GetResult();
-				_OpenProject(result.Path());
+				TaskResult<BPath>* result = TaskResult<BPath>::Instantiate(msg);
+				BPath resultPath = result->GetResult();
+				_OpenProject(resultPath.Path());
 				_SetProgress(100, "Finished!");
 				fButtonsLayout->SetVisibleItem(VIEW_INDEX_CLOSE_BUTTON);
+				delete result;
 			} catch(std::exception &ex) {
 				if (BString(ex.what()) != "CANCEL_CREDENTIALS") {
 					OKAlert("OpenRemoteProject", BString("An error occurred while opening a remote project: ")

@@ -5,8 +5,6 @@
 #ifndef GenioWINDOW_H
 #define GenioWINDOW_H
 
-#include <map>
-
 #include <Bitmap.h>
 #include <CheckBox.h>
 #include <ColumnTypes.h>
@@ -33,6 +31,7 @@
 #include "TemplatesMenu.h"
 #include "SearchResultPanel.h"
 #include <vector>
+#include "GMessage.h"
 
 enum {
 	kProjectsOutline = 0,
@@ -44,6 +43,13 @@ enum {
 	kBuildLog,
 	kOutputLog
 };
+
+enum scree_mode {
+	kDefault = 0,
+	kFullscreen,
+	kFocus
+};
+	
 
 class ActionManager;
 
@@ -143,6 +149,7 @@ private:
 			void				_CloseMultipleTabs(BMessage* msg);
 			void				_HandleConfigurationChanged(BMessage* msg);
 			BMenu*				_CreateLanguagesMenu();
+			void				_ToogleScreenMode(int32 action);
 
 private:
 			BMenuBar*			fMenuBar;
@@ -222,6 +229,9 @@ private:
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultPanel*	fSearchResultPanel;
+			
+			scree_mode			fScreenMode;
+			GMessage			fScreenModeSettings;
 };
 
 #endif //GenioWINDOW_H

@@ -28,6 +28,7 @@
 #include <NodeInfo.h>
 
 #include <DirMenu.h>
+#include <Screen.h>
 
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
@@ -53,6 +54,7 @@
 #include "ActionManager.h"
 #include "QuitAlert.h"
 #include "IconMenuItem.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -137,6 +139,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fConsoleIOView(nullptr)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultPanel(nullptr)
+	, fScreenMode(kDefault)
 {
 	_InitActions();
 	_InitMenu();
@@ -1043,6 +1046,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ShowView(fOutputTabView, fOutputTabView->IsHidden(), MSG_SHOW_HIDE_OUTPUT);
 			break;
 		}
+		case MSG_FULLSCREEN:
+		case MSG_FOCUS_MODE:
+			_ToogleScreenMode(message->what);
+		break;
 		case MSG_TEXT_OVERWRITE: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor)  {
@@ -1125,6 +1132,61 @@ GenioWindow::MessageReceived(BMessage* message)
 		default:
 			BWindow::MessageReceived(message);
 			break;
+	}
+}
+
+//Freely inspired by the haiku Terminal fullscreen function.
+void
+GenioWindow::_ToogleScreenMode(int32 action)
+{
+	if (fScreenMode == kDefault) { // go fullscreen
+		fScreenModeSettings.MakeEmpty();
+		fScreenModeSettings["saved_frame"] = Frame();
+		fScreenModeSettings["saved_look"] = (int32)Look();
+		fScreenModeSettings["show_projects"] = !fProjectsTabView->IsHidden();
+		fScreenModeSettings["show_output"]   = !fOutputTabView->IsHidden();
+		fScreenModeSettings["show_toolbar"]  = !fToolBar->IsHidden();
+
+		BScreen screen(this);
+		fMenuBar->Hide();
+		SetLook(B_NO_BORDER_WINDOW_LOOK);
+		ResizeTo(screen.Frame().Width() + 1, screen.Frame().Height() + 1);
+		MoveTo(screen.Frame().left, screen.Frame().top);
+		SetFlags(Flags() | (B_NOT_RESIZABLE | B_NOT_MOVABLE));
+
+		ActionManager::SetEnabled(MSG_TOGGLE_TOOLBAR, false);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_PROJECTS, false);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTPUT, false);
+
+
+		if (action == MSG_FULLSCREEN) {
+			fScreenMode = kFullscreen;
+		} else if (action == MSG_FOCUS_MODE) {
+
+			_ShowView(fToolBar,         false, MSG_TOGGLE_TOOLBAR);
+			_ShowView(fProjectsTabView, false, MSG_SHOW_HIDE_PROJECTS);
+			_ShowView(fOutputTabView,   false, MSG_SHOW_HIDE_OUTPUT);
+			fScreenMode = kFocus;
+		}
+	} else { // exit fullscreen
+		BRect savedFrame = fScreenModeSettings["saved_frame"];
+		int32 restoredLook = fScreenModeSettings["saved_look"];
+
+		fMenuBar->Show();
+		ResizeTo(savedFrame.Width(), savedFrame.Height());
+		MoveTo(savedFrame.left, savedFrame.top);
+		SetLook((window_look)restoredLook);
+		SetFlags(Flags() & ~(B_NOT_RESIZABLE | B_NOT_MOVABLE));
+
+		ActionManager::SetEnabled(MSG_TOGGLE_TOOLBAR, true);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_PROJECTS, true);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTPUT, true);
+
+		_ShowView(fToolBar,         fScreenModeSettings["show_toolbar"], MSG_TOGGLE_TOOLBAR);
+		_ShowView(fProjectsTabView, fScreenModeSettings["show_projects"] , MSG_SHOW_HIDE_PROJECTS);
+		_ShowView(fOutputTabView,   fScreenModeSettings["show_output"], MSG_SHOW_HIDE_OUTPUT);
+
+		fScreenMode = kDefault;
 	}
 }
 
@@ -1255,6 +1317,13 @@ GenioWindow::QuitRequested()
 	if (!_FileRequestSaveAllModified())
 		return false;
 
+	if (fScreenMode != kDefault)
+		_ToogleScreenMode(-1);
+
+	gCFG["show_projects"] = !fProjectsTabView->IsHidden();
+	gCFG["show_output"]   = !fOutputTabView->IsHidden();
+	gCFG["show_toolbar"]  = !fToolBar->IsHidden();
+
 	// Files to reopen
 	if (gCFG["reopen_files"]) {
 		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
@@ -1368,7 +1437,7 @@ GenioWindow::_BuildProject()
 	_ShowLog(kBuildLog);
 
 	LogInfoF("Build started: [%s]", fActiveProject->Name().String());
-	
+
 	BString claim("Build ");
 	claim << fActiveProject->Name();
 	claim << " (";
@@ -2555,6 +2624,16 @@ GenioWindow::_InitActions()
 	                               B_TRANSLATE("Show/Hide output pane"),
 								   "kIconWinStat");
 
+	ActionManager::RegisterAction(MSG_FULLSCREEN,
+								   B_TRANSLATE("Fullscreen"),
+	                               B_TRANSLATE("Fullscreen"),
+								   "", B_ENTER);
+
+	ActionManager::RegisterAction(MSG_FOCUS_MODE,
+								   B_TRANSLATE("Focus Mode"),
+	                               B_TRANSLATE("Focus Mode"),
+								   "", B_ENTER, B_SHIFT_KEY);
+
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
 								   B_TRANSLATE("Show toolbar"));
 
@@ -2917,6 +2996,9 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   submenu);
 	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
 	windowMenu->AddItem(submenu);
+	windowMenu->AddSeparatorItem();
+	ActionManager::AddItem(MSG_FULLSCREEN, windowMenu);
+	ActionManager::AddItem(MSG_FOCUS_MODE, windowMenu);
 	fMenuBar->AddItem(windowMenu);
 
 }

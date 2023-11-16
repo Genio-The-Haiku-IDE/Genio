@@ -33,33 +33,37 @@ LSPPipeClient::~LSPPipeClient()
 	ForceQuit();
 }
 
-void
-LSPPipeClient::SkipLine()
+bool
+LSPPipeClient::ReadHeaderLine(char* header, size_t maxlen)
 {
-	char xread;
-	while (fPipeImage.Read(&xread, 1)) {
-		if (xread == '\n') {
-			break;
-		}
-	}
-}
-
-int
-LSPPipeClient::ReadLength()
-{
-	char szReadBuffer[255];
 	int hasRead = 0;
-	int length = 0;
-	while ((hasRead = fPipeImage.Read(&szReadBuffer[length], 1)) != -1) {
-		if (hasRead == 0 || length >= 254) // pipe eof or protection
-			return 0;
+	size_t length = 0;
+	while ((hasRead = fPipeImage.Read(&header[length], 1)) != -1) {
+		if (hasRead == 0 || length >= maxlen-1) // pipe eof or protection
+			return false;
 
-		if (szReadBuffer[length] == '\n') {
+		if (header[length] == '\n') {
 			break;
 		}
 		length++;
 	}
-	return atoi(szReadBuffer + 16);
+	return true;
+}
+int
+LSPPipeClient::ReadMessageHeader()
+{
+	char szReadBuffer[255];
+	int len = 0;
+	while(ReadHeaderLine(szReadBuffer, 255)) {
+		if (strncmp(szReadBuffer, "Content-Length: ", 16) == 0) {
+			len = atoi(szReadBuffer + 16);
+		} else if (strncmp(szReadBuffer, "\r\n", 2) == 0){
+			break;
+		} else {
+			LogTrace("Unsuported LSP message header: %s", szReadBuffer);
+		}
+	}
+	return len;
 }
 
 int
@@ -107,10 +111,10 @@ bool
 LSPPipeClient::readMessage(std::string &json)
 {
 	json.clear();
-	int length = ReadLength();
+	int length = ReadMessageHeader();
 	if (length == 0)
 		return false;
-	SkipLine();
+	//SkipLine();
 	//std::string read;
 	if (Read(length, json) == 0)
 		return false;

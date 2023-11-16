@@ -25,7 +25,7 @@ namespace Genio::Task {
 			void *target_function;
 			BMessenger messenger;
 			thread_id id;
-			const char *name;
+			BString name;
 		};
 
 		static exception_ptr current_exception_ptr;
@@ -79,10 +79,10 @@ namespace Genio::Task {
 		{
 			type_code type;
 			if constexpr (std::is_void<ResultType>::value == false) {
-				if (archive.GetInfo(fResultField, &type) == B_OK) {
+				if (archive.GetInfo(kResultField, &type) == B_OK) {
 					ssize_t size = 0;
 					const void *result;
-					status_t error = archive.FindData(fResultField, type,
+					status_t error = archive.FindData(kResultField, type,
 						reinterpret_cast<const void**>(&result), &size);
 					if (error == B_OK) {
 						fResult = *reinterpret_cast<const ResultType*>(result);
@@ -90,10 +90,10 @@ namespace Genio::Task {
 				}
 			}
 
-			if (archive.FindInt32(fTaskIdField, &fId) != B_OK) {
+			if (archive.FindInt32(kTaskIdField, &fId) != B_OK) {
 					throw runtime_error("Can't unarchive TaskResult instance: Task ID not available");
 			}
-			if (archive.FindString(fTaskNameField, &fName) != B_OK) {
+			if (archive.FindString(kTaskNameField, &fName) != B_OK) {
 					throw runtime_error("Can't unarchive TaskResult instance: Task Name not available");
 			}
 		}
@@ -121,15 +121,15 @@ namespace Genio::Task {
 				if (fResult.has_value()) {
 					type_code type = BMessageType<ResultType>::Get();
 					ResultType result = any_cast<ResultType>(fResult);
-					status = archive->AddData(fResultField, type, &result, sizeof(ResultType));
+					status = archive->AddData(kResultField, type, &result, sizeof(ResultType));
 				}
 			}
 			if (status != B_OK)
 				return status;
-			status = archive->AddInt32(fTaskIdField, fId);
+			status = archive->AddInt32(kTaskIdField, fId);
 			if (status != B_OK)
 				return status;
-			status = archive->AddString(fTaskNameField, fName);
+			status = archive->AddString(kTaskNameField, fName);
 			if (status != B_OK)
 				return status;
 			status = archive->AddString("class", "TaskResult");
@@ -150,13 +150,13 @@ namespace Genio::Task {
 	private:
 		friend class	Task<ResultType>;
 
-		const char*		fResultField = "TaskResult::Result";
-		const char*		fTaskIdField = "TaskResult::TaskID";
-		const char*		fTaskNameField = "TaskResult::TaskName";
+		const char*		kResultField = "TaskResult::Result";
+		const char*		kTaskIdField = "TaskResult::TaskID";
+		const char*		kTaskNameField = "TaskResult::TaskName";
 
 		any				fResult;
 		thread_id		fId;
-		const char *	fName;
+		BString			fName;
 
 						TaskResult() {}
 	};

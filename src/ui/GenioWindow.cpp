@@ -3580,7 +3580,7 @@ GenioWindow::_Replace(int what)
 			break;
 		}
 		case REPLACE_PREVIOUS: {
-//			retValue = editor->ReplaceAndFindPrevious(selection, replacement, flags, wrap);
+			retValue = editor->ReplaceAndFindPrevious(selection, replacement, flags, wrap);
 			break;
 		}
 		default:

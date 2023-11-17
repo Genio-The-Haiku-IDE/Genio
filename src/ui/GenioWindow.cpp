@@ -3398,7 +3398,6 @@ void
 GenioWindow::_ProjectFolderOpen(BMessage *message)
 {
 	entry_ref ref;
-
 	status_t status = message->FindRef("refs", &ref);
 	if (status == B_OK) {
 		BPath path(&ref);
@@ -3407,6 +3406,7 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
 	}
 }
+
 
 void
 GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
@@ -3419,24 +3419,20 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 		return;
 	}
 
-	BMessenger	msgr(this);
-	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
-
 	// Check if already open
 	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-		ProjectFolder * pProject =(ProjectFolder*)fProjectFolderObjectList->ItemAt(index);
-		if (pProject->Path() == newProject->Path()) {
-			delete newProject;
+		ProjectFolder* pProject = static_cast<ProjectFolder*>(fProjectFolderObjectList->ItemAt(index));
+		if (pProject->Path() == path.Path())
 			return;
-		}
 	}
 
+	BMessenger msgr(this);
+	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
 	if (newProject->Open() != B_OK) {
 		BString notification;
 		notification << "Project open fail: " << newProject->Name();
 		LogInfo(notification.String());
 		delete newProject;
-
 		return;
 	}
 
@@ -3458,7 +3454,7 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	notification << opened << newProject->Name() << " at " << newProject->Path();
 	LogInfo(notification.String());
 
-	//let's check if any open editor is related to this project
+	// let's check if any open editor is related to this project
 	BString projectPath = newProject->Path();
 	projectPath = projectPath.Append("/");
 
@@ -3471,7 +3467,6 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 		}
 	}
 }
-
 
 
 // TODO: _OpenTerminalWorkingDirectory(), _ShowCurrentItemInTracker() and

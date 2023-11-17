@@ -82,6 +82,7 @@ SRCS +=  src/ui/SearchResultPanel.cpp
 SRCS +=  src/ui/ProjectsFolderBrowser.cpp
 SRCS +=  src/ui/ToolBar.cpp
 SRCS +=  src/ui/QuitAlert.cpp
+SRCS +=  src/ui/FindReplaceHandler.cpp
 SRCS +=  src/templates/IconMenuItem.cpp
 SRCS +=  src/templates/TemplatesMenu.cpp
 SRCS +=  src/templates/TemplateManager.cpp

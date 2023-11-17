@@ -813,12 +813,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_SHOW_TEMPLATE_USER_FOLDER:
 		{
-			entry_ref new_ref;
-			status_t status = message->FindRef("refs", &new_ref);
+			entry_ref newRef;
+			status_t status = message->FindRef("refs", &newRef);
 			if (status != B_OK) {
 				LogError("Can't find ref in message!");
 			} else {
-				_ShowInTracker(&new_ref);
+				BPath path(&newRef);
+				_ShowInTracker(&newRef);
 			}
 		}
 		break;
@@ -3475,19 +3476,18 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 status_t
 GenioWindow::_OpenTerminalWorkingDirectory()
 {
-	BString commandLine, itemPath, notification;
-	status_t returnStatus;
-
-	int32 selection = fProjectsFolderBrowser->CurrentSelection();
-	if (selection < 0)
-		return B_BAD_VALUE;
+	// TODO: return value is ignored: make it void ?
 	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetCurrentProjectItem();
-	itemPath = selectedProjectItem->GetSourceItem()->Path();
+	if (selectedProjectItem == nullptr)
+		return B_BAD_VALUE;
 
+	BString itemPath = selectedProjectItem->GetSourceItem()->Path();
+	BString commandLine;
 	commandLine.SetToFormat("Terminal -w %s &", EscapeQuotesWrap(itemPath.String()).String());
 
-	returnStatus = system(commandLine);
-	if (returnStatus != B_OK) {
+	BString notification;
+	int returnStatus = system(commandLine);
+	if (returnStatus != 0) {
 		notification <<
 			"An error occurred while opening Terminal and setting working directory to: ";
 	} else {
@@ -3503,47 +3503,34 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 status_t
 GenioWindow::_ShowCurrentItemInTracker()
 {
-	BString commandLine, itemPath, notification;
-	int returnStatus = -1;
-
-	int32 selection = fProjectsFolderBrowser->CurrentSelection();
-	if (selection < 0)
-		return B_BAD_VALUE;
+	// TODO: return value is ignored: make it void ?
 	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetCurrentProjectItem();
-	itemPath = selectedProjectItem->GetSourceItem()->Path();
+	if (selectedProjectItem == nullptr)
+		return B_BAD_VALUE;
 
-	BEntry itemEntry(itemPath);
+	status_t returnStatus = B_ERROR;
+	BEntry itemEntry(selectedProjectItem->GetSourceItem()->Path());
 	BEntry parentDirectory;
-
+	BPath directoryPath;
 	if (itemEntry.GetParent(&parentDirectory) == B_OK) {
-		BPath directoryPath;
 		if (parentDirectory.GetPath(&directoryPath) == B_OK) {
-			commandLine.SetToFormat("/bin/open %s", EscapeQuotesWrap(directoryPath.Path()).String());
-			returnStatus = system(commandLine);
-		} else {
-			notification << "An error occurred when showing an item in Tracker: " << directoryPath.Path();
-			LogInfo(notification.String());
+			returnStatus = _ShowInTracker(directoryPath);
 		}
-	} else {
-		notification << "An error occurred while retrieving parent directory of " << itemPath;
-		LogInfo(notification.String());
 	}
-	return returnStatus == 0 ? B_OK : errno;
+	BString notification;
+	notification << "An error occurred when showing an item in Tracker: " << directoryPath.Path();
+	LogInfo(notification.String());
+
+	return returnStatus;
 }
 
+
 status_t
-GenioWindow::_ShowInTracker(entry_ref *ref)
+GenioWindow::_ShowInTracker(const BPath& path)
 {
-	status_t status = 0;
-	BEntry itemEntry(ref);
-	BPath path;
 	BString commandLine;
-	if (itemEntry.GetPath(&path) == B_OK) {
-		commandLine.SetToFormat("/bin/open %s", EscapeQuotesWrap(path.Path()).String());
-		status = system(commandLine);
-	} else {
-		OKAlert("Open in Tracker", B_TRANSLATE("Could not open template folder in Tracker"), B_WARNING_ALERT);
-	}
+	commandLine.SetToFormat("/bin/open %s", EscapeQuotesWrap(path.Path()).String());
+	int status = system(commandLine);
 	return status == 0 ? B_OK : errno;
 }
 

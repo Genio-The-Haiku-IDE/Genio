@@ -49,10 +49,9 @@ enum scree_mode {
 	kFullscreen,
 	kFocus
 };
-
+	
 
 class ActionManager;
-class FindReplaceHandler;
 
 class GenioWindow : public BWindow
 {
@@ -230,10 +229,9 @@ private:
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultPanel*	fSearchResultPanel;
-
+			
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;
-			FindReplaceHandler*	fFindReplaceHandler;
 };
 
 #endif //GenioWINDOW_H

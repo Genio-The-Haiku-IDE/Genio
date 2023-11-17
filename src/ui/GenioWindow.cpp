@@ -50,7 +50,6 @@
 #include "TextUtils.h"
 #include "Utils.h"
 #include "EditorKeyDownMessageFilter.h"
-#include "FindReplaceHandler.h"
 
 #include "ActionManager.h"
 #include "QuitAlert.h"
@@ -141,7 +140,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultPanel(nullptr)
 	, fScreenMode(kDefault)
-	, fFindReplaceHandler(nullptr)
 {
 	_InitActions();
 	_InitMenu();
@@ -162,8 +160,6 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorKeyDownMessageFilter());
-
-	AddHandler(fFindReplaceHandler = new FindReplaceHandler(nullptr));
 
 	// Load workspace - reopen projects
 	if (gCFG["reopen_projects"]) {
@@ -224,10 +220,6 @@ GenioWindow::~GenioWindow()
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
-	if (fFindReplaceHandler) {
-		RemoveHandler(fFindReplaceHandler);
-		delete fFindReplaceHandler;
-	}
 }
 
 
@@ -666,22 +658,14 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_FIND_PREVIOUS:
 		case MSG_FIND_NEXT: {
-			//experimental:
-			GMessage search(FindReplaceHandler::FIND);
-			search["inSelection"] = false; //not yet supported by Genio
-			search["matchCase"] = (bool)fFindCaseSensitiveCheck->Value();
-			search["matchWord"] = (bool)fFindWholeWordCheck->Value();
-			search["wrapAround"] = (bool)fFindWrapCheck->Value();
-			search["backwards"] = (message->what == MSG_FIND_PREVIOUS);
-			search["regex"] = false;
-			search["findText"] = fFindTextControl->Text();
-			search["replaceText"] = "";
-			search.AddPointer("editor", (void*)fTabManager->SelectedEditor());
-
-			PostMessage(&search, fFindReplaceHandler);
-
+			const BString& text(fFindTextControl->Text());
+			_FindNext(text, false);
+			break;
+		}
+		case MSG_FIND_PREVIOUS: {
+			const BString& text(fFindTextControl->Text());
+			_FindNext(text, true);
 			break;
 		}
 		case MSG_FIND_GROUP_TOGGLED:
@@ -1000,19 +984,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ReplaceGroupShow(true);
 			break;
 		case MSG_REPLACE_ALL: {
-			//experimental:
-			GMessage search(FindReplaceHandler::REPLACEALL);
-			search["inSelection"] = false; //not yet supported by Genio
-			search["matchCase"] = (bool)fFindCaseSensitiveCheck->Value();
-			search["matchWord"] = (bool)fFindWholeWordCheck->Value();
-			search["wrapAround"] = (bool)fFindWrapCheck->Value();
-			search["backwards"] = false;
-			search["regex"] = false;
-			search["findText"] = fFindTextControl->Text();
-			search["replaceText"] = fReplaceTextControl->Text();
-			search.AddPointer("editor", (void*)fTabManager->SelectedEditor());
-
-			PostMessage(&search, fFindReplaceHandler);
+			_Replace(REPLACE_ALL);
 			break;
 		}
 		case MSG_REPLACE_GROUP_TOGGLED:
@@ -1026,42 +998,15 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case MSG_REPLACE_NEXT:
+			_Replace(REPLACE_NEXT);
+			break;
+		case MSG_REPLACE_ONE:
+			_Replace(REPLACE_ONE);
+			break;
 		case MSG_REPLACE_PREVIOUS:
-		case MSG_REPLACE_NEXT: {
-			//experimental:
-			GMessage search(FindReplaceHandler::REPLACEFIND);
-			search["inSelection"] = false; //not yet supported by Genio
-			search["matchCase"] = (bool)fFindCaseSensitiveCheck->Value();
-			search["matchWord"] = (bool)fFindWholeWordCheck->Value();
-			search["wrapAround"] = (bool)fFindWrapCheck->Value();
-			search["backwards"] = (message->what == MSG_REPLACE_PREVIOUS);
-			search["regex"] = false;
-			search["findText"] = fFindTextControl->Text();
-			search["replaceText"] = fReplaceTextControl->Text();
-			search.AddPointer("editor", (void*)fTabManager->SelectedEditor());
-
-
-			PostMessage(&search, fFindReplaceHandler);
-		}
-		break;
-		case MSG_REPLACE_ONE: {
-			//experimental:
-			GMessage search(FindReplaceHandler::REPLACE);
-			search["inSelection"] = false; //not yet supported by Genio
-			search["matchCase"] = (bool)fFindCaseSensitiveCheck->Value();
-			search["matchWord"] = (bool)fFindWholeWordCheck->Value();
-			search["wrapAround"] = (bool)fFindWrapCheck->Value();
-			search["backwards"] = false;
-			search["regex"] = false;
-			search["findText"] = fFindTextControl->Text();
-			search["replaceText"] = fReplaceTextControl->Text();
-			search.AddPointer("editor", (void*)fTabManager->SelectedEditor());
-
-
-			PostMessage(&search, fFindReplaceHandler);
-		}
-		break;
-
+			_Replace(REPLACE_PREVIOUS);
+			break;
 		case MSG_RUN_CONSOLE_PROGRAM_SHOW: {
 			if (fRunConsoleProgramGroup->IsVisible()) {
 				fRunConsoleProgramGroup->SetVisible(false);

@@ -174,9 +174,8 @@ namespace Genio::Git {
 			throw GitException(error, git_error_last()->message);
 		}
 
-		git_reference_free(head);
-
 		BString branchText((branch) ? branch : "");
+		git_reference_free(head);
 		return branchText;
 	}
 

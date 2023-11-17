@@ -480,19 +480,18 @@ Editor::FindNext(const BString& search, int flags, bool wrap)
 	int position = Find(search, flags);
 	if (position != -1)
 		sFound = true;
-	else if (wrap == false) {
+	else if (position == -1 && wrap == false) {
 		sFound = false;
 		BMessage message(EDITOR_FIND_NEXT_MISS);
 		fTarget.SendMessage(&message);
-	} else if (wrap == true) {
+	} else if (position == -1 && wrap == true) {
 		sFound = false;
 		// If wrap and not found go to saved position
 		int savedPosition = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 		SendMessage(SCI_SETSEL, 0, 0);
 		position = Find(search, flags);
 		if (position == -1)
-			//SendMessage(SCI_GOTOPOS, savedPosition, 0);
-			SendMessage(SCI_SETCURRENTPOS, savedPosition, UNSET);
+			SendMessage(SCI_GOTOPOS, savedPosition, 0);
 	}
 	return position;
 }

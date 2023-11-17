@@ -165,9 +165,8 @@ GenioWindow::GenioWindow(BRect frame)
 	if (gCFG["reopen_projects"]) {
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
 		if (!projects.IsEmpty()) {
-			BString projectName, activeProject = "";
-
-			activeProject = projects.GetString("active_project");
+			BString projectName;
+			BString activeProject = projects.GetString("active_project");
 			for (auto count = 0; projects.FindString("project_to_reopen",
 										count, &projectName) == B_OK; count++)
 					_ProjectFolderOpen(projectName, projectName == activeProject);
@@ -3412,9 +3411,15 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 void
 GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 {
+	// TODO: Maybe pass a BPath directly instead of a BString ?
 	BPath path(folder);
-	BMessenger	msgr(this);
+	BEntry dirEntry(path.Path());
+	if (!dirEntry.Exists() ||
+		!dirEntry.IsDirectory()) {
+		return;
+	}
 
+	BMessenger	msgr(this);
 	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
 
 	// Check if already open

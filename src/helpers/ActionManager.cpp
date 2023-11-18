@@ -10,7 +10,7 @@
 
 ActionManager ActionManager::instance;
 
-class Action {		
+class Action {
 public:
 	BString	label;
 	BString iconResourceName;
@@ -19,7 +19,7 @@ public:
 	uint32  modifiers;
 	bool	enabled;
 	bool	pressed;
-	
+
 	BObjectList<BMenuItem>	menuItemList;
 	BObjectList<ToolBar>	toolBarList;
 };
@@ -33,12 +33,12 @@ ActionManager::~ActionManager()
 	instance.fActionMap.clear();
 }
 
-status_t 
-ActionManager::RegisterAction(int32   msgWhat, 
-								BString label, 
+status_t
+ActionManager::RegisterAction(int32   msgWhat,
+								BString label,
 								BString toolTip,
 								BString iconResource,
-								char shortcut, 
+								char shortcut,
 								uint32 modifiers)
 {
 	Action* action = new Action();
@@ -58,7 +58,7 @@ ActionManager::AddItem(int32 msgWhat, BMenu* menu)
 {
 	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
-	
+
 	Action* action = instance.fActionMap[msgWhat];
 	BMenuItem* item = new BMenuItem(action->label, new BMessage(msgWhat), action->shortcut, action->modifiers);
 	menu->AddItem(item);
@@ -81,41 +81,41 @@ ActionManager::AddItem(int32 msgWhat, ToolBar* bar)
 	return B_OK;
 }
 
-status_t	
+status_t
 ActionManager::SetEnabled(int32 msgWhat, bool enabled)
 {
 	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
 	Action* action = instance.fActionMap[msgWhat];
-	
+
 	action->enabled = enabled;
-	
+
 	for (int i=0; i<action->menuItemList.CountItems();i++)
 		action->menuItemList.ItemAt(i)->SetEnabled(enabled);
 	for (int i=0; i<action->toolBarList.CountItems();i++)
 		action->toolBarList.ItemAt(i)->SetActionEnabled(msgWhat, enabled);
-	
+
 	return B_OK;
-	
+
 }
 
-status_t	
+status_t
 ActionManager::SetPressed(int32 msgWhat, bool pressed)
 {
 	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
 	Action* action = instance.fActionMap[msgWhat];
-	
+
 	action->pressed = pressed;
-	
+
 	for (int i=0; i<action->menuItemList.CountItems();i++)
 		action->menuItemList.ItemAt(i)->SetMarked(pressed);
-		
+
 	for (int i=0; i<action->toolBarList.CountItems();i++)
 		action->toolBarList.ItemAt(i)->SetActionPressed(msgWhat, pressed);
-	
+
 	return B_OK;
-	
+
 }
 
 status_t
@@ -123,11 +123,11 @@ ActionManager::SetToolTip(int32 msgWhat, const char* tooltip)
 {
 	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
-		
+
 	Action* action = instance.fActionMap[msgWhat];
-	
+
 	action->toolTip = tooltip;
-	
+
 	for (int i=0; i<action->toolBarList.CountItems();i++) {
 		BButton* button = action->toolBarList.ItemAt(i)->FindButton(msgWhat);
 		if (button)
@@ -137,12 +137,21 @@ ActionManager::SetToolTip(int32 msgWhat, const char* tooltip)
 	return B_OK;
 }
 
-bool		
+bool
 ActionManager::IsPressed(int32 msgWhat)
 {
 	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return false;
 	Action* action = instance.fActionMap[msgWhat];
-	
+
 	return action->pressed;
+}
+bool
+ActionManager::IsEnabled(int32 msgWhat)
+{
+	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+		return false;
+	Action* action = instance.fActionMap[msgWhat];
+
+	return action->enabled;
 }

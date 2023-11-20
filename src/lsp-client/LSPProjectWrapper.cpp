@@ -294,14 +294,15 @@ LSPProjectWrapper::Initialized(json& result)
 	if (capas != value::value_t::null) {
 		auto& completionProvider = capas["completionProvider"];
 		if (completionProvider != value::value_t::null) {
-			auto& allCommitCharacters = completionProvider["allCommitCharacters"];
-			if (allCommitCharacters != value::value_t::null) {
-				fAllCommitCharacters.clear();
-				for (auto& c : allCommitCharacters) {
-					fAllCommitCharacters.append(c.get<std::string>().c_str());
-				}
-				LogDebug("allCommitCharacters [%s]", this->allCommitCharacters().c_str());
-			}
+			// auto& allCommitCharacters = completionProvider["allCommitCharacters"];
+			// if (allCommitCharacters != value::value_t::null) {
+				// fAllCommitCharacters.clear();
+				// for (auto& c : allCommitCharacters) {
+					// printf("--> %s\n", c.get<std::string>().c_str());
+					// fAllCommitCharacters.append(c.get<std::string>().c_str());
+				// }
+				// LogDebug("allCommitCharacters [%s]", this->allCommitCharacters().c_str());
+			// }
 			auto& triggerCharacters = completionProvider["triggerCharacters"];
 			if (triggerCharacters != value::value_t::null) {
 				fTriggerCharacters.clear();

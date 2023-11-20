@@ -87,8 +87,8 @@ public:
     RequestID 	SendRequest(RequestID id, string_ref method, value params);
     void 		SendNotify(string_ref method, value params);
 
-    std::string&	allCommitCharacters() { return fAllCommitCharacters; }
-    std::string&	triggerCharacters() { return fTriggerCharacters; }
+    std::string&	allCommitCharacters() { return fAllCommitCharacters; } //not yet used.
+    std::string&	triggerCharacters() { return fTriggerCharacters; } //for completion
 
 private:
 	bool	_Create();

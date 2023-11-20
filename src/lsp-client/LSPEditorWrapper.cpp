@@ -665,7 +665,7 @@ LSPEditorWrapper::_RemoveAllDiagnostics()
 	fLastDiagnostics.clear();
 }
 
-
+#include "GMessage.h"
 void
 LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 {
@@ -673,6 +673,7 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 
 	_RemoveAllDiagnostics();
 
+	BMessage toJson('diag');
 	for (auto& v : vect) {
 		Range& r = v.range;
 		InfoRange ir;
@@ -683,10 +684,15 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 		LogTrace("Diagnostics [%ld->%ld] [%s]", ir.from, ir.to, ir.info.c_str());
 		fEditor->SendMessage(SCI_INDICATORFILLRANGE, ir.from, ir.to - ir.from);
 		fLastDiagnostics.push_back(ir);
+
+		GMessage dia;
+		dia.AddData("range", B_RAW_TYPE, &v.range, sizeof(v.range), true);
+		dia["category"] = v.category.value().c_str();
+		dia["message"] = v.message.c_str();
+		dia["source"] = v.source.c_str();
+		toJson.AddMessage("diagnostic", &dia);
 	}
 
-	BMessage toJson('diag');
-	BPrivate::BJson::Parse(params["diagnostics"].dump().c_str(), toJson);
 	if (fEditor->LockLooper()) {
 		fEditor->SetProblems(&toJson);
 		fEditor->UnlockLooper();

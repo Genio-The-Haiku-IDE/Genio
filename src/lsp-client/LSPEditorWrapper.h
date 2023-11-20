@@ -32,6 +32,7 @@ public:
 		void	SetLSPClient(LSPProjectWrapper* cW);
 		void	UnsetLSPClient();
 		bool	HasLSPClient();
+		void	ApplyFix(BMessage* info);
 
 private:
 		void	didOpen();
@@ -93,7 +94,9 @@ private:
 	LSPProjectWrapper*	fLSPProjectWrapper;
 	BString				fFileStatus;
 
-	std::vector<InfoRange>		fLastDiagnostics;
+	struct LSPDiagnostic { InfoRange range; WorkspaceEdit edit; };
+
+	std::vector<LSPDiagnostic>	fLastDiagnostics;
 	std::vector<InfoRange>		fLastDocumentLinks;
 
 	void				_ShowToolTip(const char* text);
@@ -119,6 +122,7 @@ private:
 	void 			GetCurrentLSPPosition(Position *lsp_position);
 	void 			FromSciPositionToRange(Sci_Position s_start, Sci_Position s_end, Range *range);
 	Sci_Position 	ApplyTextEdit(nlohmann::json &textEdit);
+	Sci_Position 	ApplyTextEdit(TextEdit &textEdit);
 	void			OpenFileURI(std::string uri, int32 line = -1, int32 character = -1);
 	std::string 	GetCurrentLine();
 	bool			IsStatusValid();

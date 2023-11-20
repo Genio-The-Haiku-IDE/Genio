@@ -9,9 +9,13 @@
 #include <SupportDefs.h>
 #include <TabView.h>
 
+class BPopUpMenu;
+class BMenuItem;
+
 class ProblemsPanel : public BColumnListView {
 public:
 		ProblemsPanel(BTabView*);
+		virtual ~ProblemsPanel();
 
 		void UpdateProblems(BMessage* msg);
 
@@ -23,6 +27,8 @@ public:
 private:
 		void	_UpdateTabLabel();
 		BTabView* fTabView;
+		BPopUpMenu* fPopUpMenu;
+		BMenuItem*  fQuickFixItem;
 };
 
 

@@ -5,6 +5,7 @@
 
 
 #include "ProblemsPanel.h"
+#include "EditorMessages.h"
 
 #include <ColumnTypes.h>
 #include <Catalog.h>
@@ -12,36 +13,13 @@
 #include <PopUpMenu.h>
 #include <MenuItem.h>
 #include <string>
-#include <stdio.h>
-#include "protocol_objects.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProblemsPanel"
 
-class MouseEventsStringColumn : public BStringColumn {
-public:
-	MouseEventsStringColumn(const char* title, float width, float minWidth, float maxWidth,
-		uint32 truncate, alignment align = B_ALIGN_LEFT)
-		: BStringColumn(title, width, minWidth, maxWidth, truncate, align)
-	{
-		SetWantsEvents(true);
-	}
-
-	//virtual				~PopUpColumn();
-
-	void		MouseDown(BColumnListView* parent, BRow* row,
-					BField* field, BRect fieldRect, BPoint point,
-					uint32 buttons) {
-						BMessage msg('SBUT');
-						msg.AddPoint("point", point);
-						msg.AddUInt32("buttons", buttons);
-						parent->Window()->PostMessage(&msg, parent);
-
-					}
-};
-
 enum  {
-	COLUMNVIEW_CLICK = 'clIV'
+	COLUMNVIEW_CLICK = 'clIV',
+	COLUMNVIEW_SELECT = 'clSE'
 };
 
 enum {
@@ -68,21 +46,30 @@ ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
 	BPopUpMenu*	menu = new BPopUpMenu("_popUp");
 	menu->AddItem(new BMenuItem("Test", nullptr));
 
-	AddColumn(new MouseEventsStringColumn( B_TRANSLATE("Category"),
+	AddColumn(new BStringColumn( B_TRANSLATE("Category"),
 								200.0, 200.0, 200.0, 0), kCategoryColumn);
-	AddColumn(new MouseEventsStringColumn( B_TRANSLATE("Message"),
+	AddColumn(new BStringColumn( B_TRANSLATE("Message"),
 								600.0, 600.0, 800.0, 0), kMessageColumn);
-	AddColumn(new MouseEventsStringColumn( B_TRANSLATE("Source"),
+	AddColumn(new BStringColumn( B_TRANSLATE("Source"),
 								200.0, 200.0, 200.0, 0), kSourceColumn);
+
+	fPopUpMenu = new BPopUpMenu("_popup");
+	fPopUpMenu->AddItem(fQuickFixItem = new BMenuItem("Quick fix", nullptr));
 
 }
 
+ProblemsPanel::~ProblemsPanel()
+{
+	delete fPopUpMenu;
+}
 
 void
 ProblemsPanel::AttachedToWindow()
 {
 	BColumnListView::AttachedToWindow();
 	SetInvocationMessage(new BMessage(COLUMNVIEW_CLICK));
+	SetSelectionMessage(new BMessage(COLUMNVIEW_SELECT));
+	fPopUpMenu->SetTargetForItems(Window());
 	SetTarget(this);
 }
 
@@ -100,51 +87,31 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 		case COLUMNVIEW_CLICK: {
 			RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
 			if (range) {
-				Range* r = nullptr;
-				ssize_t len = 0;
-				range->fRange.FindData("range", B_RAW_TYPE, (const void**)&r, &len);
-				if (r == nullptr || len == 0)
-					return;
-
-				const int32 be_line = r->start.line;
-				const int32 lsp_char = r->start.character;
-				entry_ref ref;
-				range->fRange.FindRef("ref", &ref);
-
-				BMessage refs(B_REFS_RECEIVED);
-				refs.AddInt32("be:line", be_line + 1);
-				refs.AddInt32("lsp:character", lsp_char);
-				refs.AddRef("refs", &ref);
-				//refs.PrintToStream();
+				BMessage refs = range->fRange;
+				refs.what = B_REFS_RECEIVED;
+				refs.PrintToStream();
 				Window()->PostMessage(&refs);
 
 			}
 		}
 		break;
-		case 'SBUT':
-		{
-			uint32 buttons = msg->GetUInt32("buttons", 0);
-			if (buttons & B_SECONDARY_MOUSE_BUTTON)
-			{
-				BPoint p;
-				if (msg->FindPoint("point", &p) == B_OK) {
+		case COLUMNVIEW_SELECT:{
+			BPoint where;
+			uint32 buttons = 0;
+			GetMouse(&where, &buttons);
+			where.x += 2; // to prevent occasional select
+			if (buttons & B_SECONDARY_MOUSE_BUTTON){
 
-					RangeRow* row = dynamic_cast<RangeRow*>(RowAt(p));
-					if (!row)
-						return;
-
-					BPopUpMenu* _menu = new BPopUpMenu("_popup");
-					_menu->AddItem(new BMenuItem("Quick fix", nullptr));
-
-					row->fRange.PrintToStream();
-
-					BMessage codeAction;
-					if (row->fRange.FindMessage("codeActions", &codeAction) == B_OK){
-						_menu->Go(ConvertToScreen(p));
-					}
-					delete _menu;
-
-				}
+				RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
+				if (!range)
+					return;
+				BMessage* inv =	new BMessage();
+				*inv = range->fRange;
+				inv->what = kApplyFix;
+				fQuickFixItem->SetMessage(inv);
+				fQuickFixItem->SetEnabled(range->fRange.GetBool("quickFix", false));
+				fPopUpMenu->SetTargetForItems(Window());
+				fPopUpMenu->Go(ConvertToScreen(where), true);
 			}
 		}
 		break;
@@ -167,7 +134,7 @@ ProblemsPanel::UpdateProblems(BMessage* msg)
 	while (msg->FindMessage("diagnostic", index++, &dia) == B_OK) {
 		RangeRow* row = new RangeRow();
 		row->fRange = dia;
-		row->fRange.AddRef("ref", &ref);
+		row->fRange.AddRef("refs", &ref);
 		row->SetField(new BStringField(dia.GetString("category","")), kCategoryColumn);
 		row->SetField(new BStringField(dia.GetString("message","")), kMessageColumn);
 		row->SetField(new BStringField(dia.GetString("source","")), kSourceColumn);

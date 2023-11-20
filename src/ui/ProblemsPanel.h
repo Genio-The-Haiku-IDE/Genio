@@ -12,14 +12,14 @@
 class ProblemsPanel : public BColumnListView {
 public:
 		ProblemsPanel(BTabView*);
-		
+
 		void UpdateProblems(BMessage* msg);
-		
+
 		virtual void MessageReceived(BMessage* msg);
-		virtual void	AttachedToWindow();
-		
+		virtual void AttachedToWindow();
+
 		void ClearProblems();
-		
+
 private:
 		void	_UpdateTabLabel();
 		BTabView* fTabView;

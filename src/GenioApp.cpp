@@ -378,7 +378,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 		styles[opt.String()] = { {"value", style_index - 1}, {"label", style.c_str() } };
 		style_index++;
 	}
-	cfg.AddConfig("Editor/Visual", "editor_style", "Editor Style", "default", &styles);
+	cfg.AddConfig("Editor/Visual", "editor_style", B_TRANSLATE("Editor style:"), "default", &styles);
 
 	cfg.AddConfig("Editor/Visual", "show_linenumber", B_TRANSLATE("Show line number"), true);
 	cfg.AddConfig("Editor/Visual", "show_commentmargin", B_TRANSLATE("Show comment margin"), true);

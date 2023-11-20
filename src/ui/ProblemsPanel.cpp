@@ -54,7 +54,7 @@ ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
 								200.0, 200.0, 200.0, 0), kSourceColumn);
 
 	fPopUpMenu = new BPopUpMenu("_popup");
-	fPopUpMenu->AddItem(fQuickFixItem = new BMenuItem("Quick fix", nullptr));
+	fPopUpMenu->AddItem(fQuickFixItem = new BMenuItem(B_TRANSLATE("Quick fix"), nullptr));
 	fPopUpMenu->SetRadioMode(false);
 }
 

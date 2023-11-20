@@ -29,6 +29,7 @@
 #include <Window.h>
 
 #include <cstdio>
+#include <functional>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
@@ -767,15 +768,15 @@ void
 ProjectsFolderBrowser::ProjectFolderPopulateThread(ProjectFolder* item)
 {
 	BString taskName;
-	taskName << item->Name() << " PopulateProject task";
+	taskName << item->Name() << "PopulateProject (" << item->Name() << ") task";
 	shared_ptr<Genio::Task::Task<status_t>> task = make_shared<Genio::Task::Task<status_t>>
 	(
 		taskName.String(),
-		new BMessenger(this),
+		BMessenger(this),
 		std::bind
 		(
 			&ProjectsFolderBrowser::ProjectFolderPopulate,
-			this ,
+			this,
 			item
 		)
 	);

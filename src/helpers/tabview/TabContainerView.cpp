@@ -64,7 +64,7 @@ TabContainerView::MinSize()
 	return size;
 }
 
-void				
+void
 TabContainerView::OnDrop(BMessage* msg)
 {
 	int32 dragIndex = msg->GetInt32("index", -1);
@@ -72,18 +72,18 @@ TabContainerView::OnDrop(BMessage* msg)
 		return;
 	BPoint drop_point;
 	if (msg->FindPoint("_drop_point_", &drop_point) != B_OK)
-		return;		
+		return;
 	TabView* tab = _TabAt(ConvertFromScreen(drop_point));
 	if (!tab)
 		return;
-		
+
 	int32 toIndex = IndexOf(tab);
 	if (toIndex < 0)
 		return;
-	
+
 	//Move
 	fController->MoveTabs(dragIndex, toIndex);
-	
+
 	Invalidate();
 }
 void
@@ -168,7 +168,7 @@ TabContainerView::Draw(BRect updateRect)
 
 	// Draw empty area after last tab.
 	be_control_look->DrawInactiveTab(this, frame, updateRect, base, 0, borders);
-	
+
 	_DrawTabIndicator();
 }
 
@@ -209,7 +209,7 @@ TabContainerView::MouseDown(BPoint where)
 		else
 			fClickCount = 1;
 	}
-	
+
 	Draggable::OnMouseDown(where);
 }
 
@@ -234,7 +234,7 @@ TabContainerView::MouseUp(BPoint where)
 	// Always check the tab under the mouse again, since we don't update
 	// it with fMouseDown == true.
 	_SendFakeMouseMoved();
-	
+
 
 	Draggable::OnMouseUp(where);
 	if (fDropTargetHighlightFrame.IsValid()) {
@@ -243,7 +243,7 @@ TabContainerView::MouseUp(BPoint where)
 	}
 }
 
-bool 
+bool
 TabContainerView::InitiateDrag(BPoint where)
 {
 	TabView* tab = _TabAt(where);
@@ -252,23 +252,23 @@ TabContainerView::InitiateDrag(BPoint where)
 		BMessage message(TAB_DRAG);
 		message.AddPointer("container", this);
 		message.AddInt32("index", IndexOf(tab));
-		
+
 		BRect updateRect = tab->Frame().OffsetToCopy(BPoint(0,0));
-		
+
 		BBitmap* dragBitmap = new BBitmap(updateRect, B_RGB32, true);
 		if (dragBitmap->IsValid()) {
 			BView* view = new BView(dragBitmap->Bounds(), "helper", B_FOLLOW_NONE,
 				B_WILL_DRAW);
 			dragBitmap->AddChild(view);
 			dragBitmap->Lock();
-			
+
 			// Drawing (TODO: write a better tab->'Draw'?')
 			tab->DrawBackground(view, view->Bounds(), view->Bounds(), true, false, true);
 			float spacing = be_control_look->DefaultLabelSpacing();
 			updateRect.InsetBy(spacing, spacing / 2);
 			tab->DrawContents(view, updateRect, updateRect, true, false, true);
 			//
-			
+
 			view->Sync();
 			uint8* bits = (uint8*)dragBitmap->Bits();
 			int32 height = (int32)dragBitmap->Bounds().Height() + 1;
@@ -292,9 +292,9 @@ TabContainerView::InitiateDrag(BPoint where)
 			DragMessage(&message, dragBitmap, B_OP_ALPHA, BPoint(where.x - tab->Frame().left, where.y - tab->Frame().top));
 		else
 			DragMessage(&message, tab->Frame(), this);
-			
+
 		return true;
-	}	
+	}
 	return false;
 }
 
@@ -314,7 +314,7 @@ TabContainerView::MouseMoved(BPoint where, uint32 transit,
 				if (!tab)
 					return;
 				int32 newIndex = IndexOf(tab);
-				
+
 				if (index != newIndex) {
 					BRect highlightFrame = tab->Frame();
 
@@ -330,7 +330,7 @@ TabContainerView::MouseMoved(BPoint where, uint32 transit,
 			break;
 		};
 	}
-		
+
 	_MouseMoved(where, transit, dragMessage);
 	Draggable::OnMouseMoved(where);
 	if (fDropTargetHighlightFrame.IsValid()) {
@@ -379,7 +379,7 @@ TabContainerView::AddTab(TabView* tab, int32 index)
 	tab->Update(isFirst, isLast, isFront);
 
 	GroupLayout()->AddItem(index, tab->LayoutItem());
-#if 1
+#if 0
 	if (isFront)
 		SelectTab(tab);
 #endif
@@ -449,7 +449,7 @@ TabContainerView::RemoveTab(int32 index, int32 currentSelection, bool isLast)
 		item = dynamic_cast<TabLayoutItem*>(GroupLayout()->ItemAt(index - 1));
 	else
 		item = dynamic_cast<TabLayoutItem*>(GroupLayout()->ItemAt(index));
-	
+
 	if (item) {
 		TabView* tab = item->Parent();
 
@@ -469,7 +469,7 @@ TabContainerView::RemoveTab(int32 index, int32 currentSelection, bool isLast)
 			fSelectedTab = NULL;
 			SelectTab(tab);
 		}
-		// Index is higher than ex-selection, no reselect needed	
+		// Index is higher than ex-selection, no reselect needed
 	}
 #endif
 
@@ -503,7 +503,7 @@ TabContainerView::IndexOf(TabView* tab) const
 
 
 void
-TabContainerView::SelectTab(int32 index)
+TabContainerView::SelectTab(int32 index, BMessage* selInfo)
 {
 	TabView* tab = NULL;
 	TabLayoutItem* item = dynamic_cast<TabLayoutItem*>(
@@ -511,12 +511,12 @@ TabContainerView::SelectTab(int32 index)
 	if (item)
 		tab = item->Parent();
 
-	SelectTab(tab);
+	SelectTab(tab, selInfo);
 }
 
 
 void
-TabContainerView::SelectTab(TabView* tab)
+TabContainerView::SelectTab(TabView* tab, BMessage* selInfo)
 {
 	if (tab == fSelectedTab)
 		return;
@@ -540,7 +540,7 @@ TabContainerView::SelectTab(TabView* tab)
 		if (!tab->LayoutItem()->IsVisible())
 			SetFirstVisibleTabIndex(index);
 
-		fController->TabSelected(index);
+		fController->TabSelected(index, selInfo);
 	}
 }
 

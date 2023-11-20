@@ -1,0 +1,34 @@
+# Rust
+# adapted from SciTE
+lexer: rust
+keywords:
+    0: alignof as be box break const continue crate do else enum extern false fn for if impl in let loop match mod mut offsetof once priv proc pub pure ref return self sizeof static struct super trait true type typeof unsafe unsized use virtual while yield
+    1: bool char f32 f64 i16 i32 i64 i8 int str u16 u32 u64 u8 uint
+    2: Self
+comments:
+    line: "//"
+    block: [ "/*", "*/" ]
+styles:
+    0: 32
+    19: 109
+    20: 148
+    6: 105
+    7: 105
+    8: 105
+    9: 105
+    10: 105
+    11: 105
+    12: 105
+    5: 104
+    13: 106
+    14: 106
+    21: 106
+    22: 106
+    15: 106
+    23: 105
+    16: 32
+    18: 126
+    1: 101
+    2: 101
+    3: 103
+    4: 103

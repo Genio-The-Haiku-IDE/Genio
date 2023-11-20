@@ -7,12 +7,12 @@
 
 #include <Locker.h>
 #include <Path.h>
-
+#include <Locker.h>
 #include <atomic>
-
+#include <MessageFilter.h>
 #include "MessageHandler.h"
 #include "json_fwd.hpp"
-
+#include <Messenger.h>
 
 class  LSPTextDocument;
 struct TextDocumentContentChangeEvent;
@@ -30,11 +30,14 @@ class LSPPipeClient;
 
 using json = nlohmann::json;
 
-class LSPProjectWrapper : public MessageHandler {
+
+class LSPProjectWrapper : public BHandler {
 
 public:
-			LSPProjectWrapper(BPath rootPath);
+			LSPProjectWrapper(BPath rootPath, BMessenger& msgr);
 	virtual ~LSPProjectWrapper() = default;
+
+	virtual	void	MessageReceived(BMessage* message);
 
 	bool	Dispose();
 
@@ -54,7 +57,7 @@ public:
     void Initialized(json& result);
 
     RequestID RegisterCapability();
-    void DidOpen(LSPTextDocument* textDocument, string_ref text, string_ref languageId = "cpp");
+    void DidOpen(LSPTextDocument* textDocument, string_ref text, string_ref languageId);
     void DidClose(LSPTextDocument* textDocument);
     void DidChange(LSPTextDocument* textDocument, std::vector<TextDocumentContentChangeEvent> &changes,
                    option<bool> wantDiagnostics = {});
@@ -84,8 +87,8 @@ public:
     RequestID 	SendRequest(RequestID id, string_ref method, value params);
     void 		SendNotify(string_ref method, value params);
 
-    std::string&	allCommitCharacters() { return fAllCommitCharacters; }
-    std::string&	triggerCharacters() { return fTriggerCharacters; }
+    std::string&	allCommitCharacters() { return fAllCommitCharacters; } //not yet used.
+    std::string&	triggerCharacters() { return fTriggerCharacters; } //for completion
 
 private:
 	bool	_Create();
@@ -102,6 +105,8 @@ private:
 	std::string fTriggerCharacters;
 
 	std::string fRootURI;
+	BMessenger fMessenger;
+	uint32		fWhat;
 };
 
 #endif // _H_LSPProjectWrapper

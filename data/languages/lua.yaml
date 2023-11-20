@@ -1,0 +1,49 @@
+# Lua
+lexer: lua
+properties:
+    fold: 1
+keywords:
+    0: >
+        and break do else elseif end false for function if in local nil not or
+        repeat return then true until while
+    1: >
+        assert collectgarbage dofile error _G getfenv getmetatable ipairs load
+        loadfile loadstring next pairs pcall print rawequal rawget rawset select
+        setfenv setmetatable tonumber tostring type unpack _VERSION xpcall
+    2: >
+        string.byte string.char string.dump string.find string.format
+        string.gmatch string.gsub string.len string.lower string.match
+        string.rep string.reverse string.sub string.upper
+        table.concat table.insert table.maxn table.remove table.sort
+        math.abs math.acos math.asin math.atan math.atan2 math.ceil math.cos
+        math.cosh math.deg math.exp math.floor math.fmod math.frexp math.huge
+        math.ldexp math.log math.log10 math.max math.min math.modf math.pi
+        math.pow math.rad math.random math.randomseed math.sin math.sinh
+        math.sqrt math.tan math.tanh
+    3: >
+        coroutine.create coroutine.resume coroutine.running coroutine.status
+        coroutine.wrap coroutine.yield
+        io.close io.flush io.input io.lines io.open io.output io.popen io.read
+        io.tmpfile io.type io.write
+        os.clock os.date os.difftime os.execute os.exit os.getenv os.remove
+        os.rename os.setlocale os.time os.tmpname
+comments:
+    line: "--"
+    block: [ "--[[", "]]" ]
+styles:
+    0: 32
+    1: 101
+    2: 101
+    3: 103
+    4: 104
+    5: 105
+    6: 106
+    7: 106
+    8: 106
+    9: 109
+    10: 110
+    11: 32
+    13: 120
+    14: 119
+    15: 121
+    20: 32

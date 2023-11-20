@@ -53,24 +53,11 @@ constexpr auto sci_BOOKMARK_MARGIN = 1;
 constexpr auto sci_FOLD_MARGIN = 2;
 constexpr auto sci_COMMENT_MARGIN = 3;
 
-constexpr auto sci_BOOKMARK = 0;
+constexpr auto sci_BOOKMARK = 0; //Marker
 
-// Colors
-static constexpr auto kLineNumberBack = 0xD3D3D3;
-static constexpr auto kWhiteSpaceFore = 0x3030C0;
-static constexpr auto kWhiteSpaceBack = 0xB0B0B0;
-static constexpr auto kSelectionBackColor = 0x80FFFF;
-static constexpr auto kCaretLineBackColor = 0xF8EFE9;
-static constexpr auto kEdgeColor = 0xE0E0E0;
-static constexpr auto kMarkerForeColor = 0x80FFFF;
-static constexpr auto kMarkerBackColor = 0x3030C0;
-
-constexpr auto kNoBrace = 0;
-constexpr auto kBraceMatch = 1;
-constexpr auto kBraceBad = 2;
 
 class Editor : public BScintillaView {
-	
+
 public:
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
@@ -128,6 +115,8 @@ public:
 			status_t			Reload();
 			int					ReplaceAndFindNext(const BString& selection,
 									const BString& replacement, int flags, bool wrap);
+			int					ReplaceAndFindPrevious(const BString& selection,
+									const BString& replacement, int flags, bool wrap);
 			int32				ReplaceAll(const BString& selection,
 									const BString& replacement, int flags);
 			void 				ReplaceMessage(int position, const BString& selection,
@@ -153,7 +142,7 @@ public:
 			bool				LineEndingsVisible();
 			bool				WhiteSpacesVisible();
 
-			
+
 			void				SetProjectFolder(ProjectFolder*);
 			ProjectFolder*		GetProjectFolder() { return fProjectFolder; }
 			void				SetZoom(int32 zoom);
@@ -165,14 +154,20 @@ public:
 			void				GoToImplementation();
 			void				SwitchSourceHeader();
 			void				UncommentSelection();
-			
+
 			void 				ContextMenu(BPoint point);
-			
+
 			void				SetProblems(const BMessage* diagnostics);
 			void				GetProblems(BMessage* diagnostics);
-			
+
 			filter_result		BeforeKeyDown(BMessage*);
 			filter_result		OnArrowKey(int8 ch);
+
+			std::string			FileType() { return fFileType; }
+			void				SetFileType(std::string fileType) { fFileType = fileType; }
+
+			void				SetCommentLineToken(std::string commenter){ fCommenter = commenter; }
+			void				SetCommentBlockTokens(std::string startBlock, std::string endBlock){ /*TODO! */}
 
 private:
 			void				UpdateStatusBar();
@@ -185,11 +180,10 @@ private:
 			int32				_EndOfLine();
 			void				_EndOfLineAssign(char *buffer, int32 size);
 			void				_HighlightBraces();
-			void				_HighlightFile();
 			void				_RedrawNumberMargin(bool forced = false);
-			void				_SetFoldMargin();
+			void				_SetFoldMargin(bool enabled);
 			void				_UpdateSavePoint(bool modified);
-			
+
 			template<typename T>
 			typename T::type	Get() { return T::Get(this); }
 			template<typename T>
@@ -213,11 +207,11 @@ private:
 
 			int					fCurrentLine;
 			int					fCurrentColumn;
-			
+
 			LSPEditorWrapper*		fLSPEditorWrapper;
 			ProjectFolder*		fProjectFolder;
 			editor::StatusView*			fStatusView;
-			
+
 			BMessage	fProblems;
 			BLocker		fProblemsLock;
 

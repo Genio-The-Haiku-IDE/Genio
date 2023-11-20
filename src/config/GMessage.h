@@ -2,7 +2,7 @@
  * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
- // Version 0.1
+ // Version 2
  // Requires C++17
  //
  // Example:
@@ -14,37 +14,48 @@
  //   printf("Points: %d\n", (int32)msg["points"]);
  //
  // brace-enclosed list:
- //  GMessage msg2 = {{ {"name", "Andrea"}, {"points", 1412}, {"active", true} }};
+ //  GMessage msg2 = { {"name", "Andrea"}, {"points", 1412}, {"active", true} };
  //
  // submessages:
  //	 GMessage msg3 = msg2;
- //	 msg["details"] = {{ {"id", 442}, {"cost", 78} }};
+ //	 msg["details"] = { {"id", 442}, {"cost", 78} };
+ //
+ //	GMessage levels3 = {
+ //		{"what", 'HOLA' },
+ //		{"mode", "options"},
+ //		{"option_1", {
+ //			{"what", 'HERE' },
+ //			{"value", (int32)0 },
+ //			{"label", "Off" }}}
+ //	};
+ //
+ // NOTE: the 'what' key with an int32 value, sets the message->what field!
 
 #pragma once
 #include <Message.h>
-//
+#include <String.h>
 #include <cstring>
 #include <memory>
 #include <string>
 #include <variant>
-#include <vector>
 
-#include <iostream>
+#define KV(T) kv_pair(const std::string &k, T v) : pair(k, std::make_shared<mapped_type>(v)) {}
 
-using generic_type = std::variant<bool, int32, const char*>;
-struct key_value {
-	const char* 	key;
-	generic_type	value;
-
-};
-using variant_list = std::vector<key_value>;
+#define SUPPORTED_1		int32, bool, const char*, BString, GMessage
+#define SUPPORTED_2		KV(int32); KV(bool); KV(const char*); KV(BString); KV(GMessage);
 
 class GMessageReturn;
 class GMessage : public BMessage {
 public:
+
+  using mapped_type = std::variant<SUPPORTED_1>;
+  struct kv_pair : public std::pair<std::string, std::shared_ptr<mapped_type>> { SUPPORTED_2 };
+  using variant_list = std::initializer_list<kv_pair>;
+
+
 	explicit GMessage():BMessage() {};
 	explicit GMessage(uint32 what):BMessage(what){};
-	GMessage(variant_list n):BMessage() { _HandleVariantList(n); };
+	GMessage(variant_list n) { _HandleVariantList(n); };
 
 	auto operator[](const char* key) -> GMessageReturn;
 
@@ -66,7 +77,7 @@ private:
 template<typename T>
 class MessageValue {
 public:
-	static T	Get(GMessage* msg, const char* key, T value){
+	static T	Get(GMessage* msg, const char* key){
 					T write_specific_converter;
 					return Unsupported_GetValue_for_GMessage(write_specific_converter);
 	}
@@ -88,7 +99,7 @@ public: \
 }; \
 
 
-#define MESSAGE_VALUE_REF(NAME, TYPE, typeCODE, DEFAULT) \
+#define MESSAGE_VALUE_REF(NAME, TYPE, typeCODE) \
 template<> \
 class MessageValue<TYPE> { \
 public: \
@@ -115,8 +126,9 @@ MESSAGE_VALUE(Int32, int, B_INT32_TYPE, -1);
 
 MESSAGE_VALUE(UInt32, uint32, B_UINT32_TYPE, 0);
 MESSAGE_VALUE(Rect, BRect, B_RECT_TYPE, BRect());
-MESSAGE_VALUE_REF(Message, GMessage, B_MESSAGE_TYPE, GMessage());
-MESSAGE_VALUE_REF(Message, BMessage, B_MESSAGE_TYPE, BMessage());
+MESSAGE_VALUE(String, BString, B_STRING_TYPE, BString(""));
+MESSAGE_VALUE_REF(Message, GMessage, B_MESSAGE_TYPE);
+MESSAGE_VALUE_REF(Message, BMessage, B_MESSAGE_TYPE);
 
 class GMessageReturn {
 public:
@@ -135,9 +147,13 @@ public:
         operator Return() { return MessageValue<Return>::Get(fMsg, fKey); };
 
 		template< typename T >
-		void operator=(T n) { MessageValue<T>::Set(fMsg, fKey, n); }
+		void operator=(T n) { if (!is_what(n)) MessageValue<T>::Set(fMsg, fKey, n); }
 
-		void operator=(variant_list n){
+		template<typename T>
+		bool is_what(T n) { return false; }
+
+
+		void operator=(GMessage::variant_list n){
 			GMessage xmsg(n);
 			MessageValue<GMessage>::Set(fMsg, fKey, xmsg);
 		}
@@ -150,24 +166,25 @@ public:
 
 		void operator=(const GMessageReturn& n) {
 			type_code typeFound;
-			if (n.fKey == fKey && fMsg == n.fMsg)
+			bool fixedSize;
+			if (fMsg == n.fMsg && strcmp(n.fKey, fKey) == 0)
 				return;
 
-			if (n.fMsg->GetInfo(n.fKey, &typeFound) == B_OK) {
+			if (n.fMsg->GetInfo(n.fKey, &typeFound, &fixedSize) == B_OK) {
 				const void* data = nullptr;
 				ssize_t numBytes = 0;
 				if (n.fMsg->FindData(n.fKey, typeFound, &data, &numBytes) == B_OK) {
-					fMsg->RemoveName(fKey); //remove the key
-					fMsg->SetData(fKey, typeFound, data, numBytes);
+					fMsg->RemoveData(fKey); //remove the key
+					fMsg->SetData(fKey, typeFound, data, numBytes, fixedSize);
 				}
 			}
 		}
-		
+
 		bool operator !=(const GMessageReturn& n) {
 			return !operator==(n);
 		}
-		
-		bool operator ==(GMessageReturn n) {
+
+		bool operator ==(const GMessageReturn& n) {
 			type_code typeLeft;
 			type_code typeRight;
 			const void* dataLeft = nullptr;
@@ -191,7 +208,7 @@ public:
 
 			return comparison;
 		}
-		
+
 		void Print() const {
 			fMsg->PrintToStream();
 		}
@@ -200,3 +217,9 @@ private:
 		const char* fKey;
 		GMessageReturn* fSyncParent;
 };
+
+// Heap Message, deprecated!
+#define SMSG(WHAT, LIST...) new GMessage({{"what",WHAT}, LIST})
+
+//BMessage wrapper
+#define BMSG(in, out) GMessage& out = *((GMessage*)in);

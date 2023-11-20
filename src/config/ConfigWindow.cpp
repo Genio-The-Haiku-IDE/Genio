@@ -13,10 +13,13 @@
 #include <LayoutBuilder.h>
 #include <OptionPopUp.h>
 #include <OutlineListView.h>
-#include <Spinner.h>
 #include <ScrollView.h>
+#include <Spinner.h>
+#include <StringView.h>
 #include <TextControl.h>
 #include <Window.h>
+
+#include <vector>
 
 #include "ConfigManager.h"
 
@@ -50,7 +53,7 @@ public:
 			C::SetTarget(this);
 		}
 		void MessageReceived(BMessage* msg) {
-			GMessage& gsm = *((GMessage*)msg);
+			GMessage& gsm = *(dynamic_cast<GMessage*>(msg));
 			if (msg->what == kOnNewValue) {
 				fConfigManager[gsm["key"]] = RetrieveValue();
 			} else if (msg->what == kSetValueNoUpdate) {
@@ -86,11 +89,37 @@ void GControl<BTextControl, const char*>::LoadValue(const char* value)
 }
 
 
+template<>
+const char* GControl<BOptionPopUp, const char*>::RetrieveValue()
+{
+	   const char* label = nullptr;
+	   BOptionPopUp::SelectedOption(&label, nullptr);
+	   return label;
+}
+
+
+template<>
+void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
+{
+	const char* label = nullptr;
+	int32 intValue = 0;
+	for (int32 i = 0; i < CountOptions(); i++) {
+		if (GetOptionAt(i, &label, &intValue)) {
+			if (strcmp(label, value) == 0)
+				break;
+		}
+	}
+	SetValue(intValue);
+}
+
+
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
     : BWindow(BRect(100, 100, 700, 500), "Settings", B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
               B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
       fConfigManager(configManager)
 {
+	fShowHidden = modifiers() & B_COMMAND_KEY;
+
 	CenterOnScreen();
 	SetLayout(new BGroupLayout(B_HORIZONTAL));
 	AddChild(_Init());
@@ -113,8 +142,6 @@ ConfigWindow::_Init()
 
 	fDefaultsButton = new BButton("defaults", B_TRANSLATE("Defaults"), new BMessage(kDefaultPressed));
 	fDefaultsButton->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-
-	// TODO: Find a way to handle enabling/disabling
 	fDefaultsButton->SetEnabled(true);
 
 	// Box around the config and info panels
@@ -135,11 +162,10 @@ ConfigWindow::_Init()
 		.Add(fDefaultsButton);
 
 	fGroupList->MakeFocus();
-	// fCardView->CardLayout()->SetVisibleItem(0);
 
 	fGroupList->Select(0);
 
-	be_app->StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
+	be_app->StartWatching(this, fConfigManager.UpdateMessageWhat());
 
 	fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 
@@ -155,37 +181,34 @@ ConfigWindow::MessageReceived(BMessage* message)
 		{
 			int32 index = message->GetInt32("index", 0);
 			if (index >= 0) {
-				BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(index);
+				BStringItem* item = dynamic_cast<BStringItem*>(fGroupList->FullListItemAt(index));
+				if (item == nullptr)
+					break;
 				BView* card = fCardView->FindView(item->Text());
-				fCardView->CardLayout()->SetVisibleItem(fCardView->CardLayout()->IndexOfView(card));
+				if (card != nullptr)
+					fCardView->CardLayout()->SetVisibleItem(fCardView->CardLayout()->IndexOfView(card));
 			}
 			break;
 		}
 		case kDefaultPressed:
-			gCFG.ResetToDefaults();
+			fConfigManager.ResetToDefaults();
 			break;
 		case B_OBSERVER_NOTICE_CHANGE:
 		{
 			int32 code;
 			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
 				break;
-			switch (code) {
-				case MSG_NOTIFY_CONFIGURATION_UPDATED:
-				{
-					BString key;
-					if (message->FindString("key", &key) == B_OK) {
-						BView* control = FindView(key.String());
-						if (control != nullptr) {
-							GMessage m(kSetValueNoUpdate);
-							m["key"] = key.String();
-							control->MessageReceived(&m);
-							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
-						}
+			if (code == fConfigManager.UpdateMessageWhat()) {
+				BString key;
+				if (message->FindString("key", &key) == B_OK) {
+					BView* control = FindView(key.String());
+					if (control != nullptr) {
+						GMessage m(kSetValueNoUpdate);
+						m["key"] = key.String();
+						control->MessageReceived(&m);
+						fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 					}
-					break;
 				}
-				default:
-					break;
 			}
 			break;
 		}
@@ -199,41 +222,40 @@ ConfigWindow::MessageReceived(BMessage* message)
 void
 ConfigWindow::_PopulateListView()
 {
-	std::vector<GMessage> divededByGroup;
+	std::vector<GMessage> dividedByGroup;
 	GMessage msg;
-	int i=0;
-	while(fConfigManager.Configuration().FindMessage("config", i++, &msg) == B_OK)  {
+	int i = 0;
+	while (fConfigManager.Configuration().FindMessage("config", i++, &msg) == B_OK)  {
 		//printf("Adding for %s -> %s\n", (const char*)msg["group"], (const char*)msg["label"]);
-		std::vector<GMessage>::iterator i = divededByGroup.begin();
-		while (i != divededByGroup.end()) {
+		std::vector<GMessage>::iterator i = dividedByGroup.begin();
+		while (i != dividedByGroup.end()) {
 			if (strcmp((*i)["group"], (const char*)msg["group"]) == 0) {
 				(*i).AddMessage("config", &msg);
 				break;
 			}
 			i++;
 		}
-		if (i == divededByGroup.end() && strcmp((const char*)msg["group"], "Hidden") != 0 ) {
-			GMessage first = {{ {"group",(const char*)msg["group"]} }};
+
+		if (i == dividedByGroup.end() && (fShowHidden || (strcmp((const char*)msg["group"], "Hidden") != 0)) ) {
+			GMessage first = {{ {"group", (const char*)msg["group"]} }};
 			first.AddMessage("config", &msg);
-			divededByGroup.push_back(first);
+			dividedByGroup.push_back(first);
 		}
 	}
 
-	std::vector<GMessage>::iterator iter = divededByGroup.begin();
-	while(iter != divededByGroup.end())  {
-		// printf("Working for %s ", (const char*)(*iter)["group"]);
-		// (*iter).PrintToStream();
+	std::vector<GMessage>::iterator iter = dividedByGroup.begin();
+	while (iter != dividedByGroup.end())  {
 		BView *groupView = MakeViewFor((const char*)(*iter)["group"], *iter);
 		if (groupView != NULL) {
 			groupView->SetName((const char*)(*iter)["group"]);
 			fCardView->AddChild(groupView);
 			BString groupName = (const char*)(*iter)["group"];
-			int position = groupName.FindFirstChars("/", 0);
+			int32 position = groupName.FindFirstChars("/", 0);
 			if (position > 0) {
 				BString leaf;
 				groupName.CopyCharsInto(leaf,0,position);
 				groupName.Remove(0, position + 1);
-				for(int y=0;y<fGroupList->FullListCountItems();y++) {
+				for (int y = 0;y < fGroupList->FullListCountItems(); y++) {
 					BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(y);
 					if (leaf.Compare(item->Text()) == 0) {
 						int32 count = fGroupList->CountItemsUnder(item, false);
@@ -258,7 +280,6 @@ ConfigWindow::_PopulateListView()
 BView*
 ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 {
-	// printf("Making for %s\n", (const char*)config["key"]);
 	// Create and add the setting views
 	BGroupView *view = new BGroupView(groupName, B_HORIZONTAL,
 		B_USE_HALF_ITEM_SPACING);
@@ -271,13 +292,15 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	settingLayout->SetInsets(B_USE_HALF_ITEM_INSETS);
 
 	GMessage msg;
-	int i=0;
-	while(list.FindMessage("config", i++, &msg) == B_OK)  {
+	int i = 0;
+	while (list.FindMessage("config", i++, &msg) == B_OK)  {
 		BView *parameterView = MakeControlFor(msg);
 		if (parameterView == NULL)
 			return nullptr;
 
 		settingLayout->AddView(parameterView);
+		if (msg.Has("note"))
+			settingLayout->AddView(MakeNoteView(msg));
 	}
 
 	settingLayout->AddItem(BSpaceLayoutItem::CreateHorizontalStrut(10));
@@ -286,6 +309,15 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	return view;
 }
 
+
+BView*
+ConfigWindow::MakeNoteView(GMessage& config)
+{
+	BString name((const char*)config["key"]);
+	name << "_note";
+	BStringView* view = new BStringView(name.String(), config["note"]);
+	return view;
+}
 
 
 BView*
@@ -302,18 +334,7 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		{
 			if (config.Has("mode")) {
 				if (BString((const char*)config["mode"]).Compare("options") == 0){
-
-					BOptionPopUp* popUp = new GControl<BOptionPopUp, int32>(config, fConfigManager[config["key"]], fConfigManager);
-					int32 c=1;
-					while(true) {
-						BString key("option_");
-						key << c;
-						if (!config.Has(key.String()))
-							break;
-						popUp->AddOption(config[key.String()]["label"], config[key.String()]["value"]);
-						c++;
-					}
-					return popUp;
+					return _CreatePopUp<int32>(config);
 				}
 			} else {
 				BSpinner* sp = new GControl<BSpinner, int32>(config, fConfigManager[config["key"]], fConfigManager);
@@ -325,23 +346,45 @@ ConfigWindow::MakeControlFor(GMessage& config)
 				return sp;
 			}
 		}
-
 		case B_STRING_TYPE:
 		{
-			//TODO: handle the 'mode'
-			GControl<BTextControl, const char*>* control = new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]], fConfigManager);
-			// TODO: Improve
-			control->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
-			return control;
+			if (config.Has("mode")) {
+				if (BString((const char*)config["mode"]).Compare("options") == 0){
+					return _CreatePopUp<const char*>(config);
+				}
+			} else {
+				GControl<BTextControl, const char*>* control = new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]], fConfigManager);
+				// TODO: Improve
+				control->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
+				return control;
+			}
 		}
-
 		default:
 		{
-			BString errorString;
-			errorString.SetToFormat("Setting: Don't know setting type for key [%s]\n", (const char*)config["key"]);
-			debugger(errorString.String());
+			BString label;
+			label.SetToFormat("Can't create control for setting [%s]\n", (const char*)config["key"]);
+			return new BStringView("view", label.String());
 		}
 		break;
 	}
 	return NULL;
+}
+
+
+template<typename T>
+BOptionPopUp*
+ConfigWindow::_CreatePopUp(GMessage& config)
+{
+	auto popUp = new GControl<BOptionPopUp, T>(config, fConfigManager[config["key"]], fConfigManager);
+	int32 c = 1;
+	while (true) {
+		BString key("option_");
+		key << c;
+		if (!config.Has(key.String()))
+			break;
+		popUp->AddOption(config[key.String()]["label"], config[key.String()]["value"]);
+		c++;
+	}
+	popUp->LoadValue(fConfigManager[config["key"]]);
+	return popUp;
 }

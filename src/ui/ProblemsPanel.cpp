@@ -62,29 +62,38 @@ ProblemsPanel::AttachedToWindow()
 void
 ProblemsPanel::MessageReceived(BMessage* msg)
 {
-	if (msg->what == COLUMNVIEW_CLICK) {
-		RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
-		if (range) {
-			//range->fRange.PrintToStream();
-			BMessage start;
-			if (range->fRange.FindMessage("start", &start) == B_OK) {
-				const int32 be_line = start.GetDouble("line", -1.0);
-				const int32 lsp_char = start.GetDouble("character", -1.0);
-				entry_ref ref;
-				range->fRange.FindRef("ref", &ref);
+	switch(msg->what) {
+		case B_COPY:
+		case B_CUT:
+		case B_PASTE:
+		case B_SELECT_ALL:
+			//to avoid crash! (WIP)
+			break;
+		case COLUMNVIEW_CLICK: {
+			RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
+			if (range) {
+				//range->fRange.PrintToStream();
+				BMessage start;
+				if (range->fRange.FindMessage("start", &start) == B_OK) {
+					const int32 be_line = start.GetDouble("line", -1.0);
+					const int32 lsp_char = start.GetDouble("character", -1.0);
+					entry_ref ref;
+					range->fRange.FindRef("ref", &ref);
 
-				BMessage refs(B_REFS_RECEIVED);
-				refs.AddInt32("be:line", be_line + 1);
-				refs.AddInt32("lsp:character", lsp_char);
-				refs.AddRef("refs", &ref);
-				//refs.PrintToStream();
-				Window()->PostMessage(&refs);
+					BMessage refs(B_REFS_RECEIVED);
+					refs.AddInt32("be:line", be_line + 1);
+					refs.AddInt32("lsp:character", lsp_char);
+					refs.AddRef("refs", &ref);
+					//refs.PrintToStream();
+					Window()->PostMessage(&refs);
+				}
 			}
 		}
-		return;
-	}
-
-	BColumnListView::MessageReceived(msg);
+		break;
+		default:
+			BColumnListView::MessageReceived(msg);
+		break;
+	};
 }
 
 
@@ -110,7 +119,7 @@ ProblemsPanel::UpdateProblems(BMessage* msg)
 	_UpdateTabLabel();
 }
 
-void 
+void
 ProblemsPanel::ClearProblems()
 {
 	Clear();

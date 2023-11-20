@@ -7,9 +7,8 @@
 #define LSP_TRANSPORT_H
 
 #include "MessageHandler.h"
-#include <functional>
-#include <utility>
 #include <Looper.h>
+#include <Messenger.h>
 
 class Transport {
 public:
@@ -17,32 +16,31 @@ public:
     virtual void request(string_ref method, value &params, RequestID &id) = 0;
 
     virtual bool  readStep() = 0;
-    
+
     virtual bool readMessage(std::string &) = 0;
     virtual bool writeMessage(std::string &) = 0;
 };
 
 class AsyncJsonTransport: public Transport, public BLooper {
-	
+
 public:
-		 AsyncJsonTransport(MessageHandler& handler);
-		 
+		 AsyncJsonTransport(uint32 handler, BMessenger& msgr);
+
     void notify(string_ref method, value &params) override;
     void request(string_ref method, value &params, RequestID &id) override;
-    
-	
+
+
 	bool  readStep() override;
-	
+
 	void MessageReceived(BMessage* msg) override;
 
+private:
 
 
-private:	
-
-	void DispatchResult(const char* data);
 	bool writeJson(value& value);
 
-	MessageHandler&	fHandler;
+	uint32			fWhat;
+	BMessenger		fMessenger;
 
 };
 

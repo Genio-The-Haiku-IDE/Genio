@@ -107,6 +107,7 @@ SearchResultPanel::StartSearch(BString command, BString projectPath)
 
 	ActionManager::SetEnabled(MSG_FIND_IN_FILES, false);
 
+	_UpdateTabLabel("\xe2\x8c\x9b");//U+231x
 	fGrepThread = new GrepThread(&message, BMessenger(this));
 	fGrepThread->Start();
 }
@@ -126,6 +127,12 @@ void
 SearchResultPanel::MessageReceived(BMessage* msg)
 {
 	switch(msg->what) {
+		case B_COPY:
+		case B_CUT:
+		case B_PASTE:
+		case B_SELECT_ALL:
+			//to avoid crash! (WIP)
+			break;
 		case MSG_REPORT_RESULT:
 			UpdateSearch(msg);
 		break;
@@ -146,12 +153,13 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 				delete fGrepThread;
 				fGrepThread = nullptr;
 			}
-			_UpdateTabLabel();
+			_UpdateTabLabel(std::to_string(fCountResults).c_str());
 			ActionManager::SetEnabled(MSG_FIND_IN_FILES, true);
 		}
 		break;
 		default:
 			BColumnListView::MessageReceived(msg);
+			break;
 	};
 }
 
@@ -192,12 +200,12 @@ SearchResultPanel::UpdateSearch(BMessage* msg)
 
 
 void
-SearchResultPanel::_UpdateTabLabel()
+SearchResultPanel::_UpdateTabLabel(const char* txt)
 {
 	BString label = SearchResultPanelLabel;
-	if (fCountResults > 0) {
+	if (txt) {
 		label.Append(" (");
-		label.Append(std::to_string(fCountResults).c_str());
+		label.Append(txt);
 		label.Append(")");
 	}
 	SetTabLabel(label);

@@ -4,17 +4,21 @@
  */
 #include "LSPProjectWrapper.h"
 
-#include "GenioCommon.h"
+#include "ConfigManager.h"
+#include "GenioApp.h"
 #include "Log.h"
+#include "LSPLogLevels.h"
 #include "LSPPipeClient.h"
 #include "LSPReaderThread.h"
 #include "LSPTextDocument.h"
 #include "protocol.h"
 
+
 #include <Url.h>
 
+const int32 kLSPMessage = 'LSP!';
 
-LSPProjectWrapper::LSPProjectWrapper(BPath rootPath)
+LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, BMessenger& msgr) : BHandler(rootPath.Path())
 {
 	BUrl url(rootPath);
 	url.SetAuthority("");
@@ -22,6 +26,39 @@ LSPProjectWrapper::LSPProjectWrapper(BPath rootPath)
 	fRootURI = url.UrlString();
 	fLSPPipeClient = nullptr;
 	fInitialized.store(false);
+
+	fMessenger = msgr;
+}
+
+void
+LSPProjectWrapper::MessageReceived(BMessage* msg)
+{
+	if (msg->what == kLSPMessage) {
+		const char* json;
+		if (msg->FindString("data", &json) == B_OK && fLSPPipeClient) {
+			try {
+				auto value = nlohmann::json::parse(json);
+
+				if (value.count("id")) {
+					if (value.contains("method")) {
+						onRequest(value["method"].get<std::string>(), value["params"], value["id"]);
+					} else if (value.contains("result")) {
+						onResponse(value["id"].get<std::string>(), value["result"]);
+					} else if (value.contains("error")) {
+						onError(value["id"].get<std::string>(), value["error"]);
+					}
+				} else if (value.contains("method")) {
+					if (value.contains("params")) {
+						onNotify(value["method"].get<std::string>(), value["params"]);
+					}
+				}
+			}
+			catch (std::exception& e) {
+				return;
+			}
+		}
+	}
+	return;
 }
 
 
@@ -29,14 +66,14 @@ LSPProjectWrapper::LSPProjectWrapper(BPath rootPath)
 bool
 LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 {
-	std::string fileType = Genio::file_type(textDocument->GetFilenameURI().String());
-	if (fileType.compare("c++") != 0 && fileType.compare("make") != 0)
+	if (textDocument->FileType().Compare("cpp")  != 0 &&
+		textDocument->FileType().Compare("c")    != 0 &&
+	    textDocument->FileType().Compare("makefile") != 0)
 		return false;
 
 	if (!fLSPPipeClient)
 		_Create();
 
-	// protect access? who should call this?
 	fTextDocs[X(textDocument)] = textDocument;
 	return true;
 }
@@ -45,7 +82,6 @@ LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 void
 LSPProjectWrapper::UnregisterTextDocument(LSPTextDocument* textDocument)
 {
-	// protect access? who should call this?
 	if (fTextDocs.find(X(textDocument)) != fTextDocs.end())
 		fTextDocs.erase(X(textDocument));
 }
@@ -54,55 +90,56 @@ LSPProjectWrapper::UnregisterTextDocument(LSPTextDocument* textDocument)
 bool
 LSPProjectWrapper::_Create()
 {
-	fLSPPipeClient = new LSPPipeClient(*((MessageHandler*) this));
+	BLooper* looper = nullptr;
+	fMessenger.Target(&looper);
+	if (!looper)
+		return false;
+
+	looper->AddHandler(this);
+	BMessenger thisProject = BMessenger(this, looper);
+
+	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 	/** configuration for clangd */
 	std::string logLevel("--log=");
-	switch (Logger::Level()) {
-		case LOG_LEVEL_UNSET:
-		case LOG_LEVEL_OFF:
-		case LOG_LEVEL_ERROR:
+	switch ((int32)gCFG["lsp_log_level"]) {
+		case LSP_LOG_LEVEL_ERROR:
 			logLevel += "error"; // Error messages only
 			break;
-		case LOG_LEVEL_INFO:
+		case LSP_LOG_LEVEL_INFO:
 			logLevel += "info"; // High level execution tracing
 			break;
-		case LOG_LEVEL_DEBUG:
-		case LOG_LEVEL_TRACE:
+		case LSP_LOG_LEVEL_TRACE:
 			logLevel += "verbose"; // Low level details
 			break;
 	};
-	const char* argv[] = {
-		"clangd",
-		logLevel.c_str(),
-		"--offset-encoding=utf-8",
-		"--pretty",
-		"--header-insertion-decorators=false",
-		NULL
-	};
+	const char* argv[] = {"clangd", logLevel.c_str(), "--offset-encoding=utf-8", "--pretty",
+		"--header-insertion-decorators=false", "--pch-storage=memory", NULL};
 
-	if (fLSPPipeClient->Start(argv, 5) != B_OK) {
+	if (fLSPPipeClient->Start(argv, 6) != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
-		LogInfo("Can't execute clangd tool to provide advanced features! Please install llvm12 "
+		LogInfo("Can't execute clangd tool to provide advanced features! Please install "
+				"llvm12/llvm16/llvm17 "
 				"package.");
 		return false;
 	}
 
 	Initialize(string_ref(fRootURI));
 
-	while (!fInitialized.load() && !fLSPPipeClient->HasQuitBeenRequested()) {
-		LogDebug("Waiting for clangd initialization.. \n");
-		snooze(50000);
-	}
-	return !fLSPPipeClient->HasQuitBeenRequested();
+	return true;
 }
 
 
 bool
 LSPProjectWrapper::Dispose()
 {
+	if (Looper()) {
+		Looper()->RemoveHandler(this);
+	}
+
 	if (!fInitialized) {
-		if (fLSPPipeClient)
+		if (fLSPPipeClient) {
 			fLSPPipeClient->ForceQuit();
+		}
 		return true;
 	}
 
@@ -147,6 +184,7 @@ LSPProjectWrapper::onNotify(std::string method, value& params)
 	if (method.compare("textDocument/publishDiagnostics") == 0
 		|| method.compare("textDocument/clangd.fileStatus") == 0) {
 		auto uri = params["uri"].get<std::string>();
+
 		LSPTextDocument* doc = _DocumentByURI(uri.c_str());
 		if (doc) {
 			doc->onNotify(method, params);
@@ -256,14 +294,15 @@ LSPProjectWrapper::Initialized(json& result)
 	if (capas != value::value_t::null) {
 		auto& completionProvider = capas["completionProvider"];
 		if (completionProvider != value::value_t::null) {
-			auto& allCommitCharacters = completionProvider["allCommitCharacters"];
-			if (allCommitCharacters != value::value_t::null) {
-				fAllCommitCharacters.clear();
-				for (auto& c : allCommitCharacters) {
-					fAllCommitCharacters.append(c.get<std::string>().c_str());
-				}
-				LogDebug("allCommitCharacters [%s]", this->allCommitCharacters().c_str());
-			}
+			// auto& allCommitCharacters = completionProvider["allCommitCharacters"];
+			// if (allCommitCharacters != value::value_t::null) {
+				// fAllCommitCharacters.clear();
+				// for (auto& c : allCommitCharacters) {
+					// printf("--> %s\n", c.get<std::string>().c_str());
+					// fAllCommitCharacters.append(c.get<std::string>().c_str());
+				// }
+				// LogDebug("allCommitCharacters [%s]", this->allCommitCharacters().c_str());
+			// }
 			auto& triggerCharacters = completionProvider["triggerCharacters"];
 			if (triggerCharacters != value::value_t::null) {
 				fTriggerCharacters.clear();

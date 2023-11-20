@@ -134,6 +134,7 @@ ConsoleIOView::_StopCommand()
 		message.AddString("cmd_type", fCmdType);
 		Window()->PostMessage(&message);
 		fCmdType = "";
+		fBannerClaim = "";
 	}
 }
 
@@ -204,6 +205,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			fConsoleIOThread = new ConsoleIOThread(message, BMessenger(this));
 			fConsoleIOThread->Start();
 			fCmdType = message->GetString("cmd_type", "");
+			fBannerClaim = message->GetString("banner_claim", fCmdType);
 			_BannerMessage("started   ");
 
 			break;
@@ -230,7 +232,7 @@ ConsoleIOView::_BannerMessage(BString status)
 	BString banner;
 	banner  << "--------------------------------"
 			<< "   "
-			<< fCmdType
+			<< fBannerClaim
 			<< " "
 			<< status
 			<< "--------------------------------\n";
@@ -345,13 +347,9 @@ ConsoleIOView::_HandleConsoleOutput(OutputInfo* info)
 	run.runs[0].offset = 0;
 	// stderr goes orange
 	if (info->fd == 2) {
-		run.runs[0].color.red = 236;
-		run.runs[0].color.green = 126;
-		run.runs[0].color.blue = 14;
+		run.runs[0].color = ui_color(B_FAILURE_COLOR);
 	} else {
-		run.runs[0].color.red = 0;
-		run.runs[0].color.green = 0;
-		run.runs[0].color.blue = 0;
+		run.runs[0].color = ui_color(B_LIST_ITEM_TEXT_COLOR);
 	}
 	run.runs[0].color.alpha = 255;
 

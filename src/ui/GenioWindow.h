@@ -5,8 +5,6 @@
 #ifndef GenioWINDOW_H
 #define GenioWINDOW_H
 
-#include <map>
-
 #include <Bitmap.h>
 #include <CheckBox.h>
 #include <ColumnTypes.h>
@@ -33,6 +31,7 @@
 #include "TemplatesMenu.h"
 #include "SearchResultPanel.h"
 #include <vector>
+#include "GMessage.h"
 
 enum {
 	kProjectsOutline = 0,
@@ -44,6 +43,13 @@ enum {
 	kBuildLog,
 	kOutputLog
 };
+
+enum scree_mode {
+	kDefault = 0,
+	kFullscreen,
+	kFocus
+};
+	
 
 class ActionManager;
 
@@ -59,10 +65,11 @@ public:
 	virtual void				Show();
 
 	void						UpdateMenu();
+	ProjectFolder*				GetActiveProject() { return fActiveProject; }
 
 private:
 
-			status_t			_AddEditorTab(entry_ref* ref, int32 index, int32 be_line, int32 sci_pos);
+			status_t			_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
 
 			void				_BuildDone(BMessage* msg);
 			status_t			_BuildProject();
@@ -120,7 +127,7 @@ private:
 			void				_ProjectFolderActivate(ProjectFolder* project);
 
 			status_t			_ShowCurrentItemInTracker();
-			status_t			_ShowInTracker(entry_ref *ref);
+			status_t			_ShowInTracker(const BPath& path);
 			status_t			_OpenTerminalWorkingDirectory();
 
 			int					_Replace(int what);
@@ -138,15 +145,18 @@ private:
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
-			status_t		_AlertInvalidBuildConfig(BString text);
+			status_t			_AlertInvalidBuildConfig(BString text);
 			void				_CloseMultipleTabs(BMessage* msg);
 			void				_HandleConfigurationChanged(BMessage* msg);
+			BMenu*				_CreateLanguagesMenu();
+			void				_ToogleScreenMode(int32 action);
 
 private:
 			BMenuBar*			fMenuBar;
 			TemplatesMenu*	fFileNewMenuItem;
 
-      BMenu*				fLineEndingsMenu;
+			BMenu*				fLineEndingsMenu;
+			BMenu*				fLanguageMenu;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;
 			BMenuItem*			fBookmarkClearAllItem;
@@ -219,6 +229,9 @@ private:
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultPanel*	fSearchResultPanel;
+			
+			scree_mode			fScreenMode;
+			GMessage			fScreenModeSettings;
 };
 
 #endif //GenioWINDOW_H

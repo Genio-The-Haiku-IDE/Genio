@@ -41,12 +41,14 @@ enum {
 	MSG_EOL_CONVERT_TO_MAC		= 'ectm',
 	MSG_FILE_TRIM_TRAILING_SPACE = 'trim',
 
-  MSG_AUTOCOMPLETION			= 'auto',
+	MSG_AUTOCOMPLETION			= 'auto',
 	MSG_FORMAT					= 'form',
+	MSG_SET_LANGUAGE			= 'sela',
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
 	MSG_GOTOIMPLEMENTATION		= 'goim',
 	MSG_SWITCHSOURCE			= 'swit',
+
 
 	// view
 	MSG_VIEW_ZOOMIN				= 'zoin',
@@ -85,6 +87,7 @@ enum {
 
 	// Scm menu
 	MSG_GIT_COMMAND				= 'gitc',
+	MSG_GIT_SWITCH_BRANCH		= 'gtsb',
 	MSG_HG_COMMAND				= 'hgco',
 
 	// Window menu
@@ -105,6 +108,8 @@ enum {
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',
+	MSG_FULLSCREEN					= 'fscr',
+	MSG_FOCUS_MODE					= 'focu',
 	MSG_SELECT_TAB					= 'seta',
 
 	MSG_ESCAPE_KEY					= 'escp',
@@ -114,18 +119,21 @@ enum {
 
 	MSG_FIND_WRAP					= 'fiwr',
 	MSG_FIND_WHOLE_WORD				= 'fiww',
-	MSG_FIND_MATCH_CASE				= 'fimc'
+	MSG_FIND_MATCH_CASE				= 'fimc',
+
+	MSG_HELP_GITHUB					= 'hegh'
 };
 
 
 // "notification" messages
 enum {
-	MSG_NOTIFY_EDITOR_FILE_OPENED = 	  'efop',	// file_name (string)
-	MSG_NOTIFY_EDITOR_FILE_CLOSED = 	  'efcx',	// file_name (string)
+	MSG_NOTIFY_EDITOR_FILE_OPENED 		= 'efop',	// file_name (string)
+	MSG_NOTIFY_EDITOR_FILE_CLOSED 		= 'efcx',	// file_name (string)
 	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch',	// file_name (string)
 													// needs_save (bool)
 
-	MSG_NOTIFY_BUILDING_PHASE			= 'blph'	// building (bool)
+	MSG_NOTIFY_BUILDING_PHASE			= 'blph',	// building (bool)
+	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa'	// active_project (pointer)
 };
 
 #endif // GenioWindowMessages_H

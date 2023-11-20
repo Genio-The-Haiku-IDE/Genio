@@ -22,12 +22,12 @@
 
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
-#define IND_DIAG 0
-#define IND_LINK 1
+#define IND_DIAG 1 //Style for Problems
+#define IND_LINK 2 //Style for Links
 
 LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	:
-	LSPTextDocument(filenamePath),
+	LSPTextDocument(filenamePath, editor->FileType().c_str()),
 	fEditor(editor),
 	fToolTip(nullptr),
 	fLSPProjectWrapper(nullptr)
@@ -39,10 +39,15 @@ LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 void
 LSPEditorWrapper::ApplySettings()
 {
-	fEditor->SendMessage(SCI_INDICSETFORE, IND_DIAG, (255 | (0 << 8) | (0 << 16)));
+	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, (255 | (0 << 8) | (0 << 16)));
+	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_DIAG, INDIC_SQUIGGLE);
+	fEditor->SendMessage(SCI_INDICSETALPHA, IND_DIAG, 100);
 
-	fEditor->SendMessage(SCI_INDICSETFORE, IND_LINK, 0xff0000);
+	fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
+	fEditor->SendMessage(SCI_INDICSETALPHA, IND_LINK, 100);
+
+	fEditor->SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 
 	// int margins = fEditor->SendMessage(SCI_GETMARGINS);
 	// fEditor->SendMessage(SCI_SETMARGINS, margins + 1);
@@ -81,6 +86,8 @@ LSPEditorWrapper::SetLSPClient(LSPProjectWrapper* cW) {
 	assert(!fLSPProjectWrapper);
 	assert(fEditor);
 
+	SetFileType(fEditor->FileType().c_str());
+
 	if (cW->RegisterTextDocument(this)) {
 		fLSPProjectWrapper = cW;
 		didOpen();
@@ -95,7 +102,7 @@ LSPEditorWrapper::didOpen()
 		return;
 	const char* text = (const char*) fEditor->SendMessage(SCI_GETCHARACTERPOINTER);
 
-	fLSPProjectWrapper->DidOpen(this, text, "cpp");
+	fLSPProjectWrapper->DidOpen(this, text, FileType().String());
 	// fLSPProjectWrapper->Sync();
 }
 
@@ -340,7 +347,6 @@ LSPEditorWrapper::StartCompletion()
 
 const std::string kCalltipParametersEnd(")");
 const std::string kCalltipParametersStart("(");
-const std::string kAutoCompleteStartCharacters(".>");
 const std::string kCalltipWordCharacters("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 const std::string kCalltipParametersSeparators(",");
 
@@ -513,7 +519,7 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 				fBraceCount--;
 			} else if (!Contains(wordCharacters, ch)) {
 				fEditor->SendMessage(SCI_AUTOCCANCEL);
-				if (Contains(kAutoCompleteStartCharacters, ch)) {
+				if (Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
 					StartCompletion();
 				}
 			}
@@ -522,8 +528,9 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 				fBraceCount = 1;
 				StartCallTip(true);
 			} else {
-				if (Contains(kAutoCompleteStartCharacters, ch)) {
+				if (Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
 					StartCompletion();
+
 				}
 			}
 		}

@@ -1,0 +1,35 @@
+# JavaScript
+lexer: cpp
+properties:
+    fold: 1
+keywords:
+    0: >
+        abstract arguments await boolean break byte case catch char class const
+        continue debugger default delete do double else enum eval export extends
+        false final finally float for function goto if implements import in
+        instanceof int interface let long native new null package private
+        protected public return short static super switch synchronized this
+        throw throws transient true try typeof var void volatile while with
+        yield
+comments:
+    line: "//"
+    block: [ "/*", "*/" ]
+styles:
+    11: 32
+    10: 32
+    6: 106
+    7: 106
+    4: 104
+    5: 105
+    16: 105
+    1: 101
+    2: 101
+    3: 103
+    15: 103
+    17: 117
+    18: 117
+    19: 119
+    13: 113
+    14: 114
+    9: 109
+    12: 106

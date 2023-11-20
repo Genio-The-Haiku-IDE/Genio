@@ -13,16 +13,23 @@
 
 #include "Log.h"
 
-ConfigManager gConfigManager;
-ConfigManager& gCFG = gConfigManager;
 
-ConfigManager::ConfigManager()
+ConfigManager::ConfigManager(const int32 messageWhat)
+	:
+	fLocker("ConfigManager lock"),
+	fWhat(messageWhat)
 {
 	assert(fLocker.InitCheck() == B_OK);
 }
 
 
 auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
+{
+	return ConfigManagerReturn(key, *this);
+}
+
+bool
+ConfigManager::_CheckKeyIsValid(const char* key) const
 {
 	type_code type;
 	if (storage.GetInfo(key, &type) != B_OK) {
@@ -32,9 +39,8 @@ auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 		LogFatal(detail.String());
 		throw new std::exception();
 	}
-	return ConfigManagerReturn(storage, key, fLocker);
+	return true;
 }
-
 
 bool
 ConfigManager::Has(GMessage& msg, const char* key) const
@@ -53,21 +59,37 @@ ConfigManager::LoadFromFile(BPath path)
 	if (status == B_OK) {
 		status = fromFile.Unflatten(&file);
 		if (status == B_OK) {
-			//printf("configs from file:"); fromFile.PrintToStream();
 			GMessage msg;
 			int i = 0;
 			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
-				if (fromFile.Has(msg["key"]) && fromFile.Type(msg["key"]) == storage.Type(msg["key"])) {
+				const char* key = msg["key"];
+				if (fromFile.Has(key) && _SameTypeAndFixedSize(&fromFile, key, &storage, key)) {
 					(*this)[msg["key"]] = fromFile[msg["key"]];
 					LogInfo("Configuration files loading value for key [%s]", (const char*)msg["key"]);
 				} else {
 					LogError("Configuration files does not contain the vaid key [%s]", (const char*)msg["key"]);
 				}
 			}
-			//printf("configs after the file:"); storage.PrintToStream();
 		}
 	}
 	return status;
+}
+
+
+bool
+ConfigManager::_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
+									  BMessage* msgR, const char* keyR) const
+{
+	type_code typeL = 0;
+	bool fixedSizeL = false;
+	if (msgL->GetInfo(keyL, &typeL, &fixedSizeL) == B_OK) {
+		type_code typeR = 0;
+		bool fixedSizeR = false;
+		if (msgR->GetInfo(keyR, &typeR, &fixedSizeR) == B_OK) {
+			return (typeL == typeR && fixedSizeL == fixedSizeR);
+		}
+	}
+	return false;
 }
 
 
@@ -95,8 +117,10 @@ ConfigManager::ResetToDefaults()
 	}
 }
 
+
 bool
-ConfigManager::HasAllDefaultValues() {
+ConfigManager::HasAllDefaultValues()
+{
 	GMessage msg;
 	int i = 0;
 	while (configuration.FindMessage("config", i++, &msg) == B_OK) {

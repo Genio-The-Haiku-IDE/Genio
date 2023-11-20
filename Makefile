@@ -40,13 +40,10 @@ SRCS +=	 src/config/ConfigWindow.cpp
 SRCS +=	 src/config/GMessage.cpp
 SRCS +=  src/helpers/ActionManager.cpp
 SRCS +=  src/helpers/FSUtils.cpp
-SRCS +=  src/helpers/GenioCommon.cpp
 SRCS +=  src/helpers/GSettings.cpp
 SRCS +=  src/helpers/Logger.cpp
-SRCS +=  src/helpers/PathBox.cpp
 SRCS +=  src/helpers/StatusView.cpp
 SRCS +=  src/helpers/TextUtils.cpp
-SRCS +=  src/helpers/TPreferences.cpp
 SRCS +=  src/helpers/Utils.cpp
 SRCS +=  src/helpers/GrepThread.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
@@ -57,6 +54,8 @@ SRCS +=  src/helpers/git/GitRepository.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
+SRCS +=  src/helpers/Languages.cpp
+SRCS +=  src/helpers/Styler.cpp
 SRCS +=  src/lsp-client/LSPEditorWrapper.cpp
 SRCS +=  src/lsp-client/LSPProjectWrapper.cpp
 SRCS +=  src/lsp-client/LSPPipeClient.cpp
@@ -67,6 +66,10 @@ SRCS +=  src/override/OutlineListView.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp
 SRCS +=  src/project/ProjectItem.cpp
+SRCS +=  src/ui/git/GitAlert.cpp
+SRCS +=  src/ui/git/GitCredentialsWindow.cpp
+SRCS +=  src/ui/git/RemoteProjectWindow.cpp
+SRCS +=  src/ui/git/SwitchBranchMenu.cpp
 SRCS +=  src/ui/EditorStatusView.cpp
 SRCS +=  src/ui/Editor.cpp
 SRCS +=  src/ui/EditorContextMenu.cpp
@@ -77,7 +80,6 @@ SRCS +=  src/ui/IconCache.cpp
 SRCS +=  src/ui/ProblemsPanel.cpp
 SRCS +=  src/ui/SearchResultPanel.cpp
 SRCS +=  src/ui/ProjectsFolderBrowser.cpp
-SRCS +=  src/ui/RemoteProjectWindow.cpp
 SRCS +=  src/ui/ToolBar.cpp
 SRCS +=  src/ui/QuitAlert.cpp
 SRCS +=  src/templates/IconMenuItem.cpp
@@ -92,6 +94,7 @@ LIBS += columnlistview tracker
 LIBS += git2
 LIBS += src/lexilla/bin/liblexilla.a
 LIBS += src/scintilla/bin/libscintilla.a
+LIBS += yaml-cpp
 
 # LIBPATHS = $(shell findpaths -a $(platform) B_FIND_PATH_DEVELOP_LIB_DIRECTORY)
 # LIBPATHS  = /boot/home/config/non-packaged/lib
@@ -121,7 +124,7 @@ CXXFLAGS := -std=c++17 -fPIC
 	endif
 #endif
 
-LOCALES := en it
+LOCALES := ca de en en_AU es-419 tr
 
 ## Include the Makefile-Engine
 include $(BUILDHOME)/etc/makefile-engine

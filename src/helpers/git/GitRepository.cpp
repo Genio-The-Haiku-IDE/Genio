@@ -9,6 +9,7 @@
 
 #include "GitRepository.h"
 
+#include <Application.h>
 #include <Path.h>
 
 #include <stdexcept>
@@ -39,32 +40,143 @@ namespace Genio::Git {
 		git_libgit2_shutdown();
 	}
 
-	vector<string>
+	vector<BString>
 	GitRepository::GetBranches()
 	{
 		git_branch_iterator *it;
 		git_reference *ref;
-		vector<string> branches;
+		git_branch_t type;
+		vector<BString> branches;
 
-		int error = git_branch_iterator_new(&it, fRepository, GIT_BRANCH_LOCAL);
+		int error = git_branch_iterator_new(&it, fRepository, GIT_BRANCH_ALL);
 		if (error != 0) {
 			throw GitException(error, git_error_last()->message);
 		}
 
-		while ((error = git_branch_next(&ref, NULL, it)) == 0) {
+		while ((error = git_branch_next(&ref, &type, it)) == 0) {
 			const char *branchName;
 			error = git_branch_name(&branchName, ref);
 			if (error != 0) {
 				git_reference_free(ref);
 				throw GitException(error, git_error_last()->message);
 			}
-			branches.push_back(branchName);
+			BString bBranchName(branchName);
+			if (bBranchName.FindFirst("HEAD") == B_ERROR)
+				branches.push_back(branchName);
 			git_reference_free(ref);
 		}
 
 		git_branch_iterator_free(it);
 
 		return branches;
+	}
+
+
+	int
+	checkout_notify(git_checkout_notify_t why, const char *path,
+									const git_diff_file *baseline,
+									const git_diff_file *target,
+									const git_diff_file *workdir,
+									void *payload)
+	{
+		std::vector<std::string> *files = reinterpret_cast<std::vector<std::string>*>(payload);
+
+		BString temp;
+		temp.SetToFormat("'%s' - ", path);
+		switch (why) {
+			case GIT_CHECKOUT_NOTIFY_CONFLICT:
+				files->push_back(path);
+				temp.Append("conflict\n");
+			break;
+			case GIT_CHECKOUT_NOTIFY_DIRTY:
+			break;
+			case GIT_CHECKOUT_NOTIFY_UPDATED:
+			break;
+			case GIT_CHECKOUT_NOTIFY_UNTRACKED:
+			break;
+			case GIT_CHECKOUT_NOTIFY_IGNORED:
+			break;
+			default:
+			break;
+		}
+
+		LogInfo(temp.String());
+		return 0;
+	}
+
+	int
+	GitRepository::SwitchBranch(BString &branchName)
+	{
+		git_object* tree = nullptr;
+		git_checkout_options opts;
+		int status = 0;
+		std::vector<std::string> files;
+		BString remoteBranchName;
+
+		status = git_checkout_init_options(&opts, GIT_CHECKOUT_OPTIONS_VERSION);
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+
+		opts.notify_flags =	GIT_CHECKOUT_NOTIFY_CONFLICT;
+		opts.checkout_strategy = GIT_CHECKOUT_SAFE;
+		opts.notify_cb = checkout_notify;
+		opts.notify_payload = &files;
+
+		status = git_revparse_single(&tree, fRepository, branchName.String());
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+
+		// if the target branch is remote and a corresponding local branch does not exist, we need
+		// to create a local branch first, set the remote tracking then checkout
+		if (branchName.StartsWith("origin")) {
+			remoteBranchName = branchName;
+			branchName.RemoveFirst("origin/");
+
+			git_reference* ref = nullptr;
+			status = git_branch_create(&ref, fRepository, branchName.String(), (git_commit*)tree, false);
+			if (status >= 0) {
+				status = git_branch_set_upstream(ref, remoteBranchName.String());
+				if (status < 0)
+					throw GitException(status, git_error_last()->message);
+				git_reference_free(ref);
+			}
+		}
+
+		status = git_checkout_tree(fRepository, tree, &opts);
+		if (status < 0) {
+			throw GitException(status, git_error_last()->message, files);
+		}
+
+		BString ref("refs/heads/%s");
+		branchName.RemoveFirst("origin/");
+		ref.ReplaceFirst("%s", branchName.String());
+		status = git_repository_set_head(fRepository, ref.String());
+		if (status < 0)
+			throw GitException(status, git_error_last()->message);
+
+		return status;
+	}
+
+	BString
+	GitRepository::GetCurrentBranch()
+	{
+		int error = 0;
+		const char *branch = NULL;
+		git_reference *head = NULL;
+
+		error = git_repository_head(&head, fRepository);
+
+		if (error == GIT_EUNBORNBRANCH || error == GIT_ENOTFOUND)
+			branch = NULL;
+		else if (!error) {
+			branch = git_reference_shorthand(head);
+		} else {
+			throw GitException(error, git_error_last()->message);
+		}
+
+		BString branchText((branch) ? branch : "");
+		git_reference_free(head);
+		return branchText;
 	}
 
 	vector<pair<string, string>>
@@ -148,19 +260,25 @@ namespace Genio::Git {
 	}
 
 	const BPath&
-	GitRepository::Clone(const string& url, const BPath& localPath, git_indexer_progress_cb callback)
+	GitRepository::Clone(const string& url, const BPath& localPath,
+							git_indexer_progress_cb callback,
+							git_credential_acquire_cb authentication_callback)
 	{
 		git_libgit2_init();
 		git_clone_options clone_opts = GIT_CLONE_OPTIONS_INIT;
 		git_remote_callbacks callbacks = GIT_REMOTE_CALLBACKS_INIT;
 		callbacks.transfer_progress = callback;
 		clone_opts.fetch_opts.callbacks = callbacks;
+		clone_opts.fetch_opts.callbacks.credentials = authentication_callback;
 
 		git_repository *repo = nullptr;
 
 		int error = git_clone(&repo, url.c_str(), localPath.Path(), &clone_opts);
-		if (error != 0) {
-			throw std::runtime_error(git_error_last()->message);
+		if (error < 0) {
+			if (error == CANCEL_CREDENTIALS)
+				throw std::runtime_error("CANCEL_CREDENTIALS");
+			else
+				throw std::runtime_error(git_error_last()->message);
 		}
 		return localPath;
 	}

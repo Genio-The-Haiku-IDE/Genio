@@ -115,7 +115,7 @@ LSPProjectWrapper::_Create()
 	const char* argv[] = {"clangd", logLevel.c_str(), "--offset-encoding=utf-8", "--pretty",
 		"--header-insertion-decorators=false", "--pch-storage=memory", NULL};
 
-	if (fLSPPipeClient->Start(argv, 5) != B_OK) {
+	if (fLSPPipeClient->Start(argv, 6) != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
 		LogInfo("Can't execute clangd tool to provide advanced features! Please install "
 				"llvm12/llvm16/llvm17 "

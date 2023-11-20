@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
-
+#include "uri.h"
 
 struct Position {
     /// Line position in a document (zero-based).
@@ -215,6 +215,14 @@ struct SignatureHelp {
     /// This is a clangd-specific extension, it is only available via C++ API and
     /// not currently serialized for the LSP.
     Position argListStart;
+};
+
+struct WorkspaceEdit {
+    /// Holds changes to existing resources.
+    option<std::map<std::string, std::vector<TextEdit>>> changes;
+
+    /// Note: "documentChanges" is not currently used because currently there is
+    /// no support for versioned edits.
 };
 
 #endif // protocol_objects_H

@@ -29,7 +29,7 @@
             static void from_json(const json& j, Type& value) FROM \
         }; \
     }
-	
+
 namespace nlohmann {
     template <typename T>
     struct adl_serializer<option<T>> {
@@ -86,7 +86,7 @@ JSON_SERIALIZE(VersionedTextDocumentIdentifier, MAP_JSON(MAP_KEY(uri), MAP_KEY(v
 #include "protocol_objects.h"
 // struct Position
 JSON_SERIALIZE(Position, MAP_JSON(MAP_KEY(line), MAP_KEY(character)), {FROM_KEY(line);FROM_KEY(character)});
-// struct Range 
+// struct Range
 JSON_SERIALIZE(Range, MAP_JSON(MAP_KEY(start), MAP_KEY(end)), {FROM_KEY(start);FROM_KEY(end)});
 
 struct Location {
@@ -665,13 +665,7 @@ struct CodeActionParams {
 };
 JSON_SERIALIZE(CodeActionParams, MAP_JSON(MAP_KEY(textDocument), MAP_KEY(range), MAP_KEY(context)), {});
 
-struct WorkspaceEdit {
-    /// Holds changes to existing resources.
-    option<std::map<std::string, std::vector<TextEdit>>> changes;
-
-    /// Note: "documentChanges" is not currently used because currently there is
-    /// no support for versioned edits.
-};
+//struct WorkspaceEdit
 JSON_SERIALIZE(WorkspaceEdit, MAP_JSON(MAP_KEY(changes)), {FROM_KEY(changes);});
 
 struct TweakArgs {
@@ -823,8 +817,8 @@ JSON_SERIALIZE(CompletionList, {}, {
 // struct ParameterInformation
 
 JSON_SERIALIZE(ParameterInformation, {}, {
-	
-	if (j.contains("label") && j.type() == nlohmann::detail::value_t::string) 
+
+	if (j.contains("label") && j.type() == nlohmann::detail::value_t::string)
 		j.at("label").get_to(value.labelString);
 	else
 		j.at("label").get_to(value.labelOffsets);

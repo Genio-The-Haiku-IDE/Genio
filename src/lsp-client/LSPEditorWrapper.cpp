@@ -78,6 +78,29 @@ LSPEditorWrapper::HasLSPClient()
 	return (fLSPProjectWrapper != nullptr);
 }
 
+void
+LSPEditorWrapper::ApplyFix(BMessage* info)
+{
+	if (!HasLSPClient())
+		return;
+
+	if (!info->GetBool("quickFix", false))
+		return;
+
+	int32 diaIndex = info->GetInt32("index", -1);
+	if (diaIndex >= 0 && fLastDiagnostics.size() > (size_t)diaIndex) {
+		//how are we sure the fix list is syncronized? (TODO: how?)
+		std::map<std::string, std::vector<TextEdit>> map = fLastDiagnostics.at(diaIndex).edit.changes.value();
+		for (auto& ed : map){
+			if (GetFilenameURI().ICompare(ed.first.c_str()) == 0) {
+				for (TextEdit& te : ed.second) {
+					ApplyTextEdit(te);
+				}
+			}
+		}
+	}
+}
+
 
 void
 LSPEditorWrapper::SetLSPClient(LSPProjectWrapper* cW) {
@@ -219,8 +242,8 @@ LSPEditorWrapper::StartHover(Sci_Position sci_position)
 
 	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_DIAG, sci_position) == 1) {
 		for (auto& ir : fLastDiagnostics) {
-			if (sci_position > ir.from && sci_position <= ir.to) {
-				_ShowToolTip(ir.info.c_str());
+			if (sci_position > ir.range.from && sci_position <= ir.range.to) {
+				_ShowToolTip(ir.range.info.c_str());
 				break;
 			}
 		}
@@ -674,23 +697,39 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 	_RemoveAllDiagnostics();
 
 	BMessage toJson('diag');
+	int32 index = 0;
 	for (auto& v : vect) {
+		LSPDiagnostic lspDiag;
+
 		Range& r = v.range;
-		InfoRange ir;
+		InfoRange& ir = lspDiag.range;
 		ir.from = FromLSPPositionToSciPosition(&r.start);
 		ir.to = FromLSPPositionToSciPosition(&r.end);
 		ir.info = v.message;
 
 		LogTrace("Diagnostics [%ld->%ld] [%s]", ir.from, ir.to, ir.info.c_str());
 		fEditor->SendMessage(SCI_INDICATORFILLRANGE, ir.from, ir.to - ir.from);
-		fLastDiagnostics.push_back(ir);
+
+		WorkspaceEdit	edit;
 
 		GMessage dia;
 		dia.AddData("range", B_RAW_TYPE, &v.range, sizeof(v.range), true);
 		dia["category"] = v.category.value().c_str();
 		dia["message"] = v.message.c_str();
 		dia["source"] = v.source.c_str();
+		dia["index"] = index++;
+		dia["be:line"] = v.range.start.line + 1;
+		dia["lsp:character"] = v.range.start.character;
+		if (v.codeActions.value().size() > 0) {
+			if (v.codeActions.value()[0].edit.has()){
+				lspDiag.edit = v.codeActions.value()[0].edit.value();
+				dia["quickFix"] = true;
+			}
+
+		}
+
 		toJson.AddMessage("diagnostic", &dia);
+		fLastDiagnostics.push_back(lspDiag);
 	}
 
 	if (fEditor->LockLooper()) {
@@ -839,6 +878,12 @@ Sci_Position
 LSPEditorWrapper::ApplyTextEdit(json& textEditJson)
 {
 	TextEdit textEdit = textEditJson.get<TextEdit>();
+	return ApplyTextEdit(textEdit);
+}
+
+Sci_Position
+LSPEditorWrapper::ApplyTextEdit(TextEdit &textEdit)
+{
 	Range range = textEdit.range;
 	Sci_Position s_pos = FromLSPPositionToSciPosition(&range.start);
 	Sci_Position e_pos = FromLSPPositionToSciPosition(&range.end);
@@ -850,7 +895,6 @@ LSPEditorWrapper::ApplyTextEdit(json& textEditJson)
 
 	return s_pos + replaced;
 }
-
 
 void
 LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character)

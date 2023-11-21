@@ -170,29 +170,38 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 		switch (item_type) {
 			case kLocalBranch: {
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Switch to \"%branch%\""),
-					new BMessage(MsgSwitchBranch)));
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
+						new GMessage{
+							{"what", MsgSwitchBranch},
+							{"selected_branch", selected_branch}
+						}
+					)
+				);
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Pull origin/\"%branch%\""),
+				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Rename \"%selected_branch%\""),
+					new BMessage(2)));
+
+				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Delete \"%selected_branch%\""),
+					new BMessage(2)));
+
+				optionsMenu->AddSeparatorItem();
+
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Pull \"origin/%selected_branch%\""),
 					new BMessage(MsgPull)));
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Push \"%branch%\" to \"origin\""),
+				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Push \"%selected_branch%\" to \"origin\\%selected_branch%\""),
 					new BMessage(2)));
 
 				optionsMenu->AddSeparatorItem();
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new branch from \"%branch%\""),
+				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
 					new BMessage(2)));
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new tag from \"%branch%\""),
-					new BMessage(2)));
-
-				optionsMenu->AddSeparatorItem();
-
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Rename \"%branch%\""),
-					new BMessage(2)));
-
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Delete \"%branch%\""),
+				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
 					new BMessage(2)));
 
 				break;
@@ -203,7 +212,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 
 				optionsMenu->AddItem(
 					new BMenuItem(
-						fmt << B_TRANSLATE("Switch to \"%branch%\""),
+						fmt << B_TRANSLATE("Checkout \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgSwitchBranch},
 							{"selected_branch", selected_branch}
@@ -211,41 +220,31 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 					)
 				);
 
-				optionsMenu->AddItem(
-					new BMenuItem(
-						fmt << B_TRANSLATE("Merge \"%branch%\" into \"%current_branch%\""),
-						new GMessage{
-							{"what", MsgPull},
-							{"selected_branch", selected_branch},
-							{"current_branch", fCurrentBranch}
-						}
-					)
-				);
-
-				optionsMenu->AddItem(
-					new BMenuItem(
-						fmt << B_TRANSLATE("Push \"%branch%\" to \"origin\%branch%\""),
-						new GMessage{
-							{"what", MsgPush},
-							{"selected_branch", selected_branch}
-						}
-					)
-				);
-
-				optionsMenu->AddSeparatorItem();
-
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new branch from \"%branch%\""),
-					new BMessage(2)));
-
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new tag from \"%branch%\""),
+				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Delete \"%selected_branch%\""),
 					new BMessage(2)));
 
 				optionsMenu->AddSeparatorItem();
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Rename \"%branch%\""),
+				// We don't allow to merge a local branch into its origin
+				if (fCurrentBranch != selected_branch) {
+					optionsMenu->AddItem(
+						new BMenuItem(
+							fmt << B_TRANSLATE("Merge \"%selected_branch%\" into \"%current_branch%\""),
+							new GMessage{
+								{"what", MsgPull},
+								{"selected_branch", selected_branch},
+								{"current_branch", fCurrentBranch}
+							}
+						)
+					);
+
+					optionsMenu->AddSeparatorItem();
+				}
+
+				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
 					new BMessage(2)));
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Delete \"%branch%\""),
+				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
 					new BMessage(2)));
 
 				break;

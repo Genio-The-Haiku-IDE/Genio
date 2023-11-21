@@ -221,9 +221,9 @@ SourceControlPanel::MessageReceived(BMessage *message)
 		}
 		break;
 		case MsgSwitchBranch : {
-			fCurrentBranch = BString(message->GetString("value"));
+			fCurrentBranch = (BString)message->GetString("value");
 			SendNotices(message->what, message);
-			LogInfo("MsgSwitchBranch: %s", fCurrentBranch.String());
+			LogInfo("**MsgSwitchBranch: %s", fCurrentBranch.String());
 		}
 		break;
 		case MsgPull : {

@@ -14,6 +14,7 @@
 
 #include <iterator>
 
+#include "GException.h"
 #include "GMessage.h"
 #include "Log.h"
 #include "Utils.h"
@@ -58,20 +59,19 @@ namespace Genio::UI {
 
 		void AddItem(BString &name, T value, uint32 command, bool marked = false)
 		{
+			status_t status;
 			auto message = new BMessage(command);
 			if constexpr (std::is_pointer<T>::value) {
-				message->AddPointer("value", value);
+				status = message->AddPointer("value", value);
 			} if constexpr (std::is_same<BString, T>::value) {
-				message->AddString("value", value);
+				status = message->AddString("value", (BString)(value));
 			} else {
-				message->AddData("value", B_ANY_TYPE, &value, sizeof(value), true);
+				status = message->AddData("value", B_ANY_TYPE, &value, sizeof(value), true);
 			}
-			printf("*OPTIONLIST*\n");
-			printf(name.String());
-			printf("\n");
-			printf(typeid(value).name());
-			printf("\n");
-			message->PrintToStream();
+			if (status != B_OK)
+				throw GException(status, strerror(status));
+			LogInfo("item name: %s type: %s", name.String(), typeid(value).name());
+			// message->PrintToStream();
 			auto menu_item = new BMenuItem(name.String(), message);
 			menu_item->SetMarked(marked);
 			fMenu->AddItem(menu_item);

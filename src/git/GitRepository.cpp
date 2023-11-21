@@ -254,9 +254,9 @@ namespace Genio::Git {
 		if (error < 0) {
 			// TODO: Change to GitException and maybe refactor inheriting from std:exception
 			if (error == CANCEL_CREDENTIALS)
-				throw std::runtime_error("CANCEL_CREDENTIALS");
+				throw GitException(error, "CANCEL_CREDENTIALS");
 			else
-				throw std::runtime_error(git_error_last()->message);
+				throw GitException(error, git_error_last()->message);
 		}
 		return localPath;
 	}

@@ -101,7 +101,7 @@ LSPProjectWrapper::_Create()
 	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 	/** configuration for clangd */
 	std::string logLevel("--log=");
-	switch ((int32)gCFG["lsp_log_level"]) {
+	switch ((int32)gCFG["lsp_clangd_log_level"]) {
 		case LSP_LOG_LEVEL_ERROR:
 			logLevel += "error"; // Error messages only
 			break;
@@ -115,7 +115,7 @@ LSPProjectWrapper::_Create()
 	const char* argv[] = {"clangd", logLevel.c_str(), "--offset-encoding=utf-8", "--pretty",
 		"--header-insertion-decorators=false", "--pch-storage=memory", NULL};
 
-	if (fLSPPipeClient->Start(argv, 5) != B_OK) {
+	if (fLSPPipeClient->Start(argv, 6) != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
 		LogInfo("Can't execute clangd tool to provide advanced features! Please install "
 				"llvm12/llvm16/llvm17 "
@@ -294,14 +294,15 @@ LSPProjectWrapper::Initialized(json& result)
 	if (capas != value::value_t::null) {
 		auto& completionProvider = capas["completionProvider"];
 		if (completionProvider != value::value_t::null) {
-			auto& allCommitCharacters = completionProvider["allCommitCharacters"];
-			if (allCommitCharacters != value::value_t::null) {
-				fAllCommitCharacters.clear();
-				for (auto& c : allCommitCharacters) {
-					fAllCommitCharacters.append(c.get<std::string>().c_str());
-				}
-				LogDebug("allCommitCharacters [%s]", this->allCommitCharacters().c_str());
-			}
+			// auto& allCommitCharacters = completionProvider["allCommitCharacters"];
+			// if (allCommitCharacters != value::value_t::null) {
+				// fAllCommitCharacters.clear();
+				// for (auto& c : allCommitCharacters) {
+					// printf("--> %s\n", c.get<std::string>().c_str());
+					// fAllCommitCharacters.append(c.get<std::string>().c_str());
+				// }
+				// LogDebug("allCommitCharacters [%s]", this->allCommitCharacters().c_str());
+			// }
 			auto& triggerCharacters = completionProvider["triggerCharacters"];
 			if (triggerCharacters != value::value_t::null) {
 				fTriggerCharacters.clear();

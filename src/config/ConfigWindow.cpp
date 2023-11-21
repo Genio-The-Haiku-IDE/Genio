@@ -15,10 +15,12 @@
 #include <OutlineListView.h>
 #include <ScrollView.h>
 #include <Spinner.h>
-#include <TextControl.h>
 #include <StringView.h>
+#include <TextControl.h>
 #include <Window.h>
+
 #include <vector>
+
 #include "ConfigManager.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -51,7 +53,7 @@ public:
 			C::SetTarget(this);
 		}
 		void MessageReceived(BMessage* msg) {
-			GMessage& gsm = *((GMessage*)msg);
+			GMessage& gsm = *(GMessage*)(msg);
 			if (msg->what == kOnNewValue) {
 				fConfigManager[gsm["key"]] = RetrieveValue();
 			} else if (msg->what == kSetValueNoUpdate) {
@@ -140,8 +142,6 @@ ConfigWindow::_Init()
 
 	fDefaultsButton = new BButton("defaults", B_TRANSLATE("Defaults"), new BMessage(kDefaultPressed));
 	fDefaultsButton->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-
-	// TODO: Find a way to handle enabling/disabling
 	fDefaultsButton->SetEnabled(true);
 
 	// Box around the config and info panels
@@ -162,7 +162,6 @@ ConfigWindow::_Init()
 		.Add(fDefaultsButton);
 
 	fGroupList->MakeFocus();
-	// fCardView->CardLayout()->SetVisibleItem(0);
 
 	fGroupList->Select(0);
 
@@ -182,9 +181,12 @@ ConfigWindow::MessageReceived(BMessage* message)
 		{
 			int32 index = message->GetInt32("index", 0);
 			if (index >= 0) {
-				BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(index);
+				BStringItem* item = dynamic_cast<BStringItem*>(fGroupList->FullListItemAt(index));
+				if (item == nullptr)
+					break;
 				BView* card = fCardView->FindView(item->Text());
-				fCardView->CardLayout()->SetVisibleItem(fCardView->CardLayout()->IndexOfView(card));
+				if (card != nullptr)
+					fCardView->CardLayout()->SetVisibleItem(fCardView->CardLayout()->IndexOfView(card));
 			}
 			break;
 		}
@@ -220,13 +222,13 @@ ConfigWindow::MessageReceived(BMessage* message)
 void
 ConfigWindow::_PopulateListView()
 {
-	std::vector<GMessage> divededByGroup;
+	std::vector<GMessage> dividedByGroup;
 	GMessage msg;
 	int i = 0;
 	while (fConfigManager.Configuration().FindMessage("config", i++, &msg) == B_OK)  {
 		//printf("Adding for %s -> %s\n", (const char*)msg["group"], (const char*)msg["label"]);
-		std::vector<GMessage>::iterator i = divededByGroup.begin();
-		while (i != divededByGroup.end()) {
+		std::vector<GMessage>::iterator i = dividedByGroup.begin();
+		while (i != dividedByGroup.end()) {
 			if (strcmp((*i)["group"], (const char*)msg["group"]) == 0) {
 				(*i).AddMessage("config", &msg);
 				break;
@@ -234,15 +236,15 @@ ConfigWindow::_PopulateListView()
 			i++;
 		}
 
-		if (i == divededByGroup.end() && (fShowHidden || (strcmp((const char*)msg["group"], "Hidden") != 0)) ) {
-			GMessage first = {{ {"group",(const char*)msg["group"]} }};
+		if (i == dividedByGroup.end() && (fShowHidden || (strcmp((const char*)msg["group"], "Hidden") != 0)) ) {
+			GMessage first = {{ {"group", (const char*)msg["group"]} }};
 			first.AddMessage("config", &msg);
-			divededByGroup.push_back(first);
+			dividedByGroup.push_back(first);
 		}
 	}
 
-	std::vector<GMessage>::iterator iter = divededByGroup.begin();
-	while (iter != divededByGroup.end())  {
+	std::vector<GMessage>::iterator iter = dividedByGroup.begin();
+	while (iter != dividedByGroup.end())  {
 		BView *groupView = MakeViewFor((const char*)(*iter)["group"], *iter);
 		if (groupView != NULL) {
 			groupView->SetName((const char*)(*iter)["group"]);

@@ -112,11 +112,11 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		BString branchName, projectName, projectPath;
-		
+
 		ProjectFolder *projectFolder = (ProjectFolder *)GetSourceItem();
 		projectName = Text();
 		projectPath = projectFolder->Path();
-		
+
 		if (projectFolder->Active()) {
 			owner->SetFont(be_bold_font);
 		}
@@ -124,11 +124,11 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			Genio::Git::GitRepository repo(projectPath.String());
 			branchName = repo.GetCurrentBranch();
 			fSecondaryText.SetTo(branchName);
-		} catch(Genio::Git::GitException &ex) {	}
-		
-		fToolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s", 
-									B_TRANSLATE("Project"), Text(), 
-									B_TRANSLATE("Path"), projectPath.String(), 
+		} catch(Genio::Git::GitException &ex) {}
+
+		fToolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
+									B_TRANSLATE("Project"), Text(),
+									B_TRANSLATE("Path"), projectPath.String(),
 									B_TRANSLATE("Current branch"), branchName.String());
 	}
 	if (IsSelected())
@@ -236,14 +236,14 @@ ProjectItem::_DrawText(BView* owner, const BPoint& point)
 	if (fNeedsSave)
 		text.Append("*");
 	owner->DrawString(text.String());
-		
+
 	if (!fSecondaryText.IsEmpty()) {
 		BString text;
 		text << "  [" << fSecondaryText.String() << "]";
 		// Apply any style change here (i.e. bold, italic)
 		owner->DrawString(text.String());
 	}
-	
+
 	owner->Sync();
 }
 

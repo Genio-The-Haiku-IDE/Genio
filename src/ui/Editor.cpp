@@ -888,6 +888,43 @@ Editor::Reload()
 	return B_OK;
 }
 
+//TODO: too similar to ReplaceAndFindNext
+int
+Editor::ReplaceAndFindPrevious(const BString& selection,
+									const BString& replacement, int flags, bool wrap)
+{
+	int retValue = REPLACE_NONE;
+	int position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
+
+	if (IsSearchSelected(selection, flags) == true) {
+		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
+		SendMessage(SCI_SETTARGETRANGE, position + replacement.Length(), 0);
+		retValue = REPLACE_DONE;
+	} else {
+		SendMessage(SCI_SETTARGETRANGE, position, 0);
+	}
+
+	position = SendMessage(SCI_SEARCHINTARGET, selection.Length(),
+											(sptr_t) selection.String());
+
+	if (position != -1) {
+		SendMessage(SCI_SETSEL, position, position + selection.Length());
+		retValue = REPLACE_DONE;
+	} else if (wrap == true) {
+		// position == -1: not found or reached file start, ensue second case
+		int endDoc = SendMessage(SCI_GETTEXTLENGTH, UNSET, UNSET);
+		SendMessage(SCI_SETTARGETRANGE, endDoc, 0);
+		position = SendMessage(SCI_SEARCHINTARGET, selection.Length(),
+												(sptr_t) selection.String());
+		if (position != -1) {
+			SendMessage(SCI_SETSEL, position, position + selection.Length());
+			retValue = REPLACE_DONE;
+		}
+	}
+
+	return retValue;
+}
+
 
 int
 Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,

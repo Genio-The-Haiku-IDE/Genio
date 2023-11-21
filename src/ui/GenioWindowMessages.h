@@ -108,6 +108,8 @@ enum {
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',
+	MSG_FULLSCREEN					= 'fscr',
+	MSG_FOCUS_MODE					= 'focu',
 	MSG_SELECT_TAB					= 'seta',
 
 	MSG_ESCAPE_KEY					= 'escp',
@@ -132,8 +134,9 @@ enum {
 
 	MSG_NOTIFY_BUILDING_PHASE			= 'blph',	// building (bool)
 
-	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa',
 	MSG_NOTIFY_PROJECT_LIST_CHANGED		= 'nplc',
+	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa'	// active_project (pointer)
+													// active_project_name (string)
 };
 
 #endif // GenioWindowMessages_H

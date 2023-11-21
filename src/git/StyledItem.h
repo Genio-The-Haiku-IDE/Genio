@@ -17,6 +17,7 @@ class StyledItem : public BStringItem {
 public:
 					StyledItem(BOutlineListView *container,
 								const char* text,
+								const uint32 item_type = kUndefinedItemType,
 								uint32 outlineLevel = 0,
 								bool expanded = true,
 								const char *iconName = nullptr);
@@ -25,8 +26,10 @@ public:
 	void 			DrawItem(BView* owner, BRect bounds, bool complete);
 	void 			Update(BView* owner, const BFont* font);
 
-	void			SetPrimaryTextStyle(uint16 face);
-	void			SetSecondaryTextStyle(uint16 face);
+	void			SetPrimaryTextStyle(uint16 face) { fPrimaryTextStyle = face; };
+	void			SetSecondaryTextStyle(uint16 face) { fPrimaryTextStyle = face; };
+
+	uint32			GetType() { return fItemType; }
 
 	void			InitRename(BMessage* message);
 	void			AbortRename();
@@ -35,6 +38,8 @@ public:
 	bool			HasToolTip() { return !fToolTipText.IsEmpty(); };
 	void			SetToolTipText(const char *text) { fToolTipText = text; }
 	const char*		GetToolTipText() { return fToolTipText.String(); }
+
+	static const uint32	kUndefinedItemType = -1;
 
 private:
 	BOutlineListView* fContainerListView;
@@ -48,6 +53,7 @@ private:
 	uint16			fPrimaryTextStyle;
 	uint16			fSecondaryTextStyle;
 	BString			fIconName;
+	uint32			fItemType;
 
 	void			_DrawText(BView* owner, const BPoint& textPoint);
 	void			_DrawTextWidget(BView* owner, const BRect& textRect);

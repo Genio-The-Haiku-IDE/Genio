@@ -163,22 +163,21 @@ namespace Genio::Git {
 	GitRepository::GetCurrentBranch()
 	{
 		int error = 0;
-		const char *branch = NULL;
-		git_reference *head = NULL;
+		const char *branch = nullptr;
+		git_reference *head = nullptr;
 
 		error = git_repository_head(&head, fRepository);
 
 		if (error == GIT_EUNBORNBRANCH || error == GIT_ENOTFOUND)
-			branch = NULL;
+			branch = nullptr;
 		else if (!error) {
 			branch = git_reference_shorthand(head);
 		} else {
 			throw GitException(error, git_error_last()->message);
 		}
 
-		git_reference_free(head);
-
 		BString branchText((branch) ? branch : "");
+		git_reference_free(head);
 		return branchText;
 	}
 
@@ -300,13 +299,6 @@ namespace Genio::Git {
 	  git_config_entry *entry;
 	  BString ret("");
 
-	  // int status;
-	  // if ((status = git_config_get_entry(&entry, cfg, key)) < 0) {
-		// if (status != GIT_ENOTFOUND)
-		  // throw GitException(status, git_error_last()->message);
-		// return ret;
-	  // }
-
 	  check(git_config_get_entry(&entry, cfg, key),
 			[](const int x) { return (x != GIT_ENOTFOUND); });
 
@@ -378,4 +370,27 @@ namespace Genio::Git {
 		if (error < 0)
 			throw GitException(error, git_error_last()->message);
 	}
+
+
+	vector<BString>
+	GitRepository::GetTags()
+	{
+		vector<BString> tags;
+
+		auto lambda = [](git_reference *ref, void *payload) -> int
+		{
+			auto tags = reinterpret_cast<vector<BString>*>(payload);
+			BString ref_name(git_reference_name(ref));
+			if (!ref_name.IFindFirst("refs/tags/")) {
+				ref_name.RemoveAll("refs/tags/");
+				tags->push_back(ref_name);
+				// return 1;
+			}
+			return 0;
+		};
+		git_reference_foreach(fRepository, lambda, &tags);
+
+		return tags;
+	}
+
 }

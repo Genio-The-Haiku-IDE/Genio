@@ -34,6 +34,7 @@
 #pragma once
 #include <Message.h>
 #include <String.h>
+#include <Alignment.h>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -85,7 +86,7 @@ public:
 					T write_specific_converter;
 					Unsupported_SetValue_for_GMessage(write_specific_converter);
 	}
-	static type_code	Type();
+	static constexpr type_code Type() { return B_ANY_TYPE; }
 };
 
 
@@ -95,7 +96,7 @@ class MessageValue<TYPE> { \
 public: \
 	static TYPE		Get(GMessage* msg, const char* key) { return msg->Get ## NAME (key, DEFAULT); } \
 	static void		Set(GMessage* msg, const char* key, TYPE value) { msg->Set ## NAME (key, value); } \
-	static type_code	Type() { return typeCODE; } \
+	static constexpr type_code	Type()  { return typeCODE; } \
 }; \
 
 
@@ -110,25 +111,49 @@ public: \
 	static void		Set(GMessage* msg, const char* key, TYPE value) { \
 						msg->RemoveName(key); \
 						msg->Add ## NAME (key, &value); } \
-	static type_code	Type() { return typeCODE; } \
+	static constexpr type_code	Type()  { return typeCODE; } \
 };
 
 MESSAGE_VALUE(Bool, bool, B_BOOL_TYPE, false);
 MESSAGE_VALUE(String, const char*, B_STRING_TYPE, "");
 MESSAGE_VALUE(Int32, int32, B_INT32_TYPE, -1);
-
+MESSAGE_VALUE(UInt32, uint32, B_UINT32_TYPE, 0);
 #if __HAIKU_BEOS_COMPATIBLE_TYPES
 	// on Haiku x86_32 bit, due to this define, int32 is defined as
 	// "signed long int" instead of "signed int" like on other platforms
 	// so we need this extra line to handle "int".
 MESSAGE_VALUE(Int32, int, B_INT32_TYPE, -1);
+MESSAGE_VALUE(UInt32, unsigned int, B_UINT32_TYPE, -1);
 #endif
 
-MESSAGE_VALUE(UInt32, uint32, B_UINT32_TYPE, 0);
+
 MESSAGE_VALUE(Rect, BRect, B_RECT_TYPE, BRect());
 MESSAGE_VALUE(String, BString, B_STRING_TYPE, BString(""));
 MESSAGE_VALUE_REF(Message, GMessage, B_MESSAGE_TYPE);
 MESSAGE_VALUE_REF(Message, BMessage, B_MESSAGE_TYPE);
+
+MESSAGE_VALUE(Alignment, BAlignment, B_ALIGNMENT_TYPE, BAlignment());
+MESSAGE_VALUE(Point, BPoint, B_POINT_TYPE, BPoint());
+MESSAGE_VALUE(Size, BSize, B_SIZE_TYPE, BSize());
+
+MESSAGE_VALUE(Int8, int8, B_INT8_TYPE, -1);
+MESSAGE_VALUE(Int16, int16, B_INT16_TYPE, -1);
+MESSAGE_VALUE(Int64, int64, B_INT64_TYPE, -1);
+
+MESSAGE_VALUE(UInt8, uint8, B_UINT8_TYPE, -1);
+MESSAGE_VALUE(UInt16, uint16, B_UINT16_TYPE, -1);
+MESSAGE_VALUE(UInt64, uint64, B_UINT64_TYPE, -1);
+
+MESSAGE_VALUE(Float, float, B_FLOAT_TYPE, -1.00f);
+MESSAGE_VALUE(Double, double, B_DOUBLE_TYPE, -1.00f);
+
+MESSAGE_VALUE_REF(Pointer, void*, B_POINTER_TYPE);
+
+MESSAGE_VALUE(Color, rgb_color, B_RGB_COLOR_TYPE, rgb_color());
+//MESSAGE_VALUE(Messenger, BMessenger*, B_MESSENGER_TYPE, BMessenger());
+
+MESSAGE_VALUE_REF(Ref, entry_ref, B_REF_TYPE);
+MESSAGE_VALUE_REF(NodeRef, node_ref, B_NODE_REF_TYPE);
 
 class GMessageReturn {
 public:

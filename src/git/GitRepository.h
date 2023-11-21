@@ -80,9 +80,13 @@ namespace Genio::Git {
 
 		void								Init(const path& repo, const path& localPath);
 
+		vector<BString>						GetTags();
+
 		vector<BString>						GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
 		int									SwitchBranch(BString &branch);
 		BString								GetCurrentBranch();
+
+
 
 		void								Fetch(bool prune = false);
 		void								Merge(BString &source, BString &dest);

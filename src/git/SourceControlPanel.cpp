@@ -21,9 +21,10 @@
 #include "GitRepository.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
-#include "Utils.h"
-
 #include "Log.h"
+#include "StringFormatter.h"
+#include "StyledItem.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
@@ -41,17 +42,22 @@ SourceControlPanel::SourceControlPanel()
 	fProjectList(nullptr),
 	fActiveProject(nullptr),
 	fSelectedProject(nullptr),
-	fSelectedBranch(nullptr)
+	fCurrentBranch(nullptr)
 {
+
+	fProjectList = gMainWindow->GetProjectList();
+	fActiveProject = gMainWindow->GetActiveProject();
+
 	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
 		B_TRANSLATE("Project:"),
 		B_TRANSLATE("Choose project" B_UTF8_ELLIPSIS));
 	fBranchMenu = new OptionList<BString>("BranchMenu",
-		B_TRANSLATE("Local branch:"),
+		B_TRANSLATE("Current branch:"),
 		B_TRANSLATE("Choose branch" B_UTF8_ELLIPSIS));
 
 	_InitToolBar();
 	_InitRepositoryView();
+	_UpdateRepositoryView();
 	_InitChangesView();
 	_InitLogView();
 
@@ -76,116 +82,14 @@ SourceControlPanel::SourceControlPanel()
 }
 
 
-void
-SourceControlPanel::_UpdateProjectList()
+SourceControlPanel::~SourceControlPanel()
 {
-	if ((fProjectList != nullptr)) {
-		fProjectMenu->MakeEmpty();
-		fProjectMenu->AddList(fProjectList,
-			MsgChangeProject,
-			[&active = this->fActiveProject](auto item)
-			{
-				auto project_name = item->Name();
-				if ((active != nullptr) &&
-					(active->Name() == project_name))
-					project_name.Append("*");
-				return project_name;
-			},
-			[&selected = this->fSelectedProject](auto item)
-			{
-				return (item == selected);
-			}
-			);
-		fProjectMenu->SetTarget(this);
-		_UpdateBranchList();
-	}
-}
-
-
-void
-SourceControlPanel::_UpdateBranchList()
-{
-	if (fSelectedProject != nullptr) {
-		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
-		auto branches = repo.GetBranches();
-		auto current_branch = repo.GetCurrentBranch();
-
-		auto menu = fBranchMenu->Menu();
-		Menu_MakeEmpty(menu);
-		Menu_AddContainer<BString, vector<BString>>(menu,
-			branches,
-			MsgChangeBranch,
-			[](auto &item) { return item; },
-			[current_branch](auto &item) { return (item == current_branch); });
-		menu->SetTargetForItems(this);
-	}
-}
-
-void
-SourceControlPanel::_InitToolBar()
-{
-	fToolBar = new ToolBar();
-	fToolBar->ChangeIconSize(16);
-	fToolBar->AddAction(MsgShowRepositoryPanel, B_TRANSLATE("Repository"), "kIconGitRepo");
-	fToolBar->AddAction(MsgShowChangesPanel, B_TRANSLATE("Changes"), "kIconGitChanges");
-	fToolBar->AddAction(MsgShowLogPanel, B_TRANSLATE("Log"), "kIconGitLog");
-	fToolBar->AddGlue();
-	fToolBar->AddAction(MsgShowOptionsMenu, B_TRANSLATE("Options"), "kIconGitMore");
-}
-
-
-void
-SourceControlPanel::_InitRepositoryView()
-{
-	fRepositoryView = new BOutlineListView("test");
-	fRepositoryViewScroll = new BScrollView(B_TRANSLATE("Repository scroll view"),
-		fRepositoryView, B_FRAME_EVENTS | B_WILL_DRAW, true, true, border_style::B_NO_BORDER);
-	BOutlineListView *olv = (BOutlineListView*)fRepositoryView;
-	auto lb = new BStringItem("Local branches", 0);
-	olv->AddItem(lb);
-	auto f = new BStringItem("feature");
-	olv->AddUnder(f, lb);
-	olv->AddUnder(new BStringItem("source-control-panel"), f);
-	olv->AddUnder(new BStringItem("main"), lb);
-
-	auto rb = new BStringItem("Remote branches", 0);
-	olv->AddItem(rb);
-	auto e = new BStringItem("experimental");
-	olv->AddUnder(e, rb);
-	olv->AddUnder(new BStringItem("ProjectTreeView"), e);
-	auto fe = new BStringItem("feature");
-	olv->AddUnder(fe, rb);
-	olv->AddUnder(new BStringItem("github-menu"), fe);
-
-	olv->AddItem(new BStringItem("Tags branches", 0));
-}
-
-
-void
-SourceControlPanel::_InitChangesView()
-{
-	fChangesView = BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_BORDER_INSETS)
-		.AddGroup(B_VERTICAL)
-			.AddGlue()
-			.Add(new BButton("changes"))
-			.AddGlue()
-		.End()
-		.AddGlue()
-		.View();
-}
-
-
-void
-SourceControlPanel::_InitLogView()
-{
-	fLogView = BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_BORDER_INSETS)
-		.AddGroup(B_VERTICAL)
-			.AddGlue()
-			.Add(new BButton("log"))
-			.AddGlue()
-		.End()
-		.AddGlue()
-		.View();
+	delete fLogView;
+	delete fChangesView;
+	delete fRepositoryView;
+	delete fToolBar;
+	delete fBranchMenu;
+	delete fProjectMenu;
 }
 
 
@@ -199,17 +103,31 @@ SourceControlPanel::AttachedToWindow()
 		window->Unlock();
 	}
 
+	_UpdateProjectList();
+
 	fProjectMenu->SetTarget(this);
 	fBranchMenu->SetTarget(this);
 	fToolBar->SetTarget(this);
+	fRepositoryView->SetTarget(this);
+}
+
+
+void
+SourceControlPanel::DetachedFromWindow()
+{
+	auto window = this->Window();
+	if (window->Lock()) {
+		window->StopWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		window->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		window->Unlock();
+	}
 }
 
 
 void
 SourceControlPanel::MessageReceived(BMessage *message)
 {
-	auto what = message->what;
-	switch (what) {
+	switch (message->what) {
 		case B_OBSERVER_NOTICE_CHANGE: {
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
@@ -217,14 +135,14 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 				{
 					LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
-					fProjectList = (BObjectList<ProjectFolder>*)(message->GetPointer("project_list"));
+					fProjectList = gMainWindow->GetProjectList();
 					_UpdateProjectList();
 					break;
 				}
 				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 				{
 					LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-					fActiveProject = (ProjectFolder *)message->GetPointer("active_project");
+					fActiveProject = gMainWindow->GetActiveProject();
 					fSelectedProject = fActiveProject;
 					_UpdateProjectList();
 					break;
@@ -293,14 +211,171 @@ SourceControlPanel::MessageReceived(BMessage *message)
 		break;
 		case MsgChangeProject : {
 			fSelectedProject = (ProjectFolder *)message->GetPointer("value");
+			LogInfo("MsgSelectProject: %s", fSelectedProject->Name().String());
 			auto path = fSelectedProject->Path().String();
+			LogInfo("MsgSelectProject: %s", path);
 			_UpdateBranchList();
-			// _UpdateRepository();
-			LogInfo("MsgSelectProject: %d path: %s", index, path);
+			_UpdateRepositoryView();
+
+			SendNotices(message->what, message);
+		}
+		break;
+		case MsgSwitchBranch : {
+			fCurrentBranch = BString(message->GetString("value"));
+			SendNotices(message->what, message);
+			LogInfo("MsgSwitchBranch: %s", fCurrentBranch.String());
+		}
+		break;
+		case MsgPull : {
+			auto selected_branch = message->GetString("selected_branch");
+			auto current_branch = message->GetString("current_branch");
+			LogInfo("MsgPull: %s into %s", selected_branch, current_branch);
 		}
 		break;
 		default:
 		break;
+	}
+}
+
+
+void
+SourceControlPanel::_UpdateProjectList()
+{
+	if ((fProjectList != nullptr)) {
+		fProjectMenu->MakeEmpty();
+		fProjectMenu->AddList(fProjectList,
+			MsgChangeProject,
+			[&active = this->fActiveProject](auto item)
+			{
+				auto project_name = item->Name();
+				if ((active != nullptr) &&
+					(active->Name() == project_name))
+					project_name.Append("*");
+				return project_name;
+			},
+			[&selected = this->fSelectedProject](auto item)
+			{
+				return (item == selected);
+			}
+		);
+		fProjectMenu->SetTarget(this);
+		_UpdateBranchList();
+	}
+}
+
+
+void
+SourceControlPanel::_UpdateBranchList()
+{
+	if (fSelectedProject != nullptr) {
+		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
+		auto branches = repo.GetBranches();
+		fCurrentBranch = repo.GetCurrentBranch();
+		fBranchMenu->MakeEmpty();
+		fBranchMenu->AddIterator(branches,
+			MsgSwitchBranch,
+			[](auto &item) { return item; },
+			[&current_branch=this->fCurrentBranch](auto &item) { return (item == current_branch);}
+		);
+		fBranchMenu->SetTarget(this);
+	}
+}
+
+void
+SourceControlPanel::_InitToolBar()
+{
+	fToolBar = new ToolBar();
+	fToolBar->ChangeIconSize(16);
+	fToolBar->AddAction(MsgShowRepositoryPanel, B_TRANSLATE("Repository"), "kIconGitRepo");
+	fToolBar->AddAction(MsgShowChangesPanel, B_TRANSLATE("Changes"), "kIconGitChanges");
+	fToolBar->AddAction(MsgShowLogPanel, B_TRANSLATE("Log"), "kIconGitLog");
+	fToolBar->AddGlue();
+	fToolBar->AddAction(MsgShowOptionsMenu, B_TRANSLATE("Options"), "kIconGitMore");
+}
+
+
+void
+SourceControlPanel::_InitRepositoryView()
+{
+	fRepositoryView = new RepositoryView();
+	fRepositoryViewScroll = new BScrollView(B_TRANSLATE("Repository scroll view"),
+		fRepositoryView, B_FRAME_EVENTS | B_WILL_DRAW, true, true, border_style::B_NO_BORDER);
+}
+
+
+void
+SourceControlPanel::_InitChangesView()
+{
+	fChangesView = BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_BORDER_INSETS)
+		.AddGroup(B_VERTICAL)
+			.AddGlue()
+			.Add(new BButton("changes"))
+			.AddGlue()
+		.End()
+		.AddGlue()
+		.View();
+}
+
+
+void
+SourceControlPanel::_InitLogView()
+{
+	fLogView = BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_BORDER_INSETS)
+		.AddGroup(B_VERTICAL)
+			.AddGlue()
+			.Add(new BButton("log"))
+			.AddGlue()
+		.End()
+		.AddGlue()
+		.View();
+}
+
+
+void
+SourceControlPanel::_UpdateRepositoryView()
+{
+	fRepositoryView->MakeEmpty();
+
+	auto locals = new StyledItem(fRepositoryView, B_TRANSLATE("Local branches"));
+	locals->SetPrimaryTextStyle(B_BOLD_FACE);
+	fRepositoryView->AddItem(locals);
+	// populate local branches
+	if (fSelectedProject != nullptr) {
+		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
+		auto branches = repo.GetBranches(GIT_BRANCH_LOCAL);
+		auto current_branch = repo.GetCurrentBranch();
+		for(auto &branch : branches) {
+			auto item = new StyledItem(fRepositoryView, branch.String(), kLocalBranch);
+			fRepositoryView->AddUnder(item, locals);
+		}
+	}
+
+	auto remotes = new StyledItem(fRepositoryView, B_TRANSLATE("Remotes"));
+	remotes->SetPrimaryTextStyle(B_BOLD_FACE);
+	fRepositoryView->AddItem(remotes);
+	// populate remote branches
+	if (fSelectedProject != nullptr) {
+		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
+		auto branches = repo.GetBranches(GIT_BRANCH_REMOTE);
+		auto current_branch = repo.GetCurrentBranch();
+		for(auto &branch : branches) {
+			auto item = new StyledItem(fRepositoryView, branch.String(), kRemoteBranch);
+			fRepositoryView->AddUnder(item, remotes);
+		}
+	}
+
+	auto tags = new StyledItem(fRepositoryView, B_TRANSLATE("Tags"));
+	tags->SetPrimaryTextStyle(B_BOLD_FACE);
+	fRepositoryView->AddItem(tags);
+	// populate tags
+	if (fSelectedProject != nullptr) {
+		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
+		auto all_tags = repo.GetTags();
+		auto current_branch = repo.GetCurrentBranch();
+		for(auto &tag : all_tags) {
+			auto item = new StyledItem(fRepositoryView, tag.String(), kRemoteBranch);
+			fRepositoryView->AddUnder(item, tags);
+		}
 	}
 }
 

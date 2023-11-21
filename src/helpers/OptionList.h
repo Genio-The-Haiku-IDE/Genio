@@ -14,7 +14,26 @@
 
 #include <iterator>
 
+#include "GMessage.h"
+#include "Log.h"
+#include "Utils.h"
+
 namespace Genio::UI {
+
+	template <typename T>
+	  struct is_iterator {
+	  static char test(...);
+
+	  template <typename U,
+		typename=typename std::iterator_traits<U>::difference_type,
+		typename=typename std::iterator_traits<U>::pointer,
+		typename=typename std::iterator_traits<U>::reference,
+		typename=typename std::iterator_traits<U>::value_type,
+		typename=typename std::iterator_traits<U>::iterator_category
+	  > static long test(U&&);
+
+	  constexpr static bool value = std::is_same<decltype(test(std::declval<T>())),long>::value;
+	};
 
 	template <typename T>
 	class OptionList : public BMenuField {
@@ -37,68 +56,56 @@ namespace Genio::UI {
 		}
 
 
-		void AddItem(BString &name, T value,
-			uint32 command, bool marked = false)
+		void AddItem(BString &name, T value, uint32 command, bool marked = false)
 		{
-			// GMessage *message = new GMessage(command);
-			// (*message)["value"] = (void*)value;
-			// message->what = command;
-			BMessage *message = new BMessage(command);
-			message->AddPointer("value", (void*)value);
-			// BeDC("Genio").DumpBMessage(message);
-			auto menu_item = new BMenuItem(name, message);
+			auto message = new BMessage(command);
+			if constexpr (std::is_pointer<T>::value) {
+				message->AddPointer("value", value);
+			} if constexpr (std::is_same<BString, T>::value) {
+				message->AddString("value", value);
+			} else {
+				message->AddData("value", B_ANY_TYPE, &value, sizeof(value), true);
+			}
+			printf("*OPTIONLIST*\n");
+			printf(name.String());
+			printf("\n");
+			printf(typeid(value).name());
+			printf("\n");
+			message->PrintToStream();
+			auto menu_item = new BMenuItem(name.String(), message);
 			menu_item->SetMarked(marked);
 			fMenu->AddItem(menu_item);
 		}
 
-		template <typename C>
+		template <class C>
+		void AddIterator(C const& list,
+							uint32 command,
+							const auto& get_name_lambda,
+							const auto& set_mark_lambda = nullptr)
+		{
+			LogInfo("AddIterator command:%d", command);
+			typename C::const_iterator sit;
+			for(T element : list)
+			{
+				auto name = get_name_lambda(element);
+				LogInfo("AddIterator name:%s value:%s", name.String(), element);
+				AddItem(name, element, command, set_mark_lambda(element));
+			}
+		}
+
+		template <class C>
 		void AddList(C const& list,
 							uint32 command,
 							const auto& get_name_lambda,
 							const auto& set_mark_lambda = nullptr)
-							// std::function<BString(T *)> get_name_lambda,
-							// std::function<bool(T *)> set_mark_lambda = nullptr)
 		{
+			LogInfo("AddList command:%d", command);
 			auto count = list->CountItems();
 			for (int index = 0; index < count; index++) {
-				auto list_item = list->ItemAt(index);
-				auto name = get_name_lambda(list_item);
-				AddItem(name, list_item, command,
-									// (set_mark_lambda != nullptr) ? set_mark_lambda(list_item) : false);
-									set_mark_lambda(list_item));
-			}
-		}
-
-
-		template <typename C>
-		void Menu_AddContainer(C const& list,
-								uint32 command,
-								const auto& get_name_lambda,
-								const auto& set_mark_lambda = nullptr)
-								// std::function<BString(T&)> get_name_lambda,
-								// std::function<bool(T&)> set_mark_lambda = nullptr)
-		{
-			 typename C::const_iterator sit;
-			 for(auto& element : list)
-			 {
-				T list_item = element;
-				auto name = get_name_lambda(list_item);
-				AddItem<T>(name, &list_item, command,
-									// (set_mark_lambda != nullptr) ? set_mark_lambda(list_item) : false);
-									set_mark_lambda(list_item));
-			 }
-		}
-
-
-		void Select(T element)
-		{
-			for (int32 index = 0; index < fMenu->CountItems(); index++) {
-				auto item = fMenu->ItemAt(index);
-				auto message = item->Message();
-				message->PrintToStream();
-				auto value = message->GetPointer("value");
-				if ((value != nullptr) && (value == element))
-					item->SetMarked(index);
+				T element = list->ItemAt(index);
+				auto name = get_name_lambda(element);
+				LogInfo("AddList: name:%s value:%s", name.String(), element);
+				AddItem(name, element, command, set_mark_lambda(element));
 			}
 		}
 
@@ -114,18 +121,7 @@ namespace Genio::UI {
 		}
 
 	private:
-		BPopUpMenu*		fMenu;
-
-		auto FindItem(const auto& match)
-		{
-			for (int32 index = 0; index < fMenu->CountItems(); index++) {
-				auto item = fMenu->ItemAt(index);
-				auto message = item->Message();
-				T element = message->GetPointer("value");
-				if ((element != nullptr) && (match(element) == element))
-					item->SetMarked(index);
-			}
-		}
+		BPopUpMenu *fMenu;
 	};
 
 }

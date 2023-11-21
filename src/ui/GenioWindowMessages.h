@@ -132,8 +132,8 @@ enum {
 
 	MSG_NOTIFY_BUILDING_PHASE			= 'blph',	// building (bool)
 
-	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa',	// active_project (pointer)
-	MSG_NOTIFY_PROJECT_LIST_CHANGED		= 'nplc',	// project_list (pointer)
+	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa',
+	MSG_NOTIFY_PROJECT_LIST_CHANGED		= 'nplc',
 };
 
 #endif // GenioWindowMessages_H

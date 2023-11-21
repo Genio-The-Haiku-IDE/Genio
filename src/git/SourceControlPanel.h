@@ -10,18 +10,20 @@
 #include <LayoutBuilder.h>
 #include <MenuField.h>
 #include <OptionPopUp.h>
-#include <SupportDefs.h>
+#include <OutlineListView.h>
 #include <View.h>
 
 #include "ProjectFolder.h"
-#include "../helpers/OptionList.h"
+#include "OptionList.h"
+#include "RepositoryView.h"
+#include "StringFormatter.h"
 #include "ToolBar.h"
 
 using namespace Genio::UI;
 
 enum Messages {
-	MsgChangeProject = '_mcp',
-	MsgChangeBranch,
+	MsgChangeProject,
+	MsgSwitchBranch,
 	MsgShowRepositoryPanel,
 	MsgShowChangesPanel,
 	MsgShowLogPanel,
@@ -37,33 +39,37 @@ enum Messages {
 	MsgStashApply
 };
 
+class RepositoryView;
+
 class SourceControlPanel : public BView {
 public:
 							SourceControlPanel();
+							~SourceControlPanel();
+
 	void					MessageReceived(BMessage *message);
 	void					AttachedToWindow();
+	void					DetachedFromWindow();
 
 private:
 
 	OptionList<ProjectFolder *>* fProjectMenu;
 	OptionList<BString>*	fBranchMenu;
-	// BMenuField*	fProjectMenu;
-	// BMenuField*	fBranchMenu;
 	ToolBar*				fToolBar;
 	BCardLayout*			fMainLayout;
-	BView*					fRepositoryView;
+	RepositoryView*			fRepositoryView;
 	BScrollView*			fRepositoryViewScroll;
 	BView*					fChangesView;
 	BView*					fLogView;
 	BObjectList<ProjectFolder>* fProjectList;
 	ProjectFolder*			fActiveProject;
 	ProjectFolder*			fSelectedProject;
-	BString					fSelectedBranch;
+	BString					fCurrentBranch;
 
 	void					_UpdateProjectList();
 	void					_UpdateBranchList();
 	void					_InitToolBar();
 	void					_InitRepositoryView();
+	void					_UpdateRepositoryView();
 	void					_InitChangesView();
 	void					_InitLogView();
 	void					_ShowOptionsMenu(BPoint where);

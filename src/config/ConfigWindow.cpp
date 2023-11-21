@@ -53,7 +53,7 @@ public:
 			C::SetTarget(this);
 		}
 		void MessageReceived(BMessage* msg) {
-			GMessage& gsm = *(dynamic_cast<GMessage*>(msg));
+			GMessage& gsm = *(GMessage*)(msg);
 			if (msg->what == kOnNewValue) {
 				fConfigManager[gsm["key"]] = RetrieveValue();
 			} else if (msg->what == kSetValueNoUpdate) {

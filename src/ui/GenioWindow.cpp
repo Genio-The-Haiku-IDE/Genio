@@ -3226,6 +3226,7 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	}
 	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 	noticeMessage.AddPointer("active_project", fActiveProject);
+	noticeMessage.AddString("active_project_name", fActiveProject->Name());
 	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 
 	// Update run command working directory tooltip too

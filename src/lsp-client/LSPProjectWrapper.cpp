@@ -101,7 +101,7 @@ LSPProjectWrapper::_Create()
 	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 	/** configuration for clangd */
 	std::string logLevel("--log=");
-	switch ((int32)gCFG["lsp_log_level"]) {
+	switch ((int32)gCFG["lsp_clangd_log_level"]) {
 		case LSP_LOG_LEVEL_ERROR:
 			logLevel += "error"; // Error messages only
 			break;

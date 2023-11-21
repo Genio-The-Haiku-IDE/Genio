@@ -1,8 +1,8 @@
 /*
  * Copyright 2023 Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
- * Parts are taken from the TemplatesMenu class from Haiku (Tracker) under the 
- * Open Tracker Licence 
+ * Parts are taken from the TemplatesMenu class from Haiku (Tracker) under the
+ * Open Tracker Licence
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.
  */
 
@@ -32,11 +32,13 @@
 #include "GenioWindow.h"
 #include "GitRepository.h"
 
+#include "GenioApp.h"
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SwitchBranchMenu"
 
 
-SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label, 
+SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label,
 									BMessage *message)
 	:
 	BMenu(label),
@@ -49,7 +51,7 @@ SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label,
 }
 
 
-SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label, 
+SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label,
 									BMessage *message, const char *projectPath)
 	:
 	BMenu(label),
@@ -71,20 +73,21 @@ void
 SwitchBranchMenu::AttachedToWindow()
 {
 	if (fDetectActiveProject) {
-		GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
-		fActiveProjectPath = window->GetActiveProject()->Path().String();
+		// GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
+		// fActiveProjectPath = window->GetActiveProject()->Path().String();
+		fActiveProjectPath = gMainWindow->GetActiveProject()->Path().String();
 	}
 	_BuildMenu();
-	
+
 	// This has to be done AFTER _BuildMenu, since
 	// it layouts the menu and resizes the window.
 	// So we need to have the menuitems already added.
 	BMenu::AttachedToWindow();
-	
+
 	SetTargetForItems(fTarget);
 }
 
-void 
+void
 SwitchBranchMenu::DetachedFromWindow()
 {
 	BMenu::DetachedFromWindow();
@@ -118,7 +121,7 @@ SwitchBranchMenu::_BuildMenu()
 	// clear everything...
 	int32 count = CountItems();
 	RemoveItems(0, count, true);
-	
+
 	if (fActiveProjectPath) {
 		Genio::Git::GitRepository repo(fActiveProjectPath);
 		auto branches = repo.GetBranches();

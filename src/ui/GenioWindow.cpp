@@ -57,6 +57,7 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
 
+GenioWindow* gMainWindow = nullptr;
 
 constexpr auto kRecentFilesNumber = 14 + 1;
 
@@ -138,6 +139,8 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultPanel(nullptr)
 {
+	gMainWindow = this;
+
 	_InitActions();
 	_InitMenu();
 	_InitWindow();
@@ -217,6 +220,7 @@ GenioWindow::~GenioWindow()
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
+	gMainWindow = nullptr;
 }
 
 
@@ -3146,9 +3150,7 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
 		}
 	}
-	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-	noticeMessage.AddPointer("active_project", fActiveProject);
-	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 
 	// Update run command working directory tooltip too
 	BString tooltip;
@@ -3298,9 +3300,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	fProjectFolderObjectList->RemoveItem(project);
 
 	// Notify subscribers that the project list has changed
-	BMessage notify_message(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-	notify_message.AddPointer("project_list", fProjectFolderObjectList);
-	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED, &notify_message);
+	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	project->Close();
 
@@ -3366,9 +3366,7 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	fProjectFolderObjectList->AddItem(newProject);
 
 	// Notify subscribers that project list has changed
-	BMessage notify_message(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-	notify_message.AddPointer("project_list", fProjectFolderObjectList);
-	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED, &notify_message);
+	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	if (gCFG["auto_expand_collapse_projects"])
 		fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItem(newProject->Name()));

@@ -62,6 +62,7 @@ public:
 
 StyledItem::StyledItem(BOutlineListView *container,
 						const char* text,
+						const uint32 item_type,
 						uint32 outlineLevel,
 						bool expanded,
 						const char *iconName)
@@ -75,7 +76,8 @@ StyledItem::StyledItem(BOutlineListView *container,
 	fToolTipText(nullptr),
 	fPrimaryTextStyle(B_REGULAR_FACE),
 	fSecondaryTextStyle(B_REGULAR_FACE),
-	fIconName(iconName)
+	fIconName(iconName),
+	fItemType(item_type)
 {
 }
 
@@ -113,8 +115,9 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
 	BBitmap *icon = nullptr;
-	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	float iconSize = 0;
 	if (fIconName != nullptr) {
+		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 		icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
 		GetVectorIcon(fIconName.String(), icon);
 	}

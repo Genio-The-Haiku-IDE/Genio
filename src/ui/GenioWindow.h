@@ -60,7 +60,9 @@ public:
 	virtual void				Show();
 
 	void						UpdateMenu();
-	ProjectFolder*				GetActiveProject() { return fActiveProject; }
+	auto						GetActiveProject() { return fActiveProject; }
+	void						SetActiveProject(ProjectFolder *project) { fActiveProject = project; }
+	auto						GetProjectList() { return fProjectFolderObjectList; }
 
 private:
 
@@ -226,5 +228,7 @@ private:
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultPanel*	fSearchResultPanel;
 };
+
+extern GenioWindow *gMainWindow;
 
 #endif //GenioWINDOW_H

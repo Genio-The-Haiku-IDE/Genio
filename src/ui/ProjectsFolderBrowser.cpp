@@ -6,6 +6,8 @@
 
 #include "ProjectsFolderBrowser.h"
 
+#include "ConfigManager.h"
+#include "GenioApp.h"
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"
 #include "GenioWindow.h"
@@ -380,7 +382,18 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 					fIsBuilding = building;
 					break;
 				}
-
+				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
+				{
+					// Expand active project, collapse other
+					if (gCFG["auto_expand_collapse_projects"]) {
+						ProjectFolder* activeProject = nullptr;
+						if (message->FindPointer("active_project",
+							reinterpret_cast<void**>(&activeProject)) != B_OK)
+							break;
+						Expand(GetProjectItem(activeProject->Name()));
+					}
+					break;
+				}
 				default:
 					BOutlineListView::MessageReceived(message);
 					break;
@@ -581,6 +594,7 @@ ProjectsFolderBrowser::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		Window()->UnlockLooper();
 	}
 }
@@ -597,6 +611,7 @@ ProjectsFolderBrowser::DetachedFromWindow()
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
 		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
+		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		Window()->UnlockLooper();
 	}
 }

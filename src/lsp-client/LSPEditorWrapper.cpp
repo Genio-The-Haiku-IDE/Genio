@@ -724,6 +724,7 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 			if (v.codeActions.value()[0].edit.has()){
 				lspDiag.edit = v.codeActions.value()[0].edit.value();
 				dia["quickFix"] = true;
+				dia["title"] = v.codeActions.value()[0].title.c_str();
 			}
 
 		}

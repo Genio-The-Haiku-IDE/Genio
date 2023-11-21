@@ -23,6 +23,7 @@
 #include <Url.h>
 #include <Window.h>
 
+#include "GException.h"
 #include "GenioWindowMessages.h"
 #include "GitCredentialsWindow.h"
 #include "GitRepository.h"
@@ -151,7 +152,7 @@ RemoteProjectWindow::_OpenProject(const BString& localPath)
 		msg->AddRef("refs",&ref);
 		fTarget.SendMessage(msg);
 	} else {
-		throw runtime_error(B_TRANSLATE("The local path is not valid or does not exist"));
+		throw GException(B_ERROR, B_TRANSLATE("The local path is not valid or does not exist"));
 	}
 }
 

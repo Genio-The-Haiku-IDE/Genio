@@ -23,8 +23,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include "Utils.h"
+#include "GException.h"
 #include "Log.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GitRepository"
@@ -36,25 +37,28 @@ namespace Genio::Git {
 
 	const int CANCEL_CREDENTIALS = -123;
 
-	class GitException {
+	class GitException : public GException {
 	public:
-									GitException(int error, BString const& message)
-										:
-										_error(error),
-										_message(message)
-									{
-										LogError("GitException %s, error = %d" , message.String(), error);
-									}
 
-									GitException(int error, BString const& message,
-													std::vector<std::string> files)
-										:
-										_error(error),
-										_message(message),
-										_files(files)
-									{
-										LogError("GitException %s, error = %d" , message.String(), error);
-									}
+		GitException(int error, BString const& message)
+			:
+			GException(error, message),
+			_error(error),
+			_message(message)
+		{
+			LogError("GitException %s, error = %d" , message.String(), error);
+		}
+
+		GitException(int error, BString const& message,
+						std::vector<std::string> files)
+			:
+			GException(error, message),
+			_error(error),
+			_message(message),
+			_files(files)
+		{
+			LogError("GitException %s, error = %d" , message.String(), error);
+		}
 
 		int							Error() noexcept { return _error; }
 		BString						Message() noexcept { return _message; }

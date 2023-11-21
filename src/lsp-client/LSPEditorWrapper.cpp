@@ -347,7 +347,6 @@ LSPEditorWrapper::StartCompletion()
 
 const std::string kCalltipParametersEnd(")");
 const std::string kCalltipParametersStart("(");
-const std::string kAutoCompleteStartCharacters(".>");
 const std::string kCalltipWordCharacters("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 const std::string kCalltipParametersSeparators(",");
 
@@ -520,7 +519,7 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 				fBraceCount--;
 			} else if (!Contains(wordCharacters, ch)) {
 				fEditor->SendMessage(SCI_AUTOCCANCEL);
-				if (Contains(kAutoCompleteStartCharacters, ch)) {
+				if (Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
 					StartCompletion();
 				}
 			}
@@ -529,8 +528,9 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 				fBraceCount = 1;
 				StartCallTip(true);
 			} else {
-				if (Contains(kAutoCompleteStartCharacters, ch)) {
+				if (Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
 					StartCompletion();
+
 				}
 			}
 		}

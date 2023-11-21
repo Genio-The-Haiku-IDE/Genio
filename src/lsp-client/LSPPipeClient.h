@@ -36,8 +36,8 @@ public:
 
 private:
 
-  void 	SkipLine();
-  int 	ReadLength();
+  int 	ReadMessageHeader();
+  bool	ReadHeaderLine(char* header, size_t maxlen);
   int 	Read(int length, std::string &out);
   bool 	Write(std::string &in);
   void	Quit() override;

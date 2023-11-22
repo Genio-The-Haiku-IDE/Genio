@@ -434,38 +434,12 @@ GenioWindow::MessageReceived(BMessage* message)
 
 			break;
 		}
-		case MSG_BOOKMARK_CLEAR_ALL: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->BookmarkClearAll(sci_BOOKMARK);
-			}
-			break;
-		}
-		case MSG_BOOKMARK_GOTO_NEXT: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				if (!editor->BookmarkGoToNext())
-					LogInfo("Next Bookmark not found");
-			}
-			break;
-		}
-		case MSG_BOOKMARK_GOTO_PREVIOUS: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				if (!editor->BookmarkGoToPrevious())
-					LogInfo("Previous Bookmark not found");
-			}
-
-
-			break;
-		}
-		case MSG_BOOKMARK_TOGGLE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->BookmarkToggle(editor->GetCurrentPosition());
-			}
-			break;
-		}
+		case MSG_BOOKMARK_CLEAR_ALL:
+		case MSG_BOOKMARK_GOTO_NEXT:
+		case MSG_BOOKMARK_GOTO_PREVIOUS:
+		case MSG_BOOKMARK_TOGGLE:
+			_ForwardToSelectedEditor(message);
+		break;
 		case MSG_BUFFER_LOCK: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
@@ -500,27 +474,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			_DebugProject();
 			break;
 		}
-		case MSG_EOL_CONVERT_TO_UNIX: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->EndOfLineConvert(SC_EOL_LF);
-			}
-			break;
-		}
-		case MSG_EOL_CONVERT_TO_DOS: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->EndOfLineConvert(SC_EOL_CRLF);
-			}
-			break;
-		}
-		case MSG_EOL_CONVERT_TO_MAC: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->EndOfLineConvert(SC_EOL_CR);
-			}
-			break;
-		}
+		case MSG_EOL_CONVERT_TO_UNIX:
+		case MSG_EOL_CONVERT_TO_DOS:
+		case MSG_EOL_CONVERT_TO_MAC:
+			_ForwardToSelectedEditor(message);
+		break;
 		case MSG_FILE_CLOSE: {
 			_FileRequestClose(fTabManager->SelectedTabIndex());
 			break;
@@ -528,13 +486,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_CLOSE_ALL:
 			_FileCloseAll();
 			break;
-		case MSG_FILE_FOLD_TOGGLE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->ToggleFolding();
-			}
+		case MSG_FILE_FOLD_TOGGLE:
+			_ForwardToSelectedEditor(message);
 			break;
-		}
 		case MSG_FILE_MENU_SHOW: {
 			/* Adapted from tabview */
 				BPopUpMenu* tabMenu = new BPopUpMenu("filetabmenu", true, false);
@@ -698,14 +652,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case GTLW_GO: {
-			int32 line;
-			if(message->FindInt32("line", &line) == B_OK) {
-				Editor* editor = fTabManager->SelectedEditor();
-				editor->GoToLine(line);
-			}
+		case GTLW_GO:
+			_ForwardToSelectedEditor(message);
 			break;
-		}
 		case MSG_GOTO_LINE:
 			if(fGoToLineWindow == nullptr) {
 				fGoToLineWindow = new GoToLineWindow(this);
@@ -730,75 +679,18 @@ GenioWindow::MessageReceived(BMessage* message)
 			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 			break;
 		}
-		case MSG_DUPLICATE_LINE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->DuplicateCurrentLine();
-			}
-			break;
-		}
-		case MSG_DELETE_LINES: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->DeleteSelectedLines();
-			}
-			break;
-		}
-		case MSG_COMMENT_SELECTED_LINES: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->CommentSelectedLines();
-			}
-			break;
-		}
-		case MSG_FILE_TRIM_TRAILING_SPACE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->TrimTrailingWhitespace();
-			}
-			break;
-		}
-		case MSG_AUTOCOMPLETION: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->Completion();
-			break;
-		}
-		case MSG_FORMAT: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->Format();
-			break;
-		}
-
-		case MSG_GOTODEFINITION: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->GoToDefinition();
-
-			break;
-		}
-		case MSG_GOTODECLARATION: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->GoToDeclaration();
-
-			break;
-		}
-		case MSG_GOTOIMPLEMENTATION: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->GoToImplementation();
-			break;
-		}
-		case MSG_SWITCHSOURCE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->SwitchSourceHeader();
-
-			break;
-		}
-
+		case MSG_DUPLICATE_LINE:
+		case MSG_DELETE_LINES:
+		case MSG_COMMENT_SELECTED_LINES:
+		case MSG_FILE_TRIM_TRAILING_SPACE:
+		case MSG_AUTOCOMPLETION:
+		case MSG_FORMAT:
+		case MSG_GOTODEFINITION:
+		case MSG_GOTODECLARATION:
+		case MSG_GOTOIMPLEMENTATION:
+		case MSG_SWITCHSOURCE:
+			_ForwardToSelectedEditor(message);
+		break;
 		case MSG_MAKE_BINDCATALOGS: {
 			_MakeBindcatalogs();
 			break;
@@ -1050,13 +942,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FOCUS_MODE:
 			_ToogleScreenMode(message->what);
 		break;
-		case MSG_TEXT_OVERWRITE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)  {
-				editor->OverwriteToggle();
-			}
-			break;
-		}
+		case MSG_TEXT_OVERWRITE:
+			_ForwardToSelectedEditor(message);
+		break;
 
 		case MSG_TOGGLE_TOOLBAR: {
 			_ShowView(fToolBar, fToolBar->IsHidden(), MSG_TOGGLE_TOOLBAR);
@@ -1114,15 +1002,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FIND_MATCH_CASE:
 			gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
 		break;
-		case MSG_SET_LANGUAGE: {
-			BMSG(message, gms);
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->SetFileType(std::string((const char*)gms["lang"]));
-				editor->ApplySettings();
-				//NOTE (TODO?) we are not changing any LSP configuration!
-			}
-		}
+		case MSG_SET_LANGUAGE:
+			_ForwardToSelectedEditor(message);
 		break;
 		case MSG_HELP_GITHUB: {
 			char *argv[2] = {(char*)"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
@@ -1131,7 +1012,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		break;
 		default:
 			BWindow::MessageReceived(message);
-			break;
+		break;
 	}
 }
 
@@ -1189,6 +1070,16 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		fScreenMode = kDefault;
 	}
 }
+
+void
+GenioWindow::_ForwardToSelectedEditor(BMessage* msg)
+{
+	Editor* editor = fTabManager->SelectedEditor();
+	if (editor) {
+		PostMessage(msg, editor);
+	}
+}
+
 
 void
 GenioWindow::_CloseMultipleTabs(BMessage* msg)

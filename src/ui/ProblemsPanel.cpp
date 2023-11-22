@@ -43,9 +43,6 @@ ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
 									, fTabView(tabView)
 
 {
-	BPopUpMenu*	menu = new BPopUpMenu("_popUp");
-	menu->AddItem(new BMenuItem("Test", nullptr));
-
 	AddColumn(new BStringColumn( B_TRANSLATE("Category"),
 								200.0, 200.0, 200.0, 0), kCategoryColumn);
 	AddColumn(new BStringColumn( B_TRANSLATE("Message"),
@@ -54,7 +51,7 @@ ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
 								200.0, 200.0, 200.0, 0), kSourceColumn);
 
 	fPopUpMenu = new BPopUpMenu("_popup");
-	fPopUpMenu->AddItem(fQuickFixItem = new BMenuItem(B_TRANSLATE("Quick fix"), nullptr));
+	fPopUpMenu->AddItem(fQuickFixItem = new BMenuItem("fix", nullptr));
 	fPopUpMenu->SetRadioMode(false);
 }
 
@@ -109,6 +106,7 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 				*inv = range->fRange;
 				inv->what = kApplyFix;
 				fQuickFixItem->SetMessage(inv);
+				fQuickFixItem->SetLabel(range->fRange.GetString("title", "Fix"));
 				fQuickFixItem->SetEnabled(range->fRange.GetBool("quickFix", false));
 				fPopUpMenu->SetTargetForItems(Window());
 				fPopUpMenu->Go(ConvertToScreen(where), true);

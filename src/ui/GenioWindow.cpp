@@ -299,7 +299,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (editor) {
 				if (editor->CanRedo())
 					editor->Redo();
-				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Redo");
+				_UpdateSavepointChange(editor, "Redo");
 			}
 			break;
 		}
@@ -316,7 +316,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (editor) {
 				if (editor->CanUndo())
 					editor->Undo();
-				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Undo");
+				_UpdateSavepointChange(editor, "Undo");
 			}
 			break;
 		}
@@ -414,7 +414,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				int32 index =  _GetEditorIndex(&ref);
 				if (index == fTabManager->SelectedTabIndex()) {
 					// Enable Cut,Copy,Paste shortcuts
-					_UpdateSavepointChange(index, "EDITOR_POSITION_CHANGED");
+					_UpdateSavepointChange(fTabManager->SelectedEditor(), "EDITOR_POSITION_CHANGED");
 				}
 			}
 			break;
@@ -428,7 +428,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				int32 index = _GetEditorIndex(&ref);
 				if (index > -1) {
 					_UpdateLabel(index, modified);
-					_UpdateSavepointChange(index, "UpdateSavePoint");
+					_UpdateSavepointChange(fTabManager->EditorAt(index), "UpdateSavePoint");
 				}
 			}
 
@@ -3723,11 +3723,9 @@ GenioWindow::_UpdateReplaceMenuItems(const BString& text)
 // Redo
 // EDITOR_POSITION_CHANGED (Why ?)
 void
-GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
+GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 {
-	assert (index > -1 && index < fTabManager->CountTabs());
-
-	Editor* editor = fTabManager->EditorAt(index);
+	assert (editor);
 
 	// Menu Items
 	ActionManager::SetEnabled(B_CUT, editor->CanCut());

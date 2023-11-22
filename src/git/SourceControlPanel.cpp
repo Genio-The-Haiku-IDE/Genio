@@ -57,7 +57,6 @@ SourceControlPanel::SourceControlPanel()
 
 	_InitToolBar();
 	_InitRepositoryView();
-	_UpdateRepositoryView();
 	_InitChangesView();
 	_InitLogView();
 
@@ -215,15 +214,13 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			auto path = fSelectedProject->Path().String();
 			LogInfo("MsgSelectProject: %s", path);
 			_UpdateBranchList();
-			_UpdateRepositoryView();
-
 			SendNotices(message->what, message);
 		}
 		break;
 		case MsgSwitchBranch : {
 			fCurrentBranch = (BString)message->GetString("value");
 			SendNotices(message->what, message);
-			LogInfo("**MsgSwitchBranch: %s", fCurrentBranch.String());
+			LogInfo("MsgSwitchBranch: %s", fCurrentBranch.String());
 		}
 		break;
 		case MsgPull : {
@@ -271,6 +268,7 @@ SourceControlPanel::_UpdateBranchList()
 		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
 		auto branches = repo.GetBranches();
 		fCurrentBranch = repo.GetCurrentBranch();
+		LogInfo("current branch is set to %s", fCurrentBranch.String());
 		fBranchMenu->MakeEmpty();
 		fBranchMenu->AddIterator(branches,
 			MsgSwitchBranch,
@@ -328,55 +326,6 @@ SourceControlPanel::_InitLogView()
 		.End()
 		.AddGlue()
 		.View();
-}
-
-
-void
-SourceControlPanel::_UpdateRepositoryView()
-{
-	fRepositoryView->MakeEmpty();
-
-	auto locals = new StyledItem(fRepositoryView, B_TRANSLATE("Local branches"));
-	locals->SetPrimaryTextStyle(B_BOLD_FACE);
-	fRepositoryView->AddItem(locals);
-	// populate local branches
-	if (fSelectedProject != nullptr) {
-		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
-		auto branches = repo.GetBranches(GIT_BRANCH_LOCAL);
-		auto current_branch = repo.GetCurrentBranch();
-		for(auto &branch : branches) {
-			auto item = new StyledItem(fRepositoryView, branch.String(), kLocalBranch);
-			fRepositoryView->AddUnder(item, locals);
-		}
-	}
-
-	auto remotes = new StyledItem(fRepositoryView, B_TRANSLATE("Remotes"));
-	remotes->SetPrimaryTextStyle(B_BOLD_FACE);
-	fRepositoryView->AddItem(remotes);
-	// populate remote branches
-	if (fSelectedProject != nullptr) {
-		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
-		auto branches = repo.GetBranches(GIT_BRANCH_REMOTE);
-		auto current_branch = repo.GetCurrentBranch();
-		for(auto &branch : branches) {
-			auto item = new StyledItem(fRepositoryView, branch.String(), kRemoteBranch);
-			fRepositoryView->AddUnder(item, remotes);
-		}
-	}
-
-	auto tags = new StyledItem(fRepositoryView, B_TRANSLATE("Tags"));
-	tags->SetPrimaryTextStyle(B_BOLD_FACE);
-	fRepositoryView->AddItem(tags);
-	// populate tags
-	if (fSelectedProject != nullptr) {
-		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
-		auto all_tags = repo.GetTags();
-		auto current_branch = repo.GetCurrentBranch();
-		for(auto &tag : all_tags) {
-			auto item = new StyledItem(fRepositoryView, tag.String(), kRemoteBranch);
-			fRepositoryView->AddUnder(item, tags);
-		}
-	}
 }
 
 

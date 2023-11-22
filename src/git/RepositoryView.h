@@ -7,6 +7,7 @@
 #include <Catalog.h>
 #include <OutlineListView.h>
 
+#include "GitRepository.h"
 #include "GMessage.h"
 #include "Log.h"
 #include "SourceControlPanel.h"

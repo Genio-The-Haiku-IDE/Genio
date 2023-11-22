@@ -1,8 +1,8 @@
 /*
  * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
- * 
- * Freely derived and inspired from the Haiku Terminal application. 
- * 
+ *
+ * Freely derived and inspired from the Haiku Terminal application.
+ *
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -15,8 +15,9 @@
 #include <FindDirectory.h>
 #include <Path.h>
 #include <Window.h>
-
+#include "ActionManager.h"
 #include "TextUtils.h"
+
 //// TODO: move these function in a common TextUtilities class..
 
 const std::string kNumericChars("1234567890");
@@ -39,35 +40,35 @@ WordTextView::_Classify(char c)
 }
 
 
-void	
+void
 WordTextView::_SetStyle(bool underline)
 {
 	int32 len  = 0;
 	text_run_array * tra = BTextView::RunArray	(fStartPosition, fStopPosition, &len);
-	
+
 	if (len == 0)
 		return;
-		
+
 	if (tra->count > 0) {
 		tra->runs[0].font.SetFace( underline ? B_UNDERSCORE_FACE : B_REGULAR_FACE);
 		SetRunArray(fStartPosition, fStopPosition + 1, tra);
 	}
-	
+
 	BTextView::FreeRunArray(tra);
 }
 
 
-void	
-WordTextView::_ResetStyle() 
+void
+WordTextView::_ResetStyle()
 {
 	if (fStopPosition == -1 && fStartPosition == -1)
 		return;
-	
+
 	_SetStyle(false);
 }
 
 
-void	
+void
 WordTextView::MouseDown(BPoint where)
 {
 	BTextView::MouseDown(where);
@@ -79,18 +80,18 @@ WordTextView::MouseDown(BPoint where)
 			msg.AddRef("refs", &ref);
 			if (fCurrentPositions[0] != 0)
 				msg.AddInt32("be:line", fCurrentPositions[0]);
-			
+
 			Window()->PostMessage(&msg);
 		}
 	}
 }
 
 
-void	
+void
 WordTextView::MouseMoved(BPoint where, uint32 code, const BMessage *dragMessage)
 {
 	BTextView::MouseMoved(where, code, dragMessage);
-	
+
 	int32 pointPosition = OffsetAt(where);
 	if (pointPosition >= fStartPosition && pointPosition <= fStopPosition)
 		return;
@@ -100,14 +101,14 @@ WordTextView::MouseMoved(BPoint where, uint32 code, const BMessage *dragMessage)
 	BString word = "";
 	fCurrentPath = "";
 	fCurrentPositions[0] = fCurrentPositions[1] = 0;
-	
+
 	_ResetStyle();
 	bool found = _GetFileAt(where, pointPosition, word, startPosition, stopPosition);
-	
+
 	fStopPosition  = stopPosition;
 	fStartPosition = startPosition;
 	fLastWord = word;
-	
+
 	if (found)
 		_SetStyle(true);
 }
@@ -120,13 +121,13 @@ WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
 	int32 line = LineAt(where);
 	if (line >= CountLines())
 		return false;
-	
+
 	int32 startLine 	= OffsetAt(line);
 	int32 maxPosition 	= TextLength() - 1;
-		
+
 	startPosition = pointPosition;
 	stopPosition  = pointPosition;
-	
+
 	//backward:
 	for (;;) {
 		if (_Classify(ByteAt(startPosition))) {
@@ -138,21 +139,21 @@ WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
 			if (startPosition < maxPosition)
 				startPosition++;
 			break;
-		}	
+		}
 	}
-	
+
 	//forward:
 	for (;;) {
 		if (_Classify(ByteAt(stopPosition))) {
 			if (maxPosition == stopPosition) {
 				break;
 			}
-			stopPosition++;	
+			stopPosition++;
 		} else {
 			if (stopPosition > startLine)
-				stopPosition--;			
+				stopPosition--;
 			break;
-		}	
+		}
 	}
 
 	int32 len = stopPosition - startPosition + 1 ;
@@ -160,10 +161,10 @@ WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
 		return false;
 
 	fBuffer[len] = '\0';
-	
+
 	GetText(startPosition, len, fBuffer);
 	word.SetTo(fBuffer, len);
-	
+
 	// let's try to find the ':' chars and decide if we can extract line and column
 	// information.
 	int32 index = 0;
@@ -188,10 +189,10 @@ WordTextView::_GetFileAt(BPoint where, const int32 pointPosition, BString& word,
 			index++;
 		}
 	}
-	
+
 	if (firstIndex > 0)
 		word.Truncate(firstIndex);
-		
+
 	return _EntryExists(word, fCurrentPath);
 }
 
@@ -219,4 +220,19 @@ WordTextView::_EntryExists(const BString& path,	BString& _actualPath) const
 
 	struct stat st;
 	return lstat(_actualPath, &st) == 0;
+}
+
+void
+WordTextView::MakeFocus(bool focus)
+{
+	BTextView::MakeFocus(focus);
+
+	if (focus) {
+		fPrevCopyValue = ActionManager::IsEnabled(B_COPY);
+		ActionManager::SetEnabled(B_COPY, true);
+
+	} else {
+		ActionManager::SetEnabled(B_COPY, fPrevCopyValue);
+
+	}
 }

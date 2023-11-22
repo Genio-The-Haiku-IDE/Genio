@@ -53,13 +53,18 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 	fActive(false),
 	fBuildMode(BuildMode::ReleaseMode),
 	fLSPProjectWrapper(nullptr),
-	fSettings(nullptr)
+	fSettings(nullptr),
+	fGitRepository(nullptr)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
 
-
-
+	try {
+		fGitRepository = new GitRepository(path);
+	} catch(GitException &ex) {
+		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
+			path.String(), ex.Error(), ex.what());
+	}
 
 	fLSPProjectWrapper = new LSPProjectWrapper(fPath.String(), msgr);
 }
@@ -71,6 +76,8 @@ ProjectFolder::~ProjectFolder()
 		fLSPProjectWrapper->Dispose();
 		delete fLSPProjectWrapper;
 	}
+	if (fGitRepository != nullptr)
+		delete fGitRepository;
 	delete fSettings;
 }
 

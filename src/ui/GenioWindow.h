@@ -49,7 +49,7 @@ enum scree_mode {
 	kFullscreen,
 	kFocus
 };
-	
+
 
 class ActionManager;
 
@@ -150,6 +150,7 @@ private:
 			void				_HandleConfigurationChanged(BMessage* msg);
 			BMenu*				_CreateLanguagesMenu();
 			void				_ToogleScreenMode(int32 action);
+			void				_ForwardToSelectedEditor(BMessage* msg);
 
 private:
 			BMenuBar*			fMenuBar;
@@ -229,7 +230,7 @@ private:
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultPanel*	fSearchResultPanel;
-			
+
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;
 };

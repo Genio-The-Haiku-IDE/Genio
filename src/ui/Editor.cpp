@@ -32,6 +32,8 @@
 #include "Utils.h"
 #include "Languages.h"
 #include "Styler.h"
+#include "GoToLineWindow.h"
+#include "GenioWindowMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -128,14 +130,84 @@ Editor::~Editor()
 	fLSPEditorWrapper = NULL;
 }
 
-
 void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case MSG_BOOKMARK_CLEAR_ALL:
+			BookmarkClearAll(sci_BOOKMARK);
+		break;
+		case MSG_BOOKMARK_GOTO_NEXT:
+			if (!BookmarkGoToNext())
+				LogInfo("Next Bookmark not found");
+		break;
+		case MSG_BOOKMARK_GOTO_PREVIOUS:
+			if (!BookmarkGoToPrevious())
+				LogInfo("Previous Bookmark not found");
+		break;
+		case MSG_BOOKMARK_TOGGLE:
+			BookmarkToggle(GetCurrentPosition());
+		break;
+		case MSG_EOL_CONVERT_TO_UNIX:
+			EndOfLineConvert(SC_EOL_LF);
+		break;
+		case MSG_EOL_CONVERT_TO_DOS:
+			EndOfLineConvert(SC_EOL_CRLF);
+		break;
+		case MSG_EOL_CONVERT_TO_MAC:
+			EndOfLineConvert(SC_EOL_CR);
+		break;
+		case MSG_FILE_FOLD_TOGGLE:
+			ToggleFolding();
+		break;
+		case GTLW_GO: {
+			int32 line;
+			if(message->FindInt32("line", &line) == B_OK) {
+				GoToLine(line);
+			}
+		}
+		break;
+		case MSG_DUPLICATE_LINE:
+			DuplicateCurrentLine();
+		break;
+		case MSG_DELETE_LINES:
+			DeleteSelectedLines();
+		break;
+		case MSG_COMMENT_SELECTED_LINES:
+			CommentSelectedLines();
+		break;
+		case MSG_FILE_TRIM_TRAILING_SPACE:
+			TrimTrailingWhitespace();
+		break;
+		case MSG_AUTOCOMPLETION:
+			Completion();
+		break;
+		case MSG_FORMAT:
+			Format();
+		break;
+		case MSG_GOTODEFINITION:
+			GoToDefinition();
+		break;
+		case MSG_GOTODECLARATION:
+			GoToDeclaration();
+		break;
+		case MSG_GOTOIMPLEMENTATION:
+			GoToImplementation();
+		break;
+		case MSG_SWITCHSOURCE:
+			SwitchSourceHeader();
+		break;
+		case MSG_TEXT_OVERWRITE:
+			OverwriteToggle();
+		break;
+		case MSG_SET_LANGUAGE:
+			SetFileType(std::string(message->GetString("lang", "")));
+			ApplySettings();
+			//NOTE (TODO?) we are not changing any LSP configuration!
+		break;
 		default:
 			BScintillaView::MessageReceived(message);
-			break;
+		break;
 	}
 }
 

@@ -64,7 +64,7 @@ namespace Genio::UI {
 			if constexpr (std::is_pointer<T>::value) {
 				status = message->AddPointer("value", value);
 			} if constexpr (std::is_same<BString, T>::value) {
-				status = message->AddString("value", (BString)(value));
+				status = message->AddString("value", (BString)value);
 			} else {
 				status = message->AddData("value", B_ANY_TYPE, &value, sizeof(value), true);
 			}
@@ -88,7 +88,11 @@ namespace Genio::UI {
 			for(T element : list)
 			{
 				auto name = get_name_lambda(element);
-				LogInfo("AddIterator name:%s value:%s", name.String(), element);
+				if constexpr (std::is_same<BString, T>::value) {
+					LogInfo("AddIterator name:%s value:%s", name.String(), ((BString)element).String());
+				} else {
+					LogInfo("AddIterator name:%s value: N/A", name.String());
+				}
 				AddItem(name, element, command, set_mark_lambda(element));
 			}
 		}
@@ -104,7 +108,11 @@ namespace Genio::UI {
 			for (int index = 0; index < count; index++) {
 				T element = list->ItemAt(index);
 				auto name = get_name_lambda(element);
-				LogInfo("AddList: name:%s value:%s", name.String(), element);
+				if constexpr (std::is_same<BString, T>::value) {
+					LogInfo("AddList name:%s value:%s", name.String(), ((BString)element).String());
+				} else {
+					LogInfo("AddList name:%s value: N/A", name.String());
+				}
 				AddItem(name, element, command, set_mark_lambda(element));
 			}
 		}

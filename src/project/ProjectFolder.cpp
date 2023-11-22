@@ -76,8 +76,7 @@ ProjectFolder::~ProjectFolder()
 		fLSPProjectWrapper->Dispose();
 		delete fLSPProjectWrapper;
 	}
-	if (fGitRepository != nullptr)
-		delete fGitRepository;
+	delete fGitRepository;
 	delete fSettings;
 }
 

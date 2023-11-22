@@ -120,10 +120,11 @@ SwitchBranchMenu::_BuildMenu()
 	RemoveItems(0, count, true);
 
 	if (fActiveProjectPath) {
-		Genio::Git::GitRepository repo(fActiveProjectPath);
+		Genio::Git::GitRepository* repo = nullptr;
 		try {
-			auto branches = repo.GetBranches();
-			auto current_branch = repo.GetCurrentBranch();
+			repo = new Genio::Git::GitRepository(fActiveProjectPath);
+			auto branches = repo->GetBranches();
+			auto current_branch = repo->GetCurrentBranch();
 			for(auto &branch : branches) {
 				BMessage *message = new BMessage(fMessage->what);
 				message->AddString("branch", branch);
@@ -135,5 +136,6 @@ SwitchBranchMenu::_BuildMenu()
 			}
 		} catch(...){
 		}
+		delete repo;
 	}
 }

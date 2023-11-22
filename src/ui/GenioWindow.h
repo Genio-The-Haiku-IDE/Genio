@@ -141,7 +141,7 @@ private:
 			status_t			_UpdateLabel(int32 index, bool isModified);
 			void				_UpdateProjectActivation(bool active);
 			void				_UpdateReplaceMenuItems(const BString& text);
-			void				_UpdateSavepointChange(int32 index, const BString& caller = "");
+			void				_UpdateSavepointChange(Editor*, const BString& caller = "");
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);

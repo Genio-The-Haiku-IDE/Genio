@@ -6,9 +6,9 @@
 #include "LSPEditorWrapper.h"
 
 #include <Application.h>
-#include <Json.h>
 #include <Path.h>
 #include <Window.h>
+#include <Catalog.h>
 
 #include <cstdio>
 #include <debugger.h>
@@ -20,6 +20,8 @@
 #include "protocol.h"
 #include "TextUtils.h"
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "Editor"
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 #define IND_DIAG 1 //Style for Problems
@@ -90,7 +92,8 @@ LSPEditorWrapper::ApplyFix(BMessage* info)
 	int32 diaIndex = info->GetInt32("index", -1);
 	if (diaIndex >= 0 && fLastDiagnostics.size() > (size_t)diaIndex) {
 		//how are we sure the fix list is syncronized? (TODO: how?)
-		std::map<std::string, std::vector<TextEdit>> map = fLastDiagnostics.at(diaIndex).edit.changes.value();
+		std::map<std::string, std::vector<TextEdit>> map =
+			fLastDiagnostics.at(diaIndex).diagnostic.codeActions.value()[0].edit.value().changes.value();
 		for (auto& ed : map){
 			if (GetFilenameURI().ICompare(ed.first.c_str()) == 0) {
 				for (TextEdit& te : ed.second) {
@@ -240,19 +243,31 @@ LSPEditorWrapper::StartHover(Sci_Position sci_position)
 		return;
 	}
 
-	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_DIAG, sci_position) == 1) {
-		for (auto& ir : fLastDiagnostics) {
-			if (sci_position > ir.range.from && sci_position <= ir.range.to) {
-				_ShowToolTip(ir.range.info.c_str());
-				break;
-			}
-		}
+	LSPDiagnostic dia;
+	if (DiagnosticFromPosition(sci_position, dia) > -1) {
+		_ShowToolTip(dia.range.info.c_str());
 		return;
 	}
 
 	Position position;
 	FromSciPositionToLSPPosition(sci_position, &position);
 	fLSPProjectWrapper->Hover(this, position);
+}
+
+int32
+LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnostic& dia)
+{
+	int32 index = -1;
+	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_DIAG, sci_position) == 1) {
+		for (auto& ir : fLastDiagnostics) {
+			index++;
+			if (sci_position > ir.range.from && sci_position <= ir.range.to) {
+				dia = ir;
+				return index;
+			}
+		}
+	}
+	return index;
 }
 
 
@@ -707,28 +722,29 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 		ir.to = FromLSPPositionToSciPosition(&r.end);
 		ir.info = v.message;
 
+		lspDiag.diagnostic = v;
+
 		LogTrace("Diagnostics [%ld->%ld] [%s]", ir.from, ir.to, ir.info.c_str());
 		fEditor->SendMessage(SCI_INDICATORFILLRANGE, ir.from, ir.to - ir.from);
 
-		WorkspaceEdit	edit;
-
 		GMessage dia;
-		dia.AddData("range", B_RAW_TYPE, &v.range, sizeof(v.range), true);
 		dia["category"] = v.category.value().c_str();
 		dia["message"] = v.message.c_str();
 		dia["source"] = v.source.c_str();
 		dia["index"] = index++;
 		dia["be:line"] = v.range.start.line + 1;
 		dia["lsp:character"] = v.range.start.character;
+		dia["quickFix"] = false;
+		dia["title"] = B_TRANSLATE("No fix available");
 		if (v.codeActions.value().size() > 0) {
 			if (v.codeActions.value()[0].edit.has()){
-				lspDiag.edit = v.codeActions.value()[0].edit.value();
 				dia["quickFix"] = true;
-				dia["title"] = v.codeActions.value()[0].title.c_str();
+				BString str(B_TRANSLATE("Fix: %fix_desc%"));
+				str.ReplaceAll("%fix_desc%", v.codeActions.value()[0].title.c_str());
+				dia["title"] = str.String();
 			}
-
 		}
-
+		lspDiag.fixTitle = (const char*)dia["title"];
 		toJson.AddMessage("diagnostic", &dia);
 		fLastDiagnostics.push_back(lspDiag);
 	}

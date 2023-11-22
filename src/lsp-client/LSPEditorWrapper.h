@@ -79,7 +79,7 @@ public:
 		void onError(RequestID ID, value &error);
 		void onRequest(std::string method, value &params, value &ID);
 
-private:
+
 
 	struct InfoRange {
 		Sci_Position	from;
@@ -94,14 +94,19 @@ private:
 	LSPProjectWrapper*	fLSPProjectWrapper;
 	BString				fFileStatus;
 
-	struct LSPDiagnostic { InfoRange range; WorkspaceEdit edit; };
+	struct LSPDiagnostic { InfoRange range; Diagnostic diagnostic; std::string fixTitle;};
 
+	int32	DiagnosticFromPosition(Sci_Position p, LSPDiagnostic& dia);
+
+private:
 	std::vector<LSPDiagnostic>	fLastDiagnostics;
 	std::vector<InfoRange>		fLastDocumentLinks;
 
 	void				_ShowToolTip(const char* text);
 	void				_RemoveAllDiagnostics();
 	void				_RemoveAllDocumentLinks();
+
+
 
 private:
 	//callbacks:

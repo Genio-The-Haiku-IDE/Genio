@@ -97,7 +97,7 @@ private:
 			void				_FindNext(const BString& strToFind, bool backwards);
 			void				_FindInFiles();
 
-			int32				_GetEditorIndex(entry_ref* ref, bool checkExists = false);
+			int32				_GetEditorIndex(entry_ref* ref);
 			int32				_GetEditorIndex(node_ref* nref);
 			void				_GetFocusAndSelection(BTextControl* control);
 			status_t			_Git(const BString& git_command);

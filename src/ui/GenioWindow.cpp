@@ -272,8 +272,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case EDITOR_UPDATE_DIAGNOSTICS : {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex())
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor == fTabManager->SelectedEditor())
 				{
 					fProblemsPanel->UpdateProblems(message);
 				}
@@ -340,10 +340,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case EDITOR_FIND_SET_MARK: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex()) {
-					Editor* editor = fTabManager->EditorAt(index);
-
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor == fTabManager->SelectedEditor()) {
 					int32 line;
 					if (message->FindInt32("line", &line) == B_OK) {
 						BString text;
@@ -388,9 +386,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case EDITOR_REPLACE_ONE: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index =  _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex()) {
-					Editor* editor = fTabManager->EditorAt(index);
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor == fTabManager->SelectedEditor()) {
 					int32 line, column;
 					BString sel, repl;
 					if (message->FindInt32("line", &line) == B_OK
@@ -411,10 +408,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		case EDITOR_POSITION_CHANGED: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index =  _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex()) {
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor == fTabManager->SelectedEditor()) {
 					// Enable Cut,Copy,Paste shortcuts
-					_UpdateSavepointChange(fTabManager->SelectedEditor(), "EDITOR_POSITION_CHANGED");
+					_UpdateSavepointChange(editor, "EDITOR_POSITION_CHANGED");
 				}
 			}
 			break;
@@ -425,10 +422,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (message->FindRef("ref", &ref) == B_OK &&
 			    message->FindBool("modified", &modified) == B_OK) {
 
-				int32 index = _GetEditorIndex(&ref);
-				if (index > -1) {
-					_UpdateLabel(index, modified);
-					_UpdateSavepointChange(fTabManager->EditorAt(index), "UpdateSavePoint");
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor) {
+					_UpdateLabel(_GetEditorIndex(&ref), modified);
+					_UpdateSavepointChange(editor, "UpdateSavePoint");
 				}
 			}
 
@@ -1861,15 +1858,11 @@ GenioWindow::_FindInFiles()
 }
 
 int32
-GenioWindow::_GetEditorIndex(entry_ref* ref, bool checkExists)
+GenioWindow::_GetEditorIndex(entry_ref* ref)
 {
 	BEntry entry(ref, true);
 	int32 filesCount = fTabManager->CountTabs();
 
-	// Could try to reopen at start a saved index that was deleted,
-	// check existence
-	if (checkExists && entry.Exists() == false)
-		return -1;
 
 	for (int32 index = 0; index < filesCount; index++) {
 
@@ -1978,7 +1971,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 
  	alert->SetShortcut(0, B_ESCAPE);
 
-	int32 index = _GetEditorIndex(oldRef, false);
+	int32 index = _GetEditorIndex(oldRef);
 
  	int32 choice = alert->Go();
 

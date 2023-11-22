@@ -8,7 +8,11 @@
 #include <ObjectList.h>
 #include <String.h>
 #include <Messenger.h>
+#include "GitRepository.h"
+#include "GException.h"
 #include "GSettings.h"
+
+using namespace Genio::Git;
 
 class LSPProjectWrapper;
 
@@ -78,6 +82,9 @@ public:
 	void						RunInTerminal(bool enabled);
 	bool						RunInTerminal();
 
+	auto						GetRepository() { return fGitRepository; }
+	void						InitRepository() {fGitRepository->Init(fPath); }
+
 	void						Git(bool enabled);
 	bool						Git();
 
@@ -95,6 +102,7 @@ private:
 	BString						fGuessedCleanCommand;
 	LSPProjectWrapper*			fLSPProjectWrapper;
 	GSettings*					fSettings;
+	GitRepository*				fGitRepository;
 };
 
 #endif // PROJECT_FOLDER_H

@@ -88,10 +88,10 @@ RepositoryView::AttachedToWindow()
 {
 	BOutlineListView::AttachedToWindow();
 
-	if (Parent()->LockLooper()) {
-		Parent()->StartWatching(this, MsgChangeProject);
-		Parent()->StartWatching(this, MsgSwitchBranch);
-		Parent()->UnlockLooper();
+	if (Target()->LockLooper()) {
+		Target()->StartWatching(this, MsgChangeProject);
+		Target()->StartWatching(this, MsgSwitchBranch);
+		Target()->UnlockLooper();
 	}
 }
 
@@ -100,10 +100,10 @@ RepositoryView::DetachedFromWindow()
 {
 	BOutlineListView::DetachedFromWindow();
 
-	if (Parent()->LockLooper()) {
-		Parent()->StopWatching(this, MsgChangeProject);
-		Parent()->StopWatching(this, MsgSwitchBranch);
-		Parent()->UnlockLooper();
+	if (Target()->LockLooper()) {
+		Target()->StopWatching(this, MsgChangeProject);
+		Target()->StopWatching(this, MsgSwitchBranch);
+		Target()->UnlockLooper();
 	}
 }
 
@@ -118,7 +118,7 @@ RepositoryView::MessageReceived(BMessage* message)
 			switch (code) {
 				case MsgChangeProject:
 				{
-					LogInfo("MsgChangeProject");
+					LogInfo("RepositoryView: MsgChangeProject");
 					fSelectedProject = (ProjectFolder *)message->GetPointer("value");
 					if (fSelectedProject!=nullptr)
 						fRepositoryPath = fSelectedProject->Path().String();
@@ -127,11 +127,10 @@ RepositoryView::MessageReceived(BMessage* message)
 				}
 				case MsgSwitchBranch:
 				{
-					LogInfo("MsgSwitchBranch");
+					LogInfo("RepositoryView: MsgSwitchBranch");
 					fCurrentBranch = message->GetString("value");
 					if (!fCurrentBranch.IsEmpty())
 						_UpdateRepository();
-					OKAlert("", "MsgSwitchBranch", B_INFO_ALERT);
 					break;
 				}
 				default:
@@ -209,6 +208,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 			case kRemoteBranch: {
 
 				fmt.Substitutions["%current_branch%"] = fCurrentBranch;
+				LogInfo("fmt.Substitutions[%current_branch%] = %s", fCurrentBranch.String());
 
 				optionsMenu->AddItem(
 					new BMenuItem(
@@ -279,4 +279,47 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 void
 RepositoryView::_UpdateRepository()
 {
+	MakeEmpty();
+
+	auto locals = new StyledItem(this, B_TRANSLATE("Local branches"));
+	locals->SetPrimaryTextStyle(B_BOLD_FACE);
+	AddItem(locals);
+	// populate local branches
+	if (fSelectedProject != nullptr) {
+		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
+		auto branches = repo.GetBranches(GIT_BRANCH_LOCAL);
+		auto current_branch = repo.GetCurrentBranch();
+		for(auto &branch : branches) {
+			auto item = new StyledItem(this, branch.String(), kLocalBranch);
+			AddUnder(item, locals);
+		}
+	}
+
+	auto remotes = new StyledItem(this, B_TRANSLATE("Remotes"));
+	remotes->SetPrimaryTextStyle(B_BOLD_FACE);
+	AddItem(remotes);
+	// populate remote branches
+	if (fSelectedProject != nullptr) {
+		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
+		auto branches = repo.GetBranches(GIT_BRANCH_REMOTE);
+		auto current_branch = repo.GetCurrentBranch();
+		for(auto &branch : branches) {
+			auto item = new StyledItem(this, branch.String(), kRemoteBranch);
+			AddUnder(item, remotes);
+		}
+	}
+
+	auto tags = new StyledItem(this, B_TRANSLATE("Tags"));
+	tags->SetPrimaryTextStyle(B_BOLD_FACE);
+	AddItem(tags);
+	// populate tags
+	if (fSelectedProject != nullptr) {
+		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
+		auto all_tags = repo.GetTags();
+		auto current_branch = repo.GetCurrentBranch();
+		for(auto &tag : all_tags) {
+			auto item = new StyledItem(this, tag.String(), kRemoteBranch);
+			AddUnder(item, tags);
+		}
+	}
 }

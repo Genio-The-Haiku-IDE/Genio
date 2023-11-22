@@ -40,11 +40,9 @@ namespace Genio::Git {
 	vector<BString>
 	GitRepository::GetBranches(git_branch_t branchType)
 	{
+		int error = 0;
 		git_branch_iterator *it = nullptr;
-		int error = git_branch_iterator_new(&it, fRepository, GIT_BRANCH_ALL);
-		if (error != 0) {
-			throw GitException(error, git_error_last()->message);
-		}
+		check(git_branch_iterator_new(&it, fRepository, branchType));
 
 		vector<BString> branches;
 		git_reference *ref = nullptr;

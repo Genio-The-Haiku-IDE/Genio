@@ -73,16 +73,14 @@ namespace Genio::Git {
 	class GitRepository {
 	public:
 
-											GitRepository(const path& path);
+											GitRepository(const BString& path);
 											~GitRepository();
 
 		const BPath&						Clone(const string& url, const BPath& localPath,
 													git_indexer_progress_cb callback,
 													git_credential_acquire_cb authentication_callback);
 
-		bool								InitCheck() { return fInitCheck; };
-
-		void								Init(const path& repo, const path& localPath);
+		void								Init(const BString& localPath);
 
 		vector<BString>						GetTags();
 
@@ -106,8 +104,7 @@ namespace Genio::Git {
 	private:
 
 		git_repository 						*fRepository;
-		path 								fRepositoryPath;
-		bool								fInitCheck;
+		BString								fRepositoryPath;
 
 		BString								_ConfigGet(git_config *cfg,
 														const char *key);

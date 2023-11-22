@@ -19,20 +19,15 @@
 
 namespace Genio::Git {
 
-	GitRepository::GitRepository(const path& path)
+	GitRepository::GitRepository(const BString& path)
 		:
 		fRepository(nullptr),
-		fRepositoryPath(path),
-		fInitCheck(false)
+		fRepositoryPath(path)
 	{
 		git_libgit2_init();
 		git_buf buf = GIT_BUF_INIT_CONST(NULL, 0);
-		if (git_repository_discover(&buf, path.c_str(), 0, NULL) == 0) {
-			int error = git_repository_open(&fRepository, path.c_str());
-			if (error != 0) {
-				throw GitException(error, git_error_last()->message);
-			}
-			fInitCheck = true;
+		if (git_repository_discover(&buf, fRepositoryPath.String(), 0, NULL) == 0) {
+			check(git_repository_open(&fRepository, fRepositoryPath.String()));
 		}
 	}
 
@@ -49,16 +44,14 @@ namespace Genio::Git {
 		git_reference *ref;
 		git_branch_t type;
 		vector<BString> branches;
+		int error = 0;
 
-		int error = git_branch_iterator_new(&it, fRepository, branchType);
-		if (error != 0) {
-			throw GitException(error, git_error_last()->message);
-		}
+		check(git_branch_iterator_new(&it, fRepository, branchType));
 
 		while ((error = git_branch_next(&ref, &type, it)) == 0) {
 			const char *branchName;
 			error = git_branch_name(&branchName, ref);
-			if (error != 0) {
+			if (error < 0) {
 				git_reference_free(ref);
 				throw GitException(error, git_error_last()->message);
 			}
@@ -115,18 +108,14 @@ namespace Genio::Git {
 		std::vector<std::string> files;
 		BString remoteBranchName;
 
-		status = git_checkout_init_options(&opts, GIT_CHECKOUT_OPTIONS_VERSION);
-		if (status < 0)
-			throw GitException(status, git_error_last()->message);
+		check(git_checkout_init_options(&opts, GIT_CHECKOUT_OPTIONS_VERSION));
 
 		opts.notify_flags =	GIT_CHECKOUT_NOTIFY_CONFLICT;
 		opts.checkout_strategy = GIT_CHECKOUT_SAFE;
 		opts.notify_cb = checkout_notify;
 		opts.notify_payload = &files;
 
-		status = git_revparse_single(&tree, fRepository, branchName.String());
-		if (status < 0)
-			throw GitException(status, git_error_last()->message);
+		check(git_revparse_single(&tree, fRepository, branchName.String()));
 
 		// if the target branch is remote and a corresponding local branch does not exist, we need
 		// to create a local branch first, set the remote tracking then checkout
@@ -137,24 +126,17 @@ namespace Genio::Git {
 			git_reference* ref = nullptr;
 			status = git_branch_create(&ref, fRepository, branchName.String(), (git_commit*)tree, false);
 			if (status >= 0) {
-				status = git_branch_set_upstream(ref, remoteBranchName.String());
-				if (status < 0)
-					throw GitException(status, git_error_last()->message);
+				check(git_branch_set_upstream(ref, remoteBranchName.String()));
 				git_reference_free(ref);
 			}
 		}
 
-		status = git_checkout_tree(fRepository, tree, &opts);
-		if (status < 0) {
-			throw GitException(status, git_error_last()->message, files);
-		}
+		check(git_checkout_tree(fRepository, tree, &opts));
 
 		BString ref("refs/heads/%s");
 		branchName.RemoveFirst("origin/");
 		ref.ReplaceFirst("%s", branchName.String());
-		status = git_repository_set_head(fRepository, ref.String());
-		if (status < 0)
-			throw GitException(status, git_error_last()->message);
+		check(git_repository_set_head(fRepository, ref.String()));
 
 		return status;
 	}
@@ -193,10 +175,7 @@ namespace Genio::Git {
 		statusopt.show = GIT_STATUS_SHOW_INDEX_AND_WORKDIR;
 		statusopt.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_RENAMES_HEAD_TO_INDEX | GIT_STATUS_OPT_SORT_CASE_SENSITIVELY;
 
-		int error = git_status_list_new(&status, fRepository, &statusopt);
-		if (error != 0) {
-			throw GitException(error, git_error_last()->message);
-		}
+		check(git_status_list_new(&status, fRepository, &statusopt));
 
 		vector<pair<string, string>> fileStatuses;
 
@@ -357,18 +336,14 @@ namespace Genio::Git {
 	GitRepository::StashPop()
 	{
 		git_stash_apply_options opts = GIT_STASH_APPLY_OPTIONS_INIT;
-		int error = git_stash_pop(fRepository, 0, &opts);
-		if (error < 0)
-			throw GitException(error, git_error_last()->message);
+		check(git_stash_pop(fRepository, 0, &opts));
 	}
 
 	void
 	GitRepository::StashApply()
 	{
 		git_stash_apply_options opts = GIT_STASH_APPLY_OPTIONS_INIT;
-		int error = git_stash_apply(fRepository, 0, &opts);
-		if (error < 0)
-			throw GitException(error, git_error_last()->message);
+		check(git_stash_apply(fRepository, 0, &opts));
 	}
 
 

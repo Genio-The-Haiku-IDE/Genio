@@ -819,7 +819,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				LogError("Can't find ref in message!");
 			} else {
 				BPath path(&newRef);
-				_ShowInTracker(&newRef);
+				_ShowInTracker(path);
 			}
 		}
 		break;

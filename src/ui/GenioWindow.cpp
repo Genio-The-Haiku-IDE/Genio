@@ -3529,10 +3529,24 @@ GenioWindow::_ShowCurrentItemInTracker()
 status_t
 GenioWindow::_ShowInTracker(const BPath& path)
 {
-	BString commandLine;
-	commandLine.SetToFormat("/bin/open %s", EscapeQuotesWrap(path.Path()).String());
-	int status = system(commandLine);
-	return status == 0 ? B_OK : errno;
+	BEntry entry(path.Path());
+	status_t status = entry.InitCheck();
+	if (status != B_OK)
+		return status;
+	entry_ref ref;
+	status = entry.GetRef(&ref);
+	if (status != B_OK)
+		return status;
+	BMessage message(B_EXECUTE_PROPERTY);
+	status = message.AddRef("data", &ref);
+	if (status != B_OK)
+		return status;
+	status = message.AddSpecifier("Folder");
+	if (status != B_OK)
+		return status;
+
+	BMessenger tracker("application/x-vnd.Be-TRAK");
+	return tracker.SendMessage(&message);
 }
 
 

@@ -251,7 +251,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case kApplyFix: {
 			entry_ref	ref;
 			if (message->FindRef("refs", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref, false);
+				int32 index = _GetEditorIndex(&ref);
 				if (index >= 0) {
 					Editor* editor = fTabManager->EditorAt(index);
 					PostMessage(message, editor);

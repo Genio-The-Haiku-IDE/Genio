@@ -54,7 +54,7 @@
 #include "ActionManager.h"
 #include "QuitAlert.h"
 #include "IconMenuItem.h"
-
+#include "EditorMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -248,6 +248,17 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case kApplyFix: {
+			entry_ref	ref;
+			if (message->FindRef("refs", &ref) == B_OK) {
+				int32 index = _GetEditorIndex(&ref, false);
+				if (index >= 0) {
+					Editor* editor = fTabManager->EditorAt(index);
+					PostMessage(message, editor);
+				}
+			}
+		}
+		break;
 		case B_OBSERVER_NOTICE_CHANGE: {
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);

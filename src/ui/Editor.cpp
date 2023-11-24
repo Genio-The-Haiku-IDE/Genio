@@ -32,6 +32,7 @@
 #include "Utils.h"
 #include "Languages.h"
 #include "Styler.h"
+#include "EditorMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -133,6 +134,11 @@ void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case kApplyFix: {
+			if (fLSPEditorWrapper)
+				fLSPEditorWrapper->ApplyFix(message);
+		}
+		break;
 		default:
 			BScintillaView::MessageReceived(message);
 			break;

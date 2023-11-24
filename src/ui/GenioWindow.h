@@ -119,8 +119,6 @@ private:
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
 
-			status_t			_ProjectRemoveDir(const BString& dirPath);
-
 			// Project Folders
 			void				_ProjectFolderClose(ProjectFolder *project);
 			void 				_ProjectFolderOpen(BMessage *message);

@@ -3200,37 +3200,6 @@ GenioWindow::_ProjectRenameFile()
 }
 
 
-
-status_t
-GenioWindow::_ProjectRemoveDir(const BString& dirPath)
-{
-	BDirectory dir(dirPath);
-	BEntry startEntry(dirPath);
-	BEntry entry;
-
-	while (dir.GetNextEntry(&entry) == B_OK) {
-
-		if (entry.IsDirectory()) {
-			BDirectory newdir(&entry);
-			if (newdir.CountEntries() == 0) {
-				// Empty dir, remove
-				entry.Remove();
-			} else {
-				// Populated dir, recurse
-				BPath newPath(dirPath);
-				newPath.Append(entry.Name());
-
-				_ProjectRemoveDir(newPath.Path());
-			}
-		} else {
-			// It is a file, remove
-			entry.Remove();
-		}
-	}
-
-	return startEntry.Remove();
-}
-
 // Project Folders
 void
 GenioWindow::_ProjectFolderClose(ProjectFolder *project)

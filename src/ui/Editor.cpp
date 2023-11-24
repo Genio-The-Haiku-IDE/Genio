@@ -34,7 +34,7 @@
 #include "Styler.h"
 #include "GoToLineWindow.h"
 #include "GenioWindowMessages.h"
-#include "EditorMessages.h
+#include "EditorMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"

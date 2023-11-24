@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
-
+#include "uri.h"
 
 struct Position {
     /// Line position in a document (zero-based).
@@ -216,5 +216,111 @@ struct SignatureHelp {
     /// not currently serialized for the LSP.
     Position argListStart;
 };
+
+struct Location {
+    /// The text document's URI.
+    std::string uri;
+    Range range;
+
+    friend bool operator==(const Location &LHS, const Location &RHS) {
+        return LHS.uri == RHS.uri && LHS.range == RHS.range;
+    }
+    friend bool operator!=(const Location &LHS, const Location &RHS) {
+        return !(LHS == RHS);
+    }
+    friend bool operator<(const Location &LHS, const Location &RHS) {
+        return std::tie(LHS.uri, LHS.range) < std::tie(RHS.uri, RHS.range);
+    }
+};
+
+struct DiagnosticRelatedInformation {
+    /// The location of this related diagnostic information.
+    Location location;
+    /// The message of this related diagnostic information.
+    std::string message;
+};
+
+struct CodeAction;
+
+struct Diagnostic {
+    /// The range at which the message applies.
+    Range range;
+
+    /// The diagnostic's severity. Can be omitted. If omitted it is up to the
+    /// client to interpret diagnostics as error, warning, info or hint.
+    int severity = 0;
+
+    /// The diagnostic's code. Can be omitted.
+    std::string code;
+
+    /// A human-readable string describing the source of this
+    /// diagnostic, e.g. 'typescript' or 'super lint'.
+    std::string source;
+
+    /// The diagnostic's message.
+    std::string message;
+
+    /// An array of related diagnostic information, e.g. when symbol-names within
+    /// a scope collide all definitions can be marked via this property.
+    option<std::vector<DiagnosticRelatedInformation>> relatedInformation;
+
+    /// The diagnostic's category. Can be omitted.
+    /// An LSP extension that's used to send the name of the category over to the
+    /// client. The category typically describes the compilation stage during
+    /// which the issue was produced, e.g. "Semantic Issue" or "Parse Issue".
+    option<std::string> category;
+
+    /// Clangd extension: code actions related to this diagnostic.
+    /// Only with capability textDocument.publishDiagnostics.codeActionsInline.
+    /// (These actions can also be obtained using textDocument/codeAction).
+    option<std::vector<CodeAction>> codeActions;
+};
+
+struct WorkspaceEdit {
+    /// Holds changes to existing resources.
+    option<std::map<std::string, std::vector<TextEdit>>> changes;
+
+    /// Note: "documentChanges" is not currently used because currently there is
+    /// no support for versioned edits.
+};
+
+struct TweakArgs {
+    /// A file provided by the client on a textDocument/codeAction request.
+    std::string file;
+    /// A selection provided by the client on a textDocument/codeAction request.
+    Range selection;
+    /// ID of the tweak that should be executed. Corresponds to Tweak::id().
+    std::string tweakID;
+};
+
+struct ExecuteCommandParams {
+    std::string command;
+    // Arguments
+    option<WorkspaceEdit> workspaceEdit;
+    option<TweakArgs> tweakArgs;
+};
+
+struct LspCommand : public ExecuteCommandParams {
+    std::string title;
+};
+
+struct CodeAction {
+    /// A short, human-readable, title for this code action.
+    std::string title;
+
+    /// The kind of the code action.
+    /// Used to filter code actions.
+    option<std::string> kind;
+    /// The diagnostics that this code action resolves.
+    option<std::vector<Diagnostic>> diagnostics;
+
+    /// The workspace edit this code action performs.
+    option<WorkspaceEdit> edit;
+
+    /// A command this code action executes. If a code action provides an edit
+    /// and a command, first the edit is executed and then the command.
+    option<LspCommand> command;
+};
+
 
 #endif // protocol_objects_H

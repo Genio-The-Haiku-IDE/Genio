@@ -54,7 +54,7 @@
 #include "ActionManager.h"
 #include "QuitAlert.h"
 #include "IconMenuItem.h"
-
+#include "EditorMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -248,6 +248,17 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case kApplyFix: {
+			entry_ref	ref;
+			if (message->FindRef("refs", &ref) == B_OK) {
+				int32 index = _GetEditorIndex(&ref, false);
+				if (index >= 0) {
+					Editor* editor = fTabManager->EditorAt(index);
+					PostMessage(message, editor);
+				}
+			}
+		}
+		break;
 		case B_OBSERVER_NOTICE_CHANGE: {
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
@@ -708,7 +719,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				LogError("Can't find ref in message!");
 			} else {
 				BPath path(&newRef);
-				_ShowInTracker(&newRef);
+				_ShowInTracker(path);
 			}
 		}
 		break;
@@ -1400,16 +1411,21 @@ GenioWindow::_DebugProject()
 		return B_ERROR;
 
 	// Release mode enabled, should not happen
+	// TODO: why not ?
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	// attempt to launch Debugger with BRoster::Launch() failed so we use a more traditional
-	// approach here
-	BString commandLine;
-	commandLine.SetToFormat("Debugger %s %s",
-							EscapeQuotesWrap(fActiveProject->GetTarget()).String(),
-							EscapeQuotesWrap(fActiveProject->GetExecuteArgs()).String());
-	return system(commandLine) == 0 ? B_OK : errno;
+	// Copy the strings, otherwise the strings returned by
+	// GetTarget()/GetExecuteArgs() will be gone outside the argv array
+	const BString target = fActiveProject->GetTarget();
+	const BString executeArgs = fActiveProject->GetExecuteArgs();
+	const char* argv[] = {
+		target.String(),
+		executeArgs.String(),
+		nullptr
+	};
+
+	return be_roster->Launch("application/x-vnd.Haiku-debugger", 2, argv);
 }
 
 
@@ -1855,6 +1871,8 @@ GenioWindow::_FindInFiles()
 
 	  LogInfo("Find in file, executing: [%s]", grepCommand.String());
 	  fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
+
+	  _ShowLog(kSearchResult);
 }
 
 int32
@@ -3413,10 +3431,24 @@ GenioWindow::_ShowCurrentItemInTracker()
 status_t
 GenioWindow::_ShowInTracker(const BPath& path)
 {
-	BString commandLine;
-	commandLine.SetToFormat("/bin/open %s", EscapeQuotesWrap(path.Path()).String());
-	int status = system(commandLine);
-	return status == 0 ? B_OK : errno;
+	BEntry entry(path.Path());
+	status_t status = entry.InitCheck();
+	if (status != B_OK)
+		return status;
+	entry_ref ref;
+	status = entry.GetRef(&ref);
+	if (status != B_OK)
+		return status;
+	BMessage message(B_EXECUTE_PROPERTY);
+	status = message.AddRef("data", &ref);
+	if (status != B_OK)
+		return status;
+	status = message.AddSpecifier("Folder");
+	if (status != B_OK)
+		return status;
+
+	BMessenger tracker("application/x-vnd.Be-TRAK");
+	return tracker.SendMessage(&message);
 }
 
 

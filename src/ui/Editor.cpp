@@ -34,6 +34,7 @@
 #include "Styler.h"
 #include "GoToLineWindow.h"
 #include "GenioWindowMessages.h"
+#include "EditorMessages.h
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -204,6 +205,11 @@ Editor::MessageReceived(BMessage* message)
 			SetFileType(std::string(message->GetString("lang", "")));
 			ApplySettings();
 			//NOTE (TODO?) we are not changing any LSP configuration!
+		break;
+		case kApplyFix: {
+			if (fLSPEditorWrapper)
+				fLSPEditorWrapper->ApplyFix(message);
+		}
 		break;
 		default:
 			BScintillaView::MessageReceived(message);

@@ -3370,6 +3370,11 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 			editor->SetProjectFolder(newProject);
 		}
 	}
+
+    //final touch, let's be sure the folder is added to the recent files.
+    entry_ref ref;
+    dirEntry.GetRef(&ref);
+    be_roster->AddToRecentFolders(&ref, GenioNames::GetSignature());
 }
 
 

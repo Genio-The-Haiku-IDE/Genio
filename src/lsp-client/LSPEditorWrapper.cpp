@@ -62,7 +62,7 @@ LSPEditorWrapper::ApplySettings()
 
 
 void
-LSPEditorWrapper::UnsetLSPClient()
+LSPEditorWrapper::UnsetLSPServer()
 {
 	if (!fLSPProjectWrapper)
 		return;
@@ -75,7 +75,7 @@ LSPEditorWrapper::UnsetLSPClient()
 
 
 bool
-LSPEditorWrapper::HasLSPClient()
+LSPEditorWrapper::HasLSPServer()
 {
 	return (fLSPProjectWrapper != nullptr);
 }
@@ -83,7 +83,7 @@ LSPEditorWrapper::HasLSPClient()
 void
 LSPEditorWrapper::ApplyFix(BMessage* info)
 {
-	if (!HasLSPClient())
+	if (!HasLSPServer())
 		return;
 
 	if (!info->GetBool("quickFix", false))
@@ -106,7 +106,7 @@ LSPEditorWrapper::ApplyFix(BMessage* info)
 
 
 void
-LSPEditorWrapper::SetLSPClient(LSPProjectWrapper* cW) {
+LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 
 	assert(cW);
 	assert(!fLSPProjectWrapper);

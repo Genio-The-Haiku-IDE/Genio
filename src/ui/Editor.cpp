@@ -111,6 +111,13 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 }
 
+bool
+Editor::HasLSPServer()
+{
+	return (fLSPEditorWrapper && fLSPEditorWrapper->HasLSPServer());
+}
+
+
 
 Editor::~Editor()
 {
@@ -126,7 +133,7 @@ Editor::~Editor()
 		}
 	}
 
-	fLSPEditorWrapper->UnsetLSPClient();
+	fLSPEditorWrapper->UnsetLSPServer();
 	delete fLSPEditorWrapper;
 	fLSPEditorWrapper = NULL;
 }
@@ -1426,9 +1433,9 @@ Editor::SetProjectFolder(ProjectFolder* proj)
 {
 	fProjectFolder = proj;
 	if (proj)
-		fLSPEditorWrapper->SetLSPClient(proj->GetLSPClient());
+		fLSPEditorWrapper->SetLSPServer(proj->GetLSPClient());
 	else
-		fLSPEditorWrapper->UnsetLSPClient();
+		fLSPEditorWrapper->UnsetLSPServer();
 
 	BMessage empty;
 	SetProblems(&empty);

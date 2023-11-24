@@ -29,9 +29,9 @@ public:
 				LSPEditorWrapper(BPath filenamePath, Editor* fEditor);
 		virtual	~LSPEditorWrapper() {};
 		void	ApplySettings();
-		void	SetLSPClient(LSPProjectWrapper* cW);
-		void	UnsetLSPClient();
-		bool	HasLSPClient();
+		void	SetLSPServer(LSPProjectWrapper* cW);
+		void	UnsetLSPServer();
+		bool	HasLSPServer();
 		void	ApplyFix(BMessage* info);
 
 private:

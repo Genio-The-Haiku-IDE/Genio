@@ -1512,16 +1512,21 @@ GenioWindow::_DebugProject()
 		return B_ERROR;
 
 	// Release mode enabled, should not happen
+	// TODO: why not ?
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	// attempt to launch Debugger with BRoster::Launch() failed so we use a more traditional
-	// approach here
-	BString commandLine;
-	commandLine.SetToFormat("Debugger %s %s",
-							EscapeQuotesWrap(fActiveProject->GetTarget()).String(),
-							EscapeQuotesWrap(fActiveProject->GetExecuteArgs()).String());
-	return system(commandLine) == 0 ? B_OK : errno;
+	// Copy the strings, otherwise the strings returned by
+	// GetTarget()/GetExecuteArgs() will be gone outside the argv array
+	const BString target = fActiveProject->GetTarget();
+	const BString executeArgs = fActiveProject->GetExecuteArgs();
+	const char* argv[] = {
+		target.String(),
+		executeArgs.String(),
+		nullptr
+	};
+
+	return be_roster->Launch("application/x-vnd.Haiku-debugger", 2, argv);
 }
 
 

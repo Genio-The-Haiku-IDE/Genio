@@ -1972,6 +1972,8 @@ GenioWindow::_FindInFiles()
 
 	  LogInfo("Find in file, executing: [%s]", grepCommand.String());
 	  fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
+
+	  _ShowLog(kSearchResult);
 }
 
 int32

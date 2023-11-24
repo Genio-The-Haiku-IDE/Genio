@@ -95,13 +95,6 @@ SearchResultPanel::StartSearch(BString command, BString projectPath)
 		fProjectPath.Append("/");
 	ClearSearch();
 
-	for (int32 i=0;i<fTabView->CountTabs();i++) {
-		if (fTabView->ViewForTab(i) == this) {
-			fTabView->Select(i);
-			break;
-		}
-	}
-
 	BMessage message;
 	message.AddString("cmd", command);
 

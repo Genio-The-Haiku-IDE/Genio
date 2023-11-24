@@ -41,7 +41,8 @@ enum {
 enum {
 	kProblems = 0,
 	kBuildLog,
-	kOutputLog
+	kOutputLog,
+	kSearchResult
 };
 
 enum scree_mode {
@@ -49,7 +50,7 @@ enum scree_mode {
 	kFullscreen,
 	kFocus
 };
-	
+
 
 class ActionManager;
 
@@ -229,7 +230,7 @@ private:
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultPanel*	fSearchResultPanel;
-			
+
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;
 };

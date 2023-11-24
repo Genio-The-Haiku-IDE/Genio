@@ -3350,9 +3350,6 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 }
 
 
-// TODO: _OpenTerminalWorkingDirectory(), _ShowCurrentItemInTracker() and
-// _FileOpenWithPreferredApp(const entry_ref* ref) share almost the same code
-// They should be refactored to use a common base method e.g. _OpenWith()
 status_t
 GenioWindow::_OpenTerminalWorkingDirectory()
 {
@@ -3362,21 +3359,26 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 		return B_BAD_VALUE;
 
 	BString itemPath = selectedProjectItem->GetSourceItem()->Path();
-	BString commandLine;
-	commandLine.SetToFormat("Terminal -w %s &", EscapeQuotesWrap(itemPath.String()).String());
-
+	const char* argv[] = {
+		"-w",
+		itemPath.String(),
+		nullptr
+	};
+	status_t status = be_roster->Launch("application/x-vnd.Haiku-Terminal", 2, argv);
 	BString notification;
-	int returnStatus = system(commandLine);
-	if (returnStatus != 0) {
+	if (status != B_OK) {
 		notification <<
 			"An error occurred while opening Terminal and setting working directory to: ";
+		notification << itemPath << ": " << ::strerror(status);
+		LogError(notification.String());
 	} else {
 		notification <<
 			"Terminal successfully opened with working directory: ";
+		notification << itemPath;
+		LogTrace(notification.String());
 	}
-	notification << itemPath;
-	LogInfo(notification.String());
-	return returnStatus == 0 ? B_OK : errno;
+
+	return status;
 }
 
 

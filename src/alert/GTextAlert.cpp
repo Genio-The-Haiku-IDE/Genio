@@ -32,19 +32,19 @@ GTextAlert::GTextAlert(const char *title, const char *message, const char *text)
 }
 
 
-GTextAlert::~GTextAlert()
-{
-}
+GTextAlert::~GTextAlert() {};
 
 
 void
 GTextAlert::_InitInterface()
 {
-	fTextControl = new BTextControl("", fText, new BMessage(kTextControlMessage));
-	// BLayoutBuilder::Group<>(GetPlaceholderView(), B_VERTICAL, B_USE_DEFAULT_SPACING)
-		// .Add(fTextControl)
-		// .End();
-	GetPlaceholderView()->AddChild(fTextControl);
+	fTextControl = new BTextControl("", fText, new BMessage(MsgTextChanged));
+	auto group = BLayoutBuilder::Group<>()
+		.Add(fTextControl)
+		.View();
+	GetPlaceholderView()->AddChild(group);
+
+	fOK->SetEnabled(false);
 }
 
 
@@ -58,11 +58,27 @@ GTextAlert::Show()
 void
 GTextAlert::MessageReceived(BMessage* message)
 {
-	switch (message->what) {
-		case 1: {
+	auto what = message->what; //1598903113
+	switch (what) {
+		case MsgTextChanged: {
+			if (fTextControl->Text() != fText)
+				fOK->SetEnabled(true);
+			else
+				fOK->SetEnabled(false);
+			break;
+		}
+		case OkButton: {
+			fResult.Button = OkButton;
+			fResult.Result = fTextControl->Text();
+			break;
+		}
+		case CancelButton: {
+			fResult.Button = CancelButton;
+			fResult.Result = nullptr;
 			break;
 		}
 		default: {
+			return;
 			break;
 		}
 	}

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Box.h>
 #include <Button.h>
 #include <Catalog.h>
 #include <LayoutBuilder.h>
@@ -14,12 +15,27 @@
 #include <StringView.h>
 #include <Window.h>
 
+#include <vector>
+
+#include "GMessage.h"
+
 class BButton;
 class BStringView;
 class BScrollView;
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GTextAlert"
+
+enum GAlertButtons {
+	OkButton,
+	CancelButton
+};
+
+template <typename T>
+struct GAlertResult {
+	GAlertButtons Button;
+	T Result;
+};
 
 template <typename T>
 class GAlert : public BWindow {
@@ -41,25 +57,17 @@ public:
 		CenterOnScreen();
 	}
 
-	virtual ~GAlert()
-	{
-		if (fAlertSem >= B_OK)
-			delete_sem(fAlertSem);
-	}
+	virtual ~GAlert() {}
 
 	virtual void MessageReceived(BMessage* message)
 	{
-		switch(message->what) {
-			default: {
-				BWindow::MessageReceived(message);
-			} return;
-		}
+		BWindow::MessageReceived(message);
 		delete_sem(fAlertSem);
 		fAlertSem = -1;
 	}
 
 
-	T Go()
+	GAlertResult<T>	 Go()
 	{
 		fAlertSem = create_sem(0, "AlertSem");
 		if (fAlertSem < 0) {
@@ -103,38 +111,34 @@ public:
 protected:
 	BButton*					fOK;
 	BButton*					fCancel;
-	T							fResult;
+	GAlertResult<T>				fResult;
 
 	virtual void Show()
 	{
 		BWindow::Show();
 	}
 
-	BGroupView* GetPlaceholderView() { return fMainView; }
+	BView* GetPlaceholderView() { return fMainView; }
 
 private:
-	const int 					kSemTimeOut = 50000;
+	const int					kSemTimeOut = 50000;
 	const uint32 				kMaxItems = 4;
-	const uint32				kOkMessage = 'okms';
 	const BString				fTitle;
 	const BString				fMessage;
 	BStringView*				fMessageString;
 	BScrollView*				fScrollView;
-	BGroupView* 				fMainView;
+	BView* 						fMainView;
 	sem_id						fAlertSem;
 
 	void _InitInterface()
 	{
 		fMessageString = new BStringView("message", fMessage);
-		fOK = new BButton(B_TRANSLATE("Ok"), new BMessage(kOkMessage));
-		fCancel = new BButton(B_TRANSLATE("Cancel"), new BMessage(B_QUIT_REQUESTED));
-		fMainView = new BGroupView(B_VERTICAL, 0);
-		// filesView->SetViewUIColor(B_CONTROL_BACKGROUND_COLOR);
-		// fScrollView = new BScrollView("main", fMainView, 0, false, true);
+		fOK = new BButton(B_TRANSLATE("Ok"), new BMessage(OkButton));
+		fCancel = new BButton(B_TRANSLATE("Cancel"), new BMessage(CancelButton));
+		fMainView = new BBox(B_NO_BORDER, nullptr);
 		BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 			.Add(fMessageString)
-			.AddGroup(fMainView)
-			.AddGlue()
+			.Add(fMainView)
 			.AddGroup(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
 				.Add(fOK)
 				.Add(fCancel)

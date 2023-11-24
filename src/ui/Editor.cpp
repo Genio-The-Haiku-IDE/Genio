@@ -235,7 +235,7 @@ Editor::ApplySettings()
 	ShowLineEndings(gCFG["show_line_endings"]);
 
 	SendMessage(SCI_SETTABWIDTH, (int) gCFG["tab_width"], 0);
-	// TODO add settings: SendMessage(SCI_SETUSETABS, fPreferences->fTabsToSpaces, 0);
+	SendMessage(SCI_SETUSETABS, !(bool)gCFG["tab_to_space"], 0);
 	// FIXME: understand fEditor->SendMessage(SCI_SETINDENT, 0, 0);
 	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), 0);
 	SendMessage(SCI_SETCARETLINEVISIBLEALWAYS, true, 0);

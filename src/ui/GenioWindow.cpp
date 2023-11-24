@@ -3425,10 +3425,11 @@ GenioWindow::_ShowCurrentItemInTracker()
 			returnStatus = _ShowInTracker(directoryPath);
 		}
 	}
-	BString notification;
-	notification << "An error occurred when showing an item in Tracker: " << directoryPath.Path();
-	LogInfo(notification.String());
-
+	if (returnStatus != B_OK) {
+		BString notification;
+		notification << "An error occurred when showing an item in Tracker: " << directoryPath.Path();
+		LogError(notification.String());
+	}
 	return returnStatus;
 }
 

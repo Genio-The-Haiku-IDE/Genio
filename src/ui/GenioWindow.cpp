@@ -1621,17 +1621,17 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	return false;
 }
 
+
 status_t
 GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 {
-       BNode entry(ref);
-       if (entry.InitCheck() != B_OK || entry.IsDirectory())
-               return false;
+	BNode entry(ref);
+	if (entry.InitCheck() != B_OK || entry.IsDirectory())
+		return false;
 
-       BString commandLine;
-       commandLine.SetToFormat("/bin/open \"%s\"", BPath(ref).Path());
-       return system(commandLine) == 0 ? B_OK : errno;
+	return be_roster->Launch(ref);
 }
+
 
 status_t
 GenioWindow::_FileSave(int32 index)

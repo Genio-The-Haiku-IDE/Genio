@@ -1626,8 +1626,11 @@ status_t
 GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 {
 	BNode entry(ref);
-	if (entry.InitCheck() != B_OK || entry.IsDirectory())
-		return false;
+	status_t status = entry.InitCheck();
+	if (status != B_OK)
+		return status;
+	if (entry.IsDirectory())
+		return B_IS_A_DIRECTORY;
 
 	return be_roster->Launch(ref);
 }

@@ -41,7 +41,8 @@ enum {
 enum {
 	kProblems = 0,
 	kBuildLog,
-	kOutputLog
+	kOutputLog,
+	kSearchResult
 };
 
 enum scree_mode {

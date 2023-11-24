@@ -11,6 +11,7 @@
 
 class Editor;
 class BPopUpMenu;
+class BMenuItem;
 
 class EditorContextMenu {
 public:
@@ -20,8 +21,9 @@ private:
 		   EditorContextMenu();
 
 	static BPopUpMenu*	sMenu;
+	static BPopUpMenu*	sFixMenu;
 	static void _CreateMenu();
-	
+
 };
 
 

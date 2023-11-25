@@ -718,8 +718,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (status != B_OK) {
 				LogError("Can't find ref in message!");
 			} else {
-				BPath path(&newRef);
-				_ShowInTracker(path);
+				_ShowInTracker(newRef);
 			}
 		}
 		break;
@@ -3390,37 +3389,32 @@ GenioWindow::_ShowCurrentItemInTracker()
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
-	status_t returnStatus = B_ERROR;
 	BEntry itemEntry(selectedProjectItem->GetSourceItem()->Path());
-	BEntry parentDirectory;
-	BPath directoryPath;
-	if (itemEntry.GetParent(&parentDirectory) == B_OK) {
-		if (parentDirectory.GetPath(&directoryPath) == B_OK) {
-			returnStatus = _ShowInTracker(directoryPath);
+	status_t status = itemEntry.InitCheck();
+	if (status == B_OK) {
+		BEntry parentDirectory;
+		status = itemEntry.GetParent(&parentDirectory);
+		if (status == B_OK) {
+			entry_ref ref;
+			status = parentDirectory.GetRef(&ref);
+			if (status == B_OK)
+				status = _ShowInTracker(ref);
 		}
 	}
-	if (returnStatus != B_OK) {
+	if (status != B_OK) {
 		BString notification;
-		notification << "An error occurred when showing an item in Tracker: " << directoryPath.Path();
+		notification << "An error occurred when showing an item in Tracker: " << ::strerror(status);
 		LogError(notification.String());
 	}
-	return returnStatus;
+	return status;
 }
 
 
 status_t
-GenioWindow::_ShowInTracker(const BPath& path)
+GenioWindow::_ShowInTracker(const entry_ref& ref)
 {
-	BEntry entry(path.Path());
-	status_t status = entry.InitCheck();
-	if (status != B_OK)
-		return status;
-	entry_ref ref;
-	status = entry.GetRef(&ref);
-	if (status != B_OK)
-		return status;
 	BMessage message(B_EXECUTE_PROPERTY);
-	status = message.AddRef("data", &ref);
+	status_t status = message.AddRef("data", &ref);
 	if (status != B_OK)
 		return status;
 	status = message.AddSpecifier("Folder");

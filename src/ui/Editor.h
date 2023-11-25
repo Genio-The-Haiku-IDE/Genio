@@ -169,6 +169,9 @@ public:
 			void				SetCommentLineToken(std::string commenter){ fCommenter = commenter; }
 			void				SetCommentBlockTokens(std::string startBlock, std::string endBlock){ /*TODO! */}
 
+			LSPEditorWrapper*	GetLSPEditorWrapper() { return fLSPEditorWrapper; }
+			bool				HasLSPServer();
+
 private:
 			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();

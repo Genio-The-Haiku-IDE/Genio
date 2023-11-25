@@ -128,150 +128,146 @@ SourceControlPanel::DetachedFromWindow()
 void
 SourceControlPanel::MessageReceived(BMessage *message)
 {
-	switch (message->what) {
-		case B_OBSERVER_NOTICE_CHANGE: {
-			int32 code;
-			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
-			switch (code) {
-				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
-				{
-					LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
-					fProjectList = gMainWindow->GetProjectList();
-					_UpdateProjectList();
-					break;
+	try {
+		switch (message->what) {
+			case B_OBSERVER_NOTICE_CHANGE: {
+				int32 code;
+				message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+				switch (code) {
+					case MSG_NOTIFY_PROJECT_LIST_CHANGED:
+					{
+						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
+						fProjectList = gMainWindow->GetProjectList();
+						_UpdateProjectList();
+						break;
+					}
+					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
+					{
+						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
+						fActiveProject = gMainWindow->GetActiveProject();
+						fSelectedProject = fActiveProject;
+						_UpdateProjectList();
+						break;
+					}
+					default:
+						break;
 				}
-				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
-				{
-					LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-					fActiveProject = gMainWindow->GetActiveProject();
-					fSelectedProject = fActiveProject;
-					_UpdateProjectList();
-					break;
-				}
-				default:
-					break;
+				break;
 			}
-			break;
-		}
-		case MsgShowRepositoryPanel: {
-			LogInfo("MsgShowRepositoryPanel");
-			if (fMainLayout->VisibleIndex() != kViewIndexRepository)
-				fMainLayout->SetVisibleItem(kViewIndexRepository);
-			fToolBar->ToggleActionPressed(MsgShowRepositoryPanel);
-			break;
-		}
-		case MsgShowChangesPanel: {
-			LogInfo("MsgShowChangesPanel");
-			if (fMainLayout->VisibleIndex() != kViewIndexChanges)
-				fMainLayout->SetVisibleItem(kViewIndexChanges);
-			fToolBar->ToggleActionPressed(MsgShowChangesPanel);
-			break;
-		}
-		case MsgShowLogPanel: {
-			LogInfo("MsgShowLogPanel");
-			if (fMainLayout->VisibleIndex() != kViewIndexLog)
-				fMainLayout->SetVisibleItem(kViewIndexLog);
-			fToolBar->ToggleActionPressed(MsgShowLogPanel);
-			break;
-		}
-		case MsgShowOptionsMenu: {
-			auto button = fToolBar->FindButton(MsgShowOptionsMenu);
-			auto where = button->Frame().LeftBottom();
-			LogInfo("MsgShowOptionsMenu: p(%f, %f)", where.x, where.y);
-			_ShowOptionsMenu(where);
-			break;
-		}
-		case MsgFetch: {
-			LogInfo("MsgFetch");
-			Genio::Git::GitRepository git(fSelectedProject->Path().String());
-			git.Fetch();
-			break;
-		}
-		case MsgFetchPrune: {
-			LogInfo("MsgFetchPrune");
-			Genio::Git::GitRepository git(fSelectedProject->Path().String());
-			git.Fetch(true);
-			break;
-		}
-		case MsgStashSave: {
-			LogInfo("MsgStashSave");
-			Genio::Git::GitRepository git(fSelectedProject->Path().String());
-			git.StashSave();
-			break;
-		}
-		case MsgStashPop: {
-			LogInfo("MsgStashPop");
-			Genio::Git::GitRepository git(fSelectedProject->Path().String());
-			git.StashPop();
-			break;
-		}
-		case MsgStashApply: {
-			LogInfo("MsgStashApply");
-			Genio::Git::GitRepository git(fSelectedProject->Path().String());
-			git.StashApply();
-			break;
-		}
-		case MsgChangeProject: {
-			fSelectedProject = (ProjectFolder *)message->GetPointer("value");
-			LogInfo("MsgSelectProject: %s", fSelectedProject->Name().String());
-			auto path = fSelectedProject->Path().String();
-			LogInfo("MsgSelectProject: %s", path);
-			_UpdateBranchList();
-			SendNotices(message->what, message);
-			break;
-		}
-		case MsgSwitchBranch: {
-			try {
+			case MsgShowRepositoryPanel: {
+				LogInfo("MsgShowRepositoryPanel");
+				if (fMainLayout->VisibleIndex() != kViewIndexRepository)
+					fMainLayout->SetVisibleItem(kViewIndexRepository);
+				fToolBar->ToggleActionPressed(MsgShowRepositoryPanel);
+				break;
+			}
+			case MsgShowChangesPanel: {
+				LogInfo("MsgShowChangesPanel");
+				if (fMainLayout->VisibleIndex() != kViewIndexChanges)
+					fMainLayout->SetVisibleItem(kViewIndexChanges);
+				fToolBar->ToggleActionPressed(MsgShowChangesPanel);
+				break;
+			}
+			case MsgShowLogPanel: {
+				LogInfo("MsgShowLogPanel");
+				if (fMainLayout->VisibleIndex() != kViewIndexLog)
+					fMainLayout->SetVisibleItem(kViewIndexLog);
+				fToolBar->ToggleActionPressed(MsgShowLogPanel);
+				break;
+			}
+			case MsgShowOptionsMenu: {
+				auto button = fToolBar->FindButton(MsgShowOptionsMenu);
+				auto where = button->Frame().LeftBottom();
+				LogInfo("MsgShowOptionsMenu: p(%f, %f)", where.x, where.y);
+				_ShowOptionsMenu(where);
+				break;
+			}
+			case MsgFetch: {
+				LogInfo("MsgFetch");
+				Genio::Git::GitRepository git(fSelectedProject->Path().String());
+				git.Fetch();
+				_UpdateBranchList();
+				break;
+			}
+			case MsgFetchPrune: {
+				LogInfo("MsgFetchPrune");
+				Genio::Git::GitRepository git(fSelectedProject->Path().String());
+				git.Fetch(true);
+				_UpdateBranchList();
+				break;
+			}
+			case MsgStashSave: {
+				LogInfo("MsgStashSave");
+				Genio::Git::GitRepository git(fSelectedProject->Path().String());
+				git.StashSave();
+				break;
+			}
+			case MsgStashPop: {
+				LogInfo("MsgStashPop");
+				Genio::Git::GitRepository git(fSelectedProject->Path().String());
+				git.StashPop();
+				break;
+			}
+			case MsgStashApply: {
+				LogInfo("MsgStashApply");
+				Genio::Git::GitRepository git(fSelectedProject->Path().String());
+				git.StashApply();
+				break;
+			}
+			case MsgChangeProject: {
+				fSelectedProject = (ProjectFolder *)message->GetPointer("value");
+				LogInfo("MsgSelectProject: to %s", fSelectedProject->Name().String());
+				_UpdateBranchList();
+				SendNotices(message->what, message);
+				break;
+			}
+			case MsgSwitchBranch: {
 				fCurrentBranch = (BString)message->GetString("value");
 				auto repo = fSelectedProject->GetRepository();
 				repo->SwitchBranch(fCurrentBranch);
 				SendNotices(message->what, message);
 				LogInfo("MsgSwitchBranch: %s", fCurrentBranch.String());
-			} catch(GitException &ex) {
-				OKAlert("Git", ex.Message(), B_INFO_ALERT);
+				break;
 			}
-			break;
-		}
-		case MsgPull: {
-			auto selected_branch = message->GetString("selected_branch");
-			auto current_branch = message->GetString("current_branch");
-			LogInfo("MsgPull: %s into %s", selected_branch, current_branch);
-			break;
-		}
-		case MsgRenameBranch: {
-			try {
+			case MsgPull: {
+				auto selected_branch = BString(message->GetString("selected_branch"));
+				LogInfo("MsgPull: %s", selected_branch.String());
+				break;
+			}
+			case MsgRenameBranch: {
 				auto selected_branch = BString(message->GetString("value"));
 				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
 				auto alert = new GTextAlert(B_TRANSLATE("Rename branch"),
 					B_TRANSLATE("Rename branch"), selected_branch);
 				auto result = alert->Go();
 				if (result.Button == GAlertButtons::CancelButton) {
-					OKAlert("", "canceled", B_INFO_ALERT);
 				} else {
 					auto repo = fSelectedProject->GetRepository();
 					repo->RenameBranch(selected_branch, result.Result, branch_type);
-					OKAlert("", result.Result, B_INFO_ALERT);
+					_UpdateBranchList();
+					LogInfo("MsgRenameBranch: %s renamed to %s", selected_branch.String(),
+						result.Result.String());
 				}
-				LogInfo("MsgRenameBranch: rename %s to %s", selected_branch, selected_branch);
-			} catch(GitException &ex) {
-				OKAlert("Git", ex.Message(), B_INFO_ALERT);
+				break;
 			}
-			break;
-		}
-		case MsgDeleteBranch: {
-			try {
+			case MsgDeleteBranch: {
 				auto selected_branch = BString(message->GetString("value"));
 				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
 				auto repo = fSelectedProject->GetRepository();
 				repo->DeleteBranch(selected_branch, branch_type);
+				_UpdateBranchList();
 				LogInfo("MsgDeleteBranch: %s", selected_branch.String());
-			} catch(GitException &ex) {
-				OKAlert("Git", ex.Message(), B_INFO_ALERT);
+				break;
 			}
+			default:
 			break;
 		}
-		default:
-		break;
+	} catch(GitException &ex) {
+		OKAlert("SourceControlPanel", ex.Message(), B_STOP_ALERT);
+	} catch(std::exception &ex) {
+		OKAlert("SourceControlPanel", ex.what(), B_STOP_ALERT);
+	} catch(...) {
+		OKAlert("SourceControlPanel", B_TRANSLATE("An unknown error occurred."), B_STOP_ALERT);
 	}
 }
 

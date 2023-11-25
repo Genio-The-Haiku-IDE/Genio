@@ -73,46 +73,49 @@ namespace Genio::Git {
 	class GitRepository {
 	public:
 
-											GitRepository(const BString& path);
-											~GitRepository();
+		typedef vector<pair<string, string>> RepoFiles;
 
-		const BPath&						Clone(const string& url, const BPath& localPath,
-													git_indexer_progress_cb callback,
-													git_credential_acquire_cb authentication_callback);
+										GitRepository(const BString& path);
+										~GitRepository();
 
-		void								Init(const BString& localPath);
+		const BPath&					Clone(const string& url, const BPath& localPath,
+												git_indexer_progress_cb callback,
+												git_credential_acquire_cb authentication_callback);
 
-		vector<BString>						GetTags();
+		void							Init(const BString& localPath);
 
-		vector<BString>						GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
-		int									SwitchBranch(BString &branch);
-		BString								GetCurrentBranch();
+		vector<BString>					GetTags();
 
+		vector<BString>					GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
+		int								SwitchBranch(BString &branch);
+		BString							GetCurrentBranch();
+		void							DeleteBranch(BString &branch, git_branch_t type);
+		void							RenameBranch(BString &old_name, BString &new_name,
+											git_branch_t type);
 
+		void							Fetch(bool prune = false);
+		void							Merge(BString &source, BString &dest);
+		void 							Pull(bool rebase = false);
+		void 							Push();
 
-		void								Fetch(bool prune = false);
-		void								Merge(BString &source, BString &dest);
-		void 								Pull(bool rebase = false);
-		void 								Push();
+		void 							StashSave();
+		void 							StashPop();
+		void 							StashApply();
 
-		void 								StashSave();
-		void 								StashPop();
-		void 								StashApply();
-
-		vector<pair<string, string>>		GetFiles();
+		RepoFiles						GetFiles();
 
 	private:
 
-		git_repository 						*fRepository;
-		BString								fRepositoryPath;
+		git_repository 					*fRepository;
+		BString							fRepositoryPath;
 
-		BString								_ConfigGet(git_config *cfg,
-														const char *key);
-		void								_ConfigSet(git_config *cfg,
-														const char *key, const char* value);
+		BString							_ConfigGet(git_config *cfg,
+											const char *key);
+		void							_ConfigSet(git_config *cfg,
+											const char *key, const char* value);
 
-		int 								check(int status,
-													std::function<bool(const int)> checker = nullptr);
+		int 							check(int status,
+											std::function<bool(const int)> checker = nullptr);
 
 	};
 

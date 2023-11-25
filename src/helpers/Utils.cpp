@@ -13,7 +13,6 @@
 #include <CheckBox.h>
 #include <IconUtils.h>
 #include <MessageFilter.h>
-#include <Notification.h>
 #include <RadioButton.h>
 #include <Resources.h>
 #include <Path.h>
@@ -203,8 +202,8 @@ find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
 }
 
 
-void ProgressNotification(const char* group, const char* title, const char* messageID,
-							const char* content, float progress, bigtime_t timeout)
+void ProgressNotification(const BString& group, const BString&  title, const BString&  messageID,
+							const BString& content, float progress, bigtime_t timeout)
 {
 	BNotification notification(B_PROGRESS_NOTIFICATION);
 	notification.SetGroup(group);
@@ -215,10 +214,10 @@ void ProgressNotification(const char* group, const char* title, const char* mess
 	notification.Send(timeout);
 }
 
-void ErrorNotification(const char* group, const char* title, const char* messageID,
-							const char* content, bigtime_t timeout)
+void ShowNotification(const BString& group, const BString&  title, const BString&  messageID,
+							const BString& content, notification_type type, bigtime_t timeout)
 {
-	BNotification notification(B_ERROR_NOTIFICATION);
+	BNotification notification(type);
 	notification.SetGroup(group);
 	notification.SetTitle(title);
 	notification.SetMessageID(messageID);

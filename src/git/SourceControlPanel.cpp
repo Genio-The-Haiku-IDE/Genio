@@ -186,6 +186,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				LogInfo("MsgFetch");
 				Genio::Git::GitRepository git(fSelectedProject->Path().String());
 				git.Fetch();
+				_ShowGitNotification(B_TRANSLATE("Fetch completed."));
 				_UpdateBranchList();
 				break;
 			}
@@ -193,6 +194,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				LogInfo("MsgFetchPrune");
 				Genio::Git::GitRepository git(fSelectedProject->Path().String());
 				git.Fetch(true);
+				_ShowGitNotification(B_TRANSLATE("Fetch prune completed."));
 				_UpdateBranchList();
 				break;
 			}
@@ -200,18 +202,21 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				LogInfo("MsgStashSave");
 				Genio::Git::GitRepository git(fSelectedProject->Path().String());
 				git.StashSave();
+				_ShowGitNotification(B_TRANSLATE("Changes stashed."));
 				break;
 			}
 			case MsgStashPop: {
 				LogInfo("MsgStashPop");
 				Genio::Git::GitRepository git(fSelectedProject->Path().String());
 				git.StashPop();
+				_ShowGitNotification(B_TRANSLATE("Stashed changes popped."));
 				break;
 			}
 			case MsgStashApply: {
 				LogInfo("MsgStashApply");
 				Genio::Git::GitRepository git(fSelectedProject->Path().String());
 				git.StashApply();
+				_ShowGitNotification(B_TRANSLATE("Stashed changes applied."));
 				break;
 			}
 			case MsgChangeProject: {
@@ -231,6 +236,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgPull: {
 				auto selected_branch = BString(message->GetString("selected_branch"));
+				_ShowGitNotification(B_TRANSLATE("Pull completed."));
 				LogInfo("MsgPull: %s", selected_branch.String());
 				break;
 			}
@@ -244,6 +250,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				} else {
 					auto repo = fSelectedProject->GetRepository();
 					repo->RenameBranch(selected_branch, result.Result, branch_type);
+					_ShowGitNotification(B_TRANSLATE("Branch renamed succesfully."));
 					_UpdateBranchList();
 					LogInfo("MsgRenameBranch: %s renamed to %s", selected_branch.String(),
 						result.Result.String());
@@ -255,6 +262,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
 				auto repo = fSelectedProject->GetRepository();
 				repo->DeleteBranch(selected_branch, branch_type);
+				_ShowGitNotification(B_TRANSLATE("Branch deleted succesfully."));
 				_UpdateBranchList();
 				LogInfo("MsgDeleteBranch: %s", selected_branch.String());
 				break;
@@ -383,4 +391,12 @@ SourceControlPanel::_ShowOptionsMenu(BPoint where)
 	optionsMenu->SetTargetForItems(this);
 	optionsMenu->Go(fToolBar->ConvertToScreen(where), true);
 	delete optionsMenu;
+}
+
+void
+SourceControlPanel::_ShowGitNotification(const BString &text)
+{
+	ShowNotification("Genio", fSelectedProject->Path().String(),
+		fSelectedProject->Path().String(),
+		text);
 }

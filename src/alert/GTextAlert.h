@@ -29,4 +29,5 @@ private:
 
 	virtual void				Show();
 	void						_InitInterface();
+	void						_CheckTextModified();
 };

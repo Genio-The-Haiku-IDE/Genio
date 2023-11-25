@@ -61,7 +61,18 @@ public:
 
 	virtual void MessageReceived(BMessage* message)
 	{
-		BWindow::MessageReceived(message);
+		switch (message->what) {
+			case OkButton: {
+				break;
+			}
+			case CancelButton: {
+				break;
+			}
+			default: {
+				BWindow::MessageReceived(message);
+				return;
+			}
+		}
 		delete_sem(fAlertSem);
 		fAlertSem = -1;
 	}
@@ -135,6 +146,7 @@ private:
 		fMessageString = new BStringView("message", fMessage);
 		fOK = new BButton(B_TRANSLATE("Ok"), new BMessage(OkButton));
 		fCancel = new BButton(B_TRANSLATE("Cancel"), new BMessage(CancelButton));
+		fOK->MakeDefault(true);
 		fMainView = new BBox(B_NO_BORDER, nullptr);
 		BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 			.Add(fMessageString)

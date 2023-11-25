@@ -39,6 +39,7 @@ void
 GTextAlert::_InitInterface()
 {
 	fTextControl = new BTextControl("", fText, new BMessage(MsgTextChanged));
+	fTextControl->SetModificationMessage(new BMessage(MsgTextChanged));
 	auto group = BLayoutBuilder::Group<>()
 		.Add(fTextControl)
 		.View();
@@ -58,13 +59,9 @@ GTextAlert::Show()
 void
 GTextAlert::MessageReceived(BMessage* message)
 {
-	auto what = message->what; //1598903113
-	switch (what) {
+	switch (message->what) {
 		case MsgTextChanged: {
-			if (fTextControl->Text() != fText)
-				fOK->SetEnabled(true);
-			else
-				fOK->SetEnabled(false);
+			_CheckTextModified();
 			break;
 		}
 		case OkButton: {
@@ -78,10 +75,18 @@ GTextAlert::MessageReceived(BMessage* message)
 			break;
 		}
 		default: {
-			return;
 			break;
 		}
 	}
 
 	GAlert::MessageReceived(message);
+}
+
+void
+GTextAlert::_CheckTextModified()
+{
+	if (fTextControl->Text() != fText)
+		fOK->SetEnabled(true);
+	else
+		fOK->SetEnabled(false);
 }

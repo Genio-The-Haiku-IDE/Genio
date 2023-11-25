@@ -44,11 +44,17 @@ namespace Genio::UI {
 			const char* text,
 			bool fixed_size = true,
 			uint32 flags = B_WILL_DRAW | B_NAVIGABLE)
-			: BMenuField(name, label, fMenu = new BPopUpMenu(text), fixed_size, flags)
+			:
+			BMenuField(name, label, fMenu = new BPopUpMenu(text), fixed_size, flags),
+			fMessenger(nullptr)
 		{
 			fMenu->SetLabelFromMarked(true);
 		}
 
+		~OptionList()
+		{
+			delete fMessenger;
+		}
 
 		void MakeEmpty()
 		{
@@ -74,6 +80,13 @@ namespace Genio::UI {
 			// message->PrintToStream();
 			auto menu_item = new BMenuItem(name.String(), message);
 			menu_item->SetMarked(marked);
+			if ((fMessenger != nullptr) && (fMessenger->IsValid())) {
+				menu_item->SetTarget(*fMessenger);
+				if (marked) {
+					LogInfo("Item %s marked as selected. Message sent out", name.String());
+					fMessenger->SendMessage(message);
+				}
+			}
 			fMenu->AddItem(menu_item);
 		}
 
@@ -120,16 +133,19 @@ namespace Genio::UI {
 		void SetTarget(BHandler *handler)
 		{
 			fMenu->SetTargetForItems(handler);
+			fMessenger = new BMessenger(handler);
 		}
 
 
-		void SetTarget(BMessenger &messenger)
+		void SetTarget(BMessenger messenger)
 		{
 			fMenu->SetTargetForItems(messenger);
+			fMessenger = new BMessenger(messenger);
 		}
 
 	private:
 		BPopUpMenu *fMenu;
+		BMessenger *fMessenger;
 	};
 
 }

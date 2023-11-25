@@ -40,9 +40,12 @@ public:
 	void			MessageReceived(BMessage* message);
 	void			SelectionChanged();
 
+	void			UpdateRepository();
+
+	auto			GetSelectedItem();
+
 private:
 
-	void			_UpdateRepository();
 	void			_ShowPopupMenu(BPoint where);
 
 	BString			fRepositoryPath;

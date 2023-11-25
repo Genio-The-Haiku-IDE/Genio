@@ -15,50 +15,6 @@
 
 #include "Utils.h"
 
-class TemporaryTextControl: public BTextControl {
-	typedef	BTextControl _inherited;
-
-
-public:
-	StyledItem *fStyledItem;
-
-	TemporaryTextControl(BRect frame, const char* name, const char* label, const char* text,
-							BMessage* message, StyledItem *item,
-							uint32 resizingMode = B_FOLLOW_LEFT|B_FOLLOW_TOP,
-							uint32 flags = B_WILL_DRAW|B_NAVIGABLE)
-		:
-		BTextControl(frame, name, label, text, message, resizingMode, flags),
-		fStyledItem(item)
-	{
-		SetEventMask(B_POINTER_EVENTS|B_KEYBOARD_EVENTS);
-	}
-
-	virtual void AllAttached()
-	{
-		TextView()->SelectAll();
-	}
-
-	virtual void MouseDown(BPoint point)
-	{
-		if (Bounds().Contains(point))
-			_inherited::MouseDown(point);
-		else {
-			fStyledItem->AbortRename();
-		}
-		Invoke();
-	}
-
-	virtual void KeyDown(const char* bytes, int32 numBytes)
-	{
-		if (numBytes == 1 && *bytes == B_ESCAPE) {
-			fStyledItem->AbortRename();
-		}
-		if (numBytes == 1 && *bytes == B_RETURN) {
-			fStyledItem->CommitRename();
-		}
-	}
-};
-
 
 StyledItem::StyledItem(BOutlineListView *container,
 						const char* text,
@@ -72,7 +28,6 @@ StyledItem::StyledItem(BOutlineListView *container,
 	fFirstTimeRendered(true),
 	fInitRename(false),
 	fMessage(nullptr),
-	fTextControl(nullptr),
 	fToolTipText(nullptr),
 	fPrimaryTextStyle(B_REGULAR_FACE),
 	fSecondaryTextStyle(B_REGULAR_FACE),
@@ -84,7 +39,6 @@ StyledItem::StyledItem(BOutlineListView *container,
 
 StyledItem::~StyledItem()
 {
-	delete fTextControl;
 }
 
 
@@ -127,25 +81,15 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->DrawBitmapAsync(icon, iconStartingPoint);
 	}
 
-	// Check if there is an InitRename request and show a TextControl
-	if (fInitRename) {
-		BRect textRect;
-		textRect.top = bounds.top - 0.5f;
-		textRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
-		textRect.bottom = bounds.bottom - 1;
-		textRect.right = bounds.right;
-		_DrawTextWidget(owner, textRect);
-	} else {
-		BPoint textPoint(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
-						bounds.top + BaselineOffset());
-		_DrawText(owner, textPoint);
+	BPoint textPoint(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
+					bounds.top + BaselineOffset());
+	_DrawText(owner, textPoint);
 
-		owner->Sync();
+	owner->Sync();
 
-		if (fFirstTimeRendered) {
-			owner->Invalidate();
-			fFirstTimeRendered = false;
-		}
+	if (fFirstTimeRendered) {
+		owner->Invalidate();
+		fFirstTimeRendered = false;
 	}
 }
 
@@ -154,38 +98,6 @@ void
 StyledItem::Update(BView* owner, const BFont* font)
 {
 	BStringItem::Update(owner, font);
-}
-
-
-void
-StyledItem::InitRename(BMessage* message)
-{
-	if (fTextControl != nullptr)
-		debugger("StyledItem::InitRename() called twice!");
-	fInitRename = true;
-	fMessage = message;
-}
-
-
-void
-StyledItem::AbortRename()
-{
-	if (fTextControl != nullptr)
-		_DestroyTextWidget();
-	fInitRename = false;
-}
-
-
-void
-StyledItem::CommitRename()
-{
-	if (fTextControl != nullptr) {
-		fMessage->AddString("_value", fTextControl->Text());
-		BMessenger(fTextControl->Parent()).SendMessage(fMessage);
-		SetText(fTextControl->Text());
-		_DestroyTextWidget();
-	}
-	fInitRename = false;
 }
 
 
@@ -212,32 +124,4 @@ StyledItem::_DrawText(BView* owner, const BPoint& point)
 	}
 
 	owner->Sync();
-}
-
-
-void
-StyledItem::_DrawTextWidget(BView* owner, const BRect& textRect)
-{
-	if (fTextControl == nullptr) {
-		fTextControl = new TemporaryTextControl(textRect, "RenameTextWidget",
-											"", Text(), fMessage, this,
-											B_FOLLOW_NONE);
-		owner->AddChild(fTextControl);
-		fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
-		fTextControl->SetDivider(0);
-		fTextControl->TextView()->SelectAll();
-		fTextControl->TextView()->ResizeBy(0, -3);
-	}
-	fTextControl->MakeFocus();
-}
-
-
-void
-StyledItem::_DestroyTextWidget()
-{
-	if (fTextControl != nullptr) {
-		fTextControl->RemoveSelf();
-		delete fTextControl;
-		fTextControl = nullptr;
-	}
 }

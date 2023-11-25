@@ -26,6 +26,9 @@ public:
 	void 			DrawItem(BView* owner, BRect bounds, bool complete);
 	void 			Update(BView* owner, const BFont* font);
 
+	void			SetPrimaryText(BString text) { fPrimaryText = text; };
+	void			SetSecondaryText(BString text) { fSecondaryText = text; };
+
 	void			SetPrimaryTextStyle(uint16 face) { fPrimaryTextStyle = face; };
 	void			SetSecondaryTextStyle(uint16 face) { fPrimaryTextStyle = face; };
 
@@ -46,7 +49,6 @@ private:
 	bool			fFirstTimeRendered;
 	bool			fInitRename;
 	BMessage*		fMessage;
-	BTextControl	*fTextControl;
 	BString			fPrimaryText;
 	BString			fSecondaryText;
 	BString			fToolTipText;
@@ -56,6 +58,4 @@ private:
 	uint32			fItemType;
 
 	void			_DrawText(BView* owner, const BPoint& textPoint);
-	void			_DrawTextWidget(BView* owner, const BRect& textRect);
-	void			_DestroyTextWidget();
 };

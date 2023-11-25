@@ -54,7 +54,7 @@
 #include "ActionManager.h"
 #include "QuitAlert.h"
 #include "IconMenuItem.h"
-
+#include "EditorMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -264,6 +264,17 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case kApplyFix: {
+			entry_ref	ref;
+			if (message->FindRef("refs", &ref) == B_OK) {
+				int32 index = _GetEditorIndex(&ref);
+				if (index >= 0) {
+					Editor* editor = fTabManager->EditorAt(index);
+					PostMessage(message, editor);
+				}
+			}
+		}
+		break;
 		case B_OBSERVER_NOTICE_CHANGE: {
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
@@ -288,8 +299,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case EDITOR_UPDATE_DIAGNOSTICS : {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex())
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor == fTabManager->SelectedEditor())
 				{
 					fProblemsPanel->UpdateProblems(message);
 				}
@@ -315,7 +326,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (editor) {
 				if (editor->CanRedo())
 					editor->Redo();
-				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Redo");
+				_UpdateSavepointChange(editor, "Redo");
 			}
 			break;
 		}
@@ -332,7 +343,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (editor) {
 				if (editor->CanUndo())
 					editor->Undo();
-				_UpdateSavepointChange(fTabManager->SelectedTabIndex(), "Undo");
+				_UpdateSavepointChange(editor, "Undo");
 			}
 			break;
 		}
@@ -356,10 +367,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case EDITOR_FIND_SET_MARK: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex()) {
-					Editor* editor = fTabManager->EditorAt(index);
-
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor == fTabManager->SelectedEditor()) {
 					int32 line;
 					if (message->FindInt32("line", &line) == B_OK) {
 						BString text;
@@ -404,9 +413,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case EDITOR_REPLACE_ONE: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index =  _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex()) {
-					Editor* editor = fTabManager->EditorAt(index);
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor == fTabManager->SelectedEditor()) {
 					int32 line, column;
 					BString sel, repl;
 					if (message->FindInt32("line", &line) == B_OK
@@ -427,10 +435,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		case EDITOR_POSITION_CHANGED: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
-				int32 index =  _GetEditorIndex(&ref);
-				if (index == fTabManager->SelectedTabIndex()) {
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor == fTabManager->SelectedEditor()) {
 					// Enable Cut,Copy,Paste shortcuts
-					_UpdateSavepointChange(index, "EDITOR_POSITION_CHANGED");
+					_UpdateSavepointChange(editor, "EDITOR_POSITION_CHANGED");
 				}
 			}
 			break;
@@ -441,47 +449,21 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (message->FindRef("ref", &ref) == B_OK &&
 			    message->FindBool("modified", &modified) == B_OK) {
 
-				int32 index = _GetEditorIndex(&ref);
-				if (index > -1) {
-					_UpdateLabel(index, modified);
-					_UpdateSavepointChange(index, "UpdateSavePoint");
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor) {
+					_UpdateLabel(_GetEditorIndex(&ref), modified);
+					_UpdateSavepointChange(editor, "UpdateSavePoint");
 				}
 			}
 
 			break;
 		}
-		case MSG_BOOKMARK_CLEAR_ALL: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->BookmarkClearAll(sci_BOOKMARK);
-			}
-			break;
-		}
-		case MSG_BOOKMARK_GOTO_NEXT: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				if (!editor->BookmarkGoToNext())
-					LogInfo("Next Bookmark not found");
-			}
-			break;
-		}
-		case MSG_BOOKMARK_GOTO_PREVIOUS: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				if (!editor->BookmarkGoToPrevious())
-					LogInfo("Previous Bookmark not found");
-			}
-
-
-			break;
-		}
-		case MSG_BOOKMARK_TOGGLE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->BookmarkToggle(editor->GetCurrentPosition());
-			}
-			break;
-		}
+		case MSG_BOOKMARK_CLEAR_ALL:
+		case MSG_BOOKMARK_GOTO_NEXT:
+		case MSG_BOOKMARK_GOTO_PREVIOUS:
+		case MSG_BOOKMARK_TOGGLE:
+			_ForwardToSelectedEditor(message);
+		break;
 		case MSG_BUFFER_LOCK: {
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
@@ -516,27 +498,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			_DebugProject();
 			break;
 		}
-		case MSG_EOL_CONVERT_TO_UNIX: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->EndOfLineConvert(SC_EOL_LF);
-			}
-			break;
-		}
-		case MSG_EOL_CONVERT_TO_DOS: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->EndOfLineConvert(SC_EOL_CRLF);
-			}
-			break;
-		}
-		case MSG_EOL_CONVERT_TO_MAC: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->EndOfLineConvert(SC_EOL_CR);
-			}
-			break;
-		}
+		case MSG_EOL_CONVERT_TO_UNIX:
+		case MSG_EOL_CONVERT_TO_DOS:
+		case MSG_EOL_CONVERT_TO_MAC:
+			_ForwardToSelectedEditor(message);
+		break;
 		case MSG_FILE_CLOSE: {
 			_FileRequestClose(fTabManager->SelectedTabIndex());
 			break;
@@ -544,13 +510,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_CLOSE_ALL:
 			_FileCloseAll();
 			break;
-		case MSG_FILE_FOLD_TOGGLE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->ToggleFolding();
-			}
+		case MSG_FILE_FOLD_TOGGLE:
+			_ForwardToSelectedEditor(message);
 			break;
-		}
 		case MSG_FILE_MENU_SHOW: {
 			/* Adapted from tabview */
 				BPopUpMenu* tabMenu = new BPopUpMenu("filetabmenu", true, false);
@@ -714,14 +676,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case GTLW_GO: {
-			int32 line;
-			if(message->FindInt32("line", &line) == B_OK) {
-				Editor* editor = fTabManager->SelectedEditor();
-				editor->GoToLine(line);
-			}
+		case GTLW_GO:
+			_ForwardToSelectedEditor(message);
 			break;
-		}
 		case MSG_GOTO_LINE:
 			if(fGoToLineWindow == nullptr) {
 				fGoToLineWindow = new GoToLineWindow(this);
@@ -746,75 +703,18 @@ GenioWindow::MessageReceived(BMessage* message)
 			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 			break;
 		}
-		case MSG_DUPLICATE_LINE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->DuplicateCurrentLine();
-			}
-			break;
-		}
-		case MSG_DELETE_LINES: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->DeleteSelectedLines();
-			}
-			break;
-		}
-		case MSG_COMMENT_SELECTED_LINES: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->CommentSelectedLines();
-			}
-			break;
-		}
-		case MSG_FILE_TRIM_TRAILING_SPACE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->TrimTrailingWhitespace();
-			}
-			break;
-		}
-		case MSG_AUTOCOMPLETION: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->Completion();
-			break;
-		}
-		case MSG_FORMAT: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->Format();
-			break;
-		}
-
-		case MSG_GOTODEFINITION: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->GoToDefinition();
-
-			break;
-		}
-		case MSG_GOTODECLARATION: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->GoToDeclaration();
-
-			break;
-		}
-		case MSG_GOTOIMPLEMENTATION: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->GoToImplementation();
-			break;
-		}
-		case MSG_SWITCHSOURCE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)
-				editor->SwitchSourceHeader();
-
-			break;
-		}
-
+		case MSG_DUPLICATE_LINE:
+		case MSG_DELETE_LINES:
+		case MSG_COMMENT_SELECTED_LINES:
+		case MSG_FILE_TRIM_TRAILING_SPACE:
+		case MSG_AUTOCOMPLETION:
+		case MSG_FORMAT:
+		case MSG_GOTODEFINITION:
+		case MSG_GOTODECLARATION:
+		case MSG_GOTOIMPLEMENTATION:
+		case MSG_SWITCHSOURCE:
+			_ForwardToSelectedEditor(message);
+		break;
 		case MSG_MAKE_BINDCATALOGS: {
 			_MakeBindcatalogs();
 			break;
@@ -835,7 +735,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				LogError("Can't find ref in message!");
 			} else {
 				BPath path(&newRef);
-				_ShowInTracker(&newRef);
+				_ShowInTracker(path);
 			}
 		}
 		break;
@@ -1066,13 +966,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FOCUS_MODE:
 			_ToogleScreenMode(message->what);
 		break;
-		case MSG_TEXT_OVERWRITE: {
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor)  {
-				editor->OverwriteToggle();
-			}
-			break;
-		}
+		case MSG_TEXT_OVERWRITE:
+			_ForwardToSelectedEditor(message);
+		break;
 
 		case MSG_TOGGLE_TOOLBAR: {
 			_ShowView(fToolBar, fToolBar->IsHidden(), MSG_TOGGLE_TOOLBAR);
@@ -1130,15 +1026,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FIND_MATCH_CASE:
 			gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
 		break;
-		case MSG_SET_LANGUAGE: {
-			BMSG(message, gms);
-			Editor* editor = fTabManager->SelectedEditor();
-			if (editor) {
-				editor->SetFileType(std::string((const char*)gms["lang"]));
-				editor->ApplySettings();
-				//NOTE (TODO?) we are not changing any LSP configuration!
-			}
-		}
+		case MSG_SET_LANGUAGE:
+			_ForwardToSelectedEditor(message);
 		break;
 		case MSG_HELP_GITHUB: {
 			char *argv[2] = {(char*)"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
@@ -1147,7 +1036,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		break;
 		default:
 			BWindow::MessageReceived(message);
-			break;
+		break;
 	}
 }
 
@@ -1205,6 +1094,16 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		fScreenMode = kDefault;
 	}
 }
+
+void
+GenioWindow::_ForwardToSelectedEditor(BMessage* msg)
+{
+	Editor* editor = fTabManager->SelectedEditor();
+	if (editor) {
+		PostMessage(msg, editor);
+	}
+}
+
 
 void
 GenioWindow::_CloseMultipleTabs(BMessage* msg)
@@ -1528,16 +1427,21 @@ GenioWindow::_DebugProject()
 		return B_ERROR;
 
 	// Release mode enabled, should not happen
+	// TODO: why not ?
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	// attempt to launch Debugger with BRoster::Launch() failed so we use a more traditional
-	// approach here
-	BString commandLine;
-	commandLine.SetToFormat("Debugger %s %s",
-							EscapeQuotesWrap(fActiveProject->GetTarget()).String(),
-							EscapeQuotesWrap(fActiveProject->GetExecuteArgs()).String());
-	return system(commandLine) == 0 ? B_OK : errno;
+	// Copy the strings, otherwise the strings returned by
+	// GetTarget()/GetExecuteArgs() will be gone outside the argv array
+	const BString target = fActiveProject->GetTarget();
+	const BString executeArgs = fActiveProject->GetExecuteArgs();
+	const char* argv[] = {
+		target.String(),
+		executeArgs.String(),
+		nullptr
+	};
+
+	return be_roster->Launch("application/x-vnd.Haiku-debugger", 2, argv);
 }
 
 
@@ -1733,17 +1637,20 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	return false;
 }
 
+
 status_t
 GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 {
-       BNode entry(ref);
-       if (entry.InitCheck() != B_OK || entry.IsDirectory())
-               return false;
+	BNode entry(ref);
+	status_t status = entry.InitCheck();
+	if (status != B_OK)
+		return status;
+	if (entry.IsDirectory())
+		return B_IS_A_DIRECTORY;
 
-       BString commandLine;
-       commandLine.SetToFormat("/bin/open \"%s\"", BPath(ref).Path());
-       return system(commandLine) == 0 ? B_OK : errno;
+	return be_roster->Launch(ref);
 }
+
 
 status_t
 GenioWindow::_FileSave(int32 index)
@@ -1983,18 +1890,16 @@ GenioWindow::_FindInFiles()
 
 	  LogInfo("Find in file, executing: [%s]", grepCommand.String());
 	  fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
+
+	  _ShowLog(kSearchResult);
 }
 
 int32
-GenioWindow::_GetEditorIndex(entry_ref* ref, bool checkExists)
+GenioWindow::_GetEditorIndex(entry_ref* ref)
 {
 	BEntry entry(ref, true);
 	int32 filesCount = fTabManager->CountTabs();
 
-	// Could try to reopen at start a saved index that was deleted,
-	// check existence
-	if (checkExists && entry.Exists() == false)
-		return -1;
 
 	for (int32 index = 0; index < filesCount; index++) {
 
@@ -2103,7 +2008,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 
  	alert->SetShortcut(0, B_ESCAPE);
 
-	int32 index = _GetEditorIndex(oldRef, false);
+	int32 index = _GetEditorIndex(oldRef);
 
  	int32 choice = alert->Go();
 
@@ -3320,37 +3225,6 @@ GenioWindow::_ProjectRenameFile()
 }
 
 
-
-status_t
-GenioWindow::_ProjectRemoveDir(const BString& dirPath)
-{
-	BDirectory dir(dirPath);
-	BEntry startEntry(dirPath);
-	BEntry entry;
-
-	while (dir.GetNextEntry(&entry) == B_OK) {
-
-		if (entry.IsDirectory()) {
-			BDirectory newdir(&entry);
-			if (newdir.CountEntries() == 0) {
-				// Empty dir, remove
-				entry.Remove();
-			} else {
-				// Populated dir, recurse
-				BPath newPath(dirPath);
-				newPath.Append(entry.Name());
-
-				_ProjectRemoveDir(newPath.Path());
-			}
-		} else {
-			// It is a file, remove
-			entry.Remove();
-		}
-	}
-
-	return startEntry.Remove();
-}
-
 // Project Folders
 void
 GenioWindow::_ProjectFolderClose(ProjectFolder *project)
@@ -3498,12 +3372,14 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 			editor->SetProjectFolder(newProject);
 		}
 	}
+
+    //final touch, let's be sure the folder is added to the recent files.
+    entry_ref ref;
+    dirEntry.GetRef(&ref);
+    be_roster->AddToRecentFolders(&ref, GenioNames::GetSignature());
 }
 
 
-// TODO: _OpenTerminalWorkingDirectory(), _ShowCurrentItemInTracker() and
-// _FileOpenWithPreferredApp(const entry_ref* ref) share almost the same code
-// They should be refactored to use a common base method e.g. _OpenWith()
 status_t
 GenioWindow::_OpenTerminalWorkingDirectory()
 {
@@ -3513,21 +3389,26 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 		return B_BAD_VALUE;
 
 	BString itemPath = selectedProjectItem->GetSourceItem()->Path();
-	BString commandLine;
-	commandLine.SetToFormat("Terminal -w %s &", EscapeQuotesWrap(itemPath.String()).String());
-
+	const char* argv[] = {
+		"-w",
+		itemPath.String(),
+		nullptr
+	};
+	status_t status = be_roster->Launch("application/x-vnd.Haiku-Terminal", 2, argv);
 	BString notification;
-	int returnStatus = system(commandLine);
-	if (returnStatus != 0) {
+	if (status != B_OK) {
 		notification <<
 			"An error occurred while opening Terminal and setting working directory to: ";
+		notification << itemPath << ": " << ::strerror(status);
+		LogError(notification.String());
 	} else {
 		notification <<
 			"Terminal successfully opened with working directory: ";
+		notification << itemPath;
+		LogTrace(notification.String());
 	}
-	notification << itemPath;
-	LogInfo(notification.String());
-	return returnStatus == 0 ? B_OK : errno;
+
+	return status;
 }
 
 
@@ -3548,10 +3429,11 @@ GenioWindow::_ShowCurrentItemInTracker()
 			returnStatus = _ShowInTracker(directoryPath);
 		}
 	}
-	BString notification;
-	notification << "An error occurred when showing an item in Tracker: " << directoryPath.Path();
-	LogInfo(notification.String());
-
+	if (returnStatus != B_OK) {
+		BString notification;
+		notification << "An error occurred when showing an item in Tracker: " << directoryPath.Path();
+		LogError(notification.String());
+	}
 	return returnStatus;
 }
 
@@ -3559,10 +3441,24 @@ GenioWindow::_ShowCurrentItemInTracker()
 status_t
 GenioWindow::_ShowInTracker(const BPath& path)
 {
-	BString commandLine;
-	commandLine.SetToFormat("/bin/open %s", EscapeQuotesWrap(path.Path()).String());
-	int status = system(commandLine);
-	return status == 0 ? B_OK : errno;
+	BEntry entry(path.Path());
+	status_t status = entry.InitCheck();
+	if (status != B_OK)
+		return status;
+	entry_ref ref;
+	status = entry.GetRef(&ref);
+	if (status != B_OK)
+		return status;
+	BMessage message(B_EXECUTE_PROPERTY);
+	status = message.AddRef("data", &ref);
+	if (status != B_OK)
+		return status;
+	status = message.AddSpecifier("Folder");
+	if (status != B_OK)
+		return status;
+
+	BMessenger tracker("application/x-vnd.Be-TRAK");
+	return tracker.SendMessage(&message);
 }
 
 
@@ -3862,11 +3758,9 @@ GenioWindow::_UpdateReplaceMenuItems(const BString& text)
 // Redo
 // EDITOR_POSITION_CHANGED (Why ?)
 void
-GenioWindow::_UpdateSavepointChange(int32 index, const BString& caller)
+GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 {
-	assert (index > -1 && index < fTabManager->CountTabs());
-
-	Editor* editor = fTabManager->EditorAt(index);
+	assert (editor);
 
 	// Menu Items
 	ActionManager::SetEnabled(B_CUT, editor->CanCut());
@@ -4008,11 +3902,11 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, !editor->IsReadOnly());
 	ActionManager::SetEnabled(MSG_FILE_TRIM_TRAILING_SPACE, !editor->IsReadOnly());
 
-	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, !editor->IsReadOnly() && editor->GetProjectFolder());
-	ActionManager::SetEnabled(MSG_FORMAT, !editor->IsReadOnly() && editor->GetProjectFolder());
-	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->GetProjectFolder());
-	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->GetProjectFolder());
-	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->GetProjectFolder());
+	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, !editor->IsReadOnly() && editor->HasLSPServer());
+	ActionManager::SetEnabled(MSG_FORMAT, !editor->IsReadOnly() && editor->HasLSPServer());
+	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->HasLSPServer());
+	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->HasLSPServer());
+	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->HasLSPServer());
 	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (editor->FileType().compare("cpp") == 0));
 
 	ActionManager::SetEnabled(MSG_FIND_NEXT, true);

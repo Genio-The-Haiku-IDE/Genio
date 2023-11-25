@@ -1,21 +1,22 @@
-#include <OS.h>
-#include <Volume.h>
-#include <Directory.h>
-#include <File.h>
-#include <Entry.h>
-#include <Path.h>
-#include <Alert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fs_attr.h>
-#include <String.h>
-#include <string.h>
-#include <Errors.h>
 #include "FSUtils.h"
+
+#include <Alert.h>
+#include <Directory.h>
+#include <Entry.h>
+#include <File.h>
+#include <fs_attr.h>
+#include <Path.h>
+#include <String.h>
+#include <Volume.h>
+
+#include <cstdio>
+#include <cstdlib>
+
 
 #define COPY_BUFFER_SIZE 8192
 
-status_t FSCheckCopiable(BEntry *src,BEntry *dest)
+status_t
+FSCheckCopiable(BEntry *src, BEntry *dest)
 {
 	// Checks to see if we can copy the src to dest.
 	if (!src || !dest)

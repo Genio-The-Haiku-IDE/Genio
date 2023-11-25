@@ -77,4 +77,5 @@ private:
 	void					_InitChangesView();
 	void					_InitLogView();
 	void					_ShowOptionsMenu(BPoint where);
+	void					_ShowGitNotification(const BString& text);
 };

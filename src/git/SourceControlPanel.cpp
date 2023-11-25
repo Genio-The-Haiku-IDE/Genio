@@ -26,6 +26,9 @@
 #include "StyledItem.h"
 #include "Utils.h"
 
+#include "GitAlert.h"
+#include "GTextAlert.h"
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
@@ -44,7 +47,6 @@ SourceControlPanel::SourceControlPanel()
 	fSelectedProject(nullptr),
 	fCurrentBranch(nullptr)
 {
-
 	fProjectList = gMainWindow->GetProjectList();
 	fActiveProject = gMainWindow->GetActiveProject();
 
@@ -156,79 +158,118 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			if (fMainLayout->VisibleIndex() != kViewIndexRepository)
 				fMainLayout->SetVisibleItem(kViewIndexRepository);
 			fToolBar->ToggleActionPressed(MsgShowRepositoryPanel);
+			break;
 		}
-		break;
 		case MsgShowChangesPanel: {
 			LogInfo("MsgShowChangesPanel");
 			if (fMainLayout->VisibleIndex() != kViewIndexChanges)
 				fMainLayout->SetVisibleItem(kViewIndexChanges);
 			fToolBar->ToggleActionPressed(MsgShowChangesPanel);
+			break;
 		}
-		break;
 		case MsgShowLogPanel: {
 			LogInfo("MsgShowLogPanel");
 			if (fMainLayout->VisibleIndex() != kViewIndexLog)
 				fMainLayout->SetVisibleItem(kViewIndexLog);
 			fToolBar->ToggleActionPressed(MsgShowLogPanel);
+			break;
 		}
-		break;
 		case MsgShowOptionsMenu: {
 			auto button = fToolBar->FindButton(MsgShowOptionsMenu);
 			auto where = button->Frame().LeftBottom();
 			LogInfo("MsgShowOptionsMenu: p(%f, %f)", where.x, where.y);
 			_ShowOptionsMenu(where);
+			break;
 		}
-		break;
 		case MsgFetch: {
 			LogInfo("MsgFetch");
 			Genio::Git::GitRepository git(fSelectedProject->Path().String());
 			git.Fetch();
+			break;
 		}
-		break;
 		case MsgFetchPrune: {
 			LogInfo("MsgFetchPrune");
 			Genio::Git::GitRepository git(fSelectedProject->Path().String());
 			git.Fetch(true);
+			break;
 		}
-		break;
 		case MsgStashSave: {
 			LogInfo("MsgStashSave");
 			Genio::Git::GitRepository git(fSelectedProject->Path().String());
 			git.StashSave();
+			break;
 		}
-		break;
 		case MsgStashPop: {
 			LogInfo("MsgStashPop");
 			Genio::Git::GitRepository git(fSelectedProject->Path().String());
 			git.StashPop();
+			break;
 		}
 		case MsgStashApply: {
 			LogInfo("MsgStashApply");
 			Genio::Git::GitRepository git(fSelectedProject->Path().String());
 			git.StashApply();
+			break;
 		}
-		break;
-		case MsgChangeProject : {
+		case MsgChangeProject: {
 			fSelectedProject = (ProjectFolder *)message->GetPointer("value");
 			LogInfo("MsgSelectProject: %s", fSelectedProject->Name().String());
 			auto path = fSelectedProject->Path().String();
 			LogInfo("MsgSelectProject: %s", path);
 			_UpdateBranchList();
 			SendNotices(message->what, message);
+			break;
 		}
-		break;
-		case MsgSwitchBranch : {
-			fCurrentBranch = (BString)message->GetString("value");
-			SendNotices(message->what, message);
-			LogInfo("MsgSwitchBranch: %s", fCurrentBranch.String());
+		case MsgSwitchBranch: {
+			try {
+				fCurrentBranch = (BString)message->GetString("value");
+				auto repo = fSelectedProject->GetRepository();
+				repo->SwitchBranch(fCurrentBranch);
+				SendNotices(message->what, message);
+				LogInfo("MsgSwitchBranch: %s", fCurrentBranch.String());
+			} catch(GitException &ex) {
+				OKAlert("Git", ex.Message(), B_INFO_ALERT);
+			}
+			break;
 		}
-		break;
-		case MsgPull : {
+		case MsgPull: {
 			auto selected_branch = message->GetString("selected_branch");
 			auto current_branch = message->GetString("current_branch");
 			LogInfo("MsgPull: %s into %s", selected_branch, current_branch);
+			break;
 		}
-		break;
+		case MsgRenameBranch: {
+			try {
+				auto selected_branch = BString(message->GetString("value"));
+				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
+				auto alert = new GTextAlert(B_TRANSLATE("Rename branch"),
+					B_TRANSLATE("Rename branch"), selected_branch);
+				auto result = alert->Go();
+				if (result.Button == GAlertButtons::CancelButton) {
+					OKAlert("", "canceled", B_INFO_ALERT);
+				} else {
+					auto repo = fSelectedProject->GetRepository();
+					repo->RenameBranch(selected_branch, result.Result, branch_type);
+					OKAlert("", result.Result, B_INFO_ALERT);
+				}
+				LogInfo("MsgRenameBranch: rename %s to %s", selected_branch, selected_branch);
+			} catch(GitException &ex) {
+				OKAlert("Git", ex.Message(), B_INFO_ALERT);
+			}
+			break;
+		}
+		case MsgDeleteBranch: {
+			try {
+				auto selected_branch = BString(message->GetString("value"));
+				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
+				auto repo = fSelectedProject->GetRepository();
+				repo->DeleteBranch(selected_branch, branch_type);
+				LogInfo("MsgDeleteBranch: %s", selected_branch.String());
+			} catch(GitException &ex) {
+				OKAlert("Git", ex.Message(), B_INFO_ALERT);
+			}
+			break;
+		}
 		default:
 		break;
 	}
@@ -239,6 +280,7 @@ void
 SourceControlPanel::_UpdateProjectList()
 {
 	if ((fProjectList != nullptr)) {
+		fProjectMenu->SetTarget(this);
 		fProjectMenu->MakeEmpty();
 		fProjectMenu->AddList(fProjectList,
 			MsgChangeProject,
@@ -255,7 +297,6 @@ SourceControlPanel::_UpdateProjectList()
 				return (item == selected);
 			}
 		);
-		fProjectMenu->SetTarget(this);
 		_UpdateBranchList();
 	}
 }
@@ -269,13 +310,13 @@ SourceControlPanel::_UpdateBranchList()
 		auto branches = repo.GetBranches();
 		fCurrentBranch = repo.GetCurrentBranch();
 		LogInfo("current branch is set to %s", fCurrentBranch.String());
+		fBranchMenu->SetTarget(this);
 		fBranchMenu->MakeEmpty();
 		fBranchMenu->AddIterator(branches,
 			MsgSwitchBranch,
 			[](auto &item) { return item; },
 			[&current_branch=this->fCurrentBranch](auto &item) { return (item == current_branch);}
 		);
-		fBranchMenu->SetTarget(this);
 	}
 }
 

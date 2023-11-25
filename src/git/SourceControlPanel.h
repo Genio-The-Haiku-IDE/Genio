@@ -23,7 +23,6 @@ using namespace Genio::UI;
 
 enum Messages {
 	MsgChangeProject,
-	MsgSwitchBranch,
 	MsgShowRepositoryPanel,
 	MsgShowChangesPanel,
 	MsgShowLogPanel,
@@ -36,7 +35,12 @@ enum Messages {
 	MsgPush,
 	MsgStashSave,
 	MsgStashPop,
-	MsgStashApply
+	MsgStashApply,
+	MsgSwitchBranch,
+	MsgRenameBranch,
+	MsgDeleteBranch,
+	MsgNewBranch,
+	MsgNewTag
 };
 
 class RepositoryView;

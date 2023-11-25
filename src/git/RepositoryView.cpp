@@ -122,15 +122,16 @@ RepositoryView::MessageReceived(BMessage* message)
 					fSelectedProject = (ProjectFolder *)message->GetPointer("value");
 					if (fSelectedProject!=nullptr)
 						fRepositoryPath = fSelectedProject->Path().String();
-					_UpdateRepository();
+					UpdateRepository();
 					break;
 				}
 				case MsgSwitchBranch:
 				{
 					LogInfo("RepositoryView: MsgSwitchBranch");
 					fCurrentBranch = message->GetString("value");
-					if (!fCurrentBranch.IsEmpty())
-						_UpdateRepository();
+					if (!fCurrentBranch.IsEmpty()) {
+						UpdateRepository();
+					}
 					break;
 				}
 				default:
@@ -155,13 +156,13 @@ void
 RepositoryView::_ShowPopupMenu(BPoint where)
 {
 	auto optionsMenu = new BPopUpMenu("Options", false, false);
-
 	auto index = IndexOf(where);
 	if (index >= 0) {
-		StyledItem *item = reinterpret_cast<StyledItem*>(ItemAt(index));
+		auto item = dynamic_cast<StyledItem*>(ItemAt(index));
 		auto item_type = item->GetType();
 
-		auto selected_branch = item->Text();
+		BString selected_branch(item->Text());
+		selected_branch.RemoveLast("*");
 
 		StringFormatter fmt;
 		fmt.Substitutions["%selected_branch%"] = selected_branch;
@@ -174,34 +175,55 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 						fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgSwitchBranch},
-							{"selected_branch", selected_branch}
-						}
-					)
-				);
+							{"value", selected_branch}}));
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Rename \"%selected_branch%\""),
-					new BMessage(2)));
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Rename \"%selected_branch%\""),
+						new GMessage{
+							{"what", MsgRenameBranch},
+							{"value", selected_branch},
+							{"type", GIT_BRANCH_LOCAL}}));
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Delete \"%selected_branch%\""),
-					new BMessage(2)));
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Delete \"%selected_branch%\""),
+						new GMessage{
+							{"what", MsgDeleteBranch},
+							{"value", selected_branch},
+							{"type", GIT_BRANCH_LOCAL}}));
 
 				optionsMenu->AddSeparatorItem();
 
 				optionsMenu->AddItem(
 					new BMenuItem(
 						fmt << B_TRANSLATE("Pull \"origin/%selected_branch%\""),
-					new BMessage(MsgPull)));
+						new GMessage{
+							{"what", MsgPull},
+							{"value", selected_branch}}));
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Push \"%selected_branch%\" to \"origin\\%selected_branch%\""),
-					new BMessage(2)));
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Push \"%selected_branch%\" to \"origin\\%selected_branch%\""),
+						new GMessage{
+							{"what", MsgPush},
+							{"value", selected_branch}}));
 
 				optionsMenu->AddSeparatorItem();
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
-					new BMessage(2)));
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
+						new GMessage{
+							{"what", MsgNewBranch},
+							{"value", selected_branch}}));
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
-					new BMessage(2)));
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
+						new GMessage{
+							{"what", MsgNewTag},
+							{"value", selected_branch}}));
 
 				break;
 			}
@@ -212,44 +234,59 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 
 				optionsMenu->AddItem(
 					new BMenuItem(
-						fmt << B_TRANSLATE("Checkout \"%selected_branch%\""),
+						fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgSwitchBranch},
-							{"selected_branch", selected_branch}
-						}
-					)
-				);
+							{"value", selected_branch}}));
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Delete \"%selected_branch%\""),
-					new BMessage(2)));
+				// Deleting a remote branch is disabled for now
+				// the code in GitRepository deletes only the local ref to the remote branch and
+				// git fetch --all brings the remote branch back again
+				// TODO: A different approach is required to delete a remote branch using push
+				if (0) {
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Delete \"%selected_branch%\""),
+						new GMessage{
+							{"what", MsgDeleteBranch},
+							{"value", selected_branch},
+							{"type", GIT_BRANCH_REMOTE}}));
+				}
+
 
 				optionsMenu->AddSeparatorItem();
 
 				// We don't allow to merge a local branch into its origin
-				if (fCurrentBranch != selected_branch) {
+				if (!selected_branch.EndsWith(fCurrentBranch)) {
 					optionsMenu->AddItem(
 						new BMenuItem(
 							fmt << B_TRANSLATE("Merge \"%selected_branch%\" into \"%current_branch%\""),
 							new GMessage{
-								{"what", MsgPull},
+								{"what", MsgMerge},
 								{"selected_branch", selected_branch},
-								{"current_branch", fCurrentBranch}
-							}
-						)
-					);
+								{"current_branch", fCurrentBranch}}));
 
 					optionsMenu->AddSeparatorItem();
 				}
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
-					new BMessage(2)));
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
+						new GMessage{
+							{"what", MsgNewBranch},
+							{"value", selected_branch}}));
 
-				optionsMenu->AddItem(new BMenuItem(fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
-					new BMessage(2)));
+				optionsMenu->AddItem(
+					new BMenuItem(
+						fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
+						new GMessage{
+							{"what", MsgNewTag},
+							{"value", selected_branch}}));
 
 				break;
 			}
 			case kTag: {
+				// TODO
 				break;
 			}
 			default: {
@@ -258,68 +295,64 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 		}
 	}
 
-	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Fetch"), new BMessage(MsgFetch)));
-	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Fetch prune"),	new BMessage(MsgFetchPrune)));
-	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Pull"), new BMessage(MsgPull)));
-	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Pull rebase"),	new BMessage(MsgPullRebase)));
-	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Merge"), new BMessage(MsgMerge)));
-	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Push"), new BMessage(MsgPush)));
-	// optionsMenu->AddSeparatorItem();
-	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Stash changes"), new BMessage(MsgStashSave)));
-	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Stash pop changes"), new BMessage(MsgStashPop)));
-	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Stash apply changes"), new BMessage(MsgStashApply)));
-
-
-	optionsMenu->SetTargetForItems(this);
+	optionsMenu->SetTargetForItems(Target());
 	optionsMenu->Go(ConvertToScreen(where), true);
 	delete optionsMenu;
 }
 
 
 void
-RepositoryView::_UpdateRepository()
+RepositoryView::UpdateRepository()
 {
-	MakeEmpty();
+	try {
+		auto repo = fSelectedProject->GetRepository();
+		auto current_branch = repo->GetCurrentBranch();
 
-	auto locals = new StyledItem(this, B_TRANSLATE("Local branches"));
-	locals->SetPrimaryTextStyle(B_BOLD_FACE);
-	AddItem(locals);
-	// populate local branches
-	if (fSelectedProject != nullptr) {
-		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
-		auto branches = repo.GetBranches(GIT_BRANCH_LOCAL);
-		auto current_branch = repo.GetCurrentBranch();
-		for(auto &branch : branches) {
+		MakeEmpty();
+
+		auto locals = new StyledItem(this, B_TRANSLATE("Local branches"));
+		locals->SetPrimaryTextStyle(B_BOLD_FACE);
+		AddItem(locals);
+		// populate local branches
+		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
+		for(auto &branch : local_branches) {
 			auto item = new StyledItem(this, branch.String(), kLocalBranch);
+			if (branch == fCurrentBranch)
+				item->SetText(BString(item->Text()) << "*");
 			AddUnder(item, locals);
 		}
-	}
 
-	auto remotes = new StyledItem(this, B_TRANSLATE("Remotes"));
-	remotes->SetPrimaryTextStyle(B_BOLD_FACE);
-	AddItem(remotes);
-	// populate remote branches
-	if (fSelectedProject != nullptr) {
-		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
-		auto branches = repo.GetBranches(GIT_BRANCH_REMOTE);
-		auto current_branch = repo.GetCurrentBranch();
-		for(auto &branch : branches) {
+		auto remotes = new StyledItem(this, B_TRANSLATE("Remotes"));
+		remotes->SetPrimaryTextStyle(B_BOLD_FACE);
+		AddItem(remotes);
+		// populate remote branches
+		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
+		for(auto &branch : remote_branches) {
 			auto item = new StyledItem(this, branch.String(), kRemoteBranch);
 			AddUnder(item, remotes);
 		}
-	}
 
-	auto tags = new StyledItem(this, B_TRANSLATE("Tags"));
-	tags->SetPrimaryTextStyle(B_BOLD_FACE);
-	AddItem(tags);
-	// populate tags
-	if (fSelectedProject != nullptr) {
-		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
-		auto all_tags = repo.GetTags();
-		auto current_branch = repo.GetCurrentBranch();
+		auto tags = new StyledItem(this, B_TRANSLATE("Tags"));
+		tags->SetPrimaryTextStyle(B_BOLD_FACE);
+		AddItem(tags);
+		// populate tags
+		auto all_tags = repo->GetTags();
 		for(auto &tag : all_tags) {
 			auto item = new StyledItem(this, tag.String(), kRemoteBranch);
 			AddUnder(item, tags);
 		}
+	} catch(GitException &ex) {
+		OKAlert("Git", ex.Message(), B_INFO_ALERT);
 	}
+}
+
+
+auto
+RepositoryView::GetSelectedItem()
+{
+	BListItem *item = nullptr;
+	const int32 selection = CurrentSelection();
+	if (selection >= 0)
+		item = ItemAt(selection);
+	return item;
 }

@@ -126,7 +126,7 @@ private:
 			void				_ProjectFolderActivate(ProjectFolder* project);
 
 			status_t			_ShowCurrentItemInTracker();
-			status_t			_ShowInTracker(const BPath& path);
+			status_t			_ShowInTracker(const entry_ref& ref);
 			status_t			_OpenTerminalWorkingDirectory();
 
 			int					_Replace(int what);

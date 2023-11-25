@@ -162,6 +162,26 @@ namespace Genio::Git {
 		return branchText;
 	}
 
+	void
+	GitRepository::DeleteBranch(BString &branch, git_branch_t type)
+	{
+		git_reference* ref = nullptr;
+		check(git_branch_lookup(&ref, fRepository, branch.String(), type));
+		check(git_branch_delete(ref));
+		git_reference_free(ref);
+	}
+
+	void
+	GitRepository::RenameBranch(BString &old_name, BString &new_name, git_branch_t type)
+	{
+		git_reference* ref = nullptr;
+		git_reference* out = nullptr;
+		check(git_branch_lookup(&ref, fRepository, old_name.String(), type));
+		check(git_branch_move(&out, ref, new_name.String(), 0));
+		git_reference_free(ref);
+		git_reference_free(out);
+	}
+
 	vector<pair<string, string>>
 	GitRepository::GetFiles()
 	{

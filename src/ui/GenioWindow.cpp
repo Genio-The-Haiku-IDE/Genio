@@ -141,6 +141,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultPanel(nullptr)
 	, fScreenMode(kDefault)
+	, fDisableProjectNotifications(false)
 {
 	gMainWindow = this;
 
@@ -165,7 +166,11 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorKeyDownMessageFilter());
 
 	// Load workspace - reopen projects
+	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
+	// the workspace
+	// TODO: improve how projects are loaded and notices are sent over
 	if (gCFG["reopen_projects"]) {
+		fDisableProjectNotifications = true;
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
 		if (!projects.IsEmpty()) {
 			BString projectName;
@@ -174,6 +179,13 @@ GenioWindow::GenioWindow(BRect frame)
 										count, &projectName) == B_OK; count++)
 					_ProjectFolderOpen(projectName, projectName == activeProject);
 		}
+		fDisableProjectNotifications = false;
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		noticeMessage.AddPointer("active_project", fActiveProject);
+		noticeMessage.AddString("active_project_name", fActiveProject->Name());
+		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+
 	}
 
 	// Reopen files
@@ -3232,10 +3244,12 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
 		}
 	}
-	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-	noticeMessage.AddPointer("active_project", fActiveProject);
-	noticeMessage.AddString("active_project_name", fActiveProject->Name());
-	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+	if (!fDisableProjectNotifications) {
+		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		noticeMessage.AddPointer("active_project", fActiveProject);
+		noticeMessage.AddString("active_project_name", fActiveProject->Name());
+		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+	}
 
 	// Update run command working directory tooltip too
 	BString tooltip;
@@ -3385,7 +3399,8 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	fProjectFolderObjectList->RemoveItem(project);
 
 	// Notify subscribers that the project list has changed
-	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	project->Close();
 
@@ -3453,7 +3468,8 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 	fProjectFolderObjectList->AddItem(newProject);
 
 	// Notify subscribers that project list has changed
-	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	if (gCFG["auto_expand_collapse_projects"])
 		fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItem(newProject->Name()));

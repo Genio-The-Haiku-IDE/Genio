@@ -73,7 +73,7 @@ Languages::ApplyLanguage(Editor* editor, const char* lang)
 				auto m = _ApplyLanguage(editor, lang, path);
 				m.merge(styleMapping);
 				std::swap(styleMapping, m);
-			} catch (YAML::BadFile &) {}
+			} catch (const YAML::BadFile &) {}
 		});
 	return styleMapping;
 }
@@ -108,6 +108,14 @@ Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
 	BPath p = path;
 	p.Append("languages");
 	p.Append(lang);
+	BString fileName(p.Path());
+	fileName.Append(".yaml");
+	if (!BEntry(fileName.String()).Exists()) {
+		// TODO: Workaround for a bug in Haiku x86_32: exceptions 
+		// thrown inside yaml_cpp aren't catchable. We throw this exception
+		// inside Genio and that works.
+		throw YAML::BadFile(fileName.String());
+	}
 	const YAML::Node language = YAML::LoadFile(std::string(p.Path()) + ".yaml");
 	std::string lexerName = language["lexer"].as<std::string>();
 	Scintilla::ILexer5* lexer = CreateLexer(lexerName.c_str());
@@ -189,7 +197,7 @@ Languages::LoadLanguages()
 	DoInAllDataDirectories([](const BPath& path) {
 			try {
 				_LoadLanguages(path);
-			} catch (YAML::BadFile &) {}
+			} catch (const YAML::BadFile &) {}
 		});
 
 	Languages::SortAlphabetically();
@@ -201,6 +209,14 @@ Languages::_LoadLanguages(const BPath& path)
 {
 	BPath p(path);
 	p.Append("languages");
+	BString fileName(p.Path());
+	fileName.Append(".yaml");
+	if (!BEntry(fileName.String()).Exists()) {
+		// TODO: Workaround for a bug in Haiku x86_32: exceptions 
+		// thrown inside yaml_cpp aren't catchable. We throw this exception
+		// inside Genio and that works.
+		throw YAML::BadFile(fileName.String());
+	}
 	const YAML::Node languages = YAML::LoadFile(std::string(p.Path()) + ".yaml");
 	for(const auto& language : languages) {
 		auto name = language.first.as<std::string>();

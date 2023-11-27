@@ -651,9 +651,8 @@ WebTabView::MouseMoved(BPoint where, uint32 transit,
 	}
 
 	// Set the tool tip
-	#if 0
+	//TODO let the controller define the label according the view properties.
 	fController->SetToolTip(overCloseRect ? "" : Label());
-	#endif
 	TabView::MouseMoved(where, transit, dragMessage);
 }
 

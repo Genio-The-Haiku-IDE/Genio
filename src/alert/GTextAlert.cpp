@@ -44,7 +44,7 @@ GTextAlert::_InitInterface()
 		.Add(fTextControl)
 		.View();
 	GetPlaceholderView()->AddChild(group);
-
+	fTextControl->MakeFocus(true);
 	fOK->SetEnabled(false);
 }
 

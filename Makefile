@@ -115,6 +115,9 @@ SYSTEM_INCLUDE_PATHS  += src/lexilla/include
 SYSTEM_INCLUDE_PATHS  +=  /boot/system/develop/headers/private
 LOCAL_INCLUDE_PATHS  +=  src/lsp-client/include
 
+# For BarberPole.h, which is not available in beta4
+SYSTEM_INCLUDE_PATHS  +=  src/override
+
 CFLAGS := -Wall -Werror
 
 CXXFLAGS := -std=c++17 -fPIC

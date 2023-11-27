@@ -197,26 +197,11 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 
 				optionsMenu->AddItem(
 					new BMenuItem(
-						fmt << B_TRANSLATE("Pull \"origin/%selected_branch%\""),
-						new GMessage{
-							{"what", MsgPull},
-							{"value", selected_branch}}));
-
-				optionsMenu->AddItem(
-					new BMenuItem(
-						fmt << B_TRANSLATE("Push \"%selected_branch%\" to \"origin\\%selected_branch%\""),
-						new GMessage{
-							{"what", MsgPush},
-							{"value", selected_branch}}));
-
-				optionsMenu->AddSeparatorItem();
-
-				optionsMenu->AddItem(
-					new BMenuItem(
 						fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgNewBranch},
-							{"value", selected_branch}}));
+							{"value", selected_branch},
+							{"type", GIT_BRANCH_LOCAL}}));
 
 				optionsMenu->AddItem(
 					new BMenuItem(
@@ -274,7 +259,8 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 						fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgNewBranch},
-							{"value", selected_branch}}));
+							{"value", selected_branch},
+							{"type", GIT_BRANCH_REMOTE}}));
 
 				optionsMenu->AddItem(
 					new BMenuItem(

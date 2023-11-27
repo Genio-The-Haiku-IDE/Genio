@@ -20,7 +20,7 @@
 
 namespace Genio::Git {
 
-	GitRepository::GitRepository(const BString& path)
+	GitRepository::GitRepository(BString path)
 		:
 		fRepository(nullptr),
 		fRepositoryPath(path)
@@ -100,7 +100,7 @@ namespace Genio::Git {
 	}
 
 	int
-	GitRepository::SwitchBranch(BString &branchName)
+	GitRepository::SwitchBranch(BString branchName)
 	{
 		git_object* tree = nullptr;
 		git_checkout_options opts;
@@ -167,7 +167,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::DeleteBranch(BString &branch, git_branch_t type)
+	GitRepository::DeleteBranch(BString branch, git_branch_t type)
 	{
 		git_reference* ref = nullptr;
 		check(git_branch_lookup(&ref, fRepository, branch.String(), type));
@@ -176,7 +176,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::RenameBranch(BString &old_name, BString &new_name, git_branch_t type)
+	GitRepository::RenameBranch(BString old_name, BString new_name, git_branch_t type)
 	{
 		git_reference* ref = nullptr;
 		git_reference* out = nullptr;
@@ -184,6 +184,42 @@ namespace Genio::Git {
 		check(git_branch_move(&out, ref, new_name.String(), 0));
 		git_reference_free(ref);
 		git_reference_free(out);
+	}
+
+	void
+	GitRepository::CreateBranch(BString existingBranchName, BString newBranchName)
+	{
+		git_reference *existing_branch_ref = nullptr;
+		git_reference *new_branch_ref = nullptr;
+		git_commit *commit = nullptr;
+
+		try {
+			// Lookup the existing branch
+			check(git_branch_lookup(&existing_branch_ref, fRepository,
+				existingBranchName.String(), GIT_BRANCH_LOCAL));
+
+			// Get the commit at the tip of the existing branch
+			git_oid commit_id;
+			git_reference_name_to_id(&commit_id, fRepository, git_reference_name(existing_branch_ref));
+			git_commit_lookup(&commit, fRepository, &commit_id);
+
+			// Create a new branch pointing at this commit
+			check(git_branch_create(&new_branch_ref, fRepository, newBranchName.String(), commit, 0));
+
+			// Clean up
+			git_commit_free(commit);
+			git_reference_free(existing_branch_ref);
+			git_reference_free(new_branch_ref);
+
+		} catch (const GitException &e) {
+			// Clean up in case of an exception
+			if (existing_branch_ref) git_reference_free(existing_branch_ref);
+			if (new_branch_ref) git_reference_free(new_branch_ref);
+			if (commit) git_commit_free(commit);
+
+			// Re-throw the exception
+			throw;
+		}
 	}
 
 	vector<pair<string, string>>
@@ -282,10 +318,12 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::Merge(BString &source, BString &dest)
+	GitRepository::Merge(BString source, BString dest)
 	{
 	}
 
+	// TODO: This currently pulls the current branch.
+	// Improve by passing the branch to pull
 	PullResult
 	GitRepository::Pull()
 	{
@@ -308,6 +346,7 @@ namespace Genio::Git {
 			if (is_merge) {
 				strcpy(payload->branch, name);
 				memcpy(&payload->branch_oid, oid, sizeof(git_oid));
+				LogInfo(name);
 			}
 			return 0;
 		};
@@ -352,6 +391,49 @@ namespace Genio::Git {
 		git_index_free(index);
 		CleanUp();
 		return PullResult::Merged;
+	}
+
+	// DO NOT USE
+	// WARNING: The implementation of Pull rebase is flawed and must be reworked but there are very
+	// examples around let alone in the libgit2 site
+	void
+	GitRepository::PullRebase()
+	{
+		Fetch();
+
+		git_rebase *rebase = nullptr;
+		git_rebase_options rebase_opts = GIT_REBASE_OPTIONS_INIT;
+		git_oid upstream_oid, branch_oid;
+		git_annotated_commit *upstream_head = nullptr, *branch_head = nullptr;
+
+		// Get OIDs for the branch and its upstream
+		BString current_branch = GetCurrentBranch();
+		BString local_ref, remote_ref;
+		local_ref.SetToFormat("refs/heads/%s", current_branch.String());
+		remote_ref.SetToFormat("refs/remotes/origin/%s", current_branch.String());
+
+		git_reference_name_to_id(&branch_oid, fRepository, local_ref.String());
+		git_reference_name_to_id(&upstream_oid, fRepository, remote_ref.String());
+
+		git_annotated_commit_lookup(&branch_head, fRepository, &branch_oid);
+		git_annotated_commit_lookup(&upstream_head, fRepository, &upstream_oid);
+
+		// Initialize rebase
+		git_rebase_init(&rebase, fRepository, branch_head, upstream_head, NULL, &rebase_opts);
+
+		// Perform the rebase operations
+		auto signature = _GetSignature();
+		git_rebase_operation *operation;
+		while (git_rebase_next(&operation, rebase) == 0) {
+			git_oid *id = nullptr;
+			auto result = git_rebase_commit(id, rebase, nullptr, signature, nullptr, nullptr);
+			LogInfo("commit: %s result: %d", id, result);
+		}
+
+		check(git_rebase_finish(rebase, nullptr));
+		git_signature_free(signature);
+		git_rebase_free(rebase);
+
 	}
 
 	void
@@ -404,7 +486,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::StashSave(const BString &message)
+	GitRepository::StashSave(BString message)
 	{
 		git_oid saved_stash;
 		git_signature *signature;
@@ -465,6 +547,28 @@ namespace Genio::Git {
 		git_reference_foreach(fRepository, lambda, &tags);
 
 		return tags;
+	}
+
+	git_signature *
+	GitRepository::_GetSignature()
+	{
+		git_signature *signature;
+
+		// TODO - Put this into Genio Prefs
+		git_config* cfg;
+		git_config* cfg_snapshot;
+
+		git_config_open_ondisk(&cfg, "/boot/home/config/settings/git/config");
+		git_config_snapshot(&cfg_snapshot, cfg);
+
+		const char *user_name, *user_email;
+		check(git_config_get_string(&user_name, cfg_snapshot, "user.name"));
+		check(git_config_get_string(&user_email, cfg_snapshot, "user.email"));
+		check(git_signature_now(&signature, user_name, user_email));
+
+		return signature;
+
+
 	}
 
 	int

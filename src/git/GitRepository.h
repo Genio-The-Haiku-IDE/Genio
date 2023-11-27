@@ -88,31 +88,35 @@ namespace Genio::Git {
 		};
 
 
-										GitRepository(const BString& path);
+										GitRepository(BString path);
 										~GitRepository();
 
 		const BPath&					Clone(const string& url, const BPath& localPath,
 												git_indexer_progress_cb callback,
 												git_credential_acquire_cb authentication_callback);
 
-		void							Init(const BString& localPath);
+		void							Init(BString localPath);
 
 		vector<BString>					GetTags();
 
 		vector<BString>					GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
-		int								SwitchBranch(BString &branch);
+		int								SwitchBranch(BString branch);
 		BString							GetCurrentBranch();
-		void							DeleteBranch(BString &branch, git_branch_t type);
-		void							RenameBranch(BString &old_name, BString &new_name,
+		void							DeleteBranch(BString branch, git_branch_t type);
+		void							RenameBranch(BString old_name, BString new_name,
 											git_branch_t type);
+		void							CreateBranch(BString existingBranchName,
+											BString newBranchName);
 
 		void							Fetch(bool prune = false);
-		void							Merge(BString &source, BString &dest);
+		void							Merge(BString source, BString dest);
 		PullResult						Pull();
-		void 							Rebase();
+		void 							PullRebase();
 		void 							Push();
 
-		void 							StashSave(const BString &message);
+		git_signature*					_GetSignature();
+
+		void 							StashSave(BString message);
 		void 							StashPop();
 		void 							StashApply();
 

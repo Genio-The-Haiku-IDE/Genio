@@ -37,6 +37,12 @@ namespace Genio::Git {
 
 	const int CANCEL_CREDENTIALS = -123;
 
+	enum PullResult {
+		UpToDate,
+		FastForwarded,
+		Merged
+	};
+
 	class GitException : public GException {
 	public:
 
@@ -75,6 +81,13 @@ namespace Genio::Git {
 
 		typedef vector<pair<string, string>> RepoFiles;
 
+		// Payload to search for merge branch.
+		struct fetch_payload {
+			char branch[100];
+			git_oid branch_oid;
+		};
+
+
 										GitRepository(const BString& path);
 										~GitRepository();
 
@@ -95,7 +108,8 @@ namespace Genio::Git {
 
 		void							Fetch(bool prune = false);
 		void							Merge(BString &source, BString &dest);
-		void 							Pull(bool rebase = false);
+		PullResult						Pull();
+		void 							Rebase();
 		void 							Push();
 
 		void 							StashSave();
@@ -115,7 +129,11 @@ namespace Genio::Git {
 											const char *key, const char* value);
 
 		int 							check(int status,
-											std::function<bool(const int)> checker = nullptr);
+											std::function<void(void)> execute_on_fail = nullptr,
+											std::function<bool(const int)> custom_checker = nullptr);
+
+		int 							_FastForward(const git_oid *target_oid, int is_unborn);
+		int								_CreateCommit(git_index* index, const char* message);
 
 	};
 

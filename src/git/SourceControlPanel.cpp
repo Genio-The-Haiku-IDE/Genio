@@ -236,7 +236,22 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgPull: {
 				auto selected_branch = BString(message->GetString("selected_branch"));
-				_ShowGitNotification(B_TRANSLATE("Pull completed."));
+				auto result = fSelectedProject->GetRepository()->Pull();
+				switch (result) {
+					case PullResult::UpToDate: {
+						_ShowGitNotification(B_TRANSLATE("Pull completed (UpToDate)."));
+						break;
+					}
+					case PullResult::FastForwarded: {
+						_ShowGitNotification(B_TRANSLATE("Pull completed (FastForwarded)."));
+						break;
+					}
+					case PullResult::Merged: {
+						_ShowGitNotification(B_TRANSLATE("Pull completed (Merged)."));
+						break;
+					}
+				}
+				// _ShowGitNotification(B_TRANSLATE("Pull completed."));
 				LogInfo("MsgPull: %s", selected_branch.String());
 				break;
 			}
@@ -271,7 +286,15 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			break;
 		}
 	} catch(GitException &ex) {
-		OKAlert("SourceControlPanel", ex.Message(), B_STOP_ALERT);
+		BString err;
+		err.SetToFormat("%s (%d)", ex.Message().String(), ex.Error());
+		// OKAlert("GitSwitchBranch", err, B_STOP_ALERT);
+		if (ex.Error() == GIT_ECONFLICT) {
+			auto alert = new GitAlert(B_TRANSLATE("Switch branch"),	B_TRANSLATE(err), ex.GetFiles());
+			alert->Go();
+		} else {
+			OKAlert("GitSwitchBranch", err, B_STOP_ALERT);
+		}
 	} catch(std::exception &ex) {
 		OKAlert("SourceControlPanel", ex.what(), B_STOP_ALERT);
 	} catch(...) {

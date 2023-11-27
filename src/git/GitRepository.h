@@ -112,7 +112,7 @@ namespace Genio::Git {
 		void 							Rebase();
 		void 							Push();
 
-		void 							StashSave();
+		void 							StashSave(const BString &message);
 		void 							StashPop();
 		void 							StashApply();
 

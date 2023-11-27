@@ -200,8 +200,17 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgStashSave: {
 				LogInfo("MsgStashSave");
-				Genio::Git::GitRepository git(fSelectedProject->Path().String());
-				git.StashSave();
+
+				BString stash_message;
+				stash_message << "WIP on " << fCurrentBranch << B_UTF8_ELLIPSIS;
+				auto alert = new GTextAlert("Stash", B_TRANSLATE("Enter a message for this stash"),
+					stash_message);
+				auto result = alert->Go();
+				if (result.Button == GAlertButtons::OkButton) {
+					stash_message = result.Result;
+				}
+
+				fSelectedProject->GetRepository()->StashSave(stash_message);
 				_ShowGitNotification(B_TRANSLATE("Changes stashed."));
 				break;
 			}
@@ -259,10 +268,9 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				auto selected_branch = BString(message->GetString("value"));
 				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
 				auto alert = new GTextAlert(B_TRANSLATE("Rename branch"),
-					B_TRANSLATE("Rename branch"), selected_branch);
+					B_TRANSLATE("Rename branch:"), selected_branch);
 				auto result = alert->Go();
-				if (result.Button == GAlertButtons::CancelButton) {
-				} else {
+				if (result.Button == GAlertButtons::OkButton) {
 					auto repo = fSelectedProject->GetRepository();
 					repo->RenameBranch(selected_branch, result.Result, branch_type);
 					_ShowGitNotification(B_TRANSLATE("Branch renamed succesfully."));

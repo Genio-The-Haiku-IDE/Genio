@@ -16,6 +16,7 @@
 #include <map>
 
 #include "GitCredentialsWindow.h"
+#include "GTextAlert.h"
 
 namespace Genio::Git {
 
@@ -403,7 +404,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::StashSave()
+	GitRepository::StashSave(const BString &message)
 	{
 		git_oid saved_stash;
 		git_signature *signature;
@@ -419,15 +420,12 @@ namespace Genio::Git {
 		check(git_config_get_string(&user_name, cfg_snapshot, "user.name"));
 		check(git_config_get_string(&user_email, cfg_snapshot, "user.email"));
 		check(git_signature_now(&signature, user_name, user_email));
-		// git_signature_new(&signature, "no name", "no.name@gmail.com", 1323847743, 60);
 
 		auto CleanUp = [signature]() { git_signature_free(signature); };
 
-		// TODO - We need a BAlert like requester?
-		BString stash_message;
-		stash_message << "WIP on " << GetCurrentBranch() << B_UTF8_ELLIPSIS;
+		// TODO: consider using GIT_STASH_INCLUDE_UNTRACKED
 		check(git_stash_save(&saved_stash, fRepository, signature,
-				   stash_message.String(), GIT_STASH_INCLUDE_UNTRACKED),
+				   message.String(), 0),
 				   CleanUp);
 
 		CleanUp();

@@ -14,6 +14,7 @@
 #include "LSPProjectWrapper.h"
 #include "GenioNamespace.h"
 #include "GSettings.h"
+#include "LSPServersManager.h"
 
 SourceItem::SourceItem(BString const& path)
 	:
@@ -52,24 +53,32 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 	SourceItem(path),
 	fActive(false),
 	fBuildMode(BuildMode::ReleaseMode),
-	fLSPProjectWrapper(nullptr),
-	fSettings(nullptr)
+	fSettings(nullptr),
+	fMessenger(msgr)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
+}
 
-
-
-
-	fLSPProjectWrapper = new LSPProjectWrapper(fPath.String(), msgr);
+LSPProjectWrapper*
+ProjectFolder::GetLSPServer(const BString& fileType)
+{
+	for (LSPProjectWrapper* w : fLSPProjectWrappers) {
+		if (w->ServerConfig().IsFileTypeSupported(fileType))
+			return w;
+	}
+	LSPProjectWrapper* wrap = LSPServersManager::CreateLSPProject(BPath(fPath), fMessenger, fileType);
+	if (wrap)
+		fLSPProjectWrappers.push_back(wrap);
+	return wrap;
 }
 
 
 ProjectFolder::~ProjectFolder()
 {
-	if (fLSPProjectWrapper != nullptr) {
-		fLSPProjectWrapper->Dispose();
-		delete fLSPProjectWrapper;
+	for (LSPProjectWrapper* w : fLSPProjectWrappers) {
+		w->Dispose();
+		delete w;
 	}
 	delete fSettings;
 }

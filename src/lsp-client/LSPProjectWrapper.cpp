@@ -12,13 +12,14 @@
 #include "LSPReaderThread.h"
 #include "LSPTextDocument.h"
 #include "protocol.h"
-
+#include "LSPServersManager.h"
 
 #include <Url.h>
 
 const int32 kLSPMessage = 'LSP!';
 
-LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, BMessenger& msgr) : BHandler(rootPath.Path())
+LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, const BMessenger& msgr,
+	const LSPServerConfigInterface& serverConfig) : BHandler(rootPath.Path()), fServerConfig(serverConfig)
 {
 	BUrl url(rootPath);
 	url.SetAuthority("");
@@ -54,6 +55,7 @@ LSPProjectWrapper::MessageReceived(BMessage* msg)
 				}
 			}
 			catch (std::exception& e) {
+				LogTrace("LSPProjectWrapper exception: %s", e.what());
 				return;
 			}
 		}
@@ -66,9 +68,7 @@ LSPProjectWrapper::MessageReceived(BMessage* msg)
 bool
 LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 {
-	if (textDocument->FileType().Compare("cpp")  != 0 &&
-		textDocument->FileType().Compare("c")    != 0 &&
-	    textDocument->FileType().Compare("makefile") != 0)
+	if (!fServerConfig.IsFileTypeSupported(textDocument->FileType()))
 		return false;
 
 	if (!fLSPPipeClient)
@@ -99,27 +99,20 @@ LSPProjectWrapper::_Create()
 	BMessenger thisProject = BMessenger(this, looper);
 
 	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
-	/** configuration for clangd */
-	std::string logLevel("--log=");
-	switch ((int32)gCFG["lsp_clangd_log_level"]) {
-		case LSP_LOG_LEVEL_ERROR:
-			logLevel += "error"; // Error messages only
-			break;
-		case LSP_LOG_LEVEL_INFO:
-			logLevel += "info"; // High level execution tracing
-			break;
-		case LSP_LOG_LEVEL_TRACE:
-			logLevel += "verbose"; // Low level details
-			break;
-	};
-	const char* argv[] = {"clangd", logLevel.c_str(), "--offset-encoding=utf-8", "--pretty",
-		"--header-insertion-decorators=false", "--pch-storage=memory", NULL};
 
-	if (fLSPPipeClient->Start(argv, 6) != B_OK) {
+	int32 argc;
+	const char** argv = fServerConfig.CreateServerStartupArgs(argc);
+
+	status_t started = fLSPPipeClient->Start(argv, argc);
+
+	for (int i=0;i<argc;i++)
+		delete(argv[i]);
+	delete(argv);
+
+	if ( started != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
-		LogInfo("Can't execute clangd tool to provide advanced features! Please install "
-				"llvm12/llvm16/llvm17 "
-				"package.");
+		LogInfo("Can't execute lsp sever to provide advanced features! Please install '%s'",
+				argv[0]);
 		return false;
 	}
 

@@ -21,7 +21,7 @@ public:
 			 LSPPipeClient(uint32 what, BMessenger& msgr);
 	virtual ~LSPPipeClient();
 
-	status_t Start(const char *argv[], int32 argc);
+	status_t Start(const char **argv, int32 argc);
 
 	void	Close();
 

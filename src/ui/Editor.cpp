@@ -1432,8 +1432,13 @@ void
 Editor::SetProjectFolder(ProjectFolder* proj)
 {
 	fProjectFolder = proj;
-	if (proj)
-		fLSPEditorWrapper->SetLSPServer(proj->GetLSPClient());
+	if (proj) {
+		LSPProjectWrapper* lspProject = proj->GetLSPServer(fFileType.c_str());
+		if (lspProject)
+			fLSPEditorWrapper->SetLSPServer(lspProject);
+		else
+			fLSPEditorWrapper->UnsetLSPServer();
+	}
 	else
 		fLSPEditorWrapper->UnsetLSPServer();
 

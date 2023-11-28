@@ -27,6 +27,7 @@ struct WorkspaceEdit;
 struct ConfigurationSettings;
 enum class TypeHierarchyDirection: int;
 class LSPPipeClient;
+class LSPServerConfigInterface;
 
 using json = nlohmann::json;
 
@@ -34,8 +35,12 @@ using json = nlohmann::json;
 class LSPProjectWrapper : public BHandler {
 
 public:
-			LSPProjectWrapper(BPath rootPath, BMessenger& msgr);
+			LSPProjectWrapper(BPath rootPath,
+							  const BMessenger& msgr, const LSPServerConfigInterface& serverConfig);
+
 	virtual ~LSPProjectWrapper() = default;
+
+	const LSPServerConfigInterface&	ServerConfig() { return fServerConfig;}
 
 	virtual	void	MessageReceived(BMessage* message);
 
@@ -107,6 +112,7 @@ private:
 	std::string fRootURI;
 	BMessenger fMessenger;
 	uint32		fWhat;
+	const LSPServerConfigInterface& fServerConfig;
 };
 
 #endif // _H_LSPProjectWrapper

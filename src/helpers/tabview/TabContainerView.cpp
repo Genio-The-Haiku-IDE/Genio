@@ -635,10 +635,12 @@ TabContainerView::CanScrollRight() const
 
 
 TabView*
-TabContainerView::_TabAt(const BPoint& where) const
+TabContainerView::_TabAt(const BPoint& where, int32* index) const
 {
 	BGroupLayout* layout = GroupLayout();
 	int32 count = layout->CountItems() - 1;
+	if (index)
+		*index = -1;
 	for (int32 i = 0; i < count; i++) {
 		TabLayoutItem* item = dynamic_cast<TabLayoutItem*>(layout->ItemAt(i));
 		if (item == NULL || !item->IsVisible())
@@ -647,8 +649,11 @@ TabContainerView::_TabAt(const BPoint& where) const
 		// visible bottom border.
 		BRect frame = item->Frame();
 		frame.bottom++;
-		if (frame.Contains(where))
+		if (frame.Contains(where)) {
+			if (index)
+				*index = i;
 			return item->Parent();
+		}
 	}
 	return NULL;
 }
@@ -658,7 +663,8 @@ void
 TabContainerView::_MouseMoved(BPoint where, uint32 _transit,
 	const BMessage* dragMessage)
 {
-	TabView* tab = _TabAt(where);
+	int32 index;
+	TabView* tab = _TabAt(where, &index);
 	if (fMouseDown) {
 		uint32 transit = tab == fLastMouseEventTab
 			? B_INSIDE_VIEW : B_OUTSIDE_VIEW;
@@ -675,8 +681,8 @@ TabContainerView::_MouseMoved(BPoint where, uint32 _transit,
 		fLastMouseEventTab = tab;
 		if (fLastMouseEventTab)
 			fLastMouseEventTab->MouseMoved(where, B_ENTERED_VIEW, dragMessage);
-		else
-			fController->SetToolTip(nullptr);
+
+		fController->SetToolTip(index);
 	}
 }
 

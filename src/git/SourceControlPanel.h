@@ -70,7 +70,7 @@ private:
 	BString					fCurrentBranch;
 
 	void					_UpdateProjectList();
-	void					_UpdateBranchList();
+	void					_UpdateBranchList(bool invokeItemMessage = true);
 	void					_InitToolBar();
 	void					_InitRepositoryView();
 	void					_UpdateRepositoryView();

@@ -175,7 +175,9 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 						fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgSwitchBranch},
-							{"value", selected_branch}}));
+							{"value", selected_branch},
+							{"type", GIT_BRANCH_LOCAL},
+							{"source_item", "popup_menu"}}));
 
 				optionsMenu->AddItem(
 					new BMenuItem(
@@ -222,7 +224,9 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 						fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgSwitchBranch},
-							{"value", selected_branch}}));
+							{"value", selected_branch},
+							{"type", GIT_BRANCH_REMOTE},
+							{"source_item", "popup_menu"}}));
 
 				// Deleting a remote branch is disabled for now
 				// the code in GitRepository deletes only the local ref to the remote branch and

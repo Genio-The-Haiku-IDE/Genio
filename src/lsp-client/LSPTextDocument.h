@@ -24,7 +24,7 @@ public:
 			void	SetFileStatus(BString newStatus) { fFileStatus = newStatus; }
 			void	SetFileType(BString newType) { fFileType = newType; }
 
-	const BString FileType() { return fFileType; }
+	const BString& FileType() { return fFileType; }
 
 private:
 

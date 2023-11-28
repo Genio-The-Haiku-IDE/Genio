@@ -9,8 +9,10 @@
 #include <String.h>
 #include <Messenger.h>
 #include "GSettings.h"
+#include <vector>
 
 class LSPProjectWrapper;
+class LSPTextDocument;
 
 enum SourceItemType {
 	FileItem,
@@ -86,15 +88,16 @@ public:
 
 	void						SetGuessedBuilder(const BString& string);
 
-	LSPProjectWrapper*			GetLSPClient() { return fLSPProjectWrapper; }
+	LSPProjectWrapper*			GetLSPServer(const BString& fileType);
 
 private:
 	bool						fActive;
 	BuildMode					fBuildMode;
 	BString						fGuessedBuildCommand;
 	BString						fGuessedCleanCommand;
-	LSPProjectWrapper*			fLSPProjectWrapper;
+	std::vector<LSPProjectWrapper*>	fLSPProjectWrappers;
 	GSettings*					fSettings;
+	BMessenger					fMessenger;
 };
 
 #endif // PROJECT_FOLDER_H

@@ -236,42 +236,21 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgSwitchBranch: {
-				fCurrentBranch = (BString)message->GetString("value");
+				auto branch = (BString)message->GetString("value");
 				auto repo = fSelectedProject->GetRepository();
-				repo->SwitchBranch(fCurrentBranch);
+				repo->SwitchBranch(branch);
+				fCurrentBranch = repo->GetCurrentBranch();
+				message->SetString("value", fCurrentBranch);
+				// we don't want to invoke the message attached to the selected menu item
+				// when the list is updated from here
+				// we also don't need to update the OptionList itself
+				auto source = BString(message->GetString("source_item", ""));
+				if (source == "popup_menu")
+					_UpdateBranchList(false);
 				SendNotices(message->what, message);
 				LogInfo("MsgSwitchBranch: %s", fCurrentBranch.String());
 				break;
 			}
-			case MsgPull: {
-				auto selected_branch = BString(message->GetString("selected_branch"));
-				auto result = fSelectedProject->GetRepository()->Pull();
-				switch (result) {
-					case PullResult::UpToDate: {
-						_ShowGitNotification(B_TRANSLATE("Pull completed (UpToDate)."));
-						break;
-					}
-					case PullResult::FastForwarded: {
-						_ShowGitNotification(B_TRANSLATE("Pull completed (FastForwarded)."));
-						break;
-					}
-					case PullResult::Merged: {
-						_ShowGitNotification(B_TRANSLATE("Pull completed (Merged)."));
-						break;
-					}
-				}
-				// _ShowGitNotification(B_TRANSLATE("Pull completed."));
-				LogInfo("MsgPull: %s", selected_branch.String());
-				break;
-			}
-			// Pull rebase is seriously flawed. We disable this until we get it work properly
-			// case MsgPullRebase: {
-				// auto selected_branch = BString(message->GetString("selected_branch"));
-				// fSelectedProject->GetRepository()->PullRebase();
-				// _ShowGitNotification(B_TRANSLATE("Pull rebase completed."));
-				// LogInfo("MsgPullRebase: %s", selected_branch.String());
-				// break;
-			// }
 			case MsgRenameBranch: {
 				auto selected_branch = BString(message->GetString("value"));
 				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
@@ -300,13 +279,15 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgNewBranch: {
 				auto selected_branch = BString(message->GetString("value"));
-				// git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
+				BString new_local_name(selected_branch);
+				new_local_name.RemoveAll("origin/");
+				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
 				auto alert = new GTextAlert(B_TRANSLATE("Rename branch"),
 					B_TRANSLATE("Rename branch:"), selected_branch);
 				auto result = alert->Go();
 				if (result.Button == GAlertButtons::OkButton) {
 					auto repo = fSelectedProject->GetRepository();
-					repo->CreateBranch(selected_branch, result.Result);
+					repo->CreateBranch(selected_branch, branch_type, result.Result);
 					_ShowGitNotification(B_TRANSLATE("Branch created succesfully."));
 					_UpdateBranchList();
 					LogInfo("MsgRenameBranch: %s created from %s", selected_branch.String(),
@@ -314,18 +295,45 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				}
 				break;
 			}
+			case MsgPull: {
+				auto selected_branch = BString(message->GetString("selected_branch"));
+				auto result = fSelectedProject->GetRepository()->Pull(selected_branch);
+				switch (result) {
+					case PullResult::UpToDate: {
+						_ShowGitNotification(B_TRANSLATE("The branch is up to date."));
+						break;
+					}
+					case PullResult::FastForwarded: {
+						_ShowGitNotification(B_TRANSLATE("The branch has been fast-forwarded."));
+						break;
+					}
+					case PullResult::Merged: {
+						_ShowGitNotification(B_TRANSLATE("The branch has been merged."));
+						break;
+					}
+				}
+				// _ShowGitNotification(B_TRANSLATE("Pull completed."));
+				LogInfo("MsgPull: %s", selected_branch.String());
+				break;
+			}
+			// Pull rebase is seriously flawed. We disable this until we get it work properly
+			// case MsgPullRebase: {
+				// auto selected_branch = BString(message->GetString("selected_branch"));
+				// fSelectedProject->GetRepository()->PullRebase();
+				// _ShowGitNotification(B_TRANSLATE("Pull rebase completed."));
+				// LogInfo("MsgPullRebase: %s", selected_branch.String());
+				// break;
+			// }
 			default:
 			break;
 		}
 	} catch(GitException &ex) {
-		BString err;
-		err.SetToFormat("%s (%d)", ex.Message().String(), ex.Error());
-		// OKAlert("GitSwitchBranch", err, B_STOP_ALERT);
 		if (ex.Error() == GIT_ECONFLICT) {
-			auto alert = new GitAlert(B_TRANSLATE("Switch branch"),	B_TRANSLATE(err), ex.GetFiles());
+			auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
+				B_TRANSLATE(ex.Message().String()), ex.GetFiles());
 			alert->Go();
 		} else {
-			OKAlert("GitSwitchBranch", err, B_STOP_ALERT);
+			OKAlert("GitSwitchBranch", ex.Message().String(), B_STOP_ALERT);
 		}
 	} catch(std::exception &ex) {
 		OKAlert("SourceControlPanel", ex.what(), B_STOP_ALERT);
@@ -351,6 +359,7 @@ SourceControlPanel::_UpdateProjectList()
 					project_name.Append("*");
 				return project_name;
 			},
+			true,
 			[&selected = this->fSelectedProject](auto item)
 			{
 				return (item == selected);
@@ -362,7 +371,7 @@ SourceControlPanel::_UpdateProjectList()
 
 
 void
-SourceControlPanel::_UpdateBranchList()
+SourceControlPanel::_UpdateBranchList(bool invokeItemMessage)
 {
 	if (fSelectedProject != nullptr) {
 		Genio::Git::GitRepository repo(fSelectedProject->Path().String());
@@ -374,6 +383,7 @@ SourceControlPanel::_UpdateBranchList()
 		fBranchMenu->AddIterator(branches,
 			MsgSwitchBranch,
 			[](auto &item) { return item; },
+			invokeItemMessage,
 			[&current_branch=this->fCurrentBranch](auto &item) { return (item == current_branch);}
 		);
 	}

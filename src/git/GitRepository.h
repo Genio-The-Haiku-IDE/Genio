@@ -106,11 +106,11 @@ namespace Genio::Git {
 		void							RenameBranch(BString old_name, BString new_name,
 											git_branch_t type);
 		void							CreateBranch(BString existingBranchName,
-											BString newBranchName);
+											git_branch_t type, BString newBranchName);
 
 		void							Fetch(bool prune = false);
 		void							Merge(BString source, BString dest);
-		PullResult						Pull();
+		PullResult						Pull(BString branchName);
 		void 							PullRebase();
 		void 							Push();
 

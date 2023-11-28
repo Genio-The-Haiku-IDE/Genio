@@ -7,6 +7,13 @@
 #include "EditorTabManager.h"
 #include "Editor.h"
 #include "Log.h"
+#include "ProjectFolder.h"
+
+#include <Catalog.h>
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "EditorTabManager"
+
 
 EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target)
 {
@@ -53,4 +60,19 @@ EditorTabManager::EditorBy(entry_ref* ref)
 			return editor;
 	}
 	return nullptr;
+}
+
+BString
+EditorTabManager::GetToolTipText(int32 index)
+{
+	BString label("");
+	Editor* editor = EditorAt(index);
+	if (editor) {
+		label << editor->Name();
+		ProjectFolder* project = editor->GetProjectFolder();
+		if (project) {
+			label << "\n" << B_TRANSLATE("Project") << ": " << project->Name();
+		}
+	}
+	return label;
 }

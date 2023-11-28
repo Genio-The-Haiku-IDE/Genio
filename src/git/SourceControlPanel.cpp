@@ -332,6 +332,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
 				B_TRANSLATE(ex.Message().String()), ex.GetFiles());
 			alert->Go();
+			_UpdateBranchList(false);
 		} else {
 			OKAlert("GitSwitchBranch", ex.Message().String(), B_STOP_ALERT);
 		}

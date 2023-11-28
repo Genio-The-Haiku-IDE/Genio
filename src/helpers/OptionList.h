@@ -63,7 +63,8 @@ namespace Genio::UI {
 		}
 
 
-		void AddItem(BString &name, T value, uint32 command, bool marked = false)
+		void AddItem(BString &name, T value, uint32 command,
+			bool invokeItemMessage = true, bool marked = false)
 		{
 			status_t status;
 			auto message = new BMessage(command);
@@ -82,7 +83,7 @@ namespace Genio::UI {
 			menu_item->SetMarked(marked);
 			if ((fMessenger != nullptr) && (fMessenger->IsValid())) {
 				menu_item->SetTarget(*fMessenger);
-				if (marked) {
+				if (marked && invokeItemMessage) {
 					LogInfo("Item %s marked as selected. Message sent out", name.String());
 					fMessenger->SendMessage(message);
 				}
@@ -94,6 +95,7 @@ namespace Genio::UI {
 		void AddIterator(C const& list,
 							uint32 command,
 							const auto& get_name_lambda,
+							bool invokeItemMessage = true,
 							const auto& set_mark_lambda = nullptr)
 		{
 			LogInfo("AddIterator command:%d", command);
@@ -106,7 +108,7 @@ namespace Genio::UI {
 				} else {
 					LogInfo("AddIterator name:%s value: N/A", name.String());
 				}
-				AddItem(name, element, command, set_mark_lambda(element));
+				AddItem(name, element, command, invokeItemMessage, set_mark_lambda(element));
 			}
 		}
 
@@ -114,6 +116,7 @@ namespace Genio::UI {
 		void AddList(C const& list,
 							uint32 command,
 							const auto& get_name_lambda,
+							bool invokeItemMessage = true,
 							const auto& set_mark_lambda = nullptr)
 		{
 			LogInfo("AddList command:%d", command);
@@ -126,7 +129,7 @@ namespace Genio::UI {
 				} else {
 					LogInfo("AddList name:%s value: N/A", name.String());
 				}
-				AddItem(name, element, command, set_mark_lambda(element));
+				AddItem(name, element, command, invokeItemMessage, set_mark_lambda(element));
 			}
 		}
 

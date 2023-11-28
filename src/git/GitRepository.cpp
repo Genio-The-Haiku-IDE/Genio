@@ -210,8 +210,17 @@ namespace Genio::Git {
 
 		try {
 			// Lookup the existing branch
-			check(git_branch_lookup(&existing_branch_ref, fRepository,
-				existingBranchName.String(), type));
+			int status = 0;
+			status = git_branch_lookup(&existing_branch_ref, fRepository,
+				existingBranchName.String(), type);
+			// if the selected ref is not a branch it may be a tag, let's try with that
+			if (status < 0) {
+				BString tag("refs/tags/");
+				tag.Append(existingBranchName);
+				check(git_reference_lookup(&existing_branch_ref, fRepository,
+					tag.String()));
+			}
+
 
 			// Get the commit at the tip of the existing branch
 			git_oid commit_id;

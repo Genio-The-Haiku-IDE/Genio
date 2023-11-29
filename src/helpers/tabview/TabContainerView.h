@@ -35,7 +35,7 @@ public:
 
 		virtual	void			UpdateTabScrollability(bool canScrollLeft,
 									bool canScrollRight) = 0;
-		virtual	void			SetToolTip(const BString& text) = 0;
+		virtual	void			SetToolTip(int32 selected) = 0;
 
 		virtual	void			MoveTabs(int32 fromIndex, int32 toIndex) = 0;
 
@@ -83,7 +83,7 @@ public:
 private:
 			bool				InitiateDrag(BPoint where);
 			void				OnDrop(BMessage* msg);
-			TabView*			_TabAt(const BPoint& where) const;
+			TabView*			_TabAt(const BPoint& where, int32* index = nullptr) const;
 			void				_MouseMoved(BPoint where, uint32 transit,
 									const BMessage* dragMessage);
 			void				_ValidateTabVisibility();

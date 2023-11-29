@@ -674,7 +674,7 @@ void
 LSPEditorWrapper::_DoCompletion(json& params)
 {
 	CompletionList allItems = params.get<CompletionList>();
-	auto items = allItems.items;
+	auto& items = allItems.items;
 	std::string list;
 	for (auto& item : items) {
 		std::string label = item.label;
@@ -683,6 +683,12 @@ LSPEditorWrapper::_DoCompletion(json& params)
 			list += "\n";
 		list += label;
 		item.label = label;
+		// if the server is not providing us the textEdit (like pylsp)
+		// let's try to create it.
+		if (item.textEdit.newText.empty()) {
+			item.textEdit.newText = item.insertText;
+			//printf("dEBUG completion 0 [%s]\n", item.textEdit.newText.c_str());
+		}
 	}
 
 	if (list.length() > 0) {

@@ -36,6 +36,7 @@
 #include "GenioWindowMessages.h"
 #include "EditorMessages.h"
 
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
 
@@ -117,6 +118,11 @@ Editor::HasLSPServer()
 	return (fLSPEditorWrapper && fLSPEditorWrapper->HasLSPServer());
 }
 
+bool
+Editor::HasLSPCapability(const LSPCapability cap)
+{
+	return (HasLSPServer() && fLSPEditorWrapper->HasLSPServerCapability(cap));
+}
 
 
 Editor::~Editor()

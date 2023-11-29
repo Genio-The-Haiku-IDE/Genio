@@ -13,6 +13,7 @@
 #include "LSPTextDocument.h"
 #include "Sci_Position.h"
 #include "protocol_objects.h"
+#include "LSPCapabilities.h"
 
 
 class LSPProjectWrapper;
@@ -32,6 +33,7 @@ public:
 		void	SetLSPServer(LSPProjectWrapper* cW);
 		void	UnsetLSPServer();
 		bool	HasLSPServer();
+		bool	HasLSPServerCapability(const LSPCapability cap);
 		void	ApplyFix(BMessage* info);
 
 private:

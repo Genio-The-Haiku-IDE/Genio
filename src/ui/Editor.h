@@ -14,6 +14,8 @@
 #include <Locker.h>
 #include <MessageFilter.h>
 
+#include "LSPCapabilities.h"
+
 class LSPEditorWrapper;
 class ProjectFolder;
 
@@ -171,6 +173,7 @@ public:
 
 			LSPEditorWrapper*	GetLSPEditorWrapper() { return fLSPEditorWrapper; }
 			bool				HasLSPServer();
+			bool				HasLSPCapability(const LSPCapability cap);
 
 private:
 			void				UpdateStatusBar();

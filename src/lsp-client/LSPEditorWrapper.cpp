@@ -80,6 +80,12 @@ LSPEditorWrapper::HasLSPServer()
 	return (fLSPProjectWrapper != nullptr);
 }
 
+bool
+LSPEditorWrapper::HasLSPServerCapability(const LSPCapability cap)
+{
+	return (HasLSPServer() && fLSPProjectWrapper->HasCapability(cap));
+}
+
 void
 LSPEditorWrapper::ApplyFix(BMessage* info)
 {
@@ -562,11 +568,14 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 				}
 			}
 		} else {
-			if (Contains(kCalltipParametersStart, ch)) {
+			if (fLSPProjectWrapper->HasCapability(kLCapSignatureHelp) &&
+				Contains(kCalltipParametersStart, ch)) {
 				fBraceCount = 1;
 				StartCallTip(true);
 			} else {
-				if (Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
+				if (fLSPProjectWrapper->HasCapability(kLCapCompletion) &&
+				    Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
+
 					StartCompletion();
 
 				}

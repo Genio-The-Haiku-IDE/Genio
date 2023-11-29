@@ -1017,6 +1017,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			be_roster->Launch("text/html", 1, argv);
 		}
 		break;
+		case kMsgCapabilitiesUpdated:
+			_UpdateTabChange(fTabManager->SelectedEditor(), "kMsgCapabilitiesUpdated");
+		break;
 		default:
 			BWindow::MessageReceived(message);
 		break;

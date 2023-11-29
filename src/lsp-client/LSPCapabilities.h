@@ -17,4 +17,6 @@ enum LSPCapability {
 	kLCapSignatureHelp        = (1U << 8)
 };
 
+#define kMsgCapabilitiesUpdated 'CaUp'
+
 #endif // LSPCapabilities_H

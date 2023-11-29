@@ -335,6 +335,8 @@ LSPProjectWrapper::Initialized(json& result)
 	}
 
 	SendNotify("initialized", json());
+
+	fMessenger.SendMessage(kMsgCapabilitiesUpdated);
 }
 
 

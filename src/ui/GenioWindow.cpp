@@ -661,18 +661,22 @@ GenioWindow::MessageReceived(BMessage* message)
 				BString new_branch = message->GetString("branch", nullptr);
 				if (new_branch != nullptr)
 					repo.SwitchBranch(new_branch);
+			} catch (Genio::Git::GitConflictException &ex) {
+				BString message;
+				message << B_TRANSLATE("An error occurred while switching branch:")
+						<< " "
+						<< ex.Message();
+
+				auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
+											B_TRANSLATE(message), ex.GetFiles());
+				alert->Go();
 			} catch (Genio::Git::GitException &ex) {
 				BString message;
 				message << B_TRANSLATE("An error occurred while switching branch:")
 						<< " "
 						<< ex.Message();
-				if (ex.Error() == GIT_ECONFLICT) {
-					auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
-												B_TRANSLATE(message), ex.GetFiles());
-					alert->Go();
-				} else {
-					OKAlert("GitSwitchBranch", message, B_INFO_ALERT);
-				}
+
+				OKAlert("GitSwitchBranch", message, B_STOP_ALERT);
 			}
 			break;
 		}

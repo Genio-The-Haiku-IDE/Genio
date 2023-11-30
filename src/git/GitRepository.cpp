@@ -133,7 +133,7 @@ namespace Genio::Git {
 
 			status = git_checkout_tree(fRepository, tree, &opts);
 			if (status < 0) {
-				throw GitException(status, git_error_last()->message, files);
+				throw GitConflictException(status, git_error_last()->message, files);
 			}
 
 			BString sref("refs/heads/%s");
@@ -145,7 +145,7 @@ namespace Genio::Git {
 			return status;
 		} catch (const GitException &e) {
 			if (ref != nullptr) git_reference_free(ref);
-			throw e;
+			throw;
 		}
 	}
 
@@ -639,7 +639,7 @@ namespace Genio::Git {
 			ff_checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
 			int status = git_checkout_tree(fRepository, target, &ff_checkout_options);
 			if (status < 0) {
-				throw GitException(status, git_error_last()->message, files);
+				throw GitConflictException(status, git_error_last()->message, files);
 			}
 
 			// Move the target reference to the target OID

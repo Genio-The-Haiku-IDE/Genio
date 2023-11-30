@@ -70,7 +70,7 @@ namespace Genio::UI {
 			auto message = new BMessage(command);
 			if constexpr (std::is_pointer<T>::value) {
 				status = message->AddPointer("value", value);
-			} if constexpr (std::is_same<BString, T>::value) {
+			} else if constexpr (std::is_same<BString, T>::value) {
 				status = message->AddString("value", (BString)value);
 			} else {
 				status = message->AddData("value", B_ANY_TYPE, &value, sizeof(value), true);

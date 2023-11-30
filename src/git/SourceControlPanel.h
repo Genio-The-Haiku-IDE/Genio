@@ -15,8 +15,6 @@
 #include <View.h>
 
 
-//#include "RepositoryView.h"
-#include "StringFormatter.h"
 #include "OptionList.h"
 #include "ToolBar.h"
 

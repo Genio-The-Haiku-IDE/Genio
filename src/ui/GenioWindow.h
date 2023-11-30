@@ -70,6 +70,7 @@ public:
 	auto						GetActiveProject() { return fActiveProject; }
 	void						SetActiveProject(ProjectFolder *project) { fActiveProject = project; }
 	auto						GetProjectList() { return fProjectFolderObjectList; }
+	auto						GetProjectBrowser() { return fProjectsFolderBrowser; }
 
 private:
 

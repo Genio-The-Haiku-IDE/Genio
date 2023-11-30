@@ -297,6 +297,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			if (Logger::IsDebugEnabled())
 				message->PrintToStream();
 			_UpdateNode(message);
+			SendNotices(B_PATH_MONITOR);
 			break;
 		}
 		case MSG_PROJECT_MENU_OPEN_FILE:
@@ -483,7 +484,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 }
 
 
-ProjectItem* 
+ProjectItem*
 ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
 {
 	const int32 countItems = CountItems();

@@ -12,6 +12,7 @@
 #include <LayoutBuilder.h>
 #include <ObjectList.h>
 #include <OutlineListView.h>
+#include <PathMonitor.h>
 #include <PopUpMenu.h>
 #include <StringItem.h>
 #include <SeparatorView.h>
@@ -97,11 +98,15 @@ SourceControlPanel::~SourceControlPanel()
 void
 SourceControlPanel::AttachedToWindow()
 {
-	auto window = this->Window();
-	if (window->Lock()) {
-		window->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		window->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		window->Unlock();
+	if (gMainWindow->Lock()) {
+		gMainWindow->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		gMainWindow->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
+
+		auto projectBrowser = gMainWindow->GetProjectBrowser();
+		if (projectBrowser != nullptr)
+			projectBrowser->StartWatching(this, B_PATH_MONITOR);
+
+		gMainWindow->Unlock();
 	}
 
 	_UpdateProjectList();
@@ -116,11 +121,15 @@ SourceControlPanel::AttachedToWindow()
 void
 SourceControlPanel::DetachedFromWindow()
 {
-	auto window = this->Window();
-	if (window->Lock()) {
-		window->StopWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		window->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		window->Unlock();
+	if (gMainWindow->Lock()) {
+		gMainWindow->StopWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		gMainWindow->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
+
+		auto projectBrowser = gMainWindow->GetProjectBrowser();
+		if (projectBrowser != nullptr)
+			projectBrowser->StopWatching(this, B_PATH_MONITOR);
+
+		gMainWindow->Unlock();
 	}
 }
 
@@ -147,6 +156,15 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						fActiveProject = gMainWindow->GetActiveProject();
 						fSelectedProject = fActiveProject;
 						_UpdateProjectList();
+						break;
+					}
+					case B_PATH_MONITOR:
+					{
+						LogInfo("B_PATH_MONITOR");
+						fCurrentBranch = fSelectedProject->GetRepository()->GetCurrentBranch();
+						_UpdateBranchList(false);
+						GMessage *message = new GMessage({{"what", MsgSwitchBranch}, {"value", fCurrentBranch}});
+						SendNotices(MsgSwitchBranch, message);
 						break;
 					}
 					default:

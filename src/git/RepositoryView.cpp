@@ -170,14 +170,16 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 		switch (item_type) {
 			case kLocalBranch: {
 
-				optionsMenu->AddItem(
-					new BMenuItem(
-						fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
-						new GMessage{
-							{"what", MsgSwitchBranch},
-							{"value", selected_branch},
-							{"type", GIT_BRANCH_LOCAL},
-							{"source_item", "popup_menu"}}));
+				if (selected_branch != fCurrentBranch) {
+					optionsMenu->AddItem(
+						new BMenuItem(
+							fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
+							new GMessage{
+								{"what", MsgSwitchBranch},
+								{"value", selected_branch},
+								{"type", GIT_BRANCH_LOCAL},
+								{"source_item", "popup_menu"}}));
+				}
 
 				optionsMenu->AddItem(
 					new BMenuItem(
@@ -205,12 +207,12 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 							{"value", selected_branch},
 							{"type", GIT_BRANCH_LOCAL}}));
 
-				optionsMenu->AddItem(
-					new BMenuItem(
-						fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
-						new GMessage{
-							{"what", MsgNewTag},
-							{"value", selected_branch}}));
+				// optionsMenu->AddItem(
+					// new BMenuItem(
+						// fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
+						// new GMessage{
+							// {"what", MsgNewTag},
+							// {"value", selected_branch}}));
 
 				break;
 			}
@@ -232,31 +234,28 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 				// the code in GitRepository deletes only the local ref to the remote branch and
 				// git fetch --all brings the remote branch back again
 				// TODO: A different approach is required to delete a remote branch using push
-				if (0) {
-				optionsMenu->AddItem(
-					new BMenuItem(
-						fmt << B_TRANSLATE("Delete \"%selected_branch%\""),
-						new GMessage{
-							{"what", MsgDeleteBranch},
-							{"value", selected_branch},
-							{"type", GIT_BRANCH_REMOTE}}));
-				}
+				// optionsMenu->AddItem(
+					// new BMenuItem(
+						// fmt << B_TRANSLATE("Delete \"%selected_branch%\""),
+						// new GMessage{
+							// {"what", MsgDeleteBranch},
+							// {"value", selected_branch},
+							// {"type", GIT_BRANCH_REMOTE}}));
 
 
 				optionsMenu->AddSeparatorItem();
 
 				// We don't allow to merge a local branch into its origin
-				if (!selected_branch.EndsWith(fCurrentBranch)) {
-					optionsMenu->AddItem(
-						new BMenuItem(
-							fmt << B_TRANSLATE("Merge \"%selected_branch%\" into \"%current_branch%\""),
-							new GMessage{
-								{"what", MsgMerge},
-								{"selected_branch", selected_branch},
-								{"current_branch", fCurrentBranch}}));
-
-					optionsMenu->AddSeparatorItem();
-				}
+				// if (!selected_branch.EndsWith(fCurrentBranch)) {
+					// optionsMenu->AddItem(
+						// new BMenuItem(
+							// fmt << B_TRANSLATE("Merge \"%selected_branch%\" into \"%current_branch%\""),
+							// new GMessage{
+								// {"what", MsgMerge},
+								// {"selected_branch", selected_branch},
+								// {"current_branch", fCurrentBranch}}));
+					// optionsMenu->AddSeparatorItem();
+				// }
 
 				optionsMenu->AddItem(
 					new BMenuItem(
@@ -266,12 +265,12 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 							{"value", selected_branch},
 							{"type", GIT_BRANCH_REMOTE}}));
 
-				optionsMenu->AddItem(
-					new BMenuItem(
-						fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
-						new GMessage{
-							{"what", MsgNewTag},
-							{"value", selected_branch}}));
+				// optionsMenu->AddItem(
+					// new BMenuItem(
+						// fmt << B_TRANSLATE("Create new tag from \"%selected_branch%\""),
+						// new GMessage{
+							// {"what", MsgNewTag},
+							// {"value", selected_branch}}));
 
 				break;
 			}

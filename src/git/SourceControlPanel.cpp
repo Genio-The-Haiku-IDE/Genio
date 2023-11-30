@@ -295,27 +295,28 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				}
 				break;
 			}
-			case MsgPull: {
-				auto selected_branch = BString(message->GetString("selected_branch"));
-				auto result = fSelectedProject->GetRepository()->Pull(selected_branch);
-				switch (result) {
-					case PullResult::UpToDate: {
-						_ShowGitNotification(B_TRANSLATE("The branch is up to date."));
-						break;
-					}
-					case PullResult::FastForwarded: {
-						_ShowGitNotification(B_TRANSLATE("The branch has been fast-forwarded."));
-						break;
-					}
-					case PullResult::Merged: {
-						_ShowGitNotification(B_TRANSLATE("The branch has been merged."));
-						break;
-					}
-				}
+			// Pull must be fixed and is disabled
+			// case MsgPull: {
+				// auto selected_branch = BString(message->GetString("selected_branch"));
+				// auto result = fSelectedProject->GetRepository()->Pull(selected_branch);
+				// switch (result) {
+					// case PullResult::UpToDate: {
+						// _ShowGitNotification(B_TRANSLATE("The branch is up to date."));
+						// break;
+					// }
+					// case PullResult::FastForwarded: {
+						// _ShowGitNotification(B_TRANSLATE("The branch has been fast-forwarded."));
+						// break;
+					// }
+					// case PullResult::Merged: {
+						// _ShowGitNotification(B_TRANSLATE("The branch has been merged."));
+						// break;
+					// }
+				// }
 				// _ShowGitNotification(B_TRANSLATE("Pull completed."));
-				LogInfo("MsgPull: %s", selected_branch.String());
-				break;
-			}
+				// LogInfo("MsgPull: %s", selected_branch.String());
+				// break;
+			// }
 			// Pull rebase is seriously flawed. We disable this until we get it work properly
 			// case MsgPullRebase: {
 				// auto selected_branch = BString(message->GetString("selected_branch"));
@@ -450,22 +451,23 @@ SourceControlPanel::_ShowOptionsMenu(BPoint where)
 	optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Fetch"), new BMessage(MsgFetch)));
 	optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Fetch prune"),	new BMessage(MsgFetchPrune)));
 	optionsMenu->AddSeparatorItem();
-	optionsMenu->AddItem(
-		new BMenuItem(
-			fmt << B_TRANSLATE("Pull \"origin/%current_branch%\""),
-			new BMessage(MsgPull)));
 
-	// Pull rebase is seriously flawed. We disable this until we get it work properly
+	// Pull and pull rebase are seriously flawed. We disable this until we get it work properly
+	// Push and Merge are not implemented
+	// optionsMenu->AddItem(
+		// new BMenuItem(
+			// fmt << B_TRANSLATE("Pull \"origin/%current_branch%\""),
+			// new BMessage(MsgPull)));
 	// optionsMenu->AddItem(
 		// new BMenuItem(
 			// fmt << B_TRANSLATE("Pull rebase \"origin/%current_branch%\""),
 			// new BMessage(MsgPullRebase)));
+	// optionsMenu->AddItem(
+		// new BMenuItem(
+			// fmt << B_TRANSLATE("Push \"%current_branch%\" to \"origin\\%current_branch%\""),
+			// new BMessage(MsgPush)));
+	// optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Merge"), new BMessage(MsgMerge)));
 
-	optionsMenu->AddItem(
-		new BMenuItem(
-			fmt << B_TRANSLATE("Push \"%current_branch%\" to \"origin\\%current_branch%\""),
-			new BMessage(MsgPush)));
-	optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Merge"), new BMessage(MsgMerge)));
 	optionsMenu->AddSeparatorItem();
 	optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Stash changes"), new BMessage(MsgStashSave)));
 	optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Stash pop changes"), new BMessage(MsgStashPop)));

@@ -8,30 +8,21 @@
 
 #pragma once
 
-#include <SupportDefs.h>
 #include <Catalog.h>
+#include <SupportDefs.h>
 #include <Notification.h>
 
 #include <git2.h>
 
-#include <cstdio>
-#include <filesystem>
 #include <functional>
-#include <iostream>
-#include <memory>
 #include <string>
-#include <stdexcept>
 #include <vector>
 
 #include "GException.h"
 #include "Log.h"
-#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GitRepository"
-
-using namespace std;
-using namespace std::filesystem;
 
 namespace Genio::Git {
 
@@ -88,7 +79,7 @@ namespace Genio::Git {
 	class GitRepository {
 	public:
 
-		typedef vector<pair<string, string>> RepoFiles;
+		typedef std::vector<std::pair<std::string, std::string>> RepoFiles;
 
 		// Payload to search for merge branch.
 		struct fetch_payload {
@@ -100,15 +91,15 @@ namespace Genio::Git {
 										GitRepository(BString path);
 										~GitRepository();
 
-		const BPath&					Clone(const string& url, const BPath& localPath,
+		const BPath&					Clone(const std::string& url, const BPath& localPath,
 												git_indexer_progress_cb callback,
 												git_credential_acquire_cb authentication_callback);
 
 		void							Init(BString localPath);
 
-		vector<BString>					GetTags();
+		std::vector<BString>					GetTags();
 
-		vector<BString>					GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
+		std::vector<BString>					GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
 		int								SwitchBranch(BString branch);
 		BString							GetCurrentBranch();
 		void							DeleteBranch(BString branch, git_branch_t type);

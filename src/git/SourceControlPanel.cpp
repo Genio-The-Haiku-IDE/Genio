@@ -23,8 +23,8 @@
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "Log.h"
+#include "RepositoryView.h"
 #include "StringFormatter.h"
-#include "StyledItem.h"
 #include "Utils.h"
 
 #include "GitAlert.h"
@@ -32,6 +32,8 @@
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
+
+using Genio::UI::OptionList;
 
 enum ViewIndex {
 	kViewIndexRepository = 0,

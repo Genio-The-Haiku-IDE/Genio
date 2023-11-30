@@ -6,6 +6,8 @@
 
 #include "RepositoryView.h"
 
+#include "StringFormatter.h"
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 

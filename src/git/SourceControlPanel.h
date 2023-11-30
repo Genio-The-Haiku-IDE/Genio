@@ -5,21 +5,22 @@
 
 #pragma once
 
-#include <vector>
 
 #include <LayoutBuilder.h>
 #include <MenuField.h>
+#include <ObjectList.h>
 #include <OptionPopUp.h>
 #include <OutlineListView.h>
+#include <ScrollView.h>
 #include <View.h>
 
-#include "ProjectFolder.h"
-#include "OptionList.h"
-#include "RepositoryView.h"
+
+//#include "RepositoryView.h"
 #include "StringFormatter.h"
+#include "OptionList.h"
 #include "ToolBar.h"
 
-using namespace Genio::UI;
+
 
 enum Messages {
 	MsgChangeProject,
@@ -43,8 +44,8 @@ enum Messages {
 	MsgNewTag
 };
 
+class ProjectFolder;
 class RepositoryView;
-
 class SourceControlPanel : public BView {
 public:
 							SourceControlPanel();
@@ -56,8 +57,8 @@ public:
 
 private:
 
-	OptionList<ProjectFolder *>* fProjectMenu;
-	OptionList<BString>*	fBranchMenu;
+	Genio::UI::OptionList<ProjectFolder *>* fProjectMenu;
+	Genio::UI::OptionList<BString>*	fBranchMenu;
 	ToolBar*				fToolBar;
 	BCardLayout*			fMainLayout;
 	RepositoryView*			fRepositoryView;

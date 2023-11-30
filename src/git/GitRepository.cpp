@@ -37,7 +37,7 @@ namespace Genio::Git {
 		git_libgit2_shutdown();
 	}
 
-	vector<BString>
+	std::vector<BString>
 	GitRepository::GetBranches(git_branch_t branchType)
 	{
 		git_branch_iterator *it = nullptr;
@@ -47,7 +47,7 @@ namespace Genio::Git {
 			check(git_branch_iterator_new(&it, fRepository, branchType));
 
 			git_branch_t type;
-			vector<BString> branches;
+			std::vector<BString> branches;
 			while (git_branch_next(&ref, &type, it) == 0) {
 				const char *branchName;
 				check(git_branch_name(&branchName, ref));
@@ -246,7 +246,8 @@ namespace Genio::Git {
 		}
 	}
 
-	vector<pair<string, string>>
+	// TODO: Use a typedef
+	std::vector<std::pair<std::string, std::string>>
 	GitRepository::GetFiles()
 	{
 		git_status_options statusopt;
@@ -260,7 +261,7 @@ namespace Genio::Git {
 
 		check(git_status_list_new(&status, fRepository, &statusopt));
 
-		vector<pair<string, string>> fileStatuses;
+		std::vector<std::pair<std::string, std::string>> fileStatuses;
 
 		maxi = git_status_list_entrycount(status);
 		for (i = 0; i < maxi; ++i) {
@@ -269,8 +270,8 @@ namespace Genio::Git {
 			if (s->status == GIT_STATUS_CURRENT)
 				continue;
 
-			string filePath = s->index_to_workdir->old_file.path;
-			string fileStatus;
+			std::string filePath = s->index_to_workdir->old_file.path;
+			std::string fileStatus;
 
 			if (s->status & GIT_STATUS_WT_NEW)
 				fileStatus = B_TRANSLATE("New file");
@@ -286,7 +287,7 @@ namespace Genio::Git {
 
 			else if (s->status & GIT_STATUS_WT_DELETED)
 				fileStatus = B_TRANSLATE("File deleted");
-
+// 
 			else if (s->status & GIT_STATUS_INDEX_DELETED)
 				fileStatus = B_TRANSLATE("File deleted from index");
 
@@ -299,7 +300,7 @@ namespace Genio::Git {
 	}
 
 	const BPath&
-	GitRepository::Clone(const string& url, const BPath& localPath,
+	GitRepository::Clone(const std::string& url, const BPath& localPath,
 							git_indexer_progress_cb callback,
 							git_credential_acquire_cb authentication_callback)
 	{
@@ -557,14 +558,14 @@ namespace Genio::Git {
 	}
 
 
-	vector<BString>
+	std::vector<BString>
 	GitRepository::GetTags()
 	{
-		vector<BString> tags;
+		std::vector<BString> tags;
 
 		auto lambda = [](git_reference *ref, void *payload) -> int
 		{
-			auto tags = reinterpret_cast<vector<BString>*>(payload);
+			auto tags = reinterpret_cast<std::vector<BString>*>(payload);
 			BString ref_name(git_reference_name(ref));
 			if (!ref_name.IFindFirst("refs/tags/")) {
 				ref_name.RemoveAll("refs/tags/");

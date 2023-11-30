@@ -344,15 +344,16 @@ namespace Genio::Git {
 			throw;
 		}
 	}
-
+/*
 	void
 	GitRepository::Merge(BString source, BString dest)
 	{
 		// TODO
 	}
 
-	// TODO: This currently pulls the current branch.
-	// Improve by passing the branch to pull
+	// DO NOT USE
+	// WARNING: The implementation of Pull is flawed and must be reworked but there are very
+	// examples around let alone in the libgit2 site
 	PullResult
 	GitRepository::Pull(BString branchName)
 	{
@@ -412,11 +413,13 @@ namespace Genio::Git {
 								&merge_opts, &checkout_opts));
 			}
 
-			/* If we get here, we actually performed the merge above */
+			// If we get here, we actually performed the merge above
 			git_index* index;
 			check(git_repository_index(&index, fRepository));
 			if (!git_index_has_conflicts(index))
 				check(_CreateCommit(index, "Merge"));
+			else
+				ReportConflicts(index);
 			git_index_free(index);
 			CleanUp();
 			return PullResult::Merged;
@@ -472,7 +475,7 @@ namespace Genio::Git {
 	void
 	GitRepository::Push()
 	{
-	}
+	}*/
 
 	BString
 	GitRepository::_ConfigGet(git_config *cfg, const char *key)

@@ -269,12 +269,26 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgDeleteBranch: {
 				auto selected_branch = BString(message->GetString("value"));
-				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
-				auto repo = fSelectedProject->GetRepository();
-				repo->DeleteBranch(selected_branch, branch_type);
-				_ShowGitNotification(B_TRANSLATE("Branch deleted succesfully."));
-				_UpdateBranchList();
-				LogInfo("MsgDeleteBranch: %s", selected_branch.String());
+				StringFormatter fmt;
+				fmt.Substitutions["%branch%"] = selected_branch;
+
+				BString text(fmt.Replace(B_TRANSLATE("Deleting branch: \"%branch%\".\n\n"
+					"After deletion, the item will be lost.\n"
+					"Do you really want to delete it?")));
+				BAlert* alert = new BAlert(B_TRANSLATE("Delete dialog"),
+					text.String(),
+					B_TRANSLATE("Cancel"), B_TRANSLATE("Delete"), nullptr,
+					B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+				alert->SetShortcut(0, B_ESCAPE);
+				int32 choice = alert->Go();
+				if (choice == 1) {
+					git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
+					auto repo = fSelectedProject->GetRepository();
+					repo->DeleteBranch(selected_branch, branch_type);
+					_ShowGitNotification(B_TRANSLATE("Branch deleted succesfully."));
+					_UpdateBranchList();
+					LogInfo("MsgDeleteBranch: %s", selected_branch.String());
+				}
 				break;
 			}
 			case MsgNewBranch: {

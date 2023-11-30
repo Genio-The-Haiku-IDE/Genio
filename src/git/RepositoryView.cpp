@@ -71,7 +71,7 @@ RepositoryView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
 	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
 		auto index = IndexOf(point);
 		if (index >= 0) {
-			StyledItem *item = reinterpret_cast<StyledItem*>(ItemAt(index));
+			StyledItem *item = dynamic_cast<StyledItem*>(ItemAt(index));
 			if (item->HasToolTip()) {
 				SetToolTip(item->GetToolTipText());
 			} else {
@@ -330,7 +330,7 @@ RepositoryView::UpdateRepository()
 			auto item = new StyledItem(this, tag.String(), kRemoteBranch);
 			AddUnder(item, tags);
 		}
-	} catch(GitException &ex) {
+	} catch (const GitException &ex) {
 		OKAlert("Git", ex.Message(), B_INFO_ALERT);
 	}
 }

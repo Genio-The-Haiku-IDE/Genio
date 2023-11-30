@@ -57,8 +57,8 @@ namespace Genio::Git {
 			LogError("GitException %s, error = %d" , message.String(), error);
 		}
 
-		int							Error() noexcept { return _error; }
-		BString						Message() noexcept { return _message; }
+		int							Error() const noexcept { return _error; }
+		BString						Message() const noexcept { return _message; }
 
 	private:
 		int							_error;

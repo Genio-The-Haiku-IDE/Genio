@@ -342,16 +342,14 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			default:
 			break;
 		}
+	} catch(GitConflictException &ex) {
+		auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
+			B_TRANSLATE(ex.Message().String()), ex.GetFiles());
+		alert->Go();
+		_UpdateBranchList(false);
 	} catch(GitException &ex) {
-		if (ex.Error() == GIT_ECONFLICT) {
-			auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
-				B_TRANSLATE(ex.Message().String()), ex.GetFiles());
-			alert->Go();
-			_UpdateBranchList(false);
-		} else {
-			OKAlert("GitSwitchBranch", ex.Message().String(), B_STOP_ALERT);
-		}
-	} catch(std::exception &ex) {
+		OKAlert("SourceControlPanel", ex.Message().String(), B_STOP_ALERT);
+	}	catch(std::exception &ex) {
 		OKAlert("SourceControlPanel", ex.what(), B_STOP_ALERT);
 	} catch(...) {
 		OKAlert("SourceControlPanel", B_TRANSLATE("An unknown error occurred."), B_STOP_ALERT);

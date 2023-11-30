@@ -43,6 +43,8 @@ namespace Genio::Git {
 		Merged
 	};
 
+	// Git exceptions
+
 	class GitException : public GException {
 	public:
 
@@ -55,26 +57,33 @@ namespace Genio::Git {
 			LogError("GitException %s, error = %d" , message.String(), error);
 		}
 
-		GitException(int error, BString const& message,
-						std::vector<std::string> files)
-			:
-			GException(error, message),
-			_error(error),
-			_message(message),
-			_files(files)
-		{
-			LogError("GitException %s, error = %d" , message.String(), error);
-		}
-
 		int							Error() noexcept { return _error; }
 		BString						Message() noexcept { return _message; }
-		std::vector<std::string>	GetFiles() noexcept { return _files; }
 
 	private:
 		int							_error;
 		BString						_message;
+	};
+
+
+	class GitConflictException : public GitException {
+	public:
+
+		GitConflictException(int error, BString const& message,
+			std::vector<std::string> files)
+			:
+			GitException(error, message),
+			_files(files)
+		{
+			LogError("GitConflictException %s, error = %d, files = %d" , message.String(), error, files.size());
+		}
+
+		std::vector<std::string>	GetFiles() noexcept { return _files; }
+
+	private:
 		std::vector<std::string> 	_files;
 	};
+
 
 	class GitRepository {
 	public:

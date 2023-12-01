@@ -86,12 +86,6 @@ public:
 	void						InitRepository(bool createInitialCommit = true)
 									{fGitRepository->Init(createInitialCommit); }
 
-	void						Git(bool enabled);
-	bool						Git();
-
-	void						ExcludeSettingsOnGit(bool enabled);
-	bool						ExcludeSettingsOnGit();
-
 	void						SetGuessedBuilder(const BString& string);
 
 	LSPProjectWrapper*			GetLSPClient() { return fLSPProjectWrapper; }

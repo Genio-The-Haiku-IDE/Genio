@@ -113,8 +113,6 @@ ProjectFolder::LoadDefaultSettings()
 	fSettings->SetString("project_release_target", "");
 	fSettings->SetString("project_debug_target", "");
 	fSettings->SetBool("project_run_in_terminal", false);
-	fSettings->SetBool("git", false);
-	fSettings->SetBool("exclude_settings_git", false);
 }
 
 
@@ -238,34 +236,6 @@ bool
 ProjectFolder::RunInTerminal()
 {
 	return fSettings->GetBool("project_run_in_terminal", false);
-}
-
-
-void
-ProjectFolder::Git(bool enabled)
-{
-	fSettings->SetBool("git", enabled);
-}
-
-
-bool
-ProjectFolder::Git()
-{
-	return fSettings->GetBool("git", false);
-}
-
-
-void
-ProjectFolder::ExcludeSettingsOnGit(bool enabled)
-{
-	fSettings->SetBool("exclude_settings_git", enabled);
-}
-
-
-bool
-ProjectFolder::ExcludeSettingsOnGit()
-{
-	return fSettings->GetBool("exclude_settings_git", false);
 }
 
 

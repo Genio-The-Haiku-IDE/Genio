@@ -61,7 +61,7 @@ namespace Genio::Git {
 	public:
 
 		GitConflictException(int error, BString const& message,
-			std::vector<std::string> files)
+			const std::vector<std::string> files)
 			:
 			GitException(error, message),
 			_files(files)

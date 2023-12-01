@@ -11,6 +11,8 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
+
+
 RepositoryView::RepositoryView()
 	:
 	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST),
@@ -18,29 +20,6 @@ RepositoryView::RepositoryView()
 	fSelectedProject(nullptr),
 	fCurrentBranch(nullptr)
 {
-	SetInvocationMessage(new BMessage('strt'));
-}
-
-RepositoryView::RepositoryView(BString &repository_path)
-	:
-	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST),
-	fRepositoryPath(repository_path),
-	fSelectedProject(nullptr),
-	fCurrentBranch(nullptr)
-{
-	SetInvocationMessage(new BMessage('strt'));
-}
-
-
-RepositoryView::RepositoryView(const char *repository_path)
-	:
-	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST),
-	fRepositoryPath(repository_path),
-	fSelectedProject(nullptr),
-	fCurrentBranch(nullptr)
-{
-	// SetInvocationMessage(new BMessage('strt'));
-	// SetSelectionMessage(new BMessage('strt'));
 }
 
 
@@ -89,12 +68,14 @@ void
 RepositoryView::AttachedToWindow()
 {
 	BOutlineListView::AttachedToWindow();
-
+	SetTarget(this);
 	if (Target()->LockLooper()) {
 		Target()->StartWatching(this, MsgChangeProject);
 		Target()->StartWatching(this, MsgSwitchBranch);
 		Target()->UnlockLooper();
 	}
+
+	SetInvocationMessage(new BMessage(kInvocationMessage));
 }
 
 void
@@ -114,26 +95,18 @@ void
 RepositoryView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case B_OBSERVER_NOTICE_CHANGE: {
-			int32 code;
-			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
-			switch (code) {
-				case MsgChangeProject:
-				{
-					LogInfo("RepositoryView: MsgChangeProject");
-					fSelectedProject = (ProjectFolder *)message->GetPointer("value");
-					if (fSelectedProject!=nullptr)
-						fRepositoryPath = fSelectedProject->Path().String();
-					UpdateRepository();
-					break;
-				}
-				case MsgSwitchBranch:
-				{
-					LogInfo("RepositoryView: MsgSwitchBranch");
-					fCurrentBranch = message->GetString("value");
-					if (!fCurrentBranch.IsEmpty()) {
-						UpdateRepository();
-					}
+		case kInvocationMessage: {
+			auto item = dynamic_cast<StyledItem*>(ItemAt(CurrentSelection()));
+			switch (item->GetType()) {
+				case kLocalBranch:
+				case kRemoteBranch: {
+					auto switch_message = new GMessage{
+						{"what", MsgSwitchBranch},
+						{"value", item->Text()},
+						{"type", GIT_BRANCH_LOCAL},
+						{"sender", kSenderRepositoryPopupMenu}};
+						BMessenger messenger(Target());
+						messenger.SendMessage(switch_message);
 					break;
 				}
 				default:
@@ -180,7 +153,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 								{"what", MsgSwitchBranch},
 								{"value", selected_branch},
 								{"type", GIT_BRANCH_LOCAL},
-								{"source_item", "popup_menu"}}));
+								{"sender", kSenderRepositoryPopupMenu}}));
 				}
 
 				optionsMenu->AddItem(
@@ -230,7 +203,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 							{"what", MsgSwitchBranch},
 							{"value", selected_branch},
 							{"type", GIT_BRANCH_REMOTE},
-							{"source_item", "popup_menu"}}));
+							{"sender", kSenderRepositoryPopupMenu}}));
 
 				// Deleting a remote branch is disabled for now
 				// the code in GitRepository deletes only the local ref to the remote branch and
@@ -293,48 +266,63 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 
 
 void
-RepositoryView::UpdateRepository()
+RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch)
 {
+	fSelectedProject = selectedProject;
+	fRepositoryPath = fSelectedProject->Path().String();
+	fCurrentBranch = currentBranch;
+
 	try {
 		auto repo = fSelectedProject->GetRepository();
 		auto current_branch = repo->GetCurrentBranch();
 
 		MakeEmpty();
 
-		auto locals = new StyledItem(this, B_TRANSLATE("Local branches"));
-		locals->SetPrimaryTextStyle(B_BOLD_FACE);
-		AddItem(locals);
+		auto locals = _InitEmptySuperItem(B_TRANSLATE("Local branches"));
 		// populate local branches
 		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
 		for(auto &branch : local_branches) {
 			auto item = new StyledItem(this, branch.String(), kLocalBranch);
 			if (branch == fCurrentBranch)
 				item->SetText(BString(item->Text()) << "*");
+			// item->SetToolTipText(item->Text());
 			AddUnder(item, locals);
 		}
 
-		auto remotes = new StyledItem(this, B_TRANSLATE("Remotes"));
-		remotes->SetPrimaryTextStyle(B_BOLD_FACE);
-		AddItem(remotes);
+		auto remotes = _InitEmptySuperItem(B_TRANSLATE("Remote branches"));
 		// populate remote branches
 		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
 		for(auto &branch : remote_branches) {
 			auto item = new StyledItem(this, branch.String(), kRemoteBranch);
+			// item->SetToolTipText(item->Text());
 			AddUnder(item, remotes);
 		}
 
-		auto tags = new StyledItem(this, B_TRANSLATE("Tags"));
-		tags->SetPrimaryTextStyle(B_BOLD_FACE);
-		AddItem(tags);
+		auto tags = _InitEmptySuperItem(B_TRANSLATE("Tags"));
 		// populate tags
 		auto all_tags = repo->GetTags();
 		for(auto &tag : all_tags) {
 			auto item = new StyledItem(this, tag.String(), kRemoteBranch);
+			// item->SetToolTipText(item->Text());
 			AddUnder(item, tags);
 		}
 	} catch (const GitException &ex) {
 		OKAlert("Git", ex.Message(), B_INFO_ALERT);
+		MakeEmpty();
+		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
+		_InitEmptySuperItem(B_TRANSLATE("Remotes"));
+		_InitEmptySuperItem(B_TRANSLATE("Tags"));
 	}
+}
+
+
+StyledItem*
+RepositoryView::_InitEmptySuperItem(const BString &label)
+{
+	auto item = new StyledItem(this, label);
+	item->SetPrimaryTextStyle(B_BOLD_FACE);
+	AddItem(item);
+	return item;
 }
 
 

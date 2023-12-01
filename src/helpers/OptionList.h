@@ -22,21 +22,6 @@
 namespace Genio::UI {
 
 	template <typename T>
-	  struct is_iterator {
-	  static char test(...);
-
-	  template <typename U,
-		typename=typename std::iterator_traits<U>::difference_type,
-		typename=typename std::iterator_traits<U>::pointer,
-		typename=typename std::iterator_traits<U>::reference,
-		typename=typename std::iterator_traits<U>::value_type,
-		typename=typename std::iterator_traits<U>::iterator_category
-	  > static long test(U&&);
-
-	  constexpr static bool value = std::is_same<decltype(test(std::declval<T>())),long>::value;
-	};
-
-	template <typename T>
 	class OptionList : public BMenuField {
 	public:
 		OptionList(const char* name,
@@ -46,20 +31,29 @@ namespace Genio::UI {
 			uint32 flags = B_WILL_DRAW | B_NAVIGABLE)
 			:
 			BMenuField(name, label, fMenu = new BPopUpMenu(text), fixed_size, flags),
-			fMessenger(nullptr)
+			fMessenger(nullptr),
+			fSender(nullptr),
+			fText(text)
 		{
 			fMenu->SetLabelFromMarked(true);
 		}
 
 		~OptionList()
 		{
+			MakeEmpty();
 			delete fMessenger;
 		}
 
 		void MakeEmpty()
 		{
-			for (int32 index = fMenu->CountItems() - 1; index > -1; index--)
-				fMenu->RemoveItem(index);
+			fMenu->RemoveItems(0, fMenu->CountItems(), true);
+			// workaround to avoid keeping the last selected item's label even if all items are
+			// removed
+			auto item = new BMenuItem(fText, nullptr);
+			item->SetMarked(true);
+			fMenu->AddItem(item);
+			fMenu->RemoveItem(item);
+			delete item;
 		}
 
 
@@ -77,6 +71,7 @@ namespace Genio::UI {
 			}
 			if (status != B_OK)
 				throw GException(status, strerror(status));
+			message->AddString("sender", fSender);
 			LogInfo("item name: %s type: %s", name.String(), typeid(value).name());
 			// message->PrintToStream();
 			auto menu_item = new BMenuItem(name.String(), message);
@@ -146,9 +141,17 @@ namespace Genio::UI {
 			fMessenger = new BMessenger(messenger);
 		}
 
+
+		void SetSender(const BString sender)
+		{
+			fSender = sender;
+		}
+
 	private:
 		BPopUpMenu *fMenu;
 		BMessenger *fMessenger;
+		BString		fSender;
+		BString		fText;
 	};
 
 }

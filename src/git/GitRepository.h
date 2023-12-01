@@ -76,6 +76,7 @@ namespace Genio::Git {
 	};
 
 
+
 	class GitRepository {
 	public:
 
@@ -95,7 +96,9 @@ namespace Genio::Git {
 												git_indexer_progress_cb callback,
 												git_credential_acquire_cb authentication_callback);
 
-		void							Init(BString localPath);
+		static bool						IsValid(BString path);
+		bool							IsInitialized();
+		void							Init(bool createInitalCommit = true);
 
 		std::vector<BString>					GetTags();
 
@@ -126,6 +129,9 @@ namespace Genio::Git {
 
 		git_repository 					*fRepository;
 		BString							fRepositoryPath;
+		bool							fInitialized;
+
+		void							_Open();
 
 		BString							_ConfigGet(git_config *cfg,
 											const char *key);
@@ -138,6 +144,7 @@ namespace Genio::Git {
 
 		int 							_FastForward(const git_oid *target_oid, int is_unborn);
 		int								_CreateCommit(git_index* index, const char* message);
+		void							_CreateInitialCommit();
 
 	};
 

@@ -39,10 +39,18 @@ enum Messages {
 	MsgRenameBranch,
 	MsgDeleteBranch,
 	MsgNewBranch,
-	MsgNewTag
+	MsgNewTag,
+	MsgInitializeRepository
 };
 
 class ProjectFolder;
+
+const char* const kSenderProjectOptionList = "ProjectOptionList";
+const char* const kSenderBranchOptionList = "BranchOptionList";
+const char* const kSenderInitializeRepositoryButton = "InitializeRepositoryButton";
+const char* const kSenderRepositoryPopupMenu = "RepositoryPopupMenu";
+const char* const kSenderExternalEvent = "ExternalEvent";
+
 class RepositoryView;
 class SourceControlPanel : public BView {
 public:
@@ -58,23 +66,33 @@ private:
 	Genio::UI::OptionList<ProjectFolder *>* fProjectMenu;
 	Genio::UI::OptionList<BString>*	fBranchMenu;
 	ToolBar*				fToolBar;
+	BCardLayout*			fPanelsLayout;
 	BCardLayout*			fMainLayout;
 	RepositoryView*			fRepositoryView;
 	BScrollView*			fRepositoryViewScroll;
 	BView*					fChangesView;
 	BView*					fLogView;
+	BView*					fRepositoryNotInitializedView;
 	BObjectList<ProjectFolder>* fProjectList;
 	ProjectFolder*			fActiveProject;
 	ProjectFolder*			fSelectedProject;
 	BString					fCurrentBranch;
+	BButton*				fInitializeButton;
+	BCheckBox*				fDoNotCreateInitialCommitCheckBox;
 
 	void					_UpdateProjectList();
 	void					_UpdateBranchList(bool invokeItemMessage = true);
+
 	void					_InitToolBar();
 	void					_InitRepositoryView();
 	void					_UpdateRepositoryView();
 	void					_InitChangesView();
 	void					_InitLogView();
+	void					_InitRepositoryNotInitializedView();
+
 	void					_ShowOptionsMenu(BPoint where);
 	void					_ShowGitNotification(const BString& text);
+
+	void					_ChangeProject(BMessage *message);
+	void					_SwitchBranch(BMessage *message);
 };

@@ -83,7 +83,8 @@ public:
 	bool						RunInTerminal();
 
 	auto						GetRepository() { return fGitRepository; }
-	void						InitRepository() {fGitRepository->Init(fPath); }
+	void						InitRepository(bool createInitialCommit = true)
+									{fGitRepository->Init(createInitialCommit); }
 
 	void						Git(bool enabled);
 	bool						Git();

@@ -16,7 +16,8 @@
 #include "Utils.h"
 
 enum RepositoryViewMessages {
-	kUndefinedMessage
+	kUndefinedMessage,
+	kInvocationMessage
 };
 
 enum ItemType {
@@ -29,8 +30,6 @@ class RepositoryView : public BOutlineListView {
 public:
 
 					 RepositoryView();
-					 RepositoryView(BString &repository_path);
-					 RepositoryView(const char *repository_path);
 	virtual 		~RepositoryView();
 
 	void			MouseDown(BPoint where);
@@ -40,13 +39,15 @@ public:
 	void			MessageReceived(BMessage* message);
 	void			SelectionChanged();
 
-	void			UpdateRepository();
+	void			UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch);
 
 	auto			GetSelectedItem();
 
 private:
 
 	void			_ShowPopupMenu(BPoint where);
+
+	StyledItem*		_InitEmptySuperItem(const BString &label);
 
 	BString			fRepositoryPath;
 	ProjectFolder*	fSelectedProject;

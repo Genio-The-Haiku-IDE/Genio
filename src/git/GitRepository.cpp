@@ -22,19 +22,65 @@ namespace Genio::Git {
 	GitRepository::GitRepository(BString path)
 		:
 		fRepository(nullptr),
-		fRepositoryPath(path)
+		fRepositoryPath(path),
+		fInitialized(false)
 	{
 		git_libgit2_init();
-		git_buf buf = GIT_BUF_INIT_CONST(NULL, 0);
-		if (git_repository_discover(&buf, fRepositoryPath.String(), 0, NULL) == 0) {
-			check(git_repository_open(&fRepository, fRepositoryPath.String()));
-		}
+		_Open();
 	}
 
 	GitRepository::~GitRepository()
 	{
 		git_repository_free(fRepository);
 		git_libgit2_shutdown();
+	}
+
+	void
+	GitRepository::_Open()
+	{
+		int status = 0;
+		git_buf buf = GIT_BUF_INIT_CONST(NULL, 0);
+		if (git_repository_discover(&buf, fRepositoryPath.String(), 0, NULL) >= 0) {
+			status = git_repository_open(&fRepository, fRepositoryPath.String());
+			if (status >= 0)
+				fInitialized = true;
+		}
+	}
+
+	bool
+	GitRepository::IsInitialized()
+	{
+		// if the repository gets corrupted or the .git folder is deleted, we need to check the
+		// status again and put the repository in an uninitialized state
+		if (!GitRepository::IsValid(fRepositoryPath)) {
+			fInitialized = false;
+			// Let's make an attempt to reopen the repository if necessary
+			_Open();
+		}
+		return fInitialized;
+	}
+
+	bool
+	GitRepository::IsValid(BString path)
+	{
+		if (path == "")
+		{
+			return false;
+		}
+
+		if (git_repository_open_ext(nullptr, path, GIT_REPOSITORY_OPEN_NO_SEARCH, nullptr) < 0)
+			return false;
+
+		return true;
+	}
+
+	void
+	GitRepository::Init(bool createInitalCommit)
+	{
+		check(git_repository_init(&fRepository, fRepositoryPath.String(), 0));
+		if (createInitalCommit)
+			_CreateInitialCommit();
+		fInitialized = true;
 	}
 
 	std::vector<BString>
@@ -287,7 +333,7 @@ namespace Genio::Git {
 
 			else if (s->status & GIT_STATUS_WT_DELETED)
 				fileStatus = B_TRANSLATE("File deleted");
-// 
+//
 			else if (s->status & GIT_STATUS_INDEX_DELETED)
 				fileStatus = B_TRANSLATE("File deleted from index");
 
@@ -704,6 +750,35 @@ namespace Genio::Git {
 		if (signature != nullptr) git_signature_free(signature);
 
 		return ret;
+	}
+
+	void
+	GitRepository::_CreateInitialCommit()
+	{
+		git_signature *sig;
+		git_index *index;
+		git_oid tree_id, commit_id;
+		git_tree *tree;
+
+		try {
+			sig = _GetSignature();
+			/* Now let's create an empty tree for this commit */
+			check(git_repository_index(&index, fRepository));
+			check(git_index_write_tree(&tree_id, index));
+			git_index_free(index);
+
+			check(git_tree_lookup(&tree, fRepository, &tree_id));
+
+			check(git_commit_create_v(&commit_id, fRepository, "HEAD", sig, sig,
+				NULL, "Initial commit", tree, 0));
+
+			git_tree_free(tree);
+			git_signature_free(sig);
+		} catch (const GitException &e) {
+			if (sig != nullptr) git_signature_free(sig);
+			if (tree != nullptr) git_tree_free(tree);
+			throw;
+		}
 	}
 
 }

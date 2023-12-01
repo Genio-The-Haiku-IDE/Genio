@@ -3708,10 +3708,13 @@ GenioWindow::_UpdateProjectActivation(bool active)
 
 	if (active == true) {
 		// Is this a git project?
-		if (fActiveProject->Git())
-			fGitMenu->SetEnabled(true);
-		else
-			fGitMenu->SetEnabled(false);
+		try {
+			if (fActiveProject->GetRepository()->IsInitialized())
+				fGitMenu->SetEnabled(true);
+			else
+				fGitMenu->SetEnabled(false);
+		} catch (const GitException &ex) {
+		}
 
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);

@@ -1178,14 +1178,16 @@ GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
 
 		alert->SetShortcut(0, B_ESCAPE);
 
-		int32 choice = alert->Go();
 
-		if (choice == 0)
-			return B_ERROR;
-		else if (choice == 2) {
-			_FileSave(unsavedIndex[0]);
-		}
-		return true;
+		switch (alert->Go()) {
+			case 2: // Save and close.
+				_FileSave(unsavedIndex[0]);
+			case 1: // Don't save (close)
+				return true;
+			case 0: // Cancel
+			default:
+				return false;
+		};
 	}
 	//Let's use Koder QuitAlert!
 

@@ -61,7 +61,7 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 
 	try {
 		fGitRepository = new GitRepository(path);
-	} catch(GitException &ex) {
+	} catch(const GitException &ex) {
 		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
 			path.String(), ex.Error(), ex.what());
 	}
@@ -233,7 +233,7 @@ ProjectFolder::RunInTerminal(bool enabled)
 
 
 bool
-ProjectFolder::RunInTerminal()
+ProjectFolder::RunInTerminal() const
 {
 	return fSettings->GetBool("project_run_in_terminal", false);
 }

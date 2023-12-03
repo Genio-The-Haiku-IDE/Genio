@@ -63,8 +63,7 @@ namespace Genio::Git {
 	bool
 	GitRepository::IsValid(BString path)
 	{
-		if (path == "")
-		{
+		if (path == "")	{
 			return false;
 		}
 
@@ -120,7 +119,7 @@ namespace Genio::Git {
 									const git_diff_file *workdir,
 									void *payload)
 	{
-		std::vector<std::string> *files = reinterpret_cast<std::vector<std::string>*>(payload);
+		std::vector<BString> *files = reinterpret_cast<std::vector<BString>*>(payload);
 
 		BString temp;
 		temp.SetToFormat("'%s' - ", path);
@@ -153,7 +152,7 @@ namespace Genio::Git {
 
 		try {
 			int status = 0;
-			std::vector<std::string> files;
+			std::vector<BString> files;
 			BString remoteBranchName;
 
 			git_checkout_options opts;
@@ -293,7 +292,7 @@ namespace Genio::Git {
 	}
 
 	// TODO: Use a typedef
-	std::vector<std::pair<std::string, std::string>>
+	std::vector<std::pair<BString, BString>>
 	GitRepository::GetFiles()
 	{
 		git_status_options statusopt;
@@ -307,7 +306,7 @@ namespace Genio::Git {
 
 		check(git_status_list_new(&status, fRepository, &statusopt));
 
-		std::vector<std::pair<std::string, std::string>> fileStatuses;
+		std::vector<std::pair<BString, BString>> fileStatuses;
 
 		maxi = git_status_list_entrycount(status);
 		for (i = 0; i < maxi; ++i) {
@@ -316,8 +315,8 @@ namespace Genio::Git {
 			if (s->status == GIT_STATUS_CURRENT)
 				continue;
 
-			std::string filePath = s->index_to_workdir->old_file.path;
-			std::string fileStatus;
+			BString filePath = s->index_to_workdir->old_file.path;
+			BString fileStatus;
 
 			if (s->status & GIT_STATUS_WT_NEW)
 				fileStatus = B_TRANSLATE("New file");
@@ -346,7 +345,7 @@ namespace Genio::Git {
 	}
 
 	const BPath&
-	GitRepository::Clone(const std::string& url, const BPath& localPath,
+	GitRepository::Clone(const BString& url, const BPath& localPath,
 							git_indexer_progress_cb callback,
 							git_credential_acquire_cb authentication_callback)
 	{
@@ -360,7 +359,7 @@ namespace Genio::Git {
 			clone_opts.fetch_opts.callbacks = callbacks;
 			clone_opts.fetch_opts.callbacks.credentials = authentication_callback;
 
-			check(git_clone(&repo, url.c_str(), localPath.Path(), &clone_opts));
+			check(git_clone(&repo, url.String(), localPath.Path(), &clone_opts));
 			git_repository_free(repo);
 			return localPath;
 		} catch (const GitException &e) {
@@ -679,7 +678,7 @@ namespace Genio::Git {
 			check(git_object_lookup(&target, fRepository, target_oid, GIT_OBJ_COMMIT));
 
 			// Checkout the result so the workdir is in the expected state
-			std::vector<std::string> files;
+			std::vector<BString> files;
 			ff_checkout_options.notify_flags =	GIT_CHECKOUT_NOTIFY_CONFLICT;
 			ff_checkout_options.notify_cb = checkout_notify;
 			ff_checkout_options.notify_payload = &files;

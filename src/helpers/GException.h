@@ -24,8 +24,8 @@
 						~GException() override = default;
 
 		const char* 	what() const noexcept override { return _message; }
-		BString			Message() noexcept { return _message; }
-		status_t		Error() noexcept { return _error; }
+		BString			Message() const noexcept { return _message; }
+		status_t		Error() const noexcept { return _error; }
 
 	private:
 		BString			_message;

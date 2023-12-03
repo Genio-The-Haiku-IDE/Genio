@@ -41,19 +41,12 @@ namespace Genio::Git {
 
 		GitException(int error, BString const& message)
 			:
-			GException(error, message),
-			_error(error),
-			_message(message)
+			GException(error, message)
 		{
 			LogError("GitException %s, error = %d" , message.String(), error);
 		}
 
-		int							Error() const noexcept { return _error; }
-		BString						Message() const noexcept { return _message; }
-
 	private:
-		int							_error;
-		BString						_message;
 	};
 
 
@@ -61,7 +54,7 @@ namespace Genio::Git {
 	public:
 
 		GitConflictException(int error, BString const& message,
-			const std::vector<std::string> files)
+			const std::vector<BString> files)
 			:
 			GitException(error, message),
 			_files(files)
@@ -69,10 +62,10 @@ namespace Genio::Git {
 			LogError("GitConflictException %s, error = %d, files = %d" , message.String(), error, files.size());
 		}
 
-		std::vector<std::string>	GetFiles() noexcept { return _files; }
+		std::vector<BString>	GetFiles() noexcept { return _files; }
 
 	private:
-		std::vector<std::string> 	_files;
+		std::vector<BString> 	_files;
 	};
 
 
@@ -80,7 +73,7 @@ namespace Genio::Git {
 	class GitRepository {
 	public:
 
-		typedef std::vector<std::pair<std::string, std::string>> RepoFiles;
+		typedef std::vector<std::pair<BString, BString>> RepoFiles;
 
 		// Payload to search for merge branch.
 		struct fetch_payload {
@@ -92,7 +85,7 @@ namespace Genio::Git {
 										GitRepository(BString path);
 										~GitRepository();
 
-		const BPath&					Clone(const std::string& url, const BPath& localPath,
+		const BPath&					Clone(const BString& url, const BPath& localPath,
 												git_indexer_progress_cb callback,
 												git_credential_acquire_cb authentication_callback);
 
@@ -100,9 +93,9 @@ namespace Genio::Git {
 		bool							IsInitialized();
 		void							Init(bool createInitalCommit = true);
 
-		std::vector<BString>					GetTags();
+		std::vector<BString>			GetTags();
 
-		std::vector<BString>					GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
+		std::vector<BString>			GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
 		int								SwitchBranch(BString branch);
 		BString							GetCurrentBranch();
 		void							DeleteBranch(BString branch, git_branch_t type);

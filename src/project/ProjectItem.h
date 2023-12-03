@@ -31,10 +31,10 @@ public:
 	void			InitRename(BMessage* message);
 	void			AbortRename();
 	void			CommitRename();
-	
-	bool			HasToolTip() { return !fToolTipText.IsEmpty(); };
+
+	bool			HasToolTip() const { return !fToolTipText.IsEmpty(); };
 	void			SetToolTipText(const char *text) { fToolTipText = text; }
-	const char*		GetToolTipText() { return fToolTipText.String(); }
+	const char*		GetToolTipText() const { return fToolTipText.String(); }
 
 private:
 	SourceItem		*fSourceItem;

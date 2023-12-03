@@ -54,10 +54,7 @@ private:
 			BString				fCleanString;
 			BBox* 				fTargetBox;
 			BCheckBox*			fRunInTerminal;
-			BCheckBox*			fEnableGit;
-			BCheckBox*			fExcludeSettingsGit;
-			BBox*				fSourceControlBox;
-			
+
 			BString				fRunArgsString;
 
 };

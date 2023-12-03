@@ -8,7 +8,11 @@
 #include <ObjectList.h>
 #include <String.h>
 #include <Messenger.h>
+#include "GitRepository.h"
+#include "GException.h"
 #include "GSettings.h"
+
+using namespace Genio::Git;
 
 class LSPProjectWrapper;
 
@@ -76,13 +80,11 @@ public:
 	BString const				GetTarget();
 
 	void						RunInTerminal(bool enabled);
-	bool						RunInTerminal();
+	bool						RunInTerminal() const;
 
-	void						Git(bool enabled);
-	bool						Git();
-
-	void						ExcludeSettingsOnGit(bool enabled);
-	bool						ExcludeSettingsOnGit();
+	auto						GetRepository() { return fGitRepository; }
+	void						InitRepository(bool createInitialCommit = true)
+									{fGitRepository->Init(createInitialCommit); }
 
 	void						SetGuessedBuilder(const BString& string);
 
@@ -95,6 +97,7 @@ private:
 	BString						fGuessedCleanCommand;
 	LSPProjectWrapper*			fLSPProjectWrapper;
 	GSettings*					fSettings;
+	GitRepository*				fGitRepository;
 };
 
 #endif // PROJECT_FOLDER_H

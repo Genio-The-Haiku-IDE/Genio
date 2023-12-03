@@ -199,7 +199,7 @@ SourceControlPanel::_InitRepositoryNotInitializedView()
 void
 SourceControlPanel::AttachedToWindow()
 {
-	if (gMainWindow->LockLooper()) {
+	if (gMainWindow->Lock()) {
 		gMainWindow->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		gMainWindow->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 
@@ -222,6 +222,8 @@ SourceControlPanel::AttachedToWindow()
 void
 SourceControlPanel::DetachedFromWindow()
 {
+	// FIXME: with every other combination rather than gMainWindow->Lock() / gMainWindow->Unlock()
+	// Genio crashes at exit
 	if (gMainWindow->Lock()) {
 		gMainWindow->StopWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		gMainWindow->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);

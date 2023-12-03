@@ -14,6 +14,8 @@
 #include <Message.h>
 #include <Messenger.h>
 #include <String.h>
+#include "GMessage.h"
+
 
 namespace Genio::Task {
 
@@ -22,6 +24,11 @@ namespace Genio::Task {
 	namespace Private {
 
 		struct ThreadData {
+			ThreadData(void* function, const BMessenger& srcMessenger, const BString& taskName) {
+				target_function = function;
+				messenger = srcMessenger;
+				name = taskName;
+			};
 			void *target_function;
 			BMessenger messenger;
 			thread_id id;
@@ -30,38 +37,6 @@ namespace Genio::Task {
 
 		static exception_ptr current_exception_ptr;
 		static map<thread_id, exception_ptr> TaskExceptionMap;
-		static map<string, type_code> TypeMap = {
-			{typeid(BAlignment).name(), B_ALIGNMENT_TYPE},
-			{typeid(BRect).name(), B_RECT_TYPE},
-			{typeid(BPoint).name(), B_POINT_TYPE},
-			{typeid(BSize).name(), B_SIZE_TYPE},
-			{typeid(const char *).name(), B_STRING_TYPE},
-			{typeid(BString).name(), B_STRING_TYPE},
-			{typeid(std::string).name(), B_STRING_TYPE},
-			// {typeid(BStringList).name(), B_STRING_LIST_TYPE},
-			{typeid(int8).name(), B_INT8_TYPE},
-			{typeid(int16).name(), B_INT16_TYPE},
-			{typeid(int32).name(), B_INT32_TYPE},
-			{typeid(int64).name(), B_INT64_TYPE},
-			{typeid(uint8).name(), B_UINT8_TYPE},
-			{typeid(uint16).name(), B_UINT16_TYPE},
-			{typeid(uint32).name(), B_UINT32_TYPE},
-			{typeid(uint64).name(), B_UINT64_TYPE},
-			{typeid(bool).name(), B_BOOL_TYPE},
-			{typeid(float).name(), B_FLOAT_TYPE},
-			{typeid(double).name(), B_DOUBLE_TYPE},
-			{typeid(rgb_color).name(), B_RGB_COLOR_TYPE},
-			{typeid(const void *).name(), B_POINTER_TYPE},
-			{typeid(BMessenger).name(), B_MESSENGER_TYPE},
-			{typeid(entry_ref).name(), B_REF_TYPE},
-			{typeid(node_ref).name(), B_NODE_REF_TYPE},
-			{typeid(BMessage).name(), B_MESSAGE_TYPE},
-		};
-
-		template <typename T>
-		struct BMessageType {
-			static type_code Get() { return TypeMap[typeid(T).name()]; }
-		};
 	}
 
 	using namespace Private;
@@ -74,18 +49,35 @@ namespace Genio::Task {
 	template <typename ResultType>
 	class TaskResult: public BArchivable {
 	public:
-		TaskResult(const BMessage &archive)
-			: fResult(nullptr)
+		TaskResult(const BString& name, std::any result, thread_id id)
+			:
+			fResult(result),
+			fId(id),
+			fName(name)
 		{
-			type_code type;
+		}
+		TaskResult(const BMessage &archive)
+			:
+			fResult(nullptr),
+			fId(-1)
+		{
 			if constexpr (std::is_void<ResultType>::value == false) {
+				type_code type;
 				if (archive.GetInfo(kResultField, &type) == B_OK) {
-					ssize_t size = 0;
-					const void *result;
-					status_t error = archive.FindData(kResultField, type,
+
+					// printf("OUTPUT: \n"); archive.PrintToStream(); printf("\n");
+
+					if constexpr ( MessageValue<ResultType>::Type() == B_ANY_TYPE) {
+						ssize_t size = 0;
+						const void *result;
+						status_t error = archive.FindData(kResultField, type,
 						reinterpret_cast<const void**>(&result), &size);
-					if (error == B_OK) {
-						fResult = *reinterpret_cast<const ResultType*>(result);
+						if (error == B_OK) {
+                           fResult = *reinterpret_cast<const ResultType*>(result);
+						}
+					} else {
+						BMSG(&archive, garchive);
+						fResult = (ResultType)garchive[kResultField];
 					}
 				}
 			}
@@ -98,12 +90,18 @@ namespace Genio::Task {
 			}
 		}
 
-		~TaskResult() {}
+		~TaskResult()
+		{
+			fResult.reset();
+			printf("~TaskResult(): %s\n", fName.String());
+		}
 
 		ResultType	GetResult() const
 		{
-			auto ptr = TaskExceptionMap[fId];
-			if (ptr) {
+			auto i = TaskExceptionMap.find(fId);
+			if (i != TaskExceptionMap.end()) {
+				auto ptr = std::move(i->second);
+				TaskExceptionMap.erase(i);
 				rethrow_exception(ptr);
 			} else {
 				if constexpr (std::is_void<ResultType>::value == false) {
@@ -117,11 +115,16 @@ namespace Genio::Task {
 			status_t status = BArchivable::Archive(archive, deep);
 			if (status != B_OK)
 				return status;
+
 			if constexpr (std::is_void<ResultType>::value == false) {
 				if (fResult.has_value()) {
-					type_code type = BMessageType<ResultType>::Get();
 					ResultType result = any_cast<ResultType>(fResult);
-					status = archive->AddData(kResultField, type, &result, sizeof(ResultType));
+					if constexpr ( MessageValue<ResultType>::Type() == B_ANY_TYPE) {
+						status = archive->AddData(kResultField, B_ANY_TYPE, &result, sizeof(ResultType));
+					} else {
+						BMSG(archive, garchive);
+						garchive[kResultField] = result;
+					}
 				}
 			}
 			if (status != B_OK)
@@ -133,7 +136,9 @@ namespace Genio::Task {
 			if (status != B_OK)
 				return status;
 			status = archive->AddString("class", "TaskResult");
-			// archive->PrintToStream();
+
+			// printf("INPUT: \n"); archive->PrintToStream(); printf("\n");
+
 			return status;
 		}
 
@@ -148,7 +153,7 @@ namespace Genio::Task {
 		const char* GetTaskName() const { return fName; }
 
 	private:
-		friend class	Task<ResultType>;
+		TaskResult() { debugger("called TaskResult private constructor!"); };
 
 		const char*		kResultField = "TaskResult::Result";
 		const char*		kTaskIdField = "TaskResult::TaskID";
@@ -157,8 +162,6 @@ namespace Genio::Task {
 		any				fResult;
 		thread_id		fId;
 		BString			fName;
-
-						TaskResult() {}
 	};
 
 
@@ -170,26 +173,23 @@ namespace Genio::Task {
 		template<typename Function, typename... Args>
 		Task(const char *name, const BMessenger& messenger, Function&& function, Args&&... args)
 		{
-			auto *target_function =
+			auto targetFunction =
 				new arguments_wrapper<Function, Args...>(std::forward<Function>(function),
 				std::forward<Args>(args)...);
 
-			using lambda_type = std::remove_reference_t<decltype(*target_function)>;
+			using lambda_type = std::remove_reference_t<decltype(*targetFunction)>;
 
-			ThreadData *thread_data = new ThreadData;
-			thread_data->target_function = target_function;
-			thread_data->messenger = messenger;
-			thread_data->name = name;
+			ThreadData *threadData = new ThreadData(targetFunction, messenger, name);
 
 			fThreadHandle = spawn_thread(&_CallTarget<ThreadData, lambda_type>,
 										name,
 										B_NORMAL_PRIORITY,
-										thread_data);
+										threadData);
 
-			thread_data->id = fThreadHandle;
+			threadData->id = fThreadHandle;
 			if (fThreadHandle < 0) {
-				delete target_function;
-				delete thread_data;
+				delete targetFunction;
+				delete threadData;
 				throw runtime_error("Can't create task");
 			}
 		}
@@ -198,12 +198,15 @@ namespace Genio::Task {
 
 		status_t Run()
 		{
-			return resume_thread(fThreadHandle);
+			if (fThreadHandle > 0)
+				return resume_thread(fThreadHandle);
+			return B_ERROR;
 		}
-
 		status_t Stop()
 		{
-			return kill_thread(fThreadHandle);
+			if (fThreadHandle > 0)
+				return kill_thread(fThreadHandle);
+			return B_ERROR;
 		}
 	private:
 		native_handle_type fThreadHandle;
@@ -211,34 +214,29 @@ namespace Genio::Task {
 		template<typename Data, typename Lambda>
 		static int32 _CallTarget(void *target)
 		{
-			TaskResult<ResultType> task_result;
-			BMessage msg(TASK_RESULT_MESSAGE);
-			Data *data;
-			Lambda *lambda;
-			BMessenger messenger;
+			Data *data = reinterpret_cast<Data*>(target);
+			Lambda* lambda = reinterpret_cast<Lambda*>(data->target_function);
+			std::any anyResult;
 			try {
-				data = reinterpret_cast<Data*>(target);
-				lambda = reinterpret_cast<Lambda*>(data->target_function);
-				messenger = data->messenger;
-				task_result.fId = data->id;
-				task_result.fName = data->name;
-
 				using ret_t = decltype((*lambda)());
-
 				if constexpr (std::is_same_v<void, ret_t>) {
 					(*lambda)();
+					// TODO: anyResult is not initialized here
 				} else {
 					auto result = (*lambda)();
-					task_result.fResult = result;
+					anyResult = result;
 				}
-			} catch(...) {
-				TaskExceptionMap[task_result.fId] = current_exception();
+			} catch (...) {
+				TaskExceptionMap[data->id] = current_exception();
 			}
+			TaskResult<ResultType> taskResult(data->name, anyResult, data->id);
+			BMessenger messenger = data->messenger;
 
 			delete lambda;
 			delete data;
 
-			if (task_result.Archive(&msg, false) == B_OK) {
+			BMessage msg(TASK_RESULT_MESSAGE);
+			if (taskResult.Archive(&msg, false) == B_OK) {
 				if (messenger.IsValid()) {
 					messenger.SendMessage(&msg);
 				}

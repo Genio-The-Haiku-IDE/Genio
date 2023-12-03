@@ -313,7 +313,8 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 				return;
 			}
 			if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) Invoking a non FileItem (%s)", item->GetSourceItem()->Name().String());
+				ExpandOrCollapse(item, !item->IsExpanded());
+				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) ExpandOrCollapse(%s)", item->GetSourceItem()->Name().String());
 				return;
 			}
 			BEntry entry(item->GetSourceItem()->Path());

@@ -35,6 +35,7 @@ APP_MIME_SIG := "application/x-vnd.Genio"
 
 SRCS :=  src/GenioApp.cpp
 SRCS +=  src/GenioNamespace.cpp
+SRCS +=	 src/alert/GTextAlert.cpp
 SRCS +=	 src/config/ConfigManager.cpp
 SRCS +=	 src/config/ConfigWindow.cpp
 SRCS +=	 src/config/GMessage.cpp
@@ -50,7 +51,6 @@ SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOThread.cpp
 SRCS +=  src/helpers/console_io/GenericThread.cpp
 SRCS +=  src/helpers/console_io/WordTextView.cpp
-SRCS +=  src/helpers/git/GitRepository.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
@@ -67,10 +67,14 @@ SRCS +=  src/override/OutlineListView.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp
 SRCS +=  src/project/ProjectItem.cpp
-SRCS +=  src/ui/git/GitAlert.cpp
-SRCS +=  src/ui/git/GitCredentialsWindow.cpp
-SRCS +=  src/ui/git/RemoteProjectWindow.cpp
-SRCS +=  src/ui/git/SwitchBranchMenu.cpp
+SRCS +=  src/git/GitRepository.cpp
+SRCS +=  src/git/GitAlert.cpp
+SRCS +=  src/git/GitCredentialsWindow.cpp
+SRCS +=  src/git/RemoteProjectWindow.cpp
+SRCS +=  src/git/RepositoryView.cpp
+SRCS +=  src/git/SourceControlPanel.cpp
+SRCS +=  src/git/StyledItem.cpp
+SRCS +=  src/git/SwitchBranchMenu.cpp
 SRCS +=  src/ui/EditorStatusView.cpp
 SRCS +=  src/ui/Editor.cpp
 SRCS +=  src/ui/EditorContextMenu.cpp
@@ -120,7 +124,7 @@ SYSTEM_INCLUDE_PATHS  +=  src/override
 
 CFLAGS := -Wall -Werror
 
-CXXFLAGS := -std=c++17 -fPIC
+CXXFLAGS := -std=c++20 -fPIC
 
 #ifneq ($(BUILD_WITH_CLANG), 0)
 	ifneq ($(debug), 0)

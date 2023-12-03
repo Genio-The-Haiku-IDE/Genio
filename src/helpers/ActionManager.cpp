@@ -74,7 +74,7 @@ ActionManager::AddItem(int32 msgWhat, ToolBar* bar)
 	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
 	Action* action = instance.fActionMap[msgWhat];
-	bar->AddAction(msgWhat, action->toolTip, action->iconResourceName);
+	bar->AddAction(msgWhat, action->toolTip, action->iconResourceName, true);
 	bar->SetActionEnabled(msgWhat, action->enabled);
 	bar->SetActionPressed(msgWhat, action->pressed);
 	action->toolBarList.AddItem(bar);

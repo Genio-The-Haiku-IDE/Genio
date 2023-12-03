@@ -30,6 +30,7 @@
 #include "ProjectsFolderBrowser.h"
 #include "TemplatesMenu.h"
 #include "SearchResultPanel.h"
+#include "SourceControlPanel.h"
 #include <vector>
 #include "GMessage.h"
 
@@ -66,7 +67,10 @@ public:
 	virtual void				Show();
 
 	void						UpdateMenu();
-	ProjectFolder*				GetActiveProject() { return fActiveProject; }
+	auto						GetActiveProject() { return fActiveProject; }
+	void						SetActiveProject(ProjectFolder *project) { fActiveProject = project; }
+	auto						GetProjectList() { return fProjectFolderObjectList; }
+	auto						GetProjectBrowser() { return fProjectsFolderBrowser; }
 
 private:
 
@@ -192,6 +196,8 @@ private:
 			ProjectsFolderBrowser*	fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
+			SourceControlPanel*	fSourceControlPanel;
+			BScrollView*		fSourceControlPanelScroll;
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
@@ -232,6 +238,10 @@ private:
 
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;
+
+			bool				fDisableProjectNotifications;
 };
+
+extern GenioWindow *gMainWindow;
 
 #endif //GenioWINDOW_H

@@ -32,6 +32,8 @@
 #include "GenioWindow.h"
 #include "GitRepository.h"
 
+#include "GenioApp.h"
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SwitchBranchMenu"
 
@@ -71,8 +73,9 @@ void
 SwitchBranchMenu::AttachedToWindow()
 {
 	if (fDetectActiveProject) {
-		GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
-		fActiveProjectPath = window->GetActiveProject()->Path().String();
+		// GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
+		// fActiveProjectPath = window->GetActiveProject()->Path().String();
+		fActiveProjectPath = gMainWindow->GetActiveProject()->Path().String();
 	}
 	_BuildMenu();
 
@@ -112,7 +115,7 @@ SwitchBranchMenu::UpdateMenuState()
 }
 
 
-void
+bool
 SwitchBranchMenu::_BuildMenu()
 {
 	// clear everything...
@@ -138,4 +141,5 @@ SwitchBranchMenu::_BuildMenu()
 		}
 		delete repo;
 	}
+	return count > 0;
 }

@@ -59,6 +59,7 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
 
+GenioWindow* gMainWindow = nullptr;
 
 constexpr auto kRecentFilesNumber = 14 + 1;
 
@@ -140,7 +141,10 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultPanel(nullptr)
 	, fScreenMode(kDefault)
+	, fDisableProjectNotifications(false)
 {
+	gMainWindow = this;
+
 	_InitActions();
 	_InitMenu();
 	_InitWindow();
@@ -162,7 +166,11 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorKeyDownMessageFilter());
 
 	// Load workspace - reopen projects
+	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
+	// the workspace
+	// TODO: improve how projects are loaded and notices are sent over
 	if (gCFG["reopen_projects"]) {
+		fDisableProjectNotifications = true;
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
 		if (!projects.IsEmpty()) {
 			BString projectName;
@@ -171,6 +179,13 @@ GenioWindow::GenioWindow(BRect frame)
 										count, &projectName) == B_OK; count++)
 					_ProjectFolderOpen(projectName, projectName == activeProject);
 		}
+		fDisableProjectNotifications = false;
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		noticeMessage.AddPointer("active_project", fActiveProject);
+		noticeMessage.AddString("active_project_name", fActiveProject->Name());
+		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+
 	}
 
 	// Reopen files
@@ -219,6 +234,7 @@ GenioWindow::~GenioWindow()
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
+	gMainWindow = nullptr;
 }
 
 
@@ -645,18 +661,22 @@ GenioWindow::MessageReceived(BMessage* message)
 				BString new_branch = message->GetString("branch", nullptr);
 				if (new_branch != nullptr)
 					repo.SwitchBranch(new_branch);
+			} catch (Genio::Git::GitConflictException &ex) {
+				BString message;
+				message << B_TRANSLATE("An error occurred while switching branch:")
+						<< " "
+						<< ex.Message();
+
+				auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
+											B_TRANSLATE(message), ex.GetFiles());
+				alert->Go();
 			} catch (Genio::Git::GitException &ex) {
 				BString message;
 				message << B_TRANSLATE("An error occurred while switching branch:")
 						<< " "
 						<< ex.Message();
-				if (ex.Error() == GIT_ECONFLICT) {
-					auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
-												B_TRANSLATE(message), ex.GetFiles());
-					alert->Go();
-				} else {
-					OKAlert("GitSwitchBranch", message, B_INFO_ALERT);
-				}
+
+				OKAlert("GitSwitchBranch", message, B_STOP_ALERT);
 			}
 			break;
 		}
@@ -3003,6 +3023,10 @@ GenioWindow::_InitSideSplit()
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
+
+	// Source Control
+	fSourceControlPanel = new SourceControlPanel();
+	fProjectsTabView->AddTab(fSourceControlPanel);
 }
 
 void
@@ -3130,10 +3154,12 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
 		}
 	}
-	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-	noticeMessage.AddPointer("active_project", fActiveProject);
-	noticeMessage.AddString("active_project_name", fActiveProject->Name());
-	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+	if (!fDisableProjectNotifications) {
+		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		noticeMessage.AddPointer("active_project", fActiveProject);
+		noticeMessage.AddString("active_project_name", fActiveProject->Name());
+		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+	}
 
 	// Update run command working directory tooltip too
 	BString tooltip;
@@ -3251,6 +3277,10 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
 	fProjectFolderObjectList->RemoveItem(project);
 
+	// Notify subscribers that the project list has changed
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+
 	project->Close();
 
 	delete project;
@@ -3315,6 +3345,10 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
+
+	// Notify subscribers that project list has changed
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	if (gCFG["auto_expand_collapse_projects"])
 		fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItem(newProject->Name()));
@@ -3670,10 +3704,13 @@ GenioWindow::_UpdateProjectActivation(bool active)
 
 	if (active == true) {
 		// Is this a git project?
-		if (fActiveProject->Git())
-			fGitMenu->SetEnabled(true);
-		else
-			fGitMenu->SetEnabled(false);
+		try {
+			if (fActiveProject->GetRepository()->IsInitialized())
+				fGitMenu->SetEnabled(true);
+			else
+				fGitMenu->SetEnabled(false);
+		} catch (const GitException &ex) {
+		}
 
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);

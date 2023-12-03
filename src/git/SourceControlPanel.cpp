@@ -199,7 +199,7 @@ SourceControlPanel::_InitRepositoryNotInitializedView()
 void
 SourceControlPanel::AttachedToWindow()
 {
-	if (gMainWindow->Lock()) {
+	if (gMainWindow->LockLooper()) {
 		gMainWindow->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		gMainWindow->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 

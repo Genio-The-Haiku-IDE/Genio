@@ -80,7 +80,7 @@ public:
 	BString const				GetTarget();
 
 	void						RunInTerminal(bool enabled);
-	bool						RunInTerminal();
+	bool						RunInTerminal() const;
 
 	auto						GetRepository() { return fGitRepository; }
 	void						InitRepository(bool createInitialCommit = true)

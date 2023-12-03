@@ -32,15 +32,15 @@ public:
 	void			SetPrimaryTextStyle(uint16 face) { fPrimaryTextStyle = face; };
 	void			SetSecondaryTextStyle(uint16 face) { fPrimaryTextStyle = face; };
 
-	uint32			GetType() { return fItemType; }
+	uint32			GetType() const { return fItemType; }
 
 	void			InitRename(BMessage* message);
 	void			AbortRename();
 	void			CommitRename();
 
-	bool			HasToolTip() { return !fToolTipText.IsEmpty(); };
+	bool			HasToolTip() const { return !fToolTipText.IsEmpty(); };
 	void			SetToolTipText(const char *text) { fToolTipText = text; }
-	const char*		GetToolTipText() { return fToolTipText.String(); }
+	const char*		GetToolTipText() const { return fToolTipText.String(); }
 
 	static const uint32	kUndefinedItemType = -1;
 

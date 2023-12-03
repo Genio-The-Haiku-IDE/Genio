@@ -18,7 +18,6 @@
 #include <ObjectList.h>
 
 #include "GMessage.h"
-#include "BeDC.h"
 
 
 class BBitmap;

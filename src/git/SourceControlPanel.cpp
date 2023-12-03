@@ -199,15 +199,18 @@ SourceControlPanel::_InitRepositoryNotInitializedView()
 void
 SourceControlPanel::AttachedToWindow()
 {
-	if (gMainWindow->Lock()) {
-		gMainWindow->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		gMainWindow->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
+	if (Window()->LockLooper()) {
+		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 
-		auto projectBrowser = gMainWindow->GetProjectBrowser();
-		if (projectBrowser != nullptr)
-			projectBrowser->StartWatching(this, B_PATH_MONITOR);
+		auto gwin = static_cast<GenioWindow *>(Window());
+		if (gwin != nullptr) {
+			auto projectBrowser = gwin->GetProjectBrowser();
+			if (projectBrowser != nullptr)
+				projectBrowser->StartWatching(this, B_PATH_MONITOR);
+		}
 
-		gMainWindow->Unlock();
+		Window()->UnlockLooper();
 	}
 
 	_UpdateProjectList();
@@ -223,16 +226,20 @@ void
 SourceControlPanel::DetachedFromWindow()
 {
 	// FIXME: with every other combination rather than gMainWindow->Lock() / gMainWindow->Unlock()
-	// Genio crashes at exit
-	if (gMainWindow->Lock()) {
-		gMainWindow->StopWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		gMainWindow->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
+	// Genio crashes at exit. That's because gMainWindow is nullptr at this stage
+	// Let's take the GenioWindow instance from Window() with an explicit cast
+	if (Window()->LockLooper()) {
+		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 
-		auto projectBrowser = gMainWindow->GetProjectBrowser();
-		if (projectBrowser != nullptr)
-			projectBrowser->StopWatching(this, B_PATH_MONITOR);
+		auto gwin = static_cast<GenioWindow *>(Window());
+		if (gwin != nullptr) {
+			auto projectBrowser = gwin->GetProjectBrowser();
+			if (projectBrowser != nullptr)
+				projectBrowser->StopWatching(this, B_PATH_MONITOR);
+		}
 
-		gMainWindow->Unlock();
+		Window()->UnlockLooper();
 	}
 }
 

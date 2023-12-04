@@ -97,6 +97,8 @@ RepositoryView::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case kInvocationMessage: {
 			auto item = dynamic_cast<StyledItem*>(ItemAt(CurrentSelection()));
+			if (item == nullptr)
+				break;
 			switch (item->GetType()) {
 				case kLocalBranch:
 				case kRemoteBranch: {

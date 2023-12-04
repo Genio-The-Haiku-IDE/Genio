@@ -11,15 +11,17 @@
 #include <Bitmap.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <FindDirectory.h>
 #include <IconUtils.h>
 #include <MessageFilter.h>
+#include <Path.h>
 #include <RadioButton.h>
 #include <Resources.h>
-#include <Path.h>
-#include <string>
-#include <algorithm>
 #include <Roster.h>
-#include <FindDirectory.h>
+
+#include <algorithm>
+#include <string>
+
 #include "GenioNamespace.h"
 
 

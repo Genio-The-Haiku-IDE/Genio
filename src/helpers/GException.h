@@ -7,30 +7,28 @@
 
 #include <exception>
 
-#include <String.h>
 #include <Errors.h>
+#include <String.h>
 
-	class GException : public std::exception {
-	public:
-						GException(status_t error, BString const& msg)
-							:
-							_message(msg),
-							_error(error)
-						{}
+class GException : public std::exception {
+public:
+					GException(status_t error, BString const& msg)
+						:
+						fMessage(msg),
+						fError(error)
+					{}
+					GException(GException const&) noexcept = default;
+					GException& operator=(GException const&) noexcept = default;
+					~GException() override = default;
 
-						GException(GException const&) noexcept = default;
+	const char* 	what() const noexcept override { return fMessage; }
+	BString			Message() const noexcept { return fMessage; }
+	status_t		Error() const noexcept { return fError; }
 
-						GException& operator=(GException const&) noexcept = default;
-						~GException() override = default;
-
-		const char* 	what() const noexcept override { return _message; }
-		BString			Message() const noexcept { return _message; }
-		status_t		Error() const noexcept { return _error; }
-
-	private:
-		BString			_message;
-		status_t		_error;
-	};
+private:
+	BString			fMessage;
+	status_t		fError;
+};
 
 	// class GGeneralException : GException {
 	// public:

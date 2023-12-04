@@ -9,13 +9,11 @@
 #pragma once
 
 #include <Catalog.h>
-#include <SupportDefs.h>
 #include <Notification.h>
 
 #include <git2.h>
 
 #include <functional>
-#include <string>
 #include <vector>
 
 #include "GException.h"
@@ -38,41 +36,35 @@ namespace Genio::Git {
 
 	class GitException : public GException {
 	public:
-
 		GitException(int error, BString const& message)
 			:
 			GException(error, message)
 		{
 			LogError("GitException %s, error = %d" , message.String(), error);
 		}
-
-	private:
 	};
 
 
 	class GitConflictException : public GitException {
 	public:
-
 		GitConflictException(int error, BString const& message,
 			const std::vector<BString> files)
 			:
 			GitException(error, message),
-			_files(files)
+			fFiles(files)
 		{
 			LogError("GitConflictException %s, error = %d, files = %d" , message.String(), error, files.size());
 		}
 
-		std::vector<BString>	GetFiles() noexcept { return _files; }
+		std::vector<BString>	GetFiles() noexcept { return fFiles; }
 
 	private:
-		std::vector<BString> 	_files;
+		std::vector<BString> 	fFiles;
 	};
-
 
 
 	class GitRepository {
 	public:
-
 		typedef std::vector<std::pair<BString, BString>> RepoFiles;
 
 		// Payload to search for merge branch.
@@ -138,7 +130,5 @@ namespace Genio::Git {
 		int 							_FastForward(const git_oid *target_oid, int is_unborn);
 		int								_CreateCommit(git_index* index, const char* message);
 		void							_CreateInitialCommit();
-
 	};
-
 }

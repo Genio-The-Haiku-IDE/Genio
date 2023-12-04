@@ -12,9 +12,6 @@
 #include <Application.h>
 #include <Path.h>
 
-#include <stdexcept>
-#include <map>
-
 #include "GitCredentialsWindow.h"
 
 namespace Genio::Git {
@@ -296,21 +293,16 @@ namespace Genio::Git {
 	GitRepository::GetFiles()
 	{
 		git_status_options statusopt;
-		git_status_list *status;
-		size_t i, maxi;
-		const git_status_entry *s;
-
 		git_status_init_options(&statusopt, GIT_STATUS_OPTIONS_VERSION);
 		statusopt.show = GIT_STATUS_SHOW_INDEX_AND_WORKDIR;
 		statusopt.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_RENAMES_HEAD_TO_INDEX | GIT_STATUS_OPT_SORT_CASE_SENSITIVELY;
-
+		git_status_list *status = nullptr;
 		check(git_status_list_new(&status, fRepository, &statusopt));
 
 		std::vector<std::pair<BString, BString>> fileStatuses;
-
-		maxi = git_status_list_entrycount(status);
-		for (i = 0; i < maxi; ++i) {
-			s = git_status_byindex(status, i);
+		size_t maxi = git_status_list_entrycount(status);
+		for (size_t i = 0; i < maxi; ++i) {
+			const git_status_entry *s = git_status_byindex(status, i);
 
 			if (s->status == GIT_STATUS_CURRENT)
 				continue;
@@ -363,7 +355,8 @@ namespace Genio::Git {
 			git_repository_free(repo);
 			return localPath;
 		} catch (const GitException &e) {
-			if (repo != nullptr) git_repository_free(repo);
+			if (repo != nullptr)
+				git_repository_free(repo);
 			throw;
 		}
 
@@ -526,10 +519,8 @@ namespace Genio::Git {
 	BString
 	GitRepository::_ConfigGet(git_config *cfg, const char *key)
 	{
-
-	  git_config_entry *entry;
-	  BString ret("");
-
+	  git_config_entry *entry = nullptr;
+	  BString ret;
 	  check(git_config_get_entry(&entry, cfg, key), nullptr,
 			[](const int x) { return (x != GIT_ENOTFOUND); });
 
@@ -572,9 +563,7 @@ namespace Genio::Git {
 	{
 		git_oid saved_stash;
 		git_signature *signature = nullptr;
-
 		try {
-
 			signature = _GetSignature();
 
 			// TODO: consider using GIT_STASH_INCLUDE_UNTRACKED
@@ -582,7 +571,8 @@ namespace Genio::Git {
 
 			git_signature_free(signature);
 		} catch (const GitException &e) {
-			if (signature != nullptr) git_signature_free(signature);
+			if (signature != nullptr)
+				git_signature_free(signature);
 			throw;
 		}
 
@@ -627,11 +617,11 @@ namespace Genio::Git {
 	git_signature *
 	GitRepository::_GetSignature()
 	{
-		git_signature *signature;
+		git_signature *signature = nullptr;
 
 		// TODO - Put this into Genio Prefs
-		git_config* cfg;
-		git_config* cfg_snapshot;
+		git_config* cfg = nullptr;
+		git_config* cfg_snapshot = nullptr;
 
 		git_config_open_ondisk(&cfg, "/boot/home/config/settings/git/config");
 		git_config_snapshot(&cfg_snapshot, cfg);
@@ -710,14 +700,13 @@ namespace Genio::Git {
 	{
 		git_tree* tree = nullptr;
 		git_commit* parent = nullptr;
-		git_oid tree_id, commit_id, parent_id;
-		git_signature* signature = nullptr;
-		int ret;
-
-		signature = _GetSignature();
+		git_oid tree_id;
+		git_oid commit_id;
+		git_oid	parent_id;
+		git_signature* signature = _GetSignature();
 
 		// Init tree_id
-		ret = git_index_write_tree(&tree_id, index);
+		int ret = git_index_write_tree(&tree_id, index);
 		if (ret < 0)
 			return ret;
 
@@ -744,9 +733,12 @@ namespace Genio::Git {
 		ret = git_commit_create_v(&commit_id, fRepository, "HEAD", signature, signature, NULL,
 				message, tree, 1, parent);
 
-		if (tree != nullptr) git_tree_free(tree);
-		if (parent != nullptr) git_commit_free(parent);
-		if (signature != nullptr) git_signature_free(signature);
+		if (tree != nullptr)
+			git_tree_free(tree);
+		if (parent != nullptr)
+			git_commit_free(parent);
+		if (signature != nullptr)
+			git_signature_free(signature);
 
 		return ret;
 	}
@@ -754,10 +746,11 @@ namespace Genio::Git {
 	void
 	GitRepository::_CreateInitialCommit()
 	{
-		git_signature *sig;
-		git_index *index;
-		git_oid tree_id, commit_id;
-		git_tree *tree;
+		git_signature *sig = nullptr;
+		git_index *index = nullptr;
+		git_oid tree_id;
+		git_oid commit_id;
+		git_tree *tree = nullptr;
 
 		try {
 			sig = _GetSignature();
@@ -774,10 +767,11 @@ namespace Genio::Git {
 			git_tree_free(tree);
 			git_signature_free(sig);
 		} catch (const GitException &e) {
-			if (sig != nullptr) git_signature_free(sig);
-			if (tree != nullptr) git_tree_free(tree);
+			if (sig != nullptr)
+				git_signature_free(sig);
+			if (tree != nullptr)
+				git_tree_free(tree);
 			throw;
 		}
 	}
-
 }

@@ -35,10 +35,9 @@ namespace Genio::Git {
 	void
 	GitRepository::_Open()
 	{
-		int status = 0;
 		git_buf buf = GIT_BUF_INIT_CONST(NULL, 0);
 		if (git_repository_discover(&buf, fRepositoryPath.String(), 0, NULL) >= 0) {
-			status = git_repository_open(&fRepository, fRepositoryPath.String());
+			int status = git_repository_open(&fRepository, fRepositoryPath.String());
 			if (status >= 0)
 				fInitialized = true;
 		}
@@ -124,17 +123,17 @@ namespace Genio::Git {
 			case GIT_CHECKOUT_NOTIFY_CONFLICT:
 				files->push_back(path);
 				temp.Append("conflict\n");
-			break;
+				break;
 			case GIT_CHECKOUT_NOTIFY_DIRTY:
-			break;
+				break;
 			case GIT_CHECKOUT_NOTIFY_UPDATED:
-			break;
+				break;
 			case GIT_CHECKOUT_NOTIFY_UNTRACKED:
-			break;
+				break;
 			case GIT_CHECKOUT_NOTIFY_IGNORED:
-			break;
+				break;
 			default:
-			break;
+				break;
 		}
 
 		LogInfo(temp.String());
@@ -186,7 +185,8 @@ namespace Genio::Git {
 			git_reference_free(ref);
 			return status;
 		} catch (const GitException &e) {
-			if (ref != nullptr) git_reference_free(ref);
+			if (ref != nullptr)
+				git_reference_free(ref);
 			throw;
 		}
 	}
@@ -204,7 +204,8 @@ namespace Genio::Git {
 			git_reference_free(head);
 			return branchText;
 		} catch (const GitException &e) {
-			if (head != nullptr) git_reference_free(head);
+			if (head != nullptr)
+				git_reference_free(head);
 			throw;
 		}
 	}
@@ -218,7 +219,8 @@ namespace Genio::Git {
 			check(git_branch_delete(ref));
 			git_reference_free(ref);
 		} catch (const GitException &e) {
-			if (ref != nullptr) git_reference_free(ref);
+			if (ref != nullptr)
+				git_reference_free(ref);
 			throw;
 		}
 	}
@@ -235,8 +237,10 @@ namespace Genio::Git {
 			git_reference_free(out);
 		} catch (const GitException &e) {
 			// Clean up in case of an exception
-			if (ref != nullptr) git_reference_free(ref);
-			if (out != nullptr) git_reference_free(out);
+			if (ref != nullptr)
+				git_reference_free(ref);
+			if (out != nullptr)
+				git_reference_free(out);
 
 			// Re-throw the exception
 			throw;
@@ -252,8 +256,7 @@ namespace Genio::Git {
 
 		try {
 			// Lookup the existing branch
-			int status = 0;
-			status = git_branch_lookup(&existing_branch_ref, fRepository,
+			int status = git_branch_lookup(&existing_branch_ref, fRepository,
 				existingBranchName.String(), type);
 			// if the selected ref is not a branch it may be a tag, let's try with that
 			if (status < 0) {
@@ -265,9 +268,9 @@ namespace Genio::Git {
 
 
 			// Get the commit at the tip of the existing branch
-			git_oid commit_id;
-			git_reference_name_to_id(&commit_id, fRepository, git_reference_name(existing_branch_ref));
-			git_commit_lookup(&commit, fRepository, &commit_id);
+			git_oid commitId;
+			git_reference_name_to_id(&commitId, fRepository, git_reference_name(existing_branch_ref));
+			git_commit_lookup(&commit, fRepository, &commitId);
 
 			// Create a new branch pointing at this commit
 			check(git_branch_create(&new_branch_ref, fRepository, newBranchName.String(), commit, 0));
@@ -279,9 +282,12 @@ namespace Genio::Git {
 
 		} catch (const GitException &e) {
 			// Clean up in case of an exception
-			if (existing_branch_ref != nullptr) git_reference_free(existing_branch_ref);
-			if (new_branch_ref != nullptr) git_reference_free(new_branch_ref);
-			if (commit != nullptr) git_commit_free(commit);
+			if (existing_branch_ref != nullptr)
+				git_reference_free(existing_branch_ref);
+			if (new_branch_ref != nullptr)
+				git_reference_free(new_branch_ref);
+			if (commit != nullptr)
+				git_commit_free(commit);
 
 			// Re-throw the exception
 			throw;
@@ -379,7 +385,8 @@ namespace Genio::Git {
 			check(git_remote_fetch(remote, nullptr, &fetch_opts, nullptr));
 			git_remote_free(remote);
 		} catch (const GitException &e) {
-			if (remote != nullptr) git_remote_free(remote);
+			if (remote != nullptr)
+				git_remote_free(remote);
 			throw;
 		}
 	}
@@ -614,22 +621,22 @@ namespace Genio::Git {
 		return tags;
 	}
 
-	git_signature *
+	git_signature*
 	GitRepository::_GetSignature()
 	{
-		git_signature *signature = nullptr;
-
 		// TODO - Put this into Genio Prefs
 		git_config* cfg = nullptr;
-		git_config* cfg_snapshot = nullptr;
+		git_config* cfgSnapshot = nullptr;
 
 		git_config_open_ondisk(&cfg, "/boot/home/config/settings/git/config");
-		git_config_snapshot(&cfg_snapshot, cfg);
+		git_config_snapshot(&cfgSnapshot, cfg);
 
-		const char *user_name, *user_email;
-		check(git_config_get_string(&user_name, cfg_snapshot, "user.name"));
-		check(git_config_get_string(&user_email, cfg_snapshot, "user.email"));
-		check(git_signature_now(&signature, user_name, user_email));
+		const char* userName;
+		const char* userEmail;
+		git_signature *signature = nullptr;
+		check(git_config_get_string(&userName, cfgSnapshot, "user.name"));
+		check(git_config_get_string(&userEmail, cfgSnapshot, "user.email"));
+		check(git_signature_now(&signature, userName, userEmail));
 
 		return signature;
 	}
@@ -637,31 +644,31 @@ namespace Genio::Git {
 	int
 	GitRepository::_FastForward(const git_oid *target_oid, int is_unborn)
 	{
-		git_checkout_options ff_checkout_options = GIT_CHECKOUT_OPTIONS_INIT;
-		git_reference *target_ref = nullptr;
-		git_reference *new_target_ref = nullptr;
+		git_checkout_options ffCheckoutOptions = GIT_CHECKOUT_OPTIONS_INIT;
+		git_reference *targetRef = nullptr;
+		git_reference *newTargetRef = nullptr;
 		git_object *target = nullptr;
 		int err = 0;
 
 		try {
 			if (is_unborn) {
-				const char *symbolic_ref;
-				git_reference *head_ref;
+				const char *symbolicRef;
+				git_reference *headRef = nullptr;
 
 				// HEAD reference is unborn, lookup manually so we don't try to resolve it
-				check(git_reference_lookup(&head_ref, fRepository, "HEAD"));
+				check(git_reference_lookup(&headRef, fRepository, "HEAD"));
 
 				// Grab the reference HEAD should be pointing to
-				symbolic_ref = git_reference_symbolic_target(head_ref);
+				symbolicRef = git_reference_symbolic_target(headRef);
 
 				// Create our master reference on the target OID
-				check(git_reference_create(&target_ref, fRepository, symbolic_ref,
+				check(git_reference_create(&targetRef, fRepository, symbolicRef,
 						target_oid, 0, NULL));
 
-				git_reference_free(head_ref);
+				git_reference_free(headRef);
 			} else {
 				// HEAD exists, just lookup and resolve
-				check(git_repository_head(&target_ref, fRepository));
+				check(git_repository_head(&targetRef, fRepository));
 			}
 
 			// Lookup the target object
@@ -669,27 +676,30 @@ namespace Genio::Git {
 
 			// Checkout the result so the workdir is in the expected state
 			std::vector<BString> files;
-			ff_checkout_options.notify_flags =	GIT_CHECKOUT_NOTIFY_CONFLICT;
-			ff_checkout_options.notify_cb = checkout_notify;
-			ff_checkout_options.notify_payload = &files;
-			ff_checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
-			int status = git_checkout_tree(fRepository, target, &ff_checkout_options);
+			ffCheckoutOptions.notify_flags = GIT_CHECKOUT_NOTIFY_CONFLICT;
+			ffCheckoutOptions.notify_cb = checkout_notify;
+			ffCheckoutOptions.notify_payload = &files;
+			ffCheckoutOptions.checkout_strategy = GIT_CHECKOUT_SAFE;
+			int status = git_checkout_tree(fRepository, target, &ffCheckoutOptions);
 			if (status < 0) {
 				throw GitConflictException(status, git_error_last()->message, files);
 			}
 
 			// Move the target reference to the target OID
-			check(git_reference_set_target(&new_target_ref, target_ref, target_oid,	NULL));
+			check(git_reference_set_target(&newTargetRef, targetRef, target_oid,	NULL));
 
-			git_reference_free(target_ref);
-			git_reference_free(new_target_ref);
+			git_reference_free(targetRef);
+			git_reference_free(newTargetRef);
 			git_object_free(target);
 
 			return err;
 		} catch (const GitException &e) {
-			if (target_ref != nullptr) git_reference_free(target_ref);
-			if (new_target_ref != nullptr) git_reference_free(new_target_ref);
-			if (target != nullptr) git_object_free(target);
+			if (targetRef != nullptr)
+				git_reference_free(targetRef);
+			if (newTargetRef != nullptr)
+				git_reference_free(newTargetRef);
+			if (target != nullptr)
+				git_object_free(target);
 			throw;
 		}
 
@@ -698,39 +708,38 @@ namespace Genio::Git {
 	int
 	GitRepository::_CreateCommit(git_index* index, const char* message)
 	{
-		git_tree* tree = nullptr;
-		git_commit* parent = nullptr;
-		git_oid tree_id;
-		git_oid commit_id;
-		git_oid	parent_id;
-		git_signature* signature = _GetSignature();
-
 		// Init tree_id
-		int ret = git_index_write_tree(&tree_id, index);
+		git_oid treeId;
+		int ret = git_index_write_tree(&treeId, index);
 		if (ret < 0)
 			return ret;
 
 		git_index_free(index);
 
 		// Init tree
-		ret = git_tree_lookup(&tree, fRepository, &tree_id);
+		git_tree* tree = nullptr;
+		ret = git_tree_lookup(&tree, fRepository, &treeId);
 		if (ret < 0)
 			return ret;
 
-		ret = git_reference_name_to_id(&parent_id, fRepository, "HEAD");
+		git_signature* signature = _GetSignature();
+		git_oid	parentId;
+		git_oid commitId;
+		ret = git_reference_name_to_id(&parentId, fRepository, "HEAD");
 		if (ret < 0) {
 			// No parent commit found. This might be initial commit.
-			ret = git_commit_create_v(&commit_id, fRepository, "HEAD", signature, signature, NULL,
+			ret = git_commit_create_v(&commitId, fRepository, "HEAD", signature, signature, NULL,
 					message, tree, 0);
 			return ret;
 		}
 
-		ret = git_commit_lookup(&parent, fRepository, &parent_id);
+		git_commit* parent = nullptr;
+		ret = git_commit_lookup(&parent, fRepository, &parentId);
 		if (ret < 0)
 			return ret;
 
 		// Create commit
-		ret = git_commit_create_v(&commit_id, fRepository, "HEAD", signature, signature, NULL,
+		ret = git_commit_create_v(&commitId, fRepository, "HEAD", signature, signature, NULL,
 				message, tree, 1, parent);
 
 		if (tree != nullptr)
@@ -747,21 +756,20 @@ namespace Genio::Git {
 	GitRepository::_CreateInitialCommit()
 	{
 		git_signature *sig = nullptr;
-		git_index *index = nullptr;
-		git_oid tree_id;
-		git_oid commit_id;
 		git_tree *tree = nullptr;
 
 		try {
 			sig = _GetSignature();
 			/* Now let's create an empty tree for this commit */
+			git_index *index = nullptr;
 			check(git_repository_index(&index, fRepository));
-			check(git_index_write_tree(&tree_id, index));
+			git_oid treeId;
+			check(git_index_write_tree(&treeId, index));
 			git_index_free(index);
 
-			check(git_tree_lookup(&tree, fRepository, &tree_id));
-
-			check(git_commit_create_v(&commit_id, fRepository, "HEAD", sig, sig,
+			check(git_tree_lookup(&tree, fRepository, &treeId));
+			git_oid commitId;
+			check(git_commit_create_v(&commitId, fRepository, "HEAD", sig, sig,
 				NULL, "Initial commit", tree, 0));
 
 			git_tree_free(tree);

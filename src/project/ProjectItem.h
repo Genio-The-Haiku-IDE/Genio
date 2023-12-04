@@ -12,9 +12,9 @@
 #include <TextControl.h>
 #include <View.h>
 
+// TODO: make this inherit from StyledItem
 
 class SourceItem;
-
 class ProjectItem : public BStringItem {
 public:
 					ProjectItem(SourceItem *sourceFile);

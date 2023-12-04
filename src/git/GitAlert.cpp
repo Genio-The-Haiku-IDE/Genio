@@ -15,11 +15,6 @@
 #include <ScrollView.h>
 #include <StringView.h>
 
-#include <string>
-#include <vector>
-
-#include "Utils.h"
-
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GitAlert"
@@ -84,7 +79,7 @@ GitAlert::_InitInterface()
 
 	BGroupLayout* files = filesView->GroupLayout();
 	files->SetInsets(B_USE_SMALL_INSETS);
-	for(size_t i = 0; i < fFiles.size(); ++i) {
+	for (size_t i = 0; i < fFiles.size(); ++i) {
 		fFileStringView[i] = new BStringView("file", fFiles[i].String());
 		files->AddView(fFileStringView[i]);
 	}
@@ -143,10 +138,11 @@ GitAlert::Go()
 void
 GitAlert::MessageReceived(BMessage* message)
 {
-	switch(message->what) {
+	switch (message->what) {
 		default: {
 			BWindow::MessageReceived(message);
-		} return;
+			break;
+		}
 	}
 	// No need to delete the semaphore because we have only the OK button that sends a
 	// B_QUIT_REQUESTED and the message would be released anyway

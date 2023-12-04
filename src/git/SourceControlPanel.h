@@ -7,17 +7,10 @@
 
 
 #include <LayoutBuilder.h>
-#include <MenuField.h>
 #include <ObjectList.h>
-#include <OptionPopUp.h>
-#include <OutlineListView.h>
-#include <ScrollView.h>
-#include <View.h>
-
 
 #include "OptionList.h"
 #include "ToolBar.h"
-
 
 
 enum Messages {
@@ -43,7 +36,6 @@ enum Messages {
 	MsgInitializeRepository
 };
 
-class ProjectFolder;
 
 const char* const kSenderProjectOptionList = "ProjectOptionList";
 const char* const kSenderBranchOptionList = "BranchOptionList";
@@ -51,7 +43,10 @@ const char* const kSenderInitializeRepositoryButton = "InitializeRepositoryButto
 const char* const kSenderRepositoryPopupMenu = "RepositoryPopupMenu";
 const char* const kSenderExternalEvent = "ExternalEvent";
 
+class BCheckBox;
+class ProjectFolder;
 class RepositoryView;
+class BScrollView;
 class SourceControlPanel : public BView {
 public:
 							SourceControlPanel();

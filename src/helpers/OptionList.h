@@ -10,14 +10,9 @@
 #include <Messenger.h>
 #include <ObjectList.h>
 #include <PopUpMenu.h>
-#include <SupportDefs.h>
-
-#include <iterator>
 
 #include "GException.h"
-#include "GMessage.h"
 #include "Log.h"
-#include "Utils.h"
 
 namespace Genio::UI {
 
@@ -30,7 +25,12 @@ namespace Genio::UI {
 			bool fixed_size = true,
 			uint32 flags = B_WILL_DRAW | B_NAVIGABLE)
 			:
+// TODO: this allows building on beta4
+#if 0
 			BMenuField(name, label, fMenu = new BPopUpMenu(text), fixed_size, flags),
+#else
+			BMenuField(name, label, fMenu = new BPopUpMenu(text), flags),
+#endif
 			fMessenger(nullptr),
 			fSender(nullptr),
 			fText(text)

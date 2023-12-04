@@ -179,11 +179,15 @@ GenioWindow::GenioWindow(BRect frame)
 										count, &projectName) == B_OK; count++)
 					_ProjectFolderOpen(projectName, projectName == activeProject);
 		}
+		// TODO: _ProjectFolderOpen() could fail to open projects, so
+		// - It should return a boolean or a status_t
+		// - We should check its return values
+		// - here we could have no active projects or no projects at all
 		fDisableProjectNotifications = false;
 		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		noticeMessage.AddPointer("active_project", fActiveProject);
-		noticeMessage.AddString("active_project_name", fActiveProject->Name());
+		noticeMessage.AddString("active_project_name", fActiveProject ? fActiveProject->Name() : "");
 		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 
 	}

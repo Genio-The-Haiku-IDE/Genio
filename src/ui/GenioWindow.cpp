@@ -12,6 +12,7 @@
 #include <Alert.h>
 #include <Application.h>
 #include <Architecture.h>
+#include <Button.h>
 #include <Catalog.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>

@@ -24,15 +24,11 @@
 #include <Query.h>
 #include <Roster.h>
 
-#include <cstdio>
-#include <list>
 
-#include "MimeType.h"
-#include "GenioWindowMessages.h"
+#include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GitRepository.h"
 
-#include "GenioApp.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SwitchBranchMenu"
@@ -87,6 +83,7 @@ SwitchBranchMenu::AttachedToWindow()
 	SetTargetForItems(fTarget);
 }
 
+
 void
 SwitchBranchMenu::DetachedFromWindow()
 {
@@ -137,7 +134,7 @@ SwitchBranchMenu::_BuildMenu()
 				if (branch == current_branch)
 					item->SetMarked(true);
 			}
-		} catch(...){
+		} catch(...) {
 		}
 		delete repo;
 	}

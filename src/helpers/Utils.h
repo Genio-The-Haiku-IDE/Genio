@@ -8,7 +8,6 @@
 
 
 #include <string>
-#include <type_traits>
 
 #include <Alert.h>
 #include <MessageFilter.h>
@@ -16,8 +15,6 @@
 #include <MenuItem.h>
 #include <Notification.h>
 #include <ObjectList.h>
-
-#include "GMessage.h"
 
 
 class BBitmap;

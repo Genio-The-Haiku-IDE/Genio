@@ -22,8 +22,3 @@ template<>
 bool
 GMessageReturn::is_what<int>(int w) { if (strcmp(fKey, "what") == 0) {fMsg->what = w; return true;} return false; }
 
-#if __HAIKU_BEOS_COMPATIBLE_TYPES
-template<>
-bool
-GMessageReturn::is_what<int>(int w) { if (strcmp(fKey, "what") == 0) {fMsg->what = w; return true;} return false; }
-#endif

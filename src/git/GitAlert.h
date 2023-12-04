@@ -7,12 +7,8 @@
 
 #pragma once
 
-#include <ColumnListView.h>
-#include <ColumnTypes.h>
-#include <ObjectList.h>
 #include <Window.h>
 
-#include <string>
 #include <vector>
 
 class BButton;
@@ -36,7 +32,7 @@ public:
 private:
 	const BString					fTitle;
 	const BString					fMessage;
-	const std::vector<BString>	fFiles;
+	const std::vector<BString>		fFiles;
 	BStringView*					fMessageString;
 	BScrollView*					fScrollView;
 	BButton*						fOK;

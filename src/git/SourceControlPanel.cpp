@@ -31,6 +31,8 @@
 #include "GitAlert.h"
 #include "GTextAlert.h"
 
+#include "LambdaTask.h"
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
@@ -324,11 +326,17 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgFetch: {
-				LogInfo("MsgFetch");
-				Genio::Git::GitRepository git(fSelectedProject->Path().String());
-				git.Fetch();
-				_ShowGitNotification(B_TRANSLATE("Fetch completed."));
-				_UpdateBranchList();
+				Genio::Task::LambdaTask task("Fetch", BMessenger(this), [&]() {
+					LogInfo("MsgFetch");
+					Genio::Git::GitRepository git(fSelectedProject->Path().String());
+					git.Fetch();
+				}, [&](const auto& result) {
+						result.GetResult();
+						OKAlert("", result.GetTaskName(), B_INFO_ALERT);
+						LogInfo("TaskName: %s", result.GetTaskName());
+						_ShowGitNotification(B_TRANSLATE("Fetch completed."));
+						_UpdateBranchList();
+				} );
 				break;
 			}
 			case MsgFetchPrune: {

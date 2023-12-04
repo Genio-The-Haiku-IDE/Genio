@@ -2,20 +2,18 @@
  * Copyright 2017..2018 A. Mosca <amoscaster@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-
-#include <iostream>
-#include <memory>
-#include <string>
+#include "ProjectSettingsWindow.h"
 
 #include <Alignment.h>
+#include <Box.h>
+#include <Button.h>
 #include <Catalog.h>
+#include <CheckBox.h>
 #include <Directory.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
 
-#include "GenioNamespace.h"
 #include "ProjectFolder.h"
-#include "ProjectSettingsWindow.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"

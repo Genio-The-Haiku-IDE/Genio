@@ -20,19 +20,22 @@
 #include <TabView.h>
 #include <TextControl.h>
 #include <Window.h>
-#include "ToolBar.h"
-#include "GoToLineWindow.h"
-#include "ProblemsPanel.h"
+
+#include <vector>
+
 #include "ConsoleIOView.h"
 #include "Editor.h"
-#include "ProjectFolder.h"
 #include "EditorTabManager.h"
+#include "GMessage.h"
+#include "GoToLineWindow.h"
+#include "ProblemsPanel.h"
+#include "ProjectFolder.h"
 #include "ProjectsFolderBrowser.h"
-#include "TemplatesMenu.h"
 #include "SearchResultPanel.h"
 #include "SourceControlPanel.h"
-#include <vector>
-#include "GMessage.h"
+#include "TemplatesMenu.h"
+#include "ToolBar.h"
+
 
 enum {
 	kProjectsOutline = 0,
@@ -55,8 +58,7 @@ enum scree_mode {
 
 class ActionManager;
 
-class GenioWindow : public BWindow
-{
+class GenioWindow : public BWindow {
 public:
 								GenioWindow(BRect frame);
 	virtual						~GenioWindow();
@@ -67,10 +69,10 @@ public:
 	virtual void				Show();
 
 	void						UpdateMenu();
-	auto						GetActiveProject() { return fActiveProject; }
-	void						SetActiveProject(ProjectFolder *project) { fActiveProject = project; }
-	auto						GetProjectList() { return fProjectFolderObjectList; }
-	auto						GetProjectBrowser() { return fProjectsFolderBrowser; }
+	ProjectFolder*				GetActiveProject();
+	void						SetActiveProject(ProjectFolder *project);
+	BObjectList<ProjectFolder>*	GetProjectList();
+	ProjectsFolderBrowser*		GetProjectBrowser();
 
 private:
 

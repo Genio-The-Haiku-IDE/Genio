@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	2461205197
+1	English	application/x-vnd.Genio	3929594733
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -19,6 +19,7 @@ Path	ProjectsFolderBrowser		Path
 New file	ProjectsFolderBrowser		New file
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Replace selection	GenioWindow		Replace selection
+Focus mode	GenioWindow		Focus mode
 URL:	RemoteProjectWindow		URL:
 Switch to branch	GenioWindow		Switch to branch
 Open file	ProjectsFolderBrowser		Open file
@@ -228,7 +229,6 @@ Cut	GenioWindow		Cut
 Font size:	SettingsWindow		Font size:
 Zoom out	GenioWindow		Zoom out
 Match case	SettingsWindow		Match case
-Focus Mode	GenioWindow		Focus Mode
 Base path:	RemoteProjectWindow		Base path:
 Save as…	GenioWindow		Save as…
 Mac	GenioWindow		Mac

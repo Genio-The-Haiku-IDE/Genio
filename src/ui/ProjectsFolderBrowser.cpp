@@ -547,9 +547,9 @@ ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item) const
 
 	ProjectFolder *project;
 	if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		project = (ProjectFolder *)item->GetSourceItem();
+		project = static_cast<ProjectFolder*>(item->GetSourceItem());
 	} else {
-		project = (ProjectFolder *)item->GetSourceItem()->GetProjectFolder();
+		project = static_cast<ProjectFolder*>(item->GetSourceItem()->GetProjectFolder());
 	}
 
 	return project;

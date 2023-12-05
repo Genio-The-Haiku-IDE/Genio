@@ -16,27 +16,20 @@
 #include "Utils.h"
 
 
-StyledItem::StyledItem(BOutlineListView *container,
-						const char* text,
-						const uint32 item_type,
+StyledItem::StyledItem(const char* text,
 						uint32 outlineLevel,
 						bool expanded,
 						const char *iconName)
 	:
 	BStringItem(text, outlineLevel, expanded),
-	fContainerListView(container),
-	fFirstTimeRendered(true),
-	fInitRename(false),
 	fMessage(nullptr),
 	fToolTipText(nullptr),
-	fPrimaryTextStyle(B_REGULAR_FACE),
-	fSecondaryTextStyle(B_REGULAR_FACE),
-	fIconName(iconName),
-	fItemType(item_type)
+	fIconName(iconName)
 {
 }
 
 
+/* virtual */
 StyledItem::~StyledItem()
 {
 }
@@ -62,7 +55,6 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	owner->SetFont(be_plain_font);
 
-
 	if (IsSelected())
 		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
 	else
@@ -86,11 +78,6 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	_DrawText(owner, textPoint);
 
 	owner->Sync();
-
-	if (fFirstTimeRendered) {
-		owner->Invalidate();
-		fFirstTimeRendered = false;
-	}
 }
 
 
@@ -101,27 +88,38 @@ StyledItem::Update(BView* owner, const BFont* font)
 }
 
 
+bool
+StyledItem::HasToolTip() const
+{
+	return !fToolTipText.IsEmpty();
+}
+
+
+void
+StyledItem::SetToolTipText(const char *text)
+{
+	fToolTipText = text;
+}
+
+
+const char*
+StyledItem::GetToolTipText() const
+{
+	return fToolTipText.String();
+}
+
+	
 void
 StyledItem::_DrawText(BView* owner, const BPoint& point)
 {
 	BFont font;
 	owner->GetFont(&font);
-	font.SetFace(fPrimaryTextStyle);
+	font.SetFace(B_REGULAR_FACE);
 	owner->SetFont(&font);
 
 	owner->SetDrawingMode(B_OP_COPY);
 	owner->MovePenTo(point);
 	owner->DrawString(Text());
-
-	font.SetFace(fSecondaryTextStyle);
-	owner->SetFont(&font);
-
-	if (!fSecondaryText.IsEmpty()) {
-		BString text;
-		text << fSecondaryText.String();
-		// Apply any style change here (i.e. bold, italic)
-		owner->DrawString(text.String());
-	}
 
 	owner->Sync();
 }

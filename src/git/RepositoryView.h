@@ -11,7 +11,6 @@
 #include "GMessage.h"
 #include "Log.h"
 #include "SourceControlPanel.h"
-#include "StyledItem.h"
 #include "ProjectFolder.h"
 #include "Utils.h"
 
@@ -26,6 +25,7 @@ enum ItemType {
 	kTag
 };
 
+class BranchItem;
 class RepositoryView : public BOutlineListView {
 public:
 
@@ -47,7 +47,7 @@ private:
 
 	void			_ShowPopupMenu(BPoint where);
 
-	StyledItem*		_InitEmptySuperItem(const BString &label);
+	BranchItem*		_InitEmptySuperItem(const BString &label);
 
 	BString			fRepositoryPath;
 	ProjectFolder*	fSelectedProject;

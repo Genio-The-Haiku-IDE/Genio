@@ -59,7 +59,14 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
 	float iconSize = 0;
-	BRect iconRect = DrawIcon(owner, bounds, iconSize);
+	BRect iconRect = bounds;
+	if (fIconName != nullptr) {
+		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+		BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
+		GetVectorIcon(fIconName.String(), icon);
+		iconRect = DrawIcon(owner, bounds, icon, iconSize);
+		delete icon;
+	}
 	BPoint textPoint(iconRect.left + iconSize + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
 	DrawText(owner, textPoint);
@@ -115,16 +122,9 @@ StyledItem::DrawText(BView* owner, const BPoint& point)
 
 /* virtual */
 BRect
-StyledItem::DrawIcon(BView* owner, const BRect& itemBounds, float &iconSize)
+StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
+	const BBitmap* icon, float &iconSize)
 {
-	BBitmap *icon = nullptr;
-	iconSize = 0;
-	if (fIconName != nullptr) {
-		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-		icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
-		GetVectorIcon(fIconName.String(), icon);
-	}
-	
 	BPoint iconStartingPoint(itemBounds.left + 4.0f,
 		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
 	if (icon != nullptr) {

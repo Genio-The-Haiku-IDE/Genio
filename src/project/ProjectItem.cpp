@@ -137,26 +137,22 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	else
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
-	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
+	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->Path());
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);
-	if (icon != nullptr) {
-		owner->SetDrawingMode(B_OP_ALPHA);
-		owner->DrawBitmapAsync(icon, iconStartingPoint);
-	}
+	BRect iconRect = DrawIcon(owner, bounds, icon, iconSize);
 
 	// Check if there is an InitRename request and show a TextControl
 	if (fInitRename) {
 		BRect textRect;
 		textRect.top = bounds.top - 0.5f;
-		textRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
+		textRect.left = iconRect.left + iconSize + be_control_look->DefaultLabelSpacing();
 		textRect.bottom = bounds.bottom - 1;
 		textRect.right = bounds.right;
 		_DrawTextWidget(owner, textRect);
 	} else {
-		BPoint textPoint(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
+		BPoint textPoint(iconRect.left + iconSize + be_control_look->DefaultLabelSpacing(),
 						bounds.top + BaselineOffset());
-		_DrawText(owner, textPoint);
+		DrawText(owner, textPoint);
 
 		owner->Sync();
 	}
@@ -217,7 +213,7 @@ ProjectItem::CommitRename()
 
 
 void
-ProjectItem::_DrawText(BView* owner, const BPoint& point)
+ProjectItem::DrawText(BView* owner, const BPoint& point)
 {
 	if (fOpenedInEditor) {
 		BFont font;
@@ -242,7 +238,6 @@ ProjectItem::_DrawText(BView* owner, const BPoint& point)
 
 	owner->Sync();
 }
-
 
 void
 ProjectItem::_DrawTextWidget(BView* owner, const BRect& textRect)

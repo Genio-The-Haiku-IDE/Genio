@@ -11,6 +11,7 @@
 #include <Font.h>
 #include <NodeInfo.h>
 #include <StringItem.h>
+#include <TextControl.h>
 #include <Window.h>
 
 #include "IconCache.h"

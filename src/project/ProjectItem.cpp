@@ -11,7 +11,6 @@
 #include <Font.h>
 #include <NodeInfo.h>
 #include <StringItem.h>
-#include <View.h>
 #include <Window.h>
 
 #include "IconCache.h"
@@ -110,20 +109,19 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	owner->SetFont(be_plain_font);
 
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		BString branchName, projectName, projectPath;
-
-		ProjectFolder *projectFolder = (ProjectFolder *)GetSourceItem();
-		projectName = Text();
-		projectPath = projectFolder->Path();
+		ProjectFolder *projectFolder = (ProjectFolder*)GetSourceItem();
+		BString projectName = Text();
+		BString projectPath = projectFolder->Path();
 
 		if (projectFolder->Active()) {
 			owner->SetFont(be_bold_font);
 		}
+		BString branchName;
 		try {
 			Genio::Git::GitRepository repo(projectPath.String());
 			branchName = repo.GetCurrentBranch();
 			fSecondaryText.SetTo(branchName);
-		} catch(Genio::Git::GitException &ex) {}
+		} catch (Genio::Git::GitException &ex) {}
 
 		BString toolTipText;
 		toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",

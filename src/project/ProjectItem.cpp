@@ -76,7 +76,7 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 	fMessage(nullptr),
 	fTextControl(nullptr),
 	fPrimaryText(Text()),
-	fSecondaryText(nullptr)
+	fSecondaryText()
 {
 }
 

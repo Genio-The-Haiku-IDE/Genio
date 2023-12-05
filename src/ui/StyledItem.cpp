@@ -67,7 +67,7 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		iconRect = DrawIcon(owner, bounds, icon, iconSize);
 		delete icon;
 	}
-	BPoint textPoint(iconRect.left + iconSize + be_control_look->DefaultLabelSpacing(),
+	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
 	DrawText(owner, textPoint);
 
@@ -131,7 +131,6 @@ StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->DrawBitmapAsync(icon, iconStartingPoint);
 	}
-	
-	return BRect(iconStartingPoint,
-		BSize(itemBounds.Width(), itemBounds.Height()));
+
+	return BRect(iconStartingPoint, BSize(iconSize, iconSize));
 }

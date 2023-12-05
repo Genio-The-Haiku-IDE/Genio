@@ -5,13 +5,9 @@
 
 #pragma once
 
-#include <Bitmap.h>
-#include <Font.h>
-#include <OutlineListView.h>
-#include <Messenger.h>
 #include <StringItem.h>
-#include <TextControl.h>
-#include <View.h>
+
+#include <Font.h>
 
 class StyledItem : public BStringItem {
 public:
@@ -31,7 +27,6 @@ public:
 	const char*		GetToolTipText() const;
 
 private:
-	BMessage*		fMessage;
 	BString			fToolTipText;
 	BString			fIconName;
 	font_style		fFontStyle;

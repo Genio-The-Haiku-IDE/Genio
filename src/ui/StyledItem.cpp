@@ -58,22 +58,11 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	else
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
-	BBitmap *icon = nullptr;
 	float iconSize = 0;
-	if (fIconName != nullptr) {
-		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-		icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
-		GetVectorIcon(fIconName.String(), icon);
-	}
-	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);
-	if (icon != nullptr) {
-		owner->SetDrawingMode(B_OP_ALPHA);
-		owner->DrawBitmapAsync(icon, iconStartingPoint);
-	}
-
-	BPoint textPoint(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
+	BRect iconRect = DrawIcon(owner, bounds, iconSize);
+	BPoint textPoint(iconRect.left + iconSize + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
-	_DrawText(owner, textPoint);
+	DrawText(owner, textPoint);
 
 	owner->Sync();
 }
@@ -107,8 +96,9 @@ StyledItem::GetToolTipText() const
 }
 
 	
+/* virtual */
 void
-StyledItem::_DrawText(BView* owner, const BPoint& point)
+StyledItem::DrawText(BView* owner, const BPoint& point)
 {
 	BFont font;
 	owner->GetFont(&font);
@@ -120,4 +110,28 @@ StyledItem::_DrawText(BView* owner, const BPoint& point)
 	owner->DrawString(Text());
 
 	owner->Sync();
+}
+
+
+/* virtual */
+BRect
+StyledItem::DrawIcon(BView* owner, const BRect& itemBounds, float &iconSize)
+{
+	BBitmap *icon = nullptr;
+	iconSize = 0;
+	if (fIconName != nullptr) {
+		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+		icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
+		GetVectorIcon(fIconName.String(), icon);
+	}
+	
+	BPoint iconStartingPoint(itemBounds.left + 4.0f,
+		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
+	if (icon != nullptr) {
+		owner->SetDrawingMode(B_OP_ALPHA);
+		owner->DrawBitmapAsync(icon, iconStartingPoint);
+	}
+	
+	return BRect(iconStartingPoint,
+		BSize(itemBounds.Width(), itemBounds.Height()));
 }

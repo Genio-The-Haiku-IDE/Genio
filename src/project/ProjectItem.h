@@ -7,15 +7,8 @@
 
 #include "StyledItem.h"
 
-#include <Bitmap.h>
-#include <Font.h>
-#include <Messenger.h>
 
-#include <TextControl.h>
-#include <View.h>
-
-// TODO: make this inherit from StyledItem
-
+class BTextControl;
 class SourceItem;
 class ProjectItem : public StyledItem {
 public:

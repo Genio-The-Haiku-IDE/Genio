@@ -60,6 +60,7 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	float iconSize = 0;
 	BRect iconRect = bounds;
+	iconRect.right = iconRect.left + 4;
 	if (fIconName != nullptr) {
 		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 		BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);

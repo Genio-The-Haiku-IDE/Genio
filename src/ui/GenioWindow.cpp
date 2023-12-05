@@ -2616,8 +2616,8 @@ GenioWindow::_InitActions()
 								   "", B_ENTER);
 
 	ActionManager::RegisterAction(MSG_FOCUS_MODE,
-								   B_TRANSLATE("Focus Mode"),
-	                               B_TRANSLATE("Focus Mode"),
+								   B_TRANSLATE("Focus mode"),
+	                               B_TRANSLATE("Focus mode"),
 								   "", B_ENTER, B_SHIFT_KEY);
 
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,

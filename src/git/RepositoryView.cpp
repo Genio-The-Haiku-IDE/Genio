@@ -6,7 +6,9 @@
 
 #include "RepositoryView.h"
 
+#include "BranchItem.h"
 #include "StringFormatter.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
@@ -96,10 +98,10 @@ RepositoryView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kInvocationMessage: {
-			auto item = dynamic_cast<StyledItem*>(ItemAt(CurrentSelection()));
+			auto item = dynamic_cast<BranchItem*>(ItemAt(CurrentSelection()));
 			if (item == nullptr)
 				break;
-			switch (item->GetType()) {
+			switch (item->BranchType()) {
 				case kLocalBranch:
 				case kRemoteBranch: {
 					auto switch_message = new GMessage{
@@ -135,8 +137,8 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 	auto optionsMenu = new BPopUpMenu("Options", false, false);
 	auto index = IndexOf(where);
 	if (index >= 0) {
-		auto item = dynamic_cast<StyledItem*>(ItemAt(index));
-		auto item_type = item->GetType();
+		auto item = dynamic_cast<BranchItem*>(ItemAt(index));
+		auto item_type = item->BranchType();
 
 		BString selected_branch(item->Text());
 		selected_branch.RemoveLast("*");
@@ -284,7 +286,7 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		// populate local branches
 		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
 		for(auto &branch : local_branches) {
-			auto item = new StyledItem(this, branch.String(), kLocalBranch);
+			auto item = new StyledItem(branch.String(), kLocalBranch);
 			if (branch == fCurrentBranch)
 				item->SetText(BString(item->Text()) << "*");
 			// item->SetToolTipText(item->Text());
@@ -295,7 +297,7 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		// populate remote branches
 		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
 		for(auto &branch : remote_branches) {
-			auto item = new StyledItem(this, branch.String(), kRemoteBranch);
+			auto item = new BranchItem(branch.String(), kRemoteBranch);
 			// item->SetToolTipText(item->Text());
 			AddUnder(item, remotes);
 		}
@@ -304,7 +306,7 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		// populate tags
 		auto all_tags = repo->GetTags();
 		for(auto &tag : all_tags) {
-			auto item = new StyledItem(this, tag.String(), kRemoteBranch);
+			auto item = new BranchItem(tag.String(), kRemoteBranch);
 			// item->SetToolTipText(item->Text());
 			AddUnder(item, tags);
 		}
@@ -318,11 +320,10 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 }
 
 
-StyledItem*
+BranchItem*
 RepositoryView::_InitEmptySuperItem(const BString &label)
 {
-	auto item = new StyledItem(this, label);
-	item->SetPrimaryTextStyle(B_BOLD_FACE);
+	auto item = new BranchItem(label);
 	AddItem(item);
 	return item;
 }

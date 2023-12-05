@@ -82,6 +82,7 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 }
 
 
+/* virtual */
 ProjectItem::~ProjectItem()
 {
 	delete fSourceItem;
@@ -213,6 +214,7 @@ ProjectItem::CommitRename()
 }
 
 
+/* virtual */
 void
 ProjectItem::DrawText(BView* owner, const BPoint& point)
 {

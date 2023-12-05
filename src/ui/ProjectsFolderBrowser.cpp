@@ -770,6 +770,6 @@ ProjectsFolderBrowser::SelectionChanged()
 void
 ProjectsFolderBrowser::InitRename(ProjectItem *item)
 {
-	item->InitRename(new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
+	item->InitRename(this, new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
 	Invalidate();
 }

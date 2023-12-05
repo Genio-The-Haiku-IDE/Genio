@@ -23,7 +23,7 @@ public:
 	void			SetNeedsSave(bool needs);
 	void			SetOpenedInEditor(bool open);
 
-	void			InitRename(BMessage* message);
+	void			InitRename(BView* owner, BMessage* message);
 	void			AbortRename();
 	void			CommitRename();
 
@@ -33,13 +33,10 @@ private:
 	SourceItem		*fSourceItem;
 	bool			fNeedsSave;
 	bool			fOpenedInEditor;
-	bool			fInitRename;
-	BMessage*		fMessage;
 	BTextControl	*fTextControl;
 	BString			fPrimaryText;
 	BString			fSecondaryText;
 
-	void			_DrawTextWidget(BView* owner, const BRect& textRect);
 	void			_DestroyTextWidget();
 };
 

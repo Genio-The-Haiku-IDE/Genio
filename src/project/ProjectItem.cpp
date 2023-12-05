@@ -10,6 +10,7 @@
 #include <ControlLook.h>
 #include <Font.h>
 #include <NodeInfo.h>
+#include <OutlineListView.h>
 #include <StringItem.h>
 #include <TextControl.h>
 #include <Window.h>
@@ -61,6 +62,10 @@ public:
 			fProjectItem->AbortRename();
 		}
 		if (numBytes == 1 && *bytes == B_RETURN) {
+			BMessage* message = new BMessage(*Message());
+			message->AddString("_value", Text());
+			BMessenger(Parent()).SendMessage(message);
+			delete message;
 			fProjectItem->CommitRename();
 		}
 	}
@@ -73,8 +78,6 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 	fSourceItem(sourceItem),
 	fNeedsSave(false),
 	fOpenedInEditor(false),
-	fInitRename(false),
-	fMessage(nullptr),
 	fTextControl(nullptr),
 	fPrimaryText(Text()),
 	fSecondaryText()
@@ -142,14 +145,15 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BRect iconRect = DrawIcon(owner, bounds, icon, iconSize);
 
-	// Check if there is an InitRename request and show a TextControl
-	if (fInitRename) {
+	// There's a TextControl for renaming
+	if (fTextControl != nullptr) {
 		BRect textRect;
 		textRect.top = bounds.top - 0.5f;
 		textRect.left = iconRect.right + be_control_look->DefaultLabelSpacing();
 		textRect.bottom = bounds.bottom - 1;
 		textRect.right = bounds.right;
-		_DrawTextWidget(owner, textRect);
+		// TODO: Don't move it every time
+		fTextControl->MoveTo(textRect.LeftTop());
 	} else {
 		BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 						bounds.top + BaselineOffset());
@@ -183,12 +187,25 @@ ProjectItem::Update(BView* owner, const BFont* font)
 
 
 void
-ProjectItem::InitRename(BMessage* message)
+ProjectItem::InitRename(BView* owner, BMessage* message)
 {
-	if (fTextControl != nullptr)
-		debugger("ProjectItem::InitRename() called twice!");
-	fInitRename = true;
-	fMessage = message;
+	if (fTextControl == nullptr) {
+		BOutlineListView* listView = static_cast<BOutlineListView*>(owner);
+		const int32 index = listView->IndexOf(this);
+		BRect itemRect = listView->ItemFrame(index);
+		fTextControl = new TemporaryTextControl(itemRect, "RenameTextWidget",
+											"", Text(), message, this,
+											B_FOLLOW_NONE);
+		if (owner->LockLooper()) {
+			owner->AddChild(fTextControl);
+			owner->UnlockLooper();
+		}
+		fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
+		fTextControl->SetDivider(0);
+		fTextControl->TextView()->SelectAll();
+		fTextControl->TextView()->ResizeBy(0, -3);
+	}
+	fTextControl->MakeFocus();
 }
 
 
@@ -197,7 +214,6 @@ ProjectItem::AbortRename()
 {
 	if (fTextControl != nullptr)
 		_DestroyTextWidget();
-	fInitRename = false;
 }
 
 
@@ -205,12 +221,9 @@ void
 ProjectItem::CommitRename()
 {
 	if (fTextControl != nullptr) {
-		fMessage->AddString("_value", fTextControl->Text());
-		BMessenger(fTextControl->Parent()).SendMessage(fMessage);
 		SetText(fTextControl->Text());
 		_DestroyTextWidget();
 	}
-	fInitRename = false;
 }
 
 
@@ -240,23 +253,6 @@ ProjectItem::DrawText(BView* owner, const BPoint& point)
 	}
 
 	owner->Sync();
-}
-
-
-void
-ProjectItem::_DrawTextWidget(BView* owner, const BRect& textRect)
-{
-	if (fTextControl == nullptr) {
-		fTextControl = new TemporaryTextControl(textRect, "RenameTextWidget",
-											"", Text(), fMessage, this,
-											B_FOLLOW_NONE);
-		owner->AddChild(fTextControl);
-		fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
-		fTextControl->SetDivider(0);
-		fTextControl->TextView()->SelectAll();
-		fTextControl->TextView()->ResizeBy(0, -3);
-	}
-	fTextControl->MakeFocus();
 }
 
 

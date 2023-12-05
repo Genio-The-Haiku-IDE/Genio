@@ -239,6 +239,7 @@ ProjectItem::DrawText(BView* owner, const BPoint& point)
 	owner->Sync();
 }
 
+
 void
 ProjectItem::_DrawTextWidget(BView* owner, const BRect& textRect)
 {

@@ -7,12 +7,8 @@
 #include <Catalog.h>
 #include <OutlineListView.h>
 
-#include "GitRepository.h"
-#include "GMessage.h"
-#include "Log.h"
-#include "SourceControlPanel.h"
 #include "ProjectFolder.h"
-#include "Utils.h"
+#include "SourceControlPanel.h"
 
 enum RepositoryViewMessages {
 	kUndefinedMessage,
@@ -32,17 +28,17 @@ public:
 					 RepositoryView();
 	virtual 		~RepositoryView();
 
-	void			MouseDown(BPoint where);
-	void			MouseMoved(BPoint point, uint32 transit, const BMessage* message);
-	void			AttachedToWindow();
-	void			DetachedFromWindow();
-	void			MessageReceived(BMessage* message);
-	void			SelectionChanged();
+	virtual void	MouseDown(BPoint where);
+	virtual void	MouseMoved(BPoint point, uint32 transit, const BMessage* message);
+	virtual void	AttachedToWindow();
+	virtual void	DetachedFromWindow();
+	virtual void	MessageReceived(BMessage* message);
+	virtual void	SelectionChanged();
+
+	// TODO: Consider returning BranchItem* directly
+	BListItem*		GetSelectedItem();
 
 	void			UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch);
-
-	auto			GetSelectedItem();
-
 private:
 
 	void			_ShowPopupMenu(BPoint where);

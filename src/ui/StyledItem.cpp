@@ -9,7 +9,6 @@
 #include <ControlLook.h>
 #include <Font.h>
 #include <NodeInfo.h>
-#include <StringItem.h>
 #include <View.h>
 #include <Window.h>
 

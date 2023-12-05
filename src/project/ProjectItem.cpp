@@ -89,6 +89,7 @@ ProjectItem::~ProjectItem()
 }
 
 
+/* virtual */
 void
 ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
@@ -172,6 +173,7 @@ ProjectItem::SetOpenedInEditor(bool open)
 }
 
 
+/* virtual */
 void
 ProjectItem::Update(BView* owner, const BFont* font)
 {

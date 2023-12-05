@@ -205,8 +205,11 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 	auto index = IndexOf(where);
 	if (index >= 0) {
 		auto item = dynamic_cast<BranchItem*>(ItemAt(index));
+		if (item == nullptr) {
+			delete optionsMenu;
+			return;
+		}
 		auto item_type = item->BranchType();
-
 		BString selected_branch(item->Text());
 		selected_branch.RemoveLast("*");
 
@@ -325,7 +328,8 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 				break;
 			}
 			default: {
-				break;
+				delete optionsMenu;
+				return;
 			}
 		}
 	}
@@ -339,7 +343,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 BranchItem*
 RepositoryView::_InitEmptySuperItem(const BString &label)
 {
-	auto item = new BranchItem(label);
+	auto item = new BranchItem(label, kHeader);
 	item->SetTextFontFace(B_BOLD_FACE);
 	AddItem(item);
 	return item;

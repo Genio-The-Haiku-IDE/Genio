@@ -116,12 +116,10 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		ProjectFolder *projectFolder = (ProjectFolder*)GetSourceItem();
+		if (projectFolder->Active())
+			SetTextFontFace(B_BOLD_FACE);
 		BString projectName = Text();
 		BString projectPath = projectFolder->Path();
-
-		if (projectFolder->Active()) {
-			owner->SetFont(be_bold_font);
-		}
 		BString branchName;
 		try {
 			Genio::Git::GitRepository repo(projectPath.String());

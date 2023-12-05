@@ -136,6 +136,10 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 	auto index = IndexOf(where);
 	if (index >= 0) {
 		auto item = dynamic_cast<StyledItem*>(ItemAt(index));
+		if (item == nullptr) {
+			delete optionsMenu;
+			return;
+		}
 		auto item_type = item->GetType();
 
 		BString selected_branch(item->Text());
@@ -256,7 +260,8 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 				break;
 			}
 			default: {
-				break;
+				delete optionsMenu;
+				return;
 			}
 		}
 	}
@@ -321,7 +326,7 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 StyledItem*
 RepositoryView::_InitEmptySuperItem(const BString &label)
 {
-	auto item = new StyledItem(this, label);
+	auto item = new StyledItem(this, label, kHeader);
 	item->SetPrimaryTextStyle(B_BOLD_FACE);
 	AddItem(item);
 	return item;

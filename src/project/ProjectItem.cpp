@@ -157,7 +157,16 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	} else {
 		BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 						bounds.top + BaselineOffset());
-		DrawText(owner, textPoint);
+		// TODO: Apply any style change here (i.e. bold, italic)
+		BString text = Text();
+		if (fNeedsSave)
+			text.Append("*");
+		if (!fSecondaryText.IsEmpty())
+			text << "  [" << fSecondaryText.String() << "]";
+
+		if (fOpenedInEditor)
+			SetTextFontFace(B_ITALIC_FACE);
+		DrawText(owner, text, textPoint);
 
 		owner->Sync();
 	}
@@ -224,35 +233,6 @@ ProjectItem::CommitRename()
 		SetText(fTextControl->Text());
 		_DestroyTextWidget();
 	}
-}
-
-
-/* virtual */
-void
-ProjectItem::DrawText(BView* owner, const BPoint& point)
-{
-	if (fOpenedInEditor) {
-		BFont font;
-		owner->GetFont(&font);
-		font.SetFace(B_ITALIC_FACE);
-		owner->SetFont(&font);
-	}
-	// Draw string at the right of the icon
-	owner->SetDrawingMode(B_OP_COPY);
-	owner->MovePenTo(point);
-	BString text = Text();
-	if (fNeedsSave)
-		text.Append("*");
-	owner->DrawString(text.String());
-
-	if (!fSecondaryText.IsEmpty()) {
-		BString text;
-		text << "  [" << fSecondaryText.String() << "]";
-		// Apply any style change here (i.e. bold, italic)
-		owner->DrawString(text.String());
-	}
-
-	owner->Sync();
 }
 
 

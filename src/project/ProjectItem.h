@@ -28,8 +28,6 @@ public:
 	void			CommitRename();
 
 private:
-	virtual void	DrawText(BView* owner, const BPoint& textPoint);
-	
 	SourceItem		*fSourceItem;
 	bool			fNeedsSave;
 	bool			fOpenedInEditor;

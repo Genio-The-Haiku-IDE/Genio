@@ -70,7 +70,7 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	}
 	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
-	DrawText(owner, textPoint);
+	DrawText(owner, Text(), textPoint);
 
 	owner->Sync();
 }
@@ -114,7 +114,7 @@ StyledItem::GetToolTipText() const
 	
 /* virtual */
 void
-StyledItem::DrawText(BView* owner, const BPoint& point)
+StyledItem::DrawText(BView* owner, const char* text, const BPoint& point)
 {
 	BFont font;
 	owner->GetFont(&font);
@@ -123,7 +123,7 @@ StyledItem::DrawText(BView* owner, const BPoint& point)
 
 	owner->SetDrawingMode(B_OP_COPY);
 	owner->MovePenTo(point);
-	owner->DrawString(Text());
+	owner->DrawString(text);
 
 	owner->Sync();
 }

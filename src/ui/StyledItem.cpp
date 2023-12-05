@@ -22,7 +22,8 @@ StyledItem::StyledItem(const char* text,
 	:
 	BStringItem(text, outlineLevel, expanded),
 	fToolTipText(nullptr),
-	fIconName(iconName)
+	fIconName(iconName),
+	fFontFace(B_REGULAR_FACE)
 {
 }
 
@@ -51,8 +52,6 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->FillRect(bounds, B_SOLID_LOW);
 		owner->SetLowColor(oldLowColor);
 	}
-
-	owner->SetFont(be_plain_font);
 
 	if (IsSelected())
 		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
@@ -85,6 +84,13 @@ StyledItem::Update(BView* owner, const BFont* font)
 }
 
 
+void
+StyledItem::SetTextFontFace(uint16 fontFace)
+{
+	fFontFace = fontFace;
+}
+
+
 bool
 StyledItem::HasToolTip() const
 {
@@ -112,7 +118,7 @@ StyledItem::DrawText(BView* owner, const BPoint& point)
 {
 	BFont font;
 	owner->GetFont(&font);
-	font.SetFace(B_REGULAR_FACE);
+	font.SetFace(fFontFace);
 	owner->SetFont(&font);
 
 	owner->SetDrawingMode(B_OP_COPY);

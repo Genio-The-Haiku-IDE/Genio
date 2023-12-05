@@ -20,7 +20,8 @@ public:
 	virtual void 	DrawItem(BView* owner, BRect bounds, bool complete);
 	virtual void 	Update(BView* owner, const BFont* font);
 
-	void			SetTextStyle(font_style fontStyle);
+	// TODO: Maybe SetFont ?
+	void			SetTextFontFace(uint16 fontFace);
 	
 	bool			HasToolTip() const;
 	void			SetToolTipText(const char *text);
@@ -34,7 +35,7 @@ protected:
 private:
 	BString			fToolTipText;
 	BString			fIconName;
-	font_style		fFontStyle;
+	uint16			fFontFace;
 	
 	void			_DrawText(BView* owner, const BPoint& textPoint);
 };

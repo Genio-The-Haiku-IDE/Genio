@@ -21,7 +21,7 @@ StyledItem::StyledItem(const char* text,
 						const char *iconName)
 	:
 	BStringItem(text, outlineLevel, expanded),
-	fToolTipText(nullptr),
+	fToolTipText(),
 	fIconName(iconName),
 	fFontFace(B_REGULAR_FACE)
 {

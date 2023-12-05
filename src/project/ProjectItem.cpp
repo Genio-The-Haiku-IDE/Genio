@@ -115,7 +115,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	owner->SetFont(be_plain_font);
 
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		ProjectFolder *projectFolder = (ProjectFolder*)GetSourceItem();
+		ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
 		if (projectFolder->Active())
 			SetTextFontFace(B_BOLD_FACE);
 		BString projectName = Text();
@@ -125,7 +125,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			Genio::Git::GitRepository repo(projectPath.String());
 			branchName = repo.GetCurrentBranch();
 			fSecondaryText.SetTo(branchName);
-		} catch (Genio::Git::GitException &ex) {}
+		} catch (const Genio::Git::GitException &ex) {
+		}
 
 		BString toolTipText;
 		toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",

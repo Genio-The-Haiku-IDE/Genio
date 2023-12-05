@@ -6,7 +6,8 @@ v2.0
 	- Added support for fullscreen and "focus" modes.
 	- Added syntax highlighting for many languages.
 	- Added editor styling functionalities.
-	- Added "quick fix" for problems reported by clangd
+	- Added "quick fix" for problems reported by clangd.
+	- Added "Source control" panel to handle most Git operations.
 	- New settings window.
 	- Rewrote settings handling. All settings are now applied live.
 	- Added "Open remote project".

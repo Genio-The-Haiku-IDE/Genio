@@ -21,6 +21,7 @@ enum RepositoryViewMessages {
 };
 
 enum ItemType {
+	kHeader,
 	kLocalBranch,
 	kRemoteBranch,
 	kTag

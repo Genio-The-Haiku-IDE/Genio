@@ -15,10 +15,10 @@ public:
 								uint32 outlineLevel = 0,
 								bool expanded = true,
 								const char *iconName = nullptr);
-					~StyledItem();
+					virtual ~StyledItem();
 
-	void 			DrawItem(BView* owner, BRect bounds, bool complete);
-	void 			Update(BView* owner, const BFont* font);
+	virtual void 	DrawItem(BView* owner, BRect bounds, bool complete);
+	virtual void 	Update(BView* owner, const BFont* font);
 
 	void			SetTextStyle(font_style fontStyle);
 	

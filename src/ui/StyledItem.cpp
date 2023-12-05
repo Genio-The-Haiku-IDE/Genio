@@ -33,6 +33,7 @@ StyledItem::~StyledItem()
 }
 
 
+/* virtual */
 void
 StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
@@ -76,6 +77,7 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 }
 
 
+/* virtual */
 void
 StyledItem::Update(BView* owner, const BFont* font)
 {

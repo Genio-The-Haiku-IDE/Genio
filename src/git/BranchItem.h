@@ -1,10 +1,8 @@
 /*
- * Copyright 2018, Your Name 
+ * Copyright 2023, Genio
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef _H
-#define _H
-
+#pragma once
 
 #include "StyledItem.h"
 
@@ -21,6 +19,3 @@ public:
 private:
 	uint32 fBranchType;
 };
-
-
-#endif // _H

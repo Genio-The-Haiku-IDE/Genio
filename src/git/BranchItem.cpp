@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Stefano Ceccherini
+ * Copyright 2023, Genio
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 

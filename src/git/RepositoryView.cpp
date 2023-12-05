@@ -340,6 +340,7 @@ BranchItem*
 RepositoryView::_InitEmptySuperItem(const BString &label)
 {
 	auto item = new BranchItem(label);
+	item->SetTextFontFace(B_BOLD_FACE);
 	AddItem(item);
 	return item;
 }

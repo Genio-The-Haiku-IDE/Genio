@@ -35,6 +35,8 @@ public:
 	void			CommitRename();
 
 private:
+	virtual void	DrawText(BView* owner, const BPoint& textPoint);
+	
 	SourceItem		*fSourceItem;
 	bool			fNeedsSave;
 	bool			fOpenedInEditor;
@@ -44,7 +46,6 @@ private:
 	BString			fPrimaryText;
 	BString			fSecondaryText;
 
-	void			_DrawText(BView* owner, const BPoint& textPoint);
 	void			_DrawTextWidget(BView* owner, const BRect& textRect);
 	void			_DestroyTextWidget();
 };

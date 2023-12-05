@@ -27,7 +27,8 @@ public:
 	const char*		GetToolTipText() const;
 
 protected:
-	virtual BRect	DrawIcon(BView* owner, const BRect& bounds, float& iconSize);
+	virtual BRect	DrawIcon(BView* owner, const BRect& bounds,
+						const BBitmap* icon, float& iconSize);
 	virtual void	DrawText(BView* owner, const BPoint& textPoint);
 	
 private:

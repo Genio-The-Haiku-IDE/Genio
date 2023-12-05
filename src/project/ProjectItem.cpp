@@ -69,9 +69,8 @@ public:
 
 ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
-	BStringItem(sourceItem->Name()),
+	StyledItem(sourceItem->Name()),
 	fSourceItem(sourceItem),
-	fFirstTimeRendered(true),
 	fNeedsSave(false),
 	fOpenedInEditor(false),
 	fInitRename(false),
@@ -126,10 +125,12 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			fSecondaryText.SetTo(branchName);
 		} catch(Genio::Git::GitException &ex) {}
 
-		fToolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
+		BString toolTipText;
+		toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
 									B_TRANSLATE("Project"), Text(),
 									B_TRANSLATE("Path"), projectPath.String(),
 									B_TRANSLATE("Current branch"), branchName.String());
+		SetToolTipText(toolTipText);
 	}
 	if (IsSelected())
 		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
@@ -158,11 +159,6 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		_DrawText(owner, textPoint);
 
 		owner->Sync();
-
-		if (fFirstTimeRendered) {
-			owner->Invalidate();
-			fFirstTimeRendered = false;
-		}
 	}
 }
 

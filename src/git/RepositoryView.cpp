@@ -55,7 +55,7 @@ RepositoryView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
 	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
 		auto index = IndexOf(point);
 		if (index >= 0) {
-			StyledItem *item = dynamic_cast<StyledItem*>(ItemAt(index));
+			BranchItem *item = dynamic_cast<BranchItem*>(ItemAt(index));
 			if (item->HasToolTip()) {
 				SetToolTip(item->GetToolTipText());
 			} else {
@@ -164,7 +164,7 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		// populate local branches
 		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
 		for(auto &branch : local_branches) {
-			auto item = new StyledItem(branch.String(), kLocalBranch);
+			auto item = new BranchItem(branch.String(), kLocalBranch);
 			if (branch == fCurrentBranch)
 				item->SetText(BString(item->Text()) << "*");
 			// item->SetToolTipText(item->Text());

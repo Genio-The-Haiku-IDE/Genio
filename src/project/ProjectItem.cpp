@@ -143,12 +143,12 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	if (fInitRename) {
 		BRect textRect;
 		textRect.top = bounds.top - 0.5f;
-		textRect.left = iconRect.left + iconSize + be_control_look->DefaultLabelSpacing();
+		textRect.left = iconRect.right + be_control_look->DefaultLabelSpacing();
 		textRect.bottom = bounds.bottom - 1;
 		textRect.right = bounds.right;
 		_DrawTextWidget(owner, textRect);
 	} else {
-		BPoint textPoint(iconRect.left + iconSize + be_control_look->DefaultLabelSpacing(),
+		BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 						bounds.top + BaselineOffset());
 		DrawText(owner, textPoint);
 

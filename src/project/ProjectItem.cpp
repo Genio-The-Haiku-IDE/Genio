@@ -174,7 +174,7 @@ ProjectItem::SetOpenedInEditor(bool open)
 void
 ProjectItem::Update(BView* owner, const BFont* font)
 {
-	BStringItem::Update(owner, be_bold_font);
+	StyledItem::Update(owner, be_bold_font);
 }
 
 

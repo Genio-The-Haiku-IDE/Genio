@@ -22,7 +22,10 @@ public:
 
 	// TODO: Maybe SetFont ?
 	void			SetTextFontFace(uint16 fontFace);
-	
+
+	void			SetExtraText(const char* extraText);
+	const char*		ExtraText() const;
+
 	bool			HasToolTip() const;
 	void			SetToolTipText(const char *text);
 	const char*		GetToolTipText() const;
@@ -32,11 +35,9 @@ protected:
 						const BBitmap* icon, float& iconSize);
 	virtual void	DrawText(BView* owner, const char* text,
 						const BPoint& textPoint);
-	
 private:
-	BString			fToolTipText;
 	BString			fIconName;
 	uint16			fFontFace;
-	
-	void			_DrawText(BView* owner, const BPoint& textPoint);
+	BString			fExtraText;
+	BString			fToolTipText;
 };

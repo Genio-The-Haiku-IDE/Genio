@@ -163,10 +163,12 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		auto locals = _InitEmptySuperItem(B_TRANSLATE("Local branches"));
 		// populate local branches
 		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
-		for(auto &branch : local_branches) {
+		for (auto &branch : local_branches) {
 			auto item = new BranchItem(branch.String(), kLocalBranch);
-			if (branch == fCurrentBranch)
-				item->SetText(BString(item->Text()) << "*");
+			if (branch == fCurrentBranch) {
+				item->SetExtraText("*");
+			} else
+				item->SetExtraText("");
 			// item->SetToolTipText(item->Text());
 			AddUnder(item, locals);
 		}
@@ -211,7 +213,6 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 		}
 		auto item_type = item->BranchType();
 		BString selected_branch(item->Text());
-		selected_branch.RemoveLast("*");
 
 		StringFormatter fmt;
 		fmt.Substitutions["%selected_branch%"] = selected_branch;

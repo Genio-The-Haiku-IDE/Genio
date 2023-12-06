@@ -78,9 +78,7 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 	fSourceItem(sourceItem),
 	fNeedsSave(false),
 	fOpenedInEditor(false),
-	fTextControl(nullptr),
-	fPrimaryText(Text()),
-	fSecondaryText()
+	fTextControl(nullptr)
 {
 }
 
@@ -124,7 +122,9 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		try {
 			Genio::Git::GitRepository repo(projectPath.String());
 			branchName = repo.GetCurrentBranch();
-			fSecondaryText.SetTo(branchName);
+			BString extraText;
+			extraText << "  [" << branchName << "]";
+			SetExtraText(extraText);
 		} catch (const Genio::Git::GitException &ex) {
 		}
 
@@ -160,8 +160,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		BString text = Text();
 		if (fNeedsSave)
 			text.Append("*");
-		if (!fSecondaryText.IsEmpty())
-			text << "  [" << fSecondaryText.String() << "]";
+		text.Append(ExtraText());
 
 		if (fOpenedInEditor)
 			SetTextFontFace(B_ITALIC_FACE);

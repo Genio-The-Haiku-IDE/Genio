@@ -404,7 +404,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
 	cfg.AddConfig("Editor/Find", "find_exclude_directory", B_TRANSLATE("Exclude Directories"),
-															"objects.*,.git*,.cache");
+															".*, objects.*");
 
 	GMessage lsplevels = { {"mode", "options"},
 						   {"note", B_TRANSLATE("This setting will be updated on restart")},

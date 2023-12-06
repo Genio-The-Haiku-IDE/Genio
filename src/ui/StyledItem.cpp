@@ -21,9 +21,9 @@ StyledItem::StyledItem(const char* text,
 						const char *iconName)
 	:
 	BStringItem(text, outlineLevel, expanded),
-	fToolTipText(),
 	fIconName(iconName),
-	fFontFace(B_REGULAR_FACE)
+	fFontFace(B_REGULAR_FACE),
+	fToolTipText()
 {
 }
 
@@ -70,7 +70,11 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	}
 	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
-	DrawText(owner, Text(), textPoint);
+
+	// TODO: would be nice to draw extra text in different style
+	BString text(Text());
+	text << fExtraText;
+	DrawText(owner, text.String(), textPoint);
 
 	owner->Sync();
 }
@@ -88,6 +92,20 @@ void
 StyledItem::SetTextFontFace(uint16 fontFace)
 {
 	fFontFace = fontFace;
+}
+
+
+void
+StyledItem::SetExtraText(const char* extraText)
+{
+	fExtraText = extraText;
+}
+
+
+const char*
+StyledItem::ExtraText() const
+{
+	return fExtraText.String();
 }
 
 

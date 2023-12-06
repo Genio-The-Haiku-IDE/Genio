@@ -349,10 +349,9 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				auto result = alert->Go();
 				if (result.Button == GAlertButtons::OkButton) {
 					stash_message = result.Result;
+					fSelectedProject->GetRepository()->StashSave(stash_message);
+					_ShowGitNotification(B_TRANSLATE("Changes stashed."));
 				}
-
-				fSelectedProject->GetRepository()->StashSave(stash_message);
-				_ShowGitNotification(B_TRANSLATE("Changes stashed."));
 				break;
 			}
 			case MsgStashPop: {

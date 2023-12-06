@@ -363,7 +363,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor", "save_caret", B_TRANSLATE("Save caret position"), true);
 	cfg.AddConfig("Editor", "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
 	GMessage tabs = { {"min",1},{"max",8} };
-	cfg.AddConfig("Editor", "tab_width", B_TRANSLATE("Tab width:  "), 4, &tabs);
+	cfg.AddConfig("Editor", "tab_width", B_TRANSLATE("Tab width:"), 4, &tabs);
 
 	cfg.AddConfig("Editor", "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
 

@@ -9,39 +9,32 @@
 #include <ControlLook.h>
 #include <Font.h>
 #include <NodeInfo.h>
-#include <StringItem.h>
 #include <View.h>
 #include <Window.h>
 
 #include "Utils.h"
 
 
-StyledItem::StyledItem(BOutlineListView *container,
-						const char* text,
-						const uint32 item_type,
+StyledItem::StyledItem(const char* text,
 						uint32 outlineLevel,
 						bool expanded,
 						const char *iconName)
 	:
 	BStringItem(text, outlineLevel, expanded),
-	fContainerListView(container),
-	fFirstTimeRendered(true),
-	fInitRename(false),
-	fMessage(nullptr),
-	fToolTipText(nullptr),
-	fPrimaryTextStyle(B_REGULAR_FACE),
-	fSecondaryTextStyle(B_REGULAR_FACE),
+	fToolTipText(),
 	fIconName(iconName),
-	fItemType(item_type)
+	fFontFace(B_REGULAR_FACE)
 {
 }
 
 
+/* virtual */
 StyledItem::~StyledItem()
 {
 }
 
 
+/* virtual */
 void
 StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
@@ -60,40 +53,30 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->SetLowColor(oldLowColor);
 	}
 
-	owner->SetFont(be_plain_font);
-
-
 	if (IsSelected())
 		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
 	else
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
-	BBitmap *icon = nullptr;
 	float iconSize = 0;
+	BRect iconRect = bounds;
+	iconRect.right = iconRect.left + 4;
 	if (fIconName != nullptr) {
 		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-		icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
+		BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
 		GetVectorIcon(fIconName.String(), icon);
+		iconRect = DrawIcon(owner, bounds, icon, iconSize);
+		delete icon;
 	}
-	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);
-	if (icon != nullptr) {
-		owner->SetDrawingMode(B_OP_ALPHA);
-		owner->DrawBitmapAsync(icon, iconStartingPoint);
-	}
-
-	BPoint textPoint(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
+	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
-	_DrawText(owner, textPoint);
+	DrawText(owner, Text(), textPoint);
 
 	owner->Sync();
-
-	if (fFirstTimeRendered) {
-		owner->Invalidate();
-		fFirstTimeRendered = false;
-	}
 }
 
 
+/* virtual */
 void
 StyledItem::Update(BView* owner, const BFont* font)
 {
@@ -102,26 +85,61 @@ StyledItem::Update(BView* owner, const BFont* font)
 
 
 void
-StyledItem::_DrawText(BView* owner, const BPoint& point)
+StyledItem::SetTextFontFace(uint16 fontFace)
+{
+	fFontFace = fontFace;
+}
+
+
+bool
+StyledItem::HasToolTip() const
+{
+	return !fToolTipText.IsEmpty();
+}
+
+
+void
+StyledItem::SetToolTipText(const char *text)
+{
+	fToolTipText = text;
+}
+
+
+const char*
+StyledItem::GetToolTipText() const
+{
+	return fToolTipText.String();
+}
+
+	
+/* virtual */
+void
+StyledItem::DrawText(BView* owner, const char* text, const BPoint& point)
 {
 	BFont font;
 	owner->GetFont(&font);
-	font.SetFace(fPrimaryTextStyle);
+	font.SetFace(fFontFace);
 	owner->SetFont(&font);
 
 	owner->SetDrawingMode(B_OP_COPY);
 	owner->MovePenTo(point);
-	owner->DrawString(Text());
-
-	font.SetFace(fSecondaryTextStyle);
-	owner->SetFont(&font);
-
-	if (!fSecondaryText.IsEmpty()) {
-		BString text;
-		text << fSecondaryText.String();
-		// Apply any style change here (i.e. bold, italic)
-		owner->DrawString(text.String());
-	}
+	owner->DrawString(text);
 
 	owner->Sync();
+}
+
+
+/* virtual */
+BRect
+StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
+	const BBitmap* icon, float &iconSize)
+{
+	BPoint iconStartingPoint(itemBounds.left + 4.0f,
+		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
+	if (icon != nullptr) {
+		owner->SetDrawingMode(B_OP_ALPHA);
+		owner->DrawBitmapAsync(icon, iconStartingPoint);
+	}
+
+	return BRect(iconStartingPoint, BSize(iconSize, iconSize));
 }

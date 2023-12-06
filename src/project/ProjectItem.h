@@ -5,51 +5,36 @@
 #ifndef PROJECT_ITEM_H
 #define PROJECT_ITEM_H
 
-#include <Bitmap.h>
-#include <Font.h>
-#include <Messenger.h>
-#include <StringItem.h>
-#include <TextControl.h>
-#include <View.h>
+#include "StyledItem.h"
 
-// TODO: make this inherit from StyledItem
 
+class BTextControl;
 class SourceItem;
-class ProjectItem : public BStringItem {
+class ProjectItem : public StyledItem {
 public:
 					ProjectItem(SourceItem *sourceFile);
-					~ProjectItem();
+					virtual ~ProjectItem();
 
-	void 			DrawItem(BView* owner, BRect bounds, bool complete);
-	void 			Update(BView* owner, const BFont* font);
+	virtual void 	DrawItem(BView* owner, BRect bounds, bool complete);
+	virtual void 	Update(BView* owner, const BFont* font);
 
 	SourceItem		*GetSourceItem() const { return fSourceItem; };
 
 	void			SetNeedsSave(bool needs);
 	void			SetOpenedInEditor(bool open);
 
-	void			InitRename(BMessage* message);
+	void			InitRename(BView* owner, BMessage* message);
 	void			AbortRename();
 	void			CommitRename();
 
-	bool			HasToolTip() const { return !fToolTipText.IsEmpty(); };
-	void			SetToolTipText(const char *text) { fToolTipText = text; }
-	const char*		GetToolTipText() const { return fToolTipText.String(); }
-
 private:
 	SourceItem		*fSourceItem;
-	bool			fFirstTimeRendered;
 	bool			fNeedsSave;
 	bool			fOpenedInEditor;
-	bool			fInitRename;
-	BMessage*		fMessage;
 	BTextControl	*fTextControl;
 	BString			fPrimaryText;
 	BString			fSecondaryText;
-	BString			fToolTipText;
 
-	void			_DrawText(BView* owner, const BPoint& textPoint);
-	void			_DrawTextWidget(BView* owner, const BRect& textRect);
 	void			_DestroyTextWidget();
 };
 

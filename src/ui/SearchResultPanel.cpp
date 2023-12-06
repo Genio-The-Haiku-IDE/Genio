@@ -57,7 +57,7 @@ public:
 	}
 };
 
-#define SearchResultPanelLabel B_TRANSLATE("Search Results")
+#define SearchResultPanelLabel B_TRANSLATE("Search results")
 
 SearchResultPanel::SearchResultPanel(BTabView* tabView): BColumnListView(SearchResultPanelLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)

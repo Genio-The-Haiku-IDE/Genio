@@ -49,7 +49,7 @@ enum MainIndex {
 
 
 SourceControlPanel::SourceControlPanel()
-	: BView(B_TRANSLATE("Source Control"), B_WILL_DRAW | B_FRAME_EVENTS ),
+	: BView(B_TRANSLATE("Source control"), B_WILL_DRAW | B_FRAME_EVENTS ),
 	fProjectMenu(nullptr),
 	fBranchMenu(nullptr),
 	fProjectList(nullptr),

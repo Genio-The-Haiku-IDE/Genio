@@ -303,13 +303,13 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 		{"mode", "options"},
 		{"option_1", {
 			{"value", (int32)Logger::LOGGER_DEST_STDOUT },
-			{"label", "Stdout" }}},
+			{"label", "stdout" }}},
 		{"option_2", {
 			{"value", (int32)Logger::LOGGER_DEST_STDERR },
-			{"label", "Stderr"}}},
+			{"label", "stderr"}}},
 		{"option_3", {
 			{"value", (int32)Logger::LOGGER_DEST_SYSLOG },
-			{"label", "Syslog"}}},
+			{"label", "syslog"}}},
 		{"option_4", {
 			{"value", (int32)Logger::LOGGER_DEST_BEDC },
 			{"label", "BeDC"}}}
@@ -392,7 +392,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 
 	cfg.AddConfig("Editor/Visual", "show_edgeline", B_TRANSLATE("Show edge line"), true);
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
-	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column"), 100, &limits);
+	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column:"), 100, &limits);
 
 	cfg.AddConfig("Build", "wrap_console",   B_TRANSLATE("Wrap console"), false);
 	cfg.AddConfig("Build", "console_banner", B_TRANSLATE("Console banner"), true);
@@ -403,11 +403,11 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_wrap", B_TRANSLATE("Wrap"), false);
 	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
-	cfg.AddConfig("Editor/Find", "find_exclude_directory", B_TRANSLATE("Exclude Directories"),
+	cfg.AddConfig("Editor/Find", "find_exclude_directory", B_TRANSLATE("Exclude folders:"),
 															".*,objects.*");
 
 	GMessage lsplevels = { {"mode", "options"},
-						   {"note", B_TRANSLATE("This setting will be updated on restart")},
+						   {"note", B_TRANSLATE("This setting will be updated on restart.")},
 						   {"option_1", {
 								{"value", (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR },
 								{"label", "Error" }}},

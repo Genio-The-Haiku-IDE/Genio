@@ -607,20 +607,22 @@ ProjectsFolderBrowser::DetachedFromWindow()
 void
 ProjectsFolderBrowser::MouseDown(BPoint where)
 {
-	BOutlineListView::MouseDown(where);
-	if (IndexOf(where) >= 0) {
-		int32 buttons = -1;
+	int32 buttons = -1;
 
-		BMessage* message = Looper()->CurrentMessage();
-		 if (message != NULL)
-			 message->FindInt32("buttons", &buttons);
+	BMessage* message = Looper()->CurrentMessage();
+	 if (message != NULL)
+		 message->FindInt32("buttons", &buttons);
 
-		if (buttons == B_MOUSE_BUTTON(2)) {
-			_ShowProjectItemPopupMenu(where);
-		}
+	if (buttons == B_MOUSE_BUTTON(1)) {
+		return BOutlineListView::MouseDown(where);
+	} else 	if ( buttons == B_MOUSE_BUTTON(2)) {
+			int32 index = IndexOf(where);
+			if (index >= 0) {
+				Select(index);
+				_ShowProjectItemPopupMenu(where);
+			}
 	}
 }
-
 
 void
 ProjectsFolderBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message)

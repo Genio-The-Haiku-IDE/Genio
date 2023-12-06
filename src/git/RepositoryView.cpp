@@ -6,11 +6,14 @@
 
 #include "RepositoryView.h"
 
+#include "BranchItem.h"
+#include "GMessage.h"
 #include "StringFormatter.h"
+#include "Utils.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
-
 
 
 RepositoryView::RepositoryView()
@@ -52,7 +55,7 @@ RepositoryView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
 	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
 		auto index = IndexOf(point);
 		if (index >= 0) {
-			StyledItem *item = dynamic_cast<StyledItem*>(ItemAt(index));
+			BranchItem *item = dynamic_cast<BranchItem*>(ItemAt(index));
 			if (item->HasToolTip()) {
 				SetToolTip(item->GetToolTipText());
 			} else {
@@ -78,6 +81,8 @@ RepositoryView::AttachedToWindow()
 	SetInvocationMessage(new BMessage(kInvocationMessage));
 }
 
+
+/* virtual */
 void
 RepositoryView::DetachedFromWindow()
 {
@@ -91,15 +96,16 @@ RepositoryView::DetachedFromWindow()
 }
 
 
+/* virtual */
 void
 RepositoryView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kInvocationMessage: {
-			auto item = dynamic_cast<StyledItem*>(ItemAt(CurrentSelection()));
+			auto item = dynamic_cast<BranchItem*>(ItemAt(CurrentSelection()));
 			if (item == nullptr)
 				break;
-			switch (item->GetType()) {
+			switch (item->BranchType()) {
 				case kLocalBranch:
 				case kRemoteBranch: {
 					auto switch_message = new GMessage{
@@ -123,9 +129,95 @@ RepositoryView::MessageReceived(BMessage* message)
 }
 
 
+/* virtual */
 void
 RepositoryView::SelectionChanged()
 {
+}
+
+
+BListItem*
+RepositoryView::GetSelectedItem()
+{
+	BListItem *item = nullptr;
+	const int32 selection = CurrentSelection();
+	if (selection >= 0)
+		item = ItemAt(selection);
+	return item;
+}
+
+
+void
+RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch)
+{
+	fSelectedProject = selectedProject;
+	fRepositoryPath = fSelectedProject->Path().String();
+	fCurrentBranch = currentBranch;
+
+	try {
+		auto repo = fSelectedProject->GetRepository();
+		auto current_branch = repo->GetCurrentBranch();
+
+		MakeEmpty();
+
+		auto locals = _InitEmptySuperItem(B_TRANSLATE("Local branches"));
+		// populate local branches
+		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
+		for(auto &branch : local_branches) {
+			auto item = new BranchItem(branch.String(), kLocalBranch);
+			if (branch == fCurrentBranch)
+				item->SetText(BString(item->Text()) << "*");
+			// item->SetToolTipText(item->Text());
+			AddUnder(item, locals);
+		}
+
+		auto remotes = _InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+		// auto origin = new StyledItem(this, "origin", kHeader);
+		// AddUnder(origin, remotes);
+		// populate remote branches
+		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
+		BranchItem *parentitem = remotes;
+		for(auto &branch : remote_branches) {
+			std::filesystem::path path = branch.String();
+			LogInfo("remotes: branch %s", branch.String());
+			vector<std::string> parts(path.begin(), path.end());
+			for (auto it = path.begin(); it != path.end(); it++) {
+			// for (uint32 i = 0; i < parts.size(); i++) {
+				BString partName = it->c_str();
+				LogInfo("remotes: part %s of %s", partName.String(), branch.String());
+				auto partItem = FindItem<BranchItem>(this, partName, remotes);
+				if (partItem != nullptr) {
+					LogInfo("remotes: partitem found %s", partName.String());
+					parentitem = partItem;
+				} else {
+					LogInfo("remotes: partitem not found %s", partName.String());
+					if (it==path.end())
+						AddUnder(new BranchItem(partName, kHeader), parentitem);
+					else
+						AddUnder(new BranchItem(partName, kRemoteBranch), parentitem);
+				}
+			}
+
+			// auto item = new BranchItem(this, branch.String(), kRemoteBranch);
+			// item->SetToolTipText(item->Text());
+			// AddUnder(item, remotes);
+		}
+
+		auto tags = _InitEmptySuperItem(B_TRANSLATE("Tags"));
+		// populate tags
+		auto all_tags = repo->GetTags();
+		for(auto &tag : all_tags) {
+			auto item = new BranchItem(tag.String(), kRemoteBranch);
+			// item->SetToolTipText(item->Text());
+			AddUnder(item, tags);
+		}
+	} catch (const GitException &ex) {
+		OKAlert("Git", ex.Message(), B_INFO_ALERT);
+		MakeEmpty();
+		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
+		_InitEmptySuperItem(B_TRANSLATE("Remotes"));
+		_InitEmptySuperItem(B_TRANSLATE("Tags"));
+	}
 }
 
 
@@ -135,13 +227,12 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 	auto optionsMenu = new BPopUpMenu("Options", false, false);
 	auto index = IndexOf(where);
 	if (index >= 0) {
-		auto item = dynamic_cast<StyledItem*>(ItemAt(index));
+		auto item = dynamic_cast<BranchItem*>(ItemAt(index));
 		if (item == nullptr) {
 			delete optionsMenu;
 			return;
 		}
-		auto item_type = item->GetType();
-
+		auto item_type = item->BranchType();
 		BString selected_branch(item->Text());
 		selected_branch.RemoveLast("*");
 
@@ -272,96 +363,11 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 }
 
 
-void
-RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch)
-{
-	fSelectedProject = selectedProject;
-	fRepositoryPath = fSelectedProject->Path().String();
-	fCurrentBranch = currentBranch;
-
-	try {
-		auto repo = fSelectedProject->GetRepository();
-		auto current_branch = repo->GetCurrentBranch();
-
-		MakeEmpty();
-
-		auto locals = _InitEmptySuperItem(B_TRANSLATE("Local branches"));
-		// populate local branches
-		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
-		for(auto &branch : local_branches) {
-			auto item = new StyledItem(this, branch.String(), kLocalBranch);
-			if (branch == fCurrentBranch)
-				item->SetText(BString(item->Text()) << "*");
-			// item->SetToolTipText(item->Text());
-			AddUnder(item, locals);
-		}
-
-		auto remotes = _InitEmptySuperItem(B_TRANSLATE("Remote branches"));
-		// auto origin = new StyledItem(this, "origin", kHeader);
-		// AddUnder(origin, remotes);
-		// populate remote branches
-		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
-		StyledItem *parentitem = remotes;
-		for(auto &branch : remote_branches) {
-			std::filesystem::path path = branch.String();
-			LogInfo("remotes: branch %s", branch.String());
-			vector<std::string> parts(path.begin(), path.end());
-			for (auto it = path.begin(); it != path.end(); it++) {
-			// for (uint32 i = 0; i < parts.size(); i++) {
-				BString partName = it->c_str();
-				LogInfo("remotes: part %s of %s", partName.String(), branch.String());
-				auto partItem = FindItem<StyledItem>(this, partName, remotes);
-				if (partItem != nullptr) {
-					LogInfo("remotes: partitem found %s", partName.String());
-					parentitem = partItem;
-				} else {
-					LogInfo("remotes: partitem not found %s", partName.String());
-					if (it==path.end())
-						AddUnder(new StyledItem(this, partName, kHeader), parentitem);
-					else
-						AddUnder(new StyledItem(this, partName, kRemoteBranch), parentitem);
-				}
-			}
-
-			// auto item = new StyledItem(this, branch.String(), kRemoteBranch);
-			// item->SetToolTipText(item->Text());
-			// AddUnder(item, remotes);
-		}
-
-		auto tags = _InitEmptySuperItem(B_TRANSLATE("Tags"));
-		// populate tags
-		auto all_tags = repo->GetTags();
-		for(auto &tag : all_tags) {
-			auto item = new StyledItem(this, tag.String(), kRemoteBranch);
-			// item->SetToolTipText(item->Text());
-			AddUnder(item, tags);
-		}
-	} catch (const GitException &ex) {
-		OKAlert("Git", ex.Message(), B_INFO_ALERT);
-		MakeEmpty();
-		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
-		_InitEmptySuperItem(B_TRANSLATE("Remotes"));
-		_InitEmptySuperItem(B_TRANSLATE("Tags"));
-	}
-}
-
-
-StyledItem*
+BranchItem*
 RepositoryView::_InitEmptySuperItem(const BString &label)
 {
-	auto item = new StyledItem(this, label, kHeader);
-	item->SetPrimaryTextStyle(B_BOLD_FACE);
+	auto item = new BranchItem(label, kHeader);
+	item->SetTextFontFace(B_BOLD_FACE);
 	AddItem(item);
-	return item;
-}
-
-
-auto
-RepositoryView::GetSelectedItem()
-{
-	BListItem *item = nullptr;
-	const int32 selection = CurrentSelection();
-	if (selection >= 0)
-		item = ItemAt(selection);
 	return item;
 }

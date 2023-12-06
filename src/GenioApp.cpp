@@ -392,7 +392,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 
 	cfg.AddConfig("Editor/Visual", "show_edgeline", B_TRANSLATE("Show edge line"), true);
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
-	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column"), 80, &limits);
+	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column"), 100, &limits);
 
 	cfg.AddConfig("Build", "wrap_console",   B_TRANSLATE("Wrap console"), false);
 	cfg.AddConfig("Build", "console_banner", B_TRANSLATE("Console banner"), true);
@@ -403,6 +403,8 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_wrap", B_TRANSLATE("Wrap"), false);
 	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
+	cfg.AddConfig("Editor/Find", "find_exclude_directory", B_TRANSLATE("Exclude Directories"),
+															".*, objects.*");
 
 	GMessage lsplevels = { {"mode", "options"},
 						   {"note", B_TRANSLATE("This setting will be updated on restart")},
@@ -420,6 +422,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("LSP", "lsp_clangd_log_level", B_TRANSLATE("Log level:"), (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
 
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
+	cfg.AddConfig("Hidden", "config_version", "", "2.0");
 
 }
 

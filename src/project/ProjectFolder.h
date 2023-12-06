@@ -5,11 +5,12 @@
 #ifndef PROJECT_FOLDER_H
 #define PROJECT_FOLDER_H
 
+
+#include <Messenger.h>
 #include <ObjectList.h>
 #include <String.h>
-#include <Messenger.h>
+
 #include "GitRepository.h"
-#include "GException.h"
 #include "GSettings.h"
 
 using namespace Genio::Git;
@@ -34,11 +35,11 @@ public:
 								SourceItem(BString const& path);
 								~SourceItem();
 
-	BString	const				Path() { return fPath; }
-	BString	const				Name() { return fName; };
-	SourceItemType				Type() { return fType; };
+	BString	const				Path() const { return fPath; }
+	BString	const				Name() const { return fName; };
+	SourceItemType				Type() const { return fType; };
 
-	ProjectFolder				*GetProjectFolder()	{ return fProjectFolder; }
+	ProjectFolder				*GetProjectFolder()	const { return fProjectFolder; }
 	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
 
 	void 						Rename(BString const& path);
@@ -49,6 +50,7 @@ protected:
 	SourceItemType				fType;
 	ProjectFolder				*fProjectFolder;
 };
+
 
 class ProjectFolder : public SourceItem {
 public:
@@ -68,21 +70,21 @@ public:
 	BuildMode					GetBuildMode();
 
 	void						SetCleanCommand(BString const& command, BuildMode mode);
-	BString const				GetCleanCommand();
+	BString const				GetCleanCommand() const;
 
 	void						SetBuildCommand(BString const& command, BuildMode mode);
-	BString const				GetBuildCommand();
+	BString const				GetBuildCommand() const;
 
 	void						SetExecuteArgs(BString const& args, BuildMode mode);
-	BString const				GetExecuteArgs();
+	BString const				GetExecuteArgs() const;
 
 	void						SetTarget(BString const& path, BuildMode mode);
-	BString const				GetTarget();
+	BString const				GetTarget() const;
 
 	void						RunInTerminal(bool enabled);
 	bool						RunInTerminal() const;
 
-	auto						GetRepository() { return fGitRepository; }
+	GitRepository*				GetRepository() { return fGitRepository; }
 	void						InitRepository(bool createInitialCommit = true)
 									{fGitRepository->Init(createInitialCommit); }
 

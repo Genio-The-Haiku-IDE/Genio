@@ -1941,8 +1941,13 @@ GenioWindow::_FindInFiles()
 
 	  BString grepCommand("grep");
 	  BString excludeDir(gCFG["find_exclude_directory"]);
-	  if (!excludeDir.IsEmpty())
-		grepCommand << " --exclude-dir={" << excludeDir << "}";
+	  if (!excludeDir.IsEmpty()) {
+		  if (excludeDir.FindFirst(",") >= 0)
+			grepCommand << " --exclude-dir={" << excludeDir << "}";
+		else
+			grepCommand << " --exclude-dir=" << excludeDir << "";
+	  }
+
 	  grepCommand += " -IHrn";
 	  grepCommand += extraParameters;
 	  grepCommand += " -- ";

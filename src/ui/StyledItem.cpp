@@ -38,6 +38,8 @@ StyledItem::~StyledItem()
 void
 StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
+	// TODO: Inherited classes which reimplement this method could duplicate
+	// most of this code. See if there's a way to move it to a common method
 	if (Text() == NULL)
 		return;
 
@@ -57,6 +59,8 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
 	else
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
+
+	// TODO: until here (see comment above)
 
 	float iconSize = 0;
 	BRect iconRect = bounds;

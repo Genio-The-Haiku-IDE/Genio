@@ -422,7 +422,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("LSP", "lsp_clangd_log_level", B_TRANSLATE("Log level:"), (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
 
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
-
+	cfg.AddConfig("Hidden", "config_version", "", "2.0");
 
 }
 

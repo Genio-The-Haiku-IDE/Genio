@@ -1,4 +1,4 @@
-1	Turkish	application/x-vnd.Genio	2456584478
+1	Turkish	application/x-vnd.Genio	101957421
 About…	GenioWindow		Hakkında…
 Appearance	GenioWindow		Görünüş
 Autocomplete	GenioWindow		Otomatik tamamlama
@@ -69,6 +69,7 @@ Open	GenioWindow		Aç
 Open files list	GenioWindow		Dosyalar listesini aç
 Open project	GenioWindow		Proje aç
 Open recent…	GenioWindow		Son kullanılanı aç…
+Open remote project	GenioWindow		Uzak proje aç
 Overwrite	GenioWindow		Üzerine yaz
 Paste	GenioWindow		Yapıştır
 Previous	GenioWindow	Bookmark menu	Önceki
@@ -129,13 +130,18 @@ You can't create a new folder here, please select a project or another folder	Ge
 Zoom in	GenioWindow		Yakınlaştır
 Zoom out	GenioWindow		Uzaklaştır
 An error occurred attempting to rename file 	ProjectsFolderBrowser		Dosyayı yeniden adlandırma sırasında bir hata oluştu
+Build project	ProjectsFolderBrowser		Projeyi yap
+Clean project	ProjectsFolderBrowser		Projeyi temizle
 Close project	ProjectsFolderBrowser		Projeyi kapat
 Delete file	ProjectsFolderBrowser		Dosyayı sil
+Delete folder	ProjectsFolderBrowser		Klasörü sil
 New	ProjectsFolderBrowser		Yeni
 OK	ProjectsFolderBrowser		Tamam
 Open file	ProjectsFolderBrowser		Dosya aç
 Open Terminal	ProjectsFolderBrowser		Uçbirim aç
+Project settings…	ProjectsFolderBrowser		Proje ayarları…
 Rename file	ProjectsFolderBrowser		Dosyayı yeniden adlandır
+Rename folder	ProjectsFolderBrowser		Klasörü yeniden adlandır
 Set active	ProjectsFolderBrowser		Etkin kıl
 Show in Tracker	ProjectsFolderBrowser		İzleyici'de göster
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Proje klasörü başka bir konuma taşındı veya silindi; bu nedenle kapatılacak ve çalışma alanından kaldırılacak.
@@ -143,6 +149,7 @@ The project folder has been renamed. It will be closed and reopened automaticall
 Another command is running.	ConsoleIOView		Başka bir komut çalışıyor.
 Banner	ConsoleIOView		Afiş
 Clear	ConsoleIOView		Temizle
+Restarting build…	ConsoleIOView		Yapı yeniden başlatılıyor…
 stderr	ConsoleIOView		standart hata
 stdout	ConsoleIOView		standart çıktı
 Stop	ConsoleIOView		Durdur
@@ -150,6 +157,7 @@ Wrap	ConsoleIOView		Kaydır
 Apply	SettingsWindow		Uygula
 Browse…	SettingsWindow		Göz at…
 Build	SettingsWindow		Yapı
+Build target on resource save	SettingsWindow		Özkaynak kaydında hedefi yap
 Cancel	SettingsWindow		Vazgeç
 Console banner	SettingsWindow		Konsol afişi
 Default	SettingsWindow		Saptanmış
@@ -173,6 +181,7 @@ Reload files	SettingsWindow		Dosyaları yeniden yükle
 Reload projects	SettingsWindow		Projeleri yeniden yükle
 Revert	SettingsWindow		Geri al
 Save caret position	SettingsWindow		İmleç konumunu kaydet
+Save changed files on build	SettingsWindow		Yaparken değiştirilen dosyaları kaydet
 Save position	SettingsWindow		Konumu kaydet
 Set for app ver: 	SettingsWindow		Ayarlı sürüm: 
 Show comment margin	SettingsWindow		Yorum kenar boşluğunu göster
@@ -185,12 +194,24 @@ Show toolbar	SettingsWindow		Araç çubuğunu göster
 Startup	SettingsWindow		Başlangıç
 Tab width:  	SettingsWindow		Sekme genişliği:
 This is the font size preview	SettingsWindow		Bu, yazıtipi büyüklüğü önizlemesidir
+Trim trailing whitespace on save	SettingsWindow		Kaydederken sondaki boşlukları kırp
 Visual	SettingsWindow		Görsel
 Wrap console	SettingsWindow		Konsolu kaydır
+Base path:	RemoteProjectWindow		Taban yol:
+Cancel	RemoteProjectWindow		Vazgeç
+Clone	RemoteProjectWindow		Klonla
+Continue	RemoteProjectWindow		Sürdür
+Destination directory:	RemoteProjectWindow		Hedef dizin:
+Do you want to stop cloning the repository?	RemoteProjectWindow		Depoyu klonlamayı durdurmak istiyor musunuz?
+Open remote Git project	RemoteProjectWindow		Uzak Git projesi aç
+Quit	RemoteProjectWindow		Çık
+Stop	RemoteProjectWindow		Durdur
+The local path is not valid or does not exist	RemoteProjectWindow		Yerel yol geçerli değil veya yok
+URL:	RemoteProjectWindow		URL:
 Build commands	ProjectSettingsWindow		Yapı komutları
 Cancel	ProjectSettingsWindow		Vazgeç
-Debug build comand:	ProjectSettingsWindow		Hata ayıklama yap komutu:
-Debug clean comand:	ProjectSettingsWindow		Hata ayıklama temizle komutu:
+Debug build command:	ProjectSettingsWindow		Hata ayıklama yapım komutu:
+Debug clean command:	ProjectSettingsWindow		Hata ayıklama temizlik komutu:
 Debug execute arguments:	ProjectSettingsWindow		Hata ayıklama yürüt argümanları:
 Debug project target:	ProjectSettingsWindow		Hata ayıklama proje hedefi:
 Default	ProjectSettingsWindow		Saptanmış
@@ -198,8 +219,8 @@ Enable Git	ProjectSettingsWindow		Git'i etkinleştir
 Exclude settings file from Git	ProjectSettingsWindow		Git ayarlarını dışarıda tut
 OK	ProjectSettingsWindow		Tamam
 Project:	ProjectSettingsWindow		Proje:
-Release build comand:	ProjectSettingsWindow		Kararlı yap komutu:
-Release clean comand:	ProjectSettingsWindow		Kararlı temizle komutu:
+Release build command:	ProjectSettingsWindow		Yayım yapım komutu:
+Release clean command:	ProjectSettingsWindow		Yayım temizlik komutu:
 Release execute arguments:	ProjectSettingsWindow		Kararlı yürüt argümanları:
 Release project target:	ProjectSettingsWindow		Kararlı proje hedefi:
 Run in Terminal	ProjectSettingsWindow		Uçbirimde çalıştır
@@ -233,8 +254,15 @@ Made with love in Italy	GenioApp		İtalya'da, sevgi ile yapıldı
 Review	GenioApp		Gözden geçir
 See credits for a complete list.\n\n	GenioApp		Tam bir liste için emeği geçenler bölümüne bakın.\n\n
 Settings file for a previous version detected.	GenioApp		Önceki bir sürüm için ayarlar dosyası algılandı.
-The settings file doesn't exist or is corrupted.	GenioApp		Ayarlar dosyası yok veya hasar görmüş.
 Edit user templates…	TemplatesMenu		Kullanıcı şablonlarını düzenle…
+File deleted	GitRepository		Dosya silindi
+File deleted from index	GitRepository		Dosya indeksten silindi
+File modified	GitRepository		Dosya değiştirildi
+File modified on index	GitRepository		Dosya indekste değiştirildi
+New file	GitRepository		Yeni dosya
+New file staged	GitRepository		Yeni dosya hazırlandı
 Genio	System name		Genio
+Location	SearchResultPanel		Konum
+Search Results	SearchResultPanel		Arama sonuçları
 New folder	TemplateManager		Yeni klasör
 OK	Utilities		Tamam

@@ -297,12 +297,35 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		}
 
 		auto remotes = _InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+		// auto origin = new StyledItem(this, "origin", kHeader);
+		// AddUnder(origin, remotes);
 		// populate remote branches
 		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
+		StyledItem *parentitem = remotes;
 		for(auto &branch : remote_branches) {
-			auto item = new StyledItem(this, branch.String(), kRemoteBranch);
+			std::filesystem::path path = branch.String();
+			LogInfo("remotes: branch %s", branch.String());
+			vector<std::string> parts(path.begin(), path.end());
+			for (auto it = path.begin(); it != path.end(); it++) {
+			// for (uint32 i = 0; i < parts.size(); i++) {
+				BString partName = it->c_str();
+				LogInfo("remotes: part %s of %s", partName.String(), branch.String());
+				auto partItem = FindItem<StyledItem>(this, partName, remotes);
+				if (partItem != nullptr) {
+					LogInfo("remotes: partitem found %s", partName.String());
+					parentitem = partItem;
+				} else {
+					LogInfo("remotes: partitem not found %s", partName.String());
+					if (it==path.end())
+						AddUnder(new StyledItem(this, partName, kHeader), parentitem);
+					else
+						AddUnder(new StyledItem(this, partName, kRemoteBranch), parentitem);
+				}
+			}
+
+			// auto item = new StyledItem(this, branch.String(), kRemoteBranch);
 			// item->SetToolTipText(item->Text());
-			AddUnder(item, remotes);
+			// AddUnder(item, remotes);
 		}
 
 		auto tags = _InitEmptySuperItem(B_TRANSLATE("Tags"));

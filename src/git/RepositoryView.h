@@ -7,6 +7,8 @@
 #include <Catalog.h>
 #include <OutlineListView.h>
 
+#include <filesystem>
+
 #include "GitRepository.h"
 #include "GMessage.h"
 #include "Log.h"

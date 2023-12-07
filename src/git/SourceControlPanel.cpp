@@ -297,10 +297,9 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							message->AddPointer("value", fSelectedProject);
 							message->AddString("sender", kSenderExternalEvent);
 							BMessenger(this).SendMessage(message);
-							// fCurrentBranch = fSelectedProject->GetRepository()->GetCurrentBranch();
-							// _UpdateBranchList(false);
+							break;
 						}
-						break;
+
 					}
 					default:
 						break;
@@ -633,7 +632,6 @@ SourceControlPanel::_UpdateBranchList(bool invokeItemMessage)
 	} catch(GitException &ex) {
 		fBranchMenu->MakeEmpty();
 		fCurrentBranch = "";
-		// throw;
 	}
 }
 

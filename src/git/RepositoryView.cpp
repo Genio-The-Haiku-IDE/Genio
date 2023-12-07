@@ -107,13 +107,24 @@ RepositoryView::MessageReceived(BMessage* message)
 			auto item = dynamic_cast<BranchItem*>(ItemAt(CurrentSelection()));
 			if (item == nullptr)
 				break;
+			if (item->BranchName() == fCurrentBranch)
+				break;
 			switch (item->BranchType()) {
-				case kLocalBranch:
-				case kRemoteBranch: {
+				case kLocalBranch: {
 					auto switch_message = new GMessage{
 						{"what", MsgSwitchBranch},
 						{"value", item->BranchName()},
 						{"type", GIT_BRANCH_LOCAL},
+						{"sender", kSenderRepositoryPopupMenu}};
+						BMessenger messenger(Target());
+						messenger.SendMessage(switch_message);
+					break;
+				}
+				case kRemoteBranch: {
+					auto switch_message = new GMessage{
+						{"what", MsgSwitchBranch},
+						{"value", item->BranchName()},
+						{"type", GIT_BRANCH_REMOTE},
 						{"sender", kSenderRepositoryPopupMenu}};
 						BMessenger messenger(Target());
 						messenger.SendMessage(switch_message);

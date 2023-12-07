@@ -2,7 +2,6 @@
  * Copyright 2023, Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#include <iostream>
 #include "SourceControlPanel.h"
 
 #include <Alignment.h>
@@ -255,13 +254,11 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				if (code == gCFG.UpdateMessageWhat()) {
 					BString key;
 					message->PrintToStream();
-					if (message->FindString("key", &key) == B_OK
-						&& key == "repository_outline")
-						{
-						}
-						std::cout << "PROVA" << std::endl;
+					if (message->FindString("key", &key) == B_OK && key == "repository_outline")
+					{
 						_UpdateBranchList(false);
 						_UpdateRepositoryView();
+					}
 					break;
 				}
 				switch (code) {
@@ -282,24 +279,25 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					}
 					case B_PATH_MONITOR:
 					{
-						message->PrintToStream();
-						LogInfo("B_PATH_MONITOR");
-						int32 opCode;
-						if (message->FindInt32("opcode", &opCode) != B_OK)
-							return;
-						BString watchedPath;
-						if (message->FindString("watched_path", &watchedPath) != B_OK)
-							return;
+						if (!fSelectedProject->IsBuilding()) {
+							message->PrintToStream();
+							LogInfo("B_PATH_MONITOR");
+							int32 opCode;
+							if (message->FindInt32("opcode", &opCode) != B_OK)
+								return;
+							BString watchedPath;
+							if (message->FindString("watched_path", &watchedPath) != B_OK)
+								return;
 
-						if (watchedPath == fSelectedProject->Path()) {
-							// update project
-							auto message = new BMessage(MsgChangeProject);
-							message->AddPointer("value", fSelectedProject);
-							message->AddString("sender", kSenderExternalEvent);
-							BMessenger(this).SendMessage(message);
-							break;
+							if (watchedPath == fSelectedProject->Path()) {
+								// update project
+								auto message = new BMessage(MsgChangeProject);
+								message->AddPointer("value", fSelectedProject);
+								message->AddString("sender", kSenderExternalEvent);
+								BMessenger(this).SendMessage(message);
+							}
 						}
-
+						break;
 					}
 					default:
 						break;
@@ -549,20 +547,26 @@ SourceControlPanel::_UpdateRepositoryView()
 void
 SourceControlPanel::_SwitchBranch(BMessage *message)
 {
-	auto branch = (BString)message->GetString("value");
-	auto sender = BString(message->GetString("sender"));
+	if (fSelectedProject->IsBuilding()) {
+		OKAlert("Source control panel",
+			B_TRANSLATE("The project is building, changing branch not allowed."),
+			B_STOP_ALERT);
+	} else {
+		auto branch = (BString)message->GetString("value");
+		auto sender = BString(message->GetString("sender"));
 
-	auto repo = fSelectedProject->GetRepository();
-	repo->SwitchBranch(branch);
-	fCurrentBranch = repo->GetCurrentBranch();
+		auto repo = fSelectedProject->GetRepository();
+		repo->SwitchBranch(branch);
+		fCurrentBranch = repo->GetCurrentBranch();
 
-	if (sender == kSenderBranchOptionList) {
-		// we update the repository view
-		_UpdateRepositoryView();
-	} else if (sender == kSenderRepositoryPopupMenu || sender == kSenderExternalEvent) {
-		// we update the repository view and the branch option list
-		_UpdateBranchList(false);
-		_UpdateRepositoryView();
+		if (sender == kSenderBranchOptionList) {
+			// we update the repository view
+			_UpdateRepositoryView();
+		} else if (sender == kSenderRepositoryPopupMenu || sender == kSenderExternalEvent) {
+			// we update the repository view and the branch option list
+			_UpdateBranchList(false);
+			_UpdateRepositoryView();
+		}
 	}
 }
 

@@ -166,25 +166,4 @@ public:
 BPath		GetDataDirectory();
 BPath		GetUserSettingsDirectory();
 
-// BOutlineListView helper functions
-template <typename T>
-T* FindItem(BOutlineListView *listView, const BString& name, T* startItem)
-{
-	LogInfo("FindItem: item %s", name.String());
-
-	const int32 countItems = listView->CountItemsUnder(startItem, true);
-	const int32 start = listView->IndexOf(startItem);
-	for (int32 i = start; i< countItems; i++) {
-		LogInfo("FindItem: for i %d to %d", i, countItems);
-		T *item = dynamic_cast<T*>(listView->ItemUnderAt(startItem, true, i));
-		LogInfo("FindItem: current item %s %d", item->Text(), i);
-		if (item != nullptr && item->Text() == name) {
-			LogInfo("FindItem: *** found item %s", item->Text());
-			return item;
-		}
-	}
-
-	return nullptr;
-}
-
 #endif // UTILS_H

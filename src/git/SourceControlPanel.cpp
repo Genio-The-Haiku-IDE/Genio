@@ -508,7 +508,9 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 	if (fSelectedProject != nullptr) {
 		auto repo = fSelectedProject->GetRepository();
 		if (repo->IsInitialized()) {
-			if (sender == kSenderInitializeRepositoryButton || sender == kSenderProjectOptionList) {
+			if (sender == kSenderInitializeRepositoryButton ||
+				sender == kSenderProjectOptionList ||
+				sender == kSenderExternalEvent) {
 				try {
 					_UpdateBranchList(false);
 					_UpdateRepositoryView();

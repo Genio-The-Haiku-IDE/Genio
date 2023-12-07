@@ -400,6 +400,13 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 				return;
 			}
 		}
+
+		optionsMenu->AddItem(
+			new BMenuItem(
+				fmt << B_TRANSLATE("Copy name"),
+				new GMessage{
+					{"what", MsgCopyRefName},
+					{"value", selectedBranch}}));
 	}
 
 	optionsMenu->SetTargetForItems(Target());

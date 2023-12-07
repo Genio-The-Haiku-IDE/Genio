@@ -32,8 +32,6 @@ private:
 	bool			fNeedsSave;
 	bool			fOpenedInEditor;
 	BTextControl	*fTextControl;
-	BString			fPrimaryText;
-	BString			fSecondaryText;
 
 	void			_DestroyTextWidget();
 };

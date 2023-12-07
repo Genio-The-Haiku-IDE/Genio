@@ -303,13 +303,13 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 		{"mode", "options"},
 		{"option_1", {
 			{"value", (int32)Logger::LOGGER_DEST_STDOUT },
-			{"label", "Stdout" }}},
+			{"label", "stdout" }}},
 		{"option_2", {
 			{"value", (int32)Logger::LOGGER_DEST_STDERR },
-			{"label", "Stderr"}}},
+			{"label", "stderr"}}},
 		{"option_3", {
 			{"value", (int32)Logger::LOGGER_DEST_SYSLOG },
-			{"label", "Syslog"}}},
+			{"label", "syslog"}}},
 		{"option_4", {
 			{"value", (int32)Logger::LOGGER_DEST_BEDC },
 			{"label", "BeDC"}}}
@@ -363,7 +363,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor", "save_caret", B_TRANSLATE("Save caret position"), true);
 	cfg.AddConfig("Editor", "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
 	GMessage tabs = { {"min",1},{"max",8} };
-	cfg.AddConfig("Editor", "tab_width", B_TRANSLATE("Tab width:  "), 4, &tabs);
+	cfg.AddConfig("Editor", "tab_width", B_TRANSLATE("Tab width:"), 4, &tabs);
 
 	cfg.AddConfig("Editor", "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
 
@@ -392,7 +392,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 
 	cfg.AddConfig("Editor/Visual", "show_edgeline", B_TRANSLATE("Show edge line"), true);
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
-	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column"), 80, &limits);
+	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column:"), 100, &limits);
 
 	cfg.AddConfig("Build", "wrap_console",   B_TRANSLATE("Wrap console"), false);
 	cfg.AddConfig("Build", "console_banner", B_TRANSLATE("Console banner"), true);
@@ -403,9 +403,11 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Editor/Find", "find_wrap", B_TRANSLATE("Wrap"), false);
 	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
 	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
+	cfg.AddConfig("Editor/Find", "find_exclude_directory", B_TRANSLATE("Exclude folders:"),
+															".*,objects.*");
 
 	GMessage lsplevels = { {"mode", "options"},
-						   {"note", B_TRANSLATE("This setting will be updated on restart")},
+						   {"note", B_TRANSLATE("This setting will be updated on restart.")},
 						   {"option_1", {
 								{"value", (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR },
 								{"label", "Error" }}},
@@ -424,6 +426,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 		B_TRANSLATE("Show repository outline"), true);
 
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
+	cfg.AddConfig("Hidden", "config_version", "", "2.0");
 
 }
 

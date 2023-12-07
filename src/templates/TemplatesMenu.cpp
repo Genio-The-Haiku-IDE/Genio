@@ -25,7 +25,6 @@
 #include <Roster.h>
 
 #include <cstdio>
-#include <list>
 
 #include "IconMenuItem.h"
 #include "MimeType.h"
@@ -33,6 +32,8 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplatesMenu"
 
+// TODO: This is duplicated between here and IconCache.cpp
+#define DIR_FILETYPE "application/x-vnd.Be-directory"
 
 const char* kNewFolderLabel = "New folder";
 

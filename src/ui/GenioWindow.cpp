@@ -1939,7 +1939,16 @@ GenioWindow::_FindInFiles()
 
 	  text.CharacterEscape("\\\n\"", '\\');
 
-	  BString grepCommand("grep --exclude-dir=.git -IHrn");
+	  BString grepCommand("grep");
+	  BString excludeDir(gCFG["find_exclude_directory"]);
+	  if (!excludeDir.IsEmpty()) {
+		  if (excludeDir.FindFirst(",") >= 0)
+			grepCommand << " --exclude-dir={" << excludeDir << "}";
+		else
+			grepCommand << " --exclude-dir=" << excludeDir << "";
+	  }
+
+	  grepCommand += " -IHrn";
 	  grepCommand += extraParameters;
 	  grepCommand += " -- ";
 	  grepCommand += EscapeQuotesWrap(text);

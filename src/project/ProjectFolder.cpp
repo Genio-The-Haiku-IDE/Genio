@@ -132,8 +132,9 @@ ProjectFolder::SetBuildMode(BuildMode mode)
 
 
 BuildMode
-ProjectFolder::GetBuildMode()
+ProjectFolder::GetBuildMode() /* const */
 {
+	// TODO: Why are we SETting the mode here ?
 	fBuildMode = (BuildMode)fSettings->GetInt32("build_mode", BuildMode::ReleaseMode);
 	return fBuildMode;
 }
@@ -150,7 +151,7 @@ ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetBuildCommand()
+ProjectFolder::GetBuildCommand() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode) {
 		BString build = fSettings->GetString("project_release_build_command", "");
@@ -173,7 +174,7 @@ ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetCleanCommand()
+ProjectFolder::GetCleanCommand() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode) {
 		BString clean = fSettings->GetString("project_release_clean_command", "");
@@ -196,7 +197,7 @@ ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetExecuteArgs()
+ProjectFolder::GetExecuteArgs() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
 		return fSettings->GetString("project_release_execute_args", "");
@@ -216,7 +217,7 @@ ProjectFolder::SetTarget(BString const& path, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetTarget()
+ProjectFolder::GetTarget() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
 		return fSettings->GetString("project_release_target", "");

@@ -78,9 +78,7 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 	fSourceItem(sourceItem),
 	fNeedsSave(false),
 	fOpenedInEditor(false),
-	fTextControl(nullptr),
-	fPrimaryText(Text()),
-	fSecondaryText()
+	fTextControl(nullptr)
 {
 }
 
@@ -97,6 +95,9 @@ ProjectItem::~ProjectItem()
 void
 ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
+	// TODO: this part is duplicated between StyledItem and here:
+	// Move to a common method so inherited classes don't have
+	// to duplicate
 	if (Text() == NULL)
 		return;
 
@@ -114,6 +115,13 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	owner->SetFont(be_plain_font);
 
+	if (IsSelected())
+		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
+	else
+		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
+
+	// TODO: until here... (see comment above)
+
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
 		if (projectFolder->Active())
@@ -124,7 +132,9 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		try {
 			Genio::Git::GitRepository repo(projectPath.String());
 			branchName = repo.GetCurrentBranch();
-			fSecondaryText.SetTo(branchName);
+			BString extraText;
+			extraText << "  [" << branchName << "]";
+			SetExtraText(extraText);
 		} catch (const Genio::Git::GitException &ex) {
 		}
 
@@ -135,10 +145,6 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 									B_TRANSLATE("Current branch"), branchName.String());
 		SetToolTipText(toolTipText);
 	}
-	if (IsSelected())
-		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
-	else
-		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
 	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->Path());
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
@@ -160,8 +166,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		BString text = Text();
 		if (fNeedsSave)
 			text.Append("*");
-		if (!fSecondaryText.IsEmpty())
-			text << "  [" << fSecondaryText.String() << "]";
+		text.Append(ExtraText());
 
 		if (fOpenedInEditor)
 			SetTextFontFace(B_ITALIC_FACE);

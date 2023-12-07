@@ -185,8 +185,6 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		auto tags = _InitEmptySuperItem(B_TRANSLATE("Tags"));
 		auto all_tags = repo->GetTags();
 		for(auto &tag : all_tags) {
-			// auto item = new BranchItem(tag.String(), tag.String(), kRemoteBranch);
-			// AddUnder(item, tags);
 			_BuildBranchTree(tag, tags, kTag, NullLambda);
 		}
 	} catch (const GitException &ex) {
@@ -206,6 +204,8 @@ RepositoryView::_BuildBranchTree(const BString &branch, BranchItem *rootItem, ui
 	// Do not show an outline
 	if (!gCFG["repository_outline"]) {
 		StyledItem* item = new BranchItem(branch.String(), branch.String(), branchType);
+		if (checker(branch))
+			item->SetTextFontFace(B_UNDERSCORE_FACE);
 		AddUnder(item, rootItem);
 		return;
 	}

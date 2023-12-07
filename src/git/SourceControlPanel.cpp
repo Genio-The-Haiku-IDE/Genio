@@ -280,7 +280,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					case B_PATH_MONITOR:
 					{
 						if (!fSelectedProject->IsBuilding()) {
-							message->PrintToStream();
 							LogInfo("B_PATH_MONITOR");
 							int32 opCode;
 							if (message->FindInt32("opcode", &opCode) != B_OK)
@@ -633,7 +632,7 @@ SourceControlPanel::_UpdateBranchList(bool invokeItemMessage)
 				);
 			}
 		}
-	} catch(GitException &ex) {
+	} catch(const GitException &ex) {
 		fBranchMenu->MakeEmpty();
 		fCurrentBranch = "";
 	}

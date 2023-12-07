@@ -6,13 +6,6 @@
 
 #include "RepositoryView.h"
 
-#include "BranchItem.h"
-#include "ConfigManager.h"
-#include "GenioApp.h"
-#include "GMessage.h"
-#include "StringFormatter.h"
-#include "Utils.h"
-
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
@@ -284,23 +277,23 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 			delete optionsMenu;
 			return;
 		}
-		auto item_type = item->BranchType();
-		BString selected_branch(item->BranchName());
-		selected_branch.RemoveLast("*");
+		auto itemType = item->BranchType();
+		BString selectedBranch(item->BranchName());
+		selectedBranch.RemoveLast("*");
 
 		StringFormatter fmt;
-		fmt.Substitutions["%selected_branch%"] = selected_branch;
+		fmt.Substitutions["%selected_branch%"] = selectedBranch;
 
-		switch (item_type) {
+		switch (itemType) {
 			case kLocalBranch: {
 
-				if (selected_branch != fCurrentBranch) {
+				if (selectedBranch != fCurrentBranch) {
 					optionsMenu->AddItem(
 						new BMenuItem(
 							fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
 							new GMessage{
 								{"what", MsgSwitchBranch},
-								{"value", selected_branch},
+								{"value", selectedBranch},
 								{"type", GIT_BRANCH_LOCAL},
 								{"sender", kSenderRepositoryPopupMenu}}));
 				}
@@ -310,7 +303,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 						fmt << B_TRANSLATE("Rename \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgRenameBranch},
-							{"value", selected_branch},
+							{"value", selectedBranch},
 							{"type", GIT_BRANCH_LOCAL}}));
 
 				optionsMenu->AddItem(
@@ -318,7 +311,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 						fmt << B_TRANSLATE("Delete \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgDeleteBranch},
-							{"value", selected_branch},
+							{"value", selectedBranch},
 							{"type", GIT_BRANCH_LOCAL}}));
 
 				optionsMenu->AddSeparatorItem();
@@ -328,7 +321,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 						fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgNewBranch},
-							{"value", selected_branch},
+							{"value", selectedBranch},
 							{"type", GIT_BRANCH_LOCAL}}));
 
 				// optionsMenu->AddItem(
@@ -350,7 +343,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 						fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgSwitchBranch},
-							{"value", selected_branch},
+							{"value", selectedBranch},
 							{"type", GIT_BRANCH_REMOTE},
 							{"sender", kSenderRepositoryPopupMenu}}));
 
@@ -386,7 +379,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 						fmt << B_TRANSLATE("Create new branch from \"%selected_branch%\""),
 						new GMessage{
 							{"what", MsgNewBranch},
-							{"value", selected_branch},
+							{"value", selectedBranch},
 							{"type", GIT_BRANCH_REMOTE}}));
 
 				// optionsMenu->AddItem(

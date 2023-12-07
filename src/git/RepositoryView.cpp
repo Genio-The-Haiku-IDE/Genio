@@ -110,7 +110,7 @@ RepositoryView::MessageReceived(BMessage* message)
 				case kRemoteBranch: {
 					auto switch_message = new GMessage{
 						{"what", MsgSwitchBranch},
-						{"value", item->Text()},
+						{"value", item->BranchName()},
 						{"type", GIT_BRANCH_LOCAL},
 						{"sender", kSenderRepositoryPopupMenu}};
 						BMessenger messenger(Target());
@@ -154,62 +154,42 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 	fRepositoryPath = fSelectedProject->Path().String();
 	fCurrentBranch = currentBranch;
 
+	auto const NullLambda = [](const auto& val){ return false; };
+
 	try {
 		auto repo = fSelectedProject->GetRepository();
 		auto current_branch = repo->GetCurrentBranch();
 
 		MakeEmpty();
 
-		auto locals = _InitEmptySuperItem(B_TRANSLATE("Local branches"));
 		// populate local branches
+		auto locals = _InitEmptySuperItem(B_TRANSLATE("Local branches"));
 		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
 		for(auto &branch : local_branches) {
-			auto item = new BranchItem(branch.String(), kLocalBranch);
-			if (branch == fCurrentBranch)
-				item->SetText(BString(item->Text()) << "*");
-			// item->SetToolTipText(item->Text());
-			AddUnder(item, locals);
+			// auto item = new BranchItem(branch.String(), branch.String(), kLocalBranch);
+			// if (branch == fCurrentBranch)
+				// item->SetText(BString(item->Text()) << "*");
+			// AddUnder(item, locals);
+			_BuildBranchTree(branch, locals, kLocalBranch,
+				[&](const auto &branchname) {
+					return (branchname == fCurrentBranch);
+				});
 		}
 
-		auto remotes = _InitEmptySuperItem(B_TRANSLATE("Remote branches"));
-		// auto origin = new StyledItem(this, "origin", kHeader);
-		// AddUnder(origin, remotes);
 		// populate remote branches
+		auto remotes = _InitEmptySuperItem(B_TRANSLATE("Remote branches"));
 		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
-		BranchItem *parentitem = remotes;
 		for(auto &branch : remote_branches) {
-			std::filesystem::path path = branch.String();
-			LogInfo("remotes: branch %s", branch.String());
-			vector<std::string> parts(path.begin(), path.end());
-			for (auto it = path.begin(); it != path.end(); it++) {
-			// for (uint32 i = 0; i < parts.size(); i++) {
-				BString partName = it->c_str();
-				LogInfo("remotes: part %s of %s", partName.String(), branch.String());
-				auto partItem = FindItem<BranchItem>(this, partName, remotes);
-				if (partItem != nullptr) {
-					LogInfo("remotes: partitem found %s", partName.String());
-					parentitem = partItem;
-				} else {
-					LogInfo("remotes: partitem not found %s", partName.String());
-					if (it==path.end())
-						AddUnder(new BranchItem(partName, kHeader), parentitem);
-					else
-						AddUnder(new BranchItem(partName, kRemoteBranch), parentitem);
-				}
-			}
-
-			// auto item = new BranchItem(this, branch.String(), kRemoteBranch);
-			// item->SetToolTipText(item->Text());
-			// AddUnder(item, remotes);
+			_BuildBranchTree(branch, remotes, kRemoteBranch, NullLambda);
 		}
 
-		auto tags = _InitEmptySuperItem(B_TRANSLATE("Tags"));
 		// populate tags
+		auto tags = _InitEmptySuperItem(B_TRANSLATE("Tags"));
 		auto all_tags = repo->GetTags();
 		for(auto &tag : all_tags) {
-			auto item = new BranchItem(tag.String(), kRemoteBranch);
-			// item->SetToolTipText(item->Text());
-			AddUnder(item, tags);
+			// auto item = new BranchItem(tag.String(), tag.String(), kRemoteBranch);
+			// AddUnder(item, tags);
+			_BuildBranchTree(tag, tags, kTag, NullLambda);
 		}
 	} catch (const GitException &ex) {
 		OKAlert("Git", ex.Message(), B_INFO_ALERT);
@@ -218,6 +198,68 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		_InitEmptySuperItem(B_TRANSLATE("Remotes"));
 		_InitEmptySuperItem(B_TRANSLATE("Tags"));
 	}
+}
+
+
+void
+RepositoryView::_BuildBranchTree(const BString &branch, BranchItem *rootItem, uint32 branchType,
+									const auto& checker)
+{
+	BranchItem *parentitem = rootItem;
+	std::filesystem::path path = branch.String();
+	// LogInfo(">>>remotes: parent '%s' branch '%s'", parentitem->BranchName(), branch.String());
+	vector<std::string> parts(path.begin(), path.end());
+	// for (auto it = path.begin(); it != path.end(); ++it) {
+	for (uint32 i = 0; i < parts.size(); i++) {
+		uint32 lastIndex = parts.size();
+		// LogInfo("remotes: i = %d of %d", i, lastIndex);
+
+		BString partName = parts.at(i).c_str();
+		// LogInfo("remotes: part '%s' of '%s'", partName.String(), branch.String());
+		auto partItem = FindItem<BranchItem>(partName, rootItem, false, i+1);
+		if (partItem != nullptr) {
+			// LogInfo("remotes: partitem found '%s' under '%s'", partItem->BranchName(), parentitem->Text());
+			parentitem = partItem;
+		} else {
+			// LogInfo("remotes: partitem '%s' not found", partName.String());
+			if (i == (lastIndex-1)) {
+				auto newItem = new BranchItem(branch.String(), partName, branchType, i);
+				if (checker(branch))
+					newItem->SetTextFontFace(B_UNDERSCORE_FACE);
+				AddUnder(newItem, parentitem);
+				parentitem = rootItem;
+				// LogInfo("remotes: this is the last part of the path at %d", i);
+			} else {
+				auto newItem = new BranchItem(branch.String(), partName, kHeader, i);
+				if (AddUnder(newItem, parentitem))
+					parentitem = newItem;
+			}
+		}
+	}
+}
+
+
+template <typename T>
+T*
+RepositoryView::FindItem(const BString& name, T* startItem, bool oneLevelOnly, uint32 outlinelevel)
+{
+	const int32 countItems = FullListCountItems();
+	const int32 startIndex = 0;
+	// LogInfo("FindItem: item '%s' under '%s' with countItems = %d, startIndex = %d",
+		// name.String(), startItem->Text(), countItems, startIndex);
+	for (int32 i = startIndex; i< countItems; i++) {
+		// LogInfo("FindItem: for i = %d to %d", i, countItems);
+		T *item = dynamic_cast<T*>(ItemUnderAt(startItem, oneLevelOnly, i));
+		// LogInfo("FindItem: current item '%s' at %d", item->Text(), i);
+		if (item != nullptr &&
+			name.ICompare(item->Text()) == 0 &&
+			item->OutlineLevel() == outlinelevel) {
+			// LogInfo("FindItem: *** found item '%s' at level", item->Text(), item->OutlineLevel());
+			return item;
+		}
+	}
+
+	return nullptr;
 }
 
 
@@ -233,7 +275,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 			return;
 		}
 		auto item_type = item->BranchType();
-		BString selected_branch(item->Text());
+		BString selected_branch(item->BranchName());
 		selected_branch.RemoveLast("*");
 
 		StringFormatter fmt;
@@ -366,7 +408,7 @@ RepositoryView::_ShowPopupMenu(BPoint where)
 BranchItem*
 RepositoryView::_InitEmptySuperItem(const BString &label)
 {
-	auto item = new BranchItem(label, kHeader);
+	auto item = new BranchItem(label, label, kHeader);
 	item->SetTextFontFace(B_BOLD_FACE);
 	AddItem(item);
 	return item;

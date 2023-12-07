@@ -553,16 +553,6 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 		_UpdateBranchList(false);
 		_UpdateRepositoryView();
 	}
-
-	// message->SetString("value", fCurrentBranch);
-	// we don't want to invoke the message attached to the selected menu item
-	// when the list is updated from here
-	// we also don't need to update the OptionList itself
-	// auto source = BString(message->GetString("source_item", ""));
-	// if (source == "popup_menu")
-		// _UpdateBranchList(false);
-	// SendNotices(message->what, message);
-	// LogInfo("MsgSwitchBranch: %s", fCurrentBranch.String());
 }
 
 

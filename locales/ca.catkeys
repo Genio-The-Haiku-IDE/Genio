@@ -1,4 +1,4 @@
-1	Catalan	application/x-vnd.Genio	2456584478
+1	Catalan	application/x-vnd.Genio	101957421
 About…	GenioWindow		Quant a...
 Appearance	GenioWindow		Aparença
 Autocomplete	GenioWindow		Autocompleta
@@ -69,6 +69,7 @@ Open	GenioWindow		Obre
 Open files list	GenioWindow		Obre la llista de fitxers
 Open project	GenioWindow		Obre un projecte
 Open recent…	GenioWindow		Obre el recent...
+Open remote project	GenioWindow		Obre un projecte remot
 Overwrite	GenioWindow		Sobreescriu
 Paste	GenioWindow		Enganxa
 Previous	GenioWindow	Bookmark menu	Anterior
@@ -129,13 +130,18 @@ You can't create a new folder here, please select a project or another folder	Ge
 Zoom in	GenioWindow		Amplia
 Zoom out	GenioWindow		Redueix
 An error occurred attempting to rename file 	ProjectsFolderBrowser		Hi ha hagut un error intentant canviar de nom el fitxer.
+Build project	ProjectsFolderBrowser		Construcció del projecte
+Clean project	ProjectsFolderBrowser		Neteja del projecte
 Close project	ProjectsFolderBrowser		Tanca el projecte
 Delete file	ProjectsFolderBrowser		Suprimeix el fitxer
+Delete folder	ProjectsFolderBrowser		Suprimeix la carpeta
 New	ProjectsFolderBrowser		Nou
 OK	ProjectsFolderBrowser		D'acord
 Open file	ProjectsFolderBrowser		Obre el fitxer
 Open Terminal	ProjectsFolderBrowser		Obre el Terminal
+Project settings…	ProjectsFolderBrowser		Paràmetres del projecte...
 Rename file	ProjectsFolderBrowser		Canvia de nom el fitxer
+Rename folder	ProjectsFolderBrowser		Canvia de nom la carpeta
 Set active	ProjectsFolderBrowser		Estableix com a actiu
 Show in Tracker	ProjectsFolderBrowser		Mostra al rastrejador
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La carpeta del projecte s'ha suprimit o s'ha mogut a una altra ubicació i es tancarà i es descarregarà de l'espai de treball.
@@ -143,6 +149,7 @@ The project folder has been renamed. It will be closed and reopened automaticall
 Another command is running.	ConsoleIOView		S'executa una altra ordre.
 Banner	ConsoleIOView		Rètol
 Clear	ConsoleIOView		Neteja
+Restarting build…	ConsoleIOView		Es reinicia la construcció...
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
 Stop	ConsoleIOView		Atura
@@ -150,6 +157,7 @@ Wrap	ConsoleIOView		Replega
 Apply	SettingsWindow		Aplica
 Browse…	SettingsWindow		Navega...
 Build	SettingsWindow		Construeix
+Build target on resource save	SettingsWindow		Construeix l'objectiu en desar els recursos.
 Cancel	SettingsWindow		Cancel·la
 Console banner	SettingsWindow		Pancarta de la consola
 Default	SettingsWindow		Per defecte
@@ -173,6 +181,7 @@ Reload files	SettingsWindow		Torna a carregar els fitxers
 Reload projects	SettingsWindow		Torna a carregar els projectes
 Revert	SettingsWindow		Reverteix
 Save caret position	SettingsWindow		Desa la posició del cursor
+Save changed files on build	SettingsWindow		Desa els fitxers modificats a la construcció.
 Save position	SettingsWindow		Desa la posició
 Set for app ver: 	SettingsWindow		Configurat per a la versió de l'aplicació:
 Show comment margin	SettingsWindow		Mostra el marge del comentari
@@ -185,12 +194,24 @@ Show toolbar	SettingsWindow		Mostra la barra d'eines
 Startup	SettingsWindow		Inici
 Tab width:  	SettingsWindow		Amplada de la tabulació:
 This is the font size preview	SettingsWindow		Aquesta és la vista prèvia de la mida de la lletra.
+Trim trailing whitespace on save	SettingsWindow		Retalla els espais en blanc al final en desar.
 Visual	SettingsWindow		Visual
 Wrap console	SettingsWindow		Plega la consola
+Base path:	RemoteProjectWindow		Camí de base:
+Cancel	RemoteProjectWindow		Cancel·la
+Clone	RemoteProjectWindow		Clona
+Continue	RemoteProjectWindow		Continua
+Destination directory:	RemoteProjectWindow		Directori de destinació:
+Do you want to stop cloning the repository?	RemoteProjectWindow		Voleu deixar de clonar el repositori?
+Open remote Git project	RemoteProjectWindow		Obre el projecte Git remot
+Quit	RemoteProjectWindow		Surt
+Stop	RemoteProjectWindow		Atura
+The local path is not valid or does not exist	RemoteProjectWindow		El camí local no és vàlid o no existeix.
+URL:	RemoteProjectWindow		URL:
 Build commands	ProjectSettingsWindow		Ordres de construcció
 Cancel	ProjectSettingsWindow		Cancel·la
-Debug build comand:	ProjectSettingsWindow		Ordre de construcció de depuració:
-Debug clean comand:	ProjectSettingsWindow		Ordre de neteja de depuració:
+Debug build command:	ProjectSettingsWindow		Ordre de depuració de la construcció:
+Debug clean command:	ProjectSettingsWindow		Ordre de neteja de la depuració:
 Debug execute arguments:	ProjectSettingsWindow		Arguments d'execució de depuració:
 Debug project target:	ProjectSettingsWindow		Destinació del projecte de depuració:
 Default	ProjectSettingsWindow		Per defecte
@@ -198,8 +219,8 @@ Enable Git	ProjectSettingsWindow		Habilita Git
 Exclude settings file from Git	ProjectSettingsWindow		Exclou el fitxer de configuració de Git
 OK	ProjectSettingsWindow		D'acord
 Project:	ProjectSettingsWindow		Projecte:
-Release build comand:	ProjectSettingsWindow		Ordre de construcció de publicació:
-Release clean comand:	ProjectSettingsWindow		Ordre de neteja de publicació:
+Release build command:	ProjectSettingsWindow		Ordre d'alliberament de la construcció:
+Release clean command:	ProjectSettingsWindow		Ordre de neteja d'alliberament:
 Release execute arguments:	ProjectSettingsWindow		Arguments d'execució de publicació:
 Release project target:	ProjectSettingsWindow		Destinació del projecte de publicació:
 Run in Terminal	ProjectSettingsWindow		Executa al Terminal
@@ -233,8 +254,15 @@ Made with love in Italy	GenioApp		Fet amb amor a Itàlia
 Review	GenioApp		Revisió
 See credits for a complete list.\n\n	GenioApp		Consulteu-ne els crèdits per obtenir una llista completa.\n\n
 Settings file for a previous version detected.	GenioApp		S'ha detectat un fitxer de configuració d'una versió anterior.
-The settings file doesn't exist or is corrupted.	GenioApp		El fitxer de configuració no existeix o està malmès.
 Edit user templates…	TemplatesMenu		Edita les plantilles d'usuari...
+File deleted	GitRepository		Fitxer suprimit
+File deleted from index	GitRepository		Fitxer suprimit de l'índex
+File modified	GitRepository		Fitxer modificat
+File modified on index	GitRepository		Fitxer modificat a l'índex
+New file	GitRepository		Fitxer nou
+New file staged	GitRepository		Fitxer nou en escena
 Genio	System name		Genio
+Location	SearchResultPanel		Ubicació
+Search Results	SearchResultPanel		Resultats de la cerca
 New folder	TemplateManager		Carpeta nova
 OK	Utilities		D'acord

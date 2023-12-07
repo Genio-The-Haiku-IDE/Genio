@@ -21,9 +21,9 @@ StyledItem::StyledItem(const char* text,
 						const char *iconName)
 	:
 	BStringItem(text, outlineLevel, expanded),
-	fToolTipText(),
 	fIconName(iconName),
-	fFontFace(B_REGULAR_FACE)
+	fFontFace(B_REGULAR_FACE),
+	fToolTipText()
 {
 }
 
@@ -38,6 +38,8 @@ StyledItem::~StyledItem()
 void
 StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
+	// TODO: Inherited classes which reimplement this method could duplicate
+	// most of this code. See if there's a way to move it to a common method
 	if (Text() == NULL)
 		return;
 
@@ -58,6 +60,8 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	else
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
+	// TODO: until here (see comment above)
+
 	float iconSize = 0;
 	BRect iconRect = bounds;
 	iconRect.right = iconRect.left + 4;
@@ -70,7 +74,11 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	}
 	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
-	DrawText(owner, Text(), textPoint);
+
+	// TODO: would be nice to draw extra text in different style
+	BString text(Text());
+	text << fExtraText;
+	DrawText(owner, text.String(), textPoint);
 
 	owner->Sync();
 }
@@ -88,6 +96,20 @@ void
 StyledItem::SetTextFontFace(uint16 fontFace)
 {
 	fFontFace = fontFace;
+}
+
+
+void
+StyledItem::SetExtraText(const char* extraText)
+{
+	fExtraText = extraText;
+}
+
+
+const char*
+StyledItem::ExtraText() const
+{
+	return fExtraText.String();
 }
 
 

@@ -50,7 +50,7 @@ enum MainIndex {
 
 
 SourceControlPanel::SourceControlPanel()
-	: BView(B_TRANSLATE("Source Control"), B_WILL_DRAW | B_FRAME_EVENTS ),
+	: BView(B_TRANSLATE("Source control"), B_WILL_DRAW | B_FRAME_EVENTS ),
 	fProjectMenu(nullptr),
 	fBranchMenu(nullptr),
 	fProjectList(nullptr),
@@ -361,10 +361,9 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				auto result = alert->Go();
 				if (result.Button == GAlertButtons::OkButton) {
 					stash_message = result.Result;
+					fSelectedProject->GetRepository()->StashSave(stash_message);
+					_ShowGitNotification(B_TRANSLATE("Changes stashed."));
 				}
-
-				fSelectedProject->GetRepository()->StashSave(stash_message);
-				_ShowGitNotification(B_TRANSLATE("Changes stashed."));
 				break;
 			}
 			case MsgStashPop: {

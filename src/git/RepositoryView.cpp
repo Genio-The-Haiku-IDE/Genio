@@ -7,6 +7,8 @@
 #include "RepositoryView.h"
 
 #include "BranchItem.h"
+#include "ConfigManager.h"
+#include "GenioApp.h"
 #include "GMessage.h"
 #include "StringFormatter.h"
 #include "Utils.h"
@@ -166,10 +168,6 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		auto locals = _InitEmptySuperItem(B_TRANSLATE("Local branches"));
 		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
 		for(auto &branch : local_branches) {
-			// auto item = new BranchItem(branch.String(), branch.String(), kLocalBranch);
-			// if (branch == fCurrentBranch)
-				// item->SetText(BString(item->Text()) << "*");
-			// AddUnder(item, locals);
 			_BuildBranchTree(branch, locals, kLocalBranch,
 				[&](const auto &branchname) {
 					return (branchname == fCurrentBranch);
@@ -205,30 +203,31 @@ void
 RepositoryView::_BuildBranchTree(const BString &branch, BranchItem *rootItem, uint32 branchType,
 									const auto& checker)
 {
+	// Do not show an outline
+	if (!gCFG["repository_outline"]) {
+		StyledItem* item = new BranchItem(branch.String(), branch.String(), branchType);
+		AddUnder(item, rootItem);
+		return;
+	}
+
+	// show the outline
 	BranchItem *parentitem = rootItem;
 	std::filesystem::path path = branch.String();
-	// LogInfo(">>>remotes: parent '%s' branch '%s'", parentitem->BranchName(), branch.String());
 	vector<std::string> parts(path.begin(), path.end());
-	// for (auto it = path.begin(); it != path.end(); ++it) {
 	for (uint32 i = 0; i < parts.size(); i++) {
 		uint32 lastIndex = parts.size();
-		// LogInfo("remotes: i = %d of %d", i, lastIndex);
 
 		BString partName = parts.at(i).c_str();
-		// LogInfo("remotes: part '%s' of '%s'", partName.String(), branch.String());
 		auto partItem = FindItem<BranchItem>(partName, rootItem, false, i+1);
 		if (partItem != nullptr) {
-			// LogInfo("remotes: partitem found '%s' under '%s'", partItem->BranchName(), parentitem->Text());
 			parentitem = partItem;
 		} else {
-			// LogInfo("remotes: partitem '%s' not found", partName.String());
 			if (i == (lastIndex-1)) {
 				auto newItem = new BranchItem(branch.String(), partName, branchType, i);
 				if (checker(branch))
 					newItem->SetTextFontFace(B_UNDERSCORE_FACE);
 				AddUnder(newItem, parentitem);
 				parentitem = rootItem;
-				// LogInfo("remotes: this is the last part of the path at %d", i);
 			} else {
 				auto newItem = new BranchItem(branch.String(), partName, kHeader, i);
 				if (AddUnder(newItem, parentitem))

@@ -2,7 +2,7 @@
  * Copyright 2023, Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-
+#include <iostream>
 #include "SourceControlPanel.h"
 
 #include <Alignment.h>
@@ -20,7 +20,8 @@
 #include <ScrollView.h>
 #include <StringView.h>
 
-#include "GitRepository.h"
+#include "ConfigManager.h"
+#include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "Log.h"
@@ -202,14 +203,13 @@ SourceControlPanel::AttachedToWindow()
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-
 		auto gwin = static_cast<GenioWindow *>(Window());
 		if (gwin != nullptr) {
 			auto projectBrowser = gwin->GetProjectBrowser();
 			if (projectBrowser != nullptr)
 				projectBrowser->StartWatching(this, B_PATH_MONITOR);
 		}
-
+		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		Window()->UnlockLooper();
 	}
 
@@ -238,7 +238,7 @@ SourceControlPanel::DetachedFromWindow()
 			if (projectBrowser != nullptr)
 				projectBrowser->StopWatching(this, B_PATH_MONITOR);
 		}
-
+		be_app->StopWatching(this, gCFG.UpdateMessageWhat());
 		Window()->UnlockLooper();
 	}
 }
@@ -252,6 +252,18 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			case B_OBSERVER_NOTICE_CHANGE: {
 				int32 code;
 				message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+				if (code == gCFG.UpdateMessageWhat()) {
+					BString key;
+					message->PrintToStream();
+					if (message->FindString("key", &key) == B_OK
+						&& key == "repository_outline")
+						{
+						}
+						std::cout << "PROVA" << std::endl;
+						_UpdateBranchList(false);
+						_UpdateRepositoryView();
+					break;
+				}
 				switch (code) {
 					case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 					{
@@ -479,21 +491,21 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				// break;
 			// }
 			default:
-			break;
+				break;
 		}
-	} catch(GitConflictException &ex) {
+	} catch (GitConflictException &ex) {
 		auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
 			B_TRANSLATE(ex.Message().String()), ex.GetFiles());
 		alert->Go();
 		// in case of conflicts the branch will not change but the item in the OptionList will so
 		// we ask the OptionList to redraw
 		_UpdateBranchList(false);
-	} catch(GitException &ex) {
+	} catch (GitException &ex) {
 		OKAlert("SourceControlPanel", ex.Message().String(), B_STOP_ALERT);
 		_UpdateProjectList();
-	}	catch(std::exception &ex) {
+	} catch (const std::exception &ex) {
 		OKAlert("SourceControlPanel", ex.what(), B_STOP_ALERT);
-	} catch(...) {
+	} catch (...) {
 		OKAlert("SourceControlPanel", B_TRANSLATE("An unknown error occurred."), B_STOP_ALERT);
 	}
 }

@@ -417,7 +417,11 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 								{"label", "Trace" }}},
 						 };
 
-	cfg.AddConfig("LSP", "lsp_clangd_log_level", B_TRANSLATE("Log level:"), (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
+	cfg.AddConfig("LSP", "lsp_clangd_log_level", B_TRANSLATE("Log level:"),
+		(int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
+
+	cfg.AddConfig("Source control", "repository_outline",
+		B_TRANSLATE("Repository outline"), true);
 
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
 

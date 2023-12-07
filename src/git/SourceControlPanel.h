@@ -33,7 +33,8 @@ enum Messages {
 	MsgDeleteBranch,
 	MsgNewBranch,
 	MsgNewTag,
-	MsgInitializeRepository
+	MsgInitializeRepository,
+	MsgCopyRefName
 };
 
 

@@ -10,6 +10,7 @@
 #include <filesystem>
 
 #include "BranchItem.h"
+#include "Clipboard.h"
 #include "ConfigManager.h"
 #include "GenioApp.h"
 #include "GMessage.h"

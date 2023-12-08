@@ -86,13 +86,12 @@ public:
 	void						RunInTerminal(bool enabled);
 	bool						RunInTerminal() const;
 
-	GitRepository*				GetRepository() { return fGitRepository; }
-	void						InitRepository(bool createInitialCommit = true)
-									{fGitRepository->Init(createInitialCommit); }
+	GitRepository*				GetRepository() const;
+	void						InitRepository(bool createInitialCommit = true);
 
 	void						SetGuessedBuilder(const BString& string);
 
-	LSPProjectWrapper*			GetLSPClient() { return fLSPProjectWrapper; }
+	LSPProjectWrapper*			GetLSPClient() const;
 
 private:
 	bool						fActive;

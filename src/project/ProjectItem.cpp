@@ -170,6 +170,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 		if (fOpenedInEditor)
 			SetTextFontFace(B_ITALIC_FACE);
+		else
+			SetTextFontFace(B_REGULAR_FACE);
 		DrawText(owner, text, textPoint);
 
 		owner->Sync();

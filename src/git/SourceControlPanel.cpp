@@ -254,9 +254,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 				if (code == gCFG.UpdateMessageWhat()) {
 					BString key;
-					message->PrintToStream();
-					if (message->FindString("key", &key) == B_OK && key == "repository_outline")
-					{
+					if (message->FindString("key", &key) == B_OK
+						&& key == "repository_outline") {
 						_UpdateBranchList(false);
 						_UpdateRepositoryView();
 					}

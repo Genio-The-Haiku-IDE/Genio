@@ -302,7 +302,6 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_MENU_OPEN_FILE:
 		{
-			//message->PrintToStream();
 			int32 index = -1;
 			if (message->FindInt32("index", &index) != B_OK) {
 				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find index!");

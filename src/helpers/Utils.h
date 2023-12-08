@@ -7,6 +7,7 @@
 #define UTILS_H
 
 
+#include <OutlineListView.h>
 #include <string>
 
 #include <Alert.h>
@@ -15,6 +16,8 @@
 #include <MenuItem.h>
 #include <Notification.h>
 #include <ObjectList.h>
+
+#include "Log.h"
 
 
 class BBitmap;

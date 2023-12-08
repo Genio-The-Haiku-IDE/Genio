@@ -54,7 +54,8 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 	fBuildMode(BuildMode::ReleaseMode),
 	fLSPProjectWrapper(nullptr),
 	fSettings(nullptr),
-	fGitRepository(nullptr)
+	fGitRepository(nullptr),
+	fIsBuilding(false)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;

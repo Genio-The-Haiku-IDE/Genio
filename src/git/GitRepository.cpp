@@ -63,9 +63,8 @@ namespace Genio::Git {
 	bool
 	GitRepository::IsValid(const BString& path)
 	{
-		if (path == "")	{
+		if (path.IsEmpty())
 			return false;
-		}
 
 		if (git_repository_open_ext(nullptr, path, GIT_REPOSITORY_OPEN_NO_SEARCH, nullptr) < 0)
 			return false;

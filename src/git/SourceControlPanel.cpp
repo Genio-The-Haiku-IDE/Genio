@@ -19,6 +19,7 @@
 #include <SeparatorView.h>
 #include <ScrollView.h>
 #include <StringView.h>
+#include <cassert>
 
 #include "ConfigManager.h"
 #include "GenioApp.h"
@@ -266,7 +267,10 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
 						fProjectList = gMainWindow->GetProjectList();
+						fSelectedProject = nullptr;
+						fActiveProject = nullptr;
 						_UpdateProjectList();
+						fActiveProject = gMainWindow->GetActiveProject();
 						break;
 					}
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
@@ -584,7 +588,7 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_UpdateProjectList()
 {
-	if ((fProjectList != nullptr)) {
+	if (fProjectList != nullptr) {
 		fProjectMenu->SetTarget(this);
 		fProjectMenu->SetSender(kSenderProjectOptionList);
 		fProjectMenu->MakeEmpty();
@@ -592,9 +596,9 @@ SourceControlPanel::_UpdateProjectList()
 			MsgChangeProject,
 			[&active = this->fActiveProject](auto item)
 			{
-				auto projectName = item->Name();
-				if ((active != nullptr) &&
-					(active->Name() == projectName))
+				BString projectName = item ? item->Name() : "";
+				if (active != nullptr &&
+					active->Name() == projectName)
 					projectName.Append("*");
 				return projectName;
 			},
@@ -607,7 +611,7 @@ SourceControlPanel::_UpdateProjectList()
 		// Check if the selected project is a valid git repository
 		if (fSelectedProject != nullptr) {
 			try {
-				auto repo = fSelectedProject->GetRepository();
+				GitRepository* repo = fSelectedProject->GetRepository();
 				if (repo->IsInitialized()) {
 					_UpdateBranchList();
 				} else {

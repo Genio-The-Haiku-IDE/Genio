@@ -64,9 +64,6 @@ namespace Genio::Task {
 			if constexpr (std::is_void<ResultType>::value == false) {
 				type_code type;
 				if (archive.GetInfo(kResultField, &type) == B_OK) {
-
-					// printf("OUTPUT: \n"); archive.PrintToStream(); printf("\n");
-
 					if constexpr ( MessageValue<ResultType>::Type() == B_ANY_TYPE) {
 						ssize_t size = 0;
 						const void *result;
@@ -136,8 +133,6 @@ namespace Genio::Task {
 			if (status != B_OK)
 				return status;
 			status = archive->AddString("class", "TaskResult");
-
-			// printf("INPUT: \n"); archive->PrintToStream(); printf("\n");
 
 			return status;
 		}

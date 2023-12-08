@@ -383,8 +383,8 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	if (!projectItem)
 		return;
 
-	ProjectFolder *project = _GetProjectFromItem(projectItem);
-	if (project==nullptr)
+	ProjectFolder *project = GetProjectFromItem(projectItem);
+	if (project == nullptr)
 		return;
 
 	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
@@ -471,7 +471,7 @@ ProjectItem*
 ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
 {
 	const int32 countItems = CountItems();
-	for (int32 i = 0; i< countItems; i++) {
+	for (int32 i = 0; i < countItems; i++) {
 		ProjectItem *item = dynamic_cast<ProjectItem*>(ItemAt(i));
 		if (item != nullptr && item->Text() == projectName)
 			return item;
@@ -523,23 +523,12 @@ ProjectsFolderBrowser::GetCurrentProjectItem() const
 ProjectFolder*
 ProjectsFolderBrowser::GetProjectFromCurrentItem() const
 {
-	return _GetProjectFromItem(GetCurrentProjectItem());
-}
-
-
-BString const
-ProjectsFolderBrowser::GetCurrentProjectFileFullPath() const
-{
-	ProjectItem* selectedProjectItem = GetCurrentProjectItem();
-	// if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
-		return selectedProjectItem->GetSourceItem()->Path();
-	// else
-		// return "";
+	return GetProjectFromItem(GetCurrentProjectItem());
 }
 
 
 ProjectFolder*
-ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item) const
+ProjectsFolderBrowser::GetProjectFromItem(ProjectItem* item) const
 {
 	if (item == nullptr)
 		return nullptr;
@@ -552,6 +541,17 @@ ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item) const
 	}
 
 	return project;
+}
+
+
+BString const
+ProjectsFolderBrowser::GetCurrentProjectFileFullPath() const
+{
+	ProjectItem* selectedProjectItem = GetCurrentProjectItem();
+	// if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
+		return selectedProjectItem->GetSourceItem()->Path();
+	// else
+		// return "";
 }
 
 

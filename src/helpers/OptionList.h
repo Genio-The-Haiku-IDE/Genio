@@ -73,7 +73,6 @@ namespace Genio::UI {
 				throw GException(status, strerror(status));
 			message->AddString("sender", fSender);
 			LogInfo("item name: %s type: %s", name.String(), typeid(value).name());
-			// message->PrintToStream();
 			auto menu_item = new BMenuItem(name.String(), message);
 			menu_item->SetMarked(marked);
 			if ((fMessenger != nullptr) && (fMessenger->IsValid())) {

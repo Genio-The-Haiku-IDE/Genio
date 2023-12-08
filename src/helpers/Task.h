@@ -90,7 +90,6 @@ namespace Genio::Task {
 		~TaskResult()
 		{
 			fResult.reset();
-			printf("~TaskResult(): %s\n", fName.String());
 		}
 
 		ResultType	GetResult() const

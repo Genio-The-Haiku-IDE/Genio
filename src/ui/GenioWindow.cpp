@@ -2702,7 +2702,7 @@ GenioWindow::_InitMenu()
 	BMenu* appMenu = new BMenu("");
 	appMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
 		new BMessage(B_ABOUT_REQUESTED)));
-	appMenu->AddItem(new BMenuItem(B_TRANSLATE("Github page" B_UTF8_ELLIPSIS),
+	appMenu->AddItem(new BMenuItem(B_TRANSLATE("Genio project" B_UTF8_ELLIPSIS),
 		new BMessage(MSG_HELP_GITHUB)));
 	appMenu->AddSeparatorItem();
 	appMenu->AddItem(new BMenuItem(B_TRANSLATE("Settings" B_UTF8_ELLIPSIS),

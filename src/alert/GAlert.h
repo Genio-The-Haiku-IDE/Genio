@@ -144,7 +144,7 @@ private:
 	void _InitInterface()
 	{
 		fMessageString = new BStringView("message", fMessage);
-		fOK = new BButton(B_TRANSLATE("Ok"), new BMessage(OkButton));
+		fOK = new BButton(B_TRANSLATE("OK"), new BMessage(OkButton));
 		fCancel = new BButton(B_TRANSLATE("Cancel"), new BMessage(CancelButton));
 		fOK->MakeDefault(true);
 		fMainView = new BBox(B_NO_BORDER, nullptr);

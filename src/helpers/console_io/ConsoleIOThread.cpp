@@ -226,11 +226,11 @@ ConsoleIOThread::PipeCommand(int argc, const char** argv, int& in, int& out,
 		envp = (const char**)environ;
 
 	// Save current FDs
-	PipeImage::LockStdFilesPntr->Lock();
+	PipeImage::sLockStdFilesPntr->Lock();
 	int old_in  =  dup(0);
 	int old_out  =  dup(1);
 	int old_err  =  dup(2);
-	PipeImage::LockStdFilesPntr->Unlock();
+	PipeImage::sLockStdFilesPntr->Unlock();
 
 	int filedes[2];
 
@@ -253,11 +253,11 @@ ConsoleIOThread::PipeCommand(int argc, const char** argv, int& in, int& out,
 
 cleanup:
 	// Restore old FDs
-	PipeImage::LockStdFilesPntr->Lock();
+	PipeImage::sLockStdFilesPntr->Lock();
 	close(0); dup(old_in); close(old_in);
 	close(1); dup(old_out); close(old_out);
 	close(2); dup(old_err); close(old_err);
-	PipeImage::LockStdFilesPntr->Unlock();
+	PipeImage::sLockStdFilesPntr->Unlock();
 	/* Theoretically I should do loads of error checking, but
 	   the calls aren't very likely to fail, and that would
 	   muddy up the example quite a bit.  YMMV. */

@@ -70,7 +70,6 @@ private:
 	BView*					fLogView;
 	BView*					fRepositoryNotInitializedView;
 	BObjectList<ProjectFolder>* fProjectList;
-	ProjectFolder*			fActiveProject;
 	ProjectFolder*			fSelectedProject;
 	BString					fCurrentBranch;
 	BButton*				fInitializeButton;

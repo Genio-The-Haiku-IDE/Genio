@@ -1062,7 +1062,7 @@ GenioWindow::MessageReceived(BMessage* message)
 
 
 ProjectFolder*
-GenioWindow::GetActiveProject()
+GenioWindow::GetActiveProject() const
 {
 	return fActiveProject;
 }
@@ -1076,14 +1076,14 @@ GenioWindow::SetActiveProject(ProjectFolder *project)
 
 
 BObjectList<ProjectFolder>*
-GenioWindow::GetProjectList()
+GenioWindow::GetProjectList() const
 {
 	return fProjectFolderObjectList;
 }
 
 
 ProjectsFolderBrowser*
-GenioWindow::GetProjectBrowser()
+GenioWindow::GetProjectBrowser() const
 {
 	return fProjectsFolderBrowser;
 }
@@ -1963,15 +1963,12 @@ GenioWindow::_FindInFiles()
 
 
 int32
-GenioWindow::_GetEditorIndex(entry_ref* ref)
+GenioWindow::_GetEditorIndex(entry_ref* ref) const
 {
 	BEntry entry(ref, true);
 	int32 filesCount = fTabManager->CountTabs();
-
 	for (int32 index = 0; index < filesCount; index++) {
-
 		Editor* editor = fTabManager->EditorAt(index);
-
 		if (editor == nullptr) {
 			BString notification;
 			notification
@@ -1979,9 +1976,7 @@ GenioWindow::_GetEditorIndex(entry_ref* ref)
 			LogInfo(notification.String());
 			continue;
 		}
-
 		BEntry matchEntry(editor->FileRef(), true);
-
 		if (matchEntry == entry)
 			return index;
 	}
@@ -1990,14 +1985,11 @@ GenioWindow::_GetEditorIndex(entry_ref* ref)
 
 
 int32
-GenioWindow::_GetEditorIndex(node_ref* nref)
+GenioWindow::_GetEditorIndex(node_ref* nref) const
 {
 	int32 filesCount = fTabManager->CountTabs();
-
 	for (int32 index = 0; index < filesCount; index++) {
-
 		Editor* editor = fTabManager->EditorAt(index);
-
 		if (editor == nullptr) {
 			BString notification;
 			notification
@@ -2005,7 +1997,6 @@ GenioWindow::_GetEditorIndex(node_ref* nref)
 			LogInfo(notification.String());
 			continue;
 		}
-
 		if (*nref == *editor->NodeRef())
 			return index;
 	}
@@ -2014,7 +2005,7 @@ GenioWindow::_GetEditorIndex(node_ref* nref)
 
 
 void
-GenioWindow::_GetFocusAndSelection(BTextControl* control)
+GenioWindow::_GetFocusAndSelection(BTextControl* control) const
 {
 	control->MakeFocus(true);
 	// If some text is selected, use that TODO index check
@@ -2024,8 +2015,7 @@ GenioWindow::_GetFocusAndSelection(BTextControl* control)
 		char text[size + 1];
 		editor->SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text);
 		control->SetText(text);
-	}
-	else
+	} else
 		control->TextView()->Clear();
 }
 
@@ -2086,8 +2076,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 		return;
 	else if (choice == 1) {
 		_FileRequestClose(index);
-	}
-	else if (choice == 2) {
+	} else if (choice == 2) {
 		Editor *editor = fTabManager->EditorAt(index);
 		editor->SetFileRef(newRef);
 		fTabManager->SetTabLabel(index, editor->Name().String());
@@ -2194,7 +2183,6 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 {
 	int32 opcode;
 	status_t status;
-
 	if ((status = msg->FindInt32("opcode", &opcode)) != B_OK) {
 		// TODO notify
 		return;
@@ -3584,11 +3572,10 @@ GenioWindow::_Replace(int what)
 
 
 bool
-GenioWindow::_ReplaceAllow()
+GenioWindow::_ReplaceAllow() const
 {
 	BString selection(fFindTextControl->Text());
 	BString replacement(fReplaceTextControl->Text());
-
 	if (selection.Length() < 1
 //			|| replacement.Length() < 1
 			|| selection == replacement)

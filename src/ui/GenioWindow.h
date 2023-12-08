@@ -69,20 +69,17 @@ public:
 	virtual void				Show();
 
 	void						UpdateMenu();
-	ProjectFolder*				GetActiveProject();
+	ProjectFolder*				GetActiveProject() const;
 	void						SetActiveProject(ProjectFolder *project);
-	BObjectList<ProjectFolder>*	GetProjectList();
-	ProjectsFolderBrowser*		GetProjectBrowser();
+	BObjectList<ProjectFolder>*	GetProjectList() const;
+	ProjectsFolderBrowser*		GetProjectBrowser() const;
 
 private:
-
 			status_t			_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
 
 			void				_BuildDone(BMessage* msg);
 			status_t			_BuildProject();
-			status_t			_CargoNew(BString args);
 			status_t			_CleanProject();
-
 
 			status_t			_DebugProject();
 			bool				_FileRequestClose(int32 index);
@@ -104,9 +101,9 @@ private:
 			void				_FindNext(const BString& strToFind, bool backwards);
 			void				_FindInFiles();
 
-			int32				_GetEditorIndex(entry_ref* ref);
-			int32				_GetEditorIndex(node_ref* nref);
-			void				_GetFocusAndSelection(BTextControl* control);
+			int32				_GetEditorIndex(entry_ref* ref) const;
+			int32				_GetEditorIndex(node_ref* nref) const;
+			void				_GetFocusAndSelection(BTextControl* control) const;
 			status_t			_Git(const BString& git_command);
 			void				_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef);
 			void				_HandleExternalRemoveModification(int32 index);
@@ -136,7 +133,7 @@ private:
 			status_t			_OpenTerminalWorkingDirectory();
 
 			int					_Replace(int what);
-			bool				_ReplaceAllow();
+			bool				_ReplaceAllow() const;
 			void				_ReplaceGroupShow(bool show);
 			status_t			_RunInConsole(const BString& command);
 			void				_RunTarget();
@@ -159,7 +156,7 @@ private:
 
 private:
 			BMenuBar*			fMenuBar;
-			TemplatesMenu*	fFileNewMenuItem;
+			TemplatesMenu*		fFileNewMenuItem;
 
 			BMenu*				fLineEndingsMenu;
 			BMenu*				fLanguageMenu;
@@ -207,8 +204,7 @@ private:
 			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
 
 			// Editor group
-			EditorTabManager*		fTabManager;
-
+			EditorTabManager*	fTabManager;
 
 			ToolBar*			fFindGroup;
 			ToolBar*			fReplaceGroup;

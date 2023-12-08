@@ -144,7 +144,10 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 									B_TRANSLATE("Path"), projectPath.String(),
 									B_TRANSLATE("Current branch"), branchName.String());
 		SetToolTipText(toolTipText);
-	}
+	} else if (fOpenedInEditor)
+		SetTextFontFace(B_ITALIC_FACE);
+	else
+		SetTextFontFace(B_REGULAR_FACE);
 
 	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->Path());
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
@@ -168,10 +171,6 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			text.Append("*");
 		text.Append(ExtraText());
 
-		if (fOpenedInEditor)
-			SetTextFontFace(B_ITALIC_FACE);
-		else
-			SetTextFontFace(B_REGULAR_FACE);
 		DrawText(owner, text, textPoint);
 
 		owner->Sync();

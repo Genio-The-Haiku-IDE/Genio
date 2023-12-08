@@ -255,9 +255,9 @@ ProjectSettingsWindow::_SaveChanges()
 	fProject->SetExecuteArgs(fDebugExecuteArgsText->Text(), BuildMode::DebugMode);
 
 	if (fRunInTerminal->Value() == B_CONTROL_ON)
-		fProject->RunInTerminal(true);
+		fProject->SetRunInTerminal(true);
 	else
-		fProject->RunInTerminal(false);
+		fProject->SetRunInTerminal(false);
 
 	fProject->SaveSettings();
 }

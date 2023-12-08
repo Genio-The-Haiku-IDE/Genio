@@ -40,12 +40,12 @@ public:
 	ProjectItem*	GetProjectItem(const BString& projectName) const;
 	ProjectItem*	GetProjectItemAt(const int32& index) const;
 	ProjectItem*	GetProjectItemByPath(const BString& path) const;
-	ProjectItem*	GetCurrentProjectItem() const;
+	ProjectItem*	GetSelectedProjectItem() const;
 
 	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
-	ProjectFolder*	GetProjectFromCurrentItem() const;
+	ProjectFolder*	GetProjectFromSelectedItem() const;
 
-	BString const	GetCurrentProjectFileFullPath() const;
+	BString const	GetSelectedProjectFileFullPath() const;
 
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);

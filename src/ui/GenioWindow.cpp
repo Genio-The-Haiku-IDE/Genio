@@ -806,7 +806,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 
 			if (type == "new_folder") {
-				ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();
+				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 					BEntry entry(item->GetSourceItem()->Path());
 					entry_ref ref;
@@ -850,7 +850,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (type ==  "new_file_template") {
 				entry_ref dest;
 				entry_ref source;
-				ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();
+				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 					BEntry entry(item->GetSourceItem()->Path());
 					if (entry.GetRef(&dest) != B_OK) {
@@ -874,7 +874,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_MENU_CLOSE:
-			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromCurrentItem());
+			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromSelectedItem());
 			break;
 		case MSG_PROJECT_MENU_DELETE_FILE:
 			_ProjectFileDelete();
@@ -889,7 +889,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_OpenTerminalWorkingDirectory();
 			break;
 		case MSG_PROJECT_MENU_SET_ACTIVE:
-			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromCurrentItem());
+			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromSelectedItem());
 			break;
 		case MSG_PROJECT_OPEN:
 			fOpenProjectFolderPanel->Show();
@@ -3236,7 +3236,7 @@ GenioWindow::_ProjectFileDelete()
 {
 	entry_ref ref;
 	int32 openedIndex;
-	BEntry entry(fProjectsFolderBrowser->GetCurrentProjectFileFullPath());
+	BEntry entry(fProjectsFolderBrowser->GetSelectedProjectFileFullPath());
 	entry.GetRef(&ref);
 	char name[B_FILE_NAME_LENGTH];
 
@@ -3289,7 +3289,7 @@ GenioWindow::_ProjectFileDelete()
 void
 GenioWindow::_ProjectRenameFile()
 {
-	ProjectItem *item = fProjectsFolderBrowser->GetCurrentProjectItem();
+	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
 	fProjectsFolderBrowser->InitRename(item);
 }
 
@@ -3454,7 +3454,7 @@ status_t
 GenioWindow::_OpenTerminalWorkingDirectory()
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetCurrentProjectItem();
+	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
@@ -3486,7 +3486,7 @@ status_t
 GenioWindow::_ShowCurrentItemInTracker()
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetCurrentProjectItem();
+	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
@@ -4038,7 +4038,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 void
 GenioWindow::UpdateMenu()
 {
-	ProjectItem *item = fProjectsFolderBrowser->GetCurrentProjectItem();
+	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
 	if (item != nullptr) {
 		if (item->GetSourceItem()->Type() != SourceItemType::FileItem)
 			fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);

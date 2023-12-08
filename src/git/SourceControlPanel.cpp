@@ -2,7 +2,6 @@
  * Copyright 2023, Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-
 #include "SourceControlPanel.h"
 
 #include <Alignment.h>
@@ -10,6 +9,7 @@
 #include <Button.h>
 #include <ObjectList.h>
 #include <Catalog.h>
+#include <Clipboard.h>
 #include <LayoutBuilder.h>
 #include <ObjectList.h>
 #include <OutlineListView.h>
@@ -20,7 +20,8 @@
 #include <ScrollView.h>
 #include <StringView.h>
 
-#include "GitRepository.h"
+#include "ConfigManager.h"
+#include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "Log.h"
@@ -202,14 +203,13 @@ SourceControlPanel::AttachedToWindow()
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-
 		auto gwin = static_cast<GenioWindow *>(Window());
 		if (gwin != nullptr) {
 			auto projectBrowser = gwin->GetProjectBrowser();
 			if (projectBrowser != nullptr)
 				projectBrowser->StartWatching(this, B_PATH_MONITOR);
 		}
-
+		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		Window()->UnlockLooper();
 	}
 
@@ -238,7 +238,7 @@ SourceControlPanel::DetachedFromWindow()
 			if (projectBrowser != nullptr)
 				projectBrowser->StopWatching(this, B_PATH_MONITOR);
 		}
-
+		be_app->StopWatching(this, gCFG.UpdateMessageWhat());
 		Window()->UnlockLooper();
 	}
 }
@@ -252,6 +252,16 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			case B_OBSERVER_NOTICE_CHANGE: {
 				int32 code;
 				message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+				if (code == gCFG.UpdateMessageWhat()) {
+					BString key;
+					message->PrintToStream();
+					if (message->FindString("key", &key) == B_OK && key == "repository_outline")
+					{
+						_UpdateBranchList(false);
+						_UpdateRepositoryView();
+					}
+					break;
+				}
 				switch (code) {
 					case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 					{
@@ -270,23 +280,22 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					}
 					case B_PATH_MONITOR:
 					{
-						message->PrintToStream();
-						LogInfo("B_PATH_MONITOR");
-						int32 opCode;
-						if (message->FindInt32("opcode", &opCode) != B_OK)
-							return;
-						BString watchedPath;
-						if (message->FindString("watched_path", &watchedPath) != B_OK)
-							return;
+						if (!fSelectedProject->IsBuilding()) {
+							LogInfo("B_PATH_MONITOR");
+							int32 opCode;
+							if (message->FindInt32("opcode", &opCode) != B_OK)
+								return;
+							BString watchedPath;
+							if (message->FindString("watched_path", &watchedPath) != B_OK)
+								return;
 
-						if (watchedPath == fSelectedProject->Path()) {
-							// update project
-							auto message = new BMessage(MsgChangeProject);
-							message->AddPointer("value", fSelectedProject);
-							message->AddString("sender", kSenderExternalEvent);
-							BMessenger(this).SendMessage(message);
-							// fCurrentBranch = fSelectedProject->GetRepository()->GetCurrentBranch();
-							// _UpdateBranchList(false);
+							if (watchedPath == fSelectedProject->Path()) {
+								// update project
+								auto message = new BMessage(MsgChangeProject);
+								message->AddPointer("value", fSelectedProject);
+								message->AddString("sender", kSenderExternalEvent);
+								BMessenger(this).SendMessage(message);
+							}
 						}
 						break;
 					}
@@ -325,16 +334,14 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgFetch: {
 				LogInfo("MsgFetch");
-				Genio::Git::GitRepository git(fSelectedProject->Path().String());
-				git.Fetch();
+				fSelectedProject->GetRepository()->Fetch();
 				_ShowGitNotification(B_TRANSLATE("Fetch completed."));
 				_UpdateBranchList();
 				break;
 			}
 			case MsgFetchPrune: {
 				LogInfo("MsgFetchPrune");
-				Genio::Git::GitRepository git(fSelectedProject->Path().String());
-				git.Fetch(true);
+				fSelectedProject->GetRepository()->Fetch(true);
 				_ShowGitNotification(B_TRANSLATE("Fetch prune completed."));
 				_UpdateBranchList();
 				break;
@@ -342,29 +349,27 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			case MsgStashSave: {
 				LogInfo("MsgStashSave");
 
-				BString stash_message;
-				stash_message << "WIP on " << fCurrentBranch << B_UTF8_ELLIPSIS;
+				BString stashMessage;
+				stashMessage << "WIP on " << fCurrentBranch << B_UTF8_ELLIPSIS;
 				auto alert = new GTextAlert("Stash", B_TRANSLATE("Enter a message for this stash"),
-					stash_message);
+					stashMessage);
 				auto result = alert->Go();
 				if (result.Button == GAlertButtons::OkButton) {
-					stash_message = result.Result;
-					fSelectedProject->GetRepository()->StashSave(stash_message);
+					stashMessage = result.Result;
+					fSelectedProject->GetRepository()->StashSave(stashMessage);
 					_ShowGitNotification(B_TRANSLATE("Changes stashed."));
 				}
 				break;
 			}
 			case MsgStashPop: {
 				LogInfo("MsgStashPop");
-				Genio::Git::GitRepository git(fSelectedProject->Path().String());
-				git.StashPop();
+				fSelectedProject->GetRepository()->StashPop();
 				_ShowGitNotification(B_TRANSLATE("Stashed changes popped."));
 				break;
 			}
 			case MsgStashApply: {
 				LogInfo("MsgStashApply");
-				Genio::Git::GitRepository git(fSelectedProject->Path().String());
-				git.StashApply();
+				fSelectedProject->GetRepository()->StashApply();
 				_ShowGitNotification(B_TRANSLATE("Stashed changes applied."));
 				break;
 			}
@@ -377,25 +382,25 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgRenameBranch: {
-				auto selected_branch = BString(message->GetString("value"));
-				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
+				auto selectedBranch = BString(message->GetString("value"));
+				git_branch_t branchType = static_cast<git_branch_t>(message->GetInt32("type",-1));
 				auto alert = new GTextAlert(B_TRANSLATE("Rename branch"),
-					B_TRANSLATE("Rename branch:"), selected_branch);
+					B_TRANSLATE("Rename branch:"), selectedBranch);
 				auto result = alert->Go();
 				if (result.Button == GAlertButtons::OkButton) {
 					auto repo = fSelectedProject->GetRepository();
-					repo->RenameBranch(selected_branch, result.Result, branch_type);
+					repo->RenameBranch(selectedBranch, result.Result, branchType);
 					_ShowGitNotification(B_TRANSLATE("Branch renamed succesfully."));
 					_UpdateBranchList();
-					LogInfo("MsgRenameBranch: %s renamed to %s", selected_branch.String(),
+					LogInfo("MsgRenameBranch: %s renamed to %s", selectedBranch.String(),
 						result.Result.String());
 				}
 				break;
 			}
 			case MsgDeleteBranch: {
-				auto selected_branch = BString(message->GetString("value"));
+				auto selectedBranch = BString(message->GetString("value"));
 				StringFormatter fmt;
-				fmt.Substitutions["%branch%"] = selected_branch;
+				fmt.Substitutions["%branch%"] = selectedBranch;
 
 				BString text(fmt.Replace(B_TRANSLATE("Deleting branch: \"%branch%\".\n\n"
 					"After deletion, the item will be lost.\n"
@@ -407,29 +412,29 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				alert->SetShortcut(0, B_ESCAPE);
 				int32 choice = alert->Go();
 				if (choice == 1) {
-					git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
+					git_branch_t branchType = static_cast<git_branch_t>(message->GetInt32("type",-1));
 					auto repo = fSelectedProject->GetRepository();
-					repo->DeleteBranch(selected_branch, branch_type);
+					repo->DeleteBranch(selectedBranch, branchType);
 					_ShowGitNotification(B_TRANSLATE("Branch deleted succesfully."));
 					_UpdateBranchList();
-					LogInfo("MsgDeleteBranch: %s", selected_branch.String());
+					LogInfo("MsgDeleteBranch: %s", selectedBranch.String());
 				}
 				break;
 			}
 			case MsgNewBranch: {
-				auto selected_branch = BString(message->GetString("value"));
-				BString new_local_name(selected_branch);
-				new_local_name.RemoveAll("origin/");
-				git_branch_t branch_type = static_cast<git_branch_t>(message->GetInt32("type",-1));
+				auto selectedBranch = BString(message->GetString("value"));
+				BString newLocalName(selectedBranch);
+				newLocalName.RemoveAll("origin/");
+				git_branch_t branchType = static_cast<git_branch_t>(message->GetInt32("type",-1));
 				auto alert = new GTextAlert(B_TRANSLATE("Rename branch"),
-					B_TRANSLATE("Rename branch:"), selected_branch);
+					B_TRANSLATE("Rename branch:"), selectedBranch);
 				auto result = alert->Go();
 				if (result.Button == GAlertButtons::OkButton) {
 					auto repo = fSelectedProject->GetRepository();
-					repo->CreateBranch(selected_branch, branch_type, result.Result);
+					repo->CreateBranch(selectedBranch, branchType, result.Result);
 					_ShowGitNotification(B_TRANSLATE("Branch created succesfully."));
 					_UpdateBranchList();
-					LogInfo("MsgRenameBranch: %s created from %s", selected_branch.String(),
+					LogInfo("MsgRenameBranch: %s created from %s", selectedBranch.String(),
 						result.Result.String());
 				}
 				break;
@@ -447,10 +452,25 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				}
 				break;
 			}
+			case MsgCopyRefName: {
+				auto selectedBranch = BString(message->GetString("value"));
+				BMessage* clip = nullptr;
+				if (be_clipboard->Lock()) {
+					be_clipboard->Clear();
+				clip = be_clipboard->Data();
+				if (clip != nullptr) {
+				   clip->AddData("text/plain", B_MIME_TYPE, selectedBranch,
+								 selectedBranch.Length());
+				   be_clipboard->Commit();
+				}
+				be_clipboard->Unlock();
+				}
+				break;
+			}
 			// Pull must be fixed and is disabled
 			// case MsgPull: {
-				// auto selected_branch = BString(message->GetString("selected_branch"));
-				// auto result = fSelectedProject->GetRepository()->Pull(selected_branch);
+				// auto selectedBranch = BString(message->GetString("selectedBranch"));
+				// auto result = fSelectedProject->GetRepository()->Pull(selectedBranch);
 				// switch (result) {
 					// case PullResult::UpToDate: {
 						// _ShowGitNotification(B_TRANSLATE("The branch is up to date."));
@@ -466,33 +486,33 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					// }
 				// }
 				// _ShowGitNotification(B_TRANSLATE("Pull completed."));
-				// LogInfo("MsgPull: %s", selected_branch.String());
+				// LogInfo("MsgPull: %s", selectedBranch.String());
 				// break;
 			// }
 			// Pull rebase is seriously flawed. We disable this until we get it work properly
 			// case MsgPullRebase: {
-				// auto selected_branch = BString(message->GetString("selected_branch"));
+				// auto selectedBranch = BString(message->GetString("selectedBranch"));
 				// fSelectedProject->GetRepository()->PullRebase();
 				// _ShowGitNotification(B_TRANSLATE("Pull rebase completed."));
-				// LogInfo("MsgPullRebase: %s", selected_branch.String());
+				// LogInfo("MsgPullRebase: %s", selectedBranch.String());
 				// break;
 			// }
 			default:
-			break;
+				break;
 		}
-	} catch(GitConflictException &ex) {
+	} catch (GitConflictException &ex) {
 		auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
 			B_TRANSLATE(ex.Message().String()), ex.GetFiles());
 		alert->Go();
 		// in case of conflicts the branch will not change but the item in the OptionList will so
 		// we ask the OptionList to redraw
 		_UpdateBranchList(false);
-	} catch(GitException &ex) {
+	} catch (GitException &ex) {
 		OKAlert("SourceControlPanel", ex.Message().String(), B_STOP_ALERT);
 		_UpdateProjectList();
-	}	catch(std::exception &ex) {
+	} catch (const std::exception &ex) {
 		OKAlert("SourceControlPanel", ex.what(), B_STOP_ALERT);
-	} catch(...) {
+	} catch (...) {
 		OKAlert("SourceControlPanel", B_TRANSLATE("An unknown error occurred."), B_STOP_ALERT);
 	}
 }
@@ -507,9 +527,9 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 	if (fSelectedProject != nullptr) {
 		auto repo = fSelectedProject->GetRepository();
 		if (repo->IsInitialized()) {
-			 if (sender == kSenderInitializeRepositoryButton ||
-					sender == kSenderProjectOptionList ||
-					sender == kSenderExternalEvent) {
+			if (sender == kSenderInitializeRepositoryButton ||
+				sender == kSenderProjectOptionList ||
+				sender == kSenderExternalEvent) {
 				try {
 					_UpdateBranchList(false);
 					_UpdateRepositoryView();
@@ -538,20 +558,26 @@ SourceControlPanel::_UpdateRepositoryView()
 void
 SourceControlPanel::_SwitchBranch(BMessage *message)
 {
-	auto branch = (BString)message->GetString("value");
-	auto sender = BString(message->GetString("sender"));
+	if (fSelectedProject->IsBuilding()) {
+		OKAlert("Source control panel",
+			B_TRANSLATE("The project is building, changing branch not allowed."),
+			B_STOP_ALERT);
+	} else {
+		auto branch = (BString)message->GetString("value");
+		auto sender = BString(message->GetString("sender"));
 
-	auto repo = fSelectedProject->GetRepository();
-	repo->SwitchBranch(branch);
-	fCurrentBranch = repo->GetCurrentBranch();
+		auto repo = fSelectedProject->GetRepository();
+		repo->SwitchBranch(branch);
+		fCurrentBranch = repo->GetCurrentBranch();
 
-	if (sender == kSenderBranchOptionList) {
-		// we update the repository view
-		_UpdateRepositoryView();
-	} else if (sender == kSenderRepositoryPopupMenu || sender == kSenderExternalEvent) {
-		// we update the repository view and the branch option list
-		_UpdateBranchList(false);
-		_UpdateRepositoryView();
+		if (sender == kSenderBranchOptionList) {
+			// we update the repository view
+			_UpdateRepositoryView();
+		} else if (sender == kSenderRepositoryPopupMenu || sender == kSenderExternalEvent) {
+			// we update the repository view and the branch option list
+			_UpdateBranchList(false);
+			_UpdateRepositoryView();
+		}
 	}
 }
 
@@ -567,11 +593,11 @@ SourceControlPanel::_UpdateProjectList()
 			MsgChangeProject,
 			[&active = this->fActiveProject](auto item)
 			{
-				auto project_name = item->Name();
+				auto projectName = item->Name();
 				if ((active != nullptr) &&
-					(active->Name() == project_name))
-					project_name.Append("*");
-				return project_name;
+					(active->Name() == projectName))
+					projectName.Append("*");
+				return projectName;
 			},
 			true,
 			[&selected = this->fSelectedProject](auto item)
@@ -614,14 +640,13 @@ SourceControlPanel::_UpdateBranchList(bool invokeItemMessage)
 					MsgSwitchBranch,
 					[](auto &item) { return item; },
 					invokeItemMessage,
-					[&current_branch=this->fCurrentBranch](auto &item) { return (item == current_branch);}
+					[&currentBranch=this->fCurrentBranch](auto &item) { return (item == currentBranch);}
 				);
 			}
 		}
-	} catch(GitException &ex) {
+	} catch(const GitException &ex) {
 		fBranchMenu->MakeEmpty();
 		fCurrentBranch = "";
-		// throw;
 	}
 }
 

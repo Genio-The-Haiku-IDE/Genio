@@ -68,6 +68,8 @@ public:
 
 	void						SetBuildMode(BuildMode mode);
 	BuildMode					GetBuildMode();
+	bool						IsBuilding() const { return fIsBuilding; }
+	void						SetBuildingState(bool isBuilding) { fIsBuilding = isBuilding; }
 
 	void						SetCleanCommand(BString const& command, BuildMode mode);
 	BString const				GetCleanCommand() const;
@@ -100,6 +102,7 @@ private:
 	LSPProjectWrapper*			fLSPProjectWrapper;
 	GSettings*					fSettings;
 	GitRepository*				fGitRepository;
+	bool						fIsBuilding;
 };
 
 #endif // PROJECT_FOLDER_H

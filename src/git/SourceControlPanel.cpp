@@ -265,7 +265,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
 						fProjectList = gMainWindow->GetProjectList();
-						fSelectedProject = nullptr;
+
 						_UpdateProjectList();
 						break;
 					}
@@ -584,40 +584,45 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_UpdateProjectList()
 {
-	if (fProjectList != nullptr) {
-		fProjectMenu->SetTarget(this);
-		fProjectMenu->SetSender(kSenderProjectOptionList);
-		fProjectMenu->MakeEmpty();
-		ProjectFolder* activeProject = gMainWindow->GetActiveProject();
-		fProjectMenu->AddList(fProjectList,
-			MsgChangeProject,
-			[&active = activeProject](auto item)
-			{
-				BString projectName = item ? item->Name() : "";
-				if (active != nullptr &&
-					active->Name() == projectName)
-					projectName.Append("*");
-				return projectName;
-			},
-			true,
-			[&selected = this->fSelectedProject](auto item)
-			{
-				return (item == selected);
+	if (fProjectList == nullptr) {
+		fSelectedProject = nullptr;
+		return;
+	}
+
+	fProjectMenu->SetTarget(this);
+	fProjectMenu->SetSender(kSenderProjectOptionList);
+	ProjectFolder* selectedProject = fSelectedProject;
+	fProjectMenu->MakeEmpty();
+	fSelectedProject = nullptr;
+	ProjectFolder* activeProject = gMainWindow->GetActiveProject();
+	fProjectMenu->AddList(fProjectList,
+		MsgChangeProject,
+		[&active = activeProject](auto item)
+		{
+			BString projectName = item ? item->Name() : "";
+			if (active != nullptr &&
+				active->Name() == projectName)
+				projectName.Append("*");
+			return projectName;
+		},
+		true,
+		[&selected = selectedProject](auto item)
+		{
+			return (item == selected);
+		}
+	);
+	// Check if the selected project is a valid git repository
+	if (fSelectedProject != nullptr) {
+		try {
+			GitRepository* repo = fSelectedProject->GetRepository();
+			if (repo->IsInitialized()) {
+				_UpdateBranchList();
+			} else {
+				fMainLayout->SetVisibleItem(kMainIndexInitialize);
 			}
-		);
-		// Check if the selected project is a valid git repository
-		if (fSelectedProject != nullptr) {
-			try {
-				GitRepository* repo = fSelectedProject->GetRepository();
-				if (repo->IsInitialized()) {
-					_UpdateBranchList();
-				} else {
-					fMainLayout->SetVisibleItem(kMainIndexInitialize);
-				}
-			} catch (const GitException &ex) {
-				// other fatal errors
-				throw;
-			}
+		} catch (const GitException &ex) {
+			// other fatal errors
+			throw;
 		}
 	}
 }

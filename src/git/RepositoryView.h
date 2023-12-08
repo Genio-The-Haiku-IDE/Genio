@@ -4,20 +4,9 @@
  */
 #pragma once
 
-#include <Catalog.h>
+
 #include <OutlineListView.h>
 
-#include <filesystem>
-
-#include "BranchItem.h"
-#include "Clipboard.h"
-#include "ConfigManager.h"
-#include "GenioApp.h"
-#include "GMessage.h"
-#include "ProjectFolder.h"
-#include "SourceControlPanel.h"
-#include "StringFormatter.h"
-#include "Utils.h"
 
 enum RepositoryViewMessages {
 	kUndefinedMessage,
@@ -32,6 +21,7 @@ enum ItemType {
 };
 
 class BranchItem;
+class ProjectFolder;
 class RepositoryView : public BOutlineListView {
 public:
 

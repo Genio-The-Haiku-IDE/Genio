@@ -686,7 +686,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				BString new_branch = message->GetString("branch", nullptr);
 				if (new_branch != nullptr)
 					repo.SwitchBranch(new_branch);
-			} catch (Genio::Git::GitConflictException &ex) {
+			} catch (const Genio::Git::GitConflictException &ex) {
 				BString message;
 				message << B_TRANSLATE("An error occurred while switching branch:")
 						<< " "
@@ -695,7 +695,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
 											B_TRANSLATE(message), ex.GetFiles());
 				alert->Go();
-			} catch (Genio::Git::GitException &ex) {
+			} catch (const Genio::Git::GitException &ex) {
 				BString message;
 				message << B_TRANSLATE("An error occurred while switching branch:")
 						<< " "
@@ -3679,13 +3679,11 @@ GenioWindow::_RunTarget()
 		_ShowLog(kOutputLog);
 
 		BString command;
-
-			command << fActiveProject->GetTarget();
-			if (!args.IsEmpty())
-				command << " " << args;
-			// TODO: Go to appropriate directory
-			// chdir(...);
-		// }
+		command << fActiveProject->GetTarget();
+		if (!args.IsEmpty())
+			command << " " << args;
+		// TODO: Go to appropriate directory
+		// chdir(...);
 
 		BString claim("Run ");
 		claim << fActiveProject->Name();
@@ -3702,7 +3700,7 @@ GenioWindow::_RunTarget()
 		fConsoleIOView->RunCommand(&message);
 
 	} else {
-	// TODO: run args
+		// TODO: run args
 		entry_ref ref;
 		entry.SetTo(fActiveProject->GetTarget());
 		entry.GetRef(&ref);

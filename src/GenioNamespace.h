@@ -16,8 +16,6 @@ namespace GenioNames
 	const BString kSettingsFilesToReopen("files_to_reopen.settings");
 	const BString kSettingsProjectsToReopen("workspace.settings");
 	const BString kProjectSettingsFile(".genio");
-
-	BString GetSignature();
 }
 
 #endif // Genio_NAMESPACE_H

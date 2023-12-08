@@ -1603,7 +1603,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		}
 
 		// register the file as a recent one.
-		be_roster->AddToRecentDocuments(&ref, GenioNames::GetSignature());
+		be_roster->AddToRecentDocuments(&ref, GenioNames::kApplicationSignature);
 
 		// new file to load..
 		selectTabInfo.AddBool("caret_position", true);
@@ -3457,7 +3457,7 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
     //final touch, let's be sure the folder is added to the recent files.
     entry_ref ref;
     dirEntry.GetRef(&ref);
-    be_roster->AddToRecentFolders(&ref, GenioNames::GetSignature());
+    be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
 }
 
 

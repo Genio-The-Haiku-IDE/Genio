@@ -126,6 +126,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
 		if (projectFolder->Active())
 			SetTextFontFace(B_BOLD_FACE);
+		else
+			SetTextFontFace(B_REGULAR_FACE);
 		BString projectName = Text();
 		BString projectPath = projectFolder->Path();
 		BString branchName;

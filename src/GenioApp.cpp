@@ -14,12 +14,13 @@
 
 #include <getopt.h>
 
-#include "LSPLogLevels.h"
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 #include "GenioWindow.h"
 #include "Languages.h"
+#include "LSPLogLevels.h"
 #include "Styler.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"

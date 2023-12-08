@@ -883,7 +883,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectRenameFile();
 			break;
 		case MSG_PROJECT_MENU_SHOW_IN_TRACKER:
-			_ShowCurrentItemInTracker();
+			_ShowSelectedItemInTracker();
 			break;
 		case MSG_PROJECT_MENU_OPEN_TERMINAL:
 			_OpenTerminalWorkingDirectory();
@@ -1923,43 +1923,43 @@ GenioWindow::_FindNext(const BString& strToFind, bool backwards)
 void
 GenioWindow::_FindInFiles()
 {
-	  if (!fActiveProject)
+	if (!fActiveProject)
 		return;
 
-	  BString text(fFindTextControl->Text());
-	  if (text.IsEmpty())
+	BString text(fFindTextControl->Text());
+	if (text.IsEmpty())
 		return;
 
-	  // convert checkboxes to grep parameters..
-	  BString extraParameters;
-	  if ((bool)fFindWholeWordCheck->Value())
+	// convert checkboxes to grep parameters..
+	BString extraParameters;
+	if ((bool)fFindWholeWordCheck->Value())
 		extraParameters += "w";
 
-	  if ((bool)fFindCaseSensitiveCheck->Value() == false)
+	if ((bool)fFindCaseSensitiveCheck->Value() == false)
 		extraParameters += "i";
 
-	  text.CharacterEscape("\\\n\"", '\\');
+	text.CharacterEscape("\\\n\"", '\\');
 
-	  BString grepCommand("grep");
-	  BString excludeDir(gCFG["find_exclude_directory"]);
-	  if (!excludeDir.IsEmpty()) {
-		  if (excludeDir.FindFirst(",") >= 0)
+	BString grepCommand("grep");
+	BString excludeDir(gCFG["find_exclude_directory"]);
+	if (!excludeDir.IsEmpty()) {
+		if (excludeDir.FindFirst(",") >= 0)
 			grepCommand << " --exclude-dir={" << excludeDir << "}";
 		else
 			grepCommand << " --exclude-dir=" << excludeDir << "";
-	  }
+	}
 
-	  grepCommand += " -IHrn";
-	  grepCommand += extraParameters;
-	  grepCommand += " -- ";
-	  grepCommand += EscapeQuotesWrap(text);
-	  grepCommand += " ";
-	  grepCommand += EscapeQuotesWrap(fActiveProject->Path());
+	grepCommand += " -IHrn";
+	grepCommand += extraParameters;
+	grepCommand += " -- ";
+	grepCommand += EscapeQuotesWrap(text);
+	grepCommand += " ";
+	grepCommand += EscapeQuotesWrap(fActiveProject->Path());
 
-	  LogInfo("Find in file, executing: [%s]", grepCommand.String());
-	  fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
+	LogInfo("Find in file, executing: [%s]", grepCommand.String());
+	fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
 
-	  _ShowLog(kSearchResult);
+	_ShowLog(kSearchResult);
 }
 
 
@@ -3483,7 +3483,7 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 
 
 status_t
-GenioWindow::_ShowCurrentItemInTracker()
+GenioWindow::_ShowSelectedItemInTracker()
 {
 	// TODO: return value is ignored: make it void ?
 	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();

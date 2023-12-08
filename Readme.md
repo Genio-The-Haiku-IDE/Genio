@@ -11,7 +11,7 @@ Genio is a native and fully functional IDE for the [Haiku operating system](http
 
 Some of the features of the Genio IDE are:
 
-*   LSP Server support (autocompletion, signature help, go to definition/implementation/declaration)
+*   LSP Server support (autocompletion, signature help, go to definition/implementation/declaration, quick fix)
 *   Multi-project browser
 *   Integrated source control with GIT (including opening a remote project) 
 *   Find in files
@@ -57,9 +57,10 @@ See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blo
 
 ### Prerequirements
 
-Genio requires libgit2 to implement Git features. 
-The development files are available in `libgit2_devel`.
-Execute `pkgman install libgit2_devel` from Terminal
+Genio requires libgit2 to implement Git features and libyaml_cpp to read yaml files.
+The needed development files are available in `libgit2_devel` and 
+`yaml_cpp_devel`, respectively.
+Execute `pkgman install libgit2_devel yaml_cpp_devel` from Terminal
 
 If you would like to try a clang++ build:
 

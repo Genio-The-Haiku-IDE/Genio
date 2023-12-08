@@ -62,7 +62,6 @@ SRCS +=  src/lsp-client/LSPPipeClient.cpp
 SRCS +=  src/lsp-client/Transport.cpp
 SRCS +=  src/lsp-client/LSPReaderThread.cpp
 SRCS +=  src/override/BarberPole.cpp
-SRCS +=  src/override/OutlineListView.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp
 SRCS +=  src/project/ProjectItem.cpp

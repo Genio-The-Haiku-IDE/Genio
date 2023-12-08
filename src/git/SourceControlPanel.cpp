@@ -55,14 +55,12 @@ SourceControlPanel::SourceControlPanel()
 	fProjectMenu(nullptr),
 	fBranchMenu(nullptr),
 	fProjectList(nullptr),
-	fActiveProject(nullptr),
 	fSelectedProject(nullptr),
 	fCurrentBranch(nullptr),
 	fInitializeButton(nullptr),
 	fDoNotCreateInitialCommitCheckBox(nullptr)
 {
 	fProjectList = gMainWindow->GetProjectList();
-	fActiveProject = gMainWindow->GetActiveProject();
 
 	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
 		B_TRANSLATE("Project:"),
@@ -268,16 +266,13 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
 						fProjectList = gMainWindow->GetProjectList();
 						fSelectedProject = nullptr;
-						fActiveProject = nullptr;
 						_UpdateProjectList();
-						fActiveProject = gMainWindow->GetActiveProject();
 						break;
 					}
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-						fActiveProject = gMainWindow->GetActiveProject();
-						fSelectedProject = fActiveProject;
+						fSelectedProject = gMainWindow->GetActiveProject();
 						_UpdateProjectList();
 						break;
 					}
@@ -592,9 +587,10 @@ SourceControlPanel::_UpdateProjectList()
 		fProjectMenu->SetTarget(this);
 		fProjectMenu->SetSender(kSenderProjectOptionList);
 		fProjectMenu->MakeEmpty();
+		ProjectFolder* activeProject = gMainWindow->GetActiveProject();
 		fProjectMenu->AddList(fProjectList,
 			MsgChangeProject,
-			[&active = this->fActiveProject](auto item)
+			[&active = activeProject](auto item)
 			{
 				BString projectName = item ? item->Name() : "";
 				if (active != nullptr &&

@@ -1,18 +1,19 @@
 /*
  * Copyright 2023 Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
- * Parts are taken from the IconMenuItem class from Haiku (Tracker) under the 
- * Open Tracker Licence 
+ * Parts are taken from the IconMenuItem class from Haiku (Tracker) under the
+ * Open Tracker Licence
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.
  */
 
 #include "IconMenuItem.h"
 
+#include <Bitmap.h>
 #include <ControlLook.h>
 #include <Debug.h>
 #include <Menu.h>
 #include <MenuField.h>
-#include <NodeInfo.h>
+
 
 #include "IconCache.h"
 

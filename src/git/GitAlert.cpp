@@ -55,7 +55,7 @@ void
 GitAlert::_InitInterface()
 {
 	fMessageString = new BStringView("message", fMessage);
-	fOK = new BButton(B_TRANSLATE("OK"), new BMessage(B_QUIT_REQUESTED));
+	fOK = new BButton(B_TRANSLATE("Ok"), new BMessage(B_QUIT_REQUESTED));
 	BGroupView* filesView = new BGroupView(B_VERTICAL, 0);
 	filesView->SetViewUIColor(B_CONTROL_BACKGROUND_COLOR);
 	fScrollView = new BScrollView("files", filesView, 0, false, true);

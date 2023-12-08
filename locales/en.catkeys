@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	1597770580
+1	English	application/x-vnd.Genio	3509077677
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -117,9 +117,9 @@ Delete dialog	SourceControlPanel		Delete dialog
 Local branches	SourceControlPanel		Local branches
 Debug project	GenioWindow		Debug project
 stderr	ConsoleIOView		stderr
+Genio project…	GenioWindow		Genio project…
 Go to line:	GoToLineWindow		Go to line:
 Close project	GenioWindow		Close project
-This project does not have a git repository.\n Click below to initialize it	SourceControlPanel		This project does not have a git repository.\n Click below to initialize it
 Conflicts	GenioWindow		Conflicts
 Replace:	GenioWindow		Replace:
 Tag	GenioWindow	The git command	Tag
@@ -135,6 +135,7 @@ Rename branch	SourceControlPanel		Rename branch
 Another command is running.	ConsoleIOView		Another command is running.
 Clean project	GenioWindow		Clean project
 Duplicate current line	GenioWindow		Duplicate current line
+OK	GTextAlert		OK
 Open remote Git project	RemoteProjectWindow		Open remote Git project
 Settings…	GenioWindow		Settings…
 No fix available	Editor		No fix available
@@ -146,6 +147,7 @@ Rename \"%selected_branch%\"	SourceControlPanel		Rename \"%selected_branch%\"
 Match case	GenioWindow		Match case
 There are unsaved changes.\nSelect the files to save.	QuitAlert		There are unsaved changes.\nSelect the files to save.
 Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Show repository outline	SettingsWindow		Show repository outline
 Pull	GenioWindow	The git command	Pull
 Save	GenioWindow		Save
 Restarting build…	ConsoleIOView		Restarting build…
@@ -164,7 +166,6 @@ Search results	SearchResultPanel		Search results
 Reload projects	SettingsWindow		Reload projects
 Console banner	SettingsWindow		Console banner
 Overwrite	GenioWindow		Overwrite
-Github page…	GenioWindow		Github page…
 Edit user templates…	TemplatesMenu		Edit user templates…
 Changes stashed.	SourceControlPanel		Changes stashed.
 Go to definition	GenioWindow		Go to definition
@@ -200,7 +201,6 @@ Don't save	Editor		Don't save
 Stop	ConsoleIOView		Stop
 Show line endings	SettingsWindow		Show line endings
 Show toolbar	SettingsWindow		Show toolbar
-Repository scroll view	SourceControlPanel		Repository scroll view
 Fetch prune completed.	SourceControlPanel		Fetch prune completed.
 Whole word	GenioWindow		Whole word
 Made with love in Italy	GenioApp		Made with love in Italy
@@ -221,7 +221,6 @@ Rename folder	ProjectsFolderBrowser		Rename folder
 File	GenioWindow		File
 Delete current line	GenioWindow		Delete current line
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
-Ok	GTextAlert		Ok
 Reload files	SettingsWindow		Reload files
 Password:	GitCredentialsWindow		Password:
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
@@ -257,6 +256,7 @@ This setting will be updated on restart.	SettingsWindow		This setting will be up
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
 Release build command:	ProjectSettingsWindow		Release build command:
 Defaults	ConfigWindow		Defaults
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Zoom in	GenioWindow		Zoom in
 Enable folding	SettingsWindow		Enable folding
 Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
@@ -297,11 +297,13 @@ Clean project	ProjectsFolderBrowser		Clean project
 Debug clean command:	ProjectSettingsWindow		Debug clean command:
 Build project	ProjectsFolderBrowser		Build project
 Remotes	SourceControlPanel		Remotes
+Copy name	SourceControlPanel		Copy name
 Choose project…	SourceControlPanel		Choose project…
 An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
 Edit	GenioWindow		Edit
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Find next	GenioWindow		Find next
+The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
 Find:	GenioWindow		Find:
 Git	GenioWindow		Git
 Enter a message for this stash	SourceControlPanel		Enter a message for this stash

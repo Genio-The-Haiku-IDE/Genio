@@ -11,21 +11,20 @@
  */
 #include "ConsoleIOThread.h"
 
+#include <Locker.h>
 #include <Messenger.h>
 
 #include <errno.h>
 #include <image.h>
-#include <iostream>
 #include <signal.h>
 #include <termios.h>
 #include <unistd.h>
-#include "PipeImage.h"
-#include "GenioNamespace.h"
+
 #include "Log.h"
+#include "PipeImage.h"
 
 
 extern char **environ;
-
 
 
 ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consoleTarget)

@@ -379,7 +379,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 void
 ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 {
-	ProjectItem*  projectItem = GetCurrentProjectItem();
+	ProjectItem*  projectItem = GetSelectedProjectItem();
 	if (!projectItem)
 		return;
 
@@ -510,7 +510,7 @@ ProjectsFolderBrowser::GetProjectItemByPath(BString const& path) const
 
 
 ProjectItem*
-ProjectsFolderBrowser::GetCurrentProjectItem() const
+ProjectsFolderBrowser::GetSelectedProjectItem() const
 {
 	const int32 selection = CurrentSelection();
 	if (selection < 0)
@@ -521,9 +521,9 @@ ProjectsFolderBrowser::GetCurrentProjectItem() const
 
 
 ProjectFolder*
-ProjectsFolderBrowser::GetProjectFromCurrentItem() const
+ProjectsFolderBrowser::GetProjectFromSelectedItem() const
 {
-	return GetProjectFromItem(GetCurrentProjectItem());
+	return GetProjectFromItem(GetSelectedProjectItem());
 }
 
 
@@ -545,9 +545,9 @@ ProjectsFolderBrowser::GetProjectFromItem(ProjectItem* item) const
 
 
 BString const
-ProjectsFolderBrowser::GetCurrentProjectFileFullPath() const
+ProjectsFolderBrowser::GetSelectedProjectFileFullPath() const
 {
-	ProjectItem* selectedProjectItem = GetCurrentProjectItem();
+	ProjectItem* selectedProjectItem = GetSelectedProjectItem();
 	// if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
 		return selectedProjectItem->GetSourceItem()->Path();
 	// else
@@ -559,7 +559,7 @@ status_t
 ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 {
 	status_t status = B_NOT_INITIALIZED;
-	ProjectItem *item = GetCurrentProjectItem();
+	ProjectItem *item = GetSelectedProjectItem();
 	if (item) {
 		BEntry entry(item->GetSourceItem()->Path());
 		if (entry.Exists())

@@ -241,6 +241,27 @@ ProjectFolder::RunInTerminal() const
 }
 
 
+GitRepository*
+ProjectFolder::GetRepository() const
+{
+	return fGitRepository;
+}
+
+
+void
+ProjectFolder::InitRepository(bool createInitialCommit)
+{
+	fGitRepository->Init(createInitialCommit);
+}
+
+
+LSPProjectWrapper*
+ProjectFolder::GetLSPClient() const
+{
+	return fLSPProjectWrapper;
+}
+
+
 void
 ProjectFolder::SetGuessedBuilder(const BString& string)
 {

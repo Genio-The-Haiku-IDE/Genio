@@ -499,14 +499,14 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			default:
 				break;
 		}
-	} catch (GitConflictException &ex) {
+	} catch (const GitConflictException &ex) {
 		auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
 			B_TRANSLATE(ex.Message().String()), ex.GetFiles());
 		alert->Go();
 		// in case of conflicts the branch will not change but the item in the OptionList will so
 		// we ask the OptionList to redraw
 		_UpdateBranchList(false);
-	} catch (GitException &ex) {
+	} catch (const GitException &ex) {
 		OKAlert("SourceControlPanel", ex.Message().String(), B_STOP_ALERT);
 		_UpdateProjectList();
 	} catch (const std::exception &ex) {

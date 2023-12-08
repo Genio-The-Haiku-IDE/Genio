@@ -10,9 +10,14 @@
 #include "GitRepository.h"
 
 #include <Application.h>
+#include <Catalog.h>
+//#include <Notification.h>
 #include <Path.h>
 
 #include "GitCredentialsWindow.h"
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "GitRepository"
 
 namespace Genio::Git {
 
@@ -57,7 +62,7 @@ namespace Genio::Git {
 	}
 
 	bool
-	GitRepository::IsValid(BString path)
+	GitRepository::IsValid(const BString& path)
 	{
 		if (path == "")	{
 			return false;

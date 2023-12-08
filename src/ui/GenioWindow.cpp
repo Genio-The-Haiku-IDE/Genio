@@ -1557,12 +1557,7 @@ GenioWindow::_FileCloseAll()
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
 {
-	entry_ref ref;
-	status_t status = B_OK;
-	int32 refsCount = 0;
-	int32 openedIndex;
 	int32 nextIndex;
-
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
@@ -1577,20 +1572,20 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 	bool openWithPreferred	= msg->GetBool("openWithPreferred", false);
 
+	status_t status = B_OK;
+	entry_ref ref;
+	int32 refsCount = 0;
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
-
 		// Check existence
 		BEntry entry(&ref);
-
 		if (entry.Exists() == false)
 			continue;
-
-		//first let's see if it's already opened.
-		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
+		// first let's see if it's already opened.
+		const int32 openedIndex = _GetEditorIndex(&ref);
+		if (openedIndex != -1) {
 			if (openedIndex != fTabManager->SelectedTabIndex()) {
 				fTabManager->SelectTab(openedIndex, &selectTabInfo);
 			} else {
-
 				if (lsp_char >= 0 && be_line > -1) {
 					fTabManager->SelectedEditor()->GoToLSPPosition(be_line - 1, lsp_char);
 				} else if (be_line > -1) {
@@ -1604,18 +1599,17 @@ GenioWindow::_FileOpen(BMessage* msg)
 		if (!_FileIsSupported(&ref)) {
 			if (openWithPreferred)
 				_FileOpenWithPreferredApp(&ref); //TODO make this optional?
-
 			continue;
 		}
 
 		// register the file as a recent one.
 		be_roster->AddToRecentDocuments(&ref, GenioNames::GetSignature());
 
-		//new file to load..
+		// new file to load..
 		selectTabInfo.AddBool("caret_position", true);
 		int32 index = fTabManager->CountTabs();
 		if (_AddEditorTab(&ref, index, &selectTabInfo) != B_OK) {
-			//Error.
+			// Error.
 			continue;
 		}
 		Editor* editor = fTabManager->EditorAt(index);
@@ -1679,13 +1673,13 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 		char mime[B_MIME_TYPE_LENGTH + 1];
 		if (info.GetType(mime) != B_OK) {
 			LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
-			mime[0]='\0';
+			mime[0] = '\0';
 		}
 		if (mime[0] == '\0' || strcmp(mime, "application/octet-stream") == 0) {
 			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
 				if (info.GetType(mime) != B_OK) {
 					LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
-					mime[0]='\0';
+					mime[0] = '\0';
 				}
 			}
 		}

@@ -40,8 +40,10 @@ public:
 	ProjectItem*	GetProjectItem(const BString& projectName) const;
 	ProjectItem*	GetProjectItemAt(const int32& index) const;
 	ProjectItem*	GetProjectItemByPath(const BString& path) const;
-	ProjectFolder*	GetProjectFromCurrentItem() const;
 	ProjectItem*	GetCurrentProjectItem() const;
+
+	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
+	ProjectFolder*	GetProjectFromCurrentItem() const;
 
 	BString const	GetCurrentProjectFileFullPath() const;
 
@@ -58,7 +60,6 @@ private:
 	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
-	ProjectFolder*	_GetProjectFromItem(ProjectItem*) const;
 
 	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
 

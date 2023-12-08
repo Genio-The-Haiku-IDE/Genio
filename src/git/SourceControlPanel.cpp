@@ -19,7 +19,6 @@
 #include <SeparatorView.h>
 #include <ScrollView.h>
 #include <StringView.h>
-#include <cassert>
 
 #include "ConfigManager.h"
 #include "GenioApp.h"
@@ -51,7 +50,8 @@ enum MainIndex {
 
 
 SourceControlPanel::SourceControlPanel()
-	: BView(B_TRANSLATE("Source control"), B_WILL_DRAW | B_FRAME_EVENTS ),
+	:
+	BView(B_TRANSLATE("Source control"), B_WILL_DRAW | B_FRAME_EVENTS ),
 	fProjectMenu(nullptr),
 	fBranchMenu(nullptr),
 	fProjectList(nullptr),
@@ -380,7 +380,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgRenameBranch: {
-				auto selectedBranch = BString(message->GetString("value"));
+				BString selectedBranch = message->GetString("value");
 				git_branch_t branchType = static_cast<git_branch_t>(message->GetInt32("type",-1));
 				auto alert = new GTextAlert(B_TRANSLATE("Rename branch"),
 					B_TRANSLATE("Rename branch:"), selectedBranch);
@@ -396,7 +396,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgDeleteBranch: {
-				auto selectedBranch = BString(message->GetString("value"));
+				const BString selectedBranch = message->GetString("value");
 				StringFormatter fmt;
 				fmt.Substitutions["%branch%"] = selectedBranch;
 
@@ -420,10 +420,10 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgNewBranch: {
-				auto selectedBranch = BString(message->GetString("value"));
+				const BString selectedBranch = message->GetString("value");
 				BString newLocalName(selectedBranch);
 				newLocalName.RemoveAll("origin/");
-				git_branch_t branchType = static_cast<git_branch_t>(message->GetInt32("type",-1));
+				git_branch_t branchType = static_cast<git_branch_t>(message->GetInt32("type", -1));
 				auto alert = new GTextAlert(B_TRANSLATE("Rename branch"),
 					B_TRANSLATE("Rename branch:"), selectedBranch);
 				auto result = alert->Go();
@@ -451,17 +451,17 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgCopyRefName: {
-				auto selectedBranch = BString(message->GetString("value"));
+				const BString selectedBranch = message->GetString("value");
 				BMessage* clip = nullptr;
 				if (be_clipboard->Lock()) {
 					be_clipboard->Clear();
-				clip = be_clipboard->Data();
-				if (clip != nullptr) {
-				   clip->AddData("text/plain", B_MIME_TYPE, selectedBranch,
-								 selectedBranch.Length());
-				   be_clipboard->Commit();
-				}
-				be_clipboard->Unlock();
+					clip = be_clipboard->Data();
+					if (clip != nullptr) {
+						clip->AddData("text/plain", B_MIME_TYPE, selectedBranch,
+									selectedBranch.Length());
+						be_clipboard->Commit();
+					}
+					be_clipboard->Unlock();
 				}
 				break;
 			}
@@ -519,8 +519,9 @@ SourceControlPanel::MessageReceived(BMessage *message)
 void
 SourceControlPanel::_ChangeProject(BMessage *message)
 {
-	fSelectedProject = (ProjectFolder *)message->GetPointer("value");
-	auto sender = BString(message->GetString("sender"));
+	fSelectedProject = const_cast<ProjectFolder*>(
+		reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
+	const BString sender = message->GetString("sender");
 	// Check if the selected project is a valid git repository
 	if (fSelectedProject != nullptr) {
 		auto repo = fSelectedProject->GetRepository();
@@ -561,8 +562,8 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 			B_TRANSLATE("The project is building, changing branch not allowed."),
 			B_STOP_ALERT);
 	} else {
-		auto branch = (BString)message->GetString("value");
-		auto sender = BString(message->GetString("sender"));
+		const BString branch = message->GetString("value");
+		const BString sender = message->GetString("sender");
 
 		auto repo = fSelectedProject->GetRepository();
 		repo->SwitchBranch(branch);

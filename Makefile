@@ -34,7 +34,6 @@ TYPE := APP
 APP_MIME_SIG := "application/x-vnd.Genio"
 
 SRCS :=  src/GenioApp.cpp
-SRCS +=  src/GenioNamespace.cpp
 SRCS +=	 src/alert/GTextAlert.cpp
 SRCS +=	 src/config/ConfigManager.cpp
 SRCS +=	 src/config/ConfigWindow.cpp

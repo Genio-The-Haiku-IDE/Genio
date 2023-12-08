@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	3509077677
+1	English	application/x-vnd.Genio	1946577677
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -48,7 +48,6 @@ Auto collapse/expand projects	SettingsWindow		Auto collapse/expand projects
 Make catkeys	GenioWindow		Make catkeys
 Status	GenioWindow	The git command	Status
 Show/Hide find bar	GenioWindow		Show/Hide find bar
-Ok	GitAlert		Ok
 Build log	GenioWindow		Build log
 Continue	RemoteProjectWindow		Continue
 Close file	GenioWindow		Close file
@@ -114,6 +113,7 @@ Branch created succesfully.	SourceControlPanel		Branch created succesfully.
 Replace and find previous	GenioWindow		Replace and find previous
 Replace all	GenioWindow		Replace all
 Delete dialog	SourceControlPanel		Delete dialog
+OK	GitAlert		OK
 Local branches	SourceControlPanel		Local branches
 Debug project	GenioWindow		Debug project
 stderr	ConsoleIOView		stderr

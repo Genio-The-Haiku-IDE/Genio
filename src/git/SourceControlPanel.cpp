@@ -138,7 +138,7 @@ void
 SourceControlPanel::_InitRepositoryView()
 {
 	fRepositoryView = new RepositoryView();
-	fRepositoryViewScroll = new BScrollView(B_TRANSLATE("Repository scroll view"),
+	fRepositoryViewScroll = new BScrollView("Repository scroll view",
 		fRepositoryView, B_FRAME_EVENTS | B_WILL_DRAW, true, true, border_style::B_NO_BORDER);
 }
 
@@ -176,7 +176,7 @@ SourceControlPanel::_InitRepositoryNotInitializedView()
 {
 	auto stringView = new BStringView("InitMessage",
 		B_TRANSLATE("This project does not have a git repository.\n"
-			" Click below to initialize it"));
+			"Click below to initialize it."));
 	fInitializeButton = new BButton(B_TRANSLATE("Init repository"),
 		new BMessage(MsgInitializeRepository));
 	fDoNotCreateInitialCommitCheckBox = new BCheckBox(B_TRANSLATE("Do not create the initial commit"),

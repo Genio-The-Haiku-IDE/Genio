@@ -8,14 +8,18 @@
  */
 
 #include "PipeImage.h"
-#include "Log.h"
+
+#include <cerrno>
+#include <cstdlib>
+
 #include <image.h>
 
+#include <Locker.h>
 
  //lock access play with stdin/stdout
-BLocker* PipeImage::LockStdFilesPntr = new BLocker ("Std-In-Out Changed Lock");
+BLocker* PipeImage::sLockStdFilesPntr = new BLocker ("Std-In-Out Changed Lock");
 
-status_t 
+status_t
 PipeImage::Init(const char *argv[], int32 argc, bool resume)
 {
 	// first we should backup current STDIO/STDOUT
@@ -24,9 +28,9 @@ PipeImage::Init(const char *argv[], int32 argc, bool resume)
 	// if ok we fix the stdio/stdout to link to the child
 	// if ko we revert original state.
 	// we run the thread. crossing finger.
- 	
-	LockStdFilesPntr->Lock();
-	
+
+	sLockStdFilesPntr->Lock();
+
 	int originalStdIn = dup (STDIN_FILENO);
 	int PipeFlags = fcntl (originalStdIn, F_GETFD);
 	PipeFlags |= FD_CLOEXEC;
@@ -37,21 +41,21 @@ PipeImage::Init(const char *argv[], int32 argc, bool resume)
 	PipeFlags |= FD_CLOEXEC;
 	fcntl (originalStdOut, F_SETFD, PipeFlags);
 
-#if 0	
+#if 0
 	int originalStdErr = dup(STDERR_FILENO);
 	PipeFlags = fcntl (originalStdErr, F_GETFD);
 	PipeFlags |= FD_CLOEXEC;
-	fcntl (originalStdErr, F_SETFD, PipeFlags);	
+	fcntl (originalStdErr, F_SETFD, PipeFlags);
 #endif
-	
-	LockStdFilesPntr->Unlock();
-  
+
+	sLockStdFilesPntr->Unlock();
+
 	if (pipe (fOutPipe) != 0) // Returns -1 if failed, 0 if okay.
 		return errno; // Pipe creation failed.
 
 	if (pipe (fInPipe) != 0) // Returns -1 if failed, 0 if okay.
 		return errno; // Pipe creation failed.
-#if 0		
+#if 0
 	if (pipe (fErrPipe) != 0) // Returns -1 if failed, 0 if okay.
 		return errno; // Pipe creation failed.
 #endif
@@ -65,12 +69,12 @@ PipeImage::Init(const char *argv[], int32 argc, bool resume)
 	PipeFlags |= FD_CLOEXEC;
 	fcntl (fErrPipe[WRITE_END], F_SETFD, PipeFlags);
 #endif
-  
+
 	// Read end of the inPipe not used by the child, make it close on exec.
 	PipeFlags = fcntl (fInPipe[READ_END], F_GETFD);
 	PipeFlags |= FD_CLOEXEC;
 	fcntl (fInPipe[READ_END], F_SETFD, PipeFlags);
-  
+
 	dup2(fInPipe[WRITE_END], STDOUT_FILENO);
 	close(fInPipe[WRITE_END]);
 	dup2(fOutPipe[READ_END], STDIN_FILENO);
@@ -79,7 +83,7 @@ PipeImage::Init(const char *argv[], int32 argc, bool resume)
 	dup2(fErrPipe[READ_END], STDERR_FILENO);
 	close(fErrPipe[READ_END]);
 #endif
-  
+
 	status_t stat = B_OK;
 	fChildpid = load_image (argc, argv, const_cast<const char **>(environ));
 	if (fChildpid < 0)
@@ -102,19 +106,19 @@ PipeImage::Init(const char *argv[], int32 argc, bool resume)
 	#endif
 	close(fOutPipe[READ_END]);
 	close(fInPipe[WRITE_END]);
-  
-	LockStdFilesPntr->Lock();
+
+	sLockStdFilesPntr->Lock();
 	dup2 (originalStdIn, STDIN_FILENO);
 	dup2 (originalStdOut, STDOUT_FILENO);
 	#if 0
 	dup2 (originalStdErr, STDERR_FILENO);
 	#endif
-	LockStdFilesPntr->Unlock();
+	sLockStdFilesPntr->Unlock();
 
 	return stat;
 }
 
-void	
+void
 PipeImage::Close()
 {
 	close(fOutPipe[WRITE_END]);
@@ -131,19 +135,17 @@ PipeImage::~PipeImage()
 
 pid_t
 PipeImage::GetChildPid()
-{ 
+{
 	return fChildpid;
 }
 
-#include <unistd.h>
-
-ssize_t 
+ssize_t
 PipeImage::Read(void* buffer, size_t size)
 {
 	return read(fInPipe[READ_END], buffer, size);
 }
- 
-ssize_t 
+
+ssize_t
 PipeImage::Write(const void* buffer, size_t size)
 {
 	return write(fOutPipe[WRITE_END], buffer, size);

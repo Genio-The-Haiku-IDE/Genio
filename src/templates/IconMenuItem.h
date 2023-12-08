@@ -1,19 +1,19 @@
 /*
  * Copyright 2023 Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
- * Parts are taken from the IconMenuItem class from Haiku (Tracker) under the 
- * Open Tracker Licence 
+ * Parts are taken from the IconMenuItem class from Haiku (Tracker) under the
+ * Open Tracker Licence
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.
  */
- 
+
 #ifndef ICON_MENU_ITEM_H
 #define ICON_MENU_ITEM_H
 
-#include <Bitmap.h>
-#include <ControlLook.h>
+
 #include <MenuItem.h>
 #include <NodeInfo.h>
 
+class BBitmap;
 class BNodeInfo;
 
 const bigtime_t kSynchMenuInvokeTimeout = 5000000;

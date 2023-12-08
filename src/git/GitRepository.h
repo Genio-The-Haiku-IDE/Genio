@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include <Catalog.h>
-#include <Notification.h>
 
 #include <git2.h>
 
@@ -19,8 +17,8 @@
 #include "GException.h"
 #include "Log.h"
 
-#undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "GitRepository"
+
+class BPath;
 
 namespace Genio::Git {
 
@@ -56,7 +54,7 @@ namespace Genio::Git {
 			LogError("GitConflictException %s, error = %d, files = %d" , message.String(), error, files.size());
 		}
 
-		std::vector<BString>	GetFiles() noexcept { return fFiles; }
+		std::vector<BString>	GetFiles() const noexcept { return fFiles; }
 
 	private:
 		std::vector<BString> 	fFiles;
@@ -81,7 +79,7 @@ namespace Genio::Git {
 												git_indexer_progress_cb callback,
 												git_credential_acquire_cb authentication_callback);
 
-		static bool						IsValid(BString path);
+		static bool						IsValid(const BString& path);
 		bool							IsInitialized();
 		void							Init(bool createInitalCommit = true);
 

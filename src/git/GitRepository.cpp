@@ -20,7 +20,7 @@
 
 namespace Genio::Git {
 
-	GitRepository::GitRepository(BString path)
+	GitRepository::GitRepository(const BString& path)
 		:
 		fRepository(nullptr),
 		fRepositoryPath(path),
@@ -82,7 +82,7 @@ namespace Genio::Git {
 	}
 
 	std::vector<BString>
-	GitRepository::GetBranches(git_branch_t branchType)
+	GitRepository::GetBranches(git_branch_t branchType) const
 	{
 		git_branch_iterator *it = nullptr;
 		git_reference *ref = nullptr;
@@ -104,8 +104,10 @@ namespace Genio::Git {
 			git_branch_iterator_free(it);
 			return branches;
 		} catch (const GitException &e) {
-			if (ref != nullptr) git_reference_free(ref);
-			if (it != nullptr) git_branch_iterator_free(it);
+			if (ref != nullptr)
+				git_reference_free(ref);
+			if (it != nullptr)
+				git_branch_iterator_free(it);
 			throw;
 		}
 	}
@@ -144,11 +146,12 @@ namespace Genio::Git {
 	}
 
 	int
-	GitRepository::SwitchBranch(BString branchName)
+	GitRepository::SwitchBranch(const BString& name)
 	{
 		git_object* tree = nullptr;
 		git_reference* ref = nullptr;
 
+		BString branchName(name);
 		try {
 			int status = 0;
 			std::vector<BString> files;
@@ -195,7 +198,7 @@ namespace Genio::Git {
 	}
 
 	BString
-	GitRepository::GetCurrentBranch()
+	GitRepository::GetCurrentBranch() const
 	{
 		const char *branch = nullptr;
 		git_reference *head = nullptr;
@@ -214,7 +217,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::DeleteBranch(BString branch, git_branch_t type)
+	GitRepository::DeleteBranch(const BString& branch, git_branch_t type)
 	{
 		git_reference* ref = nullptr;
 		try {
@@ -229,7 +232,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::RenameBranch(BString old_name, BString new_name, git_branch_t type)
+	GitRepository::RenameBranch(const BString& old_name, const BString& new_name, git_branch_t type)
 	{
 		git_reference* ref = nullptr;
 		git_reference* out = nullptr;
@@ -251,7 +254,8 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::CreateBranch(BString existingBranchName, git_branch_t type, BString newBranchName)
+	GitRepository::CreateBranch(const BString& existingBranchName, git_branch_t type,
+		const BString& newBranchName)
 	{
 		git_reference *existing_branch_ref = nullptr;
 		git_reference *new_branch_ref = nullptr;
@@ -299,7 +303,7 @@ namespace Genio::Git {
 
 	// TODO: Use a typedef
 	std::vector<std::pair<BString, BString>>
-	GitRepository::GetFiles()
+	GitRepository::GetFiles() const
 	{
 		git_status_options statusopt;
 		git_status_init_options(&statusopt, GIT_STATUS_OPTIONS_VERSION);
@@ -527,14 +531,14 @@ namespace Genio::Git {
 	}*/
 
 	BString
-	GitRepository::_ConfigGet(git_config *cfg, const char *key)
+	GitRepository::_ConfigGet(git_config *cfg, const char *key) const
 	{
 	  git_config_entry *entry = nullptr;
-	  BString ret;
+
 	  check(git_config_get_entry(&entry, cfg, key), nullptr,
 			[](const int x) { return (x != GIT_ENOTFOUND); });
 
-	  ret = entry->value;
+	  const BString ret = entry->value;
 
 	  git_config_entry_free(entry);
 
@@ -550,7 +554,7 @@ namespace Genio::Git {
 	int
 	GitRepository::check(const int status,
 		std::function<void(void)> execute_on_fail,
-		std::function<bool(const int)> checker)
+		std::function<bool(const int)> checker) const
 	{
 		if (checker != nullptr) {
 			if (checker(status)) {
@@ -569,7 +573,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::StashSave(BString message)
+	GitRepository::StashSave(const BString& message)
 	{
 		git_oid saved_stash;
 		git_signature *signature = nullptr;
@@ -604,7 +608,7 @@ namespace Genio::Git {
 
 
 	std::vector<BString>
-	GitRepository::GetTags()
+	GitRepository::GetTags() const
 	{
 		std::vector<BString> tags;
 
@@ -625,7 +629,7 @@ namespace Genio::Git {
 	}
 
 	git_signature*
-	GitRepository::_GetSignature()
+	GitRepository::_GetSignature() const
 	{
 		// TODO - Put this into Genio Prefs
 		git_config* cfg = nullptr;

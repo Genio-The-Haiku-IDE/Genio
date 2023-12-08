@@ -72,7 +72,7 @@ namespace Genio::Git {
 		};
 
 
-										GitRepository(BString path);
+										GitRepository(const BString& path);
 										~GitRepository();
 
 		const BPath&					Clone(const BString& url, const BPath& localPath,
@@ -83,33 +83,32 @@ namespace Genio::Git {
 		bool							IsInitialized();
 		void							Init(bool createInitalCommit = true);
 
-		std::vector<BString>			GetTags();
+		std::vector<BString>			GetTags() const;
 
-		std::vector<BString>			GetBranches(git_branch_t type = GIT_BRANCH_LOCAL);
-		int								SwitchBranch(BString branch);
-		BString							GetCurrentBranch();
-		void							DeleteBranch(BString branch, git_branch_t type);
-		void							RenameBranch(BString old_name, BString new_name,
+		std::vector<BString>			GetBranches(git_branch_t type = GIT_BRANCH_LOCAL) const;
+		int								SwitchBranch(const BString& branch);
+		BString							GetCurrentBranch() const;
+		void							DeleteBranch(const BString& branch, git_branch_t type);
+		void							RenameBranch(const BString& oldName, const BString& newName,
 											git_branch_t type);
-		void							CreateBranch(BString existingBranchName,
-											git_branch_t type, BString newBranchName);
+		void							CreateBranch(const BString& existingBranchName,
+											git_branch_t type, const BString& newBranchName);
 
 		void							Fetch(bool prune = false);
-		void							Merge(BString source, BString dest);
-		PullResult						Pull(BString branchName);
+		void							Merge(const BString& source, const BString& dest);
+		PullResult						Pull(const BString& branchName);
 		void 							PullRebase();
 		void 							Push();
 
-		git_signature*					_GetSignature();
+		git_signature*					_GetSignature() const;
 
-		void 							StashSave(BString message);
+		void 							StashSave(const BString& message);
 		void 							StashPop();
 		void 							StashApply();
 
-		RepoFiles						GetFiles();
+		RepoFiles						GetFiles() const;
 
 	private:
-
 		git_repository 					*fRepository;
 		BString							fRepositoryPath;
 		bool							fInitialized;
@@ -117,13 +116,13 @@ namespace Genio::Git {
 		void							_Open();
 
 		BString							_ConfigGet(git_config *cfg,
-											const char *key);
+											const char *key) const;
 		void							_ConfigSet(git_config *cfg,
 											const char *key, const char* value);
 
 		int 							check(int status,
 											std::function<void(void)> execute_on_fail = nullptr,
-											std::function<bool(const int)> custom_checker = nullptr);
+											std::function<bool(const int)> custom_checker = nullptr) const;
 
 		int 							_FastForward(const git_oid *target_oid, int is_unborn);
 		int								_CreateCommit(git_index* index, const char* message);

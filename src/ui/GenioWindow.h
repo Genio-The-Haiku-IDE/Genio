@@ -128,7 +128,7 @@ private:
 			void				_ProjectFolderOpen(const BString& folder, bool activate = false);
 			void				_ProjectFolderActivate(ProjectFolder* project);
 
-			status_t			_ShowCurrentItemInTracker();
+			status_t			_ShowSelectedItemInTracker();
 			status_t			_ShowInTracker(const entry_ref& ref);
 			status_t			_OpenTerminalWorkingDirectory();
 

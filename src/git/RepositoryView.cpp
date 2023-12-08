@@ -6,6 +6,20 @@
 
 #include "RepositoryView.h"
 
+#include <Catalog.h>
+#include <Looper.h>
+
+#include <filesystem>
+#include <git2/types.h>
+
+#include "BranchItem.h"
+#include "ConfigManager.h"
+#include "GenioApp.h"
+#include "GMessage.h"
+#include "ProjectFolder.h"
+#include "SourceControlPanel.h"
+#include "StringFormatter.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"

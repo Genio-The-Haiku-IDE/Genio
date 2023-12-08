@@ -9,6 +9,7 @@
 #include <Button.h>
 #include <ObjectList.h>
 #include <Catalog.h>
+#include <Clipboard.h>
 #include <LayoutBuilder.h>
 #include <ObjectList.h>
 #include <OutlineListView.h>

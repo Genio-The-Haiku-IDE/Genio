@@ -24,9 +24,6 @@
 #include "PipeImage.h"
 
 
-extern char **environ;
-
-
 ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consoleTarget)
 	:
 	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message)

@@ -231,7 +231,7 @@ RepositoryView::_BuildBranchTree(const BString &branch, BranchItem *rootItem, ui
 	// show the outline
 	BranchItem *parentitem = rootItem;
 	std::filesystem::path path = branch.String();
-	vector<std::string> parts(path.begin(), path.end());
+	std::vector<std::string> parts(path.begin(), path.end());
 	for (uint32 i = 0; i < parts.size(); i++) {
 		uint32 lastIndex = parts.size();
 

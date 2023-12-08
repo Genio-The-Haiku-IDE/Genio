@@ -6,16 +6,17 @@
 #define PROJECT_FOLDER_H
 
 
-#include <Messenger.h>
+//#include <Messenger.h>
 #include <ObjectList.h>
 #include <String.h>
 
 #include "GitRepository.h"
-#include "GSettings.h"
 
 using namespace Genio::Git;
 
+class BMessenger;
 class LSPProjectWrapper;
+class GSettings;
 
 enum SourceItemType {
 	FileItem,
@@ -64,7 +65,7 @@ public:
 	void						SaveSettings();
 
 	bool						Active() const { return fActive; }
-	void						Active(bool status) { fActive = status; }
+	void						SetActive(bool status) { fActive = status; }
 
 	void						SetBuildMode(BuildMode mode);
 	BuildMode					GetBuildMode();
@@ -83,7 +84,7 @@ public:
 	void						SetTarget(BString const& path, BuildMode mode);
 	BString const				GetTarget() const;
 
-	void						RunInTerminal(bool enabled);
+	void						SetRunInTerminal(bool enabled);
 	bool						RunInTerminal() const;
 
 	GitRepository*				GetRepository() const;

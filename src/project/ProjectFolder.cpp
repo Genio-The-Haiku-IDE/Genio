@@ -228,7 +228,7 @@ ProjectFolder::GetTarget() const
 
 
 void
-ProjectFolder::RunInTerminal(bool enabled)
+ProjectFolder::SetRunInTerminal(bool enabled)
 {
 	fSettings->SetBool("project_run_in_terminal", enabled);
 }

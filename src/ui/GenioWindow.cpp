@@ -39,6 +39,7 @@
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
 #include "GitRepository.h"
+#include "GSettings.h"
 #include "Languages.h"
 #include "Log.h"
 #include "ProjectSettingsWindow.h"
@@ -3196,13 +3197,13 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	// There is no active project
 	if (fActiveProject == nullptr) {
 		fActiveProject = project;
-		project->Active(true);
+		project->SetActive(true);
 		_UpdateProjectActivation(true);
 	} else {
 		// There was an active project already
-		fActiveProject->Active(false);
+		fActiveProject->SetActive(false);
 		fActiveProject = project;
-		project->Active(true);
+		project->SetActive(true);
 		_UpdateProjectActivation(true);
 	}
 

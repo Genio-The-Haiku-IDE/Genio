@@ -19,9 +19,8 @@
 #include <String.h>
 
 #include "ConfigManager.h"
+#include "ConsoleIOThread.h"
 #include "GenioApp.h"
-#include "GenioNamespace.h"
-#include "Log.h"
 #include "WordTextView.h"
 
 

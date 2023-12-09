@@ -5,37 +5,13 @@
 #ifndef GenioWINDOW_H
 #define GenioWINDOW_H
 
-#include <Bitmap.h>
-#include <CheckBox.h>
-#include <ColumnTypes.h>
-#include <FilePanel.h>
-#include <GroupLayout.h>
-#include <MenuBar.h>
 #include <ObjectList.h>
-#include <OutlineListView.h>
-#include <PopUpMenu.h>
-#include <ScrollView.h>
-#include <StatusBar.h>
 #include <String.h>
-#include <TabView.h>
-#include <TextControl.h>
 #include <Window.h>
 
 #include <vector>
 
-#include "ConsoleIOView.h"
-#include "Editor.h"
-#include "EditorTabManager.h"
 #include "GMessage.h"
-#include "GoToLineWindow.h"
-#include "ProblemsPanel.h"
-#include "ProjectFolder.h"
-#include "ProjectsFolderBrowser.h"
-#include "SearchResultPanel.h"
-#include "SourceControlPanel.h"
-#include "TemplatesMenu.h"
-#include "ToolBar.h"
-
 
 enum {
 	kProjectsOutline = 0,
@@ -57,7 +33,24 @@ enum scree_mode {
 
 
 class ActionManager;
-
+class BCheckBox;
+class BFilePanel;
+class BGroupLayout;
+class BMenu;
+class BMenuField;
+class BTabView;
+class BTextControl;
+class ConsoleIOView;
+class Editor;
+class EditorTabManager;
+class GoToLineWindow;
+class ProblemsPanel;
+class ProjectFolder;
+class ProjectsFolderBrowser;
+class SearchResultPanel;
+class SourceControlPanel;
+class TemplatesMenu;
+class ToolBar;
 class GenioWindow : public BWindow {
 public:
 								GenioWindow(BRect frame);

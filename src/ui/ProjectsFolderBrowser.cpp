@@ -26,6 +26,7 @@
 #include <Mime.h>
 #include <NaturalCompare.h>
 #include <Path.h>
+#include <PopUpMenu.h>
 #include <Window.h>
 
 #include <cstdio>

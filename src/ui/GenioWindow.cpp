@@ -14,8 +14,13 @@
 #include <Architecture.h>
 #include <Button.h>
 #include <Catalog.h>
+#include <CheckBox.h>
+#include <DirMenu.h>
+#include <FilePanel.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>
+#include <MenuBar.h>
+
 #include <NodeInfo.h>
 #include <NodeMonitor.h>
 #include <Path.h>
@@ -24,39 +29,45 @@
 #include <Resources.h>
 #include <Roster.h>
 #include <SeparatorView.h>
+#include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
-#include <NodeInfo.h>
 
-#include <DirMenu.h>
-#include <Screen.h>
 
+#include "ActionManager.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
+#include "ConsoleIOView.h"
+#include "ConsoleIOThread.h"
+#include "EditorKeyDownMessageFilter.h"
+#include "EditorMessages.h"
+#include "EditorTabManager.h"
 #include "FSUtils.h"
 #include "GenioApp.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
 #include "GitRepository.h"
+#include "GoToLineWindow.h"
 #include "GSettings.h"
+#include "IconMenuItem.h"
 #include "Languages.h"
 #include "Log.h"
+#include "ProblemsPanel.h"
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "ProjectsFolderBrowser.h"
+#include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
+#include "SearchResultPanel.h"
+#include "SourceControlPanel.h"
 #include "SwitchBranchMenu.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
 #include "TextUtils.h"
 #include "Utils.h"
-#include "EditorKeyDownMessageFilter.h"
 
-#include "ActionManager.h"
-#include "QuitAlert.h"
-#include "IconMenuItem.h"
-#include "EditorMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -64,8 +75,6 @@
 GenioWindow* gMainWindow = nullptr;
 
 constexpr auto kRecentFilesNumber = 14 + 1;
-
-//static constexpr float kTabBarHeight = 35.0f;
 
 
 // Find group

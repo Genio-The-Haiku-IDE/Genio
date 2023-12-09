@@ -178,12 +178,13 @@ GenioWindow::GenioWindow(BRect frame)
 			BString projectName;
 			BString activeProject = projects.GetString("active_project");
 			for (auto count = 0; projects.FindString("project_to_reopen",
-										count, &projectName) == B_OK; count++)
-					_ProjectFolderOpen(projectName, projectName == activeProject);
+										count, &projectName) == B_OK; count++) {
+				const BPath projectPath(projectName);
+				_ProjectFolderOpen(projectPath, projectName == activeProject);
+			}
 		}
 		// TODO: _ProjectFolderOpen() could fail to open projects, so
-		// - It should return a boolean or a status_t
-		// - We should check its return values
+		// - We should check its return value
 		// - here we could have no active projects or no projects at all
 		fDisableProjectNotifications = false;
 		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
@@ -788,7 +789,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (TemplateManager::CopyProjectTemplate(&template_ref, &dest_ref, name.String()) == B_OK) {
 				BPath path(&dest_ref);
 				path.Append(name);
-				_ProjectFolderOpen(path.Path());
+				_ProjectFolderOpen(path);
 			} else {
 				LogError("TemplateManager: could create %s from %s to %s",
 							name.String(), template_ref.name, dest_ref.name);
@@ -3234,15 +3235,13 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 void
 GenioWindow::_ProjectFileDelete()
 {
-	entry_ref ref;
-	int32 openedIndex;
 	BEntry entry(fProjectsFolderBrowser->GetSelectedProjectFileFullPath());
+	entry_ref ref;
 	entry.GetRef(&ref);
-	char name[B_FILE_NAME_LENGTH];
-
 	if (!entry.Exists())
 		return;
 
+	char name[B_FILE_NAME_LENGTH];
 	entry.GetName(name);
 
 	BString text(B_TRANSLATE("Deleting item: \"%name%\".\n\n"
@@ -3263,10 +3262,11 @@ GenioWindow::_ProjectFileDelete()
 		return;
 	else if (choice == 1) {
 		// Close the file if open
-		if (entry.IsFile())
+		if (entry.IsFile()) {
+			int32 openedIndex;
 			if ((openedIndex = _GetEditorIndex(&ref)) != -1)
 				_RemoveTab(openedIndex);
-
+		}
 		// Remove the entry
 		if (entry.Exists()) {
 			status_t status;
@@ -3366,46 +3366,48 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 }
 
 
-void
+status_t
 GenioWindow::_ProjectFolderOpen(BMessage *message)
 {
 	entry_ref ref;
 	status_t status = message->FindRef("refs", &ref);
 	if (status == B_OK) {
 		BPath path(&ref);
-		_ProjectFolderOpen(path.Path());
+		status = _ProjectFolderOpen(path);
 	} else {
 		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
 	}
+
+	return status;
 }
 
 
-void
-GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
+status_t
+GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 {
-	// TODO: Maybe pass a BPath directly instead of a BString ?
-	BPath path(folder);
 	BEntry dirEntry(path.Path());
-	if (!dirEntry.Exists() ||
-		!dirEntry.IsDirectory()) {
-		return;
-	}
+	if (!dirEntry.Exists())
+		return B_NAME_NOT_FOUND;
+
+	if (!dirEntry.IsDirectory())
+		return B_NOT_A_DIRECTORY;
 
 	// Check if already open
 	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
 		ProjectFolder* pProject = static_cast<ProjectFolder*>(fProjectFolderObjectList->ItemAt(index));
 		if (pProject->Path() == path.Path())
-			return;
+			return B_OK;
 	}
 
 	BMessenger msgr(this);
 	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
-	if (newProject->Open() != B_OK) {
+	status_t status = newProject->Open();
+	if (status != B_OK) {
 		BString notification;
 		notification << "Project open fail: " << newProject->Name();
 		LogInfo(notification.String());
 		delete newProject;
-		return;
+		return status;
 	}
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
@@ -3443,10 +3445,12 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 		}
 	}
 
-    //final touch, let's be sure the folder is added to the recent files.
+    // final touch, let's be sure the folder is added to the recent files.
     entry_ref ref;
     dirEntry.GetRef(&ref);
     be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
+
+	return B_OK;
 }
 
 

@@ -9,6 +9,7 @@
 #include <Button.h>
 #include <ObjectList.h>
 #include <Catalog.h>
+#include <CheckBox.h>
 #include <Clipboard.h>
 #include <LayoutBuilder.h>
 #include <ObjectList.h>
@@ -25,6 +26,8 @@
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "Log.h"
+#include "ProjectFolder.h"
+#include "ProjectsFolderBrowser.h"
 #include "RepositoryView.h"
 #include "StringFormatter.h"
 #include "Utils.h"

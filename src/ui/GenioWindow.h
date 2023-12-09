@@ -5,32 +5,12 @@
 #ifndef GenioWINDOW_H
 #define GenioWINDOW_H
 
-#include <Bitmap.h>
-#include <CheckBox.h>
-#include <ColumnTypes.h>
-#include <FilePanel.h>
-#include <GroupLayout.h>
-#include <MenuBar.h>
 #include <ObjectList.h>
-#include <OutlineListView.h>
-#include <PopUpMenu.h>
-#include <ScrollView.h>
-#include <StatusBar.h>
 #include <String.h>
-#include <TabView.h>
-#include <TextControl.h>
 #include <Window.h>
-#include "ToolBar.h"
-#include "GoToLineWindow.h"
-#include "ProblemsPanel.h"
-#include "ConsoleIOView.h"
-#include "Editor.h"
-#include "ProjectFolder.h"
-#include "EditorTabManager.h"
-#include "ProjectsFolderBrowser.h"
-#include "TemplatesMenu.h"
-#include "SearchResultPanel.h"
+
 #include <vector>
+
 #include "GMessage.h"
 
 enum {
@@ -41,7 +21,8 @@ enum {
 enum {
 	kProblems = 0,
 	kBuildLog,
-	kOutputLog
+	kOutputLog,
+	kSearchResult
 };
 
 enum scree_mode {
@@ -49,12 +30,28 @@ enum scree_mode {
 	kFullscreen,
 	kFocus
 };
-	
+
 
 class ActionManager;
-
-class GenioWindow : public BWindow
-{
+class BCheckBox;
+class BFilePanel;
+class BGroupLayout;
+class BMenu;
+class BMenuField;
+class BTabView;
+class BTextControl;
+class ConsoleIOView;
+class Editor;
+class EditorTabManager;
+class GoToLineWindow;
+class ProblemsPanel;
+class ProjectFolder;
+class ProjectsFolderBrowser;
+class SearchResultPanel;
+class SourceControlPanel;
+class TemplatesMenu;
+class ToolBar;
+class GenioWindow : public BWindow {
 public:
 								GenioWindow(BRect frame);
 	virtual						~GenioWindow();
@@ -65,17 +62,17 @@ public:
 	virtual void				Show();
 
 	void						UpdateMenu();
-	ProjectFolder*				GetActiveProject() { return fActiveProject; }
+	ProjectFolder*				GetActiveProject() const;
+	void						SetActiveProject(ProjectFolder *project);
+	BObjectList<ProjectFolder>*	GetProjectList() const;
+	ProjectsFolderBrowser*		GetProjectBrowser() const;
 
 private:
-
 			status_t			_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
 
 			void				_BuildDone(BMessage* msg);
 			status_t			_BuildProject();
-			status_t			_CargoNew(BString args);
 			status_t			_CleanProject();
-
 
 			status_t			_DebugProject();
 			bool				_FileRequestClose(int32 index);
@@ -97,9 +94,9 @@ private:
 			void				_FindNext(const BString& strToFind, bool backwards);
 			void				_FindInFiles();
 
-			int32				_GetEditorIndex(entry_ref* ref, bool checkExists = false);
-			int32				_GetEditorIndex(node_ref* nref);
-			void				_GetFocusAndSelection(BTextControl* control);
+			int32				_GetEditorIndex(entry_ref* ref) const;
+			int32				_GetEditorIndex(node_ref* nref) const;
+			void				_GetFocusAndSelection(BTextControl* control) const;
 			status_t			_Git(const BString& git_command);
 			void				_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef);
 			void				_HandleExternalRemoveModification(int32 index);
@@ -118,20 +115,18 @@ private:
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
 
-			status_t			_ProjectRemoveDir(const BString& dirPath);
-
 			// Project Folders
 			void				_ProjectFolderClose(ProjectFolder *project);
-			void 				_ProjectFolderOpen(BMessage *message);
-			void				_ProjectFolderOpen(const BString& folder, bool activate = false);
+			status_t			_ProjectFolderOpen(BMessage *message);
+			status_t			_ProjectFolderOpen(const BPath& folder, bool activate = false);
 			void				_ProjectFolderActivate(ProjectFolder* project);
 
-			status_t			_ShowCurrentItemInTracker();
-			status_t			_ShowInTracker(const BPath& path);
+			status_t			_ShowSelectedItemInTracker();
+			status_t			_ShowInTracker(const entry_ref& ref);
 			status_t			_OpenTerminalWorkingDirectory();
 
 			int					_Replace(int what);
-			bool				_ReplaceAllow();
+			bool				_ReplaceAllow() const;
 			void				_ReplaceGroupShow(bool show);
 			status_t			_RunInConsole(const BString& command);
 			void				_RunTarget();
@@ -141,7 +136,7 @@ private:
 			status_t			_UpdateLabel(int32 index, bool isModified);
 			void				_UpdateProjectActivation(bool active);
 			void				_UpdateReplaceMenuItems(const BString& text);
-			void				_UpdateSavepointChange(int32 index, const BString& caller = "");
+			void				_UpdateSavepointChange(Editor*, const BString& caller = "");
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
@@ -150,10 +145,11 @@ private:
 			void				_HandleConfigurationChanged(BMessage* msg);
 			BMenu*				_CreateLanguagesMenu();
 			void				_ToogleScreenMode(int32 action);
+			void				_ForwardToSelectedEditor(BMessage* msg);
 
 private:
 			BMenuBar*			fMenuBar;
-			TemplatesMenu*	fFileNewMenuItem;
+			TemplatesMenu*		fFileNewMenuItem;
 
 			BMenu*				fLineEndingsMenu;
 			BMenu*				fLanguageMenu;
@@ -192,6 +188,8 @@ private:
 			ProjectsFolderBrowser*	fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
+			SourceControlPanel*	fSourceControlPanel;
+			BScrollView*		fSourceControlPanelScroll;
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
@@ -199,8 +197,7 @@ private:
 			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
 
 			// Editor group
-			EditorTabManager*		fTabManager;
-
+			EditorTabManager*	fTabManager;
 
 			ToolBar*			fFindGroup;
 			ToolBar*			fReplaceGroup;
@@ -229,9 +226,13 @@ private:
 			ConsoleIOView*		fConsoleIOView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultPanel*	fSearchResultPanel;
-			
+
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;
+
+			bool				fDisableProjectNotifications;
 };
+
+extern GenioWindow *gMainWindow;
 
 #endif //GenioWINDOW_H

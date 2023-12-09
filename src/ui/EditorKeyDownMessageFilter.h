@@ -6,9 +6,10 @@
 #define EditorKeyDownMessageFilter_H
 
 
-#include <SupportDefs.h>
 #include <MessageFilter.h>
 #include <View.h>
+
+#include "Editor.h"
 
 // This filter is used to intercept key_down messages before they reach the Scintilla view.
 // This is needed because we can't override the KeyDown message of the scintilla view as it's 'hidden'

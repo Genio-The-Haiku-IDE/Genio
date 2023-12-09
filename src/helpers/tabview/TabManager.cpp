@@ -377,11 +377,12 @@ public:
 		fTabContainerGroup->EnableScrollButtons(canScrollLeft, canScrollRight);
 	}
 
-	virtual	void SetToolTip(const BString& text)
+	virtual	void SetToolTip(int32 selected)
 	{
-		if (fCurrentToolTip == text)
+		BString toolTipText = fManager->GetToolTipText(selected);
+		if (fCurrentToolTip == toolTipText)
 			return;
-		fCurrentToolTip = text;
+		fCurrentToolTip = toolTipText;
 		fManager->GetTabContainerView()->HideToolTip();
 		fManager->GetTabContainerView()->SetToolTip(
 			reinterpret_cast<BToolTip*>(NULL));
@@ -650,10 +651,6 @@ WebTabView::MouseMoved(BPoint where, uint32 transit,
 		ContainerView()->Invalidate(closeRect);
 	}
 
-	// Set the tool tip
-	#if 0
-	fController->SetToolTip(overCloseRect ? "" : Label());
-	#endif
 	TabView::MouseMoved(where, transit, dragMessage);
 }
 

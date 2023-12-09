@@ -5,13 +5,20 @@
 #ifndef PROJECT_FOLDER_H
 #define PROJECT_FOLDER_H
 
+
+//#include <Messenger.h>
 #include <ObjectList.h>
 #include <String.h>
-#include <Messenger.h>
-#include "GSettings.h"
+
+#include "GitRepository.h"
 #include "Task.h"
 
+
+using namespace Genio::Git;
+
+class BMessenger;
 class LSPProjectWrapper;
+class GSettings;
 
 enum SourceItemType {
 	FileItem,
@@ -31,11 +38,11 @@ public:
 								SourceItem(BString const& path);
 								~SourceItem();
 
-	BString	const				Path() { return fPath; }
-	BString	const				Name() { return fName; };
-	SourceItemType				Type() { return fType; };
+	BString	const				Path() const { return fPath; }
+	BString	const				Name() const { return fName; };
+	SourceItemType				Type() const { return fType; };
 
-	ProjectFolder				*GetProjectFolder()	{ return fProjectFolder; }
+	ProjectFolder				*GetProjectFolder()	const { return fProjectFolder; }
 	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
 
 	void 						Rename(BString const& path);
@@ -46,6 +53,7 @@ protected:
 	SourceItemType				fType;
 	ProjectFolder				*fProjectFolder;
 };
+
 
 class ProjectFolder : public SourceItem {
 public:
@@ -59,35 +67,34 @@ public:
 	void						SaveSettings();
 
 	bool						Active() const { return fActive; }
-	void						Active(bool status) { fActive = status; }
+	void						SetActive(bool status) { fActive = status; }
 
 	void						SetBuildMode(BuildMode mode);
 	BuildMode					GetBuildMode();
+	bool						IsBuilding() const { return fIsBuilding; }
+	void						SetBuildingState(bool isBuilding) { fIsBuilding = isBuilding; }
 
 	void						SetCleanCommand(BString const& command, BuildMode mode);
-	BString const				GetCleanCommand();
+	BString const				GetCleanCommand() const;
 
 	void						SetBuildCommand(BString const& command, BuildMode mode);
-	BString const				GetBuildCommand();
+	BString const				GetBuildCommand() const;
 
 	void						SetExecuteArgs(BString const& args, BuildMode mode);
-	BString const				GetExecuteArgs();
+	BString const				GetExecuteArgs() const;
 
 	void						SetTarget(BString const& path, BuildMode mode);
-	BString const				GetTarget();
+	BString const				GetTarget() const;
 
-	void						RunInTerminal(bool enabled);
-	bool						RunInTerminal();
+	void						SetRunInTerminal(bool enabled);
+	bool						RunInTerminal() const;
 
-	void						Git(bool enabled);
-	bool						Git();
-
-	void						ExcludeSettingsOnGit(bool enabled);
-	bool						ExcludeSettingsOnGit();
+	GitRepository*				GetRepository() const;
+	void						InitRepository(bool createInitialCommit = true);
 
 	void						SetGuessedBuilder(const BString& string);
 
-	LSPProjectWrapper*			GetLSPClient() { return fLSPProjectWrapper; }
+	LSPProjectWrapper*			GetLSPClient() const;
 
 	void						AssignTask(shared_ptr<Genio::Task::Task<status_t>> task);
 private:
@@ -98,6 +105,8 @@ private:
 	LSPProjectWrapper*			fLSPProjectWrapper;
 	GSettings*					fSettings;
 	shared_ptr<Genio::Task::Task<status_t>>		fCurrentTask;
+	GitRepository*				fGitRepository;
+	bool						fIsBuilding;
 };
 
 #endif // PROJECT_FOLDER_H

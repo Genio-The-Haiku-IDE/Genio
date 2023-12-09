@@ -226,7 +226,6 @@ ConfigWindow::_PopulateListView()
 	GMessage msg;
 	int i = 0;
 	while (fConfigManager.Configuration().FindMessage("config", i++, &msg) == B_OK)  {
-		//printf("Adding for %s -> %s\n", (const char*)msg["group"], (const char*)msg["label"]);
 		std::vector<GMessage>::iterator i = dividedByGroup.begin();
 		while (i != dividedByGroup.end()) {
 			if (strcmp((*i)["group"], (const char*)msg["group"]) == 0) {

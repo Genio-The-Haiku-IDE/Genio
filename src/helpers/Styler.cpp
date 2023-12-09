@@ -91,11 +91,11 @@ Styler::ApplyGlobal(Editor* editor, const char* style, const BFont* font)
 	sStylesMapping.clear();
 	try {
 		_ApplyGlobal(editor, style, GetDataDirectory(), font);
-	} catch (YAML::BadFile &) {
+	} catch (const YAML::BadFile &) {
 	}
 	try {
 		_ApplyGlobal(editor, style, GetUserSettingsDirectory(), font);
-	} catch (YAML::BadFile &) {
+	} catch (const YAML::BadFile &) {
 	}
 }
 
@@ -106,6 +106,14 @@ Styler::_ApplyGlobal(Editor* editor, const char* style, const BPath &path, const
 	BPath p(path);
 	p.Append("styles");
 	p.Append(style);
+	BString fileName(p.Path());
+	fileName.Append(".yaml");
+	if (!BEntry(fileName.String()).Exists()) {
+		// TODO: Workaround for a bug in Haiku x86_32: exceptions 
+		// thrown inside yaml_cpp aren't catchable. We throw this exception
+		// inside Genio and that works.
+		throw YAML::BadFile(fileName.String());
+	}
 	const YAML::Node styles = YAML::LoadFile(std::string(p.Path()) + ".yaml");
 	YAML::Node global;
 	if(styles["Global"]) {

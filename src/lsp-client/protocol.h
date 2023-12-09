@@ -29,7 +29,7 @@
             static void from_json(const json& j, Type& value) FROM \
         }; \
     }
-	
+
 namespace nlohmann {
     template <typename T>
     struct adl_serializer<option<T>> {
@@ -86,24 +86,10 @@ JSON_SERIALIZE(VersionedTextDocumentIdentifier, MAP_JSON(MAP_KEY(uri), MAP_KEY(v
 #include "protocol_objects.h"
 // struct Position
 JSON_SERIALIZE(Position, MAP_JSON(MAP_KEY(line), MAP_KEY(character)), {FROM_KEY(line);FROM_KEY(character)});
-// struct Range 
+// struct Range
 JSON_SERIALIZE(Range, MAP_JSON(MAP_KEY(start), MAP_KEY(end)), {FROM_KEY(start);FROM_KEY(end)});
 
-struct Location {
-    /// The text document's URI.
-    std::string uri;
-    Range range;
-
-    friend bool operator==(const Location &LHS, const Location &RHS) {
-        return LHS.uri == RHS.uri && LHS.range == RHS.range;
-    }
-    friend bool operator!=(const Location &LHS, const Location &RHS) {
-        return !(LHS == RHS);
-    }
-    friend bool operator<(const Location &LHS, const Location &RHS) {
-        return std::tie(LHS.uri, LHS.range) < std::tie(RHS.uri, RHS.range);
-    }
-};
+//struct Location
 JSON_SERIALIZE(Location, MAP_JSON(MAP_KEY(uri), MAP_KEY(range)), {FROM_KEY(uri);FROM_KEY(range)});
 // struct TextEdit
 JSON_SERIALIZE(TextEdit, MAP_JSON(MAP_KEY(range), MAP_KEY(newText)), {FROM_KEY(range);FROM_KEY(newText);});
@@ -590,48 +576,11 @@ struct DocumentSymbolParams {
 };
 JSON_SERIALIZE(DocumentSymbolParams, MAP_JSON(MAP_KEY(textDocument)), {});
 
-struct DiagnosticRelatedInformation {
-    /// The location of this related diagnostic information.
-    Location location;
-    /// The message of this related diagnostic information.
-    std::string message;
-};
+//struct DiagnosticRelatedInformation
 JSON_SERIALIZE(DiagnosticRelatedInformation, MAP_JSON(MAP_KEY(location), MAP_KEY(message)), {FROM_KEY(location);FROM_KEY(message);});
-struct CodeAction;
 
-struct Diagnostic {
-    /// The range at which the message applies.
-    Range range;
 
-    /// The diagnostic's severity. Can be omitted. If omitted it is up to the
-    /// client to interpret diagnostics as error, warning, info or hint.
-    int severity = 0;
-
-    /// The diagnostic's code. Can be omitted.
-    std::string code;
-
-    /// A human-readable string describing the source of this
-    /// diagnostic, e.g. 'typescript' or 'super lint'.
-    std::string source;
-
-    /// The diagnostic's message.
-    std::string message;
-
-    /// An array of related diagnostic information, e.g. when symbol-names within
-    /// a scope collide all definitions can be marked via this property.
-    option<std::vector<DiagnosticRelatedInformation>> relatedInformation;
-
-    /// The diagnostic's category. Can be omitted.
-    /// An LSP extension that's used to send the name of the category over to the
-    /// client. The category typically describes the compilation stage during
-    /// which the issue was produced, e.g. "Semantic Issue" or "Parse Issue".
-    option<std::string> category;
-
-    /// Clangd extension: code actions related to this diagnostic.
-    /// Only with capability textDocument.publishDiagnostics.codeActionsInline.
-    /// (These actions can also be obtained using textDocument/codeAction).
-    option<std::vector<CodeAction>> codeActions;
-};
+//struct Diagnostic
 JSON_SERIALIZE(Diagnostic, {/*NOT REQUIRED*/},{FROM_KEY(range);FROM_KEY(code);FROM_KEY(source);FROM_KEY(message);
                 FROM_KEY(relatedInformation);FROM_KEY(category);FROM_KEY(codeActions);});
 
@@ -665,56 +614,20 @@ struct CodeActionParams {
 };
 JSON_SERIALIZE(CodeActionParams, MAP_JSON(MAP_KEY(textDocument), MAP_KEY(range), MAP_KEY(context)), {});
 
-struct WorkspaceEdit {
-    /// Holds changes to existing resources.
-    option<std::map<std::string, std::vector<TextEdit>>> changes;
-
-    /// Note: "documentChanges" is not currently used because currently there is
-    /// no support for versioned edits.
-};
+//struct WorkspaceEdit
 JSON_SERIALIZE(WorkspaceEdit, MAP_JSON(MAP_KEY(changes)), {FROM_KEY(changes);});
 
-struct TweakArgs {
-    /// A file provided by the client on a textDocument/codeAction request.
-    std::string file;
-    /// A selection provided by the client on a textDocument/codeAction request.
-    Range selection;
-    /// ID of the tweak that should be executed. Corresponds to Tweak::id().
-    std::string tweakID;
-};
+//struct TweakArgs
 JSON_SERIALIZE(TweakArgs, MAP_JSON(MAP_KEY(file), MAP_KEY(selection), MAP_KEY(tweakID)), {FROM_KEY(file);FROM_KEY(selection);FROM_KEY(tweakID);});
 
-struct ExecuteCommandParams {
-    std::string command;
-    // Arguments
-    option<WorkspaceEdit> workspaceEdit;
-    option<TweakArgs> tweakArgs;
-};
+//struct ExecuteCommandParams
 JSON_SERIALIZE(ExecuteCommandParams, MAP_JSON(MAP_KEY(command), MAP_KEY(workspaceEdit), MAP_KEY(tweakArgs)), {});
 
-struct LspCommand : public ExecuteCommandParams {
-    std::string title;
-};
+//struct LspCommand
 JSON_SERIALIZE(LspCommand, MAP_JSON(MAP_KEY(command), MAP_KEY(workspaceEdit), MAP_KEY(tweakArgs), MAP_KEY(title)),
         {FROM_KEY(command);FROM_KEY(workspaceEdit);FROM_KEY(tweakArgs);FROM_KEY(title);});
 
-struct CodeAction {
-    /// A short, human-readable, title for this code action.
-    std::string title;
-
-    /// The kind of the code action.
-    /// Used to filter code actions.
-    option<std::string> kind;
-    /// The diagnostics that this code action resolves.
-    option<std::vector<Diagnostic>> diagnostics;
-
-    /// The workspace edit this code action performs.
-    option<WorkspaceEdit> edit;
-
-    /// A command this code action executes. If a code action provides an edit
-    /// and a command, first the edit is executed and then the command.
-    option<LspCommand> command;
-};
+//struct CodeAction
 JSON_SERIALIZE(CodeAction, MAP_JSON(MAP_KEY(title), MAP_KEY(kind), MAP_KEY(diagnostics), MAP_KEY(edit), MAP_KEY(command)),
         {FROM_KEY(title);FROM_KEY(kind);FROM_KEY(diagnostics);FROM_KEY(edit);FROM_KEY(command)});
 
@@ -823,8 +736,8 @@ JSON_SERIALIZE(CompletionList, {}, {
 // struct ParameterInformation
 
 JSON_SERIALIZE(ParameterInformation, {}, {
-	
-	if (j.contains("label") && j.type() == nlohmann::detail::value_t::string) 
+
+	if (j.contains("label") && j.type() == nlohmann::detail::value_t::string)
 		j.at("label").get_to(value.labelString);
 	else
 		j.at("label").get_to(value.labelOffsets);

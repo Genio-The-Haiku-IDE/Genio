@@ -42,11 +42,14 @@ public:
 
 	ProjectItem*	GetProjectItem(const BString& projectName) const;
 	ProjectItem*	GetProjectItemAt(const int32& index) const;
-	ProjectFolder*	GetProjectFromCurrentItem() const;
-	ProjectItem*	GetCurrentProjectItem() const;
+	ProjectItem*	GetProjectItemByPath(const BString& path) const;
+	ProjectItem*	GetSelectedProjectItem() const;
 
-	BString const	GetCurrentProjectFileFullPath() const;
-	
+	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
+	ProjectFolder*	GetProjectFromSelectedItem() const;
+
+	BString const	GetSelectedProjectFileFullPath() const;
+
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 
@@ -56,14 +59,11 @@ public:
 	void			InitRename(ProjectItem *item);
 
 private:
-	ProjectItem*	FindProjectItem(const BString& name) const;
-	
 	ProjectItem*	_CreatePath(BPath pathToCreate);
 
 	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
-	ProjectFolder*	_GetProjectFromItem(ProjectItem*) const;
 
 	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
 

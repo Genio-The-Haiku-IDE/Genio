@@ -57,7 +57,7 @@ public:
 	}
 };
 
-#define SearchResultPanelLabel B_TRANSLATE("Search Results")
+#define SearchResultPanelLabel B_TRANSLATE("Search results")
 
 SearchResultPanel::SearchResultPanel(BTabView* tabView): BColumnListView(SearchResultPanelLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)
@@ -94,13 +94,6 @@ SearchResultPanel::StartSearch(BString command, BString projectPath)
 	if (!fProjectPath.EndsWith("/"))
 		fProjectPath.Append("/");
 	ClearSearch();
-
-	for (int32 i=0;i<fTabView->CountTabs();i++) {
-		if (fTabView->ViewForTab(i) == this) {
-			fTabView->Select(i);
-			break;
-		}
-	}
 
 	BMessage message;
 	message.AddString("cmd", command);

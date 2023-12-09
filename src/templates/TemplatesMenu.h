@@ -12,13 +12,6 @@
 
 #include <Menu.h>
 
-#include <SeparatorItem.h>
-
-#include <list>
-#include <string>
-
-#define DIR_FILETYPE "application/x-vnd.Be-directory"
-#define FILE_FILETYPE "application/octet-stream"
 
 class TemplatesMenu : public BMenu {
 public:

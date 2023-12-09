@@ -2,20 +2,18 @@
  * Copyright 2017..2018 A. Mosca <amoscaster@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-
-#include <iostream>
-#include <memory>
-#include <string>
+#include "ProjectSettingsWindow.h"
 
 #include <Alignment.h>
+#include <Box.h>
+#include <Button.h>
 #include <Catalog.h>
+#include <CheckBox.h>
 #include <Directory.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
 
-#include "GenioNamespace.h"
 #include "ProjectFolder.h"
-#include "ProjectSettingsWindow.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"
@@ -31,7 +29,7 @@ enum
 ProjectSettingsWindow::ProjectSettingsWindow(ProjectFolder *project)
 	:
 	BWindow(BRect(0, 0, 799, 599), "ProjectSettingsWindow", B_MODAL_WINDOW,
-													B_ASYNCHRONOUS_CONTROLS | 
+													B_ASYNCHRONOUS_CONTROLS |
 													B_NOT_ZOOMABLE |
 //													B_NOT_RESIZABLE |
 													B_AVOID_FRONT |
@@ -55,9 +53,6 @@ ProjectSettingsWindow::ProjectSettingsWindow(ProjectFolder *project)
 	fCleanString(),
 	fTargetBox(nullptr),
 	fRunInTerminal(nullptr),
-	fEnableGit(nullptr),
-	fExcludeSettingsGit(nullptr),
-	fSourceControlBox(nullptr),
 	fRunArgsString()
 {
 	_InitWindow();
@@ -125,14 +120,11 @@ ProjectSettingsWindow::_InitWindow()
 
 	fReleaseProjectTargetText = new BTextControl(B_TRANSLATE("Release project target:"), "", nullptr);
 	fDebugProjectTargetText = new BTextControl(B_TRANSLATE("Debug project target:"), "", nullptr);
-	
+
 	fReleaseExecuteArgsText = new BTextControl(B_TRANSLATE("Release execute arguments:"), "", nullptr);
 	fDebugExecuteArgsText = new BTextControl(B_TRANSLATE("Debug execute arguments:"), "", nullptr);
-	
+
 	fRunInTerminal = new BCheckBox("RunInTerminalCheckBox", B_TRANSLATE("Run in Terminal"), nullptr);
-	
-	fEnableGit = new BCheckBox("EnableGitCheckBox", B_TRANSLATE("Enable Git"), nullptr);
-	fExcludeSettingsGit = new BCheckBox("ExcludeSettingsGitCheckBox", B_TRANSLATE("Exclude settings file from Git"), nullptr);
 
 	BLayoutBuilder::Grid<>(fBuildCommandsBox)
 	.SetInsets(10.0f, 24.0f, 10.0f, 10.0f)
@@ -164,17 +156,6 @@ ProjectSettingsWindow::_InitWindow()
 	.Add(fRunInTerminal, 0, 2)
 	.End();
 
-	// "Source Control" Box
-	fSourceControlBox = new BBox("SourceControlBox");
-	fSourceControlBox->SetLabel(B_TRANSLATE("Source control"));
-
-	BLayoutBuilder::Grid<>(fSourceControlBox)
-	.SetInsets(10.0f, 24.0f, 10.0f, 10.0f)
-	.Add(fEnableGit, 0, 0)
-	// .Add(fExcludeSettingsGit, 0, 1)
-	.AddGlue(0,2,4)
-	.End();
-
 	// "Project" global Box
 	fProjectBox = new BBox("projectBox", B_WILL_DRAW | B_FRAME_EVENTS |
 		B_NAVIGABLE_JUMP, B_NO_BORDER);
@@ -185,7 +166,6 @@ ProjectSettingsWindow::_InitWindow()
 	.SetInsets(10.0f, 24.0f, 10.0f, 10.0f)
 	.Add(fBuildCommandsBox, 0, 4, 4)
 	.Add(fTargetBox, 0, 5, 4)
-	.Add(fSourceControlBox, 0, 6, 4)
 	.AddGlue(0, 7, 4);
 
 	BButton* defaultButton = new BButton("default",
@@ -223,29 +203,24 @@ ProjectSettingsWindow::_LoadProject()
 	fProjectBox->SetLabel(fProjectBoxProjectLabel);
 
 	BuildMode originalBuildMode = fProject->GetBuildMode();
-	
+
 	fProject->SetBuildMode(BuildMode::ReleaseMode);
 	fReleaseProjectTargetText->SetText(fProject->GetTarget());
 	fReleaseBuildCommandText->SetText(fProject->GetBuildCommand());
 	fReleaseCleanCommandText->SetText(fProject->GetCleanCommand());
 	fReleaseExecuteArgsText->SetText(fProject->GetExecuteArgs());
-	
+
 	fProject->SetBuildMode(BuildMode::DebugMode);
 	fDebugProjectTargetText->SetText(fProject->GetTarget());
 	fDebugBuildCommandText->SetText(fProject->GetBuildCommand());
 	fDebugCleanCommandText->SetText(fProject->GetCleanCommand());
 	fDebugExecuteArgsText->SetText(fProject->GetExecuteArgs());
-	
+
 	fProject->SetBuildMode(originalBuildMode);
-	
+
 	if (fProject->RunInTerminal())
 		fRunInTerminal->SetValue(B_CONTROL_ON);
-	
-	if (fProject->Git())
-		fEnableGit->SetValue(B_CONTROL_ON);
-		
-	if (fProject->ExcludeSettingsOnGit())
-		fExcludeSettingsGit->SetValue(B_CONTROL_ON);
+
 }
 
 void
@@ -264,13 +239,11 @@ ProjectSettingsWindow::_LoadDefaults()
 	fDebugExecuteArgsText->SetText("");
 	// Others
 	fRunInTerminal->SetValue(B_CONTROL_OFF);
-	fEnableGit->SetValue(B_CONTROL_OFF);
-	fExcludeSettingsGit->SetValue(B_CONTROL_OFF);
 }
 
 void
 ProjectSettingsWindow::_SaveChanges()
-{	
+{
 	fProject->SetTarget(fReleaseProjectTargetText->Text(), BuildMode::ReleaseMode);
 	fProject->SetBuildCommand(fReleaseBuildCommandText->Text(), BuildMode::ReleaseMode);
 	fProject->SetCleanCommand(fReleaseCleanCommandText->Text(), BuildMode::ReleaseMode);
@@ -280,21 +253,11 @@ ProjectSettingsWindow::_SaveChanges()
 	fProject->SetBuildCommand(fDebugBuildCommandText->Text(), BuildMode::DebugMode);
 	fProject->SetCleanCommand(fDebugCleanCommandText->Text(), BuildMode::DebugMode);
 	fProject->SetExecuteArgs(fDebugExecuteArgsText->Text(), BuildMode::DebugMode);
-	
-	if (fRunInTerminal->Value() == B_CONTROL_ON)
-		fProject->RunInTerminal(true);
-	else
-		fProject->RunInTerminal(false);
 
-	if (fEnableGit->Value() == B_CONTROL_ON)
-		fProject->Git(true);
+	if (fRunInTerminal->Value() == B_CONTROL_ON)
+		fProject->SetRunInTerminal(true);
 	else
-		fProject->Git(false);
-	
-	if (fExcludeSettingsGit->Value() == B_CONTROL_ON)
-		fProject->ExcludeSettingsOnGit(true);
-	else
-		fProject->ExcludeSettingsOnGit(false);
+		fProject->SetRunInTerminal(false);
 
 	fProject->SaveSettings();
 }

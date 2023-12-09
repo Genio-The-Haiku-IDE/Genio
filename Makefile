@@ -34,7 +34,7 @@ TYPE := APP
 APP_MIME_SIG := "application/x-vnd.Genio"
 
 SRCS :=  src/GenioApp.cpp
-SRCS +=  src/GenioNamespace.cpp
+SRCS +=	 src/alert/GTextAlert.cpp
 SRCS +=	 src/config/ConfigManager.cpp
 SRCS +=	 src/config/ConfigWindow.cpp
 SRCS +=	 src/config/GMessage.cpp
@@ -50,7 +50,6 @@ SRCS +=  src/helpers/console_io/ConsoleIOView.cpp
 SRCS +=  src/helpers/console_io/ConsoleIOThread.cpp
 SRCS +=  src/helpers/console_io/GenericThread.cpp
 SRCS +=  src/helpers/console_io/WordTextView.cpp
-SRCS +=  src/helpers/git/GitRepository.cpp
 SRCS +=  src/helpers/tabview/TabContainerView.cpp
 SRCS +=  src/helpers/tabview/TabManager.cpp
 SRCS +=  src/helpers/tabview/TabView.cpp
@@ -61,15 +60,18 @@ SRCS +=  src/lsp-client/LSPProjectWrapper.cpp
 SRCS +=  src/lsp-client/LSPPipeClient.cpp
 SRCS +=  src/lsp-client/Transport.cpp
 SRCS +=  src/lsp-client/LSPReaderThread.cpp
-SRCS +=  src/override/MenuItem.cpp
-SRCS +=  src/override/OutlineListView.cpp
+SRCS +=  src/override/BarberPole.cpp
 SRCS +=  src/project/ProjectSettingsWindow.cpp
 SRCS +=  src/project/ProjectFolder.cpp
 SRCS +=  src/project/ProjectItem.cpp
-SRCS +=  src/ui/git/GitAlert.cpp
-SRCS +=  src/ui/git/GitCredentialsWindow.cpp
-SRCS +=  src/ui/git/RemoteProjectWindow.cpp
-SRCS +=  src/ui/git/SwitchBranchMenu.cpp
+SRCS +=  src/git/BranchItem.cpp
+SRCS +=  src/git/GitRepository.cpp
+SRCS +=  src/git/GitAlert.cpp
+SRCS +=  src/git/GitCredentialsWindow.cpp
+SRCS +=  src/git/RemoteProjectWindow.cpp
+SRCS +=  src/git/RepositoryView.cpp
+SRCS +=  src/git/SourceControlPanel.cpp
+SRCS +=  src/git/SwitchBranchMenu.cpp
 SRCS +=  src/ui/EditorStatusView.cpp
 SRCS +=  src/ui/Editor.cpp
 SRCS +=  src/ui/EditorContextMenu.cpp
@@ -78,8 +80,9 @@ SRCS +=  src/ui/GenioWindow.cpp
 SRCS +=  src/ui/GoToLineWindow.cpp
 SRCS +=  src/ui/IconCache.cpp
 SRCS +=  src/ui/ProblemsPanel.cpp
-SRCS +=  src/ui/SearchResultPanel.cpp
 SRCS +=  src/ui/ProjectsFolderBrowser.cpp
+SRCS +=  src/ui/SearchResultPanel.cpp
+SRCS +=  src/ui/StyledItem.cpp
 SRCS +=  src/ui/ToolBar.cpp
 SRCS +=  src/ui/QuitAlert.cpp
 SRCS +=  src/templates/IconMenuItem.cpp
@@ -114,9 +117,12 @@ SYSTEM_INCLUDE_PATHS  += src/lexilla/include
 SYSTEM_INCLUDE_PATHS  +=  /boot/system/develop/headers/private
 LOCAL_INCLUDE_PATHS  +=  src/lsp-client/include
 
+# For BarberPole.h, which is not available in beta4
+SYSTEM_INCLUDE_PATHS  +=  src/override
+
 CFLAGS := -Wall -Werror
 
-CXXFLAGS := -std=c++17 -fPIC
+CXXFLAGS := -std=c++20 -fPIC
 
 #ifneq ($(BUILD_WITH_CLANG), 0)
 	ifneq ($(debug), 0)

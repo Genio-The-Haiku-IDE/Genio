@@ -15,11 +15,6 @@
 #include <ScrollView.h>
 #include <StringView.h>
 
-#include <string>
-#include <vector>
-
-#include "Utils.h"
-
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GitAlert"
@@ -30,7 +25,7 @@ const uint32 kMaxItems = 4;
 }
 
 
-GitAlert::GitAlert(const char *title, const char *message, const std::vector<std::string> &files)
+GitAlert::GitAlert(const char *title, const char *message, const std::vector<BString> &files)
 	:
 	BWindow(BRect(100, 100, 200, 200), title, B_MODAL_WINDOW,
 		B_NOT_CLOSABLE | B_NOT_ZOOMABLE | B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS, 0),
@@ -42,7 +37,7 @@ GitAlert::GitAlert(const char *title, const char *message, const std::vector<std
 	fOK(nullptr),
 	fFileStringView(files.size(), nullptr),
 	fAlertSem(0)
-	
+
 {
 	_InitInterface();
 	CenterOnScreen();
@@ -60,7 +55,7 @@ void
 GitAlert::_InitInterface()
 {
 	fMessageString = new BStringView("message", fMessage);
-	fOK = new BButton(B_TRANSLATE("Ok"), new BMessage(B_QUIT_REQUESTED));
+	fOK = new BButton(B_TRANSLATE("OK"), new BMessage(B_QUIT_REQUESTED));
 	BGroupView* filesView = new BGroupView(B_VERTICAL, 0);
 	filesView->SetViewUIColor(B_CONTROL_BACKGROUND_COLOR);
 	fScrollView = new BScrollView("files", filesView, 0, false, true);
@@ -84,8 +79,8 @@ GitAlert::_InitInterface()
 
 	BGroupLayout* files = filesView->GroupLayout();
 	files->SetInsets(B_USE_SMALL_INSETS);
-	for(size_t i = 0; i < fFiles.size(); ++i) {
-		fFileStringView[i] = new BStringView("file", fFiles[i].c_str());
+	for (size_t i = 0; i < fFiles.size(); ++i) {
+		fFileStringView[i] = new BStringView("file", fFiles[i].String());
 		files->AddView(fFileStringView[i]);
 	}
 }
@@ -143,13 +138,15 @@ GitAlert::Go()
 void
 GitAlert::MessageReceived(BMessage* message)
 {
-	switch(message->what) {
+	switch (message->what) {
 		default: {
 			BWindow::MessageReceived(message);
-		} return;
+			break;
+		}
 	}
-	
-	// TODO: Dead code
-	delete_sem(fAlertSem);
-	fAlertSem = -1;
+	// No need to delete the semaphore because we have only the OK button that sends a
+	// B_QUIT_REQUESTED and the message would be released anyway
+	// TODO: turn this class into a subclass of GAlert and let it manage the button's lifecycle
+	// delete_sem(fAlertSem);
+	// fAlertSem = -1;
 }

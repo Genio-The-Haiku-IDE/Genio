@@ -13,6 +13,7 @@
 #include <ControlLook.h>
 #include <Directory.h>
 #include <FindDirectory.h>
+#include <GroupLayout.h>
 #include <Locale.h>
 #include <Menu.h>
 #include <MenuItem.h>
@@ -24,11 +25,8 @@
 #include <Query.h>
 #include <Roster.h>
 
-#include <cstdio>
-#include <list>
 
-#include "MimeType.h"
-#include "GenioWindowMessages.h"
+#include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GitRepository.h"
 
@@ -71,8 +69,9 @@ void
 SwitchBranchMenu::AttachedToWindow()
 {
 	if (fDetectActiveProject) {
-		GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
-		fActiveProjectPath = window->GetActiveProject()->Path().String();
+		// GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
+		// fActiveProjectPath = window->GetActiveProject()->Path().String();
+		fActiveProjectPath = gMainWindow->GetActiveProject()->Path().String();
 	}
 	_BuildMenu();
 
@@ -83,6 +82,7 @@ SwitchBranchMenu::AttachedToWindow()
 
 	SetTargetForItems(fTarget);
 }
+
 
 void
 SwitchBranchMenu::DetachedFromWindow()
@@ -112,7 +112,7 @@ SwitchBranchMenu::UpdateMenuState()
 }
 
 
-void
+bool
 SwitchBranchMenu::_BuildMenu()
 {
 	// clear everything...
@@ -120,10 +120,11 @@ SwitchBranchMenu::_BuildMenu()
 	RemoveItems(0, count, true);
 
 	if (fActiveProjectPath) {
-		Genio::Git::GitRepository repo(fActiveProjectPath);
+		Genio::Git::GitRepository* repo = nullptr;
 		try {
-			auto branches = repo.GetBranches();
-			auto current_branch = repo.GetCurrentBranch();
+			repo = new Genio::Git::GitRepository(fActiveProjectPath);
+			auto branches = repo->GetBranches();
+			auto current_branch = repo->GetCurrentBranch();
 			for(auto &branch : branches) {
 				BMessage *message = new BMessage(fMessage->what);
 				message->AddString("branch", branch);
@@ -133,7 +134,9 @@ SwitchBranchMenu::_BuildMenu()
 				if (branch == current_branch)
 					item->SetMarked(true);
 			}
-		} catch(...){
+		} catch(...) {
 		}
+		delete repo;
 	}
+	return count > 0;
 }

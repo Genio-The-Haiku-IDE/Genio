@@ -3,8 +3,11 @@ v2.0
 	- UI: Reorganized and improved menus.
 	- UI: Added new Search Results panel.
 	- UI: Improve layout.
+	- Added support for fullscreen and "focus" modes.
 	- Added syntax highlighting for many languages.
 	- Added editor styling functionalities.
+	- Added "quick fix" for problems reported by clangd.
+	- Added "Source control" panel to handle most Git operations.
 	- New settings window.
 	- Rewrote settings handling. All settings are now applied live.
 	- Added "Open remote project".
@@ -12,11 +15,15 @@ v2.0
 	- Added autobuild on save.
 	- Added autosave on build.
 	- Added trim trailing whitespace, also automatically on save.
+	- Added setting to convert tabs to spaces.
+	- Items in project browser now reflect their status in editor.
 	- Save project build mode on change.
 	- Improved UI strings and translatability (Humdinger).
 	- Added local function to switch source/header.
 	- Added Changelog.
 	- Added alert on quit when closing multiple files.
+	- Added menu for switching git branches.
+	- Added support for autocollapse/expand projects.
 	- Notify the user when trying to build/clean with missing configuration.
 	- Improved LSP thread management.
 	- Updated LSP stack to latest main branch.
@@ -27,8 +34,11 @@ v2.0
 	- Fixed wrong list color in project browser.
 	- Fixed rename function with FFM.
 	- Fixed bug in file type detection.
+	- Fixed crash when using COPY/CUT/PASTE in projects tree.
+	- Fixed trying to reopen a non existing project on start.
 	- Fixed cursor position when switching between tabs.
 	- Fixed replace panel not always appearing.
+	- Fixed replace and find previous.
 	- Fixed LSP lock on close.
 	- Fixes for ConsoleIO.
 	- Fixed launching Debugger.

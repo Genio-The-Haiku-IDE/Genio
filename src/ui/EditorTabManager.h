@@ -14,12 +14,15 @@ class Editor;
 class EditorTabManager : public TabManager {
 public:
 	EditorTabManager(const BMessenger& target);
-	
+
 	Editor*		EditorAt(int32 index);
 	Editor*		SelectedEditor();
-	
+	Editor*		EditorBy(entry_ref* ref);
+
+	BString		GetToolTipText(int32 index);
+
 private:
-	
+
 };
 
 

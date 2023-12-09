@@ -28,6 +28,7 @@
 #include <Mime.h>
 #include <NaturalCompare.h>
 #include <Path.h>
+#include <PopUpMenu.h>
 #include <Window.h>
 
 #include <cstdio>
@@ -54,23 +55,6 @@ ProjectsFolderBrowser::~ProjectsFolderBrowser()
 }
 
 
-// TODO:
-// Optimize the search under a specific ProjectItem, tipically a
-// superitem (ProjectFolder)
-ProjectItem*
-ProjectsFolderBrowser::FindProjectItem(BString const& path) const
-{
-	const int32 countItems = FullListCountItems();
-	for (int32 i = 0; i < countItems; i++) {
-		ProjectItem *item = dynamic_cast<ProjectItem*>(FullListItemAt(i));
-		if (item != nullptr && item->GetSourceItem()->Path() == path)
-			return item;
-	}
-
-	return nullptr;
-}
-
-
 ProjectItem*
 ProjectsFolderBrowser::_CreateNewProjectItem(ProjectItem* parentItem, BPath path)
 {
@@ -85,7 +69,7 @@ ProjectItem*
 ProjectsFolderBrowser::_CreatePath(BPath pathToCreate)
 {
 	LogTrace("Create path for %s", pathToCreate.Path());
-	ProjectItem *item = FindProjectItem(pathToCreate.Path());
+	ProjectItem *item = GetProjectItemByPath(pathToCreate.Path());
 
 	if (!item) {
 		LogTrace("Can't find path %s", pathToCreate.Path());
@@ -134,7 +118,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 				break;
 
 			LogDebug("path %s", spath.String());
-			ProjectItem *item = FindProjectItem(spath);
+			ProjectItem *item = GetProjectItemByPath(spath);
 			if (!item) {
 					LogError("Can't find an item to remove [%s]", spath.String());
 					return;
@@ -169,7 +153,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 			if (message->GetBool("removed", false)) {
 				if (message->FindString("from path", &spath) == B_OK) {
 					LogDebug("from path %s",  spath.String());
-					ProjectItem *item = FindProjectItem(spath);
+					ProjectItem *item = GetProjectItemByPath(spath);
 					if (!item) {
 						LogError("Can't find an item to move [%s]", spath.String());
 						return;
@@ -241,7 +225,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 								// then the item is being RENAMED
 								// if the path changes then the item is being MOVED
 								if (bp_oldParent == bp_newParent) {
-									ProjectItem *item = FindProjectItem(oldPath);
+									ProjectItem *item = GetProjectItemByPath(oldPath);
 									if (!item) {
 										LogError("Can't find an item to move oldPath[%s] -> newPath[%s]", oldPath.String(), newPath.String());
 										return;
@@ -250,12 +234,12 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 									item->GetSourceItem()->Rename(newPath);
 									SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
 								} else {
-									ProjectItem *item = FindProjectItem(oldPath);
+									ProjectItem *item = GetProjectItemByPath(oldPath);
 									if (!item) {
 										LogError("Can't find an item to move oldPath [%s]", oldPath.String());
 										return;
 									}
-									ProjectItem *destinationItem = FindProjectItem(bp_newParent.Path());
+									ProjectItem *destinationItem = GetProjectItemByPath(bp_newParent.Path());
 									if (!item) {
 										LogError("Can't find an item to move newParent [%s]", bp_newParent.Path());
 										return;
@@ -300,11 +284,11 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 			if (Logger::IsDebugEnabled())
 				message->PrintToStream();
 			_UpdateNode(message);
+			SendNotices(B_PATH_MONITOR, message);
 			break;
 		}
 		case MSG_PROJECT_MENU_OPEN_FILE:
 		{
-			//message->PrintToStream();
 			int32 index = -1;
 			if (message->FindInt32("index", &index) != B_OK) {
 				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find index!");
@@ -316,7 +300,8 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 				return;
 			}
 			if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) Invoking a non FileItem (%s)", item->GetSourceItem()->Name().String());
+				ExpandOrCollapse(item, !item->IsExpanded());
+				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) ExpandOrCollapse(%s)", item->GetSourceItem()->Name().String());
 				return;
 			}
 			BEntry entry(item->GetSourceItem()->Path());
@@ -355,7 +340,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 					bool open = (code == MSG_NOTIFY_EDITOR_FILE_OPENED);
 					BString fileName;
 					message->FindString("file_name", &fileName);
-					ProjectItem* item = FindProjectItem(fileName);
+					ProjectItem* item = GetProjectItemByPath(fileName);
 					if (item != nullptr) {
 						item->SetOpenedInEditor(open);
 						Invalidate();
@@ -368,7 +353,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 					BString fileName;
 					message->FindBool("needs_save", &needsSave);
 					message->FindString("file_name", &fileName);
-					ProjectItem* item = FindProjectItem(fileName);
+					ProjectItem* item = GetProjectItemByPath(fileName);
 					if (item != nullptr) {
 						item->SetNeedsSave(needsSave);
 						Invalidate();
@@ -409,12 +394,12 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 void
 ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 {
-	ProjectItem*  projectItem = GetCurrentProjectItem();
+	ProjectItem*  projectItem = GetSelectedProjectItem();
 	if (!projectItem)
 		return;
 
-	ProjectFolder *project = _GetProjectFromItem(projectItem);
-	if (project==nullptr)
+	ProjectFolder *project = GetProjectFromItem(projectItem);
+	if (project == nullptr)
 		return;
 
 	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
@@ -497,11 +482,11 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 }
 
 
-ProjectItem* 
+ProjectItem*
 ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
 {
 	const int32 countItems = CountItems();
-	for (int32 i = 0; i< countItems; i++) {
+	for (int32 i = 0; i < countItems; i++) {
 		ProjectItem *item = dynamic_cast<ProjectItem*>(ItemAt(i));
 		if (item != nullptr && item->Text() == projectName)
 			return item;
@@ -522,8 +507,25 @@ ProjectsFolderBrowser::GetProjectItemAt(const int32& index) const
 }
 
 
+// TODO:
+// Optimize the search under a specific ProjectItem, tipically a
+// superitem (ProjectFolder)
 ProjectItem*
-ProjectsFolderBrowser::GetCurrentProjectItem() const
+ProjectsFolderBrowser::GetProjectItemByPath(BString const& path) const
+{
+	const int32 countItems = FullListCountItems();
+	for (int32 i = 0; i < countItems; i++) {
+		ProjectItem *item = dynamic_cast<ProjectItem*>(FullListItemAt(i));
+		if (item != nullptr && item->GetSourceItem()->Path() == path)
+			return item;
+	}
+
+	return nullptr;
+}
+
+
+ProjectItem*
+ProjectsFolderBrowser::GetSelectedProjectItem() const
 {
 	const int32 selection = CurrentSelection();
 	if (selection < 0)
@@ -534,16 +536,33 @@ ProjectsFolderBrowser::GetCurrentProjectItem() const
 
 
 ProjectFolder*
-ProjectsFolderBrowser::GetProjectFromCurrentItem() const
+ProjectsFolderBrowser::GetProjectFromSelectedItem() const
 {
-	return _GetProjectFromItem(GetCurrentProjectItem());
+	return GetProjectFromItem(GetSelectedProjectItem());
+}
+
+
+ProjectFolder*
+ProjectsFolderBrowser::GetProjectFromItem(ProjectItem* item) const
+{
+	if (item == nullptr)
+		return nullptr;
+
+	ProjectFolder *project;
+	if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+		project = static_cast<ProjectFolder*>(item->GetSourceItem());
+	} else {
+		project = static_cast<ProjectFolder*>(item->GetSourceItem()->GetProjectFolder());
+	}
+
+	return project;
 }
 
 
 BString const
-ProjectsFolderBrowser::GetCurrentProjectFileFullPath() const
+ProjectsFolderBrowser::GetSelectedProjectFileFullPath() const
 {
-	ProjectItem* selectedProjectItem = GetCurrentProjectItem();
+	ProjectItem* selectedProjectItem = GetSelectedProjectItem();
 	// if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
 		return selectedProjectItem->GetSourceItem()->Path();
 	// else
@@ -551,28 +570,11 @@ ProjectsFolderBrowser::GetCurrentProjectFileFullPath() const
 }
 
 
-ProjectFolder*
-ProjectsFolderBrowser::_GetProjectFromItem(ProjectItem* item) const
-{
-	if (item == nullptr)
-		return nullptr;
-
-	ProjectFolder *project;
-	if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		project = (ProjectFolder *)item->GetSourceItem();
-	} else {
-		project = (ProjectFolder *)item->GetSourceItem()->GetProjectFolder();
-	}
-
-	return project;
-}
-
-
 status_t
 ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 {
 	status_t status = B_NOT_INITIALIZED;
-	ProjectItem *item = GetCurrentProjectItem();
+	ProjectItem *item = GetSelectedProjectItem();
 	if (item) {
 		BEntry entry(item->GetSourceItem()->Path());
 		if (entry.Exists())
@@ -621,15 +623,18 @@ ProjectsFolderBrowser::DetachedFromWindow()
 void
 ProjectsFolderBrowser::MouseDown(BPoint where)
 {
-	BOutlineListView::MouseDown(where);
-	if (IndexOf(where) >= 0) {
-		int32 buttons = -1;
+	int32 buttons = -1;
 
-		BMessage* message = Looper()->CurrentMessage();
-		 if (message != NULL)
-			 message->FindInt32("buttons", &buttons);
+	BMessage* message = Looper()->CurrentMessage();
+	 if (message != NULL)
+		 message->FindInt32("buttons", &buttons);
 
-		if (buttons == B_MOUSE_BUTTON(2)) {
+	if (buttons == B_MOUSE_BUTTON(1)) {
+		return BOutlineListView::MouseDown(where);
+	} else 	if ( buttons == B_MOUSE_BUTTON(2)) {
+		int32 index = IndexOf(where);
+		if (index >= 0) {
+			Select(index);
 			_ShowProjectItemPopupMenu(where);
 		}
 	}
@@ -661,7 +666,7 @@ ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	if ( status != B_OK ){
 		LogErrorF("Can't StopWatching! path [%s] error[%s]", project->Path(), strerror(status));
 	}
-	ProjectItem* listItem = FindProjectItem(project->Path());
+	ProjectItem* listItem = GetProjectItemByPath(project->Path());
 	if (listItem)
 		RemoveItem(listItem);
 	else
@@ -812,6 +817,6 @@ ProjectsFolderBrowser::SelectionChanged()
 void
 ProjectsFolderBrowser::InitRename(ProjectItem *item)
 {
-	item->InitRename(new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
+	item->InitRename(this, new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
 	Invalidate();
 }

@@ -7,12 +7,8 @@
 
 #pragma once
 
-#include <ColumnListView.h>
-#include <ColumnTypes.h>
-#include <ObjectList.h>
 #include <Window.h>
 
-#include <string>
 #include <vector>
 
 class BButton;
@@ -26,7 +22,7 @@ class EditorWindow;
 class GitAlert : public BWindow {
 public:
 								GitAlert(const char *title, const char *message,
-											const std::vector<std::string> &files);
+											const std::vector<BString> &files);
 								~GitAlert();
 
 	void						MessageReceived(BMessage* message);
@@ -36,7 +32,7 @@ public:
 private:
 	const BString					fTitle;
 	const BString					fMessage;
-	const std::vector<std::string>	fFiles;
+	const std::vector<BString>		fFiles;
 	BStringView*					fMessageString;
 	BScrollView*					fScrollView;
 	BButton*						fOK;

@@ -54,13 +54,19 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 	fBuildMode(BuildMode::ReleaseMode),
 	fLSPProjectWrapper(nullptr),
 	fSettings(nullptr),
-	fCurrentTask(nullptr)
+	fCurrentTask(nullptr),
+	fGitRepository(nullptr),
+	fIsBuilding(false)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
 
-
-
+	try {
+		fGitRepository = new GitRepository(path);
+	} catch(const GitException &ex) {
+		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
+			path.String(), ex.Error(), ex.what());
+	}
 
 	fLSPProjectWrapper = new LSPProjectWrapper(fPath.String(), msgr);
 }
@@ -75,6 +81,7 @@ ProjectFolder::~ProjectFolder()
 		fLSPProjectWrapper->Dispose();
 		delete fLSPProjectWrapper;
 	}
+	delete fGitRepository;
 	delete fSettings;
 }
 
@@ -111,8 +118,6 @@ ProjectFolder::LoadDefaultSettings()
 	fSettings->SetString("project_release_target", "");
 	fSettings->SetString("project_debug_target", "");
 	fSettings->SetBool("project_run_in_terminal", false);
-	fSettings->SetBool("git", false);
-	fSettings->SetBool("exclude_settings_git", false);
 }
 
 
@@ -132,8 +137,9 @@ ProjectFolder::SetBuildMode(BuildMode mode)
 
 
 BuildMode
-ProjectFolder::GetBuildMode()
+ProjectFolder::GetBuildMode() /* const */
 {
+	// TODO: Why are we SETting the mode here ?
 	fBuildMode = (BuildMode)fSettings->GetInt32("build_mode", BuildMode::ReleaseMode);
 	return fBuildMode;
 }
@@ -150,7 +156,7 @@ ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetBuildCommand()
+ProjectFolder::GetBuildCommand() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode) {
 		BString build = fSettings->GetString("project_release_build_command", "");
@@ -173,7 +179,7 @@ ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetCleanCommand()
+ProjectFolder::GetCleanCommand() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode) {
 		BString clean = fSettings->GetString("project_release_clean_command", "");
@@ -196,7 +202,7 @@ ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetExecuteArgs()
+ProjectFolder::GetExecuteArgs() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
 		return fSettings->GetString("project_release_execute_args", "");
@@ -216,7 +222,7 @@ ProjectFolder::SetTarget(BString const& path, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetTarget()
+ProjectFolder::GetTarget() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
 		return fSettings->GetString("project_release_target", "");
@@ -226,44 +232,37 @@ ProjectFolder::GetTarget()
 
 
 void
-ProjectFolder::RunInTerminal(bool enabled)
+ProjectFolder::SetRunInTerminal(bool enabled)
 {
 	fSettings->SetBool("project_run_in_terminal", enabled);
 }
 
 
 bool
-ProjectFolder::RunInTerminal()
+ProjectFolder::RunInTerminal() const
 {
 	return fSettings->GetBool("project_run_in_terminal", false);
 }
 
 
-void
-ProjectFolder::Git(bool enabled)
+GitRepository*
+ProjectFolder::GetRepository() const
 {
-	fSettings->SetBool("git", enabled);
-}
-
-
-bool
-ProjectFolder::Git()
-{
-	return fSettings->GetBool("git", false);
+	return fGitRepository;
 }
 
 
 void
-ProjectFolder::ExcludeSettingsOnGit(bool enabled)
+ProjectFolder::InitRepository(bool createInitialCommit)
 {
-	fSettings->SetBool("exclude_settings_git", enabled);
+	fGitRepository->Init(createInitialCommit);
 }
 
 
-bool
-ProjectFolder::ExcludeSettingsOnGit()
+LSPProjectWrapper*
+ProjectFolder::GetLSPClient() const
 {
-	return fSettings->GetBool("exclude_settings_git", false);
+	return fLSPProjectWrapper;
 }
 
 

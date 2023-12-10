@@ -73,7 +73,7 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fPathBox = new BTextControl(B_TRANSLATE("Base path:"), dirPath.String(), nullptr);
 	fBrowseButton = new BButton("browse", B_TRANSLATE("Browse" B_UTF8_ELLIPSIS),
 		new BMessage(kOpenFilePanel));
-	fDestDir = new BTextControl(B_TRANSLATE("Destination directory:"), "", nullptr);
+	fDestDir = new BTextControl(B_TRANSLATE("Destination folder:"), "", nullptr);
 	fClone = new BButton("clone button", B_TRANSLATE("Clone"),
 			new BMessage(kDoClone));
 	fCancel = new BButton("cancel button", B_TRANSLATE("Cancel"),
@@ -145,12 +145,12 @@ void
 RemoteProjectWindow::_OpenProject(const BString& localPath)
 {
 	// open the project folder
-	BMessage *msg = new BMessage(MSG_PROJECT_FOLDER_OPEN);
+	BMessage msg(MSG_PROJECT_FOLDER_OPEN);
 	entry_ref ref;
 	BEntry entry(localPath.String());
 	if (entry.GetRef(&ref) == B_OK) {
-		msg->AddRef("refs",&ref);
-		fTarget.SendMessage(msg);
+		msg.AddRef("refs",&ref);
+		fTarget.SendMessage(&msg);
 	} else {
 		throw GException(B_ERROR, B_TRANSLATE("The local path is not valid or does not exist"));
 	}

@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	1236796305
+1	English	application/x-vnd.Genio	947733856
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -45,6 +45,7 @@ Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
 Select all	GenioWindow		Select all
 New folder	TemplateManager		New folder
 Auto collapse/expand projects	SettingsWindow		Auto collapse/expand projects
+Destination folder:	RemoteProjectWindow		Destination folder:
 Make catkeys	GenioWindow		Make catkeys
 Status	GenioWindow	The git command	Status
 Show/Hide find bar	GenioWindow		Show/Hide find bar
@@ -86,7 +87,6 @@ Undo	GenioWindow		Undo
 Open recent…	GenioWindow		Open recent…
 Save	Editor		Save
 Autocomplete	GenioWindow		Autocomplete
-Destination directory:	RemoteProjectWindow		Destination directory:
 File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
 Rename branch:	SourceControlPanel		Rename branch:
 Conflicts	SourceControlPanel		Conflicts

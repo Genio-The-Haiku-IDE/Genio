@@ -61,25 +61,25 @@ namespace Genio::UI {
 			bool invokeItemMessage = true, bool marked = false)
 		{
 			status_t status;
-			auto message = new BMessage(command);
+			BMessage message(command);
 			if constexpr (std::is_pointer<T>::value) {
-				status = message->AddPointer("value", value);
+				status = message.AddPointer("value", value);
 			} else if constexpr (std::is_same<BString, T>::value) {
-				status = message->AddString("value", (BString)value);
+				status = message.AddString("value", (BString)value);
 			} else {
-				status = message->AddData("value", B_ANY_TYPE, &value, sizeof(value), true);
+				status = message.AddData("value", B_ANY_TYPE, &value, sizeof(value), true);
 			}
 			if (status != B_OK)
 				throw GException(status, strerror(status));
-			message->AddString("sender", fSender);
+			message.AddString("sender", fSender);
 			LogInfo("item name: %s type: %s", name.String(), typeid(value).name());
-			auto menu_item = new BMenuItem(name.String(), message);
+			auto menu_item = new BMenuItem(name.String(), new BMessage(message));
 			menu_item->SetMarked(marked);
 			if ((fMessenger != nullptr) && (fMessenger->IsValid())) {
 				menu_item->SetTarget(*fMessenger);
 				if (marked && invokeItemMessage) {
 					LogInfo("Item %s marked as selected. Message sent out", name.String());
-					fMessenger->SendMessage(message);
+					fMessenger->SendMessage(&message);
 				}
 			}
 			fMenu->AddItem(menu_item);

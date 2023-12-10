@@ -23,18 +23,19 @@
 
 #include "ConfigManager.h"
 #include "EditorContextMenu.h"
+#include "EditorMessages.h"
 #include "EditorStatusView.h"
 #include "GenioApp.h"
+#include "GenioWindowMessages.h"
+#include "GoToLineWindow.h"
+#include "Languages.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
 #include "ProjectFolder.h"
 #include "ScintillaUtils.h"
-#include "Utils.h"
-#include "Languages.h"
 #include "Styler.h"
-#include "GoToLineWindow.h"
-#include "GenioWindowMessages.h"
-#include "EditorMessages.h"
+#include "Utils.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -112,7 +113,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 }
 
 bool
-Editor::HasLSPServer()
+Editor::HasLSPServer() const
 {
 	return (fLSPEditorWrapper && fLSPEditorWrapper->HasLSPServer());
 }

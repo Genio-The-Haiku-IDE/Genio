@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	1946577677
+1	English	application/x-vnd.Genio	1236796305
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -16,7 +16,6 @@ Show toolbar	GenioWindow		Show toolbar
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
 Project settings…	ProjectsFolderBrowser		Project settings…
 Path	ProjectsFolderBrowser		Path
-New file	ProjectsFolderBrowser		New file
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Replace selection	GenioWindow		Replace selection
 Focus mode	GenioWindow		Focus mode
@@ -32,6 +31,7 @@ Open files list	GenioWindow		Open files list
 Cancel	SourceControlPanel		Cancel
 Projects folder:	SettingsWindow		Projects folder:
 Set active	ProjectsFolderBrowser		Set active
+File modified on index	GitRepository		File modified on index
 Fetch prune	SourceControlPanel		Fetch prune
 Editor zoom:	SettingsWindow		Editor zoom:
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
@@ -48,6 +48,7 @@ Auto collapse/expand projects	SettingsWindow		Auto collapse/expand projects
 Make catkeys	GenioWindow		Make catkeys
 Status	GenioWindow	The git command	Status
 Show/Hide find bar	GenioWindow		Show/Hide find bar
+New file	GitRepository		New file
 Build log	GenioWindow		Build log
 Continue	RemoteProjectWindow		Continue
 Close file	GenioWindow		Close file
@@ -58,8 +59,6 @@ Show projects pane	SettingsWindow		Show projects pane
 Redo	GenioWindow		Redo
 Active	EditorTabManager		Active
 Console I/O	GenioWindow		Console I/O
-New file staged	ProjectsFolderBrowser		New file staged
-File deleted	ProjectsFolderBrowser		File deleted
 Run	GenioWindow		Run
 Open Terminal	ProjectsFolderBrowser		Open Terminal
 Save current file	GenioWindow		Save current file
@@ -99,7 +98,6 @@ Delete file	ProjectsFolderBrowser		Delete file
 Read-only	GenioWindow		Read-only
 The local path is not valid or does not exist	RemoteProjectWindow		The local path is not valid or does not exist
 Cancel	GitCredentialsWindow		Cancel
-File modified on index	ProjectsFolderBrowser		File modified on index
 Fetch	SourceControlPanel		Fetch
 Find	GenioWindow		Find
 Invalid project folder	GenioWindow		Invalid project folder
@@ -129,7 +127,6 @@ Branch	GenioWindow	The git command	Branch
 Remote branches	SourceControlPanel		Remote branches
 Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
 Trim trailing whitespace	GenioWindow		Trim trailing whitespace
-File modified	ProjectsFolderBrowser		File modified
 New folder	GenioWindow		New folder
 Rename branch	SourceControlPanel		Rename branch
 Another command is running.	ConsoleIOView		Another command is running.
@@ -163,6 +160,7 @@ stdout	ConsoleIOView		stdout
 Save all files	GenioWindow		Save all files
 Save selected	QuitAlert		Save selected
 Search results	SearchResultPanel		Search results
+New file staged	GitRepository		New file staged
 Reload projects	SettingsWindow		Reload projects
 Console banner	SettingsWindow		Console banner
 Overwrite	GenioWindow		Overwrite
@@ -175,10 +173,10 @@ Rename file	ProjectsFolderBrowser		Rename file
 Save dialog	Editor		Save dialog
 Cancel	QuitAlert		Cancel
 Stash apply changes	SourceControlPanel		Stash apply changes
-File deleted from index	ProjectsFolderBrowser		File deleted from index
 Make bindcatalogs	GenioWindow		Make bindcatalogs
 Show output pane	SettingsWindow		Show output pane
 Status (short)	GenioWindow	The git command	Status (short)
+File deleted	GitRepository		File deleted
 Don't save	GenioWindow		Don't save
 Search	GenioWindow		Search
 Release execute arguments:	ProjectSettingsWindow		Release execute arguments:
@@ -200,6 +198,7 @@ Reset zoom	GenioWindow		Reset zoom
 Don't save	Editor		Don't save
 Stop	ConsoleIOView		Stop
 Show line endings	SettingsWindow		Show line endings
+File modified	GitRepository		File modified
 Show toolbar	SettingsWindow		Show toolbar
 Fetch prune completed.	SourceControlPanel		Fetch prune completed.
 Whole word	GenioWindow		Whole word
@@ -299,6 +298,7 @@ Build project	ProjectsFolderBrowser		Build project
 Remotes	SourceControlPanel		Remotes
 Copy name	SourceControlPanel		Copy name
 Choose project…	SourceControlPanel		Choose project…
+File deleted from index	GitRepository		File deleted from index
 An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
 Edit	GenioWindow		Edit
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?

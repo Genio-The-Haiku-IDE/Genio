@@ -292,10 +292,10 @@ SourceControlPanel::MessageReceived(BMessage *message)
 
 							if (watchedPath == fSelectedProject->Path()) {
 								// update project
-								auto message = new BMessage(MsgChangeProject);
-								message->AddPointer("value", fSelectedProject);
-								message->AddString("sender", kSenderExternalEvent);
-								BMessenger(this).SendMessage(message);
+								BMessage message(MsgChangeProject);
+								message.AddPointer("value", fSelectedProject);
+								message.AddString("sender", kSenderExternalEvent);
+								BMessenger(this).SendMessage(&message);
 							}
 						}
 						break;
@@ -446,10 +446,10 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					auto createInitialCommit = !IsChecked<BCheckBox>(fDoNotCreateInitialCommitCheckBox);
 					fSelectedProject->InitRepository(createInitialCommit);
 					SetChecked<BCheckBox>(fDoNotCreateInitialCommitCheckBox, false);
-					auto message = new BMessage(MsgChangeProject);
-					message->AddPointer("value", fSelectedProject);
-					message->AddString("sender", kSenderInitializeRepositoryButton);
-					BMessenger(this).SendMessage(message);
+					BMessage message(MsgChangeProject);
+					message.AddPointer("value", fSelectedProject);
+					message.AddString("sender", kSenderInitializeRepositoryButton);
+					BMessenger(this).SendMessage(&message);
 				}
 				break;
 			}

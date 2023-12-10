@@ -120,23 +120,23 @@ RepositoryView::MessageReceived(BMessage* message)
 				break;
 			switch (item->BranchType()) {
 				case kLocalBranch: {
-					auto switch_message = new GMessage{
+					GMessage switchMessage = {
 						{"what", MsgSwitchBranch},
 						{"value", item->BranchName()},
 						{"type", GIT_BRANCH_LOCAL},
 						{"sender", kSenderRepositoryPopupMenu}};
 						BMessenger messenger(Target());
-						messenger.SendMessage(switch_message);
+						messenger.SendMessage(&switchMessage);
 					break;
 				}
 				case kRemoteBranch: {
-					auto switch_message = new GMessage{
+					GMessage switchMessage = {
 						{"what", MsgSwitchBranch},
 						{"value", item->BranchName()},
 						{"type", GIT_BRANCH_REMOTE},
 						{"sender", kSenderRepositoryPopupMenu}};
 						BMessenger messenger(Target());
-						messenger.SendMessage(switch_message);
+						messenger.SendMessage(&switchMessage);
 					break;
 				}
 				default:

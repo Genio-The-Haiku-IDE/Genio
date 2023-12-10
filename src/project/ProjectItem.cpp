@@ -62,10 +62,9 @@ public:
 			fProjectItem->AbortRename();
 		}
 		if (numBytes == 1 && *bytes == B_RETURN) {
-			BMessage* message = new BMessage(*Message());
-			message->AddString("_value", Text());
-			BMessenger(Parent()).SendMessage(message);
-			delete message;
+			BMessage message(*Message());
+			message.AddString("_value", Text());
+			BMessenger(Parent()).SendMessage(&message);
 			fProjectItem->CommitRename();
 		}
 	}

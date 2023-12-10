@@ -129,6 +129,8 @@ namespace Genio::UI {
 
 		void SetTarget(BHandler *handler)
 		{
+			delete fMessenger;
+			fMessenger = nullptr;
 			fMenu->SetTargetForItems(handler);
 			fMessenger = new BMessenger(handler);
 		}
@@ -136,6 +138,8 @@ namespace Genio::UI {
 
 		void SetTarget(BMessenger messenger)
 		{
+			delete fMessenger;
+			fMessenger = nullptr;
 			fMenu->SetTargetForItems(messenger);
 			fMessenger = new BMessenger(messenger);
 		}

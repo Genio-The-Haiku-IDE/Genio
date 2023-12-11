@@ -281,21 +281,35 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					}
 					case B_PATH_MONITOR:
 					{
+						message->PrintToStream();
 						if (!fSelectedProject->IsBuilding()) {
 							LogInfo("B_PATH_MONITOR");
-							int32 opCode;
-							if (message->FindInt32("opcode", &opCode) != B_OK)
-								return;
+							// int32 opCode;
+							// if (message->FindInt32("opcode", &opCode) != B_OK)
+								// return;
 							BString watchedPath;
 							if (message->FindString("watched_path", &watchedPath) != B_OK)
 								return;
 
 							if (watchedPath == fSelectedProject->Path()) {
-								// update project
-								BMessage message(MsgChangeProject);
-								message.AddPointer("value", fSelectedProject);
-								message.AddString("sender", kSenderExternalEvent);
-								BMessenger(this).SendMessage(&message);
+
+								BString path;
+								if (message->FindString("path", &path) != B_OK)
+									return;
+
+								BPath gitFolder(fSelectedProject->Path());
+								gitFolder.Append(".git");
+
+								if (path.FindFirst(gitFolder.Path()) != B_ERROR) {
+									// TODO: use a condition variable with timeout to process only
+									// the latest message of a burst series
+
+									// update project
+									BMessage message(MsgChangeProject);
+									message.AddPointer("value", fSelectedProject);
+									message.AddString("sender", kSenderExternalEvent);
+									BMessenger(this).SendMessage(&message);
+								}
 							}
 						}
 						break;
@@ -444,6 +458,17 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				auto repo = fSelectedProject->GetRepository();
 				if (!repo->IsInitialized()) {
 					auto createInitialCommit = !IsChecked<BCheckBox>(fDoNotCreateInitialCommitCheckBox);
+					if (!createInitialCommit) {
+						BAlert* alert = new BAlert(B_TRANSLATE("Create initial commit"),
+							B_TRANSLATE("Do you really want to initialize a repository wihout "
+								"creating an initial commit?"),
+							B_TRANSLATE("Cancel"), B_TRANSLATE("Ok"), nullptr,
+							B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+						alert->SetShortcut(0, B_ESCAPE);
+						int32 choice = alert->Go();
+						if (choice == 0)
+							return;
+					}
 					fSelectedProject->InitRepository(createInitialCommit);
 					SetChecked<BCheckBox>(fDoNotCreateInitialCommitCheckBox, false);
 					BMessage message(MsgChangeProject);

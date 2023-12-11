@@ -7,13 +7,13 @@
 
 ## Introduction
 
-Genio is a native and fully functional IDE for the [Haiku operating system](https://www.haiku-os.org) 
+Genio is a native and fully functional IDE for the [Haiku operating system](https://www.haiku-os.org)
 
 Some of the features of the Genio IDE are:
 
-*   LSP Server support (autocompletion, signature help, go to definition/implementation/declaration, quick fix)
+*   LSP Server support (autocompletion, signature help, go to definition/implementation/declaration, quick fix, format)
 *   Multi-project browser
-*   Integrated source control with GIT (including opening a remote project) 
+*   Integrated source control with GIT (including opening a remote project)
 *   Find in files
 *   Links to file and build errors in Build Log and Console I/O
 *   "Problems" tab
@@ -27,7 +27,8 @@ Some of the features of the Genio IDE are:
     *   Duplicate current line
     *   Delete lines
     *   Switch between source and header
-  
+*   Full screen and Focus mode
+
 Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), and
  the editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
 
@@ -58,7 +59,7 @@ See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blo
 ### Prerequirements
 
 Genio requires libgit2 to implement Git features and libyaml_cpp to read yaml files.
-The needed development files are available in `libgit2_devel` and 
+The needed development files are available in `libgit2_devel` and
 `yaml_cpp_devel`, respectively.
 Execute `pkgman install libgit2_devel yaml_cpp_devel` from Terminal
 
@@ -70,7 +71,7 @@ If you would like to try a clang++ build:
 ### Compiling
 
 Execute `make deps && make` in Genio's top directory.
-The executable is created in `app` subdirectory.  
+The executable is created in `app` subdirectory.
 
 Genio can already be opened and built within Genio itself.
 The makefile has been updated to accept the *debug* parameter:

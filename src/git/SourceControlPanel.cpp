@@ -460,7 +460,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					auto createInitialCommit = !IsChecked<BCheckBox>(fDoNotCreateInitialCommitCheckBox);
 					if (!createInitialCommit) {
 						BAlert* alert = new BAlert(B_TRANSLATE("Create initial commit"),
-							B_TRANSLATE("Do you really want to initialize a repository wihout "
+							B_TRANSLATE("Do you really want to initialize a repository without "
 								"creating an initial commit?"),
 							B_TRANSLATE("Cancel"), B_TRANSLATE("Ok"), nullptr,
 							B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);

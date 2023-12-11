@@ -1,4 +1,5 @@
 v2.0
+	- Add a configuration to exclude certain files or folders in 'Find in files'.
 	- UI: New icons (ZuMi).
 	- UI: Reorganized and improved menus.
 	- UI: Added new Search Results panel.

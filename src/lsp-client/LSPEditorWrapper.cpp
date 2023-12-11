@@ -669,10 +669,15 @@ LSPEditorWrapper::_DoSwitchSourceHeader(json& result)
 	OpenFileURI(url);
 }
 
+#include <stdio.h>
 
 void
 LSPEditorWrapper::_DoCompletion(json& params)
 {
+	std::string line;
+	Position position;
+	position.character = -1;
+
 	CompletionList allItems = params.get<CompletionList>();
 	auto& items = allItems.items;
 	std::string list;
@@ -687,7 +692,31 @@ LSPEditorWrapper::_DoCompletion(json& params)
 		// let's try to create it.
 		if (item.textEdit.newText.empty()) {
 			item.textEdit.newText = item.insertText;
-			//printf("dEBUG completion 0 [%s]\n", item.textEdit.newText.c_str());
+
+			Position pos;
+			FromSciPositionToLSPPosition(fCompletionPosition, &pos);
+			item.textEdit.range.end = pos;
+
+			//printf("Debug completion 0 [%s]\n", item.textEdit.newText.c_str());
+
+			//funcy algo to find insertText before current position.
+			if (position.character == -1) {
+				line = GetCurrentLine();
+				GetCurrentLSPPosition(&position);
+			}
+
+			Sci_Position current = position.character - 1;
+			int32 points = 0;
+			for (size_t i = 0 ; i < item.insertText.length() ; i++) {
+				if (current - i >= 0) {
+					if (strncasecmp(item.insertText.c_str(), line.c_str() + current-i, i+1) == 0){
+						points = i+1;
+					}
+				}
+			}
+			FromSciPositionToLSPPosition(fCompletionPosition - points, &pos);
+			item.textEdit.range.start = pos;
+
 		}
 	}
 

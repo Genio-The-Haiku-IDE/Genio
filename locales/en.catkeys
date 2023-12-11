@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	947733856
+1	English	application/x-vnd.Genio	2825088551
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -201,6 +201,7 @@ Show line endings	SettingsWindow		Show line endings
 File modified	GitRepository		File modified
 Show toolbar	SettingsWindow		Show toolbar
 Fetch prune completed.	SourceControlPanel		Fetch prune completed.
+Do you really want to initialize a repository wihout creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository wihout creating an initial commit?
 Whole word	GenioWindow		Whole word
 Made with love in Italy	GenioApp		Made with love in Italy
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
@@ -257,6 +258,7 @@ Release build command:	ProjectSettingsWindow		Release build command:
 Defaults	ConfigWindow		Defaults
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Zoom in	GenioWindow		Zoom in
+Ok	SourceControlPanel		Ok
 Enable folding	SettingsWindow		Enable folding
 Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
 Fold/Unfold all	GenioWindow		Fold/Unfold all
@@ -284,6 +286,7 @@ About…	GenioWindow		About…
 Find in project	GenioWindow		Find in project
 Debug execute arguments:	ProjectSettingsWindow		Debug execute arguments:
 Branch deleted succesfully.	SourceControlPanel		Branch deleted succesfully.
+Create initial commit	SourceControlPanel		Create initial commit
 Category	ProblemsPanel		Category
 Debug project target:	ProjectSettingsWindow		Debug project target:
 Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?

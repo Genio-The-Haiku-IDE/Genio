@@ -166,7 +166,7 @@ ProjectSettingsWindow::_InitWindow()
 	.SetInsets(10.0f, 24.0f, 10.0f, 10.0f)
 	.Add(fBuildCommandsBox, 0, 4, 4)
 	.Add(fTargetBox, 0, 5, 4)
-	.AddGlue(0, 7, 4);
+	.End();
 
 	BButton* defaultButton = new BButton("default",
 		B_TRANSLATE("Default"), new BMessage(MSG_DEFAULTS_CLICKED));
@@ -220,7 +220,6 @@ ProjectSettingsWindow::_LoadProject()
 
 	if (fProject->RunInTerminal())
 		fRunInTerminal->SetValue(B_CONTROL_ON);
-
 }
 
 void

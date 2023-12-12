@@ -297,9 +297,13 @@ GenioApp::ReadyToRun()
 void
 GenioApp::PrepareConfig(ConfigManager& cfg)
 {
-	cfg.AddConfig("General", "projects_directory", B_TRANSLATE("Projects folder:"), "/boot/home/workspace");
-	cfg.AddConfig("General", "auto_expand_collapse_projects", B_TRANSLATE("Auto collapse/expand projects"), false);
-	cfg.AddConfig("General", "fullpath_title", B_TRANSLATE("Show full path in window title"), true);
+	BString general(B_TRANSLATE("General"));
+	cfg.AddConfig(general.String(), "projects_directory",
+		B_TRANSLATE("Projects folder:"), "/boot/home/workspace");
+	cfg.AddConfig(general.String(), "auto_expand_collapse_projects",
+		B_TRANSLATE("Auto collapse/expand projects"), false);
+	cfg.AddConfig(general.String(), "fullpath_title",
+		B_TRANSLATE("Show full path in window title"), true);
 	GMessage loggers = {
 		{"mode", "options"},
 		{"option_1", {
@@ -315,7 +319,8 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 			{"value", (int32)Logger::LOGGER_DEST_BEDC },
 			{"label", "BeDC"}}}
 	};
-	cfg.AddConfig("General", "log_destination", B_TRANSLATE("Log destination:"), (int32)Logger::LOGGER_DEST_STDOUT, &loggers);
+	cfg.AddConfig(general.String(), "log_destination",
+		B_TRANSLATE("Log destination:"), (int32)Logger::LOGGER_DEST_STDOUT, &loggers);
 
 	GMessage levels = {
 		{"mode", "options"},
@@ -336,13 +341,16 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 			{"label", "Trace"}}}
 	};
 
-	cfg.AddConfig("General", "log_level", B_TRANSLATE("Log level:"), (int32)LOG_LEVEL_ERROR, &levels);
+	cfg.AddConfig(general.String(), "log_level",
+		B_TRANSLATE("Log level:"), (int32)LOG_LEVEL_ERROR, &levels);
 
-	cfg.AddConfig("General/Startup", "reopen_projects", B_TRANSLATE("Reload projects"), true);
-	cfg.AddConfig("General/Startup", "reopen_files", B_TRANSLATE("Reload files"), true);
-	cfg.AddConfig("General/Startup", "show_projects", B_TRANSLATE("Show projects pane"), true);
-	cfg.AddConfig("General/Startup", "show_output", B_TRANSLATE("Show output pane"), true);
-	cfg.AddConfig("General/Startup", "show_toolbar", B_TRANSLATE("Show toolbar"), true);
+	BString generalStartup = general;
+	generalStartup.Append("/").Append(B_TRANSLATE("Startup"));
+	cfg.AddConfig(generalStartup.String(), "reopen_projects", B_TRANSLATE("Reload projects"), true);
+	cfg.AddConfig(generalStartup.String(), "reopen_files", B_TRANSLATE("Reload files"), true);
+	cfg.AddConfig(generalStartup.String(), "show_projects", B_TRANSLATE("Show projects pane"), true);
+	cfg.AddConfig(generalStartup.String(), "show_output", B_TRANSLATE("Show output pane"), true);
+	cfg.AddConfig(generalStartup.String(), "show_toolbar", B_TRANSLATE("Show toolbar"), true);
 
 	GMessage sizes;
 	sizes = { {"mode","options"},
@@ -358,18 +366,19 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 		c++;
 	}
 
-	cfg.AddConfig("Editor", "edit_fontsize", B_TRANSLATE("Font size:"), -1, &sizes);
-	cfg.AddConfig("Editor", "syntax_highlight", B_TRANSLATE("Enable syntax highlighting"), true);
-	cfg.AddConfig("Editor", "brace_match", B_TRANSLATE("Enable brace matching"), true);
-	cfg.AddConfig("Editor", "save_caret", B_TRANSLATE("Save caret position"), true);
-	cfg.AddConfig("Editor", "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
-	cfg.AddConfig("Editor", "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
+	BString editor(B_TRANSLATE("Editor"));
+	cfg.AddConfig(editor.String(), "edit_fontsize", B_TRANSLATE("Font size:"), -1, &sizes);
+	cfg.AddConfig(editor.String(), "syntax_highlight", B_TRANSLATE("Enable syntax highlighting"), true);
+	cfg.AddConfig(editor.String(), "brace_match", B_TRANSLATE("Enable brace matching"), true);
+	cfg.AddConfig(editor.String(), "save_caret", B_TRANSLATE("Save caret position"), true);
+	cfg.AddConfig(editor.String(), "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
+	cfg.AddConfig(editor.String(), "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
 
 	GMessage tabs = { {"min",1},{"max",8} };
-	cfg.AddConfig("Editor", "tab_width", B_TRANSLATE("Tab width:"), 4, &tabs);
+	cfg.AddConfig(editor.String(), "tab_width", B_TRANSLATE("Tab width:"), 4, &tabs);
 
 	GMessage zooms = { {"min", -9}, {"max", 19} };
-	cfg.AddConfig("Editor", "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
+	cfg.AddConfig(editor.String(), "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
 	GMessage styles = { {"mode", "options"} };
 	std::set<std::string> allStyles;
@@ -382,29 +391,32 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 		styles[opt.String()] = { {"value", style_index - 1}, {"label", style.c_str() } };
 		style_index++;
 	}
-	cfg.AddConfig("Editor/Visual", "editor_style", B_TRANSLATE("Editor style:"), "default", &styles);
 
-	cfg.AddConfig("Editor/Visual", "show_linenumber", B_TRANSLATE("Show line number"), true);
-	cfg.AddConfig("Editor/Visual", "show_commentmargin", B_TRANSLATE("Show comment margin"), true);
-	cfg.AddConfig("Editor/Visual", "mark_caretline", B_TRANSLATE("Mark caret line"), true);
-	cfg.AddConfig("Editor/Visual", "enable_folding", B_TRANSLATE("Enable folding"), true);
-	cfg.AddConfig("Editor/Visual", "show_white_space", B_TRANSLATE("Show whitespace"), false);
-	cfg.AddConfig("Editor/Visual", "show_line_endings", B_TRANSLATE("Show line endings"), false);
-
-	cfg.AddConfig("Editor/Visual", "show_edgeline", B_TRANSLATE("Show edge line"), true);
+	BString editorVisual = editor;
+	editorVisual.Append("/").Append("Visual");
+	cfg.AddConfig(editorVisual.String(), "editor_style", B_TRANSLATE("Editor style:"), "default", &styles);
+	cfg.AddConfig(editorVisual.String(), "show_linenumber", B_TRANSLATE("Show line number"), true);
+	cfg.AddConfig(editorVisual.String(), "show_commentmargin", B_TRANSLATE("Show comment margin"), true);
+	cfg.AddConfig(editorVisual.String(), "mark_caretline", B_TRANSLATE("Mark caret line"), true);
+	cfg.AddConfig(editorVisual.String(), "enable_folding", B_TRANSLATE("Enable folding"), true);
+	cfg.AddConfig(editorVisual.String(), "show_white_space", B_TRANSLATE("Show whitespace"), false);
+	cfg.AddConfig(editorVisual.String(), "show_line_endings", B_TRANSLATE("Show line endings"), false);
+	cfg.AddConfig(editorVisual.String(), "show_edgeline", B_TRANSLATE("Show edge line"), true);
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
-	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column:"), 100, &limits);
+	cfg.AddConfig(editorVisual.String(), "edgeline_column", B_TRANSLATE("Edge column:"), 100, &limits);
 
-	cfg.AddConfig("Build", "wrap_console",   B_TRANSLATE("Wrap console"), false);
-	cfg.AddConfig("Build", "console_banner", B_TRANSLATE("Console banner"), true);
-	cfg.AddConfig("Build", "build_on_save",  B_TRANSLATE("Auto-Build on resource save"), false);
-	cfg.AddConfig("Build", "save_on_build",  B_TRANSLATE("Auto-Save changed files when building"), false);
+	BString build(B_TRANSLATE("Build"));
+	cfg.AddConfig(build.String(), "wrap_console",   B_TRANSLATE("Wrap console"), false);
+	cfg.AddConfig(build.String(), "console_banner", B_TRANSLATE("Console banner"), true);
+	cfg.AddConfig(build.String(), "build_on_save",  B_TRANSLATE("Auto-Build on resource save"), false);
+	cfg.AddConfig(build.String(), "save_on_build",  B_TRANSLATE("Auto-Save changed files when building"), false);
 
-	//New config, in Genio currently without a UI
-	cfg.AddConfig("Editor/Find", "find_wrap", B_TRANSLATE("Wrap"), false);
-	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
-	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
-	cfg.AddConfig("Editor/Find", "find_exclude_directory", B_TRANSLATE("Exclude folders:"),
+	BString editorFind = editor;
+	editorFind.Append("/").Append(B_TRANSLATE("Find"));
+	cfg.AddConfig(editorFind.String(), "find_wrap", B_TRANSLATE("Wrap"), false);
+	cfg.AddConfig(editorFind.String(), "find_whole_word", B_TRANSLATE("Whole word"), false);
+	cfg.AddConfig(editorFind.String(), "find_match_case", B_TRANSLATE("Match case"), false);
+	cfg.AddConfig(editorFind.String(), "find_exclude_directory", B_TRANSLATE("Exclude folders:"),
 															".*,objects.*");
 
 	GMessage lsplevels = { {"mode", "options"},
@@ -420,15 +432,16 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 								{"label", "Trace" }}},
 						 };
 
+	// TODO: Not sure about translating "LSP"
 	cfg.AddConfig("LSP", "lsp_clangd_log_level", B_TRANSLATE("Log level:"),
 		(int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
 
-	cfg.AddConfig("Source control", "repository_outline",
+	BString sourceControl(B_TRANSLATE("Source control"));
+	cfg.AddConfig(sourceControl.String(), "repository_outline",
 		B_TRANSLATE("Show repository outline"), true);
 
 	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
 	cfg.AddConfig("Hidden", "config_version", "", "2.0");
-
 }
 
 

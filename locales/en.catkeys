@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	4055529847
+1	English	application/x-vnd.Genio	278340290
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -32,8 +32,8 @@ Projects folder:	SettingsWindow		Projects folder:
 Set active	ProjectsFolderBrowser		Set active
 File modified on index	GitRepository		File modified on index
 Fetch prune	SourceControlPanel		Fetch prune
-Editor zoom:	SettingsWindow		Editor zoom:
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
+Editor zoom:	SettingsWindow		Editor zoom:
 Run in Terminal	ProjectSettingsWindow		Run in Terminal
 Wrap	GenioWindow		Wrap
 Save all	GenioWindow		Save all
@@ -50,6 +50,7 @@ Status	GenioWindow	The git command	Status
 Show/Hide find bar	GenioWindow		Show/Hide find bar
 New file	GitRepository		New file
 Build log	GenioWindow		Build log
+Startup	SettingsWindow		Startup
 Continue	RemoteProjectWindow		Continue
 Close file	GenioWindow		Close file
 Editor style:	SettingsWindow		Editor style:
@@ -58,6 +59,7 @@ Find previous	GenioWindow		Find previous
 Show projects pane	SettingsWindow		Show projects pane
 Redo	GenioWindow		Redo
 Active	EditorTabManager		Active
+Find	SettingsWindow		Find
 Console I/O	GenioWindow		Console I/O
 Run	GenioWindow		Run
 Open Terminal	ProjectsFolderBrowser		Open Terminal
@@ -127,6 +129,7 @@ Remote branches	SourceControlPanel		Remote branches
 Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
 Trim trailing whitespace	GenioWindow		Trim trailing whitespace
 New folder	GenioWindow		New folder
+Build	SettingsWindow		Build
 Rename branch	SourceControlPanel		Rename branch
 Another command is running.	ConsoleIOView		Another command is running.
 Clean project	GenioWindow		Clean project
@@ -134,6 +137,7 @@ Duplicate current line	GenioWindow		Duplicate current line
 OK	GTextAlert		OK
 Open remote Git project	RemoteProjectWindow		Open remote Git project
 Settings…	GenioWindow		Settings…
+General	SettingsWindow		General
 No fix available	Editor		No fix available
 Message	ProblemsPanel		Message
 Delete	GenioWindow		Delete
@@ -166,8 +170,8 @@ Edit user templates…	TemplatesMenu		Edit user templates…
 Open…	GenioWindow		Open…
 Changes stashed.	SourceControlPanel		Changes stashed.
 Go to definition	GenioWindow		Go to definition
-Stop	RemoteProjectWindow		Stop
 Cancel	RemoteProjectWindow		Cancel
+Stop	RemoteProjectWindow		Stop
 Rename file	ProjectsFolderBrowser		Rename file
 Save dialog	Editor		Save dialog
 Cancel	QuitAlert		Cancel
@@ -183,6 +187,7 @@ Release execute arguments:	ProjectSettingsWindow		Release execute arguments:
 OK	ProjectSettingsWindow		OK
 Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
 Banner	ConsoleIOView		Banner
+Editor	SettingsWindow		Editor
 Whole word	SettingsWindow		Whole word
 Error creating folder	GenioWindow		Error creating folder
 Delete	SourceControlPanel		Delete
@@ -259,9 +264,9 @@ Defaults	ConfigWindow		Defaults
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Zoom in	GenioWindow		Zoom in
 Ok	SourceControlPanel		Ok
+Fold/Unfold all	GenioWindow		Fold/Unfold all
 Enable folding	SettingsWindow		Enable folding
 Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
-Fold/Unfold all	GenioWindow		Fold/Unfold all
 Bookmark	GenioWindow		Bookmark
 Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
 New	GenioWindow		New
@@ -269,8 +274,8 @@ Show whitespace	SettingsWindow		Show whitespace
 Close all	GenioWindow		Close all
 You can't create a new folder here, please select a project or another folder	GenioWindow		You can't create a new folder here, please select a project or another folder
 Next	GenioWindow	Bookmark menu	Next
-Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
 Wrap	ConsoleIOView		Wrap
+Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
 Clear all	GenioWindow	Bookmark menu	Clear all
 Repository	SourceControlPanel		Repository
 Branch renamed succesfully.	SourceControlPanel		Branch renamed succesfully.
@@ -313,10 +318,11 @@ Enter a message for this stash	SourceControlPanel		Enter a message for this stas
 Project settings…	GenioWindow		Project settings…
 OK	Utilities		OK
 Location	SearchResultPanel		Location
-Wrap	SettingsWindow		Wrap
 Paste	GenioWindow		Paste
+Wrap	SettingsWindow		Wrap
 Debug build command:	ProjectSettingsWindow		Debug build command:
 Cancel	GTextAlert		Cancel
+Source control	SettingsWindow		Source control
 Stash pop changes	SourceControlPanel		Stash pop changes
 Choose branch…	SourceControlPanel		Choose branch…
 Don't save	QuitAlert		Don't save

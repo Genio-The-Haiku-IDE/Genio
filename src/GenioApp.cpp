@@ -393,7 +393,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	}
 
 	BString editorVisual = editor;
-	editorVisual.Append("/").Append("Visual");
+	editorVisual.Append("/").Append(B_TRANSLATE("Visual"));
 	cfg.AddConfig(editorVisual.String(), "editor_style", B_TRANSLATE("Editor style:"), "default", &styles);
 	cfg.AddConfig(editorVisual.String(), "show_linenumber", B_TRANSLATE("Show line number"), true);
 	cfg.AddConfig(editorVisual.String(), "show_commentmargin", B_TRANSLATE("Show comment margin"), true);

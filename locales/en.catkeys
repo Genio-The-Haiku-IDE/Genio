@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	891113279
+1	English	application/x-vnd.Genio	1694537823
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -228,6 +228,7 @@ Cut	GenioWindow		Cut
 Font size:	SettingsWindow		Font size:
 Zoom out	GenioWindow		Zoom out
 Exclude folders:	SettingsWindow		Exclude folders:
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
 Match case	SettingsWindow		Match case
 Base path:	RemoteProjectWindow		Base path:
 Save as…	GenioWindow		Save as…

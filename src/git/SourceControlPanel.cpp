@@ -462,7 +462,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						BAlert* alert = new BAlert(B_TRANSLATE("Create initial commit"),
 							B_TRANSLATE("Do you really want to initialize a repository without "
 								"creating an initial commit?"),
-							B_TRANSLATE("Cancel"), B_TRANSLATE("Ok"), nullptr,
+							B_TRANSLATE("Cancel"), B_TRANSLATE("OK"), nullptr,
 							B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 						alert->SetShortcut(0, B_ESCAPE);
 						int32 choice = alert->Go();

@@ -6,7 +6,6 @@ Dos	GenioWindow		Dos
 Enable brace matching	SettingsWindow		Enable brace matching
 Clear	ConsoleIOView		Clear
 Project	EditorTabManager		Project
-Open remote project	GenioWindow		Open remote project
 Switch source/header	GenioWindow		Switch source/header
 Comment selected lines	GenioWindow		Comment selected lines
 Project	ProjectsFolderBrowser		Project
@@ -155,7 +154,6 @@ Switch to next file	GenioWindow		Switch to next file
 Show projects pane	GenioWindow		Show projects pane
 Log destination:	SettingsWindow		Log destination:
 Show edge line	SettingsWindow		Show edge line
-Open	GenioWindow		Open
 stdout	ConsoleIOView		stdout
 Save all files	GenioWindow		Save all files
 Save selected	QuitAlert		Save selected
@@ -165,6 +163,7 @@ Reload projects	SettingsWindow		Reload projects
 Console banner	SettingsWindow		Console banner
 Overwrite	GenioWindow		Overwrite
 Edit user templates…	TemplatesMenu		Edit user templates…
+Open…	GenioWindow		Open…
 Changes stashed.	SourceControlPanel		Changes stashed.
 Go to definition	GenioWindow		Go to definition
 Stop	RemoteProjectWindow		Stop
@@ -174,6 +173,7 @@ Save dialog	Editor		Save dialog
 Cancel	QuitAlert		Cancel
 Stash apply changes	SourceControlPanel		Stash apply changes
 Make bindcatalogs	GenioWindow		Make bindcatalogs
+Open remote project…	GenioWindow		Open remote project…
 Show output pane	SettingsWindow		Show output pane
 Status (short)	GenioWindow	The git command	Status (short)
 File deleted	GitRepository		File deleted
@@ -201,6 +201,7 @@ Show line endings	SettingsWindow		Show line endings
 File modified	GitRepository		File modified
 Show toolbar	SettingsWindow		Show toolbar
 Fetch prune completed.	SourceControlPanel		Fetch prune completed.
+Do you really want to initialize a repository wihout creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository wihout creating an initial commit?
 Whole word	GenioWindow		Whole word
 Made with love in Italy	GenioApp		Made with love in Italy
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
@@ -292,10 +293,10 @@ Debug project target:	ProjectSettingsWindow		Debug project target:
 Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
 Close	GenioWindow		Close
 Tags	SourceControlPanel		Tags
-Open project	GenioWindow		Open project
 Current branch	ProjectsFolderBrowser		Current branch
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n
 Clean project	ProjectsFolderBrowser		Clean project
+Open project…	GenioWindow		Open project…
 Debug clean command:	ProjectSettingsWindow		Debug clean command:
 Build project	ProjectsFolderBrowser		Build project
 Remotes	SourceControlPanel		Remotes

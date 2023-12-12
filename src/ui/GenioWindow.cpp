@@ -2459,7 +2459,7 @@ void
 GenioWindow::_InitActions()
 {
 	ActionManager::RegisterAction(MSG_FILE_OPEN,
-								   B_TRANSLATE("Open"),
+								   B_TRANSLATE("Open" B_UTF8_ELLIPSIS),
 								   "", "", 'O');
 
 	ActionManager::RegisterAction(MSG_FILE_NEW,
@@ -2591,11 +2591,11 @@ GenioWindow::_InitActions()
 								   "", "", ',');
 
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN,
-								   B_TRANSLATE("Open project"),
+								   B_TRANSLATE("Open project" B_UTF8_ELLIPSIS),
 								   "","",'O', B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN_REMOTE,
-								   B_TRANSLATE("Open remote project"),
+								   B_TRANSLATE("Open remote project" B_UTF8_ELLIPSIS),
 								   "","",'O', B_SHIFT_KEY | B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_CLOSE,

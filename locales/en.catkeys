@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	1694537823
+1	English	application/x-vnd.Genio	4055529847
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -201,7 +201,6 @@ Show line endings	SettingsWindow		Show line endings
 File modified	GitRepository		File modified
 Show toolbar	SettingsWindow		Show toolbar
 Fetch prune completed.	SourceControlPanel		Fetch prune completed.
-Do you really want to initialize a repository wihout creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository wihout creating an initial commit?
 Whole word	GenioWindow		Whole word
 Made with love in Italy	GenioApp		Made with love in Italy
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?

@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	208024754
+1	English	application/x-vnd.Genio	1587566098
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -174,6 +174,7 @@ Cancel	RemoteProjectWindow		Cancel
 Stop	RemoteProjectWindow		Stop
 Rename file	ProjectsFolderBrowser		Rename file
 Save dialog	Editor		Save dialog
+OK	SourceControlPanel		OK
 Cancel	QuitAlert		Cancel
 Stash apply changes	SourceControlPanel		Stash apply changes
 Make bindcatalogs	GenioWindow		Make bindcatalogs
@@ -263,7 +264,6 @@ Release build command:	ProjectSettingsWindow		Release build command:
 Defaults	ConfigWindow		Defaults
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Zoom in	GenioWindow		Zoom in
-Ok	SourceControlPanel		Ok
 Fold/Unfold all	GenioWindow		Fold/Unfold all
 Enable folding	SettingsWindow		Enable folding
 Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building

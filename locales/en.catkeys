@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	278340290
+1	English	application/x-vnd.Genio	208024754
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -56,8 +56,8 @@ Close file	GenioWindow		Close file
 Editor style:	SettingsWindow		Editor style:
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
 Find previous	GenioWindow		Find previous
-Show projects pane	SettingsWindow		Show projects pane
 Redo	GenioWindow		Redo
+Show projects pane	SettingsWindow		Show projects pane
 Active	EditorTabManager		Active
 Find	SettingsWindow		Find
 Console I/O	GenioWindow		Console I/O
@@ -321,6 +321,7 @@ Location	SearchResultPanel		Location
 Paste	GenioWindow		Paste
 Wrap	SettingsWindow		Wrap
 Debug build command:	ProjectSettingsWindow		Debug build command:
+Visual	SettingsWindow		Visual
 Cancel	GTextAlert		Cancel
 Source control	SettingsWindow		Source control
 Stash pop changes	SourceControlPanel		Stash pop changes

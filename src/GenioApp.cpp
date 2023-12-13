@@ -7,12 +7,14 @@
 
 #include <Alert.h>
 #include <AboutWindow.h>
+#include <Bitmap.h>
 #include <Catalog.h>
 #include <FindDirectory.h>
 #include <String.h>
 #include <StringList.h>
 
 #include <getopt.h>
+#include <ctime>
 
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
@@ -20,6 +22,7 @@
 #include "Languages.h"
 #include "LSPLogLevels.h"
 #include "Styler.h"
+#include "Utils.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -184,6 +187,18 @@ GenioApp::AboutRequested()
 
 	window->AddExtraInfo(extraInfo);
 	window->ResizeBy(0, 200);
+
+
+	//xmas-icon!
+	std::time_t t = std::time(nullptr);
+	std::tm* now = std::localtime(&t);
+	if ((now->tm_mon == 11 &&
+		 now->tm_mday >= 20) ||
+		(now->tm_mon == 0 &&
+		 now->tm_mday <= 10)) {
+		if (window->Icon())
+			GetVectorIcon("xmas-icon", window->Icon());
+	}
 
 	window->Show();
 }

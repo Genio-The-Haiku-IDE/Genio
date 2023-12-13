@@ -7,6 +7,7 @@
 #include <Alignment.h>
 #include <Autolock.h>
 #include <Button.h>
+#include <MessageRunner.h>
 #include <ObjectList.h>
 #include <Catalog.h>
 #include <CheckBox.h>
@@ -61,7 +62,8 @@ SourceControlPanel::SourceControlPanel()
 	fSelectedProject(nullptr),
 	fCurrentBranch(nullptr),
 	fInitializeButton(nullptr),
-	fDoNotCreateInitialCommitCheckBox(nullptr)
+	fDoNotCreateInitialCommitCheckBox(nullptr),
+	fMessageRunner(nullptr)
 {
 	fProjectList = gMainWindow->GetProjectList();
 
@@ -303,12 +305,35 @@ SourceControlPanel::MessageReceived(BMessage *message)
 								if (path.FindFirst(gitFolder.Path()) != B_ERROR) {
 									// TODO: use a condition variable with timeout to process only
 									// the latest message of a burst series
+									LogInfo("SourceControlPanel: path.FindFirst(gitFolder.Path())");
+									if (fMessageRunner == nullptr) {
+										LogInfo("SourceControlPanel: fMessageRunner == nullptr");
+										// update project
+										BMessage message(MsgChangeProject);
+										message.AddPointer("value", fSelectedProject);
+										message.AddString("sender", kSenderExternalEvent);
+										// BMessenger(this).SendMessage(&message);
+										BMessenger selfMessenger(this);
+										fMessageRunner = new BMessageRunner(selfMessenger, &message, 1000000, 1);
+										if (fMessageRunner->InitCheck() != B_OK) {
+											LogInfo("SourceControlPanel: Could not instantiate BMessageRunner. Deleting it");
+											if (fMessageRunner != nullptr) {
+												delete fMessageRunner;
+												fMessageRunner = nullptr;
+											}
+										}
+										else
+											LogInfo("SourceControlPanel: BMessageRunner instantiated.");
+									} else {
+										if (fMessageRunner->SetInterval(1000000) != B_OK) {
+											LogInfo("SourceControlPanel: BMessageRunner is not valid anymore and deleting it.");
 
-									// update project
-									BMessage message(MsgChangeProject);
-									message.AddPointer("value", fSelectedProject);
-									message.AddString("sender", kSenderExternalEvent);
-									BMessenger(this).SendMessage(&message);
+											delete fMessageRunner;
+											fMessageRunner = nullptr;
+										} else {
+											LogInfo("SourceControlPanel: BMessageRunner SetInterval().");
+										}
+									}
 								}
 							}
 						}

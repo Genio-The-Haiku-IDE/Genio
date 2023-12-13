@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <string>
+#include <DateTime.h>
 
 #include "GenioNamespace.h"
 
@@ -337,4 +338,12 @@ void Menu_MakeEmpty(BMenu *menu)
 {
 	for (int32 index = menu->CountItems() - 1; index > -1; index--)
 		menu->RemoveItem(index);
+}
+
+bool	IsXMasPeriod()
+{
+	//dates between 20-Dec and 10-Jan included.
+	BDate today = BDate::CurrentDate(B_LOCAL_TIME);
+	return ((today.Month() == 12 && today.Day() >= 20) ||
+		    (today.Month() == 1  && today.Day() <= 10));
 }

@@ -7,6 +7,7 @@
 
 #include <Alert.h>
 #include <AboutWindow.h>
+#include <Bitmap.h>
 #include <Catalog.h>
 #include <FindDirectory.h>
 #include <String.h>
@@ -14,12 +15,14 @@
 
 #include <getopt.h>
 
+
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 #include "GenioWindow.h"
 #include "Languages.h"
 #include "LSPLogLevels.h"
 #include "Styler.h"
+#include "Utils.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -184,6 +187,12 @@ GenioApp::AboutRequested()
 
 	window->AddExtraInfo(extraInfo);
 	window->ResizeBy(0, 200);
+
+
+	//xmas-icon!
+	if (IsXMasPeriod() && window->Icon()) {
+		GetVectorIcon("xmas-icon", window->Icon());
+	}
 
 	window->Show();
 }

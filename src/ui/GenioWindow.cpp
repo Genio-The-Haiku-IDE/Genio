@@ -32,7 +32,8 @@
 #include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
-
+#include <ControlLook.h>
+#include <Bitmap.h>
 
 #include "ActionManager.h"
 #include "ConfigManager.h"
@@ -2709,7 +2710,17 @@ GenioWindow::_InitMenu()
 	appMenu->AddSeparatorItem();
 	ActionManager::AddItem(B_QUIT_REQUESTED, appMenu);
 
-	fMenuBar->AddItem(new IconMenuItem(appMenu, nullptr, GenioNames::kApplicationSignature, B_MINI_ICON));
+	IconMenuItem* iconMenu = nullptr;
+
+	//xmas-icon!
+	if (IsXMasPeriod()) {
+		BBitmap* iconXMAS = new BBitmap(BRect(BPoint(0, 0), be_control_look->ComposeIconSize(B_MINI_ICON)), B_RGBA32);
+		GetVectorIcon("xmas-icon", iconXMAS);
+		iconMenu = new IconMenuItem(appMenu, nullptr, iconXMAS, B_MINI_ICON);
+	} else {
+		iconMenu = new IconMenuItem(appMenu, nullptr, GenioNames::kApplicationSignature, B_MINI_ICON);
+	}
+	fMenuBar->AddItem(iconMenu);
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
 

@@ -166,4 +166,5 @@ public:
 BPath		GetDataDirectory();
 BPath		GetUserSettingsDirectory();
 
+bool	IsXMasPeriod();
 #endif // UTILS_H

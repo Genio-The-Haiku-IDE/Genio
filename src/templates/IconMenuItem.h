@@ -29,6 +29,8 @@ class IconMenuItem : public BMenuItem {
 			const BNodeInfo* nodeInfo, icon_size which);
 		IconMenuItem(BMenu*, BMessage*, const char* iconType,
 			icon_size which = B_MINI_ICON);
+		IconMenuItem(BMenu*, BMessage*, BBitmap* icon,
+			icon_size which = B_MINI_ICON);
 		IconMenuItem(BMessage* data);
 		virtual ~IconMenuItem();
 

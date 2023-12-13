@@ -52,6 +52,7 @@ enum MainIndex {
 	kMainIndexInitialize = 1,
 };
 
+const int kBurstTimeout = 1000000;
 
 SourceControlPanel::SourceControlPanel()
 	:
@@ -63,7 +64,7 @@ SourceControlPanel::SourceControlPanel()
 	fCurrentBranch(nullptr),
 	fInitializeButton(nullptr),
 	fDoNotCreateInitialCommitCheckBox(nullptr),
-	fMessageRunner(nullptr)
+	fBurstHandler(nullptr)
 {
 	fProjectList = gMainWindow->GetProjectList();
 
@@ -303,33 +304,28 @@ SourceControlPanel::MessageReceived(BMessage *message)
 								gitFolder.Append(".git");
 
 								if (path.FindFirst(gitFolder.Path()) != B_ERROR) {
-									// TODO: use a condition variable with timeout to process only
-									// the latest message of a burst series
-									LogInfo("SourceControlPanel: path.FindFirst(gitFolder.Path())");
-									if (fMessageRunner == nullptr) {
-										LogInfo("SourceControlPanel: fMessageRunner == nullptr");
-										// update project
+									if (fBurstHandler == nullptr ||
+										fBurstHandler->SetInterval(kBurstTimeout) != B_OK) {
+										LogInfo("SourceControlPanel: fBurstHandler not valid");
+
+										if (fBurstHandler != nullptr)
+											delete fBurstHandler;
+
+										// create a message to update the project
 										BMessage message(MsgChangeProject);
 										message.AddPointer("value", fSelectedProject);
 										message.AddString("sender", kSenderExternalEvent);
-										fMessageRunner = new BMessageRunner(BMessenger(this), &message, 1000000, 1);
-										if (fMessageRunner->InitCheck() != B_OK) {
-											LogInfo("SourceControlPanel: Could not instantiate BMessageRunner. Deleting it");
-											if (fMessageRunner != nullptr) {
-												delete fMessageRunner;
-												fMessageRunner = nullptr;
+										fBurstHandler = new BMessageRunner(BMessenger(this),
+											&message, kBurstTimeout, 1);
+										if (fBurstHandler->InitCheck() != B_OK) {
+											LogInfo("SourceControlPanel: Could not create "
+												"fBurstHandler. Deleting it");
+											if (fBurstHandler != nullptr) {
+												delete fBurstHandler;
+												fBurstHandler = nullptr;
 											}
-										}
-										else
-											LogInfo("SourceControlPanel: BMessageRunner instantiated.");
-									} else {
-										if (fMessageRunner->SetInterval(1000000) != B_OK) {
-											LogInfo("SourceControlPanel: BMessageRunner is not valid anymore and deleting it.");
-
-											delete fMessageRunner;
-											fMessageRunner = nullptr;
 										} else {
-											LogInfo("SourceControlPanel: BMessageRunner SetInterval().");
+											LogInfo("SourceControlPanel: fBurstHandler instantiated.");
 										}
 									}
 								}

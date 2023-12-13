@@ -14,7 +14,7 @@
 #include <StringList.h>
 
 #include <getopt.h>
-#include <ctime>
+
 
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
@@ -190,14 +190,8 @@ GenioApp::AboutRequested()
 
 
 	//xmas-icon!
-	std::time_t t = std::time(nullptr);
-	std::tm* now = std::localtime(&t);
-	if ((now->tm_mon == 11 &&
-		 now->tm_mday >= 20) ||
-		(now->tm_mon == 0 &&
-		 now->tm_mday <= 10)) {
-		if (window->Icon())
-			GetVectorIcon("xmas-icon", window->Icon());
+	if (IsXMasPeriod() && window->Icon()) {
+		GetVectorIcon("xmas-icon", window->Icon());
 	}
 
 	window->Show();

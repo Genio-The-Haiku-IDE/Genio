@@ -110,6 +110,20 @@ IconMenuItem::IconMenuItem(BMenu* submenu, BMessage* message,
 }
 
 
+IconMenuItem::IconMenuItem(BMenu* menu, BMessage* message, BBitmap* icon, icon_size which)
+			:
+			BMenuItem(menu, message),
+			fDeviceIcon(NULL),
+			fHeightDelta(0),
+			fWhich(which)
+{
+	SetIcon(icon);
+
+	// IconMenuItem is used in synchronously invoked menus, make sure
+	// we invoke with a timeout
+	SetTimeout(kSynchMenuInvokeTimeout);
+}
+
 IconMenuItem::IconMenuItem(BMessage* data)
 	:
 	BMenuItem(data),

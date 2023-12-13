@@ -312,9 +312,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 										BMessage message(MsgChangeProject);
 										message.AddPointer("value", fSelectedProject);
 										message.AddString("sender", kSenderExternalEvent);
-										// BMessenger(this).SendMessage(&message);
-										BMessenger selfMessenger(this);
-										fMessageRunner = new BMessageRunner(selfMessenger, &message, 1000000, 1);
+										fMessageRunner = new BMessageRunner(BMessenger(this), &message, 1000000, 1);
 										if (fMessageRunner->InitCheck() != B_OK) {
 											LogInfo("SourceControlPanel: Could not instantiate BMessageRunner. Deleting it");
 											if (fMessageRunner != nullptr) {

@@ -74,7 +74,7 @@ private:
 	BString					fCurrentBranch;
 	BButton*				fInitializeButton;
 	BCheckBox*				fDoNotCreateInitialCommitCheckBox;
-	BMessageRunner*			fMessageRunner;
+	BMessageRunner*			fBurstHandler;
 
 	void					_UpdateProjectList();
 	void					_UpdateBranchList(bool invokeItemMessage = true);

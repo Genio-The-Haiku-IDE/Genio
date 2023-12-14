@@ -68,6 +68,7 @@
 #include "TemplateManager.h"
 #include "TextUtils.h"
 #include "Utils.h"
+#include "argv_split.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -1499,17 +1500,11 @@ GenioWindow::_DebugProject()
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	// Copy the strings, otherwise the strings returned by
-	// GetTarget()/GetExecuteArgs() will be gone outside the argv array
-	const BString target = fActiveProject->GetTarget();
-	const BString executeArgs = fActiveProject->GetExecuteArgs();
-	const char* argv[] = {
-		target.String(),
-		executeArgs.String(),
-		nullptr
-	};
 
-	return be_roster->Launch("application/x-vnd.Haiku-debugger", 2, argv);
+	argv_split parser(fActiveProject->GetTarget().String());
+	parser.parse(fActiveProject->GetExecuteArgs().String());
+
+	return be_roster->Launch("application/x-vnd.Haiku-debugger", parser.getArguments().size() , parser.argv());
 }
 
 
@@ -3725,11 +3720,13 @@ GenioWindow::_RunTarget()
 		fConsoleIOView->RunCommand(&message);
 
 	} else {
-		// TODO: run args
+		argv_split parser(fActiveProject->GetTarget().String());
+		parser.parse(fActiveProject->GetExecuteArgs().String());
+
 		entry_ref ref;
 		entry.SetTo(fActiveProject->GetTarget());
 		entry.GetRef(&ref);
-		be_roster->Launch(&ref, 1, NULL);
+		be_roster->Launch(&ref, parser.getArguments().size() , parser.argv());
 	}
 }
 

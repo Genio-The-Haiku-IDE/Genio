@@ -245,6 +245,10 @@ GenioApp::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+	case B_SILENT_RELAUNCH:
+		if (fGenioWindow)
+			fGenioWindow->Activate(true);
+		break;
 		default:
 			BApplication::MessageReceived(message);
 			break;

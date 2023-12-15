@@ -31,6 +31,8 @@ v2.0
 	- When closing the active project, set another one as active.
 	- Improved first launch experience.
 	- Hide find/replace panel when no file is loaded.
+	- Fixed a problem when passing arguments to the Debugger
+	- Fixed a problem where the output of a program executed as 'Run in Terminal' could not appear in ConsoleIO
 	- Fixed UI scaling with bigger fonts.
 	- Fixed wrong list color in project browser.
 	- Fixed rename function with FFM.

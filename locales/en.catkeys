@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	1587566098
+1	English	application/x-vnd.Genio	335291597
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -20,12 +20,12 @@ Replace selection	GenioWindow		Replace selection
 Focus mode	GenioWindow		Focus mode
 URL:	RemoteProjectWindow		URL:
 Switch to branch	GenioWindow		Switch to branch
+Show vertical ruler	SettingsWindow		Show vertical ruler
 Open file	ProjectsFolderBrowser		Open file
 Problems	ProblemsPanel		Problems
 Window	GenioWindow		Window
 Line endings	GenioWindow		Line endings
 Tab width:	SettingsWindow		Tab width:
-Edge column:	SettingsWindow		Edge column:
 Open files list	GenioWindow		Open files list
 Cancel	SourceControlPanel		Cancel
 Projects folder:	SettingsWindow		Projects folder:
@@ -157,7 +157,6 @@ Quit	GenioWindow		Quit
 Switch to next file	GenioWindow		Switch to next file
 Show projects pane	GenioWindow		Show projects pane
 Log destination:	SettingsWindow		Log destination:
-Show edge line	SettingsWindow		Show edge line
 stdout	ConsoleIOView		stdout
 Save all files	GenioWindow		Save all files
 Save selected	QuitAlert		Save selected
@@ -264,6 +263,7 @@ Release build command:	ProjectSettingsWindow		Release build command:
 Defaults	ConfigWindow		Defaults
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Zoom in	GenioWindow		Zoom in
+Set ruler to column:	SettingsWindow		Set ruler to column:
 Fold/Unfold all	GenioWindow		Fold/Unfold all
 Enable folding	SettingsWindow		Enable folding
 Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building

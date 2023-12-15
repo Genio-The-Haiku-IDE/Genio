@@ -7,6 +7,7 @@
 #include <Alignment.h>
 #include <Autolock.h>
 #include <Button.h>
+#include <MessageRunner.h>
 #include <ObjectList.h>
 #include <Catalog.h>
 #include <CheckBox.h>
@@ -51,6 +52,7 @@ enum MainIndex {
 	kMainIndexInitialize = 1,
 };
 
+const int kBurstTimeout = 1000000;
 
 SourceControlPanel::SourceControlPanel()
 	:
@@ -61,7 +63,8 @@ SourceControlPanel::SourceControlPanel()
 	fSelectedProject(nullptr),
 	fCurrentBranch(nullptr),
 	fInitializeButton(nullptr),
-	fDoNotCreateInitialCommitCheckBox(nullptr)
+	fDoNotCreateInitialCommitCheckBox(nullptr),
+	fBurstHandler(nullptr)
 {
 	fProjectList = gMainWindow->GetProjectList();
 
@@ -301,14 +304,30 @@ SourceControlPanel::MessageReceived(BMessage *message)
 								gitFolder.Append(".git");
 
 								if (path.FindFirst(gitFolder.Path()) != B_ERROR) {
-									// TODO: use a condition variable with timeout to process only
-									// the latest message of a burst series
+									if (fBurstHandler == nullptr ||
+										fBurstHandler->SetInterval(kBurstTimeout) != B_OK) {
+										LogInfo("SourceControlPanel: fBurstHandler not valid");
 
-									// update project
-									BMessage message(MsgChangeProject);
-									message.AddPointer("value", fSelectedProject);
-									message.AddString("sender", kSenderExternalEvent);
-									BMessenger(this).SendMessage(&message);
+										if (fBurstHandler != nullptr)
+											delete fBurstHandler;
+
+										// create a message to update the project
+										BMessage message(MsgChangeProject);
+										message.AddPointer("value", fSelectedProject);
+										message.AddString("sender", kSenderExternalEvent);
+										fBurstHandler = new BMessageRunner(BMessenger(this),
+											&message, kBurstTimeout, 1);
+										if (fBurstHandler->InitCheck() != B_OK) {
+											LogInfo("SourceControlPanel: Could not create "
+												"fBurstHandler. Deleting it");
+											if (fBurstHandler != nullptr) {
+												delete fBurstHandler;
+												fBurstHandler = nullptr;
+											}
+										} else {
+											LogInfo("SourceControlPanel: fBurstHandler instantiated.");
+										}
+									}
 								}
 							}
 						}

@@ -3699,6 +3699,9 @@ GenioWindow::_RunTarget()
 		_ShowLog(kOutputLog);
 
 		BString command;
+		if ((bool)gCFG["run_without_buffering"]) {
+			command << "stdbuf -i0 -e0 -o0 ";
+		}
 		command << fActiveProject->GetTarget();
 		if (!args.IsEmpty())
 			command << " " << args;

@@ -244,8 +244,8 @@ Editor::ApplySettings()
 	// : 0);
 
 	// Edge line
-	SendMessage(SCI_SETEDGEMODE, (bool)gCFG["show_edgeline"], UNSET);
-	SendMessage(SCI_SETEDGECOLUMN, int32(gCFG["edgeline_column"]), UNSET);
+	SendMessage(SCI_SETEDGEMODE, (bool)gCFG["show_ruler"], UNSET);
+	SendMessage(SCI_SETEDGECOLUMN, int32(gCFG["ruler_column"]), UNSET);
 
 	// TODO: Implement this settings (right now managed by _HighlightBraces)
 	/*if(fPreferences->fIndentGuidesShow == true) {

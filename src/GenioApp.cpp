@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 A. Mosca <amoscaster@gmail.com>
+ * Copyright 2023, The Genio Team
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -11,15 +12,14 @@
 #include <Catalog.h>
 #include <FindDirectory.h>
 #include <String.h>
-#include <StringList.h>
 
 #include <getopt.h>
-
 
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 #include "GenioWindow.h"
 #include "Languages.h"
+#include "Log.h"
 #include "LSPLogLevels.h"
 #include "Styler.h"
 #include "Utils.h"
@@ -28,7 +28,6 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
 
-#include "Log.h"
 
 const int32 MSG_NOTIFY_CONFIGURATION_UPDATED = 'noCU';
 
@@ -45,86 +44,6 @@ struct option sLongOptions[] = {
 const char kChangeLog[] = {
 #include "Changelog.h"
 };
-
-static BStringList
-SplitChangeLog(const char* changeLog)
-{
-	BStringList list;
-	char* stringStart = (char*)changeLog;
-	int i = 0;
-	char c;
-	while ((c = stringStart[i]) != '\0') {
-		if (c == '-'  && i > 2 && stringStart[i - 1] == '-' && stringStart[i - 2] == '-') {
-			BString string;
-			string.Append(stringStart, i - 2);
-			string.RemoveAll("\t");
-			string.ReplaceAll("- ", "\n\t- ");
-			list.Add(string);
-			stringStart = stringStart + i + 1;
-			i = 0;
-		} else
-			i++;
-	}
-	return list;
-}
-
-
-void
-SetSessionLogLevel(char level)
-{
-	switch(level) {
-		case 'o':
-			sSessionLogLevel = log_level(1);
-			printf("Log level set to OFF\n");
-		break;
-		case 'e':
-			sSessionLogLevel = log_level(2);
-			printf("Log level set to ERROR\n");
-		break;
-		case 'i':
-			sSessionLogLevel = log_level(3);
-			printf("Log level set to INFO\n");
-		break;
-		case 'd':
-			sSessionLogLevel = log_level(4);
-			printf("Log level set to DEBUG\n");
-		break;
-		case 't':
-			sSessionLogLevel = log_level(5);
-			printf("Log level set to TRACE\n");
-		break;
-		default:
-			LogFatal("Invalid log level, valid levels are: o, e, i, d, t");
-		break;
-	}
-}
-
-
-static int
-HandleArgs(int argc, char **argv)
-{
-	int optIndex = 0;
-	int c = 0;
-	while ((c = ::getopt_long(argc, argv, "l:",
-			sLongOptions, &optIndex)) != -1) {
-		switch (c) {
-			case 'l':
-				SetSessionLogLevel(optarg[0]);
-				break;
-			case 0:
-			{
-				std::string optName = sLongOptions[optIndex].name;
-				if (optName == "loglevel")
-					SetSessionLogLevel(optarg[0]);
-				break;
-			}
-			default:
-				break;
-		}
-	}
-
-	return optind;
-}
 
 
 GenioApp::GenioApp()
@@ -162,11 +81,11 @@ GenioApp::AboutRequested()
 	window->AddCopyright(2023, "The Genio Team");
 	window->AddAuthors(authors);
 
-	BStringList list = SplitChangeLog(kChangeLog);
+	BStringList list = _SplitChangeLog(kChangeLog);
 	int32 stringCount = list.CountStrings();
 	char** charArray = new char* [stringCount + 1];
 	for (int32 i = 0; i < stringCount; i++) {
-		charArray[i] = (char*)list.StringAt(i).String();
+		charArray[i] = const_cast<char*>(list.StringAt(i).String());
 	}
 	charArray[stringCount] = NULL;
 
@@ -188,7 +107,6 @@ GenioApp::AboutRequested()
 	window->AddExtraInfo(extraInfo);
 	window->ResizeBy(0, 200);
 
-
 	//xmas-icon!
 	if (IsXMasPeriod() && window->Icon()) {
 		GetVectorIcon("xmas-icon", window->Icon());
@@ -205,7 +123,7 @@ GenioApp::ArgvReceived(int32 argc, char** argv)
 	if (argc == 1)
 		return;
 
-	int i = HandleArgs(argc, argv);
+	int i = _HandleArgs(argc, argv);
 	if (i <= 0)
 		return;
 
@@ -234,9 +152,9 @@ GenioApp::MessageReceived(BMessage* message)
 				const char* key = NULL;
 				message->FindString("key", &key);
 				if (key != NULL) {
-					if (strcmp(key, "log_destination") == 0)
+					if (::strcmp(key, "log_destination") == 0)
 						Logger::SetDestination(gCFG["log_destination"]);
-					else if (strcmp(key, "log_level") == 0
+					else if (::strcmp(key, "log_level") == 0
 						&& sSessionLogLevel == LOG_LEVEL_UNSET)
 						Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 				}
@@ -245,16 +163,16 @@ GenioApp::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-	case B_SILENT_RELAUNCH:
-		if (fGenioWindow)
-			fGenioWindow->Activate(true);
-		break;
+		case B_SILENT_RELAUNCH:
+			if (fGenioWindow)
+				fGenioWindow->Activate(true);
+			break;
 		default:
 			BApplication::MessageReceived(message);
 			break;
 	}
-
 }
+
 
 bool
 GenioApp::QuitRequested()
@@ -276,10 +194,11 @@ GenioApp::RefsReceived(BMessage* message)
 		fGenioWindow->PostMessage(message);
 }
 
+
 void
 GenioApp::ReadyToRun()
 {
-	PrepareConfig(gCFG);
+	_PrepareConfig(gCFG);
 
 	// Global settings file check.
 	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {
@@ -301,14 +220,97 @@ GenioApp::ReadyToRun()
 	fGenioWindow->Show();
 }
 
+
+BStringList
+GenioApp::_SplitChangeLog(const char* changeLog)
+{
+	BStringList list;
+	char* stringStart = const_cast<char*>(changeLog);
+	int i = 0;
+	char c;
+	while ((c = stringStart[i]) != '\0') {
+		if (c == '-'  && i > 2 && stringStart[i - 1] == '-' && stringStart[i - 2] == '-') {
+			BString string;
+			string.Append(stringStart, i - 2);
+			string.RemoveAll("\t");
+			string.ReplaceAll("- ", "\n\t- ");
+			list.Add(string);
+			stringStart = stringStart + i + 1;
+			i = 0;
+		} else
+			i++;
+	}
+	return list;
+}
+
+
+void
+GenioApp::_SetSessionLogLevel(char level)
+{
+	switch (level) {
+		case 'o':
+			sSessionLogLevel = log_level(1);
+			printf("Log level set to OFF\n");
+		break;
+		case 'e':
+			sSessionLogLevel = log_level(2);
+			printf("Log level set to ERROR\n");
+		break;
+		case 'i':
+			sSessionLogLevel = log_level(3);
+			printf("Log level set to INFO\n");
+		break;
+		case 'd':
+			sSessionLogLevel = log_level(4);
+			printf("Log level set to DEBUG\n");
+		break;
+		case 't':
+			sSessionLogLevel = log_level(5);
+			printf("Log level set to TRACE\n");
+		break;
+		default:
+			LogFatal("Invalid log level, valid levels are: o, e, i, d, t");
+		break;
+	}
+}
+
+
+int
+GenioApp::_HandleArgs(int argc, char **argv)
+{
+	int optIndex = 0;
+	int c = 0;
+	while ((c = ::getopt_long(argc, argv, "l:",
+			sLongOptions, &optIndex)) != -1) {
+		switch (c) {
+			case 'l':
+				_SetSessionLogLevel(optarg[0]);
+				break;
+			case 0:
+			{
+				BString optName = sLongOptions[optIndex].name;
+				if (optName == "loglevel")
+					_SetSessionLogLevel(::optarg[0]);
+				break;
+			}
+			default:
+				break;
+		}
+	}
+
+	return ::optind;
+}
+
+
 // These settings will show up in the ConfigWindow.
 // Use this context to avoid invalidating previous translations
+// TODO: Remove after v2 release ?
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SettingsWindow"
 
 
 void
-GenioApp::PrepareConfig(ConfigManager& cfg)
+GenioApp::_PrepareConfig(ConfigManager& cfg)
 {
 	BString general(B_TRANSLATE("General"));
 	cfg.AddConfig(general.String(), "projects_directory",
@@ -397,7 +399,7 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	std::set<std::string> allStyles;
 	Styler::GetAvailableStyles(allStyles);
 	int32 style_index = 1;
-	for(auto style : allStyles) {
+	for (auto style : allStyles) {
 		BString opt("option_");
 		opt << style_index;
 
@@ -457,10 +459,6 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Hidden", "config_version", "config_version", "2.0");
 	cfg.AddConfig("Hidden", "run_without_buffering", "run_without_buffering", true);
 }
-
-
-#undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "GenioApp"
 
 
 int

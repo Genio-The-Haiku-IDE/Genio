@@ -3223,16 +3223,8 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		_UpdateProjectActivation(true);
 	}
 
-	// Expand active project, collapse other
-	if (gCFG["auto_expand_collapse_projects"]) {
-		// TODO: Improve by adding necessary APIs to ProjectFolderBrowser
-		for (int32 i = 0; i < fProjectsFolderBrowser->CountItems(); i++) {
-			if ((ProjectFolder*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
-				fProjectsFolderBrowser->Expand(fProjectsFolderBrowser->GetProjectItemAt(i));
-			else
-				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
-		}
-	}
+	_CollapseOrExpandProjects();
+
 	if (!fDisableProjectNotifications) {
 		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		noticeMessage.AddPointer("active_project", fActiveProject);
@@ -3432,8 +3424,7 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	if (!fDisableProjectNotifications)
 		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
-	if (gCFG["auto_expand_collapse_projects"])
-		fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItem(newProject->Name()));
+	_CollapseOrExpandProjects();
 
 	BString opened("Project open: ");
 	if (fProjectFolderObjectList->CountItems() == 1 || activate == true) {
@@ -4051,6 +4042,8 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
 	}
 
+	_CollapseOrExpandProjects();
+
 	Editor* selected = fTabManager->SelectedEditor();
 	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr);
 }
@@ -4080,3 +4073,18 @@ GenioWindow::_UpdateWindowTitle(const char* filePath)
 	SetTitle(title.String());
 }
 
+
+void
+GenioWindow::_CollapseOrExpandProjects()
+{
+	if (gCFG["auto_expand_collapse_projects"]) {
+		// Expand active project, collapse other
+		// TODO: Improve by adding necessary APIs to ProjectFolderBrowser
+		for (int32 i = 0; i < fProjectsFolderBrowser->CountItems(); i++) {
+			if ((ProjectFolder*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
+				fProjectsFolderBrowser->Expand(fProjectsFolderBrowser->GetProjectItemAt(i));
+			else
+				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
+		}
+	}
+}

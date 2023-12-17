@@ -687,7 +687,10 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	closeRect.bottom = closeRect.top + 6;
 
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
-	float tint = B_DARKEN_1_TINT;
+	float tint = B_LIGHTEN_1_TINT;
+	if (base.Brightness() > 126)
+		tint = B_DARKEN_1_TINT;
+
 	if (!IsFront()) {
 		base = tint_color(base, tint);
 		tint *= 1.02;

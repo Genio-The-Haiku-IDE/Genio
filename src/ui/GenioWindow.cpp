@@ -3946,8 +3946,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 		fBookmarksMenu->SetEnabled(false);
 
-		if (gCFG["fullpath_title"])
-			SetTitle(GenioNames::kApplicationName);
+		_UpdateWindowTitle(nullptr);
 
 		fProblemsPanel->ClearProblems();
 		return;
@@ -4017,12 +4016,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	fBookmarksMenu->SetEnabled(true);
 
-	// File full path in window title
-	if (gCFG["fullpath_title"]) {
-		BString title;
-		title << GenioNames::kApplicationName << ": " << editor->FilePath();
-		SetTitle(title.String());
-	}
+	_UpdateWindowTitle(editor->FilePath().String());
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
@@ -4056,6 +4050,9 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
 		fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
 	}
+
+	Editor* selected = fTabManager->SelectedEditor();
+	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr);
 }
 
 
@@ -4070,3 +4067,16 @@ GenioWindow::UpdateMenu()
 			fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
 	}
 }
+
+
+void
+GenioWindow::_UpdateWindowTitle(const char* filePath)
+{
+	BString title;
+	title << GenioNames::kApplicationName;
+	// File full path in window title
+	if (gCFG["fullpath_title"] && filePath != nullptr)
+		title << ": " << filePath;
+	SetTitle(title.String());
+}
+

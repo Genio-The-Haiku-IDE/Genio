@@ -677,10 +677,17 @@ WebTabView::_CloseRectFrame(BRect frame) const
 }
 
 
-static void
-decrease_contrast(float& tint, const float& value, const int& brightness)
+static void inline
+decreaseContrastBy(float& tint, const float& value, const int& brightness)
 {
-	tint = tint * (1 + ((brightness >= 120) ? +1 : -1)*value);
+	tint *= 1 + ((brightness >= 120) ? -1 : +1) * value;
+}
+
+
+static void inline
+increaseContrastBy(float& tint, const float& value, const int& brightness)
+{
+	tint *= 1 + ((brightness >= 120) ? +1 : -1) * value;
 }
 
 
@@ -713,7 +720,7 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 
 	// Draw the ×
 	if (fClicked)
-		decrease_contrast(tint, .2, base.Brightness());
+		increaseContrastBy(tint, .2, base.Brightness());
 	base = tint_color(base, tint);
 	owner->SetHighColor(base);
 	owner->SetPenSize(2);

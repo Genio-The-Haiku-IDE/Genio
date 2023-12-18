@@ -67,6 +67,7 @@ void
 SourceItem::Rename(BString const& path)
 {
 	BPath _path(path);
+	get_ref_for_path(_path.Path(), &fEntryRef);
 	fName = _path.Leaf();
 }
 

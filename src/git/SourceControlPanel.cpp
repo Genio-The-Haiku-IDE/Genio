@@ -467,9 +467,14 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					auto repo = fSelectedProject->GetRepository();
 					repo->CreateBranch(selectedBranch, branchType, result.Result);
 					_ShowGitNotification(B_TRANSLATE("Branch created succesfully."));
-					_UpdateBranchList();
 					LogInfo("MsgRenameBranch: %s created from %s", selectedBranch.String(),
 						result.Result.String());
+					GMessage switchMessage{
+						{"what", MsgSwitchBranch},
+						{"value", result.Result},
+						{"type", branchType},
+						{"sender", kSenderRepositoryPopupMenu}};
+					_SwitchBranch(&switchMessage);
 				}
 				break;
 			}

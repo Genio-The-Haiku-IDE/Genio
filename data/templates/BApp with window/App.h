@@ -2,18 +2,20 @@
  * Copyright 2024, My Name <my@email.address>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef _H
-#define _H
+#ifndef APP_H
+#define APP_H
 
 
-#include <SupportDefs.h>
+#include <Application.h>
 
 
-class {
+class App : public BApplication
+{
 public:
+							App();
+	virtual					~App();
 
 private:
-
 };
 
-#endif // _H
+#endif // APP_H

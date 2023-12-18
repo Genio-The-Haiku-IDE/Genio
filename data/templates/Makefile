@@ -9,6 +9,7 @@
 
 # The name of the binary.
 NAME =
+TARGET_DIR = .
 
 # The type of binary, must be one of:
 #	APP:	Application

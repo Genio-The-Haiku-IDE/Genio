@@ -3,12 +3,9 @@
 ## Fill in this file to specify the project being created, and the referenced
 ## Makefile-Engine will do all of the hard work for you. This handles any
 ## architecture of Haiku.
-##
-## For more information, see:
-## file:///system/develop/documentation/makefile-engine.html
 
 # The name of the binary.
-NAME = MyDriver
+NAME = MyApp
 TARGET_DIR = .
 
 # The type of binary, must be one of:
@@ -16,10 +13,11 @@ TARGET_DIR = .
 #	SHARED:	Shared library or add-on
 #	STATIC:	Static library archive
 #	DRIVER: Kernel driver
-TYPE = DRIVER
+TYPE = APP
 
-# If you plan to use localization, specify the application's MIME signature.
-APP_MIME_SIG =
+# 	If you plan to use localization, specify the application's MIME signature.
+
+APP_MIME_SIG = application/x-vnd.MyName-MyApp
 
 #	The following lines tell Pe and Eddie where the SRCS, RDEFS, and RSRCS are
 #	so that Pe and Eddie can fill them in for you.
@@ -32,11 +30,12 @@ APP_MIME_SIG =
 #	means this Makefile will not work correctly if two source files with the
 #	same name (source.c or source.cpp) are included from different directories.
 #	Also note that spaces in folder names do not work well with this Makefile.
-SRCS =
+SRCS =  App.cpp \
+		MainWindow.cpp
 
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
-RDEFS =
+RDEFS = Resources.rdef
 
 #	Specify the resource files to use. Full or relative paths can be used.
 #	Both RDEFS and RSRCS can be utilized in the same Makefile.
@@ -58,7 +57,7 @@ RSRCS =
 #	- 	if your library does not follow the standard library naming scheme,
 #		you need to specify the path to the library and it's name.
 #		(e.g. for mylib.a, specify "mylib.a" or "path/mylib.a")
-LIBS =
+LIBS =  be
 
 #	Specify additional paths to directories following the standard libXXX.so
 #	or libXXX.a naming scheme. You can specify full paths or paths relative
@@ -78,7 +77,7 @@ SYSTEM_INCLUDE_PATHS =
 LOCAL_INCLUDE_PATHS =
 
 #	Specify the level of optimization that you want. Specify either NONE (O0),
-#	SOME (O1), FULL (O3), or leave blank (for the default optimization level).
+#	SOME (O1), FULL (O2), or leave blank (for the default optimization level).
 OPTIMIZE :=
 
 # 	Specify the codes for languages you are going to support in this
@@ -112,11 +111,6 @@ COMPILER_FLAGS =
 
 #	Specify any additional linker flags to be used.
 LINKER_FLAGS =
-
-#	Specify the version of this binary. Example:
-#		-app 3 4 0 d 0 -short 340 -long "340 "`echo -n -e '\302\251'`"1999 GNU GPL"
-#	This may also be specified in a resource.
-APP_VERSION :=
 
 #	(Only used when "TYPE" is "DRIVER"). Specify the desired driver install
 #	location in the /dev hierarchy. Example:

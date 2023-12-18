@@ -21,11 +21,13 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GTextAlert"
 
-GTextAlert::GTextAlert(const char *title, const char *message, const char *text)
+GTextAlert::GTextAlert(const char *title, const char *message, const char *text,
+	bool checkIfTextHasChanged)
 	:
 	GAlert<BString>(title, message),
 	fTextControl(nullptr),
-	fText(text)
+	fText(text),
+	fCheckIfTextHasChanged(checkIfTextHasChanged)
 {
 	_InitInterface();
 	CenterOnScreen();
@@ -45,7 +47,8 @@ GTextAlert::_InitInterface()
 		.View();
 	GetPlaceholderView()->AddChild(group);
 	fTextControl->MakeFocus(true);
-	fOK->SetEnabled(false);
+	if (fCheckIfTextHasChanged || fText.IsEmpty())
+		fOK->SetEnabled(false);
 }
 
 
@@ -85,8 +88,9 @@ GTextAlert::MessageReceived(BMessage* message)
 void
 GTextAlert::_CheckTextModified()
 {
-	if (fTextControl->Text() != fText)
-		fOK->SetEnabled(true);
-	else
+	BString text(fTextControl->Text());
+	if (text.IsEmpty() || (fCheckIfTextHasChanged && text == fText))
 		fOK->SetEnabled(false);
+	else
+		fOK->SetEnabled(true);
 }

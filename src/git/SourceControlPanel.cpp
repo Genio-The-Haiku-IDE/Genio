@@ -386,7 +386,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				BString stashMessage;
 				stashMessage << "WIP on " << fCurrentBranch << B_UTF8_ELLIPSIS;
 				auto alert = new GTextAlert("Stash", B_TRANSLATE("Enter a message for this stash"),
-					stashMessage);
+					stashMessage, false);
 				auto result = alert->Go();
 				if (result.Button == GAlertButtons::OkButton) {
 					stashMessage = result.Result;

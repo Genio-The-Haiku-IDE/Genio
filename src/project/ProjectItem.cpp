@@ -236,7 +236,6 @@ void
 ProjectItem::CommitRename()
 {
 	if (fTextControl != nullptr) {
-		SetText(fTextControl->Text());
 		_DestroyTextWidget();
 	}
 }

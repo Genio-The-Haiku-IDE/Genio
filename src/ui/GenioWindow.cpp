@@ -2398,7 +2398,8 @@ GenioWindow::_InitCentralSplit()
 
 
 	// Run group
-	fRunConsoleProgramText = new BTextControl("ReplaceTextControl", "", "", nullptr);
+	fRunConsoleProgramText = new BTextControl("ReplaceTextControl", "", "",
+		new BMessage(MSG_RUN_CONSOLE_PROGRAM));
 	fRunConsoleProgramButton = new BButton("RunConsoleProgramButton",
 		B_TRANSLATE("Run"), new BMessage(MSG_RUN_CONSOLE_PROGRAM));
 
@@ -2407,7 +2408,7 @@ GenioWindow::_InitCentralSplit()
 	fRunConsoleProgramText->SetToolTip(tooltip);
 
 	fRunConsoleProgramGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
-		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, 0.0f)
+		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
 			.Add(fRunConsoleProgramText)
 			.Add(fRunConsoleProgramButton)
 			.AddGlue()

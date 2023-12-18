@@ -20,6 +20,7 @@ v2.0
 	- Items in project browser now reflect their status in editor.
 	- Save project build mode on change.
 	- Improved UI strings and translatability (Humdinger).
+	- Improved existing templates and added new ones (Humdinger).
 	- Added local function to switch source/header.
 	- Added Changelog.
 	- Added alert on quit when closing multiple files.
@@ -36,6 +37,8 @@ v2.0
 	- Fixed UI scaling with bigger fonts.
 	- Fixed wrong list color in project browser.
 	- Fixed rename function with FFM.
+	- Fixed opening files in Project browser after renaming a folder.
+	- Fixed handling item text in the Project browser when renaming fails.
 	- Fixed bug in file type detection.
 	- Fixed crash when using COPY/CUT/PASTE in projects tree.
 	- Fixed trying to reopen a non existing project on start.

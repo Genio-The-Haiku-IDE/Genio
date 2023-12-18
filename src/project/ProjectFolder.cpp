@@ -17,13 +17,18 @@
 
 SourceItem::SourceItem(BString const& path)
 	:
-	fPath(path),
 	fName(),
 	fType(SourceItemType::FileItem),
 	fProjectFolder(nullptr)
 {
 	BPath _path(path);
 	fName = _path.Leaf();
+
+	status_t status = get_ref_for_path(_path.Path(), &fEntryRef);
+	if (status != B_OK) {
+		// TODO: What to do ?
+		LogError("Failed to get ref for path %s: %s", _path.Path(), ::strerror(status));
+	}
 
 	BEntry entry(path);
 	if (entry.IsDirectory())
@@ -38,10 +43,29 @@ SourceItem::~SourceItem()
 }
 
 
+const entry_ref*
+SourceItem::EntryRef() const
+{
+	return &fEntryRef;
+}
+
+
+BString const
+SourceItem::Path() const
+{
+	BEntry entry(&fEntryRef);
+	if (entry.InitCheck() != B_OK)
+		return BString();
+	BPath path;
+	if (entry.GetPath(&path) != B_OK)
+		return BString();
+	return BString(path.Path());
+}
+
+
 void
 SourceItem::Rename(BString const& path)
 {
-	fPath = path;
 	BPath _path(path);
 	fName = _path.Leaf();
 }
@@ -67,7 +91,7 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 			path.String(), ex.Error(), ex.what());
 	}
 
-	fLSPProjectWrapper = new LSPProjectWrapper(fPath.String(), msgr);
+	fLSPProjectWrapper = new LSPProjectWrapper(Path().String(), msgr);
 }
 
 
@@ -85,7 +109,7 @@ ProjectFolder::~ProjectFolder()
 status_t
 ProjectFolder::Open()
 {
-	fSettings = new GSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
+	fSettings = new GSettings(Path(), GenioNames::kProjectSettingsFile, 'LOPR');
 	return B_OK;
 }
 

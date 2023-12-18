@@ -17,20 +17,16 @@
 
 SourceItem::SourceItem(BString const& path)
 	:
-	fName(),
 	fType(SourceItemType::FileItem),
 	fProjectFolder(nullptr)
 {
-	BPath _path(path);
-	fName = _path.Leaf();
-
-	status_t status = get_ref_for_path(_path.Path(), &fEntryRef);
+	status_t status = get_ref_for_path(path.String(), &fEntryRef);
 	if (status != B_OK) {
 		// TODO: What to do ?
-		LogError("Failed to get ref for path %s: %s", _path.Path(), ::strerror(status));
+		LogError("Failed to get ref for path %s: %s", path.String(), ::strerror(status));
 	}
 
-	BEntry entry(path);
+	BEntry entry(path.String());
 	if (entry.IsDirectory())
 		fType = SourceItemType::FolderItem;
 	else
@@ -63,12 +59,17 @@ SourceItem::Path() const
 }
 
 
+BString	const
+SourceItem::Name() const
+{
+	return fEntryRef.name;
+}
+
+
 void
 SourceItem::Rename(BString const& path)
 {
-	BPath _path(path);
-	get_ref_for_path(_path.Path(), &fEntryRef);
-	fName = _path.Leaf();
+	get_ref_for_path(path.String(), &fEntryRef);
 }
 
 

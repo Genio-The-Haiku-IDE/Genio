@@ -38,7 +38,7 @@ public:
 
 	const entry_ref*			EntryRef() const;
 	BString	const				Path() const;
-	BString	const				Name() const { return fName; };
+	BString	const				Name() const;
 	SourceItemType				Type() const { return fType; };
 
 	ProjectFolder				*GetProjectFolder()	const { return fProjectFolder; }
@@ -47,7 +47,6 @@ public:
 	void 						Rename(BString const& path);
 private:
 	entry_ref					fEntryRef;
-	BString						fName;
 protected:
 	SourceItemType				fType;
 	ProjectFolder				*fProjectFolder;

@@ -6,7 +6,7 @@
 #define PROJECT_FOLDER_H
 
 
-//#include <Messenger.h>
+#include <Entry.h>
 #include <ObjectList.h>
 #include <String.h>
 
@@ -36,18 +36,18 @@ public:
 								SourceItem(BString const& path);
 								~SourceItem();
 
-	BString	const				Path() const { return fPath; }
-	BString	const				Name() const { return fName; };
+	const entry_ref*			EntryRef() const;
+	BString	const				Path() const;
+	BString	const				Name() const;
 	SourceItemType				Type() const { return fType; };
 
 	ProjectFolder				*GetProjectFolder()	const { return fProjectFolder; }
 	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
 
 	void 						Rename(BString const& path);
-
+private:
+	entry_ref					fEntryRef;
 protected:
-	BString						fPath;
-	BString						fName;
 	SourceItemType				fType;
 	ProjectFolder				*fProjectFolder;
 };

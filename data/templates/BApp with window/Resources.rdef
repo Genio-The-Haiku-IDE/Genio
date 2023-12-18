@@ -7,15 +7,14 @@ resource app_version {
 	middle = 0,
 	minor  = 0,
 
-	variety = B_APPV_FINAL,
+	/* 0 = development	1 = alpha			2 = beta
+	   3 = gamma		4 = golden master	5 = final */
+	variety = 5,
+
 	internal = 0,
 
 	short_info = "A short description",
 	long_info  = "A little bit longer description of the app."
-};
-
-resource file_types message {
-	"types" = "text/plain"
 };
 
 resource vector_icon {

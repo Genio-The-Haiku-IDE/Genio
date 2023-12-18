@@ -1,11 +1,11 @@
 /*
  * Copyright 2023 Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
- * Parts are taken from the TemplatesMenu class from Haiku source code (Tracker) under the 
- * Open Tracker Licence 
+ * Parts are taken from the TemplatesMenu class from Haiku source code (Tracker) under the
+ * Open Tracker Licence
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.
  */
- 
+
 #ifndef _TEMPLATES_MENU_H
 #define _TEMPLATES_MENU_H
 
@@ -24,11 +24,11 @@ public:
 		DISABLE_DIRECTORIES_VIEW_MODE // show all items, directories are visible and disabled
 	};
 
-							TemplatesMenu(BHandler *target, const char* label, 
+							TemplatesMenu(BHandler *target, const char* label,
 											BMessage *message, BMessage *show_template_message,
-											const BString& defaultDirectory, 
+											const BString& defaultDirectory,
 											const BString& userDirectory,
-											ViewMode mode = FILE_VIEW_MODE, 
+											ViewMode mode = FILE_VIEW_MODE,
 											bool showNewFolder = true);
 	virtual 				~TemplatesMenu();
 
@@ -37,14 +37,14 @@ public:
 	virtual status_t 		SetTargetForItems(BHandler* target);
 
 	void 					UpdateMenuState();
-	
+
 	void					SetViewMode(ViewMode mode, bool enableNewFolder = true);
 	void 					ShowNewFolder(bool show) { fShowNewFolder = show; }
 	void 					EnableNewFolder(bool enable) { fEnableNewFolder = enable; }
 
 private:
 	bool 					_BuildMenu();
-	void					_BuildTemplateItems(const BString& directory);
+	int32					_BuildTemplateItems(const BString& directory);
 
 	BHandler* 				fTarget;
 	BMenuItem* 				fOpenItem;

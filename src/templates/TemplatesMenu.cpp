@@ -1,8 +1,8 @@
 /*
  * Copyright 2023 Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
- * Parts are taken from the TemplatesMenu class from Haiku (Tracker) under the 
- * Open Tracker Licence 
+ * Parts are taken from the TemplatesMenu class from Haiku (Tracker) under the
+ * Open Tracker Licence
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.
  */
 
@@ -37,11 +37,11 @@
 
 const char* kNewFolderLabel = "New folder";
 
-TemplatesMenu::TemplatesMenu(BHandler *target, const char* label, 
+TemplatesMenu::TemplatesMenu(BHandler *target, const char* label,
 								BMessage *message, BMessage *show_template_message,
-								const BString& defaultDirectory, 
+								const BString& defaultDirectory,
 								const BString&  userDirectory,
-								ViewMode mode, 
+								ViewMode mode,
 								bool showNewFolder)
 	:
 	BMenu(label),
@@ -92,9 +92,9 @@ TemplatesMenu::UpdateMenuState()
 
 
 void
-TemplatesMenu::SetViewMode(ViewMode mode, bool enableNewFolder) 
-{ 
-	fViewMode = mode; 
+TemplatesMenu::SetViewMode(ViewMode mode, bool enableNewFolder)
+{
+	fViewMode = mode;
 	fEnableNewFolder = enableNewFolder;
 }
 
@@ -143,13 +143,14 @@ TemplatesMenu::_BuildMenu()
 		menuItem->SetShortcut('N', 0);
 		AddSeparatorItem();
 	}
-	
+
 	_BuildTemplateItems(fDefaultDirectory);
 	AddSeparatorItem();
-	_BuildTemplateItems(fUserDirectory);
+	int32 userTemplatesCount = _BuildTemplateItems(fUserDirectory);
 
 	if (fShowTemplatesDirectory) {
-		AddSeparatorItem();
+		if (userTemplatesCount > 0)
+			AddSeparatorItem();
 
 		// this is the message sent to open the templates folder
 		BMessage *template_message = new BMessage(fShowTemplateMessage->what);
@@ -172,7 +173,7 @@ TemplatesMenu::_BuildMenu()
 }
 
 
-void
+int32
 TemplatesMenu::_BuildTemplateItems(const BString& directory)
 {
 	// the templates folder
@@ -180,12 +181,13 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 	BEntry entry;
 	bool itemEnabled = true;
 
+	int32 count = 0;
 	while (templatesDir.GetNextEntry(&entry, true) == B_OK) {
-		BNode node(&entry); 
+		BNode node(&entry);
 		BNodeInfo nodeInfo(&node);
-		
+
 		// ViewMode can be changed at any time before the menu is invoked to show/hide folder or
-		// directories or both depending on the context and the item selected to perform the 
+		// directories or both depending on the context and the item selected to perform the
 		// operation on
 		if (fViewMode == DIRECTORY_VIEW_MODE && !entry.IsDirectory())
 			break;
@@ -216,7 +218,9 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 				auto item = new IconMenuItem(fileName, message, &nodeInfo, B_MINI_ICON);
 				item->SetEnabled(itemEnabled);
 				AddItem(item);
+				count++;
 			}
 		}
 	}
+	return count;
 }

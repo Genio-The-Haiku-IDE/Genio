@@ -3399,6 +3399,14 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	if (!dirEntry.IsDirectory())
 		return B_NOT_A_DIRECTORY;
 
+	// TODO: This avoids opening a volume as a project
+	// Since the open operation is synchronous, this would take ages.
+	// Not a complete fix, since if you open a folder with many other nested files/folders
+	// it would still take ages.
+	// Opening a volume seems wrong, anyway.
+	if (BDirectory(&dirEntry).IsRootDirectory())
+		return B_ERROR;
+
 	// Check if already open
 	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
 		ProjectFolder* pProject = static_cast<ProjectFolder*>(fProjectFolderObjectList->ItemAt(index));

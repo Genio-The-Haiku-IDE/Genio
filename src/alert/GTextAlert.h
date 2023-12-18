@@ -17,7 +17,8 @@ enum TextAlertMessages {
 
 class GTextAlert: public GAlert<BString> {
 public:
-								GTextAlert(const char *title, const char *message, const char *text);
+								GTextAlert(const char *title, const char *message,
+									const char *text, bool checkIfTextHasChanged = true);
 
 	void						MessageReceived(BMessage* message);
 
@@ -26,6 +27,7 @@ private:
 
 	BTextControl*				fTextControl;
 	BString						fText;
+	bool						fCheckIfTextHasChanged;
 
 	virtual void				Show();
 	void						_InitInterface();

@@ -410,7 +410,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		projectMenu->AddItem(projectSettingsMenuItem);
 		closeProjectMenuItem->SetEnabled(true);
 		projectMenu->AddSeparatorItem();
-		projectMenu->AddItem(new SwitchBranchMenu(this->Window(), B_TRANSLATE("Switch to branch"),
+		projectMenu->AddItem(new SwitchBranchMenu(Window(), B_TRANSLATE("Switch to branch"),
 													new BMessage(MSG_GIT_SWITCH_BRANCH), project->Path()));
 		projectMenu->AddSeparatorItem();
 		BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),

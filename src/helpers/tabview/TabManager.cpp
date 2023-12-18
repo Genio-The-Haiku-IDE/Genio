@@ -10,6 +10,7 @@
 
 #include "TabManager.h"
 
+#include <Alert.h>
 #include <Application.h>
 #include <AbstractLayoutItem.h>
 #include <Bitmap.h>
@@ -29,6 +30,7 @@
 
 #include "TabContainerView.h"
 #include "TabView.h"
+#include "Utils.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -676,12 +678,9 @@ WebTabView::_CloseRectFrame(BRect frame) const
 
 
 static void
-increase_contrast(float& tint, const float& value, const int& brightness)
+decrease_contrast(float& tint, const float& value, const int& brightness)
 {
-	if (brightness >= 120)
-		tint *= value;
-	else
-		tint /= value;
+	tint = tint * (1 + ((brightness >= 120) ? +1 : -1)*value);
 }
 
 
@@ -701,29 +700,20 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	if (base.Brightness() >= 120)
 		tint = B_DARKEN_1_TINT;
 
-	if (!IsFront()) {
-		base = tint_color(base, tint);
-		increase_contrast(tint, 1.02, base.Brightness());
-	}
-
-	if (fOverCloseRect)
-		increase_contrast(tint, 1.4, base.Brightness());
-	else
-		increase_contrast(tint, 1.2, base.Brightness());
-
-	if (fClicked && fOverCloseRect) {
+	if (fOverCloseRect) {
 		// Draw the button frame
 		BRect buttonRect(closeRect.InsetByCopy(-4, -4));
 		be_control_look->DrawButtonFrame(owner, buttonRect, updateRect,
 			base, base,
 			BControlLook::B_ACTIVATED | BControlLook::B_BLEND_FRAME);
+		rgb_color background = ui_color(B_CONTROL_BACKGROUND_COLOR);
 		be_control_look->DrawButtonBackground(owner, buttonRect, updateRect,
-			base, BControlLook::B_ACTIVATED);
-		closeRect.OffsetBy(1, 1);
-		increase_contrast(tint, 1.2, base.Brightness());
+			background, BControlLook::B_ACTIVATED);
 	}
 
 	// Draw the ×
+	if (fClicked)
+		decrease_contrast(tint, .2, base.Brightness());
 	base = tint_color(base, tint);
 	owner->SetHighColor(base);
 	owner->SetPenSize(2);

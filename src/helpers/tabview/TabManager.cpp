@@ -10,6 +10,7 @@
 
 #include "TabManager.h"
 
+#include <Alert.h>
 #include <Application.h>
 #include <AbstractLayoutItem.h>
 #include <Bitmap.h>
@@ -24,12 +25,12 @@
 #include <Rect.h>
 #include <SpaceLayoutItem.h>
 #include <Window.h>
-#include "Log.h"
-#include <iostream>
 
 #include "TabContainerView.h"
 #include "TabView.h"
+#include "Utils.h"
 
+#include <stdexcept>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Tab Manager"
@@ -675,6 +676,20 @@ WebTabView::_CloseRectFrame(BRect frame) const
 }
 
 
+static void inline
+DecreaseContrastBy(float& tint, const float& value, const int& brightness)
+{
+	tint *= 1 + ((brightness >= 120) ? -1 : +1) * value;
+}
+
+
+static void inline
+IncreaseContrastBy(float& tint, const float& value, const int& brightness)
+{
+	tint *= 1 + ((brightness >= 120) ? +1 : -1) * value;
+}
+
+
 void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	const BRect& updateRect, bool isFirst, bool isLast, bool isFront)
 {
@@ -687,30 +702,26 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	closeRect.bottom = closeRect.top + 6;
 
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
-	float tint = B_DARKEN_1_TINT;
-	if (!IsFront()) {
-		base = tint_color(base, tint);
-		tint *= 1.02;
+	float tint = B_LIGHTEN_1_TINT;
+	if (base.Brightness() >= 120) {
+		tint = B_DARKEN_1_TINT *1.2;
 	}
 
-	if (fOverCloseRect)
-		tint *= 1.4;
-	else
-		tint *= 1.2;
-
-	if (fClicked && fOverCloseRect) {
+	if (fOverCloseRect) {
 		// Draw the button frame
 		BRect buttonRect(closeRect.InsetByCopy(-4, -4));
 		be_control_look->DrawButtonFrame(owner, buttonRect, updateRect,
 			base, base,
 			BControlLook::B_ACTIVATED | BControlLook::B_BLEND_FRAME);
+		rgb_color background = ui_color(B_CONTROL_BACKGROUND_COLOR);
 		be_control_look->DrawButtonBackground(owner, buttonRect, updateRect,
-			base, BControlLook::B_ACTIVATED);
-		closeRect.OffsetBy(1, 1);
-		tint *= 1.2;
+			background, BControlLook::B_ACTIVATED);
+
 	}
 
 	// Draw the ×
+	if (fClicked)
+		IncreaseContrastBy(tint, .2, base.Brightness());
 	base = tint_color(base, tint);
 	owner->SetHighColor(base);
 	owner->SetPenSize(2);

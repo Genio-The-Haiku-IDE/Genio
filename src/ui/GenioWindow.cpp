@@ -124,8 +124,8 @@ GenioWindow::GenioWindow(BRect frame)
 	, fRootLayout(nullptr)
 	, fEditorTabsGroup(nullptr)
 	, fProjectsTabView(nullptr)
-	, fProjectsFolderBrowser(nullptr)
-	, fProjectsFolderScroll(nullptr)
+	, fProjectBrowser(nullptr)
+	, fProjectScroll(nullptr)
 	, fActiveProject(nullptr)
 	, fIsBuilding(false)
 	, fProjectFolderObjectList(nullptr)
@@ -191,10 +191,10 @@ GenioWindow::GenioWindow(BRect frame)
 			for (auto count = 0; projects.FindString("project_to_reopen",
 										count, &projectName) == B_OK; count++) {
 				const BPath projectPath(projectName);
-				_ProjectFolderOpen(projectPath, projectName == activeProject);
+				_ProjectOpen(projectPath, projectName == activeProject);
 			}
 		}
-		// TODO: _ProjectFolderOpen() could fail to open projects, so
+		// TODO: _ProjectOpen() could fail to open projects, so
 		// - We should check its return value
 		// - here we could have no active projects or no projects at all
 		fDisableProjectNotifications = false;
@@ -766,7 +766,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_MakeCatkeys();
 			break;
 		case MSG_PROJECT_CLOSE:
-			_ProjectFolderClose(fActiveProject);
+			_ProjectClose(fActiveProject);
 			break;
 		case MSG_SHOW_TEMPLATE_USER_FOLDER:
 		{
@@ -800,7 +800,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (TemplateManager::CopyProjectTemplate(&template_ref, &dest_ref, name.String()) == B_OK) {
 				BPath path(&dest_ref);
 				path.Append(name);
-				_ProjectFolderOpen(path);
+				_ProjectOpen(path);
 			} else {
 				LogError("TemplateManager: could create %s from %s to %s",
 							name.String(), template_ref.name, dest_ref.name);
@@ -818,7 +818,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 
 			if (type == "new_folder") {
-				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
+				ProjectItem* item = fProjectBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 					BEntry entry(item->GetSourceItem()->Path());
 					entry_ref ref;
@@ -862,7 +862,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (type ==  "new_file_template") {
 				entry_ref dest;
 				entry_ref source;
-				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
+				ProjectItem* item = fProjectBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 					BEntry entry(item->GetSourceItem()->Path());
 					if (entry.GetRef(&dest) != B_OK) {
@@ -886,7 +886,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_MENU_CLOSE:
-			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromSelectedItem());
+			_ProjectClose(fProjectBrowser->GetProjectFromSelectedItem());
 			break;
 		case MSG_PROJECT_MENU_DELETE_FILE:
 			_ProjectFileDelete();
@@ -901,7 +901,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_OpenTerminalWorkingDirectory();
 			break;
 		case MSG_PROJECT_MENU_SET_ACTIVE:
-			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromSelectedItem());
+			_ProjectActivate(fProjectBrowser->GetProjectFromSelectedItem());
 			break;
 		case MSG_PROJECT_OPEN:
 			fOpenProjectFolderPanel->Show();
@@ -926,7 +926,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_FOLDER_OPEN:
-			_ProjectFolderOpen(message);
+			_ProjectOpen(message);
 			break;
 		case MSG_REPLACE_GROUP_SHOW:
 			_ReplaceGroupShow(true);
@@ -1098,7 +1098,7 @@ GenioWindow::GetProjectList() const
 ProjectBrowser*
 GenioWindow::GetProjectBrowser() const
 {
-	return fProjectsFolderBrowser;
+	return fProjectBrowser;
 }
 
 
@@ -3095,10 +3095,10 @@ GenioWindow::_InitSideSplit()
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
 
-	fProjectsFolderBrowser = new ProjectBrowser();
-	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
-		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
-	fProjectsTabView->AddTab(fProjectsFolderScroll);
+	fProjectBrowser = new ProjectBrowser();
+	fProjectScroll = new BScrollView(B_TRANSLATE("Projects"),
+		fProjectBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
+	fProjectsTabView->AddTab(fProjectScroll);
 
 	// Project list
 	fProjectFolderObjectList = new BObjectList<Project>();
@@ -3206,7 +3206,7 @@ GenioWindow::_MakeCatkeys()
  * Activation could be set in projects outline context menu.
  */
 void
-GenioWindow::_ProjectFolderActivate(Project *project)
+GenioWindow::_ProjectActivate(Project *project)
 {
 	if (project == nullptr)
 		return;
@@ -3243,7 +3243,7 @@ GenioWindow::_ProjectFolderActivate(Project *project)
 void
 GenioWindow::_ProjectFileDelete()
 {
-	BEntry entry(fProjectsFolderBrowser->GetSelectedProjectFileFullPath());
+	BEntry entry(fProjectBrowser->GetSelectedProjectFileFullPath());
 	entry_ref ref;
 	entry.GetRef(&ref);
 	if (!entry.Exists())
@@ -3297,14 +3297,14 @@ GenioWindow::_ProjectFileDelete()
 void
 GenioWindow::_ProjectRenameFile()
 {
-	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
-	fProjectsFolderBrowser->InitRename(item);
+	ProjectItem *item = fProjectBrowser->GetSelectedProjectItem();
+	fProjectBrowser->InitRename(item);
 }
 
 
 // Project Folders
 void
-GenioWindow::_ProjectFolderClose(Project *project)
+GenioWindow::_ProjectClose(Project *project)
 {
 	if (project == nullptr)
 		return;
@@ -3346,7 +3346,7 @@ GenioWindow::_ProjectFolderClose(Project *project)
 		}
 	}
 
-	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
+	fProjectBrowser->ProjectDepopulate(project);
 	fProjectFolderObjectList->RemoveItem(project);
 
 	// Notify subscribers that the project list has changed
@@ -3359,9 +3359,9 @@ GenioWindow::_ProjectFolderClose(Project *project)
 
 	// Select a new active project
 	if (wasActive) {
-		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));
+		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectBrowser->FullListItemAt(0));
 		if (item != nullptr)
-			_ProjectFolderActivate((Project*)item->GetSourceItem());
+			_ProjectActivate((Project*)item->GetSourceItem());
 	}
 
 	// Disable "Close project" action if no project
@@ -3375,13 +3375,13 @@ GenioWindow::_ProjectFolderClose(Project *project)
 
 
 status_t
-GenioWindow::_ProjectFolderOpen(BMessage *message)
+GenioWindow::_ProjectOpen(BMessage *message)
 {
 	entry_ref ref;
 	status_t status = message->FindRef("refs", &ref);
 	if (status == B_OK) {
 		BPath path(&ref);
-		status = _ProjectFolderOpen(path);
+		status = _ProjectOpen(path);
 	} else {
 		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
 	}
@@ -3391,7 +3391,7 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 
 
 status_t
-GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
+GenioWindow::_ProjectOpen(const BPath& path, bool activate)
 {
 	BEntry dirEntry(path.Path());
 	if (!dirEntry.Exists())
@@ -3426,7 +3426,7 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 		return status;
 	}
 
-	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
+	fProjectBrowser->ProjectPopulate(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
 
 	// Notify subscribers that project list has changed
@@ -3437,7 +3437,7 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 
 	BString opened("Project open: ");
 	if (fProjectFolderObjectList->CountItems() == 1 || activate == true) {
-		_ProjectFolderActivate(newProject);
+		_ProjectActivate(newProject);
 		opened = "Active project open: ";
 	}
 
@@ -3473,7 +3473,7 @@ status_t
 GenioWindow::_OpenTerminalWorkingDirectory()
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
+	ProjectItem* selectedProjectItem = fProjectBrowser->GetSelectedProjectItem();
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
@@ -3505,7 +3505,7 @@ status_t
 GenioWindow::_ShowSelectedItemInTracker()
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
+	ProjectItem* selectedProjectItem = fProjectBrowser->GetSelectedProjectItem();
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
@@ -3832,7 +3832,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 	}
 
-	fProjectsFolderBrowser->Invalidate();
+	fProjectBrowser->Invalidate();
 }
 
 
@@ -4061,7 +4061,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 void
 GenioWindow::UpdateMenu()
 {
-	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
+	ProjectItem *item = fProjectBrowser->GetSelectedProjectItem();
 	if (item != nullptr) {
 		if (item->GetSourceItem()->Type() != SourceItemType::FileItem)
 			fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
@@ -4089,11 +4089,11 @@ GenioWindow::_CollapseOrExpandProjects()
 	if (gCFG["auto_expand_collapse_projects"]) {
 		// Expand active project, collapse other
 		// TODO: Improve by adding necessary APIs to ProjectFolderBrowser
-		for (int32 i = 0; i < fProjectsFolderBrowser->CountItems(); i++) {
-			if ((Project*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
-				fProjectsFolderBrowser->Expand(fProjectsFolderBrowser->GetProjectItemAt(i));
+		for (int32 i = 0; i < fProjectBrowser->CountItems(); i++) {
+			if ((Project*)fProjectBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
+				fProjectBrowser->Expand(fProjectBrowser->GetProjectItemAt(i));
 			else
-				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
+				fProjectBrowser->Collapse(fProjectBrowser->GetProjectItemAt(i));
 		}
 	}
 }

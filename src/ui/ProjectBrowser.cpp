@@ -55,9 +55,9 @@ ProjectBrowser::~ProjectBrowser()
 ProjectItem*
 ProjectBrowser::_CreateNewProjectItem(ProjectItem* parentItem, BPath path)
 {
-	Project *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
+	Project *projectFolder = parentItem->GetSourceItem()->GetProject();
 	SourceItem *sourceItem = new SourceItem(path.Path());
-	sourceItem->SetProjectFolder(projectFolder);
+	sourceItem->SetProject(projectFolder);
 	return new ProjectItem(sourceItem);
 }
 
@@ -199,7 +199,7 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 								destination.GetParent(&parent);
 								ProjectItem *parentItem = _CreatePath(parent);
 								// recursive parsing!
-								_ProjectFolderScan(parentItem, newPath, parentItem->GetSourceItem()->GetProjectFolder());
+								_ProjectFolderScan(parentItem, newPath, parentItem->GetSourceItem()->GetProject());
 								SortItemsUnder(parentItem, false, ProjectBrowser::_CompareProjectItems);
 							} else {
 								//Plain file
@@ -538,7 +538,7 @@ ProjectBrowser::GetProjectFromItem(ProjectItem* item) const
 	if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		project = static_cast<Project*>(item->GetSourceItem());
 	} else {
-		project = static_cast<Project*>(item->GetSourceItem()->GetProjectFolder());
+		project = static_cast<Project*>(item->GetSourceItem()->GetProject());
 	}
 
 	return project;
@@ -644,7 +644,7 @@ ProjectBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message
 
 
 void
-ProjectBrowser::ProjectFolderDepopulate(Project* project)
+ProjectBrowser::ProjectDepopulate(Project* project)
 {
 	status_t status = BPrivate::BPathMonitor::StopWatching(project->Path(), BMessenger(this));
 	if ( status != B_OK ){
@@ -660,7 +660,7 @@ ProjectBrowser::ProjectFolderDepopulate(Project* project)
 
 
 void
-ProjectBrowser::ProjectFolderPopulate(Project* project)
+ProjectBrowser::ProjectPopulate(Project* project)
 {
 	ProjectItem *projectItem = NULL;
 	_ProjectFolderScan(projectItem, project->Path(), project);
@@ -683,7 +683,7 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path, Proje
 	ProjectItem *newItem;
 	if (item != nullptr) {
 		SourceItem *sourceItem = new SourceItem(path);
-		sourceItem->SetProjectFolder(projectFolder);
+		sourceItem->SetProject(projectFolder);
 		newItem = new ProjectItem(sourceItem);
 		AddUnder(newItem, item);
 		Collapse(newItem);

@@ -44,8 +44,8 @@ public:
 
 	BString const	GetSelectedProjectFileFullPath() const;
 
-	void			ProjectFolderPopulate(Project* project);
-	void			ProjectFolderDepopulate(Project* project);
+	void			ProjectPopulate(Project* project);
+	void			ProjectDepopulate(Project* project);
 
 	virtual void	SelectionChanged();
 

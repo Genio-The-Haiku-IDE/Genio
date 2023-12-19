@@ -39,8 +39,8 @@ public:
 	BString	const				Name() const;
 	SourceItemType				Type() const { return fType; };
 
-	Project						*GetProjectFolder()	const { return fProject; }
-	void						SetProjectFolder(Project* project) { fProject = project; }
+	Project						*GetProject() const { return fProject; }
+	void						SetProject(Project* project) { fProject = project; }
 
 	void 						Rename(BString const& path);
 private:

@@ -116,10 +116,10 @@ private:
 			void				_ProjectRenameFile();
 
 			// Project Folders
-			void				_ProjectFolderClose(Project *project);
-			status_t			_ProjectFolderOpen(BMessage *message);
-			status_t			_ProjectFolderOpen(const BPath& folder, bool activate = false);
-			void				_ProjectFolderActivate(Project* project);
+			void				_ProjectClose(Project *project);
+			status_t			_ProjectOpen(BMessage *message);
+			status_t			_ProjectOpen(const BPath& folder, bool activate = false);
+			void				_ProjectActivate(Project* project);
 
 			status_t			_ShowSelectedItemInTracker();
 			status_t			_ShowInTracker(const entry_ref& ref);
@@ -187,8 +187,8 @@ private:
 			// Left panels
 			BTabView*	  		fProjectsTabView;
 
-			ProjectBrowser*		fProjectsFolderBrowser;
-			BScrollView*		fProjectsFolderScroll;
+			ProjectBrowser*		fProjectBrowser;
+			BScrollView*		fProjectScroll;
 
 			SourceControlPanel*	fSourceControlPanel;
 			BScrollView*		fSourceControlPanelScroll;

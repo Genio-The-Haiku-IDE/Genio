@@ -25,13 +25,12 @@
 #include <Rect.h>
 #include <SpaceLayoutItem.h>
 #include <Window.h>
-#include "Log.h"
-#include <iostream>
 
 #include "TabContainerView.h"
 #include "TabView.h"
 #include "Utils.h"
 
+#include <stdexcept>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Tab Manager"
@@ -678,14 +677,14 @@ WebTabView::_CloseRectFrame(BRect frame) const
 
 
 static void inline
-decreaseContrastBy(float& tint, const float& value, const int& brightness)
+DecreaseContrastBy(float& tint, const float& value, const int& brightness)
 {
 	tint *= 1 + ((brightness >= 120) ? -1 : +1) * value;
 }
 
 
 static void inline
-increaseContrastBy(float& tint, const float& value, const int& brightness)
+IncreaseContrastBy(float& tint, const float& value, const int& brightness)
 {
 	tint *= 1 + ((brightness >= 120) ? +1 : -1) * value;
 }
@@ -722,7 +721,7 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 
 	// Draw the ×
 	if (fClicked)
-		increaseContrastBy(tint, .2, base.Brightness());
+		IncreaseContrastBy(tint, .2, base.Brightness());
 	base = tint_color(base, tint);
 	owner->SetHighColor(base);
 	owner->SetPenSize(2);

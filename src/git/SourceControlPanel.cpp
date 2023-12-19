@@ -199,6 +199,11 @@ SourceControlPanel::_InitRepositoryNotInitializedView()
 		.End()
 		.AddGlue()
 		.View();
+
+	// TODO: These should not be needed but without them, the splitview which separates
+	// the editor from the left pane doesn't move at all
+	fRepositoryNotInitializedView->SetExplicitMinSize(BSize(0, B_SIZE_UNSET));
+	fRepositoryNotInitializedView->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
 }
 
 

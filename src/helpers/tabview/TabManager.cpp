@@ -704,8 +704,9 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 	float tint = B_LIGHTEN_1_TINT;
-	if (base.Brightness() >= 120)
-		tint = B_DARKEN_1_TINT;
+	if (base.Brightness() >= 120) {
+		tint = B_DARKEN_1_TINT *1.2;
+	}
 
 	if (fOverCloseRect) {
 		// Draw the button frame
@@ -716,6 +717,7 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 		rgb_color background = ui_color(B_CONTROL_BACKGROUND_COLOR);
 		be_control_look->DrawButtonBackground(owner, buttonRect, updateRect,
 			background, BControlLook::B_ACTIVATED);
+
 	}
 
 	// Draw the ×

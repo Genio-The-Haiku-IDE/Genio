@@ -675,18 +675,19 @@ WebTabView::_CloseRectFrame(BRect frame) const
 	return frame;
 }
 
-
+const int32 kBrightnessBreakValue = 126;
+/*
 static void inline
 DecreaseContrastBy(float& tint, const float& value, const int& brightness)
 {
-	tint *= 1 + ((brightness >= 120) ? -1 : +1) * value;
+	tint *= 1 + ((brightness >= kBrightnessBreakValue) ? -1 : +1) * value;
 }
-
+*/
 
 static void inline
 IncreaseContrastBy(float& tint, const float& value, const int& brightness)
 {
-	tint *= 1 + ((brightness >= 120) ? +1 : -1) * value;
+	tint *= 1 + ((brightness >= kBrightnessBreakValue) ? +1 : -1) * value;
 }
 
 
@@ -703,7 +704,7 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 	float tint = B_LIGHTEN_1_TINT;
-	if (base.Brightness() >= 120) {
+	if (base.Brightness() >= kBrightnessBreakValue) {
 		tint = B_DARKEN_1_TINT *1.2;
 	}
 

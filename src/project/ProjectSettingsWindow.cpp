@@ -26,7 +26,7 @@ enum
 	MSG_BUILD_MODE_SELECTED			= 'bmse',
 };
 
-ProjectSettingsWindow::ProjectSettingsWindow(ProjectFolder *project)
+ProjectSettingsWindow::ProjectSettingsWindow(Project *project)
 	:
 	BWindow(BRect(0, 0, 799, 599), "ProjectSettingsWindow", B_MODAL_WINDOW,
 													B_ASYNCHRONOUS_CONTROLS |

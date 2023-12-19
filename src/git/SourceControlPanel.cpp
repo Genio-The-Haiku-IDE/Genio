@@ -68,7 +68,7 @@ SourceControlPanel::SourceControlPanel()
 {
 	fProjectList = gMainWindow->GetProjectList();
 
-	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
+	fProjectMenu = new OptionList<Project*>("ProjectMenu",
 		B_TRANSLATE("Project:"),
 		B_TRANSLATE("Choose project" B_UTF8_ELLIPSIS));
 	fBranchMenu = new OptionList<BString>("BranchMenu",
@@ -576,8 +576,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 void
 SourceControlPanel::_ChangeProject(BMessage *message)
 {
-	fSelectedProject = const_cast<ProjectFolder*>(
-		reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
+	fSelectedProject = const_cast<Project*>(
+		reinterpret_cast<const Project*>(message->GetPointer("value")));
 	const BString sender = message->GetString("sender");
 	// Check if the selected project is a valid git repository
 	if (fSelectedProject != nullptr) {
@@ -648,10 +648,10 @@ SourceControlPanel::_UpdateProjectList()
 
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
-	ProjectFolder* selectedProject = fSelectedProject;
+	Project* selectedProject = fSelectedProject;
 	fProjectMenu->MakeEmpty();
 	fSelectedProject = nullptr;
-	ProjectFolder* activeProject = gMainWindow->GetActiveProject();
+	Project* activeProject = gMainWindow->GetActiveProject();
 	fProjectMenu->AddList(fProjectList,
 		MsgChangeProject,
 		[&active = activeProject](auto item)

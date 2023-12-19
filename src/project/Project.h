@@ -27,7 +27,7 @@ enum BuildMode {
 	DebugMode
 };
 
-class ProjectFolder;
+class Project;
 
 class SourceItem {
 public:
@@ -39,22 +39,22 @@ public:
 	BString	const				Name() const;
 	SourceItemType				Type() const { return fType; };
 
-	ProjectFolder				*GetProjectFolder()	const { return fProjectFolder; }
-	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
+	Project						*GetProjectFolder()	const { return fProject; }
+	void						SetProjectFolder(Project* project) { fProject = project; }
 
 	void 						Rename(BString const& path);
 private:
 	entry_ref					fEntryRef;
 protected:
 	SourceItemType				fType;
-	ProjectFolder				*fProjectFolder;
+	Project						*fProject;
 };
 
 
-class ProjectFolder : public SourceItem {
+class Project : public SourceItem {
 public:
-								ProjectFolder(BString const& path, BMessenger& msgr);
-								~ProjectFolder();
+								Project(BString const& path, BMessenger& msgr);
+								~Project();
 
 	status_t					Open();
 	status_t					Close();

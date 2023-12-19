@@ -13,7 +13,7 @@
 #include <ScintillaView.h>
 
 class LSPEditorWrapper;
-class ProjectFolder;
+class Project;
 
 namespace editor {
 	class StatusView;
@@ -141,8 +141,8 @@ public:
 			bool				WhiteSpacesVisible();
 
 
-			void				SetProjectFolder(ProjectFolder*);
-			ProjectFolder*		GetProjectFolder() const { return fProjectFolder; }
+			void				SetProjectFolder(Project*);
+			Project*			GetProjectFolder() const { return fProjectFolder; }
 			void				SetZoom(int32 zoom);
 			void				Undo();
 			void				Completion();
@@ -209,12 +209,12 @@ private:
 			int					fCurrentLine;
 			int					fCurrentColumn;
 
-			LSPEditorWrapper*		fLSPEditorWrapper;
-			ProjectFolder*		fProjectFolder;
-			editor::StatusView*			fStatusView;
+			LSPEditorWrapper*	fLSPEditorWrapper;
+			Project*			fProjectFolder;
+			editor::StatusView*	fStatusView;
 
-			BMessage	fProblems;
-			BLocker		fProblemsLock;
+			BMessage			fProblems;
+			BLocker				fProblemsLock;
 
 };
 

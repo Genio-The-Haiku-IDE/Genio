@@ -20,14 +20,13 @@ enum {
 	MSG_PROJECT_MENU_DO_RENAME_FILE		= 'pmdr'
 };
 
-class ProjectFolder;
+class Project;
 class ProjectItem;
 class GenioWatchingFilter;
-
-class ProjectsFolderBrowser : public BOutlineListView {
+class ProjectBrowser : public BOutlineListView {
 public:
-					 ProjectsFolderBrowser();
-	virtual 		~ProjectsFolderBrowser();
+					 ProjectBrowser();
+	virtual 		~ProjectBrowser();
 
 	virtual void	MouseDown(BPoint where);
 	virtual void	MouseMoved(BPoint point, uint32 transit, const BMessage* message);
@@ -40,13 +39,13 @@ public:
 	ProjectItem*	GetProjectItemByPath(const BString& path) const;
 	ProjectItem*	GetSelectedProjectItem() const;
 
-	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
-	ProjectFolder*	GetProjectFromSelectedItem() const;
+	Project*		GetProjectFromItem(ProjectItem*) const;
+	Project*		GetProjectFromSelectedItem() const;
 
 	BString const	GetSelectedProjectFileFullPath() const;
 
-	void			ProjectFolderPopulate(ProjectFolder* project);
-	void			ProjectFolderDepopulate(ProjectFolder* project);
+	void			ProjectFolderPopulate(Project* project);
+	void			ProjectFolderDepopulate(Project* project);
 
 	virtual void	SelectionChanged();
 
@@ -55,7 +54,7 @@ public:
 private:
 	ProjectItem*	_CreatePath(BPath pathToCreate);
 
-	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
+	void			_ProjectFolderScan(ProjectItem* item, BString const& path, Project* projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
 

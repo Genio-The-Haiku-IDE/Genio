@@ -45,7 +45,7 @@ const char* const kSenderRepositoryPopupMenu = "RepositoryPopupMenu";
 const char* const kSenderExternalEvent = "ExternalEvent";
 
 class BCheckBox;
-class ProjectFolder;
+class Project;
 class RepositoryView;
 class BScrollView;
 class SourceControlPanel : public BView {
@@ -59,7 +59,7 @@ public:
 
 private:
 
-	Genio::UI::OptionList<ProjectFolder *>* fProjectMenu;
+	Genio::UI::OptionList<Project*>* fProjectMenu;
 	Genio::UI::OptionList<BString>*	fBranchMenu;
 	ToolBar*				fToolBar;
 	BCardLayout*			fPanelsLayout;
@@ -69,8 +69,8 @@ private:
 	BView*					fChangesView;
 	BView*					fLogView;
 	BView*					fRepositoryNotInitializedView;
-	BObjectList<ProjectFolder>* fProjectList;
-	ProjectFolder*			fSelectedProject;
+	BObjectList<Project>*	fProjectList;
+	Project*				fSelectedProject;
 	BString					fCurrentBranch;
 	BButton*				fInitializeButton;
 	BCheckBox*				fDoNotCreateInitialCommitCheckBox;

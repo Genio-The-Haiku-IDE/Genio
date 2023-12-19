@@ -21,7 +21,7 @@ enum ItemType {
 };
 
 class BranchItem;
-class ProjectFolder;
+class Project;
 class RepositoryView : public BOutlineListView {
 public:
 
@@ -38,7 +38,7 @@ public:
 	// TODO: Consider returning BranchItem* directly
 	BListItem*		GetSelectedItem();
 
-	void			UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch);
+	void			UpdateRepository(Project *selectedProject, const BString &currentBranch);
 private:
 
 	BranchItem*		_InitEmptySuperItem(const BString &label);
@@ -52,6 +52,6 @@ private:
 	void			_ShowPopupMenu(BPoint where);
 
 	BString			fRepositoryPath;
-	ProjectFolder*	fSelectedProject;
+	Project*	fSelectedProject;
 	BString			fCurrentBranch;
 };

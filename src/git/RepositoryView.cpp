@@ -170,7 +170,7 @@ RepositoryView::GetSelectedItem()
 
 
 void
-RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch)
+RepositoryView::UpdateRepository(Project *selectedProject, const BString &currentBranch)
 {
 	fSelectedProject = selectedProject;
 	fRepositoryPath = fSelectedProject->Path().String();

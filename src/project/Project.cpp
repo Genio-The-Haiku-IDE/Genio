@@ -18,7 +18,7 @@
 SourceItem::SourceItem(BString const& path)
 	:
 	fType(SourceItemType::FileItem),
-	fProjectFolder(nullptr)
+	fProject(nullptr)
 {
 	status_t status = get_ref_for_path(path.String(), &fEntryRef);
 	if (status != B_OK) {
@@ -73,7 +73,7 @@ SourceItem::Rename(BString const& path)
 }
 
 
-ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
+Project::Project(BString const& path, BMessenger& msgr)
 	:
 	SourceItem(path),
 	fActive(false),
@@ -83,7 +83,7 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 	fGitRepository(nullptr),
 	fIsBuilding(false)
 {
-	fProjectFolder = this;
+	fProject = this;
 	fType = SourceItemType::ProjectFolderItem;
 
 	try {
@@ -97,7 +97,7 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 }
 
 
-ProjectFolder::~ProjectFolder()
+Project::~Project()
 {
 	if (fLSPProjectWrapper != nullptr) {
 		fLSPProjectWrapper->Dispose();
@@ -109,7 +109,7 @@ ProjectFolder::~ProjectFolder()
 
 
 status_t
-ProjectFolder::Open()
+Project::Open()
 {
 	fSettings = new GSettings(Path(), GenioNames::kProjectSettingsFile, 'LOPR');
 	return B_OK;
@@ -117,7 +117,7 @@ ProjectFolder::Open()
 
 
 status_t
-ProjectFolder::Close()
+Project::Close()
 {
 	status_t status = fSettings->GetStatus();
 	return status;
@@ -125,7 +125,7 @@ ProjectFolder::Close()
 
 
 void
-ProjectFolder::LoadDefaultSettings()
+Project::LoadDefaultSettings()
 {
 	ASSERT(fSettings != nullptr);
 
@@ -144,14 +144,14 @@ ProjectFolder::LoadDefaultSettings()
 
 
 void
-ProjectFolder::SaveSettings()
+Project::SaveSettings()
 {
 	fSettings->Save();
 }
 
 
 void
-ProjectFolder::SetBuildMode(BuildMode mode)
+Project::SetBuildMode(BuildMode mode)
 {
 	fBuildMode = mode;
 	fSettings->SetInt32("build_mode", mode);
@@ -159,7 +159,7 @@ ProjectFolder::SetBuildMode(BuildMode mode)
 
 
 BuildMode
-ProjectFolder::GetBuildMode() /* const */
+Project::GetBuildMode() /* const */
 {
 	// TODO: Why are we SETting the mode here ?
 	fBuildMode = (BuildMode)fSettings->GetInt32("build_mode", BuildMode::ReleaseMode);
@@ -168,7 +168,7 @@ ProjectFolder::GetBuildMode() /* const */
 
 
 void
-ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
+Project::SetBuildCommand(BString const& command, BuildMode mode)
 {
 	if (mode == BuildMode::ReleaseMode)
 		fSettings->SetString("project_release_build_command", command);
@@ -178,7 +178,7 @@ ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetBuildCommand() const
+Project::GetBuildCommand() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode) {
 		BString build = fSettings->GetString("project_release_build_command", "");
@@ -191,7 +191,7 @@ ProjectFolder::GetBuildCommand() const
 
 
 void
-ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
+Project::SetCleanCommand(BString const& command, BuildMode mode)
 {
 	if (mode == BuildMode::ReleaseMode)
 		fSettings->SetString("project_release_clean_command", command);
@@ -201,7 +201,7 @@ ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetCleanCommand() const
+Project::GetCleanCommand() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode) {
 		BString clean = fSettings->GetString("project_release_clean_command", "");
@@ -214,7 +214,7 @@ ProjectFolder::GetCleanCommand() const
 
 
 void
-ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
+Project::SetExecuteArgs(BString const& args, BuildMode mode)
 {
 	if (mode == BuildMode::ReleaseMode)
 		fSettings->SetString("project_release_execute_args", args);
@@ -224,7 +224,7 @@ ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetExecuteArgs() const
+Project::GetExecuteArgs() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
 		return fSettings->GetString("project_release_execute_args", "");
@@ -234,7 +234,7 @@ ProjectFolder::GetExecuteArgs() const
 
 
 void
-ProjectFolder::SetTarget(BString const& path, BuildMode mode)
+Project::SetTarget(BString const& path, BuildMode mode)
 {
 	if (mode == BuildMode::ReleaseMode)
 		fSettings->SetString("project_release_target", path);
@@ -244,7 +244,7 @@ ProjectFolder::SetTarget(BString const& path, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetTarget() const
+Project::GetTarget() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
 		return fSettings->GetString("project_release_target", "");
@@ -254,42 +254,42 @@ ProjectFolder::GetTarget() const
 
 
 void
-ProjectFolder::SetRunInTerminal(bool enabled)
+Project::SetRunInTerminal(bool enabled)
 {
 	fSettings->SetBool("project_run_in_terminal", enabled);
 }
 
 
 bool
-ProjectFolder::RunInTerminal() const
+Project::RunInTerminal() const
 {
 	return fSettings->GetBool("project_run_in_terminal", false);
 }
 
 
 GitRepository*
-ProjectFolder::GetRepository() const
+Project::GetRepository() const
 {
 	return fGitRepository;
 }
 
 
 void
-ProjectFolder::InitRepository(bool createInitialCommit)
+Project::InitRepository(bool createInitialCommit)
 {
 	fGitRepository->Init(createInitialCommit);
 }
 
 
 LSPProjectWrapper*
-ProjectFolder::GetLSPClient() const
+Project::GetLSPClient() const
 {
 	return fLSPProjectWrapper;
 }
 
 
 void
-ProjectFolder::SetGuessedBuilder(const BString& string)
+Project::SetGuessedBuilder(const BString& string)
 {
 	fGuessedBuildCommand = string;
 	fGuessedCleanCommand = string;

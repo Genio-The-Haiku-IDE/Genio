@@ -45,8 +45,8 @@ class Editor;
 class EditorTabManager;
 class GoToLineWindow;
 class ProblemsPanel;
-class ProjectFolder;
-class ProjectsFolderBrowser;
+class Project;
+class ProjectBrowser;
 class SearchResultPanel;
 class SourceControlPanel;
 class TemplatesMenu;
@@ -62,10 +62,10 @@ public:
 	virtual void				Show();
 
 	void						UpdateMenu();
-	ProjectFolder*				GetActiveProject() const;
-	void						SetActiveProject(ProjectFolder *project);
-	BObjectList<ProjectFolder>*	GetProjectList() const;
-	ProjectsFolderBrowser*		GetProjectBrowser() const;
+	Project*					GetActiveProject() const;
+	void						SetActiveProject(Project *project);
+	BObjectList<Project>*		GetProjectList() const;
+	ProjectBrowser*				GetProjectBrowser() const;
 
 private:
 			status_t			_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
@@ -84,7 +84,7 @@ private:
 			bool				_FileIsSupported(const entry_ref* ref);
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
 			status_t			_FileSave(int32	index);
-			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
+			void				_FileSaveAll(Project* onlyThisProject = NULL);
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
 			int32				_FilesNeedSave();
 			void				_PreFileSave(Editor* editor);
@@ -116,10 +116,10 @@ private:
 			void				_ProjectRenameFile();
 
 			// Project Folders
-			void				_ProjectFolderClose(ProjectFolder *project);
+			void				_ProjectFolderClose(Project *project);
 			status_t			_ProjectFolderOpen(BMessage *message);
 			status_t			_ProjectFolderOpen(const BPath& folder, bool activate = false);
-			void				_ProjectFolderActivate(ProjectFolder* project);
+			void				_ProjectFolderActivate(Project* project);
 
 			status_t			_ShowSelectedItemInTracker();
 			status_t			_ShowInTracker(const entry_ref& ref);
@@ -187,16 +187,16 @@ private:
 			// Left panels
 			BTabView*	  		fProjectsTabView;
 
-			ProjectsFolderBrowser*	fProjectsFolderBrowser;
+			ProjectBrowser*		fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
 			SourceControlPanel*	fSourceControlPanel;
 			BScrollView*		fSourceControlPanelScroll;
 
-			ProjectFolder		*fActiveProject;
+			Project				*fActiveProject;
 			bool				fIsBuilding;
 
-			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
+			BObjectList<Project>*	fProjectFolderObjectList;
 
 			// Editor group
 			EditorTabManager*	fTabManager;

@@ -1430,7 +1430,7 @@ Editor::SwitchSourceHeader()
 
 
 void
-Editor::SetProjectFolder(ProjectFolder* proj)
+Editor::SetProjectFolder(Project* proj)
 {
 	fProjectFolder = proj;
 	if (proj)

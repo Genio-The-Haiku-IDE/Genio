@@ -69,7 +69,7 @@ EditorTabManager::GetToolTipText(int32 index)
 	Editor* editor = EditorAt(index);
 	if (editor) {
 		label << editor->Name();
-		ProjectFolder* project = editor->GetProjectFolder();
+		Project* project = editor->GetProjectFolder();
 		if (project) {
 			label << "\n" << B_TRANSLATE("Project") << ": " << project->Name();
 			if (project->Active())

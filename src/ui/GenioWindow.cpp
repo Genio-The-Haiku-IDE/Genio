@@ -1074,7 +1074,7 @@ GenioWindow::MessageReceived(BMessage* message)
 }
 
 
-ProjectFolder*
+Project*
 GenioWindow::GetActiveProject() const
 {
 	return fActiveProject;
@@ -1082,20 +1082,20 @@ GenioWindow::GetActiveProject() const
 
 
 void
-GenioWindow::SetActiveProject(ProjectFolder *project)
+GenioWindow::SetActiveProject(Project *project)
 {
 	fActiveProject = project;
 }
 
 
-BObjectList<ProjectFolder>*
+BObjectList<Project>*
 GenioWindow::GetProjectList() const
 {
 	return fProjectFolderObjectList;
 }
 
 
-ProjectsFolderBrowser*
+ProjectBrowser*
 GenioWindow::GetProjectBrowser() const
 {
 	return fProjectsFolderBrowser;
@@ -1334,7 +1334,7 @@ GenioWindow::QuitRequested()
 		projects.MakeEmpty();
 
 		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-			ProjectFolder *project = fProjectFolderObjectList->ItemAt(index);
+			Project *project = fProjectFolderObjectList->ItemAt(index);
 			projects.AddString("project_to_reopen", project->Path());
 			if (project->Active())
 				projects.SetString("active_project", project->Path());
@@ -1635,7 +1635,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		// Check if already open
 		BString baseDir("");
 		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-			ProjectFolder * project = fProjectFolderObjectList->ItemAt(index);
+			Project * project = fProjectFolderObjectList->ItemAt(index);
 			BString projectPath = project->Path();
 			projectPath = projectPath.Append("/");
 			if (editor->FilePath().StartsWith(projectPath)) {
@@ -1756,7 +1756,7 @@ GenioWindow::_FileSave(int32 index)
 
 
 void
-GenioWindow::_FileSaveAll(ProjectFolder* onlyThisProject)
+GenioWindow::_FileSaveAll(Project* onlyThisProject)
 {
 	int32 filesCount = fTabManager->CountTabs();
 	for (int32 index = 0; index < filesCount; index++) {
@@ -1851,7 +1851,7 @@ void
 GenioWindow::_PostFileSave(Editor* editor)
 {
 	// TODO: Also handle cases where the file is saved from outside Genio ?
-	ProjectFolder* project = editor->GetProjectFolder();
+	Project* project = editor->GetProjectFolder();
 	if (gCFG["build_on_save"] &&
 		project != nullptr && project == fActiveProject) {
 		// TODO: if we are already building we should stop / relaunch build here.
@@ -2098,7 +2098,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 		} else {
 			BString baseDir("");
 			for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-				ProjectFolder * project = fProjectFolderObjectList->ItemAt(index);
+				Project * project = fProjectFolderObjectList->ItemAt(index);
 				BString projectPath = project->Path();
 				projectPath = projectPath.Append("/");
 				if (editor->FilePath().StartsWith(projectPath)) {
@@ -3095,13 +3095,13 @@ GenioWindow::_InitSideSplit()
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
 
-	fProjectsFolderBrowser = new ProjectsFolderBrowser();
+	fProjectsFolderBrowser = new ProjectBrowser();
 	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 
 	// Project list
-	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
+	fProjectFolderObjectList = new BObjectList<Project>();
 
 	// Source Control
 	fSourceControlPanel = new SourceControlPanel();
@@ -3206,7 +3206,7 @@ GenioWindow::_MakeCatkeys()
  * Activation could be set in projects outline context menu.
  */
 void
-GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
+GenioWindow::_ProjectFolderActivate(Project *project)
 {
 	if (project == nullptr)
 		return;
@@ -3304,7 +3304,7 @@ GenioWindow::_ProjectRenameFile()
 
 // Project Folders
 void
-GenioWindow::_ProjectFolderClose(ProjectFolder *project)
+GenioWindow::_ProjectFolderClose(Project *project)
 {
 	if (project == nullptr)
 		return;
@@ -3361,7 +3361,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	if (wasActive) {
 		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));
 		if (item != nullptr)
-			_ProjectFolderActivate((ProjectFolder*)item->GetSourceItem());
+			_ProjectFolderActivate((Project*)item->GetSourceItem());
 	}
 
 	// Disable "Close project" action if no project
@@ -3410,13 +3410,13 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 
 	// Check if already open
 	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-		ProjectFolder* pProject = static_cast<ProjectFolder*>(fProjectFolderObjectList->ItemAt(index));
+		Project* pProject = static_cast<Project*>(fProjectFolderObjectList->ItemAt(index));
 		if (pProject->Path() == path.Path())
 			return B_OK;
 	}
 
 	BMessenger msgr(this);
-	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
+	Project* newProject = new Project(path.Path(), msgr);
 	status_t status = newProject->Open();
 	if (status != B_OK) {
 		BString notification;
@@ -4090,7 +4090,7 @@ GenioWindow::_CollapseOrExpandProjects()
 		// Expand active project, collapse other
 		// TODO: Improve by adding necessary APIs to ProjectFolderBrowser
 		for (int32 i = 0; i < fProjectsFolderBrowser->CountItems(); i++) {
-			if ((ProjectFolder*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
+			if ((Project*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
 				fProjectsFolderBrowser->Expand(fProjectsFolderBrowser->GetProjectItemAt(i));
 			else
 				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));

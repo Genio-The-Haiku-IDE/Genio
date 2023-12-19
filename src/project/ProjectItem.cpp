@@ -122,7 +122,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	// TODO: until here... (see comment above)
 
 	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
+		Project *projectFolder = static_cast<Project*>(GetSourceItem());
 		if (projectFolder->Active())
 			SetTextFontFace(B_BOLD_FACE);
 		else

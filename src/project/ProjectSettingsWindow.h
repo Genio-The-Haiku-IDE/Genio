@@ -12,10 +12,10 @@
 class BBox;
 class BCheckBox;
 class BTextControl;
-class ProjectFolder;
+class Project;
 class ProjectSettingsWindow : public BWindow {
 public:
-								ProjectSettingsWindow(ProjectFolder *project);
+								ProjectSettingsWindow(Project *project);
 	virtual						~ProjectSettingsWindow();
 
 	virtual void				MessageReceived(BMessage* message);
@@ -27,7 +27,7 @@ private:
 			void				_SaveChanges();
 			void 				_LoadDefaults();
 
-			ProjectFolder		*fProject;
+			Project				*fProject;
 			BBox* 				fProjectBox;
 			BString		 		fProjectBoxLabel;
 			BString		 		fProjectBoxProjectLabel;

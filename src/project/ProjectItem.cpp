@@ -17,7 +17,7 @@
 
 #include "IconCache.h"
 #include "GitRepository.h"
-#include "ProjectFolder.h"
+#include "Project.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"

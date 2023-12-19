@@ -4,13 +4,13 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-#include "ProjectsFolderBrowser.h"
+#include "ProjectBrowser.h"
 
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"
 #include "GenioWindow.h"
 #include "Log.h"
-#include "ProjectFolder.h"
+#include "Project.h"
 #include "ProjectItem.h"
 #include "SwitchBranchMenu.h"
 #include "TemplateManager.h"

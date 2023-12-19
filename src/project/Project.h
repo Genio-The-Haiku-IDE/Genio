@@ -2,9 +2,7 @@
  * Copyright 2023 Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef PROJECT_FOLDER_H
-#define PROJECT_FOLDER_H
-
+#pragma once
 
 #include <Entry.h>
 #include <ObjectList.h>
@@ -104,5 +102,3 @@ private:
 	GitRepository*				fGitRepository;
 	bool						fIsBuilding;
 };
-
-#endif // PROJECT_FOLDER_H

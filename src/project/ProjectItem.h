@@ -2,8 +2,7 @@
  * Copyright 2023 Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef PROJECT_ITEM_H
-#define PROJECT_ITEM_H
+#pragma once
 
 #include "StyledItem.h"
 
@@ -35,6 +34,3 @@ private:
 
 	void			_DestroyTextWidget();
 };
-
-
-#endif // PROJECT_ITEM_H

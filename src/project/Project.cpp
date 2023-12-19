@@ -3,7 +3,7 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-#include "ProjectFolder.h"
+#include "Project.h"
 
 #include <Directory.h>
 #include <Debug.h>

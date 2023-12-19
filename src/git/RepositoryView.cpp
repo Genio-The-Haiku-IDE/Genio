@@ -16,7 +16,7 @@
 #include "ConfigManager.h"
 #include "GenioApp.h"
 #include "GMessage.h"
-#include "ProjectFolder.h"
+#include "Project.h"
 #include "SourceControlPanel.h"
 #include "StringFormatter.h"
 #include "Utils.h"

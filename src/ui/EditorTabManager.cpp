@@ -7,7 +7,7 @@
 #include "EditorTabManager.h"
 #include "Editor.h"
 #include "Log.h"
-#include "ProjectFolder.h"
+#include "Project.h"
 
 #include <Catalog.h>
 

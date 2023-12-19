@@ -12,15 +12,16 @@
 #include <Alert.h>
 #include <Application.h>
 #include <Architecture.h>
+#include <Bitmap.h>
 #include <Button.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <ControlLook.h>
 #include <DirMenu.h>
 #include <FilePanel.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
-
 #include <NodeInfo.h>
 #include <NodeMonitor.h>
 #include <Path.h>
@@ -32,8 +33,7 @@
 #include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
-#include <ControlLook.h>
-#include <Bitmap.h>
+
 
 #include "ActionManager.h"
 #include "ConfigManager.h"
@@ -56,9 +56,9 @@
 #include "Log.h"
 #include "ProblemsPanel.h"
 #include "ProjectSettingsWindow.h"
-#include "ProjectFolder.h"
+#include "Project.h"
 #include "ProjectItem.h"
-#include "ProjectsFolderBrowser.h"
+#include "ProjectBrowser.h"
 #include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
 #include "SearchResultPanel.h"

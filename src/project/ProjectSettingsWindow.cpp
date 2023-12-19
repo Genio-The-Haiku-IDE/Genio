@@ -13,7 +13,7 @@
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
 
-#include "ProjectFolder.h"
+#include "Project.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"

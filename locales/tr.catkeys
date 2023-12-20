@@ -1,5 +1,6 @@
-1	Turkish	application/x-vnd.Genio	101957421
+1	Turkish	application/x-vnd.Genio	335291597
 About…	GenioWindow		Hakkında…
+An error occurred while switching branch:	GenioWindow		Dal değiştirirken bir hata oluştu:
 Appearance	GenioWindow		Görünüş
 Autocomplete	GenioWindow		Otomatik tamamlama
 Bookmark	GenioWindow		Yer imi
@@ -17,11 +18,11 @@ Close file	GenioWindow		Dosyayı kapat
 Close project	GenioWindow		Projeyi kapat
 Comment selected lines	GenioWindow		Seçili satırları yorum yap
 Configure	GenioWindow		Yapılandır
+Conflicts	GenioWindow		Çakışmalar
 Console I/O	GenioWindow		Konsol G/Ç
 Copy	GenioWindow		Kopyala
 Could not create a new file	GenioWindow		Yeni bir dosya oluşturulamadı
 Could not delete \"%name%\".\n\n	GenioWindow		\"%name%\" silinemedi.\n\n
-Could not open template folder in Tracker	GenioWindow		Şablon klasörü, İzleyici ile açılamadı
 Cut	GenioWindow		Kes
 Debug	GenioWindow		Hata ayıkla
 Debug project	GenioWindow		Proje hatalarını ayıkla
@@ -44,32 +45,37 @@ Find in project	GenioWindow		Projede bul
 Find next	GenioWindow		Sonrakini bul
 Find previous	GenioWindow		Öncekini bul
 Find:	GenioWindow		Bul:
+Focus mode	GenioWindow		Odak kipi
 Fold/Unfold all	GenioWindow		Katla/Katlamayı aç
 Format	GenioWindow		Biçimlendir
+Fullscreen	GenioWindow		Tam ekran
+Genio project…	GenioWindow		Genio projesi…
 Git	GenioWindow		Git
 Go to declaration	GenioWindow		Beyana git
 Go to definition	GenioWindow		Tanıma git
 Go to implementation	GenioWindow		Uygulamaya git
 Go to line…	GenioWindow		Satıra git…
-Help	GenioWindow		Yardım
 Ignore	GenioWindow		Yok say
 Invalid project folder	GenioWindow		Geçersiz proje klasörü
 Keep	GenioWindow		Tut
+Language	GenioWindow		Dil
 Line endings	GenioWindow		Satır sonları
 Log	GenioWindow	The git command	Günlük
 Log (oneline)	GenioWindow	The git command	Günlük (tek satır)
 Mac	GenioWindow		Mac
+Make bindcatalogs	GenioWindow		bindcatalogs yap
+Make catkeys	GenioWindow		catkeys yap
 Make file read-only	GenioWindow		Dosyayı saltokunur yap
 Match case	GenioWindow		BÜYÜK/küçük harf eşleştir
 New	GenioWindow		Yeni
 New file	GenioWindow		Yeni dosya
 New folder	GenioWindow		Yeni klasör
 Next	GenioWindow	Bookmark menu	Sonraki
-Open	GenioWindow		Aç
 Open files list	GenioWindow		Dosyalar listesini aç
-Open project	GenioWindow		Proje aç
+Open project…	GenioWindow		Proje aç…
 Open recent…	GenioWindow		Son kullanılanı aç…
-Open remote project	GenioWindow		Uzak proje aç
+Open remote project…	GenioWindow		Uzak proje aç…
+Open…	GenioWindow		Aç…
 Overwrite	GenioWindow		Üzerine yaz
 Paste	GenioWindow		Yapıştır
 Previous	GenioWindow	Bookmark menu	Önceki
@@ -115,6 +121,7 @@ Show/Hide replace bar	GenioWindow		Değiştir çubuğunu göster/gizle
 Status	GenioWindow	The git command	Durum
 Status (short)	GenioWindow	The git command	Durum (kısa)
 Switch source/header	GenioWindow		Kaynak/Üstbilgi arasında geçiş yap
+Switch to branch	GenioWindow		Dala geç
 Switch to next file	GenioWindow		Sonraki dosyaya geç
 Switch to previous file	GenioWindow		Önceki dosyaya geç
 Tag	GenioWindow	The git command	Etiketle
@@ -129,23 +136,74 @@ Wrap	GenioWindow		Kaydır
 You can't create a new folder here, please select a project or another folder	GenioWindow		Burada yeni bir klasör oluşturamazsınız, lütfen bir proje veya başka bir klasör seçin
 Zoom in	GenioWindow		Yakınlaştır
 Zoom out	GenioWindow		Uzaklaştır
+Active	EditorTabManager		Etkin
+Project	EditorTabManager		Proje
 An error occurred attempting to rename file 	ProjectsFolderBrowser		Dosyayı yeniden adlandırma sırasında bir hata oluştu
 Build project	ProjectsFolderBrowser		Projeyi yap
 Clean project	ProjectsFolderBrowser		Projeyi temizle
 Close project	ProjectsFolderBrowser		Projeyi kapat
+Current branch	ProjectsFolderBrowser		Geçerli dal
 Delete file	ProjectsFolderBrowser		Dosyayı sil
 Delete folder	ProjectsFolderBrowser		Klasörü sil
 New	ProjectsFolderBrowser		Yeni
 OK	ProjectsFolderBrowser		Tamam
 Open file	ProjectsFolderBrowser		Dosya aç
 Open Terminal	ProjectsFolderBrowser		Uçbirim aç
+Path	ProjectsFolderBrowser		Yol
+Project	ProjectsFolderBrowser		Proje
 Project settings…	ProjectsFolderBrowser		Proje ayarları…
 Rename file	ProjectsFolderBrowser		Dosyayı yeniden adlandır
 Rename folder	ProjectsFolderBrowser		Klasörü yeniden adlandır
 Set active	ProjectsFolderBrowser		Etkin kıl
 Show in Tracker	ProjectsFolderBrowser		İzleyici'de göster
+Switch to branch	ProjectsFolderBrowser		Dala geç
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Proje klasörü başka bir konuma taşındı veya silindi; bu nedenle kapatılacak ve çalışma alanından kaldırılacak.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Proje klasörü yeniden adlandırıldı. Kendiliğinden kapatılacak ve yeniden açılacak.
+An unknown error occurred.	SourceControlPanel		Bilinmeyen bir hata oluştu.
+Branch created succesfully.	SourceControlPanel		Dal başarıyla oluşturuldu.
+Branch deleted succesfully.	SourceControlPanel		Dal başarıyla silindi.
+Branch renamed succesfully.	SourceControlPanel		Dal başarıyla yeniden adlandırıldı.
+Cancel	SourceControlPanel		Vazgeç
+Changes stashed.	SourceControlPanel		Değişiklikler zulalandı.
+Choose branch…	SourceControlPanel		Dal seç…
+Choose project…	SourceControlPanel		Proje seç…
+Conflicts	SourceControlPanel		Çakışmalar
+Copy name	SourceControlPanel		Adı kopyala
+Create initial commit	SourceControlPanel		İlk işlemeyi oluştur
+Create new branch from \"%selected_branch%\"	SourceControlPanel		\"%selected_branch%\" dalından yeni dal oluştur
+Current branch:	SourceControlPanel		Geçerli dal:
+Delete	SourceControlPanel		Sil
+Delete \"%selected_branch%\"	SourceControlPanel		\"%selected_branch%\" dalını sil
+Delete dialog	SourceControlPanel		İletişim kutusunu sil
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		\"%branch%\" dalı silinecek.\n\nSilme sonrası bu öge tümüyle kaybolacak.\nSilmeyi gerçekten istiyor musunuz?
+Do not create the initial commit	SourceControlPanel		İlk işlemeyi oluşturma
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		İlk işlemeyi yapmadan bir depo ilklendirmeyi gerçekten istiyor musunuz?
+Enter a message for this stash	SourceControlPanel		Bu zula için bir ileti gir
+Fetch	SourceControlPanel		Getir
+Fetch completed.	SourceControlPanel		Getirme tamamlandı.
+Fetch prune	SourceControlPanel		Getir buda
+Fetch prune completed.	SourceControlPanel		Getir buda tamamlandı.
+Init repository	SourceControlPanel		Depoyu ilklendir
+Local branches	SourceControlPanel		Yerel dallar
+OK	SourceControlPanel		Tamam
+Options	SourceControlPanel		Seçenekler
+Project:	SourceControlPanel		Proje:
+Remote branches	SourceControlPanel		Uzak dallar
+Remotes	SourceControlPanel		Uzak konumlar
+Rename \"%selected_branch%\"	SourceControlPanel		\"%selected_branch%\" dalını yeniden adlandır
+Rename branch	SourceControlPanel		Dalı yeniden adlandır
+Rename branch:	SourceControlPanel		Dalı yeniden adlandır:
+Repository	SourceControlPanel		Depo
+Source control	SourceControlPanel		Kaynak denetimi
+Stash apply changes	SourceControlPanel		Uygulanan değişiklikleri zulala
+Stash changes	SourceControlPanel		Değişiklikleri zulala
+Stash pop changes	SourceControlPanel		Değişiklikleri zuladan patlat
+Stashed changes applied.	SourceControlPanel		Zulalanan değişiklikler uygulandı.
+Stashed changes popped.	SourceControlPanel		Zulalanan değişiklikler patlatıldı.
+Switch to \"%selected_branch%\"	SourceControlPanel		\"%selected_branch%\" dalına geç
+Tags	SourceControlPanel		Etiketler
+The project is building, changing branch not allowed.	SourceControlPanel		Proje yapılıyor; dal değiştirmeye izin yok
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Bu projenin bir git deposu yok.\nİlklendirmek için aşağı tıklayın.
 Another command is running.	ConsoleIOView		Başka bir komut çalışıyor.
 Banner	ConsoleIOView		Afiş
 Clear	ConsoleIOView		Temizle
@@ -154,57 +212,60 @@ stderr	ConsoleIOView		standart hata
 stdout	ConsoleIOView		standart çıktı
 Stop	ConsoleIOView		Durdur
 Wrap	ConsoleIOView		Kaydır
-Apply	SettingsWindow		Uygula
-Browse…	SettingsWindow		Göz at…
+Auto collapse/expand projects	SettingsWindow		Projeleri kendiliğinden genişlet/daralt
+Auto-Build on resource save	SettingsWindow		Özkaynaklar kaydedildiğinde kendiliğinden yap
+Auto-Save changed files when building	SettingsWindow		Yaparken değiştirilen dosyaları kendiliğinden kaydet
 Build	SettingsWindow		Yapı
-Build target on resource save	SettingsWindow		Özkaynak kaydında hedefi yap
-Cancel	SettingsWindow		Vazgeç
 Console banner	SettingsWindow		Konsol afişi
-Default	SettingsWindow		Saptanmış
+Convert tabs to spaces	SettingsWindow		Sekmeleri boşluklara dönüştür
 Default size	SettingsWindow		Saptanmış boyut
-Defaults loaded	SettingsWindow		Saptanmışlar yüklendi
-Edge column:	SettingsWindow		Kenar sütunu:
 Editor	SettingsWindow		Düzenleyici
+Editor style:	SettingsWindow		Düzenleyici biçemi:
+Editor zoom:	SettingsWindow		Düzenleyici yakınlaştırması:
 Enable brace matching	SettingsWindow		Ayraç eşleştirmeyi etkinleştir
 Enable folding	SettingsWindow		Katlamayı etkinleştir
-Enable notifications	SettingsWindow		Bildirimleri etkinleştir
 Enable syntax highlighting	SettingsWindow		Sözdizim vurgulamayı etkinleştir
+Exclude folders:	SettingsWindow		Şu klasörleri dışarıda tut:
+Find	SettingsWindow		Bul
 Font size:	SettingsWindow		Yazıtipi boyutu:
-Font:	SettingsWindow		Yazıtipi:
 General	SettingsWindow		Genel
 Log destination:	SettingsWindow		Günlük konumu:
 Log level:	SettingsWindow		Günlük düzeyi:
 Mark caret line	SettingsWindow		İmleç satırını imle
-Notifications	SettingsWindow		Bildirimler
+Match case	SettingsWindow		BÜYÜK/küçük harf eşleştir
 Projects folder:	SettingsWindow		Projeler klasörü:
 Reload files	SettingsWindow		Dosyaları yeniden yükle
 Reload projects	SettingsWindow		Projeleri yeniden yükle
-Revert	SettingsWindow		Geri al
 Save caret position	SettingsWindow		İmleç konumunu kaydet
-Save changed files on build	SettingsWindow		Yaparken değiştirilen dosyaları kaydet
-Save position	SettingsWindow		Konumu kaydet
-Set for app ver: 	SettingsWindow		Ayarlı sürüm: 
+Set ruler to column:	SettingsWindow		Set ruler to column:
 Show comment margin	SettingsWindow		Yorum kenar boşluğunu göster
-Show edge line	SettingsWindow		Kenar çizgisini göster
 Show full path in window title	SettingsWindow		Pencere başlığında tam yolu göster
+Show line endings	SettingsWindow		Satır sonlarını göster
 Show line number	SettingsWindow		Satır numarasını göster
 Show output pane	SettingsWindow		Çıktı panelini göster
 Show projects pane	SettingsWindow		Projeler panelini göster
+Show repository outline	SettingsWindow		Depo ana hattını göster
 Show toolbar	SettingsWindow		Araç çubuğunu göster
+Show vertical ruler	SettingsWindow		Show vertical ruler
+Show whitespace	SettingsWindow		Boşlukları göster
+Source control	SettingsWindow		Kaynak denetimi
 Startup	SettingsWindow		Başlangıç
-Tab width:  	SettingsWindow		Sekme genişliği:
-This is the font size preview	SettingsWindow		Bu, yazıtipi büyüklüğü önizlemesidir
+Tab width:	SettingsWindow		Sekme genişliği:
+This setting will be updated on restart.	SettingsWindow		Bu ayar, yeniden başlatma sonrası güncellenir.
 Trim trailing whitespace on save	SettingsWindow		Kaydederken sondaki boşlukları kırp
 Visual	SettingsWindow		Görsel
+Whole word	SettingsWindow		Tam sözcük
+Wrap	SettingsWindow		Kaydır
 Wrap console	SettingsWindow		Konsolu kaydır
 Base path:	RemoteProjectWindow		Taban yol:
+Browse…	RemoteProjectWindow		Göz at…
 Cancel	RemoteProjectWindow		Vazgeç
 Clone	RemoteProjectWindow		Klonla
+Close	RemoteProjectWindow		Kapat
 Continue	RemoteProjectWindow		Sürdür
-Destination directory:	RemoteProjectWindow		Hedef dizin:
+Destination folder:	RemoteProjectWindow		Hedef klasör:
 Do you want to stop cloning the repository?	RemoteProjectWindow		Depoyu klonlamayı durdurmak istiyor musunuz?
 Open remote Git project	RemoteProjectWindow		Uzak Git projesi aç
-Quit	RemoteProjectWindow		Çık
 Stop	RemoteProjectWindow		Durdur
 The local path is not valid or does not exist	RemoteProjectWindow		Yerel yol geçerli değil veya yok
 URL:	RemoteProjectWindow		URL:
@@ -215,8 +276,6 @@ Debug clean command:	ProjectSettingsWindow		Hata ayıklama temizlik komutu:
 Debug execute arguments:	ProjectSettingsWindow		Hata ayıklama yürüt argümanları:
 Debug project target:	ProjectSettingsWindow		Hata ayıklama proje hedefi:
 Default	ProjectSettingsWindow		Saptanmış
-Enable Git	ProjectSettingsWindow		Git'i etkinleştir
-Exclude settings file from Git	ProjectSettingsWindow		Git ayarlarını dışarıda tut
 OK	ProjectSettingsWindow		Tamam
 Project:	ProjectSettingsWindow		Proje:
 Release build command:	ProjectSettingsWindow		Yayım yapım komutu:
@@ -224,7 +283,6 @@ Release clean command:	ProjectSettingsWindow		Yayım temizlik komutu:
 Release execute arguments:	ProjectSettingsWindow		Kararlı yürüt argümanları:
 Release project target:	ProjectSettingsWindow		Kararlı proje hedefi:
 Run in Terminal	ProjectSettingsWindow		Uçbirimde çalıştır
-Source control	ProjectSettingsWindow		Kaynak denetimi
 Target	ProjectSettingsWindow		Hedef
 Cancel	GoToLineWindow		Vazgeç
 Go to line	GoToLineWindow		Satıra git
@@ -232,6 +290,8 @@ Go to line:	GoToLineWindow		Satıra git:
 OK	GoToLineWindow		Tamam
 Cancel	Editor		Vazgeç
 Don't save	Editor		Kaydetme
+Fix: %fix_desc%	Editor		Düzelt: %fix_desc%
+No fix available	Editor		Kullanılabilir düzeltme yok
 Save	Editor		Kaydet
 Save changes to file \"%filename%\"?	Editor		Değişiklikler \"%filename%\" dosyasına kaydedilsin mi?
 Save dialog	Editor		Kaydet iletişim kutusu
@@ -241,19 +301,18 @@ Save all	QuitAlert		Tümünü kaydet
 Save selected	QuitAlert		Seçiliyi kaydet
 There are unsaved changes.\nSelect the files to save.	QuitAlert		Kaydedilmemiş değişiklikler var.\nKaydedilecek dosyaları seçin.
 Unsaved files	QuitAlert		Kaydedilmemiş dosyalar
+Cancel	GitCredentialsWindow		Vazgeç
+Git - User Credentials	GitCredentialsWindow		Git - Kullanıcı bilgileri
+OK	GitCredentialsWindow		Tamam
+Password:	GitCredentialsWindow		Parola:
+Username:	GitCredentialsWindow		Kullanıcı adı:
+Cancel	GTextAlert		Vazgeç
+OK	GTextAlert		Tamam
 Category	ProblemsPanel		Kategori
 Message	ProblemsPanel		İleti
 Problems	ProblemsPanel		Sorunlar
 Source	ProblemsPanel		Kaynak
-Do you want to ignore, review or load defaults?	GenioApp		Saptanmışları yüklemek, gözden geçirmek veya yok saymak mı istiyorsunuz?
-Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio, Ideam'ın bir çatalıdır ve MIT lisansı altında kullanılabilir.
-Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio şunları kullanır:\nScintilla lib\nTelif hakkı 1998-2003, Neil Hodgson tarafından \n\nHaiku için Scintilla\nTelif hakkı 2011, Andrea Anzani tarafından \nTelif hakkı 2014-2015, Kacper Kasper tarafından \n\n
-Ignore	GenioApp		Yok say
-Load defaults	GenioApp		Saptanmışları yükle
-Made with love in Italy	GenioApp		İtalya'da, sevgi ile yapıldı
-Review	GenioApp		Gözden geçir
-See credits for a complete list.\n\n	GenioApp		Tam bir liste için emeği geçenler bölümüne bakın.\n\n
-Settings file for a previous version detected.	GenioApp		Önceki bir sürüm için ayarlar dosyası algılandı.
+Defaults	ConfigWindow		Saptanmışlar
 Edit user templates…	TemplatesMenu		Kullanıcı şablonlarını düzenle…
 File deleted	GitRepository		Dosya silindi
 File deleted from index	GitRepository		Dosya indeksten silindi
@@ -262,7 +321,12 @@ File modified on index	GitRepository		Dosya indekste değiştirildi
 New file	GitRepository		Yeni dosya
 New file staged	GitRepository		Yeni dosya hazırlandı
 Genio	System name		Genio
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio, Ideam'ın bir çatalıdır ve MIT lisansı altında kullanılabilir.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio şunları kullanır:\nScintilla lib\nTelif hakkı 1998-2003, Neil Hodgson tarafından \n\nHaiku için Scintilla\nTelif hakkı 2011, Andrea Anzani tarafından \nTelif hakkı 2014-2015, Kacper Kasper tarafından \n\n
+Made with love in Italy	GenioApp		İtalya'da, sevgi ile yapıldı
+See credits for a complete list.\n\n	GenioApp		Tam bir liste için emeği geçenler bölümüne bakın.\n\n
 Location	SearchResultPanel		Konum
-Search Results	SearchResultPanel		Arama sonuçları
+Search results	SearchResultPanel		Arama sonuçları
 New folder	TemplateManager		Yeni klasör
 OK	Utilities		Tamam
+OK	GitAlert		Tamam

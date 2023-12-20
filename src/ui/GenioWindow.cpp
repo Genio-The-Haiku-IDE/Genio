@@ -1511,12 +1511,14 @@ GenioWindow::_DebugProject()
 status_t
 GenioWindow::_RemoveTab(int32 index)
 {
-	// Should not happen
-	if (index < 0) {
+	if (index < 0 || index > fTabManager->CountTabs()) {
 		LogErrorF("No file selected %d", index);
 		return B_ERROR;
 	}
 	Editor* editor = fTabManager->EditorAt(index);
+	if (!editor)
+		return B_ERROR;
+
 	fTabManager->RemoveTab(index);
 
 	// notify listeners: file could have been modified, but user

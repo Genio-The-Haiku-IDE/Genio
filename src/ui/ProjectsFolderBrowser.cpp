@@ -199,7 +199,9 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 								destination.GetParent(&parent);
 								ProjectItem *parentItem = _CreatePath(parent);
 								// recursive parsing!
-								_ProjectFolderScan(parentItem, newPath, parentItem->GetSourceItem()->GetProjectFolder());
+								entry_ref entryRef;
+								get_ref_for_path(newPath.String(), &entryRef);
+								_ProjectFolderScan(parentItem, &entryRef, parentItem->GetSourceItem()->GetProjectFolder());
 								SortItemsUnder(parentItem, false, ProjectsFolderBrowser::_CompareProjectItems);
 							} else {
 								//Plain file
@@ -670,7 +672,7 @@ void
 ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
 	ProjectItem *projectItem = NULL;
-	_ProjectFolderScan(projectItem, project->Path(), project);
+	_ProjectFolderScan(projectItem, project->EntryRef(), project);
 	SortItemsUnder(projectItem, false, ProjectsFolderBrowser::_CompareProjectItems);
 
 	update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
@@ -685,11 +687,11 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 
 
 void
-ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder)
+ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder)
 {
 	ProjectItem *newItem;
 	if (item != nullptr) {
-		SourceItem *sourceItem = new SourceItem(path);
+		SourceItem *sourceItem = new SourceItem(*ref);
 		sourceItem->SetProjectFolder(projectFolder);
 		newItem = new ProjectItem(sourceItem);
 		AddUnder(newItem, item);
@@ -699,7 +701,7 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 		AddItem(newItem);
 	}
 
-	BEntry entry(path);
+	BEntry entry(ref);
 	BEntry parent;
 	BPath parentPath;
 	// Check if there's a Jamfile or makefile in the root path
@@ -721,12 +723,12 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 			LogInfo("Guessed builder: jam");
 		}
 	} else if (entry.IsDirectory()) {
-		BPath _currentPath;
 		BDirectory dir(&entry);
 		BEntry nextEntry;
 		while (dir.GetNextEntry(&nextEntry, false) != B_ENTRY_NOT_FOUND) {
-			nextEntry.GetPath(&_currentPath);
-			_ProjectFolderScan(newItem, _currentPath.Path(), projectFolder);
+			entry_ref entryRef;
+			nextEntry.GetRef(&entryRef);
+			_ProjectFolderScan(newItem, &entryRef, projectFolder);
 		}
 	}
 }

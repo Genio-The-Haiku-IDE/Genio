@@ -57,7 +57,7 @@ public:
 private:
 	ProjectItem*	_CreatePath(BPath pathToCreate);
 
-	void			_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder = NULL);
+	void			_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
 

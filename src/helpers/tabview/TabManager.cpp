@@ -697,10 +697,7 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	BRect closeRect = _CloseRectFrame(frame);
 	frame.right = closeRect.left - be_control_look->DefaultLabelSpacing();
 
-	closeRect.left = (closeRect.left + closeRect.right) / 2 - 3;
-	closeRect.right = closeRect.left + 6;
-	closeRect.top = (closeRect.top + closeRect.bottom) / 2 - 3;
-	closeRect.bottom = closeRect.top + 6;
+	closeRect.InsetBy(closeRect.Width() * 0.30f, closeRect.Height() * 0.30f);
 
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 	float tint = B_LIGHTEN_1_TINT;
@@ -726,6 +723,8 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	base = tint_color(base, tint);
 	owner->SetHighColor(base);
 	owner->SetPenSize(2);
+	closeRect.left +=1.0f;
+	closeRect.top +=1.0f;
 	owner->StrokeLine(closeRect.LeftTop(), closeRect.RightBottom());
 	owner->StrokeLine(closeRect.LeftBottom(), closeRect.RightTop());
 	owner->SetPenSize(1);

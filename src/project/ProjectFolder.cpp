@@ -63,12 +63,7 @@ SourceItem::EntryRef() const
 BString const
 SourceItem::Path() const
 {
-	BEntry entry(&fEntryRef);
-	if (entry.InitCheck() != B_OK)
-		return BString();
-	BPath path;
-	if (entry.GetPath(&path) != B_OK)
-		return BString();
+	BPath path(&fEntryRef);
 	return BString(path.Path());
 }
 

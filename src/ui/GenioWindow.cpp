@@ -858,11 +858,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				entry_ref source;
 				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-					BEntry entry(item->GetSourceItem()->Path());
-					if (entry.GetRef(&dest) != B_OK) {
-						LogError("Invalid path [%s]", item->GetSourceItem()->Path().String());
-						return;
-					}
+					const entry_ref* entryRef = item->GetSourceItem()->EntryRef();
 					if (message->FindRef("refs", &source) != B_OK) {
 						LogError("Can't find ref in message!");
 						return;
@@ -872,7 +868,7 @@ GenioWindow::MessageReceived(BMessage* message)
 						OKAlert(B_TRANSLATE("New file"),
 								B_TRANSLATE("Could not create a new file"),
 								B_WARNING_ALERT);
-						LogError("Invalid destination directory [%s]", entry.Name());
+						LogError("Invalid destination directory [%s]", entryRef->name);
 						return;
 					}
 				}
@@ -3405,16 +3401,21 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	if (BDirectory(&dirEntry).IsRootDirectory())
 		return B_ERROR;
 
+	entry_ref pathRef;
+	status_t status = dirEntry.GetRef(&pathRef);
+	if (status != B_OK)
+		return status;
+
 	// Check if already open
 	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
 		ProjectFolder* pProject = static_cast<ProjectFolder*>(fProjectFolderObjectList->ItemAt(index));
-		if (pProject->Path() == path.Path())
+		if (*pProject->EntryRef() == pathRef)
 			return B_OK;
 	}
 
 	BMessenger msgr(this);
 	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
-	status_t status = newProject->Open();
+	status = newProject->Open();
 	if (status != B_OK) {
 		BString notification;
 		notification << "Project open fail: " << newProject->Name();
@@ -3458,9 +3459,7 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	}
 
     // final touch, let's be sure the folder is added to the recent files.
-    entry_ref ref;
-    dirEntry.GetRef(&ref);
-    be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
+    be_roster->AddToRecentFolders(&pathRef, GenioNames::kApplicationSignature);
 
 	return B_OK;
 }

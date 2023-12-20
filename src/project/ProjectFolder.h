@@ -11,6 +11,8 @@
 #include <String.h>
 
 #include "GitRepository.h"
+#include "Task.h"
+
 
 using namespace Genio::Git;
 
@@ -94,6 +96,7 @@ public:
 
 	LSPProjectWrapper*			GetLSPClient() const;
 
+	void						AssignTask(shared_ptr<Genio::Task::Task<status_t>> task);
 private:
 	bool						fActive;
 	BuildMode					fBuildMode;
@@ -101,6 +104,7 @@ private:
 	BString						fGuessedCleanCommand;
 	LSPProjectWrapper*			fLSPProjectWrapper;
 	GSettings*					fSettings;
+	shared_ptr<Genio::Task::Task<status_t>>		fCurrentTask;
 	GitRepository*				fGitRepository;
 	bool						fIsBuilding;
 };

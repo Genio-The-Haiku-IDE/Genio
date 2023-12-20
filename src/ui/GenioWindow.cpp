@@ -3428,7 +3428,7 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 		return status;
 	}
 
-	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
+	fProjectsFolderBrowser->ProjectFolderPopulateThread(newProject);
 	fProjectFolderObjectList->AddItem(newProject);
 
 	// Notify subscribers that project list has changed

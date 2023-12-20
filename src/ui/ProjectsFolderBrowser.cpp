@@ -6,6 +6,8 @@
 
 #include "ProjectsFolderBrowser.h"
 
+#include "ConfigManager.h"
+#include "GenioApp.h"
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"
 #include "GenioWindow.h"
@@ -30,6 +32,7 @@
 #include <Window.h>
 
 #include <cstdio>
+#include <functional>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
@@ -364,7 +367,18 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 					fIsBuilding = building;
 					break;
 				}
-
+				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
+				{
+					// Expand active project, collapse other
+					if (gCFG["auto_expand_collapse_projects"]) {
+						ProjectFolder* activeProject = nullptr;
+						if (message->FindPointer("active_project",
+							reinterpret_cast<void**>(&activeProject)) != B_OK)
+							break;
+						Expand(GetProjectItem(activeProject->Name()));
+					}
+					break;
+				}
 				default:
 					BOutlineListView::MessageReceived(message);
 					break;
@@ -589,6 +603,7 @@ ProjectsFolderBrowser::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		Window()->UnlockLooper();
 	}
 }
@@ -605,6 +620,7 @@ ProjectsFolderBrowser::DetachedFromWindow()
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
 		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
+		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		Window()->UnlockLooper();
 	}
 }
@@ -671,22 +687,25 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
 	ProjectItem *projectItem = NULL;
 	_ProjectFolderScan(projectItem, project->Path(), project);
+
+	LockLooper();
 	SortItemsUnder(projectItem, false, ProjectsFolderBrowser::_CompareProjectItems);
-
-	update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
-
-	Invalidate();
+	UnlockLooper();
 	status_t status = BPrivate::BPathMonitor::StartWatching(project->Path(),
 			B_WATCH_RECURSIVELY, BMessenger(this));
 	if (status != B_OK ) {
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", project->Path(), strerror(status));
 	}
+
+	update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
 }
 
 
 void
 ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path, ProjectFolder *projectFolder)
 {
+	LockLooper();
+
 	ProjectItem *newItem;
 	if (item != nullptr) {
 		SourceItem *sourceItem = new SourceItem(path);
@@ -726,9 +745,12 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, BString const& path
 		BEntry nextEntry;
 		while (dir.GetNextEntry(&nextEntry, false) != B_ENTRY_NOT_FOUND) {
 			nextEntry.GetPath(&_currentPath);
+			UnlockLooper();
 			_ProjectFolderScan(newItem, _currentPath.Path(), projectFolder);
+			LockLooper();
 		}
 	}
+	UnlockLooper();
 }
 
 
@@ -766,6 +788,28 @@ ProjectsFolderBrowser::_CompareProjectItems(const BListItem* a, const BListItem*
 		return BPrivate::NaturalCompare(nameA, nameB);
 
 	return 0;
+}
+
+
+void
+ProjectsFolderBrowser::ProjectFolderPopulateThread(ProjectFolder* item)
+{
+	BString taskName;
+	taskName << item->Name() << "PopulateProject (" << item->Name() << ") task";
+	shared_ptr<Genio::Task::Task<status_t>> task = make_shared<Genio::Task::Task<status_t>>
+	(
+		taskName.String(),
+		BMessenger(this),
+		std::bind
+		(
+			&ProjectsFolderBrowser::ProjectFolderPopulate,
+			this,
+			item
+		)
+	);
+
+	item->AssignTask(task);
+	task->Run();
 }
 
 

@@ -5,10 +5,13 @@
 #ifndef ProjectsFolderBrowser_H
 #define ProjectsFolderBrowser_H
 
+#include <memory>
 
 #include <OutlineListView.h>
 
+#include "Task.h"
 #include "TemplatesMenu.h"
+
 
 enum {
 	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
@@ -50,6 +53,7 @@ public:
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 
+	void		ProjectFolderPopulateThread(ProjectFolder* project);
 	virtual void	SelectionChanged();
 
 	void			InitRename(ProjectItem *item);
@@ -74,7 +78,6 @@ private:
 
 	bool				fIsBuilding = false;
 	GenioWatchingFilter* fGenioWatchingFilter;
-
 };
 
 

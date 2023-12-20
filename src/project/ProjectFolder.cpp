@@ -80,6 +80,7 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 	fBuildMode(BuildMode::ReleaseMode),
 	fLSPProjectWrapper(nullptr),
 	fSettings(nullptr),
+	fCurrentTask(nullptr),
 	fGitRepository(nullptr),
 	fIsBuilding(false)
 {
@@ -99,6 +100,9 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 
 ProjectFolder::~ProjectFolder()
 {
+	if (fCurrentTask != nullptr) {
+		fCurrentTask->Stop();
+	}
 	if (fLSPProjectWrapper != nullptr) {
 		fLSPProjectWrapper->Dispose();
 		delete fLSPProjectWrapper;
@@ -294,4 +298,11 @@ ProjectFolder::SetGuessedBuilder(const BString& string)
 	fGuessedBuildCommand = string;
 	fGuessedCleanCommand = string;
 	fGuessedCleanCommand.Append(" clean");
+}
+
+
+void
+ProjectFolder::AssignTask(shared_ptr<Genio::Task::Task<status_t>> task)
+{
+	fCurrentTask = task;
 }

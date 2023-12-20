@@ -15,8 +15,9 @@
 #include "GenioNamespace.h"
 #include "GSettings.h"
 
-SourceItem::SourceItem(BString const& path)
+SourceItem::SourceItem(const BString& path)
 	:
+	fEntryRef(),
 	fType(SourceItemType::FileItem),
 	fProjectFolder(nullptr)
 {
@@ -25,8 +26,21 @@ SourceItem::SourceItem(BString const& path)
 		// TODO: What to do ?
 		LogError("Failed to get ref for path %s: %s", path.String(), ::strerror(status));
 	}
+	BEntry entry(&fEntryRef);
+	if (entry.IsDirectory())
+		fType = SourceItemType::FolderItem;
+	else
+		fType = SourceItemType::FileItem;
+}
 
-	BEntry entry(path.String());
+
+SourceItem::SourceItem(const entry_ref& ref)
+	:
+	fEntryRef(ref),
+	fType(SourceItemType::FileItem),
+	fProjectFolder(nullptr)
+{
+	BEntry entry(&fEntryRef);
 	if (entry.IsDirectory())
 		fType = SourceItemType::FolderItem;
 	else

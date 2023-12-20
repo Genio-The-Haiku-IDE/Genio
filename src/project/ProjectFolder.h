@@ -33,10 +33,13 @@ class ProjectFolder;
 
 class SourceItem {
 public:
-								SourceItem(BString const& path);
+								SourceItem(const BString& path);
+								SourceItem(const entry_ref& ref);
 								~SourceItem();
 
 	const entry_ref*			EntryRef() const;
+
+	// WARNING: Path() is computationally intensive: use it sparingly
 	BString	const				Path() const;
 	BString	const				Name() const;
 	SourceItemType				Type() const { return fType; };

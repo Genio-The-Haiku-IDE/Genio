@@ -820,19 +820,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (type == "new_folder") {
 				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-					BEntry entry(item->GetSourceItem()->Path());
-					entry_ref ref;
-					if (entry.GetRef(&ref) != B_OK) {
-						LogError("Invalid path [%s]", item->GetSourceItem()->Path().String());
-						return;
-					} else {
-						status = TemplateManager::CreateNewFolder(&ref);
-						if (status != B_OK) {
-							OKAlert(B_TRANSLATE("New folder"),
-									B_TRANSLATE("Error creating folder"),
-									B_WARNING_ALERT);
-							LogError("Invalid destination directory [%s]", entry.Name());
-						}
+					const entry_ref* ref = item->GetSourceItem()->EntryRef();
+					status = TemplateManager::CreateNewFolder(ref);
+					if (status != B_OK) {
+						OKAlert(B_TRANSLATE("New folder"),
+								B_TRANSLATE("Error creating folder"),
+								B_WARNING_ALERT);
+						LogError("Invalid destination directory [%s]", ref->name);
 					}
 				} else {
 					LogError("Can't find current item");

@@ -192,7 +192,8 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 					if (message->FindString("path", &newPath) == B_OK) {
 						if (message->FindString("name", &newName) == B_OK) {
 							const BPath destination(newPath);
-							if (BEntry(newPath).IsDirectory()) {
+							BEntry newPathEntry(newPath);
+							if (newPathEntry.IsDirectory()) {
 								// a new folder moved inside the project.
 								//ensure we have a parent
 								BPath parent;
@@ -200,7 +201,7 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 								ProjectItem *parentItem = _CreatePath(parent);
 								// recursive parsing!
 								entry_ref entryRef;
-								get_ref_for_path(newPath.String(), &entryRef);
+								newPathEntry.GetRef(&entryRef);
 								_ProjectFolderScan(parentItem, &entryRef, parentItem->GetSourceItem()->GetProjectFolder());
 								SortItemsUnder(parentItem, false, ProjectsFolderBrowser::_CompareProjectItems);
 							} else {
@@ -726,11 +727,9 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* re
 		}
 	} else if (entry.IsDirectory()) {
 		BDirectory dir(&entry);
-		BEntry nextEntry;
-		while (dir.GetNextEntry(&nextEntry, false) != B_ENTRY_NOT_FOUND) {
-			entry_ref entryRef;
-			nextEntry.GetRef(&entryRef);
-			_ProjectFolderScan(newItem, &entryRef, projectFolder);
+		entry_ref nextRef;
+		while (dir.GetNextRef(&nextRef) != B_ENTRY_NOT_FOUND) {
+			_ProjectFolderScan(newItem, &nextRef, projectFolder);
 		}
 	}
 }

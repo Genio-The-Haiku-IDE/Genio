@@ -571,7 +571,7 @@ ProjectsFolderBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 	status_t status = B_NOT_INITIALIZED;
 	ProjectItem *item = GetSelectedProjectItem();
 	if (item) {
-		BEntry entry(item->GetSourceItem()->Path());
+		BEntry entry(item->GetSourceItem()->EntryRef());
 		if (entry.Exists())
 			status = entry.Rename(new_name, false);
 	}
@@ -655,15 +655,16 @@ ProjectsFolderBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* 
 void
 ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 {
-	status_t status = BPrivate::BPathMonitor::StopWatching(project->Path(), BMessenger(this));
-	if ( status != B_OK ){
-		LogErrorF("Can't StopWatching! path [%s] error[%s]", project->Path(), strerror(status));
+	const BString projectPath = project->Path();
+	status_t status = BPrivate::BPathMonitor::StopWatching(projectPath, BMessenger(this));
+	if (status != B_OK) {
+		LogErrorF("Can't StopWatching! path [%s] error[%s]", projectPath.String(), strerror(status));
 	}
-	ProjectItem* listItem = GetProjectItemByPath(project->Path());
+	ProjectItem* listItem = GetProjectItemByPath(projectPath);
 	if (listItem)
 		RemoveItem(listItem);
 	else
-		LogErrorF("Can't find ProjectItem for path [%s]", project->Path().String());
+		LogErrorF("Can't find ProjectItem for path [%s]", projectPath.String());
 	Invalidate();
 }
 
@@ -675,13 +676,14 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	_ProjectFolderScan(projectItem, project->EntryRef(), project);
 	SortItemsUnder(projectItem, false, ProjectsFolderBrowser::_CompareProjectItems);
 
-	update_mime_info(project->Path(), true, false, B_UPDATE_MIME_INFO_NO_FORCE);
+	const BString projectPath = project->Path();
+	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
 
 	Invalidate();
-	status_t status = BPrivate::BPathMonitor::StartWatching(project->Path(),
+	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
 			B_WATCH_RECURSIVELY, BMessenger(this));
 	if (status != B_OK ) {
-		LogErrorF("Can't StartWatching! path [%s] error[%s]", project->Path(), strerror(status));
+		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
 	}
 }
 

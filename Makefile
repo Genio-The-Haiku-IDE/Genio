@@ -130,7 +130,7 @@ CXXFLAGS := -std=c++20 -fPIC
 	endif
 #endif
 
-LOCALES := ca de en en_AU es-419 tr
+LOCALES := ca de en es it sc tr
 
 ## Include the Makefile-Engine
 include $(BUILDHOME)/etc/makefile-engine

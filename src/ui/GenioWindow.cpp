@@ -1673,21 +1673,22 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	if (entry.InitCheck() != B_OK || entry.IsDirectory())
 		return false;
 
+	BPath path(ref);
 	std::string fileType = "";
-	if (Languages::GetLanguageForExtension(GetFileExtension(BPath(ref).Path()), fileType))
+	if (Languages::GetLanguageForExtension(GetFileExtension(path.Path()), fileType))
 		return true;
 
 	BNodeInfo info(&entry);
 	if (info.InitCheck() == B_OK) {
 		char mime[B_MIME_TYPE_LENGTH + 1];
 		if (info.GetType(mime) != B_OK) {
-			LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
+			LogError("Error in getting mime type from file [%s]", path.Path());
 			mime[0] = '\0';
 		}
 		if (mime[0] == '\0' || strcmp(mime, "application/octet-stream") == 0) {
-			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
+			if (update_mime_info(path.Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
 				if (info.GetType(mime) != B_OK) {
-					LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
+					LogError("Error in getting mime type from file [%s]", path.Path());
 					mime[0] = '\0';
 				}
 			}

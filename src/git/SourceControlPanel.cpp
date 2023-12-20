@@ -289,7 +289,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					}
 					case B_PATH_MONITOR:
 					{
-						message->PrintToStream();
 						if (!fSelectedProject->IsBuilding()) {
 							LogInfo("B_PATH_MONITOR");
 							// int32 opCode;

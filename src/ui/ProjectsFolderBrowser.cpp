@@ -499,10 +499,17 @@ ProjectsFolderBrowser::GetProjectItemAt(const int32& index) const
 ProjectItem*
 ProjectsFolderBrowser::GetProjectItemByPath(BString const& path) const
 {
+	entry_ref ref;
+	status_t status = get_ref_for_path(path.String(), &ref);
+	if (status != B_OK) {
+		LogTraceF("invalid path %s (%s)", path.String(), strerror(status));
+		return nullptr;
+	}
+
 	const int32 countItems = FullListCountItems();
 	for (int32 i = 0; i < countItems; i++) {
 		ProjectItem *item = dynamic_cast<ProjectItem*>(FullListItemAt(i));
-		if (item != nullptr && item->GetSourceItem()->Path() == path)
+		if (item != nullptr && *item->GetSourceItem()->EntryRef() == ref)
 			return item;
 	}
 

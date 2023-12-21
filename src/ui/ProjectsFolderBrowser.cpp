@@ -609,6 +609,18 @@ ProjectsFolderBrowser::DetachedFromWindow()
 	}
 }
 
+// NOTE: this is a workaround to avoid a bug introduced on BListItem on 06-Dec-2023
+// https://github.com/haiku/haiku/commit/6761bf581fd14cac9fd22825fa6baa399263dc83
+// https://dev.haiku-os.org/ticket/18707
+
+void
+ProjectsFolderBrowser::MouseUp(BPoint where)
+{
+	if (CountItems() == 0)
+		return;
+
+	BOutlineListView::MouseDown(where);
+}
 
 /* virtual */
 void
@@ -621,7 +633,7 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 		 message->FindInt32("buttons", &buttons);
 
 	if (buttons == B_MOUSE_BUTTON(1)) {
-		return BOutlineListView::MouseDown(where);
+		BOutlineListView::MouseDown(where);
 	} else 	if ( buttons == B_MOUSE_BUTTON(2)) {
 		int32 index = IndexOf(where);
 		if (index >= 0) {

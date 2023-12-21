@@ -36,9 +36,10 @@
 
 
 ProjectsFolderBrowser::ProjectsFolderBrowser()
-	:
-	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
+	: BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
+	, fProjectList(nullptr)
 {
+	fProjectList = new BObjectList<ProjectFolder>();
 	fGenioWatchingFilter = new GenioWatchingFilter();
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);
@@ -666,6 +667,9 @@ ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 		RemoveItem(listItem);
 	else
 		LogErrorF("Can't find ProjectItem for path [%s]", projectPath.String());
+
+	fProjectList->RemoveItem(project);
+
 	Invalidate();
 }
 
@@ -679,6 +683,8 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 
 	const BString projectPath = project->Path();
 	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
+
+	fProjectList->AddItem(project);
 
 	Invalidate();
 	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
@@ -785,4 +791,22 @@ ProjectsFolderBrowser::InitRename(ProjectItem *item)
 {
 	item->InitRename(this, new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
 	Invalidate();
+}
+
+int32
+ProjectsFolderBrowser::CountProjects() const
+{
+	return fProjectList->CountItems();
+}
+
+ProjectFolder*
+ProjectsFolderBrowser::ProjectAt(int32 index) const
+{
+	return fProjectList->ItemAt(index);
+}
+
+BObjectList<ProjectFolder>*
+ProjectsFolderBrowser::GetProjectList() const
+{
+	return fProjectList;
 }

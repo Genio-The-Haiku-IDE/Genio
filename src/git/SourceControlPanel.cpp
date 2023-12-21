@@ -66,7 +66,7 @@ SourceControlPanel::SourceControlPanel()
 	fDoNotCreateInitialCommitCheckBox(nullptr),
 	fBurstHandler(nullptr)
 {
-	fProjectList = gMainWindow->GetProjectList();
+	fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
 
 	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
 		B_TRANSLATE("Project:"),
@@ -275,7 +275,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
-						fProjectList = gMainWindow->GetProjectList();
+						fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
 
 						_UpdateProjectList();
 						break;

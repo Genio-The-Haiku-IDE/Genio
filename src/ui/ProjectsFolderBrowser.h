@@ -7,6 +7,7 @@
 
 
 #include <OutlineListView.h>
+#include <ObjectList.h>
 
 #include "TemplatesMenu.h"
 
@@ -54,6 +55,11 @@ public:
 
 	void			InitRename(ProjectItem *item);
 
+	int32			CountProjects() const;
+	ProjectFolder*	ProjectAt(int32 index) const;
+
+	BObjectList<ProjectFolder>*	GetProjectList() const;
+
 private:
 	ProjectItem*	_CreatePath(BPath pathToCreate);
 
@@ -74,6 +80,7 @@ private:
 
 	bool				fIsBuilding = false;
 	GenioWatchingFilter* fGenioWatchingFilter;
+	BObjectList<ProjectFolder>*	fProjectList;
 
 };
 

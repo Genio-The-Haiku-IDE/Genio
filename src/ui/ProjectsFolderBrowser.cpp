@@ -609,6 +609,9 @@ ProjectsFolderBrowser::DetachedFromWindow()
 	}
 }
 
+// NOTE: this is a workaround to avoid a bug introduced on BListItem on 06-Dec-2023
+// https://github.com/haiku/haiku/commit/6761bf581fd14cac9fd22825fa6baa399263dc83
+// https://dev.haiku-os.org/ticket/18707
 
 void
 ProjectsFolderBrowser::MouseUp(BPoint where)

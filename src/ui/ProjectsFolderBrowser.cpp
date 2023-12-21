@@ -610,6 +610,15 @@ ProjectsFolderBrowser::DetachedFromWindow()
 }
 
 
+void
+ProjectsFolderBrowser::MouseUp(BPoint where)
+{
+	if (CountItems() == 0)
+		return;
+
+	BOutlineListView::MouseDown(where);
+}
+
 /* virtual */
 void
 ProjectsFolderBrowser::MouseDown(BPoint where)
@@ -621,7 +630,7 @@ ProjectsFolderBrowser::MouseDown(BPoint where)
 		 message->FindInt32("buttons", &buttons);
 
 	if (buttons == B_MOUSE_BUTTON(1)) {
-		return BOutlineListView::MouseDown(where);
+		BOutlineListView::MouseDown(where);
 	} else 	if ( buttons == B_MOUSE_BUTTON(2)) {
 		int32 index = IndexOf(where);
 		if (index >= 0) {
@@ -663,6 +672,9 @@ ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	else
 		LogErrorF("Can't find ProjectItem for path [%s]", project->Path().String());
 	Invalidate();
+
+	printf("Count projects %d\n", CountItems());
+
 }
 
 

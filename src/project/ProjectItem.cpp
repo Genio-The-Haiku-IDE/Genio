@@ -150,7 +150,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	else
 		SetTextFontFace(B_REGULAR_FACE);
 
-	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->Path());
+	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->EntryRef());
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BRect iconRect = DrawIcon(owner, bounds, icon, iconSize);
 

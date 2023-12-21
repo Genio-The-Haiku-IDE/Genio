@@ -64,7 +64,6 @@ public:
 	void						UpdateMenu();
 	ProjectFolder*				GetActiveProject() const;
 	void						SetActiveProject(ProjectFolder *project);
-	BObjectList<ProjectFolder>*	GetProjectList() const;
 	ProjectsFolderBrowser*		GetProjectBrowser() const;
 
 private:
@@ -195,8 +194,6 @@ private:
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
-
-			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
 
 			// Editor group
 			EditorTabManager*	fTabManager;

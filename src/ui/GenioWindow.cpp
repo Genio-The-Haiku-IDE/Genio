@@ -128,7 +128,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fProjectsFolderScroll(nullptr)
 	, fActiveProject(nullptr)
 	, fIsBuilding(false)
-	, fProjectFolderObjectList(nullptr)
 	, fTabManager(nullptr)
 	, fFindGroup(nullptr)
 	, fReplaceGroup(nullptr)
@@ -1078,13 +1077,6 @@ GenioWindow::SetActiveProject(ProjectFolder *project)
 }
 
 
-BObjectList<ProjectFolder>*
-GenioWindow::GetProjectList() const
-{
-	return fProjectFolderObjectList;
-}
-
-
 ProjectsFolderBrowser*
 GenioWindow::GetProjectBrowser() const
 {
@@ -1323,8 +1315,8 @@ GenioWindow::QuitRequested()
 
 		projects.MakeEmpty();
 
-		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-			ProjectFolder *project = fProjectFolderObjectList->ItemAt(index);
+		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+			ProjectFolder *project = GetProjectBrowser()->ProjectAt(index);
 			projects.AddString("project_to_reopen", project->Path());
 			if (project->Active())
 				projects.SetString("active_project", project->Path());
@@ -1626,8 +1618,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 		*/
 		// Check if already open
 		BString baseDir("");
-		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-			ProjectFolder * project = fProjectFolderObjectList->ItemAt(index);
+		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+			ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
 			BString projectPath = project->Path();
 			projectPath = projectPath.Append("/");
 			if (editor->FilePath().StartsWith(projectPath)) {
@@ -2090,8 +2082,8 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 				editor->SetProjectFolder(NULL);
 		} else {
 			BString baseDir("");
-			for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-				ProjectFolder * project = fProjectFolderObjectList->ItemAt(index);
+			for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+				ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
 				BString projectPath = project->Path();
 				projectPath = projectPath.Append("/");
 				if (editor->FilePath().StartsWith(projectPath)) {
@@ -3093,9 +3085,6 @@ GenioWindow::_InitSideSplit()
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 
-	// Project list
-	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
-
 	// Source Control
 	fSourceControlPanel = new SourceControlPanel();
 	fProjectsTabView->AddTab(fSourceControlPanel);
@@ -3340,7 +3329,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	}
 
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
-	fProjectFolderObjectList->RemoveItem(project);
+
 
 	// Notify subscribers that the project list has changed
 	if (!fDisableProjectNotifications)
@@ -3358,7 +3347,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	}
 
 	// Disable "Close project" action if no project
-	if (fProjectFolderObjectList->CountItems() == 0)
+	if (GetProjectBrowser()->CountProjects() == 0)
 		ActionManager::SetEnabled(MSG_PROJECT_CLOSE, false);
 
 	BString notification;
@@ -3407,8 +3396,8 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 		return status;
 
 	// Check if already open
-	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-		ProjectFolder* pProject = static_cast<ProjectFolder*>(fProjectFolderObjectList->ItemAt(index));
+	for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+		ProjectFolder* pProject = static_cast<ProjectFolder*>(GetProjectBrowser()->ProjectAt(index));
 		if (*pProject->EntryRef() == pathRef)
 			return B_OK;
 	}
@@ -3425,7 +3414,7 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	}
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
-	fProjectFolderObjectList->AddItem(newProject);
+
 
 	// Notify subscribers that project list has changed
 	if (!fDisableProjectNotifications)
@@ -3434,7 +3423,7 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	_CollapseOrExpandProjects();
 
 	BString opened("Project open: ");
-	if (fProjectFolderObjectList->CountItems() == 1 || activate == true) {
+	if (GetProjectBrowser()->CountProjects() == 1 || activate == true) {
 		_ProjectFolderActivate(newProject);
 		opened = "Active project open: ";
 	}

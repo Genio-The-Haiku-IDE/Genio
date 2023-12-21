@@ -3331,7 +3331,6 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
 
-
 	// Notify subscribers that the project list has changed
 	if (!fDisableProjectNotifications)
 		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
@@ -3342,9 +3341,9 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	// Select a new active project
 	if (wasActive) {
-		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));
-		if (item != nullptr)
-			_ProjectFolderActivate(item->GetSourceItem()->GetProjectFolder());
+		ProjectFolder* project = fProjectsFolderBrowser->ProjectAt(0);
+		if (project != nullptr)
+			_ProjectFolderActivate(project);
 	}
 
 	// Disable "Close project" action if no project
@@ -3409,7 +3408,6 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	}
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
-
 
 	// Notify subscribers that project list has changed
 	if (!fDisableProjectNotifications)

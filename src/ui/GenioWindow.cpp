@@ -4068,12 +4068,13 @@ GenioWindow::_CollapseOrExpandProjects()
 {
 	if (gCFG["auto_expand_collapse_projects"]) {
 		// Expand active project, collapse other
-		// TODO: Improve by adding necessary APIs to ProjectFolderBrowser
-		for (int32 i = 0; i < fProjectsFolderBrowser->CountItems(); i++) {
-			if ((ProjectFolder*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
-				fProjectsFolderBrowser->Expand(fProjectsFolderBrowser->GetProjectItemAt(i));
+		for (int32 i = 0; i < GetProjectBrowser()->CountProjects(); i++) {
+			ProjectFolder* prj = GetProjectBrowser()->ProjectAt(i);
+			ProjectItem* item = GetProjectBrowser()->GetProjectItemForProject(prj);
+			if (prj == fActiveProject)
+				GetProjectBrowser()->Expand(item);
 			else
-				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
+				fProjectsFolderBrowser->Collapse(item);
 		}
 	}
 }

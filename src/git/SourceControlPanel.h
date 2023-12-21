@@ -69,7 +69,7 @@ private:
 	BView*					fChangesView;
 	BView*					fLogView;
 	BView*					fRepositoryNotInitializedView;
-	BObjectList<ProjectFolder>* fProjectList;
+	const BObjectList<ProjectFolder>* fProjectList;
 	ProjectFolder*			fSelectedProject;
 	BString					fCurrentBranch;
 	BButton*				fInitializeButton;

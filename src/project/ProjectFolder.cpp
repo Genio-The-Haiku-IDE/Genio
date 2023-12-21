@@ -106,7 +106,6 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	fLSPProjectWrapper = new LSPProjectWrapper(path.String(), msgr);
 }
 
-
 ProjectFolder::~ProjectFolder()
 {
 	if (fLSPProjectWrapper != nullptr) {

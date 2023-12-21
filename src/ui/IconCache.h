@@ -18,7 +18,7 @@ public:
 	IconCache(IconCache const&) = delete;
 	void operator=(IconCache const&) = delete;
 
-	static const BBitmap* GetIcon(entry_ref *ref);
+	static const BBitmap* GetIcon(const entry_ref *ref);
 	static const BBitmap* GetIcon(const BString& path);
 	static void 	PrintToStream();
 

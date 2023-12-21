@@ -184,24 +184,27 @@ GenioWindow::GenioWindow(BRect frame)
 	if (gCFG["reopen_projects"]) {
 		fDisableProjectNotifications = true;
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
+		status_t status = B_OK;
 		if (!projects.IsEmpty()) {
 			BString projectName;
 			BString activeProject = projects.GetString("active_project");
 			for (auto count = 0; projects.FindString("project_to_reopen",
 										count, &projectName) == B_OK; count++) {
-				const BPath projectPath(projectName);
-				_ProjectFolderOpen(projectPath, projectName == activeProject);
+				entry_ref ref;
+				status = get_ref_for_path(projectName, &ref);
+				if (status == B_OK) {
+					status = _ProjectFolderOpen(ref, projectName == activeProject);
+				}
 			}
 		}
-		// TODO: _ProjectFolderOpen() could fail to open projects, so
-		// - We should check its return value
-		// - here we could have no active projects or no projects at all
 		fDisableProjectNotifications = false;
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		noticeMessage.AddPointer("active_project", fActiveProject);
-		noticeMessage.AddString("active_project_name", fActiveProject ? fActiveProject->Name() : "");
-		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+		if (status == B_OK) {
+			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+			noticeMessage.AddPointer("active_project", fActiveProject);
+			noticeMessage.AddString("active_project_name", fActiveProject ? fActiveProject->Name() : "");
+			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+		}
 
 	}
 
@@ -797,9 +800,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 
 			if (TemplateManager::CopyProjectTemplate(&template_ref, &dest_ref, name.String()) == B_OK) {
-				BPath path(&dest_ref);
-				path.Append(name);
-				_ProjectFolderOpen(path);
+				_ProjectFolderOpen(dest_ref);
 			} else {
 				LogError("TemplateManager: could create %s from %s to %s",
 							name.String(), template_ref.name, dest_ref.name);
@@ -3362,8 +3363,7 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 	entry_ref ref;
 	status_t status = message->FindRef("refs", &ref);
 	if (status == B_OK) {
-		BPath path(&ref);
-		status = _ProjectFolderOpen(path);
+		status = _ProjectFolderOpen(ref);
 	} else {
 		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
 	}
@@ -3373,9 +3373,9 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 
 
 status_t
-GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
+GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 {
-	BEntry dirEntry(path.Path());
+	BEntry dirEntry(&ref);
 	if (!dirEntry.Exists())
 		return B_NAME_NOT_FOUND;
 
@@ -3390,21 +3390,16 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	if (BDirectory(&dirEntry).IsRootDirectory())
 		return B_ERROR;
 
-	entry_ref pathRef;
-	status_t status = dirEntry.GetRef(&pathRef);
-	if (status != B_OK)
-		return status;
-
 	// Check if already open
 	for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
-		ProjectFolder* pProject = static_cast<ProjectFolder*>(GetProjectBrowser()->ProjectAt(index));
-		if (*pProject->EntryRef() == pathRef)
+		ProjectFolder* pProject = GetProjectBrowser()->ProjectAt(index);
+		if (*pProject->EntryRef() == ref)
 			return B_OK;
 	}
 
 	BMessenger msgr(this);
-	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
-	status = newProject->Open();
+	ProjectFolder* newProject = new ProjectFolder(ref, msgr);
+	status_t status = newProject->Open();
 	if (status != B_OK) {
 		BString notification;
 		notification << "Project open fail: " << newProject->Name();
@@ -3448,7 +3443,7 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	}
 
     // final touch, let's be sure the folder is added to the recent files.
-    be_roster->AddToRecentFolders(&pathRef, GenioNames::kApplicationSignature);
+    be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
 
 	return B_OK;
 }

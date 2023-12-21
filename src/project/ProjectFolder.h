@@ -33,8 +33,8 @@ class ProjectFolder;
 
 class SourceItem {
 public:
-								SourceItem(const BString& path);
-								SourceItem(const entry_ref& ref);
+					explicit	SourceItem(const BString& path);
+					explicit	SourceItem(const entry_ref& ref);
 								~SourceItem();
 
 	const entry_ref*			EntryRef() const;
@@ -58,7 +58,7 @@ protected:
 
 class ProjectFolder : public SourceItem {
 public:
-								ProjectFolder(BString const& path, BMessenger& msgr);
+								ProjectFolder(const entry_ref& ref, BMessenger& msgr);
 								~ProjectFolder();
 
 	status_t					Open();

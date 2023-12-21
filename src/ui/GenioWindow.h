@@ -117,7 +117,7 @@ private:
 			// Project Folders
 			void				_ProjectFolderClose(ProjectFolder *project);
 			status_t			_ProjectFolderOpen(BMessage *message);
-			status_t			_ProjectFolderOpen(const BPath& folder, bool activate = false);
+			status_t			_ProjectFolderOpen(const entry_ref& ref, bool activate = false);
 			void				_ProjectFolderActivate(ProjectFolder* project);
 
 			status_t			_ShowSelectedItemInTracker();

@@ -38,10 +38,8 @@ public:
 	virtual void	DetachedFromWindow();
 	virtual void	MessageReceived(BMessage* message);
 
-	ProjectItem*	GetProjectItem(const BString& projectName) const;
-	ProjectItem*	GetProjectItemAt(const int32& index) const;
-	ProjectItem*	GetProjectItemByPath(const BString& path) const;
 	ProjectItem*	GetSelectedProjectItem() const;
+	ProjectItem*	GetProjectItemForProject(ProjectFolder*);
 
 	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
 	ProjectFolder*	GetProjectFromSelectedItem() const;
@@ -58,12 +56,15 @@ public:
 	int32			CountProjects() const;
 	ProjectFolder*	ProjectAt(int32 index) const;
 
-	BObjectList<ProjectFolder>*	GetProjectList() const;
+	const BObjectList<ProjectFolder>*	GetProjectList() const;
 
 private:
+
+	ProjectItem*	GetProjectItemByPath(const BString& path) const;
+
 	ProjectItem*	_CreatePath(BPath pathToCreate);
 
-	void			_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder = NULL);
+	ProjectItem*	_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
 
@@ -80,8 +81,10 @@ private:
 
 	bool				fIsBuilding = false;
 	GenioWatchingFilter* fGenioWatchingFilter;
-	BObjectList<ProjectFolder>*	fProjectList;
 
+	//TODO: remove this and use a std::vector<std::pair or similar.
+	BObjectList<ProjectFolder>	fProjectList;
+	BObjectList<ProjectItem>	fProjectProjectItemList;
 };
 
 

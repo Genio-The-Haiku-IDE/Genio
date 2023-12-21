@@ -29,6 +29,7 @@
 #include <PopUpMenu.h>
 #include <Window.h>
 
+#include <cassert>
 #include <cstdio>
 
 #undef B_TRANSLATION_CONTEXT
@@ -37,9 +38,7 @@
 
 ProjectsFolderBrowser::ProjectsFolderBrowser()
 	: BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
-	, fProjectList(nullptr)
 {
-	fProjectList = new BObjectList<ProjectFolder>();
 	fGenioWatchingFilter = new GenioWatchingFilter();
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);
@@ -471,32 +470,6 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	projectMenu->Go(ConvertToScreen(where), true);
 }
 
-
-ProjectItem*
-ProjectsFolderBrowser::GetProjectItem(const BString& projectName) const
-{
-	const int32 countItems = CountItems();
-	for (int32 i = 0; i < countItems; i++) {
-		ProjectItem *item = dynamic_cast<ProjectItem*>(ItemAt(i));
-		if (item != nullptr && item->Text() == projectName)
-			return item;
-	}
-
-	return nullptr;
-}
-
-
-ProjectItem*
-ProjectsFolderBrowser::GetProjectItemAt(const int32& index) const
-{
-	const int32 countItems = CountItems();
-	if (index < 0 || index >= countItems)
-		return nullptr;
-
-	return dynamic_cast<ProjectItem*>(ItemAt(index));
-}
-
-
 // TODO:
 // Optimize the search under a specific ProjectItem, tipically a
 // superitem (ProjectFolder)
@@ -529,6 +502,18 @@ ProjectsFolderBrowser::GetSelectedProjectItem() const
 		return nullptr;
 
 	return dynamic_cast<ProjectItem*>(ItemAt(selection));
+}
+
+ProjectItem*
+ProjectsFolderBrowser::GetProjectItemForProject(ProjectFolder* folder)
+{
+	assert(fProjectProjectItemList.CountItems() == CountProjects());
+
+	for (int32 i = 0; i < CountProjects(); i++) {
+		if (ProjectAt(i) == folder)
+			return fProjectProjectItemList.ItemAt(i);
+	}
+	return nullptr;
 }
 
 
@@ -662,13 +647,15 @@ ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	if (status != B_OK) {
 		LogErrorF("Can't StopWatching! path [%s] error[%s]", projectPath.String(), strerror(status));
 	}
-	ProjectItem* listItem = GetProjectItemByPath(projectPath);
+	ProjectItem* listItem = GetProjectItemForProject(project);
 	if (listItem)
 		RemoveItem(listItem);
 	else
 		LogErrorF("Can't find ProjectItem for path [%s]", projectPath.String());
 
-	fProjectList->RemoveItem(project);
+	fProjectProjectItemList.RemoveItem(listItem);
+	fProjectList.RemoveItem(project);
+
 
 	Invalidate();
 }
@@ -677,14 +664,17 @@ ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 void
 ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
-	ProjectItem *projectItem = NULL;
-	_ProjectFolderScan(projectItem, project->EntryRef(), project);
-	SortItemsUnder(projectItem, false, ProjectsFolderBrowser::_CompareProjectItems);
+	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
+	//NOTE: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
+	SortItemsUnder(nullptr, false, ProjectsFolderBrowser::_CompareProjectItems);
 
 	const BString projectPath = project->Path();
 	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
 
-	fProjectList->AddItem(project);
+	assert(projectItem && project);
+
+	fProjectList.AddItem(project);
+	fProjectProjectItemList.AddItem(projectItem);
 
 	Invalidate();
 	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
@@ -695,7 +685,7 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 }
 
 
-void
+ProjectItem*
 ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder)
 {
 	ProjectItem *newItem;
@@ -706,7 +696,7 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* re
 		AddUnder(newItem, item);
 		Collapse(newItem);
 	} else {
-		newItem = item = new ProjectItem(projectFolder);
+		newItem = new ProjectItem(projectFolder);
 		AddItem(newItem);
 	}
 
@@ -738,6 +728,8 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* re
 			_ProjectFolderScan(newItem, &nextRef, projectFolder);
 		}
 	}
+
+	return newItem;
 }
 
 
@@ -796,17 +788,17 @@ ProjectsFolderBrowser::InitRename(ProjectItem *item)
 int32
 ProjectsFolderBrowser::CountProjects() const
 {
-	return fProjectList->CountItems();
+	return fProjectList.CountItems();
 }
 
 ProjectFolder*
 ProjectsFolderBrowser::ProjectAt(int32 index) const
 {
-	return fProjectList->ItemAt(index);
+	return fProjectList.ItemAt(index);
 }
 
-BObjectList<ProjectFolder>*
+const BObjectList<ProjectFolder>*
 ProjectsFolderBrowser::GetProjectList() const
 {
-	return fProjectList;
+	return &fProjectList;
 }

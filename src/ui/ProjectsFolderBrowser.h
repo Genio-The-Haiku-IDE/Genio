@@ -31,6 +31,7 @@ public:
 					 ProjectsFolderBrowser();
 	virtual 		~ProjectsFolderBrowser();
 
+	virtual	void	MouseUp(BPoint where);
 	virtual void	MouseDown(BPoint where);
 	virtual void	MouseMoved(BPoint point, uint32 transit, const BMessage* message);
 	virtual void	AttachedToWindow();

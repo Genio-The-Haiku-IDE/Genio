@@ -3344,7 +3344,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	if (wasActive) {
 		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));
 		if (item != nullptr)
-			_ProjectFolderActivate((ProjectFolder*)item->GetSourceItem());
+			_ProjectFolderActivate(item->GetSourceItem()->GetProjectFolder());
 	}
 
 	// Disable "Close project" action if no project

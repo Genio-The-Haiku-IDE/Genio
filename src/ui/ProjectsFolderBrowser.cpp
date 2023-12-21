@@ -672,9 +672,6 @@ ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	else
 		LogErrorF("Can't find ProjectItem for path [%s]", project->Path().String());
 	Invalidate();
-
-	printf("Count projects %d\n", CountItems());
-
 }
 
 

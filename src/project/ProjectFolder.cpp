@@ -82,9 +82,9 @@ SourceItem::Rename(BString const& path)
 }
 
 
-ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
+ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	:
-	SourceItem(path),
+	SourceItem(ref),
 	fActive(false),
 	fBuildMode(BuildMode::ReleaseMode),
 	fLSPProjectWrapper(nullptr),
@@ -94,6 +94,7 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
+	BString path = Path();
 
 	try {
 		fGitRepository = new GitRepository(path);
@@ -102,7 +103,7 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 			path.String(), ex.Error(), ex.what());
 	}
 
-	fLSPProjectWrapper = new LSPProjectWrapper(Path().String(), msgr);
+	fLSPProjectWrapper = new LSPProjectWrapper(path.String(), msgr);
 }
 
 

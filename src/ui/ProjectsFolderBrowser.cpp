@@ -304,14 +304,9 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) ExpandOrCollapse(%s)", item->GetSourceItem()->Name().String());
 				return;
 			}
-			BEntry entry(item->GetSourceItem()->Path());
-			entry_ref ref;
-			if (entry.GetRef(&ref) != B_OK) {
-				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Invalid entry_ref for [%s]", item->GetSourceItem()->Path().String());
-				return;
-			}
+
 			BMessage msg(B_REFS_RECEIVED);
-			msg.AddRef("refs", &ref);
+			msg.AddRef("refs", item->GetSourceItem()->EntryRef());
 			msg.AddBool("openWithPreferred", true);
 			Window()->PostMessage(&msg);
 			return;

@@ -51,7 +51,5 @@ private:
 
 	void			_ShowPopupMenu(BPoint where);
 
-	BString			fRepositoryPath;
-	ProjectFolder*	fSelectedProject;
 	BString			fCurrentBranch;
 };

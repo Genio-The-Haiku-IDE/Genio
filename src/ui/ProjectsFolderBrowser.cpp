@@ -230,9 +230,15 @@ ProjectsFolderBrowser::_UpdateNode(BMessage* message)
 										LogError("Can't find an item to move oldPath[%s] -> newPath[%s]", oldPath.String(), newPath.String());
 										return;
 									}
-									item->SetText(newName);
-									item->GetSourceItem()->Rename(newPath);
-									SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
+									entry_ref newRef;
+									if (get_ref_for_path(newPath, &newRef) == B_OK) {
+										item->SetText(newName);
+										item->GetSourceItem()->UpdateEntryRef(newRef);
+										SortItemsUnder(Superitem(item), true, ProjectsFolderBrowser::_CompareProjectItems);
+									} else {
+										LogError("Can't find ref for newPath[%s]", newPath.String());
+										return;
+									}
 								} else {
 									ProjectItem *item = GetProjectItemByPath(oldPath);
 									if (!item) {

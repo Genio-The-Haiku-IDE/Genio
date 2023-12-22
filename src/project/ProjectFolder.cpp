@@ -76,9 +76,9 @@ SourceItem::Name() const
 
 
 void
-SourceItem::Rename(BString const& path)
+SourceItem::UpdateEntryRef(const entry_ref& ref)
 {
-	get_ref_for_path(path.String(), &fEntryRef);
+	fEntryRef = ref;
 }
 
 

@@ -59,10 +59,11 @@ See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blo
 
 ### Prerequirements
 
-Genio requires libgit2 to implement Git features and libyaml_cpp to read yaml files.
-The needed development files are available in `libgit2_devel` and
+Genio requires Scintilla and Lexilla to implement various functionalities.
+It also requires libgit2 to implement Git features and libyaml_cpp to read yaml files.
+The needed development files are available in `libgit2_devel`, `lexilla_devel` and
 `yaml_cpp_devel`, respectively.
-Execute `pkgman install libgit2_devel yaml_cpp_devel` from Terminal
+Execute `pkgman install libgit2_devel lexilla_devel yaml_cpp_devel` from Terminal.
 
 If you would like to try a clang++ build:
 

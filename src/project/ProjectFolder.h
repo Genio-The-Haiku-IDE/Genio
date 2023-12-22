@@ -38,14 +38,13 @@ public:
 								~SourceItem();
 
 	const entry_ref*			EntryRef() const;
+	void						UpdateEntryRef(const entry_ref& ref);
 
 	BString	const				Name() const;
 	SourceItemType				Type() const { return fType; };
 
-	ProjectFolder				*GetProjectFolder()	const { return fProjectFolder; }
+	ProjectFolder*				GetProjectFolder()	const { return fProjectFolder; }
 	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
-
-	void 						Rename(BString const& path);
 
 private:
 	entry_ref					fEntryRef;

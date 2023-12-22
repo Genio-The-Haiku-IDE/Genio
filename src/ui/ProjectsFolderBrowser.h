@@ -44,7 +44,7 @@ public:
 	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
 	ProjectFolder*	GetProjectFromSelectedItem() const;
 
-	BString const	GetSelectedProjectFileFullPath() const;
+	const entry_ref* GetSelectedProjectFileRef() const;
 
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);

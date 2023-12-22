@@ -1956,7 +1956,7 @@ GenioWindow::_FindInFiles()
 
 
 int32
-GenioWindow::_GetEditorIndex(entry_ref* ref) const
+GenioWindow::_GetEditorIndex(const entry_ref* ref) const
 {
 	BEntry entry(ref, true);
 	int32 filesCount = fTabManager->CountTabs();
@@ -3226,9 +3226,8 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 void
 GenioWindow::_ProjectFileDelete()
 {
-	BEntry entry(fProjectsFolderBrowser->GetSelectedProjectFileFullPath());
-	entry_ref ref;
-	entry.GetRef(&ref);
+	const entry_ref* ref = fProjectsFolderBrowser->GetSelectedProjectFileRef();
+	BEntry entry(ref);
 	if (!entry.Exists())
 		return;
 
@@ -3255,7 +3254,7 @@ GenioWindow::_ProjectFileDelete()
 		// Close the file if open
 		if (entry.IsFile()) {
 			int32 openedIndex;
-			if ((openedIndex = _GetEditorIndex(&ref)) != -1)
+			if ((openedIndex = _GetEditorIndex(ref)) != -1)
 				_RemoveTab(openedIndex);
 		}
 		// Remove the entry
@@ -3455,10 +3454,10 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
-	BString itemPath = selectedProjectItem->GetSourceItem()->Path();
+	BPath itemPath(selectedProjectItem->GetSourceItem()->EntryRef());
 	const char* argv[] = {
 		"-w",
-		itemPath.String(),
+		itemPath.Path(),
 		nullptr
 	};
 	status_t status = be_roster->Launch("application/x-vnd.Haiku-Terminal", 2, argv);
@@ -3466,12 +3465,12 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 	if (status != B_OK) {
 		notification <<
 			"An error occurred while opening Terminal and setting working directory to: ";
-		notification << itemPath << ": " << ::strerror(status);
+		notification << itemPath.Path() << ": " << ::strerror(status);
 		LogError(notification.String());
 	} else {
 		notification <<
 			"Terminal successfully opened with working directory: ";
-		notification << itemPath;
+		notification << itemPath.Path();
 		LogTrace(notification.String());
 	}
 

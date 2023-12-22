@@ -38,8 +38,7 @@ public:
 								~SourceItem();
 
 	const entry_ref*			EntryRef() const;
-	// WARNING: Path() is computationally intensive: use it sparingly
-	BString	const				Path() const;
+
 	BString	const				Name() const;
 	SourceItemType				Type() const { return fType; };
 
@@ -47,6 +46,7 @@ public:
 	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
 
 	void 						Rename(BString const& path);
+
 private:
 	entry_ref					fEntryRef;
 protected:
@@ -62,6 +62,9 @@ public:
 
 	status_t					Open();
 	status_t					Close();
+
+	// WARNING: Path() is computationally intensive: use it sparingly
+	BString	const				Path() const;
 
 	void						LoadDefaultSettings();
 	void						SaveSettings();

@@ -3423,12 +3423,12 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 
+	BString projectPath = newProject->Path();
 	BString notification;
-	notification << opened << newProject->Name() << " at " << newProject->Path();
+	notification << opened << newProject->Name() << " at " << projectPath;
 	LogInfo(notification.String());
 
 	// let's check if any open editor is related to this project
-	BString projectPath = newProject->Path();
 	projectPath = projectPath.Append("/");
 
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
@@ -3487,7 +3487,7 @@ GenioWindow::_ShowSelectedItemInTracker()
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
-	BEntry itemEntry(selectedProjectItem->GetSourceItem()->Path());
+	BEntry itemEntry(selectedProjectItem->GetSourceItem()->EntryRef());
 	status_t status = itemEntry.InitCheck();
 	if (status == B_OK) {
 		BEntry parentDirectory;

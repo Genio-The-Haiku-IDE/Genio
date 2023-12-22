@@ -298,13 +298,15 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							if (message->FindString("watched_path", &watchedPath) != B_OK)
 								return;
 
-							if (watchedPath == fSelectedProject->Path()) {
+							BString projectPath = fSelectedProject->Path();
+
+							if (watchedPath == projectPath) {
 
 								BString path;
 								if (message->FindString("path", &path) != B_OK)
 									return;
 
-								BPath gitFolder(fSelectedProject->Path());
+								BPath gitFolder(projectPath);
 								gitFolder.Append(".git");
 
 								if (path.FindFirst(gitFolder.Path()) != B_ERROR) {

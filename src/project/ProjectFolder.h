@@ -38,7 +38,6 @@ public:
 								~SourceItem();
 
 	const entry_ref*			EntryRef() const;
-
 	// WARNING: Path() is computationally intensive: use it sparingly
 	BString	const				Path() const;
 	BString	const				Name() const;

@@ -4,7 +4,7 @@ resource app_signature "application/x-vnd.Genio";
 resource app_flags B_SINGLE_LAUNCH;
 
 resource app_version {
-	major  = 1,
+	major  = 2,
 	middle = 9,
 	minor  = 9,
 

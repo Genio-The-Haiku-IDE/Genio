@@ -21,7 +21,7 @@ keywords:
         subroutine svg switch system system$ tabview tan tell text textcontrol
         textedit texturl then time$ token token$ tooltip translate$ treebox
         trim$ true until upper$ using val view wait wend while window writing
-        xor
+        xor fi
 comments:
     line: "#"
 styles:

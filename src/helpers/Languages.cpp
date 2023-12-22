@@ -34,10 +34,62 @@ std::vector<std::string>			Languages::sLanguages;
 std::map<std::string, std::string>	Languages::sMenuItems;
 std::map<std::string, std::string> 	Languages::sExtensions;
 
+
+namespace {
+
 void
 DoInAllDataDirectories(std::function<void(const BPath&)> func) {
 	func(GetDataDirectory());
 	func(GetUserSettingsDirectory());
+}
+
+void
+DoInAllLibDirectories(std::function<void(const BPath&)> func) {
+	BPath libPath;
+	find_directory(B_SYSTEM_LIB_DIRECTORY, &libPath);
+	func(libPath);
+	find_directory(B_USER_LIB_DIRECTORY, &libPath);
+	func(libPath);
+	find_directory(B_SYSTEM_NONPACKAGED_LIB_DIRECTORY, &libPath);
+	func(libPath);
+	find_directory(B_USER_NONPACKAGED_LIB_DIRECTORY, &libPath);
+	func(libPath);
+}
+
+class LexerLibrary {
+public:
+	LexerLibrary(const char* path) {
+		fLibrary = load_add_on(path);
+		if(fLibrary > 0) {
+			if(get_image_symbol(fLibrary, LEXILLA_CREATELEXER, B_SYMBOL_TYPE_TEXT,
+					reinterpret_cast<void**>(&fCreateLexer)) != B_OK) {
+				fCreateLexer = nullptr;
+			}
+		}
+	}
+
+	~LexerLibrary() {
+		if(fLibrary > 0) {
+			unload_add_on(fLibrary);
+		}
+		fLibrary = 0;
+	}
+
+	bool IsValid() {
+		return fLibrary > 0 && fCreateLexer != nullptr;
+	}
+
+	Scintilla::ILexer5* CreateLexer(const char* name) {
+		return fCreateLexer(name);
+	}
+
+private:
+	image_id fLibrary;
+	Lexilla::CreateLexerFn fCreateLexer;
+};
+
+std::vector<std::unique_ptr<LexerLibrary>> sLexerLibraries;
+
 }
 
 /* static */ bool
@@ -103,6 +155,8 @@ Languages::ApplyLanguage(Editor* editor, const char* lang)
 /* static */ std::map<int, int>
 Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
 {
+	if(sLexerLibraries.empty() == true)
+		return {};
 	// TODO: early exit if lexer not changed
 
 	BPath p = path;
@@ -111,14 +165,25 @@ Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
 	BString fileName(p.Path());
 	fileName.Append(".yaml");
 	if (!BEntry(fileName.String()).Exists()) {
-		// TODO: Workaround for a bug in Haiku x86_32: exceptions 
+		// TODO: Workaround for a bug in Haiku x86_32: exceptions
 		// thrown inside yaml_cpp aren't catchable. We throw this exception
 		// inside Genio and that works.
 		throw YAML::BadFile(fileName.String());
 	}
 	const YAML::Node language = YAML::LoadFile(std::string(p.Path()) + ".yaml");
 	std::string lexerName = language["lexer"].as<std::string>();
-	Scintilla::ILexer5* lexer = CreateLexer(lexerName.c_str());
+	Scintilla::ILexer5* lexer;
+	// sLexerLibraries contains libraries in the following order:
+	// * system
+	// * user
+	// * non-packaged system
+	// * non-packaged user
+	// Going in reverse results in correct override hierarchy.
+	for(auto it = sLexerLibraries.rbegin(); it != sLexerLibraries.rend(); ++it) {
+		lexer = (*it)->CreateLexer(lexerName.c_str());
+		if(lexer != nullptr)
+			break;
+	}
 
 	if(lexer == nullptr)
 		return std::map<int, int>();
@@ -200,6 +265,35 @@ Languages::LoadLanguages()
 			} catch (const YAML::BadFile &) {}
 		});
 
+	DoInAllLibDirectories([](const BPath& path) {
+		BPath p(path);
+		p.Append(LEXILLA_LIB LEXILLA_EXTENSION);
+		auto lexilla = std::make_unique<LexerLibrary>(p.Path());
+		if(lexilla->IsValid() == true) {
+			sLexerLibraries.push_back(std::move(lexilla));
+		}
+	});
+
+	DoInAllLibDirectories([](const BPath& path) {
+		BPath p(path);
+		p.Append("lexilla");
+		BDirectory lexersDir(p.Path());
+		if (lexersDir.InitCheck() != B_OK)
+			return;
+
+		BEntry lexerEntry;
+		while(lexersDir.GetNextEntry(&lexerEntry, true) == B_OK) {
+			if(lexerEntry.IsDirectory())
+				continue;
+			BPath lexerPath;
+			lexerEntry.GetPath(&lexerPath);
+			auto lexer = std::make_unique<LexerLibrary>(lexerPath.Path());
+			if(lexer->IsValid() == true) {
+				sLexerLibraries.push_back(std::move(lexer));
+			}
+		}
+	});
+
 	Languages::SortAlphabetically();
 }
 
@@ -212,7 +306,7 @@ Languages::_LoadLanguages(const BPath& path)
 	BString fileName(p.Path());
 	fileName.Append(".yaml");
 	if (!BEntry(fileName.String()).Exists()) {
-		// TODO: Workaround for a bug in Haiku x86_32: exceptions 
+		// TODO: Workaround for a bug in Haiku x86_32: exceptions
 		// thrown inside yaml_cpp aren't catchable. We throw this exception
 		// inside Genio and that works.
 		throw YAML::BadFile(fileName.String());

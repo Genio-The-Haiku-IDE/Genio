@@ -107,6 +107,7 @@ private:
 	GSettings*					fSettings;
 	GitRepository*				fGitRepository;
 	bool						fIsBuilding;
+	BString						fFullPath;
 };
 
 #endif // PROJECT_FOLDER_H

@@ -536,14 +536,11 @@ ProjectsFolderBrowser::GetProjectFromItem(ProjectItem* item) const
 }
 
 
-BString const
-ProjectsFolderBrowser::GetSelectedProjectFileFullPath() const
+const entry_ref*
+ProjectsFolderBrowser::GetSelectedProjectFileRef() const
 {
 	ProjectItem* selectedProjectItem = GetSelectedProjectItem();
-	// if (selectedProjectItem->GetSourceItem()->Type() == SourceItemType::FileItem)
-		return selectedProjectItem->GetSourceItem()->Path();
-	// else
-		// return "";
+	return selectedProjectItem->GetSourceItem()->EntryRef();
 }
 
 

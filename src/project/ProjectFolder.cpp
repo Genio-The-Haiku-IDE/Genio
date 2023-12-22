@@ -61,9 +61,9 @@ SourceItem::EntryRef() const
 
 
 BString const
-SourceItem::Path() const
+ProjectFolder::Path() const
 {
-	BPath path(&fEntryRef);
+	BPath path(EntryRef());
 	return BString(path.Path());
 }
 

@@ -59,15 +59,6 @@ SourceItem::EntryRef() const
 	return &fEntryRef;
 }
 
-
-BString const
-ProjectFolder::Path() const
-{
-	BPath path(EntryRef());
-	return BString(path.Path());
-}
-
-
 BString	const
 SourceItem::Name() const
 {
@@ -94,16 +85,17 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
-	BString path = Path();
+
+	fFullPath = BPath(EntryRef()).Path();
 
 	try {
-		fGitRepository = new GitRepository(path);
+		fGitRepository = new GitRepository(fFullPath);
 	} catch(const GitException &ex) {
 		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
-			path.String(), ex.Error(), ex.what());
+			fFullPath.String(), ex.Error(), ex.what());
 	}
 
-	fLSPProjectWrapper = new LSPProjectWrapper(path.String(), msgr);
+	fLSPProjectWrapper = new LSPProjectWrapper(fFullPath.String(), msgr);
 }
 
 ProjectFolder::~ProjectFolder()
@@ -132,6 +124,11 @@ ProjectFolder::Close()
 	return status;
 }
 
+BString const
+ProjectFolder::Path() const
+{
+	return fFullPath;
+}
 
 void
 ProjectFolder::LoadDefaultSettings()

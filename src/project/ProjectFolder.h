@@ -62,7 +62,6 @@ public:
 	status_t					Open();
 	status_t					Close();
 
-	// WARNING: Path() is computationally intensive: use it sparingly
 	BString	const				Path() const;
 
 	void						LoadDefaultSettings();

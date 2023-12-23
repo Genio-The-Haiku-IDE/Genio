@@ -64,7 +64,6 @@ public:
 	void						UpdateMenu();
 	ProjectFolder*				GetActiveProject() const;
 	void						SetActiveProject(ProjectFolder *project);
-	BObjectList<ProjectFolder>*	GetProjectList() const;
 	ProjectsFolderBrowser*		GetProjectBrowser() const;
 
 private:
@@ -94,7 +93,7 @@ private:
 			void				_FindNext(const BString& strToFind, bool backwards);
 			void				_FindInFiles();
 
-			int32				_GetEditorIndex(entry_ref* ref) const;
+			int32				_GetEditorIndex(const entry_ref* ref) const;
 			int32				_GetEditorIndex(node_ref* nref) const;
 			void				_GetFocusAndSelection(BTextControl* control) const;
 			status_t			_Git(const BString& git_command);
@@ -118,7 +117,7 @@ private:
 			// Project Folders
 			void				_ProjectFolderClose(ProjectFolder *project);
 			status_t			_ProjectFolderOpen(BMessage *message);
-			status_t			_ProjectFolderOpen(const BPath& folder, bool activate = false);
+			status_t			_ProjectFolderOpen(const entry_ref& ref, bool activate = false);
 			void				_ProjectFolderActivate(ProjectFolder* project);
 
 			status_t			_ShowSelectedItemInTracker();
@@ -195,8 +194,6 @@ private:
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
-
-			BObjectList<ProjectFolder>*	fProjectFolderObjectList;
 
 			// Editor group
 			EditorTabManager*	fTabManager;

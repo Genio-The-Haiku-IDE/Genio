@@ -127,21 +127,26 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			SetTextFontFace(B_BOLD_FACE);
 		else
 			SetTextFontFace(B_REGULAR_FACE);
+
+		// TODO: this part is quite computationally intensive
+		// and shoud be moved away from the DrawItem.
+
 		BString projectName = Text();
 		BString projectPath = projectFolder->Path();
 		BString branchName;
 		try {
-			Genio::Git::GitRepository repo(projectPath.String());
-			branchName = repo.GetCurrentBranch();
-			BString extraText;
-			extraText << "  [" << branchName << "]";
-			SetExtraText(extraText);
+			if (projectFolder->GetRepository()) {
+				branchName = projectFolder->GetRepository()->GetCurrentBranch();
+				BString extraText;
+				extraText << "  [" << branchName << "]";
+				SetExtraText(extraText);
+			}
 		} catch (const Genio::Git::GitException &ex) {
 		}
 
 		BString toolTipText;
 		toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
-									B_TRANSLATE("Project"), Text(),
+									B_TRANSLATE("Project"), projectName.String(),
 									B_TRANSLATE("Path"), projectPath.String(),
 									B_TRANSLATE("Current branch"), branchName.String());
 		SetToolTipText(toolTipText);
@@ -150,7 +155,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	else
 		SetTextFontFace(B_REGULAR_FACE);
 
-	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->Path());
+	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->EntryRef());
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BRect iconRect = DrawIcon(owner, bounds, icon, iconSize);
 

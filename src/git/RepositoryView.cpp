@@ -28,8 +28,6 @@
 RepositoryView::RepositoryView()
 	:
 	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST),
-	fRepositoryPath(nullptr),
-	fSelectedProject(nullptr),
 	fCurrentBranch(nullptr)
 {
 }
@@ -183,14 +181,12 @@ RepositoryView::GetSelectedItem()
 void
 RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch)
 {
-	fSelectedProject = selectedProject;
-	fRepositoryPath = fSelectedProject->Path().String();
 	fCurrentBranch = currentBranch;
 
 	auto const NullLambda = [](const auto& val){ return false; };
 
 	try {
-		auto repo = fSelectedProject->GetRepository();
+		auto repo = selectedProject->GetRepository();
 		auto current_branch = repo->GetCurrentBranch();
 
 		MakeEmpty();

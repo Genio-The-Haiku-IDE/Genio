@@ -66,7 +66,7 @@ SourceControlPanel::SourceControlPanel()
 	fDoNotCreateInitialCommitCheckBox(nullptr),
 	fBurstHandler(nullptr)
 {
-	fProjectList = gMainWindow->GetProjectList();
+	fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
 
 	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
 		B_TRANSLATE("Project:"),
@@ -275,9 +275,14 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
-						fProjectList = gMainWindow->GetProjectList();
-
-						_UpdateProjectList();
+						fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
+						if (fProjectList->IsEmpty()) {
+							fProjectMenu->MakeEmpty();
+							fBranchMenu->MakeEmpty();
+							fRepositoryView->MakeEmpty();
+						} else {
+							_UpdateProjectList();
+						}
 						break;
 					}
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
@@ -298,13 +303,15 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							if (message->FindString("watched_path", &watchedPath) != B_OK)
 								return;
 
-							if (watchedPath == fSelectedProject->Path()) {
+							BString projectPath = fSelectedProject->Path();
+
+							if (watchedPath == projectPath) {
 
 								BString path;
 								if (message->FindString("path", &path) != B_OK)
 									return;
 
-								BPath gitFolder(fSelectedProject->Path());
+								BPath gitFolder(projectPath);
 								gitFolder.Append(".git");
 
 								if (path.FindFirst(gitFolder.Path()) != B_ERROR) {

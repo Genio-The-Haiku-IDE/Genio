@@ -33,18 +33,19 @@ class ProjectFolder;
 
 class SourceItem {
 public:
-								SourceItem(BString const& path);
+					explicit	SourceItem(const BString& path);
+					explicit	SourceItem(const entry_ref& ref);
 								~SourceItem();
 
 	const entry_ref*			EntryRef() const;
-	BString	const				Path() const;
+	void						UpdateEntryRef(const entry_ref& ref);
+
 	BString	const				Name() const;
 	SourceItemType				Type() const { return fType; };
 
-	ProjectFolder				*GetProjectFolder()	const { return fProjectFolder; }
+	ProjectFolder*				GetProjectFolder()	const { return fProjectFolder; }
 	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
 
-	void 						Rename(BString const& path);
 private:
 	entry_ref					fEntryRef;
 protected:
@@ -55,11 +56,13 @@ protected:
 
 class ProjectFolder : public SourceItem {
 public:
-								ProjectFolder(BString const& path, BMessenger& msgr);
+								ProjectFolder(const entry_ref& ref, BMessenger& msgr);
 								~ProjectFolder();
 
 	status_t					Open();
 	status_t					Close();
+
+	BString	const				Path() const;
 
 	void						LoadDefaultSettings();
 	void						SaveSettings();
@@ -103,6 +106,7 @@ private:
 	GSettings*					fSettings;
 	GitRepository*				fGitRepository;
 	bool						fIsBuilding;
+	BString						fFullPath;
 };
 
 #endif // PROJECT_FOLDER_H

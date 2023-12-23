@@ -276,8 +276,13 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
 						fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
-
-						_UpdateProjectList();
+						if (fProjectList->IsEmpty()) {
+							fProjectMenu->MakeEmpty();
+							fBranchMenu->MakeEmpty();
+							fRepositoryView->MakeEmpty();
+						} else {
+							_UpdateProjectList();
+						}
 						break;
 					}
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:

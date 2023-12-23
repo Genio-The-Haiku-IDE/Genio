@@ -1952,6 +1952,7 @@ GenioWindow::_FindInFiles()
 	fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
 
 	_ShowLog(kSearchResult);
+	_UpdateFindMenuItems(text);
 }
 
 

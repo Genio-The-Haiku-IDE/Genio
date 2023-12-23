@@ -128,7 +128,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fProjectsFolderScroll(nullptr)
 	, fActiveProject(nullptr)
 	, fIsBuilding(false)
-	, fProjectFolderObjectList(nullptr)
 	, fTabManager(nullptr)
 	, fFindGroup(nullptr)
 	, fReplaceGroup(nullptr)
@@ -185,24 +184,27 @@ GenioWindow::GenioWindow(BRect frame)
 	if (gCFG["reopen_projects"]) {
 		fDisableProjectNotifications = true;
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
+		status_t status = B_OK;
 		if (!projects.IsEmpty()) {
 			BString projectName;
 			BString activeProject = projects.GetString("active_project");
 			for (auto count = 0; projects.FindString("project_to_reopen",
 										count, &projectName) == B_OK; count++) {
-				const BPath projectPath(projectName);
-				_ProjectFolderOpen(projectPath, projectName == activeProject);
+				entry_ref ref;
+				status = get_ref_for_path(projectName, &ref);
+				if (status == B_OK) {
+					status = _ProjectFolderOpen(ref, projectName == activeProject);
+				}
 			}
 		}
-		// TODO: _ProjectFolderOpen() could fail to open projects, so
-		// - We should check its return value
-		// - here we could have no active projects or no projects at all
 		fDisableProjectNotifications = false;
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		noticeMessage.AddPointer("active_project", fActiveProject);
-		noticeMessage.AddString("active_project_name", fActiveProject ? fActiveProject->Name() : "");
-		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+		if (status == B_OK) {
+			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+			noticeMessage.AddPointer("active_project", fActiveProject);
+			noticeMessage.AddString("active_project_name", fActiveProject ? fActiveProject->Name() : "");
+			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+		}
 
 	}
 
@@ -798,9 +800,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 
 			if (TemplateManager::CopyProjectTemplate(&template_ref, &dest_ref, name.String()) == B_OK) {
-				BPath path(&dest_ref);
-				path.Append(name);
-				_ProjectFolderOpen(path);
+				_ProjectFolderOpen(dest_ref);
 			} else {
 				LogError("TemplateManager: could create %s from %s to %s",
 							name.String(), template_ref.name, dest_ref.name);
@@ -820,19 +820,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (type == "new_folder") {
 				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-					BEntry entry(item->GetSourceItem()->Path());
-					entry_ref ref;
-					if (entry.GetRef(&ref) != B_OK) {
-						LogError("Invalid path [%s]", item->GetSourceItem()->Path().String());
-						return;
-					} else {
-						status = TemplateManager::CreateNewFolder(&ref);
-						if (status != B_OK) {
-							OKAlert(B_TRANSLATE("New folder"),
-									B_TRANSLATE("Error creating folder"),
-									B_WARNING_ALERT);
-							LogError("Invalid destination directory [%s]", entry.Name());
-						}
+					const entry_ref* ref = item->GetSourceItem()->EntryRef();
+					status = TemplateManager::CreateNewFolder(ref);
+					if (status != B_OK) {
+						OKAlert(B_TRANSLATE("New folder"),
+								B_TRANSLATE("Error creating folder"),
+								B_WARNING_ALERT);
+						LogError("Invalid destination directory [%s]", ref->name);
 					}
 				} else {
 					LogError("Can't find current item");
@@ -864,11 +858,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				entry_ref source;
 				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-					BEntry entry(item->GetSourceItem()->Path());
-					if (entry.GetRef(&dest) != B_OK) {
-						LogError("Invalid path [%s]", item->GetSourceItem()->Path().String());
-						return;
-					}
+					const entry_ref* entryRef = item->GetSourceItem()->EntryRef();
 					if (message->FindRef("refs", &source) != B_OK) {
 						LogError("Can't find ref in message!");
 						return;
@@ -878,7 +868,7 @@ GenioWindow::MessageReceived(BMessage* message)
 						OKAlert(B_TRANSLATE("New file"),
 								B_TRANSLATE("Could not create a new file"),
 								B_WARNING_ALERT);
-						LogError("Invalid destination directory [%s]", entry.Name());
+						LogError("Invalid destination directory [%s]", entryRef->name);
 						return;
 					}
 				}
@@ -1085,13 +1075,6 @@ void
 GenioWindow::SetActiveProject(ProjectFolder *project)
 {
 	fActiveProject = project;
-}
-
-
-BObjectList<ProjectFolder>*
-GenioWindow::GetProjectList() const
-{
-	return fProjectFolderObjectList;
 }
 
 
@@ -1333,8 +1316,8 @@ GenioWindow::QuitRequested()
 
 		projects.MakeEmpty();
 
-		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-			ProjectFolder *project = fProjectFolderObjectList->ItemAt(index);
+		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+			ProjectFolder *project = GetProjectBrowser()->ProjectAt(index);
 			projects.AddString("project_to_reopen", project->Path());
 			if (project->Active())
 				projects.SetString("active_project", project->Path());
@@ -1636,8 +1619,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 		*/
 		// Check if already open
 		BString baseDir("");
-		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-			ProjectFolder * project = fProjectFolderObjectList->ItemAt(index);
+		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+			ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
 			BString projectPath = project->Path();
 			projectPath = projectPath.Append("/");
 			if (editor->FilePath().StartsWith(projectPath)) {
@@ -1673,21 +1656,22 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	if (entry.InitCheck() != B_OK || entry.IsDirectory())
 		return false;
 
+	BPath path(ref);
 	std::string fileType = "";
-	if (Languages::GetLanguageForExtension(GetFileExtension(BPath(ref).Path()), fileType))
+	if (Languages::GetLanguageForExtension(GetFileExtension(path.Path()), fileType))
 		return true;
 
 	BNodeInfo info(&entry);
 	if (info.InitCheck() == B_OK) {
 		char mime[B_MIME_TYPE_LENGTH + 1];
 		if (info.GetType(mime) != B_OK) {
-			LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
+			LogError("Error in getting mime type from file [%s]", path.Path());
 			mime[0] = '\0';
 		}
 		if (mime[0] == '\0' || strcmp(mime, "application/octet-stream") == 0) {
-			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
+			if (update_mime_info(path.Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
 				if (info.GetType(mime) != B_OK) {
-					LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
+					LogError("Error in getting mime type from file [%s]", path.Path());
 					mime[0] = '\0';
 				}
 			}
@@ -1972,7 +1956,7 @@ GenioWindow::_FindInFiles()
 
 
 int32
-GenioWindow::_GetEditorIndex(entry_ref* ref) const
+GenioWindow::_GetEditorIndex(const entry_ref* ref) const
 {
 	BEntry entry(ref, true);
 	int32 filesCount = fTabManager->CountTabs();
@@ -2099,8 +2083,8 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 				editor->SetProjectFolder(NULL);
 		} else {
 			BString baseDir("");
-			for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-				ProjectFolder * project = fProjectFolderObjectList->ItemAt(index);
+			for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+				ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
 				BString projectPath = project->Path();
 				projectPath = projectPath.Append("/");
 				if (editor->FilePath().StartsWith(projectPath)) {
@@ -3102,9 +3086,6 @@ GenioWindow::_InitSideSplit()
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 
-	// Project list
-	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
-
 	// Source Control
 	fSourceControlPanel = new SourceControlPanel();
 	fProjectsTabView->AddTab(fSourceControlPanel);
@@ -3245,9 +3226,8 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 void
 GenioWindow::_ProjectFileDelete()
 {
-	BEntry entry(fProjectsFolderBrowser->GetSelectedProjectFileFullPath());
-	entry_ref ref;
-	entry.GetRef(&ref);
+	const entry_ref* ref = fProjectsFolderBrowser->GetSelectedProjectFileRef();
+	BEntry entry(ref);
 	if (!entry.Exists())
 		return;
 
@@ -3274,7 +3254,7 @@ GenioWindow::_ProjectFileDelete()
 		// Close the file if open
 		if (entry.IsFile()) {
 			int32 openedIndex;
-			if ((openedIndex = _GetEditorIndex(&ref)) != -1)
+			if ((openedIndex = _GetEditorIndex(ref)) != -1)
 				_RemoveTab(openedIndex);
 		}
 		// Remove the entry
@@ -3349,7 +3329,6 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	}
 
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
-	fProjectFolderObjectList->RemoveItem(project);
 
 	// Notify subscribers that the project list has changed
 	if (!fDisableProjectNotifications)
@@ -3361,13 +3340,13 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	// Select a new active project
 	if (wasActive) {
-		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));
-		if (item != nullptr)
-			_ProjectFolderActivate((ProjectFolder*)item->GetSourceItem());
+		ProjectFolder* project = fProjectsFolderBrowser->ProjectAt(0);
+		if (project != nullptr)
+			_ProjectFolderActivate(project);
 	}
 
 	// Disable "Close project" action if no project
-	if (fProjectFolderObjectList->CountItems() == 0)
+	if (GetProjectBrowser()->CountProjects() == 0)
 		ActionManager::SetEnabled(MSG_PROJECT_CLOSE, false);
 
 	BString notification;
@@ -3382,8 +3361,7 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 	entry_ref ref;
 	status_t status = message->FindRef("refs", &ref);
 	if (status == B_OK) {
-		BPath path(&ref);
-		status = _ProjectFolderOpen(path);
+		status = _ProjectFolderOpen(ref);
 	} else {
 		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
 	}
@@ -3393,9 +3371,9 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 
 
 status_t
-GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
+GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 {
-	BEntry dirEntry(path.Path());
+	BEntry dirEntry(&ref);
 	if (!dirEntry.Exists())
 		return B_NAME_NOT_FOUND;
 
@@ -3411,14 +3389,14 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 		return B_ERROR;
 
 	// Check if already open
-	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-		ProjectFolder* pProject = static_cast<ProjectFolder*>(fProjectFolderObjectList->ItemAt(index));
-		if (pProject->Path() == path.Path())
+	for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+		ProjectFolder* pProject = GetProjectBrowser()->ProjectAt(index);
+		if (*pProject->EntryRef() == ref)
 			return B_OK;
 	}
 
 	BMessenger msgr(this);
-	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
+	ProjectFolder* newProject = new ProjectFolder(ref, msgr);
 	status_t status = newProject->Open();
 	if (status != B_OK) {
 		BString notification;
@@ -3429,7 +3407,6 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	}
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
-	fProjectFolderObjectList->AddItem(newProject);
 
 	// Notify subscribers that project list has changed
 	if (!fDisableProjectNotifications)
@@ -3438,19 +3415,19 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	_CollapseOrExpandProjects();
 
 	BString opened("Project open: ");
-	if (fProjectFolderObjectList->CountItems() == 1 || activate == true) {
+	if (GetProjectBrowser()->CountProjects() == 1 || activate == true) {
 		_ProjectFolderActivate(newProject);
 		opened = "Active project open: ";
 	}
 
 	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 
+	BString projectPath = newProject->Path();
 	BString notification;
-	notification << opened << newProject->Name() << " at " << newProject->Path();
+	notification << opened << newProject->Name() << " at " << projectPath;
 	LogInfo(notification.String());
 
 	// let's check if any open editor is related to this project
-	BString projectPath = newProject->Path();
 	projectPath = projectPath.Append("/");
 
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
@@ -3463,8 +3440,6 @@ GenioWindow::_ProjectFolderOpen(const BPath& path, bool activate)
 	}
 
     // final touch, let's be sure the folder is added to the recent files.
-    entry_ref ref;
-    dirEntry.GetRef(&ref);
     be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
 
 	return B_OK;
@@ -3479,10 +3454,10 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
-	BString itemPath = selectedProjectItem->GetSourceItem()->Path();
+	BPath itemPath(selectedProjectItem->GetSourceItem()->EntryRef());
 	const char* argv[] = {
 		"-w",
-		itemPath.String(),
+		itemPath.Path(),
 		nullptr
 	};
 	status_t status = be_roster->Launch("application/x-vnd.Haiku-Terminal", 2, argv);
@@ -3490,12 +3465,12 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 	if (status != B_OK) {
 		notification <<
 			"An error occurred while opening Terminal and setting working directory to: ";
-		notification << itemPath << ": " << ::strerror(status);
+		notification << itemPath.Path() << ": " << ::strerror(status);
 		LogError(notification.String());
 	} else {
 		notification <<
 			"Terminal successfully opened with working directory: ";
-		notification << itemPath;
+		notification << itemPath.Path();
 		LogTrace(notification.String());
 	}
 
@@ -3511,7 +3486,7 @@ GenioWindow::_ShowSelectedItemInTracker()
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
-	BEntry itemEntry(selectedProjectItem->GetSourceItem()->Path());
+	BEntry itemEntry(selectedProjectItem->GetSourceItem()->EntryRef());
 	status_t status = itemEntry.InitCheck();
 	if (status == B_OK) {
 		BEntry parentDirectory;
@@ -4090,12 +4065,13 @@ GenioWindow::_CollapseOrExpandProjects()
 {
 	if (gCFG["auto_expand_collapse_projects"]) {
 		// Expand active project, collapse other
-		// TODO: Improve by adding necessary APIs to ProjectFolderBrowser
-		for (int32 i = 0; i < fProjectsFolderBrowser->CountItems(); i++) {
-			if ((ProjectFolder*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
-				fProjectsFolderBrowser->Expand(fProjectsFolderBrowser->GetProjectItemAt(i));
+		for (int32 i = 0; i < GetProjectBrowser()->CountProjects(); i++) {
+			ProjectFolder* prj = GetProjectBrowser()->ProjectAt(i);
+			ProjectItem* item = GetProjectBrowser()->GetProjectItemForProject(prj);
+			if (prj == fActiveProject)
+				GetProjectBrowser()->Expand(item);
 			else
-				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
+				fProjectsFolderBrowser->Collapse(item);
 		}
 	}
 }

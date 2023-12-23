@@ -15,8 +15,9 @@
 #include "GenioNamespace.h"
 #include "GSettings.h"
 
-SourceItem::SourceItem(BString const& path)
+SourceItem::SourceItem(const BString& path)
 	:
+	fEntryRef(),
 	fType(SourceItemType::FileItem),
 	fProjectFolder(nullptr)
 {
@@ -25,8 +26,21 @@ SourceItem::SourceItem(BString const& path)
 		// TODO: What to do ?
 		LogError("Failed to get ref for path %s: %s", path.String(), ::strerror(status));
 	}
+	BEntry entry(&fEntryRef);
+	if (entry.IsDirectory())
+		fType = SourceItemType::FolderItem;
+	else
+		fType = SourceItemType::FileItem;
+}
 
-	BEntry entry(path.String());
+
+SourceItem::SourceItem(const entry_ref& ref)
+	:
+	fEntryRef(ref),
+	fType(SourceItemType::FileItem),
+	fProjectFolder(nullptr)
+{
+	BEntry entry(&fEntryRef);
 	if (entry.IsDirectory())
 		fType = SourceItemType::FolderItem;
 	else
@@ -45,20 +59,6 @@ SourceItem::EntryRef() const
 	return &fEntryRef;
 }
 
-
-BString const
-SourceItem::Path() const
-{
-	BEntry entry(&fEntryRef);
-	if (entry.InitCheck() != B_OK)
-		return BString();
-	BPath path;
-	if (entry.GetPath(&path) != B_OK)
-		return BString();
-	return BString(path.Path());
-}
-
-
 BString	const
 SourceItem::Name() const
 {
@@ -67,15 +67,15 @@ SourceItem::Name() const
 
 
 void
-SourceItem::Rename(BString const& path)
+SourceItem::UpdateEntryRef(const entry_ref& ref)
 {
-	get_ref_for_path(path.String(), &fEntryRef);
+	fEntryRef = ref;
 }
 
 
-ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
+ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	:
-	SourceItem(path),
+	SourceItem(ref),
 	fActive(false),
 	fBuildMode(BuildMode::ReleaseMode),
 	fLSPProjectWrapper(nullptr),
@@ -86,16 +86,17 @@ ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
 
+	fFullPath = BPath(EntryRef()).Path();
+
 	try {
-		fGitRepository = new GitRepository(path);
+		fGitRepository = new GitRepository(fFullPath);
 	} catch(const GitException &ex) {
 		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
-			path.String(), ex.Error(), ex.what());
+			fFullPath.String(), ex.Error(), ex.what());
 	}
 
-	fLSPProjectWrapper = new LSPProjectWrapper(Path().String(), msgr);
+	fLSPProjectWrapper = new LSPProjectWrapper(fFullPath.String(), msgr);
 }
-
 
 ProjectFolder::~ProjectFolder()
 {
@@ -123,6 +124,11 @@ ProjectFolder::Close()
 	return status;
 }
 
+BString const
+ProjectFolder::Path() const
+{
+	return fFullPath;
+}
 
 void
 ProjectFolder::LoadDefaultSettings()

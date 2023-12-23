@@ -122,7 +122,7 @@ private:
 			void				_ProjectFolderActivate(ProjectFolder* project);
 
 			status_t			_ShowSelectedItemInTracker();
-			status_t			_ShowInTracker(const entry_ref& ref);
+			status_t			_ShowInTracker(const entry_ref& ref, const node_ref* nref = NULL);
 			status_t			_OpenTerminalWorkingDirectory();
 
 			int					_Replace(int what);

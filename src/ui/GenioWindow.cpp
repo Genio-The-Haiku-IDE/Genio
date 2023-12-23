@@ -12,15 +12,16 @@
 #include <Alert.h>
 #include <Application.h>
 #include <Architecture.h>
+#include <Bitmap.h>
 #include <Button.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <ControlLook.h>
 #include <DirMenu.h>
 #include <FilePanel.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
-
 #include <NodeInfo.h>
 #include <NodeMonitor.h>
 #include <Path.h>
@@ -32,8 +33,6 @@
 #include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
-#include <ControlLook.h>
-#include <Bitmap.h>
 
 #include "ActionManager.h"
 #include "ConfigManager.h"
@@ -3497,8 +3496,12 @@ GenioWindow::_ShowSelectedItemInTracker()
 		if (status == B_OK) {
 			entry_ref ref;
 			status = parentDirectory.GetRef(&ref);
-			if (status == B_OK)
-				status = _ShowInTracker(ref);
+			if (status == B_OK) {
+				node_ref nref;
+				status = itemEntry.GetNodeRef(&nref);
+				if (status == B_OK)
+					_ShowInTracker(ref, &nref);
+			}
 		}
 	}
 	if (status != B_OK) {
@@ -3511,18 +3514,22 @@ GenioWindow::_ShowSelectedItemInTracker()
 
 
 status_t
-GenioWindow::_ShowInTracker(const entry_ref& ref)
+GenioWindow::_ShowInTracker(const entry_ref& ref, const node_ref* nref)
 {
-	BMessage message(B_EXECUTE_PROPERTY);
-	status_t status = message.AddRef("data", &ref);
-	if (status != B_OK)
-		return status;
-	status = message.AddSpecifier("Folder");
-	if (status != B_OK)
-		return status;
+	status_t status = B_ERROR;
 
 	BMessenger tracker("application/x-vnd.Be-TRAK");
-	return tracker.SendMessage(&message);
+	bool exists = tracker.IsValid();
+	if (exists == true) {
+		BMessage message(B_REFS_RECEIVED);
+		message.AddRef("refs", &ref);
+
+		if (nref != NULL)
+			message.AddData("nodeRefToSelect", B_RAW_TYPE, (void*)nref, sizeof(node_ref));
+
+		status = tracker.SendMessage(&message);
+	}
+	return status;
 }
 
 

@@ -12,6 +12,7 @@
 #include <Directory.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
+#include <StringView.h>
 
 #include "ProjectFolder.h"
 
@@ -36,9 +37,7 @@ ProjectSettingsWindow::ProjectSettingsWindow(ProjectFolder *project)
 													B_AUTO_UPDATE_SIZE_LIMITS |
 													B_CLOSE_ON_ESCAPE),
 	fProject(project),
-	fProjectBox(),
-	fProjectBoxLabel(),
-	fProjectBoxProjectLabel(),
+	fProjectHeader(),
 	fBuildCommandsBox(nullptr),
 	fReleaseProjectTargetText(nullptr),
 	fDebugProjectTargetText(nullptr),
@@ -156,39 +155,39 @@ ProjectSettingsWindow::_InitWindow()
 	.Add(fRunInTerminal, 0, 2)
 	.End();
 
-	// "Project" global Box
-	fProjectBox = new BBox("projectBox", B_WILL_DRAW | B_FRAME_EVENTS |
-		B_NAVIGABLE_JUMP, B_NO_BORDER);
-	fProjectBoxLabel = B_TRANSLATE("Project:");
-	fProjectBox->SetLabel(fProjectBoxLabel);
+	// "Project" header view
+	fProjectHeader = new BStringView("project", B_TRANSLATE("Project:"));
+	fProjectHeader->SetAlignment(B_ALIGN_CENTER);
+	fProjectHeader->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
 
-	BLayoutBuilder::Grid<>(fProjectBox)
-	.SetInsets(10.0f, 24.0f, 10.0f, 10.0f)
-	.Add(fBuildCommandsBox, 0, 4, 4)
-	.Add(fTargetBox, 0, 5, 4)
-	.End();
+	BFont font;
+	fProjectHeader->GetFont(&font);
+	float size = font.Size() * 1.2;
+	font.SetSize(size);
+	font.SetFace(B_BOLD_FACE);
+	fProjectHeader->SetFont(&font);
 
+	// Buttons
 	BButton* defaultButton = new BButton("default",
 		B_TRANSLATE("Default"), new BMessage(MSG_DEFAULTS_CLICKED));
 	BButton* cancelButton = new BButton("cancel",
 		B_TRANSLATE("Cancel"), new BMessage(MSG_CANCEL_CLICKED));
-	BButton* saveButton = new BButton("ok",
+	BButton* okButton = new BButton("ok",
 		B_TRANSLATE("OK"), new BMessage(MSG_OK_CLICKED));
+	okButton->MakeDefault(true);
 
 	// Window layout
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
-		.SetInsets(10.0f)
+		.SetInsets(B_USE_WINDOW_SPACING)
+		.Add(fProjectHeader)
+		.Add(fBuildCommandsBox)
+		.Add(fTargetBox)
 		.AddGroup(B_HORIZONTAL)
-			.AddGroup(B_VERTICAL)
-				.Add(fProjectBox)
-				.AddGroup(B_HORIZONTAL)
-					.AddGlue()
-					.Add(defaultButton)
-					.Add(cancelButton)
-					.Add(saveButton)
-					.AddGlue()
-				.End()
-			.End()
+			.AddGlue()
+			.Add(defaultButton)
+			.Add(cancelButton)
+			.Add(okButton)
+			.AddGlue()
 		.End()
 	;
 }
@@ -199,8 +198,9 @@ ProjectSettingsWindow::_LoadProject()
 	// Init controls
 	_LoadDefaults();
 
-	fProjectBoxProjectLabel << fProjectBoxLabel << "\t\t" << fProject->Name();
-	fProjectBox->SetLabel(fProjectBoxProjectLabel);
+	BString label(B_TRANSLATE("Project:"));
+	label << " " << fProject->Name();
+	fProjectHeader->SetText(label);
 
 	BuildMode originalBuildMode = fProject->GetBuildMode();
 
@@ -226,7 +226,7 @@ void
 ProjectSettingsWindow::_LoadDefaults()
 {
 	// Release controls
-	fProjectBoxProjectLabel.SetTo("");
+	fProjectHeader->SetText("");
 	fReleaseProjectTargetText->SetText("");
 	fReleaseBuildCommandText->SetText("");
 	fReleaseCleanCommandText->SetText("");

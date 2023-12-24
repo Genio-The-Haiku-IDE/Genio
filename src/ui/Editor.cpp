@@ -1762,3 +1762,9 @@ Editor::GetProblems(BMessage* diagnostics)
 	BAutolock lock(fProblemsLock);
 	*diagnostics = fProblems;
 }
+
+void
+Editor::SendDocumentSymbol(BMessage& symbols)
+{
+	Window()->PostMessage(&symbols);
+}

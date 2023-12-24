@@ -286,6 +286,16 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case 'symb':{
+			//TODO: rewrite this :)
+			fFunctionsOutlineView->MakeEmpty();
+			int32 i=0;
+			BString name;
+			while(message->FindString("name", i++, &name) == B_OK) {
+				fFunctionsOutlineView->AddItem(new BStringItem(name));
+			}
+		}
+		break;
 		case kClassOutline:
 			_ForwardToSelectedEditor(message);
 		break;

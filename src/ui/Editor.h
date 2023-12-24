@@ -157,6 +157,8 @@ public:
 
 			void				SetProblems(const BMessage* diagnostics);
 			void				GetProblems(BMessage* diagnostics);
+			
+			void				SendDocumentSymbol(BMessage& symbols);
 
 			filter_result		BeforeKeyDown(BMessage*);
 			filter_result		OnArrowKey(int8 ch);

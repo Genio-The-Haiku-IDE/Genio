@@ -810,10 +810,13 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 void
 LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 {
-	//TODO: fix this :)
-	auto vect = params["result"].get<std::vector<DocumentSymbol>>();
+	BMessage msg('symb');
+	auto vect = params.get<std::vector<DocumentSymbol>>();
 	for (DocumentSymbol sym: vect) {
-		printf("DocumentSymbol: %s\n", sym.name.c_str());
+		// TODO support childers..
+		msg.AddString("name", sym.name.c_str());
+		if (fEditor)
+			fEditor->SendDocumentSymbol(msg);
 	}
 }
 

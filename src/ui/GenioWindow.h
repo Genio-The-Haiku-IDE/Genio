@@ -43,6 +43,7 @@ class BTextControl;
 class ConsoleIOView;
 class Editor;
 class EditorTabManager;
+class FunctionsOutlineView;
 class GoToLineWindow;
 class ProblemsPanel;
 class ProjectFolder;
@@ -104,7 +105,8 @@ private:
 			void				_InitCentralSplit();
 			void				_InitMenu();
 			void				_InitOutputSplit();
-			void				_InitSideSplit();
+			void				_InitLeftSplit();
+			void				_InitRightSplit();
 			void				_InitToolbar();
 			void				_InitWindow();
 
@@ -194,6 +196,11 @@ private:
 
 			ProjectFolder		*fActiveProject;
 			bool				fIsBuilding;
+
+			// Right panels
+			BTabView*	  		fRightTabView;
+			FunctionsOutlineView* fFunctionsOutlineView;
+			BScrollView*		fOutlineViewScroll;
 
 			// Editor group
 			EditorTabManager*	fTabManager;

@@ -44,6 +44,7 @@
 #include "EditorMessages.h"
 #include "EditorTabManager.h"
 #include "FSUtils.h"
+#include "FunctionsOutlineView.h"
 #include "GenioApp.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
@@ -3077,7 +3078,7 @@ GenioWindow::_InitOutputSplit()
 
 
 void
-GenioWindow::_InitSideSplit()
+GenioWindow::_InitLeftSplit()
 {
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
@@ -3094,14 +3095,25 @@ GenioWindow::_InitSideSplit()
 
 
 void
+GenioWindow::_InitRightSplit()
+{
+	// Outline view
+	fRightTabView = new BTabView("OutlineTabview");
+
+	fFunctionsOutlineView = new FunctionsOutlineView();
+	fOutlineViewScroll = new BScrollView(B_TRANSLATE("Class outline"),
+		fFunctionsOutlineView, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
+	fRightTabView->AddTab(fOutlineViewScroll);
+}
+
+
+void
 GenioWindow::_InitWindow()
 {
 	_InitToolbar();
-
-	_InitSideSplit();
-
+	_InitLeftSplit();
 	_InitCentralSplit();
-
+	_InitRightSplit();
 	_InitOutputSplit();
 
 	// Layout
@@ -3114,6 +3126,7 @@ GenioWindow::_InitWindow()
 			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
 				.Add(fProjectsTabView, kProjectsWeight)
 				.Add(fEditorTabsGroup, kEditorWeight)  // Editor
+				.Add(fRightTabView, 1)
 			.End() // sidebar split
 			.Add(fOutputTabView, kOutputWeight)
 		.End() //  output split

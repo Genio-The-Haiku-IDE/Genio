@@ -135,6 +135,23 @@ GenioApp::GenioApp()
 	find_directory(B_USER_SETTINGS_DIRECTORY, &fConfigurationPath);
 	fConfigurationPath.Append(GenioNames::kApplicationName);
 	fConfigurationPath.Append(GenioNames::kSettingsFileName);
+
+	PrepareConfig(gCFG);
+
+	// Global settings file check.
+	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {
+		LogInfo("Cannot load global settings file");
+	}
+
+	Logger::SetDestination(gCFG["log_destination"]);
+	if (sSessionLogLevel == LOG_LEVEL_UNSET)
+		Logger::SetLevel(log_level(int32(gCFG["log_level"])));
+	else
+		Logger::SetLevel(sSessionLogLevel);
+
+	Languages::LoadLanguages();
+
+	fGenioWindow = new GenioWindow(gCFG["ui_bounds"]);
 }
 
 
@@ -279,25 +296,9 @@ GenioApp::RefsReceived(BMessage* message)
 void
 GenioApp::ReadyToRun()
 {
-	PrepareConfig(gCFG);
-
-	// Global settings file check.
-	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {
-		LogInfo("Cannot load global settings file");
-	}
-
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 
-	Logger::SetDestination(gCFG["log_destination"]);
-	if (sSessionLogLevel == LOG_LEVEL_UNSET)
-		Logger::SetLevel(log_level(int32(gCFG["log_level"])));
-	else
-		Logger::SetLevel(sSessionLogLevel);
-
-	Languages::LoadLanguages();
-
-	fGenioWindow = new GenioWindow(gCFG["ui_bounds"]);
 	fGenioWindow->Show();
 }
 

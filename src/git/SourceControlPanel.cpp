@@ -434,7 +434,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				if (result.Button == GAlertButtons::OkButton) {
 					auto repo = fSelectedProject->GetRepository();
 					repo->RenameBranch(selectedBranch, result.Result, branchType);
-					_ShowGitNotification(B_TRANSLATE("Branch renamed succesfully."));
 					_UpdateBranchList();
 					LogInfo("MsgRenameBranch: %s renamed to %s", selectedBranch.String(),
 						result.Result.String());
@@ -459,7 +458,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					git_branch_t branchType = static_cast<git_branch_t>(message->GetInt32("type",-1));
 					auto repo = fSelectedProject->GetRepository();
 					repo->DeleteBranch(selectedBranch, branchType);
-					_ShowGitNotification(B_TRANSLATE("Branch deleted succesfully."));
 					_UpdateBranchList();
 					LogInfo("MsgDeleteBranch: %s", selectedBranch.String());
 				}
@@ -476,7 +474,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				if (result.Button == GAlertButtons::OkButton) {
 					auto repo = fSelectedProject->GetRepository();
 					repo->CreateBranch(selectedBranch, branchType, result.Result);
-					_ShowGitNotification(B_TRANSLATE("Branch created succesfully."));
 					LogInfo("MsgRenameBranch: %s created from %s", selectedBranch.String(),
 						result.Result.String());
 					GMessage switchMessage{

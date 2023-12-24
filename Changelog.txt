@@ -4,8 +4,10 @@ v2.1
 	- Fixed sporadic crash while closing a tab when Genio was unresponsive.
 	- Fixed crash if clicking on the project list when empty.
 	- Fixed Yab files syntax-highlighting.
+	- Fixed opening files from tracker with "open with" when Genio is closed.
 	- Fixed emptying Source Control view when unloading the last project.
 	- Removed in-tree Lexilla and used the one from HaikuPorts.
+	- Removed (unnecessary) notifications for some Git operations.
 ---
 v2.0
 	- Add a configuration to exclude certain files or folders in 'Find in files'.

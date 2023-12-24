@@ -286,6 +286,9 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case kClassOutline:
+			_ForwardToSelectedEditor(message);
+		break;
 		case kApplyFix:
 		{
 			entry_ref ref;
@@ -2772,6 +2775,8 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
+	
+	editMenu->AddItem(new BMenuItem("Update Class Outline", new BMessage(kClassOutline)));
 
 	editMenu->AddSeparatorItem();
 

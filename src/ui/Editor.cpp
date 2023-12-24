@@ -219,6 +219,11 @@ Editor::MessageReceived(BMessage* message)
 				fLSPEditorWrapper->ApplyFix(message);
 		}
 		break;
+		case kClassOutline: {
+			if (fLSPEditorWrapper)
+				fLSPEditorWrapper->RequestDocumentSymbols();
+		}
+		break;
 		default:
 			BScintillaView::MessageReceived(message);
 		break;

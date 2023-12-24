@@ -125,34 +125,7 @@ enum class TextDocumentSyncKind {
     Incremental = 2,
 };
 // enum class CompletionItemKind
-enum class SymbolKind {
-    File = 1,
-    Module = 2,
-    Namespace = 3,
-    Package = 4,
-    Class = 5,
-    Method = 6,
-    Property = 7,
-    Field = 8,
-    Constructor = 9,
-    Enum = 10,
-    Interface = 11,
-    Function = 12,
-    Variable = 13,
-    Constant = 14,
-    String = 15,
-    Number = 16,
-    Boolean = 17,
-    Array = 18,
-    Object = 19,
-    Key = 20,
-    Null = 21,
-    EnumMember = 22,
-    Struct = 23,
-    Event = 24,
-    Operator = 25,
-    TypeParameter = 26
-};
+
 enum class OffsetEncoding {
     // Any string is legal on the wire. Unrecognized encodings parse as this.
     UnsupportedEncoding,
@@ -630,6 +603,10 @@ JSON_SERIALIZE(LspCommand, MAP_JSON(MAP_KEY(command), MAP_KEY(workspaceEdit), MA
 //struct CodeAction
 JSON_SERIALIZE(CodeAction, MAP_JSON(MAP_KEY(title), MAP_KEY(kind), MAP_KEY(diagnostics), MAP_KEY(edit), MAP_KEY(command)),
         {FROM_KEY(title);FROM_KEY(kind);FROM_KEY(diagnostics);FROM_KEY(edit);FROM_KEY(command)});
+
+//TODO Write Serialize for DocumentSymbol (one way only);
+JSON_SERIALIZE(DocumentSymbol, {/*NOT REQUIRED*/},{FROM_KEY(name);FROM_KEY(detail);FROM_KEY(kind);FROM_KEY(deprecated);
+                FROM_KEY(range);FROM_KEY(selectionRange);FROM_KEY(children);});
 
 struct SymbolInformation {
     /// The name of this symbol.

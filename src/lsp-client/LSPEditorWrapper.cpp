@@ -524,6 +524,15 @@ LSPEditorWrapper::ContinueCallTip()
 	}
 }
 
+void
+LSPEditorWrapper::RequestDocumentSymbols()
+{
+	if (!fLSPProjectWrapper || !fEditor)
+		return;
+	
+	fLSPProjectWrapper->DocumentSymbol(this);
+}
+
 
 void
 LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
@@ -798,6 +807,16 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 	SetFileStatus(state.c_str());
 }
 
+void
+LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
+{
+	//TODO: fix this :)
+	auto vect = params["result"].get<std::vector<DocumentSymbol>>();
+	for (DocumentSymbol sym: vect) {
+		printf("DocumentSymbol: %s\n", sym.name.c_str());
+	}
+}
+
 
 bool
 LSPEditorWrapper::IsStatusValid()
@@ -834,6 +853,7 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
 	IF_ID("textDocument/completion", _DoCompletion);
 	IF_ID("textDocument/documentLink", _DoDocumentLink);
+	IF_ID("textDocument/documentSymbol", _DoDocumentSymbol);
 
 	LogError("LSPEditorWrapper::onResponse not handled! [%s]", id.c_str());
 }

@@ -57,6 +57,8 @@ public:
 		/* experimental */
 		void	ContinueCallTip();
 		void	UpdateCallTip(int deltaPos);
+		
+		void	RequestDocumentSymbols();
 
 private:
 		/* experimental section */
@@ -119,6 +121,7 @@ private:
 	void	_DoDiagnostics(nlohmann::json& params);
 	void	_DoDocumentLink(nlohmann::json& params);
 	void	_DoFileStatus(nlohmann::json& params);
+	void	_DoDocumentSymbol(nlohmann::json& params);
 
 private:
 	//utils

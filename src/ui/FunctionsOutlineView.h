@@ -9,7 +9,9 @@
 
 class FunctionsOutlineView : public BOutlineListView {
 public:
-	FunctionsOutlineView();
+			FunctionsOutlineView();
+
+	void	UpdateDocumentSymbols(BMessage* msg);
 
 };
 

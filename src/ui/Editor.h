@@ -28,7 +28,8 @@ enum {
 	EDITOR_REPLACE_ONE				= 'Eron',
 	EDITOR_REPLACE_ALL_COUNT		= 'Erac',
 	EDITOR_UPDATE_SAVEPOINT			= 'EUSP',
-	EDITOR_UPDATE_DIAGNOSTICS		= 'diag'
+	EDITOR_UPDATE_DIAGNOSTICS		= 'diag',
+	EDITOR_UPDATE_SYMBOLS			= 'symb'
 };
 
 /*
@@ -158,7 +159,8 @@ public:
 			void				SetProblems(const BMessage* diagnostics);
 			void				GetProblems(BMessage* diagnostics);
 			
-			void				SendDocumentSymbol(BMessage& symbols);
+			void				SetDocumentSymbols(const BMessage* symbols);
+			void				GetDocumentSymbols(BMessage* symbols);
 
 			filter_result		BeforeKeyDown(BMessage*);
 			filter_result		OnArrowKey(int8 ch);
@@ -216,7 +218,8 @@ private:
 			editor::StatusView*			fStatusView;
 
 			BMessage	fProblems;
-			BLocker		fProblemsLock;
+			BMessage	fDocumentSymbols;
+			BLocker		fProblemsLock; //TODO Rename to a more generic name.
 
 };
 

@@ -816,7 +816,7 @@ LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 		// TODO support childers..
 		msg.AddString("name", sym.name.c_str());
 		if (fEditor)
-			fEditor->SendDocumentSymbol(msg);
+			fEditor->SetDocumentSymbols(&msg);
 	}
 }
 

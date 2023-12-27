@@ -1764,7 +1764,18 @@ Editor::GetProblems(BMessage* diagnostics)
 }
 
 void
-Editor::SendDocumentSymbol(BMessage& symbols)
+Editor::SetDocumentSymbols(const BMessage* symbols)
 {
-	Window()->PostMessage(&symbols);
+	BAutolock lock(fProblemsLock);
+	fDocumentSymbols = *symbols;
+	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
+	fDocumentSymbols.AddRef("ref", &fFileRef);
+	Window()->PostMessage(&fDocumentSymbols);
+}
+
+void
+Editor::GetDocumentSymbols(BMessage* symbols)
+{
+	BAutolock lock(fProblemsLock);
+	*symbols = fDocumentSymbols;
 }

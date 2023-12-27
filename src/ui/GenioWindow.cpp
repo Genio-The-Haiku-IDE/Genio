@@ -286,16 +286,7 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case 'symb':{
-			//TODO: rewrite this :)
-			fFunctionsOutlineView->MakeEmpty();
-			int32 i=0;
-			BString name;
-			while(message->FindString("name", i++, &name) == B_OK) {
-				fFunctionsOutlineView->AddItem(new BStringItem(name));
-			}
-		}
-		break;
+
 		case kClassOutline:
 			_ForwardToSelectedEditor(message);
 		break;
@@ -345,6 +336,16 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case EDITOR_UPDATE_SYMBOLS:{
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor == fTabManager->SelectedEditor()) {
+					fFunctionsOutlineView->UpdateDocumentSymbols(message);
+				}
+			}
+		}
+		break;
 		case B_ABOUT_REQUESTED:
 			be_app->PostMessage(B_ABOUT_REQUESTED);
 			break;
@@ -2785,7 +2786,7 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
-	
+
 	editMenu->AddItem(new BMenuItem("Update Class Outline", new BMessage(kClassOutline)));
 
 	editMenu->AddSeparatorItem();
@@ -4032,6 +4033,10 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	BMessage diagnostics;
 	editor->GetProblems(&diagnostics);
 	fProblemsPanel->UpdateProblems(&diagnostics);
+
+	BMessage symbols;
+	editor->GetDocumentSymbols(&symbols);
+	fFunctionsOutlineView->UpdateDocumentSymbols(&symbols);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

@@ -11,7 +11,14 @@ class FunctionsOutlineView : public BOutlineListView {
 public:
 			FunctionsOutlineView();
 
-	void	UpdateDocumentSymbols(BMessage* msg);
+				void	UpdateDocumentSymbols(BMessage* msg);
+
+	virtual		void	MessageReceived(BMessage* msg);
+
+private:
+	void	_RecursiveAddSymbols(BListItem* parent, BMessage* msg);
+
+	entry_ref	fCurrentRef;
 
 };
 

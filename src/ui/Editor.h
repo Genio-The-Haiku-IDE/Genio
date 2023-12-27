@@ -158,7 +158,7 @@ public:
 
 			void				SetProblems(const BMessage* diagnostics);
 			void				GetProblems(BMessage* diagnostics);
-			
+
 			void				SetDocumentSymbols(const BMessage* symbols);
 			void				GetDocumentSymbols(BMessage* symbols);
 
@@ -219,8 +219,6 @@ private:
 
 			BMessage	fProblems;
 			BMessage	fDocumentSymbols;
-			BLocker		fProblemsLock; //TODO Rename to a more generic name.
-
 };
 
 #endif // EDITOR_H

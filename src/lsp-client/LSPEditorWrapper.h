@@ -57,7 +57,7 @@ public:
 		/* experimental */
 		void	ContinueCallTip();
 		void	UpdateCallTip(int deltaPos);
-		
+
 		void	RequestDocumentSymbols();
 
 private:
@@ -123,6 +123,7 @@ private:
 	void	_DoFileStatus(nlohmann::json& params);
 	void	_DoDocumentSymbol(nlohmann::json& params);
 
+	void	_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& v, BMessage& msg);
 private:
 	//utils
 	void 			FromSciPositionToLSPPosition(const Sci_Position &pos, Position *lsp_position);

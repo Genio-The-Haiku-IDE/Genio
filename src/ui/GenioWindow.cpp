@@ -3956,6 +3956,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		_UpdateWindowTitle(nullptr);
 
 		fProblemsPanel->ClearProblems();
+		BMessage empty;
+		fFunctionsOutlineView->UpdateDocumentSymbols(&empty);
 		return;
 	}
 

@@ -11,6 +11,7 @@
 
 class BBox;
 class BCheckBox;
+class BStringView;
 class BTextControl;
 class ProjectFolder;
 class ProjectSettingsWindow : public BWindow {
@@ -27,10 +28,8 @@ private:
 			void				_SaveChanges();
 			void 				_LoadDefaults();
 
-			ProjectFolder		*fProject;
-			BBox* 				fProjectBox;
-			BString		 		fProjectBoxLabel;
-			BString		 		fProjectBoxProjectLabel;
+			ProjectFolder*		fProject;
+			BStringView* 		fProjectHeader;
 
 			BBox* 				fBuildCommandsBox;
 			BTextControl* 		fReleaseProjectTargetText;

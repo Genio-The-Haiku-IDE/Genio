@@ -99,19 +99,12 @@ LSPProjectWrapper::_Create()
 
 	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 
-	int32 argc;
-	const char** argv = fServerConfig.CreateServerStartupArgs(argc);
-
-	status_t started = fLSPPipeClient->Start(argv, argc);
-
-	for (int i=0;i<argc;i++)
-		delete(argv[i]);
-	delete(argv);
+	status_t started = fLSPPipeClient->Start((const char**)fServerConfig.Argv(), fServerConfig.Argc());
 
 	if ( started != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
 		LogInfo("Can't execute lsp sever to provide advanced features! Please install '%s'",
-				argv[0]);
+				fServerConfig.Argv()[0]);
 		return false;
 	}
 

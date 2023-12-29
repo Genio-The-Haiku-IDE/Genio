@@ -60,6 +60,7 @@ SRCS += src/lsp-client/LSPProjectWrapper.cpp
 SRCS += src/lsp-client/LSPPipeClient.cpp
 SRCS += src/lsp-client/Transport.cpp
 SRCS += src/lsp-client/LSPReaderThread.cpp
+SRCS += src/lsp-client/LSPServersManager.cpp
 SRCS += src/override/BarberPole.cpp
 SRCS += src/project/ProjectSettingsWindow.cpp
 SRCS += src/project/ProjectFolder.cpp
@@ -89,6 +90,7 @@ SRCS += src/templates/IconMenuItem.cpp
 SRCS += src/templates/TemplatesMenu.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/helpers/PipeImage.cpp
+
 
 RDEFS := Genio.rdef
 

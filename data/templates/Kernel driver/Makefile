@@ -8,7 +8,7 @@
 ## file:///system/develop/documentation/makefile-engine.html
 
 # The name of the binary.
-NAME = BeDriver
+NAME = MyDriver
 TARGET_DIR = .
 
 # The type of binary, must be one of:

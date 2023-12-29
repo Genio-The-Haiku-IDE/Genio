@@ -8,12 +8,16 @@
  */
 
 #include "PipeImage.h"
-#include "Log.h"
+
+#include <cerrno>
+#include <cstdlib>
+#include <unistd.h>
 #include <image.h>
 
+#include <Locker.h>
 
  //lock access play with stdin/stdout
-BLocker* PipeImage::LockStdFilesPntr = new BLocker ("Std-In-Out Changed Lock");
+BLocker* PipeImage::sLockStdFilesPntr = new BLocker ("Std-In-Out Changed Lock");
 
 status_t
 PipeImage::Init(const char **argv, int32 argc, bool resume)
@@ -25,7 +29,7 @@ PipeImage::Init(const char **argv, int32 argc, bool resume)
 	// if ko we revert original state.
 	// we run the thread. crossing finger.
 
-	LockStdFilesPntr->Lock();
+	sLockStdFilesPntr->Lock();
 
 	int originalStdIn = dup (STDIN_FILENO);
 	int PipeFlags = fcntl (originalStdIn, F_GETFD);
@@ -44,7 +48,8 @@ PipeImage::Init(const char **argv, int32 argc, bool resume)
 	fcntl (originalStdErr, F_SETFD, PipeFlags);
 #endif
 
-	LockStdFilesPntr->Unlock();
+  sLockStdFilesPntr->Unlock();
+
 
 	if (pipe (fOutPipe) != 0) // Returns -1 if failed, 0 if okay.
 		return errno; // Pipe creation failed.
@@ -103,13 +108,14 @@ PipeImage::Init(const char **argv, int32 argc, bool resume)
 	close(fOutPipe[READ_END]);
 	close(fInPipe[WRITE_END]);
 
-	LockStdFilesPntr->Lock();
+	sLockStdFilesPntr->Lock();
+
 	dup2 (originalStdIn, STDIN_FILENO);
 	dup2 (originalStdOut, STDOUT_FILENO);
 	#if 0
 	dup2 (originalStdErr, STDERR_FILENO);
 	#endif
-	LockStdFilesPntr->Unlock();
+	sLockStdFilesPntr->Unlock();
 
 	return stat;
 }
@@ -134,8 +140,6 @@ PipeImage::GetChildPid()
 {
 	return fChildpid;
 }
-
-#include <unistd.h>
 
 ssize_t
 PipeImage::Read(void* buffer, size_t size)

@@ -19,6 +19,8 @@ public:
 	Editor*		SelectedEditor();
 	Editor*		EditorBy(entry_ref* ref);
 
+	BString		GetToolTipText(int32 index);
+
 private:
 
 };

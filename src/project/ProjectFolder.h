@@ -5,14 +5,22 @@
 #ifndef PROJECT_FOLDER_H
 #define PROJECT_FOLDER_H
 
+
+#include <Entry.h>
 #include <ObjectList.h>
 #include <String.h>
 #include <Messenger.h>
 #include "GSettings.h"
 #include <vector>
 
+#include "GitRepository.h"
+
+using namespace Genio::Git;
+
+class BMessenger;
 class LSPProjectWrapper;
 class LSPTextDocument;
+class GSettings;
 
 enum SourceItemType {
 	FileItem,
@@ -29,66 +37,70 @@ class ProjectFolder;
 
 class SourceItem {
 public:
-								SourceItem(BString const& path);
+					explicit	SourceItem(const BString& path);
+					explicit	SourceItem(const entry_ref& ref);
 								~SourceItem();
 
-	BString	const				Path() { return fPath; }
-	BString	const				Name() { return fName; };
-	SourceItemType				Type() { return fType; };
+	const entry_ref*			EntryRef() const;
+	void						UpdateEntryRef(const entry_ref& ref);
 
-	ProjectFolder				*GetProjectFolder()	{ return fProjectFolder; }
+	BString	const				Name() const;
+	SourceItemType				Type() const { return fType; };
+
+	ProjectFolder*				GetProjectFolder()	const { return fProjectFolder; }
 	void						SetProjectFolder(ProjectFolder *projectFolder)	{ fProjectFolder = projectFolder; }
 
-	void 						Rename(BString const& path);
-
+private:
+	entry_ref					fEntryRef;
 protected:
-	BString						fPath;
-	BString						fName;
 	SourceItemType				fType;
 	ProjectFolder				*fProjectFolder;
 };
 
+
 class ProjectFolder : public SourceItem {
 public:
-								ProjectFolder(BString const& path, BMessenger& msgr);
+								ProjectFolder(const entry_ref& ref, BMessenger& msgr);
 								~ProjectFolder();
 
 	status_t					Open();
 	status_t					Close();
 
+	BString	const				Path() const;
+
 	void						LoadDefaultSettings();
 	void						SaveSettings();
 
 	bool						Active() const { return fActive; }
-	void						Active(bool status) { fActive = status; }
+	void						SetActive(bool status) { fActive = status; }
 
 	void						SetBuildMode(BuildMode mode);
 	BuildMode					GetBuildMode();
+	bool						IsBuilding() const { return fIsBuilding; }
+	void						SetBuildingState(bool isBuilding) { fIsBuilding = isBuilding; }
 
 	void						SetCleanCommand(BString const& command, BuildMode mode);
-	BString const				GetCleanCommand();
+	BString const				GetCleanCommand() const;
 
 	void						SetBuildCommand(BString const& command, BuildMode mode);
-	BString const				GetBuildCommand();
+	BString const				GetBuildCommand() const;
 
 	void						SetExecuteArgs(BString const& args, BuildMode mode);
-	BString const				GetExecuteArgs();
+	BString const				GetExecuteArgs() const;
 
 	void						SetTarget(BString const& path, BuildMode mode);
-	BString const				GetTarget();
+	BString const				GetTarget() const;
 
-	void						RunInTerminal(bool enabled);
-	bool						RunInTerminal();
+	void						SetRunInTerminal(bool enabled);
+	bool						RunInTerminal() const;
 
-	void						Git(bool enabled);
-	bool						Git();
-
-	void						ExcludeSettingsOnGit(bool enabled);
-	bool						ExcludeSettingsOnGit();
+	GitRepository*				GetRepository() const;
+	void						InitRepository(bool createInitialCommit = true);
 
 	void						SetGuessedBuilder(const BString& string);
 
 	LSPProjectWrapper*			GetLSPServer(const BString& fileType);
+
 
 private:
 	bool						fActive;
@@ -98,6 +110,9 @@ private:
 	std::vector<LSPProjectWrapper*>	fLSPProjectWrappers;
 	GSettings*					fSettings;
 	BMessenger					fMessenger;
+	GitRepository*	    fGitRepository;
+	bool						fIsBuilding;
+	BString					fFullPath;
 };
 
 #endif // PROJECT_FOLDER_H

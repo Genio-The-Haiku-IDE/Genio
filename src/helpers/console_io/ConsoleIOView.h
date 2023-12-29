@@ -9,17 +9,15 @@
 #ifndef CONSOLE_IO_VIEW_H_
 #define CONSOLE_IO_VIEW_H_
 
-#include "ConsoleIOThread.h"
-
 #include <GroupView.h>
+#include <Messenger.h>
 #include <ObjectList.h>
 
 class BButton;
 class BCheckBox;
-class WordTextView;
 class BTextView;
-
-
+class ConsoleIOThread;
+class WordTextView;
 class ConsoleIOView : public BGroupView {
 public:
 								ConsoleIOView(const BString& name, const BMessenger& target);

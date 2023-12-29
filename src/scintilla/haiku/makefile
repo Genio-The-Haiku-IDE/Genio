@@ -73,11 +73,11 @@ deps.mak:
 	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) $(DEPSRCS) | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
 
 $(STATICLIB): $(SRCOBJS) $(HAIKUOBJS)
-	$(AR) $(ARFLAGS) $@ $^ ../../lexilla/bin/liblexilla.a
+	$(AR) $(ARFLAGS) $@ $^ 
 	$(RANLIB) $@
 
 $(SHAREDLIB): $(SRCOBJS) $(HAIKUOBJS)
-	$(CXX) -shared -L../../lexilla/bin/liblexilla.a -o $@ $^
+	$(CXX) -shared -o $@ $^
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak

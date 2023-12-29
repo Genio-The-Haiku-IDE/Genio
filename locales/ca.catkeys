@@ -1,5 +1,6 @@
-1	Catalan	application/x-vnd.Genio	2456584478
+1	Catalan	application/x-vnd.Genio	335291597
 About…	GenioWindow		Quant a...
+An error occurred while switching branch:	GenioWindow		S'ha produït un error en canviar de branca:
 Appearance	GenioWindow		Aparença
 Autocomplete	GenioWindow		Autocompleta
 Bookmark	GenioWindow		Marcador
@@ -17,11 +18,11 @@ Close file	GenioWindow		Tanca el fitxer
 Close project	GenioWindow		Tanca el projecte
 Comment selected lines	GenioWindow		Comenta les línies seleccionades
 Configure	GenioWindow		Configura
+Conflicts	GenioWindow		Conflictes
 Console I/O	GenioWindow		E/S de la consola
 Copy	GenioWindow		Copia
 Could not create a new file	GenioWindow		No s'ha pogut crear un fitxer nou.
 Could not delete \"%name%\".\n\n	GenioWindow		No s'ha pogut suprimir %name%.\n\n
-Could not open template folder in Tracker	GenioWindow		No s'ha pogut obrir la carpeta de plantilles al Rastrejador.
 Cut	GenioWindow		Retalla
 Debug	GenioWindow		Depuració
 Debug project	GenioWindow		Projecte de depuració
@@ -44,31 +45,37 @@ Find in project	GenioWindow		Troba al projecte
 Find next	GenioWindow		Troba el següent
 Find previous	GenioWindow		Troba l'anterior
 Find:	GenioWindow		Troba:
+Focus mode	GenioWindow		Mode d'enfocament
 Fold/Unfold all	GenioWindow		Plega / desplega-ho tot
 Format	GenioWindow		Format
+Fullscreen	GenioWindow		Pantalla completa
+Genio project…	GenioWindow		Projecte del Genio...
 Git	GenioWindow		Git
 Go to declaration	GenioWindow		Ves a la declaració
 Go to definition	GenioWindow		Ves a la definició
 Go to implementation	GenioWindow		Ves a la implementació
 Go to line…	GenioWindow		Ves a la línia...
-Help	GenioWindow		Ajuda
 Ignore	GenioWindow		Ignora-ho
 Invalid project folder	GenioWindow		Carpeta del projecte no vàlida
 Keep	GenioWindow		Mantén
+Language	GenioWindow		Llengua
 Line endings	GenioWindow		Finals de línia
 Log	GenioWindow	The git command	Registre
 Log (oneline)	GenioWindow	The git command	Registre (una línia)
 Mac	GenioWindow		Mac
+Make bindcatalogs	GenioWindow		Fer catàlegs enquadernats
+Make catkeys	GenioWindow		Fer les claus del cotxe
 Make file read-only	GenioWindow		Fes que el fitxer sigui només de lectura
 Match case	GenioWindow		Coincidència de majúscules
 New	GenioWindow		Nou
 New file	GenioWindow		Fitxer nou
 New folder	GenioWindow		Carpeta nova
 Next	GenioWindow	Bookmark menu	Següent
-Open	GenioWindow		Obre
 Open files list	GenioWindow		Obre la llista de fitxers
-Open project	GenioWindow		Obre un projecte
+Open project…	GenioWindow		Obre un projecte...
 Open recent…	GenioWindow		Obre el recent...
+Open remote project…	GenioWindow		Obre un projecte remot...
+Open…	GenioWindow		Obre...
 Overwrite	GenioWindow		Sobreescriu
 Paste	GenioWindow		Enganxa
 Previous	GenioWindow	Bookmark menu	Anterior
@@ -114,6 +121,7 @@ Show/Hide replace bar	GenioWindow		Mostra / amaga la barra de substitució
 Status	GenioWindow	The git command	Estat
 Status (short)	GenioWindow	The git command	Estat (breu)
 Switch source/header	GenioWindow		Canvia la font / capçalera
+Switch to branch	GenioWindow		Canvia a la branca
 Switch to next file	GenioWindow		Canvia al fitxer següent
 Switch to previous file	GenioWindow		Canvia al fitxer anterior
 Tag	GenioWindow	The git command	Etiqueta
@@ -128,82 +136,153 @@ Wrap	GenioWindow		Plega
 You can't create a new folder here, please select a project or another folder	GenioWindow		No podeu crear una carpeta nova aquí, seleccioneu un projecte o una altra carpeta.
 Zoom in	GenioWindow		Amplia
 Zoom out	GenioWindow		Redueix
+Active	EditorTabManager		Actiu
+Project	EditorTabManager		Projecte
 An error occurred attempting to rename file 	ProjectsFolderBrowser		Hi ha hagut un error intentant canviar de nom el fitxer.
+Build project	ProjectsFolderBrowser		Construcció del projecte
+Clean project	ProjectsFolderBrowser		Neteja del projecte
 Close project	ProjectsFolderBrowser		Tanca el projecte
+Current branch	ProjectsFolderBrowser		Branca actual
 Delete file	ProjectsFolderBrowser		Suprimeix el fitxer
+Delete folder	ProjectsFolderBrowser		Suprimeix la carpeta
 New	ProjectsFolderBrowser		Nou
 OK	ProjectsFolderBrowser		D'acord
 Open file	ProjectsFolderBrowser		Obre el fitxer
 Open Terminal	ProjectsFolderBrowser		Obre el Terminal
+Path	ProjectsFolderBrowser		Camí
+Project	ProjectsFolderBrowser		Projecte
+Project settings…	ProjectsFolderBrowser		Paràmetres del projecte...
 Rename file	ProjectsFolderBrowser		Canvia de nom el fitxer
+Rename folder	ProjectsFolderBrowser		Canvia de nom la carpeta
 Set active	ProjectsFolderBrowser		Estableix com a actiu
 Show in Tracker	ProjectsFolderBrowser		Mostra al rastrejador
+Switch to branch	ProjectsFolderBrowser		Canvia a la branca
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La carpeta del projecte s'ha suprimit o s'ha mogut a una altra ubicació i es tancarà i es descarregarà de l'espai de treball.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		S'ha canviat el nom de la carpeta del projecte. Es tancarà i es reobrirà automàticament.
+An unknown error occurred.	SourceControlPanel		S'ha produït un error desconegut.
+Branch created succesfully.	SourceControlPanel		La branca s'ha creat correctament.
+Branch deleted succesfully.	SourceControlPanel		La branca s'ha suprimit correctament
+Branch renamed succesfully.	SourceControlPanel		S'ha canviat correctament el nom de la branca.
+Cancel	SourceControlPanel		Cancel·la
+Changes stashed.	SourceControlPanel		Canvis amagats
+Choose branch…	SourceControlPanel		Trieu una branca...
+Choose project…	SourceControlPanel		Trieu un projecte...
+Conflicts	SourceControlPanel		Conflictes
+Copy name	SourceControlPanel		Copia'n el nom
+Create initial commit	SourceControlPanel		Crea la versió inicial
+Create new branch from \"%selected_branch%\"	SourceControlPanel		Crea una branca nova des de %selected_branch%
+Current branch:	SourceControlPanel		Branca actual:
+Delete	SourceControlPanel		Suprimeix
+Delete \"%selected_branch%\"	SourceControlPanel		Suprimeix %selected_branch%
+Delete dialog	SourceControlPanel		Diàleg de supressió
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Se suprimeix la branca %branch%.\n\nDesprés de la supressió, l'element es perdrà.\nDe veritat el voleu suprimir?
+Do not create the initial commit	SourceControlPanel		No creïs la versió inicial.
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Realment voleu inicialitzar un repositori sense crear una versió inicial?
+Enter a message for this stash	SourceControlPanel		Introduïu un missatge per a aquest dipòsit.
+Fetch	SourceControlPanel		Obtén
+Fetch completed.	SourceControlPanel		Obtenció completa
+Fetch prune	SourceControlPanel		Obtén la poda
+Fetch prune completed.	SourceControlPanel		Obtenció de la poda completa
+Init repository	SourceControlPanel		Dipòsit d'inici
+Local branches	SourceControlPanel		Branques locals
+OK	SourceControlPanel		D'acord
+Options	SourceControlPanel		Opcions
+Project:	SourceControlPanel		Projecte:
+Remote branches	SourceControlPanel		Branques remotes
+Remotes	SourceControlPanel		Remotes
+Rename \"%selected_branch%\"	SourceControlPanel		Canvia de nom %selected_branch%
+Rename branch	SourceControlPanel		Canvia de nom la branca
+Rename branch:	SourceControlPanel		Canvia de nom la branca:
+Repository	SourceControlPanel		Dipòsit
+Source control	SourceControlPanel		Control de font
+Stash apply changes	SourceControlPanel		Aplica els canvis
+Stash changes	SourceControlPanel		Desa els canvis
+Stash pop changes	SourceControlPanel		Desa els canvis pop
+Stashed changes applied.	SourceControlPanel		S'han aplicat els canvis.
+Stashed changes popped.	SourceControlPanel		S'han aplicat els canvis pop.
+Switch to \"%selected_branch%\"	SourceControlPanel		Canvia a %selected_branch%
+Tags	SourceControlPanel		Etiquetes
+The project is building, changing branch not allowed.	SourceControlPanel		El projecte s'està construint, no es permet el canvi de branca.
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Aquest projecte no té un dipòsit de git.\nCliqueu a continuació per iniciar-lo.
 Another command is running.	ConsoleIOView		S'executa una altra ordre.
 Banner	ConsoleIOView		Rètol
 Clear	ConsoleIOView		Neteja
+Restarting build…	ConsoleIOView		Es reinicia la construcció...
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
 Stop	ConsoleIOView		Atura
 Wrap	ConsoleIOView		Replega
-Apply	SettingsWindow		Aplica
-Browse…	SettingsWindow		Navega...
+Auto collapse/expand projects	SettingsWindow		Replega / expandeix automàticament els projectes
+Auto-Build on resource save	SettingsWindow		Construcció automàtica en l'estalvi de recursos
+Auto-Save changed files when building	SettingsWindow		Desa automàticament els fitxers canviats en la construcció
 Build	SettingsWindow		Construeix
-Cancel	SettingsWindow		Cancel·la
 Console banner	SettingsWindow		Pancarta de la consola
-Default	SettingsWindow		Per defecte
+Convert tabs to spaces	SettingsWindow		Converteix tabulacions a espais
 Default size	SettingsWindow		Mida per defecte
-Defaults loaded	SettingsWindow		Valors per defecte carregats
-Edge column:	SettingsWindow		Columna de vora:
 Editor	SettingsWindow		Editor
+Editor style:	SettingsWindow		Estil de l'editor:
+Editor zoom:	SettingsWindow		Zoom de l'editor:
 Enable brace matching	SettingsWindow		Habilita la concordança de claus
 Enable folding	SettingsWindow		Habilita el replegament
-Enable notifications	SettingsWindow		Habilita les notificacions
 Enable syntax highlighting	SettingsWindow		Habilita el ressaltat de la sintaxi
+Exclude folders:	SettingsWindow		Exclou carpetes:
+Find	SettingsWindow		Cerca
 Font size:	SettingsWindow		Mida de la lletra:
-Font:	SettingsWindow		Lletra:
 General	SettingsWindow		General
 Log destination:	SettingsWindow		Destinació del registre:
 Log level:	SettingsWindow		Nivell de registre:
 Mark caret line	SettingsWindow		Marca la línia del cursor
-Notifications	SettingsWindow		Notificacions
+Match case	SettingsWindow		Coincidència de caixa
 Projects folder:	SettingsWindow		Carpeta de projectes:
 Reload files	SettingsWindow		Torna a carregar els fitxers
 Reload projects	SettingsWindow		Torna a carregar els projectes
-Revert	SettingsWindow		Reverteix
 Save caret position	SettingsWindow		Desa la posició del cursor
-Save position	SettingsWindow		Desa la posició
-Set for app ver: 	SettingsWindow		Configurat per a la versió de l'aplicació:
+Set ruler to column:	SettingsWindow		Estableix el regle a la columna:
 Show comment margin	SettingsWindow		Mostra el marge del comentari
-Show edge line	SettingsWindow		Mostra la línia de vora
 Show full path in window title	SettingsWindow		Mostra el camí complet al títol de la finestra
+Show line endings	SettingsWindow		Mostra els finals de línia.
 Show line number	SettingsWindow		Mostra el número de línia
 Show output pane	SettingsWindow		Mostra el plafó de sortida
 Show projects pane	SettingsWindow		Mostra el plafó de projectes
+Show repository outline	SettingsWindow		Mostra l'esquema del dipòsit
 Show toolbar	SettingsWindow		Mostra la barra d'eines
+Show vertical ruler	SettingsWindow		Mostra el regle vertical
+Show whitespace	SettingsWindow		Mostra espais en blanc
+Source control	SettingsWindow		Control de font
 Startup	SettingsWindow		Inici
-Tab width:  	SettingsWindow		Amplada de la tabulació:
-This is the font size preview	SettingsWindow		Aquesta és la vista prèvia de la mida de la lletra.
+Tab width:	SettingsWindow		Amplada de la tabulació:
+This setting will be updated on restart.	SettingsWindow		Aquesta configuració s'actualitzarà en reiniciar.
+Trim trailing whitespace on save	SettingsWindow		Retalla els espais en blanc al final en desar.
 Visual	SettingsWindow		Visual
+Whole word	SettingsWindow		Paraula sencera
+Wrap	SettingsWindow		Replega
 Wrap console	SettingsWindow		Plega la consola
+Base path:	RemoteProjectWindow		Camí de base:
+Browse…	RemoteProjectWindow		Navega...
+Cancel	RemoteProjectWindow		Cancel·la
+Clone	RemoteProjectWindow		Clona
+Close	RemoteProjectWindow		Tanca
+Continue	RemoteProjectWindow		Continua
+Destination folder:	RemoteProjectWindow		Carpeta de destinació:
+Do you want to stop cloning the repository?	RemoteProjectWindow		Voleu deixar de clonar el repositori?
+Open remote Git project	RemoteProjectWindow		Obre el projecte Git remot
+Stop	RemoteProjectWindow		Atura
+The local path is not valid or does not exist	RemoteProjectWindow		El camí local no és vàlid o no existeix.
+URL:	RemoteProjectWindow		URL:
 Build commands	ProjectSettingsWindow		Ordres de construcció
 Cancel	ProjectSettingsWindow		Cancel·la
-Debug build comand:	ProjectSettingsWindow		Ordre de construcció de depuració:
-Debug clean comand:	ProjectSettingsWindow		Ordre de neteja de depuració:
+Debug build command:	ProjectSettingsWindow		Ordre de depuració de la construcció:
+Debug clean command:	ProjectSettingsWindow		Ordre de neteja de la depuració:
 Debug execute arguments:	ProjectSettingsWindow		Arguments d'execució de depuració:
 Debug project target:	ProjectSettingsWindow		Destinació del projecte de depuració:
 Default	ProjectSettingsWindow		Per defecte
-Enable Git	ProjectSettingsWindow		Habilita Git
-Exclude settings file from Git	ProjectSettingsWindow		Exclou el fitxer de configuració de Git
 OK	ProjectSettingsWindow		D'acord
 Project:	ProjectSettingsWindow		Projecte:
-Release build comand:	ProjectSettingsWindow		Ordre de construcció de publicació:
-Release clean comand:	ProjectSettingsWindow		Ordre de neteja de publicació:
+Release build command:	ProjectSettingsWindow		Ordre d'alliberament de la construcció:
+Release clean command:	ProjectSettingsWindow		Ordre de neteja d'alliberament:
 Release execute arguments:	ProjectSettingsWindow		Arguments d'execució de publicació:
 Release project target:	ProjectSettingsWindow		Destinació del projecte de publicació:
 Run in Terminal	ProjectSettingsWindow		Executa al Terminal
-Source control	ProjectSettingsWindow		Control de font
 Target	ProjectSettingsWindow		Destinació
 Cancel	GoToLineWindow		Cancel·la
 Go to line	GoToLineWindow		Ves a la línia
@@ -211,6 +290,8 @@ Go to line:	GoToLineWindow		Ves a la línia:
 OK	GoToLineWindow		D'acord
 Cancel	Editor		Cancel·la
 Don't save	Editor		No ho desis
+Fix: %fix_desc%	Editor		Solució: %fix_desc%
+No fix available	Editor		No hi ha cap solució disponible.
 Save	Editor		Desa-ho
 Save changes to file \"%filename%\"?	Editor		Voleu desar els canvis al fitxer %filename%?
 Save dialog	Editor		Diàleg de desament
@@ -220,21 +301,32 @@ Save all	QuitAlert		Desa-ho tot
 Save selected	QuitAlert		Desa la selecció
 There are unsaved changes.\nSelect the files to save.	QuitAlert		Hi ha canvis no desats.\nSeleccioneu els fitxers que voleu desar.
 Unsaved files	QuitAlert		Fitxers no desats
+Cancel	GitCredentialsWindow		Cancel·la
+Git - User Credentials	GitCredentialsWindow		Git - Credencials d'usuari
+OK	GitCredentialsWindow		D'acord
+Password:	GitCredentialsWindow		Contrasenya:
+Username:	GitCredentialsWindow		Nom d'usuari:
+Cancel	GTextAlert		Cancel·la
+OK	GTextAlert		D'acord
 Category	ProblemsPanel		Categoria
 Message	ProblemsPanel		Misstge
 Problems	ProblemsPanel		Problemes
 Source	ProblemsPanel		Font
-Do you want to ignore, review or load defaults?	GenioApp		Voleu ignorar, revisar o carregar els valors predeterminats?
+Defaults	ConfigWindow		Valors per defecte
+Edit user templates…	TemplatesMenu		Edita les plantilles d'usuari...
+File deleted	GitRepository		Fitxer suprimit
+File deleted from index	GitRepository		Fitxer suprimit de l'índex
+File modified	GitRepository		Fitxer modificat
+File modified on index	GitRepository		Fitxer modificat a l'índex
+New file	GitRepository		Fitxer nou
+New file staged	GitRepository		Fitxer nou posat en escena
+Genio	System name		Genio
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio és una bifurcació d'Ideam i està disponible segons la llicència MIT.
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio usa\nScintilla lib\nCopyright 1998-2003 de Neil Hodgson \n\nScintilla per a Haiku\nCopyright 2011 d'Andrea Anzani \nCopyright 2014 de Kaper-c2015 \n\n
-Ignore	GenioApp		Ignora-ho
-Load defaults	GenioApp		Carrega els valors predeterminats
 Made with love in Italy	GenioApp		Fet amb amor a Itàlia
-Review	GenioApp		Revisió
 See credits for a complete list.\n\n	GenioApp		Consulteu-ne els crèdits per obtenir una llista completa.\n\n
-Settings file for a previous version detected.	GenioApp		S'ha detectat un fitxer de configuració d'una versió anterior.
-The settings file doesn't exist or is corrupted.	GenioApp		El fitxer de configuració no existeix o està malmès.
-Edit user templates…	TemplatesMenu		Edita les plantilles d'usuari...
-Genio	System name		Genio
+Location	SearchResultPanel		Ubicació
+Search results	SearchResultPanel		Resultats de la cerca
 New folder	TemplateManager		Carpeta nova
 OK	Utilities		D'acord
+OK	GitAlert		D'acord

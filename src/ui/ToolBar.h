@@ -6,6 +6,7 @@
 #define TOOLBAR_H
 
 
+#include <Control.h>
 #include <ToolBar.h>
 
 #include <string>
@@ -17,7 +18,7 @@ class BHandler;
 
 class ToolBar : public BPrivate::BToolBar {
 public:
-	ToolBar(BHandler* defaultTarget);
+					ToolBar(BHandler* defaultTarget = nullptr);
 
 	virtual void	Draw(BRect updateRect);
 
@@ -27,9 +28,13 @@ public:
 
 	void			SetEnabled(bool enable);
 
+	void			SetTarget(BHandler* defaultTarget);
+
+	void			ToggleActionPressed(uint32 command);
+
 private:
-	BHandler*	fDefaultTarget;
-	float		fIconSize;
+	BHandler*		fDefaultTarget;
+	float			fIconSize;
 	// command, iconName
 	std::unordered_map<uint32, std::string> fActionIcons;
 };

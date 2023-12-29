@@ -1,18 +1,19 @@
 /*
  * Copyright 2023 Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
- * Parts are taken from the IconMenuItem class from Haiku (Tracker) under the 
- * Open Tracker Licence 
+ * Parts are taken from the IconMenuItem class from Haiku (Tracker) under the
+ * Open Tracker Licence
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.
  */
 
 #include "IconMenuItem.h"
 
+#include <Bitmap.h>
 #include <ControlLook.h>
 #include <Debug.h>
 #include <Menu.h>
 #include <MenuField.h>
-#include <NodeInfo.h>
+
 
 #include "IconCache.h"
 
@@ -108,6 +109,20 @@ IconMenuItem::IconMenuItem(BMenu* submenu, BMessage* message,
 	SetTimeout(kSynchMenuInvokeTimeout);
 }
 
+
+IconMenuItem::IconMenuItem(BMenu* menu, BMessage* message, BBitmap* icon, icon_size which)
+			:
+			BMenuItem(menu, message),
+			fDeviceIcon(NULL),
+			fHeightDelta(0),
+			fWhich(which)
+{
+	SetIcon(icon);
+
+	// IconMenuItem is used in synchronously invoked menus, make sure
+	// we invoke with a timeout
+	SetTimeout(kSynchMenuInvokeTimeout);
+}
 
 IconMenuItem::IconMenuItem(BMessage* data)
 	:

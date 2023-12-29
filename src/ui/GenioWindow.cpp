@@ -12,9 +12,15 @@
 #include <Alert.h>
 #include <Application.h>
 #include <Architecture.h>
+#include <Button.h>
 #include <Catalog.h>
+#include <CheckBox.h>
+#include <DirMenu.h>
+#include <FilePanel.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>
+#include <MenuBar.h>
+
 #include <NodeInfo.h>
 #include <NodeMonitor.h>
 #include <Path.h>
@@ -23,46 +29,54 @@
 #include <Resources.h>
 #include <Roster.h>
 #include <SeparatorView.h>
+#include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
-#include <NodeInfo.h>
+#include <ControlLook.h>
+#include <Bitmap.h>
 
-#include <DirMenu.h>
-#include <Screen.h>
-
+#include "ActionManager.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
+#include "ConsoleIOView.h"
+#include "ConsoleIOThread.h"
+#include "EditorKeyDownMessageFilter.h"
+#include "EditorMessages.h"
+#include "EditorTabManager.h"
 #include "FSUtils.h"
 #include "GenioApp.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
 #include "GitRepository.h"
+#include "GoToLineWindow.h"
+#include "GSettings.h"
+#include "IconMenuItem.h"
 #include "Languages.h"
 #include "Log.h"
+#include "ProblemsPanel.h"
 #include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "ProjectsFolderBrowser.h"
+#include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
+#include "SearchResultPanel.h"
+#include "SourceControlPanel.h"
 #include "SwitchBranchMenu.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
 #include "TextUtils.h"
 #include "Utils.h"
-#include "EditorKeyDownMessageFilter.h"
+#include "argv_split.h"
 
-#include "ActionManager.h"
-#include "QuitAlert.h"
-#include "IconMenuItem.h"
-#include "EditorMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
 
+GenioWindow* gMainWindow = nullptr;
 
 constexpr auto kRecentFilesNumber = 14 + 1;
-
-//static constexpr float kTabBarHeight = 35.0f;
 
 
 // Find group
@@ -114,7 +128,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fProjectsFolderScroll(nullptr)
 	, fActiveProject(nullptr)
 	, fIsBuilding(false)
-	, fProjectFolderObjectList(nullptr)
 	, fTabManager(nullptr)
 	, fFindGroup(nullptr)
 	, fReplaceGroup(nullptr)
@@ -140,7 +153,10 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultPanel(nullptr)
 	, fScreenMode(kDefault)
+	, fDisableProjectNotifications(false)
 {
+	gMainWindow = this;
+
 	_InitActions();
 	_InitMenu();
 	_InitWindow();
@@ -162,15 +178,34 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorKeyDownMessageFilter());
 
 	// Load workspace - reopen projects
+	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
+	// the workspace
+	// TODO: improve how projects are loaded and notices are sent over
 	if (gCFG["reopen_projects"]) {
+		fDisableProjectNotifications = true;
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
+		status_t status = B_OK;
 		if (!projects.IsEmpty()) {
 			BString projectName;
 			BString activeProject = projects.GetString("active_project");
 			for (auto count = 0; projects.FindString("project_to_reopen",
-										count, &projectName) == B_OK; count++)
-					_ProjectFolderOpen(projectName, projectName == activeProject);
+										count, &projectName) == B_OK; count++) {
+				entry_ref ref;
+				status = get_ref_for_path(projectName, &ref);
+				if (status == B_OK) {
+					status = _ProjectFolderOpen(ref, projectName == activeProject);
+				}
+			}
 		}
+		fDisableProjectNotifications = false;
+		if (status == B_OK) {
+			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+			noticeMessage.AddPointer("active_project", fActiveProject);
+			noticeMessage.AddString("active_project_name", fActiveProject ? fActiveProject->Name() : "");
+			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+		}
+
 	}
 
 	// Reopen files
@@ -193,6 +228,7 @@ GenioWindow::GenioWindow(BRect frame)
 		}
 	}
 }
+
 
 void
 GenioWindow::Show()
@@ -219,6 +255,7 @@ GenioWindow::~GenioWindow()
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
+	gMainWindow = nullptr;
 }
 
 
@@ -248,8 +285,9 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case kApplyFix: {
-			entry_ref	ref;
+		case kApplyFix:
+		{
+			entry_ref ref;
 			if (message->FindRef("refs", &ref) == B_OK) {
 				int32 index = _GetEditorIndex(&ref);
 				if (index >= 0) {
@@ -257,9 +295,10 @@ GenioWindow::MessageReceived(BMessage* message)
 					PostMessage(message, editor);
 				}
 			}
+			break;
 		}
-		break;
-		case B_OBSERVER_NOTICE_CHANGE: {
+		case B_OBSERVER_NOTICE_CHANGE:
+		{
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			if (code == gCFG.UpdateMessageWhat()) {
@@ -267,7 +306,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_ESCAPE_KEY:{
+		case MSG_ESCAPE_KEY:
+		{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 					_FindGroupShow(false);
 			} else if (CurrentFocus() == fReplaceTextControl->TextView()) {
@@ -278,14 +318,14 @@ GenioWindow::MessageReceived(BMessage* message)
 				fRunConsoleProgramText->MakeFocus(false);
 				ActionManager::SetPressed(MSG_RUN_CONSOLE_PROGRAM_SHOW, false);
 			}
+			break;
 		}
-		break;
-		case EDITOR_UPDATE_DIAGNOSTICS : {
+		case EDITOR_UPDATE_DIAGNOSTICS:
+		{
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				Editor* editor = fTabManager->EditorBy(&ref);
-				if (editor == fTabManager->SelectedEditor())
-				{
+				if (editor == fTabManager->SelectedEditor()) {
 					fProblemsPanel->UpdateProblems(message);
 				}
 			}
@@ -305,7 +345,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_NODE_MONITOR:
 			_HandleNodeMonitorMsg(message);
 			break;
-		case B_REDO: {
+		case B_REDO:
+		{
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				if (editor->CanRedo())
@@ -344,11 +385,14 @@ GenioWindow::MessageReceived(BMessage* message)
 				BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 				noticeMessage.AddBool("building", fIsBuilding);
 				SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
+
+				fActiveProject->SetBuildingState(fIsBuilding);
 			}
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
-		case EDITOR_FIND_SET_MARK: {
+		case EDITOR_FIND_SET_MARK:
+		{
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				Editor* editor = fTabManager->EditorBy(&ref);
@@ -363,15 +407,18 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case EDITOR_FIND_NEXT_MISS: {
+		case EDITOR_FIND_NEXT_MISS:
+		{
 			LogInfo("Find next not found");
 			break;
 		}
-		case EDITOR_FIND_PREV_MISS: {
+		case EDITOR_FIND_PREV_MISS:
+		{
 			LogInfo("Find previous not found");
 			break;
 		}
-		case EDITOR_FIND_COUNT: {
+		case EDITOR_FIND_COUNT:
+		{
 			int32 count;
 			BString text;
 			if (message->FindString("text_to_find", &text) == B_OK
@@ -384,8 +431,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-
-		case EDITOR_REPLACE_ALL_COUNT: {
+		case EDITOR_REPLACE_ALL_COUNT:
+		{
 			int32 count;
 			if (message->FindInt32("count", &count) == B_OK) {
 				BString notification;
@@ -394,7 +441,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case EDITOR_REPLACE_ONE: {
+		case EDITOR_REPLACE_ONE:
+		{
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				Editor* editor = fTabManager->EditorBy(&ref);
@@ -415,8 +463,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-
-		case EDITOR_POSITION_CHANGED: {
+		case EDITOR_POSITION_CHANGED:
+		{
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				Editor* editor = fTabManager->EditorBy(&ref);
@@ -427,7 +475,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case EDITOR_UPDATE_SAVEPOINT: {
+		case EDITOR_UPDATE_SAVEPOINT:
+		{
 			entry_ref ref;
 			bool modified = false;
 			if (message->FindRef("ref", &ref) == B_OK &&
@@ -448,7 +497,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BOOKMARK_TOGGLE:
 			_ForwardToSelectedEditor(message);
 		break;
-		case MSG_BUFFER_LOCK: {
+		case MSG_BUFFER_LOCK:
+		{
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				editor->SetReadOnly(!editor->IsReadOnly());
@@ -456,83 +506,81 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_BUILD_MODE_DEBUG: {
-
+		case MSG_BUILD_MODE_DEBUG:
+		{
 			fActiveProject->SetBuildMode(BuildMode::DebugMode);
 			fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
-		case MSG_BUILD_MODE_RELEASE: {
-
+		case MSG_BUILD_MODE_RELEASE:
+		{
 			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
 			fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
-		case MSG_BUILD_PROJECT: {
+		case MSG_BUILD_PROJECT:
 			_BuildProject();
 			break;
-		}
-		case MSG_CLEAN_PROJECT: {
+		case MSG_CLEAN_PROJECT:
 			_CleanProject();
 			break;
-		}
-		case MSG_DEBUG_PROJECT: {
+		case MSG_DEBUG_PROJECT:
 			_DebugProject();
 			break;
-		}
 		case MSG_EOL_CONVERT_TO_UNIX:
 		case MSG_EOL_CONVERT_TO_DOS:
 		case MSG_EOL_CONVERT_TO_MAC:
 			_ForwardToSelectedEditor(message);
 		break;
-		case MSG_FILE_CLOSE: {
+		case MSG_FILE_CLOSE:
 			_FileRequestClose(fTabManager->SelectedTabIndex());
 			break;
-		}
 		case MSG_FILE_CLOSE_ALL:
 			_FileCloseAll();
 			break;
 		case MSG_FILE_FOLD_TOGGLE:
 			_ForwardToSelectedEditor(message);
 			break;
-		case MSG_FILE_MENU_SHOW: {
+		case MSG_FILE_MENU_SHOW:
+		{
 			/* Adapted from tabview */
-				BPopUpMenu* tabMenu = new BPopUpMenu("filetabmenu", true, false);
-				int tabCount = fTabManager->CountTabs();
-				for (int index = 0; index < tabCount; index++) {
-						BString label;
-						label << index + 1 << ". " << fTabManager->TabLabel(index);
-						BMenuItem* item = new BMenuItem(label.String(), nullptr);
-						tabMenu->AddItem(item);
-						if (index == fTabManager->SelectedTabIndex())
-							item->SetMarked(true);
-				}
+			BPopUpMenu* tabMenu = new BPopUpMenu("filetabmenu", true, false);
+			int tabCount = fTabManager->CountTabs();
+			for (int index = 0; index < tabCount; index++) {
+				BString label;
+				label << index + 1 << ". " << fTabManager->TabLabel(index);
+				BMenuItem* item = new BMenuItem(label.String(), nullptr);
+				tabMenu->AddItem(item);
+				if (index == fTabManager->SelectedTabIndex())
+					item->SetMarked(true);
+			}
 
-				// Force layout to get the final menu size. InvalidateLayout()
-				// did not seem to work here.
-				tabMenu->AttachedToWindow();
-				BRect buttonFrame = fToolBar->FindButton(MSG_FILE_MENU_SHOW)->Frame();
-				BRect menuFrame = tabMenu->Frame();
-				BPoint openPoint = ConvertToScreen(buttonFrame.LeftBottom());
-				// Open with the right side of the menu aligned with the right
-				// side of the button and a little below.
-				openPoint.x -= menuFrame.Width() - buttonFrame.Width() + 2;
-				openPoint.y += 20;
+			// Force layout to get the final menu size. InvalidateLayout()
+			// did not seem to work here.
+			tabMenu->AttachedToWindow();
+			BRect buttonFrame = fToolBar->FindButton(MSG_FILE_MENU_SHOW)->Frame();
+			BRect menuFrame = tabMenu->Frame();
+			BPoint openPoint = ConvertToScreen(buttonFrame.LeftBottom());
+			// Open with the right side of the menu aligned with the right
+			// side of the button and a little below.
+			openPoint.x -= menuFrame.Width() - buttonFrame.Width() + 2;
+			openPoint.y += 20;
 
-				BMenuItem *selected = tabMenu->Go(openPoint, false, false,
-					ConvertToScreen(buttonFrame));
-				if (selected) {
-					selected->SetMarked(true);
-					int32 index = tabMenu->IndexOf(selected);
-					if (index != B_ERROR)
-						fTabManager->SelectTab(index);
-				}
-				delete tabMenu;
+			BMenuItem *selected = tabMenu->Go(openPoint, false, false,
+			ConvertToScreen(buttonFrame));
+			if (selected) {
+				selected->SetMarked(true);
+				int32 index = tabMenu->IndexOf(selected);
+				if (index != B_ERROR)
+					fTabManager->SelectTab(index);
+			}
+			delete tabMenu;
 			break;
 		}
-		case MSG_FILE_NEXT_SELECTED: {
+		case MSG_FILE_NEXT_SELECTED:
+		{
 			int32 index = fTabManager->SelectedTabIndex();
 
 			if (index < fTabManager->CountTabs() - 1)
@@ -542,9 +590,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_OPEN:
 			fOpenPanel->Show();
 			break;
-		case MSG_FILE_PREVIOUS_SELECTED: {
+		case MSG_FILE_PREVIOUS_SELECTED:
+		{
 			int32 index = fTabManager->SelectedTabIndex();
-
 			if (index > 0 && index < fTabManager->CountTabs())
 				fTabManager->SelectTab(index - 1);
 			break;
@@ -552,7 +600,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_SAVE:
 			_FileSave(fTabManager->SelectedTabIndex());
 			break;
-		case MSG_FILE_SAVE_AS: {
+		case MSG_FILE_SAVE_AS:
+		{
 			Editor* editor = fTabManager->SelectedEditor();
 			BEntry entry(editor->FileRef());
 			entry.GetParent(&entry);
@@ -583,23 +632,25 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_VIEW_ZOOMRESET:
 			gCFG["editor_zoom"] = 0;
-		break;
+			break;
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow(true);
 			break;
-		case MSG_FIND_IN_FILES: {
+		case MSG_FIND_IN_FILES:
+		{
 			_FindInFiles();
 			break;
 		}
-		case MSG_FIND_MARK_ALL: {
+		case MSG_FIND_MARK_ALL:
+		{
 			BString textToFind(fFindTextControl->Text());
-
 			if (!textToFind.IsEmpty()) {
 				_FindMarkAll(textToFind);
 			}
 			break;
 		}
-		case MSG_FIND_MENU_SELECTED: {
+		case MSG_FIND_MENU_SELECTED:
+		{
 			int32 index;
 			if (message->FindInt32("index", &index) == B_OK) {
 				BMenuItem* item = fFindMenuField->Menu()->ItemAt(index);
@@ -607,7 +658,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_FIND_INVOKED: {
+		case MSG_FIND_INVOKED:
+		{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 				const BString& text(fFindTextControl->Text());
 				if (fTabManager->SelectedEditor())
@@ -619,12 +671,14 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_FIND_NEXT: {
+		case MSG_FIND_NEXT:
+		{
 			const BString& text(fFindTextControl->Text());
 			_FindNext(text, false);
 			break;
 		}
-		case MSG_FIND_PREVIOUS: {
+		case MSG_FIND_PREVIOUS:
+		{
 			const BString& text(fFindTextControl->Text());
 			_FindNext(text, true);
 			break;
@@ -632,31 +686,37 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FIND_GROUP_TOGGLED:
 			_FindGroupShow(fFindGroup->IsHidden());
 			break;
-		case MSG_GIT_COMMAND: {
+		case MSG_GIT_COMMAND:
+		{
 			BString command;
 			if (message->FindString("command", &command) == B_OK)
 				_Git(command);
 			break;
 		}
-		case MSG_GIT_SWITCH_BRANCH: {
+		case MSG_GIT_SWITCH_BRANCH:
+		{
 			try {
 				BString project_path = message->GetString("project_path", fActiveProject->Path().String());
 				Genio::Git::GitRepository repo(project_path.String());
 				BString new_branch = message->GetString("branch", nullptr);
 				if (new_branch != nullptr)
 					repo.SwitchBranch(new_branch);
-			} catch (Genio::Git::GitException &ex) {
+			} catch (const Genio::Git::GitConflictException &ex) {
 				BString message;
 				message << B_TRANSLATE("An error occurred while switching branch:")
 						<< " "
 						<< ex.Message();
-				if (ex.Error() == GIT_ECONFLICT) {
-					auto alert = new GitAlert(B_TRANSLATE("Switch branch"),
-												B_TRANSLATE(message), ex.GetFiles());
-					alert->Go();
-				} else {
-					OKAlert("GitSwitchBranch", message, B_INFO_ALERT);
-				}
+
+				auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
+											B_TRANSLATE(message), ex.GetFiles());
+				alert->Go();
+			} catch (const Genio::Git::GitException &ex) {
+				BString message;
+				message << B_TRANSLATE("An error occurred while switching branch:")
+						<< " "
+						<< ex.Message();
+
+				OKAlert("GitSwitchBranch", message, B_STOP_ALERT);
 			}
 			break;
 		}
@@ -669,7 +729,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			fGoToLineWindow->ShowCentered(Frame());
 			break;
-		case MSG_WHITE_SPACES_TOGGLE: {
+		case MSG_WHITE_SPACES_TOGGLE:
+		{
 			gCFG["show_white_space"] = !gCFG["show_white_space"];
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
@@ -678,7 +739,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 			break;
 		}
-		case MSG_LINE_ENDINGS_TOGGLE: {
+		case MSG_LINE_ENDINGS_TOGGLE:
+		{
 			gCFG["show_line_endings"] = !gCFG["show_line_endings"];
 			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 				Editor* editor = fTabManager->EditorAt(index);
@@ -698,19 +760,16 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_GOTOIMPLEMENTATION:
 		case MSG_SWITCHSOURCE:
 			_ForwardToSelectedEditor(message);
-		break;
-		case MSG_MAKE_BINDCATALOGS: {
+			break;
+		case MSG_MAKE_BINDCATALOGS:
 			_MakeBindcatalogs();
 			break;
-		}
-		case MSG_MAKE_CATKEYS: {
+		case MSG_MAKE_CATKEYS:
 			_MakeCatkeys();
 			break;
-		}
-		case MSG_PROJECT_CLOSE: {
+		case MSG_PROJECT_CLOSE:
 			_ProjectFolderClose(fActiveProject);
 			break;
-		}
 		case MSG_SHOW_TEMPLATE_USER_FOLDER:
 		{
 			entry_ref newRef;
@@ -720,8 +779,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			} else {
 				_ShowInTracker(newRef);
 			}
+			break;
 		}
-		break;
 		case MSG_CREATE_NEW_PROJECT:
 		{
 			entry_ref dest_ref;
@@ -741,43 +800,33 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 
 			if (TemplateManager::CopyProjectTemplate(&template_ref, &dest_ref, name.String()) == B_OK) {
-				BPath path(&dest_ref);
-				path.Append(name);
-				_ProjectFolderOpen(path.Path());
+				_ProjectFolderOpen(dest_ref);
 			} else {
 				LogError("TemplateManager: could create %s from %s to %s",
 							name.String(), template_ref.name, dest_ref.name);
 			}
+			break;
 		}
-		break;
 		case MSG_FILE_NEW:
 		case MSG_PROJECT_MENU_NEW_FILE:
 		{
-			status_t status;
-
 			BString type;
-			status = message->FindString("type", &type);
+			status_t status = message->FindString("type", &type);
 			if (status != B_OK) {
 				LogError("Can't find type!");
 				return;
 			}
 
 			if (type == "new_folder") {
-				ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();
+				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-					BEntry entry(item->GetSourceItem()->Path());
-					entry_ref ref;
-					if (entry.GetRef(&ref) != B_OK) {
-						LogError("Invalid path [%s]", item->GetSourceItem()->Path().String());
-						return;
-					} else {
-						status = TemplateManager::CreateNewFolder(&ref);
-						if (status != B_OK) {
-							OKAlert(B_TRANSLATE("New folder"),
-									B_TRANSLATE("Error creating folder"),
-									B_WARNING_ALERT);
-							LogError("Invalid destination directory [%s]", entry.Name());
-						}
+					const entry_ref* ref = item->GetSourceItem()->EntryRef();
+					status = TemplateManager::CreateNewFolder(ref);
+					if (status != B_OK) {
+						OKAlert(B_TRANSLATE("New folder"),
+								B_TRANSLATE("Error creating folder"),
+								B_WARNING_ALERT);
+						LogError("Invalid destination directory [%s]", ref->name);
 					}
 				} else {
 					LogError("Can't find current item");
@@ -807,13 +856,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (type ==  "new_file_template") {
 				entry_ref dest;
 				entry_ref source;
-				ProjectItem* item = fProjectsFolderBrowser->GetCurrentProjectItem();
+				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-					BEntry entry(item->GetSourceItem()->Path());
-					if (entry.GetRef(&dest) != B_OK) {
-						LogError("Invalid path [%s]", item->GetSourceItem()->Path().String());
-						return;
-					}
+					const entry_ref* entryRef = item->GetSourceItem()->EntryRef();
 					if (message->FindRef("refs", &source) != B_OK) {
 						LogError("Can't find ref in message!");
 						return;
@@ -823,42 +868,36 @@ GenioWindow::MessageReceived(BMessage* message)
 						OKAlert(B_TRANSLATE("New file"),
 								B_TRANSLATE("Could not create a new file"),
 								B_WARNING_ALERT);
-						LogError("Invalid destination directory [%s]", entry.Name());
+						LogError("Invalid destination directory [%s]", entryRef->name);
 						return;
 					}
 				}
 			}
-		}
-		break;
-		case MSG_PROJECT_MENU_CLOSE: {
-			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromCurrentItem());
 			break;
 		}
-		case MSG_PROJECT_MENU_DELETE_FILE: {
+		case MSG_PROJECT_MENU_CLOSE:
+			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromSelectedItem());
+			break;
+		case MSG_PROJECT_MENU_DELETE_FILE:
 			_ProjectFileDelete();
 			break;
-		}
-		case MSG_PROJECT_MENU_RENAME_FILE: {
+		case MSG_PROJECT_MENU_RENAME_FILE:
 			_ProjectRenameFile();
 			break;
-		}
-		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
-			_ShowCurrentItemInTracker();
+		case MSG_PROJECT_MENU_SHOW_IN_TRACKER:
+			_ShowSelectedItemInTracker();
 			break;
-		}
-		case MSG_PROJECT_MENU_OPEN_TERMINAL: {
+		case MSG_PROJECT_MENU_OPEN_TERMINAL:
 			_OpenTerminalWorkingDirectory();
 			break;
-		}
-		case MSG_PROJECT_MENU_SET_ACTIVE: {
-			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromCurrentItem());
+		case MSG_PROJECT_MENU_SET_ACTIVE:
+			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromSelectedItem());
 			break;
-		}
-		case MSG_PROJECT_OPEN: {
+		case MSG_PROJECT_OPEN:
 			fOpenProjectFolderPanel->Show();
 			break;
-		}
-		case MSG_PROJECT_OPEN_REMOTE: {
+		case MSG_PROJECT_OPEN_REMOTE:
+		{
 			const char* projectsPath = gCFG["projects_directory"];
 			BEntry entry(projectsPath, true);
 			BPath path;
@@ -868,28 +907,28 @@ GenioWindow::MessageReceived(BMessage* message)
 			window->Show();
 			break;
 		}
-		case MSG_PROJECT_SETTINGS: {
+		case MSG_PROJECT_SETTINGS:
+		{
 			if (fActiveProject != nullptr) {
 				ProjectSettingsWindow *window = new ProjectSettingsWindow(fActiveProject);
 				window->Show();
 			}
 			break;
 		}
-		case MSG_PROJECT_FOLDER_OPEN: {
+		case MSG_PROJECT_FOLDER_OPEN:
 			_ProjectFolderOpen(message);
 			break;
-		}
 		case MSG_REPLACE_GROUP_SHOW:
 			_ReplaceGroupShow(true);
 			break;
-		case MSG_REPLACE_ALL: {
+		case MSG_REPLACE_ALL:
 			_Replace(REPLACE_ALL);
 			break;
-		}
 		case MSG_REPLACE_GROUP_TOGGLED:
 			_ReplaceGroupShow(fReplaceGroup->IsHidden());
 			break;
-		case MSG_REPLACE_MENU_SELECTED: {
+		case MSG_REPLACE_MENU_SELECTED:
+		{
 			int32 index;
 			if (message->FindInt32("index", &index) == B_OK) {
 				BMenuItem* item = fReplaceMenuField->Menu()->ItemAt(index);
@@ -906,7 +945,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_REPLACE_PREVIOUS:
 			_Replace(REPLACE_PREVIOUS);
 			break;
-		case MSG_RUN_CONSOLE_PROGRAM_SHOW: {
+		case MSG_RUN_CONSOLE_PROGRAM_SHOW:
+		{
 			if (fRunConsoleProgramGroup->IsVisible()) {
 				fRunConsoleProgramGroup->SetVisible(false);
 				fRunConsoleProgramText->MakeFocus(false);
@@ -917,7 +957,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			ActionManager::SetPressed(MSG_RUN_CONSOLE_PROGRAM_SHOW, fRunConsoleProgramGroup->IsVisible());
 			break;
 		}
-		case MSG_RUN_CONSOLE_PROGRAM: {
+		case MSG_RUN_CONSOLE_PROGRAM:
+		{
 			const BString& command(fRunConsoleProgramText->Text());
 			if (!command.IsEmpty())
 				_RunInConsole(command);
@@ -927,7 +968,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_RUN_TARGET:
 			_RunTarget();
 			break;
-		case MSG_SELECT_TAB: {
+		case MSG_SELECT_TAB:
+		{
 			int32 index;
 			// Shortcut selection, be careful
 			if (message->FindInt32("index", &index) == B_OK) {
@@ -937,33 +979,30 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_SHOW_HIDE_PROJECTS: {
+		case MSG_SHOW_HIDE_PROJECTS:
 			_ShowView(fProjectsTabView, fProjectsTabView->IsHidden(), MSG_SHOW_HIDE_PROJECTS);
 			break;
-		}
-		case MSG_SHOW_HIDE_OUTPUT: {
+		case MSG_SHOW_HIDE_OUTPUT:
 			_ShowView(fOutputTabView, fOutputTabView->IsHidden(), MSG_SHOW_HIDE_OUTPUT);
 			break;
-		}
 		case MSG_FULLSCREEN:
 		case MSG_FOCUS_MODE:
 			_ToogleScreenMode(message->what);
-		break;
+			break;
 		case MSG_TEXT_OVERWRITE:
 			_ForwardToSelectedEditor(message);
-		break;
-
-		case MSG_TOGGLE_TOOLBAR: {
+			break;
+		case MSG_TOGGLE_TOOLBAR:
 			_ShowView(fToolBar, fToolBar->IsHidden(), MSG_TOGGLE_TOOLBAR);
 			break;
-		}
-		case MSG_WINDOW_SETTINGS: {
+		case MSG_WINDOW_SETTINGS:
+		{
 			ConfigWindow* window = new ConfigWindow(gCFG);
 			window->Show();
-
 			break;
 		}
-		case TABMANAGER_TAB_SELECTED: {
+		case TABMANAGER_TAB_SELECTED:
+		{
 			int32 index;
 			if (message->FindInt32("index", &index) == B_OK) {
 				Editor* editor = fTabManager->EditorAt(index);
@@ -986,11 +1025,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case TABMANAGER_TAB_CLOSE_MULTI: {
+		case TABMANAGER_TAB_CLOSE_MULTI:
 			_CloseMultipleTabs(message);
 			break;
-		}
-		case TABMANAGER_TAB_NEW_OPENED: {
+		case TABMANAGER_TAB_NEW_OPENED:
+		{
 			int32 index =  message->GetInt32("index", -1);
 			bool set_caret = message->GetBool("caret_position", false);
 			if (set_caret && index >= 0) {
@@ -1002,16 +1041,16 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_FIND_WRAP:
 			gCFG["find_wrap"] = (bool)fFindWrapCheck->Value();
-		break;
+			break;
 		case MSG_FIND_WHOLE_WORD:
 			gCFG["find_whole_word"] = (bool)fFindWholeWordCheck->Value();
-		break;
+			break;
 		case MSG_FIND_MATCH_CASE:
 			gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
-		break;
+			break;
 		case MSG_SET_LANGUAGE:
 			_ForwardToSelectedEditor(message);
-		break;
+			break;
 		case MSG_HELP_GITHUB: {
 			char *argv[2] = {(char*)"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
 			be_roster->Launch("text/html", 1, argv);
@@ -1022,9 +1061,31 @@ GenioWindow::MessageReceived(BMessage* message)
 		break;
 		default:
 			BWindow::MessageReceived(message);
-		break;
+			break;
 	}
 }
+
+
+ProjectFolder*
+GenioWindow::GetActiveProject() const
+{
+	return fActiveProject;
+}
+
+
+void
+GenioWindow::SetActiveProject(ProjectFolder *project)
+{
+	fActiveProject = project;
+}
+
+
+ProjectsFolderBrowser*
+GenioWindow::GetProjectBrowser() const
+{
+	return fProjectsFolderBrowser;
+}
+
 
 //Freely inspired by the haiku Terminal fullscreen function.
 void
@@ -1049,11 +1110,9 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_PROJECTS, false);
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTPUT, false);
 
-
 		if (action == MSG_FULLSCREEN) {
 			fScreenMode = kFullscreen;
 		} else if (action == MSG_FOCUS_MODE) {
-
 			_ShowView(fToolBar,         false, MSG_TOGGLE_TOOLBAR);
 			_ShowView(fProjectsTabView, false, MSG_SHOW_HIDE_PROJECTS);
 			_ShowView(fOutputTabView,   false, MSG_SHOW_HIDE_OUTPUT);
@@ -1080,6 +1139,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		fScreenMode = kDefault;
 	}
 }
+
 
 void
 GenioWindow::_ForwardToSelectedEditor(BMessage* msg)
@@ -1121,6 +1181,7 @@ GenioWindow::_CloseMultipleTabs(BMessage* msg)
 	}
 }
 
+
 bool
 GenioWindow::_FileRequestSaveAllModified()
 {
@@ -1135,6 +1196,7 @@ GenioWindow::_FileRequestSaveAllModified()
 
 	return _FileRequestSaveList(unsavedIndex);
 }
+
 
 bool
 GenioWindow::_FileRequestClose(int32 index)
@@ -1157,21 +1219,19 @@ GenioWindow::_FileRequestClose(int32 index)
 }
 
 
-
 bool
 GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
 {
-	if(unsavedIndex.empty())
+	if (unsavedIndex.empty())
 		return true;
 
 	std::vector<std::string> unsavedPaths;
-	for(int i:unsavedIndex) {
+	for (int i:unsavedIndex) {
 		Editor* editor = fTabManager->EditorAt(i);
 		unsavedPaths.push_back(std::string(editor->FilePath().String()));
 	}
 
 	if (unsavedIndex.size() == 1) {
-
 		BString text(B_TRANSLATE("Save changes to file \"%file%\""));
 		text.ReplaceAll("%file%", unsavedPaths[0].c_str());
 
@@ -1181,17 +1241,17 @@ GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
 
 		alert->SetShortcut(0, B_ESCAPE);
 
-		int32 choice = alert->Go();
-
-		if (choice == 0)
-			return B_ERROR;
-		else if (choice == 2) {
-			_FileSave(unsavedIndex[0]);
-		}
-		return true;
+		switch (alert->Go()) {
+			case 2: // Save and close.
+				_FileSave(unsavedIndex[0]);
+			case 1: // Don't save (close)
+				return true;
+			case 0: // Cancel
+			default:
+				return false;
+		};
 	}
 	//Let's use Koder QuitAlert!
-
 
 	QuitAlert* quitAlert = new QuitAlert(unsavedPaths);
 	auto filesToSave = quitAlert->Go();
@@ -1201,7 +1261,7 @@ GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
 
 	auto bter = filesToSave.begin();
 	auto iter = unsavedIndex.begin();
-	while(iter != unsavedIndex.end()) {
+	while (iter != unsavedIndex.end()) {
 		if ((*bter)) {
 			_FileSave(*iter);
 		}
@@ -1211,6 +1271,7 @@ GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
 
 	return true;
 }
+
 
 bool
 GenioWindow::QuitRequested()
@@ -1257,8 +1318,8 @@ GenioWindow::QuitRequested()
 
 		projects.MakeEmpty();
 
-		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-			ProjectFolder *project = fProjectFolderObjectList->ItemAt(index);
+		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+			ProjectFolder *project = GetProjectBrowser()->ProjectAt(index);
 			projects.AddString("project_to_reopen", project->Path());
 			if (project->Active())
 				projects.SetString("active_project", project->Path());
@@ -1288,6 +1349,7 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
 	return B_OK;
 }
 
+
 status_t
 GenioWindow::_AlertInvalidBuildConfig(BString message)
 {
@@ -1301,6 +1363,7 @@ GenioWindow::_AlertInvalidBuildConfig(BString message)
 	}
 	return B_OK;
 }
+
 
 status_t
 GenioWindow::_BuildProject()
@@ -1332,6 +1395,8 @@ GenioWindow::_BuildProject()
 	noticeMessage.AddBool("building", fIsBuilding);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
+	fActiveProject->SetBuildingState(fIsBuilding);
+
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
@@ -1354,6 +1419,7 @@ GenioWindow::_BuildProject()
 
 	return fBuildLogView->RunCommand(&message);
 }
+
 
 status_t
 GenioWindow::_CleanProject()
@@ -1388,6 +1454,8 @@ GenioWindow::_CleanProject()
 	noticeMessage.AddBool("building", fIsBuilding);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
+	fActiveProject->SetBuildingState(fIsBuilding);
+
 	BString claim("Build ");
 	claim << fActiveProject->Name();
 	claim << " (";
@@ -1417,29 +1485,25 @@ GenioWindow::_DebugProject()
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	// Copy the strings, otherwise the strings returned by
-	// GetTarget()/GetExecuteArgs() will be gone outside the argv array
-	const BString target = fActiveProject->GetTarget();
-	const BString executeArgs = fActiveProject->GetExecuteArgs();
-	const char* argv[] = {
-		target.String(),
-		executeArgs.String(),
-		nullptr
-	};
 
-	return be_roster->Launch("application/x-vnd.Haiku-debugger", 2, argv);
+	argv_split parser(fActiveProject->GetTarget().String());
+	parser.parse(fActiveProject->GetExecuteArgs().String());
+
+	return be_roster->Launch("application/x-vnd.Haiku-debugger", parser.getArguments().size() , parser.argv());
 }
 
 
 status_t
 GenioWindow::_RemoveTab(int32 index)
 {
-	// Should not happen
-	if (index < 0) {
+	if (index < 0 || index > fTabManager->CountTabs()) {
 		LogErrorF("No file selected %d", index);
 		return B_ERROR;
 	}
 	Editor* editor = fTabManager->EditorAt(index);
+	if (!editor)
+		return B_ERROR;
+
 	fTabManager->RemoveTab(index);
 
 	// notify listeners: file could have been modified, but user
@@ -1463,6 +1527,7 @@ GenioWindow::_RemoveTab(int32 index)
 	return B_OK;
 }
 
+
 void
 GenioWindow::_FileCloseAll()
 {
@@ -1481,16 +1546,12 @@ GenioWindow::_FileCloseAll()
 	}
 }
 
+
 //
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
 {
-	entry_ref ref;
-	status_t status = B_OK;
-	int32 refsCount = 0;
-	int32 openedIndex;
 	int32 nextIndex;
-
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
@@ -1505,20 +1566,20 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 	bool openWithPreferred	= msg->GetBool("openWithPreferred", false);
 
+	status_t status = B_OK;
+	entry_ref ref;
+	int32 refsCount = 0;
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
-
 		// Check existence
 		BEntry entry(&ref);
-
 		if (entry.Exists() == false)
 			continue;
-
-		//first let's see if it's already opened.
-		if ((openedIndex = _GetEditorIndex(&ref)) != -1) {
+		// first let's see if it's already opened.
+		const int32 openedIndex = _GetEditorIndex(&ref);
+		if (openedIndex != -1) {
 			if (openedIndex != fTabManager->SelectedTabIndex()) {
 				fTabManager->SelectTab(openedIndex, &selectTabInfo);
 			} else {
-
 				if (lsp_char >= 0 && be_line > -1) {
 					fTabManager->SelectedEditor()->GoToLSPPosition(be_line - 1, lsp_char);
 				} else if (be_line > -1) {
@@ -1532,18 +1593,17 @@ GenioWindow::_FileOpen(BMessage* msg)
 		if (!_FileIsSupported(&ref)) {
 			if (openWithPreferred)
 				_FileOpenWithPreferredApp(&ref); //TODO make this optional?
-
 			continue;
 		}
 
 		// register the file as a recent one.
-		be_roster->AddToRecentDocuments(&ref, GenioNames::GetSignature());
+		be_roster->AddToRecentDocuments(&ref, GenioNames::kApplicationSignature);
 
-		//new file to load..
+		// new file to load..
 		selectTabInfo.AddBool("caret_position", true);
 		int32 index = fTabManager->CountTabs();
 		if (_AddEditorTab(&ref, index, &selectTabInfo) != B_OK) {
-			//Error.
+			// Error.
 			continue;
 		}
 		Editor* editor = fTabManager->EditorAt(index);
@@ -1561,8 +1621,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 		*/
 		// Check if already open
 		BString baseDir("");
-		for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-			ProjectFolder * project = fProjectFolderObjectList->ItemAt(index);
+		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+			ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
 			BString projectPath = project->Path();
 			projectPath = projectPath.Append("/");
 			if (editor->FilePath().StartsWith(projectPath)) {
@@ -1587,6 +1647,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 	return status;
 }
 
+
 bool
 GenioWindow::_FileIsSupported(const entry_ref* ref)
 {
@@ -1597,22 +1658,23 @@ GenioWindow::_FileIsSupported(const entry_ref* ref)
 	if (entry.InitCheck() != B_OK || entry.IsDirectory())
 		return false;
 
+	BPath path(ref);
 	std::string fileType = "";
-	if (Languages::GetLanguageForExtension(GetFileExtension(BPath(ref).Path()), fileType))
+	if (Languages::GetLanguageForExtension(GetFileExtension(path.Path()), fileType))
 		return true;
 
 	BNodeInfo info(&entry);
 	if (info.InitCheck() == B_OK) {
 		char mime[B_MIME_TYPE_LENGTH + 1];
 		if (info.GetType(mime) != B_OK) {
-			LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
-			mime[0]='\0';
+			LogError("Error in getting mime type from file [%s]", path.Path());
+			mime[0] = '\0';
 		}
 		if (mime[0] == '\0' || strcmp(mime, "application/octet-stream") == 0) {
-			if (update_mime_info(BPath(ref).Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
+			if (update_mime_info(path.Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
 				if (info.GetType(mime) != B_OK) {
-					LogError("Error in getting mime type from file [%s]", BPath(ref).Path());
-					mime[0]='\0';
+					LogError("Error in getting mime type from file [%s]", path.Path());
+					mime[0] = '\0';
 				}
 			}
 		}
@@ -1679,6 +1741,7 @@ GenioWindow::_FileSave(int32 index)
 
 	return B_OK;
 }
+
 
 void
 GenioWindow::_FileSaveAll(ProjectFolder* onlyThisProject)
@@ -1749,6 +1812,7 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 	return B_OK;
 }
 
+
 int32
 GenioWindow::_FilesNeedSave()
 {
@@ -1801,6 +1865,7 @@ GenioWindow::_FindGroupShow(bool show)
 	}
 }
 
+
 int32
 GenioWindow::_FindMarkAll(const BString text)
 {
@@ -1820,6 +1885,7 @@ GenioWindow::_FindMarkAll(const BString text)
 
 	return countMarks;
 }
+
 
 void
 GenioWindow::_FindNext(const BString& strToFind, bool backwards)
@@ -1847,50 +1913,58 @@ GenioWindow::_FindNext(const BString& strToFind, bool backwards)
 	_UpdateFindMenuItems(strToFind);
 }
 
+
 void
 GenioWindow::_FindInFiles()
 {
-	  if (!fActiveProject)
+	if (!fActiveProject)
 		return;
 
-	  BString text(fFindTextControl->Text());
-	  if (text.IsEmpty())
+	BString text(fFindTextControl->Text());
+	if (text.IsEmpty())
 		return;
 
-	  // convert checkboxes to grep parameters..
-	  BString extraParameters;
-	  if ((bool)fFindWholeWordCheck->Value())
+	// convert checkboxes to grep parameters..
+	BString extraParameters;
+	if ((bool)fFindWholeWordCheck->Value())
 		extraParameters += "w";
 
-	  if ((bool)fFindCaseSensitiveCheck->Value() == false)
+	if ((bool)fFindCaseSensitiveCheck->Value() == false)
 		extraParameters += "i";
 
-	  text.CharacterEscape("\\\n\"", '\\');
+	text.CharacterEscape("\\\n\"", '\\');
 
-	  BString grepCommand("grep --exclude-dir=.git -IHrn");
-	  grepCommand += extraParameters;
-	  grepCommand += " -- ";
-	  grepCommand += EscapeQuotesWrap(text);
-	  grepCommand += " ";
-	  grepCommand += EscapeQuotesWrap(fActiveProject->Path());
+	BString grepCommand("grep");
+	BString excludeDir(gCFG["find_exclude_directory"]);
+	if (!excludeDir.IsEmpty()) {
+		if (excludeDir.FindFirst(",") >= 0)
+			grepCommand << " --exclude-dir={" << excludeDir << "}";
+		else
+			grepCommand << " --exclude-dir=" << excludeDir << "";
+	}
 
-	  LogInfo("Find in file, executing: [%s]", grepCommand.String());
-	  fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
+	grepCommand += " -IHrn";
+	grepCommand += extraParameters;
+	grepCommand += " -- ";
+	grepCommand += EscapeQuotesWrap(text);
+	grepCommand += " ";
+	grepCommand += EscapeQuotesWrap(fActiveProject->Path());
 
-	  _ShowLog(kSearchResult);
+	LogInfo("Find in file, executing: [%s]", grepCommand.String());
+	fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
+
+	_ShowLog(kSearchResult);
+	_UpdateFindMenuItems(text);
 }
 
+
 int32
-GenioWindow::_GetEditorIndex(entry_ref* ref)
+GenioWindow::_GetEditorIndex(const entry_ref* ref) const
 {
 	BEntry entry(ref, true);
 	int32 filesCount = fTabManager->CountTabs();
-
-
 	for (int32 index = 0; index < filesCount; index++) {
-
 		Editor* editor = fTabManager->EditorAt(index);
-
 		if (editor == nullptr) {
 			BString notification;
 			notification
@@ -1898,24 +1972,20 @@ GenioWindow::_GetEditorIndex(entry_ref* ref)
 			LogInfo(notification.String());
 			continue;
 		}
-
 		BEntry matchEntry(editor->FileRef(), true);
-
 		if (matchEntry == entry)
 			return index;
 	}
 	return -1;
 }
 
+
 int32
-GenioWindow::_GetEditorIndex(node_ref* nref)
+GenioWindow::_GetEditorIndex(node_ref* nref) const
 {
 	int32 filesCount = fTabManager->CountTabs();
-
 	for (int32 index = 0; index < filesCount; index++) {
-
 		Editor* editor = fTabManager->EditorAt(index);
-
 		if (editor == nullptr) {
 			BString notification;
 			notification
@@ -1923,7 +1993,6 @@ GenioWindow::_GetEditorIndex(node_ref* nref)
 			LogInfo(notification.String());
 			continue;
 		}
-
 		if (*nref == *editor->NodeRef())
 			return index;
 	}
@@ -1932,7 +2001,7 @@ GenioWindow::_GetEditorIndex(node_ref* nref)
 
 
 void
-GenioWindow::_GetFocusAndSelection(BTextControl* control)
+GenioWindow::_GetFocusAndSelection(BTextControl* control) const
 {
 	control->MakeFocus(true);
 	// If some text is selected, use that TODO index check
@@ -1942,10 +2011,10 @@ GenioWindow::_GetFocusAndSelection(BTextControl* control)
 		char text[size + 1];
 		editor->SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text);
 		control->SetText(text);
-	}
-	else
+	} else
 		control->TextView()->Clear();
 }
+
 
 status_t
 GenioWindow::_Git(const BString& git_command)
@@ -1972,6 +2041,7 @@ GenioWindow::_Git(const BString& git_command)
 
 	return fConsoleIOView->RunCommand(&message);
 }
+
 
 void
 GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef)
@@ -2002,8 +2072,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 		return;
 	else if (choice == 1) {
 		_FileRequestClose(index);
-	}
-	else if (choice == 2) {
+	} else if (choice == 2) {
 		Editor *editor = fTabManager->EditorAt(index);
 		editor->SetFileRef(newRef);
 		fTabManager->SetTabLabel(index, editor->Name().String());
@@ -2017,8 +2086,8 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 				editor->SetProjectFolder(NULL);
 		} else {
 			BString baseDir("");
-			for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-				ProjectFolder * project = fProjectFolderObjectList->ItemAt(index);
+			for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+				ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
 				BString projectPath = project->Path();
 				projectPath = projectPath.Append("/");
 				if (editor->FilePath().StartsWith(projectPath)) {
@@ -2033,6 +2102,7 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 		LogInfo(notification.String());
 	}
 }
+
 
 void
 GenioWindow::_HandleExternalRemoveModification(int32 index)
@@ -2075,6 +2145,7 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 	}
 }
 
+
 void
 GenioWindow::_HandleExternalStatModification(int32 index)
 {
@@ -2102,12 +2173,12 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 	editor->StartMonitoring();
 }
 
+
 void
 GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 {
 	int32 opcode;
 	status_t status;
-
 	if ((status = msg->FindInt32("opcode", &opcode)) != B_OK) {
 		// TODO notify
 		return;
@@ -2316,7 +2387,8 @@ GenioWindow::_InitCentralSplit()
 
 
 	// Run group
-	fRunConsoleProgramText = new BTextControl("ReplaceTextControl", "", "", nullptr);
+	fRunConsoleProgramText = new BTextControl("ReplaceTextControl", "", "",
+		new BMessage(MSG_RUN_CONSOLE_PROGRAM));
 	fRunConsoleProgramButton = new BButton("RunConsoleProgramButton",
 		B_TRANSLATE("Run"), new BMessage(MSG_RUN_CONSOLE_PROGRAM));
 
@@ -2325,7 +2397,7 @@ GenioWindow::_InitCentralSplit()
 	fRunConsoleProgramText->SetToolTip(tooltip);
 
 	fRunConsoleProgramGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
-		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, 0.0f)
+		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
 			.Add(fRunConsoleProgramText)
 			.Add(fRunConsoleProgramButton)
 			.AddGlue()
@@ -2355,6 +2427,7 @@ GenioWindow::_InitCentralSplit()
 	fFindCaseSensitiveCheck->SetTarget(this);
 }
 
+
 void
 GenioWindow::_ShowView(BView* view, bool show, int32 msgWhat)
 {
@@ -2367,12 +2440,12 @@ GenioWindow::_ShowView(BView* view, bool show, int32 msgWhat)
 		ActionManager::SetPressed(msgWhat, !view->IsHidden());
 }
 
+
 void
 GenioWindow::_InitActions()
 {
-
 	ActionManager::RegisterAction(MSG_FILE_OPEN,
-								   B_TRANSLATE("Open"),
+								   B_TRANSLATE("Open" B_UTF8_ELLIPSIS),
 								   "", "", 'O');
 
 	ActionManager::RegisterAction(MSG_FILE_NEW,
@@ -2504,11 +2577,11 @@ GenioWindow::_InitActions()
 								   "", "", ',');
 
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN,
-								   B_TRANSLATE("Open project"),
+								   B_TRANSLATE("Open project" B_UTF8_ELLIPSIS),
 								   "","",'O', B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN_REMOTE,
-								   B_TRANSLATE("Open remote project"),
+								   B_TRANSLATE("Open remote project" B_UTF8_ELLIPSIS),
 								   "","",'O', B_SHIFT_KEY | B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_CLOSE,
@@ -2537,8 +2610,8 @@ GenioWindow::_InitActions()
 								   "", B_ENTER);
 
 	ActionManager::RegisterAction(MSG_FOCUS_MODE,
-								   B_TRANSLATE("Focus Mode"),
-	                               B_TRANSLATE("Focus Mode"),
+								   B_TRANSLATE("Focus mode"),
+	                               B_TRANSLATE("Focus mode"),
 								   "", B_ENTER, B_SHIFT_KEY);
 
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
@@ -2604,6 +2677,7 @@ GenioWindow::_InitActions()
 
 }
 
+
 void
 GenioWindow::_InitMenu()
 {
@@ -2613,7 +2687,7 @@ GenioWindow::_InitMenu()
 	BMenu* appMenu = new BMenu("");
 	appMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
 		new BMessage(B_ABOUT_REQUESTED)));
-	appMenu->AddItem(new BMenuItem(B_TRANSLATE("Github page" B_UTF8_ELLIPSIS),
+	appMenu->AddItem(new BMenuItem(B_TRANSLATE("Genio project" B_UTF8_ELLIPSIS),
 		new BMessage(MSG_HELP_GITHUB)));
 	appMenu->AddSeparatorItem();
 	appMenu->AddItem(new BMenuItem(B_TRANSLATE("Settings" B_UTF8_ELLIPSIS),
@@ -2621,7 +2695,17 @@ GenioWindow::_InitMenu()
 	appMenu->AddSeparatorItem();
 	ActionManager::AddItem(B_QUIT_REQUESTED, appMenu);
 
-	fMenuBar->AddItem(new IconMenuItem(appMenu, nullptr, GenioNames::kApplicationSignature, B_MINI_ICON));
+	IconMenuItem* iconMenu = nullptr;
+
+	//xmas-icon!
+	if (IsXMasPeriod()) {
+		BBitmap* iconXMAS = new BBitmap(BRect(BPoint(0, 0), be_control_look->ComposeIconSize(B_MINI_ICON)), B_RGBA32);
+		GetVectorIcon("xmas-icon", iconXMAS);
+		iconMenu = new IconMenuItem(appMenu, nullptr, iconXMAS, B_MINI_ICON);
+	} else {
+		iconMenu = new IconMenuItem(appMenu, nullptr, GenioNames::kApplicationSignature, B_MINI_ICON);
+	}
+	fMenuBar->AddItem(iconMenu);
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
 
@@ -2907,8 +2991,8 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FULLSCREEN, windowMenu);
 	ActionManager::AddItem(MSG_FOCUS_MODE, windowMenu);
 	fMenuBar->AddItem(windowMenu);
-
 }
+
 
 BMenu*
 GenioWindow::_CreateLanguagesMenu()
@@ -2924,6 +3008,7 @@ GenioWindow::_CreateLanguagesMenu()
 	fLanguageMenu->SetEnabled(false);
 	return fLanguageMenu;
 }
+
 
 void
 GenioWindow::_InitToolbar()
@@ -2971,6 +3056,7 @@ GenioWindow::_InitToolbar()
 	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
 }
 
+
 void
 GenioWindow::_InitOutputSplit()
 {
@@ -2991,6 +3077,7 @@ GenioWindow::_InitOutputSplit()
 	fOutputTabView->AddTab(fSearchResultPanel);
 }
 
+
 void
 GenioWindow::_InitSideSplit()
 {
@@ -3002,9 +3089,11 @@ GenioWindow::_InitSideSplit()
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);
 
-	// Project list
-	fProjectFolderObjectList = new BObjectList<ProjectFolder>();
+	// Source Control
+	fSourceControlPanel = new SourceControlPanel();
+	fProjectsTabView->AddTab(fSourceControlPanel);
 }
+
 
 void
 GenioWindow::_InitWindow()
@@ -3051,7 +3140,6 @@ GenioWindow::_InitWindow()
 										&ref, B_DIRECTORY_NODE, false,
 										new BMessage(MSG_CREATE_NEW_PROJECT),
 										NULL, true, true);
-
 }
 
 
@@ -3074,6 +3162,7 @@ GenioWindow::_MakeBindcatalogs()
 
 	fBuildLogView->RunCommand(&message);
 }
+
 
 void
 GenioWindow::_MakeCatkeys()
@@ -3111,30 +3200,24 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	// There is no active project
 	if (fActiveProject == nullptr) {
 		fActiveProject = project;
-		project->Active(true);
+		project->SetActive(true);
 		_UpdateProjectActivation(true);
 	} else {
 		// There was an active project already
-		fActiveProject->Active(false);
+		fActiveProject->SetActive(false);
 		fActiveProject = project;
-		project->Active(true);
+		project->SetActive(true);
 		_UpdateProjectActivation(true);
 	}
 
-	// Expand active project, collapse other
-	if (gCFG["auto_expand_collapse_projects"]) {
-		// TODO: Improve by adding necessary APIs to ProjectFolderBrowser
-		for (int32 i = 0; i < fProjectsFolderBrowser->CountItems(); i++) {
-			if ((ProjectFolder*)fProjectsFolderBrowser->GetProjectItemAt(i)->GetSourceItem() == fActiveProject)
-				fProjectsFolderBrowser->Expand(fProjectsFolderBrowser->GetProjectItemAt(i));
-			else
-				fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItemAt(i));
-		}
+	_CollapseOrExpandProjects();
+
+	if (!fDisableProjectNotifications) {
+		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		noticeMessage.AddPointer("active_project", fActiveProject);
+		noticeMessage.AddString("active_project_name", fActiveProject->Name());
+		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 	}
-	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-	noticeMessage.AddPointer("active_project", fActiveProject);
-	noticeMessage.AddString("active_project_name", fActiveProject->Name());
-	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 
 	// Update run command working directory tooltip too
 	BString tooltip;
@@ -3142,18 +3225,16 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	fRunConsoleProgramText->SetToolTip(tooltip);
 }
 
+
 void
 GenioWindow::_ProjectFileDelete()
 {
-	entry_ref ref;
-	int32 openedIndex;
-	BEntry entry(fProjectsFolderBrowser->GetCurrentProjectFileFullPath());
-	entry.GetRef(&ref);
-	char name[B_FILE_NAME_LENGTH];
-
+	const entry_ref* ref = fProjectsFolderBrowser->GetSelectedProjectFileRef();
+	BEntry entry(ref);
 	if (!entry.Exists())
 		return;
 
+	char name[B_FILE_NAME_LENGTH];
 	entry.GetName(name);
 
 	BString text(B_TRANSLATE("Deleting item: \"%name%\".\n\n"
@@ -3174,10 +3255,11 @@ GenioWindow::_ProjectFileDelete()
 		return;
 	else if (choice == 1) {
 		// Close the file if open
-		if (entry.IsFile())
-			if ((openedIndex = _GetEditorIndex(&ref)) != -1)
+		if (entry.IsFile()) {
+			int32 openedIndex;
+			if ((openedIndex = _GetEditorIndex(ref)) != -1)
 				_RemoveTab(openedIndex);
-
+		}
 		// Remove the entry
 		if (entry.Exists()) {
 			status_t status;
@@ -3200,7 +3282,7 @@ GenioWindow::_ProjectFileDelete()
 void
 GenioWindow::_ProjectRenameFile()
 {
-	ProjectItem *item = fProjectsFolderBrowser->GetCurrentProjectItem();
+	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
 	fProjectsFolderBrowser->InitRename(item);
 }
 
@@ -3250,7 +3332,10 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	}
 
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
-	fProjectFolderObjectList->RemoveItem(project);
+
+	// Notify subscribers that the project list has changed
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	project->Close();
 
@@ -3258,13 +3343,13 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	// Select a new active project
 	if (wasActive) {
-		ProjectItem* item = dynamic_cast<ProjectItem*>(fProjectsFolderBrowser->FullListItemAt(0));
-		if (item != nullptr)
-			_ProjectFolderActivate((ProjectFolder*)item->GetSourceItem());
+		ProjectFolder* project = fProjectsFolderBrowser->ProjectAt(0);
+		if (project != nullptr)
+			_ProjectFolderActivate(project);
 	}
 
 	// Disable "Close project" action if no project
-	if (fProjectFolderObjectList->CountItems() == 0)
+	if (GetProjectBrowser()->CountProjects() == 0)
 		ActionManager::SetEnabled(MSG_PROJECT_CLOSE, false);
 
 	BString notification;
@@ -3272,68 +3357,80 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	LogInfo(notification.String());
 }
 
-void
+
+status_t
 GenioWindow::_ProjectFolderOpen(BMessage *message)
 {
 	entry_ref ref;
 	status_t status = message->FindRef("refs", &ref);
 	if (status == B_OK) {
-		BPath path(&ref);
-		_ProjectFolderOpen(path.Path());
+		status = _ProjectFolderOpen(ref);
 	} else {
 		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
 	}
+
+	return status;
 }
 
 
-void
-GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
+status_t
+GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 {
-	// TODO: Maybe pass a BPath directly instead of a BString ?
-	BPath path(folder);
-	BEntry dirEntry(path.Path());
-	if (!dirEntry.Exists() ||
-		!dirEntry.IsDirectory()) {
-		return;
-	}
+	BEntry dirEntry(&ref);
+	if (!dirEntry.Exists())
+		return B_NAME_NOT_FOUND;
+
+	if (!dirEntry.IsDirectory())
+		return B_NOT_A_DIRECTORY;
+
+	// TODO: This avoids opening a volume as a project
+	// Since the open operation is synchronous, this would take ages.
+	// Not a complete fix, since if you open a folder with many other nested files/folders
+	// it would still take ages.
+	// Opening a volume seems wrong, anyway.
+	if (BDirectory(&dirEntry).IsRootDirectory())
+		return B_ERROR;
 
 	// Check if already open
-	for (int32 index = 0; index < fProjectFolderObjectList->CountItems(); index++) {
-		ProjectFolder* pProject = static_cast<ProjectFolder*>(fProjectFolderObjectList->ItemAt(index));
-		if (pProject->Path() == path.Path())
-			return;
+	for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
+		ProjectFolder* pProject = GetProjectBrowser()->ProjectAt(index);
+		if (*pProject->EntryRef() == ref)
+			return B_OK;
 	}
 
 	BMessenger msgr(this);
-	ProjectFolder* newProject = new ProjectFolder(path.Path(), msgr);
-	if (newProject->Open() != B_OK) {
+	ProjectFolder* newProject = new ProjectFolder(ref, msgr);
+	status_t status = newProject->Open();
+	if (status != B_OK) {
 		BString notification;
 		notification << "Project open fail: " << newProject->Name();
 		LogInfo(notification.String());
 		delete newProject;
-		return;
+		return status;
 	}
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
-	fProjectFolderObjectList->AddItem(newProject);
 
-	if (gCFG["auto_expand_collapse_projects"])
-		fProjectsFolderBrowser->Collapse(fProjectsFolderBrowser->GetProjectItem(newProject->Name()));
+	// Notify subscribers that project list has changed
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+
+	_CollapseOrExpandProjects();
 
 	BString opened("Project open: ");
-	if (fProjectFolderObjectList->CountItems() == 1 || activate == true) {
+	if (GetProjectBrowser()->CountProjects() == 1 || activate == true) {
 		_ProjectFolderActivate(newProject);
 		opened = "Active project open: ";
 	}
 
 	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 
+	BString projectPath = newProject->Path();
 	BString notification;
-	notification << opened << newProject->Name() << " at " << newProject->Path();
+	notification << opened << newProject->Name() << " at " << projectPath;
 	LogInfo(notification.String());
 
 	// let's check if any open editor is related to this project
-	BString projectPath = newProject->Path();
 	projectPath = projectPath.Append("/");
 
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
@@ -3345,10 +3442,10 @@ GenioWindow::_ProjectFolderOpen(const BString& folder, bool activate)
 		}
 	}
 
-    //final touch, let's be sure the folder is added to the recent files.
-    entry_ref ref;
-    dirEntry.GetRef(&ref);
-    be_roster->AddToRecentFolders(&ref, GenioNames::GetSignature());
+    // final touch, let's be sure the folder is added to the recent files.
+    be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
+
+	return B_OK;
 }
 
 
@@ -3356,14 +3453,14 @@ status_t
 GenioWindow::_OpenTerminalWorkingDirectory()
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetCurrentProjectItem();
+	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
-	BString itemPath = selectedProjectItem->GetSourceItem()->Path();
+	BPath itemPath(selectedProjectItem->GetSourceItem()->EntryRef());
 	const char* argv[] = {
 		"-w",
-		itemPath.String(),
+		itemPath.Path(),
 		nullptr
 	};
 	status_t status = be_roster->Launch("application/x-vnd.Haiku-Terminal", 2, argv);
@@ -3371,12 +3468,12 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 	if (status != B_OK) {
 		notification <<
 			"An error occurred while opening Terminal and setting working directory to: ";
-		notification << itemPath << ": " << ::strerror(status);
+		notification << itemPath.Path() << ": " << ::strerror(status);
 		LogError(notification.String());
 	} else {
 		notification <<
 			"Terminal successfully opened with working directory: ";
-		notification << itemPath;
+		notification << itemPath.Path();
 		LogTrace(notification.String());
 	}
 
@@ -3385,14 +3482,14 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 
 
 status_t
-GenioWindow::_ShowCurrentItemInTracker()
+GenioWindow::_ShowSelectedItemInTracker()
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetCurrentProjectItem();
+	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
-	BEntry itemEntry(selectedProjectItem->GetSourceItem()->Path());
+	BEntry itemEntry(selectedProjectItem->GetSourceItem()->EntryRef());
 	status_t status = itemEntry.InitCheck();
 	if (status == B_OK) {
 		BEntry parentDirectory;
@@ -3473,12 +3570,12 @@ GenioWindow::_Replace(int what)
 	return retValue;
 }
 
+
 bool
-GenioWindow::_ReplaceAllow()
+GenioWindow::_ReplaceAllow() const
 {
 	BString selection(fFindTextControl->Text());
 	BString replacement(fReplaceTextControl->Text());
-
 	if (selection.Length() < 1
 //			|| replacement.Length() < 1
 			|| selection == replacement)
@@ -3486,6 +3583,8 @@ GenioWindow::_ReplaceAllow()
 
 	return true;
 }
+
+
 /*
 void
 GenioWindow::_ReplaceAndFind()
@@ -3510,6 +3609,7 @@ GenioWindow::_ReplaceAndFind()
 }
 */
 
+
 void
 GenioWindow::_ReplaceGroupShow(bool show)
 {
@@ -3532,6 +3632,7 @@ GenioWindow::_ReplaceGroupShow(bool show)
 	else
 		_GetFocusAndSelection(fReplaceTextControl);
 }
+
 
 status_t
 GenioWindow::_RunInConsole(const BString& command)
@@ -3578,13 +3679,14 @@ GenioWindow::_RunTarget()
 		_ShowLog(kOutputLog);
 
 		BString command;
-
-			command << fActiveProject->GetTarget();
-			if (!args.IsEmpty())
-				command << " " << args;
-			// TODO: Go to appropriate directory
-			// chdir(...);
-		// }
+		if ((bool)gCFG["run_without_buffering"]) {
+			command << "stdbuf -i0 -e0 -o0 ";
+		}
+		command << fActiveProject->GetTarget();
+		if (!args.IsEmpty())
+			command << " " << args;
+		// TODO: Go to appropriate directory
+		// chdir(...);
 
 		BString claim("Run ");
 		claim << fActiveProject->Name();
@@ -3601,18 +3703,22 @@ GenioWindow::_RunTarget()
 		fConsoleIOView->RunCommand(&message);
 
 	} else {
-	// TODO: run args
+		argv_split parser(fActiveProject->GetTarget().String());
+		parser.parse(fActiveProject->GetExecuteArgs().String());
+
 		entry_ref ref;
 		entry.SetTo(fActiveProject->GetTarget());
 		entry.GetRef(&ref);
-		be_roster->Launch(&ref, 1, NULL);
+		be_roster->Launch(&ref, parser.getArguments().size() , parser.argv());
 	}
 }
+
 
 void
 GenioWindow::_SetMakefileBuildMode()
 {
 }
+
 
 void
 GenioWindow::_ShowLog(int32 index)
@@ -3636,6 +3742,7 @@ GenioWindow::_UpdateFindMenuItems(const BString& text)
 	if (count == kFindReplaceMenuItems)
 		fFindMenuField->Menu()->RemoveItem(count);
 }
+
 
 status_t
 GenioWindow::_UpdateLabel(int32 index, bool isModified)
@@ -3671,10 +3778,13 @@ GenioWindow::_UpdateProjectActivation(bool active)
 
 	if (active == true) {
 		// Is this a git project?
-		if (fActiveProject->Git())
-			fGitMenu->SetEnabled(true);
-		else
-			fGitMenu->SetEnabled(false);
+		try {
+			if (fActiveProject->GetRepository()->IsInitialized())
+				fGitMenu->SetEnabled(true);
+			else
+				fGitMenu->SetEnabled(false);
+		} catch (const GitException &ex) {
+		}
 
 		// Build mode
 		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
@@ -3705,6 +3815,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	fProjectsFolderBrowser->Invalidate();
 }
 
+
 void
 GenioWindow::_UpdateReplaceMenuItems(const BString& text)
 {
@@ -3717,6 +3828,7 @@ GenioWindow::_UpdateReplaceMenuItems(const BString& text)
 	if (items == kFindReplaceMenuItems)
 		fReplaceMenuField->Menu()->RemoveItem(items);
 }
+
 
 // Called by:
 // Savepoint Reached
@@ -3756,6 +3868,7 @@ GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 		SendNotices(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED, &noticeMessage);
 	}
 }
+
 
 // Updating menu, toolbar, title.
 // Also cleaning Status bar if no open files
@@ -3813,8 +3926,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 		fBookmarksMenu->SetEnabled(false);
 
-		if (gCFG["fullpath_title"])
-			SetTitle(GenioNames::kApplicationName);
+		_UpdateWindowTitle(nullptr);
 
 		fProblemsPanel->ClearProblems();
 		return;
@@ -3884,12 +3996,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	fBookmarksMenu->SetEnabled(true);
 
-	// File full path in window title
-	if (gCFG["fullpath_title"]) {
-		BString title;
-		title << GenioNames::kApplicationName << ": " << editor->FilePath();
-		SetTitle(title.String());
-	}
+	_UpdateWindowTitle(editor->FilePath().String());
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
@@ -3923,17 +4030,51 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
 		fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
 	}
+
+	_CollapseOrExpandProjects();
+
+	Editor* selected = fTabManager->SelectedEditor();
+	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr);
 }
 
 
 void
 GenioWindow::UpdateMenu()
 {
-	ProjectItem *item = fProjectsFolderBrowser->GetCurrentProjectItem();
+	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
 	if (item != nullptr) {
 		if (item->GetSourceItem()->Type() != SourceItemType::FileItem)
 			fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 		else
 			fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
+	}
+}
+
+
+void
+GenioWindow::_UpdateWindowTitle(const char* filePath)
+{
+	BString title;
+	title << GenioNames::kApplicationName;
+	// File full path in window title
+	if (gCFG["fullpath_title"] && filePath != nullptr)
+		title << ": " << filePath;
+	SetTitle(title.String());
+}
+
+
+void
+GenioWindow::_CollapseOrExpandProjects()
+{
+	if (gCFG["auto_expand_collapse_projects"]) {
+		// Expand active project, collapse other
+		for (int32 i = 0; i < GetProjectBrowser()->CountProjects(); i++) {
+			ProjectFolder* prj = GetProjectBrowser()->ProjectAt(i);
+			ProjectItem* item = GetProjectBrowser()->GetProjectItemForProject(prj);
+			if (prj == fActiveProject)
+				GetProjectBrowser()->Expand(item);
+			else
+				fProjectsFolderBrowser->Collapse(item);
+		}
 	}
 }

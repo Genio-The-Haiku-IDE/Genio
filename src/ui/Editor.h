@@ -5,14 +5,12 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-#include <Entry.h>
-#include <File.h>
-#include <Messenger.h>
-#include <ScintillaView.h>
-#include <String.h>
 #include <string>
+
 #include <Locker.h>
 #include <MessageFilter.h>
+#include <Messenger.h>
+#include <ScintillaView.h>
 
 #include "LSPCapabilities.h"
 
@@ -146,7 +144,7 @@ public:
 
 
 			void				SetProjectFolder(ProjectFolder*);
-			ProjectFolder*		GetProjectFolder() { return fProjectFolder; }
+			ProjectFolder*		GetProjectFolder() const { return fProjectFolder; }
 			void				SetZoom(int32 zoom);
 			void				Undo();
 			void				Completion();
@@ -165,7 +163,7 @@ public:
 			filter_result		BeforeKeyDown(BMessage*);
 			filter_result		OnArrowKey(int8 ch);
 
-			std::string			FileType() { return fFileType; }
+			std::string			FileType() const { return fFileType; }
 			void				SetFileType(std::string fileType) { fFileType = fileType; }
 
 			void				SetCommentLineToken(std::string commenter){ fCommenter = commenter; }
@@ -174,6 +172,7 @@ public:
 			LSPEditorWrapper*	GetLSPEditorWrapper() { return fLSPEditorWrapper; }
 			bool				HasLSPServer();
 			bool				HasLSPCapability(const LSPCapability cap);
+
 
 private:
 			void				UpdateStatusBar();

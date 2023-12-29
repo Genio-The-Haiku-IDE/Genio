@@ -86,9 +86,7 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 			if (range) {
 				BMessage refs = range->fRange;
 				refs.what = B_REFS_RECEIVED;
-				refs.PrintToStream();
 				Window()->PostMessage(&refs);
-
 			}
 		}
 		break;

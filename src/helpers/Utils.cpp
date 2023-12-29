@@ -11,16 +11,18 @@
 #include <Bitmap.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <FindDirectory.h>
 #include <IconUtils.h>
 #include <MessageFilter.h>
-#include <Notification.h>
+#include <Path.h>
 #include <RadioButton.h>
 #include <Resources.h>
-#include <Path.h>
-#include <string>
-#include <algorithm>
 #include <Roster.h>
-#include <FindDirectory.h>
+
+#include <algorithm>
+#include <string>
+#include <DateTime.h>
+
 #include "GenioNamespace.h"
 
 
@@ -203,8 +205,8 @@ find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
 }
 
 
-void ProgressNotification(const char* group, const char* title, const char* messageID,
-							const char* content, float progress, bigtime_t timeout)
+void ProgressNotification(const BString& group, const BString&  title, const BString&  messageID,
+							const BString& content, float progress, bigtime_t timeout)
 {
 	BNotification notification(B_PROGRESS_NOTIFICATION);
 	notification.SetGroup(group);
@@ -215,10 +217,10 @@ void ProgressNotification(const char* group, const char* title, const char* mess
 	notification.Send(timeout);
 }
 
-void ErrorNotification(const char* group, const char* title, const char* messageID,
-							const char* content, bigtime_t timeout)
+void ShowNotification(const BString& group, const BString&  title, const BString&  messageID,
+							const BString& content, notification_type type, bigtime_t timeout)
 {
-	BNotification notification(B_ERROR_NOTIFICATION);
+	BNotification notification(type);
 	notification.SetGroup(group);
 	notification.SetTitle(title);
 	notification.SetMessageID(messageID);
@@ -330,4 +332,18 @@ GetDataDirectory()
 		}
 	}
 	return dataPath;
+}
+
+void Menu_MakeEmpty(BMenu *menu)
+{
+	for (int32 index = menu->CountItems() - 1; index > -1; index--)
+		menu->RemoveItem(index);
+}
+
+bool	IsXMasPeriod()
+{
+	//dates between 20-Dec and 10-Jan included.
+	BDate today = BDate::CurrentDate(B_LOCAL_TIME);
+	return ((today.Month() == 12 && today.Day() >= 20) ||
+		    (today.Month() == 1  && today.Day() <= 10));
 }

@@ -1,19 +1,19 @@
 /*
  * Copyright 2023 Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
- * Parts are taken from the IconMenuItem class from Haiku (Tracker) under the 
- * Open Tracker Licence 
+ * Parts are taken from the IconMenuItem class from Haiku (Tracker) under the
+ * Open Tracker Licence
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.
  */
- 
+
 #ifndef ICON_MENU_ITEM_H
 #define ICON_MENU_ITEM_H
 
-#include <Bitmap.h>
-#include <ControlLook.h>
+
 #include <MenuItem.h>
 #include <NodeInfo.h>
 
+class BBitmap;
 class BNodeInfo;
 
 const bigtime_t kSynchMenuInvokeTimeout = 5000000;
@@ -28,6 +28,8 @@ class IconMenuItem : public BMenuItem {
 		IconMenuItem(const char* label, BMessage* message,
 			const BNodeInfo* nodeInfo, icon_size which);
 		IconMenuItem(BMenu*, BMessage*, const char* iconType,
+			icon_size which = B_MINI_ICON);
+		IconMenuItem(BMenu*, BMessage*, BBitmap* icon,
 			icon_size which = B_MINI_ICON);
 		IconMenuItem(BMessage* data);
 		virtual ~IconMenuItem();

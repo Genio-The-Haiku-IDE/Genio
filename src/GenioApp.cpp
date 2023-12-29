@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 A. Mosca <amoscaster@gmail.com>
+ * Copyright 2023, The Genio Team
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -7,24 +8,26 @@
 
 #include <Alert.h>
 #include <AboutWindow.h>
+#include <Bitmap.h>
 #include <Catalog.h>
 #include <FindDirectory.h>
 #include <String.h>
-#include <StringList.h>
 
 #include <getopt.h>
 
-#include "LSPLogLevels.h"
 #include "ConfigManager.h"
 #include "GenioNamespace.h"
 #include "GenioWindow.h"
 #include "Languages.h"
+#include "Log.h"
+#include "LSPLogLevels.h"
 #include "Styler.h"
+#include "Utils.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
 
-#include "Log.h"
 
 const int32 MSG_NOTIFY_CONFIGURATION_UPDATED = 'noCU';
 
@@ -42,86 +45,6 @@ const char kChangeLog[] = {
 #include "Changelog.h"
 };
 
-static BStringList
-SplitChangeLog(const char* changeLog)
-{
-	BStringList list;
-	char* stringStart = (char*)changeLog;
-	int i = 0;
-	char c;
-	while ((c = stringStart[i]) != '\0') {
-		if (c == '-'  && i > 2 && stringStart[i - 1] == '-' && stringStart[i - 2] == '-') {
-			BString string;
-			string.Append(stringStart, i - 2);
-			string.RemoveAll("\t");
-			string.ReplaceAll("- ", "\n\t- ");
-			list.Add(string);
-			stringStart = stringStart + i + 1;
-			i = 0;
-		} else
-			i++;
-	}
-	return list;
-}
-
-
-void
-SetSessionLogLevel(char level)
-{
-	switch(level) {
-		case 'o':
-			sSessionLogLevel = log_level(1);
-			printf("Log level set to OFF\n");
-		break;
-		case 'e':
-			sSessionLogLevel = log_level(2);
-			printf("Log level set to ERROR\n");
-		break;
-		case 'i':
-			sSessionLogLevel = log_level(3);
-			printf("Log level set to INFO\n");
-		break;
-		case 'd':
-			sSessionLogLevel = log_level(4);
-			printf("Log level set to DEBUG\n");
-		break;
-		case 't':
-			sSessionLogLevel = log_level(5);
-			printf("Log level set to TRACE\n");
-		break;
-		default:
-			LogFatal("Invalid log level, valid levels are: o, e, i, d, t");
-		break;
-	}
-}
-
-
-static int
-HandleArgs(int argc, char **argv)
-{
-	int optIndex = 0;
-	int c = 0;
-	while ((c = ::getopt_long(argc, argv, "l:",
-			sLongOptions, &optIndex)) != -1) {
-		switch (c) {
-			case 'l':
-				SetSessionLogLevel(optarg[0]);
-				break;
-			case 0:
-			{
-				std::string optName = sLongOptions[optIndex].name;
-				if (optName == "loglevel")
-					SetSessionLogLevel(optarg[0]);
-				break;
-			}
-			default:
-				break;
-		}
-	}
-
-	return optind;
-}
-
 
 GenioApp::GenioApp()
 	:
@@ -131,6 +54,23 @@ GenioApp::GenioApp()
 	find_directory(B_USER_SETTINGS_DIRECTORY, &fConfigurationPath);
 	fConfigurationPath.Append(GenioNames::kApplicationName);
 	fConfigurationPath.Append(GenioNames::kSettingsFileName);
+
+	_PrepareConfig(gCFG);
+
+	// Global settings file check.
+	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {
+		LogInfo("Cannot load global settings file");
+	}
+
+	Logger::SetDestination(gCFG["log_destination"]);
+	if (sSessionLogLevel == LOG_LEVEL_UNSET)
+		Logger::SetLevel(log_level(int32(gCFG["log_level"])));
+	else
+		Logger::SetLevel(sSessionLogLevel);
+
+	Languages::LoadLanguages();
+
+	fGenioWindow = new GenioWindow(gCFG["ui_bounds"]);
 }
 
 
@@ -158,11 +98,11 @@ GenioApp::AboutRequested()
 	window->AddCopyright(2023, "The Genio Team");
 	window->AddAuthors(authors);
 
-	BStringList list = SplitChangeLog(kChangeLog);
+	BStringList list = _SplitChangeLog(kChangeLog);
 	int32 stringCount = list.CountStrings();
 	char** charArray = new char* [stringCount + 1];
 	for (int32 i = 0; i < stringCount; i++) {
-		charArray[i] = (char*)list.StringAt(i).String();
+		charArray[i] = const_cast<char*>(list.StringAt(i).String());
 	}
 	charArray[stringCount] = NULL;
 
@@ -184,6 +124,11 @@ GenioApp::AboutRequested()
 	window->AddExtraInfo(extraInfo);
 	window->ResizeBy(0, 200);
 
+	//xmas-icon!
+	if (IsXMasPeriod() && window->Icon()) {
+		GetVectorIcon("xmas-icon", window->Icon());
+	}
+
 	window->Show();
 }
 
@@ -195,7 +140,7 @@ GenioApp::ArgvReceived(int32 argc, char** argv)
 	if (argc == 1)
 		return;
 
-	int i = HandleArgs(argc, argv);
+	int i = _HandleArgs(argc, argv);
 	if (i <= 0)
 		return;
 
@@ -224,9 +169,9 @@ GenioApp::MessageReceived(BMessage* message)
 				const char* key = NULL;
 				message->FindString("key", &key);
 				if (key != NULL) {
-					if (strcmp(key, "log_destination") == 0)
+					if (::strcmp(key, "log_destination") == 0)
 						Logger::SetDestination(gCFG["log_destination"]);
-					else if (strcmp(key, "log_level") == 0
+					else if (::strcmp(key, "log_level") == 0
 						&& sSessionLogLevel == LOG_LEVEL_UNSET)
 						Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 				}
@@ -235,12 +180,16 @@ GenioApp::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case B_SILENT_RELAUNCH:
+			if (fGenioWindow)
+				fGenioWindow->Activate(true);
+			break;
 		default:
 			BApplication::MessageReceived(message);
 			break;
 	}
-
 }
+
 
 bool
 GenioApp::QuitRequested()
@@ -262,59 +211,132 @@ GenioApp::RefsReceived(BMessage* message)
 		fGenioWindow->PostMessage(message);
 }
 
+
 void
 GenioApp::ReadyToRun()
 {
-	PrepareConfig(gCFG);
-
-	// Global settings file check.
-	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {
-		LogInfo("Cannot load global settings file");
-	}
-
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 
-	Logger::SetDestination(gCFG["log_destination"]);
-	if (sSessionLogLevel == LOG_LEVEL_UNSET)
-		Logger::SetLevel(log_level(int32(gCFG["log_level"])));
-	else
-		Logger::SetLevel(sSessionLogLevel);
-
-	Languages::LoadLanguages();
-
-	fGenioWindow = new GenioWindow(gCFG["ui_bounds"]);
 	fGenioWindow->Show();
 }
 
+
+BStringList
+GenioApp::_SplitChangeLog(const char* changeLog)
+{
+	BStringList list;
+	char* stringStart = const_cast<char*>(changeLog);
+	int i = 0;
+	char c;
+	while ((c = stringStart[i]) != '\0') {
+		if (c == '-'  && i > 2 && stringStart[i - 1] == '-' && stringStart[i - 2] == '-') {
+			BString string;
+			string.Append(stringStart, i - 2);
+			string.RemoveAll("\t");
+			string.ReplaceAll("- ", "\n\t- ");
+			list.Add(string);
+			stringStart = stringStart + i + 1;
+			i = 0;
+		} else
+			i++;
+	}
+	return list;
+}
+
+
+void
+GenioApp::_SetSessionLogLevel(char level)
+{
+	switch (level) {
+		case 'o':
+			sSessionLogLevel = log_level(1);
+			printf("Log level set to OFF\n");
+		break;
+		case 'e':
+			sSessionLogLevel = log_level(2);
+			printf("Log level set to ERROR\n");
+		break;
+		case 'i':
+			sSessionLogLevel = log_level(3);
+			printf("Log level set to INFO\n");
+		break;
+		case 'd':
+			sSessionLogLevel = log_level(4);
+			printf("Log level set to DEBUG\n");
+		break;
+		case 't':
+			sSessionLogLevel = log_level(5);
+			printf("Log level set to TRACE\n");
+		break;
+		default:
+			LogFatal("Invalid log level, valid levels are: o, e, i, d, t");
+		break;
+	}
+}
+
+
+int
+GenioApp::_HandleArgs(int argc, char **argv)
+{
+	int optIndex = 0;
+	int c = 0;
+	while ((c = ::getopt_long(argc, argv, "l:",
+			sLongOptions, &optIndex)) != -1) {
+		switch (c) {
+			case 'l':
+				_SetSessionLogLevel(optarg[0]);
+				break;
+			case 0:
+			{
+				BString optName = sLongOptions[optIndex].name;
+				if (optName == "loglevel")
+					_SetSessionLogLevel(::optarg[0]);
+				break;
+			}
+			default:
+				break;
+		}
+	}
+
+	return ::optind;
+}
+
+
 // These settings will show up in the ConfigWindow.
 // Use this context to avoid invalidating previous translations
+// TODO: Remove after v2 release ?
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SettingsWindow"
 
 
 void
-GenioApp::PrepareConfig(ConfigManager& cfg)
+GenioApp::_PrepareConfig(ConfigManager& cfg)
 {
-	cfg.AddConfig("General", "projects_directory", B_TRANSLATE("Projects folder:"), "/boot/home/workspace");
-	cfg.AddConfig("General", "auto_expand_collapse_projects", B_TRANSLATE("Auto collapse/expand projects"), false);
-	cfg.AddConfig("General", "fullpath_title", B_TRANSLATE("Show full path in window title"), true);
+	BString general(B_TRANSLATE("General"));
+	cfg.AddConfig(general.String(), "projects_directory",
+		B_TRANSLATE("Projects folder:"), "/boot/home/workspace");
+	cfg.AddConfig(general.String(), "auto_expand_collapse_projects",
+		B_TRANSLATE("Auto collapse/expand projects"), false);
+	cfg.AddConfig(general.String(), "fullpath_title",
+		B_TRANSLATE("Show full path in window title"), true);
 	GMessage loggers = {
 		{"mode", "options"},
 		{"option_1", {
 			{"value", (int32)Logger::LOGGER_DEST_STDOUT },
-			{"label", "Stdout" }}},
+			{"label", "stdout" }}},
 		{"option_2", {
 			{"value", (int32)Logger::LOGGER_DEST_STDERR },
-			{"label", "Stderr"}}},
+			{"label", "stderr"}}},
 		{"option_3", {
 			{"value", (int32)Logger::LOGGER_DEST_SYSLOG },
-			{"label", "Syslog"}}},
+			{"label", "syslog"}}},
 		{"option_4", {
 			{"value", (int32)Logger::LOGGER_DEST_BEDC },
 			{"label", "BeDC"}}}
 	};
-	cfg.AddConfig("General", "log_destination", B_TRANSLATE("Log destination:"), (int32)Logger::LOGGER_DEST_STDOUT, &loggers);
+	cfg.AddConfig(general.String(), "log_destination",
+		B_TRANSLATE("Log destination:"), (int32)Logger::LOGGER_DEST_STDOUT, &loggers);
 
 	GMessage levels = {
 		{"mode", "options"},
@@ -335,13 +357,16 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 			{"label", "Trace"}}}
 	};
 
-	cfg.AddConfig("General", "log_level", B_TRANSLATE("Log level:"), (int32)LOG_LEVEL_ERROR, &levels);
+	cfg.AddConfig(general.String(), "log_level",
+		B_TRANSLATE("Log level:"), (int32)LOG_LEVEL_ERROR, &levels);
 
-	cfg.AddConfig("General/Startup", "reopen_projects", B_TRANSLATE("Reload projects"), true);
-	cfg.AddConfig("General/Startup", "reopen_files", B_TRANSLATE("Reload files"), true);
-	cfg.AddConfig("General/Startup", "show_projects", B_TRANSLATE("Show projects pane"), true);
-	cfg.AddConfig("General/Startup", "show_output", B_TRANSLATE("Show output pane"), true);
-	cfg.AddConfig("General/Startup", "show_toolbar", B_TRANSLATE("Show toolbar"), true);
+	BString generalStartup = general;
+	generalStartup.Append("/").Append(B_TRANSLATE("Startup"));
+	cfg.AddConfig(generalStartup.String(), "reopen_projects", B_TRANSLATE("Reload projects"), true);
+	cfg.AddConfig(generalStartup.String(), "reopen_files", B_TRANSLATE("Reload files"), true);
+	cfg.AddConfig(generalStartup.String(), "show_projects", B_TRANSLATE("Show projects pane"), true);
+	cfg.AddConfig(generalStartup.String(), "show_output", B_TRANSLATE("Show output pane"), true);
+	cfg.AddConfig(generalStartup.String(), "show_toolbar", B_TRANSLATE("Show toolbar"), true);
 
 	GMessage sizes;
 	sizes = { {"mode","options"},
@@ -357,55 +382,61 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 		c++;
 	}
 
-	cfg.AddConfig("Editor", "edit_fontsize", B_TRANSLATE("Font size:"), -1, &sizes);
-	cfg.AddConfig("Editor", "syntax_highlight", B_TRANSLATE("Enable syntax highlighting"), true);
-	cfg.AddConfig("Editor", "brace_match", B_TRANSLATE("Enable brace matching"), true);
-	cfg.AddConfig("Editor", "save_caret", B_TRANSLATE("Save caret position"), true);
-	cfg.AddConfig("Editor", "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
-	GMessage tabs = { {"min",1},{"max",8} };
-	cfg.AddConfig("Editor", "tab_width", B_TRANSLATE("Tab width:  "), 4, &tabs);
+	BString editor(B_TRANSLATE("Editor"));
+	cfg.AddConfig(editor.String(), "edit_fontsize", B_TRANSLATE("Font size:"), -1, &sizes);
+	cfg.AddConfig(editor.String(), "syntax_highlight", B_TRANSLATE("Enable syntax highlighting"), true);
+	cfg.AddConfig(editor.String(), "brace_match", B_TRANSLATE("Enable brace matching"), true);
+	cfg.AddConfig(editor.String(), "save_caret", B_TRANSLATE("Save caret position"), true);
+	cfg.AddConfig(editor.String(), "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
+	cfg.AddConfig(editor.String(), "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
 
-	cfg.AddConfig("Editor", "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
+	GMessage tabs = { {"min",1},{"max",8} };
+	cfg.AddConfig(editor.String(), "tab_width", B_TRANSLATE("Tab width:"), 4, &tabs);
 
 	GMessage zooms = { {"min", -9}, {"max", 19} };
-	cfg.AddConfig("Editor", "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
+	cfg.AddConfig(editor.String(), "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
 	GMessage styles = { {"mode", "options"} };
 	std::set<std::string> allStyles;
 	Styler::GetAvailableStyles(allStyles);
 	int32 style_index = 1;
-	for(auto style : allStyles) {
+	for (auto style : allStyles) {
 		BString opt("option_");
 		opt << style_index;
 
 		styles[opt.String()] = { {"value", style_index - 1}, {"label", style.c_str() } };
 		style_index++;
 	}
-	cfg.AddConfig("Editor/Visual", "editor_style", B_TRANSLATE("Editor style:"), "default", &styles);
 
-	cfg.AddConfig("Editor/Visual", "show_linenumber", B_TRANSLATE("Show line number"), true);
-	cfg.AddConfig("Editor/Visual", "show_commentmargin", B_TRANSLATE("Show comment margin"), true);
-	cfg.AddConfig("Editor/Visual", "mark_caretline", B_TRANSLATE("Mark caret line"), true);
-	cfg.AddConfig("Editor/Visual", "enable_folding", B_TRANSLATE("Enable folding"), true);
-	cfg.AddConfig("Editor/Visual", "show_white_space", B_TRANSLATE("Show whitespace"), false);
-	cfg.AddConfig("Editor/Visual", "show_line_endings", B_TRANSLATE("Show line endings"), false);
-
-	cfg.AddConfig("Editor/Visual", "show_edgeline", B_TRANSLATE("Show edge line"), true);
+	BString editorVisual = editor;
+	editorVisual.Append("/").Append(B_TRANSLATE("Visual"));
+	cfg.AddConfig(editorVisual.String(), "editor_style", B_TRANSLATE("Editor style:"), "default", &styles);
+	cfg.AddConfig(editorVisual.String(), "show_linenumber", B_TRANSLATE("Show line number"), true);
+	cfg.AddConfig(editorVisual.String(), "show_commentmargin", B_TRANSLATE("Show comment margin"), true);
+	cfg.AddConfig(editorVisual.String(), "mark_caretline", B_TRANSLATE("Mark caret line"), true);
+	cfg.AddConfig(editorVisual.String(), "enable_folding", B_TRANSLATE("Enable folding"), true);
+	cfg.AddConfig(editorVisual.String(), "show_white_space", B_TRANSLATE("Show whitespace"), false);
+	cfg.AddConfig(editorVisual.String(), "show_line_endings", B_TRANSLATE("Show line endings"), false);
+	cfg.AddConfig(editorVisual.String(), "show_ruler", B_TRANSLATE("Show vertical ruler"), true);
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
-	cfg.AddConfig("Editor/Visual", "edgeline_column", B_TRANSLATE("Edge column"), 80, &limits);
+	cfg.AddConfig(editorVisual.String(), "ruler_column", B_TRANSLATE("Set ruler to column:"), 100, &limits);
 
-	cfg.AddConfig("Build", "wrap_console",   B_TRANSLATE("Wrap console"), false);
-	cfg.AddConfig("Build", "console_banner", B_TRANSLATE("Console banner"), true);
-	cfg.AddConfig("Build", "build_on_save",  B_TRANSLATE("Auto-Build on resource save"), false);
-	cfg.AddConfig("Build", "save_on_build",  B_TRANSLATE("Auto-Save changed files when building"), false);
+	BString build(B_TRANSLATE("Build"));
+	cfg.AddConfig(build.String(), "wrap_console",   B_TRANSLATE("Wrap console"), false);
+	cfg.AddConfig(build.String(), "console_banner", B_TRANSLATE("Console banner"), true);
+	cfg.AddConfig(build.String(), "build_on_save",  B_TRANSLATE("Auto-Build on resource save"), false);
+	cfg.AddConfig(build.String(), "save_on_build",  B_TRANSLATE("Auto-Save changed files when building"), false);
 
-	//New config, in Genio currently without a UI
-	cfg.AddConfig("Editor/Find", "find_wrap", B_TRANSLATE("Wrap"), false);
-	cfg.AddConfig("Editor/Find", "find_whole_word", B_TRANSLATE("Whole word"), false);
-	cfg.AddConfig("Editor/Find", "find_match_case", B_TRANSLATE("Match case"), false);
+	BString editorFind = editor;
+	editorFind.Append("/").Append(B_TRANSLATE("Find"));
+	cfg.AddConfig(editorFind.String(), "find_wrap", B_TRANSLATE("Wrap"), false);
+	cfg.AddConfig(editorFind.String(), "find_whole_word", B_TRANSLATE("Whole word"), false);
+	cfg.AddConfig(editorFind.String(), "find_match_case", B_TRANSLATE("Match case"), false);
+	cfg.AddConfig(editorFind.String(), "find_exclude_directory", B_TRANSLATE("Exclude folders:"),
+															".*,objects.*");
 
 	GMessage lsplevels = { {"mode", "options"},
-						   {"note", B_TRANSLATE("This setting will be updated on restart")},
+						   {"note", B_TRANSLATE("This setting will be updated on restart.")},
 						   {"option_1", {
 								{"value", (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR },
 								{"label", "Error" }}},
@@ -417,15 +448,18 @@ GenioApp::PrepareConfig(ConfigManager& cfg)
 								{"label", "Trace" }}},
 						 };
 
-	cfg.AddConfig("LSP", "lsp_clangd_log_level", B_TRANSLATE("Log level:"), (int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
+	// TODO: Not sure about translating "LSP"
+	cfg.AddConfig("LSP", "lsp_clangd_log_level", B_TRANSLATE("Log level:"),
+		(int32)lsp_log_level::LSP_LOG_LEVEL_ERROR, &lsplevels);
 
-	cfg.AddConfig("Hidden", "ui_bounds", "", BRect(40, 40, 839, 639));
+	BString sourceControl(B_TRANSLATE("Source control"));
+	cfg.AddConfig(sourceControl.String(), "repository_outline",
+		B_TRANSLATE("Show repository outline"), true);
 
+	cfg.AddConfig("Hidden", "ui_bounds", "ui_bounds", BRect(40, 40, 839, 639));
+	cfg.AddConfig("Hidden", "config_version", "config_version", "2.0");
+	cfg.AddConfig("Hidden", "run_without_buffering", "run_without_buffering", true);
 }
-
-
-#undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "GenioApp"
 
 
 int

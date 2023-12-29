@@ -71,6 +71,8 @@ public:
 									const BBitmap* icon);
 			void				SetCloseButtonsAvailable(bool available);
 
+	virtual BString				GetToolTipText(int32 index) { return TabLabel(index);}
+
 private:
 #if INTEGRATE_MENU_INTO_TAB_BAR
 			BMenu*				fMenu;

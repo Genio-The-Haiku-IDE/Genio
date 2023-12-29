@@ -6,7 +6,6 @@
 #define GrepThread_H
 
 
-#include <SupportDefs.h>
 #include "ConsoleIOThread.h"
 
 #define MAX_LINE_LEN B_PATH_NAME_LENGTH * 2
@@ -16,8 +15,7 @@ enum {
 	MSG_GREP_DONE = 'mgrd'
 };
 
-class GrepThread : public ConsoleIOThread
-{
+class GrepThread : public ConsoleIOThread {
 public:
 	GrepThread(BMessage* cmd_message, const BMessenger& consoleTarget);
 

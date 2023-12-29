@@ -10,6 +10,7 @@
 
 #include "TabManager.h"
 
+#include <Alert.h>
 #include <Application.h>
 #include <AbstractLayoutItem.h>
 #include <Bitmap.h>
@@ -24,12 +25,12 @@
 #include <Rect.h>
 #include <SpaceLayoutItem.h>
 #include <Window.h>
-#include "Log.h"
-#include <iostream>
 
 #include "TabContainerView.h"
 #include "TabView.h"
+#include "Utils.h"
 
+#include <stdexcept>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Tab Manager"
@@ -377,11 +378,12 @@ public:
 		fTabContainerGroup->EnableScrollButtons(canScrollLeft, canScrollRight);
 	}
 
-	virtual	void SetToolTip(const BString& text)
+	virtual	void SetToolTip(int32 selected)
 	{
-		if (fCurrentToolTip == text)
+		BString toolTipText = fManager->GetToolTipText(selected);
+		if (fCurrentToolTip == toolTipText)
 			return;
-		fCurrentToolTip = text;
+		fCurrentToolTip = toolTipText;
 		fManager->GetTabContainerView()->HideToolTip();
 		fManager->GetTabContainerView()->SetToolTip(
 			reinterpret_cast<BToolTip*>(NULL));
@@ -650,10 +652,6 @@ WebTabView::MouseMoved(BPoint where, uint32 transit,
 		ContainerView()->Invalidate(closeRect);
 	}
 
-	// Set the tool tip
-	#if 0
-	fController->SetToolTip(overCloseRect ? "" : Label());
-	#endif
 	TabView::MouseMoved(where, transit, dragMessage);
 }
 
@@ -677,6 +675,21 @@ WebTabView::_CloseRectFrame(BRect frame) const
 	return frame;
 }
 
+const int32 kBrightnessBreakValue = 126;
+/*
+static void inline
+DecreaseContrastBy(float& tint, const float& value, const int& brightness)
+{
+	tint *= 1 + ((brightness >= kBrightnessBreakValue) ? -1 : +1) * value;
+}
+*/
+
+static void inline
+IncreaseContrastBy(float& tint, const float& value, const int& brightness)
+{
+	tint *= 1 + ((brightness >= kBrightnessBreakValue) ? +1 : -1) * value;
+}
+
 
 void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	const BRect& updateRect, bool isFirst, bool isLast, bool isFront)
@@ -684,39 +697,34 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	BRect closeRect = _CloseRectFrame(frame);
 	frame.right = closeRect.left - be_control_look->DefaultLabelSpacing();
 
-	closeRect.left = (closeRect.left + closeRect.right) / 2 - 3;
-	closeRect.right = closeRect.left + 6;
-	closeRect.top = (closeRect.top + closeRect.bottom) / 2 - 3;
-	closeRect.bottom = closeRect.top + 6;
+	closeRect.InsetBy(closeRect.Width() * 0.30f, closeRect.Height() * 0.30f);
 
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
-	float tint = B_DARKEN_1_TINT;
-	if (!IsFront()) {
-		base = tint_color(base, tint);
-		tint *= 1.02;
+	float tint = B_LIGHTEN_1_TINT;
+	if (base.Brightness() >= kBrightnessBreakValue) {
+		tint = B_DARKEN_1_TINT *1.2;
 	}
 
-	if (fOverCloseRect)
-		tint *= 1.4;
-	else
-		tint *= 1.2;
-
-	if (fClicked && fOverCloseRect) {
+	if (fOverCloseRect) {
 		// Draw the button frame
 		BRect buttonRect(closeRect.InsetByCopy(-4, -4));
 		be_control_look->DrawButtonFrame(owner, buttonRect, updateRect,
 			base, base,
 			BControlLook::B_ACTIVATED | BControlLook::B_BLEND_FRAME);
+		rgb_color background = ui_color(B_CONTROL_BACKGROUND_COLOR);
 		be_control_look->DrawButtonBackground(owner, buttonRect, updateRect,
-			base, BControlLook::B_ACTIVATED);
-		closeRect.OffsetBy(1, 1);
-		tint *= 1.2;
+			background, BControlLook::B_ACTIVATED);
+
 	}
 
 	// Draw the ×
+	if (fClicked)
+		IncreaseContrastBy(tint, .2, base.Brightness());
 	base = tint_color(base, tint);
 	owner->SetHighColor(base);
 	owner->SetPenSize(2);
+	closeRect.left +=1.0f;
+	closeRect.top +=1.0f;
 	owner->StrokeLine(closeRect.LeftTop(), closeRect.RightBottom());
 	owner->StrokeLine(closeRect.LeftBottom(), closeRect.RightTop());
 	owner->SetPenSize(1);

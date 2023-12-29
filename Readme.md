@@ -3,17 +3,18 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/genio-the-haiku-ide/genio/badge)](https://www.codefactor.io/repository/github/genio-the-haiku-ide/genio)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/26f32bc4ecf2440d89c1932000405a4d)](https://app.codacy.com/gh/Genio-The-Haiku-IDE/Genio/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 ![Screenshot](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/artwork/screenshot/Genio-screenshot-2.0.png)
-    Genio.png
+![Screenshot-Dark](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/artwork/screenshot/Genio-screenshot-dark-2.0.png)
+    
 
 ## Introduction
 
-Genio is a native and fully functional IDE for the [Haiku operating system](https://www.haiku-os.org) 
+Genio is a native and fully functional IDE for the [Haiku operating system](https://www.haiku-os.org)
 
 Some of the features of the Genio IDE are:
 
-*   LSP Server support (autocompletion, signature help, go to definition/implementation/declaration)
+*   LSP Server support (autocompletion, signature help, go to definition/implementation/declaration, quick fix, format)
 *   Multi-project browser
-*   Integrated source control with GIT (including opening a remote project) 
+*   Integrated source control with GIT (including opening a remote project)
 *   Find in files
 *   Links to file and build errors in Build Log and Console I/O
 *   "Problems" tab
@@ -27,7 +28,8 @@ Some of the features of the Genio IDE are:
     *   Duplicate current line
     *   Delete lines
     *   Switch between source and header
-  
+*   Full screen and Focus mode
+
 Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), and
  the editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
 
@@ -57,9 +59,11 @@ See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blo
 
 ### Prerequirements
 
-Genio requires libgit2 to implement Git features. 
-The development files are available in `libgit2_devel`.
-Execute `pkgman install libgit2_devel` from Terminal
+Genio requires Scintilla and Lexilla to implement various functionalities.
+It also requires libgit2 to implement Git features and libyaml_cpp to read yaml files.
+The needed development files are available in `libgit2_devel`, `lexilla_devel` and
+`yaml_cpp_devel`, respectively.
+Execute `pkgman install libgit2_devel lexilla_devel yaml_cpp_devel` from Terminal.
 
 If you would like to try a clang++ build:
 
@@ -69,7 +73,7 @@ If you would like to try a clang++ build:
 ### Compiling
 
 Execute `make deps && make` in Genio's top directory.
-The executable is created in `app` subdirectory.  
+The executable is created in `app` subdirectory.
 
 Genio can already be opened and built within Genio itself.
 The makefile has been updated to accept the *debug* parameter:

@@ -16,17 +16,32 @@
 #include "GSettings.h"
 #include "LSPServersManager.h"
 
-SourceItem::SourceItem(BString const& path)
+SourceItem::SourceItem(const BString& path)
 	:
-	fPath(path),
-	fName(),
+	fEntryRef(),
 	fType(SourceItemType::FileItem),
 	fProjectFolder(nullptr)
 {
-	BPath _path(path);
-	fName = _path.Leaf();
+	status_t status = get_ref_for_path(path.String(), &fEntryRef);
+	if (status != B_OK) {
+		// TODO: What to do ?
+		LogError("Failed to get ref for path %s: %s", path.String(), ::strerror(status));
+	}
+	BEntry entry(&fEntryRef);
+	if (entry.IsDirectory())
+		fType = SourceItemType::FolderItem;
+	else
+		fType = SourceItemType::FileItem;
+}
 
-	BEntry entry(path);
+
+SourceItem::SourceItem(const entry_ref& ref)
+	:
+	fEntryRef(ref),
+	fType(SourceItemType::FileItem),
+	fProjectFolder(nullptr)
+{
+	BEntry entry(&fEntryRef);
 	if (entry.IsDirectory())
 		fType = SourceItemType::FolderItem;
 	else
@@ -39,25 +54,51 @@ SourceItem::~SourceItem()
 }
 
 
-void
-SourceItem::Rename(BString const& path)
+const entry_ref*
+SourceItem::EntryRef() const
 {
-	fPath = path;
-	BPath _path(path);
-	fName = _path.Leaf();
+	return &fEntryRef;
+}
+
+BString	const
+SourceItem::Name() const
+{
+	return fEntryRef.name;
 }
 
 
-ProjectFolder::ProjectFolder(BString const& path, BMessenger& msgr)
+void
+SourceItem::UpdateEntryRef(const entry_ref& ref)
+{
+	fEntryRef = ref;
+}
+
+
+ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	:
-	SourceItem(path),
+	SourceItem(ref),
 	fActive(false),
 	fBuildMode(BuildMode::ReleaseMode),
 	fSettings(nullptr),
 	fMessenger(msgr)
+	fLSPProjectWrapper(nullptr),
+	fSettings(nullptr),
+	fGitRepository(nullptr),
+	fIsBuilding(false)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
+  
+	fFullPath = BPath(EntryRef()).Path();
+
+	try {
+		fGitRepository = new GitRepository(fFullPath);
+	} catch(const GitException &ex) {
+		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
+			fFullPath.String(), ex.Error(), ex.what());
+	}
+
+	fLSPProjectWrapper = new LSPProjectWrapper(fFullPath.String(), msgr);
 }
 
 LSPProjectWrapper*
@@ -73,13 +114,13 @@ ProjectFolder::GetLSPServer(const BString& fileType)
 	return wrap;
 }
 
-
 ProjectFolder::~ProjectFolder()
 {
 	for (LSPProjectWrapper* w : fLSPProjectWrappers) {
 		w->Dispose();
 		delete w;
 	}
+	delete fGitRepository;
 	delete fSettings;
 }
 
@@ -87,7 +128,7 @@ ProjectFolder::~ProjectFolder()
 status_t
 ProjectFolder::Open()
 {
-	fSettings = new GSettings(fPath, GenioNames::kProjectSettingsFile, 'LOPR');
+	fSettings = new GSettings(Path(), GenioNames::kProjectSettingsFile, 'LOPR');
 	return B_OK;
 }
 
@@ -99,6 +140,11 @@ ProjectFolder::Close()
 	return status;
 }
 
+BString const
+ProjectFolder::Path() const
+{
+	return fFullPath;
+}
 
 void
 ProjectFolder::LoadDefaultSettings()
@@ -116,8 +162,6 @@ ProjectFolder::LoadDefaultSettings()
 	fSettings->SetString("project_release_target", "");
 	fSettings->SetString("project_debug_target", "");
 	fSettings->SetBool("project_run_in_terminal", false);
-	fSettings->SetBool("git", false);
-	fSettings->SetBool("exclude_settings_git", false);
 }
 
 
@@ -137,8 +181,9 @@ ProjectFolder::SetBuildMode(BuildMode mode)
 
 
 BuildMode
-ProjectFolder::GetBuildMode()
+ProjectFolder::GetBuildMode() /* const */
 {
+	// TODO: Why are we SETting the mode here ?
 	fBuildMode = (BuildMode)fSettings->GetInt32("build_mode", BuildMode::ReleaseMode);
 	return fBuildMode;
 }
@@ -155,7 +200,7 @@ ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetBuildCommand()
+ProjectFolder::GetBuildCommand() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode) {
 		BString build = fSettings->GetString("project_release_build_command", "");
@@ -178,7 +223,7 @@ ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetCleanCommand()
+ProjectFolder::GetCleanCommand() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode) {
 		BString clean = fSettings->GetString("project_release_clean_command", "");
@@ -201,7 +246,7 @@ ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetExecuteArgs()
+ProjectFolder::GetExecuteArgs() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
 		return fSettings->GetString("project_release_execute_args", "");
@@ -221,7 +266,7 @@ ProjectFolder::SetTarget(BString const& path, BuildMode mode)
 
 
 BString const
-ProjectFolder::GetTarget()
+ProjectFolder::GetTarget() const
 {
 	if (fBuildMode == BuildMode::ReleaseMode)
 		return fSettings->GetString("project_release_target", "");
@@ -231,44 +276,37 @@ ProjectFolder::GetTarget()
 
 
 void
-ProjectFolder::RunInTerminal(bool enabled)
+ProjectFolder::SetRunInTerminal(bool enabled)
 {
 	fSettings->SetBool("project_run_in_terminal", enabled);
 }
 
 
 bool
-ProjectFolder::RunInTerminal()
+ProjectFolder::RunInTerminal() const
 {
 	return fSettings->GetBool("project_run_in_terminal", false);
 }
 
 
-void
-ProjectFolder::Git(bool enabled)
+GitRepository*
+ProjectFolder::GetRepository() const
 {
-	fSettings->SetBool("git", enabled);
-}
-
-
-bool
-ProjectFolder::Git()
-{
-	return fSettings->GetBool("git", false);
+	return fGitRepository;
 }
 
 
 void
-ProjectFolder::ExcludeSettingsOnGit(bool enabled)
+ProjectFolder::InitRepository(bool createInitialCommit)
 {
-	fSettings->SetBool("exclude_settings_git", enabled);
+	fGitRepository->Init(createInitialCommit);
 }
 
 
-bool
-ProjectFolder::ExcludeSettingsOnGit()
+LSPProjectWrapper*
+ProjectFolder::GetLSPClient() const
 {
-	return fSettings->GetBool("exclude_settings_git", false);
+	return fLSPProjectWrapper;
 }
 
 

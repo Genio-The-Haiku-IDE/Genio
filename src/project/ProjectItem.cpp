@@ -10,8 +10,9 @@
 #include <ControlLook.h>
 #include <Font.h>
 #include <NodeInfo.h>
+#include <OutlineListView.h>
 #include <StringItem.h>
-#include <View.h>
+#include <TextControl.h>
 #include <Window.h>
 
 #include "IconCache.h"
@@ -61,6 +62,9 @@ public:
 			fProjectItem->AbortRename();
 		}
 		if (numBytes == 1 && *bytes == B_RETURN) {
+			BMessage message(*Message());
+			message.AddString("_value", Text());
+			BMessenger(Parent()).SendMessage(&message);
 			fProjectItem->CommitRename();
 		}
 	}
@@ -69,20 +73,16 @@ public:
 
 ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
-	BStringItem(sourceItem->Name()),
+	StyledItem(sourceItem->Name()),
 	fSourceItem(sourceItem),
-	fFirstTimeRendered(true),
 	fNeedsSave(false),
 	fOpenedInEditor(false),
-	fInitRename(false),
-	fMessage(nullptr),
-	fTextControl(nullptr),
-	fPrimaryText(Text()),
-	fSecondaryText(nullptr)
+	fTextControl(nullptr)
 {
 }
 
 
+/* virtual */
 ProjectItem::~ProjectItem()
 {
 	delete fSourceItem;
@@ -90,9 +90,13 @@ ProjectItem::~ProjectItem()
 }
 
 
+/* virtual */
 void
 ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
+	// TODO: this part is duplicated between StyledItem and here:
+	// Move to a common method so inherited classes don't have
+	// to duplicate
 	if (Text() == NULL)
 		return;
 
@@ -110,59 +114,72 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	owner->SetFont(be_plain_font);
 
-	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		BString branchName, projectName, projectPath;
-
-		ProjectFolder *projectFolder = (ProjectFolder *)GetSourceItem();
-		projectName = Text();
-		projectPath = projectFolder->Path();
-
-		if (projectFolder->Active()) {
-			owner->SetFont(be_bold_font);
-		}
-		try {
-			Genio::Git::GitRepository repo(projectPath.String());
-			branchName = repo.GetCurrentBranch();
-			fSecondaryText.SetTo(branchName);
-		} catch(Genio::Git::GitException &ex) {}
-
-		fToolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
-									B_TRANSLATE("Project"), Text(),
-									B_TRANSLATE("Path"), projectPath.String(),
-									B_TRANSLATE("Current branch"), branchName.String());
-	}
 	if (IsSelected())
 		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
 	else
 		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 
-	auto icon = IconCache::GetIcon(GetSourceItem()->Path());
-	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-	BPoint iconStartingPoint(bounds.left + 4.0f, bounds.top  + (bounds.Height() - iconSize) / 2.0f);
-	if (icon != nullptr) {
-		owner->SetDrawingMode(B_OP_ALPHA);
-		owner->DrawBitmapAsync(icon, iconStartingPoint);
-	}
+	// TODO: until here... (see comment above)
 
-	// Check if there is an InitRename request and show a TextControl
-	if (fInitRename) {
+	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+		ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
+		if (projectFolder->Active())
+			SetTextFontFace(B_BOLD_FACE);
+		else
+			SetTextFontFace(B_REGULAR_FACE);
+
+		// TODO: this part is quite computationally intensive
+		// and shoud be moved away from the DrawItem.
+
+		BString projectName = Text();
+		BString projectPath = projectFolder->Path();
+		BString branchName;
+		try {
+			if (projectFolder->GetRepository()) {
+				branchName = projectFolder->GetRepository()->GetCurrentBranch();
+				BString extraText;
+				extraText << "  [" << branchName << "]";
+				SetExtraText(extraText);
+			}
+		} catch (const Genio::Git::GitException &ex) {
+		}
+
+		BString toolTipText;
+		toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
+									B_TRANSLATE("Project"), projectName.String(),
+									B_TRANSLATE("Path"), projectPath.String(),
+									B_TRANSLATE("Current branch"), branchName.String());
+		SetToolTipText(toolTipText);
+	} else if (fOpenedInEditor)
+		SetTextFontFace(B_ITALIC_FACE);
+	else
+		SetTextFontFace(B_REGULAR_FACE);
+
+	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->EntryRef());
+	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	BRect iconRect = DrawIcon(owner, bounds, icon, iconSize);
+
+	// There's a TextControl for renaming
+	if (fTextControl != nullptr) {
 		BRect textRect;
 		textRect.top = bounds.top - 0.5f;
-		textRect.left = iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing();
+		textRect.left = iconRect.right + be_control_look->DefaultLabelSpacing();
 		textRect.bottom = bounds.bottom - 1;
 		textRect.right = bounds.right;
-		_DrawTextWidget(owner, textRect);
+		// TODO: Don't move it every time
+		fTextControl->MoveTo(textRect.LeftTop());
 	} else {
-		BPoint textPoint(iconStartingPoint.x + iconSize + be_control_look->DefaultLabelSpacing(),
+		BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 						bounds.top + BaselineOffset());
-		_DrawText(owner, textPoint);
+		// TODO: Apply any style change here (i.e. bold, italic)
+		BString text = Text();
+		if (fNeedsSave)
+			text.Append("*");
+		text.Append(ExtraText());
+
+		DrawText(owner, text, textPoint);
 
 		owner->Sync();
-
-		if (fFirstTimeRendered) {
-			owner->Invalidate();
-			fFirstTimeRendered = false;
-		}
 	}
 }
 
@@ -181,20 +198,34 @@ ProjectItem::SetOpenedInEditor(bool open)
 }
 
 
+/* virtual */
 void
 ProjectItem::Update(BView* owner, const BFont* font)
 {
-	BStringItem::Update(owner, be_bold_font);
+	StyledItem::Update(owner, be_bold_font);
 }
 
 
 void
-ProjectItem::InitRename(BMessage* message)
+ProjectItem::InitRename(BView* owner, BMessage* message)
 {
-	if (fTextControl != nullptr)
-		debugger("ProjectItem::InitRename() called twice!");
-	fInitRename = true;
-	fMessage = message;
+	if (fTextControl == nullptr) {
+		BOutlineListView* listView = static_cast<BOutlineListView*>(owner);
+		const int32 index = listView->IndexOf(this);
+		BRect itemRect = listView->ItemFrame(index);
+		fTextControl = new TemporaryTextControl(itemRect, "RenameTextWidget",
+											"", Text(), message, this,
+											B_FOLLOW_NONE);
+		if (owner->LockLooper()) {
+			owner->AddChild(fTextControl);
+			owner->UnlockLooper();
+		}
+		fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
+		fTextControl->SetDivider(0);
+		fTextControl->TextView()->SelectAll();
+		fTextControl->TextView()->ResizeBy(0, -3);
+	}
+	fTextControl->MakeFocus();
 }
 
 
@@ -203,7 +234,6 @@ ProjectItem::AbortRename()
 {
 	if (fTextControl != nullptr)
 		_DestroyTextWidget();
-	fInitRename = false;
 }
 
 
@@ -211,57 +241,8 @@ void
 ProjectItem::CommitRename()
 {
 	if (fTextControl != nullptr) {
-		fMessage->AddString("_value", fTextControl->Text());
-		BMessenger(fTextControl->Parent()).SendMessage(fMessage);
-		SetText(fTextControl->Text());
 		_DestroyTextWidget();
 	}
-	fInitRename = false;
-}
-
-
-void
-ProjectItem::_DrawText(BView* owner, const BPoint& point)
-{
-	if (fOpenedInEditor) {
-		BFont font;
-		owner->GetFont(&font);
-		font.SetFace(B_ITALIC_FACE);
-		owner->SetFont(&font);
-	}
-	// Draw string at the right of the icon
-	owner->SetDrawingMode(B_OP_COPY);
-	owner->MovePenTo(point);
-	BString text = Text();
-	if (fNeedsSave)
-		text.Append("*");
-	owner->DrawString(text.String());
-
-	if (!fSecondaryText.IsEmpty()) {
-		BString text;
-		text << "  [" << fSecondaryText.String() << "]";
-		// Apply any style change here (i.e. bold, italic)
-		owner->DrawString(text.String());
-	}
-
-	owner->Sync();
-}
-
-
-void
-ProjectItem::_DrawTextWidget(BView* owner, const BRect& textRect)
-{
-	if (fTextControl == nullptr) {
-		fTextControl = new TemporaryTextControl(textRect, "RenameTextWidget",
-											"", Text(), fMessage, this,
-											B_FOLLOW_NONE);
-		owner->AddChild(fTextControl);
-		fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
-		fTextControl->SetDivider(0);
-		fTextControl->TextView()->SelectAll();
-		fTextControl->TextView()->ResizeBy(0, -3);
-	}
-	fTextControl->MakeFocus();
 }
 
 

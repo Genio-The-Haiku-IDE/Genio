@@ -40,11 +40,14 @@ FSCheckCopiable(BEntry *src, BEntry *dest)
 
 	// check space
 	entry_ref ref;
-	off_t src_bytes;
-
-	dest->GetRef(&ref);
+	status_t status = dest->GetRef(&ref);
+	if (status != B_OK)
+		return status;
 	BVolume dvolume(ref.device);
-	src->GetSize(&src_bytes);
+	off_t src_bytes;
+	status = src->GetSize(&src_bytes);
+	if (status != B_OK)
+		return status;
 
 	if (src_bytes>dvolume.FreeBytes())
 		return B_DEVICE_FULL;
@@ -55,10 +58,14 @@ FSCheckCopiable(BEntry *src, BEntry *dest)
 
 	// check existing name
 	BPath path;
-	destdir.GetPath(&path);
+	status = destdir.GetPath(&path);
+	if (status != B_OK)
+		return status;
 
 	char name[B_FILE_NAME_LENGTH];
-	src->GetName(name);
+	status = src->GetName(name);
+	if (status != B_OK)
+		return status;
 
 	BString newpath = path.Path();
 	newpath += name;
@@ -169,26 +176,34 @@ FSMoveFile(BEntry *src, BEntry *dest, bool clobber)
 
 	// Obtain the destination directory
 	BPath path;
-	dest->GetPath(&path);
+	status_t status = dest->GetPath(&path);
+	if (status != B_OK)
+		return status;
 
 	BPath parent;
-	path.GetParent(&parent);
+	status = path.GetParent(&parent);
+	if (status != B_OK)
+		return status;
 
 	BDirectory dir;
-	status_t status = dir.SetTo(parent.Path());
+	status = dir.SetTo(parent.Path());
 	if (status != B_OK)
 		return status;
 
 	BString newpath = parent.Path();
 	char newname[B_FILE_NAME_LENGTH];
-	dest->GetName(newname);
+	status = dest->GetName(newname);
+	if (status != B_OK)
+		return status;
 	newpath += "/";
 	newpath += newname;
 	status = src->MoveTo(&dir, newpath.String(), clobber);
-
 	if (status == B_CROSS_DEVICE_LINK) {
+		// TODO: Avoid using system() here
 		BPath srcpath;
-		src->GetPath(&srcpath);
+		status = src->GetPath(&srcpath);
+		if (status != B_OK)
+			return status;
 		BString command("mv ");
 		BString srcstring(srcpath.Path());
 		BString deststring(path.Path());
@@ -222,8 +237,11 @@ FSChmod(const fs::path& path, fs::perms perm, bool recurse)
 status_t
 FSDeleteFolder(BEntry *dirEntry)
 {
-	status_t status = B_OK;
 	BDirectory dir(dirEntry);
+	status_t status = dir.InitCheck();
+	if (status != B_OK)
+		return status;
+
 	// delete recursively
 	BEntry entry;
 	while (dir.GetNextEntry(&entry) == B_OK) {

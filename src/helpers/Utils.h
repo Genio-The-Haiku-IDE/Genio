@@ -7,11 +7,17 @@
 #define UTILS_H
 
 
+#include <OutlineListView.h>
 #include <string>
-#include <type_traits>
 
 #include <Alert.h>
 #include <MessageFilter.h>
+#include <MenuField.h>
+#include <MenuItem.h>
+#include <Notification.h>
+#include <ObjectList.h>
+
+#include "Log.h"
 
 
 class BBitmap;
@@ -37,10 +43,12 @@ bool IsCppSourceExtension(std::string extension);
 bool IsCppHeaderExtension(std::string extension);
 
 double Round(double value, int precision);
-void ProgressNotification(const char* group, const char* title, const char* messageID,
-							const char* content, float progress, bigtime_t timeout = -1);
-void ErrorNotification(const char* group, const char* title, const char* messageID,
-							const char* content, bigtime_t timeout = -1);
+void ProgressNotification(const BString& group, const BString&  title, const BString&  messageID,
+							const BString& content, float progress, bigtime_t timeout = -1);
+void ShowNotification(const BString& group, const BString&  title, const BString&  messageID,
+							const BString& content,
+							notification_type type = B_INFORMATION_NOTIFICATION,
+							bigtime_t timeout = -1);
 
 template<typename T>
 bool IsChecked(T* control);
@@ -158,4 +166,5 @@ public:
 BPath		GetDataDirectory();
 BPath		GetUserSettingsDirectory();
 
+bool	IsXMasPeriod();
 #endif // UTILS_H

@@ -83,3 +83,32 @@ ToolBar::SetEnabled(bool enable)
 			control->SetEnabled(enable);
 	}
 }
+
+
+void
+ToolBar::SetTarget(BHandler* defaultTarget)
+{
+	fDefaultTarget = defaultTarget;
+	for (int32 i = 0; i < GroupLayout()->CountItems(); i++){
+		BControl* control = dynamic_cast<BControl*>(GroupLayout()->ItemAt(i)->View());
+		if (control)
+			control->SetTarget(fDefaultTarget);
+	}
+}
+
+void
+ToolBar::ToggleActionPressed(uint32 command)
+{
+	for (int32 i = 0; BView* view = BToolBar::ChildAt(i); i++) {
+		BButton* button = dynamic_cast<BButton*>(view);
+		if (button == NULL)
+			continue;
+		BMessage* message = button->Message();
+		if (message == NULL)
+			continue;
+		if (message->what == command)
+			button->SetValue(true);
+		else
+			button->SetValue(false);
+	}
+}

@@ -23,9 +23,6 @@ public:
 								ConsoleIOView(const BString& name, const BMessenger& target);
 								~ConsoleIOView();
 
-	static	ConsoleIOView*	Create(const BString& name, const BMessenger& target);
-									// throws
-
 	virtual	void				MessageReceived(BMessage* message);
 	virtual	void				AttachedToWindow();
 

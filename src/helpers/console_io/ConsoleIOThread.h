@@ -33,7 +33,7 @@
 #include "GenericThread.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <Locker.h>
 
 enum {
 	CONSOLEIOTHREAD_EXIT				= 'Cexi',
@@ -51,7 +51,7 @@ public:
 			status_t			SuspendExternal();
 			status_t			ResumeExternal();
 			status_t			InterruptExternal();
-			status_t			IsProcessAlive();
+			bool				IsProcessAlive();
 			bool				IsDone() { return fIsDone; };
 
 			void				PushInput(BString text);
@@ -91,6 +91,7 @@ private:
 			bool				fIsDone;
 			BString				fLastOutputString;
 			BString				fLastErrorString;
+			BLocker				fProcessIDLock;
 };
 
 

@@ -11,6 +11,7 @@
  */
 #include "ConsoleIOThread.h"
 
+#include <Autolock.h>
 #include <Locker.h>
 #include <Messenger.h>
 
@@ -47,10 +48,10 @@ ConsoleIOThread::~ConsoleIOThread()
 status_t
 ConsoleIOThread::_RunExternalProcess()
 {
-	status_t status = B_OK;
 	BString cmd;
 
-	if ((status = GetDataStore()->FindString("cmd", &cmd)) != B_OK)
+	status_t status = GetDataStore()->FindString("cmd", &cmd);
+	if (status != B_OK)
 		return status;
 
 	BString type("none");
@@ -65,17 +66,25 @@ ConsoleIOThread::_RunExternalProcess()
 	argv[2] = strdup(cmd.String());
 	argv[argc] = nullptr;
 
+	fProcessIDLock.Lock();
 	fProcessId = PipeCommand(argc, argv, fStdIn, fStdOut, fStdErr);
 
-	delete [] argv;
+	delete[] argv;
 
 	if (fProcessId < 0)
-		return B_ERROR;
+		return fProcessId;
 
 	// lower the command priority since it is a background task.
 	set_thread_priority(fProcessId, B_LOW_PRIORITY);
 
-	resume_thread(fProcessId);
+
+	status = resume_thread(fProcessId);
+	if (status != B_OK) {
+		kill_thread(fProcessId);
+		return status;
+	}
+
+	fProcessIDLock.Unlock();
 
 	int flags = fcntl(fStdOut, F_GETFL, 0);
 	flags |= O_NONBLOCK;
@@ -89,12 +98,12 @@ ConsoleIOThread::_RunExternalProcess()
 	fConsoleOutput = fdopen(fStdOut, "r");
 	if (fConsoleOutput == nullptr) {
 		LogErrorF("Can't open ConsoleOutput file! (%d) [%s]", errno, strerror(errno));
-		return B_ERROR;
+		return errno;
 	}
 	fConsoleError = fdopen(fStdErr, "r");
 	if (fConsoleError == nullptr) {
 		LogErrorF("Can't open ConsoleError file! (%d) [%s]", errno, strerror(errno));
-		return B_ERROR;
+		return errno;
 	}
 
 	return B_OK;
@@ -106,11 +115,12 @@ ConsoleIOThread::ExecuteUnit(void)
 	// first time: let's setup the external process.
 	// this way we always enter in the same managed loop
 	status_t status = B_OK;
-
-	if (fProcessId == -1) {
+	fProcessIDLock.Lock();
+	if (fProcessId < 0) {
 		status = _RunExternalProcess();
+		fProcessIDLock.Unlock();
 	} else {
-
+		fProcessIDLock.Unlock();
 		// read output and error from command
 		// send it to window
 		BString outStr("");
@@ -135,7 +145,7 @@ ConsoleIOThread::ExecuteUnit(void)
 				}
 			}
 
-			if (IsProcessAlive() != B_OK && outStr.IsEmpty() && errStr.IsEmpty()) {
+			if (!IsProcessAlive() && outStr.IsEmpty() && errStr.IsEmpty()) {
 				return EOF;
 			}
 		}
@@ -238,7 +248,7 @@ ConsoleIOThread::PipeCommand(int argc, const char** argv, int& in, int& out,
 	pipe(filedes);  dup2(filedes[1], 2); close(filedes[1]);
 	err = filedes[0]; // Read from err, taken from cmd's stderr
 
-	// "load" command.
+	// "load" command.s
 	thread_id ret  =  load_image(argc, argv, envp);
 	if (ret < B_OK)
 		goto cleanup;
@@ -264,6 +274,7 @@ cleanup:
 status_t
 ConsoleIOThread::SuspendExternal()
 {
+	BAutolock lock(fProcessIDLock);
 	thread_info info;
 	status_t status = get_thread_info(fProcessId, &info);
 	if (status == B_OK)
@@ -275,6 +286,7 @@ ConsoleIOThread::SuspendExternal()
 status_t
 ConsoleIOThread::ResumeExternal()
 {
+	BAutolock lock(fProcessIDLock);
 	thread_info info;
 	status_t status = get_thread_info(fProcessId, &info);
 	if (status == B_OK)
@@ -300,23 +312,24 @@ ConsoleIOThread::ClosePipes()
 	fStdIn = fStdOut = fStdErr = -1;
 }
 
-status_t
+bool
 ConsoleIOThread::IsProcessAlive()
 {
+	BAutolock lock(fProcessIDLock);
 	thread_info info;
-	return get_thread_info(fProcessId, &info);
+	return get_thread_info(fProcessId, &info) == B_OK;
 }
 
 status_t
 ConsoleIOThread::InterruptExternal()
 {
-	status_t status = IsProcessAlive();
-	if (status == B_OK) {
-		status = send_signal(-fProcessId, SIGTERM);
+	BAutolock lock(fProcessIDLock);
+	if (IsProcessAlive()) {
+		status_t status = send_signal(-fProcessId, SIGTERM);
 		return wait_for_thread_etc(fProcessId, 0, 4000, &status);
 	}
 
-	return status;
+	return B_ERROR;
 }
 
 

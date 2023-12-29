@@ -170,7 +170,7 @@ public:
 			void				SetCommentBlockTokens(std::string startBlock, std::string endBlock){ /*TODO! */}
 
 			LSPEditorWrapper*	GetLSPEditorWrapper() { return fLSPEditorWrapper; }
-			bool				HasLSPServer();
+			bool				HasLSPServer() const;
 			bool				HasLSPCapability(const LSPCapability cap);
 
 

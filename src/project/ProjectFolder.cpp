@@ -80,9 +80,7 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	fActive(false),
 	fBuildMode(BuildMode::ReleaseMode),
 	fSettings(nullptr),
-	fMessenger(msgr)
-	fLSPProjectWrapper(nullptr),
-	fSettings(nullptr),
+	fMessenger(msgr),
 	fGitRepository(nullptr),
 	fIsBuilding(false)
 {
@@ -98,7 +96,7 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 			fFullPath.String(), ex.Error(), ex.what());
 	}
 
-	fLSPProjectWrapper = new LSPProjectWrapper(fFullPath.String(), msgr);
+	//fLSPProjectWrapper = new LSPProjectWrapper(fFullPath.String(), msgr);
 }
 
 LSPProjectWrapper*
@@ -108,7 +106,7 @@ ProjectFolder::GetLSPServer(const BString& fileType)
 		if (w->ServerConfig().IsFileTypeSupported(fileType))
 			return w;
 	}
-	LSPProjectWrapper* wrap = LSPServersManager::CreateLSPProject(BPath(fPath), fMessenger, fileType);
+	LSPProjectWrapper* wrap = LSPServersManager::CreateLSPProject(BPath(fFullPath), fMessenger, fileType);
 	if (wrap)
 		fLSPProjectWrappers.push_back(wrap);
 	return wrap;
@@ -300,13 +298,6 @@ void
 ProjectFolder::InitRepository(bool createInitialCommit)
 {
 	fGitRepository->Init(createInitialCommit);
-}
-
-
-LSPProjectWrapper*
-ProjectFolder::GetLSPClient() const
-{
-	return fLSPProjectWrapper;
 }
 
 

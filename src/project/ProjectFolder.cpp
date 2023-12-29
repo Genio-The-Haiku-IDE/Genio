@@ -14,6 +14,7 @@
 #include "LSPProjectWrapper.h"
 #include "GenioNamespace.h"
 #include "GSettings.h"
+#include "LSPServersManager.h"
 
 SourceItem::SourceItem(const BString& path)
 	:
@@ -78,6 +79,8 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	SourceItem(ref),
 	fActive(false),
 	fBuildMode(BuildMode::ReleaseMode),
+	fSettings(nullptr),
+	fMessenger(msgr)
 	fLSPProjectWrapper(nullptr),
 	fSettings(nullptr),
 	fGitRepository(nullptr),
@@ -85,7 +88,7 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
-
+  
 	fFullPath = BPath(EntryRef()).Path();
 
 	try {
@@ -98,11 +101,24 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	fLSPProjectWrapper = new LSPProjectWrapper(fFullPath.String(), msgr);
 }
 
+LSPProjectWrapper*
+ProjectFolder::GetLSPServer(const BString& fileType)
+{
+	for (LSPProjectWrapper* w : fLSPProjectWrappers) {
+		if (w->ServerConfig().IsFileTypeSupported(fileType))
+			return w;
+	}
+	LSPProjectWrapper* wrap = LSPServersManager::CreateLSPProject(BPath(fPath), fMessenger, fileType);
+	if (wrap)
+		fLSPProjectWrappers.push_back(wrap);
+	return wrap;
+}
+
 ProjectFolder::~ProjectFolder()
 {
-	if (fLSPProjectWrapper != nullptr) {
-		fLSPProjectWrapper->Dispose();
-		delete fLSPProjectWrapper;
+	for (LSPProjectWrapper* w : fLSPProjectWrappers) {
+		w->Dispose();
+		delete w;
 	}
 	delete fGitRepository;
 	delete fSettings;

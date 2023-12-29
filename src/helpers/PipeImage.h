@@ -18,7 +18,8 @@ class PipeImage {
 
 public:
 
-  status_t Init(const char *argv[], int32 argc, bool resume = true);
+  status_t Init(const char **argv, int32 argc, bool resume = true);
+
   virtual ~PipeImage();
   void	Close();
 
@@ -28,6 +29,7 @@ public:
   ssize_t Write(const void* buffer, size_t size);
 
   static BLocker *sLockStdFilesPntr;
+
 
 protected:
 

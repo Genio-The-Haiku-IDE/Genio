@@ -12,6 +12,8 @@
 #include <Messenger.h>
 #include <ScintillaView.h>
 
+#include "LSPCapabilities.h"
+
 class LSPEditorWrapper;
 class ProjectFolder;
 
@@ -167,8 +169,10 @@ public:
 			void				SetCommentLineToken(std::string commenter){ fCommenter = commenter; }
 			void				SetCommentBlockTokens(std::string startBlock, std::string endBlock){ /*TODO! */}
 
-			LSPEditorWrapper*	GetLSPEditorWrapper() const { return fLSPEditorWrapper; }
-			bool				HasLSPServer() const;
+			LSPEditorWrapper*	GetLSPEditorWrapper() { return fLSPEditorWrapper; }
+			bool				HasLSPServer();
+			bool				HasLSPCapability(const LSPCapability cap);
+
 
 private:
 			void				UpdateStatusBar();

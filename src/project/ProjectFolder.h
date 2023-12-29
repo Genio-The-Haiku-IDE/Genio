@@ -9,6 +9,9 @@
 #include <Entry.h>
 #include <ObjectList.h>
 #include <String.h>
+#include <Messenger.h>
+#include "GSettings.h"
+#include <vector>
 
 #include "GitRepository.h"
 
@@ -16,6 +19,7 @@ using namespace Genio::Git;
 
 class BMessenger;
 class LSPProjectWrapper;
+class LSPTextDocument;
 class GSettings;
 
 enum SourceItemType {
@@ -95,18 +99,20 @@ public:
 
 	void						SetGuessedBuilder(const BString& string);
 
-	LSPProjectWrapper*			GetLSPClient() const;
+	LSPProjectWrapper*			GetLSPServer(const BString& fileType);
+
 
 private:
 	bool						fActive;
 	BuildMode					fBuildMode;
 	BString						fGuessedBuildCommand;
 	BString						fGuessedCleanCommand;
-	LSPProjectWrapper*			fLSPProjectWrapper;
+	std::vector<LSPProjectWrapper*>	fLSPProjectWrappers;
 	GSettings*					fSettings;
-	GitRepository*				fGitRepository;
+	BMessenger					fMessenger;
+	GitRepository*	    fGitRepository;
 	bool						fIsBuilding;
-	BString						fFullPath;
+	BString					fFullPath;
 };
 
 #endif // PROJECT_FOLDER_H

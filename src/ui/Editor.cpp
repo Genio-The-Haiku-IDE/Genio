@@ -37,6 +37,7 @@
 #include "Utils.h"
 
 
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
 
@@ -118,6 +119,11 @@ Editor::HasLSPServer() const
 	return (fLSPEditorWrapper && fLSPEditorWrapper->HasLSPServer());
 }
 
+bool
+Editor::HasLSPCapability(const LSPCapability cap)
+{
+	return (HasLSPServer() && fLSPEditorWrapper->HasLSPServerCapability(cap));
+}
 
 
 Editor::~Editor()
@@ -1433,8 +1439,13 @@ void
 Editor::SetProjectFolder(ProjectFolder* proj)
 {
 	fProjectFolder = proj;
-	if (proj)
-		fLSPEditorWrapper->SetLSPServer(proj->GetLSPClient());
+	if (proj) {
+		LSPProjectWrapper* lspProject = proj->GetLSPServer(fFileType.c_str());
+		if (lspProject)
+			fLSPEditorWrapper->SetLSPServer(lspProject);
+		else
+			fLSPEditorWrapper->UnsetLSPServer();
+	}
 	else
 		fLSPEditorWrapper->UnsetLSPServer();
 

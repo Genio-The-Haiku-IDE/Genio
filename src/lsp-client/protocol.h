@@ -581,7 +581,7 @@ JSON_SERIALIZE(DiagnosticRelatedInformation, MAP_JSON(MAP_KEY(location), MAP_KEY
 
 
 //struct Diagnostic
-JSON_SERIALIZE(Diagnostic, {/*NOT REQUIRED*/},{FROM_KEY(range);FROM_KEY(code);FROM_KEY(source);FROM_KEY(message);
+JSON_SERIALIZE(Diagnostic, {/*NOT REQUIRED*/},{FROM_KEY(range);/*FROM_KEY(code);*/FROM_KEY(source);FROM_KEY(message);
                 FROM_KEY(relatedInformation);FROM_KEY(category);FROM_KEY(codeActions);});
 
 struct PublishDiagnosticsParams {

@@ -11,7 +11,7 @@
 
 #include <cerrno>
 #include <cstdlib>
-
+#include <unistd.h>
 #include <image.h>
 
 #include <Locker.h>
@@ -20,7 +20,7 @@
 BLocker* PipeImage::sLockStdFilesPntr = new BLocker ("Std-In-Out Changed Lock");
 
 status_t
-PipeImage::Init(const char *argv[], int32 argc, bool resume)
+PipeImage::Init(const char **argv, int32 argc, bool resume)
 {
 	// first we should backup current STDIO/STDOUT
 	// then we prepare the pipes for the 'child'
@@ -48,7 +48,8 @@ PipeImage::Init(const char *argv[], int32 argc, bool resume)
 	fcntl (originalStdErr, F_SETFD, PipeFlags);
 #endif
 
-	sLockStdFilesPntr->Unlock();
+  sLockStdFilesPntr->Unlock();
+
 
 	if (pipe (fOutPipe) != 0) // Returns -1 if failed, 0 if okay.
 		return errno; // Pipe creation failed.
@@ -108,6 +109,7 @@ PipeImage::Init(const char *argv[], int32 argc, bool resume)
 	close(fInPipe[WRITE_END]);
 
 	sLockStdFilesPntr->Lock();
+
 	dup2 (originalStdIn, STDIN_FILENO);
 	dup2 (originalStdOut, STDOUT_FILENO);
 	#if 0

@@ -158,7 +158,9 @@ GenioWindow::GenioWindow(BRect frame)
 {
 	gMainWindow = this;
 
+#ifdef GDEBUG
 	fTitlePrefix = ReadFileContent("revision.txt", 16);
+#endif
 
 	_InitActions();
 	_InitMenu();
@@ -4058,8 +4060,11 @@ void
 GenioWindow::_UpdateWindowTitle(const char* filePath)
 {
 	BString title;
+
+#ifdef GDEBUG
 	if (!fTitlePrefix.IsEmpty())
 		title << fTitlePrefix << " ";
+#endif
 	title << GenioNames::kApplicationName;
 	// File full path in window title
 	if (gCFG["fullpath_title"] && filePath != nullptr)

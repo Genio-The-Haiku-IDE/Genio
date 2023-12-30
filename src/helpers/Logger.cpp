@@ -66,6 +66,7 @@ void
 Logger::SetLevel(log_level value)
 {
 	sLevel = value;
+	printf("Log level set to [%s] (%d)\n", Logger::NameForLevel(sLevel), sLevel);
 }
 
 
@@ -95,17 +96,43 @@ bool
 Logger::SetLevelByName(const char *name)
 {
 	if (strcmp(name, "off") == 0) {
-		sLevel = LOG_LEVEL_OFF;
+		SetLevel(LOG_LEVEL_OFF);
 	} else if (strcmp(name, "info") == 0) {
-		sLevel = LOG_LEVEL_INFO;
+		SetLevel(LOG_LEVEL_INFO);
 	} else if (strcmp(name, "debug") == 0) {
-		sLevel = LOG_LEVEL_DEBUG;
+		SetLevel(LOG_LEVEL_DEBUG);
 	} else if (strcmp(name, "trace") == 0) {
-		sLevel = LOG_LEVEL_TRACE;
+		SetLevel(LOG_LEVEL_TRACE);
 	} else if (strcmp(name, "error") == 0) {
-		sLevel = LOG_LEVEL_ERROR;
+		SetLevel(LOG_LEVEL_ERROR);
 	} else {
 		return false;
+	}
+
+	return true;
+}
+
+bool
+Logger::SetLevelByChar(char level)
+{
+	switch (level) {
+		case 'o':
+			SetLevel(LOG_LEVEL_OFF);
+		break;
+		case 'e':
+			SetLevel(LOG_LEVEL_ERROR);
+		break;
+		case 'i':
+			SetLevel(LOG_LEVEL_INFO);
+		break;
+		case 'd':
+			SetLevel(LOG_LEVEL_DEBUG);
+		break;
+		case 't':
+			SetLevel(LOG_LEVEL_TRACE);
+		break;
+		default:
+			return false;
 	}
 
 	return true;

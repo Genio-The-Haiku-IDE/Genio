@@ -48,6 +48,7 @@ ConsoleIOThread::~ConsoleIOThread()
 status_t
 ConsoleIOThread::_RunExternalProcess()
 {
+	BAutolock lock(fProcessIDLock);
 	BString cmd;
 
 	status_t status = GetDataStore()->FindString("cmd", &cmd);
@@ -66,7 +67,6 @@ ConsoleIOThread::_RunExternalProcess()
 	argv[2] = strdup(cmd.String());
 	argv[argc] = nullptr;
 
-	fProcessIDLock.Lock();
 	fProcessId = PipeCommand(argc, argv, fStdIn, fStdOut, fStdErr);
 
 	delete[] argv;
@@ -81,10 +81,9 @@ ConsoleIOThread::_RunExternalProcess()
 	status = resume_thread(fProcessId);
 	if (status != B_OK) {
 		kill_thread(fProcessId);
+		fProcessId = -1;
 		return status;
 	}
-
-	fProcessIDLock.Unlock();
 
 	int flags = fcntl(fStdOut, F_GETFL, 0);
 	flags |= O_NONBLOCK;
@@ -98,11 +97,15 @@ ConsoleIOThread::_RunExternalProcess()
 	fConsoleOutput = fdopen(fStdOut, "r");
 	if (fConsoleOutput == nullptr) {
 		LogErrorF("Can't open ConsoleOutput file! (%d) [%s]", errno, strerror(errno));
+		kill_thread(fProcessId);
+		fProcessId = -1;
 		return errno;
 	}
 	fConsoleError = fdopen(fStdErr, "r");
 	if (fConsoleError == nullptr) {
 		LogErrorF("Can't open ConsoleError file! (%d) [%s]", errno, strerror(errno));
+		kill_thread(fProcessId);
+		fProcessId = -1;
 		return errno;
 	}
 
@@ -115,12 +118,10 @@ ConsoleIOThread::ExecuteUnit(void)
 	// first time: let's setup the external process.
 	// this way we always enter in the same managed loop
 	status_t status = B_OK;
-	fProcessIDLock.Lock();
 	if (fProcessId < 0) {
+		BAutolock lock(fProcessIDLock);
 		status = _RunExternalProcess();
-		fProcessIDLock.Unlock();
 	} else {
-		fProcessIDLock.Unlock();
 		// read output and error from command
 		// send it to window
 		BString outStr("");
@@ -248,7 +249,7 @@ ConsoleIOThread::PipeCommand(int argc, const char** argv, int& in, int& out,
 	pipe(filedes);  dup2(filedes[1], 2); close(filedes[1]);
 	err = filedes[0]; // Read from err, taken from cmd's stderr
 
-	// "load" command.s
+	// "load" command
 	thread_id ret  =  load_image(argc, argv, envp);
 	if (ret < B_OK)
 		goto cleanup;

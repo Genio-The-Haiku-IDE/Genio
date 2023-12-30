@@ -61,6 +61,7 @@ public:
 	static	log_level			Level();
 	static	void				SetLevel(log_level value);
 	static	bool				SetLevelByName(const char *name);
+	static	bool				SetLevelByChar(char level);
 
 	static	const char*			NameForLevel(log_level value);
 

@@ -33,8 +33,6 @@ const int32 MSG_NOTIFY_CONFIGURATION_UPDATED = 'noCU';
 
 ConfigManager gCFG(MSG_NOTIFY_CONFIGURATION_UPDATED);
 
-static log_level sSessionLogLevel = log_level(LOG_LEVEL_UNSET);
-
 static
 struct option sLongOptions[] = {
 		{ "loglevel", required_argument, nullptr, 'l' },
@@ -63,10 +61,7 @@ GenioApp::GenioApp()
 	}
 
 	Logger::SetDestination(gCFG["log_destination"]);
-	if (sSessionLogLevel == LOG_LEVEL_UNSET)
-		Logger::SetLevel(log_level(int32(gCFG["log_level"])));
-	else
-		Logger::SetLevel(sSessionLogLevel);
+	Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 
 	Languages::LoadLanguages();
 
@@ -171,8 +166,7 @@ GenioApp::MessageReceived(BMessage* message)
 				if (key != NULL) {
 					if (::strcmp(key, "log_destination") == 0)
 						Logger::SetDestination(gCFG["log_destination"]);
-					else if (::strcmp(key, "log_level") == 0
-						&& sSessionLogLevel == LOG_LEVEL_UNSET)
+					else if (::strcmp(key, "log_level") == 0)
 						Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 				}
 				gCFG.SaveToFile(fConfigurationPath);
@@ -244,38 +238,6 @@ GenioApp::_SplitChangeLog(const char* changeLog)
 	return list;
 }
 
-
-void
-GenioApp::_SetSessionLogLevel(char level)
-{
-	switch (level) {
-		case 'o':
-			sSessionLogLevel = log_level(1);
-			printf("Log level set to OFF\n");
-		break;
-		case 'e':
-			sSessionLogLevel = log_level(2);
-			printf("Log level set to ERROR\n");
-		break;
-		case 'i':
-			sSessionLogLevel = log_level(3);
-			printf("Log level set to INFO\n");
-		break;
-		case 'd':
-			sSessionLogLevel = log_level(4);
-			printf("Log level set to DEBUG\n");
-		break;
-		case 't':
-			sSessionLogLevel = log_level(5);
-			printf("Log level set to TRACE\n");
-		break;
-		default:
-			LogFatal("Invalid log level, valid levels are: o, e, i, d, t");
-		break;
-	}
-}
-
-
 int
 GenioApp::_HandleArgs(int argc, char **argv)
 {
@@ -285,13 +247,13 @@ GenioApp::_HandleArgs(int argc, char **argv)
 			sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'l':
-				_SetSessionLogLevel(optarg[0]);
+				Logger::SetLevelByChar(optarg[0]);
 				break;
 			case 0:
 			{
 				BString optName = sLongOptions[optIndex].name;
 				if (optName == "loglevel")
-					_SetSessionLogLevel(::optarg[0]);
+					Logger::SetLevelByChar(::optarg[0]);
 				break;
 			}
 			default:

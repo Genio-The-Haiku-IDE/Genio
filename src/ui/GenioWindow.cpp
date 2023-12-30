@@ -71,6 +71,7 @@
 #include "argv_split.h"
 
 
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
 
@@ -156,6 +157,8 @@ GenioWindow::GenioWindow(BRect frame)
 	, fDisableProjectNotifications(false)
 {
 	gMainWindow = this;
+
+	fTitlePrefix = ReadFileContent("revision.txt", 16);
 
 	_InitActions();
 	_InitMenu();
@@ -4055,6 +4058,8 @@ void
 GenioWindow::_UpdateWindowTitle(const char* filePath)
 {
 	BString title;
+	if (!fTitlePrefix.IsEmpty())
+		title << fTitlePrefix << " ";
 	title << GenioNames::kApplicationName;
 	// File full path in window title
 	if (gCFG["fullpath_title"] && filePath != nullptr)

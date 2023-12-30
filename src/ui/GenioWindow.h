@@ -230,6 +230,7 @@ private:
 			GMessage			fScreenModeSettings;
 
 			bool				fDisableProjectNotifications;
+			BString				fTitlePrefix;
 };
 
 extern GenioWindow *gMainWindow;

@@ -32,7 +32,6 @@
 
 #include "GenericThread.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <Locker.h>
 
 enum {
@@ -48,15 +47,9 @@ public:
 
 								~ConsoleIOThread();
 
-			status_t			SuspendExternal();
-			status_t			ResumeExternal();
 			status_t			InterruptExternal();
-			bool				IsProcessAlive();
+
 			bool				IsDone() { return fIsDone; };
-
-			void				PushInput(BString text);
-
-			status_t			GetFromPipe(BString& stdOut, BString& stdErr);
 
 protected:
 	virtual	void	OnStdOutputLine(const BString& stdOut);
@@ -65,6 +58,11 @@ protected:
 	BMessenger		fTarget;
 
 private:
+			void				PushInput(BString text);
+			bool				IsProcessAlive();
+			status_t			ResumeExternal();
+			status_t			SuspendExternal();
+			status_t			GetFromPipe(BString& stdOut, BString& stdErr);
 			void				ClosePipes();
 	virtual	status_t			ExecuteUnit();
 	virtual	status_t			ThreadShutdown();

@@ -1,4 +1,5 @@
 app/Genio*
+app/revision.txt
 objects.*
 *.o
 compile_commands.json

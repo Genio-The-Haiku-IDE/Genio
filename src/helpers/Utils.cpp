@@ -306,32 +306,40 @@ GetUserSettingsDirectory()
 	return userPath;
 }
 
+bool
+GetGenioDirectory(BPath& destPath)
+{
+	// Default template directory
+	app_info info;
+	if (be_app->GetAppInfo(&info) == B_OK) {
+		BPath genioPath(&info.ref);
+		BPath parentPath;
+		if (genioPath.GetParent(&destPath) == B_OK) {
+			return true;
+		}
+	}
+	return false;
+}
+
 BPath
 GetDataDirectory()
 {
 	// Default template directory
 	app_info info;
-	BPath dataPath;
-	if (be_app->GetAppInfo(&info) == B_OK) {
-		// This code should work both for the case where Genio is
-		// in the "app" subdirectory, like in the repo,
-		// and when it's in the package.
-		BPath genioPath(&info.ref);
-		BPath parentPath;
-		if (genioPath.GetParent(&parentPath) == B_OK) {
-			dataPath = parentPath;
-			dataPath.Append("data");
-			// Genio
-			// data/templates/
-			if (!BEntry(dataPath.Path(), true).IsDirectory()) {
-				// app/Genio
-				// data/templates/
-				parentPath.GetParent(&dataPath);
-				dataPath.Append("data");
-			}
+	BPath genioPath;
+	if (GetGenioDirectory(genioPath)) {
+		genioPath.Append("data");
+		// ./Genio
+		// ./data/templates/
+		if (!BEntry(genioPath.Path(), true).IsDirectory()) {
+			// ./app/Genio
+			// ./data/templates/
+			genioPath.GetParent(&genioPath);
+			genioPath.GetParent(&genioPath);
+			genioPath.Append("data");
 		}
 	}
-	return dataPath;
+	return genioPath;
 }
 
 void Menu_MakeEmpty(BMenu *menu)
@@ -346,4 +354,31 @@ bool	IsXMasPeriod()
 	BDate today = BDate::CurrentDate(B_LOCAL_TIME);
 	return ((today.Month() == 12 && today.Day() >= 20) ||
 		    (today.Month() == 1  && today.Day() <= 10));
+}
+
+BString
+ReadFileContent(const char* filename, off_t maxSize)
+{
+	BString read;
+	BPath destPath;
+	if (!GetGenioDirectory(destPath))
+		return read;
+	destPath.Append(filename);
+	status_t status;
+	BFile file;
+	if ((status = file.SetTo(destPath.Path(), B_READ_ONLY)) != B_OK)
+		return read;
+	if ((status = file.InitCheck()) != B_OK)
+		return read;
+
+	off_t size;
+	file.GetSize(&size);
+
+	size_t maxlen = std::max(maxSize, size);
+
+	char* buffer = new char[size + 1];
+	off_t len = file.Read(buffer, size);
+	buffer[len] = '\0';
+	read.SetTo(buffer, maxlen);
+	return read;
 }

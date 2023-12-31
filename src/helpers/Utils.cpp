@@ -380,5 +380,6 @@ ReadFileContent(const char* filename, off_t maxSize)
 	off_t len = file.Read(buffer, size);
 	buffer[len] = '\0';
 	read.SetTo(buffer, maxlen);
+	delete[] buffer;
 	return read;
 }

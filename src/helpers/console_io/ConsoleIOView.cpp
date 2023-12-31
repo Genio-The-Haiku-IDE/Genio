@@ -69,25 +69,9 @@ ConsoleIOView::ConsoleIOView(const BString& name, const BMessenger& target)
 
 ConsoleIOView::~ConsoleIOView()
 {
+	_StopThreads();
 	delete fPendingOutput;
 }
-
-
-/* static */
-ConsoleIOView*
-ConsoleIOView::Create(const BString& name, const BMessenger& target)
-{
-	ConsoleIOView* self = new ConsoleIOView(name, target);
-	try {
-		self->_Init();
-	} catch (...) {
-		delete self;
-		throw;
-	}
-
-	return self;
-}
-
 
 status_t
 ConsoleIOView::RunCommand(BMessage* cmd_message)
@@ -178,7 +162,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 		}
 		case MSG_RUN_PROCESS:
 		{
-			if (fConsoleIOThread) {
+			if (fConsoleIOThread != nullptr && !fConsoleIOThread->IsDone()) {
 				// TODO: Horrible hack to be able to stop and relaunch build.
 				// should be done differently
 				BString cmdType = NULL;

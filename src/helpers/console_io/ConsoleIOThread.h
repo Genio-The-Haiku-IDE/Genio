@@ -66,7 +66,6 @@ private:
 			void				ClosePipes();
 	virtual	status_t			ExecuteUnit();
 	virtual	status_t			ThreadShutdown();
-	virtual	void				ExecuteUnitFailed(status_t a_status);
 
 
 			thread_id			PipeCommand(int argc, const char** argv,

@@ -193,6 +193,8 @@ ConsoleIOThread::PushInput(BString text)
 void
 ConsoleIOThread::OnThreadShutdown()
 {
+	BAutolock lock(fProcessIDLock);
+	fProcessId = -1;
 	BMessage message(CONSOLEIOTHREAD_EXIT);
 	message.AddString("cmd_type", fCmdType);
 	fTarget.SendMessage(&message);
@@ -213,12 +215,6 @@ ConsoleIOThread::ThreadShutdown(void)
 	}
 
 	return B_OK;
-}
-
-void
-ConsoleIOThread::ExecuteUnitFailed(status_t status)
-{
-	Quit();
 }
 
 

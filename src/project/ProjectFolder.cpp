@@ -86,7 +86,7 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
-  
+
 	fFullPath = BPath(EntryRef()).Path();
 
 	try {
@@ -115,7 +115,6 @@ ProjectFolder::GetLSPServer(const BString& fileType)
 ProjectFolder::~ProjectFolder()
 {
 	for (LSPProjectWrapper* w : fLSPProjectWrappers) {
-		w->Dispose();
 		delete w;
 	}
 	delete fGitRepository;

@@ -40,13 +40,11 @@ public:
 			LSPProjectWrapper(BPath rootPath,
 							  const BMessenger& msgr, const LSPServerConfigInterface& serverConfig);
 
-	virtual ~LSPProjectWrapper() = default;
+	virtual ~LSPProjectWrapper();
 
 	const LSPServerConfigInterface&	ServerConfig() { return fServerConfig;}
 
 	virtual	void	MessageReceived(BMessage* message);
-
-	bool	Dispose();
 
 	bool	RegisterTextDocument(LSPTextDocument* fw);
 	void	UnregisterTextDocument(LSPTextDocument* fw);

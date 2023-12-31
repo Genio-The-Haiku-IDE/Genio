@@ -114,8 +114,7 @@ LSPProjectWrapper::_Create()
 }
 
 
-bool
-LSPProjectWrapper::Dispose()
+LSPProjectWrapper::~LSPProjectWrapper()
 {
 	if (Looper()) {
 		Looper()->RemoveHandler(this);
@@ -125,7 +124,7 @@ LSPProjectWrapper::Dispose()
 		if (fLSPPipeClient) {
 			fLSPPipeClient->ForceQuit();
 		}
-		return true;
+		return;
 	}
 
 	for (auto& m : fTextDocs)
@@ -144,8 +143,6 @@ LSPProjectWrapper::Dispose()
 	if (fLSPPipeClient) {
 		fLSPPipeClient->KillThread();
 	}
-
-	return true;
 }
 
 

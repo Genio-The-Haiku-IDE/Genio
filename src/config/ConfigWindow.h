@@ -26,6 +26,8 @@ public:
 		BView* MakeControlFor(GMessage& config);
 		BView* MakeNoteView(GMessage& config);
 
+		bool			QuitRequested();
+
 private:
 
 	ConfigManager& fConfigManager;

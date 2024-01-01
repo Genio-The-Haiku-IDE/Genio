@@ -87,6 +87,8 @@ private:
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
 			int32				_FilesNeedSave();
+			void				_PreFileLoad(Editor* editor);
+			void				_PostFileLoad(Editor* editor);
 			void				_PreFileSave(Editor* editor);
 			void				_PostFileSave(Editor* editor);
 			void				_FindGroupShow(bool show);

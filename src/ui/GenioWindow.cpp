@@ -286,10 +286,9 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-
 		case kClassOutline:
 			_ForwardToSelectedEditor(message);
-		break;
+			break;
 		case kApplyFix:
 		{
 			entry_ref ref;
@@ -1645,6 +1644,9 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		fTabManager->SelectTab(index, &selectTabInfo);
 
+		// TODO: Move some stuff into _PostFileLoad()
+		_PostFileLoad(editor);
+
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
 		noticeMessage.AddString("file_name", editor->FilePath());
 		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
@@ -1837,6 +1839,20 @@ GenioWindow::_FilesNeedSave()
 	}
 
 	return count;
+}
+
+
+void
+GenioWindow::_PreFileLoad(Editor* editor)
+{
+}
+
+
+void
+GenioWindow::_PostFileLoad(Editor* editor)
+{
+	BMessage message(kClassOutline);
+	PostMessage(&message, editor);
 }
 
 

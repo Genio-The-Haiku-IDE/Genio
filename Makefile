@@ -6,8 +6,10 @@ platform := $(shell uname -p)
 debug ?= 0
 ifeq ($(debug), 0)
 	DEBUGGER :=
+	CFLAGS :=
 else
 	DEBUGGER := TRUE
+	CFLAGS := -DGDEBUG
 endif
 
 ## clang build flag ############################################################
@@ -117,7 +119,7 @@ SYSTEM_INCLUDE_PATHS += src/scintilla/include
 # For BarberPole.h, which is not available in beta4
 SYSTEM_INCLUDE_PATHS += src/override
 
-CFLAGS := -Wall -Werror
+CFLAGS += -Wall -Werror
 
 CXXFLAGS := -std=c++20 -fPIC
 

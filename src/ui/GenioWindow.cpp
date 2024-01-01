@@ -3524,8 +3524,7 @@ GenioWindow::_ShowInTracker(const entry_ref& ref, const node_ref* nref)
 	status_t status = B_ERROR;
 
 	BMessenger tracker("application/x-vnd.Be-TRAK");
-	bool exists = tracker.IsValid();
-	if (exists == true) {
+	if (tracker.IsValid()) {
 		BMessage message(B_REFS_RECEIVED);
 		message.AddRef("refs", &ref);
 

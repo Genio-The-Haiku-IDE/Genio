@@ -8,6 +8,8 @@
 
 #include <Window.h>
 
+#include "EditorMessages.h"
+
 #define kGoToSymbol	'gots'
 
 class SymbolListItem : public BStringItem {
@@ -25,8 +27,11 @@ private:
 
 FunctionsOutlineView::FunctionsOutlineView()
 	:
-	BOutlineListView("outline")
+	BOutlineListView("outline"),
+	fLoadingStatus(STATUS_EMPTY),
+	fLastUpdateTime(system_time())
 {
+	SetFlags(Flags() | B_PULSE_NEEDED);
 }
 
 
@@ -54,15 +59,43 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 }
 
 
+/* virtual*/
+void
+FunctionsOutlineView::Pulse()
+{
+	// Update every 10 seconds
+	bigtime_t currentTime = system_time();
+	if (currentTime - fLastUpdateTime > 10000000LL) {
+		// TODO: Maybe move this to the Editor which knows if a file has been modified
+		// TODO: we send a message to the window which sends it to the editor
+		// which then ... : refactor
+		Window()->PostMessage(kClassOutline);
+		fLastUpdateTime = currentTime;
+	}
+}
+
+
+void
+FunctionsOutlineView::SetLoadingStatus(status loadingStatus)
+{
+	fLoadingStatus = loadingStatus;
+}
+
+
 void
 FunctionsOutlineView::UpdateDocumentSymbols(BMessage* msg)
 {
 	MakeEmpty();
 
+	SetLoadingStatus(STATUS_EMPTY);
+
 	if (msg->FindRef("ref", &fCurrentRef) != B_OK)
 		return;
 
+	SetLoadingStatus(STATUS_LOADING);
 	_RecursiveAddSymbols(nullptr, msg);
+	SetLoadingStatus(STATUS_LOADED);
+
 	SetInvocationMessage(new BMessage(kGoToSymbol));
 	SetTarget(this);
 }

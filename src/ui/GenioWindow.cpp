@@ -2817,7 +2817,8 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
 
-	editMenu->AddItem(new BMenuItem("Update Class Outline", new BMessage(kClassOutline)));
+	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Update class outline"),
+		new BMessage(kClassOutline)));
 
 	editMenu->AddSeparatorItem();
 

@@ -6,6 +6,7 @@ v2.1
 	- Fixed Yab files syntax-highlighting.
 	- Fixed opening files from tracker with "open with" when Genio is closed.
 	- Fixed emptying Source Control view when unloading the last project.
+	- Fixed bug which very rarely killed Genio when stopping or re-starting the build.
 	- Removed in-tree Lexilla and used the one from HaikuPorts.
 	- Removed (unnecessary) notifications for some Git operations.
 ---

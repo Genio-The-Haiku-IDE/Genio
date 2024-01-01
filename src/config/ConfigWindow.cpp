@@ -172,6 +172,20 @@ ConfigWindow::_Init()
 	return theView;
 }
 
+bool
+ConfigWindow::QuitRequested()
+{
+	// it could happen that the user changed a BTextControl
+	// without 'committing' it (by changing focus or by pressing enter)
+	// here we try detect this case and fix it
+	if (CurrentFocus() && strcmp("_input_", CurrentFocus()->Name()) == 0) {
+		BTextControl* control = dynamic_cast<BTextControl*>(CurrentFocus()->Parent());
+		if (control) {
+			fConfigManager[control->Name()] = control->Text();
+		}
+	}
+	return BWindow::QuitRequested();
+}
 
 void
 ConfigWindow::MessageReceived(BMessage* message)

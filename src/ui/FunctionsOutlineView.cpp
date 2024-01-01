@@ -5,6 +5,7 @@
 
 
 #include "FunctionsOutlineView.h"
+
 #include <Window.h>
 
 #define kGoToSymbol	'gots'
@@ -21,16 +22,18 @@ private:
 		BMessage	fDetails;
 };
 
+
 FunctionsOutlineView::FunctionsOutlineView()
 	:
 	BOutlineListView("outline")
 {
 }
 
+
 void
 FunctionsOutlineView::MessageReceived(BMessage* msg)
 {
-	switch(msg->what) {
+	switch (msg->what) {
 		case kGoToSymbol: {
 			int32 index = msg->GetInt32("index", -1);
 			if (index > -1) {
@@ -42,12 +45,14 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 					Window()->PostMessage(&go);
 				}
 			}
+			break;
 		}
-		break;
 		default:
 			BOutlineListView::MessageReceived(msg);
-	};
+			break;
+	}
 }
+
 
 void
 FunctionsOutlineView::UpdateDocumentSymbols(BMessage* msg)
@@ -62,12 +67,13 @@ FunctionsOutlineView::UpdateDocumentSymbols(BMessage* msg)
 	SetTarget(this);
 }
 
+
 void
 FunctionsOutlineView::_RecursiveAddSymbols(BListItem* parent, BMessage* msg)
 {
-	int32 i=0;
+	int32 i = 0;
 	BMessage symbol;
-	while(msg->FindMessage("symbol", i++, &symbol) == B_OK) {
+	while (msg->FindMessage("symbol", i++, &symbol) == B_OK) {
 		SymbolListItem* dad = new SymbolListItem(symbol);
 		if (parent)
 			AddUnder(dad, parent);

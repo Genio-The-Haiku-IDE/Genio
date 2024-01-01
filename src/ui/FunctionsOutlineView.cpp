@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, My Name <my@email.address>
+ * Copyright 2024, The Genio team
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -19,7 +19,7 @@ public:
 			, fDetails ( details )
 			{}
 
-		const BMessage& Details(){ return fDetails; }
+		const BMessage& Details() const { return fDetails; }
 private:
 		BMessage	fDetails;
 };
@@ -35,6 +35,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 }
 
 
+/* virtual */
 void
 FunctionsOutlineView::MessageReceived(BMessage* msg)
 {

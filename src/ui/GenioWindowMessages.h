@@ -107,6 +107,7 @@ enum {
 
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
+	MSG_SHOW_HIDE_OUTLINE			= 'shol',
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',
 	MSG_FULLSCREEN					= 'fscr',
 	MSG_FOCUS_MODE					= 'focu',

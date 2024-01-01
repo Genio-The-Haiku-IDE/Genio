@@ -365,6 +365,7 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(generalStartup.String(), "reopen_projects", B_TRANSLATE("Reload projects"), true);
 	cfg.AddConfig(generalStartup.String(), "reopen_files", B_TRANSLATE("Reload files"), true);
 	cfg.AddConfig(generalStartup.String(), "show_projects", B_TRANSLATE("Show projects pane"), true);
+	cfg.AddConfig(generalStartup.String(), "show_right_pane", B_TRANSLATE("Show right pane"), true);
 	cfg.AddConfig(generalStartup.String(), "show_output", B_TRANSLATE("Show output pane"), true);
 	cfg.AddConfig(generalStartup.String(), "show_toolbar", B_TRANSLATE("Show toolbar"), true);
 

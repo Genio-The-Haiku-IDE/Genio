@@ -238,8 +238,9 @@ GenioWindow::Show()
 
 	if (LockLooper()) {
 		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
-		_ShowView(fOutputTabView,   gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
-		_ShowView(fToolBar,         gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
+		_ShowView(fRightTabView, gCFG["show_right_pane"], MSG_SHOW_HIDE_OUTLINE);
+		_ShowView(fOutputTabView, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
@@ -996,6 +997,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_SHOW_HIDE_PROJECTS:
 			_ShowView(fProjectsTabView, fProjectsTabView->IsHidden(), MSG_SHOW_HIDE_PROJECTS);
 			break;
+		case MSG_SHOW_HIDE_OUTLINE:
+			_ShowView(fRightTabView, fRightTabView->IsHidden(), MSG_SHOW_HIDE_OUTLINE);
+			break;
 		case MSG_SHOW_HIDE_OUTPUT:
 			_ShowView(fOutputTabView, fOutputTabView->IsHidden(), MSG_SHOW_HIDE_OUTPUT);
 			break;
@@ -1120,6 +1124,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 
 		ActionManager::SetEnabled(MSG_TOGGLE_TOOLBAR, false);
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_PROJECTS, false);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTLINE, false);
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTPUT, false);
 
 		if (action == MSG_FULLSCREEN) {
@@ -1127,6 +1132,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		} else if (action == MSG_FOCUS_MODE) {
 			_ShowView(fToolBar,         false, MSG_TOGGLE_TOOLBAR);
 			_ShowView(fProjectsTabView, false, MSG_SHOW_HIDE_PROJECTS);
+			_ShowView(fRightTabView, false, MSG_SHOW_HIDE_OUTLINE);
 			_ShowView(fOutputTabView,   false, MSG_SHOW_HIDE_OUTPUT);
 			fScreenMode = kFocus;
 		}
@@ -1142,10 +1148,12 @@ GenioWindow::_ToogleScreenMode(int32 action)
 
 		ActionManager::SetEnabled(MSG_TOGGLE_TOOLBAR, true);
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_PROJECTS, true);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTLINE, true);
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTPUT, true);
 
 		_ShowView(fToolBar,         fScreenModeSettings["show_toolbar"], MSG_TOGGLE_TOOLBAR);
 		_ShowView(fProjectsTabView, fScreenModeSettings["show_projects"] , MSG_SHOW_HIDE_PROJECTS);
+		_ShowView(fRightTabView, 	fScreenModeSettings["show_right_pane"] , MSG_SHOW_HIDE_OUTLINE);
 		_ShowView(fOutputTabView,   fScreenModeSettings["show_output"], MSG_SHOW_HIDE_OUTPUT);
 
 		fScreenMode = kDefault;
@@ -2623,10 +2631,16 @@ GenioWindow::_InitActions()
 								   "kIconTerminal");
 //add missing menus
 
+	// TODO: Should we call those  left/right panes ?
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,
 								   B_TRANSLATE("Show projects pane"),
 								   B_TRANSLATE("Show/Hide projects pane"),
 								   "kIconWinNav");
+
+	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTLINE,
+								   B_TRANSLATE("Show right pane"),
+	                               B_TRANSLATE("Show/Hide right pane"),
+								   "kIconWinStat");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
 								   B_TRANSLATE("Show output pane"),
@@ -3015,6 +3029,7 @@ GenioWindow::_InitMenu()
 
 	BMenu* submenu = new BMenu(B_TRANSLATE("Appearance"));
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, submenu);
+	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE,   submenu);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   submenu);
 	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
 	windowMenu->AddItem(submenu);
@@ -3048,6 +3063,7 @@ GenioWindow::_InitToolbar()
 	fToolBar->ChangeIconSize(kDefaultIconSize);
 
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, fToolBar);
+	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE, fToolBar);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   fToolBar);
 	fToolBar->AddSeparator();
 

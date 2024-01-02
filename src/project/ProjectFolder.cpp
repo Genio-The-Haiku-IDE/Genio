@@ -172,13 +172,14 @@ ProjectFolder::LoadSettings()
 	if (fSettings == nullptr)
 		return B_NO_INIT;
 
+	// Try to load old style settings
+	status_t status = _LoadOldSettings();
+	if (status == B_OK)
+		return status;
+
 	BString path = Path();
 	path.Append(GenioNames::kProjectSettingsFile);	
-	status_t status = fSettings->LoadFromFile(path.String());
-	if (status != B_OK) {
-		// try to load old style settings
-		status = _LoadOldSettings();
-	}
+	fSettings->LoadFromFile(path.String());
 
 	return status;
 }
@@ -380,6 +381,7 @@ ProjectFolder::_LoadOldSettings()
 	if (status != B_OK)
 		return status;
 
+	// Load old style settins into new
 	(*fSettings)["build_mode"] = int32(oldSettings.GetInt32("build_mode", BuildMode::ReleaseMode));
 	(*fSettings)["project_release_build_command"] = oldSettings.GetString("project_release_build_command", "");
 	(*fSettings)["project_debug_build_command"] = oldSettings.GetString("project_debug_build_command", "");

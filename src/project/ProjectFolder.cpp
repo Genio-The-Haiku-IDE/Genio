@@ -16,6 +16,7 @@
 #include "LSPProjectWrapper.h"
 #include "LSPServersManager.h"
 #include "GenioNamespace.h"
+#include "GSettings.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"
@@ -171,11 +172,15 @@ ProjectFolder::LoadSettings()
 	if (fSettings == nullptr)
 		return B_NO_INIT;
 
-	// TODO: Load and convert from previous version
 	BString path = Path();
-	path.Append(GenioNames::kProjectSettingsFile);
-	LogInfo(path.String());
-	return fSettings->LoadFromFile(path.String());
+	path.Append(GenioNames::kProjectSettingsFile);	
+	status_t status = fSettings->LoadFromFile(path.String());
+	if (status != B_OK) {
+		// try to load old style settings
+		status = _LoadOldSettings();
+	}
+
+	return status;
 }
 
 
@@ -364,4 +369,27 @@ ProjectFolder::_PrepareSettings()
 	
 	fSettings->AddConfig("Run", "project_run_in_terminal",
 		B_TRANSLATE("Run in terminal"), false);
+}
+
+
+status_t
+ProjectFolder::_LoadOldSettings()
+{
+	GSettings oldSettings(Path(), GenioNames::kProjectSettingsFile, 'LOPR');
+	status_t status = oldSettings.GetStatus();
+	if (status != B_OK)
+		return status;
+
+	(*fSettings)["build_mode"] = int32(oldSettings.GetInt32("build_mode", BuildMode::ReleaseMode));
+	(*fSettings)["project_release_build_command"] = oldSettings.GetString("project_release_build_command", "");
+	(*fSettings)["project_debug_build_command"] = oldSettings.GetString("project_debug_build_command", "");
+	(*fSettings)["project_release_clean_command"] = oldSettings.GetString("project_release_clean_command", "");
+	(*fSettings)["project_debug_clean_command"] = oldSettings.GetString("project_debug_clean_command", "");
+	(*fSettings)["project_release_execute_args"] = oldSettings.GetString("project_release_execute_args", "");
+	(*fSettings)["project_debug_execute_args"] = oldSettings.GetString("project_debug_execute_args", "");
+	(*fSettings)["project_release_target"] = oldSettings.GetString("project_release_target", "");
+	(*fSettings)["project_debug_target"] = oldSettings.GetString("project_debug_target", "");
+	(*fSettings)["project_run_in_terminal"] = oldSettings.GetBool("project_run_in_terminal", false);
+
+	return B_OK;
 }

@@ -153,6 +153,11 @@ StatusView::MouseDown(BPoint where)
 	if (where.x < fNavigationButtonWidth + fCellWidth[kPositionCell] && where.x > fNavigationButtonWidth) {
 		BMessenger msgr(Window());
 		msgr.SendMessage(MSG_GOTO_LINE);
+	} else if (where.x < fNavigationButtonWidth + fCellWidth[kPositionCell] + fCellWidth[kOverwriteMode] &&
+	           where.x > fNavigationButtonWidth + fCellWidth[kPositionCell]) {
+
+		BMessenger msgr(Window());
+		msgr.SendMessage(MSG_TEXT_OVERWRITE);
 	}
 }
 
@@ -185,11 +190,11 @@ StatusView::SetStatus(BMessage* message)
 		&& message->FindInt32("column", &column) == B_OK) {
 		fCellText[kPositionCell].SetToFormat("%" B_PRIi32 ":%" B_PRIi32, line, column);
 	}
-	
+
 	fCellText[kOverwriteMode] = message->GetString("overwrite", "");
 	fCellText[kLineFeed] 	  = message->GetString("eol", "");
 	fCellText[kFileStateCell] = message->GetString("readOnly", "");
-	
+
 	Invalidate();
 }
 

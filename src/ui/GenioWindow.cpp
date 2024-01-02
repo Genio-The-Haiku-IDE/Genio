@@ -3859,6 +3859,7 @@ GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 
 	ActionManager::SetEnabled(B_UNDO, editor->CanUndo());
 	ActionManager::SetEnabled(B_REDO, editor->CanRedo());
+	ActionManager::SetPressed(B_INSERT, !editor->IsOverwrite());
 
 	//ActionManager.
 	ActionManager::SetEnabled(MSG_FILE_SAVE, editor->IsModified());

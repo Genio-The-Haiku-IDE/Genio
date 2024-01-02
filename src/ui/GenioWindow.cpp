@@ -54,7 +54,6 @@
 #include "Languages.h"
 #include "Log.h"
 #include "ProblemsPanel.h"
-#include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "ProjectsFolderBrowser.h"
@@ -311,6 +310,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			} else if (code == kMsgProjectSettingsUpdated) {
 				// Update debug/release
 				_UpdateProjectActivation(fActiveProject != nullptr);
+				// Save project settings
+				fActiveProject->SaveSettings();
 			}
 			break;
 		}

@@ -132,6 +132,12 @@ ProjectFolder::Open()
 {
 	fSettings = new ConfigManager(kMsgProjectSettingsUpdated);
 	_PrepareSettings();
+
+	status_t status = LoadSettings();
+	if (status != B_OK)
+		LogInfo("Cannot load project settings");
+
+	// not a fatal error, just start with defaults
 	return B_OK;
 }
 
@@ -139,6 +145,7 @@ ProjectFolder::Open()
 status_t
 ProjectFolder::Close()
 {
+	SaveSettings();
 	return B_OK;
 }
 
@@ -155,6 +162,32 @@ ProjectFolder::Settings()
 {
 	ASSERT(fSettings != nullptr);
 	return *fSettings;
+}
+
+
+status_t
+ProjectFolder::LoadSettings()
+{
+	if (fSettings == nullptr)
+		return B_NO_INIT;
+
+	// TODO: Load and convert from previous version
+	BString path = Path();
+	path.Append(GenioNames::kProjectSettingsFile);
+	LogInfo(path.String());
+	return fSettings->LoadFromFile(path.String());
+}
+
+
+status_t
+ProjectFolder::SaveSettings()
+{
+	if (fSettings == nullptr)
+		return B_NO_INIT;
+
+	BString path = Path();
+	path.Append(GenioNames::kProjectSettingsFile);
+	return fSettings->SaveToFile(path.String());
 }
 
 

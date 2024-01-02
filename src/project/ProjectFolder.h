@@ -73,6 +73,8 @@ public:
 	void						SetActive(bool status) { fActive = status; }
 
 	ConfigManager&				Settings();
+	status_t					LoadSettings();
+	status_t					SaveSettings();
 
 	void						SetBuildMode(BuildMode mode);
 	BuildMode					GetBuildMode() const;

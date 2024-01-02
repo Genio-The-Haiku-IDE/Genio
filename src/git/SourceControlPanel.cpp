@@ -291,7 +291,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-						fSelectedProjectName = gMainWindow->GetActiveProject()->Name();
+						ProjectFolder* project = gMainWindow->GetActiveProject();
+						fSelectedProjectName = project ? project->Name() : "";
 						if (!fProjectList->IsEmpty())
 							_UpdateProjectList();
 						break;
@@ -332,7 +333,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 
 								// create a message to update the project
 								BMessage message(MsgChangeProject);
-								message.AddPointer("value", fSelectedProjectName);
+								message.AddPointer("value", selected);
 								message.AddString("sender", kSenderExternalEvent);
 								fBurstHandler = new BMessageRunner(BMessenger(this),
 									&message, kBurstTimeout, 1);

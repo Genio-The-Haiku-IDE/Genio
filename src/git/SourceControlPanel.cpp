@@ -266,8 +266,10 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					BString key;
 					if (message->FindString("key", &key) == B_OK
 						&& key == "repository_outline") {
-						_UpdateBranchList(false);
-						_UpdateRepositoryView();
+						if (!fProjectList->IsEmpty()) {
+							_UpdateBranchList(false);
+							_UpdateRepositoryView();
+						}
 					}
 					break;
 				}
@@ -289,24 +291,26 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
 						fSelectedProject = gMainWindow->GetActiveProject();
-						_UpdateProjectList();
+						if (!fProjectList->IsEmpty())
+							_UpdateProjectList();
 						break;
 					}
 					case B_PATH_MONITOR:
 					{
+						if (fSelectedProject == nullptr)
+							break;
 						if (!fSelectedProject->IsBuilding()) {
 							LogInfo("B_PATH_MONITOR");
-							// int32 opCode;
-							// if (message->FindInt32("opcode", &opCode) != B_OK)
-								// return;
 							BString watchedPath;
 							if (message->FindString("watched_path", &watchedPath) != B_OK)
 								return;
 
+							// check if the project folder still exists
+							if (!BEntry(fSelectedProject->EntryRef()).Exists())
+								return;
 							BString projectPath = fSelectedProject->Path();
 
 							if (watchedPath == projectPath) {
-
 								BString path;
 								if (message->FindString("path", &path) != B_OK)
 									return;
@@ -582,8 +586,12 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 	fSelectedProject = const_cast<ProjectFolder*>(
 		reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
 	const BString sender = message->GetString("sender");
-	// Check if the selected project is a valid git repository
+	
 	if (fSelectedProject != nullptr) {
+		// check if the project folder still exists
+		if (!BEntry(fSelectedProject->EntryRef()).Exists())
+			return;
+		// Check if the selected project is a valid git repository
 		auto repo = fSelectedProject->GetRepository();
 		if (repo->IsInitialized()) {
 			if (sender == kSenderInitializeRepositoryButton ||

@@ -178,7 +178,7 @@ ProjectFolder::LoadSettings()
 		return status;
 
 	BString path = Path();
-	path.Append(GenioNames::kProjectSettingsFile);	
+	path.Append(GenioNames::kProjectSettingsFile);
 	fSettings->LoadFromFile(path.String());
 
 	return status;

@@ -2506,7 +2506,7 @@ GenioWindow::_InitActions()
 								   "", "", 'A');
 	ActionManager::RegisterAction(MSG_TEXT_OVERWRITE,
 								   B_TRANSLATE("Overwrite"),
-								   "", "", B_INSERT);
+								   "", "");
 	ActionManager::RegisterAction(MSG_FILE_FOLD_TOGGLE,
 								   B_TRANSLATE("Fold/Unfold all"),
 								   B_TRANSLATE("Fold/Unfold all"),
@@ -2796,6 +2796,7 @@ GenioWindow::_InitMenu()
 	ActionManager::SetEnabled(B_PASTE, false);
 	ActionManager::SetEnabled(B_SELECT_ALL, false);
 	ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, false);
+	ActionManager::SetPressed(MSG_TEXT_OVERWRITE, false);
 	ActionManager::SetEnabled(MSG_DUPLICATE_LINE, false);
 	ActionManager::SetEnabled(MSG_DELETE_LINES, false);
 	ActionManager::SetEnabled(MSG_COMMENT_SELECTED_LINES, false);
@@ -3859,7 +3860,7 @@ GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 
 	ActionManager::SetEnabled(B_UNDO, editor->CanUndo());
 	ActionManager::SetEnabled(B_REDO, editor->CanRedo());
-	ActionManager::SetPressed(B_INSERT, !editor->IsOverwrite());
+	ActionManager::SetPressed(MSG_TEXT_OVERWRITE, editor->IsOverwrite());
 
 	//ActionManager.
 	ActionManager::SetEnabled(MSG_FILE_SAVE, editor->IsModified());
@@ -3913,6 +3914,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(B_SELECT_ALL, false);
 
 		ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, false);
+		ActionManager::SetPressed(MSG_TEXT_OVERWRITE, false);
 		ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
 		ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
 
@@ -3973,6 +3975,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(B_SELECT_ALL, true);
 
 	ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, true);
+	ActionManager::SetPressed(MSG_TEXT_OVERWRITE, editor->IsOverwrite());
 
 	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, true);
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, true);

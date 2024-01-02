@@ -297,6 +297,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					}
 					case B_PATH_MONITOR:
 					{
+						if (fSelectedProject == nullptr)
+							break;
 						if (!fSelectedProject->IsBuilding()) {
 							LogInfo("B_PATH_MONITOR");
 							BString watchedPath;
@@ -309,7 +311,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							BString projectPath = fSelectedProject->Path();
 
 							if (watchedPath == projectPath) {
-
 								BString path;
 								if (message->FindString("path", &path) != B_OK)
 									return;

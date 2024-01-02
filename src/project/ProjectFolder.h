@@ -106,6 +106,7 @@ public:
 
 private:
 	void						_PrepareSettings();
+	status_t					_LoadOldSettings();
 
 	bool						fActive;
 	BString						fGuessedBuildCommand;

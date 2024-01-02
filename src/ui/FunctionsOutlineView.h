@@ -4,10 +4,12 @@
  */
 #pragma once
 
+#include <View.h>
 
-#include <OutlineListView.h>
-
-class FunctionsOutlineView : public BOutlineListView {
+class BListItem;
+class BStringView;
+class BOutlineListView;
+class FunctionsOutlineView : public BView {
 public:
 	enum status {
 		STATUS_EMPTY = 0,
@@ -25,8 +27,9 @@ public:
 private:
 	void	_RecursiveAddSymbols(BListItem* parent, BMessage* msg);
 
+	BOutlineListView* fListView;
+	BStringView* fLoadingView;
 	entry_ref	fCurrentRef;
 	status		fLoadingStatus;
 	bigtime_t	fLastUpdateTime;
 };
-

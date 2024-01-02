@@ -6,6 +6,9 @@
 
 #include "FunctionsOutlineView.h"
 
+#include <LayoutBuilder.h>
+#include <OutlineListView.h>
+#include <StringView.h>
 #include <Window.h>
 
 #include "EditorMessages.h"
@@ -27,11 +30,28 @@ private:
 
 FunctionsOutlineView::FunctionsOutlineView()
 	:
-	BOutlineListView("outline"),
+	BView("outline", B_WILL_DRAW),
+	fListView(nullptr),
+	fLoadingView(nullptr),
 	fLoadingStatus(STATUS_EMPTY),
 	fLastUpdateTime(system_time())
 {
 	SetFlags(Flags() | B_PULSE_NEEDED);
+
+	fListView = new BOutlineListView("listview");
+	// TODO: Translate, improve.
+	// TODO: should write "empty" at the center of the view, it does at bottom instead
+	fLoadingView = new BStringView("status view", "empty");
+	fLoadingView->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNLIMITED));
+	fLoadingView->SetExplicitMinSize(BSize(B_SIZE_UNSET, B_SIZE_UNSET));
+	fLoadingView->SetExplicitAlignment(BAlignment(B_ALIGN_HORIZONTAL_CENTER, B_ALIGN_TOP));
+	fLoadingView->SetAlignment(B_ALIGN_CENTER);
+
+	BLayoutBuilder::Cards<>(this)
+		.Add(fListView)
+		.Add(fLoadingView)
+		.SetVisibleItem(0)
+		.End();
 }
 
 
@@ -43,7 +63,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 		case kGoToSymbol: {
 			int32 index = msg->GetInt32("index", -1);
 			if (index > -1) {
-				SymbolListItem* sym = dynamic_cast<SymbolListItem*>(ItemAt(index));
+				SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemAt(index));
 				if (sym) {
 					BMessage go = sym->Details();
 					go.what = B_REFS_RECEIVED;
@@ -54,7 +74,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			break;
 		}
 		default:
-			BOutlineListView::MessageReceived(msg);
+			BView::MessageReceived(msg);
 			break;
 	}
 }
@@ -86,19 +106,19 @@ FunctionsOutlineView::SetLoadingStatus(status loadingStatus)
 void
 FunctionsOutlineView::UpdateDocumentSymbols(BMessage* msg)
 {
-	MakeEmpty();
+	fListView->MakeEmpty();
 
 	SetLoadingStatus(STATUS_EMPTY);
-
+	dynamic_cast<BCardLayout*>(GetLayout())->SetVisibleItem(1);
 	if (msg->FindRef("ref", &fCurrentRef) != B_OK)
 		return;
 
 	SetLoadingStatus(STATUS_LOADING);
 	_RecursiveAddSymbols(nullptr, msg);
 	SetLoadingStatus(STATUS_LOADED);
-
-	SetInvocationMessage(new BMessage(kGoToSymbol));
-	SetTarget(this);
+	dynamic_cast<BCardLayout*>(GetLayout())->SetVisibleItem(0);
+	fListView->SetInvocationMessage(new BMessage(kGoToSymbol));
+	fListView->SetTarget(this);
 }
 
 
@@ -110,9 +130,9 @@ FunctionsOutlineView::_RecursiveAddSymbols(BListItem* parent, BMessage* msg)
 	while (msg->FindMessage("symbol", i++, &symbol) == B_OK) {
 		SymbolListItem* dad = new SymbolListItem(symbol);
 		if (parent)
-			AddUnder(dad, parent);
+			fListView->AddUnder(dad, parent);
 		else
-			AddItem(dad);
+			fListView->AddItem(dad);
 
 		BMessage child;
 		if (symbol.FindMessage("children", &child) == B_OK) {

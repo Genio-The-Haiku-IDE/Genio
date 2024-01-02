@@ -106,15 +106,14 @@ private:
 	void						_PrepareSettings();
 
 	bool						fActive;
-	BuildMode					fBuildMode;
 	BString						fGuessedBuildCommand;
 	BString						fGuessedCleanCommand;
 	std::vector<LSPProjectWrapper*>	fLSPProjectWrappers;
 	ConfigManager*				fSettings;
 	BMessenger					fMessenger;
-	GitRepository*	    fGitRepository;
+	GitRepository*				fGitRepository;
 	bool						fIsBuilding;
-	BString					fFullPath;
+	BString						fFullPath;
 };
 
 #endif // PROJECT_FOLDER_H

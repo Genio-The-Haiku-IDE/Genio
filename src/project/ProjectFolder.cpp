@@ -83,7 +83,6 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	:
 	SourceItem(ref),
 	fActive(false),
-	fBuildMode(BuildMode::ReleaseMode),
 	fSettings(nullptr),
 	fMessenger(msgr),
 	fGitRepository(nullptr),

@@ -248,6 +248,7 @@ GenioWindow::Show()
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 
 		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
+		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		UnlockLooper();
 	}
 }
@@ -307,6 +308,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			if (code == gCFG.UpdateMessageWhat()) {
 				_HandleConfigurationChanged(message);
+			} else if (code == kMsgProjectSettingsUpdated) {
+				// Update debug/release
+				_UpdateProjectActivation(fActiveProject != nullptr);
 			}
 			break;
 		}
@@ -513,14 +517,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BUILD_MODE_DEBUG:
 		{
 			fActiveProject->SetBuildMode(BuildMode::DebugMode);
-			//fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE:
 		{
 			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
-			//fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
@@ -1488,7 +1490,6 @@ GenioWindow::_DebugProject()
 	// TODO: why not ?
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
-
 
 	argv_split parser(fActiveProject->GetTarget().String());
 	parser.parse(fActiveProject->GetExecuteArgs().String());

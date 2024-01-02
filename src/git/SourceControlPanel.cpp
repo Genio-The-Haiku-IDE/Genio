@@ -60,7 +60,7 @@ SourceControlPanel::SourceControlPanel()
 	fProjectMenu(nullptr),
 	fBranchMenu(nullptr),
 	fProjectList(nullptr),
-	fSelectedProjectName(nullptr),
+	fSelectedProjectName(),
 	fCurrentBranch(nullptr),
 	fInitializeButton(nullptr),
 	fDoNotCreateInitialCommitCheckBox(nullptr),
@@ -282,7 +282,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							fProjectMenu->MakeEmpty();
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
-							fSelectedProjectName = nullptr;
+							fSelectedProjectName = "";
 						} else {
 							_UpdateProjectList();
 						}
@@ -536,7 +536,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					selectedProject->InitRepository(createInitialCommit);
 					SetChecked<BCheckBox>(fDoNotCreateInitialCommitCheckBox, false);
 					BMessage message(MsgChangeProject);
-					message.AddPointer("value", fSelectedProjectName);
+					message.AddPointer("value", selectedProject);
 					message.AddString("sender", kSenderInitializeRepositoryButton);
 					BMessenger(this).SendMessage(&message);
 				}
@@ -613,7 +613,7 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 {
 	ProjectFolder* selectedProject = const_cast<ProjectFolder*>(
 		reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
-	
+
 	fSelectedProjectName = "";
 	const BString sender = message->GetString("sender");	
 	if (selectedProject != nullptr) {
@@ -731,7 +731,7 @@ SourceControlPanel::_UpdateProjectList()
 		}
 	);
 	// Check if the selected project is a valid git repository
-	
+
 	ProjectFolder* project = _GetProject(fSelectedProjectName);
 	if (project != nullptr) {
 		try {

@@ -100,6 +100,15 @@ void
 FunctionsOutlineView::SetLoadingStatus(status loadingStatus)
 {
 	fLoadingStatus = loadingStatus;
+	switch (fLoadingStatus) {
+		case STATUS_LOADING:
+			fLoadingView->SetText("Loading outline");
+			break;
+		case STATUS_EMPTY:
+		default:
+			fLoadingView->SetText("Empty");
+			break;
+	}
 }
 
 
@@ -114,6 +123,8 @@ FunctionsOutlineView::UpdateDocumentSymbols(BMessage* msg)
 		return;
 
 	SetLoadingStatus(STATUS_LOADING);
+	// TODO: This is done synchronously, so the view isn't updated
+	// and we don't see the "loading" text
 	_RecursiveAddSymbols(nullptr, msg);
 	SetLoadingStatus(STATUS_LOADED);
 	dynamic_cast<BCardLayout*>(GetLayout())->SetVisibleItem(0);

@@ -513,14 +513,14 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BUILD_MODE_DEBUG:
 		{
 			fActiveProject->SetBuildMode(BuildMode::DebugMode);
-			fActiveProject->SaveSettings();
+			//fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE:
 		{
 			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
-			fActiveProject->SaveSettings();
+			//fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
@@ -914,7 +914,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_SETTINGS:
 		{
 			if (fActiveProject != nullptr) {
-				ProjectSettingsWindow *window = new ProjectSettingsWindow(fActiveProject);
+				ConfigWindow* window = new ConfigWindow(fActiveProject->Settings());
 				window->Show();
 			}
 			break;

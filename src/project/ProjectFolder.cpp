@@ -5,16 +5,20 @@
 
 #include "ProjectFolder.h"
 
+#include <Catalog.h>
 #include <Directory.h>
 #include <Debug.h>
 #include <Entry.h>
 #include <OutlineListView.h>
 #include <Path.h>
 
+#include "ConfigManager.h"
 #include "LSPProjectWrapper.h"
-#include "GenioNamespace.h"
-#include "GSettings.h"
 #include "LSPServersManager.h"
+#include "GenioNamespace.h"
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"
 
 SourceItem::SourceItem(const BString& path)
 	:
@@ -59,6 +63,7 @@ SourceItem::EntryRef() const
 {
 	return &fEntryRef;
 }
+
 
 BString	const
 SourceItem::Name() const
@@ -112,6 +117,7 @@ ProjectFolder::GetLSPServer(const BString& fileType)
 	return wrap;
 }
 
+
 ProjectFolder::~ProjectFolder()
 {
 	for (LSPProjectWrapper* w : fLSPProjectWrappers) {
@@ -125,7 +131,8 @@ ProjectFolder::~ProjectFolder()
 status_t
 ProjectFolder::Open()
 {
-	fSettings = new GSettings(Path(), GenioNames::kProjectSettingsFile, 'LOPR');
+	fSettings = new ConfigManager(kMsgProjectSettingsUpdated);
+	_PrepareSettings();
 	return B_OK;
 }
 
@@ -133,9 +140,9 @@ ProjectFolder::Open()
 status_t
 ProjectFolder::Close()
 {
-	status_t status = fSettings->GetStatus();
-	return status;
+	return B_OK;
 }
+
 
 BString const
 ProjectFolder::Path() const
@@ -143,146 +150,126 @@ ProjectFolder::Path() const
 	return fFullPath;
 }
 
-void
-ProjectFolder::LoadDefaultSettings()
+
+ConfigManager&
+ProjectFolder::Settings()
 {
 	ASSERT(fSettings != nullptr);
-
-	fSettings->MakeEmpty();
-	fSettings->SetInt32("build_mode", BuildMode::ReleaseMode);
-	fSettings->SetString("project_release_build_command", "");
-	fSettings->SetString("project_debug_build_command", "");
-	fSettings->SetString("project_release_clean_command", "");
-	fSettings->SetString("project_debug_clean_command", "");
-	fSettings->SetString("project_release_execute_args", "");
-	fSettings->SetString("project_debug_execute_args", "");
-	fSettings->SetString("project_release_target", "");
-	fSettings->SetString("project_debug_target", "");
-	fSettings->SetBool("project_run_in_terminal", false);
-}
-
-
-void
-ProjectFolder::SaveSettings()
-{
-	fSettings->Save();
+	return *fSettings;
 }
 
 
 void
 ProjectFolder::SetBuildMode(BuildMode mode)
 {
-	fBuildMode = mode;
-	fSettings->SetInt32("build_mode", mode);
+	(*fSettings)["build_mode"] = int32(mode);
 }
 
 
 BuildMode
-ProjectFolder::GetBuildMode() /* const */
+ProjectFolder::GetBuildMode() const
 {
-	// TODO: Why are we SETting the mode here ?
-	fBuildMode = (BuildMode)fSettings->GetInt32("build_mode", BuildMode::ReleaseMode);
-	return fBuildMode;
+	return BuildMode(int32((*fSettings)["build_mode"]));
 }
 
 
 void
 ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 {
-	if (mode == BuildMode::ReleaseMode)
-		fSettings->SetString("project_release_build_command", command);
+	if (GetBuildMode() == BuildMode::ReleaseMode)
+		(*fSettings)["project_release_build_command"] = command;
 	else
-		fSettings->SetString("project_debug_build_command", command);
+		(*fSettings)["project_debug_build_command"] = command;
 }
 
 
 BString const
 ProjectFolder::GetBuildCommand() const
 {
-	if (fBuildMode == BuildMode::ReleaseMode) {
-		BString build = fSettings->GetString("project_release_build_command", "");
-		if (build == "")
+	if (GetBuildMode() == BuildMode::ReleaseMode) {
+		BString build = (*fSettings)["project_release_build_command"];
+		if (build.IsEmpty())
 			build = fGuessedBuildCommand;
 		return build;
 	} else
-		return fSettings->GetString("project_debug_build_command", "");
+		return (*fSettings)["project_debug_build_command"];
 }
 
 
 void
 ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
 {
-	if (mode == BuildMode::ReleaseMode)
-		fSettings->SetString("project_release_clean_command", command);
+	if (GetBuildMode() == BuildMode::ReleaseMode)
+		(*fSettings)["project_release_clean_command"] = command;
 	else
-		fSettings->SetString("project_debug_clean_command", command);
+		(*fSettings)["project_debug_clean_command"] = command;
 }
 
 
 BString const
 ProjectFolder::GetCleanCommand() const
 {
-	if (fBuildMode == BuildMode::ReleaseMode) {
-		BString clean = fSettings->GetString("project_release_clean_command", "");
-		if (clean == "")
+	if (GetBuildMode() == BuildMode::ReleaseMode) {
+		BString clean = (*fSettings)["project_release_clean_command"];
+		if (clean.IsEmpty())
 			clean = fGuessedCleanCommand;
 		return clean;
 	} else
-		return fSettings->GetString("project_debug_clean_command", "");
+		return (*fSettings)["project_debug_clean_command"];
 }
 
 
 void
 ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 {
-	if (mode == BuildMode::ReleaseMode)
-		fSettings->SetString("project_release_execute_args", args);
+	if (GetBuildMode() == BuildMode::ReleaseMode)
+		(*fSettings)["project_release_execute_args"] = args;
 	else
-		fSettings->SetString("project_debug_execute_args", args);
+		(*fSettings)["project_debug_execute_args"] = args;
 }
 
 
 BString const
 ProjectFolder::GetExecuteArgs() const
 {
-	if (fBuildMode == BuildMode::ReleaseMode)
-		return fSettings->GetString("project_release_execute_args", "");
+	if (GetBuildMode() == BuildMode::ReleaseMode)
+		return (*fSettings)["project_release_execute_args"];
 	else
-		return fSettings->GetString("project_debug_execute_args", "");
+		return (*fSettings)["project_debug_execute_args"];
 }
 
 
 void
 ProjectFolder::SetTarget(BString const& path, BuildMode mode)
 {
-	if (mode == BuildMode::ReleaseMode)
-		fSettings->SetString("project_release_target", path);
+	if (GetBuildMode() == BuildMode::ReleaseMode)
+		(*fSettings)["project_release_target"] = path;
 	else
-		fSettings->SetString("project_debug_target", path);
+		(*fSettings)["project_debug_target"] = path;
 }
 
 
 BString const
 ProjectFolder::GetTarget() const
 {
-	if (fBuildMode == BuildMode::ReleaseMode)
-		return fSettings->GetString("project_release_target", "");
+	if (GetBuildMode() == BuildMode::ReleaseMode)
+		return (*fSettings)["project_release_target"];
 	else
-		return fSettings->GetString("project_debug_target", "");
+		return (*fSettings)["project_debug_target"];
 }
 
 
 void
 ProjectFolder::SetRunInTerminal(bool enabled)
 {
-	fSettings->SetBool("project_run_in_terminal", enabled);
+	(*fSettings)["project_run_in_terminal"] = enabled;
 }
 
 
 bool
 ProjectFolder::RunInTerminal() const
 {
-	return fSettings->GetBool("project_run_in_terminal", false);
+	return (*fSettings)["project_run_in_terminal"];
 }
 
 
@@ -306,4 +293,43 @@ ProjectFolder::SetGuessedBuilder(const BString& string)
 	fGuessedBuildCommand = string;
 	fGuessedCleanCommand = string;
 	fGuessedCleanCommand.Append(" clean");
+}
+
+
+void
+ProjectFolder::_PrepareSettings()
+{
+	ASSERT(fSettings != nullptr);
+
+	GMessage buildModes = {
+		{"mode", "options"},
+		{"option_1", {
+			{"value", (int32)BuildMode::ReleaseMode },
+			{"label", "release" }}},
+		{"option_2", {
+			{"value", (int32)BuildMode::DebugMode },
+			{"label", "debug"}}},
+	};
+	fSettings->AddConfig("Build", "build_mode",
+		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);
+	
+	fSettings->AddConfig("Build/Release", "project_release_build_command",
+		B_TRANSLATE("Release build command:"), "");
+	fSettings->AddConfig("Build/Release", "project_release_clean_command",
+		B_TRANSLATE("Release clean command:"), "");
+	fSettings->AddConfig("Build/Release", "project_release_execute_args",
+		B_TRANSLATE("Release execute args:"), "");
+	fSettings->AddConfig("Build/Release", "project_release_target",
+		B_TRANSLATE("Release target:"), "");
+	fSettings->AddConfig("Build/Debug", "project_debug_build_command",
+		B_TRANSLATE("Debug build command:"), "");
+	fSettings->AddConfig("Build/Debug", "project_debug_clean_command",
+		B_TRANSLATE("Debug clean command:"), "");
+	fSettings->AddConfig("Build/Debug", "project_debug_execute_args",
+		B_TRANSLATE("Debug execute args:"), "");
+	fSettings->AddConfig("Build/Debug", "project_debug_target",
+		B_TRANSLATE("Debug target:"), "");
+	
+	fSettings->AddConfig("Run", "project_run_in_terminal",
+		B_TRANSLATE("Run in terminal"), false);
 }

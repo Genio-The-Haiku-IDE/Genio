@@ -70,13 +70,13 @@ private:
 	BView*					fLogView;
 	BView*					fRepositoryNotInitializedView;
 	BObjectList<ProjectFolder>* fProjectList;
-	BString					fSelectedProjectName;
+	BString					fSelectedProjectPath;
 	BString					fCurrentBranch;
 	BButton*				fInitializeButton;
 	BCheckBox*				fDoNotCreateInitialCommitCheckBox;
 	BMessageRunner*			fBurstHandler;
 
-	ProjectFolder*			_GetProject(const BString& name) const;
+	ProjectFolder*			_GetSelectedProject() const;
 	void					_UpdateProjectList();
 	void					_UpdateBranchList(bool invokeItemMessage = true);
 

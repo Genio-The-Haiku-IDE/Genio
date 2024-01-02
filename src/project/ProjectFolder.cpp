@@ -174,12 +174,14 @@ ProjectFolder::LoadSettings()
 
 	// Try to load old style settings
 	status_t status = _LoadOldSettings();
-	if (status == B_OK)
+	if (status == B_OK) {
+		LogTrace("ProjectFolder: Loaded old style settings");
 		return status;
+	}
 
-	BString path = Path();
+	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
-	fSettings->LoadFromFile(path.String());
+	status = fSettings->LoadFromFile(path.Path());
 
 	return status;
 }
@@ -191,9 +193,13 @@ ProjectFolder::SaveSettings()
 	if (fSettings == nullptr)
 		return B_NO_INIT;
 
-	BString path = Path();
+	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
-	return fSettings->SaveToFile(path.String());
+	status_t status = fSettings->SaveToFile(path.Path());
+	if (status != B_OK) {
+		LogError(strerror(status));
+	}
+	return status;
 }
 
 

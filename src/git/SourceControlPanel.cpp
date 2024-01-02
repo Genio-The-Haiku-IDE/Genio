@@ -292,7 +292,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
 						fSelectedProject = gMainWindow->GetActiveProject();
 						if (!fProjectList->IsEmpty())
-							_UpdateBranchList();
+							_UpdateProjectList();
 						break;
 					}
 					case B_PATH_MONITOR:

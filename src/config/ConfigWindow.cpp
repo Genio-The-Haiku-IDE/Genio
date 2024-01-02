@@ -178,10 +178,13 @@ ConfigWindow::QuitRequested()
 	// it could happen that the user changed a BTextControl
 	// without 'committing' it (by changing focus or by pressing enter)
 	// here we try detect this case and fix it
-	if (CurrentFocus() && strcmp("_input_", CurrentFocus()->Name()) == 0) {
+	if (CurrentFocus() && CurrentFocus()->Parent()) {
 		BTextControl* control = dynamic_cast<BTextControl*>(CurrentFocus()->Parent());
 		if (control) {
-			fConfigManager[control->Name()] = control->Text();
+			// let's avoid code duplications on how to invoke a config change.
+			// and let's do it syncronous to avoid messing up with the quit workflow!
+			GMessage msg = { {"what",kOnNewValue}, {"key",control->Name()}};
+			control->MessageReceived(&msg);
 		}
 	}
 	return BWindow::QuitRequested();

@@ -795,17 +795,32 @@ ProjectsFolderBrowser::InitRename(ProjectItem *item)
 	Invalidate();
 }
 
+
 int32
 ProjectsFolderBrowser::CountProjects() const
 {
 	return fProjectList.CountItems();
 }
 
+
 ProjectFolder*
 ProjectsFolderBrowser::ProjectAt(int32 index) const
 {
 	return fProjectList.ItemAt(index);
 }
+
+
+ProjectFolder*
+ProjectsFolderBrowser::ProjectByPath(const BString& fullPath) const
+{
+	for (int32 i = 0; i < CountProjects(); i++) {
+		ProjectFolder* project = ProjectAt(i);
+		if (project != nullptr && project->Path() == fullPath)
+			return project;
+	}
+	return nullptr;
+}
+
 
 const BObjectList<ProjectFolder>*
 ProjectsFolderBrowser::GetProjectList() const

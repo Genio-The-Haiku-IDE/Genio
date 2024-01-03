@@ -54,7 +54,6 @@
 #include "Languages.h"
 #include "Log.h"
 #include "ProblemsPanel.h"
-#include "ProjectSettingsWindow.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "ProjectsFolderBrowser.h"
@@ -248,6 +247,7 @@ GenioWindow::Show()
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 
 		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
+		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		UnlockLooper();
 	}
 }
@@ -307,6 +307,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			if (code == gCFG.UpdateMessageWhat()) {
 				_HandleConfigurationChanged(message);
+			} else if (code == kMsgProjectSettingsUpdated) {
+				// Update debug/release
+				_UpdateProjectActivation(fActiveProject != nullptr);
+				// Save project settings
+				fActiveProject->SaveSettings();
 			}
 			break;
 		}
@@ -513,14 +518,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BUILD_MODE_DEBUG:
 		{
 			fActiveProject->SetBuildMode(BuildMode::DebugMode);
-			fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE:
 		{
 			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
-			fActiveProject->SaveSettings();
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
 		}
@@ -914,7 +917,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_SETTINGS:
 		{
 			if (fActiveProject != nullptr) {
-				ProjectSettingsWindow *window = new ProjectSettingsWindow(fActiveProject);
+				ConfigWindow* window = new ConfigWindow(fActiveProject->Settings());
+				// TODO: Translate
+				BString windowTitle;
+				windowTitle.Append(fActiveProject->Name());
+				windowTitle.Append(" settings");
+				window->SetTitle(windowTitle.String());
 				window->Show();
 			}
 			break;
@@ -1488,7 +1496,6 @@ GenioWindow::_DebugProject()
 	// TODO: why not ?
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
-
 
 	argv_split parser(fActiveProject->GetTarget().String());
 	parser.parse(fActiveProject->GetExecuteArgs().String());

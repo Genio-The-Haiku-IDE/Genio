@@ -26,6 +26,8 @@
 #include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
+#include "GitAlert.h"
+#include "GTextAlert.h"
 #include "Log.h"
 #include "ProjectFolder.h"
 #include "ProjectsFolderBrowser.h"
@@ -33,8 +35,6 @@
 #include "StringFormatter.h"
 #include "Utils.h"
 
-#include "GitAlert.h"
-#include "GTextAlert.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
@@ -305,7 +305,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						ProjectFolder* selected = _GetSelectedProject();
 						if (selected == nullptr || selected->IsBuilding())
 							break;
-							
+
 						LogInfo("B_PATH_MONITOR");
 						BString watchedPath;
 						if (message->FindString("watched_path", &watchedPath) != B_OK)
@@ -616,7 +616,7 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 		reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
 
 	fSelectedProjectPath = "";
-	const BString sender = message->GetString("sender");	
+	const BString sender = message->GetString("sender");
 	if (selectedProject != nullptr) {
 		fSelectedProjectPath = selectedProject->Path();
 		// check if the project folder still exists
@@ -720,15 +720,17 @@ SourceControlPanel::_UpdateProjectList()
 		[&active = activeProject](auto item)
 		{
 			BString projectName = item ? item->Name() : "";
-			if (active != nullptr &&
-				active->Name() == projectName)
+			BString projectPath = item ? item->Path() : "";
+			if (active != nullptr && active->Path() == projectPath)
 				projectName.Append("*");
 			return projectName;
 		},
 		true,
 		[&selected = selectedProject](auto item)
 		{
-			return (item == selected);
+			if (item == nullptr || selected == nullptr)
+				return false;
+			return (item->Path() == selected->Path());
 		}
 	);
 	// Check if the selected project is a valid git repository

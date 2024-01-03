@@ -919,9 +919,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (fActiveProject != nullptr) {
 				ConfigWindow* window = new ConfigWindow(fActiveProject->Settings());
 				// TODO: Translate
-				BString windowTitle;
+				BString windowTitle(B_TRANSLATE("Project:"));
+				windowTitle.Append(" ");
 				windowTitle.Append(fActiveProject->Name());
-				windowTitle.Append(" settings");
 				window->SetTitle(windowTitle.String());
 				window->Show();
 			}

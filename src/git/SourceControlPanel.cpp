@@ -657,10 +657,15 @@ SourceControlPanel::_GetSelectedProject() const
 	ProjectsFolderBrowser* projectBrowser = window->GetProjectBrowser();
 	if (projectBrowser == nullptr)
 		return nullptr;
-	ProjectItem* selectedProjectItem = projectBrowser->GetProjectItemByPath(fSelectedProjectPath);
-	if (selectedProjectItem == nullptr)
-		return nullptr;
-	return projectBrowser->GetProjectFromItem(selectedProjectItem);
+	// search the ProjectFolder by path
+	// TODO: implement in ProjectFolderBrowser
+	for (int32 i = 0; i < projectBrowser->CountProjects(); i++) {
+		ProjectFolder* project = projectBrowser->ProjectAt(i);
+		if (project != nullptr && project->Path() == fSelectedProjectPath)
+			return project;
+	}
+
+	return nullptr;
 }
 
 

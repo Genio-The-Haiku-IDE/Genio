@@ -3,6 +3,7 @@ v2.1
 	- Fixed performances regression, especially while cleaning a build.
 	- Fixed sporadic crash while closing a tab when Genio was unresponsive.
 	- Fixed crash if clicking on the project list when empty.
+	- Fixed various crashes triggered by deleting projects externally.
 	- Fixed Yab files syntax-highlighting.
 	- Fixed opening files from tracker with "open with" when Genio is closed.
 	- Fixed emptying Source Control view when unloading the last project.

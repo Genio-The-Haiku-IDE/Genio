@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	335291597
+1	English	application/x-vnd.Genio	1199167707
 Close	RemoteProjectWindow		Close
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
@@ -32,6 +32,7 @@ Projects folder:	SettingsWindow		Projects folder:
 Set active	ProjectsFolderBrowser		Set active
 File modified on index	GitRepository		File modified on index
 Fetch prune	SourceControlPanel		Fetch prune
+Settings	ConfigWindow		Settings
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
 Editor zoom:	SettingsWindow		Editor zoom:
 Run in Terminal	ProjectSettingsWindow		Run in Terminal
@@ -56,8 +57,8 @@ Close file	GenioWindow		Close file
 Editor style:	SettingsWindow		Editor style:
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
 Find previous	GenioWindow		Find previous
-Redo	GenioWindow		Redo
 Show projects pane	SettingsWindow		Show projects pane
+Redo	GenioWindow		Redo
 Active	EditorTabManager		Active
 Find	SettingsWindow		Find
 Console I/O	GenioWindow		Console I/O
@@ -76,8 +77,8 @@ Release project target:	ProjectSettingsWindow		Release project target:
 Log level:	SettingsWindow		Log level:
 Stash changes	SourceControlPanel		Stash changes
 OK	ProjectsFolderBrowser		OK
-Clone	RemoteProjectWindow		Clone
 Genio	System name		Genio
+Clone	RemoteProjectWindow		Clone
 Release	GenioWindow		Release
 Keep	GenioWindow		Keep
 Unsaved files	QuitAlert		Unsaved files
@@ -108,7 +109,6 @@ Build mode	GenioWindow		Build mode
 Mark caret line	SettingsWindow		Mark caret line
 Wrap console	SettingsWindow		Wrap console
 Toggle	GenioWindow	Bookmark menu	Toggle
-Branch created succesfully.	SourceControlPanel		Branch created succesfully.
 Replace and find previous	GenioWindow		Replace and find previous
 Replace all	GenioWindow		Replace all
 Delete dialog	SourceControlPanel		Delete dialog
@@ -278,7 +278,6 @@ Wrap	ConsoleIOView		Wrap
 Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
 Clear all	GenioWindow	Bookmark menu	Clear all
 Repository	SourceControlPanel		Repository
-Branch renamed succesfully.	SourceControlPanel		Branch renamed succesfully.
 File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
 Cancel	ProjectSettingsWindow		Cancel
@@ -290,7 +289,6 @@ Project:	SourceControlPanel		Project:
 About…	GenioWindow		About…
 Find in project	GenioWindow		Find in project
 Debug execute arguments:	ProjectSettingsWindow		Debug execute arguments:
-Branch deleted succesfully.	SourceControlPanel		Branch deleted succesfully.
 Create initial commit	SourceControlPanel		Create initial commit
 Category	ProblemsPanel		Category
 Debug project target:	ProjectSettingsWindow		Debug project target:

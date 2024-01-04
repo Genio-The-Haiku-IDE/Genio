@@ -66,6 +66,7 @@
 #include "TemplateManager.h"
 #include "TextUtils.h"
 #include "Utils.h"
+#include "WordTextView.h"
 #include "argv_split.h"
 
 
@@ -343,14 +344,29 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_ABOUT_REQUESTED:
 			be_app->PostMessage(B_ABOUT_REQUESTED);
 			break;
-
 		case B_COPY:
 		case B_CUT:
 		case B_PASTE:
 		case B_SELECT_ALL:
-			if (CurrentFocus())
-				CurrentFocus()->MessageReceived(message);
+		{
+			// Copied / inspired from Tracker's BContainerWindow
+			BView* view = CurrentFocus();
+			if (view == nullptr)
+				break;
+			// Editor is the parent of the ScintillaHaikuView
+			if ((view->Parent() != nullptr && dynamic_cast<Editor*>(view->Parent()) != nullptr)
+				|| dynamic_cast<BTextView*>(view) != nullptr) {
+				// (adapted from Tracker's BContainerView::MessageReceived)
+				// The selected item is not a BTextView / ScintillaView
+				// Since we catch the generic clipboard shortcuts in a way that means
+				// the handlers will never get them, we must manually forward them ourselves,
+				//
+				// However, we have to take care to not forward the custom clipboard messages, else
+				// we would wind up in infinite recursion.
+				PostMessage(message, view);
+			}
 			break;
+		}
 		case B_NODE_MONITOR:
 			_HandleNodeMonitorMsg(message);
 			break;

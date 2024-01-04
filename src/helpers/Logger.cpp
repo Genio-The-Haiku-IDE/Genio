@@ -1,6 +1,6 @@
 /*
  * Copyright 2017-2020, Andrew Lindesay .
- * Copyright 2023 Genio
+ * Copyright 2023-2024 Genio
  * All rights reserved. Distributed under the terms of the MIT License.
  */
 #include "Logger.h"
@@ -12,7 +12,7 @@
 #include "BeDC.h"
 
 log_level Logger::sLevel = LOG_LEVEL_INFO;
-int	Logger::sDestination = LOGGER_DEST_STDOUT;
+int Logger::sDestination = LOGGER_DEST_STDOUT;
 
 static BeDC sBeDC("Genio");
 
@@ -41,9 +41,11 @@ Logger::LogFormat(const char* fmtString, ...)
 void
 Logger::LogFormat(log_level level, const char* fmtString, ...)
 {
+	// Prepend the log level
 	char fullString[1024 + 4];
 	snprintf(fullString, 4 + 1, "{%c} ", toupper(Logger::NameForLevel(level)[0]));
 
+	// pass the offsetted array to vsnprintf
 	char* logString = fullString + 4;
 	va_list argp;
 	::va_start(argp, fmtString);
@@ -95,15 +97,15 @@ Logger::NameForLevel(log_level value)
 bool
 Logger::SetLevelByName(const char *name)
 {
-	if (strcmp(name, "off") == 0) {
+	if (::strcasecmp(name, "off") == 0) {
 		SetLevel(LOG_LEVEL_OFF);
-	} else if (strcmp(name, "info") == 0) {
+	} else if (::strcasecmp(name, "info") == 0) {
 		SetLevel(LOG_LEVEL_INFO);
-	} else if (strcmp(name, "debug") == 0) {
+	} else if (::strcasecmp(name, "debug") == 0) {
 		SetLevel(LOG_LEVEL_DEBUG);
-	} else if (strcmp(name, "trace") == 0) {
+	} else if (::strcasecmp(name, "trace") == 0) {
 		SetLevel(LOG_LEVEL_TRACE);
-	} else if (strcmp(name, "error") == 0) {
+	} else if (::strcasecmp(name, "error") == 0) {
 		SetLevel(LOG_LEVEL_ERROR);
 	} else {
 		return false;
@@ -112,25 +114,27 @@ Logger::SetLevelByName(const char *name)
 	return true;
 }
 
+
+/* static */
 bool
 Logger::SetLevelByChar(char level)
 {
 	switch (level) {
 		case 'o':
 			SetLevel(LOG_LEVEL_OFF);
-		break;
+			break;
 		case 'e':
 			SetLevel(LOG_LEVEL_ERROR);
-		break;
+			break;
 		case 'i':
 			SetLevel(LOG_LEVEL_INFO);
-		break;
+			break;
 		case 'd':
 			SetLevel(LOG_LEVEL_DEBUG);
-		break;
+			break;
 		case 't':
 			SetLevel(LOG_LEVEL_TRACE);
-		break;
+			break;
 		default:
 			return false;
 	}
@@ -185,7 +189,7 @@ Logger::_DoLog(log_level level, const char* string)
 {
 	switch (sDestination) {
 		case Logger::LOGGER_DEST_STDERR:
-			::fprintf(stderr, "%s", string); ::fprintf(stderr, "\n");
+			::fprintf(stderr, "%s\n", string);
 			break;
 		case Logger::LOGGER_DEST_SYSLOG:
 			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "Genio: %s", (const char* const)string);
@@ -195,7 +199,7 @@ Logger::_DoLog(log_level level, const char* string)
 			break;
 		case Logger::LOGGER_DEST_STDOUT:
 		default:
-			::fprintf(stdout, "%s", string); ::fprintf(stdout, "\n");
+			::fprintf(stdout, "%s\n", string);
 			break;
 	}
 }

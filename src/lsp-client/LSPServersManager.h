@@ -18,6 +18,7 @@ class BString;
 
 class LSPServerConfigInterface {
 public:
+	virtual ~LSPServerConfigInterface() = default;
 	virtual const bool   IsFileTypeSupported (const BString& fileType) const = 0;
 	const char* const* Argv() const { return fArgv.data(); }
 				int32  Argc() const { return fArgv.size(); }
@@ -28,8 +29,11 @@ protected:
 
 class LSPServersManager {
 public:
+		static status_t				InitLSPServersConfig();
 		static LSPProjectWrapper*	CreateLSPProject(const BPath& path, const BMessenger& msgr, const BString& fileType);
-
+		static status_t				DisposeLSPServersConfig();
+private:
+		static std::vector<LSPServerConfigInterface*>	fConfigs;
 };
 
 

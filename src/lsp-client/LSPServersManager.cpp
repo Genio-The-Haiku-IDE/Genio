@@ -14,9 +14,9 @@
 
 
 
-class ClangdServer : public LSPServerConfigInterface {
+class ClangdServerConfig : public LSPServerConfigInterface {
 public:
-	ClangdServer()
+	ClangdServerConfig()
 	{
 		std::string logLevel("--log=");
 		switch ((int32) gCFG["lsp_clangd_log_level"]) {
@@ -51,9 +51,9 @@ public:
 	}
 };
 
-class PylspServer : public LSPServerConfigInterface {
+class PylspServerConfig : public LSPServerConfigInterface {
 public:
-	PylspServer() {
+	PylspServerConfig() {
 		fArgv = {
 			"/boot/system/non-packaged/bin/pylsp",
 			"-v"
@@ -64,12 +64,33 @@ public:
 	}
 };
 
-std::vector<LSPServerConfigInterface*> gLSPServers ({new ClangdServer()/*, new PylspServer()*/});
+std::vector<LSPServerConfigInterface*> LSPServersManager::fConfigs;
 
+/*static*/
+status_t
+LSPServersManager::InitLSPServersConfig()
+{
+	fConfigs.push_back(new ClangdServerConfig());
+	// fConfigs.push_back(new PylspServer());
+	return B_OK;
+}
+
+/*static*/
+status_t
+LSPServersManager::DisposeLSPServersConfig()
+{
+	for (LSPServerConfigInterface* interface: fConfigs) {
+		delete interface;
+	}
+	fConfigs.clear();
+	return B_OK;
+}
+
+/*static*/
 LSPProjectWrapper*
 LSPServersManager::CreateLSPProject(const BPath& path, const BMessenger& msgr, const BString& fileType)
 {
-	for (LSPServerConfigInterface* interface: gLSPServers) {
+	for (LSPServerConfigInterface* interface: fConfigs) {
 		if (interface->IsFileTypeSupported(fileType)) {
 			return new LSPProjectWrapper(path, msgr, *interface);
 		}

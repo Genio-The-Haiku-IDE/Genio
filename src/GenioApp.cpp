@@ -23,7 +23,7 @@
 #include "LSPLogLevels.h"
 #include "Styler.h"
 #include "Utils.h"
-
+#include "LSPServersManager.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
@@ -65,6 +65,8 @@ GenioApp::GenioApp()
 
 	Languages::LoadLanguages();
 
+	LSPServersManager::InitLSPServersConfig();
+
 	fGenioWindow = new GenioWindow(gCFG["ui_bounds"]);
 }
 
@@ -73,6 +75,7 @@ GenioApp::~GenioApp()
 {
 	// Save settings on quit, anyway
 	gCFG.SaveToFile(fConfigurationPath);
+	LSPServersManager::DisposeLSPServersConfig();
 }
 
 

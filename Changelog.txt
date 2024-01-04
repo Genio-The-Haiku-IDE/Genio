@@ -8,6 +8,8 @@ v2.1
 	- Fixed opening files from tracker with "open with" when Genio is closed.
 	- Fixed emptying Source Control view when unloading the last project.
 	- Fixed bug which very rarely killed Genio when stopping or re-starting the build.
+	- Fixed glitch in Source control panel menu when there were two projects with the same name.
+	- Fix missing settings window title translation (Humdinger).
 	- Removed in-tree Lexilla and used the one from HaikuPorts.
 	- Removed (unnecessary) notifications for some Git operations.
 ---

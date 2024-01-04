@@ -26,6 +26,8 @@
 #include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
+#include "GitAlert.h"
+#include "GTextAlert.h"
 #include "Log.h"
 #include "ProjectFolder.h"
 #include "ProjectsFolderBrowser.h"
@@ -33,8 +35,6 @@
 #include "StringFormatter.h"
 #include "Utils.h"
 
-#include "GitAlert.h"
-#include "GTextAlert.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
@@ -735,8 +735,7 @@ SourceControlPanel::_UpdateProjectList()
 		{
 			if (item == nullptr || selected == nullptr)
 				return false;
-			else
-				return (item->Path() == selected->Path());
+			return (item->Path() == selected->Path());
 		}
 	);
 	// Check if the selected project is a valid git repository

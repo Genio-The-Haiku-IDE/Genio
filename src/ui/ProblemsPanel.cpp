@@ -75,12 +75,6 @@ void
 ProblemsPanel::MessageReceived(BMessage* msg)
 {
 	switch(msg->what) {
-		case B_COPY:
-		case B_CUT:
-		case B_PASTE:
-		case B_SELECT_ALL:
-			//to avoid crash! (WIP)
-			break;
 		case COLUMNVIEW_CLICK: {
 			RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
 			if (range) {

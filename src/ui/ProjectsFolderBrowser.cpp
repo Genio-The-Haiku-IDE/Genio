@@ -279,12 +279,6 @@ void
 ProjectsFolderBrowser::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case B_COPY:
-		case B_CUT:
-		case B_PASTE:
-		case B_SELECT_ALL:
-			//to avoid crash! (WIP)
-			break;
 		case B_PATH_MONITOR:
 		{
 			if (Logger::IsDebugEnabled())

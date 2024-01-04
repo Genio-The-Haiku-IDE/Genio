@@ -33,6 +33,7 @@
 #include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
+#include <Clipboard.h>
 
 #include "ActionManager.h"
 #include "ConfigManager.h"
@@ -1110,10 +1111,32 @@ GenioWindow::MenusBeginning()
 {
 	BWindow::MenusBeginning();
 
-	const bool enable = AcceptsCopyPaste(CurrentFocus());
-	ActionManager::SetEnabled(B_CUT, enable);
-	ActionManager::SetEnabled(B_COPY, enable);
-	ActionManager::SetEnabled(B_PASTE, enable);
+	BView* view = CurrentFocus();
+	if (!view)
+		return;
+	Editor* editor = nullptr;
+	BTextView* textView = nullptr;
+
+	if (view->Parent() != nullptr &&
+	    (editor = dynamic_cast<Editor*>(view->Parent())) != nullptr) {
+			ActionManager::SetEnabled(B_CUT,   editor->CanCut());
+			ActionManager::SetEnabled(B_COPY,  editor->CanCopy());
+			ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
+	} else if ((textView = (dynamic_cast<BTextView*>(view))) != nullptr) {
+			int32 start;
+			int32 finish;
+			textView->GetSelection(&start, &finish);
+			bool canEdit = textView->IsEditable();
+
+			ActionManager::SetEnabled(B_CUT,   canEdit && start != finish);
+			ActionManager::SetEnabled(B_COPY,  start != finish);
+			ActionManager::SetEnabled(B_PASTE, canEdit && be_clipboard->SystemCount() > 0);
+
+	} else {
+			ActionManager::SetEnabled(B_CUT,   false);
+			ActionManager::SetEnabled(B_COPY,  false);
+			ActionManager::SetEnabled(B_PASTE, false);
+	}
 }
 
 
@@ -3908,9 +3931,6 @@ GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 	assert (editor);
 
 	// Menu Items
-	ActionManager::SetEnabled(B_CUT, editor->CanCut());
-	ActionManager::SetEnabled(B_COPY, editor->CanCopy());
-	ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
 
 	ActionManager::SetEnabled(B_UNDO, editor->CanUndo());
 	ActionManager::SetEnabled(B_REDO, editor->CanRedo());
@@ -3962,9 +3982,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_FILE_NEXT_SELECTED, false);
 		ActionManager::SetEnabled(MSG_FILE_PREVIOUS_SELECTED, false);
 
-		ActionManager::SetEnabled(B_CUT, false);
-		ActionManager::SetEnabled(B_COPY, false);
-		ActionManager::SetEnabled(B_PASTE, false);
 		ActionManager::SetEnabled(B_SELECT_ALL, false);
 
 		ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, false);
@@ -4023,9 +4040,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, true);
 
 
-	ActionManager::SetEnabled(B_CUT, editor->CanCut());
-	ActionManager::SetEnabled(B_COPY, editor->CanCopy());
-	ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
 	ActionManager::SetEnabled(B_SELECT_ALL, true);
 
 	ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, true);

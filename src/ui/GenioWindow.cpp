@@ -93,6 +93,20 @@ BRect dirtyFrameHack;
 
 static float kDefaultIconSize = 32.0;
 
+
+static bool
+AcceptsCopyPaste(BView* view)
+{
+	if (view == nullptr)
+		return false;
+	if ((view->Parent() != nullptr && dynamic_cast<Editor*>(view->Parent()) != nullptr)
+		|| dynamic_cast<BTextView*>(view) != nullptr) {
+		return true;
+	}
+	return false;
+}
+
+
 GenioWindow::GenioWindow(BRect frame)
 	:
 	BWindow(frame, "Genio", B_TITLED_WINDOW, B_ASYNCHRONOUS_CONTROLS |
@@ -351,11 +365,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			// Copied / inspired from Tracker's BContainerWindow
 			BView* view = CurrentFocus();
-			if (view == nullptr)
-				break;
 			// Editor is the parent of the ScintillaHaikuView
-			if ((view->Parent() != nullptr && dynamic_cast<Editor*>(view->Parent()) != nullptr)
-				|| dynamic_cast<BTextView*>(view) != nullptr) {
+			if (AcceptsCopyPaste(view)) {
 				// (adapted from Tracker's BContainerView::MessageReceived)
 				// The selected item is not a BTextView / ScintillaView
 				// Since we catch the generic clipboard shortcuts in a way that means
@@ -1090,6 +1101,27 @@ GenioWindow::MessageReceived(BMessage* message)
 			BWindow::MessageReceived(message);
 			break;
 	}
+}
+
+
+/* virtual */
+void
+GenioWindow::MenusBeginning()
+{
+	BWindow::MenusBeginning();
+
+	const bool enable = AcceptsCopyPaste(CurrentFocus());
+	ActionManager::SetEnabled(B_CUT, enable);
+	ActionManager::SetEnabled(B_COPY, enable);
+	ActionManager::SetEnabled(B_PASTE, enable);
+}
+
+
+/* virtual */
+void
+GenioWindow::MenusEnded()
+{
+	BWindow::MenusEnded();
 }
 
 

@@ -861,21 +861,20 @@ GenioWindow::MessageReceived(BMessage* message)
 
 			// new_file_template corresponds to creating a new file
 			if (type ==  "new_file_template") {
-				entry_ref dest;
 				entry_ref source;
 				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-					const entry_ref* entryRef = item->GetSourceItem()->EntryRef();
+					const entry_ref* dest = item->GetSourceItem()->EntryRef();
 					if (message->FindRef("refs", &source) != B_OK) {
 						LogError("Can't find ref in message!");
 						return;
 					}
-					status_t status = TemplateManager::CopyFileTemplate(&source, &dest);
+					status_t status = TemplateManager::CopyFileTemplate(&source, dest);
 					if (status != B_OK) {
 						OKAlert(B_TRANSLATE("New file"),
 								B_TRANSLATE("Could not create a new file"),
 								B_WARNING_ALERT);
-						LogError("Invalid destination directory [%s]", entryRef->name);
+						LogError("Invalid destination directory [%s]", dest->name);
 						return;
 					}
 				}

@@ -1,0 +1,164 @@
+/*
+ * Copyright 2008-2017, Haiku. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		François Revol <revol@free.fr>
+ *		Stephan Aßmus <superstippi@gmx.de>
+ *		Braden Ewing <brewin@gmail.com>
+ *		Humdinger <humdingerb@gmail.com>
+ *		Vincent Duvert <vincent.duvert@free.fr>
+ *		Augustin Cavalier <waddlesplash>
+ */
+
+html {
+	margin: 0;
+	padding: 0;
+	background: #FFF;
+}
+body {
+    font-size: 0.9em;
+	font-family: "Noto Sans",Arial,Helvetica,sans-serif;
+	line-height: 1.5;
+	min-width: 45em;
+	max-width: 70em;
+}
+/* link colors and text decoration */
+
+a:link {
+	font-weight: bold;
+	text-decoration: none;
+	color: #dc3c01;
+}
+a:visited {
+	font-weight: bold;
+	text-decoration: none;
+	color: #892601;
+}
+a:hover, a:active {
+	text-decoration: underline;
+	color: #ff4500;
+}
+
+h3 a:hover, a:active {
+	text-decoration: none;
+	color: #000000;
+}
+
+/* heading and navigation */
+
+
+#navbar {
+  overflow: hidden;
+  background-color: #555;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+#navbar a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 0px 14px;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+#navbar a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+#navbar a.active {
+  background-color: #D1A600;
+  color: white;
+}
+
+#content {
+	margin-left: 20px;
+	margin-right: 20px;
+	padding-top: 5px;
+}
+
+
+
+
+hr {
+	margin-top: 45px;
+	border: dotted thin #e0e0e0;
+}
+h1 {
+	font-size: 1.3em;
+	border-bottom: dotted thin #e0e0e0;
+	margin-bottom: 45px;
+}
+h2 {
+	font-size: 1.2em;
+	border-bottom: dotted thin #e0e0e0;
+	margin-top: 40px;
+}
+h3 {
+	font-size: 1em;
+	border-bottom: none;
+	margin-bottom: 0px;
+}
+.key {				/* Shortcut (separate with &#160; */
+	-webkit-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	border-color: #c7c7c7;
+	border-style: solid;
+	border-width: 1px;
+	padding: 0px 2px;
+	background-color: #e8e8e8;
+    font-family: sans;
+	font-variant: small-caps;
+	font-size: 1em;
+}
+.menu {				/* Menu */
+	font-size: 1.0em;
+	font-family: serif;
+	font-style: italic;
+	color: #24225e;
+}
+.button {			/* Button */
+    font-size: 1.0em;
+    font-family: serif;
+    font-style: italic;
+	color: #33583c;
+}
+.path {				/* File path */
+    background-color: #e8e8e8;
+    font-size: 0.9em;
+    font-family: monospace;
+}
+td.onelinetop {
+	vertical-align: top;
+	white-space: nowrap;
+}
+ol {
+	padding-left: 20px;
+}
+ul {
+	padding-left: 14px;
+}
+
+/* Rounded corner boxes */
+/* Common declarations */
+.box-info {
+	-webkit-border-radius: 10px;
+	-khtml-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	border-style: dotted;
+	border-width: thin;
+	border-color: #dcdcdc;
+	padding: 10px 15px 10px 80px;
+	margin-bottom: 15px;
+	margin-top: 15px;
+	min-height: 42px;
+	background: #e4ffde url(icons/info-box_32.png) 15px 15px no-repeat;
+}

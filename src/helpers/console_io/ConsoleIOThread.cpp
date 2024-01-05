@@ -193,8 +193,6 @@ ConsoleIOThread::PushInput(BString text)
 void
 ConsoleIOThread::OnThreadShutdown()
 {
-	BAutolock lock(fProcessIDLock);
-	fProcessId = -1;
 	BMessage message(CONSOLEIOTHREAD_EXIT);
 	message.AddString("cmd_type", fCmdType);
 	fTarget.SendMessage(&message);
@@ -268,29 +266,6 @@ cleanup:
 	return ret;
 }
 
-status_t
-ConsoleIOThread::SuspendExternal()
-{
-	BAutolock lock(fProcessIDLock);
-	thread_info info;
-	status_t status = get_thread_info(fProcessId, &info);
-	if (status == B_OK)
-		return send_signal(-fProcessId, SIGSTOP);
-	else
-		return status;
-}
-
-status_t
-ConsoleIOThread::ResumeExternal()
-{
-	BAutolock lock(fProcessIDLock);
-	thread_info info;
-	status_t status = get_thread_info(fProcessId, &info);
-	if (status == B_OK)
-		return send_signal(-fProcessId, SIGCONT);
-	else
-		return status;
-}
 
 void
 ConsoleIOThread::ClosePipes()
@@ -312,7 +287,7 @@ ConsoleIOThread::ClosePipes()
 bool
 ConsoleIOThread::IsProcessAlive()
 {
-	BAutolock lock(fProcessIDLock);
+	//BAutolock lock(fProcessIDLock);
 	thread_info info;
 	return get_thread_info(fProcessId, &info) == B_OK;
 }
@@ -331,13 +306,14 @@ ConsoleIOThread::InterruptExternal()
 	BAutolock lock(fProcessIDLock);
 	if (IsProcessAlive()) {
 		status_t status = send_signal(-fProcessId, SIGTERM);
-		status = wait_for_thread_etc(fProcessId, B_RELATIVE_TIMEOUT, 2000000, nullptr);
+		status = wait_for_thread_etc(fProcessId, B_RELATIVE_TIMEOUT, 2000000, nullptr); //2 seconds
 		if (status != B_OK) {
 			// It looks like we are not able to wait for the thead to close.
 			// let's cut the pipes and kill it.
-			_CleanPipes();
+			ClosePipes();
 			status = Kill();
 		}
+		fProcessId = -1;
 		return status;
 	}
 

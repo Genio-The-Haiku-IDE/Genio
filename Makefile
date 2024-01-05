@@ -95,7 +95,7 @@ SRCS += src/helpers/PipeImage.cpp
 
 RDEFS := Genio.rdef
 
-LIBS = be shared translation localestub $(STDCPPLIBS)
+LIBS  = be shared translation localestub $(STDCPPLIBS)
 LIBS += columnlistview tracker
 LIBS += git2
 LIBS += src/scintilla/bin/libscintilla.a

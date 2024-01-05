@@ -75,6 +75,8 @@ private:
 			void				_CleanPipes();
 			status_t			_RunExternalProcess();
 
+			status_t			Kill(void);
+
 
 
 			thread_id			fProcessId;

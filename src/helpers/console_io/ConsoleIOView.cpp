@@ -98,7 +98,6 @@ ConsoleIOView::_StopThreads()
 		return;
 
 	fConsoleIOThread->InterruptExternal();
-	fConsoleIOThread->Kill();
 	delete fConsoleIOThread;
 	fConsoleIOThread = nullptr;
 }

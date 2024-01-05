@@ -317,13 +317,28 @@ ConsoleIOThread::IsProcessAlive()
 	return get_thread_info(fProcessId, &info) == B_OK;
 }
 
+//let's make it private.
+status_t
+ConsoleIOThread::Kill(void)
+{
+	return GenericThread::Kill();
+}
+
+
 status_t
 ConsoleIOThread::InterruptExternal()
 {
 	BAutolock lock(fProcessIDLock);
 	if (IsProcessAlive()) {
 		status_t status = send_signal(-fProcessId, SIGTERM);
-		return wait_for_thread_etc(fProcessId, 0, 4000, &status);
+		status = wait_for_thread_etc(fProcessId, B_RELATIVE_TIMEOUT, 2000000, nullptr);
+		if (status != B_OK) {
+			// It looks like we are not able to wait for the thead to close.
+			// let's cut the pipes and kill it.
+			_CleanPipes();
+			status = Kill();
+		}
+		return status;
 	}
 
 	return B_ERROR;

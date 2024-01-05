@@ -142,7 +142,6 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 		case MSG_GREP_DONE: {
 			if (fGrepThread) {
 				fGrepThread->InterruptExternal();
-				fGrepThread->Kill();
 				delete fGrepThread;
 				fGrepThread = nullptr;
 			}

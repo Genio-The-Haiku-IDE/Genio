@@ -3319,9 +3319,11 @@ GenioWindow::_ShowDocumentation()
 
 	// Also add documentation path in the Genio directory
 	// for when it's run directly from the repository
-	BPath localDocsPath;
-	if (GetGenioDirectory(localDocsPath)) {
-		if (localDocsPath.GetParent(&localDocsPath) == B_OK) {
+	app_info info;
+	if (be_app->GetAppInfo(&info) == B_OK) {
+		BPath localDocsPath(&info.ref);
+		if (localDocsPath.GetParent(&localDocsPath) == B_OK
+			&& localDocsPath.GetParent(&localDocsPath) == B_OK) {
 			localDocsPath.Append("documentation");
 			paths.Add(localDocsPath.Path());
 		}

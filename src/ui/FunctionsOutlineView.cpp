@@ -7,13 +7,20 @@
 #include "FunctionsOutlineView.h"
 
 #include <LayoutBuilder.h>
+#include <NaturalCompare.h>
 #include <OutlineListView.h>
 #include <StringView.h>
 #include <Window.h>
 
-#include "EditorMessages.h"
+#include "Editor.h"
+#include "ToolBar.h"
 
 #define kGoToSymbol	'gots'
+#define kMsgSort 'sort'
+#define kMsgCollapseAll 'coll'
+
+static bool sSorted = false;
+static bool sCollapsed = false;
 
 class SymbolListItem : public BStringItem {
 public:
@@ -27,31 +34,67 @@ private:
 		BMessage	fDetails;
 };
 
+static int
+CompareItems(const BListItem* itemA, const BListItem* itemB)
+{
+	return itemA - itemB;
+}
+
+
+static int
+CompareItemsText(const BListItem* itemA, const BListItem* itemB)
+{
+	return BPrivate::NaturalCompare(((BStringItem*)itemA)->Text(), ((BStringItem*)itemB)->Text());
+}
+
 
 FunctionsOutlineView::FunctionsOutlineView()
 	:
 	BView("outline", B_WILL_DRAW),
 	fListView(nullptr),
-	fLoadingView(nullptr),
-	fLoadingStatus(STATUS_EMPTY),
+	fToolBar(nullptr),
 	fLastUpdateTime(system_time())
 {
 	SetFlags(Flags() | B_PULSE_NEEDED);
 
 	fListView = new BOutlineListView("listview");
-	// TODO: Translate, improve.
-	// TODO: should write "empty" at the center of the view, it does at bottom instead
-	fLoadingView = new BStringView("status view", "empty");
-	fLoadingView->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNLIMITED));
-	fLoadingView->SetExplicitMinSize(BSize(B_SIZE_UNSET, B_SIZE_UNSET));
-	fLoadingView->SetExplicitAlignment(BAlignment(B_ALIGN_HORIZONTAL_CENTER, B_ALIGN_TOP));
-	fLoadingView->SetAlignment(B_ALIGN_CENTER);
-
-	BLayoutBuilder::Cards<>(this)
-		.Add(fListView)
-		.Add(fLoadingView)
-		.SetVisibleItem(0)
+	
+	fToolBar = new ToolBar();
+	fToolBar->ChangeIconSize(16);
+	// TODO: Icons
+	//fToolBar->AddAction(kMsgCollapseAll, "Collapse all", "kIconGitRepo", true);
+	fToolBar->AddAction(kMsgSort, "Sort", "kIconGitMore", true);
+	fToolBar->SetExplicitMinSize(BSize(250, B_SIZE_UNSET));
+	fToolBar->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
+	BLayoutBuilder::Group<>(this)
+		.AddGroup(B_VERTICAL, 0)
+			.Add(fToolBar)
+			.Add(fListView)
 		.End();
+}
+
+
+/* virtual */
+void
+FunctionsOutlineView::AttachedToWindow()
+{
+	fToolBar->SetTarget(this);
+
+	if (LockLooper()) {
+		Window()->StartWatching(this, EDITOR_UPDATE_SYMBOLS);
+		UnlockLooper();
+	}
+}
+
+
+/* virtual */
+void
+FunctionsOutlineView::DetachedFromWindow()
+{
+	if (LockLooper()) {
+		Window()->StopWatching(this, EDITOR_UPDATE_SYMBOLS);
+		UnlockLooper();
+	}
 }
 
 
@@ -60,7 +103,25 @@ void
 FunctionsOutlineView::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
-		case kGoToSymbol: {
+		case B_OBSERVER_NOTICE_CHANGE:
+		{
+			int32 code;
+			msg->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+			switch (code) {
+				case EDITOR_UPDATE_SYMBOLS:
+				{
+					BMessage symbols;
+					msg->FindMessage("symbols", &symbols);
+					_UpdateDocumentSymbols(&symbols);
+					break;
+				}
+				default:
+					break;
+			}
+			break;
+		}
+		case kGoToSymbol:
+		{
 			int32 index = msg->GetInt32("index", -1);
 			if (index > -1) {
 				SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemAt(index));
@@ -71,6 +132,26 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 					Window()->PostMessage(&go);
 				}
 			}
+			break;
+		}
+		case kMsgSort:
+		{
+			sSorted = !sSorted;
+			fToolBar->SetActionPressed(kMsgSort, sSorted);
+			if (sSorted)
+				fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
+			else
+				fListView->SortItemsUnder(nullptr, true, &CompareItems);
+			break;
+		}
+		case kMsgCollapseAll:
+		{
+			sCollapsed = !sCollapsed;
+			fToolBar->SetActionPressed(kMsgSort, sCollapsed);
+			if (sCollapsed)
+				fListView->Collapse(nullptr);
+			else
+				fListView->Expand(nullptr);
 			break;
 		}
 		default:
@@ -84,6 +165,8 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 void
 FunctionsOutlineView::Pulse()
 {
+#if 0
+	// TODO: Disable for now, since it has various issues
 	// Update every 10 seconds
 	bigtime_t currentTime = system_time();
 	if (currentTime - fLastUpdateTime > 10000000LL) {
@@ -93,41 +176,20 @@ FunctionsOutlineView::Pulse()
 		Window()->PostMessage(kClassOutline);
 		fLastUpdateTime = currentTime;
 	}
+#endif
 }
 
 
 void
-FunctionsOutlineView::SetLoadingStatus(status loadingStatus)
-{
-	fLoadingStatus = loadingStatus;
-	switch (fLoadingStatus) {
-		case STATUS_LOADING:
-			fLoadingView->SetText("Loading outline");
-			break;
-		case STATUS_EMPTY:
-		default:
-			fLoadingView->SetText("Empty");
-			break;
-	}
-}
-
-
-void
-FunctionsOutlineView::UpdateDocumentSymbols(BMessage* msg)
+FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 {
 	fListView->MakeEmpty();
 
-	SetLoadingStatus(STATUS_EMPTY);
-	dynamic_cast<BCardLayout*>(GetLayout())->SetVisibleItem(1);
 	if (msg->FindRef("ref", &fCurrentRef) != B_OK)
 		return;
 
-	SetLoadingStatus(STATUS_LOADING);
-	// TODO: This is done synchronously, so the view isn't updated
-	// and we don't see the "loading" text
+	// TODO: This is done synchronously
 	_RecursiveAddSymbols(nullptr, msg);
-	SetLoadingStatus(STATUS_LOADED);
-	dynamic_cast<BCardLayout*>(GetLayout())->SetVisibleItem(0);
 	fListView->SetInvocationMessage(new BMessage(kGoToSymbol));
 	fListView->SetTarget(this);
 }

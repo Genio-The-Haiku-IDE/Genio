@@ -336,12 +336,15 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case EDITOR_UPDATE_SYMBOLS:{
+		case EDITOR_UPDATE_SYMBOLS:
+		{
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				Editor* editor = fTabManager->EditorBy(&ref);
 				if (editor == fTabManager->SelectedEditor()) {
-					fFunctionsOutlineView->UpdateDocumentSymbols(message);
+					BMessage notifyMessage(EDITOR_UPDATE_SYMBOLS);
+					notifyMessage.AddMessage("symbols", message);
+					SendNotices(EDITOR_UPDATE_SYMBOLS, &notifyMessage);
 				}
 			}
 		}
@@ -3989,8 +3992,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		_UpdateWindowTitle(nullptr);
 
 		fProblemsPanel->ClearProblems();
-		BMessage empty;
-		fFunctionsOutlineView->UpdateDocumentSymbols(&empty);
+
+		BMessage empty(EDITOR_UPDATE_SYMBOLS);
+		SendNotices(EDITOR_UPDATE_SYMBOLS, &empty);
 		return;
 	}
 
@@ -4071,7 +4075,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	BMessage symbols;
 	editor->GetDocumentSymbols(&symbols);
-	fFunctionsOutlineView->UpdateDocumentSymbols(&symbols);
+	BMessage noticeMessage(EDITOR_UPDATE_SYMBOLS);
+	noticeMessage.AddMessage("symbols", &symbols);
+	SendNotices(EDITOR_UPDATE_SYMBOLS, &noticeMessage);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

@@ -9,6 +9,7 @@
 class BListItem;
 class BStringView;
 class BOutlineListView;
+class ToolBar;
 class FunctionsOutlineView : public BView {
 public:
 	enum status {
@@ -18,17 +19,18 @@ public:
 	};
 			FunctionsOutlineView();
 
-				void	UpdateDocumentSymbols(BMessage* msg);
-
+	virtual		void	AttachedToWindow();
+	virtual		void	DetachedFromWindow();
 	virtual		void	MessageReceived(BMessage* msg);
 	virtual		void	Pulse();
 				void	SetLoadingStatus(status loadingStatus);
 
 private:
+	void	_UpdateDocumentSymbols(BMessage* msg);
 	void	_RecursiveAddSymbols(BListItem* parent, BMessage* msg);
 
 	BOutlineListView* fListView;
-	BStringView* fLoadingView;
+	ToolBar*	fToolBar;
 	entry_ref	fCurrentRef;
 	status		fLoadingStatus;
 	bigtime_t	fLastUpdateTime;

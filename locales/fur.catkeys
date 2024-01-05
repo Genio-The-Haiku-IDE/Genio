@@ -1,5 +1,6 @@
-1	Friulian	application/x-vnd.Genio	101957421
+1	Friulian	application/x-vnd.Genio	1199167707
 About…	GenioWindow		Informazions…
+An error occurred while switching branch:	GenioWindow		Al è capitât un erôr tal cambiâ ram:
 Appearance	GenioWindow		Aspiet
 Autocomplete	GenioWindow		Autocompletament
 Bookmark	GenioWindow		Met tai segnelibris
@@ -17,11 +18,11 @@ Close file	GenioWindow		Siere file
 Close project	GenioWindow		Siere progjet
 Comment selected lines	GenioWindow		Comente riis selezionadis
 Configure	GenioWindow		Configure
+Conflicts	GenioWindow		Conflits
 Console I/O	GenioWindow		Console I/O
 Copy	GenioWindow		Copie
 Could not create a new file	GenioWindow		Impussibil creâ un gnûf file
 Could not delete \"%name%\".\n\n	GenioWindow		Impussibil eliminâ \"%name%\".\n\n
-Could not open template folder in Tracker	GenioWindow		Impussibil vierzi la cartele dai modei in Tracker
 Cut	GenioWindow		Taie
 Debug	GenioWindow		Debug
 Debug project	GenioWindow		Debug dal progjet
@@ -44,32 +45,37 @@ Find in project	GenioWindow		Cjate tal progjet
 Find next	GenioWindow		Cjate sucessîf
 Find previous	GenioWindow		Cjate precedent
 Find:	GenioWindow		Cjate:
+Focus mode	GenioWindow		Modalitât concentrazion
 Fold/Unfold all	GenioWindow		Slargje/Strenç dut
 Format	GenioWindow		Formât
+Fullscreen	GenioWindow		Plen visôr
+Genio project…	GenioWindow		Progjet Genio…
 Git	GenioWindow		Git
 Go to declaration	GenioWindow		Va ae declarazion
 Go to definition	GenioWindow		Va ae definizion
 Go to implementation	GenioWindow		Va ae implementazion
 Go to line…	GenioWindow		Va ae rie…
-Help	GenioWindow		Jutori
 Ignore	GenioWindow		Ignore
 Invalid project folder	GenioWindow		Cartele di progjet no valide
 Keep	GenioWindow		Ten
+Language	GenioWindow		Lenghe
 Line endings	GenioWindow		Fin rie
 Log	GenioWindow	The git command	Log
 Log (oneline)	GenioWindow	The git command	Log (rie singule)
 Mac	GenioWindow		Mac
+Make bindcatalogs	GenioWindow		Cree bindcatalogs
+Make catkeys	GenioWindow		Cree catkeys
 Make file read-only	GenioWindow		Rint in dome-leture il file
 Match case	GenioWindow		Corispondence maiusculis/minusculis
 New	GenioWindow		Gnûf
 New file	GenioWindow		Gnûf file
 New folder	GenioWindow		Gnove cartele
 Next	GenioWindow	Bookmark menu	Sucessîf
-Open	GenioWindow		Vierç
 Open files list	GenioWindow		Vierç liste files
-Open project	GenioWindow		Vierç progjet
+Open project…	GenioWindow		Vierç progjet…
 Open recent…	GenioWindow		Vierç resint…
-Open remote project	GenioWindow		Vierç progjet esterni
+Open remote project…	GenioWindow		Vierç progjet lontan…
+Open…	GenioWindow		Vierç…
 Overwrite	GenioWindow		Sorescrîf
 Paste	GenioWindow		Tache
 Previous	GenioWindow	Bookmark menu	Precedent
@@ -115,6 +121,7 @@ Show/Hide replace bar	GenioWindow		Mostre/Plate sbare pes sostituzions
 Status	GenioWindow	The git command	Status
 Status (short)	GenioWindow	The git command	Status (short)
 Switch source/header	GenioWindow		Passe tra sorzint/intestazion
+Switch to branch	GenioWindow		Passe al ram
 Switch to next file	GenioWindow		Passe al file sucessîf
 Switch to previous file	GenioWindow		Passe al file precedent
 Tag	GenioWindow	The git command	Tag
@@ -129,23 +136,71 @@ Wrap	GenioWindow		Fâs sù
 You can't create a new folder here, please select a project or another folder	GenioWindow		No tu puedis creâ une gnove cartele achì, par plasê selezione un progjet o une altre cartele
 Zoom in	GenioWindow		Aumente zoom
 Zoom out	GenioWindow		Diminuìs zoom
+Active	EditorTabManager		Ative
+Project	EditorTabManager		Progjet
 An error occurred attempting to rename file 	ProjectsFolderBrowser		Al è capitât un erôr cirint di cambiâ non al file
 Build project	ProjectsFolderBrowser		Compile progjet
 Clean project	ProjectsFolderBrowser		Nete progjet
 Close project	ProjectsFolderBrowser		Siere progjet
+Current branch	ProjectsFolderBrowser		Ram atuâl
 Delete file	ProjectsFolderBrowser		Elimine file
 Delete folder	ProjectsFolderBrowser		Elimine cartele
 New	ProjectsFolderBrowser		Gnûf
 OK	ProjectsFolderBrowser		Va ben
 Open file	ProjectsFolderBrowser		Vierç file
 Open Terminal	ProjectsFolderBrowser		Vierç Terminâl
+Path	ProjectsFolderBrowser		Percors
+Project	ProjectsFolderBrowser		Progjet
 Project settings…	ProjectsFolderBrowser		Impostazions progjet…
 Rename file	ProjectsFolderBrowser		Cambie non file
 Rename folder	ProjectsFolderBrowser		Cambie non cartele
 Set active	ProjectsFolderBrowser		Met atîf
 Show in Tracker	ProjectsFolderBrowser		Mostre tal Tracker
+Switch to branch	ProjectsFolderBrowser		Passe al ram
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La cartele dal progjet e je stade eliminade o spostade intune altre posizion, e vignarà sierade e discjariade dal spazi di lavôr.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		La cartele dal progjet e à cambiât non. E vignarà sierade e tornade a vierzi in automatic.
+An unknown error occurred.	SourceControlPanel		Al è capitât un erôr no cognossût.
+Cancel	SourceControlPanel		Anule
+Changes stashed.	SourceControlPanel		Modifichis metudis in bande.
+Choose branch…	SourceControlPanel		Sielç il ram…
+Choose project…	SourceControlPanel		Sielç il progjet…
+Conflicts	SourceControlPanel		Conflits
+Copy name	SourceControlPanel		Copie non
+Create initial commit	SourceControlPanel		Cree commit (conferme) iniziâl
+Create new branch from \"%selected_branch%\"	SourceControlPanel		Cree gnûf ram partint di \"%selected_branch%\"
+Current branch:	SourceControlPanel		Ram corint:
+Delete	SourceControlPanel		Elimine
+Delete \"%selected_branch%\"	SourceControlPanel		Elimine \"%selected_branch%\"
+Delete dialog	SourceControlPanel		Dialic di eliminazion
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Daûr a eliminâ il ram: \"%branch%\".\n\nDopo de eliminazion, l'element al vignarà pierdût.\nDesideristu pardabon eliminâlu?
+Do not create the initial commit	SourceControlPanel		No sta creâ la conferme iniziâl
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Desideristu pardabon inizializâ un dipuesit cence creâ une conferme iniziâl?
+Enter a message for this stash	SourceControlPanel		Inserìs un messaç par cheste metude in bande
+Fetch	SourceControlPanel		Recupere (fetch)
+Fetch completed.	SourceControlPanel		Recupar completât.
+Fetch prune	SourceControlPanel		Recupar e netisie (fetch prune)
+Fetch prune completed.	SourceControlPanel		Recupar e netisie completâts.
+Init repository	SourceControlPanel		Inizialize dipuesit
+Local branches	SourceControlPanel		Rams locâi
+OK	SourceControlPanel		Va ben
+Options	SourceControlPanel		Opzions
+Project:	SourceControlPanel		Progjet:
+Remote branches	SourceControlPanel		Rams lontans
+Remotes	SourceControlPanel		Lontans
+Rename \"%selected_branch%\"	SourceControlPanel		Cambie non a \"%selected_branch%\"
+Rename branch	SourceControlPanel		Cambie non al ram
+Rename branch:	SourceControlPanel		Cambie non al ram:
+Repository	SourceControlPanel		Dipuesit
+Source control	SourceControlPanel		Control sorzint
+Stash apply changes	SourceControlPanel		Apliche modifichis metudis in bande
+Stash changes	SourceControlPanel		Modifichis metudis in bande
+Stash pop changes	SourceControlPanel		Ripristine modifichis metudis in bande
+Stashed changes applied.	SourceControlPanel		Lis modifichis metudis in bande a son stadis aplicadis.
+Stashed changes popped.	SourceControlPanel		Lis modifichis metudis in bande a son stadis ripristinadis e aplicadis.
+Switch to \"%selected_branch%\"	SourceControlPanel		Passe a \"%selected_branch%\"
+Tags	SourceControlPanel		Etichetis
+The project is building, changing branch not allowed.	SourceControlPanel		Il progjet al è daûr a compilâsi, nol è consintût il cambi di ram.
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Chest progjet nol à un dipuesit git.\nFâs clic chi sot par inizializâlu.
 Another command is running.	ConsoleIOView		Al è in esecuzion un altri comant.
 Banner	ConsoleIOView		Strisson
 Clear	ConsoleIOView		Nete
@@ -154,57 +209,60 @@ stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
 Stop	ConsoleIOView		Ferme
 Wrap	ConsoleIOView		Fâs sù
-Apply	SettingsWindow		Apliche
-Browse…	SettingsWindow		Esplore…
+Auto collapse/expand projects	SettingsWindow		Strenç/slargje in automatic i progjets
+Auto-Build on resource save	SettingsWindow		Auto-compile al salvament des risorsis
+Auto-Save changed files when building	SettingsWindow		Auto-Salve i files modificâts ae compilazion
 Build	SettingsWindow		Compile
-Build target on resource save	SettingsWindow		Compile la destinazion al salvament de risorse
-Cancel	SettingsWindow		Anule
 Console banner	SettingsWindow		Strisson de console
-Default	SettingsWindow		Predefinît
+Convert tabs to spaces	SettingsWindow		Convertìs tabulazions in spazis
 Default size	SettingsWindow		Dimension predefinide
-Defaults loaded	SettingsWindow		Valôrs predefinît cjariâts
-Edge column:	SettingsWindow		Colone dal ôr:
 Editor	SettingsWindow		Editôr
+Editor style:	SettingsWindow		Stîl editôr:
+Editor zoom:	SettingsWindow		Zoom editôr:
 Enable brace matching	SettingsWindow		Abilite corispondence parentesis a grafis
 Enable folding	SettingsWindow		Abilite pleâ
-Enable notifications	SettingsWindow		Abilite notifichis
 Enable syntax highlighting	SettingsWindow		Abilite evidenziazion sintassi
+Exclude folders:	SettingsWindow		Cartelis di escludi:
+Find	SettingsWindow		Cjate
 Font size:	SettingsWindow		Dimension caratar:
-Font:	SettingsWindow		Caratar:
 General	SettingsWindow		Gjenerâl
 Log destination:	SettingsWindow		Destinazion regjistri:
 Log level:	SettingsWindow		Nivel dal regjistri:
 Mark caret line	SettingsWindow		Segne linie dal cursôr
-Notifications	SettingsWindow		Notifichis
+Match case	SettingsWindow		Corispondence maiusculis/minusculis
 Projects folder:	SettingsWindow		Cartele progjets:
 Reload files	SettingsWindow		Torne cjame i files
 Reload projects	SettingsWindow		Torne cjame i progjets
-Revert	SettingsWindow		Ripristine
 Save caret position	SettingsWindow		Salve posizion cursôr
-Save changed files on build	SettingsWindow		Ae compilazion salve i files modificâts
-Save position	SettingsWindow		Salve posizion
-Set for app ver: 	SettingsWindow		Configurât pe version de aplicazion: 
+Set ruler to column:	SettingsWindow		Posizione la rie ae colone:
 Show comment margin	SettingsWindow		Mostre margjin dai coments
-Show edge line	SettingsWindow		Mostre linie dal ôr
 Show full path in window title	SettingsWindow		Mostre il percors complet tal titul dal barcon
+Show line endings	SettingsWindow		Mostre fin rie
 Show line number	SettingsWindow		Mostre il numar de rie
 Show output pane	SettingsWindow		Mostre panel di jessude
 Show projects pane	SettingsWindow		Mostre panel dai progjets
+Show repository outline	SettingsWindow		Mostre struture dal dipuesit
 Show toolbar	SettingsWindow		Mostre sbare dai struments
+Show vertical ruler	SettingsWindow		Mostre rie verticâl
+Show whitespace	SettingsWindow		Mostre spazis
+Source control	SettingsWindow		Control sorzint
 Startup	SettingsWindow		Inviament
-Tab width:  	SettingsWindow		Largjece tabulazion:  
-This is the font size preview	SettingsWindow		Cheste e je la anteprime de dimension dal caratar
+Tab width:	SettingsWindow		Largjece tabulazion:
+This setting will be updated on restart.	SettingsWindow		Cheste impostazion e vignarà inzornade al prossim inviament.
 Trim trailing whitespace on save	SettingsWindow		Al salvament gjave i spazis di fin rie
 Visual	SettingsWindow		Visuâl
+Whole word	SettingsWindow		Peraule interie
+Wrap	SettingsWindow		Gnove rie
 Wrap console	SettingsWindow		Fâs sù la console
 Base path:	RemoteProjectWindow		Percors di base:
+Browse…	RemoteProjectWindow		Esplore…
 Cancel	RemoteProjectWindow		Anule
 Clone	RemoteProjectWindow		Clone
+Close	RemoteProjectWindow		Siere
 Continue	RemoteProjectWindow		Continue
-Destination directory:	RemoteProjectWindow		Cartele di destinazion:
+Destination folder:	RemoteProjectWindow		Cartele di destinazion:
 Do you want to stop cloning the repository?	RemoteProjectWindow		Desideristu interompi la clonazion dal dipuesit?
 Open remote Git project	RemoteProjectWindow		Vierç progjet Git esterni
-Quit	RemoteProjectWindow		Jes
 Stop	RemoteProjectWindow		Interomp
 The local path is not valid or does not exist	RemoteProjectWindow		Il percors locâl nol è valit o nol esist
 URL:	RemoteProjectWindow		URL:
@@ -215,8 +273,6 @@ Debug clean command:	ProjectSettingsWindow		Comant di netisie dal debug:
 Debug execute arguments:	ProjectSettingsWindow		Parametris di esecuzion dal debug:
 Debug project target:	ProjectSettingsWindow		Destinazion progjet dal debug:
 Default	ProjectSettingsWindow		Predefinît
-Enable Git	ProjectSettingsWindow		Abilite Git
-Exclude settings file from Git	ProjectSettingsWindow		Esclût di Git il file des impostazions
 OK	ProjectSettingsWindow		Va ben
 Project:	ProjectSettingsWindow		Progjet:
 Release build command:	ProjectSettingsWindow		Comant di publicazion de compilazion:
@@ -224,7 +280,6 @@ Release clean command:	ProjectSettingsWindow		Comant di netisie de publicazion:
 Release execute arguments:	ProjectSettingsWindow		Parametris di esecuzion de publicazion:
 Release project target:	ProjectSettingsWindow		Destinazion dal progjet de publicazion:
 Run in Terminal	ProjectSettingsWindow		Eseguìs tal Terminâl
-Source control	ProjectSettingsWindow		Control de sorzint
 Target	ProjectSettingsWindow		Destinazion
 Cancel	GoToLineWindow		Anule
 Go to line	GoToLineWindow		Va ae rie
@@ -232,6 +287,8 @@ Go to line:	GoToLineWindow		Va ae rie:
 OK	GoToLineWindow		Va ben
 Cancel	Editor		Anule
 Don't save	Editor		No sta salvâ
+Fix: %fix_desc%	Editor		Justadure: %fix_desc%
+No fix available	Editor		Nissune justadure disponibile
 Save	Editor		Salve
 Save changes to file \"%filename%\"?	Editor		Salvâ lis modifichis al file \"%filename%\"?
 Save dialog	Editor		Salve dialic
@@ -241,28 +298,33 @@ Save all	QuitAlert		Salve dut
 Save selected	QuitAlert		Salve selezionâts
 There are unsaved changes.\nSelect the files to save.	QuitAlert		A son modifichis che no son stadis salvadis.\nSelezione i files di salvâ.
 Unsaved files	QuitAlert		Files no salvâts
+Cancel	GitCredentialsWindow		Anule
+Git - User Credentials	GitCredentialsWindow		Git - Credenziâls utent
+OK	GitCredentialsWindow		Va ben
+Password:	GitCredentialsWindow		Password:
+Username:	GitCredentialsWindow		Non utent:
+Cancel	GTextAlert		Anule
+OK	GTextAlert		Va ben
 Category	ProblemsPanel		Categorie
 Message	ProblemsPanel		Messaç
 Problems	ProblemsPanel		Problemis
 Source	ProblemsPanel		Sorzint
-Do you want to ignore, review or load defaults?	GenioApp		Desideristu ignorâ, revisionâ o cjariâ i predefinîts?
-Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio al derive di Ideam e al è disponibil sot i tiermins de licence MIT.
-Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio al dopre:\nScintilla lib\nCopyright 1998-2003 di Neil Hodgson <neilh@scintilla.org>\n\nScintilla par Haiku\nCopyright 2011 di Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 di Kacper Kasper <kacperkasper@gmail.com>\n\n
-Ignore	GenioApp		Ignore
-Load defaults	GenioApp		Cjarie i predefinîts
-Made with love in Italy	GenioApp		Fat cun amôr in Italie
-Review	GenioApp		Revisione
-See credits for a complete list.\n\n	GenioApp		Viôt i ringraciaments par vê une liste complete.\n\n
-Settings file for a previous version detected.	GenioApp		Rilevât file di impostazions par une version precedente.
+Defaults	ConfigWindow		Predefinîts
+Settings	ConfigWindow		Impostazions
 Edit user templates…	TemplatesMenu		Modifiche modei dal utent…
 File deleted	GitRepository		File eliminât
 File deleted from index	GitRepository		File eliminât de tabele
 File modified	GitRepository		File modificât
-File modified on index	GitRepository		File modificât te tabele
+File modified on index	GitRepository		File modificât su la tabele
 New file	GitRepository		Gnûf file
-New file staged	GitRepository		Gnûf file presentât (staged)
+New file staged	GitRepository		Gnûf file preparât (staged)
 Genio	System name		Genio
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio al derive di Ideam e al è disponibil sot i tiermins de licence MIT.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio al dopre:\nScintilla lib\nCopyright 1998-2003 di Neil Hodgson <neilh@scintilla.org>\n\nScintilla par Haiku\nCopyright 2011 di Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 di Kacper Kasper <kacperkasper@gmail.com>\n\n
+Made with love in Italy	GenioApp		Fat cun amôr in Italie
+See credits for a complete list.\n\n	GenioApp		Viôt i ringraciaments par vê une liste complete.\n\n
 Location	SearchResultPanel		Posizion
-Search Results	SearchResultPanel		Risultâts de ricercje
+Search results	SearchResultPanel		Risultâts de ricercje
 New folder	TemplateManager		Gnove cartele
 OK	Utilities		Va ben
+OK	GitAlert		Va ben

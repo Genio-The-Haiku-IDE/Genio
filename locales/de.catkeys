@@ -1,4 +1,4 @@
-1	German	application/x-vnd.Genio	335291597
+1	German	application/x-vnd.Genio	1199167707
 About…	GenioWindow		Über …
 An error occurred while switching branch:	GenioWindow		Fehler beim Wechsel des Branches:
 Appearance	GenioWindow		Erscheinungsbild
@@ -132,11 +132,11 @@ Unix	GenioWindow		Unix
 View	GenioWindow		Ansicht
 Whole word	GenioWindow		Ganze Wörter
 Window	GenioWindow		Fenster
-Wrap	GenioWindow		Umbruch
+Wrap	GenioWindow		Ende⇌Anfang
 You can't create a new folder here, please select a project or another folder	GenioWindow		Hier kann kein neuer Ordner erstellt werden. Bitte ein Projekt oder anderen Ordner auswählen.
 Zoom in	GenioWindow		Vergrößern
 Zoom out	GenioWindow		Verkleinern
-Active	EditorTabManager		Aktiv
+Active	EditorTabManager		aktiv
 Project	EditorTabManager		Projekt
 An error occurred attempting to rename file 	ProjectsFolderBrowser		Fehler beim Umbenennen der Datei
 Build project	ProjectsFolderBrowser		Projekt bauen
@@ -148,7 +148,7 @@ Delete folder	ProjectsFolderBrowser		Ordner entfernen
 New	ProjectsFolderBrowser		Neu
 OK	ProjectsFolderBrowser		OK
 Open file	ProjectsFolderBrowser		Datei öffnen
-Open Terminal	ProjectsFolderBrowser		Terminal öffnen
+Open Terminal	ProjectsFolderBrowser		In Terminal öffnen
 Path	ProjectsFolderBrowser		Pfad
 Project	ProjectsFolderBrowser		Projekt
 Project settings…	ProjectsFolderBrowser		Projekt-Einstellungen …
@@ -160,9 +160,6 @@ Switch to branch	ProjectsFolderBrowser		Branch wechseln
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Der Projektordner wurde gelöscht oder verschoben und wird daher geschlossen und vom Arbeitsbereich entfernt.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Der Projektordner wurde umbenannt. Er wird daher automatisch geschlossen und neu geöffnet.
 An unknown error occurred.	SourceControlPanel		Ein unbekannter Fehler ist aufgetreten.
-Branch created succesfully.	SourceControlPanel		Branch wurde erfolgreich erstellt.
-Branch deleted succesfully.	SourceControlPanel		Branch wurde erfolgreich gelöscht.
-Branch renamed succesfully.	SourceControlPanel		Branch wurde erfolgreich umbenannt.
 Cancel	SourceControlPanel		Abbrechen
 Changes stashed.	SourceControlPanel		Änderungen wurde 'gestashed'.
 Choose branch…	SourceControlPanel		Branch wählen …
@@ -232,7 +229,7 @@ General	SettingsWindow		Allgemein
 Log destination:	SettingsWindow		Log-Ausgabe:
 Log level:	SettingsWindow		Log-Stufe:
 Mark caret line	SettingsWindow		Einfügemarke zeigen
-Match case	SettingsWindow		Groß/Klein
+Match case	SettingsWindow		Groß-/Kleinschreibung unterscheiden
 Projects folder:	SettingsWindow		Projektordner:
 Reload files	SettingsWindow		Dateien neu laden
 Reload projects	SettingsWindow		Projekte neu laden
@@ -255,7 +252,7 @@ This setting will be updated on restart.	SettingsWindow		Diese Einstellung wird 
 Trim trailing whitespace on save	SettingsWindow		Anhängenden 'Whitespace' beim Speichern entfernen
 Visual	SettingsWindow		Darstellung
 Whole word	SettingsWindow		Ganze Wörter
-Wrap	SettingsWindow		Umbruch
+Wrap	SettingsWindow		Ende⇌Anfang (Suche am Anfang fortsetzen)
 Wrap console	SettingsWindow		Konsolenausgabe umbrechen
 Base path:	RemoteProjectWindow		Basis-Pfad:
 Browse…	RemoteProjectWindow		Auswählen …
@@ -313,6 +310,7 @@ Message	ProblemsPanel		Inhalt
 Problems	ProblemsPanel		Probleme
 Source	ProblemsPanel		Quelle
 Defaults	ConfigWindow		Standardwerte
+Settings	ConfigWindow		Einstellungen
 Edit user templates…	TemplatesMenu		Benutzervorlagen bearbeiten …
 File deleted	GitRepository		Datei gelöscht
 File deleted from index	GitRepository		Datei aus Index gelöscht

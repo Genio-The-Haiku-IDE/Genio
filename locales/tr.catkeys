@@ -1,4 +1,4 @@
-1	Turkish	application/x-vnd.Genio	335291597
+1	Turkish	application/x-vnd.Genio	1199167707
 About…	GenioWindow		Hakkında…
 An error occurred while switching branch:	GenioWindow		Dal değiştirirken bir hata oluştu:
 Appearance	GenioWindow		Görünüş
@@ -160,9 +160,6 @@ Switch to branch	ProjectsFolderBrowser		Dala geç
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Proje klasörü başka bir konuma taşındı veya silindi; bu nedenle kapatılacak ve çalışma alanından kaldırılacak.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Proje klasörü yeniden adlandırıldı. Kendiliğinden kapatılacak ve yeniden açılacak.
 An unknown error occurred.	SourceControlPanel		Bilinmeyen bir hata oluştu.
-Branch created succesfully.	SourceControlPanel		Dal başarıyla oluşturuldu.
-Branch deleted succesfully.	SourceControlPanel		Dal başarıyla silindi.
-Branch renamed succesfully.	SourceControlPanel		Dal başarıyla yeniden adlandırıldı.
 Cancel	SourceControlPanel		Vazgeç
 Changes stashed.	SourceControlPanel		Değişiklikler zulalandı.
 Choose branch…	SourceControlPanel		Dal seç…
@@ -237,7 +234,7 @@ Projects folder:	SettingsWindow		Projeler klasörü:
 Reload files	SettingsWindow		Dosyaları yeniden yükle
 Reload projects	SettingsWindow		Projeleri yeniden yükle
 Save caret position	SettingsWindow		İmleç konumunu kaydet
-Set ruler to column:	SettingsWindow		Set ruler to column:
+Set ruler to column:	SettingsWindow		Cetveli şu sütuna koy:
 Show comment margin	SettingsWindow		Yorum kenar boşluğunu göster
 Show full path in window title	SettingsWindow		Pencere başlığında tam yolu göster
 Show line endings	SettingsWindow		Satır sonlarını göster
@@ -246,7 +243,7 @@ Show output pane	SettingsWindow		Çıktı panelini göster
 Show projects pane	SettingsWindow		Projeler panelini göster
 Show repository outline	SettingsWindow		Depo ana hattını göster
 Show toolbar	SettingsWindow		Araç çubuğunu göster
-Show vertical ruler	SettingsWindow		Show vertical ruler
+Show vertical ruler	SettingsWindow		Dikey cetveli göster
 Show whitespace	SettingsWindow		Boşlukları göster
 Source control	SettingsWindow		Kaynak denetimi
 Startup	SettingsWindow		Başlangıç
@@ -313,6 +310,7 @@ Message	ProblemsPanel		İleti
 Problems	ProblemsPanel		Sorunlar
 Source	ProblemsPanel		Kaynak
 Defaults	ConfigWindow		Saptanmışlar
+Settings	ConfigWindow		Settings
 Edit user templates…	TemplatesMenu		Kullanıcı şablonlarını düzenle…
 File deleted	GitRepository		Dosya silindi
 File deleted from index	GitRepository		Dosya indeksten silindi

@@ -1,4 +1,4 @@
-1	Italian	application/x-vnd.Genio	335291597
+1	Italian	application/x-vnd.Genio	1199167707
 About…	GenioWindow		A proposito di…
 An error occurred while switching branch:	GenioWindow		C'è stato un errore durante il passaggio di branch:
 Appearance	GenioWindow		Aspetto
@@ -160,9 +160,6 @@ Switch to branch	ProjectsFolderBrowser		Passa al branch
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La cartella di progetto è stata cancellata o spostata e sarà chiusa e tolta dallo spazio di lavoro.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		La cartella del progetto è stata rinominata. Sarà chiusa e riaperta automaticamente.
 An unknown error occurred.	SourceControlPanel		Errore sconosciuto.
-Branch created succesfully.	SourceControlPanel		Branch creato con successo.
-Branch deleted succesfully.	SourceControlPanel		Branch cancellato con successo.
-Branch renamed succesfully.	SourceControlPanel		Branch rinominato con successo.
 Cancel	SourceControlPanel		Annulla
 Changes stashed.	SourceControlPanel		Modifiche stashed.
 Choose branch…	SourceControlPanel		Scegli branch…
@@ -313,6 +310,7 @@ Message	ProblemsPanel		Messaggio
 Problems	ProblemsPanel		Problemi
 Source	ProblemsPanel		Origine
 Defaults	ConfigWindow		Predefiniti
+Settings	ConfigWindow		Impostazioni
 Edit user templates…	TemplatesMenu		Modifica i modelli utente...
 File deleted	GitRepository		File cancellato
 File deleted from index	GitRepository		File cancellato dall'index

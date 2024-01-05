@@ -3312,17 +3312,25 @@ GenioWindow::_ProjectRenameFile()
 void
 GenioWindow::_ShowDocumentation()
 {
-	BPathFinder pathFinder;
 	BStringList paths;
-	BPath path;
-	BEntry entry;
-
+	BPathFinder pathFinder;
 	status_t error = pathFinder.FindPaths(B_FIND_PATH_DOCUMENTATION_DIRECTORY,
 		"packages/genio", paths);
 
+	// Also add documentation path in the Genio directory
+	// for when it's run directly from the repository
+	BPath localDocsPath;
+	if (GetGenioDirectory(localDocsPath)) {
+		if (localDocsPath.GetParent(&localDocsPath) == B_OK) {
+			localDocsPath.Append("documentation");
+			paths.Add(localDocsPath.Path());
+		}
+	}
 	for (int i = 0; i < paths.CountStrings(); ++i) {
+		BPath path;
 		if (error == B_OK && path.SetTo(paths.StringAt(i)) == B_OK
 			&& path.Append("ReadMe.html") == B_OK) {
+			BEntry entry;
 			entry = path.Path();
 			if (!entry.Exists())
 				continue;

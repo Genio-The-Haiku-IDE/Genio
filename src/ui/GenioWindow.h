@@ -115,6 +115,8 @@ private:
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
 
+			void				_ShowDocumentation();
+
 			// Project Folders
 			void				_ProjectFolderClose(ProjectFolder *project);
 			status_t			_ProjectFolderOpen(BMessage *message);

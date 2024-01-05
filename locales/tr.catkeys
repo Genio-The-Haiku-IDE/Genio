@@ -1,4 +1,4 @@
-1	Turkish	application/x-vnd.Genio	1199167707
+1	Turkish	application/x-vnd.Genio	2467019101
 About…	GenioWindow		Hakkında…
 An error occurred while switching branch:	GenioWindow		Dal değiştirirken bir hata oluştu:
 Appearance	GenioWindow		Görünüş
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Beyana git
 Go to definition	GenioWindow		Tanıma git
 Go to implementation	GenioWindow		Uygulamaya git
 Go to line…	GenioWindow		Satıra git…
+Help…	GenioWindow		Yardım…
 Ignore	GenioWindow		Yok say
 Invalid project folder	GenioWindow		Geçersiz proje klasörü
 Keep	GenioWindow		Tut
@@ -310,7 +311,7 @@ Message	ProblemsPanel		İleti
 Problems	ProblemsPanel		Sorunlar
 Source	ProblemsPanel		Kaynak
 Defaults	ConfigWindow		Saptanmışlar
-Settings	ConfigWindow		Settings
+Settings	ConfigWindow		Ayarlar
 Edit user templates…	TemplatesMenu		Kullanıcı şablonlarını düzenle…
 File deleted	GitRepository		Dosya silindi
 File deleted from index	GitRepository		Dosya indeksten silindi

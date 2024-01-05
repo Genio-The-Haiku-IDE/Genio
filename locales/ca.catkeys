@@ -1,4 +1,4 @@
-1	Catalan	application/x-vnd.Genio	1199167707
+1	Catalan	application/x-vnd.Genio	2467019101
 About…	GenioWindow		Quant a...
 An error occurred while switching branch:	GenioWindow		S'ha produït un error en canviar de branca:
 Appearance	GenioWindow		Aparença
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Ves a la declaració
 Go to definition	GenioWindow		Ves a la definició
 Go to implementation	GenioWindow		Ves a la implementació
 Go to line…	GenioWindow		Ves a la línia...
+Help…	GenioWindow		Ajuda…
 Ignore	GenioWindow		Ignora-ho
 Invalid project folder	GenioWindow		Carpeta del projecte no vàlida
 Keep	GenioWindow		Mantén
@@ -310,7 +311,7 @@ Message	ProblemsPanel		Misstge
 Problems	ProblemsPanel		Problemes
 Source	ProblemsPanel		Font
 Defaults	ConfigWindow		Valors per defecte
-Settings	ConfigWindow		Settings
+Settings	ConfigWindow		Paràmetres
 Edit user templates…	TemplatesMenu		Edita les plantilles d'usuari...
 File deleted	GitRepository		Fitxer suprimit
 File deleted from index	GitRepository		Fitxer suprimit de l'índex

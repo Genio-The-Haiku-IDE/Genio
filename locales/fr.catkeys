@@ -1,11 +1,11 @@
-1	French	application/x-vnd.Genio	1199167707
+1	French	application/x-vnd.Genio	2467019101
 About…	GenioWindow		À propos de…
 An error occurred while switching branch:	GenioWindow		Une erreur est survenue pendant le changement de branche :
 Appearance	GenioWindow		Apparence
 Autocomplete	GenioWindow		Complétion automatique
 Bookmark	GenioWindow		Signet
 Bookmark all	GenioWindow		Tout mettre en signet
-Branch	GenioWindow	The git command	Créer une branche
+Branch	GenioWindow	The git command	Branche
 Build log	GenioWindow		Journal de construction
 Build mode	GenioWindow		Mode de construction
 Build project	GenioWindow		Construire le projet
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Aller à la déclaration
 Go to definition	GenioWindow		Aller à la définition
 Go to implementation	GenioWindow		Aller à l’implémentation
 Go to line…	GenioWindow		Aller à la ligne…
+Help…	GenioWindow		Aide…
 Ignore	GenioWindow		Ignorer
 Invalid project folder	GenioWindow		Dossier de projet invalide
 Keep	GenioWindow		Conserver

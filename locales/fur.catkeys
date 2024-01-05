@@ -1,4 +1,4 @@
-1	Friulian	application/x-vnd.Genio	1199167707
+1	Friulian	application/x-vnd.Genio	2467019101
 About…	GenioWindow		Informazions…
 An error occurred while switching branch:	GenioWindow		Al è capitât un erôr tal cambiâ ram:
 Appearance	GenioWindow		Aspiet
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Va ae declarazion
 Go to definition	GenioWindow		Va ae definizion
 Go to implementation	GenioWindow		Va ae implementazion
 Go to line…	GenioWindow		Va ae rie…
+Help…	GenioWindow		Jutori…
 Ignore	GenioWindow		Ignore
 Invalid project folder	GenioWindow		Cartele di progjet no valide
 Keep	GenioWindow		Ten

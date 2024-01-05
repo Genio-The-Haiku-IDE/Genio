@@ -1,4 +1,4 @@
-1	English (Australian)	application/x-vnd.Genio	1199167707
+1	English (Australian)	application/x-vnd.Genio	2467019101
 About…	GenioWindow		About…
 An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
 Appearance	GenioWindow		Appearance
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Go to declaration
 Go to definition	GenioWindow		Go to definition
 Go to implementation	GenioWindow		Go to implementation
 Go to line…	GenioWindow		Go to line…
+Help…	GenioWindow		Help…
 Ignore	GenioWindow		Ignore
 Invalid project folder	GenioWindow		Invalid project folder
 Keep	GenioWindow		Keep

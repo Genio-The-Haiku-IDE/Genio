@@ -5,6 +5,7 @@ engines:
     std: c++17
 exclude_paths:
   - "data/templates/**"
+  - "documentation/**"
   - "src/lexilla/**"
   - "src/scintilla/**"
   

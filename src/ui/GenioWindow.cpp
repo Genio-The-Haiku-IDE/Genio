@@ -25,6 +25,7 @@
 #include <NodeInfo.h>
 #include <NodeMonitor.h>
 #include <Path.h>
+#include <PathFinder.h>
 #include <PopUpMenu.h>
 #include <RecentItems.h>
 #include <Resources.h>
@@ -1067,6 +1068,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			be_roster->Launch("text/html", 1, argv);
 		}
 		break;
+		case MSG_HELP_DOCS:
+			_ShowDocumentation();
+			break;
 		case kMsgCapabilitiesUpdated:
 			_UpdateTabChange(fTabManager->SelectedEditor(), "kMsgCapabilitiesUpdated");
 		break;
@@ -2697,6 +2701,8 @@ GenioWindow::_InitMenu()
 	BMenu* appMenu = new BMenu("");
 	appMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
 		new BMessage(B_ABOUT_REQUESTED)));
+	appMenu->AddItem(new BMenuItem(B_TRANSLATE("Help" B_UTF8_ELLIPSIS),
+		new BMessage(MSG_HELP_DOCS)));
 	appMenu->AddItem(new BMenuItem(B_TRANSLATE("Genio project" B_UTF8_ELLIPSIS),
 		new BMessage(MSG_HELP_GITHUB)));
 	appMenu->AddSeparatorItem();
@@ -3295,6 +3301,31 @@ GenioWindow::_ProjectRenameFile()
 {
 	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
 	fProjectsFolderBrowser->InitRename(item);
+}
+
+
+void
+GenioWindow::_ShowDocumentation()
+{
+	BPathFinder pathFinder;
+	BStringList paths;
+	BPath path;
+	BEntry entry;
+
+	status_t error = pathFinder.FindPaths(B_FIND_PATH_DOCUMENTATION_DIRECTORY,
+		"packages/genio", paths);
+
+	for (int i = 0; i < paths.CountStrings(); ++i) {
+		if (error == B_OK && path.SetTo(paths.StringAt(i)) == B_OK
+			&& path.Append("ReadMe.html") == B_OK) {
+			entry = path.Path();
+			if (!entry.Exists())
+				continue;
+			BMessage message(B_REFS_RECEIVED);
+			message.AddString("url", path.Path());
+			be_roster->Launch("text/html", &message);
+		}
+	}
 }
 
 

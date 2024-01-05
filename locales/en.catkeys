@@ -1,5 +1,6 @@
-1	English	application/x-vnd.Genio	1199167707
+1	English	application/x-vnd.Genio	2213002912
 Close	RemoteProjectWindow		Close
+Debug target:	ProjectSettingsWindow		Debug target:
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
 Dos	GenioWindow		Dos
@@ -35,12 +36,12 @@ Fetch prune	SourceControlPanel		Fetch prune
 Settings	ConfigWindow		Settings
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
 Editor zoom:	SettingsWindow		Editor zoom:
-Run in Terminal	ProjectSettingsWindow		Run in Terminal
 Wrap	GenioWindow		Wrap
 Save all	GenioWindow		Save all
 OK	GoToLineWindow		OK
 Log (oneline)	GenioWindow	The git command	Log (oneline)
 Go to line…	GenioWindow		Go to line…
+Release execute args:	ProjectSettingsWindow		Release execute args:
 Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
 Select all	GenioWindow		Select all
 New folder	TemplateManager		New folder
@@ -60,25 +61,24 @@ Find previous	GenioWindow		Find previous
 Show projects pane	SettingsWindow		Show projects pane
 Redo	GenioWindow		Redo
 Active	EditorTabManager		Active
+Release target:	ProjectSettingsWindow		Release target:
 Find	SettingsWindow		Find
 Console I/O	GenioWindow		Console I/O
 Run	GenioWindow		Run
 Open Terminal	ProjectsFolderBrowser		Open Terminal
 Save current file	GenioWindow		Save current file
 Project	GenioWindow		Project
-Default	ProjectSettingsWindow		Default
 Reload	GenioWindow		Reload
 Replace	GenioWindow		Replace
 Show white spaces	GenioWindow		Show white spaces
 Switch to previous file	GenioWindow		Switch to previous file
 Stashed changes applied.	SourceControlPanel		Stashed changes applied.
 Cancel	GenioWindow		Cancel
-Release project target:	ProjectSettingsWindow		Release project target:
 Log level:	SettingsWindow		Log level:
 Stash changes	SourceControlPanel		Stash changes
 OK	ProjectsFolderBrowser		OK
-Genio	System name		Genio
 Clone	RemoteProjectWindow		Clone
+Genio	System name		Genio
 Release	GenioWindow		Release
 Keep	GenioWindow		Keep
 Unsaved files	QuitAlert		Unsaved files
@@ -93,11 +93,11 @@ File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it
 Rename branch:	SourceControlPanel		Rename branch:
 Conflicts	SourceControlPanel		Conflicts
 New file	GenioWindow		New file
-Project:	ProjectSettingsWindow		Project:
 Previous	GenioWindow	Bookmark menu	Previous
 Show output pane	GenioWindow		Show output pane
 Delete file	ProjectsFolderBrowser		Delete file
 Read-only	GenioWindow		Read-only
+Help…	GenioWindow		Help…
 The local path is not valid or does not exist	RemoteProjectWindow		The local path is not valid or does not exist
 Cancel	GitCredentialsWindow		Cancel
 Fetch	SourceControlPanel		Fetch
@@ -117,6 +117,7 @@ Local branches	SourceControlPanel		Local branches
 Debug project	GenioWindow		Debug project
 stderr	ConsoleIOView		stderr
 Genio project…	GenioWindow		Genio project…
+Project:	GenioWindow		Project:
 Go to line:	GoToLineWindow		Go to line:
 Close project	GenioWindow		Close project
 Conflicts	GenioWindow		Conflicts
@@ -183,8 +184,6 @@ Status (short)	GenioWindow	The git command	Status (short)
 File deleted	GitRepository		File deleted
 Don't save	GenioWindow		Don't save
 Search	GenioWindow		Search
-Release execute arguments:	ProjectSettingsWindow		Release execute arguments:
-OK	ProjectSettingsWindow		OK
 Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
 Banner	ConsoleIOView		Banner
 Editor	SettingsWindow		Editor
@@ -227,7 +226,9 @@ Delete current line	GenioWindow		Delete current line
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
 Reload files	SettingsWindow		Reload files
 Password:	GitCredentialsWindow		Password:
+Build mode:	ProjectSettingsWindow		Build mode:
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
+Debug execute args:	ProjectSettingsWindow		Debug execute args:
 Cut	GenioWindow		Cut
 Font size:	SettingsWindow		Font size:
 Zoom out	GenioWindow		Zoom out
@@ -274,24 +275,20 @@ Show whitespace	SettingsWindow		Show whitespace
 Close all	GenioWindow		Close all
 You can't create a new folder here, please select a project or another folder	GenioWindow		You can't create a new folder here, please select a project or another folder
 Next	GenioWindow	Bookmark menu	Next
-Wrap	ConsoleIOView		Wrap
 Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
+Wrap	ConsoleIOView		Wrap
 Clear all	GenioWindow	Bookmark menu	Clear all
 Repository	SourceControlPanel		Repository
 File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
-Cancel	ProjectSettingsWindow		Cancel
 Delete dialog	GenioWindow		Delete dialog
 Convert tabs to spaces	SettingsWindow		Convert tabs to spaces
-Target	ProjectSettingsWindow		Target
 Show line number	SettingsWindow		Show line number
 Project:	SourceControlPanel		Project:
 About…	GenioWindow		About…
 Find in project	GenioWindow		Find in project
-Debug execute arguments:	ProjectSettingsWindow		Debug execute arguments:
 Create initial commit	SourceControlPanel		Create initial commit
 Category	ProblemsPanel		Category
-Debug project target:	ProjectSettingsWindow		Debug project target:
 Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
 Close	GenioWindow		Close
 Tags	SourceControlPanel		Tags
@@ -300,6 +297,7 @@ Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla fo
 Clean project	ProjectsFolderBrowser		Clean project
 Open project…	GenioWindow		Open project…
 Debug clean command:	ProjectSettingsWindow		Debug clean command:
+Run in terminal	ProjectSettingsWindow		Run in terminal
 Build project	ProjectsFolderBrowser		Build project
 Remotes	SourceControlPanel		Remotes
 Copy name	SourceControlPanel		Copy name
@@ -316,8 +314,8 @@ Enter a message for this stash	SourceControlPanel		Enter a message for this stas
 Project settings…	GenioWindow		Project settings…
 OK	Utilities		OK
 Location	SearchResultPanel		Location
-Paste	GenioWindow		Paste
 Wrap	SettingsWindow		Wrap
+Paste	GenioWindow		Paste
 Debug build command:	ProjectSettingsWindow		Debug build command:
 Visual	SettingsWindow		Visual
 Cancel	GTextAlert		Cancel
@@ -326,5 +324,4 @@ Stash pop changes	SourceControlPanel		Stash pop changes
 Choose branch…	SourceControlPanel		Choose branch…
 Don't save	QuitAlert		Don't save
 An unknown error occurred.	SourceControlPanel		An unknown error occurred.
-Build commands	ProjectSettingsWindow		Build commands
 Save caret position	SettingsWindow		Save caret position

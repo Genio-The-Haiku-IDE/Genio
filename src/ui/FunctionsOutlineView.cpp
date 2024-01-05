@@ -184,10 +184,12 @@ void
 FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 {
 	fListView->MakeEmpty();
-
+	// TODO: Improve
+	fListView->AddItem(new BStringItem("Pending..."));
 	if (msg->FindRef("ref", &fCurrentRef) != B_OK)
 		return;
 
+	fListView->MakeEmpty();
 	// TODO: This is done synchronously
 	_RecursiveAddSymbols(nullptr, msg);
 	fListView->SetInvocationMessage(new BMessage(kGoToSymbol));

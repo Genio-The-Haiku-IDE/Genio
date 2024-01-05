@@ -1,4 +1,4 @@
-1	English (Australian)	application/x-vnd.Genio	1199167707
+1	English (British)	application/x-vnd.Genio	1199167707
 About…	GenioWindow		About…
 An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
 Appearance	GenioWindow		Appearance
@@ -28,7 +28,7 @@ Debug	GenioWindow		Debug
 Debug project	GenioWindow		Debug project
 Delete	GenioWindow		Delete
 Delete current line	GenioWindow		Delete current line
-Delete dialog	GenioWindow		Delete dialogue
+Delete dialog	GenioWindow		Delete dialog
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Discard	GenioWindow		Discard
 Don't save	GenioWindow		Don't save
@@ -146,7 +146,7 @@ Current branch	ProjectsFolderBrowser		Current branch
 Delete file	ProjectsFolderBrowser		Delete file
 Delete folder	ProjectsFolderBrowser		Delete folder
 New	ProjectsFolderBrowser		New
-OK	ProjectsFolderBrowser		OK
+OK	ProjectsFolderBrowser		Alright
 Open file	ProjectsFolderBrowser		Open file
 Open Terminal	ProjectsFolderBrowser		Open Terminal
 Path	ProjectsFolderBrowser		Path
@@ -182,7 +182,7 @@ Fetch prune	SourceControlPanel		Fetch prune
 Fetch prune completed.	SourceControlPanel		Fetch prune completed.
 Init repository	SourceControlPanel		Init repository
 Local branches	SourceControlPanel		Local branches
-OK	SourceControlPanel		OK
+OK	SourceControlPanel		Alright
 Options	SourceControlPanel		Options
 Project:	SourceControlPanel		Project:
 Remote branches	SourceControlPanel		Remote branches
@@ -247,7 +247,7 @@ Show vertical ruler	SettingsWindow		Show vertical ruler
 Show whitespace	SettingsWindow		Show whitespace
 Source control	SettingsWindow		Source control
 Startup	SettingsWindow		Startup
-Tab width:	SettingsWindow		Tab width:  
+Tab width:	SettingsWindow		Tab width:
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
 Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
 Visual	SettingsWindow		Visual
@@ -273,7 +273,7 @@ Debug clean command:	ProjectSettingsWindow		Debug clean command:
 Debug execute arguments:	ProjectSettingsWindow		Debug execute arguments:
 Debug project target:	ProjectSettingsWindow		Debug project target:
 Default	ProjectSettingsWindow		Default
-OK	ProjectSettingsWindow		OK
+OK	ProjectSettingsWindow		Alright
 Project:	ProjectSettingsWindow		Project:
 Release build command:	ProjectSettingsWindow		Release build command:
 Release clean command:	ProjectSettingsWindow		Release clean command:
@@ -284,7 +284,7 @@ Target	ProjectSettingsWindow		Target
 Cancel	GoToLineWindow		Cancel
 Go to line	GoToLineWindow		Go to line
 Go to line:	GoToLineWindow		Go to line:
-OK	GoToLineWindow		OK
+OK	GoToLineWindow		Alright
 Cancel	Editor		Cancel
 Don't save	Editor		Don't save
 Fix: %fix_desc%	Editor		Fix: %fix_desc%
@@ -300,11 +300,11 @@ There are unsaved changes.\nSelect the files to save.	QuitAlert		There are unsav
 Unsaved files	QuitAlert		Unsaved files
 Cancel	GitCredentialsWindow		Cancel
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
-OK	GitCredentialsWindow		OK
+OK	GitCredentialsWindow		Alright
 Password:	GitCredentialsWindow		Password:
 Username:	GitCredentialsWindow		Username:
 Cancel	GTextAlert		Cancel
-OK	GTextAlert		OK
+OK	GTextAlert		Alright
 Category	ProblemsPanel		Category
 Message	ProblemsPanel		Message
 Problems	ProblemsPanel		Problems
@@ -326,5 +326,5 @@ See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\
 Location	SearchResultPanel		Location
 Search results	SearchResultPanel		Search results
 New folder	TemplateManager		New folder
-OK	Utilities		OK
-OK	GitAlert		OK
+OK	Utilities		Alright
+OK	GitAlert		Alright

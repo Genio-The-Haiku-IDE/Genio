@@ -1,10 +1,10 @@
-1	Sardinian	application/x-vnd.Genio	335291597
+1	Sardinian	application/x-vnd.Genio	1199167707
 About…	GenioWindow		A subra de…
 An error occurred while switching branch:	GenioWindow		Est acontessida una faddina cuncambiende su ramu:
 Appearance	GenioWindow		Bisura
 Autocomplete	GenioWindow		Cumpridura automàtica
-Bookmark	GenioWindow		Marcu
-Bookmark all	GenioWindow		Marca totu
+Bookmark	GenioWindow		Sinnu
+Bookmark all	GenioWindow		Sinna totu
 Branch	GenioWindow	The git command	Ramu
 Build log	GenioWindow		Registru de sa cumpilatzione
 Build mode	GenioWindow		Modu de cumpilatzione
@@ -28,7 +28,7 @@ Debug	GenioWindow		Depura
 Debug project	GenioWindow		Depura su progetu
 Delete	GenioWindow		Boga
 Delete current line	GenioWindow		Boga sa linia currente
-Delete dialog	GenioWindow		Diàlogu de bogadura
+Delete dialog	GenioWindow		Ventana de bogadura
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Boghende s'elementu: \"%name%\".\n\nPustis sa bogadura, s'elementu at a èssere pèrdidu.\nA beru lu cheres bogare?
 Discard	GenioWindow		Iscarta
 Don't save	GenioWindow		No alloghes
@@ -160,9 +160,6 @@ Switch to branch	ProjectsFolderBrowser		Cuncambia a su ramu
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Sa fodde de su progetu est istada bogada o mòvida a àteru logu, at a èssere serrada e iscarrigada dae s'ispatziu de trabalgiu.\n\nThe project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Sa fodde de su progetu at mudadu su nùmene. At a èssere serrada e torrada a aberri de manera automàtica.
 An unknown error occurred.	SourceControlPanel		Est acontessida una faddina disconnota.
-Branch created succesfully.	SourceControlPanel		Ramu creadu de manera curregida.
-Branch deleted succesfully.	SourceControlPanel		Ramu bogadu de manera curregida.
-Branch renamed succesfully.	SourceControlPanel		Ramu mudadu de nùmene de manera curregida.
 Cancel	SourceControlPanel		Annudda
 Changes stashed.	SourceControlPanel		Mudas istugiadas.
 Choose branch…	SourceControlPanel		Issèbera su ramu…
@@ -174,7 +171,7 @@ Create new branch from \"%selected_branch%\"	SourceControlPanel		Crea unu ramu n
 Current branch:	SourceControlPanel		Ramu currente:
 Delete	SourceControlPanel		Boga
 Delete \"%selected_branch%\"	SourceControlPanel		Boga \"%selected_branch%\"
-Delete dialog	SourceControlPanel		Diàlogu de bogadura
+Delete dialog	SourceControlPanel		Ventana de bogadura
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Boghende su ramu: \"%branch%\".\n\nPustis sa bogadura, s'elementu at a èssere pèrdidu.\nA beru lu cheres bogare?
 Do not create the initial commit	SourceControlPanel		No crees sa primu commissione
 Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		A beru cheres inchingiare unu repositoriu chena creare una primu commissione?
@@ -294,7 +291,7 @@ Fix: %fix_desc%	Editor		Curretzione: %fix_desc%
 No fix available	Editor		Peruna curretzione disponìbile
 Save	Editor		Alloga
 Save changes to file \"%filename%\"?	Editor		Alloga is mudas a s'ischeda \"%filename%\"?
-Save dialog	Editor		Diàlogu de allogadura
+Save dialog	Editor		Ventana de allogadura
 Cancel	QuitAlert		Annudda
 Don't save	QuitAlert		No alloghes
 Save all	QuitAlert		Alloga totu
@@ -313,6 +310,7 @@ Message	ProblemsPanel		Messagiu
 Problems	ProblemsPanel		Problemas
 Source	ProblemsPanel		Fonte
 Defaults	ConfigWindow		Balores pro difalta
+Settings	ConfigWindow		Cuncordos
 Edit user templates…	TemplatesMenu		Edita is mollios de s'impleadore…
 File deleted	GitRepository		Ischeda bogada
 File deleted from index	GitRepository		Ischeda bogada dae s'ìndice

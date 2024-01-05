@@ -1,4 +1,4 @@
-1	Catalan	application/x-vnd.Genio	335291597
+1	Catalan	application/x-vnd.Genio	1199167707
 About…	GenioWindow		Quant a...
 An error occurred while switching branch:	GenioWindow		S'ha produït un error en canviar de branca:
 Appearance	GenioWindow		Aparença
@@ -160,9 +160,6 @@ Switch to branch	ProjectsFolderBrowser		Canvia a la branca
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La carpeta del projecte s'ha suprimit o s'ha mogut a una altra ubicació i es tancarà i es descarregarà de l'espai de treball.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		S'ha canviat el nom de la carpeta del projecte. Es tancarà i es reobrirà automàticament.
 An unknown error occurred.	SourceControlPanel		S'ha produït un error desconegut.
-Branch created succesfully.	SourceControlPanel		La branca s'ha creat correctament.
-Branch deleted succesfully.	SourceControlPanel		La branca s'ha suprimit correctament
-Branch renamed succesfully.	SourceControlPanel		S'ha canviat correctament el nom de la branca.
 Cancel	SourceControlPanel		Cancel·la
 Changes stashed.	SourceControlPanel		Canvis amagats
 Choose branch…	SourceControlPanel		Trieu una branca...
@@ -313,6 +310,7 @@ Message	ProblemsPanel		Misstge
 Problems	ProblemsPanel		Problemes
 Source	ProblemsPanel		Font
 Defaults	ConfigWindow		Valors per defecte
+Settings	ConfigWindow		Settings
 Edit user templates…	TemplatesMenu		Edita les plantilles d'usuari...
 File deleted	GitRepository		Fitxer suprimit
 File deleted from index	GitRepository		Fitxer suprimit de l'índex

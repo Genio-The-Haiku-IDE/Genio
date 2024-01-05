@@ -1,4 +1,4 @@
-1	Spanish (Latin American)	application/x-vnd.Genio	1199167707
+1	Spanish (Latin American)	application/x-vnd.Genio	2467019101
 About…	GenioWindow		Acerca de…
 An error occurred while switching branch:	GenioWindow		Ocurrió un error al intentar cambiar de rama:
 Appearance	GenioWindow		Apariencia
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Ir a declaración
 Go to definition	GenioWindow		Ir a definición
 Go to implementation	GenioWindow		Ir a implementación
 Go to line…	GenioWindow		Ir a la línea...
+Help…	GenioWindow		Ayuda…
 Ignore	GenioWindow		Ignorar
 Invalid project folder	GenioWindow		Carpeta de proyecto no válida
 Keep	GenioWindow		Conservar

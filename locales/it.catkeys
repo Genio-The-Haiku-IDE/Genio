@@ -1,4 +1,4 @@
-1	Italian	application/x-vnd.Genio	1199167707
+1	Italian	application/x-vnd.Genio	2467019101
 About…	GenioWindow		A proposito di…
 An error occurred while switching branch:	GenioWindow		C'è stato un errore durante il passaggio di branch:
 Appearance	GenioWindow		Aspetto
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Vai alla dichiarazione
 Go to definition	GenioWindow		Vai alla definizione
 Go to implementation	GenioWindow		Vai all'implementazione
 Go to line…	GenioWindow		Vai alla riga…
+Help…	GenioWindow		Aiuto…
 Ignore	GenioWindow		Ignora
 Invalid project folder	GenioWindow		Cartella di progetto non valida
 Keep	GenioWindow		Mantieni

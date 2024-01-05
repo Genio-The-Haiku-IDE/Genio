@@ -1,4 +1,4 @@
-1	Norwegian	application/x-vnd.Genio	1199167707
+1	Norwegian	application/x-vnd.Genio	2467019101
 About…	GenioWindow		Om…
 An error occurred while switching branch:	GenioWindow		Det oppstod en feil under bytte av gren:
 Appearance	GenioWindow		Utseende
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Gå til deklarasjonen
 Go to definition	GenioWindow		Gå til definisjonen
 Go to implementation	GenioWindow		Gå til implementasjonen
 Go to line…	GenioWindow		Gå til linje…
+Help…	GenioWindow		Hjelp…
 Ignore	GenioWindow		Ignorer
 Invalid project folder	GenioWindow		Ugyldig prosjektmappe
 Keep	GenioWindow		Behold

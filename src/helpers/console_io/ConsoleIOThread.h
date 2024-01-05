@@ -60,8 +60,6 @@ protected:
 private:
 			void				PushInput(BString text);
 			bool				IsProcessAlive();
-			status_t			ResumeExternal();
-			status_t			SuspendExternal();
 			status_t			GetFromPipe(BString& stdOut, BString& stdErr);
 			void				ClosePipes();
 	virtual	status_t			ExecuteUnit();

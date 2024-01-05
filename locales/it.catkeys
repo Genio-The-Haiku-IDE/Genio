@@ -24,7 +24,7 @@ Copy	GenioWindow		Copia
 Could not create a new file	GenioWindow		Impossibile creare un nuovo file
 Could not delete \"%name%\".\n\n	GenioWindow		Impossibile cancellare \"%name%\".\n\n
 Cut	GenioWindow		Taglia
-Debug	GenioWindow		Avvia debug
+Debug	GenioWindow		Debug
 Debug project	GenioWindow		Avvia debug del progetto
 Delete	GenioWindow		Elimina
 Delete current line	GenioWindow		Elimina linea corrente
@@ -268,7 +268,7 @@ The local path is not valid or does not exist	RemoteProjectWindow		Il percorso l
 URL:	RemoteProjectWindow		URL:
 Build commands	ProjectSettingsWindow		Comandi di compilazione
 Cancel	ProjectSettingsWindow		Annulla
-Debug build command:	ProjectSettingsWindow		Compilazione in modalità Debug
+Debug build command:	ProjectSettingsWindow		Compilazione in modalità debug
 Debug clean command:	ProjectSettingsWindow		Comando di pulizia per il debug:
 Debug execute arguments:	ProjectSettingsWindow		Argomenti di esecuzione per il debug:
 Debug project target:	ProjectSettingsWindow		Obiettivo del progetto per il debug:

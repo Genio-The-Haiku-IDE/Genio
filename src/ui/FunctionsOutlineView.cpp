@@ -50,7 +50,7 @@ CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 
 FunctionsOutlineView::FunctionsOutlineView()
 	:
-	BView("outline", B_WILL_DRAW),
+	BView("Class outline", B_WILL_DRAW),
 	fListView(nullptr),
 	fToolBar(nullptr),
 	fLastUpdateTime(system_time())
@@ -58,7 +58,8 @@ FunctionsOutlineView::FunctionsOutlineView()
 	SetFlags(Flags() | B_PULSE_NEEDED);
 
 	fListView = new BOutlineListView("listview");
-	
+	BScrollView* scrollView = new BScrollView("scrollview", fListView,
+		B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fToolBar = new ToolBar();
 	fToolBar->ChangeIconSize(16);
 	// TODO: Icons
@@ -69,7 +70,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 	BLayoutBuilder::Group<>(this)
 		.AddGroup(B_VERTICAL, 0)
 			.Add(fToolBar)
-			.Add(fListView)
+			.Add(scrollView)
 		.End();
 }
 
@@ -79,7 +80,6 @@ void
 FunctionsOutlineView::AttachedToWindow()
 {
 	fToolBar->SetTarget(this);
-
 	if (LockLooper()) {
 		Window()->StartWatching(this, EDITOR_UPDATE_SYMBOLS);
 		UnlockLooper();

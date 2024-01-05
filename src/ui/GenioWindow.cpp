@@ -3151,11 +3151,8 @@ GenioWindow::_InitRightSplit()
 {
 	// Outline view
 	fRightTabView = new BTabView("OutlineTabview");
-
 	fFunctionsOutlineView = new FunctionsOutlineView();
-	fOutlineViewScroll = new BScrollView(B_TRANSLATE("Class outline"),
-		fFunctionsOutlineView, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
-	fRightTabView->AddTab(fOutlineViewScroll);
+	fRightTabView->AddTab(fFunctionsOutlineView);
 }
 
 

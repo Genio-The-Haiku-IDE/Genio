@@ -202,7 +202,6 @@ private:
 			// Right panels
 			BTabView*	  		fRightTabView;
 			FunctionsOutlineView* fFunctionsOutlineView;
-			BScrollView*		fOutlineViewScroll;
 
 			// Editor group
 			EditorTabManager*	fTabManager;

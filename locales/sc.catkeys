@@ -1,4 +1,4 @@
-1	Sardinian	application/x-vnd.Genio	1199167707
+1	Sardinian	application/x-vnd.Genio	2467019101
 About…	GenioWindow		A subra de…
 An error occurred while switching branch:	GenioWindow		Est acontessida una faddina cuncambiende su ramu:
 Appearance	GenioWindow		Bisura
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Bae a sa declaratzione
 Go to definition	GenioWindow		Bae a sa definitzione
 Go to implementation	GenioWindow		Bae a s'implementatzione
 Go to line…	GenioWindow		Bae a sa linia…
+Help…	GenioWindow		Agiudu…
 Ignore	GenioWindow		Inniora
 Invalid project folder	GenioWindow		Sa fodde de su progetu no est bàlida
 Keep	GenioWindow		Apodera

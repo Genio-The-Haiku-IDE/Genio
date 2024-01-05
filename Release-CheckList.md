@@ -1,14 +1,22 @@
 # Release Checklist
 
-*   Check for critical problems and fix them
+*   Test for critical problems and fix them
 *   Documentation
-    *   Update README, changelog and screenshot
+    *   Update README, changelog and screenshots
 *   Release
-    *   Create release branch (10/15 days before release)
+    *   Create release branch (only for major releases, 10/15 days before release)
     *   Bump version
-    *   Regenerate english catkeys and upload them in polyglot
-    *   Wait for updated translations
-    *   Create release from the release branch
+    *   Update translations
+       *   Regenerate english catkeys (with 'make catkeys')
+       *   Upload en.catkeys to polyglot
+       *   Wait some time for updated translations
+       *   Download completed translations
+       *   Update makefile to include new translations
+    *   Retest build on supported platforms (x86_64 and x86)
+    *   Create GitHub release from the release branch
     *   Review haikuports recipe
-        *   Change it to point at the new release tag
+        *   Update dependencies (if changed)
+        *   Change recipe to point at the new release tag
+        *   Test recipe by building with haikuporter
+        *   Install and briefly test package
         *   Make a PR to haikuports with the new recipe

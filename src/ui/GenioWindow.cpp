@@ -740,20 +740,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_WHITE_SPACES_TOGGLE:
 		{
 			gCFG["show_white_space"] = !gCFG["show_white_space"];
-			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-				Editor* editor = fTabManager->EditorAt(index);
-				editor->ShowWhiteSpaces(gCFG["show_white_space"]);
-			}
 			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 			break;
 		}
 		case MSG_LINE_ENDINGS_TOGGLE:
 		{
 			gCFG["show_line_endings"] = !gCFG["show_line_endings"];
-			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-				Editor* editor = fTabManager->EditorAt(index);
-				editor->ShowLineEndings(gCFG["show_line_endings"]);
-			}
 			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 			break;
 		}

@@ -58,6 +58,8 @@ public:
 
 	virtual void				DispatchMessage(BMessage* message, BHandler* handler);
 	virtual void				MessageReceived(BMessage* message);
+	virtual void				MenusBeginning();
+	virtual void				MenusEnded();
 	virtual bool				QuitRequested();
 	virtual void				Show();
 

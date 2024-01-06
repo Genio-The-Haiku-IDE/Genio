@@ -89,5 +89,12 @@ EditorContextMenu::Show(Editor* editor, BPoint point)
 			lsp->EndHover();
 		}
 	}
+
+	if (menu == sMenu) {
+		ActionManager::SetEnabled(B_CUT,   editor->CanCut());
+		ActionManager::SetEnabled(B_COPY,  editor->CanCopy());
+		ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
+	}
+
 	menu->Go(BPoint(point.x, point.y), true);
 }

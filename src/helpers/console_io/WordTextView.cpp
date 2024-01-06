@@ -226,13 +226,4 @@ void
 WordTextView::MakeFocus(bool focus)
 {
 	BTextView::MakeFocus(focus);
-
-	if (focus) {
-		fPrevCopyValue = ActionManager::IsEnabled(B_COPY);
-		ActionManager::SetEnabled(B_COPY, true);
-
-	} else {
-		ActionManager::SetEnabled(B_COPY, fPrevCopyValue);
-
-	}
 }

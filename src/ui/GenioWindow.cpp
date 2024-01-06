@@ -34,6 +34,7 @@
 #include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
+#include <Clipboard.h>
 
 #include "ActionManager.h"
 #include "ConfigManager.h"
@@ -67,6 +68,7 @@
 #include "TemplateManager.h"
 #include "TextUtils.h"
 #include "Utils.h"
+#include "WordTextView.h"
 #include "argv_split.h"
 
 
@@ -92,6 +94,20 @@ static float kOutputWeight  = 0.4f;
 BRect dirtyFrameHack;
 
 static float kDefaultIconSize = 32.0;
+
+
+static bool
+AcceptsCopyPaste(BView* view)
+{
+	if (view == nullptr)
+		return false;
+	if ((view->Parent() != nullptr && dynamic_cast<Editor*>(view->Parent()) != nullptr)
+		|| dynamic_cast<BTextView*>(view) != nullptr) {
+		return true;
+	}
+	return false;
+}
+
 
 GenioWindow::GenioWindow(BRect frame)
 	:
@@ -344,14 +360,26 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_ABOUT_REQUESTED:
 			be_app->PostMessage(B_ABOUT_REQUESTED);
 			break;
-
 		case B_COPY:
 		case B_CUT:
 		case B_PASTE:
 		case B_SELECT_ALL:
-			if (CurrentFocus())
-				CurrentFocus()->MessageReceived(message);
+		{
+			// Copied / inspired from Tracker's BContainerWindow
+			BView* view = CurrentFocus();
+			// Editor is the parent of the ScintillaHaikuView
+			if (AcceptsCopyPaste(view)) {
+				// (adapted from Tracker's BContainerView::MessageReceived)
+				// The selected item is not a BTextView / ScintillaView
+				// Since we catch the generic clipboard shortcuts in a way that means
+				// the handlers will never get them, we must manually forward them ourselves,
+				//
+				// However, we have to take care to not forward the custom clipboard messages, else
+				// we would wind up in infinite recursion.
+				PostMessage(message, view);
+			}
 			break;
+		}
 		case B_NODE_MONITOR:
 			_HandleNodeMonitorMsg(message);
 			break;
@@ -1070,6 +1098,49 @@ GenioWindow::MessageReceived(BMessage* message)
 			BWindow::MessageReceived(message);
 			break;
 	}
+}
+
+
+/* virtual */
+void
+GenioWindow::MenusBeginning()
+{
+	BWindow::MenusBeginning();
+
+	BView* view = CurrentFocus();
+	if (!view)
+		return;
+	Editor* editor = nullptr;
+	BTextView* textView = nullptr;
+
+	if (view->Parent() != nullptr &&
+	    (editor = dynamic_cast<Editor*>(view->Parent())) != nullptr) {
+			ActionManager::SetEnabled(B_CUT,   editor->CanCut());
+			ActionManager::SetEnabled(B_COPY,  editor->CanCopy());
+			ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
+	} else if ((textView = (dynamic_cast<BTextView*>(view))) != nullptr) {
+			int32 start;
+			int32 finish;
+			textView->GetSelection(&start, &finish);
+			bool canEdit = textView->IsEditable();
+
+			ActionManager::SetEnabled(B_CUT,   canEdit && start != finish);
+			ActionManager::SetEnabled(B_COPY,  start != finish);
+			ActionManager::SetEnabled(B_PASTE, canEdit && be_clipboard->SystemCount() > 0);
+
+	} else {
+			ActionManager::SetEnabled(B_CUT,   false);
+			ActionManager::SetEnabled(B_COPY,  false);
+			ActionManager::SetEnabled(B_PASTE, false);
+	}
+}
+
+
+/* virtual */
+void
+GenioWindow::MenusEnded()
+{
+	BWindow::MenusEnded();
 }
 
 
@@ -3891,9 +3962,6 @@ GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 	assert (editor);
 
 	// Menu Items
-	ActionManager::SetEnabled(B_CUT, editor->CanCut());
-	ActionManager::SetEnabled(B_COPY, editor->CanCopy());
-	ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
 
 	ActionManager::SetEnabled(B_UNDO, editor->CanUndo());
 	ActionManager::SetEnabled(B_REDO, editor->CanRedo());
@@ -3945,9 +4013,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_FILE_NEXT_SELECTED, false);
 		ActionManager::SetEnabled(MSG_FILE_PREVIOUS_SELECTED, false);
 
-		ActionManager::SetEnabled(B_CUT, false);
-		ActionManager::SetEnabled(B_COPY, false);
-		ActionManager::SetEnabled(B_PASTE, false);
 		ActionManager::SetEnabled(B_SELECT_ALL, false);
 
 		ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, false);
@@ -4006,9 +4071,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, true);
 
 
-	ActionManager::SetEnabled(B_CUT, editor->CanCut());
-	ActionManager::SetEnabled(B_COPY, editor->CanCopy());
-	ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
 	ActionManager::SetEnabled(B_SELECT_ALL, true);
 
 	ActionManager::SetEnabled(MSG_TEXT_OVERWRITE, true);

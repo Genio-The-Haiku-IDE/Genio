@@ -95,6 +95,7 @@ GenioApp::AboutRequested()
 
 	window->AddCopyright(2023, "The Genio Team");
 	window->AddAuthors(authors);
+	window->SetVersion(GetVersion().String());
 
 	BStringList list = _SplitChangeLog(kChangeLog);
 	int32 stringCount = list.CountStrings();

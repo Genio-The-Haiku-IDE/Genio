@@ -386,7 +386,7 @@ ReadFileContent(const char* filename, off_t maxSize)
 	return read;
 }
 
-// mostrly taken from BAboutWindow
+// mostly taken from BAboutWindow
 BString
 GetVersion()
 {

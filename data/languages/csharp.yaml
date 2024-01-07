@@ -1,0 +1,37 @@
+# CSharp
+lexer: cpp
+properties:
+    fold: 1
+    lexer.cpp.track.preprocessor: 0
+    styling.within.preprocessor: 1
+keywords:
+    0: >
+        abstract as base bool break byte case catch char checked class const continue decimal default delegate do
+        double else enum event explicit extern false finally fixed float for foreach get goto if implicit in int interface
+        internal is lock long namespace new not notnull null object operator out override params partial private protected public readonly
+        ref return sbyte sealed set short sizeof stackalloc static string struct switch this throw true try typeof uint
+        ulong unchecked unsafe ushort using var virtual void volatile where while
+identifiers:
+comments:
+    line: "//"
+    block: [ "/*", "*/" ]
+styles:
+    11: 32
+    10: 110
+    6: 106
+    7: 106
+    4: 104
+    5: 105
+    16: 105
+    1: 101
+    2: 101
+    3: 103
+    15: 103
+    17: 117
+    18: 117
+    19: 119
+    13: 113
+    14: 114
+    9: 109
+substyles:
+    11: [ 121, 119, 119, 120 ]

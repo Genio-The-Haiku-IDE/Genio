@@ -114,6 +114,7 @@ void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
 }
 
 
+// BColorControl
 template<>
 GControl<BColorControl, rgb_color>::GControl(GMessage& msg, rgb_color value, ConfigManager& cfg)
 	:
@@ -127,6 +128,13 @@ GControl<BColorControl, rgb_color>::GControl(GMessage& msg, rgb_color value, Con
 	GMessage* invoke = new GMessage(kOnNewValue);
 	(*invoke)["key"] = msg["key"];
 	BColorControl::SetMessage(invoke);
+}
+
+
+template<>
+rgb_color GControl<BColorControl, rgb_color>::RetrieveValue()
+{
+       return BColorControl::ValueAsColor();
 }
 
 

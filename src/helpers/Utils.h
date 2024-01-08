@@ -171,4 +171,6 @@ bool	IsXMasPeriod();
 
 BString	ReadFileContent(const char* filename, off_t maxSize);
 
+BString	GetVersion();
+
 #endif // UTILS_H

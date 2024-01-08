@@ -69,6 +69,8 @@ public:
 	const	BString&			TabLabel(int32);
 			void				SetTabIcon(const BView* containedView,
 									const BBitmap* icon);
+			void				SetTabColor(const BView* containedView,
+									const rgb_color& color);
 			void				SetCloseButtonsAvailable(bool available);
 
 	virtual BString				GetToolTipText(int32 index) { return TabLabel(index);}

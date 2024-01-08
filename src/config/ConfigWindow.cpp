@@ -10,6 +10,7 @@
 #include <CardView.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <ColorControl.h>
 #include <LayoutBuilder.h>
 #include <OptionPopUp.h>
 #include <OutlineListView.h>
@@ -110,6 +111,30 @@ void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
 		}
 	}
 	SetValue(intValue);
+}
+
+
+// BColorControl
+template<>
+GControl<BColorControl, rgb_color>::GControl(GMessage& msg, rgb_color value, ConfigManager& cfg)
+	:
+	BColorControl(B_ORIGIN,	B_CELLS_32x8, 8, ""),
+	fConfigManager(cfg)
+{
+	BColorControl::SetName(msg["key"]);
+	BColorControl::SetLabel(msg["label"]);
+	LoadValue(value);
+
+	GMessage* invoke = new GMessage(kOnNewValue);
+	(*invoke)["key"] = msg["key"];
+	BColorControl::SetMessage(invoke);
+}
+
+
+template<>
+rgb_color GControl<BColorControl, rgb_color>::RetrieveValue()
+{
+       return BColorControl::ValueAsColor();
 }
 
 
@@ -375,6 +400,12 @@ ConfigWindow::MakeControlFor(GMessage& config)
 				control->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
 				return control;
 			}
+		}
+		case B_RGB_COLOR_TYPE:
+		{
+			GControl<BColorControl, rgb_color>* control =
+				new GControl<BColorControl, rgb_color>(config, fConfigManager[config["key"]], fConfigManager);
+			return control;
 		}
 		default:
 		{

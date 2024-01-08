@@ -22,6 +22,7 @@ public:
 
 	// TODO: Maybe SetFont ?
 	void			SetTextFontFace(uint16 fontFace);
+	uint16			TextFontFace() const;
 
 	void			SetExtraText(const char* extraText);
 	const char*		ExtraText() const;

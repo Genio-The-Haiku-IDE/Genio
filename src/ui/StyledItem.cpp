@@ -99,6 +99,13 @@ StyledItem::SetTextFontFace(uint16 fontFace)
 }
 
 
+uint16
+StyledItem::TextFontFace() const
+{
+	return fFontFace;
+}
+
+
 void
 StyledItem::SetExtraText(const char* extraText)
 {
@@ -133,7 +140,7 @@ StyledItem::GetToolTipText() const
 	return fToolTipText.String();
 }
 
-	
+
 /* virtual */
 void
 StyledItem::DrawText(BView* owner, const char* text, const BPoint& point)

@@ -18,7 +18,6 @@
 #include <SpaceLayoutItem.h>
 #include <Window.h>
 
-#include <iostream>
 #include <cassert>
 
 #include "TabView.h"
@@ -235,7 +234,6 @@ TabContainerView::MouseUp(BPoint where)
 	// it with fMouseDown == true.
 	_SendFakeMouseMoved();
 
-
 	Draggable::OnMouseUp(where);
 	if (fDropTargetHighlightFrame.IsValid()) {
 		Invalidate(fDropTargetHighlightFrame);
@@ -247,8 +245,7 @@ bool
 TabContainerView::InitiateDrag(BPoint where)
 {
 	TabView* tab = _TabAt(where);
-	if (tab != nullptr)
-	{
+	if (tab != nullptr) {
 		BMessage message(TAB_DRAG);
 		message.AddPointer("container", this);
 		message.AddInt32("index", IndexOf(tab));
@@ -274,14 +271,11 @@ TabContainerView::InitiateDrag(BPoint where)
 			int32 height = (int32)dragBitmap->Bounds().Height() + 1;
 			int32 width = (int32)dragBitmap->Bounds().Width() + 1;
 			int32 bpr = dragBitmap->BytesPerRow();
-
-
-				for (int32 y = 0; y < height; y++, bits += bpr) {
-					uint8* line = bits + 3;
-					for (uint8* end = line + 4 * width; line < end; line += 4)
-						*line = ALPHA;
-
-				}
+			for (int32 y = 0; y < height; y++, bits += bpr) {
+				uint8* line = bits + 3;
+				for (uint8* end = line + 4 * width; line < end; line += 4)
+					*line = ALPHA;
+			}
 			dragBitmap->Unlock();
 		} else {
 			delete dragBitmap;
@@ -303,8 +297,7 @@ void
 TabContainerView::MouseMoved(BPoint where, uint32 transit,
 	const BMessage* dragMessage)
 {
-	if (dragMessage && dragMessage->what == TAB_DRAG)
-	{
+	if (dragMessage && dragMessage->what == TAB_DRAG) {
 		switch (transit) {
 			case B_ENTERED_VIEW:
 			case B_INSIDE_VIEW:
@@ -348,6 +341,7 @@ TabContainerView::DoLayout()
 	_ValidateTabVisibility();
 	_SendFakeMouseMoved();
 }
+
 
 void
 TabContainerView::AddTab(const char* label, int32 index)

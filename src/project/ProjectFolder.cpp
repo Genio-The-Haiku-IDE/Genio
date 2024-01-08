@@ -172,16 +172,15 @@ ProjectFolder::LoadSettings()
 	if (fSettings == nullptr)
 		return B_NO_INIT;
 
-	// Try to load old style settings
-	status_t status = _LoadOldSettings();
-	if (status == B_OK) {
-		LogTrace("ProjectFolder: Loaded old style settings");
-		return status;
-	}
-
 	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
-	status = fSettings->LoadFromFile(path.Path());
+	status_t status = fSettings->LoadFromFile(path.Path());
+	if (status != B_OK) {
+		// Try to load old style settings
+		status = _LoadOldSettings();
+		if (status == B_OK)
+			LogTrace("ProjectFolder: Loaded old style settings");
+	}
 
 	return status;
 }
@@ -340,6 +339,13 @@ ProjectFolder::SetGuessedBuilder(const BString& string)
 }
 
 
+const rgb_color
+ProjectFolder::Color() const
+{
+	return (*fSettings)["color"];
+}
+
+
 void
 ProjectFolder::_PrepareSettings()
 {
@@ -354,9 +360,13 @@ ProjectFolder::_PrepareSettings()
 			{"value", (int32)BuildMode::DebugMode },
 			{"label", "debug"}}},
 	};
+	rgb_color color = ui_color(B_PANEL_BACKGROUND_COLOR);
+	fSettings->AddConfig("General", "color",
+		B_TRANSLATE("Color:"), color);
+
 	fSettings->AddConfig("Build", "build_mode",
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);
-	
+
 	fSettings->AddConfig("Build/Release", "project_release_build_command",
 		B_TRANSLATE("Release build command:"), "");
 	fSettings->AddConfig("Build/Release", "project_release_clean_command",
@@ -373,7 +383,7 @@ ProjectFolder::_PrepareSettings()
 		B_TRANSLATE("Debug execute args:"), "");
 	fSettings->AddConfig("Build/Debug", "project_debug_target",
 		B_TRANSLATE("Debug target:"), "");
-	
+
 	fSettings->AddConfig("Run", "project_run_in_terminal",
 		B_TRANSLATE("Run in terminal"), false);
 }
@@ -386,6 +396,8 @@ ProjectFolder::_LoadOldSettings()
 	status_t status = oldSettings.GetStatus();
 	if (status != B_OK)
 		return status;
+
+	LogError("OLD STYLE SETTINGS");
 
 	// Load old style settins into new
 	(*fSettings)["build_mode"] = int32(oldSettings.GetInt32("build_mode", BuildMode::ReleaseMode));

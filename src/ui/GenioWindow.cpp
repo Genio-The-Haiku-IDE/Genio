@@ -325,8 +325,23 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (code == gCFG.UpdateMessageWhat()) {
 				_HandleConfigurationChanged(message);
 			} else if (code == kMsgProjectSettingsUpdated) {
+				BString key(message->GetString("key", ""));
+				if (key.IsEmpty())
+					break;
 				// Update debug/release
 				_UpdateProjectActivation(fActiveProject != nullptr);
+
+				// TODO: refactor
+				if (key == "color") {
+					for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+						Editor* editor = fTabManager->EditorAt(index);
+						ProjectFolder* project = editor->GetProjectFolder();
+						if (project != nullptr) {
+							LogError("SET COLOR");
+							fTabManager->SetTabColor(editor, project->Color());
+						}
+					}
+				}
 				// Save project settings
 				fActiveProject->SaveSettings();
 			}
@@ -1066,8 +1081,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			bool set_caret = message->GetBool("caret_position", false);
 			if (set_caret && index >= 0) {
 				Editor* editor = fTabManager->EditorAt(index);
-				if (editor)
+				if (editor != nullptr) {
 					editor->SetSavedCaretPosition();
+					ProjectFolder* project = editor->GetProjectFolder();
+					if (project != nullptr) {
+						fTabManager->SetTabColor(editor, project->Color());
+					}
+				}
 			}
 			break;
 		}

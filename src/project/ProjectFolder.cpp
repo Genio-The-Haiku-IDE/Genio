@@ -343,14 +343,7 @@ ProjectFolder::SetGuessedBuilder(const BString& string)
 const rgb_color
 ProjectFolder::Color() const
 {
-	// TODO: Just for testing, should be saved in settings
-	if (fActive) {
-		rgb_color color = {234, 20, 124};
-		return color;
-	} else {
-		rgb_color color = {34, 204, 124};
-		return color;
-	}
+	return (*fSettings)["color"];
 }
 
 
@@ -368,9 +361,9 @@ ProjectFolder::_PrepareSettings()
 			{"value", (int32)BuildMode::DebugMode },
 			{"label", "debug"}}},
 	};
-	rgb_color color = {0, 0, 0};
+	rgb_color color = ui_color(B_PANEL_BACKGROUND_COLOR);
 	fSettings->AddConfig("General", "color",
-		B_TRANSLATE("color:"), color);
+		B_TRANSLATE("Color:"), color);
 
 	fSettings->AddConfig("Build", "build_mode",
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);

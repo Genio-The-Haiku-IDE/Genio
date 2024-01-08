@@ -705,8 +705,9 @@ WebTabView::SetColor(const rgb_color& color)
 	fColor = nullptr;
 
 	fColor = new rgb_color(color);
-
-	LayoutItem()->InvalidateLayout();
+	if (ContainerView() != nullptr) {
+		ContainerView()->Invalidate();
+	}
 }
 
 

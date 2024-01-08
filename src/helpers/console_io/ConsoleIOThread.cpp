@@ -324,10 +324,6 @@ ConsoleIOThread::InterruptExternal()
 void
 ConsoleIOThread::_CleanPipes()
 {
-	int32 maxSteps = PIPE_BUF / LINE_MAX;
-	//let's clean the current duplicated pipes.
-	for (int i=0;i<maxSteps;i++) {
-		read(fStdOut, fConsoleOutputBuffer, LINE_MAX);
-		read(fStdErr, fConsoleOutputBuffer, LINE_MAX);
-	}
+	while(read(fStdOut, fConsoleOutputBuffer, LINE_MAX) > 0);
+	while(read(fStdErr, fConsoleOutputBuffer, LINE_MAX) > 0);
 }

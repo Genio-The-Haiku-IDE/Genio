@@ -612,14 +612,12 @@ WebTabView::DrawContents(BView* owner, BRect frame, const BRect& updateRect,
 	circleFrame.OffsetBy(0, 1);
 	circleFrame.right = circleFrame.left + circleFrame.Height();
 	circleFrame.InsetBy(5, 5);
-	const rgb_color highColor = owner->HighColor();
 	owner->SetHighColor(fColor);
 	owner->FillEllipse(circleFrame);
 	owner->SetHighColor(tint_color(fColor, B_DARKEN_1_TINT));
 	owner->StrokeEllipse(circleFrame);
 	frame.left = circleFrame.right + be_control_look->DefaultLabelSpacing();
 
-	owner->SetHighColor(highColor);
 	TabView::DrawContents(owner, frame, updateRect, isFirst, isLast, isFront);
 }
 

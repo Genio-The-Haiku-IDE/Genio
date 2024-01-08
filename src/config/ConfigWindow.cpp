@@ -10,6 +10,7 @@
 #include <CardView.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <ColorControl.h>
 #include <LayoutBuilder.h>
 #include <OptionPopUp.h>
 #include <OutlineListView.h>
@@ -111,6 +112,7 @@ void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
 	}
 	SetValue(intValue);
 }
+
 
 
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
@@ -376,6 +378,14 @@ ConfigWindow::MakeControlFor(GMessage& config)
 				return control;
 			}
 		}
+#if 0
+		case B_RGB_COLOR_TYPE:
+		{
+			GControl<BColorControl, rgb_color>* control = new GControl<BColorControl, rgb_color>(config, fConfigManager[config["key"]], fConfigManager);
+			// TODO: Improve
+			return control;
+		}
+#endif
 		default:
 		{
 			BString label;

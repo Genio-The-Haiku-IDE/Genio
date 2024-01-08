@@ -368,8 +368,9 @@ ProjectFolder::_PrepareSettings()
 			{"value", (int32)BuildMode::DebugMode },
 			{"label", "debug"}}},
 	};
+	rgb_color color = {0, 0, 0};
 	fSettings->AddConfig("General", "color",
-		B_TRANSLATE("color:"), 34);
+		B_TRANSLATE("color:"), color);
 
 	fSettings->AddConfig("Build", "build_mode",
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);

@@ -121,7 +121,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	// TODO: until here... (see comment above)
 
-	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+	bool isProject = GetSourceItem()->Type() == SourceItemType::ProjectFolderItem;
+	if (isProject) {
 		ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
 		if (projectFolder->Active())
 			SetTextFontFace(B_BOLD_FACE);
@@ -169,6 +170,20 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		// TODO: Don't move it every time
 		fTextControl->MoveTo(textRect.LeftTop());
 	} else {
+		// TODO: Cleanup. We could move this to StyledItem
+		if (isProject) {
+			ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
+			const rgb_color oldColor = owner->HighColor();
+			owner->SetHighColor(projectFolder->Color());
+			BRect textRect;
+			textRect.top = bounds.top + 1.5f;
+			textRect.left = iconRect.right + be_control_look->DefaultLabelSpacing() - 3;
+			textRect.bottom = bounds.bottom - 2;
+			textRect.right = textRect.left + owner->StringWidth(Text()) + 5;
+			owner->FillRoundRect(textRect, 9, 10);
+			owner->SetHighColor(oldColor);
+		}
+
 		BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 						bounds.top + BaselineOffset());
 		// TODO: Apply any style change here (i.e. bold, italic)

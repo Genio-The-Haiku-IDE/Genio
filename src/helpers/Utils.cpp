@@ -7,6 +7,7 @@
 #include "Utils.h"
 
 #include <Alert.h>
+#include <AppFileInfo.h>
 #include <Application.h>
 #include <Bitmap.h>
 #include <Catalog.h>
@@ -18,13 +19,14 @@
 #include <RadioButton.h>
 #include <Resources.h>
 #include <Roster.h>
-
 #include <algorithm>
 #include <string>
 #include <DateTime.h>
+#include <SystemCatalog.h>
 
 #include "GenioNamespace.h"
 
+using BPrivate::gSystemCatalog;
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Utilities"
@@ -382,4 +384,62 @@ ReadFileContent(const char* filename, off_t maxSize)
 	read.SetTo(buffer, maxlen);
 	delete[] buffer;
 	return read;
+}
+
+// mostly taken from BAboutWindow
+BString
+GetVersion()
+{
+	app_info info;
+	if (be_app->GetAppInfo(&info) != B_OK)
+		return NULL;
+
+	BFile file(&info.ref, B_READ_ONLY);
+	BAppFileInfo appMime(&file);
+	if (appMime.InitCheck() != B_OK)
+		return NULL;
+
+	version_info versionInfo;
+	if (appMime.GetVersionInfo(&versionInfo, B_APP_VERSION_KIND) == B_OK) {
+		if (versionInfo.major == 0 && versionInfo.middle == 0
+			&& versionInfo.minor == 0) {
+			return NULL;
+		}
+
+		const char* version = B_TRANSLATE_MARK("Version");
+		version = gSystemCatalog.GetString(version, "AboutWindow");
+		BString appVersion(version);
+		appVersion << " " << versionInfo.major << "." << versionInfo.middle;
+		if (versionInfo.minor > 0)
+			appVersion << "." << versionInfo.minor;
+
+		// Add the version variety
+		const char* variety = NULL;
+		switch (versionInfo.variety) {
+			case B_DEVELOPMENT_VERSION:
+				variety = B_TRANSLATE_MARK("development");
+				break;
+			case B_ALPHA_VERSION:
+				variety = B_TRANSLATE_MARK("alpha");
+				break;
+			case B_BETA_VERSION:
+				variety = B_TRANSLATE_MARK("beta");
+				break;
+			case B_GAMMA_VERSION:
+				variety = B_TRANSLATE_MARK("gamma");
+				break;
+			case B_GOLDEN_MASTER_VERSION:
+				variety = B_TRANSLATE_MARK("gold master");
+				break;
+		}
+
+		if (variety != NULL) {
+			variety = gSystemCatalog.GetString(variety, "AboutWindow");
+			appVersion << "-" << variety;
+		}
+
+		return appVersion;
+	}
+
+	return NULL;
 }

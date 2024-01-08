@@ -6,6 +6,7 @@
 
 #include "FunctionsOutlineView.h"
 
+#include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <NaturalCompare.h>
 #include <OutlineListView.h>
@@ -35,6 +36,7 @@ private:
 		BMessage	fDetails;
 };
 
+
 static int
 CompareItems(const BListItem* itemA, const BListItem* itemB)
 {
@@ -49,9 +51,13 @@ CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 }
 
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "FunctionsOutlineView"
+
+
 FunctionsOutlineView::FunctionsOutlineView()
 	:
-	BView("Class outline", B_WILL_DRAW),
+	BView(B_TRANSLATE("Class outline"), B_WILL_DRAW),
 	fListView(nullptr),
 	fToolBar(nullptr),
 	fLastUpdateTime(system_time())
@@ -65,7 +71,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 	fToolBar->ChangeIconSize(16);
 	// TODO: Icons
 	//fToolBar->AddAction(kMsgCollapseAll, "Collapse all", "kIconGitRepo", true);
-	fToolBar->AddAction(kMsgSort, "Sort", "kIconGitMore", true);
+	fToolBar->AddAction(kMsgSort, B_TRANSLATE("Sort"), "kIconGitMore", true);
 	fToolBar->SetExplicitMinSize(BSize(250, B_SIZE_UNSET));
 	fToolBar->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
 	BLayoutBuilder::Group<>(this)
@@ -126,7 +132,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			int32 index = msg->GetInt32("index", -1);
 			if (index > -1) {
 				SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemAt(index));
-				if (sym) {
+				if (sym != nullptr) {
 					BMessage go = sym->Details();
 					go.what = B_REFS_RECEIVED;
 					go.AddRef("refs", &fCurrentRef);
@@ -162,13 +168,15 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 }
 
 
-/* virtual*/
+/* virtual */
 void
 FunctionsOutlineView::Pulse()
 {
 	// Update every 10 seconds
+	const bigtime_t kUpdatePeriod = 10000000LL;
+
 	bigtime_t currentTime = system_time();
-	if (currentTime - fLastUpdateTime > 10000000LL) {
+	if (currentTime - fLastUpdateTime > kUpdatePeriod) {
 		// TODO: Maybe move this to the Editor which knows if a file has been modified
 		// TODO: we send a message to the window which sends it to the editor
 		// which then ... : refactor
@@ -188,7 +196,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 
 	fListView->MakeEmpty();
 	// TODO: Improve
-	fListView->AddItem(new BStringItem("Pending..."));
+	fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
 	if (msg->FindRef("ref", &fCurrentRef) != B_OK)
 		return;
 
@@ -219,7 +227,7 @@ FunctionsOutlineView::_RecursiveAddSymbols(BListItem* parent, BMessage* msg)
 	BMessage symbol;
 	while (msg->FindMessage("symbol", i++, &symbol) == B_OK) {
 		SymbolListItem* dad = new SymbolListItem(symbol);
-		if (parent)
+		if (parent != nullptr)
 			fListView->AddUnder(dad, parent);
 		else
 			fListView->AddItem(dad);

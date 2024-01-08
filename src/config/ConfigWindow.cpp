@@ -114,6 +114,21 @@ void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
 }
 
 
+template<>
+GControl<BColorControl, rgb_color>::GControl(GMessage& msg, rgb_color value, ConfigManager& cfg)
+	:
+	BColorControl(B_ORIGIN,	B_CELLS_16x16, 16, ""),
+	fConfigManager(cfg)
+{
+	BColorControl::SetName(msg["key"]);
+	BColorControl::SetLabel(msg["label"]);
+	LoadValue(value);
+
+	GMessage* invoke = new GMessage(kOnNewValue);
+	(*invoke)["key"] = msg["key"];
+	BColorControl::SetMessage(invoke);
+}
+
 
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
     : BWindow(BRect(100, 100, 700, 500), B_TRANSLATE("Settings"), B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
@@ -378,10 +393,11 @@ ConfigWindow::MakeControlFor(GMessage& config)
 				return control;
 			}
 		}
-#if 0
+#if 1
 		case B_RGB_COLOR_TYPE:
 		{
-			GControl<BColorControl, rgb_color>* control = new GControl<BColorControl, rgb_color>(config, fConfigManager[config["key"]], fConfigManager);
+			GControl<BColorControl, rgb_color>* control =
+				new GControl<BColorControl, rgb_color>(config, fConfigManager[config["key"]], fConfigManager);
 			// TODO: Improve
 			return control;
 		}

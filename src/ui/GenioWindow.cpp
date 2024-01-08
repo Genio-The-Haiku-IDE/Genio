@@ -4088,6 +4088,10 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 		Editor* editor = fTabManager->EditorAt(index);
 		editor->ApplySettings();
+		ProjectFolder* project = editor->GetProjectFolder();
+		if (project != nullptr) {
+			fTabManager->SetTabColor(editor, project->Color());
+		}
 	}
 
 	if (key.StartsWith("find_")) {

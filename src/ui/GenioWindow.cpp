@@ -1046,8 +1046,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			bool set_caret = message->GetBool("caret_position", false);
 			if (set_caret && index >= 0) {
 				Editor* editor = fTabManager->EditorAt(index);
-				if (editor)
+				if (editor != nullptr) {
 					editor->SetSavedCaretPosition();
+					ProjectFolder* project = editor->GetProjectFolder();
+					if (project != nullptr) {
+						fTabManager->SetTabColor(editor, project->Color());
+					}
+				}
 			}
 			break;
 		}

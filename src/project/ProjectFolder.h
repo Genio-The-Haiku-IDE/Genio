@@ -101,6 +101,8 @@ public:
 
 	void						SetGuessedBuilder(const BString& string);
 
+	const rgb_color				Color() const;
+
 	LSPProjectWrapper*			GetLSPServer(const BString& fileType);
 
 

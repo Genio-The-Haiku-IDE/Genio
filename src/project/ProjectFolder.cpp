@@ -340,6 +340,20 @@ ProjectFolder::SetGuessedBuilder(const BString& string)
 }
 
 
+const rgb_color
+ProjectFolder::Color() const
+{
+	// TODO: Just for testing, should be saved in settings
+	if (fActive) {
+		rgb_color color = {234, 20, 124};
+		return color;
+	} else {
+		rgb_color color = {34, 204, 124};
+		return color;
+	}
+}
+
+
 void
 ProjectFolder::_PrepareSettings()
 {
@@ -354,9 +368,12 @@ ProjectFolder::_PrepareSettings()
 			{"value", (int32)BuildMode::DebugMode },
 			{"label", "debug"}}},
 	};
+	fSettings->AddConfig("General", "color",
+		B_TRANSLATE("color:"), 34);
+
 	fSettings->AddConfig("Build", "build_mode",
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);
-	
+
 	fSettings->AddConfig("Build/Release", "project_release_build_command",
 		B_TRANSLATE("Release build command:"), "");
 	fSettings->AddConfig("Build/Release", "project_release_clean_command",
@@ -373,7 +390,7 @@ ProjectFolder::_PrepareSettings()
 		B_TRANSLATE("Debug execute args:"), "");
 	fSettings->AddConfig("Build/Debug", "project_debug_target",
 		B_TRANSLATE("Debug target:"), "");
-	
+
 	fSettings->AddConfig("Run", "project_run_in_terminal",
 		B_TRANSLATE("Run in terminal"), false);
 }

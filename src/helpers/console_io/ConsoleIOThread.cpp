@@ -24,17 +24,11 @@
 #include "Log.h"
 #include "PipeImage.h"
 
-
 ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consoleTarget)
 	:
 	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message)
 	, fTarget(consoleTarget)
 	, fProcessId(-1)
-	, fStdIn(-1)
-	, fStdOut(-1)
-	, fStdErr(-1)
-	, fConsoleOutput(nullptr)
-	, fConsoleError(nullptr)
 	, fIsDone(false)
 {
 	SetDataStore(new BMessage(*cmd_message));
@@ -67,16 +61,17 @@ ConsoleIOThread::_RunExternalProcess()
 	argv[2] = strdup(cmd.String());
 	argv[argc] = nullptr;
 
-	fProcessId = PipeCommand(argc, argv, fStdIn, fStdOut, fStdErr);
+	status = fPipeImage.Init(argv, argc, true, false);
 
 	delete[] argv;
 
-	if (fProcessId < 0)
-		return fProcessId;
+	if (status != B_OK)
+		return status;
+
+	fProcessId = fPipeImage.GetChildPid();
 
 	// lower the command priority since it is a background task.
 	set_thread_priority(fProcessId, B_LOW_PRIORITY);
-
 
 	status = resume_thread(fProcessId);
 	if (status != B_OK) {
@@ -85,23 +80,26 @@ ConsoleIOThread::_RunExternalProcess()
 		return status;
 	}
 
-	int flags = fcntl(fStdOut, F_GETFL, 0);
+	int flags = fcntl(fPipeImage.GetStdOutFD(), F_GETFL, 0);
 	flags |= O_NONBLOCK;
-	fcntl(fStdOut, F_SETFL, flags);
-	flags = fcntl(fStdErr, F_GETFL, 0);
+	fcntl(fPipeImage.GetStdOutFD(), F_SETFL, flags);
+	flags = fcntl(fPipeImage.GetStdErrFD(), F_GETFL, 0);
 	flags |= O_NONBLOCK;
-	fcntl(fStdErr, F_SETFL, flags);
+	fcntl(fPipeImage.GetStdErrFD(), F_SETFL, flags);
 
+	// avoid having some buffered stuff in the output
+	// of the new process. It looks like when forking we are
+	// inheriting output buffers of the main process.
 	_CleanPipes();
 
-	fConsoleOutput = fdopen(fStdOut, "r");
+	fConsoleOutput = fdopen(fPipeImage.GetStdOutFD(), "r");
 	if (fConsoleOutput == nullptr) {
 		LogErrorF("Can't open ConsoleOutput file! (%d) [%s]", errno, strerror(errno));
 		kill_thread(fProcessId);
 		fProcessId = -1;
 		return errno;
 	}
-	fConsoleError = fdopen(fStdErr, "r");
+	fConsoleError = fdopen(fPipeImage.GetStdErrFD(), "r");
 	if (fConsoleError == nullptr) {
 		LogErrorF("Can't open ConsoleError file! (%d) [%s]", errno, strerror(errno));
 		kill_thread(fProcessId);
@@ -147,6 +145,7 @@ ConsoleIOThread::ExecuteUnit(void)
 			}
 
 			if (!IsProcessAlive() && outStr.IsEmpty() && errStr.IsEmpty()) {
+				printf("DONE\n");
 				return EOF;
 			}
 		}
@@ -187,7 +186,7 @@ ConsoleIOThread::GetFromPipe(BString& stdOut, BString& stdErr)
 void
 ConsoleIOThread::PushInput(BString text)
 {
-	write(fStdIn, text.String(), text.Length());
+	fPipeImage.Write(text.String(), text.Length());
 }
 
 void
@@ -215,58 +214,6 @@ ConsoleIOThread::ThreadShutdown(void)
 	return B_OK;
 }
 
-
-thread_id
-ConsoleIOThread::PipeCommand(int argc, const char** argv, int& in, int& out,
-	int& err, const char** envp)
-{
-	// This function written by Peter Folk <pfolk@uni.uiuc.edu>
-	// and published in the BeDevTalk FAQ
-	// http://www.abisoft.com/faq/BeDevTalk_FAQ.html#FAQ-209
-	if (!envp)
-		envp = (const char**)environ;
-
-	// Save current FDs
-	PipeImage::sLockStdFilesPntr->Lock();
-	int old_in  =  dup(0);
-	int old_out  =  dup(1);
-	int old_err  =  dup(2);
-	PipeImage::sLockStdFilesPntr->Unlock();
-
-	int filedes[2];
-
-	// Create new pipe FDs as stdin, stdout, stderr
-	pipe(filedes);  dup2(filedes[0], 0); close(filedes[0]);
-	in = filedes[1];  // Write to in, appears on cmd's stdin
-	pipe(filedes);  dup2(filedes[1], 1); close(filedes[1]);
-	out = filedes[0]; // Read from out, taken from cmd's stdout
-	pipe(filedes);  dup2(filedes[1], 2); close(filedes[1]);
-	err = filedes[0]; // Read from err, taken from cmd's stderr
-
-	// "load" command
-	thread_id ret  =  load_image(argc, argv, envp);
-	if (ret < B_OK)
-		goto cleanup;
-
-	// thread ret is now suspended.
-
-	setpgid(ret, ret);
-
-cleanup:
-	// Restore old FDs
-	PipeImage::sLockStdFilesPntr->Lock();
-	close(0); dup(old_in); close(old_in);
-	close(1); dup(old_out); close(old_out);
-	close(2); dup(old_err); close(old_err);
-	PipeImage::sLockStdFilesPntr->Unlock();
-	/* Theoretically I should do loads of error checking, but
-	   the calls aren't very likely to fail, and that would
-	   muddy up the example quite a bit.  YMMV. */
-
-	return ret;
-}
-
-
 void
 ConsoleIOThread::ClosePipes()
 {
@@ -277,11 +224,7 @@ ConsoleIOThread::ClosePipes()
 
 	fConsoleOutput = fConsoleError = nullptr;
 
-	close(fStdIn);
-	close(fStdOut);
-	close(fStdErr);
-
-	fStdIn = fStdOut = fStdErr = -1;
+	fPipeImage.Close();
 }
 
 bool
@@ -324,6 +267,7 @@ ConsoleIOThread::InterruptExternal()
 void
 ConsoleIOThread::_CleanPipes()
 {
-	while(read(fStdOut, fConsoleOutputBuffer, LINE_MAX) > 0);
-	while(read(fStdErr, fConsoleOutputBuffer, LINE_MAX) > 0);
+	//the pipes are set to non blocking so we should never be stuck here.
+	while(read(fPipeImage.GetStdOutFD(), fConsoleOutputBuffer, LINE_MAX) > 0);
+	while(read(fPipeImage.GetStdErrFD(), fConsoleOutputBuffer, LINE_MAX) > 0);
 }

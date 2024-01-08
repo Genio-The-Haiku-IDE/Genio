@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<!--
+ * Copyright 2024
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Humdinger <humdingerb@gmail.com>
+-->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="robots" content="all" />
+	<link rel="stylesheet" type="text/css" href="./_doc.css" />
+	<title>Genio's User Documentation</title>
+
+</head>
+<body>
+
+<div id="navbar">
+<a href="ReadMe.html">QuickStart</a> <a href="editor.html">Editor</a> <a href="panes.html">Panes</a> <a class="active" href="toolbar.html">Toolbar</a> <a href="menus.html">Menus</a> <a href="settings.html">Settings</a>
+</div>
+
+<div id="content">
+
+<h1>The Toolbar</h1>
+
+<p>At the top of the main window Genio has a toolbar to provide quick access by clicking its icons. It can be toggled on and off with the menu <span class="menu">Window|Appearance</span>.</p>
+
+<p style="text-align:center"><img src="./images/toolbar-toolbar.png" alt="Toolbar" /></p>
+
+<p>All icons are explained by a tooltip if you hover the mouse pointer over it. Let's go through them quickly anyway.</p>
+
+
+<h2><a id="toolbar-icons" name="toolbar-icons">The icons</a></h2>
+
+<table summary="layout">
+<tr><td>
+<img src="./images/icons/kIconWinNav.png" alt="Show/Hide projects pane" />
+<img src="./images/icons/kIconWinStat.png" class="icons" alt="Show/Hide output pane" />
+</td><td style="vertical-align: middle">
+<p>Show or hide the projects pane, also with menu <span class="menu">Window|Appearance|Show projects pane</span>.<br />
+Show or hide the output pane, also with menu <span class="menu">Window|Appearance|Show output pane</span>.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconFold_4.png" class="icons" alt="Fold/Unfold all" />
+</td><td style="vertical-align: middle">
+<p>Fold or unfold all code blocks, also with menu <span class="menu">View|Fold/Unfold all</span>.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconUndo.png" alt="Undo" />
+<img src="./images/icons/kIconRedo.png" class="icons" alt="Redo" />
+</td><td style="vertical-align: middle">
+<p>Undo, also with menus <span class="menu">Edit|Undo</span>, <span class="key">ALT</span>&nbsp;<span class="key">Z</span>.<br />
+Redo, also with menu <span class="menu">Edit|Redo</span>, <span class="key">SHIFT</span>&nbsp;<span class="key">ALT</span>&nbsp;<span class="key">Z</span>.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconSave.png" alt="Save current file" />
+<img src="./images/icons/kIconSaveAll.png" class="icons" alt="Save all files" />
+</td><td style="vertical-align: middle">
+<p>Save the current file, also with menu <span class="menu">File|Save</span>, <span class="key">ALT</span>&nbsp;<span class="key">S</span>.<br />
+Save all changed files,  also with menu <span class="menu">File|Save all</span>, <span class="key">SHIFT</span>&nbsp;<span class="key">ALT</span>&nbsp;<span class="key">S</span>.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconShowPunctuation.png" class="icons" alt="Show/Hide white spaces" />
+</td><td style="vertical-align: middle">
+<p>Show or hide spaces and tabs, also with menu <span class="menu">View|Show white spaces</span>.</p>
+</td></tr>
+
+<tr><td style="vertical-align: top; padding-top: 1.5em">
+<img src="./images/icons/kIconBuild.png" alt="Build project" />
+<img src="./images/icons/kIconClean.png" class="icons" alt="Clean project" />
+</td><td style="vertical-align: top">
+<p>Build the active project in the set <span class="menu">Build mode</span>, also with menu <span class="menu">Project|Build</span>, <span class="key">ALT</span>&nbsp;<span class="key">B</span>.<br />
+Clean the active project in the set <span class="menu">Build mode</span>, also with menu <span class="menu">Project|Clean</span>.<br /><br />
+The above only works with correctly configured <a href="settings.html">Project settings</a>.</p>
+</td></tr>
+
+<tr><td style="vertical-align: top; padding-top: 1.5em">
+<img src="./images/icons/kIconRun.png" alt="Run target" />
+<img src="./images/icons/kIconDebug.png" class="icons" alt="Debug project" />
+</td><td style="vertical-align: top">
+<p>Run the built target, also with menu <span class="menu">Project|Run target</span>, <span class="key">ALT</span>&nbsp;<span class="key">SHIFT</span>&nbsp;<span class="key">R</span>.<br />
+Run the built target in the Debugger, also with menu <span class="menu">Project|Debug project</span>.<br /><br />
+The above only works with correctly configured <a href="settings.html">Project settings</a>.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconFind.png" alt="Show/Hide Find bar" />
+<img src="./images/icons/kIconReplace.png" class="icons" alt="Show/Hide Replace bar" />
+</td><td style="vertical-align: middle">
+<p>Show or hide the <a href="#find-bar">Find bar</a>, also with menu <span class="menu">Search|Find</span>, <span class="key">ALT</span>&nbsp;<span class="key">F</span>.<br />
+Show or hide the <a href="#replace-bar">Replace bar</a>, also with menu <span class="menu">Search|Replace</span>, <span class="key">ALT</span>&nbsp;<span class="key">R</span>.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconTerminal.png" class="icons" alt="Run console program" />
+</td><td style="vertical-align: middle">
+<p>Show or hide the <a href="#console-bar">Console bar</a> to execute commands.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconLocked.png" class="icons" alt="Make file read-only" />
+</td><td style="vertical-align: middle">
+<p>Protect the current file from accidental changes.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconBack_1.png" alt="Switch to previous file" />
+<img src="./images/icons/kIconForward_2.png" class="icons" alt="Switch to next file" />
+</td><td style="vertical-align: middle">
+<p>Switch to the previous file (the tab to the left), also with <span class="key">OPT</span>&nbsp;<span class="key">←</span>.<br />
+Switch to the next file (the tab to the right), also with <span class="key">OPT</span>&nbsp;<span class="key">→</span>.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconClose.png" class="icons" alt="Close file" />
+</td><td style="vertical-align: middle">
+<p>Close the current file, also with menu <span class="menu">File|Close</span>, <span class="key">ALT</span>&nbsp;<span class="key">W</span> or a right-click on its tab.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconFileList.png" class="icons" alt="Open files list" />
+</td><td style="vertical-align: middle">
+<p>Show a menu with all open files, also available when clicking the widget at the right end of the tab bar.</p>
+</td></tr>
+</table>
+
+
+<h2><a id="find-bar" name="find-bar">The Find bar</a></h2>
+
+<p>If there's text selected while hitting <span class="key">ALT</span>&nbsp;<span class="key">F</span> or clicking the 'Find' icon, it will be pre-filled in the 'Find' text field.<br />
+Past search strings can be found in the <span class="menu">Find</span> pop-up menu.</p>
+
+<p style="text-align:center"><img src="./images/toolbar-find_bar.png" alt="Find bar" /></p>
+
+<p>The arrow icons will jump to the next/previous match, the keyboard shortcut is <span class="key">ALT</span>&nbsp;<span class="key">↓</span>&nbsp;/&nbsp;<span class="key">↑</span>.</p>
+
+<table summary="layout">
+<tr><td style="vertical-align: top; padding-right: 1em"><span class="menu">Wrap</span></td>
+<td>Continue the search at the beginning of the file when it has reached the end (and vice-versa, if you reverse the direction by jumping to the previous match).</td></tr>
+
+<tr><td style="vertical-align: top; padding-right: 1em"><span class="menu">Whole&nbsp;word</span></td>
+<td>Does not find partial matches.</td></tr>
+
+<tr><td style="vertical-align: top; padding-right: 1em"><span class="menu">Match&nbsp;case</span></td>
+<td>Respect upper and lower-case.</td></tr>
+</table>
+
+<p>The marker icon creates bookmarks for all matching lines.<br />
+The last icon on the right will search through all files of the active project. Results are presented in the <a href="panes.html#search-results">Search results</a> tab of the output pane.</p>
+
+<p><span class="key">ESC</span> closes the Find bar.</p>
+
+
+<h2><a id="replace-bar" name="replace-bar">The Replace bar</a></h2>
+
+<p>If there's text selected while hitting <span class="key">ALT</span>&nbsp;<span class="key">R</span> or clicking the 'Replace' icon, it will be pre-filled in the 'Replace' text field.<br />
+Past replace strings can be found in the <span class="menu">Replace</span> pop-up menu.</p>
+
+<p style="text-align:center"><img src="./images/toolbar-replace_bar.png" alt="Find bar" /></p>
+
+<p>The icons from left to right will <span class="menu">Replace selection</span>, <span class="menu">Replace and find next</span>, <span class="menu">Replace and find previous</span> and <span class="menu">Replace all</span> in the current file.</p>
+
+<p><span class="key">ESC</span> closes the Replace bar.</p>
+
+<h2><a id="console-bar" name="console-icons">The Console bar</a></h2>
+
+<p>Clicking the 'Run console program' icon in the toolbar, opens the Console bar:</p>
+
+<p style="text-align:center"><img src="./images/toolbar-console_bar.png" alt="Console bar" /></p>
+
+<p>The text field acts like a command prompt with the active project's top folder as working directory. You can execute any command and see the output in the <a href="panes.html#console-io">Console I/O</a> tab of the output pane.</p>
+<p>Hitting <span class="key">TAB</span> or <span class="key">ENTER</span> or click <span class="button">Run</span> to execute the entered command line.</p>
+
+<hr />
+<a href="panes.html" style="border:none;float:left">Back: Panes</a>
+<a href="menus.html" style="border:none;float:right">Next: Menus</a>
+<p></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<!--
+ * Copyright 2024
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Humdinger 
+-->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="robots" content="all" />
+	<link rel="stylesheet" type="text/css" href="./_doc.css" />
+	<title>Genio's User Documentation</title>
+
+</head>
+<body>
+
+<div id="navbar">
+<a href="ReadMe.html">QuickStart</a> <a href="editor.html">Editor</a> <a href="panes.html">Panes</a> <a href="toolbar.html">Toolbar</a> <a class="active" href="menus.html">Menus</a> <a href="settings.html">Settings</a>
+</div>
+
+<div id="content">
+
+<h1>The Menus</h1>
+
+<p>The vast majority of Genio's menu items are trivial or obvious.<br />
+Let's go through all menus and only pick those items that deserve a bit of explanation.</p>
+
+
+<h2><a id="genio" name="genio">Genio menu</a></h2>
+
+<img src="./images/menus-genio.png" class="floatleft" alt="Genio menu" />
+
+<p style="margin-top: 2.2em"><span class="menu">Genio project…</span> opens the GitHub page of the Genio project, as shortcut to file an <a href="https://github.com/Genio-The-Haiku-IDE/Genio/issues">issue</a> or participate in <a href="https://github.com/Genio-The-Haiku-IDE/Genio/discussions">discussions</a>.</p>
+
+<p><span class="menu">Settings…</span> opens the application's <a href="settings.html#genio-settings">Settings</a> window.</p>
+<p style="clear:left"></p>
+
+
+<h2><a id="file" name="file">File menu</a></h2>
+
+<img src="./images/menus-file.png" class="floatleft" alt="File menu" />
+
+<p style="margin-top: 2.2em"><span class="menu">New…</span> offers a sub-menu with template files and folders.<br />
+In it is an item <span class="menu">Edit user templates…</span> that opens a folder where you can put your own files/folders to use as templates. Those, too, will be available in the <span class="menu">New…</span> menu.</p>
+<p style="clear:left"></p>
+
+
+<h2><a id="edit" name="edit">Edit menu</a></h2>
+
+<img src="./images/menus-edit.png" class="floatleft" alt="Edit menu" />
+
+<p style="margin-top: 2.2em"><span class="menu">Trim trailing whitespace</span> removes all spaces and tabs at the end of the line for the whole file.</p>
+
+<p><span class="menu">Autocomplete</span> is described on the Editor page under <a href="editor.html#completion">Code completion</a>.</p>
+
+<p><span class="menu">Line endings</span> converts the end-of-line character of the current file to either <span class="menu">LF (Haiku, Unix, macOS)</span>, <span class="menu">CRLF (Windows, Dos)</span> or <span class="menu">CR (Classic Mac OS)</span>.</p>
+
+<p><span class="menu">Language</span> lets you set the programming language of the current file manually. Genio normally auto-detects this correctly.</p>
+<p style="clear:left"></p>
+
+
+<h2><a id="view" name="view">View menu</a></h2>
+
+<img src="./images/menus-view.png" class="floatleft" alt="View menu" />
+
+<p style="margin-top: 2.2em">You can <span class="menu">Zoom in/out</span>, <span class="key">ALT</span>&nbsp;<span class="key">+</span>&nbsp;<span class="key">-</span>, the editor view, which can be handy to scroll through long source files. Perhaps more conveniently, this can also be done by scrolling up/down with the mouse wheel while holding <span class="key">ALT</span>.</p>
+<p style="clear:left"></p>
+
+
+<h2><a id="search" name="search">Search menu</a></h2>
+
+<img src="./images/menus-search.png" class="floatleft" alt="Search menu" />
+
+<p style="margin-top: 2.2em"><span class="menu">Find</span>, <span class="key">ALT</span>&nbsp;<span class="key">F</span>, and <span class="menu">Replace</span>, <span class="key">ALT</span>&nbsp;<span class="key">R</span>, are described on the Toolbar page under <a href="toolbar.html#find-bar">Find bar</a> and <a href="toolbar.html#replace-bar">Replace bar</a>.</p>
+<p style="clear:left"></p>
+
+
+<h2><a id="project" name="project">Project menu</a></h2>
+
+<img src="./images/menus-project.png" class="floatleft" alt="Project menu" />
+
+<p style="margin-top: 2.2em"><span class="menu">Open project…</span> and <span class="menu">Open remote project…</span> are described on the QuickStart page under <a href="ReadMe.html#local">Local project</a> and <a href="ReadMe.html#remote">Remote project</a>.</p>
+
+<p><span class="menu">Build project</span> and <span class="menu">Clean project</span> will build or clean the active project according to the set <span class="menu">Build mode</span>, either as "release" or "debug".</p>
+
+<p><span class="menu">Run target</span> will launch the built binary.</p>
+
+<p>For the above to work, you need to have your project properly configured in the <a href="settings.html#project">Project settings…</a>.</p>
+
+<p>If you're building a localized application, you can generate new en.catkeys with <span class="menu">Make catkeys</span> and do a <span class="menu">Make bindcatalogs</span> to add the available translations as resources to the built binary.</p>
+<p style="clear:left"></p>
+
+
+<h2><a id="git" name="git">Git menu</a></h2>
+
+<img src="./images/menus-git.png" class="floatleft" alt="Git menu" />
+
+<p style="margin-top: 2.2em">This menu offers a number of often used Git commands. It's only available if you're working with a git repository, of course. Check the Panes page under <a href="panes.html#source-control">Source control</a> how to initiate a git repo.</p>
+
+<p>All git commands print their output in the <a href="panes.html#console-io">Console I/O</a> tab.</p>
+<p style="clear:left"></p>
+
+
+<h2><a id="window" name="window">Window menu</a></h2>
+
+<img src="./images/menus-window.png" class="floatleft" style="margin-bottom: 4em" alt="Window menu" />
+
+<p style="margin-top: 2.2em">You can show/hide panes and toolbar under <span class="menu">Appearance</span>.</p>
+
+<p>Genio's window can be made <span class="menu">Fullscreen</span> (<span class="key">ALT</span>&nbsp;<span class="key">ENTER</span>).</p>
+
+<p>In <span class="menu">Focus mode</span> (<span class="key">SHIFT</span>&nbsp;<span class="key">ALT</span>&nbsp;<span class="key">ENTER</span>) the toolbar and the projects and output panes are additionally hidden to minimize distractions.</p>
+
+<p>Hit <span class="key">ALT</span>&nbsp;<span class="key">ENTER</span> again to return to normal mode.</p>
+<p style="clear:left"></p>
+
+<hr />
+<a href="toolbar.html" style="border:none;float:left">Back: Toolbar</a>
+<a href="settings.html" style="border:none;float:right">Next: Settings</a>
+<p></p>
+</div>
+</body>
+</html>

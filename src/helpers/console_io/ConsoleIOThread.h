@@ -33,6 +33,7 @@
 #include "GenericThread.h"
 #include <stdio.h>
 #include <Locker.h>
+#include "PipeImage.h"
 
 enum {
 	CONSOLEIOTHREAD_EXIT				= 'Cexi',
@@ -65,11 +66,6 @@ private:
 	virtual	status_t			ExecuteUnit();
 	virtual	status_t			ThreadShutdown();
 
-
-			thread_id			PipeCommand(int argc, const char** argv,
-									int& in, int& out, int& err,
-									const char** envp = (const char**)environ);
-
 			void				_CleanPipes();
 			status_t			_RunExternalProcess();
 
@@ -78,9 +74,6 @@ private:
 
 
 			thread_id			fProcessId;
-			int					fStdIn;
-			int					fStdOut;
-			int					fStdErr;
 			FILE*				fConsoleOutput;
 			FILE*				fConsoleError;
 			char				fConsoleOutputBuffer[LINE_MAX];
@@ -89,6 +82,7 @@ private:
 			BString				fLastOutputString;
 			BString				fLastErrorString;
 			BLocker				fProcessIDLock;
+			PipeImage			fPipeImage;
 };
 
 

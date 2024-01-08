@@ -15,7 +15,7 @@
 status_t
 LSPPipeClient::Start(const char **argv, int32 argc)
 {
-	status_t image_status = fPipeImage.Init(argv, argc);
+	status_t image_status = fPipeImage.Init(argv, argc, false, true);
 	if (image_status == B_OK)
 		LSPPipeClient::Run();
 	return image_status;

@@ -564,22 +564,7 @@ void
 WebTabView::DrawBackground(BView* owner, BRect frame, const BRect& updateRect,
 		bool isFirst, bool isLast, bool isFront)
 {
-	// Copied from TabView::DrawBackground()
-	rgb_color base = fColor;
-	uint32 borders = BControlLook::B_TOP_BORDER
-		| BControlLook::B_BOTTOM_BORDER;
-
-	if (isFirst)
-		borders |= BControlLook::B_LEFT_BORDER;
-	if (isLast)
-		borders |= BControlLook::B_RIGHT_BORDER;
-	if (isFront) {
-		be_control_look->DrawActiveTab(owner, frame, updateRect, base,
-			0, borders);
-	} else {
-		be_control_look->DrawInactiveTab(owner, frame, updateRect, base,
-			0, borders);
-	}
+	TabView::DrawBackground(owner, frame, updateRect, isFirst, isLast, isFront);
 }
 
 
@@ -622,6 +607,19 @@ WebTabView::DrawContents(BView* owner, BRect frame, const BRect& updateRect,
 		frame.left = frame.left + kIconSize + kIconInset * 2;
 	}
 
+	// Draw colored circle before text
+	BRect circleFrame(frame);
+	circleFrame.OffsetBy(0, 1);
+	circleFrame.right = circleFrame.left + circleFrame.Height();
+	circleFrame.InsetBy(5, 5);
+	const rgb_color highColor = owner->HighColor();
+	owner->SetHighColor(fColor);
+	owner->FillEllipse(circleFrame);
+	owner->SetHighColor(tint_color(fColor, B_DARKEN_1_TINT));
+	owner->StrokeEllipse(circleFrame);
+	frame.left = circleFrame.right + be_control_look->DefaultLabelSpacing();
+
+	owner->SetHighColor(highColor);
 	TabView::DrawContents(owner, frame, updateRect, isFirst, isLast, isFront);
 }
 
@@ -746,7 +744,7 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 
 	closeRect.InsetBy(closeRect.Width() * 0.30f, closeRect.Height() * 0.30f);
 
-	rgb_color base = fColor;
+	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 	float tint = B_LIGHTEN_1_TINT;
 	if (base.Brightness() >= kBrightnessBreakValue) {
 		tint = B_DARKEN_1_TINT *1.2;
@@ -758,7 +756,7 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 		be_control_look->DrawButtonFrame(owner, buttonRect, updateRect,
 			base, base,
 			BControlLook::B_ACTIVATED | BControlLook::B_BLEND_FRAME);
-		rgb_color background = fColor;
+		rgb_color background = ui_color(B_PANEL_BACKGROUND_COLOR);
 		be_control_look->DrawButtonBackground(owner, buttonRect, updateRect,
 			background, BControlLook::B_ACTIVATED);
 

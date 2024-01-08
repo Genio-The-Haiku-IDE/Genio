@@ -42,11 +42,11 @@
 
 #define KV(T) kv_pair(const std::string &k, T v) : pair(k, std::make_shared<mapped_type>(v)) {}
 
-#define SUPPORTED_1		int32, bool, const char*, BString, GMessage
+#define SUPPORTED_1		int32, bool, const char*, BString, GMessage, rgb_color
 #if __HAIKU_BEOS_COMPATIBLE_TYPES
 #define SUPPORTED_2		KV(int); KV(int32); KV(bool); KV(const char*); KV(BString); KV(GMessage);
 #else
-#define SUPPORTED_2		KV(int32); KV(bool); KV(const char*); KV(BString); KV(GMessage);
+#define SUPPORTED_2		KV(int32); KV(bool); KV(const char*); KV(BString); KV(GMessage); KV(rgb_color);
 #endif
 
 class GMessageReturn;

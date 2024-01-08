@@ -401,15 +401,12 @@ ConfigWindow::MakeControlFor(GMessage& config)
 				return control;
 			}
 		}
-#if 1
 		case B_RGB_COLOR_TYPE:
 		{
 			GControl<BColorControl, rgb_color>* control =
 				new GControl<BColorControl, rgb_color>(config, fConfigManager[config["key"]], fConfigManager);
-			// TODO: Improve
 			return control;
 		}
-#endif
 		default:
 		{
 			BString label;

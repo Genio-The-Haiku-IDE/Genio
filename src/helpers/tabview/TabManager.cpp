@@ -487,6 +487,7 @@ public:
 
 	void SetIcon(const BBitmap* icon);
 	void SetColor(const rgb_color& color);
+	const rgb_color Color() const;
 
 private:
 	void _DrawCloseButton(BView* owner, BRect& frame, const BRect& updateRect,
@@ -495,7 +496,7 @@ private:
 
 private:
 	BBitmap* fIcon;
-	rgb_color* fColor;
+	rgb_color fColor;
 	TabManagerController* fController;
 	BPopUpMenu* fPopUpMenu;
 	bool fOverCloseRect;
@@ -507,7 +508,7 @@ WebTabView::WebTabView(TabManagerController* controller)
 	:
 	TabView(),
 	fIcon(NULL),
-	fColor(nullptr),
+	fColor(ui_color(B_PANEL_BACKGROUND_COLOR)),
 	fController(controller),
 	fPopUpMenu(nullptr),
 	fOverCloseRect(false),
@@ -536,7 +537,6 @@ WebTabView::WebTabView(TabManagerController* controller)
 WebTabView::~WebTabView()
 {
 	delete fIcon;
-	delete fColor;
 	delete fPopUpMenu;
 }
 
@@ -565,7 +565,7 @@ WebTabView::DrawBackground(BView* owner, BRect frame, const BRect& updateRect,
 		bool isFirst, bool isLast, bool isFront)
 {
 	// Copied from TabView::DrawBackground()
-	rgb_color base = fColor != nullptr ? *fColor : ui_color(B_PANEL_BACKGROUND_COLOR);
+	rgb_color base = fColor;
 	uint32 borders = BControlLook::B_TOP_BORDER
 		| BControlLook::B_BOTTOM_BORDER;
 
@@ -701,13 +701,17 @@ WebTabView::SetIcon(const BBitmap* icon)
 void
 WebTabView::SetColor(const rgb_color& color)
 {
-	delete fColor;
-	fColor = nullptr;
-
-	fColor = new rgb_color(color);
+	fColor = color;
 	if (ContainerView() != nullptr) {
 		ContainerView()->Invalidate();
 	}
+}
+
+
+const rgb_color
+WebTabView::Color() const
+{
+	return fColor;
 }
 
 
@@ -1055,6 +1059,8 @@ TabManager::AddTab(BView* view, const char* label, int32 index, BMessage* addInf
 void
 TabManager::MoveTabs(int32 from, int32 to)
 {
+	WebTabView* oldTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(from));
+	const rgb_color color = oldTab != nullptr ? oldTab->Color() : ui_color(B_PANEL_BACKGROUND_COLOR);
 	BString fromLabel = TabLabel(from);
 	BView* view = RemoveTab(from);
 
@@ -1063,6 +1069,10 @@ TabManager::MoveTabs(int32 from, int32 to)
 	fCardLayout->SetFrame(dirtyFrameHack);
 #endif
 	fCardLayout->AddView(to, view);
+
+	WebTabView* newTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(to));
+	if (newTab != nullptr)
+		newTab->SetColor(color);
 
 	SelectTab(to);
 }

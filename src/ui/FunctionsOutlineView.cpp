@@ -13,6 +13,7 @@
 #include <Window.h>
 
 #include "Editor.h"
+#include "EditorMessages.h"
 #include "ToolBar.h"
 
 #define kGoToSymbol	'gots'
@@ -165,8 +166,6 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 void
 FunctionsOutlineView::Pulse()
 {
-#if 0
-	// TODO: Disable for now, since it has various issues
 	// Update every 10 seconds
 	bigtime_t currentTime = system_time();
 	if (currentTime - fLastUpdateTime > 10000000LL) {
@@ -176,13 +175,17 @@ FunctionsOutlineView::Pulse()
 		Window()->PostMessage(kClassOutline);
 		fLastUpdateTime = currentTime;
 	}
-#endif
 }
 
 
 void
 FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 {
+	BStringItem* selected = dynamic_cast<BStringItem*>(fListView->ItemAt(fListView->CurrentSelection()));
+	BString selectedItemText;
+	if (selected != nullptr)
+		selectedItemText = selected->Text();
+
 	fListView->MakeEmpty();
 	// TODO: Improve
 	fListView->AddItem(new BStringItem("Pending..."));
@@ -192,6 +195,18 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 	fListView->MakeEmpty();
 	// TODO: This is done synchronously
 	_RecursiveAddSymbols(nullptr, msg);
+
+	// List could have been changed. Try to re-select old selected item
+	if (!selectedItemText.IsEmpty()) {
+		for (int32 i = 0; i < fListView->CountItems(); i++) {
+			BStringItem* item = dynamic_cast<BStringItem*>(fListView->ItemAt(i));
+			if (item != nullptr && selectedItemText == item->Text()) {
+				fListView->Select(i, false);
+				break;
+			}
+		}
+	}
+
 	fListView->SetInvocationMessage(new BMessage(kGoToSymbol));
 	fListView->SetTarget(this);
 }

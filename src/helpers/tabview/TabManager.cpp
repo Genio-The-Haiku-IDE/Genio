@@ -430,7 +430,7 @@ public:
 				int32 tabsToClose[count];
 				int32 added = 0;
 				for (auto i = count - 1; i >= 0; i--) {
-						tabsToClose[added++] = i;
+					tabsToClose[added++] = i;
 				}
 				fManager->CloseTabs(tabsToClose, added);
 				break;
@@ -475,6 +475,8 @@ public:
 
 	virtual BSize MaxSize();
 
+	virtual	void DrawBackground(BView* owner, BRect frame, const BRect& updateRect,
+		bool isFirst, bool isLast, bool isFront);
 	virtual void DrawContents(BView* owner, BRect frame, const BRect& updateRect,
 		bool isFirst, bool isLast, bool isFront);
 
@@ -484,6 +486,8 @@ public:
 		const BMessage* dragMessage);
 
 	void SetIcon(const BBitmap* icon);
+	void SetColor(const rgb_color& color);
+	const rgb_color Color() const;
 
 private:
 	void _DrawCloseButton(BView* owner, BRect& frame, const BRect& updateRect,
@@ -492,6 +496,7 @@ private:
 
 private:
 	BBitmap* fIcon;
+	rgb_color fColor;
 	TabManagerController* fController;
 	BPopUpMenu* fPopUpMenu;
 	bool fOverCloseRect;
@@ -503,6 +508,7 @@ WebTabView::WebTabView(TabManagerController* controller)
 	:
 	TabView(),
 	fIcon(NULL),
+	fColor(ui_color(B_PANEL_BACKGROUND_COLOR)),
 	fController(controller),
 	fPopUpMenu(nullptr),
 	fOverCloseRect(false),
@@ -553,6 +559,15 @@ WebTabView::MaxSize()
 }
 
 
+/* virtual */
+void
+WebTabView::DrawBackground(BView* owner, BRect frame, const BRect& updateRect,
+		bool isFirst, bool isLast, bool isFront)
+{
+	TabView::DrawBackground(owner, frame, updateRect, isFirst, isLast, isFront);
+}
+
+
 void
 WebTabView::DrawContents(BView* owner, BRect frame, const BRect& updateRect,
 	bool isFirst, bool isLast, bool isFront)
@@ -591,6 +606,17 @@ WebTabView::DrawContents(BView* owner, BRect frame, const BRect& updateRect,
 		owner->SetDrawingMode(B_OP_COPY);
 		frame.left = frame.left + kIconSize + kIconInset * 2;
 	}
+
+	// Draw colored circle before text
+	BRect circleFrame(frame);
+	circleFrame.OffsetBy(0, 1);
+	circleFrame.right = circleFrame.left + circleFrame.Height();
+	circleFrame.InsetBy(5, 5);
+	owner->SetHighColor(fColor);
+	owner->FillEllipse(circleFrame);
+	owner->SetHighColor(tint_color(fColor, B_DARKEN_1_TINT));
+	owner->StrokeEllipse(circleFrame);
+	frame.left = circleFrame.right + be_control_look->DefaultLabelSpacing();
 
 	TabView::DrawContents(owner, frame, updateRect, isFirst, isLast, isFront);
 }
@@ -668,6 +694,23 @@ WebTabView::SetIcon(const BBitmap* icon)
 }
 
 
+void
+WebTabView::SetColor(const rgb_color& color)
+{
+	fColor = color;
+	if (ContainerView() != nullptr) {
+		ContainerView()->Invalidate();
+	}
+}
+
+
+const rgb_color
+WebTabView::Color() const
+{
+	return fColor;
+}
+
+
 BRect
 WebTabView::_CloseRectFrame(BRect frame) const
 {
@@ -711,7 +754,7 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 		be_control_look->DrawButtonFrame(owner, buttonRect, updateRect,
 			base, base,
 			BControlLook::B_ACTIVATED | BControlLook::B_BLEND_FRAME);
-		rgb_color background = ui_color(B_CONTROL_BACKGROUND_COLOR);
+		rgb_color background = ui_color(B_PANEL_BACKGROUND_COLOR);
 		be_control_look->DrawButtonBackground(owner, buttonRect, updateRect,
 			background, BControlLook::B_ACTIVATED);
 
@@ -990,8 +1033,6 @@ TabManager::CloseTabs(int32 tabIndex[], int32 size)
 }
 
 
-
-
 void
 TabManager::AddTab(BView* view, const char* label, int32 index, BMessage* addInfo)
 {
@@ -1014,6 +1055,8 @@ TabManager::AddTab(BView* view, const char* label, int32 index, BMessage* addInf
 void
 TabManager::MoveTabs(int32 from, int32 to)
 {
+	WebTabView* oldTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(from));
+	const rgb_color color = oldTab != nullptr ? oldTab->Color() : ui_color(B_PANEL_BACKGROUND_COLOR);
 	BString fromLabel = TabLabel(from);
 	BView* view = RemoveTab(from);
 
@@ -1022,6 +1065,10 @@ TabManager::MoveTabs(int32 from, int32 to)
 	fCardLayout->SetFrame(dirtyFrameHack);
 #endif
 	fCardLayout->AddView(to, view);
+
+	WebTabView* newTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(to));
+	if (newTab != nullptr)
+		newTab->SetColor(color);
 
 	SelectTab(to);
 }
@@ -1080,6 +1127,16 @@ TabManager::SetTabIcon(const BView* containedView, const BBitmap* icon)
 		TabForView(containedView)));
 	if (tab)
 		tab->SetIcon(icon);
+}
+
+
+void
+TabManager::SetTabColor(const BView* containedView, const rgb_color& color)
+{
+	WebTabView* tab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(
+		TabForView(containedView)));
+	if (tab)
+		tab->SetColor(color);
 }
 
 

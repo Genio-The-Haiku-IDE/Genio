@@ -121,7 +121,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	// TODO: until here... (see comment above)
 
-	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+	bool isProject = GetSourceItem()->Type() == SourceItemType::ProjectFolderItem;
+	if (isProject) {
 		ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
 		if (projectFolder->Active())
 			SetTextFontFace(B_BOLD_FACE);
@@ -181,6 +182,38 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 		owner->Sync();
 	}
+}
+
+
+/* virtual */
+void
+ProjectItem::DrawText(BView* owner, const char* text, const BPoint& textPoint)
+{
+	BFont font;
+	owner->GetFont(&font);
+	font.SetFace(TextFontFace());
+	owner->SetFont(&font);
+	owner->SetDrawingMode(B_OP_COPY);
+
+	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+		ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
+		const rgb_color oldColor = owner->HighColor();
+		owner->SetHighColor(projectFolder->Color());
+
+		// TODO: Fix these calculations.
+		// Better to change DrawText() to also pass a BRect, maybe
+		BRect circleRect;
+		circleRect.top = textPoint.y - BaselineOffset() + 2.5f;
+		circleRect.left = textPoint.x - 3;
+		circleRect.bottom = textPoint.y + 6;
+		circleRect.right = circleRect.left + owner->StringWidth(Text()) + 5;
+		owner->FillRoundRect(circleRect, 9, 10);
+		owner->SetHighColor(oldColor);
+	}
+	owner->MovePenTo(textPoint);
+	owner->DrawString(text);
+
+	owner->Sync();
 }
 
 

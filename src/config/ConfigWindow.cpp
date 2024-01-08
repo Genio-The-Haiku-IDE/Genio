@@ -118,7 +118,7 @@ void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
 template<>
 GControl<BColorControl, rgb_color>::GControl(GMessage& msg, rgb_color value, ConfigManager& cfg)
 	:
-	BColorControl(B_ORIGIN,	B_CELLS_16x16, 16, ""),
+	BColorControl(B_ORIGIN,	B_CELLS_32x8, 8, ""),
 	fConfigManager(cfg)
 {
 	BColorControl::SetName(msg["key"]);

@@ -430,7 +430,7 @@ public:
 				int32 tabsToClose[count];
 				int32 added = 0;
 				for (auto i = count - 1; i >= 0; i--) {
-						tabsToClose[added++] = i;
+					tabsToClose[added++] = i;
 				}
 				fManager->CloseTabs(tabsToClose, added);
 				break;
@@ -475,6 +475,8 @@ public:
 
 	virtual BSize MaxSize();
 
+	virtual	void DrawBackground(BView* owner, BRect frame, const BRect& updateRect,
+		bool isFirst, bool isLast, bool isFront);
 	virtual void DrawContents(BView* owner, BRect frame, const BRect& updateRect,
 		bool isFirst, bool isLast, bool isFront);
 
@@ -484,6 +486,7 @@ public:
 		const BMessage* dragMessage);
 
 	void SetIcon(const BBitmap* icon);
+	void SetColor(const rgb_color& color);
 
 private:
 	void _DrawCloseButton(BView* owner, BRect& frame, const BRect& updateRect,
@@ -492,6 +495,7 @@ private:
 
 private:
 	BBitmap* fIcon;
+	rgb_color* fColor;
 	TabManagerController* fController;
 	BPopUpMenu* fPopUpMenu;
 	bool fOverCloseRect;
@@ -503,6 +507,7 @@ WebTabView::WebTabView(TabManagerController* controller)
 	:
 	TabView(),
 	fIcon(NULL),
+	fColor(nullptr),
 	fController(controller),
 	fPopUpMenu(nullptr),
 	fOverCloseRect(false),
@@ -531,6 +536,7 @@ WebTabView::WebTabView(TabManagerController* controller)
 WebTabView::~WebTabView()
 {
 	delete fIcon;
+	delete fColor;
 	delete fPopUpMenu;
 }
 
@@ -550,6 +556,30 @@ WebTabView::MaxSize()
 	// Account for close button.
 	size.width += size.height;
 	return size;
+}
+
+
+/* virtual */
+void
+WebTabView::DrawBackground(BView* owner, BRect frame, const BRect& updateRect,
+		bool isFirst, bool isLast, bool isFront)
+{
+	// Copied from TabView::DrawBackground()
+	rgb_color base = fColor != nullptr ? *fColor : ui_color(B_PANEL_BACKGROUND_COLOR);
+	uint32 borders = BControlLook::B_TOP_BORDER
+		| BControlLook::B_BOTTOM_BORDER;
+
+	if (isFirst)
+		borders |= BControlLook::B_LEFT_BORDER;
+	if (isLast)
+		borders |= BControlLook::B_RIGHT_BORDER;
+	if (isFront) {
+		be_control_look->DrawActiveTab(owner, frame, updateRect, base,
+			0, borders);
+	} else {
+		be_control_look->DrawInactiveTab(owner, frame, updateRect, base,
+			0, borders);
+	}
 }
 
 
@@ -664,6 +694,18 @@ WebTabView::SetIcon(const BBitmap* icon)
 		fIcon = new BBitmap(icon);
 	else
 		fIcon = NULL;
+	LayoutItem()->InvalidateLayout();
+}
+
+
+void
+WebTabView::SetColor(const rgb_color& color)
+{
+	delete fColor;
+	fColor = nullptr;
+
+	fColor = new rgb_color(color);
+
 	LayoutItem()->InvalidateLayout();
 }
 
@@ -990,8 +1032,6 @@ TabManager::CloseTabs(int32 tabIndex[], int32 size)
 }
 
 
-
-
 void
 TabManager::AddTab(BView* view, const char* label, int32 index, BMessage* addInfo)
 {
@@ -1080,6 +1120,16 @@ TabManager::SetTabIcon(const BView* containedView, const BBitmap* icon)
 		TabForView(containedView)));
 	if (tab)
 		tab->SetIcon(icon);
+}
+
+
+void
+TabManager::SetTabColor(const BView* containedView, const rgb_color& color)
+{
+	WebTabView* tab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(
+		TabForView(containedView)));
+	if (tab)
+		tab->SetColor(color);
 }
 
 

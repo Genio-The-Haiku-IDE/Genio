@@ -30,6 +30,7 @@
 #include "GTextAlert.h"
 #include "Log.h"
 #include "ProjectFolder.h"
+#include "ProjectItem.h"
 #include "ProjectsFolderBrowser.h"
 #include "RepositoryView.h"
 #include "StringFormatter.h"
@@ -683,6 +684,25 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 		auto repo = project->GetRepository();
 		repo->SwitchBranch(branch);
 		fCurrentBranch = repo->GetCurrentBranch();
+		BString branchName = project->GetRepository()->GetCurrentBranch();
+		BString extraText;
+		extraText << "  [" << branchName << "]";
+		GenioWindow* window = dynamic_cast<GenioWindow*>(Window());
+		if (window != nullptr) {
+			ProjectsFolderBrowser* browser = window->GetProjectBrowser();
+			if (browser != nullptr) {
+				ProjectItem* item = browser->GetProjectItemForProject(project);
+				if (item != nullptr) {
+					item->SetExtraText(extraText);
+					BString toolTipText;
+					toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
+						B_TRANSLATE("Project"), project->Name().String(),
+						B_TRANSLATE("Path"), project->Path().String(),
+						B_TRANSLATE("Current branch"), branchName.String());
+					item->SetToolTipText(toolTipText);
+				}
+			}
+		}
 
 		if (sender == kSenderBranchOptionList) {
 			// we update the repository view

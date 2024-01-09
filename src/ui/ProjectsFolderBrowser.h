@@ -37,7 +37,6 @@ public:
 	virtual void	AttachedToWindow();
 	virtual void	DetachedFromWindow();
 	virtual void	MessageReceived(BMessage* message);
-	virtual void	Pulse();
 
 	ProjectItem*	GetSelectedProjectItem() const;
 	ProjectItem*	GetProjectItemForProject(ProjectFolder*);

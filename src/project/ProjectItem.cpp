@@ -16,7 +16,6 @@
 #include <Window.h>
 
 #include "IconCache.h"
-#include "GitRepository.h"
 #include "ProjectFolder.h"
 
 #undef B_TRANSLATION_CONTEXT

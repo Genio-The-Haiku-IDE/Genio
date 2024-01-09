@@ -2742,7 +2742,7 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_BUFFER_LOCK,
 								  B_TRANSLATE("Read-only"),
-								  B_TRANSLATE("Make file read-only"), "kIconUnlocked");
+								  B_TRANSLATE("Make file read-only"), "kIconLocked");
 
 	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, "",
 						          B_TRANSLATE("Switch to previous file"), "kIconBack_1");

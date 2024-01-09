@@ -672,12 +672,14 @@ SourceControlPanel::_UpdateRepositoryView()
 void
 SourceControlPanel::_SwitchBranch(BMessage *message)
 {
+	LogInfo("_SwitchBranch()");
 	ProjectFolder* project = _GetSelectedProject();
 	if (project->IsBuilding()) {
 		OKAlert("Source control panel",
 			B_TRANSLATE("The project is building, changing branch not allowed."),
 			B_STOP_ALERT);
 	} else {
+		LogInfo("_SwitchBranch(): on");
 		const BString branch = message->GetString("value");
 		const BString sender = message->GetString("sender");
 

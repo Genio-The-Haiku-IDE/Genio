@@ -263,7 +263,7 @@ TabContainerView::InitiateDrag(BPoint where)
 			tab->DrawBackground(view, view->Bounds(), view->Bounds(), true, false, true);
 			float spacing = be_control_look->DefaultLabelSpacing();
 			updateRect.InsetBy(spacing, spacing / 2);
-			tab->DrawContents(view, updateRect, updateRect, true, false, true);
+			tab->DrawContents(view, view->Bounds(), view->Bounds(), true, false, true);
 			//
 
 			view->Sync();

@@ -715,6 +715,7 @@ BRect
 WebTabView::_CloseRectFrame(BRect frame) const
 {
 	frame.left = frame.right - frame.Height();
+	frame.InsetBy(frame.Width() * 0.30f, frame.Height() * 0.30f);
 	return frame;
 }
 
@@ -738,10 +739,11 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	const BRect& updateRect, bool isFirst, bool isLast, bool isFront)
 {
 	BRect closeRect = _CloseRectFrame(frame);
+	owner->StrokeRect(frame);
+	//owner->StrokeRect(closeRect);
 	frame.right = closeRect.left - be_control_look->DefaultLabelSpacing();
-
-	closeRect.InsetBy(closeRect.Width() * 0.30f, closeRect.Height() * 0.30f);
-
+	//owner->StrokeRect(closeRect);
+	//owner->StrokeRect(frame);
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 	float tint = B_LIGHTEN_1_TINT;
 	if (base.Brightness() >= kBrightnessBreakValue) {
@@ -750,16 +752,20 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 
 	if (fOverCloseRect) {
 		// Draw the button frame
-		BRect buttonRect(closeRect.InsetByCopy(-4, -4));
-		be_control_look->DrawButtonFrame(owner, buttonRect, updateRect,
+		BRect buttonRect(closeRect);
+		//ContainerView()->StrokeRect(closeRect);
+		//buttonRect.InsetBy(-4, -4);
+	//owner->StrokeRect(buttonRect);
+		/*be_control_look->DrawButtonFrame(owner, buttonRect, updateRect.InsetByCopy(-4, -4),
 			base, base,
 			BControlLook::B_ACTIVATED | BControlLook::B_BLEND_FRAME);
 		rgb_color background = ui_color(B_PANEL_BACKGROUND_COLOR);
 		be_control_look->DrawButtonBackground(owner, buttonRect, updateRect,
-			background, BControlLook::B_ACTIVATED);
-
+			background, BControlLook::B_ACTIVATED);*/
 	}
 
+	BRect buttonRect(closeRect);
+	//owner->StrokeRect(buttonRect);
 	// Draw the ×
 	if (fClicked)
 		IncreaseContrastBy(tint, .2, base.Brightness());

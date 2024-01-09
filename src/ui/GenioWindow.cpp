@@ -2742,7 +2742,7 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_BUFFER_LOCK,
 								  B_TRANSLATE("Read-only"),
-								  B_TRANSLATE("Make file read-only"), "kIconUnlocked");
+								  B_TRANSLATE("Make file read-only"), "kIconLocked");
 
 	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, "",
 						          B_TRANSLATE("Switch to previous file"), "kIconBack_1");
@@ -4082,6 +4082,13 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// Arrows
 	int32 maxTabIndex = (fTabManager->CountTabs() - 1);
 	int32 index = fTabManager->SelectedTabIndex();
+	if (editor->IsReadOnly()) {
+		BBitmap* bitmap = new BBitmap(BRect(0, 0, 16, 16), B_RGB32);
+		GetVectorIcon("kIconLocked", bitmap);
+		fTabManager->SetTabIcon(editor, bitmap);
+		delete bitmap;
+	} else
+		fTabManager->SetTabIcon(editor, nullptr);
 
 	ActionManager::SetEnabled(MSG_FILE_PREVIOUS_SELECTED, index > 0);
 	ActionManager::SetEnabled(MSG_FILE_NEXT_SELECTED, maxTabIndex > index);
@@ -4089,7 +4096,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// Menu Items
 	ActionManager::SetEnabled(MSG_FILE_SAVE_AS, true);
 	ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, true);
-
 
 	ActionManager::SetEnabled(B_SELECT_ALL, true);
 

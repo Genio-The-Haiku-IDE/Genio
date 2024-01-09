@@ -26,7 +26,6 @@ enum {
 class ProjectFolder;
 class ProjectItem;
 class GenioWatchingFilter;
-
 class ProjectsFolderBrowser : public BOutlineListView {
 public:
 					 ProjectsFolderBrowser();
@@ -38,6 +37,7 @@ public:
 	virtual void	AttachedToWindow();
 	virtual void	DetachedFromWindow();
 	virtual void	MessageReceived(BMessage* message);
+	virtual void	Pulse();
 
 	ProjectItem*	GetSelectedProjectItem() const;
 	ProjectItem*	GetProjectItemForProject(ProjectFolder*);

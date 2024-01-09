@@ -8,6 +8,7 @@
 #include "StyledItem.h"
 
 
+
 class BTextControl;
 class SourceItem;
 class ProjectItem : public StyledItem {

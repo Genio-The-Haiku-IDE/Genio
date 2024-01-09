@@ -42,6 +42,8 @@ ProjectsFolderBrowser::ProjectsFolderBrowser()
 	fGenioWatchingFilter = new GenioWatchingFilter();
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);
+
+	SetFlags(Flags() | B_PULSE_NEEDED);
 }
 
 
@@ -371,6 +373,37 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 		default:
 			BOutlineListView::MessageReceived(message);
 			break;
+	}
+}
+
+
+/* virtual */
+void
+ProjectsFolderBrowser::Pulse()
+{
+	// TODO: We could do this also with a BMessageRunner
+	for (int32 i = 0; i < CountProjects(); i++) {
+		ProjectFolder* project = ProjectAt(i);
+		BString projectName = project->Name();
+		BString projectPath = project->Path();
+		BString branchName;
+		ProjectItem* projectItem = GetProjectItemForProject(project);
+		try {
+			if (project->GetRepository()) {
+				branchName = project->GetRepository()->GetCurrentBranch();
+				BString extraText;
+				extraText << "  [" << branchName << "]";
+				projectItem->SetExtraText(extraText);
+			}
+		} catch (const Genio::Git::GitException &ex) {
+		}
+
+		BString toolTipText;
+		toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
+								B_TRANSLATE("Project"), projectName.String(),
+								B_TRANSLATE("Path"), projectPath.String(),
+								B_TRANSLATE("Current branch"), branchName.String());
+		projectItem->SetToolTipText(toolTipText);
 	}
 }
 

@@ -670,6 +670,9 @@ WebTabView::MouseMoved(BPoint where, uint32 transit,
 	const BMessage* dragMessage)
 {
 	BRect closeRect = _CloseRectFrame(Frame());
+	closeRect.PrintToStream();
+	where.PrintToStream();
+
 	bool overCloseRect = closeRect.Contains(where);
 
 	if (overCloseRect != fOverCloseRect
@@ -715,7 +718,9 @@ BRect
 WebTabView::_CloseRectFrame(BRect frame) const
 {
 	frame.left = frame.right - frame.Height();
-	frame.InsetBy(frame.Width() * 0.30f, frame.Height() * 0.30f);
+	frame.InsetBy(frame.IntegerWidth() * 0.30f, frame.IntegerHeight() * 0.30f);
+	frame.InsetBy(-5.0f, -5.0f);
+	ContainerView()->StrokeRect(frame);
 	return frame;
 }
 
@@ -739,41 +744,33 @@ void WebTabView::_DrawCloseButton(BView* owner, BRect& frame,
 	const BRect& updateRect, bool isFirst, bool isLast, bool isFront)
 {
 	BRect closeRect = _CloseRectFrame(frame);
-	owner->StrokeRect(frame);
-	//owner->StrokeRect(closeRect);
 	frame.right = closeRect.left - be_control_look->DefaultLabelSpacing();
-	//owner->StrokeRect(closeRect);
-	//owner->StrokeRect(frame);
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 	float tint = B_LIGHTEN_1_TINT;
 	if (base.Brightness() >= kBrightnessBreakValue) {
 		tint = B_DARKEN_1_TINT *1.2;
 	}
 
+	closeRect.left += 1.0f;
+	closeRect.top += 1.0f;
 	if (fOverCloseRect) {
 		// Draw the button frame
 		BRect buttonRect(closeRect);
-		//ContainerView()->StrokeRect(closeRect);
-		//buttonRect.InsetBy(-4, -4);
-	//owner->StrokeRect(buttonRect);
-		/*be_control_look->DrawButtonFrame(owner, buttonRect, updateRect.InsetByCopy(-4, -4),
+		be_control_look->DrawButtonFrame(owner, buttonRect, updateRect,
 			base, base,
 			BControlLook::B_ACTIVATED | BControlLook::B_BLEND_FRAME);
 		rgb_color background = ui_color(B_PANEL_BACKGROUND_COLOR);
 		be_control_look->DrawButtonBackground(owner, buttonRect, updateRect,
-			background, BControlLook::B_ACTIVATED);*/
+			background, BControlLook::B_ACTIVATED);
 	}
 
-	BRect buttonRect(closeRect);
-	//owner->StrokeRect(buttonRect);
 	// Draw the ×
 	if (fClicked)
 		IncreaseContrastBy(tint, .2, base.Brightness());
 	base = tint_color(base, tint);
 	owner->SetHighColor(base);
 	owner->SetPenSize(2);
-	closeRect.left +=1.0f;
-	closeRect.top +=1.0f;
+	closeRect.InsetBy(5.0f, 5.0f);
 	owner->StrokeLine(closeRect.LeftTop(), closeRect.RightBottom());
 	owner->StrokeLine(closeRect.LeftBottom(), closeRect.RightTop());
 	owner->SetPenSize(1);

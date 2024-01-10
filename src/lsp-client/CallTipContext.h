@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Editor.h"
-#include <SupportDefs.h>
+
 #include <cstdio>
 #include <cstring>
 #include <vector>
+
 #include "protocol_objects.h"
 
 enum CallTipAction {
@@ -17,7 +18,6 @@ enum CallTipAction {
 
 class CallTipContext {
 public:
-
 	explicit CallTipContext(Editor* editor);
 
 	CallTipAction UpdateCallTip(int ch, bool forceUpdate = false);
@@ -30,10 +30,9 @@ public:
 
 	void UpdateSignatures(std::vector<SignatureInformation>& funcs);
 
-	int32 Position() { return fPosition; };
+	int32 Position() const { return fPosition; };
 
 private:
-
 	CallTipAction _FindFunction();
 	void 		  _Reset();
 

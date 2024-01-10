@@ -68,7 +68,6 @@
 #include "TemplateManager.h"
 #include "TextUtils.h"
 #include "Utils.h"
-#include "WordTextView.h"
 #include "argv_split.h"
 
 
@@ -1927,7 +1926,7 @@ GenioWindow::_FilesNeedSave()
 void
 GenioWindow::_PreFileSave(Editor* editor)
 {
-	LogTrace("GenioWindow::_PreFileSave(%s)", editor->FilePath());
+	LogTrace("GenioWindow::_PreFileSave(%s)", editor->FilePath().String());
 
 	if (gCFG["trim_trailing_whitespace"])
 		editor->TrimTrailingWhitespace();
@@ -1937,7 +1936,7 @@ GenioWindow::_PreFileSave(Editor* editor)
 void
 GenioWindow::_PostFileSave(Editor* editor)
 {
-	LogTrace("GenioWindow::_PostFileSave(%s)", editor->FilePath());
+	LogTrace("GenioWindow::_PostFileSave(%s)", editor->FilePath().String());
 
 	// TODO: Also handle cases where the file is saved from outside Genio ?
 	ProjectFolder* project = editor->GetProjectFolder();

@@ -10,6 +10,7 @@
 #include "String.h"
 
 extern std::string wordCharacters;
+extern std::string whiteSpaces;
 
 bool Contains(std::string const &s, char ch) noexcept;
 

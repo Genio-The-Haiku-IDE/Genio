@@ -56,7 +56,7 @@ void CallTipContext::NextCallTip()
 {
 	if (IsVisible()  && fCurrentFunction + 1 < (int32)fSignatures.size()) {
 		fCurrentFunction++;
-		ShowCalltip();
+		ShowCallTip();
 	}
 }
 
@@ -64,7 +64,7 @@ void CallTipContext::PrevCallTip()
 {
 	if (IsVisible() && fCurrentFunction - 1 >= 0) {
 		fCurrentFunction--;
-		ShowCalltip();
+		ShowCallTip();
 	}
 }
 
@@ -198,7 +198,7 @@ CallTipContext::UpdateSignatures(std::vector<SignatureInformation>& signatures)
 		fCurrentFunction = 0;
 }
 
-void CallTipContext::ShowCalltip()
+void CallTipContext::ShowCallTip()
 {
 	if (fSignatures.size() == 0 || fCurrentFunction < 0) {
 		HideCallTip();

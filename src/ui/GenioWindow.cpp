@@ -142,7 +142,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fProjectsFolderBrowser(nullptr)
 	, fProjectsFolderScroll(nullptr)
 	, fActiveProject(nullptr)
-	, fIsBuilding(false)
 	, fTabManager(nullptr)
 	, fFindGroup(nullptr)
 	, fReplaceGroup(nullptr)
@@ -432,13 +431,11 @@ GenioWindow::MessageReceived(BMessage* message)
 				cmdType == "bindcatalogs" ||
 				cmdType == "catkeys") {
 
-				fIsBuilding = false;
-
 				BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
-				noticeMessage.AddBool("building", fIsBuilding);
+				noticeMessage.AddBool("building", false);
 				SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-				fActiveProject->SetBuildingState(fIsBuilding);
+				fActiveProject->SetBuildingState(false);
 			}
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
@@ -1486,13 +1483,11 @@ GenioWindow::_BuildProject()
 	if (gCFG["save_on_build"])
 		_FileSaveAll(fActiveProject);
 
-	fIsBuilding = true;
-
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
-	noticeMessage.AddBool("building", fIsBuilding);
+	noticeMessage.AddBool("building", true);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-	fActiveProject->SetBuildingState(fIsBuilding);
+	fActiveProject->SetBuildingState(true);
 
 	_UpdateProjectActivation(false);
 
@@ -1545,13 +1540,11 @@ GenioWindow::_CleanProject()
 
 	LogInfoF("Clean started: [%s]", fActiveProject->Name().String());
 
-	fIsBuilding = true;
-
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
-	noticeMessage.AddBool("building", fIsBuilding);
+	noticeMessage.AddBool("building", true);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-	fActiveProject->SetBuildingState(fIsBuilding);
+	fActiveProject->SetBuildingState(true);
 
 	BString claim("Build ");
 	claim << fActiveProject->Name();

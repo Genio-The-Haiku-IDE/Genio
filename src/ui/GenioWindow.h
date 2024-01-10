@@ -197,7 +197,6 @@ private:
 			BScrollView*		fSourceControlPanelScroll;
 
 			ProjectFolder		*fActiveProject;
-			bool				fIsBuilding;
 
 			// Editor group
 			EditorTabManager*	fTabManager;

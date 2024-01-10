@@ -813,9 +813,8 @@ Editor::NotificationReceived(SCNotification* notification)
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
 				fLSPEditorWrapper->didChange("", 0, notification->position, notification->length);
 			}
-			if (notification->modificationType & SC_MOD_DELETETEXT && notification->length == 1) {
-				if (SendMessage(SCI_CALLTIPACTIVE))
-					fLSPEditorWrapper->ContinueCallTip();
+			if (notification->modificationType & SC_MOD_DELETETEXT) {
+					fLSPEditorWrapper->CharAdded(0);
 			}
 			if (notification->linesAdded != 0)
 				if (gCFG["show_linenumber"])
@@ -823,7 +822,11 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_CALLTIPCLICK: {
-			fLSPEditorWrapper->UpdateCallTip(notification->position);
+			//fLSPEditorWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
+			if (notification->position == 1)
+				fLSPEditorWrapper->NextCallTip();
+			else
+				fLSPEditorWrapper->PrevCallTip();
 			break;
 		}
 		case SCN_DWELLSTART: {
@@ -893,7 +896,11 @@ filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
-		fLSPEditorWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
+		if (key == B_UP_ARROW)
+			fLSPEditorWrapper->NextCallTip();
+		else
+			fLSPEditorWrapper->PrevCallTip();
+
 		return B_SKIP_MESSAGE;
 	}
 	return B_DISPATCH_MESSAGE;

@@ -1927,6 +1927,8 @@ GenioWindow::_FilesNeedSave()
 void
 GenioWindow::_PreFileSave(Editor* editor)
 {
+	LogTrace("GenioWindow::_PreFileSave(%s)", editor->FilePath());
+
 	if (gCFG["trim_trailing_whitespace"])
 		editor->TrimTrailingWhitespace();
 }
@@ -1935,6 +1937,8 @@ GenioWindow::_PreFileSave(Editor* editor)
 void
 GenioWindow::_PostFileSave(Editor* editor)
 {
+	LogTrace("GenioWindow::_PostFileSave(%s)", editor->FilePath());
+
 	// TODO: Also handle cases where the file is saved from outside Genio ?
 	ProjectFolder* project = editor->GetProjectFolder();
 	if (gCFG["build_on_save"] &&

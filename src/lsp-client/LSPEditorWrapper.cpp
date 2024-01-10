@@ -407,7 +407,7 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 		return;
 
 	if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
-		!Contains(wordCharacters, ch)) {
+		!Contains(kWordCharacters, ch)) {
 		fEditor->SendMessage(SCI_AUTOCCANCEL);
 	}
 

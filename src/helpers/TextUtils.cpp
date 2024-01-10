@@ -7,8 +7,8 @@
 #include "TextUtils.h"
 #include <algorithm>
 
-std::string wordCharacters ("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-std::string whiteSpaces (" \n\t\r");
+const std::string kWordCharacters ("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+const std::string kWhiteSpaces (" \n\t\r");
 
 bool Contains(std::string const &s, char ch) noexcept {
 	return s.find(ch) != std::string::npos;

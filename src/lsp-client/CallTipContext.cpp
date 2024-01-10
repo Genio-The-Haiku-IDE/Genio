@@ -1,10 +1,10 @@
 #include "CallTipContext.h"
+
 #include <cstring>
 #include <String.h>
 #include <Debug.h>
 
 #include "TextUtils.h"
-
 
 #define parStart   '('
 #define parStop    ')'
@@ -23,17 +23,21 @@ struct function {
 	int32 braceLevel = -1;
 };
 
+
 CallTipContext::CallTipContext(Editor* editor)
-				: fEditor(editor)
+	:
+	fEditor(editor)
 {
 	_Reset();
-};
+}
+
 
 bool
 CallTipContext::IsVisible()
 {
 	return fEditor->SendMessage(SCI_CALLTIPACTIVE);
-};
+}
+
 
 CallTipAction
 CallTipContext::UpdateCallTip(int ch, bool forceUpdate)
@@ -52,15 +56,19 @@ CallTipContext::UpdateCallTip(int ch, bool forceUpdate)
 	return action;
 }
 
-void CallTipContext::NextCallTip()
+
+void
+CallTipContext::NextCallTip()
 {
-	if (IsVisible()  && fCurrentFunction + 1 < (int32)fSignatures.size()) {
+	if (IsVisible() && fCurrentFunction + 1 < (int32)fSignatures.size()) {
 		fCurrentFunction++;
 		ShowCallTip();
 	}
 }
 
-void CallTipContext::PrevCallTip()
+
+void
+CallTipContext::PrevCallTip()
 {
 	if (IsVisible() && fCurrentFunction - 1 >= 0) {
 		fCurrentFunction--;
@@ -68,7 +76,9 @@ void CallTipContext::PrevCallTip()
 	}
 }
 
-void CallTipContext::HideCallTip()
+
+void
+CallTipContext::HideCallTip()
 {
 	if (!IsVisible())
 		return;
@@ -76,6 +86,7 @@ void CallTipContext::HideCallTip()
 	fEditor->SendMessage(SCI_CALLTIPCANCEL);
 	_Reset();
 }
+
 
 CallTipAction CallTipContext::_FindFunction()
 {
@@ -86,7 +97,6 @@ CallTipAction CallTipContext::_FindFunction()
 	int32 offset = fPosition - startpos;
 
 	char lineData[MAX_LINE_DATA];
-
 	if ((offset < 2) || (len >= MAX_LINE_DATA)) {
 		_Reset();
 		return CALLTIP_NOTHING;
@@ -96,20 +106,19 @@ CallTipAction CallTipContext::_FindFunction()
 	fEditor->SendMessage(SCI_GETCURLINE, len, (sptr_t) (&lineData[0]));
 
 	//tokenize the line
-
 	std::vector< token > tokens;
 	for (int32 i = 0; i < offset; i++) {
 		char ch = lineData[i];
 		token tk = { lineData + i, 0};
-		if (Contains(wordCharacters, ch)) {
-			while ((Contains(wordCharacters, ch)) && i < offset) {
+		if (Contains(kWordCharacters, ch)) {
+			while ((Contains(kWordCharacters, ch)) && i < offset) {
 				tk.length++;
 				ch = lineData[++i];
 			}
 			tokens.push_back(tk);
 			i--;
 		} else {
-			if (!Contains(whiteSpaces, ch)) {
+			if (!Contains(kWhiteSpaces, ch)) {
 				tokens.push_back(tk);
 			}
 		}
@@ -158,28 +167,23 @@ CallTipAction CallTipContext::_FindFunction()
 		}
 	}
 
-	//let's see if we have something to show!
-	if (curFun.functionId == -1)
-	{	//pop the stack!
-		while (curFun.functionId == -1 && functions.size() > 0)
-		{
+	// let's see if we have something to show!
+	if (curFun.functionId == -1) {
+		// pop the stack!
+		while (curFun.functionId == -1 && functions.size() > 0) {
 			curFun = functions.back();
 			functions.pop_back();
 		}
 	}
 
-
 	CallTipAction action = CALLTIP_NOTHING;
-	if (curFun.functionId > -1)
-	{
+	if (curFun.functionId > -1)	{
 		token funcToken = tokens[curFun.functionId];
 		funcToken.name[funcToken.length] = 0;
 		fCurrentParam = curFun.param;
 
 		fCallTipPosition = startpos + (funcToken.name - lineData);
-
 		if (fCurrentFunctionName.Compare(funcToken.name, funcToken.length) != 0) {
-
 			fCurrentFunctionName.SetTo(funcToken.name, funcToken.length);
 			action = CALLTIP_NEWDATA;
 		} else {
@@ -188,6 +192,7 @@ CallTipAction CallTipContext::_FindFunction()
 	}
 	return action;
 }
+
 
 void
 CallTipContext::UpdateSignatures(std::vector<SignatureInformation>& signatures)
@@ -198,15 +203,17 @@ CallTipContext::UpdateSignatures(std::vector<SignatureInformation>& signatures)
 		fCurrentFunction = 0;
 }
 
-void CallTipContext::ShowCallTip()
+
+void
+CallTipContext::ShowCallTip()
 {
 	if (fSignatures.size() == 0 || fCurrentFunction < 0) {
 		HideCallTip();
 		return;
 	}
 	size_t countParams = fSignatures[fCurrentFunction].parameters.size();
-	if (fCurrentParam >= countParams) // we need to find a better overload!
-	{
+	if (fCurrentParam >= countParams) {
+		// we need to find a better overload!
 		for (size_t i = 0; i < fSignatures.size(); ++i) {
 			if (fCurrentParam < fSignatures[i].parameters.size()) {
 				fCurrentFunction = i;
@@ -216,16 +223,15 @@ void CallTipContext::ShowCallTip()
 	}
 
 	SignatureInformation& info = fSignatures[fCurrentFunction];
-
 	BString callTipText;
-
 	if (fSignatures.size() > 1) {
 		callTipText << "\001 " << fCurrentFunction + 1 << " / " << fSignatures.size() << " \002";
 	}
 
 	callTipText << info.label.c_str();
 
-	int32 hstart,  hend = 0;
+	int32 hstart;
+	int32 hend = 0;
 	for (size_t i = 0; i < info.parameters.size(); ++i) {
 		if (i == fCurrentParam)	{
 			int base = callTipText.FindFirst("\002") + 1;
@@ -241,10 +247,11 @@ void CallTipContext::ShowCallTip()
 	if (hstart < hend) {
 		fEditor->SendMessage(SCI_CALLTIPSETHLT, hstart, hend);
 	}
-
 }
 
-void CallTipContext::_Reset()
+
+void
+CallTipContext::_Reset()
 {
 	fCurrentParam = 0;
 	fCallTipPosition = 0;
@@ -252,5 +259,3 @@ void CallTipContext::_Reset()
 	fCurrentFunctionName = "";
 	fSignatures.clear();
 }
-
-

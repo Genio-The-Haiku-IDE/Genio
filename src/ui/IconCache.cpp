@@ -50,7 +50,7 @@ IconCache::GetIcon(const entry_ref *ref)
 		icon_size iconSize = (icon_size)(icon->Bounds().IntegerWidth() - 1);
 		status_t status = nodeInfo.GetTrackerIcon(icon, (icon_size)iconSize);
 		sInstance.fCache.emplace(mimeType, icon);
-		LogTrace("IconCache: GetTrackerIcon returned - %d", status);
+		LogTrace("IconCache: GetTrackerIcon returned - %s", ::strerror(status));
 		return icon;
 	}
 	return nullptr;

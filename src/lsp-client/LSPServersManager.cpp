@@ -64,6 +64,22 @@ public:
 	}
 };
 
+class OmniSharpServerConfig : public LSPServerConfigInterface {
+public:
+	OmniSharpServerConfig() {
+		fArgv = {
+			"/boot/system/non-packaged/bin/dotnet/dotnet",
+			"/boot/system/non-packaged/bin/OmniSharp/OmniSharp.dll",
+			"--language-server",
+			"-s",
+			"/boot/home/workspace/dotnet/HaikuApp/HaikuApp.csproj"
+		};
+	}
+	const bool	IsFileTypeSupported(const BString& fileType) const {
+		return (fileType.Compare("cs")  == 0);
+	}
+};
+
 std::vector<LSPServerConfigInterface*> LSPServersManager::fConfigs;
 
 /*static*/
@@ -71,6 +87,7 @@ status_t
 LSPServersManager::InitLSPServersConfig()
 {
 	fConfigs.push_back(new ClangdServerConfig());
+	fConfigs.push_back(new OmniSharpServerConfig());
 	// fConfigs.push_back(new PylspServer());
 	return B_OK;
 }

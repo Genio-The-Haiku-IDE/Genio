@@ -286,10 +286,8 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 		}
 		case kUrlModified:
 		{
-			BString basedirPath = fPathBox->Text();
-			auto repoName = _ExtractRepositoryName(fURL->Text());
+			BString repoName = _ExtractRepositoryName(fURL->Text());
 			fDestDir->SetText(repoName);
-			LogInfo(repoName);
 			break;
 		}
 		case kOpenFilePanel:
@@ -337,15 +335,15 @@ RemoteProjectWindow::_ExtractRepositoryName(const BString& url)
 	std::smatch matches;
 	std::regex rgx(strPattern);
 
-	if(std::regex_search(surl, matches, rgx)) {
-		LogInfo("Match found\n");
+	if (std::regex_search(surl, matches, rgx)) {
+		LogInfoF("Match found for %s", surl.c_str());
 		for (size_t i = 0; i < matches.size(); ++i) {
-			LogInfo("%d: '%s'", i, matches[i].str().c_str());
+			LogInfoF("%d: '%s'", i, matches[i].str().c_str());
 		}
 		repoName.SetToFormat("%s", matches[5].str().c_str());
 		repoName.RemoveAll(".git");
 	} else {
-		LogInfo("Match not found\n");
+		LogInfoF("Match not found for %s", surl.c_str());
 		repoName = "";
 	}
 	return repoName;

@@ -26,7 +26,7 @@ public:
 	void PrevCallTip();
 	bool IsVisible();
 	void HideCallTip();
-	void ShowCalltip();
+	void ShowCallTip();
 
 	void UpdateSignatures(std::vector<SignatureInformation>& funcs);
 

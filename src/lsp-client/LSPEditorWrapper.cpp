@@ -429,7 +429,7 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 			fLSPProjectWrapper->SignatureHelp(this, lsp_position);
 
 		} else if (action == CALLTIP_UPDATE) {
-			fCallTip.ShowCalltip();
+			fCallTip.ShowCallTip();
 		}
 	}
 }
@@ -503,7 +503,7 @@ LSPEditorWrapper::_DoSignatureHelp(json& result)
 {
 	auto signs = result.get<SignatureHelp>().signatures;
 	fCallTip.UpdateSignatures(signs);
-	fCallTip.ShowCalltip();
+	fCallTip.ShowCallTip();
 }
 
 

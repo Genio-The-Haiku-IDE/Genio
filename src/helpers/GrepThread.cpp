@@ -50,8 +50,9 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 	}
 }
 
+
 void
-GrepThread::OnThreadShutdown()
+GrepThread::ThreadExitNotification()
 {
 	if (fCurrentMessage.HasMessage("line"))
 		fTarget.SendMessage(&fCurrentMessage);

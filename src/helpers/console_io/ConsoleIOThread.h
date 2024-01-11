@@ -23,8 +23,7 @@
  * apply some logic (reenable build/run buttons and menus).
  * stdin is handled via DispatchMessage in main window.
  */
-#ifndef CONSOLE_THREAD_H
-#define CONSOLE_THREAD_H
+#pragma once
 
 #include "GenericThread.h"
 
@@ -71,9 +70,9 @@ private:
 			void				_CleanPipes();
 			status_t			_RunExternalProcess();
 
-			status_t			Kill(void);
+	virtual status_t			Kill(void);
 
-			thread_id			fProcessId;
+			thread_id			fExternalProcessId;
 			FILE*				fConsoleOutput;
 			FILE*				fConsoleError;
 			char				fConsoleOutputBuffer[LINE_MAX];
@@ -84,6 +83,3 @@ private:
 			BLocker				fProcessIDLock;
 			PipeImage			fPipeImage;
 };
-
-
-#endif	// CONSOLE_THREAD_H

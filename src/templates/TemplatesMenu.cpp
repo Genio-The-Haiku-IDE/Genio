@@ -28,7 +28,6 @@
 #include <cstdio>
 
 #include "IconMenuItem.h"
-#include "MimeType.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplatesMenu"

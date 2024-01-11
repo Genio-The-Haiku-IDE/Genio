@@ -12,7 +12,6 @@
 #include "ConsoleIOThread.h"
 
 #include <Autolock.h>
-#include <Locker.h>
 #include <Messenger.h>
 
 #include <errno.h>
@@ -26,18 +25,20 @@
 
 ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consoleTarget)
 	:
-	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message)
-	, fTarget(consoleTarget)
-	, fProcessId(-1)
-	, fIsDone(false)
+	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message),
+	fTarget(consoleTarget),
+	fProcessId(-1),
+	fIsDone(false)
 {
 	SetDataStore(new BMessage(*cmd_message));
 }
+
 
 ConsoleIOThread::~ConsoleIOThread()
 {
 	ClosePipes();
 }
+
 
 status_t
 ConsoleIOThread::_RunExternalProcess()
@@ -110,8 +111,9 @@ ConsoleIOThread::_RunExternalProcess()
 	return B_OK;
 }
 
+
 status_t
-ConsoleIOThread::ExecuteUnit(void)
+ConsoleIOThread::ExecuteUnit()
 {
 	// first time: let's setup the external process.
 	// this way we always enter in the same managed loop
@@ -155,6 +157,7 @@ ConsoleIOThread::ExecuteUnit(void)
 	return status;
 }
 
+
 void
 ConsoleIOThread::OnStdOutputLine(const BString& stdOut)
 {
@@ -163,6 +166,7 @@ ConsoleIOThread::OnStdOutputLine(const BString& stdOut)
 	fTarget.SendMessage(&out_message);
 }
 
+
 void
 ConsoleIOThread::OnStdErrorLine(const BString& stdErr)
 {
@@ -170,6 +174,7 @@ ConsoleIOThread::OnStdErrorLine(const BString& stdErr)
 	err_message.AddString("stderr", stdErr);
 	fTarget.SendMessage(&err_message);
 }
+
 
 status_t
 ConsoleIOThread::GetFromPipe(BString& stdOut, BString& stdErr)
@@ -180,8 +185,9 @@ ConsoleIOThread::GetFromPipe(BString& stdOut, BString& stdErr)
 	if (fConsoleError) {
 		stdErr = fgets(fConsoleOutputBuffer, LINE_MAX, fConsoleError);
 	}
-	return (feof(fConsoleOutput) && feof(fConsoleError)) ? EOF : B_OK;
+	return (::feof(fConsoleOutput) && ::feof(fConsoleError)) ? EOF : B_OK;
 }
+
 
 void
 ConsoleIOThread::PushInput(BString text)
@@ -189,43 +195,46 @@ ConsoleIOThread::PushInput(BString text)
 	fPipeImage.Write(text.String(), text.Length());
 }
 
+
 void
-ConsoleIOThread::OnThreadShutdown()
+ConsoleIOThread::ThreadExitNotification()
 {
 	BMessage message(CONSOLEIOTHREAD_EXIT);
 	message.AddString("cmd_type", fCmdType);
 	fTarget.SendMessage(&message);
 }
 
+
 status_t
-ConsoleIOThread::ThreadShutdown(void)
+ConsoleIOThread::ThreadShutdown()
 {
 	ClosePipes();
-	OnThreadShutdown();
+	ThreadExitNotification();
 	fIsDone = true;
 
 	// the job is done, let's wait to be killed..
 	// (avoid to quit and to reach the 'delete this')
-
-	while(true) {
-		sleep(1);
+	while (true) {
+		snooze(1000);
 	}
 
 	return B_OK;
 }
 
+
 void
 ConsoleIOThread::ClosePipes()
 {
 	if (fConsoleOutput)
-		fclose(fConsoleOutput);
+		::fclose(fConsoleOutput);
 	if (fConsoleError)
-		fclose(fConsoleError);
+		::fclose(fConsoleError);
 
 	fConsoleOutput = fConsoleError = nullptr;
 
 	fPipeImage.Close();
 }
+
 
 bool
 ConsoleIOThread::IsProcessAlive()
@@ -235,9 +244,10 @@ ConsoleIOThread::IsProcessAlive()
 	return get_thread_info(fProcessId, &info) == B_OK;
 }
 
+
 //let's make it private.
 status_t
-ConsoleIOThread::Kill(void)
+ConsoleIOThread::Kill()
 {
 	return GenericThread::Kill();
 }
@@ -267,7 +277,11 @@ ConsoleIOThread::InterruptExternal()
 void
 ConsoleIOThread::_CleanPipes()
 {
-	//the pipes are set to non blocking so we should never be stuck here.
-	while(read(fPipeImage.GetStdOutFD(), fConsoleOutputBuffer, LINE_MAX) > 0);
-	while(read(fPipeImage.GetStdErrFD(), fConsoleOutputBuffer, LINE_MAX) > 0);
+	// pipes are set to non-blocking so we should never be stuck here.
+	while (read(fPipeImage.GetStdOutFD(), fConsoleOutputBuffer, LINE_MAX) > 0) {
+		// loop
+	}
+	while (read(fPipeImage.GetStdErrFD(), fConsoleOutputBuffer, LINE_MAX) > 0) {
+		// loop
+	}
 }

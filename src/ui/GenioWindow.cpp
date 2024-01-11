@@ -335,7 +335,6 @@ GenioWindow::MessageReceived(BMessage* message)
 						Editor* editor = fTabManager->EditorAt(index);
 						ProjectFolder* project = editor->GetProjectFolder();
 						if (project != nullptr) {
-							LogError("SET COLOR");
 							fTabManager->SetTabColor(editor, project->Color());
 						}
 					}

@@ -27,7 +27,7 @@ ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consol
 	:
 	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message),
 	fTarget(consoleTarget),
-	fProcessId(-1),
+	fExternalProcessId(-1),
 	fIsDone(false)
 {
 	SetDataStore(new BMessage(*cmd_message));
@@ -69,15 +69,15 @@ ConsoleIOThread::_RunExternalProcess()
 	if (status != B_OK)
 		return status;
 
-	fProcessId = fPipeImage.GetChildPid();
+	fExternalProcessId = fPipeImage.GetChildPid();
 
 	// lower the command priority since it is a background task.
-	set_thread_priority(fProcessId, B_LOW_PRIORITY);
+	set_thread_priority(fExternalProcessId, B_LOW_PRIORITY);
 
-	status = resume_thread(fProcessId);
+	status = resume_thread(fExternalProcessId);
 	if (status != B_OK) {
-		kill_thread(fProcessId);
-		fProcessId = -1;
+		kill_thread(fExternalProcessId);
+		fExternalProcessId = -1;
 		return status;
 	}
 
@@ -96,15 +96,15 @@ ConsoleIOThread::_RunExternalProcess()
 	fConsoleOutput = fdopen(fPipeImage.GetStdOutFD(), "r");
 	if (fConsoleOutput == nullptr) {
 		LogErrorF("Can't open ConsoleOutput file! (%d) [%s]", errno, strerror(errno));
-		kill_thread(fProcessId);
-		fProcessId = -1;
+		kill_thread(fExternalProcessId);
+		fExternalProcessId = -1;
 		return errno;
 	}
 	fConsoleError = fdopen(fPipeImage.GetStdErrFD(), "r");
 	if (fConsoleError == nullptr) {
 		LogErrorF("Can't open ConsoleError file! (%d) [%s]", errno, strerror(errno));
-		kill_thread(fProcessId);
-		fProcessId = -1;
+		kill_thread(fExternalProcessId);
+		fExternalProcessId = -1;
 		return errno;
 	}
 
@@ -118,7 +118,7 @@ ConsoleIOThread::ExecuteUnit()
 	// first time: let's setup the external process.
 	// this way we always enter in the same managed loop
 	status_t status = B_OK;
-	if (fProcessId < 0) {
+	if (fExternalProcessId < 0) {
 		BAutolock lock(fProcessIDLock);
 		status = _RunExternalProcess();
 	} else {
@@ -209,8 +209,8 @@ status_t
 ConsoleIOThread::ThreadShutdown()
 {
 	ClosePipes();
-	ThreadExitNotification();
 	fIsDone = true;
+	ThreadExitNotification();
 
 	// the job is done, let's wait to be killed..
 	// (avoid to quit and to reach the 'delete this')
@@ -241,13 +241,13 @@ ConsoleIOThread::IsProcessAlive()
 {
 	//BAutolock lock(fProcessIDLock);
 	thread_info info;
-	return get_thread_info(fProcessId, &info) == B_OK;
+	return get_thread_info(fExternalProcessId, &info) == B_OK;
 }
 
 
-//let's make it private.
+
 status_t
-ConsoleIOThread::Kill()
+ConsoleIOThread::Kill(void)
 {
 	return GenericThread::Kill();
 }
@@ -258,15 +258,15 @@ ConsoleIOThread::InterruptExternal()
 {
 	BAutolock lock(fProcessIDLock);
 	if (IsProcessAlive()) {
-		status_t status = send_signal(-fProcessId, SIGTERM);
-		status = wait_for_thread_etc(fProcessId, B_RELATIVE_TIMEOUT, 2000000, nullptr); //2 seconds
+		status_t status = send_signal(-fExternalProcessId, SIGTERM);
+		status = wait_for_thread_etc(fExternalProcessId, B_RELATIVE_TIMEOUT, 2000000, nullptr); //2 seconds
 		if (status != B_OK) {
 			// It looks like we are not able to wait for the thead to close.
 			// let's cut the pipes and kill it.
 			ClosePipes();
 			status = Kill();
 		}
-		fProcessId = -1;
+		fExternalProcessId = -1;
 		return status;
 	}
 

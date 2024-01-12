@@ -65,7 +65,6 @@ RemoteProjectWindow::RemoteProjectWindow(BString repo, BString dirPath, const BM
 	fProgressView(nullptr),
 	fButtonsView(nullptr),
 	fStatusText(nullptr),
-	fDestDirLabel(nullptr),
 	fDestDir(nullptr),
 	fFilePanel(nullptr)
 {

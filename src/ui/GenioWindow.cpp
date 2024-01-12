@@ -819,29 +819,34 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_CREATE_NEW_PROJECT:
+				case MSG_CREATE_NEW_PROJECT:
 		{
-			entry_ref dest_ref;
-			entry_ref template_ref;
+			entry_ref templateRef;
+			if (message->FindRef("template_ref", &templateRef) != B_OK) {
+				LogError("Invalid template %s", templateRef.name);
+				return;
+			}
+			entry_ref destRef;
+			if (message->FindRef("directory", &destRef) != B_OK) {
+				LogError("Invalid destination directory %s", destRef.name);
+				return;
+			}
 			BString name;
-			if (message->FindRef("template_ref", &template_ref) != B_OK) {
-				LogError("Invalid template %s", template_ref.name);
-				return;
-			}
-			if (message->FindRef("directory", &dest_ref) != B_OK) {
-				LogError("Invalid destination directory %s", dest_ref.name);
-				return;
-			}
 			if (message->FindString("name", &name) != B_OK) {
 				LogError("Invalid destination name %s", name.String());
 				return;
 			}
 
-			if (TemplateManager::CopyProjectTemplate(&template_ref, &dest_ref, name.String()) == B_OK) {
-				_ProjectFolderOpen(dest_ref);
+			if (TemplateManager::CopyProjectTemplate(&templateRef, &destRef, name.String()) == B_OK) {
+				BPath destPath(&destRef);
+				destPath.Append(name.String());
+				BEntry destEntry(destPath.Path());
+				entry_ref destination;
+				destEntry.GetRef(&destination);
+				_ProjectFolderOpen(destination);
 			} else {
 				LogError("TemplateManager: could create %s from %s to %s",
-							name.String(), template_ref.name, dest_ref.name);
+							name.String(), templateRef.name, destRef.name);
 			}
 			break;
 		}

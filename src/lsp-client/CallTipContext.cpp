@@ -18,7 +18,6 @@ struct token {
 
 struct function {
 	int32 tokenId = -1;
-	int32 functionId = -1;
 	int32 param = 0;
 };
 
@@ -132,30 +131,30 @@ CallTipAction CallTipContext::_FindFunction()
 	std::vector<function> functions;
 	function curFun;
 	int braceLevel = 0;
+	size_t lastValidToken = -1;
 	for (size_t i = 0; i < tokens.size(); ++i) {
 
 		if (tokens[i].length > 0) {
-			curFun.tokenId = int32(i);
+			lastValidToken = i;
 		} else {
 			switch(tokens[i].name[0]) {
 				case parStart: { //'('
 					braceLevel++;
-					function newFun = curFun;
-					functions.push_back(newFun); //let's stack it
+					functions.push_back(curFun); //let's stack it
 
-					if (i > 0 && curFun.tokenId == int32(i) - 1) {
-						curFun.functionId = curFun.tokenId;
+					if (i > 0 && lastValidToken == i - 1) {
+						curFun.tokenId = lastValidToken;
 						curFun.param = 0;
 					} else {
 						// expression! (2+3)
-						curFun.functionId = -1;
+						curFun.tokenId = -1;
 					}
 				}
 				break;
 				case nextParam: //','
 					//if current function is valid,
 					//move to the next param
-					if(curFun.functionId > -1) {
+					if(curFun.tokenId > -1) {
 						++curFun.param;
 					}
 				break;
@@ -168,12 +167,14 @@ CallTipAction CallTipContext::_FindFunction()
 					} else {
 						// invalidate curFun
 						curFun = function();
+						lastValidToken = -1;
 					}
 				}
 				break;
 				case funEnd: //';'
 					functions.clear();
 					curFun = function();
+					lastValidToken = -1;
 				break;
 				default:
 				break;
@@ -181,18 +182,21 @@ CallTipAction CallTipContext::_FindFunction()
 		}
 	}
 
-	// let's see if we have something to show!
-	if (curFun.functionId == -1) {
-		// pop the stack!
-		while (curFun.functionId == -1 && functions.size() > 0) {
+	//let's see if we have something to show!
+	if (curFun.tokenId == -1)
+	{	//pop the stack!
+		while (curFun.tokenId == -1 && functions.size() > 0)
+		{
 			curFun = functions.back();
 			functions.pop_back();
 		}
 	}
 
 	CallTipAction action = CALLTIP_NOTHING;
-	if (curFun.functionId > -1)	{
-		token funcToken = tokens[curFun.functionId];
+
+	if (curFun.tokenId > -1)
+	{
+		token funcToken = tokens[curFun.tokenId];
 		funcToken.name[funcToken.length] = 0;
 		fCurrentParam = curFun.param;
 

@@ -12,6 +12,7 @@
 #include "ConsoleIOThread.h"
 
 #include <Autolock.h>
+#include <Debug.h>
 #include <Messenger.h>
 
 #include <errno.h>
@@ -135,49 +136,57 @@ ConsoleIOThread::_InterruptExternalProcess()
 }
 
 
+/* virtual */
+status_t
+ConsoleIOThread::ThreadStartup(void)
+{
+	// first time: let's setup the external process.
+	BAutolock lock(fProcessIDLock);
+	ASSERT(fExternalProcessId < 0);
+	return _RunExternalProcess();
+}
+
+
 status_t
 ConsoleIOThread::ExecuteUnit()
 {
 	if (HasQuitBeenRequested())
 		return B_ERROR;
 
-	// first time: let's setup the external process.
 	// this way we always enter in the same managed loop
-	status_t status = B_OK;
-	if (fExternalProcessId < 0) {
-		BAutolock lock(fProcessIDLock);
-		status = _RunExternalProcess();
-	} else {
-		// read output and error from command
-		// send it to window
-		BString outStr("");
-		BString errStr("");
-		status = GetFromPipe(outStr, errStr);
+	if (fExternalProcessId < 0)
+		return B_NO_INIT;
 
-		if (status == B_OK) {
-			fLastOutputString += outStr;
-			fLastErrorString  += errStr;
+	// read output and error from command
+	// send it to window
+	BString outStr("");
+	BString errStr("");
+	status_t status = GetFromPipe(outStr, errStr);
 
-			if (!fLastOutputString.IsEmpty()) {
-				if (fLastOutputString.EndsWith("\n")) {
-					OnStdOutputLine(fLastOutputString);
-					fLastOutputString = "";
-				}
-			}
+	if (status == B_OK) {
+		fLastOutputString += outStr;
+		fLastErrorString  += errStr;
 
-			if (!fLastErrorString.IsEmpty()) {
-				if (fLastErrorString.EndsWith("\n")) {
-					OnStdErrorLine(fLastErrorString);
-					fLastErrorString = "";
-				}
-			}
-
-			if (!IsProcessAlive() && outStr.IsEmpty() && errStr.IsEmpty()) {
-				printf("DONE\n");
-				return EOF;
+		if (!fLastOutputString.IsEmpty()) {
+			if (fLastOutputString.EndsWith("\n")) {
+				OnStdOutputLine(fLastOutputString);
+				fLastOutputString = "";
 			}
 		}
+
+		if (!fLastErrorString.IsEmpty()) {
+			if (fLastErrorString.EndsWith("\n")) {
+				OnStdErrorLine(fLastErrorString);
+				fLastErrorString = "";
+			}
+		}
+
+		if (!IsProcessAlive() && outStr.IsEmpty() && errStr.IsEmpty()) {
+			printf("DONE\n");
+			return EOF;
+		}
 	}
+
 	// streams are non blocking, sleep every 1ms
 	snooze(1000);
 	return status;

@@ -62,6 +62,7 @@ private:
 			bool				IsProcessAlive();
 			status_t			GetFromPipe(BString& stdOut, BString& stdErr);
 			void				ClosePipes();
+	virtual	status_t 			ThreadStartup(void) override;
 	virtual	status_t			ExecuteUnit() override;
 	virtual	status_t			ThreadShutdown() override;
 

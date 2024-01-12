@@ -802,6 +802,10 @@ Editor::NotificationReceived(SCNotification* notification)
 				_CommentLine(notification->position);
 			break;
 		}
+		case SCN_AUTOCCOMPLETED:
+		case SCN_AUTOCCANCELLED:
+			fLSPEditorWrapper->CharAdded(0);
+			break;
 		case SCN_AUTOCSELECTION: {
 			fLSPEditorWrapper->SelectedCompletion(notification->text);
 			break;

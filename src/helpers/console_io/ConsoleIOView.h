@@ -46,7 +46,7 @@ private:
 			void				Pulse();
 			void				_StopThreads();
 			void				_StopCommand();
-
+			void				_CommandFinished();
 private:
 			BMessenger			fWindowTarget;
 

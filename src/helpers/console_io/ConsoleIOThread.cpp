@@ -113,8 +113,32 @@ ConsoleIOThread::_RunExternalProcess()
 
 
 status_t
+ConsoleIOThread::_InterruptExternalProcess()
+{
+	BAutolock lock(fProcessIDLock);
+	if (IsProcessAlive()) {
+		status_t status = send_signal(-fExternalProcessId, SIGTERM);
+		status = wait_for_thread_etc(fExternalProcessId, B_RELATIVE_TIMEOUT, 2000000, nullptr); //2 seconds
+		if (status != B_OK) {
+			// It looks like we are not able to wait for the thead to close.
+			// let's cut the pipes and kill it.
+			ClosePipes();
+			status = Kill();
+		}
+		fExternalProcessId = -1;
+		return status;
+	}
+
+	return B_ERROR;
+}
+
+
+status_t
 ConsoleIOThread::ExecuteUnit()
 {
+	if (HasQuitBeenRequested())
+		return B_ERROR;
+
 	// first time: let's setup the external process.
 	// this way we always enter in the same managed loop
 	status_t status = B_OK;
@@ -199,6 +223,7 @@ ConsoleIOThread::PushInput(BString text)
 void
 ConsoleIOThread::ThreadExitNotification()
 {
+	LogError("ThreadExitNotification()");
 	BMessage message(CONSOLEIOTHREAD_EXIT);
 	message.AddString("cmd_type", fCmdType);
 	fTarget.SendMessage(&message);
@@ -211,12 +236,6 @@ ConsoleIOThread::ThreadShutdown()
 	ClosePipes();
 	fIsDone = true;
 	ThreadExitNotification();
-
-	// the job is done, let's wait to be killed..
-	// (avoid to quit and to reach the 'delete this')
-	while (true) {
-		snooze(1000);
-	}
 
 	return B_OK;
 }
@@ -250,27 +269,6 @@ status_t
 ConsoleIOThread::Kill(void)
 {
 	return GenericThread::Kill();
-}
-
-
-status_t
-ConsoleIOThread::InterruptExternal()
-{
-	BAutolock lock(fProcessIDLock);
-	if (IsProcessAlive()) {
-		status_t status = send_signal(-fExternalProcessId, SIGTERM);
-		status = wait_for_thread_etc(fExternalProcessId, B_RELATIVE_TIMEOUT, 2000000, nullptr); //2 seconds
-		if (status != B_OK) {
-			// It looks like we are not able to wait for the thead to close.
-			// let's cut the pipes and kill it.
-			ClosePipes();
-			status = Kill();
-		}
-		fExternalProcessId = -1;
-		return status;
-	}
-
-	return B_ERROR;
 }
 
 

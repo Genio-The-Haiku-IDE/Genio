@@ -49,8 +49,6 @@ public:
 
 	virtual						~ConsoleIOThread();
 
-			status_t			InterruptExternal();
-
 			bool				IsDone() const { return fIsDone; };
 
 protected:
@@ -69,6 +67,7 @@ private:
 
 			void				_CleanPipes();
 			status_t			_RunExternalProcess();
+			status_t			_InterruptExternalProcess();
 
 	virtual status_t			Kill(void);
 

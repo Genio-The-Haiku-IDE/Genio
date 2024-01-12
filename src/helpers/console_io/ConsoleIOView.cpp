@@ -24,6 +24,8 @@
 #include "WordTextView.h"
 
 
+#include "Log.h"
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ConsoleIOView"
 
@@ -97,8 +99,7 @@ ConsoleIOView::_StopThreads()
 	if (fConsoleIOThread == NULL)
 		return;
 
-	fConsoleIOThread->InterruptExternal();
-	delete fConsoleIOThread;
+	fConsoleIOThread->Quit();
 	fConsoleIOThread = nullptr;
 }
 
@@ -108,16 +109,29 @@ ConsoleIOView::_StopCommand()
 {
 	if (fConsoleIOThread) {
 		_StopThreads();
-
-		_BannerMessage("ended   --");
-
-		fStopButton->SetEnabled(false);
-		BMessage message(CONSOLEIOTHREAD_EXIT);
-		message.AddString("cmd_type", fCmdType);
-		Window()->PostMessage(&message);
-		fCmdType = "";
-		fBannerClaim = "";
+		_CommandFinished();
 	}
+}
+
+
+void
+ConsoleIOView::_CommandFinished()
+{
+	LogTrace("ConsoleIOView::_CommandFinished()");
+
+	_BannerMessage("ended   --");
+
+	// fConsoleIOThread deletes itself on quit
+	fConsoleIOThread = nullptr;
+
+	fStopButton->SetEnabled(false);
+	// Send a message to the Window
+	// TODO: Use another message or SendNotices instead
+	BMessage message(CONSOLEIOTHREAD_EXIT);
+	message.AddString("cmd_type", fCmdType);
+	Window()->PostMessage(&message);
+	fCmdType = "";
+	fBannerClaim = "";
 }
 
 
@@ -162,27 +176,24 @@ ConsoleIOView::MessageReceived(BMessage* message)
 		case MSG_RUN_PROCESS:
 		{
 			if (fConsoleIOThread != nullptr && !fConsoleIOThread->IsDone()) {
-				// TODO: Horrible hack to be able to stop and relaunch build.
-				// should be done differently
+				// this should be prevented by the UI...
 				BString cmdType = NULL;
 				if (message->FindString("cmd_type", &cmdType) == B_OK
-						&& cmdType.Compare("build") == 0 && fCmdType == "build") {
-					_StopThreads();
+					&& cmdType.Compare("build") == 0 && fCmdType == "build") {
+						// Does not block, only sets a variable
+						fConsoleIOThread->Quit();
 
-					BString msg = "\n *** ";
-					msg << B_TRANSLATE("Restarting build" B_UTF8_ELLIPSIS);
-					msg << "\n";
-					ConsoleOutputReceived(1, msg);
-				} else {
-					//this should be prevented by the UI...
-					BString msg = "\n *** ";
-					msg << B_TRANSLATE("Another command is running.");
-					msg << "\n";
-
-					ConsoleOutputReceived(1, msg);
-					return;
+						// Resend the message to ourselves, while we wait for the process
+						// to finish
+						Window()->PostMessage(message, this);
+						BString msg = "\n *** ";
+						msg << B_TRANSLATE("Restarting build" B_UTF8_ELLIPSIS);
+						msg << "\n";
+						ConsoleOutputReceived(1, msg);
 				}
+				return;
 			}
+
 			fStopButton->SetEnabled(true);
 			fConsoleIOThread = new ConsoleIOThread(message, BMessenger(this));
 			fConsoleIOThread->Start();
@@ -193,6 +204,10 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			break;
 		}
 		case CONSOLEIOTHREAD_EXIT:
+		{
+			_CommandFinished();
+			break;
+		}
 		case MSG_STOP_PROCESS:
 		{
 			_StopCommand();

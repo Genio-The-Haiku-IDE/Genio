@@ -134,11 +134,8 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 		}
 		break;
 		case MSG_GREP_DONE: {
-			if (fGrepThread) {
-				fGrepThread->InterruptExternal();
-				delete fGrepThread;
-				fGrepThread = nullptr;
-			}
+			// TODO: Fix
+			fGrepThread = nullptr;
 			_UpdateTabLabel(std::to_string(fCountResults).c_str());
 			ActionManager::SetEnabled(MSG_FIND_IN_FILES, true);
 		}

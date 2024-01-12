@@ -108,20 +108,24 @@ CallTipAction CallTipContext::_FindFunction()
 	//tokenize the line
 	std::vector< token > tokens;
 	for (int32 i = 0; i < offset; i++) {
+
 		char ch = lineData[i];
+
+		if (Contains(kWhiteSpaces, ch)) {
+			//skip spaces
+			continue;
+		}
+
 		token tk = { lineData + i, 0};
 		if (Contains(kWordCharacters, ch)) {
 			while ((Contains(kWordCharacters, ch)) && i < offset) {
 				tk.length++;
 				ch = lineData[++i];
 			}
-			tokens.push_back(tk);
 			i--;
-		} else {
-			if (!Contains(kWhiteSpaces, ch)) {
-				tokens.push_back(tk);
-			}
 		}
+
+		tokens.push_back(tk);
 	}
 
 	//logic to find current function.

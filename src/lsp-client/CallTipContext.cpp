@@ -128,7 +128,7 @@ CallTipAction CallTipContext::_FindFunction()
 	}
 
 	//logic to find current function.
-	std::vector<function> functions;
+	std::vector<function> stack;
 	function curFun;
 	int braceLevel = 0;
 	size_t lastValidToken = -1;
@@ -140,7 +140,7 @@ CallTipAction CallTipContext::_FindFunction()
 			switch(tokens[i].name[0]) {
 				case parStart: { //'('
 					braceLevel++;
-					functions.push_back(curFun); //let's stack it
+					stack.push_back(curFun); //let's stack it
 
 					if (i > 0 && lastValidToken == i - 1) {
 						curFun.tokenId = lastValidToken;
@@ -161,9 +161,9 @@ CallTipAction CallTipContext::_FindFunction()
 				case parStop: { //')'
 					if (braceLevel)
 						braceLevel--;
-					if (functions.size() > 0) {
-						curFun = functions.back();
-						functions.pop_back();
+					if (stack.size() > 0) {
+						curFun = stack.back();
+						stack.pop_back();
 					} else {
 						// invalidate curFun
 						curFun = function();
@@ -172,7 +172,7 @@ CallTipAction CallTipContext::_FindFunction()
 				}
 				break;
 				case funEnd: //';'
-					functions.clear();
+					stack.clear();
 					curFun = function();
 					lastValidToken = -1;
 				break;
@@ -185,10 +185,10 @@ CallTipAction CallTipContext::_FindFunction()
 	//let's see if we have something to show!
 	if (curFun.tokenId == -1)
 	{	//pop the stack!
-		while (curFun.tokenId == -1 && functions.size() > 0)
+		while (curFun.tokenId == -1 && stack.size() > 0)
 		{
-			curFun = functions.back();
-			functions.pop_back();
+			curFun = stack.back();
+			stack.pop_back();
 		}
 	}
 

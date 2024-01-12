@@ -235,6 +235,7 @@ status_t
 ConsoleIOThread::ThreadShutdown()
 {
 	ClosePipes();
+	_InterruptExternalProcess();
 	fIsDone = true;
 	ThreadExitNotification();
 

@@ -223,7 +223,6 @@ ConsoleIOThread::PushInput(BString text)
 void
 ConsoleIOThread::ThreadExitNotification()
 {
-	LogError("ThreadExitNotification()");
 	BMessage message(CONSOLEIOTHREAD_EXIT);
 	message.AddString("cmd_type", fCmdType);
 	fTarget.SendMessage(&message);

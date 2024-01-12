@@ -75,6 +75,7 @@ ConsoleIOView::~ConsoleIOView()
 	delete fPendingOutput;
 }
 
+
 status_t
 ConsoleIOView::RunCommand(BMessage* cmd_message)
 {
@@ -190,6 +191,11 @@ ConsoleIOView::MessageReceived(BMessage* message)
 						msg << B_TRANSLATE("Restarting build" B_UTF8_ELLIPSIS);
 						msg << "\n";
 						ConsoleOutputReceived(1, msg);
+				} else {
+					BString msg = "\n *** ";
+					msg << B_TRANSLATE("Another command is running.");
+					msg << "\n";
+					ConsoleOutputReceived(1, msg);
 				}
 				return;
 			}

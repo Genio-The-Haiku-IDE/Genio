@@ -18,7 +18,7 @@ enum Messages {
 	MsgShowRepositoryPanel,
 	MsgShowChangesPanel,
 	MsgShowLogPanel,
-	MsgShowOptionsMenu,
+	MsgShowActionsMenu,
 	MsgFetch,
 	MsgFetchPrune,
 	MsgPull,

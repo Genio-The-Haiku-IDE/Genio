@@ -20,7 +20,6 @@ struct function {
 	int32 tokenId = -1;
 	int32 functionId = -1;
 	int32 param = 0;
-	int32 braceLevel = -1;
 };
 
 
@@ -107,6 +106,7 @@ CallTipAction CallTipContext::_FindFunction()
 
 	//tokenize the line
 	std::vector< token > tokens;
+
 	for (int32 i = 0; i < offset; i++) {
 
 		char ch = lineData[i];
@@ -133,41 +133,51 @@ CallTipAction CallTipContext::_FindFunction()
 	function curFun;
 	int braceLevel = 0;
 	for (size_t i = 0; i < tokens.size(); ++i) {
-		token& curToken = tokens[i];
-		if (curToken.length > 0) {
-			curFun.tokenId = static_cast<int32_t>(i);
-		} else {
-			char ch = curToken.name[0];
-			if (ch == parStart)  {  // '('
-				braceLevel++;
-				function newFun = curFun;
-				functions.push_back(newFun); //let's stack it
 
-				curFun.braceLevel = braceLevel;
-				if (i > 0 && curFun.tokenId == static_cast<int32>(i)- 1) {
-					curFun.functionId = curFun.tokenId;
-					curFun.param = 0;
-				} else {
-					// expression! (2+3)
-					curFun.functionId = -1;
+		if (tokens[i].length > 0) {
+			curFun.tokenId = int32(i);
+		} else {
+			switch(tokens[i].name[0]) {
+				case parStart: { //'('
+					braceLevel++;
+					function newFun = curFun;
+					functions.push_back(newFun); //let's stack it
+
+					if (i > 0 && curFun.tokenId == int32(i) - 1) {
+						curFun.functionId = curFun.tokenId;
+						curFun.param = 0;
+					} else {
+						// expression! (2+3)
+						curFun.functionId = -1;
+					}
 				}
-			} else if (ch == nextParam && curFun.functionId > -1) { // ','
-				++curFun.param;
-			} else if (ch == parStop) { //')'
-				if (braceLevel)
-					braceLevel--;
-				if (functions.size() > 0) {
-					curFun = functions.back();
-					functions.pop_back();
-				} else {
-					// invalidate curFun
+				break;
+				case nextParam: //','
+					//if current function is valid,
+					//move to the next param
+					if(curFun.functionId > -1) {
+						++curFun.param;
+					}
+				break;
+				case parStop: { //')'
+					if (braceLevel)
+						braceLevel--;
+					if (functions.size() > 0) {
+						curFun = functions.back();
+						functions.pop_back();
+					} else {
+						// invalidate curFun
+						curFun = function();
+					}
+				}
+				break;
+				case funEnd: //';'
+					functions.clear();
 					curFun = function();
-				}
-			} else if (ch == funEnd) { //';'
-				// invalidate everything
-				functions.clear();
-				curFun = function();
-			}
+				break;
+				default:
+				break;
+			};
 		}
 	}
 

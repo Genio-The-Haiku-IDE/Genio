@@ -70,13 +70,11 @@ public:
 		fArgv = {
 			"/boot/system/non-packaged/bin/dotnet/dotnet",
 			"/boot/system/non-packaged/bin/OmniSharp/OmniSharp.dll",
-			"--language-server",
-			"-s",
-			"/boot/home/workspace/dotnet/HaikuApp/HaikuApp.csproj"
+			"-lsp",
 		};
 	}
 	const bool	IsFileTypeSupported(const BString& fileType) const {
-		return (fileType.Compare("cs")  == 0);
+		return (fileType.Compare("cs") != 0);
 	}
 };
 

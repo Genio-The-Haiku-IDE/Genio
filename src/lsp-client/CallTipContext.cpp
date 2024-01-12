@@ -9,7 +9,6 @@
 #define parStart   '('
 #define parStop    ')'
 #define nextParam  ','
-#define funEnd     ';'
 
 struct token {
 	char* name;
@@ -170,11 +169,6 @@ CallTipAction CallTipContext::_FindFunction()
 						lastValidToken = -1;
 					}
 				}
-				break;
-				case funEnd: //';'
-					stack.clear();
-					curFun = function();
-					lastValidToken = -1;
 				break;
 				default:
 				break;

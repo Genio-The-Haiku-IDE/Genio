@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	2213002912
+1	English	application/x-vnd.Genio	718629891
 Close	RemoteProjectWindow		Close
 Debug target:	ProjectSettingsWindow		Debug target:
 Copy	GenioWindow		Copy
@@ -16,6 +16,7 @@ Show toolbar	GenioWindow		Show toolbar
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
 Project settings…	ProjectsFolderBrowser		Project settings…
 Path	ProjectsFolderBrowser		Path
+development	Utilities		development
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Replace selection	GenioWindow		Replace selection
 Focus mode	GenioWindow		Focus mode
@@ -58,8 +59,9 @@ Close file	GenioWindow		Close file
 Editor style:	SettingsWindow		Editor style:
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
 Find previous	GenioWindow		Find previous
-Show projects pane	SettingsWindow		Show projects pane
 Redo	GenioWindow		Redo
+beta	Utilities		beta
+Show projects pane	SettingsWindow		Show projects pane
 Active	EditorTabManager		Active
 Release target:	ProjectSettingsWindow		Release target:
 Find	SettingsWindow		Find
@@ -77,15 +79,15 @@ Cancel	GenioWindow		Cancel
 Log level:	SettingsWindow		Log level:
 Stash changes	SourceControlPanel		Stash changes
 OK	ProjectsFolderBrowser		OK
-Clone	RemoteProjectWindow		Clone
 Genio	System name		Genio
+Clone	RemoteProjectWindow		Clone
 Release	GenioWindow		Release
 Keep	GenioWindow		Keep
 Unsaved files	QuitAlert		Unsaved files
 Debug	GenioWindow		Debug
+Undo	GenioWindow		Undo
 OK	GitCredentialsWindow		OK
 Username:	GitCredentialsWindow		Username:
-Undo	GenioWindow		Undo
 Open recent…	GenioWindow		Open recent…
 Save	Editor		Save
 Autocomplete	GenioWindow		Autocomplete
@@ -101,6 +103,7 @@ Help…	GenioWindow		Help…
 The local path is not valid or does not exist	RemoteProjectWindow		The local path is not valid or does not exist
 Cancel	GitCredentialsWindow		Cancel
 Fetch	SourceControlPanel		Fetch
+Color:	ProjectSettingsWindow		Color:
 Find	GenioWindow		Find
 Invalid project folder	GenioWindow		Invalid project folder
 Discard	GenioWindow		Discard
@@ -177,6 +180,7 @@ Save dialog	Editor		Save dialog
 OK	SourceControlPanel		OK
 Cancel	QuitAlert		Cancel
 Stash apply changes	SourceControlPanel		Stash apply changes
+Version	Utilities		Version
 Make bindcatalogs	GenioWindow		Make bindcatalogs
 Open remote project…	GenioWindow		Open remote project…
 Show output pane	SettingsWindow		Show output pane
@@ -253,14 +257,15 @@ Show line endings	GenioWindow		Show line endings
 Could not create a new file	GenioWindow		Could not create a new file
 Save all	QuitAlert		Save all
 Close project	ProjectsFolderBrowser		Close project
+gamma	Utilities		gamma
 Source control	SourceControlPanel		Source control
 Delete folder	ProjectsFolderBrowser		Delete folder
-Options	SourceControlPanel		Options
 Format	GenioWindow		Format
 Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
 Release build command:	ProjectSettingsWindow		Release build command:
+Actions	SourceControlPanel		Actions
 Defaults	ConfigWindow		Defaults
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Zoom in	GenioWindow		Zoom in
@@ -271,12 +276,13 @@ Auto-Save changed files when building	SettingsWindow		Auto-Save changed files wh
 Bookmark	GenioWindow		Bookmark
 Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
 New	GenioWindow		New
+gold master	Utilities		gold master
 Show whitespace	SettingsWindow		Show whitespace
 Close all	GenioWindow		Close all
 You can't create a new folder here, please select a project or another folder	GenioWindow		You can't create a new folder here, please select a project or another folder
 Next	GenioWindow	Bookmark menu	Next
-Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
 Wrap	ConsoleIOView		Wrap
+Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
 Clear all	GenioWindow	Bookmark menu	Clear all
 Repository	SourceControlPanel		Repository
 File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
@@ -314,8 +320,8 @@ Enter a message for this stash	SourceControlPanel		Enter a message for this stas
 Project settings…	GenioWindow		Project settings…
 OK	Utilities		OK
 Location	SearchResultPanel		Location
-Wrap	SettingsWindow		Wrap
 Paste	GenioWindow		Paste
+Wrap	SettingsWindow		Wrap
 Debug build command:	ProjectSettingsWindow		Debug build command:
 Visual	SettingsWindow		Visual
 Cancel	GTextAlert		Cancel
@@ -323,5 +329,6 @@ Source control	SettingsWindow		Source control
 Stash pop changes	SourceControlPanel		Stash pop changes
 Choose branch…	SourceControlPanel		Choose branch…
 Don't save	QuitAlert		Don't save
+alpha	Utilities		alpha
 An unknown error occurred.	SourceControlPanel		An unknown error occurred.
 Save caret position	SettingsWindow		Save caret position

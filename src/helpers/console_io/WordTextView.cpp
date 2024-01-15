@@ -23,6 +23,12 @@
 const std::string kNumericChars("1234567890");
 const std::string kDefaultAdditionalWordCharacters(":@-+./_~");
 
+WordTextView::WordTextView(const char* name)
+	:
+	BTextView(name)
+{
+}
+
 
 bool
 WordTextView::_Classify(char c)

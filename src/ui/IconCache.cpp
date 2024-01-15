@@ -7,11 +7,10 @@
 
 #include <Bitmap.h>
 #include <ControlLook.h>
+#include <MimeTypes.h>
 #include <NodeInfo.h>
 
 #include "Log.h"
-
-#define DIR_FILETYPE "application/x-vnd.Be-directory"
 
 
 IconCache IconCache::sInstance;
@@ -31,7 +30,7 @@ IconCache::GetIcon(const entry_ref *ref)
 	if (nodeInfo.GetType(mimeType) != B_OK) {
 		LogDebug("Invalid mimeType for file [%s]", ref->name);
 		if (node.IsDirectory())
-			strncpy(mimeType, DIR_FILETYPE, B_MIME_TYPE_LENGTH - 1);
+			strncpy(mimeType, B_DIRECTORY_MIME_TYPE, B_MIME_TYPE_LENGTH - 1);
 		else
 			strncpy(mimeType, B_FILE_MIME_TYPE, B_MIME_TYPE_LENGTH - 1);
 	}
@@ -50,7 +49,7 @@ IconCache::GetIcon(const entry_ref *ref)
 		icon_size iconSize = (icon_size)(icon->Bounds().IntegerWidth() - 1);
 		status_t status = nodeInfo.GetTrackerIcon(icon, (icon_size)iconSize);
 		sInstance.fCache.emplace(mimeType, icon);
-		LogTrace("IconCache: GetTrackerIcon returned - %d", status);
+		LogTrace("IconCache: GetTrackerIcon returned - %s", ::strerror(status));
 		return icon;
 	}
 	return nullptr;

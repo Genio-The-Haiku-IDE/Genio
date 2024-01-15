@@ -19,6 +19,7 @@
 #include <Message.h>
 #include <Mime.h>
 #include <MimeType.h>
+#include <MimeTypes.h>
 #include <NodeInfo.h>
 #include <Path.h>
 #include <Query.h>
@@ -27,13 +28,10 @@
 #include <cstdio>
 
 #include "IconMenuItem.h"
-#include "MimeType.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplatesMenu"
 
-// TODO: This is duplicated between here and IconCache.cpp
-#define DIR_FILETYPE "application/x-vnd.Be-directory"
 
 const char* kNewFolderLabel = "New folder";
 
@@ -137,7 +135,7 @@ TemplatesMenu::_BuildMenu()
 		message->AddString("type","new_folder");
 		// add the folder
 		IconMenuItem* menuItem = new IconMenuItem(B_TRANSLATE(kNewFolderLabel),
-			message, DIR_FILETYPE, B_MINI_ICON);
+			message, B_DIRECTORY_MIME_TYPE, B_MINI_ICON);
 		menuItem->SetEnabled(fEnableNewFolder);
 		AddItem(menuItem);
 		menuItem->SetShortcut('N', 0);

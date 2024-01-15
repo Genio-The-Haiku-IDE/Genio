@@ -3327,6 +3327,26 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 
 
 void
+GenioWindow::_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project)
+{
+	// let's check if any open editor is related to this project
+	BPath projectPath = project->Path().String();
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
+		LogTrace("Open project [%s] vs editor project [%s]",
+			projectPath.Path(), editor->FilePath().String());
+		if (editor->GetProjectFolder() == NULL) {
+			BPath parent;
+			if (BPath(editor->FilePath()).GetParent(&parent) == B_OK
+				&& parent == projectPath) {
+				editor->SetProjectFolder(project);
+			}
+		}
+	}
+}
+
+
+void
 GenioWindow::_ProjectFileDelete()
 {
 	const entry_ref* ref = fProjectsFolderBrowser->GetSelectedProjectFileRef();
@@ -3579,17 +3599,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	notification << opened << newProject->Name() << " at " << projectPath;
 	LogInfo(notification.String());
 
-	// let's check if any open editor is related to this project
-	projectPath = projectPath.Append("/");
-
-	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		//LogError("Open project [%s] vs editor project [%s]", projectPath.String(), fEditor->FilePath().String());
-		if (editor->GetProjectFolder() == NULL &&
-		    editor->FilePath().StartsWith(projectPath)) {
-			editor->SetProjectFolder(newProject);
-		}
-	}
+	_TryAssociateOrphanedEditorsWithProject(newProject);
 
     // final touch, let's be sure the folder is added to the recent files.
     be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);

@@ -28,6 +28,8 @@ ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consol
 	GenericThread("ConsoleIOThread", B_NORMAL_PRIORITY, cmd_message),
 	fTarget(consoleTarget),
 	fExternalProcessId(-1),
+	fConsoleOutput(nullptr),
+	fConsoleError(nullptr),
 	fIsDone(false)
 {
 	SetDataStore(new BMessage(*cmd_message));

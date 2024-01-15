@@ -6,6 +6,7 @@
 
 #include "ConfigWindow.h"
 
+#include <Box.h>
 #include <Button.h>
 #include <CardView.h>
 #include <Catalog.h>
@@ -70,7 +71,6 @@ public:
 		void LoadValue(T value) {
 			C::SetValue(value);
 		}
-
 private:
 		ConfigManager&	fConfigManager;
 };
@@ -216,6 +216,7 @@ ConfigWindow::QuitRequested()
 	return BWindow::QuitRequested();
 }
 
+
 void
 ConfigWindow::MessageReceived(BMessage* message)
 {
@@ -324,11 +325,8 @@ BView*
 ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 {
 	// Create and add the setting views
-	BGroupView *view = new BGroupView(groupName, B_HORIZONTAL,
-		B_USE_HALF_ITEM_SPACING);
-	BGroupLayout *layout = view->GroupLayout();
-	layout->SetInsets(B_USE_HALF_ITEM_INSETS);
-
+	BBox* box = new BBox(groupName);
+	box->SetLabel(groupName);
 	BGroupView *settingView = new BGroupView(groupName, B_VERTICAL,
 		B_USE_HALF_ITEM_SPACING);
 	BGroupLayout *settingLayout = settingView->GroupLayout();
@@ -347,9 +345,9 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	}
 
 	settingLayout->AddItem(BSpaceLayoutItem::CreateHorizontalStrut(10));
-	layout->AddView(settingView);
-	layout->AddItem(BSpaceLayoutItem::CreateGlue());
-	return view;
+	box->AddChild(settingView);
+
+	return box;
 }
 
 

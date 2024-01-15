@@ -245,7 +245,7 @@ RepositoryView::_BuildBranchTree(const BString &branch, BranchItem *rootItem, ui
 		uint32 lastIndex = parts.size();
 
 		BString partName = parts.at(i).c_str();
-		auto partItem = FindItem<BranchItem>(partName, rootItem, false, i+1);
+		auto partItem = FindItem<BranchItem>(partName, parentitem, false, i+1);
 		if (partItem != nullptr) {
 			parentitem = partItem;
 		} else {

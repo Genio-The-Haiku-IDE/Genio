@@ -14,15 +14,10 @@
 #define parStop    ')'
 #define nextParam  ','
 
-struct token {
-	char* name;
-	int32 length; //if set it's possibly a function.
-};
-
 struct function {
-	int32 param  = 0;
 	char* name   = nullptr;
-	int32 length = 0;
+	int32 length = 0; //if set it's possibly a function.
+	int32 param  = 0;
 };
 
 
@@ -108,7 +103,7 @@ CallTipAction CallTipContext::_FindFunction()
 	fEditor->SendMessage(SCI_GETCURLINE, len, (sptr_t) (&lineData[0]));
 
 	//tokenize the line
-	std::vector< token > tokens;
+	std::vector< function > tokens;
 
 	for (int32 i = 0; i < offset; i++) {
 
@@ -119,7 +114,7 @@ CallTipAction CallTipContext::_FindFunction()
 			continue;
 		}
 
-		token tk = { lineData + i, 0};
+		function tk = { lineData + i, 0, 0};
 		if (Contains(kWordCharacters, ch)) {
 			while ((Contains(kWordCharacters, ch)) && i < offset) {
 				tk.length++;

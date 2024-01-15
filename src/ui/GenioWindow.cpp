@@ -3524,16 +3524,25 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	if (BDirectory(&dirEntry).IsRootDirectory())
 		return B_ERROR;
 
-	// Check if already open
+	BPath newProjectPath;
+	status_t status = dirEntry.GetPath(&newProjectPath);
+	if (status != B_OK)
+		return status;
 	for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
 		ProjectFolder* pProject = GetProjectBrowser()->ProjectAt(index);
+		const BString existingProjectPath = pProject->Path();
+		// Check if it's a subfolder of an existing open project
+		// TODO: Ideally, this wouldn't be a problem: it should be perfectly possibile
+		if (BString(newProjectPath.Path()).StartsWith(existingProjectPath))
+			return B_ERROR;
+		// Check if already open
 		if (*pProject->EntryRef() == ref)
 			return B_OK;
 	}
 
 	BMessenger msgr(this);
 	ProjectFolder* newProject = new ProjectFolder(ref, msgr);
-	status_t status = newProject->Open();
+	status = newProject->Open();
 	if (status != B_OK) {
 		BString notification;
 		notification << "Project open fail: " << newProject->Name();

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ * All rights reserved. Distributed under the terms of the MIT license.
+ */
 #include "CallTipContext.h"
 
 #include <cstring>
@@ -16,8 +20,9 @@ struct token {
 };
 
 struct function {
-	int32 tokenId = -1;
-	int32 param = 0;
+	int32 param  = 0;
+	char* name   = nullptr;
+	int32 length = 0;
 };
 
 
@@ -142,18 +147,19 @@ CallTipAction CallTipContext::_FindFunction()
 					stack.push_back(curFun); //let's stack it
 
 					if (i > 0 && lastValidToken == i - 1) {
-						curFun.tokenId = lastValidToken;
+						curFun.name   = tokens[lastValidToken].name;
+						curFun.length = tokens[lastValidToken].length;
 						curFun.param = 0;
 					} else {
 						// expression! (2+3)
-						curFun.tokenId = -1;
+						curFun.name = nullptr;
 					}
 				}
 				break;
 				case nextParam: //','
 					//if current function is valid,
 					//move to the next param
-					if(curFun.tokenId > -1) {
+					if(curFun.name != nullptr) {
 						++curFun.param;
 					}
 				break;
@@ -177,9 +183,9 @@ CallTipAction CallTipContext::_FindFunction()
 	}
 
 	//let's see if we have something to show!
-	if (curFun.tokenId == -1)
+	if (curFun.name != nullptr)
 	{	//pop the stack!
-		while (curFun.tokenId == -1 && stack.size() > 0)
+		while (curFun.name == nullptr && stack.size() > 0)
 		{
 			curFun = stack.back();
 			stack.pop_back();
@@ -188,15 +194,13 @@ CallTipAction CallTipContext::_FindFunction()
 
 	CallTipAction action = CALLTIP_NOTHING;
 
-	if (curFun.tokenId > -1)
+	if (curFun.name != nullptr)
 	{
-		token funcToken = tokens[curFun.tokenId];
-		funcToken.name[funcToken.length] = 0;
 		fCurrentParam = curFun.param;
 
-		fCallTipPosition = startpos + (funcToken.name - lineData);
-		if (fCurrentFunctionName.Compare(funcToken.name, funcToken.length) != 0) {
-			fCurrentFunctionName.SetTo(funcToken.name, funcToken.length);
+		fCallTipPosition = startpos + (curFun.name - lineData);
+		if (fCurrentFunctionName.Compare(curFun.name, curFun.length) != 0) {
+			fCurrentFunctionName.SetTo(curFun.name, curFun.length);
 			action = CALLTIP_NEWDATA;
 		} else {
 			action = CALLTIP_UPDATE;

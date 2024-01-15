@@ -3534,6 +3534,9 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		// TODO: Ideally, this wouldn't be a problem: it should be perfectly possibile
 		if (BString(newProjectPath.Path()).StartsWith(existingProjectPath))
 			return B_ERROR;
+		// check if it's a parent of an existing project
+		if (existingProjectPath.StartsWith(newProjectPath.Path()))
+			return B_ERROR;
 		// Check if already open
 		if (*pProject->EntryRef() == ref)
 			return B_OK;

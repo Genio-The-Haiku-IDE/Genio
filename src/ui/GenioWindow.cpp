@@ -3532,6 +3532,10 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	newProjectPathString.Append("/");
 	for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
 		ProjectFolder* pProject = GetProjectBrowser()->ProjectAt(index);
+		// Check if already open
+		if (*pProject->EntryRef() == ref)
+			return B_OK;
+
 		BString existingProjectPath = pProject->Path();
 		existingProjectPath.Append("/");
 		// Check if it's a subfolder of an existing open project
@@ -3541,9 +3545,6 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		// check if it's a parent of an existing project
 		if (existingProjectPath.StartsWith(newProjectPathString))
 			return B_ERROR;
-		// Check if already open
-		if (*pProject->EntryRef() == ref)
-			return B_OK;
 	}
 
 	BMessenger msgr(this);

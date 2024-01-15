@@ -136,7 +136,7 @@ ProjectFolder::Open()
 
 	status_t status = LoadSettings();
 	if (status != B_OK)
-		LogInfo("Cannot load project settings");
+		LogInfoF("%s", "Cannot load project settings");
 
 	// not a fatal error, just start with defaults
 	return B_OK;
@@ -179,7 +179,7 @@ ProjectFolder::LoadSettings()
 		// Try to load old style settings
 		status = _LoadOldSettings();
 		if (status == B_OK)
-			LogTrace("ProjectFolder: Loaded old style settings");
+			LogTraceF("%s", "Loaded old style settings");
 	}
 
 	return status;
@@ -196,7 +196,7 @@ ProjectFolder::SaveSettings()
 	path.Append(GenioNames::kProjectSettingsFile);
 	status_t status = fSettings->SaveToFile(path.Path());
 	if (status != B_OK) {
-		LogError(strerror(status));
+		LogErrorF("Cannot save settings: %s", ::strerror(status));
 	}
 	return status;
 }
@@ -397,7 +397,7 @@ ProjectFolder::_LoadOldSettings()
 	if (status != B_OK)
 		return status;
 
-	LogError("OLD STYLE SETTINGS");
+	LogTraceF("%s", "Loading old style settings");
 
 	// Load old style settins into new
 	(*fSettings)["build_mode"] = int32(oldSettings.GetInt32("build_mode", BuildMode::ReleaseMode));

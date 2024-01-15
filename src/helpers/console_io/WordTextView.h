@@ -11,7 +11,7 @@
 
 class WordTextView : public BTextView {
 public:
-	WordTextView(const char* name):BTextView(name), fPrevCopyValue(false){}
+	WordTextView(const char* name);
 
 	void	MouseMoved (BPoint where, uint32 code, const BMessage *dragMessage);
 	void 	MouseDown  (BPoint where);
@@ -35,9 +35,6 @@ private:
 	BString fCurrentDirectory; //Not used but could be usefull..
 
 	char	fBuffer[MAX_WORD_SIZE + 1];
-
-	bool	fPrevCopyValue;
-
 };
 
 

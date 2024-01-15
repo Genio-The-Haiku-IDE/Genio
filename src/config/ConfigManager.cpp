@@ -99,7 +99,34 @@ ConfigManager::SaveToFile(BPath path)
 	BFile file;
 	status_t status = file.SetTo(path.Path(), B_WRITE_ONLY | B_CREATE_FILE);
 	if (status == B_OK) {
-		status = storage.Flatten(&file);
+			GMessage outFile;
+			GMessage msg;
+			int i = 0;
+			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
+				const char* key = msg["key"];
+
+				printf("saving as key: %s -> %d\n", key, (bool)msg["as_attribute"]);
+
+				if ((bool)msg["as_attribute"] == false) {
+					outFile[key] = storage[key];
+				} else {
+
+					// save as attribute:
+					BString attrName("genio:");
+					attrName.Append(key);
+
+					printf("saving as attribute: %s\n", attrName.String());
+
+					const void* data = nullptr;
+					ssize_t numBytes = 0;
+					if (storage.FindData(key, storage.Type(key), &data, &numBytes) == B_OK) {
+						if (file.WriteAttr(attrName.String(), storage.Type(key), 0, data, numBytes) <= 0) {
+							LogError("Can't save config as attribute: %s\n", attrName.String());
+						}
+					}
+				}
+			}
+			status = outFile.Flatten(&file);
 	}
 	return status;
 }

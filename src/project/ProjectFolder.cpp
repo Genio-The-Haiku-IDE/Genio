@@ -362,7 +362,7 @@ ProjectFolder::_PrepareSettings()
 	};
 	rgb_color color = ui_color(B_PANEL_BACKGROUND_COLOR);
 	fSettings->AddConfig("General", "color",
-		B_TRANSLATE("Color:"), color);
+		B_TRANSLATE("Color:"), color, nullptr, true);
 
 	fSettings->AddConfig("Build", "build_mode",
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);

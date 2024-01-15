@@ -11,7 +11,13 @@ public:
 		explicit ConfigManager(const int32 messageWhat);
 
 		template<typename T>
-		void AddConfig(const char* group, const char* key, const char* label, T default_value, GMessage* cfg = nullptr) {
+		void AddConfig(const char* group,
+		               const char* key,
+					   const char* label,
+					   T default_value,
+					   GMessage* cfg = nullptr,
+					   bool storeAsAttribute = false) {
+
 			GMessage configKey;
 			if (cfg)
 				configKey = *cfg;
@@ -21,6 +27,7 @@ public:
 			configKey["label"]    		= label;
 			configKey["default_value"]  = default_value;
 			configKey["type_code"] 		= MessageValue<T>::Type();
+			configKey["as_attribute"]	= storeAsAttribute;
 
 			storage[key] = default_value;
 

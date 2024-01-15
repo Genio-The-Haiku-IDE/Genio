@@ -819,7 +819,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-				case MSG_CREATE_NEW_PROJECT:
+		case MSG_CREATE_NEW_PROJECT:
 		{
 			entry_ref templateRef;
 			if (message->FindRef("template_ref", &templateRef) != B_OK) {
@@ -3327,6 +3327,26 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 
 
 void
+GenioWindow::_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project)
+{
+	// let's check if any open editor is related to this project
+	BPath projectPath = project->Path().String();
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
+		LogTrace("Open project [%s] vs editor project [%s]",
+			projectPath.Path(), editor->FilePath().String());
+		if (editor->GetProjectFolder() == NULL) {
+			BPath parent;
+			if (BPath(editor->FilePath()).GetParent(&parent) == B_OK
+				&& parent == projectPath) {
+				editor->SetProjectFolder(project);
+			}
+		}
+	}
+}
+
+
+void
 GenioWindow::_ProjectFileDelete()
 {
 	const entry_ref* ref = fProjectsFolderBrowser->GetSelectedProjectFileRef();
@@ -3496,11 +3516,10 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 {
 	entry_ref ref;
 	status_t status = message->FindRef("refs", &ref);
-	if (status == B_OK) {
+	if (status == B_OK)
 		status = _ProjectFolderOpen(ref);
-	} else {
+	if (status != B_OK)
 		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
-	}
 
 	return status;
 }
@@ -3524,16 +3543,33 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	if (BDirectory(&dirEntry).IsRootDirectory())
 		return B_ERROR;
 
-	// Check if already open
+	BPath newProjectPath;
+	status_t status = dirEntry.GetPath(&newProjectPath);
+	if (status != B_OK)
+		return status;
+
+	BString newProjectPathString = newProjectPath.Path();
+	newProjectPathString.Append("/");
 	for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
 		ProjectFolder* pProject = GetProjectBrowser()->ProjectAt(index);
+		// Check if already open
 		if (*pProject->EntryRef() == ref)
 			return B_OK;
+
+		BString existingProjectPath = pProject->Path();
+		existingProjectPath.Append("/");
+		// Check if it's a subfolder of an existing open project
+		// TODO: Ideally, this wouldn't be a problem: it should be perfectly possibile
+		if (newProjectPathString.StartsWith(existingProjectPath))
+			return B_ERROR;
+		// check if it's a parent of an existing project
+		if (existingProjectPath.StartsWith(newProjectPathString))
+			return B_ERROR;
 	}
 
 	BMessenger msgr(this);
 	ProjectFolder* newProject = new ProjectFolder(ref, msgr);
-	status_t status = newProject->Open();
+	status = newProject->Open();
 	if (status != B_OK) {
 		BString notification;
 		notification << "Project open fail: " << newProject->Name();
@@ -3563,17 +3599,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	notification << opened << newProject->Name() << " at " << projectPath;
 	LogInfo(notification.String());
 
-	// let's check if any open editor is related to this project
-	projectPath = projectPath.Append("/");
-
-	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		//LogError("Open project [%s] vs editor project [%s]", projectPath.String(), fEditor->FilePath().String());
-		if (editor->GetProjectFolder() == NULL &&
-		    editor->FilePath().StartsWith(projectPath)) {
-			editor->SetProjectFolder(newProject);
-		}
-	}
+	_TryAssociateOrphanedEditorsWithProject(newProject);
 
     // final touch, let's be sure the folder is added to the recent files.
     be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);

@@ -2607,7 +2607,7 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Show white spaces"), "kIconShowPunctuation");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
 								   B_TRANSLATE("Show line endings"),
-								   B_TRANSLATE("Show line endings"), "");
+								   B_TRANSLATE("Show line endings"), "xmas-icon");
 	ActionManager::RegisterAction(MSG_WRAP_LINES,
 								   B_TRANSLATE("Wrap lines"),
 								   B_TRANSLATE("Wrap lines"), "xmas-icon");
@@ -3131,6 +3131,7 @@ GenioWindow::_InitToolbar()
 	fToolBar->AddSeparator();
 
 	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, fToolBar);
+	ActionManager::AddItem(MSG_LINE_ENDINGS_TOGGLE, fToolBar);
 	ActionManager::AddItem(MSG_WRAP_LINES, fToolBar);
 	fToolBar->AddSeparator();
 

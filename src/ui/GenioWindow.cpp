@@ -819,7 +819,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-				case MSG_CREATE_NEW_PROJECT:
+		case MSG_CREATE_NEW_PROJECT:
 		{
 			entry_ref templateRef;
 			if (message->FindRef("template_ref", &templateRef) != B_OK) {
@@ -3496,11 +3496,10 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 {
 	entry_ref ref;
 	status_t status = message->FindRef("refs", &ref);
-	if (status == B_OK) {
+	if (status == B_OK)
 		status = _ProjectFolderOpen(ref);
-	} else {
+	if (status != B_OK)
 		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
-	}
 
 	return status;
 }

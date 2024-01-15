@@ -18,8 +18,12 @@ struct function {
 	char* name   = nullptr;
 	int32 length = 0; //if set it's possibly a function.
 	int32 param  = 0;
+
 };
 
+bool operator==(const function& r, const function& l) {
+	return r.name == l.name && r.length == l.length;
+}
 
 CallTipContext::CallTipContext(Editor* editor)
 	:
@@ -102,8 +106,11 @@ CallTipAction CallTipContext::_FindFunction()
 	//buffering current line.
 	fEditor->SendMessage(SCI_GETCURLINE, len, (sptr_t) (&lineData[0]));
 
-	//tokenize the line
-	std::vector< function > tokens;
+	std::vector<function> stack;
+	function curFun;
+	int braceLevel = 0;
+	function lastValidToken;
+	function previousToken;
 
 	for (int32 i = 0; i < offset; i++) {
 
@@ -114,36 +121,24 @@ CallTipAction CallTipContext::_FindFunction()
 			continue;
 		}
 
-		function tk = { lineData + i, 0, 0};
+		function currentToken = { lineData + i, 0, 0};
 		if (Contains(kWordCharacters, ch)) {
 			while ((Contains(kWordCharacters, ch)) && i < offset) {
-				tk.length++;
+				currentToken.length++;
 				ch = lineData[++i];
 			}
 			i--;
-		}
 
-		tokens.push_back(tk);
-	}
+			lastValidToken = currentToken; //this could be a function
 
-	//logic to find current function.
-	std::vector<function> stack;
-	function curFun;
-	int braceLevel = 0;
-	size_t lastValidToken = -1;
-	for (size_t i = 0; i < tokens.size(); ++i) {
-
-		if (tokens[i].length > 0) {
-			lastValidToken = i;
 		} else {
-			switch(tokens[i].name[0]) {
+			switch(ch) {
 				case parStart: { //'('
 					braceLevel++;
 					stack.push_back(curFun); //let's stack it
 
-					if (i > 0 && lastValidToken == i - 1) {
-						curFun.name   = tokens[lastValidToken].name;
-						curFun.length = tokens[lastValidToken].length;
+					if (lastValidToken.name != nullptr && lastValidToken == previousToken) {
+						curFun  = lastValidToken;
 						curFun.param = 0;
 					} else {
 						// expression! (2+3)
@@ -167,7 +162,7 @@ CallTipAction CallTipContext::_FindFunction()
 					} else {
 						// invalidate curFun
 						curFun = function();
-						lastValidToken = -1;
+						lastValidToken.name = nullptr;
 					}
 				}
 				break;
@@ -175,6 +170,8 @@ CallTipAction CallTipContext::_FindFunction()
 				break;
 			};
 		}
+		//set previous.
+		previousToken = currentToken;
 	}
 
 	//let's see if we have something to show!

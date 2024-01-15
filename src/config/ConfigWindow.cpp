@@ -338,7 +338,11 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 		BView *parameterView = MakeControlFor(msg);
 		if (parameterView == NULL)
 			return nullptr;
-
+		BColorControl* colorControl = dynamic_cast<BColorControl*>(parameterView);
+		if (colorControl != nullptr) {
+			// BColorControls don't have a label so we add one ourselves
+			settingLayout->AddView(new BStringView(colorControl->Label(), colorControl->Label()));
+		}
 		settingLayout->AddView(parameterView);
 		if (msg.Has("note"))
 			settingLayout->AddView(MakeNoteView(msg));

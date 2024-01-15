@@ -287,18 +287,19 @@ ConfigWindow::_PopulateListView()
 
 	std::vector<GMessage>::iterator iter = dividedByGroup.begin();
 	while (iter != dividedByGroup.end())  {
-		BView *groupView = MakeViewFor((const char*)(*iter)["group"], *iter);
+		BString groupName = static_cast<const char*>((*iter)["group"]);
+		BView *groupView = MakeViewFor(groupName.String(), *iter);
 		if (groupView != NULL) {
-			groupView->SetName((const char*)(*iter)["group"]);
+			groupView->SetName(groupName.String());
 			fCardView->AddChild(groupView);
-			BString groupName = (const char*)(*iter)["group"];
+
 			int32 position = groupName.FindFirstChars("/", 0);
 			if (position > 0) {
 				BString leaf;
 				groupName.CopyCharsInto(leaf,0,position);
 				groupName.Remove(0, position + 1);
 				for (int y = 0;y < fGroupList->FullListCountItems(); y++) {
-					BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(y);
+					BStringItem* item = static_cast<BStringItem*>(fGroupList->FullListItemAt(y));
 					if (leaf.Compare(item->Text()) == 0) {
 						int32 count = fGroupList->CountItemsUnder(item, false);
 						count = count + fGroupList->FullListIndexOf(item) + 1;

@@ -40,6 +40,7 @@ enum {
 	MSG_EOL_CONVERT_TO_DOS		= 'ectd',
 	MSG_EOL_CONVERT_TO_MAC		= 'ectm',
 	MSG_FILE_TRIM_TRAILING_SPACE = 'trim',
+	MSG_WRAP_LINES			     = 'wrln',
 
 	MSG_AUTOCOMPLETION			= 'auto',
 	MSG_FORMAT					= 'form',

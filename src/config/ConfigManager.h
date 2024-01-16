@@ -11,7 +11,9 @@ public:
 		explicit ConfigManager(const int32 messageWhat);
 
 		template<typename T>
-		void AddConfig(const char* group, const char* key, const char* label, T default_value, GMessage* cfg = nullptr) {
+		void AddConfig(const char* group, const char* key, const char* label,
+			T defaultValue, GMessage* cfg = nullptr)
+		{
 			GMessage configKey;
 			if (cfg)
 				configKey = *cfg;
@@ -19,16 +21,16 @@ public:
 			configKey["group"]			= group;
 			configKey["key"]			= key;
 			configKey["label"]    		= label;
-			configKey["default_value"]  = default_value;
+			configKey["default_value"]  = defaultValue;
 			configKey["type_code"] 		= MessageValue<T>::Type();
 
-			storage[key] = default_value;
+			fStorage[key] = defaultValue;
 
-			configuration.AddMessage("config", &configKey);
+			fConfiguration.AddMessage("config", &configKey);
 		}
 
-		status_t	LoadFromFile(BPath path);
-		status_t	SaveToFile(BPath path);
+		status_t LoadFromFile(BPath path);
+		status_t SaveToFile(BPath path) const;
 
 		void ResetToDefaults();
 		bool HasAllDefaultValues();
@@ -40,44 +42,51 @@ public:
 
 		bool Has(GMessage& msg, const char* key) const;
 
-		GMessage&	Configuration() { return configuration; }
+		GMessage& Configuration() { return fConfiguration; }
 
 		int32 UpdateMessageWhat() const { return fWhat; }
 
-protected:
+private:
 friend ConfigManagerReturn;
 
 		template< typename Return >
-		Return get(const char* key) { BAutolock lock(fLocker); return storage[key]; };
+		Return get(const char* key)
+		{
+			BAutolock lock(fLocker);
+			return fStorage[key];
+		}
 
 		template< typename T >
-		void set(const char* key, T n) {
+		void set(const char* key, T n)
+		{
 			BAutolock lock(fLocker);
 			if (!_CheckKeyIsValid(key))
 				return;
-			storage[key] = n;
+			fStorage[key] = n;
 			GMessage noticeMessage(fWhat);
 			noticeMessage["key"]  	= key;
-			noticeMessage["value"]  = storage[key];
+			noticeMessage["value"]  = fStorage[key];
 			if (be_app != nullptr)
 				be_app->SendNotices(fWhat, &noticeMessage);
 		}
 
-		GMessage storage;
-		GMessage configuration;
+private:
+		GMessage fStorage;
+		GMessage fConfiguration;
 		BLocker	 fLocker;
 		int32	 fWhat;
-private:
+
 		bool	_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
 									  BMessage* msgR, const char* keyR) const;
 		bool	_CheckKeyIsValid(const char* key) const;
 };
 
+
 class ConfigManagerReturn {
 public:
 		ConfigManagerReturn(const char* key, ConfigManager& manager):
 			fKey(key),
-			fConfigManager(manager){
+			fConfigManager(manager) {
 		}
 
 		template< typename Return >

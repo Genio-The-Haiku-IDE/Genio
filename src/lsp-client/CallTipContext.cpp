@@ -113,7 +113,6 @@ CallTipAction CallTipContext::_FindFunction()
 	function previousToken;
 
 	for (int32 i = 0; i < offset; i++) {
-
 		char ch = lineData[i];
 
 		if (Contains(kWhiteSpaces, ch)) {
@@ -133,7 +132,8 @@ CallTipAction CallTipContext::_FindFunction()
 
 		} else {
 			switch(ch) {
-				case parStart: { //'('
+				case parStart: //'('
+				{
 					braceLevel++;
 					stack.push_back(curFun); //let's stack it
 
@@ -144,16 +144,17 @@ CallTipAction CallTipContext::_FindFunction()
 						// expression! (2+3)
 						curFun.name = nullptr;
 					}
+					break;
 				}
-				break;
 				case nextParam: //','
 					//if current function is valid,
 					//move to the next param
 					if(curFun.name != nullptr) {
 						++curFun.param;
 					}
-				break;
-				case parStop: { //')'
+					break;
+				case parStop: //')'
+				{
 					if (braceLevel)
 						braceLevel--;
 					if (stack.size() > 0) {
@@ -164,21 +165,20 @@ CallTipAction CallTipContext::_FindFunction()
 						curFun = function();
 						lastValidToken.name = nullptr;
 					}
+					break;
 				}
-				break;
 				default:
-				break;
-			};
+					break;
+			}
 		}
 		//set previous.
 		previousToken = currentToken;
 	}
 
 	//let's see if we have something to show!
-	if (curFun.name != nullptr)
-	{	//pop the stack!
-		while (curFun.name == nullptr && stack.size() > 0)
-		{
+	if (curFun.name != nullptr) {
+		// pop the stack!
+		while (curFun.name == nullptr && stack.size() > 0) {
 			curFun = stack.back();
 			stack.pop_back();
 		}
@@ -186,8 +186,7 @@ CallTipAction CallTipContext::_FindFunction()
 
 	CallTipAction action = CALLTIP_NOTHING;
 
-	if (curFun.name != nullptr)
-	{
+	if (curFun.name != nullptr) {
 		fCurrentParam = curFun.param;
 
 		fCallTipPosition = startpos + (curFun.name - lineData);

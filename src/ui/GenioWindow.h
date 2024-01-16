@@ -123,6 +123,7 @@ private:
 			status_t			_ProjectFolderOpen(BMessage *message);
 			status_t			_ProjectFolderOpen(const entry_ref& ref, bool activate = false);
 			void				_ProjectFolderActivate(ProjectFolder* project);
+			void				_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project);
 
 			status_t			_ShowSelectedItemInTracker();
 			status_t			_ShowInTracker(const entry_ref& ref, const node_ref* nref = NULL);
@@ -197,7 +198,6 @@ private:
 			BScrollView*		fSourceControlPanelScroll;
 
 			ProjectFolder		*fActiveProject;
-			bool				fIsBuilding;
 
 			// Editor group
 			EditorTabManager*	fTabManager;

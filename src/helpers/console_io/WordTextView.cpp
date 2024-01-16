@@ -15,13 +15,19 @@
 #include <FindDirectory.h>
 #include <Path.h>
 #include <Window.h>
-#include "ActionManager.h"
+
 #include "TextUtils.h"
 
 //// TODO: move these function in a common TextUtilities class..
 
 const std::string kNumericChars("1234567890");
 const std::string kDefaultAdditionalWordCharacters(":@-+./_~");
+
+WordTextView::WordTextView(const char* name)
+	:
+	BTextView(name)
+{
+}
 
 
 bool
@@ -30,7 +36,7 @@ WordTextView::_Classify(char c)
 	if (IsASpace(c))
 		return false;
 
-	if (Contains(wordCharacters,c))
+	if (Contains(kWordCharacters,c))
 		return true;
 
 	if (Contains(kDefaultAdditionalWordCharacters, c))

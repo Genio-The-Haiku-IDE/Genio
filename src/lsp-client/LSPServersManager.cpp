@@ -71,6 +71,7 @@ public:
 			"/boot/system/non-packaged/bin/dotnet/dotnet",
 			"/boot/system/non-packaged/bin/OmniSharp/OmniSharp.dll",
 			"-lsp",
+			"-v",
 		};
 	}
 	const bool	IsFileTypeSupported(const BString& fileType) const {

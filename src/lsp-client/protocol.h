@@ -828,10 +828,15 @@ JSON_SERIALIZE(CompletionList, {}, {
 
 JSON_SERIALIZE(ParameterInformation, {}, {
 
-	if (j.contains("label") && j.type() == nlohmann::detail::value_t::string)
-		j.at("label").get_to(value.labelString);
-	else
-		j.at("label").get_to(value.labelOffsets);
+	if (j.contains("label")) {
+		try {
+			j.at("label").get_to(value.labelString);
+		} catch(...) {
+			try {
+				j.at("label").get_to(value.labelOffsets);
+			} catch(...) {}
+		}
+	}
 
     FROM_KEY(documentation);
 });

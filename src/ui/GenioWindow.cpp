@@ -68,7 +68,6 @@
 #include "TemplateManager.h"
 #include "TextUtils.h"
 #include "Utils.h"
-#include "WordTextView.h"
 #include "argv_split.h"
 
 
@@ -143,7 +142,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fProjectsFolderBrowser(nullptr)
 	, fProjectsFolderScroll(nullptr)
 	, fActiveProject(nullptr)
-	, fIsBuilding(false)
 	, fTabManager(nullptr)
 	, fFindGroup(nullptr)
 	, fReplaceGroup(nullptr)
@@ -337,7 +335,6 @@ GenioWindow::MessageReceived(BMessage* message)
 						Editor* editor = fTabManager->EditorAt(index);
 						ProjectFolder* project = editor->GetProjectFolder();
 						if (project != nullptr) {
-							LogError("SET COLOR");
 							fTabManager->SetTabColor(editor, project->Color());
 						}
 					}
@@ -433,13 +430,11 @@ GenioWindow::MessageReceived(BMessage* message)
 				cmdType == "bindcatalogs" ||
 				cmdType == "catkeys") {
 
-				fIsBuilding = false;
-
 				BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
-				noticeMessage.AddBool("building", fIsBuilding);
+				noticeMessage.AddBool("building", false);
 				SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-				fActiveProject->SetBuildingState(fIsBuilding);
+				fActiveProject->SetBuildingState(false);
 			}
 			_UpdateProjectActivation(fActiveProject != nullptr);
 			break;
@@ -826,27 +821,32 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_CREATE_NEW_PROJECT:
 		{
-			entry_ref dest_ref;
-			entry_ref template_ref;
+			entry_ref templateRef;
+			if (message->FindRef("template_ref", &templateRef) != B_OK) {
+				LogError("Invalid template %s", templateRef.name);
+				return;
+			}
+			entry_ref destRef;
+			if (message->FindRef("directory", &destRef) != B_OK) {
+				LogError("Invalid destination directory %s", destRef.name);
+				return;
+			}
 			BString name;
-			if (message->FindRef("template_ref", &template_ref) != B_OK) {
-				LogError("Invalid template %s", template_ref.name);
-				return;
-			}
-			if (message->FindRef("directory", &dest_ref) != B_OK) {
-				LogError("Invalid destination directory %s", dest_ref.name);
-				return;
-			}
 			if (message->FindString("name", &name) != B_OK) {
 				LogError("Invalid destination name %s", name.String());
 				return;
 			}
 
-			if (TemplateManager::CopyProjectTemplate(&template_ref, &dest_ref, name.String()) == B_OK) {
-				_ProjectFolderOpen(dest_ref);
+			if (TemplateManager::CopyProjectTemplate(&templateRef, &destRef, name.String()) == B_OK) {
+				BPath destPath(&destRef);
+				destPath.Append(name.String());
+				BEntry destEntry(destPath.Path());
+				entry_ref destination;
+				destEntry.GetRef(&destination);
+				_ProjectFolderOpen(destination);
 			} else {
 				LogError("TemplateManager: could create %s from %s to %s",
-							name.String(), template_ref.name, dest_ref.name);
+							name.String(), templateRef.name, destRef.name);
 			}
 			break;
 		}
@@ -1487,13 +1487,11 @@ GenioWindow::_BuildProject()
 	if (gCFG["save_on_build"])
 		_FileSaveAll(fActiveProject);
 
-	fIsBuilding = true;
-
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
-	noticeMessage.AddBool("building", fIsBuilding);
+	noticeMessage.AddBool("building", true);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-	fActiveProject->SetBuildingState(fIsBuilding);
+	fActiveProject->SetBuildingState(true);
 
 	_UpdateProjectActivation(false);
 
@@ -1546,13 +1544,11 @@ GenioWindow::_CleanProject()
 
 	LogInfoF("Clean started: [%s]", fActiveProject->Name().String());
 
-	fIsBuilding = true;
-
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
-	noticeMessage.AddBool("building", fIsBuilding);
+	noticeMessage.AddBool("building", true);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-	fActiveProject->SetBuildingState(fIsBuilding);
+	fActiveProject->SetBuildingState(true);
 
 	BString claim("Build ");
 	claim << fActiveProject->Name();
@@ -1927,6 +1923,8 @@ GenioWindow::_FilesNeedSave()
 void
 GenioWindow::_PreFileSave(Editor* editor)
 {
+	LogTrace("GenioWindow::_PreFileSave(%s)", editor->FilePath().String());
+
 	if (gCFG["trim_trailing_whitespace"])
 		editor->TrimTrailingWhitespace();
 }
@@ -1935,6 +1933,8 @@ GenioWindow::_PreFileSave(Editor* editor)
 void
 GenioWindow::_PostFileSave(Editor* editor)
 {
+	LogTrace("GenioWindow::_PostFileSave(%s)", editor->FilePath().String());
+
 	// TODO: Also handle cases where the file is saved from outside Genio ?
 	ProjectFolder* project = editor->GetProjectFolder();
 	if (gCFG["build_on_save"] &&
@@ -2742,7 +2742,7 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_BUFFER_LOCK,
 								  B_TRANSLATE("Read-only"),
-								  B_TRANSLATE("Make file read-only"), "kIconUnlocked");
+								  B_TRANSLATE("Make file read-only"), "kIconLocked");
 
 	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, "",
 						          B_TRANSLATE("Switch to previous file"), "kIconBack_1");
@@ -3327,6 +3327,26 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 
 
 void
+GenioWindow::_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project)
+{
+	// let's check if any open editor is related to this project
+	BPath projectPath = project->Path().String();
+	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+		Editor* editor = fTabManager->EditorAt(index);
+		LogTrace("Open project [%s] vs editor project [%s]",
+			projectPath.Path(), editor->FilePath().String());
+		if (editor->GetProjectFolder() == NULL) {
+			BPath parent;
+			if (BPath(editor->FilePath()).GetParent(&parent) == B_OK
+				&& parent == projectPath) {
+				editor->SetProjectFolder(project);
+			}
+		}
+	}
+}
+
+
+void
 GenioWindow::_ProjectFileDelete()
 {
 	const entry_ref* ref = fProjectsFolderBrowser->GetSelectedProjectFileRef();
@@ -3496,11 +3516,10 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 {
 	entry_ref ref;
 	status_t status = message->FindRef("refs", &ref);
-	if (status == B_OK) {
+	if (status == B_OK)
 		status = _ProjectFolderOpen(ref);
-	} else {
+	if (status != B_OK)
 		OKAlert("Open project folder", B_TRANSLATE("Invalid project folder"), B_STOP_ALERT);
-	}
 
 	return status;
 }
@@ -3524,16 +3543,33 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	if (BDirectory(&dirEntry).IsRootDirectory())
 		return B_ERROR;
 
-	// Check if already open
+	BPath newProjectPath;
+	status_t status = dirEntry.GetPath(&newProjectPath);
+	if (status != B_OK)
+		return status;
+
+	BString newProjectPathString = newProjectPath.Path();
+	newProjectPathString.Append("/");
 	for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
 		ProjectFolder* pProject = GetProjectBrowser()->ProjectAt(index);
+		// Check if already open
 		if (*pProject->EntryRef() == ref)
 			return B_OK;
+
+		BString existingProjectPath = pProject->Path();
+		existingProjectPath.Append("/");
+		// Check if it's a subfolder of an existing open project
+		// TODO: Ideally, this wouldn't be a problem: it should be perfectly possibile
+		if (newProjectPathString.StartsWith(existingProjectPath))
+			return B_ERROR;
+		// check if it's a parent of an existing project
+		if (existingProjectPath.StartsWith(newProjectPathString))
+			return B_ERROR;
 	}
 
 	BMessenger msgr(this);
 	ProjectFolder* newProject = new ProjectFolder(ref, msgr);
-	status_t status = newProject->Open();
+	status = newProject->Open();
 	if (status != B_OK) {
 		BString notification;
 		notification << "Project open fail: " << newProject->Name();
@@ -3563,17 +3599,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	notification << opened << newProject->Name() << " at " << projectPath;
 	LogInfo(notification.String());
 
-	// let's check if any open editor is related to this project
-	projectPath = projectPath.Append("/");
-
-	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		//LogError("Open project [%s] vs editor project [%s]", projectPath.String(), fEditor->FilePath().String());
-		if (editor->GetProjectFolder() == NULL &&
-		    editor->FilePath().StartsWith(projectPath)) {
-			editor->SetProjectFolder(newProject);
-		}
-	}
+	_TryAssociateOrphanedEditorsWithProject(newProject);
 
     // final touch, let's be sure the folder is added to the recent files.
     be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);

@@ -67,7 +67,7 @@ GenioApp::GenioApp()
 
 	LSPServersManager::InitLSPServersConfig();
 
-	fGenioWindow = new GenioWindow(gCFG["ui_bounds"]);
+	fGenioWindow = new GenioWindow(BRect(gCFG["ui_bounds"]));
 }
 
 

@@ -93,7 +93,6 @@ namespace Genio::UI {
 							const auto& set_mark_lambda = nullptr)
 		{
 			LogInfo("AddIterator command:%d", command);
-			typename C::const_iterator sit;
 			for(T element : list)
 			{
 				auto name = get_name_lambda(element);

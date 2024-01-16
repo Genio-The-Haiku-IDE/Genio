@@ -153,7 +153,7 @@ ConsoleIOThread::ExecuteUnit()
 		}
 
 		if (!IsProcessAlive() && outStr.IsEmpty() && errStr.IsEmpty()) {
-			printf("DONE\n");
+			LogTrace("ExecuteUnit() done!");
 			return EOF;
 		}
 	}
@@ -167,18 +167,18 @@ ConsoleIOThread::ExecuteUnit()
 void
 ConsoleIOThread::OnStdOutputLine(const BString& stdOut)
 {
-	BMessage out_message(CONSOLEIOTHREAD_STDOUT);
-	out_message.AddString("stdout", stdOut);
-	fTarget.SendMessage(&out_message);
+	BMessage outMessage(CONSOLEIOTHREAD_STDOUT);
+	outMessage.AddString("stdout", stdOut);
+	fTarget.SendMessage(&outMessage);
 }
 
 
 void
 ConsoleIOThread::OnStdErrorLine(const BString& stdErr)
 {
-	BMessage err_message(CONSOLEIOTHREAD_STDERR);
-	err_message.AddString("stderr", stdErr);
-	fTarget.SendMessage(&err_message);
+	BMessage errMessage(CONSOLEIOTHREAD_STDERR);
+	errMessage.AddString("stderr", stdErr);
+	fTarget.SendMessage(&errMessage);
 }
 
 

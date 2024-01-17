@@ -308,9 +308,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			entry_ref ref;
 			if (message->FindRef("refs", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref);
-				if (index >= 0) {
-					Editor* editor = fTabManager->EditorAt(index);
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor != nullptr) {
 					PostMessage(message, editor);
 				}
 			}

@@ -36,16 +36,13 @@ EditorTabManager::SelectedEditor()
 }
 
 Editor*
-EditorTabManager::EditorBy(entry_ref* ref)
+EditorTabManager::EditorBy(const entry_ref* ref)
 {
 	BEntry entry(ref, true);
 	int32 filesCount = CountTabs();
 
-
 	for (int32 index = 0; index < filesCount; index++) {
-
 		Editor* editor = EditorAt(index);
-
 		if (editor == nullptr) {
 			BString notification;
 			notification

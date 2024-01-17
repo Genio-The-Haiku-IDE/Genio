@@ -1709,18 +1709,10 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		editor->ApplySettings();
 
-		/*
-			Let's assign the right "LSPClientWrapper" to the Editor..
-		*/
-		// Check if already open
-		BString baseDir("");
+		// Let's assign the right "LSPClientWrapper" to the Editor
 		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
 			ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
-			BString projectPath = project->Path();
-			projectPath = projectPath.Append("/");
-			if (editor->FilePath().StartsWith(projectPath)) {
-				editor->SetProjectFolder(project);
-			}
+			_TryAssociateOrphanedEditorsWithProject(project);
 		}
 
 		fTabManager->SelectTab(index, &selectTabInfo);
@@ -3336,11 +3328,10 @@ GenioWindow::_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project)
 		LogTrace("Open project [%s] vs editor project [%s]",
 			projectPath.Path(), editor->FilePath().String());
 		if (editor->GetProjectFolder() == NULL) {
-			BPath parent;
-			if (BPath(editor->FilePath()).GetParent(&parent) == B_OK
-				&& parent == projectPath) {
+			// TODO: This isn't perfect: if we open a subfolder of
+			// an existing project as new project, the two would clash
+			if (editor->FilePath().StartsWith(projectPath.Path()))
 				editor->SetProjectFolder(project);
-			}
 		}
 	}
 }

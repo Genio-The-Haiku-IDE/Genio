@@ -1438,13 +1438,13 @@ GenioWindow::QuitRequested()
 }
 
 
-status_t
+Editor*
 GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
 {
 	Editor* editor = new Editor(ref, BMessenger(this));
 	fTabManager->AddTab(editor, ref->name, index, addInfo);
 
-	return B_OK;
+	return editor;
 }
 
 
@@ -1695,12 +1695,12 @@ GenioWindow::_FileOpen(BMessage* msg)
 		// new file to load..
 		selectTabInfo.AddBool("caret_position", true);
 		int32 index = fTabManager->CountTabs();
-		if (_AddEditorTab(&ref, index, &selectTabInfo) != B_OK) {
-			// Error.
-			continue;
-		}
-		Editor* editor = fTabManager->EditorAt(index);
-		assert(index >= 0 && editor);
+		Editor* editor = _AddEditorTab(&ref, index, &selectTabInfo);
+
+		// TODO: using assert() is not nice, try to handle
+		// this gracefully if possible
+		assert(index >= 0);
+		assert(editor != nullptr);
 
 		status = editor->LoadFromFile();
 		if (status != B_OK) {
@@ -1709,7 +1709,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		editor->ApplySettings();
 
-		// Let's assign the right "LSPClientWrapper" to the Editor
+		// Let's assign the right project to the Editor
 		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
 			ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
 			_TryAssociateOrphanedEditorsWithProject(project);

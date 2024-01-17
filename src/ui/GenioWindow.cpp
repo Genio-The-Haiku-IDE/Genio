@@ -2050,22 +2050,11 @@ GenioWindow::_FindInFiles()
 int32
 GenioWindow::_GetEditorIndex(const entry_ref* ref) const
 {
-	BEntry entry(ref, true);
-	int32 filesCount = fTabManager->CountTabs();
-	for (int32 index = 0; index < filesCount; index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		if (editor == nullptr) {
-			BString notification;
-			notification
-				<< "Index " << index << ": NULL editor pointer";
-			LogInfo(notification.String());
-			continue;
-		}
-		BEntry matchEntry(editor->FileRef(), true);
-		if (matchEntry == entry)
-			return index;
-	}
-	return -1;
+	Editor* editor = fTabManager->EditorBy(ref);
+	if (editor == nullptr)
+		return -1;
+
+	return fTabManager->TabForView(editor);
 }
 
 

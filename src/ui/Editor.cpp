@@ -20,7 +20,6 @@
 #include <SciLexer.h>
 #include <Url.h>
 #include <Volume.h>
-#include <cassert>
 
 #include "ConfigManager.h"
 #include "EditorContextMenu.h"

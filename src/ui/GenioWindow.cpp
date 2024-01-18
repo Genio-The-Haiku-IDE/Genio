@@ -677,7 +677,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (deltaY < 0  && zoom < 20) {
 				zoom++;
 				gCFG["editor_zoom"] = zoom;
-
 			} else if (deltaY > 0 && zoom > -10) {
 				zoom--;
 				gCFG["editor_zoom"] = zoom;

@@ -2,9 +2,7 @@
  * Copyright 2023, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef EditorMouseWheelMessageFilter_H
-#define EditorMouseWheelMessageFilter_H
-
+#pragma once
 
 #include <MessageFilter.h>
 #include <View.h>
@@ -26,6 +24,3 @@ public:
 		return B_DISPATCH_MESSAGE;
 	}
 };
-
-
-#endif // EditorMouseWheelMessageFilter_H

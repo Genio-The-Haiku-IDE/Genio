@@ -114,6 +114,9 @@ GenioWindow::GenioWindow(BRect frame)
 												B_QUIT_ON_WINDOW_CLOSE)
 	, fMenuBar(nullptr)
 	, fLineEndingsMenu(nullptr)
+	, fLineEndingCRLF(nullptr)
+	, fLineEndingLF(nullptr)
+	, fLineEndingCR(nullptr)
 	, fLanguageMenu(nullptr)
 	, fBookmarksMenu(nullptr)
 	, fBookmarkToggleItem(nullptr)
@@ -2876,12 +2879,12 @@ GenioWindow::_InitMenu()
 	editMenu->AddSeparatorItem();
 
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Unix"),
-		new BMessage(MSG_EOL_CONVERT_TO_UNIX)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Dos"),
-		new BMessage(MSG_EOL_CONVERT_TO_DOS)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Mac"),
-		new BMessage(MSG_EOL_CONVERT_TO_MAC)));
+	fLineEndingsMenu->AddItem((fLineEndingLF = new BMenuItem(B_TRANSLATE("LF (Haiku, Unix, macOS)"),
+		new BMessage(MSG_EOL_CONVERT_TO_UNIX))));
+	fLineEndingsMenu->AddItem((fLineEndingCRLF = new BMenuItem(B_TRANSLATE("CRLF (Windows, Dos)"),
+		new BMessage(MSG_EOL_CONVERT_TO_DOS))));
+	fLineEndingsMenu->AddItem((fLineEndingCR = new BMenuItem(B_TRANSLATE("CR (Classic Mac OS)"),
+		new BMessage(MSG_EOL_CONVERT_TO_MAC))));
 
 	ActionManager::SetEnabled(B_UNDO, false);
 	ActionManager::SetEnabled(B_REDO, false);
@@ -4009,6 +4012,11 @@ GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 
 	// Menu Items
 
+	fLineEndingCRLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CRLF);
+	fLineEndingLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_LF);
+	fLineEndingCR->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CR);
+	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
+
 	ActionManager::SetEnabled(B_UNDO, editor->CanUndo());
 	ActionManager::SetEnabled(B_REDO, editor->CanRedo());
 	ActionManager::SetPressed(MSG_TEXT_OVERWRITE, editor->IsOverwrite());
@@ -4078,6 +4086,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
 		ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 
+		fLineEndingCRLF->SetMarked(false);
+		fLineEndingLF->SetMarked(false);
+		fLineEndingCR->SetMarked(false);
 		fLineEndingsMenu->SetEnabled(false);
 		fLanguageMenu->SetEnabled(false);
 		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
@@ -4124,7 +4135,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, true);
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, true);
-
+	fLineEndingCRLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CRLF);
+	fLineEndingLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_LF);
+	fLineEndingCR->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CR);
 	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
 	fLanguageMenu->SetEnabled(true);
 	//Setting the right message type:

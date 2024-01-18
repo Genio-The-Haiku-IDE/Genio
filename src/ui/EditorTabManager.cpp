@@ -74,8 +74,7 @@ EditorTabManager::EditorBy(const node_ref* nodeRef) const
 			LogInfo(notification.String());
 			continue;
 		}
-
-		if (editor->NodeRef() == nodeRef)
+		if (editor->NodeRef() != nullptr && *editor->NodeRef() == *nodeRef)
 			return editor;
 	}
 	return nullptr;

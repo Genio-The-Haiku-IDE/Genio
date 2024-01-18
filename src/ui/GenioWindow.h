@@ -56,7 +56,6 @@ public:
 								GenioWindow(BRect frame);
 	virtual						~GenioWindow();
 
-	virtual void				DispatchMessage(BMessage* message, BHandler* handler);
 	virtual void				MessageReceived(BMessage* message);
 	virtual void				MenusBeginning();
 	virtual void				MenusEnded();

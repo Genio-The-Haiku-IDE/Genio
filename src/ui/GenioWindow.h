@@ -69,9 +69,8 @@ public:
 	ProjectsFolderBrowser*		GetProjectBrowser() const;
 
 private:
-			status_t			_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
+			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
 
-			void				_BuildDone(BMessage* msg);
 			status_t			_BuildProject();
 			status_t			_CleanProject();
 

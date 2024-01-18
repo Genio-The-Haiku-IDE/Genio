@@ -308,9 +308,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			entry_ref ref;
 			if (message->FindRef("refs", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref);
-				if (index >= 0) {
-					Editor* editor = fTabManager->EditorAt(index);
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor != nullptr) {
 					PostMessage(message, editor);
 				}
 			}
@@ -1438,13 +1437,13 @@ GenioWindow::QuitRequested()
 }
 
 
-status_t
+Editor*
 GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
 {
 	Editor* editor = new Editor(ref, BMessenger(this));
 	fTabManager->AddTab(editor, ref->name, index, addInfo);
 
-	return B_OK;
+	return editor;
 }
 
 
@@ -1695,12 +1694,12 @@ GenioWindow::_FileOpen(BMessage* msg)
 		// new file to load..
 		selectTabInfo.AddBool("caret_position", true);
 		int32 index = fTabManager->CountTabs();
-		if (_AddEditorTab(&ref, index, &selectTabInfo) != B_OK) {
-			// Error.
-			continue;
-		}
-		Editor* editor = fTabManager->EditorAt(index);
-		assert(index >= 0 && editor);
+		Editor* editor = _AddEditorTab(&ref, index, &selectTabInfo);
+
+		// TODO: using assert() is not nice, try to handle
+		// this gracefully if possible
+		assert(index >= 0);
+		assert(editor != nullptr);
 
 		status = editor->LoadFromFile();
 		if (status != B_OK) {
@@ -1709,7 +1708,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		editor->ApplySettings();
 
-		// Let's assign the right "LSPClientWrapper" to the Editor
+		// Let's assign the right project to the Editor
 		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
 			ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
 			_TryAssociateOrphanedEditorsWithProject(project);
@@ -2050,42 +2049,22 @@ GenioWindow::_FindInFiles()
 int32
 GenioWindow::_GetEditorIndex(const entry_ref* ref) const
 {
-	BEntry entry(ref, true);
-	int32 filesCount = fTabManager->CountTabs();
-	for (int32 index = 0; index < filesCount; index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		if (editor == nullptr) {
-			BString notification;
-			notification
-				<< "Index " << index << ": NULL editor pointer";
-			LogInfo(notification.String());
-			continue;
-		}
-		BEntry matchEntry(editor->FileRef(), true);
-		if (matchEntry == entry)
-			return index;
-	}
-	return -1;
+	Editor* editor = fTabManager->EditorBy(ref);
+	if (editor == nullptr)
+		return -1;
+
+	return fTabManager->TabForView(editor);
 }
 
 
 int32
-GenioWindow::_GetEditorIndex(node_ref* nref) const
+GenioWindow::_GetEditorIndex(node_ref* nodeRef) const
 {
-	int32 filesCount = fTabManager->CountTabs();
-	for (int32 index = 0; index < filesCount; index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		if (editor == nullptr) {
-			BString notification;
-			notification
-				<< "Index " << index << ": NULL editor pointer";
-			LogInfo(notification.String());
-			continue;
-		}
-		if (*nref == *editor->NodeRef())
-			return index;
-	}
-	return -1;
+	Editor* editor = fTabManager->EditorBy(nodeRef);
+	if (editor == nullptr)
+		return -1;
+
+	return fTabManager->TabForView(editor);
 }
 
 

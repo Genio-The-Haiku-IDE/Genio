@@ -19,14 +19,16 @@ EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target
 {
 }
 
+
 Editor*
-EditorTabManager::EditorAt(int32 index)
+EditorTabManager::EditorAt(int32 index) const
 {
 	return dynamic_cast<Editor*>(ViewForTab(index));
 }
 
+
 Editor*
-EditorTabManager::SelectedEditor()
+EditorTabManager::SelectedEditor() const
 {
 	int32 sel = SelectedTabIndex();
 	if (sel >= 0 && sel < CountTabs())
@@ -35,17 +37,14 @@ EditorTabManager::SelectedEditor()
 	return nullptr;
 }
 
+
 Editor*
-EditorTabManager::EditorBy(entry_ref* ref)
+EditorTabManager::EditorBy(const entry_ref* ref) const
 {
 	BEntry entry(ref, true);
 	int32 filesCount = CountTabs();
-
-
 	for (int32 index = 0; index < filesCount; index++) {
-
 		Editor* editor = EditorAt(index);
-
 		if (editor == nullptr) {
 			BString notification;
 			notification
@@ -55,12 +54,32 @@ EditorTabManager::EditorBy(entry_ref* ref)
 		}
 
 		BEntry matchEntry(editor->FileRef(), true);
-
 		if (matchEntry == entry)
 			return editor;
 	}
 	return nullptr;
 }
+
+
+Editor*
+EditorTabManager::EditorBy(const node_ref* nodeRef) const
+{
+	int32 filesCount = CountTabs();
+	for (int32 index = 0; index < filesCount; index++) {
+		Editor* editor = EditorAt(index);
+		if (editor == nullptr) {
+			BString notification;
+			notification
+				<< "Index " << index << ": NULL editor pointer";
+			LogInfo(notification.String());
+			continue;
+		}
+		if (editor->NodeRef() != nullptr && *editor->NodeRef() == *nodeRef)
+			return editor;
+	}
+	return nullptr;
+}
+
 
 BString
 EditorTabManager::GetToolTipText(int32 index)

@@ -42,6 +42,7 @@
 #include "ConsoleIOView.h"
 #include "ConsoleIOThread.h"
 #include "EditorKeyDownMessageFilter.h"
+#include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
 #include "EditorTabManager.h"
 #include "FSUtils.h"
@@ -194,6 +195,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorKeyDownMessageFilter());
+	AddCommonFilter(new EditorMouseWheelMessageFilter());
 
 	// Load workspace - reopen projects
 	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
@@ -275,28 +277,6 @@ GenioWindow::~GenioWindow()
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
 	gMainWindow = nullptr;
-}
-
-
-void
-GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
-{
-	//TODO: understand this part of code and move it to a better place.
-	/*if (handler == fConsoleIOView) {
-		if (message->what == B_KEY_DOWN) {
-			int8 key;
-			if (message->FindInt8("byte", 0, &key) == B_OK) {
-				// A little hack to make Console I/O pipe act as line-input
-				fConsoleStdinLine << static_cast<const char>(key);
-				fConsoleIOView->ConsoleOutputReceived(1, (const char*)&key);
-				if (key == B_RETURN) {
-					fConsoleIOThread->PushInput(fConsoleStdinLine);
-					fConsoleStdinLine = "";
-				}
-			}
-		}
-	}*/
-	BWindow::DispatchMessage(message, handler);
 }
 
 
@@ -679,6 +659,32 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_VIEW_ZOOMRESET:
 			gCFG["editor_zoom"] = 0;
 			break;
+		case MSG_WHEEL_WITH_COMMAND_KEY:
+		{
+			float deltaX = 0.0f;
+			float deltaY = 0.0f;
+			message->FindFloat("be:wheel_delta_x", &deltaX);
+			message->FindFloat("be:wheel_delta_y", &deltaY);
+
+			if (deltaX == 0.0f && deltaY == 0.0f)
+				return;
+
+			if (deltaY == 0.0f)
+				deltaY = deltaX;
+
+			int32 zoom = gCFG["editor_zoom"];
+
+			if (deltaY < 0  && zoom < 20) {
+				zoom++;
+				gCFG["editor_zoom"] = zoom;
+
+			} else if (deltaY > 0 && zoom > -10) {
+				zoom--;
+				gCFG["editor_zoom"] = zoom;
+			}
+			break;
+		}
+		break;
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow(true);
 			break;

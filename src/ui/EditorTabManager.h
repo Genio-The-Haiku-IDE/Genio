@@ -14,6 +14,7 @@ public:
 	Editor*		EditorAt(int32 index) const;
 	Editor*		SelectedEditor() const;
 	Editor*		EditorBy(const entry_ref* ref) const;
+	Editor*		EditorBy(const node_ref* nodeRef) const;
 
 	BString		GetToolTipText(int32 index) override;
 };

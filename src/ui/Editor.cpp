@@ -20,6 +20,7 @@
 #include <SciLexer.h>
 #include <Url.h>
 #include <Volume.h>
+#include <cassert>
 
 #include "ConfigManager.h"
 #include "EditorContextMenu.h"
@@ -430,9 +431,9 @@ Editor::Cut()
 
 
 BString const
-Editor::EndOfLineString()
+Editor::_EndOfLineString()
 {
-	int32 eolMode = _EndOfLine();
+	int32 eolMode = EndOfLine();
 
 	switch (eolMode) {
 		case SC_EOL_CRLF:
@@ -455,6 +456,9 @@ Editor::EndOfLineConvert(int32 eolMode)
 		return;
 
 	SendMessage(SCI_CONVERTEOLS, eolMode, UNSET);
+	SendMessage(SCI_SETEOLMODE, eolMode, UNSET);
+
+	UpdateStatusBar();
 }
 
 
@@ -1212,7 +1216,7 @@ Editor::UpdateStatusBar()
 	update.AddInt32("column", column + 1);
 	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
 	update.AddString("readOnly", ModeString());
-	update.AddString("eol", EndOfLineString());
+	update.AddString("eol", _EndOfLineString());
 
 	fStatusView->SetStatus(&update);
 }
@@ -1663,7 +1667,7 @@ Editor::CommentSelectedLines()
 
 
 int32
-Editor::_EndOfLine()
+Editor::EndOfLine()
 {
 	return SendMessage(SCI_GETEOLMODE, UNSET, UNSET);
 }
@@ -1672,14 +1676,6 @@ Editor::_EndOfLine()
 void
 Editor::_EndOfLineAssign(char *buffer, int32 size)
 {
-#ifdef USE_LINEBREAKS_ATTRS
-	BNode node(&fFileRef);
-	if (node.ReadAttr("be:line_breaks", B_INT32_TYPE, 0, &eol, sizeof(eol)) > 0) {
-		SendMessage(SCI_SETEOLMODE, eol, UNSET);
-		return;
-	}
-#endif
-
 	// Empty file, use default LF
 	if (size == 0) {
 		SendMessage(SCI_SETEOLMODE, SC_EOL_LF, UNSET);

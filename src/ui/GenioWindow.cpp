@@ -2058,22 +2058,13 @@ GenioWindow::_GetEditorIndex(const entry_ref* ref) const
 
 
 int32
-GenioWindow::_GetEditorIndex(node_ref* nref) const
+GenioWindow::_GetEditorIndex(node_ref* nodeRef) const
 {
-	int32 filesCount = fTabManager->CountTabs();
-	for (int32 index = 0; index < filesCount; index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		if (editor == nullptr) {
-			BString notification;
-			notification
-				<< "Index " << index << ": NULL editor pointer";
-			LogInfo(notification.String());
-			continue;
-		}
-		if (*nref == *editor->NodeRef())
-			return index;
-	}
-	return -1;
+	Editor* editor = fTabManager->EditorBy(nodeRef);
+	if (editor == nullptr)
+		return -1;
+
+	return fTabManager->TabForView(editor);
 }
 
 

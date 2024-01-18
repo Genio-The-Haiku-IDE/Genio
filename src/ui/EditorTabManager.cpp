@@ -43,7 +43,6 @@ EditorTabManager::EditorBy(const entry_ref* ref) const
 {
 	BEntry entry(ref, true);
 	int32 filesCount = CountTabs();
-
 	for (int32 index = 0; index < filesCount; index++) {
 		Editor* editor = EditorAt(index);
 		if (editor == nullptr) {
@@ -55,8 +54,28 @@ EditorTabManager::EditorBy(const entry_ref* ref) const
 		}
 
 		BEntry matchEntry(editor->FileRef(), true);
-
 		if (matchEntry == entry)
+			return editor;
+	}
+	return nullptr;
+}
+
+
+Editor*
+EditorTabManager::EditorBy(const node_ref* nodeRef) const
+{
+	int32 filesCount = CountTabs();
+	for (int32 index = 0; index < filesCount; index++) {
+		Editor* editor = EditorAt(index);
+		if (editor == nullptr) {
+			BString notification;
+			notification
+				<< "Index " << index << ": NULL editor pointer";
+			LogInfo(notification.String());
+			continue;
+		}
+
+		if (editor->NodeRef() == nodeRef)
 			return editor;
 	}
 	return nullptr;

@@ -157,6 +157,9 @@ private:
 			TemplatesMenu*		fFileNewMenuItem;
 
 			BMenu*				fLineEndingsMenu;
+			BMenuItem*			fLineEndingCRLF;
+			BMenuItem*			fLineEndingLF;
+			BMenuItem*			fLineEndingCR;
 			BMenu*				fLanguageMenu;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;

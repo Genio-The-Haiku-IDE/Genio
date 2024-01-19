@@ -9,7 +9,8 @@
 #include <string>
 #include "String.h"
 
-extern std::string wordCharacters;
+extern const std::string kWordCharacters;
+extern const std::string kWhiteSpaces;
 
 bool Contains(std::string const &s, char ch) noexcept;
 

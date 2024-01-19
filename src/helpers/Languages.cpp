@@ -22,7 +22,7 @@
 #include <SciLexer.h>
 #include <yaml-cpp/yaml.h>
 
-#include "Editor.h"
+#include "CodeEditor.h"
 #include "Log.h"
 #include "Utils.h"
 
@@ -116,7 +116,7 @@ Languages::SortAlphabetically()
  * where repeated keys are overridden.
  */
 /* static */ std::map<int, int>
-Languages::ApplyLanguage(Editor* editor, const char* lang)
+Languages::ApplyLanguage(CodeEditor* editor, const char* lang)
 {
 	editor->SendMessage(SCI_FREESUBSTYLES);
 	std::map<int, int> styleMapping;
@@ -153,7 +153,7 @@ Languages::ApplyLanguage(Editor* editor, const char* lang)
  * map to be handled by the Styler class.
  */
 /* static */ std::map<int, int>
-Languages::_ApplyLanguage(Editor* editor, const char* lang, const BPath &path)
+Languages::_ApplyLanguage(CodeEditor* editor, const char* lang, const BPath &path)
 {
 	if(sLexerLibraries.empty() == true)
 		return {};

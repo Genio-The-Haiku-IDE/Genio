@@ -18,7 +18,7 @@
 #include <Path.h>
 #include <String.h>
 
-#include "Editor.h"
+#include "CodeEditor.h"
 #include <Catalog.h>
 #include "Utils.h"
 
@@ -86,7 +86,7 @@ std::unordered_map<int, Styler::Style>	Styler::sStylesMapping;
 
 
 /* static */ void
-Styler::ApplyGlobal(Editor* editor, const char* style, const BFont* font)
+Styler::ApplyGlobal(CodeEditor* editor, const char* style, const BFont* font)
 {
 	sStylesMapping.clear();
 	try {
@@ -101,7 +101,7 @@ Styler::ApplyGlobal(Editor* editor, const char* style, const BFont* font)
 
 
 /* static */ void
-Styler::_ApplyGlobal(Editor* editor, const char* style, const BPath &path, const BFont* font)
+Styler::_ApplyGlobal(CodeEditor* editor, const char* style, const BPath &path, const BFont* font)
 {
 	BPath p(path);
 	p.Append("styles");
@@ -109,7 +109,7 @@ Styler::_ApplyGlobal(Editor* editor, const char* style, const BPath &path, const
 	BString fileName(p.Path());
 	fileName.Append(".yaml");
 	if (!BEntry(fileName.String()).Exists()) {
-		// TODO: Workaround for a bug in Haiku x86_32: exceptions 
+		// TODO: Workaround for a bug in Haiku x86_32: exceptions
 		// thrown inside yaml_cpp aren't catchable. We throw this exception
 		// inside Genio and that works.
 		throw YAML::BadFile(fileName.String());
@@ -225,7 +225,7 @@ Styler::_ApplyGlobal(Editor* editor, const char* style, const BPath &path, const
 
 
 /* static */ void
-Styler::ApplyLanguage(Editor* editor, const std::map<int, int>& styleMapping)
+Styler::ApplyLanguage(CodeEditor* editor, const std::map<int, int>& styleMapping)
 {
 	for(const auto& mapping : styleMapping) {
 		int scintillaId = mapping.first;
@@ -275,7 +275,7 @@ Styler::_GetAttributesFromNode(const YAML::Node &node, int& styleId, Styler::Sty
 
 
 void
-Styler::_ApplyAttributes(Editor* editor, int styleId, Styler::Style style)
+Styler::_ApplyAttributes(CodeEditor* editor, int styleId, Styler::Style style)
 {
 	if(styleId < 0) {
 		// FIXME: What happened here?

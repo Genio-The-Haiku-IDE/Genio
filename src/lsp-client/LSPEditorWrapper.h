@@ -17,7 +17,7 @@
 
 
 class LSPProjectWrapper;
-class Editor;
+class CodeEditor;
 class LSPEditorWrapper : public LSPTextDocument {
 public:
 	enum GoToType {
@@ -27,7 +27,7 @@ public:
 	};
 
 public:
-				LSPEditorWrapper(BPath filenamePath, Editor* fEditor);
+				LSPEditorWrapper(BPath filenamePath, CodeEditor* fEditor);
 		virtual	~LSPEditorWrapper() {};
 		void	ApplySettings();
 		void	SetLSPServer(LSPProjectWrapper* cW);
@@ -89,7 +89,7 @@ public:
 		std::string		info;
 	};
 
-	Editor*				fEditor;
+	CodeEditor*				fEditor;
 	CompletionList		fCurrentCompletion;
 	Sci_Position		fCompletionPosition;
 	BTextToolTip* 		fToolTip;

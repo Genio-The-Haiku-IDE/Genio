@@ -1,225 +1,97 @@
 /*
- * Copyright 2017 A. Mosca <amoscaster@gmail.com>
+ * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef EDITOR_H
-#define EDITOR_H
+#pragma once
 
 #include <string>
-
-#include <Locker.h>
+#include <SupportDefs.h>
 #include <MessageFilter.h>
 #include <Messenger.h>
-#include <ScintillaView.h>
+#include <View.h>
 
 #include "LSPCapabilities.h"
+#include "EditorMessages.h"
 
-class LSPEditorWrapper;
 class ProjectFolder;
-
-namespace editor {
-	class StatusView;
-}
-
-enum {
-	EDITOR_FIND_COUNT				= 'Efco',
-	EDITOR_FIND_NEXT_MISS			= 'Efnm',
-	EDITOR_FIND_PREV_MISS			= 'Efpm',
-	EDITOR_FIND_SET_MARK			= 'Efsm',
-	EDITOR_POSITION_CHANGED			= 'Epch',
-	EDITOR_REPLACE_ONE				= 'Eron',
-	EDITOR_REPLACE_ALL_COUNT		= 'Erac',
-	EDITOR_UPDATE_SAVEPOINT			= 'EUSP',
-	EDITOR_UPDATE_DIAGNOSTICS		= 'diag'
-};
-
-/*
- * Not very smart: NONE,SKIP,DONE are Status
- * while the others are Function placeholders
- *
- */
-enum {
-	REPLACE_NONE = -1,
-	REPLACE_SKIP = 0,
-	REPLACE_DONE = 1,
-	REPLACE_ONE,
-	REPLACE_NEXT,
-	REPLACE_PREVIOUS,
-	REPLACE_ALL
-};
-
-constexpr auto sci_NUMBER_MARGIN = 0;
-constexpr auto sci_BOOKMARK_MARGIN = 1;
-constexpr auto sci_FOLD_MARGIN = 2;
-constexpr auto sci_COMMENT_MARGIN = 3;
-
-constexpr auto sci_BOOKMARK = 0; //Marker
+class LSPEditorWrapper;
 
 
-class Editor : public BScintillaView {
+class BWindow;
+class BLooper;
+
+class Editor {
 
 public:
-								Editor(entry_ref* ref, const BMessenger& target);
-								~Editor();
-	virtual	void 				MessageReceived(BMessage* message);
+								Editor() {};
+			virtual				~Editor() {};
 
-			void				ApplySettings();
-			void				BookmarkClearAll(int marker);
-			bool				BookmarkGoToNext();
-			bool				BookmarkGoToPrevious();
-			void				BookmarkToggle(int position);
-			void				TrimTrailingWhitespace();
-			bool				CanClear();
-			bool				CanCopy();
-			bool				CanCut();
-			bool				CanPaste();
-			bool				CanRedo();
-			bool				CanUndo();
-			void				Clear();
-			void				CommentSelectedLines();
-			void				Copy();
-			int32				CountLines();
-			void				Cut();
-			void				DuplicateCurrentLine();
-			void				DeleteSelectedLines();
-			int32				EndOfLine();
-			void				EndOfLineConvert(int32 eolMode);
-			void				EnsureVisiblePolicy();
-		const BString			FilePath() const;
-			entry_ref *const	FileRef() { return &fFileRef; }
-			int32				Find(const BString&  text, int flags, bool backwards = false);
-			int					FindInTarget(const BString& search, int flags, int startPosition, int endPosition);
-			int32				FindMarkAll(const BString& text, int flags);
-			int					FindNext(const BString& search, int flags, bool wrap);
-			int					FindPrevious(const BString& search, int flags, bool wrap);
-			int32				GetCurrentPosition();
-			void				GoToLine(int32 line);
-			void				GoToLSPPosition(int32 line, int character);
-			void				GrabFocus();
-			bool				IsFoldingAvailable() { return fFoldingAvailable; }
-			bool				IsModified() { return fModified; }
-			bool				IsOverwrite();
-			BString const		IsOverwriteString();
-			bool				IsParsingAvailable() { return fParsingAvailable; }
-			bool				IsReadOnly();
-			bool				IsSearchSelected(const BString& search, int flags);
-			bool				IsTextSelected();
-			status_t			LoadFromFile();
-			BString const		ModeString();
-			BString				Name() const { return fFileName; }
-			node_ref *const		NodeRef() { return &fNodeRef; }
-			void				NotificationReceived(SCNotification* n);
-			void				OverwriteToggle();
-			void				Paste();
-			void				Redo();
-			status_t			Reload();
-			int					ReplaceAndFindNext(const BString& selection,
-									const BString& replacement, int flags, bool wrap);
-			int					ReplaceAndFindPrevious(const BString& selection,
-									const BString& replacement, int flags, bool wrap);
-			int32				ReplaceAll(const BString& selection,
-									const BString& replacement, int flags);
-			void 				ReplaceMessage(int position, const BString& selection,
-									const BString& replacement);
-			int					ReplaceOne(const BString& selection,
-									const BString& replacement);
-			ssize_t				SaveToFile();
-			void				ScrollCaret();
-			void				SelectAll();
-	const 	BString				Selection();
-			void				SendPositionChanges();
-			status_t			SetFileRef(entry_ref* ref);
-			void				SetReadOnly(bool readOnly = true);
-			status_t			SetSavedCaretPosition();
-			int					SetSearchFlags(bool matchCase, bool wholeWord,
-									bool wordStart,	bool regExp, bool posix);
-			void				SetTarget(const BMessenger& target);
-			status_t			StartMonitoring();
-			status_t			StopMonitoring();
-			void				ToggleFolding();
-			void				ShowLineEndings(bool show);
-			void				ShowWhiteSpaces(bool show);
-			bool				LineEndingsVisible();
-			bool				WhiteSpacesVisible();
+			// Every editor must be based on a view and have a target
+			// to send information to.
+
+			virtual BView*	View() = 0;
+
+			virtual void	ApplySettings() = 0;
+
+			virtual bool	CanCopy() = 0;
+			virtual bool	CanCut() = 0;
+			virtual bool	CanPaste() = 0;
+			virtual bool	CanRedo() = 0;
+			virtual bool	CanUndo() = 0;
+			virtual void	Copy() = 0;
+			virtual void	Cut() = 0;
+			virtual void	Paste() = 0;
+			virtual void	Redo() = 0;
+			virtual void	Undo() = 0;
+
+			virtual	const 	BString		Selection() = 0;
 
 
-			void				SetProjectFolder(ProjectFolder*);
-			ProjectFolder*		GetProjectFolder() const { return fProjectFolder; }
-			void				SetZoom(int32 zoom);
-			void				Undo();
-			void				Completion();
-			void				Format();
-			void				GoToDefinition();
-			void				GoToDeclaration();
-			void				GoToImplementation();
-			void				SwitchSourceHeader();
-			void				UncommentSelection();
+			//These are specific to CodeEditor
+			virtual void				GoToLine(int32 line) = 0;
+			virtual void				GoToLSPPosition(int32 line, int character) = 0;
 
-			void 				ContextMenu(BPoint point);
+			//
+			virtual void				GrabFocus() = 0;
 
-			void				SetProblems(const BMessage* diagnostics);
-			void				GetProblems(BMessage* diagnostics);
+			//Editor status
+			virtual int32				EndOfLine() = 0;
+			virtual bool				IsModified() = 0;
+			virtual bool				IsOverwrite() = 0;
+			virtual bool				IsReadOnly() = 0;
 
-			filter_result		BeforeKeyDown(BMessage*);
-			filter_result		OnArrowKey(int8 ch);
+			virtual BString				Name()  const = 0;
 
-			std::string			FileType() const { return fFileType; }
-			void				SetFileType(std::string fileType) { fFileType = fileType; }
+			//Editor 'reference'
+			virtual node_ref *const		NodeRef()  = 0;
+			virtual status_t			SetFileRef(entry_ref* ref) = 0;
+			virtual const BString		FilePath() const = 0;
+			virtual entry_ref *const	FileRef()  = 0;
 
-			void				SetCommentLineToken(std::string commenter){ fCommenter = commenter; }
-			void				SetCommentBlockTokens(std::string startBlock, std::string endBlock){ /*TODO! */}
+			//I/O
+			virtual status_t			LoadFromFile() = 0;
+			virtual status_t			Reload() = 0;
+			virtual ssize_t				SaveToFile() = 0;
 
-			LSPEditorWrapper*	GetLSPEditorWrapper() { return fLSPEditorWrapper; }
-			bool				HasLSPServer() const;
-			bool				HasLSPCapability(const LSPCapability cap);
+			virtual void				SetReadOnly(bool readOnly = true) = 0;
+			virtual status_t			SetSavedCaretPosition() = 0; //TODO: improve the name
+																	 // why can't be used after laoding
+																	 // the file?
 
+			virtual status_t			StartMonitoring() = 0;
+			virtual status_t			StopMonitoring() = 0;
 
-private:
-			BString	const		_EndOfLineString();
-			void				UpdateStatusBar();
-			void				_ApplyExtensionSettings();
-			void				_MaintainIndentation(char c);
-			void				_SetLineIndentation(int line, int indent);
-			void				_BraceHighlight();
-			bool				_BraceMatch(int pos);
-			void				_CommentLine(int32 position);
-			void				_EndOfLineAssign(char *buffer, int32 size);
-			void				_HighlightBraces();
-			void				_RedrawNumberMargin(bool forced = false);
-			void				_SetFoldMargin(bool enabled);
-			void				_UpdateSavePoint(bool modified);
+			virtual void				SetProjectFolder(ProjectFolder*) = 0;
+			virtual ProjectFolder*		GetProjectFolder() const  = 0;
+			virtual void				SetProblems(const BMessage* diagnostics) = 0;
+			virtual void				GetProblems(BMessage* diagnostics) = 0;
 
-			template<typename T>
-			typename T::type	Get() { return T::Get(this); }
-			template<typename T>
-			void				Set(typename T::type value) { T::Set(this, value); }
+			virtual filter_result		BeforeKeyDown(BMessage*) = 0;
 
-private:
+			virtual std::string			FileType() const  = 0;
+			virtual void				SetFileType(std::string fileType)  = 0;
 
-			entry_ref			fFileRef;
-			bool				fModified;
-			BString				fFileName;
-			node_ref			fNodeRef;
-			BMessenger			fTarget;
-
-			bool				fBracingAvailable;
-			std::string			fFileType;
-			bool				fFoldingAvailable;
-			bool				fSyntaxAvailable;
-			bool				fParsingAvailable;
-			std::string			fCommenter;
-			int					fLinesLog10;
-
-			int					fCurrentLine;
-			int					fCurrentColumn;
-
-			LSPEditorWrapper*		fLSPEditorWrapper;
-			ProjectFolder*		fProjectFolder;
-			editor::StatusView*			fStatusView;
-
-			BMessage	fProblems;
-			BLocker		fProblemsLock;
-
+			// Capabilities
+			virtual bool				IsFoldingAvailable() = 0;
+			virtual bool				HasLSPCapability(const LSPCapability cap) = 0;
 };
-
-#endif // EDITOR_H

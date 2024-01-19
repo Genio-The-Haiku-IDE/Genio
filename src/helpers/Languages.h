@@ -13,7 +13,7 @@
 
 
 class BPath;
-class Editor;
+class CodeEditor;
 
 
 class Languages {
@@ -23,12 +23,12 @@ public:
 	static	std::string							GetMenuItemName(std::string lang) { return sMenuItems[lang]; }
 	static	bool								GetLanguageForExtension(const std::string ext, std::string& lang);
 	static	void								SortAlphabetically();
-	static	std::map<int, int>					ApplyLanguage(Editor* editor, const char* lang);
+	static	std::map<int, int>					ApplyLanguage(CodeEditor* editor, const char* lang);
 	static	void								LoadLanguages();
 
 private:
 	static	void								_LoadLanguages(const BPath& path);
-	static	std::map<int, int>					_ApplyLanguage(Editor* editor, const char* lang, const BPath &path);
+	static	std::map<int, int>					_ApplyLanguage(CodeEditor* editor, const char* lang, const BPath &path);
 	static	std::vector<std::string>			sLanguages;
 	static	std::map<std::string, std::string>	sMenuItems;
 	static	std::map<std::string, std::string> 	sExtensions;

@@ -32,6 +32,7 @@ public:
 			virtual BView*	View() = 0;
 
 			virtual void	ApplySettings() = 0;
+
 			virtual bool	CanCopy() = 0;
 			virtual bool	CanCut() = 0;
 			virtual bool	CanPaste() = 0;
@@ -46,33 +47,38 @@ public:
 			virtual	const 	BString		Selection() = 0;
 
 
-			virtual int32				EndOfLine() = 0;
-		virtual const BString			FilePath() const = 0;
-			virtual entry_ref *const	FileRef()  = 0;
-
-
+			//These are specific to CodeEditor
 			virtual void				GoToLine(int32 line) = 0;
 			virtual void				GoToLSPPosition(int32 line, int character) = 0;
+
+			//
 			virtual void				GrabFocus() = 0;
+
+			//Editor status
+			virtual int32				EndOfLine() = 0;
 			virtual bool				IsModified() = 0;
 			virtual bool				IsOverwrite() = 0;
 			virtual bool				IsReadOnly() = 0;
-			virtual bool				IsTextSelected() = 0;
-			virtual status_t			LoadFromFile() = 0;
+
 			virtual BString				Name()  const = 0;
+
+			//Editor 'reference'
 			virtual node_ref *const		NodeRef()  = 0;
-
-
-			virtual status_t			Reload() = 0;
-
-
-			virtual ssize_t				SaveToFile() = 0;
 			virtual status_t			SetFileRef(entry_ref* ref) = 0;
+			virtual const BString		FilePath() const = 0;
+			virtual entry_ref *const	FileRef()  = 0;
+
+			//I/O
+			virtual status_t			LoadFromFile() = 0;
+			virtual status_t			Reload() = 0;
+			virtual ssize_t				SaveToFile() = 0;
+
 			virtual void				SetReadOnly(bool readOnly = true) = 0;
 			virtual status_t			SetSavedCaretPosition() = 0;
 
 			virtual status_t			StartMonitoring() = 0;
 			virtual status_t			StopMonitoring() = 0;
+
 			virtual void				SetProjectFolder(ProjectFolder*) = 0;
 			virtual ProjectFolder*		GetProjectFolder() const  = 0;
 			virtual void				SetProblems(const BMessage* diagnostics) = 0;

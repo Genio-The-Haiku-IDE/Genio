@@ -74,7 +74,9 @@ public:
 			virtual ssize_t				SaveToFile() = 0;
 
 			virtual void				SetReadOnly(bool readOnly = true) = 0;
-			virtual status_t			SetSavedCaretPosition() = 0;
+			virtual status_t			SetSavedCaretPosition() = 0; //TODO: improve the name
+																	 // why can't be used after laoding
+																	 // the file?
 
 			virtual status_t			StartMonitoring() = 0;
 			virtual status_t			StopMonitoring() = 0;

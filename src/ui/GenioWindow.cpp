@@ -699,10 +699,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_FIND_MARK_ALL:
 		{
-			BString textToFind(fFindTextControl->Text());
-			if (!textToFind.IsEmpty()) {
-				_FindMarkAll(textToFind);
-			}
+			_FindMarkAll(message);
 			break;
 		}
 		case MSG_FIND_MENU_SELECTED:
@@ -719,7 +716,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 				const BString& text(fFindTextControl->Text());
 				if (fTabManager->SelectedEditor())
-					_FindNext(text, false);
+					_FindNext(message, false);
 				else
 					_FindInFiles();
 
@@ -729,14 +726,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_FIND_NEXT:
 		{
-			const BString& text(fFindTextControl->Text());
-			_FindNext(text, false);
+			_FindNext(message, false);
 			break;
 		}
 		case MSG_FIND_PREVIOUS:
 		{
-			const BString& text(fFindTextControl->Text());
-			_FindNext(text, true);
+			_FindNext(message, true);
 			break;
 		}
 		case MSG_FIND_GROUP_TOGGLED:
@@ -979,7 +974,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ReplaceGroupShow(true);
 			break;
 		case MSG_REPLACE_ALL:
-			_Replace(REPLACE_ALL);
+			_Replace(message, REPLACE_ALL);
 			break;
 		case MSG_REPLACE_GROUP_TOGGLED:
 			_ReplaceGroupShow(fReplaceGroup->IsHidden());
@@ -994,13 +989,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_REPLACE_NEXT:
-			_Replace(REPLACE_NEXT);
+			_Replace(message, REPLACE_NEXT);
 			break;
 		case MSG_REPLACE_ONE:
-			_Replace(REPLACE_ONE);
+			_Replace(message, REPLACE_ONE);
 			break;
 		case MSG_REPLACE_PREVIOUS:
-			_Replace(REPLACE_PREVIOUS);
+			_Replace(message, REPLACE_PREVIOUS);
 			break;
 		case MSG_RUN_CONSOLE_PROGRAM_SHOW:
 		{
@@ -1965,51 +1960,42 @@ GenioWindow::_FindGroupShow(bool show)
 }
 
 
-int32
-GenioWindow::_FindMarkAll(const BString text)
+void
+GenioWindow::_FindMarkAll(BMessage* message)
 {
-	Editor* editor = fTabManager->SelectedEditor();
-	if (!editor)
-		return 0;
+	BString textToFind(fFindTextControl->Text());
+	if (textToFind.IsEmpty())
+		return;
 
-	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
-										fFindWholeWordCheck->Value(),
-										false, false, false);
+	_AddSearchFlags(message);
+	message->SetString("text", textToFind);
+	message->SetBool("wrap", fFindWrapCheck->Value());
+	_ForwardToSelectedEditor(message);
+	_UpdateFindMenuItems(textToFind);
 
-	int countMarks = editor->FindMarkAll(text, flags);
+}
 
-	editor->GrabFocus();
-
-	_UpdateFindMenuItems(text);
-
-	return countMarks;
+void
+GenioWindow::_AddSearchFlags(BMessage* msg)
+{
+	msg->SetBool("match_case", fFindCaseSensitiveCheck->Value());
+	msg->SetBool("whole_word", fFindWholeWordCheck->Value());
 }
 
 
 void
-GenioWindow::_FindNext(const BString& strToFind, bool backwards)
+GenioWindow::_FindNext(BMessage* message, bool backwards)
 {
-	if (strToFind.IsEmpty())
+	BString textToFind(fFindTextControl->Text());
+	if (textToFind.IsEmpty())
 		return;
 
-	Editor* editor = fTabManager->SelectedEditor();
-
-	if (!editor)
-		return;
-
-	editor->GrabFocus();
-
-	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
-										fFindWholeWordCheck->Value(),
-										false, false, false);
-	bool wrap = fFindWrapCheck->Value();
-
-	if (backwards == false)
-		editor->FindNext(strToFind, flags, wrap);
-	else
-		editor->FindPrevious(strToFind, flags, wrap);
-
-	_UpdateFindMenuItems(strToFind);
+	_AddSearchFlags(message);
+	message->SetString("text", textToFind);
+	message->SetBool("wrap", fFindWrapCheck->Value());
+	message->SetBool("backward", backwards);
+	_ForwardToSelectedEditor(message);
+	_UpdateFindMenuItems(textToFind);
 }
 
 
@@ -3676,48 +3662,23 @@ GenioWindow::_ShowInTracker(const entry_ref& ref, const node_ref* nref)
 }
 
 
-int
-GenioWindow::_Replace(int what)
+void
+GenioWindow::_Replace(BMessage* message, int32 kind)
 {
 	if (_ReplaceAllow() == false)
-		return REPLACE_SKIP;
+		return;
 
-	BString selection(fFindTextControl->Text());
-	BString replacement(fReplaceTextControl->Text());
-	int retValue = REPLACE_NONE;
+	BString text(fFindTextControl->Text());
+	BString replace(fReplaceTextControl->Text());
 
-	Editor* editor = fTabManager->SelectedEditor();
-	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
-										fFindWholeWordCheck->Value(),
-										false, false, false);
-
-	bool wrap = fFindWrapCheck->Value();
-
-	switch (what) {
-		case REPLACE_ALL: {
-			retValue = editor->ReplaceAll(selection, replacement, flags);
-			editor->GrabFocus();
-			break;
-		}
-		case REPLACE_NEXT: {
-			retValue = editor->ReplaceAndFindNext(selection, replacement, flags, wrap);
-			break;
-		}
-		case REPLACE_ONE: {
-			retValue = editor->ReplaceOne(selection, replacement);
-			break;
-		}
-		case REPLACE_PREVIOUS: {
-			retValue = editor->ReplaceAndFindPrevious(selection, replacement, flags, wrap);
-			break;
-		}
-		default:
-			return REPLACE_NONE;
-	}
-	_UpdateFindMenuItems(fFindTextControl->Text());
-	_UpdateReplaceMenuItems(fReplaceTextControl->Text());
-
-	return retValue;
+	_AddSearchFlags(message);
+	message->SetString("text", text);
+	message->SetString("replace", replace);
+	message->SetBool("wrap", fFindWrapCheck->Value());
+	message->SetInt32("kind", kind);
+	_ForwardToSelectedEditor(message);
+	_UpdateFindMenuItems(text);
+	_UpdateReplaceMenuItems(replace);
 }
 
 
@@ -3734,30 +3695,6 @@ GenioWindow::_ReplaceAllow() const
 	return true;
 }
 
-
-/*
-void
-GenioWindow::_ReplaceAndFind()
-{
-	if (_ReplaceAllow() == false)
-		return;
-
-	BString selection(fFindTextControl->Text());
-	BString replacement(fReplaceTextControl->Text());
-	editor = fEditorObjectList->ItemAt(fTabManager->SelectedTabIndex());
-
-	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
-										fFindWholeWordCheck->Value(),
-										false, false, false);
-
-	bool wrap = fFindWrapCheck->Value();
-
-	editor->ReplaceAndFind(selection, replacement, flags, wrap);
-
-	_UpdateFindMenuItems(fFindTextControl->Text());
-	_UpdateReplaceMenuItems(fReplaceTextControl->Text());
-}
-*/
 
 
 void

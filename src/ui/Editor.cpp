@@ -149,6 +149,80 @@ void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case MSG_REPLACE_ALL:
+		case MSG_REPLACE_NEXT:
+		case MSG_REPLACE_ONE:
+		case MSG_REPLACE_PREVIOUS:
+		{
+			BString text = message->GetString("text", "");
+			BString replace = message->GetString("replace", "");
+
+			GrabFocus();
+			bool matchCase = message->GetBool("match_case", false);
+			bool wholeWord = message->GetBool("whole_word", false);
+
+			int flags = SetSearchFlags(matchCase, wholeWord, false, false, false);
+			bool wrap = message->GetBool("wrap", false);
+			int32 kind = message->GetInt32("kind", REPLACE_NONE);
+
+			switch (kind) {
+				case REPLACE_ALL: {
+					ReplaceAll(text, replace, flags);
+					break;
+				}
+				case REPLACE_NEXT: {
+					ReplaceAndFindNext(text, replace, flags, wrap);
+					break;
+				}
+				case REPLACE_ONE: {
+					ReplaceOne(text, replace);
+					break;
+				}
+				case REPLACE_PREVIOUS: {
+					ReplaceAndFindPrevious(text, replace, flags, wrap);
+					break;
+				}
+				default:
+					break;
+			}
+			break;
+		}
+		case MSG_FIND_MARK_ALL:
+		{
+			BString text = message->GetString("text", "");
+			if (text.IsEmpty())
+				return;
+			GrabFocus();
+			bool matchCase = message->GetBool("match_case", false);
+			bool wholeWord = message->GetBool("whole_word", false);
+
+			int flags = SetSearchFlags(matchCase, wholeWord, false, false, false);
+
+			FindMarkAll(text, flags);
+
+			break;
+		}
+		case MSG_FIND_NEXT:
+		case MSG_FIND_PREVIOUS:
+		{
+			BString text = message->GetString("text", "");
+			if (text.IsEmpty())
+				return;
+
+			GrabFocus();
+			bool matchCase = message->GetBool("match_case", false);
+			bool wholeWord = message->GetBool("whole_word", false);
+
+			int flags = SetSearchFlags(matchCase, wholeWord, false, false, false);
+			bool wrap = message->GetBool("wrap", false);
+
+			if (message->GetBool("backward", false) == false)
+				FindNext(text, flags, wrap);
+			else
+				FindPrevious(text, flags, wrap);
+
+			break;
+		}
 		case MSG_BOOKMARK_CLEAR_ALL:
 			BookmarkClearAll(sci_BOOKMARK);
 		break;

@@ -80,21 +80,6 @@ public:
 		const BString			FilePath() const;
 			entry_ref *const	FileRef() { return &fFileRef; }
 
-			int32				Find(const BString&  text, int flags, bool backwards = false);
-			int					FindInTarget(const BString& search, int flags, int startPosition, int endPosition);
-			int32				FindMarkAll(const BString& text, int flags);
-			int					FindNext(const BString& search, int flags, bool wrap);
-			int					FindPrevious(const BString& search, int flags, bool wrap);
-			int					ReplaceAndFindNext(const BString& selection,
-									const BString& replacement, int flags, bool wrap);
-			int					ReplaceAndFindPrevious(const BString& selection,
-									const BString& replacement, int flags, bool wrap);
-			int32				ReplaceAll(const BString& selection,
-									const BString& replacement, int flags);
-			void 				ReplaceMessage(int position, const BString& selection,
-									const BString& replacement);
-			int					ReplaceOne(const BString& selection,
-									const BString& replacement);
 
 			void				GoToLine(int32 line);
 			void				GoToLSPPosition(int32 line, int character);
@@ -116,8 +101,6 @@ public:
 			status_t			SetFileRef(entry_ref* ref);
 			void				SetReadOnly(bool readOnly = true);
 			status_t			SetSavedCaretPosition();
-			int					SetSearchFlags(bool matchCase, bool wholeWord,
-									bool wordStart,	bool regExp, bool posix);
 			void				SetTarget(const BMessenger& target);
 			status_t			StartMonitoring();
 			status_t			StopMonitoring();
@@ -143,6 +126,23 @@ protected:
 			void				NotificationReceived(SCNotification* n);
 
 private:
+			int					ReplaceAndFindNext(const BString& selection,
+									const BString& replacement, int flags, bool wrap);
+			int					ReplaceAndFindPrevious(const BString& selection,
+									const BString& replacement, int flags, bool wrap);
+			int32				ReplaceAll(const BString& selection,
+									const BString& replacement, int flags);
+			void 				ReplaceMessage(int position, const BString& selection,
+									const BString& replacement);
+			int					ReplaceOne(const BString& selection,
+									const BString& replacement);
+			int					SetSearchFlags(bool matchCase, bool wholeWord,
+									bool wordStart,	bool regExp, bool posix);
+			int32				FindMarkAll(const BString& text, int flags);
+			int					FindNext(const BString& search, int flags, bool wrap);
+			int					FindPrevious(const BString& search, int flags, bool wrap);
+			int					FindInTarget(const BString& search, int flags, int startPosition, int endPosition);
+			int32				Find(const BString&  text, int flags, bool backwards = false);
 			filter_result		OnArrowKey(int8 ch);
 			void				SetZoom(int32 zoom);
 			void				Completion();

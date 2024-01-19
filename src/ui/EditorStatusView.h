@@ -24,7 +24,7 @@
 
 class BPopUpMenu;
 class BScrollView;
-class Editor;
+class CodeEditor;
 
 namespace editor {
 
@@ -34,7 +34,7 @@ public:
 		UPDATE_STATUS		= 'upda'
 	};
 
-							StatusView(Editor* editor);
+							StatusView(CodeEditor* editor);
 							~StatusView();
 
 	virtual	void			AttachedToWindow();
@@ -63,7 +63,7 @@ private:
 			float			fCellWidth[kStatusCellCount];
 			bool			fNavigationPressed;
 			float			fNavigationButtonWidth;
-			
+
 			static BPopUpMenu*		sMenu;
 };
 

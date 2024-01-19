@@ -37,6 +37,7 @@
 #include <Clipboard.h>
 
 #include "ActionManager.h"
+#include "CodeEditor.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "ConsoleIOView.h"
@@ -293,7 +294,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (message->FindRef("refs", &ref) == B_OK) {
 				Editor* editor = fTabManager->EditorBy(&ref);
 				if (editor != nullptr) {
-					PostMessage(message, editor);
+					CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(editor);
+					if (codeEditor)
+						PostMessage(message, codeEditor);
 				}
 			}
 			break;
@@ -317,7 +320,7 @@ GenioWindow::MessageReceived(BMessage* message)
 						Editor* editor = fTabManager->EditorAt(index);
 						ProjectFolder* project = editor->GetProjectFolder();
 						if (project != nullptr) {
-							fTabManager->SetTabColor(editor, project->Color());
+							fTabManager->SetTabColor(editor->View(), project->Color());
 						}
 					}
 				}
@@ -1087,7 +1090,7 @@ GenioWindow::MessageReceived(BMessage* message)
 					editor->SetSavedCaretPosition();
 					ProjectFolder* project = editor->GetProjectFolder();
 					if (project != nullptr) {
-						fTabManager->SetTabColor(editor, project->Color());
+						fTabManager->SetTabColor(editor->View(), project->Color());
 					}
 				}
 			}
@@ -1246,7 +1249,7 @@ GenioWindow::_ForwardToSelectedEditor(BMessage* msg)
 {
 	Editor* editor = fTabManager->SelectedEditor();
 	if (editor) {
-		PostMessage(msg, editor);
+		PostMessage(msg, editor->View());
 	}
 }
 
@@ -1443,8 +1446,8 @@ GenioWindow::QuitRequested()
 Editor*
 GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
 {
-	Editor* editor = new Editor(ref, BMessenger(this));
-	fTabManager->AddTab(editor, ref->name, index, addInfo);
+	Editor* editor = new CodeEditor(ref, BMessenger(this));
+	fTabManager->AddTab(editor->View(), ref->name, index, addInfo);
 
 	return editor;
 }
@@ -1810,19 +1813,7 @@ GenioWindow::_FileSave(int32 index)
 
 	_PreFileSave(editor);
 
-	// Stop monitoring if needed
-	editor->StopMonitoring();
-
-	ssize_t written = editor->SaveToFile();
-	ssize_t length = editor->SendMessage(SCI_GETLENGTH, 0, 0);
-
-	// Restart monitoring
-	editor->StartMonitoring();
-
-	if (length == written)
-		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
-	else
-		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
+	editor->SaveToFile();
 
 	_PostFileSave(editor);
 
@@ -1918,9 +1909,6 @@ void
 GenioWindow::_PreFileSave(Editor* editor)
 {
 	LogTrace("GenioWindow::_PreFileSave(%s)", editor->FilePath().String());
-
-	if (gCFG["trim_trailing_whitespace"])
-		editor->TrimTrailingWhitespace();
 }
 
 
@@ -2047,7 +2035,7 @@ GenioWindow::_GetEditorIndex(const entry_ref* ref) const
 	if (editor == nullptr)
 		return -1;
 
-	return fTabManager->TabForView(editor);
+	return fTabManager->TabForView(editor->View());
 }
 
 
@@ -2058,7 +2046,7 @@ GenioWindow::_GetEditorIndex(node_ref* nodeRef) const
 	if (editor == nullptr)
 		return -1;
 
-	return fTabManager->TabForView(editor);
+	return fTabManager->TabForView(editor->View());
 }
 
 
@@ -2069,10 +2057,7 @@ GenioWindow::_GetFocusAndSelection(BTextControl* control) const
 	// If some text is selected, use that TODO index check
 	Editor* editor = fTabManager->SelectedEditor();
 	if (editor && editor->IsTextSelected()) {
-		int32 size = editor->SendMessage(SCI_GETSELTEXT, 0, 0);
-		char text[size + 1];
-		editor->SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text);
-		control->SetText(text);
+		control->SetText(editor->Selection().String());
 	} else
 		control->TextView()->Clear();
 }

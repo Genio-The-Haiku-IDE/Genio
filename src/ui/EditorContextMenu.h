@@ -9,13 +9,13 @@
 #include <Point.h>
 #include <SupportDefs.h>
 
-class Editor;
+class CodeEditor;
 class BPopUpMenu;
 class BMenuItem;
 
 class EditorContextMenu {
 public:
-	static void Show(Editor*, BPoint point);
+	static void Show(CodeEditor*, BPoint point);
 
 private:
 		   EditorContextMenu();

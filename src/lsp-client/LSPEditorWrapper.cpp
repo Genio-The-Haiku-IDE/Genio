@@ -14,20 +14,20 @@
 #include <debugger.h>
 #include <unistd.h>
 
-#include "Editor.h"
+#include "CodeEditor.h"
 #include "Log.h"
 #include "LSPProjectWrapper.h"
 #include "protocol.h"
 #include "TextUtils.h"
 
 #undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "Editor"
+#define B_TRANSLATION_CONTEXT "CodeEditor"
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 #define IND_DIAG 1 //Style for Problems
 #define IND_LINK 2 //Style for Links
 
-LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
+LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, CodeEditor* editor)
 	:
 	LSPTextDocument(filenamePath, editor->FileType().c_str()),
 	fEditor(editor),

@@ -7,7 +7,7 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-#include "Editor.h"
+#include "CodeEditor.h"
 
 #include <Alert.h>
 #include <Application.h>
@@ -39,7 +39,7 @@
 
 
 #undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "Editor"
+#define B_TRANSLATION_CONTEXT "CodeEditor"
 
 namespace Sci = Scintilla;
 using namespace Sci::Properties;
@@ -51,7 +51,7 @@ using namespace Sci::Properties;
 #define UNUSED 0
 
 
-Editor::Editor(entry_ref* ref, const BMessenger& target)
+CodeEditor::CodeEditor(entry_ref* ref, const BMessenger& target)
 	:
 	BScintillaView(ref->name, 0, true, true)
 	, fFileRef(*ref)
@@ -114,19 +114,19 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 }
 
 bool
-Editor::HasLSPServer() const
+CodeEditor::HasLSPServer() const
 {
 	return (fLSPEditorWrapper && fLSPEditorWrapper->HasLSPServer());
 }
 
 bool
-Editor::HasLSPCapability(const LSPCapability cap)
+CodeEditor::HasLSPCapability(const LSPCapability cap)
 {
 	return (HasLSPServer() && fLSPEditorWrapper->HasLSPServerCapability(cap));
 }
 
 
-Editor::~Editor()
+CodeEditor::~CodeEditor()
 {
 	// Stop monitoring
 	StopMonitoring();
@@ -146,7 +146,7 @@ Editor::~Editor()
 }
 
 void
-Editor::MessageReceived(BMessage* message)
+CodeEditor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case MSG_REPLACE_ALL:
@@ -306,7 +306,7 @@ Editor::MessageReceived(BMessage* message)
 }
 
 void
-Editor::ApplySettings()
+CodeEditor::ApplySettings()
 {
 	SendMessage(SCI_STYLECLEARALL, UNSET, UNSET);
 
@@ -317,7 +317,7 @@ Editor::ApplySettings()
 
 	SendMessage(SCI_SETTABWIDTH, (int) gCFG["tab_width"], 0);
 	SendMessage(SCI_SETUSETABS, !(bool)gCFG["tab_to_space"], 0);
-	// FIXME: understand fEditor->SendMessage(SCI_SETINDENT, 0, 0);
+	// FIXME: understand fCodeEditor->SendMessage(SCI_SETINDENT, 0, 0);
 	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), 0);
 	SendMessage(SCI_SETCARETLINEVISIBLEALWAYS, true, 0);
 	// TODO add settings: SendMessage(SCI_SETCARETLINEFRAME, fPreferences->fLineHighlightingMode ? 2
@@ -329,18 +329,18 @@ Editor::ApplySettings()
 
 	// TODO: Implement this settings (right now managed by _HighlightBraces)
 	/*if(fPreferences->fIndentGuidesShow == true) {
-		fEditor->SendMessage(SCI_SETINDENTATIONGUIDES, fPreferences->fIndentGuidesMode, 0);
+		fCodeEditor->SendMessage(SCI_SETINDENTATIONGUIDES, fPreferences->fIndentGuidesMode, 0);
 	} else {
-		fEditor->SendMessage(SCI_SETINDENTATIONGUIDES, 0, 0);
+		fCodeEditor->SendMessage(SCI_SETINDENTATIONGUIDES, 0, 0);
 	}*/
 
 	_HighlightBraces();
 
 	// TODO: Implement this settings:
 	/*if(fPreferences->fWrapLines == true) {
-		fEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_WORD, 0);
+		fCodeEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_WORD, 0);
 	} else {
-		fEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_NONE, 0);
+		fCodeEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_NONE, 0);
 	}
 
 	*/
@@ -363,14 +363,14 @@ Editor::ApplySettings()
 }
 
 void
-Editor::BookmarkClearAll(int marker)
+CodeEditor::BookmarkClearAll(int marker)
 {
 	SendMessage(SCI_MARKERDELETEALL, marker, UNSET);
 }
 
 
 bool
-Editor::BookmarkGoToNext()
+CodeEditor::BookmarkGoToNext()
 {
 	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS);
 	int64 line = SendMessage(SCI_LINEFROMPOSITION, pos);
@@ -384,7 +384,7 @@ Editor::BookmarkGoToNext()
 
 
 bool
-Editor::BookmarkGoToPrevious()
+CodeEditor::BookmarkGoToPrevious()
 {
 	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS);
 	int64 line = SendMessage(SCI_LINEFROMPOSITION, pos);
@@ -398,7 +398,7 @@ Editor::BookmarkGoToPrevious()
 
 
 void
-Editor::BookmarkToggle(int position)
+CodeEditor::BookmarkToggle(int position)
 {
 	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
 	int markerSet = SendMessage(SCI_MARKERGET, line, UNSET);
@@ -410,7 +410,7 @@ Editor::BookmarkToggle(int position)
 
 
 void
-Editor::TrimTrailingWhitespace()
+CodeEditor::TrimTrailingWhitespace()
 {
 	Sci::Guard<SearchTarget, SearchFlags> guard(this);
 
@@ -432,7 +432,7 @@ Editor::TrimTrailingWhitespace()
 
 
 bool
-Editor::CanClear()
+CodeEditor::CanClear()
 {
 	return ((SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
 				!IsReadOnly());
@@ -440,14 +440,14 @@ Editor::CanClear()
 
 
 bool
-Editor::CanCopy()
+CodeEditor::CanCopy()
 {
 	return (SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0);
 }
 
 
 bool
-Editor::CanCut()
+CodeEditor::CanCut()
 {
 	return ((SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
 				!IsReadOnly());
@@ -455,56 +455,56 @@ Editor::CanCut()
 
 
 bool
-Editor::CanPaste()
+CodeEditor::CanPaste()
 {
 	return SendMessage(SCI_CANPASTE, UNSET, UNSET);
 }
 
 
 bool
-Editor::CanRedo()
+CodeEditor::CanRedo()
 {
 	return SendMessage(SCI_CANREDO, UNSET, UNSET);
 }
 
 
 bool
-Editor::CanUndo()
+CodeEditor::CanUndo()
 {
 	return SendMessage(SCI_CANUNDO, UNSET, UNSET);
 }
 
 
 void
-Editor::Clear()
+CodeEditor::Clear()
 {
 	SendMessage(SCI_CLEAR, UNSET, UNSET);
 }
 
 
 void
-Editor::Copy()
+CodeEditor::Copy()
 {
 	SendMessage(SCI_COPY, UNSET, UNSET);
 }
 
 
 int32
-Editor::CountLines()
+CodeEditor::CountLines()
 {
 	return SendMessage(SCI_GETLINECOUNT, UNSET, UNSET);
 }
 
 
 void
-Editor::Cut()
+CodeEditor::Cut()
 {
 	SendMessage(SCI_CUT, UNSET, UNSET);
 }
 
 
 BString const
-Editor::_EndOfLineString()
+CodeEditor::_EndOfLineString()
 {
 	int32 eolMode = EndOfLine();
 
@@ -522,7 +522,7 @@ Editor::_EndOfLineString()
 
 
 void
-Editor::EndOfLineConvert(int32 eolMode)
+CodeEditor::EndOfLineConvert(int32 eolMode)
 {
 	// Should not happen
 	if (IsReadOnly() == true)
@@ -536,7 +536,7 @@ Editor::EndOfLineConvert(int32 eolMode)
 
 
 void
-Editor::EnsureVisiblePolicy()
+CodeEditor::EnsureVisiblePolicy()
 {
 	SendMessage(SCI_ENSUREVISIBLEENFORCEPOLICY,
 		SendMessage(SCI_LINEFROMPOSITION, GetCurrentPosition(), UNSET), UNSET);
@@ -544,7 +544,7 @@ Editor::EnsureVisiblePolicy()
 
 
 const BString
-Editor::FilePath() const
+CodeEditor::FilePath() const
 {
 	BPath path(&fFileRef);
 	return path.Path();
@@ -552,7 +552,7 @@ Editor::FilePath() const
 
 
 int32
-Editor::Find(const BString&  text, int flags, bool backwards /* = false */)
+CodeEditor::Find(const BString&  text, int flags, bool backwards /* = false */)
 {
 	SendMessage(SCI_SEARCHANCHOR, UNSET, UNSET);
 	int position;
@@ -573,7 +573,7 @@ Editor::Find(const BString&  text, int flags, bool backwards /* = false */)
 
 
 int
-Editor::FindInTarget(const BString& search, int flags, int startPosition, int endPosition)
+CodeEditor::FindInTarget(const BString& search, int flags, int startPosition, int endPosition)
 {
 	SendMessage(SCI_SETTARGETSTART, startPosition, UNSET);
 	SendMessage(SCI_SETTARGETEND, endPosition, UNSET);
@@ -585,7 +585,7 @@ Editor::FindInTarget(const BString& search, int flags, int startPosition, int en
 
 
 int32
-Editor::FindMarkAll(const BString& text, int flags)
+CodeEditor::FindMarkAll(const BString& text, int flags)
 {
 	int position, count = 0;
 	int line, firstMark;
@@ -641,7 +641,7 @@ static bool sFound = false;
 
 
 int
-Editor::FindNext(const BString& search, int flags, bool wrap)
+CodeEditor::FindNext(const BString& search, int flags, bool wrap)
 {
 	if (sFound == true || IsSearchSelected(search, flags) == true)
 		SendMessage(SCI_CHARRIGHT, UNSET, UNSET);
@@ -667,7 +667,7 @@ Editor::FindNext(const BString& search, int flags, bool wrap)
 
 
 int
-Editor::FindPrevious(const BString& search, int flags, bool wrap)
+CodeEditor::FindPrevious(const BString& search, int flags, bool wrap)
 {
 	if (sFound == true)
 		SendMessage(SCI_CHARLEFT, 0, 0);
@@ -694,7 +694,7 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 
 
 int32
-Editor::GetCurrentPosition()
+CodeEditor::GetCurrentPosition()
 {
 	return SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 }
@@ -704,7 +704,7 @@ Editor::GetCurrentPosition()
  * Mind that first line is 0!
  */
 void
-Editor::GoToLine(int32 line)
+CodeEditor::GoToLine(int32 line)
 {
 	// Do not go to line 0
 	if (line == 0)
@@ -716,7 +716,7 @@ Editor::GoToLine(int32 line)
 }
 
 void
-Editor::GoToLSPPosition(int32 line, int character)
+CodeEditor::GoToLSPPosition(int32 line, int character)
 {
 	Sci_Position  sci_position;
 	sci_position = SendMessage(SCI_POSITIONFROMLINE, line, 0);
@@ -728,21 +728,21 @@ Editor::GoToLSPPosition(int32 line, int character)
 
 
 void
-Editor::GrabFocus()
+CodeEditor::GrabFocus()
 {
 	SendMessage(SCI_GRABFOCUS, UNSET, UNSET);
 }
 
 
 bool
-Editor::IsOverwrite()
+CodeEditor::IsOverwrite()
 {
 	return SendMessage(SCI_GETOVERTYPE, UNSET, UNSET);
 }
 
 
 BString const
-Editor::IsOverwriteString()
+CodeEditor::IsOverwriteString()
 {
 	if (SendMessage(SCI_GETOVERTYPE, UNSET, UNSET) == true)
 		return "OVR";
@@ -751,14 +751,14 @@ Editor::IsOverwriteString()
 
 
 bool
-Editor::IsReadOnly()
+CodeEditor::IsReadOnly()
 {
 	return SendMessage(SCI_GETREADONLY, UNSET, UNSET);
 }
 
 
 bool
-Editor::IsSearchSelected(const BString& search, int flags)
+CodeEditor::IsSearchSelected(const BString& search, int flags)
 {
 	int start = SendMessage(SCI_GETSELECTIONSTART, UNSET, UNSET);
 	int end = SendMessage(SCI_GETSELECTIONEND, UNSET, UNSET);
@@ -770,7 +770,7 @@ Editor::IsSearchSelected(const BString& search, int flags)
 
 
 bool
-Editor::IsTextSelected()
+CodeEditor::IsTextSelected()
 {
 	return SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET) !=
 			SendMessage(SCI_GETANCHOR, UNSET, UNSET);
@@ -781,7 +781,7 @@ Editor::IsTextSelected()
  * Code (editable) taken from stylededit
  */
 status_t
-Editor::LoadFromFile()
+CodeEditor::LoadFromFile()
 {
 	status_t status;
 	BFile file;
@@ -847,7 +847,7 @@ Editor::LoadFromFile()
 
 
 BString const
-Editor::ModeString()
+CodeEditor::ModeString()
 {
 	if (IsReadOnly())
 		return "RO";
@@ -856,7 +856,7 @@ Editor::ModeString()
 
 
 void
-Editor::NotificationReceived(SCNotification* notification)
+CodeEditor::NotificationReceived(SCNotification* notification)
 {
 	Sci_NotifyHeader* pNmhdr = &notification->nmhdr;
 
@@ -951,7 +951,7 @@ Editor::NotificationReceived(SCNotification* notification)
 
 
 filter_result
-Editor::BeforeKeyDown(BMessage* message)
+CodeEditor::BeforeKeyDown(BMessage* message)
 {
 	int8 key = message->GetInt8("byte", 0);
 	switch (key) {
@@ -967,7 +967,7 @@ Editor::BeforeKeyDown(BMessage* message)
 
 
 filter_result
-Editor::OnArrowKey(int8 key)
+CodeEditor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
 		fLSPEditorWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
@@ -978,7 +978,7 @@ Editor::OnArrowKey(int8 key)
 
 
 void
-Editor::_UpdateSavePoint(bool modified)
+CodeEditor::_UpdateSavePoint(bool modified)
 {
 	fModified = modified;
 	BMessage message(EDITOR_UPDATE_SAVEPOINT);
@@ -989,7 +989,7 @@ Editor::_UpdateSavePoint(bool modified)
 
 
 void
-Editor::OverwriteToggle()
+CodeEditor::OverwriteToggle()
 {
 	SendMessage(SCI_SETOVERTYPE, !IsOverwrite(), UNSET);
 	UpdateStatusBar();
@@ -997,7 +997,7 @@ Editor::OverwriteToggle()
 
 
 void
-Editor::Paste()
+CodeEditor::Paste()
 {
 	if (SendMessage(SCI_CANPASTE, UNSET, UNSET))
 		SendMessage(SCI_PASTE, UNSET, UNSET);
@@ -1005,14 +1005,14 @@ Editor::Paste()
 
 
 void
-Editor::Redo()
+CodeEditor::Redo()
 {
 	SendMessage(SCI_REDO, UNSET, UNSET);
 }
 
 
 status_t
-Editor::Reload()
+CodeEditor::Reload()
 {
 	status_t status;
 	BFile file;
@@ -1059,7 +1059,7 @@ Editor::Reload()
 
 //TODO: too similar to ReplaceAndFindNext
 int
-Editor::ReplaceAndFindPrevious(const BString& selection,
+CodeEditor::ReplaceAndFindPrevious(const BString& selection,
 									const BString& replacement, int flags, bool wrap)
 {
 	int retValue = REPLACE_NONE;
@@ -1096,7 +1096,7 @@ Editor::ReplaceAndFindPrevious(const BString& selection,
 
 
 int
-Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
+CodeEditor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
 															int flags, bool wrap)
 {
 	int retValue = REPLACE_NONE;
@@ -1133,7 +1133,7 @@ Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
 
 
 int32
-Editor::ReplaceAll(const BString& selection, const BString& replacement, int flags)
+CodeEditor::ReplaceAll(const BString& selection, const BString& replacement, int flags)
 {
 	int32 count = 0;
 
@@ -1170,7 +1170,7 @@ Editor::ReplaceAll(const BString& selection, const BString& replacement, int fla
 
 
 void
-Editor::ReplaceMessage(int position, const BString& selection,
+CodeEditor::ReplaceMessage(int position, const BString& selection,
 							const BString& replacement)
 {
 	BMessage message(EDITOR_REPLACE_ONE);
@@ -1187,7 +1187,7 @@ Editor::ReplaceMessage(int position, const BString& selection,
 
 
 int
-Editor::ReplaceOne(const BString& selection, const BString& replacement)
+CodeEditor::ReplaceOne(const BString& selection, const BString& replacement)
 {
 	if (selection == Selection()) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
@@ -1202,8 +1202,13 @@ Editor::ReplaceOne(const BString& selection, const BString& replacement)
 
 
 ssize_t
-Editor::SaveToFile()
+CodeEditor::SaveToFile()
 {
+	if (gCFG["trim_trailing_whitespace"])
+		TrimTrailingWhitespace();
+
+	StopMonitoring();
+
 	BFile file;
 	status_t status = file.SetTo(&fFileRef, B_READ_WRITE | B_ERASE_FILE | B_CREATE_FILE);
 	if (status != B_OK)
@@ -1232,26 +1237,35 @@ Editor::SaveToFile()
 
 	fLSPEditorWrapper->didSave();
 
+	ssize_t length = SendMessage(SCI_GETLENGTH, 0, 0);
+
+	if (bytes == length)
+		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", FilePath().String(), length, bytes);
+	else
+		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", FilePath().String(), length, bytes);
+
+	StartMonitoring();
+
 	return bytes;
 }
 
 
 void
-Editor::ScrollCaret()
+CodeEditor::ScrollCaret()
 {
 	SendMessage(SCI_SCROLLCARET, UNSET, UNSET);
 }
 
 
 void
-Editor::SelectAll()
+CodeEditor::SelectAll()
 {
 	SendMessage(SCI_SELECTALL, UNSET, UNSET);
 }
 
 
 const BString
-Editor::Selection()
+CodeEditor::Selection()
 {
 	int32 size = SendMessage(SCI_GETSELTEXT, 0, 0);
 	char text[size + 1];
@@ -1262,7 +1276,7 @@ Editor::Selection()
 
 // it sends Selection/Position changes.
 void
-Editor::SendPositionChanges()
+CodeEditor::SendPositionChanges()
 {
 	int32 position = GetCurrentPosition();
 	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
@@ -1279,7 +1293,7 @@ Editor::SendPositionChanges()
 
 
 void
-Editor::UpdateStatusBar()
+CodeEditor::UpdateStatusBar()
 {
 	Sci_Position pos = SendMessage(SCI_GETCURRENTPOS, 0, 0);
 	int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
@@ -1296,7 +1310,7 @@ Editor::UpdateStatusBar()
 
 
 status_t
-Editor::SetFileRef(entry_ref* ref)
+CodeEditor::SetFileRef(entry_ref* ref)
 {
 	if (ref == nullptr)
 		return B_ERROR;
@@ -1310,7 +1324,7 @@ Editor::SetFileRef(entry_ref* ref)
 
 
 void
-Editor::SetReadOnly(bool readOnly)
+CodeEditor::SetReadOnly(bool readOnly)
 {
 	if (!readOnly) {
 		SendMessage(SCI_SETREADONLY, 0, UNSET);
@@ -1344,7 +1358,7 @@ Editor::SetReadOnly(bool readOnly)
 
 
 status_t
-Editor::SetSavedCaretPosition()
+CodeEditor::SetSavedCaretPosition()
 {
 	if (!gCFG["save_caret"])
 		return B_ERROR; //TODO maybe tweak
@@ -1370,7 +1384,7 @@ Editor::SetSavedCaretPosition()
 
 
 int
-Editor::SetSearchFlags(bool matchCase, bool wholeWord, bool wordStart,
+CodeEditor::SetSearchFlags(bool matchCase, bool wholeWord, bool wordStart,
 			bool regExp, bool posix)
 {
 	int flags = 0;
@@ -1384,16 +1398,15 @@ Editor::SetSearchFlags(bool matchCase, bool wholeWord, bool wordStart,
 	return flags;
 }
 
-
 void
-Editor::SetTarget(const BMessenger& target)
+CodeEditor::SetTarget(const BMessenger& target)
 {
     fTarget = target;
 }
 
 
 status_t
-Editor::StartMonitoring()
+CodeEditor::StartMonitoring()
 {
 	// start monitoring this file for changes
 	BEntry entry(&fFileRef, true);
@@ -1412,7 +1425,7 @@ Editor::StartMonitoring()
 
 
 status_t
-Editor::StopMonitoring()
+CodeEditor::StopMonitoring()
 {
 	status_t status;
 	if ((status = watch_node(&fNodeRef, B_STOP_WATCHING, fTarget)) != B_OK) {
@@ -1424,84 +1437,84 @@ Editor::StopMonitoring()
 
 
 void
-Editor::ToggleFolding()
+CodeEditor::ToggleFolding()
 {
 	SendMessage(SCI_FOLDALL, SC_FOLDACTION_TOGGLE, UNSET);
 }
 
 
 void
-Editor::ShowLineEndings(bool show)
+CodeEditor::ShowLineEndings(bool show)
 {
 	SendMessage(SCI_SETVIEWEOL, show ? 1 : 0, UNSET);
 }
 
 
 void
-Editor::ShowWhiteSpaces(bool show)
+CodeEditor::ShowWhiteSpaces(bool show)
 {
 	SendMessage(SCI_SETVIEWWS, show ? SCWS_VISIBLEALWAYS : SCWS_INVISIBLE, UNSET);
 }
 
 
 bool
-Editor::LineEndingsVisible()
+CodeEditor::LineEndingsVisible()
 {
 	return SendMessage(SCI_GETVIEWEOL, UNSET, UNSET);
 }
 
 
 bool
-Editor::WhiteSpacesVisible()
+CodeEditor::WhiteSpacesVisible()
 {
 	return !(SendMessage(SCI_GETVIEWWS, UNSET, UNSET) == SCWS_INVISIBLE);
 }
 
 
 void
-Editor::Undo()
+CodeEditor::Undo()
 {
 	SendMessage(SCI_UNDO, UNSET, UNSET);
 }
 
 
 void
-Editor::Completion()
+CodeEditor::Completion()
 {
 	fLSPEditorWrapper->StartCompletion();
 }
 
 
 void
-Editor::Format()
+CodeEditor::Format()
 {
 	fLSPEditorWrapper->Format();
 }
 
 
 void
-Editor::GoToDefinition()
+CodeEditor::GoToDefinition()
 {
 	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_DEFINITION);
 }
 
 
 void
-Editor::GoToDeclaration()
+CodeEditor::GoToDeclaration()
 {
 	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_DECLARATION);
 }
 
 
 void
-Editor::GoToImplementation()
+CodeEditor::GoToImplementation()
 {
 	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_IMPLEMENTATION);
 }
 
 
 void
-Editor::SwitchSourceHeader()
+CodeEditor::SwitchSourceHeader()
 {
 	entry_ref foundRef;
 	if (FindSourceOrHeader(&fFileRef, &foundRef) == B_OK) {
@@ -1513,7 +1526,7 @@ Editor::SwitchSourceHeader()
 
 
 void
-Editor::SetProjectFolder(ProjectFolder* proj)
+CodeEditor::SetProjectFolder(ProjectFolder* proj)
 {
 	fProjectFolder = proj;
 	if (proj) {
@@ -1532,7 +1545,7 @@ Editor::SetProjectFolder(ProjectFolder* proj)
 
 
 void
-Editor::SetZoom(int32 zoom)
+CodeEditor::SetZoom(int32 zoom)
 {
 	SendMessage(SCI_SETZOOM, zoom, 0);
 	_RedrawNumberMargin(true);
@@ -1540,14 +1553,14 @@ Editor::SetZoom(int32 zoom)
 
 
 void
-Editor::ContextMenu(BPoint point)
+CodeEditor::ContextMenu(BPoint point)
 {
 	EditorContextMenu::Show(this, point);
 }
 
 
 void
-Editor::_ApplyExtensionSettings()
+CodeEditor::_ApplyExtensionSettings()
 {
 	BFont font = be_fixed_font;
 	int32 fontSize = gCFG["edit_fontsize"];
@@ -1570,7 +1583,7 @@ Editor::_ApplyExtensionSettings()
 
 
 void
-Editor::_MaintainIndentation(char ch)
+CodeEditor::_MaintainIndentation(char ch)
 {
 	int eolMode = SendMessage(SCI_GETEOLMODE, 0, 0);
 	int currentLine = SendMessage(SCI_LINEFROMPOSITION, SendMessage(SCI_GETCURRENTPOS, 0, 0), 0);
@@ -1590,7 +1603,7 @@ Editor::_MaintainIndentation(char ch)
 
 
 void
-Editor::_SetLineIndentation(int line, int indent)
+CodeEditor::_SetLineIndentation(int line, int indent)
 {
 	if (indent < 0)
 		return;
@@ -1632,7 +1645,7 @@ Editor::_SetLineIndentation(int line, int indent)
 
 
 void
-Editor::_BraceHighlight()
+CodeEditor::_BraceHighlight()
 {
 	if (fBracingAvailable == true) {
 		Sci_Position pos = SendMessage(SCI_GETCURRENTPOS, 0, 0);
@@ -1651,7 +1664,7 @@ Editor::_BraceHighlight()
 
 
 bool
-Editor::_BraceMatch(int pos)
+CodeEditor::_BraceMatch(int pos)
 {
 	char ch = SendMessage(SCI_GETCHARAT, pos, 0);
 	if (ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
@@ -1672,7 +1685,7 @@ Editor::_BraceMatch(int pos)
 // Leave line leading spaces when commenting/decommenting
 // Erase spaces from comment char(s) to first non-space when decommenting
 void
-Editor::_CommentLine(int32 position)
+CodeEditor::_CommentLine(int32 position)
 {
 	if (fCommenter.empty())
 		return;
@@ -1702,7 +1715,7 @@ Editor::_CommentLine(int32 position)
 
 
 void
-Editor::DuplicateCurrentLine()
+CodeEditor::DuplicateCurrentLine()
 {
 	int32 lineNumber = SendMessage(SCI_LINEFROMPOSITION, GetCurrentPosition(), UNSET);
 	SendMessage(SCI_LINEDUPLICATE, lineNumber, UNSET);
@@ -1710,7 +1723,7 @@ Editor::DuplicateCurrentLine()
 
 
 void
-Editor::DeleteSelectedLines() {
+CodeEditor::DeleteSelectedLines() {
 	SendMessage(SCI_BEGINUNDOACTION, 0, UNSET);
 	int32 start = SendMessage(SCI_GETSELECTIONSTART, 0, UNSET);
 	int32 startLineNumber = SendMessage(SCI_LINEFROMPOSITION, start, UNSET);
@@ -1724,7 +1737,7 @@ Editor::DeleteSelectedLines() {
 
 
 void
-Editor::CommentSelectedLines()
+CodeEditor::CommentSelectedLines()
 {
 	int32 start = SendMessage(SCI_GETSELECTIONSTART, 0, UNSET);
 	int32 startLineNumber = SendMessage(SCI_LINEFROMPOSITION, start, UNSET);
@@ -1740,14 +1753,14 @@ Editor::CommentSelectedLines()
 
 
 int32
-Editor::EndOfLine()
+CodeEditor::EndOfLine()
 {
 	return SendMessage(SCI_GETEOLMODE, UNSET, UNSET);
 }
 
 
 void
-Editor::_EndOfLineAssign(char *buffer, int32 size)
+CodeEditor::_EndOfLineAssign(char *buffer, int32 size)
 {
 	// Empty file, use default LF
 	if (size == 0) {
@@ -1776,7 +1789,7 @@ Editor::_EndOfLineAssign(char *buffer, int32 size)
 
 
 void
-Editor::_HighlightBraces()
+CodeEditor::_HighlightBraces()
 {
 	if (fBracingAvailable == true) {
 		SendMessage(SCI_STYLESETFORE, STYLE_BRACELIGHT, 0xFF0000);
@@ -1791,7 +1804,7 @@ Editor::_HighlightBraces()
 
 
 void
-Editor::_RedrawNumberMargin(bool forced)
+CodeEditor::_RedrawNumberMargin(bool forced)
 {
 	if (!gCFG["show_linenumber"]) {
 		SendMessage(SCI_SETMARGINWIDTHN, sci_NUMBER_MARGIN, 0);
@@ -1811,7 +1824,7 @@ Editor::_RedrawNumberMargin(bool forced)
 
 
 void
-Editor::_SetFoldMargin(bool enabled)
+CodeEditor::_SetFoldMargin(bool enabled)
 {
 	const int foldEnabled = SendMessage(SCI_GETPROPERTYINT, (uptr_t) "fold", 0);
 	const int32 fontSize = SendMessage(SCI_STYLEGETSIZE, 32);
@@ -1821,7 +1834,7 @@ Editor::_SetFoldMargin(bool enabled)
 
 
 void
-Editor::SetProblems(const BMessage* diagnostics)
+CodeEditor::SetProblems(const BMessage* diagnostics)
 {
 	BAutolock lock(fProblemsLock);
 	fProblems = *diagnostics;
@@ -1832,7 +1845,7 @@ Editor::SetProblems(const BMessage* diagnostics)
 
 
 void
-Editor::GetProblems(BMessage* diagnostics)
+CodeEditor::GetProblems(BMessage* diagnostics)
 {
 	BAutolock lock(fProblemsLock);
 	*diagnostics = fProblems;

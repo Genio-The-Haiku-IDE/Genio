@@ -5,7 +5,7 @@
 
 #include "EditorContextMenu.h"
 
-#include "Editor.h"
+#include "CodeEditor.h"
 #include "GenioWindowMessages.h"
 
 #include <Autolock.h>
@@ -57,7 +57,7 @@ EditorContextMenu::_CreateMenu()
 
 
 void
-EditorContextMenu::Show(Editor* editor, BPoint point)
+EditorContextMenu::Show(CodeEditor* editor, BPoint point)
 {
 	BAutolock l(editor->Looper());
 

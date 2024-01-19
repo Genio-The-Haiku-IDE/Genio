@@ -32,7 +32,7 @@
 
 #include "ActionManager.h"
 #include "GenioWindowMessages.h"
-#include "Editor.h"
+#include "CodeEditor.h"
 
 const float kHorzSpacing = 5.f;
 
@@ -46,7 +46,7 @@ namespace editor {
 
 BPopUpMenu* StatusView::sMenu = nullptr;
 
-StatusView::StatusView(Editor* editor)	:
+StatusView::StatusView(CodeEditor* editor)	:
 			controls::StatusView(dynamic_cast<BScrollView*>(editor)),
 			fNavigationPressed(false),
 			fNavigationButtonWidth(B_H_SCROLL_BAR_HEIGHT)

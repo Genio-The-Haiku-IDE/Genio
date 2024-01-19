@@ -2607,10 +2607,10 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Show white spaces"), "kIconShowPunctuation");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
 								   B_TRANSLATE("Show line endings"),
-								   B_TRANSLATE("Show line endings"), "xmas-icon");
+								   B_TRANSLATE("Show line endings"), "kIconEndingLines");
 	ActionManager::RegisterAction(MSG_WRAP_LINES,
 								   B_TRANSLATE("Wrap lines"),
-								   B_TRANSLATE("Wrap lines"), "xmas-icon");
+								   B_TRANSLATE("Wrap lines"), "kIconWrapLines");
 
 	ActionManager::RegisterAction(MSG_FILE_TRIM_TRAILING_SPACE,
 								  B_TRANSLATE("Trim trailing whitespace"),

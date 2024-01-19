@@ -83,10 +83,7 @@ public:
 			virtual std::string			FileType() const  = 0;
 			virtual void				SetFileType(std::string fileType)  = 0;
 
+			// Capabilities
 			virtual bool				IsFoldingAvailable() = 0;
-
-			//LSP
-			virtual LSPEditorWrapper*	GetLSPEditorWrapper()  = 0;
-			virtual bool				HasLSPServer() const = 0;
 			virtual bool				HasLSPCapability(const LSPCapability cap) = 0;
 };

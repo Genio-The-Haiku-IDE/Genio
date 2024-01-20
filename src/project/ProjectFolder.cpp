@@ -174,7 +174,7 @@ ProjectFolder::LoadSettings()
 
 	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
-	status_t status = fSettings->LoadFromFile(path.Path());
+	status_t status = fSettings->LoadFromFile(path.Path(), BPath(Path()));
 	if (status != B_OK) {
 		// Try to load old style settings
 		status = _LoadOldSettings();
@@ -194,7 +194,7 @@ ProjectFolder::SaveSettings()
 
 	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
-	status_t status = fSettings->SaveToFile(path.Path());
+	status_t status = fSettings->SaveToFile(path.Path(), BPath(Path()));
 	if (status != B_OK) {
 		LogErrorF("Cannot save settings: %s", ::strerror(status));
 	}

@@ -2,6 +2,7 @@
 
 #include <Autolock.h>
 #include <Application.h>
+#include <Path.h>
 
 #include "GMessage.h"
 
@@ -34,8 +35,8 @@ public:
 			configuration.AddMessage("config", &configKey);
 		}
 
-		status_t	LoadFromFile(BPath path);
-		status_t	SaveToFile(BPath path);
+		status_t	LoadFromFile(BPath messageFilePath, BPath attributeFilePath = BPath());
+		status_t	SaveToFile(BPath messageFilePath, BPath attributeFilePath = BPath());
 
 		void ResetToDefaults();
 		bool HasAllDefaultValues();

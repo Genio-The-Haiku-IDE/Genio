@@ -51,11 +51,12 @@ ConfigManager::Has(GMessage& msg, const char* key) const
 
 
 status_t
-ConfigManager::LoadFromFile(BPath path)
+ConfigManager::LoadFromFile(BPath messageFilePath, BPath attributeFilePath)
 {
 	GMessage fromFile;
 	BFile file;
-	status_t status = file.SetTo(path.Path(), B_READ_ONLY);
+	BNode* nodeAttr = nullptr;
+	status_t status = file.SetTo(messageFilePath.Path(), B_READ_ONLY);
 	if (status == B_OK) {
 		status = fromFile.Unflatten(&file);
 		if (status == B_OK) {
@@ -63,15 +64,63 @@ ConfigManager::LoadFromFile(BPath path)
 			int i = 0;
 			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
 				const char* key = msg["key"];
-				if (fromFile.Has(key) && _SameTypeAndFixedSize(&fromFile, key, &storage, key)) {
-					(*this)[msg["key"]] = fromFile[msg["key"]];
-					LogInfo("Configuration files loading value for key [%s]", (const char*)msg["key"]);
+				if ((bool)msg["as_attribute"] == false) {
+					if (fromFile.Has(key) && _SameTypeAndFixedSize(&fromFile, key, &storage, key)) {
+						(*this)[key] = fromFile[key];
+						LogInfo("Configuration files loading value for key [%s]", (const char*)msg["key"]);
+					} else {
+						LogError("Configuration files does not contain the vaid key [%s]", (const char*)msg["key"]);
+					}
 				} else {
-					LogError("Configuration files does not contain the vaid key [%s]", (const char*)msg["key"]);
+					if (attributeFilePath == BPath()) {
+						LogError("Can't load a config file attribute. No path specified!");
+						continue;
+					}
+					if (nodeAttr == nullptr) {
+						nodeAttr = new BNode();
+						status_t statusFile = nodeAttr->SetTo(attributeFilePath.Path());
+						if (statusFile != B_OK) {
+							LogErrorF("file error (%s) on loading attribute %s", strerror(statusFile), key);
+							delete nodeAttr;
+							nodeAttr = nullptr;
+							continue;
+						}
+					}
+
+					// save as attribute:
+					BString attrName("genio:");
+					attrName.Append(key);
+					const void* data = nullptr;
+					ssize_t numBytes = 0;
+					type_code type = msg.Type("default_value");
+					if (msg.FindData("default_value", type, &data, &numBytes) == B_OK) {
+						void* buffer = malloc(numBytes);
+						ssize_t readStatus = nodeAttr->ReadAttr(attrName.String(), type, 0, buffer, numBytes);
+
+						if ( readStatus <= 0) {
+							if (readStatus == B_ENTRY_NOT_FOUND)
+								LogError("Can't attribute not found! [%s] on [%s]", attrName.String(), attributeFilePath.Path());
+							LogError("Can't load config from attribute: %s (type %d vs %d, numBytes %d)\n", attrName.String(), type, B_RGB_COLOR_TYPE, numBytes);
+						} else {
+							storage.RemoveName(key);
+							if (storage.AddData(key, type, buffer, numBytes) == B_OK) {
+								printf("!!! Added data !!!!! (%s)\n", key);
+								GMessage noticeMessage(fWhat);
+								noticeMessage["key"]  	= key;
+								noticeMessage["value"]  = storage[key];
+								if (be_app != nullptr)
+									be_app->SendNotices(fWhat, &noticeMessage);
+							} else {
+								printf("NO ADDDATA\n");
+							}
+						}
+						free(buffer);
+					}
 				}
 			}
 		}
 	}
+	storage.PrintToStream();
 	return status;
 }
 
@@ -94,10 +143,11 @@ ConfigManager::_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
 
 
 status_t
-ConfigManager::SaveToFile(BPath path)
+ConfigManager::SaveToFile(BPath messageFilePath, BPath attributeFilePath)
 {
 	BFile file;
-	status_t status = file.SetTo(path.Path(), B_WRITE_ONLY | B_CREATE_FILE);
+	BNode* fileAttr = nullptr;
+	status_t status = file.SetTo(messageFilePath.Path(), B_WRITE_ONLY | B_CREATE_FILE);
 	if (status == B_OK) {
 			GMessage outFile;
 			GMessage msg;
@@ -105,22 +155,34 @@ ConfigManager::SaveToFile(BPath path)
 			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
 				const char* key = msg["key"];
 
-				printf("saving as key: %s -> %d\n", key, (bool)msg["as_attribute"]);
-
 				if ((bool)msg["as_attribute"] == false) {
 					outFile[key] = storage[key];
 				} else {
 
+					if (attributeFilePath == BPath()) {
+						LogError("Can't save a config file attribute. No path specified!");
+						continue;
+					}
+					if (fileAttr == nullptr) {
+						fileAttr = new BNode();
+						status_t statusFile = fileAttr->SetTo(attributeFilePath.Path());
+						if (statusFile != B_OK) {
+							LogErrorF("file error (%s) on saving attribute %s", strerror(statusFile), key);
+							delete fileAttr;
+							fileAttr = nullptr;
+							continue;
+						}
+					}
+
 					// save as attribute:
 					BString attrName("genio:");
 					attrName.Append(key);
-
-					printf("saving as attribute: %s\n", attrName.String());
-
 					const void* data = nullptr;
 					ssize_t numBytes = 0;
-					if (storage.FindData(key, storage.Type(key), &data, &numBytes) == B_OK) {
-						if (file.WriteAttr(attrName.String(), storage.Type(key), 0, data, numBytes) <= 0) {
+					type_code type = storage.Type(key);
+					printf("SAVING %s type %d\n", attrName.String(), type);
+					if (storage.FindData(key, type, &data, &numBytes) == B_OK) {
+						if (fileAttr->WriteAttr(attrName.String(), type, 0, data, numBytes) <= 0) {
 							LogError("Can't save config as attribute: %s\n", attrName.String());
 						}
 					}

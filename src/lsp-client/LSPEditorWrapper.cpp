@@ -33,7 +33,8 @@ LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	fEditor(editor),
 	fToolTip(nullptr),
 	fLSPProjectWrapper(nullptr),
-	fCallTip(editor)
+	fCallTip(editor),
+	fInitialized(false)
 {
 	assert(fEditor);
 }
@@ -121,9 +122,9 @@ LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 
 	SetFileType(fEditor->FileType().c_str());
 
-	if (cW->RegisterTextDocument(this)) {
-		fLSPProjectWrapper = cW;
-		didOpen();
+	fLSPProjectWrapper = cW;
+	if (!cW->RegisterTextDocument(this)) {
+		fLSPProjectWrapper = nullptr;
 	}
 }
 
@@ -657,6 +658,13 @@ LSPEditorWrapper::_RemoveAllDocumentLinks()
 	fLastDocumentLinks.clear();
 }
 
+void
+LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
+{
+	printf("Associato!\n");
+	fInitialized = true;
+	didOpen();
+}
 
 void
 LSPEditorWrapper::_DoDocumentLink(nlohmann::json& result)
@@ -723,6 +731,7 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
 	IF_ID("textDocument/completion", _DoCompletion);
 	IF_ID("textDocument/documentLink", _DoDocumentLink);
+	IF_ID("initialize", _DoInitialize);
 
 	LogError("LSPEditorWrapper::onResponse not handled! [%s]", id.c_str());
 }

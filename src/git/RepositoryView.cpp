@@ -275,7 +275,7 @@ RepositoryView::FindItem(const BString& name, T* startItem, bool oneLevelOnly, u
 	for (int32 i = startIndex; i< countItems; i++) {
 		T *item = dynamic_cast<T*>(ItemUnderAt(startItem, oneLevelOnly, i));
 		if (item != nullptr &&
-			name.ICompare(item->Text()) == 0 &&
+			name == item->Text() &&
 			item->OutlineLevel() == outlinelevel) {
 			return item;
 		}

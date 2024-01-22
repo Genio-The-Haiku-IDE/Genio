@@ -89,6 +89,7 @@ public:
 	int32	DiagnosticFromPosition(Sci_Position p, LSPDiagnostic& dia);
 
 private:
+	bool	IsInitialized();
 	std::vector<LSPDiagnostic>	fLastDiagnostics;
 	std::vector<InfoRange>		fLastDocumentLinks;
 

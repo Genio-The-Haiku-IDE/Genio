@@ -128,12 +128,18 @@ LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 	}
 }
 
+bool
+LSPEditorWrapper::IsInitialized()
+{
+	return (fInitialized && fLSPProjectWrapper != nullptr);
+}
 
 void
 LSPEditorWrapper::didOpen()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
+
 	const char* text = (const char*) fEditor->SendMessage(SCI_GETCHARACTERPOINTER);
 
 	fLSPProjectWrapper->DidOpen(this, text, FileType().String());
@@ -144,8 +150,9 @@ LSPEditorWrapper::didOpen()
 void
 LSPEditorWrapper::didClose()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
+
 
 	if (fEditor) {
 		_RemoveAllDiagnostics();
@@ -159,8 +166,9 @@ LSPEditorWrapper::didClose()
 void
 LSPEditorWrapper::didSave()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
+
 
 	fLSPProjectWrapper->DidSave(this);
 }
@@ -170,7 +178,7 @@ void
 LSPEditorWrapper::didChange(
 	const char* text, long len, Sci_Position start_pos, Sci_Position poslength)
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	Sci_Position end_pos = fEditor->SendMessage(SCI_POSITIONRELATIVE, start_pos, poslength);
@@ -204,7 +212,7 @@ LSPEditorWrapper::_DoFormat(json& params)
 void
 LSPEditorWrapper::Format()
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	// format a range or format the whole doc?
@@ -224,7 +232,7 @@ LSPEditorWrapper::Format()
 void
 LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 {
-	if (!fLSPProjectWrapper || !fEditor || !IsStatusValid())
+	if (!IsInitialized()|| !fEditor || !IsStatusValid())
 		return;
 
 	Position position;
@@ -247,7 +255,7 @@ LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 void
 LSPEditorWrapper::StartHover(Sci_Position sci_position)
 {
-	if (!fLSPProjectWrapper || sci_position < 0 || !IsStatusValid()) {
+	if (!IsInitialized() || sci_position < 0 || !IsStatusValid()) {
 		return;
 	}
 
@@ -282,7 +290,7 @@ LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnosti
 void
 LSPEditorWrapper::EndHover()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
 	BAutolock l(fEditor->Looper());
 	if (l.IsLocked()) {
@@ -294,7 +302,7 @@ LSPEditorWrapper::EndHover()
 void
 LSPEditorWrapper::SwitchSourceHeader()
 {
-	if (!fLSPProjectWrapper || !IsStatusValid())
+	if (!IsInitialized() || !IsStatusValid())
 		return;
 	fLSPProjectWrapper->SwitchSourceHeader(this);
 }
@@ -303,7 +311,7 @@ LSPEditorWrapper::SwitchSourceHeader()
 void
 LSPEditorWrapper::SelectedCompletion(const char* text)
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	if (fCurrentCompletion.items.size() > 0) {
@@ -366,7 +374,7 @@ LSPEditorWrapper::SelectedCompletion(const char* text)
 void
 LSPEditorWrapper::StartCompletion()
 {
-	if (!fLSPProjectWrapper || !fEditor || !IsStatusValid())
+	if (!IsInitialized() || !fEditor || !IsStatusValid())
 		return;
 
 	// let's check if a completion is ongoing
@@ -404,7 +412,7 @@ void
 LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 {
 	// printf("on char %c\n", ch);
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&

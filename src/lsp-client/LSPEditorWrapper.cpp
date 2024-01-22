@@ -669,7 +669,6 @@ LSPEditorWrapper::_RemoveAllDocumentLinks()
 void
 LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
 {
-	printf("Associato!\n");
 	fInitialized = true;
 	didOpen();
 }

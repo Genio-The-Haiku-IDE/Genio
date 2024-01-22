@@ -82,7 +82,7 @@ public:
 			void				Cut();
 			void				DuplicateCurrentLine();
 			void				DeleteSelectedLines();
-			BString	const		EndOfLineString();
+			int32				EndOfLine();
 			void				EndOfLineConvert(int32 eolMode);
 			void				EnsureVisiblePolicy();
 		const BString			FilePath() const;
@@ -175,6 +175,7 @@ public:
 
 
 private:
+			BString	const		_EndOfLineString();
 			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();
 			void				_MaintainIndentation(char c);
@@ -182,7 +183,6 @@ private:
 			void				_BraceHighlight();
 			bool				_BraceMatch(int pos);
 			void				_CommentLine(int32 position);
-			int32				_EndOfLine();
 			void				_EndOfLineAssign(char *buffer, int32 size);
 			void				_HighlightBraces();
 			void				_RedrawNumberMargin(bool forced = false);

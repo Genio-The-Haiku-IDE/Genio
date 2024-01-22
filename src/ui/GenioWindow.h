@@ -56,7 +56,6 @@ public:
 								GenioWindow(BRect frame);
 	virtual						~GenioWindow();
 
-	virtual void				DispatchMessage(BMessage* message, BHandler* handler);
 	virtual void				MessageReceived(BMessage* message);
 	virtual void				MenusBeginning();
 	virtual void				MenusEnded();
@@ -69,9 +68,8 @@ public:
 	ProjectsFolderBrowser*		GetProjectBrowser() const;
 
 private:
-			status_t			_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
+			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
 
-			void				_BuildDone(BMessage* msg);
 			status_t			_BuildProject();
 			status_t			_CleanProject();
 
@@ -123,6 +121,7 @@ private:
 			status_t			_ProjectFolderOpen(BMessage *message);
 			status_t			_ProjectFolderOpen(const entry_ref& ref, bool activate = false);
 			void				_ProjectFolderActivate(ProjectFolder* project);
+			void				_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project);
 
 			status_t			_ShowSelectedItemInTracker();
 			status_t			_ShowInTracker(const entry_ref& ref, const node_ref* nref = NULL);
@@ -157,6 +156,9 @@ private:
 			TemplatesMenu*		fFileNewMenuItem;
 
 			BMenu*				fLineEndingsMenu;
+			BMenuItem*			fLineEndingCRLF;
+			BMenuItem*			fLineEndingLF;
+			BMenuItem*			fLineEndingCR;
 			BMenu*				fLanguageMenu;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;

@@ -262,6 +262,9 @@ GenioWindow::Show()
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 		ActionManager::SetPressed(MSG_WRAP_LINES, gCFG["wrap_lines"]);
 
+		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
+		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
+
 		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		UnlockLooper();

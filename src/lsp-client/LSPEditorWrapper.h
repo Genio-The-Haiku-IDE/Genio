@@ -82,6 +82,7 @@ public:
 	LSPProjectWrapper*	fLSPProjectWrapper;
 	BString				fFileStatus;
 	CallTipContext		fCallTip;
+	bool				fInitialized;
 
 	struct LSPDiagnostic { InfoRange range; Diagnostic diagnostic; std::string fixTitle;};
 
@@ -108,6 +109,7 @@ private:
 	void	_DoDiagnostics(nlohmann::json& params);
 	void	_DoDocumentLink(nlohmann::json& params);
 	void	_DoFileStatus(nlohmann::json& params);
+	void	_DoInitialize(nlohmann::json& params);
 
 private:
 	//utils

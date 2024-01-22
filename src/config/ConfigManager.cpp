@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Genio
+ * Copyright 2018-2024, Genio
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -140,30 +140,18 @@ ConfigManager::ConfigManager(const int32 messageWhat)
 }
 
 
-auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
+auto
+ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 {
 	return ConfigManagerReturn(key, *this);
 }
 
-bool
-ConfigManager::_CheckKeyIsValid(const char* key) const
-{
-	type_code type;
-	if (storage.GetInfo(key, &type) != B_OK) {
-		BString detail("No config key: ");
-		detail << key;
-		debugger(detail.String());
-		LogFatal(detail.String());
-		throw new std::exception();
-	}
-	return true;
-}
 
 bool
 ConfigManager::Has(GMessage& msg, const char* key) const
 {
 	type_code type;
-	return (msg.GetInfo(key, &type) == B_OK);
+	return msg.GetInfo(key, &type) == B_OK;
 }
 
 
@@ -226,8 +214,8 @@ ConfigManager::ResetToDefaults()
 	// Will also send notifications for every setting change
 	GMessage msg;
 	int i = 0;
-	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
-		storage[msg["key"]] = msg["default_value"]; //to force the key creation
+	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
+		fStorage[msg["key"]] = msg["default_value"]; //to force the key creation
 		(*this)[msg["key"]] = msg["default_value"]; //to force the update
 	}
 }
@@ -238,8 +226,8 @@ ConfigManager::HasAllDefaultValues()
 {
 	GMessage msg;
 	int i = 0;
-	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
-		if (storage[msg["key"]] != msg["default_value"]) {
+	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
+		if (fStorage[msg["key"]] != msg["default_value"]) {
 			LogDebug("Differs for key %s\n", (const char*)msg["key"]);
 			return false;
 		}
@@ -252,12 +240,44 @@ void
 ConfigManager::PrintAll() const
 {
 	PrintValues();
-	configuration.PrintToStream();
+	fConfiguration.PrintToStream();
 }
 
 
 void
 ConfigManager::PrintValues() const
 {
-	storage.PrintToStream();
+	fStorage.PrintToStream();
+}
+
+
+bool
+ConfigManager::_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
+									  BMessage* msgR, const char* keyR) const
+{
+	type_code typeL = 0;
+	bool fixedSizeL = false;
+	if (msgL->GetInfo(keyL, &typeL, &fixedSizeL) == B_OK) {
+		type_code typeR = 0;
+		bool fixedSizeR = false;
+		if (msgR->GetInfo(keyR, &typeR, &fixedSizeR) == B_OK) {
+			return (typeL == typeR && fixedSizeL == fixedSizeR);
+		}
+	}
+	return false;
+}
+
+
+bool
+ConfigManager::_CheckKeyIsValid(const char* key) const
+{
+	type_code type;
+	if (fStorage.GetInfo(key, &type) != B_OK) {
+		BString detail("No config key: ");
+		detail << key;
+		debugger(detail.String());
+		LogFatal(detail.String());
+		throw new std::exception();
+	}
+	return true;
 }

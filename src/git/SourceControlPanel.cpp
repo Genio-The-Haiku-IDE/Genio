@@ -136,7 +136,7 @@ SourceControlPanel::_InitToolBar()
 	// fToolBar->AddAction(MsgShowChangesPanel, B_TRANSLATE("Changes"), "kIconGitChanges");
 	// fToolBar->AddAction(MsgShowLogPanel, B_TRANSLATE("Log"), "kIconGitLog");
 	fToolBar->AddGlue();
-	fToolBar->AddAction(MsgShowOptionsMenu, B_TRANSLATE("Options"), "kIconGitMore", true);
+	fToolBar->AddAction(MsgShowActionsMenu, B_TRANSLATE("Actions"), "kIconGitMore", true);
 }
 
 
@@ -377,10 +377,10 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				fToolBar->ToggleActionPressed(MsgShowLogPanel);
 				break;
 			}
-			case MsgShowOptionsMenu: {
-				auto button = fToolBar->FindButton(MsgShowOptionsMenu);
+			case MsgShowActionsMenu: {
+				auto button = fToolBar->FindButton(MsgShowActionsMenu);
 				auto where = button->Frame().LeftBottom();
-				LogInfo("MsgShowOptionsMenu: p(%f, %f)", where.x, where.y);
+				LogInfo("MsgShowActionsMenu: p(%f, %f)", where.x, where.y);
 				_ShowOptionsMenu(where);
 				break;
 			}
@@ -783,7 +783,7 @@ SourceControlPanel::_ShowOptionsMenu(BPoint where)
 	StringFormatter fmt;
 	fmt.Substitutions["%current_branch%"] = fCurrentBranch;
 
-	auto optionsMenu = new BPopUpMenu("Options", false, false);
+	auto optionsMenu = new BPopUpMenu("Actions", false, false);
 	optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Fetch"), new BMessage(MsgFetch)));
 	optionsMenu->AddItem(new BMenuItem(B_TRANSLATE("Fetch prune"),	new BMessage(MsgFetchPrune)));
 	optionsMenu->AddSeparatorItem();

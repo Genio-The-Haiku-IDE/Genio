@@ -271,16 +271,12 @@ RepositoryView::FindItem(const BString& name, T* startItem, bool oneLevelOnly, u
 {
 	const int32 countItems = FullListCountItems();
 	const int32 startIndex = 0;
-	// LogInfo("FindItem: item '%s' under '%s' with countItems = %d, startIndex = %d",
-		// name.String(), startItem->Text(), countItems, startIndex);
+
 	for (int32 i = startIndex; i< countItems; i++) {
-		// LogInfo("FindItem: for i = %d to %d", i, countItems);
 		T *item = dynamic_cast<T*>(ItemUnderAt(startItem, oneLevelOnly, i));
-		// LogInfo("FindItem: current item '%s' at %d", item->Text(), i);
 		if (item != nullptr &&
 			name.ICompare(item->Text()) == 0 &&
 			item->OutlineLevel() == outlinelevel) {
-			// LogInfo("FindItem: *** found item '%s' at level", item->Text(), item->OutlineLevel());
 			return item;
 		}
 	}

@@ -225,7 +225,7 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 
 
 void
-RepositoryView::_BuildBranchTree(const BString &branch, BranchItem *rootItem, uint32 branchType,
+RepositoryView::_BuildBranchTree(const BString &branch, BListItem *rootItem, uint32 branchType,
 									const auto& checker)
 {
 	// Do not show an outline
@@ -238,14 +238,14 @@ RepositoryView::_BuildBranchTree(const BString &branch, BranchItem *rootItem, ui
 	}
 
 	// show the outline
-	BranchItem *parentitem = rootItem;
+	BListItem *parentitem = rootItem;
 	std::filesystem::path path = branch.String();
 	std::vector<std::string> parts(path.begin(), path.end());
 	for (uint32 i = 0; i < parts.size(); i++) {
 		uint32 lastIndex = parts.size();
 
 		BString partName = parts.at(i).c_str();
-		auto partItem = FindItem<BranchItem>(partName, parentitem, false, i+1);
+		auto partItem = FindItem(partName, parentitem);
 		if (partItem != nullptr) {
 			parentitem = partItem;
 		} else {
@@ -265,18 +265,17 @@ RepositoryView::_BuildBranchTree(const BString &branch, BranchItem *rootItem, ui
 }
 
 
-template <typename T>
-T*
-RepositoryView::FindItem(const BString& name, T* startItem, bool oneLevelOnly, uint32 outlinelevel)
+BListItem*
+RepositoryView::FindItem(const BString& name, BListItem* startItem)
 {
 	const int32 countItems = FullListCountItems();
 	const int32 startIndex = 0;
 
 	for (int32 i = startIndex; i< countItems; i++) {
-		T *item = dynamic_cast<T*>(ItemUnderAt(startItem, oneLevelOnly, i));
-		if (item != nullptr &&
-			name == item->Text() &&
-			item->OutlineLevel() == outlinelevel) {
+		BStringItem* item = dynamic_cast<BStringItem*>(ItemUnderAt(startItem, true, i));
+		if (item == nullptr)
+			return nullptr;
+		if (name == item->Text()) {
 			return item;
 		}
 	}

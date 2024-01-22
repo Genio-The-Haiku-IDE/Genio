@@ -6,6 +6,13 @@
 
 #include "GMessage.h"
 
+enum StorageType {
+	kStorageTypeBMessage  = 0,
+	kStorageTypeAttribute = 1,
+
+	kStorageTypeCountNb   = 2
+};
+
 class ConfigManagerReturn;
 class ConfigManager {
 public:
@@ -17,7 +24,7 @@ public:
 					   const char* label,
 					   T default_value,
 					   GMessage* cfg = nullptr,
-					   bool storeAsAttribute = false) {
+					   StorageType storageType = kStorageTypeBMessage) {
 
 			GMessage configKey;
 			if (cfg)
@@ -28,7 +35,7 @@ public:
 			configKey["label"]    		= label;
 			configKey["default_value"]  = default_value;
 			configKey["type_code"] 		= MessageValue<T>::Type();
-			configKey["as_attribute"]	= storeAsAttribute;
+			configKey["storage_type"]	= (int32)storageType;
 
 			storage[key] = default_value;
 
@@ -76,8 +83,6 @@ friend ConfigManagerReturn;
 		BLocker	 fLocker;
 		int32	 fWhat;
 private:
-		bool	_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
-									  BMessage* msgR, const char* keyR) const;
 		bool	_CheckKeyIsValid(const char* key) const;
 };
 

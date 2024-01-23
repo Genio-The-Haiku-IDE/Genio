@@ -252,27 +252,34 @@ RepositoryView::_BuildBranchTree(const BString &branch, BListItem *rootItem, uin
 	BListItem *parentitem = rootItem;
 	std::filesystem::path path = branch.String();
 	std::vector<std::string> parts(path.begin(), path.end());
-	for (uint32 i = 0; i < parts.size(); i++) {
-		uint32 lastIndex = parts.size();
-
+	uint32 lastIndex = parts.size() - 1;
+	uint32 i = 0;
+	while (i <= lastIndex) {
 		BString partName = parts.at(i).c_str();
 		auto partItem = EachItemUnder(
 			parentitem, true, PartFinder, const_cast<BString*>(&partName));
 		if (partItem != nullptr) {
 			parentitem = partItem;
 		} else {
-			if (i == (lastIndex-1)) {
-				auto newItem = new BranchItem(branch.String(), partName, branchType, i);
-				if (checker(branch))
-					newItem->SetTextFontFace(B_UNDERSCORE_FACE);
-				AddUnder(newItem, parentitem);
-				parentitem = rootItem;
-			} else {
-				auto newItem = new BranchItem(branch.String(), partName, kHeader, i);
-				if (AddUnder(newItem, parentitem))
-					parentitem = newItem;
-			}
+			break;
 		}
+		i++;
+	}
+
+	while (i < lastIndex) {
+		BString partName = parts.at(i).c_str();
+		auto newItem = new BranchItem(branch.String(), partName, kHeader, i);
+		if (AddUnder(newItem, parentitem))
+			parentitem = newItem;
+		i++;
+	}
+
+	if (i == lastIndex) {
+		BString partName = parts.at(i).c_str();
+		auto newItem = new BranchItem(branch.String(), partName, branchType, i);
+		if (checker(branch))
+			newItem->SetTextFontFace(B_UNDERSCORE_FACE);
+		AddUnder(newItem, parentitem);
 	}
 }
 

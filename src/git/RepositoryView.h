@@ -46,8 +46,6 @@ private:
 	void			_BuildBranchTree(const BString &branch, BListItem *rootItem,
 						uint32 branchType, const auto& checker);
 
-	BListItem*		FindItem(const BString& name, BListItem* startItem);
-
 	void			_ShowPopupMenu(BPoint where);
 
 	BString			fCurrentBranch;

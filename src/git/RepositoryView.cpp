@@ -25,6 +25,17 @@
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
 
+// Checker for EachItemUnder
+static
+BListItem*
+PartFinder(BListItem* item, void* name)
+{
+	if (*(BString*)name == ((BStringItem*)item)->Text())
+		return item;
+	return nullptr;
+}
+
+
 RepositoryView::RepositoryView()
 	:
 	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST),
@@ -245,7 +256,8 @@ RepositoryView::_BuildBranchTree(const BString &branch, BListItem *rootItem, uin
 		uint32 lastIndex = parts.size();
 
 		BString partName = parts.at(i).c_str();
-		auto partItem = FindItem(partName, parentitem);
+		auto partItem = EachItemUnder(
+			parentitem, true, PartFinder, const_cast<BString*>(&partName));
 		if (partItem != nullptr) {
 			parentitem = partItem;
 		} else {
@@ -262,25 +274,6 @@ RepositoryView::_BuildBranchTree(const BString &branch, BListItem *rootItem, uin
 			}
 		}
 	}
-}
-
-
-BListItem*
-RepositoryView::FindItem(const BString& name, BListItem* startItem)
-{
-	const int32 countItems = FullListCountItems();
-	const int32 startIndex = 0;
-
-	for (int32 i = startIndex; i< countItems; i++) {
-		BStringItem* item = dynamic_cast<BStringItem*>(ItemUnderAt(startItem, true, i));
-		if (item == nullptr)
-			return nullptr;
-		if (name == item->Text()) {
-			return item;
-		}
-	}
-
-	return nullptr;
 }
 
 

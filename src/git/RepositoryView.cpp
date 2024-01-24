@@ -254,7 +254,7 @@ RepositoryView::_BuildBranchTree(const BString &branch, BListItem *rootItem, uin
 	std::vector<std::string> parts(path.begin(), path.end());
 	uint32 lastIndex = parts.size() - 1;
 	uint32 i = 0;
-	while (i <= lastIndex) {
+	while (i < lastIndex) {
 		BString partName = parts.at(i).c_str();
 		auto partItem = EachItemUnder(
 			parentitem, true, PartFinder, const_cast<BString*>(&partName));
@@ -274,13 +274,11 @@ RepositoryView::_BuildBranchTree(const BString &branch, BListItem *rootItem, uin
 		i++;
 	}
 
-	if (i == lastIndex) {
-		BString partName = parts.at(i).c_str();
-		auto newItem = new BranchItem(branch.String(), partName, branchType, i);
-		if (checker(branch))
-			newItem->SetTextFontFace(B_UNDERSCORE_FACE);
-		AddUnder(newItem, parentitem);
-	}
+	BString partName = parts.at(i).c_str();
+	auto newItem = new BranchItem(branch.String(), partName, branchType, i);
+	if (checker(branch))
+		newItem->SetTextFontFace(B_UNDERSCORE_FACE);
+	AddUnder(newItem, parentitem);
 }
 
 

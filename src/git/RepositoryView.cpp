@@ -241,10 +241,10 @@ RepositoryView::_BuildBranchTree(const BString &branch, BListItem *rootItem, uin
 {
 	// Do not show an outline
 	if (!gCFG["repository_outline"]) {
-		StyledItem* item = new BranchItem(branch.String(), branch.String(), branchType);
+		StyledItem* item = new BranchItem(branch.String(), branch.String(), branchType, 1);
 		if (checker(branch))
 			item->SetTextFontFace(B_UNDERSCORE_FACE);
-		AddUnder(item, rootItem);
+		AddItem(item);
 		return;
 	}
 

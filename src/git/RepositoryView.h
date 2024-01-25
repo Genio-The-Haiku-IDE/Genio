@@ -43,8 +43,7 @@ public:
 private:
 
 	BranchItem*		_InitEmptySuperItem(const BString &label);
-	void			_BuildBranchTree(const BString &branch, BListItem *rootItem,
-						uint32 branchType, const auto& checker);
+	void			_BuildBranchTree(const BString &branch, uint32 branchType, const auto& checker);
 
 	void			_ShowPopupMenu(BPoint where);
 

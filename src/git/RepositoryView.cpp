@@ -25,17 +25,6 @@
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
 
-// Checker for EachItemUnder
-static
-BListItem*
-PartFinder(BListItem* item, void* name)
-{
-	if (*(BString*)name == ((BStringItem*)item)->Text())
-		return item;
-	return nullptr;
-}
-
-
 RepositoryView::RepositoryView()
 	:
 	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST),
@@ -203,27 +192,30 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		MakeEmpty();
 
 		// populate local branches
-		auto locals = _InitEmptySuperItem(B_TRANSLATE("Local branches"));
+		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
 		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
+		std::sort(local_branches.begin(), local_branches.end());
 		for(auto &branch : local_branches) {
-			_BuildBranchTree(branch, locals, kLocalBranch,
+			_BuildBranchTree(branch, kLocalBranch,
 				[&](const auto &branchname) {
 					return (branchname == fCurrentBranch);
 				});
 		}
 
 		// populate remote branches
-		auto remotes = _InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+		_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
 		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
+		std::sort(remote_branches.begin(), remote_branches.end());
 		for(auto &branch : remote_branches) {
-			_BuildBranchTree(branch, remotes, kRemoteBranch, NullLambda);
+			_BuildBranchTree(branch, kRemoteBranch, NullLambda);
 		}
 
 		// populate tags
-		auto tags = _InitEmptySuperItem(B_TRANSLATE("Tags"));
+		_InitEmptySuperItem(B_TRANSLATE("Tags"));
 		auto all_tags = repo->GetTags();
+		std::sort(all_tags.begin(), all_tags.end());
 		for(auto &tag : all_tags) {
-			_BuildBranchTree(tag, tags, kTag, NullLambda);
+			_BuildBranchTree(tag, kTag, NullLambda);
 		}
 	} catch (const GitException &ex) {
 		OKAlert("Git", ex.Message(), B_INFO_ALERT);
@@ -236,8 +228,7 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 
 
 void
-RepositoryView::_BuildBranchTree(const BString &branch, BListItem *rootItem, uint32 branchType,
-									const auto& checker)
+RepositoryView::_BuildBranchTree(const BString &branch, uint32 branchType, const auto& checker)
 {
 	// Do not show an outline
 	if (!gCFG["repository_outline"]) {
@@ -249,36 +240,35 @@ RepositoryView::_BuildBranchTree(const BString &branch, BListItem *rootItem, uin
 	}
 
 	// show the outline
-	BListItem *parentitem = rootItem;
 	std::filesystem::path path = branch.String();
 	std::vector<std::string> parts(path.begin(), path.end());
 	uint32 lastIndex = parts.size() - 1;
 	uint32 i = 0;
-	while (i < lastIndex) {
-		BString partName = parts.at(i).c_str();
-		auto partItem = EachItemUnder(
-			parentitem, true, PartFinder, const_cast<BString*>(&partName));
-		if (partItem != nullptr) {
-			parentitem = partItem;
-		} else {
-			break;
+
+	BranchItem* lastItem = (BranchItem*)FullListLastItem();
+	if (lastItem->OutlineLevel() > 0) {
+		path = lastItem->BranchName();
+		std::vector<std::string> lastItemParts(path.begin(), path.end());
+		uint32 lastCompareIndex = std::min<uint32>(lastIndex, parts.size() - 1);
+		while (i < lastCompareIndex) {
+			if (parts.at(i) != lastItemParts.at(i))
+				break;
+			i++;
 		}
-		i++;
 	}
 
 	while (i < lastIndex) {
 		BString partName = parts.at(i).c_str();
-		auto newItem = new BranchItem(branch.String(), partName, kHeader, i);
-		if (AddUnder(newItem, parentitem))
-			parentitem = newItem;
+		auto newItem = new BranchItem(branch.String(), partName, kHeader, i + 1);
+		AddItem(newItem);
 		i++;
 	}
 
 	BString partName = parts.at(i).c_str();
-	auto newItem = new BranchItem(branch.String(), partName, branchType, i);
+	auto newItem = new BranchItem(branch.String(), partName, branchType, i + 1);
 	if (checker(branch))
 		newItem->SetTextFontFace(B_UNDERSCORE_FACE);
-	AddUnder(newItem, parentitem);
+	AddItem(newItem);
 }
 
 

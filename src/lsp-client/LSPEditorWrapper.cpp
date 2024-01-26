@@ -406,18 +406,20 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 	if (!fLSPProjectWrapper || !fEditor)
 		return;
 
-	if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
-		!Contains(kWordCharacters, ch)) {
-		fEditor->SendMessage(SCI_AUTOCCANCEL);
-	}
+	if(ch != 0) {
+		if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
+			!Contains(kWordCharacters, ch)) {
+			fEditor->SendMessage(SCI_AUTOCCANCEL);
+		}
 
-	if (fLSPProjectWrapper->HasCapability(kLCapCompletion) &&
-			Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
+		if (fLSPProjectWrapper->HasCapability(kLCapCompletion) &&
+				Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
 
-		if (fCallTip.IsVisible())
-			fCallTip.HideCallTip();
+			if (fCallTip.IsVisible())
+				fCallTip.HideCallTip();
 
-		StartCompletion();
+			StartCompletion();
+		}
 	}
 
 	if (fLSPProjectWrapper->HasCapability(kLCapSignatureHelp)) {

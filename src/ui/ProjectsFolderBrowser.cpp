@@ -815,6 +815,17 @@ ProjectsFolderBrowser::ProjectByPath(const BString& fullPath) const
 	return nullptr;
 }
 
+void
+ProjectsFolderBrowser::SelectAndScroll(ProjectFolder* projectFolder)
+{
+	ProjectItem* item = GetProjectItemForProject(projectFolder);
+	if (item != nullptr) {
+		Select(IndexOf(item));
+		ScrollToSelection();
+	}
+
+}
+
 
 const BObjectList<ProjectFolder>*
 ProjectsFolderBrowser::GetProjectList() const

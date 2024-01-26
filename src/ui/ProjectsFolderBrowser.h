@@ -59,6 +59,9 @@ public:
 	ProjectFolder*	ProjectByPath(const BString& fullPath) const;
 
 	const BObjectList<ProjectFolder>*	GetProjectList() const;
+
+	void			SelectAndScroll(ProjectFolder*);
+
 private:
 
 	ProjectItem*	GetProjectItemByPath(const BString& path) const;

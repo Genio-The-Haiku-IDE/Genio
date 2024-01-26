@@ -220,6 +220,9 @@ GenioWindow::GenioWindow(BRect frame)
 				}
 			}
 		}
+		if (fActiveProject != nullptr)
+			GetProjectBrowser()->SelectAndScroll(fActiveProject);
+
 		fDisableProjectNotifications = false;
 		if (status == B_OK) {
 			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
@@ -3569,6 +3572,9 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		_ProjectFolderActivate(newProject);
 		opened = "Active project open: ";
 	}
+
+	//ensure it's selected:
+	GetProjectBrowser()->SelectAndScroll(newProject);
 
 	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 

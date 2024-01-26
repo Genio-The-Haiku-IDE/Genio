@@ -818,8 +818,11 @@ ProjectsFolderBrowser::ProjectByPath(const BString& fullPath) const
 void
 ProjectsFolderBrowser::SelectAndScroll(ProjectFolder* projectFolder)
 {
-	Select(IndexOf(GetProjectItemForProject(projectFolder)));
-	ScrollToSelection();
+	ProjectItem* item = GetProjectItemForProject(projectFolder);
+	if (item) {
+		Select(IndexOf(item));
+		ScrollToSelection();
+	}
 
 }
 

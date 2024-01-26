@@ -819,7 +819,7 @@ void
 ProjectsFolderBrowser::SelectAndScroll(ProjectFolder* projectFolder)
 {
 	ProjectItem* item = GetProjectItemForProject(projectFolder);
-	if (item) {
+	if (item != nullptr) {
 		Select(IndexOf(item));
 		ScrollToSelection();
 	}

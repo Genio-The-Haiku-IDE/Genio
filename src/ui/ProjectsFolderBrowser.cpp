@@ -367,6 +367,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 					BOutlineListView::MessageReceived(message);
 					break;
 			}
+		 break;
 		}
 		default:
 			BOutlineListView::MessageReceived(message);

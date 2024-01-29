@@ -52,7 +52,6 @@ private:
 	BView*						fProgressView;
 	BView*						fButtonsView;
 	BStringView*				fStatusText;
-	BStringView*				fDestDirLabel;
 	BTextControl*				fDestDir;
 	BFilePanel*					fFilePanel;
 

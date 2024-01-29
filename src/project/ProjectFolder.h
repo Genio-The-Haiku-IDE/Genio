@@ -9,14 +9,19 @@
 #include <Entry.h>
 #include <ObjectList.h>
 #include <String.h>
+#include <Messenger.h>
+#include <vector>
 
 #include "GitRepository.h"
 
 using namespace Genio::Git;
 
 class BMessenger;
+class ConfigManager;
 class LSPProjectWrapper;
-class GSettings;
+class LSPTextDocument;
+
+const uint32 kMsgProjectSettingsUpdated = 'PRJS';
 
 enum SourceItemType {
 	FileItem,
@@ -64,14 +69,15 @@ public:
 
 	BString	const				Path() const;
 
-	void						LoadDefaultSettings();
-	void						SaveSettings();
-
 	bool						Active() const { return fActive; }
 	void						SetActive(bool status) { fActive = status; }
 
+	ConfigManager&				Settings();
+	status_t					LoadSettings();
+	status_t					SaveSettings();
+
 	void						SetBuildMode(BuildMode mode);
-	BuildMode					GetBuildMode();
+	BuildMode					GetBuildMode() const;
 	bool						IsBuilding() const { return fIsBuilding; }
 	void						SetBuildingState(bool isBuilding) { fIsBuilding = isBuilding; }
 
@@ -95,15 +101,21 @@ public:
 
 	void						SetGuessedBuilder(const BString& string);
 
-	LSPProjectWrapper*			GetLSPClient() const;
+	const rgb_color				Color() const;
+
+	LSPProjectWrapper*			GetLSPServer(const BString& fileType);
+
 
 private:
+	void						_PrepareSettings();
+	status_t					_LoadOldSettings();
+
 	bool						fActive;
-	BuildMode					fBuildMode;
 	BString						fGuessedBuildCommand;
 	BString						fGuessedCleanCommand;
-	LSPProjectWrapper*			fLSPProjectWrapper;
-	GSettings*					fSettings;
+	std::vector<LSPProjectWrapper*>	fLSPProjectWrappers;
+	ConfigManager*				fSettings;
+	BMessenger					fMessenger;
 	GitRepository*				fGitRepository;
 	bool						fIsBuilding;
 	BString						fFullPath;

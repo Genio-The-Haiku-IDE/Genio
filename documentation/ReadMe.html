@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<!--
+ * Copyright 2024
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Humdinger <humdingerb@gmail.com>
+-->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="robots" content="all" />
+	<link rel="stylesheet" type="text/css" href="./_doc.css" />
+	<title>Genio's User Documentation</title>
+
+</head>
+<body>
+<!--
+<div id="navbar">
+<a class="active" href="ReadMe.html">Start</a> <a href="panes.html">Panes</a> <a href="editor.html">Editor</a> <a href="toolbar.html">Toolbar</a> <a href="menus.html">Menus</a> <a href="settings.html">Settings</a>
+</div>
+-->
+<div id="content">
+<p style="font-size:1.5em; font-weight:bold; text-align:center">Genio's User Documentation</p>
+
+<img src="./images/genio_logo.png" style="border:none;padding-right:15px;float:left" alt="Big Genio icon" />
+
+<p>Genio is an Integrated Development Environment (IDE) for Haiku. It's using Scintilla for its advanced editing features, like syntax highlighting and folding code blocks. Clang is used to provide real time analysis to warn about problems, provide solutions in a tooltip, code completion and more.</p>
+
+<p>Most of Genio's features are easily discovered and don't need an explanation.<br />
+If you have questions or issues that should be added to the documentation, please use <a href="https://github.com/Genio-The-Haiku-IDE/Genio/discussions">Genio's Discussions forum</a>.<!-- Please use the navigation bar at the top to quickly jump to a topic that does have some items worth of discussion.
+</p>
+
+<p>Here follows a quick introduction how to get started with a project.
+-->
+</p>
+
+<p style="clear:left"></p>
+<hr style="margin-top:30px" />
+
+<p>For orientation, let's start with a quick overview of Genio's main window, with its <span class="menu">Projects</span> pane to the left (1), <span class="menu">Output</span> pane at the bottom (2), the <span class="menu">Editor</span> view at the right (3), and <span class="menu">Menu and Tool bar</span> at the top (4).</p>
+
+<p style="text-align:center"><img src="./images/main_window.png" style="border:none" alt="Genio's main window" /></p>
+
+
+<h2>Open/create a new project</h2>
+
+<p>It's very easy to start a new project in Genio, either from scratch, from a template, or from an existing location on your harddisk or a remote repository.<p>
+
+<h3>A local project</h3>
+
+<p>To "import" an existing project, you simply invoke <span class="menu">Project|Open project…</span> and browse to its folder and open it. Its files and folders appear in the <span class="menu">Projects</span> pane at the left.</p>
+
+<h3>A remote project</h3>
+
+<p>If a project is hosted on a remote git repository like "gitlab" etc., it's almost as easily added with <span class="menu">Project|Open remote project…</span>. That'll open this window:</p>
+
+<p style="text-align:center"><img src="./images/open_remote_project.png" style="border:none;padding:15px" alt="Open remote project" /></p>
+
+</p>You enter the <span class="menu">URL</span> of the project's repo page, and browse to the <span class="menu">Base path</span> which is the location the source will be downloaded to. Optionally you can change the <span class="menu">Destination folder</span>, which will be auto-filled once you entered the URL.<br />
+<span class="button">Clone</span> uses <span class="cli">git</span> to get the source.</p>
+
+<h3>A project from scratch</h3>
+
+<p>Starting from scratch, you pick an item from the <span class="menu">File|New</span> menu.<br />
+Choose <span class="menu">New folder</span> for an empty folder, or one of the templates for a folder already populated with some functional source files.<br />
+A file dialog will open to browse to the location where you want to save your project.</p>
+
+<p>You can continue to add, rename or delete files by right-clicking in the <span class="menu">Projects</span> pane.</p>
+
+
+<h2>Source control</h2>
+
+<img src="./images/source_control.png" style="border:none;padding:15px;float:left" alt="Source control" />
+
+<p>In the <span class="menu">Source control</span> tab of the <span class="menu">Projects</span> pane you find most often needed actions to interact with your git repository. You can switch, create and remove branches and fetch or stash changes etc.</p>
+
+<p>Even if you don't work with a remote git repository, it's a good idea to initialize a local git repo. It enables you to work in branches and commit code changes in batches, which makes it possible to experiment and revertig back to previous states.</p>
+
+<p>If there isn't already, Genio offers you to <span class="button">Init a repository</span>.</p>
+<p style="clear:left"></p>
+
+
+<h2>Project settings</h2>
+
+<p>To be able to build your project, you need to open the <span class="menu">Project|Project settings…</span>.</p>
+
+<p style="text-align:center"><img src="./images/project_settings.png" style="border:none;padding:15px" alt="Project settings" /></p>
+
+<p>Here you specify the correct commands to build in release or debug mode, depending on your build system. Genio recognizes "Make" and "Jam" build systems and tries to provide working commands, but you may want to tweak things a bit.</p>
+
+
+<h2>Tips</h2>
+
+<ul>
+<li><p>If you have several open projects, commands like <span class="menu">Project|Build project</span> or a search in the whole project work on the currently active project. This is indicated by a bolded project name. A project can be <span class="menu">Set active</span> from the context menu when right-clicking it.</p></li>
+</ul>
+
+<!--
+<hr />
+<a href="panes.html" style="border:none;float:right">Next: Panes</a>
+-->
+</div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-1	Spanish	application/x-vnd.Genio	335291597
+1	Spanish	application/x-vnd.Genio	2467019101
 About…	GenioWindow		Acerca de…
 An error occurred while switching branch:	GenioWindow		Ha ocurrido un error al intentar cambiar de rama:
 Appearance	GenioWindow		Apariencia
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Ir a declaración
 Go to definition	GenioWindow		Ir a definición
 Go to implementation	GenioWindow		Ir a implementación
 Go to line…	GenioWindow		Ir a línea…
+Help…	GenioWindow		Ayuda…
 Ignore	GenioWindow		Ignorar
 Invalid project folder	GenioWindow		Carpeta de proyecto inválida
 Keep	GenioWindow		Mantener
@@ -98,7 +99,7 @@ Replace:	GenioWindow		Reemplazar:
 Reset zoom	GenioWindow		Restablecer escala
 Run	GenioWindow		Ejecutar
 Run console program	GenioWindow		Ejecutar programa de consola
-Run target	GenioWindow		Ejecutar objetivo
+Run target	GenioWindow		Ejecutar destino
 Save	GenioWindow		Guardar
 Save all	GenioWindow		Guardar todo
 Save all files	GenioWindow		Guardar todos los archivos
@@ -160,9 +161,6 @@ Switch to branch	ProjectsFolderBrowser		Cambiar a rama
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La carpeta del proyecto ha sido eliminada o movida a otra ubicación, por lo que se cerrará y descargará del espacio de trabajo.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		La carpeta del proyecto ha sido renombrada. Se cerrará y reabrirá automáticamente.
 An unknown error occurred.	SourceControlPanel		Ha ocurrido un error desconocido.
-Branch created succesfully.	SourceControlPanel		Rama creada exitosamente.
-Branch deleted succesfully.	SourceControlPanel		Rama eliminada exitosamente.
-Branch renamed succesfully.	SourceControlPanel		Rama renombrada exitosamente.
 Cancel	SourceControlPanel		Cancelar
 Changes stashed.	SourceControlPanel		Cambios añadidos al depósito (stash).
 Choose branch…	SourceControlPanel		Elegir rama…
@@ -271,19 +269,19 @@ The local path is not valid or does not exist	RemoteProjectWindow		La ruta local
 URL:	RemoteProjectWindow		URL:
 Build commands	ProjectSettingsWindow		Comandos de compilación
 Cancel	ProjectSettingsWindow		Cancelar
-Debug build command:	ProjectSettingsWindow		Comando de compilación de «depuración»:
-Debug clean command:	ProjectSettingsWindow		Comando de limpieza de «depuración»:
-Debug execute arguments:	ProjectSettingsWindow		Argumentos de ejecución de «depuración»:
-Debug project target:	ProjectSettingsWindow		Destino «depuración» del proyecto:
+Debug build command:	ProjectSettingsWindow		Compilación de «depuración»:
+Debug clean command:	ProjectSettingsWindow		Limpieza de «depuración»:
+Debug execute arguments:	ProjectSettingsWindow		Argumentos de «depuración»:
+Debug project target:	ProjectSettingsWindow		Destino de «depuración»:
 Default	ProjectSettingsWindow		Predeterminado
 OK	ProjectSettingsWindow		Aceptar
 Project:	ProjectSettingsWindow		Proyecto:
-Release build command:	ProjectSettingsWindow		Comando de compilación de «lanzamiento»:
-Release clean command:	ProjectSettingsWindow		Comando de limpieza de «lanzamiento»:
-Release execute arguments:	ProjectSettingsWindow		Argumentos de ejecución de «lanzamiento»:
-Release project target:	ProjectSettingsWindow		Destino «lanzamiento» del proyecto:
+Release build command:	ProjectSettingsWindow		Compilación de «lanzamiento»:
+Release clean command:	ProjectSettingsWindow		Limpieza de «lanzamiento»:
+Release execute arguments:	ProjectSettingsWindow		Argumentos de «lanzamiento»:
+Release project target:	ProjectSettingsWindow		Destino de «lanzamiento»:
 Run in Terminal	ProjectSettingsWindow		Ejecutar en Terminal
-Target	ProjectSettingsWindow		Objetivo
+Target	ProjectSettingsWindow		Destino
 Cancel	GoToLineWindow		Cancelar
 Go to line	GoToLineWindow		Ir a línea
 Go to line:	GoToLineWindow		Ir a línea:
@@ -313,6 +311,7 @@ Message	ProblemsPanel		Mensaje
 Problems	ProblemsPanel		Problemas
 Source	ProblemsPanel		Fuente
 Defaults	ConfigWindow		Predeterminados
+Settings	ConfigWindow		Ajustes
 Edit user templates…	TemplatesMenu		Editar plantillas de usuario…
 File deleted	GitRepository		Archivo eliminado
 File deleted from index	GitRepository		Archivo eliminado del índice

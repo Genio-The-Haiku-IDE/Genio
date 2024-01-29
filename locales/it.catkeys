@@ -1,4 +1,4 @@
-1	Italian	application/x-vnd.Genio	335291597
+1	Italian	application/x-vnd.Genio	2467019101
 About…	GenioWindow		A proposito di…
 An error occurred while switching branch:	GenioWindow		C'è stato un errore durante il passaggio di branch:
 Appearance	GenioWindow		Aspetto
@@ -24,7 +24,7 @@ Copy	GenioWindow		Copia
 Could not create a new file	GenioWindow		Impossibile creare un nuovo file
 Could not delete \"%name%\".\n\n	GenioWindow		Impossibile cancellare \"%name%\".\n\n
 Cut	GenioWindow		Taglia
-Debug	GenioWindow		Avvia debug
+Debug	GenioWindow		Debug
 Debug project	GenioWindow		Avvia debug del progetto
 Delete	GenioWindow		Elimina
 Delete current line	GenioWindow		Elimina linea corrente
@@ -55,6 +55,7 @@ Go to declaration	GenioWindow		Vai alla dichiarazione
 Go to definition	GenioWindow		Vai alla definizione
 Go to implementation	GenioWindow		Vai all'implementazione
 Go to line…	GenioWindow		Vai alla riga…
+Help…	GenioWindow		Aiuto…
 Ignore	GenioWindow		Ignora
 Invalid project folder	GenioWindow		Cartella di progetto non valida
 Keep	GenioWindow		Mantieni
@@ -160,9 +161,6 @@ Switch to branch	ProjectsFolderBrowser		Passa al branch
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La cartella di progetto è stata cancellata o spostata e sarà chiusa e tolta dallo spazio di lavoro.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		La cartella del progetto è stata rinominata. Sarà chiusa e riaperta automaticamente.
 An unknown error occurred.	SourceControlPanel		Errore sconosciuto.
-Branch created succesfully.	SourceControlPanel		Branch creato con successo.
-Branch deleted succesfully.	SourceControlPanel		Branch cancellato con successo.
-Branch renamed succesfully.	SourceControlPanel		Branch rinominato con successo.
 Cancel	SourceControlPanel		Annulla
 Changes stashed.	SourceControlPanel		Modifiche stashed.
 Choose branch…	SourceControlPanel		Scegli branch…
@@ -271,7 +269,7 @@ The local path is not valid or does not exist	RemoteProjectWindow		Il percorso l
 URL:	RemoteProjectWindow		URL:
 Build commands	ProjectSettingsWindow		Comandi di compilazione
 Cancel	ProjectSettingsWindow		Annulla
-Debug build command:	ProjectSettingsWindow		Compilazione in modalità Debug
+Debug build command:	ProjectSettingsWindow		Compilazione in modalità debug
 Debug clean command:	ProjectSettingsWindow		Comando di pulizia per il debug:
 Debug execute arguments:	ProjectSettingsWindow		Argomenti di esecuzione per il debug:
 Debug project target:	ProjectSettingsWindow		Obiettivo del progetto per il debug:
@@ -313,6 +311,7 @@ Message	ProblemsPanel		Messaggio
 Problems	ProblemsPanel		Problemi
 Source	ProblemsPanel		Origine
 Defaults	ConfigWindow		Predefiniti
+Settings	ConfigWindow		Impostazioni
 Edit user templates…	TemplatesMenu		Modifica i modelli utente...
 File deleted	GitRepository		File cancellato
 File deleted from index	GitRepository		File cancellato dall'index

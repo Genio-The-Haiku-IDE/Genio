@@ -6,10 +6,12 @@
 
 #include "ConfigWindow.h"
 
+#include <Box.h>
 #include <Button.h>
 #include <CardView.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <ColorControl.h>
 #include <LayoutBuilder.h>
 #include <OptionPopUp.h>
 #include <OutlineListView.h>
@@ -69,7 +71,6 @@ public:
 		void LoadValue(T value) {
 			C::SetValue(value);
 		}
-
 private:
 		ConfigManager&	fConfigManager;
 };
@@ -113,8 +114,32 @@ void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
 }
 
 
+// BColorControl
+template<>
+GControl<BColorControl, rgb_color>::GControl(GMessage& msg, rgb_color value, ConfigManager& cfg)
+	:
+	BColorControl(B_ORIGIN,	B_CELLS_32x8, 8, ""),
+	fConfigManager(cfg)
+{
+	BColorControl::SetName(msg["key"]);
+	BColorControl::SetLabel(msg["label"]);
+	LoadValue(value);
+
+	GMessage* invoke = new GMessage(kOnNewValue);
+	(*invoke)["key"] = msg["key"];
+	BColorControl::SetMessage(invoke);
+}
+
+
+template<>
+rgb_color GControl<BColorControl, rgb_color>::RetrieveValue()
+{
+       return BColorControl::ValueAsColor();
+}
+
+
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
-    : BWindow(BRect(100, 100, 700, 500), "Settings", B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
+    : BWindow(BRect(100, 100, 700, 500), B_TRANSLATE("Settings"), B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
               B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
       fConfigManager(configManager)
 {
@@ -170,6 +195,25 @@ ConfigWindow::_Init()
 	fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 
 	return theView;
+}
+
+bool
+ConfigWindow::QuitRequested()
+{
+	// it could happen that the user changed a BTextControl
+	// without 'committing' it (by changing focus or by pressing enter)
+	// here we try detect this case and fix it
+	if (CurrentFocus() != nullptr &&
+	    CurrentFocus()->Parent() != nullptr) {
+		BTextControl* control = dynamic_cast<BTextControl*>(CurrentFocus()->Parent());
+		if (control != nullptr) {
+			// let's avoid code duplications on how to invoke a config change.
+			// and let's do it syncronous to avoid messing up with the quit workflow!
+			GMessage msg = { {"what", kOnNewValue}, {"key", control->Name()}};
+			control->MessageReceived(&msg);
+		}
+	}
+	return BWindow::QuitRequested();
 }
 
 
@@ -244,18 +288,19 @@ ConfigWindow::_PopulateListView()
 
 	std::vector<GMessage>::iterator iter = dividedByGroup.begin();
 	while (iter != dividedByGroup.end())  {
-		BView *groupView = MakeViewFor((const char*)(*iter)["group"], *iter);
+		BString groupName = static_cast<const char*>((*iter)["group"]);
+		BView *groupView = MakeViewFor(groupName.String(), *iter);
 		if (groupView != NULL) {
-			groupView->SetName((const char*)(*iter)["group"]);
+			groupView->SetName(groupName.String());
 			fCardView->AddChild(groupView);
-			BString groupName = (const char*)(*iter)["group"];
+
 			int32 position = groupName.FindFirstChars("/", 0);
 			if (position > 0) {
 				BString leaf;
 				groupName.CopyCharsInto(leaf,0,position);
 				groupName.Remove(0, position + 1);
 				for (int y = 0;y < fGroupList->FullListCountItems(); y++) {
-					BStringItem* item = (BStringItem*)fGroupList->FullListItemAt(y);
+					BStringItem* item = static_cast<BStringItem*>(fGroupList->FullListItemAt(y));
 					if (leaf.Compare(item->Text()) == 0) {
 						int32 count = fGroupList->CountItemsUnder(item, false);
 						count = count + fGroupList->FullListIndexOf(item) + 1;
@@ -280,11 +325,8 @@ BView*
 ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 {
 	// Create and add the setting views
-	BGroupView *view = new BGroupView(groupName, B_HORIZONTAL,
-		B_USE_HALF_ITEM_SPACING);
-	BGroupLayout *layout = view->GroupLayout();
-	layout->SetInsets(B_USE_HALF_ITEM_INSETS);
-
+	BBox* box = new BBox(groupName);
+	box->SetLabel(groupName);
 	BGroupView *settingView = new BGroupView(groupName, B_VERTICAL,
 		B_USE_HALF_ITEM_SPACING);
 	BGroupLayout *settingLayout = settingView->GroupLayout();
@@ -296,16 +338,20 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 		BView *parameterView = MakeControlFor(msg);
 		if (parameterView == NULL)
 			return nullptr;
-
+		BColorControl* colorControl = dynamic_cast<BColorControl*>(parameterView);
+		if (colorControl != nullptr) {
+			// BColorControls don't have a label so we add one ourselves
+			settingLayout->AddView(new BStringView(colorControl->Label(), colorControl->Label()));
+		}
 		settingLayout->AddView(parameterView);
 		if (msg.Has("note"))
 			settingLayout->AddView(MakeNoteView(msg));
 	}
 
 	settingLayout->AddItem(BSpaceLayoutItem::CreateHorizontalStrut(10));
-	layout->AddView(settingView);
-	layout->AddItem(BSpaceLayoutItem::CreateGlue());
-	return view;
+	box->AddChild(settingView);
+
+	return box;
 }
 
 
@@ -357,6 +403,12 @@ ConfigWindow::MakeControlFor(GMessage& config)
 				control->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
 				return control;
 			}
+		}
+		case B_RGB_COLOR_TYPE:
+		{
+			GControl<BColorControl, rgb_color>* control =
+				new GControl<BColorControl, rgb_color>(config, fConfigManager[config["key"]], fConfigManager);
+			return control;
 		}
 		default:
 		{

@@ -16,6 +16,9 @@ cmake:
 cpp:
     name: C++
     extensions: [ cc, cpp, cxx, h, hh, hpp, hxx, dox ]
+csharp:
+    name: C#
+    extensions: [ cs, csproj]
 css:
     name: CSS
     extensions: [ css ]

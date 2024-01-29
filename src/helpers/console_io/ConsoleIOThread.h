@@ -23,17 +23,18 @@
  * apply some logic (reenable build/run buttons and menus).
  * stdin is handled via DispatchMessage in main window.
  */
-#ifndef CONSOLE_THREAD_H
-#define CONSOLE_THREAD_H
+#pragma once
 
+#include "GenericThread.h"
+
+#include <Locker.h>
 #include <Message.h>
 #include <Messenger.h>
 #include <String.h>
 
-#include "GenericThread.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
 
+#include "PipeImage.h"
 
 enum {
 	CONSOLEIOTHREAD_EXIT				= 'Cexi',
@@ -46,44 +47,33 @@ public:
 								ConsoleIOThread(BMessage* cmd_message,
 									const BMessenger& consoleTarget);
 
-								~ConsoleIOThread();
+	virtual						~ConsoleIOThread();
 
-			status_t			SuspendExternal();
-			status_t			ResumeExternal();
 			status_t			InterruptExternal();
-			status_t			IsProcessAlive();
-			bool				IsDone() { return fIsDone; };
 
-			void				PushInput(BString text);
-
-			status_t			GetFromPipe(BString& stdOut, BString& stdErr);
+			bool				IsDone() const { return fIsDone; };
 
 protected:
 	virtual	void	OnStdOutputLine(const BString& stdOut);
 	virtual void	OnStdErrorLine(const BString& stdErr);
-	virtual void	OnThreadShutdown();
+	virtual void	ThreadExitNotification();
 	BMessenger		fTarget;
 
 private:
+			void				PushInput(BString text);
+			bool				IsProcessAlive() const;
+			status_t			GetFromPipe(BString& stdOut, BString& stdErr);
 			void				ClosePipes();
-	virtual	status_t			ExecuteUnit();
-	virtual	status_t			ThreadShutdown();
-	virtual	void				ExecuteUnitFailed(status_t a_status);
-
-
-			thread_id			PipeCommand(int argc, const char** argv,
-									int& in, int& out, int& err,
-									const char** envp = (const char**)environ);
+	virtual	status_t			ThreadStartup() override;
+	virtual	status_t			ExecuteUnit() override;
+	virtual	status_t			ThreadShutdown() override;
 
 			void				_CleanPipes();
 			status_t			_RunExternalProcess();
 
+	virtual status_t			Kill(void);
 
-
-			thread_id			fProcessId;
-			int					fStdIn;
-			int					fStdOut;
-			int					fStdErr;
+			thread_id			fExternalProcessId;
 			FILE*				fConsoleOutput;
 			FILE*				fConsoleError;
 			char				fConsoleOutputBuffer[LINE_MAX];
@@ -91,7 +81,6 @@ private:
 			bool				fIsDone;
 			BString				fLastOutputString;
 			BString				fLastErrorString;
+			BLocker				fProcessIDLock;
+			PipeImage			fPipeImage;
 };
-
-
-#endif	// CONSOLE_THREAD_H

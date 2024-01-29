@@ -13,7 +13,8 @@
 #include "LSPTextDocument.h"
 #include "Sci_Position.h"
 #include "protocol_objects.h"
-
+#include "LSPCapabilities.h"
+#include "CallTipContext.h"
 
 class LSPProjectWrapper;
 class Editor;
@@ -32,6 +33,7 @@ public:
 		void	SetLSPServer(LSPProjectWrapper* cW);
 		void	UnsetLSPServer();
 		bool	HasLSPServer();
+		bool	HasLSPServerCapability(const LSPCapability cap);
 		void	ApplyFix(BMessage* info);
 
 private:
@@ -54,25 +56,9 @@ public:
 
 		void	CharAdded(const char ch /*utf-8?*/);
 
-		/* experimental */
-		void	ContinueCallTip();
-		void	UpdateCallTip(int deltaPos);
+		void	NextCallTip();
+		void	PrevCallTip();
 
-		void	RequestDocumentSymbols();
-
-private:
-		/* experimental section */
-		bool	StartCallTip(bool searchStart);
-
-		int 	fBraceCount = 0;
-		int 	fStartCalltipWord;
-		Sci_Position fCalltipPosition;
-		Sci_Position fCalltipStartPosition;
-		SignatureHelp 	fLastCalltip;
-		int 	fCurrentCalltip = 0;
-		int 	fMaxCalltip = 0;
-		std::string fFunctionDefinition;
-		/************************/
 public:
 		//still experimental
 		//std::string		fID;
@@ -95,6 +81,7 @@ public:
 	BTextToolTip* 		fToolTip;
 	LSPProjectWrapper*	fLSPProjectWrapper;
 	BString				fFileStatus;
+	CallTipContext		fCallTip;
 
 	struct LSPDiagnostic { InfoRange range; Diagnostic diagnostic; std::string fixTitle;};
 
@@ -135,6 +122,8 @@ private:
 	void			OpenFileURI(std::string uri, int32 line = -1, int32 character = -1);
 	std::string 	GetCurrentLine();
 	bool			IsStatusValid();
+
+
 };
 
 #endif // LSPEditorWrapper_H

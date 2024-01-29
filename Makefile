@@ -6,8 +6,10 @@ platform := $(shell uname -p)
 debug ?= 0
 ifeq ($(debug), 0)
 	DEBUGGER :=
+	CFLAGS :=
 else
 	DEBUGGER := TRUE
+	CFLAGS := -DGDEBUG
 endif
 
 ## clang build flag ############################################################
@@ -60,8 +62,9 @@ SRCS += src/lsp-client/LSPProjectWrapper.cpp
 SRCS += src/lsp-client/LSPPipeClient.cpp
 SRCS += src/lsp-client/Transport.cpp
 SRCS += src/lsp-client/LSPReaderThread.cpp
+SRCS += src/lsp-client/LSPServersManager.cpp
+SRCS += src/lsp-client/CallTipContext.cpp
 SRCS += src/override/BarberPole.cpp
-SRCS += src/project/ProjectSettingsWindow.cpp
 SRCS += src/project/ProjectFolder.cpp
 SRCS += src/project/ProjectItem.cpp
 SRCS += src/git/BranchItem.cpp
@@ -91,9 +94,10 @@ SRCS += src/templates/TemplatesMenu.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/helpers/PipeImage.cpp
 
+
 RDEFS := Genio.rdef
 
-LIBS = be shared translation localestub $(STDCPPLIBS)
+LIBS  = be shared translation localestub $(STDCPPLIBS)
 LIBS += columnlistview tracker
 LIBS += git2
 LIBS += src/scintilla/bin/libscintilla.a
@@ -109,14 +113,15 @@ SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY priva
 SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/storage)
 SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/support)
 SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/tracker)
-SYSTEM_INCLUDE_PATHS +=	$(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY lexilla)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/locale)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY lexilla)
 SYSTEM_INCLUDE_PATHS += src/scintilla/haiku
 SYSTEM_INCLUDE_PATHS += src/scintilla/include
 
 # For BarberPole.h, which is not available in beta4
 SYSTEM_INCLUDE_PATHS += src/override
 
-CFLAGS := -Wall -Werror
+CFLAGS += -Wall -Werror
 
 CXXFLAGS := -std=c++20 -fPIC
 
@@ -126,7 +131,7 @@ CXXFLAGS := -std=c++20 -fPIC
 	endif
 #endif
 
-LOCALES := ca de en es it sc tr
+LOCALES := ca de en en_AU en_GB es es_419 fr fur it nb sc tr
 
 ## Include the Makefile-Engine
 include $(BUILDHOME)/etc/makefile-engine

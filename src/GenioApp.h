@@ -26,7 +26,6 @@ public:
 
 private:
 	static BStringList		_SplitChangeLog(const char* changeLog);
-	static void				_SetSessionLogLevel(char level);
 	int						_HandleArgs(int argc, char **argv);
 	static void				_PrepareConfig(ConfigManager& cfg);
 

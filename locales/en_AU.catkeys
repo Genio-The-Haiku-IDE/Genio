@@ -1,5 +1,6 @@
-1	English (Australian)	application/x-vnd.Genio	2456584478
+1	English (Australian)	application/x-vnd.Genio	2467019101
 About…	GenioWindow		About…
+An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
 Appearance	GenioWindow		Appearance
 Autocomplete	GenioWindow		Autocomplete
 Bookmark	GenioWindow		Bookmark
@@ -17,11 +18,11 @@ Close file	GenioWindow		Close file
 Close project	GenioWindow		Close project
 Comment selected lines	GenioWindow		Comment selected lines
 Configure	GenioWindow		Configure
+Conflicts	GenioWindow		Conflicts
 Console I/O	GenioWindow		Console I/O
 Copy	GenioWindow		Copy
 Could not create a new file	GenioWindow		Could not create a new file
 Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
-Could not open template folder in Tracker	GenioWindow		Could not open template folder in Tracker
 Cut	GenioWindow		Cut
 Debug	GenioWindow		Debug
 Debug project	GenioWindow		Debug project
@@ -44,31 +45,38 @@ Find in project	GenioWindow		Find in project
 Find next	GenioWindow		Find next
 Find previous	GenioWindow		Find previous
 Find:	GenioWindow		Find:
+Focus mode	GenioWindow		Focus mode
 Fold/Unfold all	GenioWindow		Fold/Unfold all
 Format	GenioWindow		Format
+Fullscreen	GenioWindow		Fullscreen
+Genio project…	GenioWindow		Genio project…
 Git	GenioWindow		Git
 Go to declaration	GenioWindow		Go to declaration
 Go to definition	GenioWindow		Go to definition
 Go to implementation	GenioWindow		Go to implementation
 Go to line…	GenioWindow		Go to line…
-Help	GenioWindow		Help
+Help…	GenioWindow		Help…
 Ignore	GenioWindow		Ignore
 Invalid project folder	GenioWindow		Invalid project folder
 Keep	GenioWindow		Keep
+Language	GenioWindow		Language
 Line endings	GenioWindow		Line endings
 Log	GenioWindow	The git command	Log
 Log (oneline)	GenioWindow	The git command	Log (oneline)
 Mac	GenioWindow		Mac
+Make bindcatalogs	GenioWindow		Make bindcatalogs
+Make catkeys	GenioWindow		Make catkeys
 Make file read-only	GenioWindow		Make file read-only
 Match case	GenioWindow		Match case
 New	GenioWindow		New
 New file	GenioWindow		New file
 New folder	GenioWindow		New folder
 Next	GenioWindow	Bookmark menu	Next
-Open	GenioWindow		Open
 Open files list	GenioWindow		Open files list
-Open project	GenioWindow		Open project
+Open project…	GenioWindow		Open project…
 Open recent…	GenioWindow		Open recent…
+Open remote project…	GenioWindow		Open remote project…
+Open…	GenioWindow		Open…
 Overwrite	GenioWindow		Overwrite
 Paste	GenioWindow		Paste
 Previous	GenioWindow	Bookmark menu	Previous
@@ -114,6 +122,7 @@ Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Status	GenioWindow	The git command	Status
 Status (short)	GenioWindow	The git command	Status (short)
 Switch source/header	GenioWindow		Switch source/header
+Switch to branch	GenioWindow		Switch to branch
 Switch to next file	GenioWindow		Switch to next file
 Switch to previous file	GenioWindow		Switch to previous file
 Tag	GenioWindow	The git command	Tag
@@ -128,82 +137,150 @@ Wrap	GenioWindow		Wrap
 You can't create a new folder here, please select a project or another folder	GenioWindow		You can't create a new folder here, please select a project or another folder
 Zoom in	GenioWindow		Zoom in
 Zoom out	GenioWindow		Zoom out
+Active	EditorTabManager		Active
+Project	EditorTabManager		Project
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
+Build project	ProjectsFolderBrowser		Build project
+Clean project	ProjectsFolderBrowser		Clean project
 Close project	ProjectsFolderBrowser		Close project
+Current branch	ProjectsFolderBrowser		Current branch
 Delete file	ProjectsFolderBrowser		Delete file
+Delete folder	ProjectsFolderBrowser		Delete folder
 New	ProjectsFolderBrowser		New
 OK	ProjectsFolderBrowser		OK
 Open file	ProjectsFolderBrowser		Open file
 Open Terminal	ProjectsFolderBrowser		Open Terminal
+Path	ProjectsFolderBrowser		Path
+Project	ProjectsFolderBrowser		Project
+Project settings…	ProjectsFolderBrowser		Project settings…
 Rename file	ProjectsFolderBrowser		Rename file
+Rename folder	ProjectsFolderBrowser		Rename folder
 Set active	ProjectsFolderBrowser		Set active
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
+Switch to branch	ProjectsFolderBrowser		Switch to branch
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
+An unknown error occurred.	SourceControlPanel		An unknown error occurred.
+Cancel	SourceControlPanel		Cancel
+Changes stashed.	SourceControlPanel		Changes stashed.
+Choose branch…	SourceControlPanel		Choose branch…
+Choose project…	SourceControlPanel		Choose project…
+Conflicts	SourceControlPanel		Conflicts
+Copy name	SourceControlPanel		Copy name
+Create initial commit	SourceControlPanel		Create initial commit
+Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
+Current branch:	SourceControlPanel		Current branch:
+Delete	SourceControlPanel		Delete
+Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
+Delete dialog	SourceControlPanel		Delete dialog
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
+Do not create the initial commit	SourceControlPanel		Do not create the initial commit
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
+Enter a message for this stash	SourceControlPanel		Enter a message for this stash
+Fetch	SourceControlPanel		Fetch
+Fetch completed.	SourceControlPanel		Fetch completed.
+Fetch prune	SourceControlPanel		Fetch prune
+Fetch prune completed.	SourceControlPanel		Fetch prune completed.
+Init repository	SourceControlPanel		Init repository
+Local branches	SourceControlPanel		Local branches
+OK	SourceControlPanel		OK
+Options	SourceControlPanel		Options
+Project:	SourceControlPanel		Project:
+Remote branches	SourceControlPanel		Remote branches
+Remotes	SourceControlPanel		Remotes
+Rename \"%selected_branch%\"	SourceControlPanel		Rename \"%selected_branch%\"
+Rename branch	SourceControlPanel		Rename branch
+Rename branch:	SourceControlPanel		Rename branch:
+Repository	SourceControlPanel		Repository
+Source control	SourceControlPanel		Source control
+Stash apply changes	SourceControlPanel		Stash apply changes
+Stash changes	SourceControlPanel		Stash changes
+Stash pop changes	SourceControlPanel		Stash pop changes
+Stashed changes applied.	SourceControlPanel		Stashed changes applied.
+Stashed changes popped.	SourceControlPanel		Stashed changes popped.
+Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
+Tags	SourceControlPanel		Tags
+The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Another command is running.	ConsoleIOView		Another command is running.
 Banner	ConsoleIOView		Banner
 Clear	ConsoleIOView		Clear
+Restarting build…	ConsoleIOView		Restarting build…
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
 Stop	ConsoleIOView		Stop
 Wrap	ConsoleIOView		Wrap
-Apply	SettingsWindow		Apply
-Browse…	SettingsWindow		Browse…
+Auto collapse/expand projects	SettingsWindow		Auto collapse/expand projects
+Auto-Build on resource save	SettingsWindow		Auto-Build on resource save
+Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
 Build	SettingsWindow		Build
-Cancel	SettingsWindow		Cancel
 Console banner	SettingsWindow		Console banner
-Default	SettingsWindow		Default
+Convert tabs to spaces	SettingsWindow		Convert tabs to spaces
 Default size	SettingsWindow		Default size
-Defaults loaded	SettingsWindow		Defaults loaded
-Edge column:	SettingsWindow		Edge column:
 Editor	SettingsWindow		Editor
+Editor style:	SettingsWindow		Editor style:
+Editor zoom:	SettingsWindow		Editor zoom:
 Enable brace matching	SettingsWindow		Enable brace matching
 Enable folding	SettingsWindow		Enable folding
-Enable notifications	SettingsWindow		Enable Notifications
 Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
+Exclude folders:	SettingsWindow		Exclude folders:
+Find	SettingsWindow		Find
 Font size:	SettingsWindow		Font size:
-Font:	SettingsWindow		Font:
 General	SettingsWindow		General
 Log destination:	SettingsWindow		Log destination:
 Log level:	SettingsWindow		Log level:
 Mark caret line	SettingsWindow		Mark caret line
-Notifications	SettingsWindow		Notifications
+Match case	SettingsWindow		Match case
 Projects folder:	SettingsWindow		Projects folder:
 Reload files	SettingsWindow		Reload files
 Reload projects	SettingsWindow		Reload projects
-Revert	SettingsWindow		Revert
 Save caret position	SettingsWindow		Save caret position
-Save position	SettingsWindow		Save position
-Set for app ver: 	SettingsWindow		Set for app ver: 
+Set ruler to column:	SettingsWindow		Set ruler to column:
 Show comment margin	SettingsWindow		Show comment margin
-Show edge line	SettingsWindow		Show edge line
 Show full path in window title	SettingsWindow		Show full path in window title
+Show line endings	SettingsWindow		Show line endings
 Show line number	SettingsWindow		Show line number
 Show output pane	SettingsWindow		Show output pane
 Show projects pane	SettingsWindow		Show projects pane
+Show repository outline	SettingsWindow		Show repository outline
 Show toolbar	SettingsWindow		Show toolbar
+Show vertical ruler	SettingsWindow		Show vertical ruler
+Show whitespace	SettingsWindow		Show whitespace
+Source control	SettingsWindow		Source control
 Startup	SettingsWindow		Startup
-Tab width:  	SettingsWindow		Tab width:  
-This is the font size preview	SettingsWindow		This is the font size preview
+Tab width:	SettingsWindow		Tab width:  
+This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
+Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
 Visual	SettingsWindow		Visual
+Whole word	SettingsWindow		Whole word
+Wrap	SettingsWindow		Wrap
 Wrap console	SettingsWindow		Wrap console
+Base path:	RemoteProjectWindow		Base path:
+Browse…	RemoteProjectWindow		Browse…
+Cancel	RemoteProjectWindow		Cancel
+Clone	RemoteProjectWindow		Clone
+Close	RemoteProjectWindow		Close
+Continue	RemoteProjectWindow		Continue
+Destination folder:	RemoteProjectWindow		Destination folder:
+Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
+Open remote Git project	RemoteProjectWindow		Open remote Git project
+Stop	RemoteProjectWindow		Stop
+The local path is not valid or does not exist	RemoteProjectWindow		The local path is not valid or does not exist
+URL:	RemoteProjectWindow		URL:
 Build commands	ProjectSettingsWindow		Build commands
 Cancel	ProjectSettingsWindow		Cancel
-Debug build comand:	ProjectSettingsWindow		Debug build comand:
-Debug clean comand:	ProjectSettingsWindow		Debug clean comand:
+Debug build command:	ProjectSettingsWindow		Debug build command:
+Debug clean command:	ProjectSettingsWindow		Debug clean command:
 Debug execute arguments:	ProjectSettingsWindow		Debug execute arguments:
 Debug project target:	ProjectSettingsWindow		Debug project target:
 Default	ProjectSettingsWindow		Default
-Enable Git	ProjectSettingsWindow		Enable Git
-Exclude settings file from Git	ProjectSettingsWindow		Exclude settings file from Git
 OK	ProjectSettingsWindow		OK
 Project:	ProjectSettingsWindow		Project:
-Release build comand:	ProjectSettingsWindow		Release build comand:
-Release clean comand:	ProjectSettingsWindow		Release clean comand:
+Release build command:	ProjectSettingsWindow		Release build command:
+Release clean command:	ProjectSettingsWindow		Release clean command:
 Release execute arguments:	ProjectSettingsWindow		Release execute arguments:
 Release project target:	ProjectSettingsWindow		Release project target:
 Run in Terminal	ProjectSettingsWindow		Run in Terminal
-Source control	ProjectSettingsWindow		Source control
 Target	ProjectSettingsWindow		Target
 Cancel	GoToLineWindow		Cancel
 Go to line	GoToLineWindow		Go to line
@@ -211,6 +288,8 @@ Go to line:	GoToLineWindow		Go to line:
 OK	GoToLineWindow		OK
 Cancel	Editor		Cancel
 Don't save	Editor		Don't save
+Fix: %fix_desc%	Editor		Fix: %fix_desc%
+No fix available	Editor		No fix available
 Save	Editor		Save
 Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
 Save dialog	Editor		Save dialog
@@ -220,21 +299,33 @@ Save all	QuitAlert		Save all
 Save selected	QuitAlert		Save selected
 There are unsaved changes.\nSelect the files to save.	QuitAlert		There are unsaved changes.\nSelect the files to save.
 Unsaved files	QuitAlert		Unsaved files
+Cancel	GitCredentialsWindow		Cancel
+Git - User Credentials	GitCredentialsWindow		Git - User Credentials
+OK	GitCredentialsWindow		OK
+Password:	GitCredentialsWindow		Password:
+Username:	GitCredentialsWindow		Username:
+Cancel	GTextAlert		Cancel
+OK	GTextAlert		OK
 Category	ProblemsPanel		Category
 Message	ProblemsPanel		Message
 Problems	ProblemsPanel		Problems
 Source	ProblemsPanel		Source
-Do you want to ignore, review or load defaults?	GenioApp		Do you want to ignore, review or load defaults?
+Defaults	ConfigWindow		Defaults
+Settings	ConfigWindow		Settings
+Edit user templates…	TemplatesMenu		Edit user templates…
+File deleted	GitRepository		File deleted
+File deleted from index	GitRepository		File deleted from index
+File modified	GitRepository		File modified
+File modified on index	GitRepository		File modified on index
+New file	GitRepository		New file
+New file staged	GitRepository		New file staged
+Genio	System name		Genio
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
-Ignore	GenioApp		Ignore
-Load defaults	GenioApp		Load defaults
 Made with love in Italy	GenioApp		Made with love in Italy
-Review	GenioApp		Review
 See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
-Settings file for a previous version detected.	GenioApp		Settings file for a previous version detected.
-The settings file doesn't exist or is corrupted.	GenioApp		The settings file doesn't exist or is corrupted.
-Edit user templates…	TemplatesMenu		Edit user templates…
-Genio	System name		Genio
+Location	SearchResultPanel		Location
+Search results	SearchResultPanel		Search results
 New folder	TemplateManager		New folder
 OK	Utilities		OK
+OK	GitAlert		OK

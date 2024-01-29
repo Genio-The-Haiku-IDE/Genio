@@ -18,16 +18,22 @@ class PipeImage {
 
 public:
 
-  status_t Init(const char *argv[], int32 argc, bool resume = true);
+  status_t Init(const char **argv, int32 argc, bool dupStdErr, bool resume);
+
   virtual ~PipeImage();
   void	Close();
 
   pid_t GetChildPid();
 
+  ssize_t ReadError(void* buffer, size_t size);
   ssize_t Read(void* buffer, size_t size);
   ssize_t Write(const void* buffer, size_t size);
 
   static BLocker *sLockStdFilesPntr;
+
+  int GetStdOutFD() { return fInPipe[READ_END]; };
+  int GetStdErrFD() { return fErrPipe[READ_END]; };
+  int GetStdInFD() { return fOutPipe[WRITE_END]; };
 
 protected:
 
@@ -35,9 +41,8 @@ protected:
   pid_t fChildpid;
   int fOutPipe[2];
   int fInPipe[2];
-#if 0
   int fErrPipe[2];
-#endif
+  bool	fDupStdErr;
 };
 
 

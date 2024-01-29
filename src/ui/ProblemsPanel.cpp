@@ -44,11 +44,11 @@ ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
 
 {
 	AddColumn(new BStringColumn( B_TRANSLATE("Category"),
-								200.0, 200.0, 200.0, 0), kCategoryColumn);
+								200.0, 20.0, 800.0, 0), kCategoryColumn);
 	AddColumn(new BStringColumn( B_TRANSLATE("Message"),
-								600.0, 600.0, 800.0, 0), kMessageColumn);
+								600.0, 20.0, 2000.0, 0), kMessageColumn);
 	AddColumn(new BStringColumn( B_TRANSLATE("Source"),
-								200.0, 200.0, 200.0, 0), kSourceColumn);
+								100.0, 20.0, 200.0, 0), kSourceColumn);
 
 	fPopUpMenu = new BPopUpMenu("_popup");
 	fPopUpMenu->AddItem(fQuickFixItem = new BMenuItem("fix", nullptr));
@@ -75,12 +75,6 @@ void
 ProblemsPanel::MessageReceived(BMessage* msg)
 {
 	switch(msg->what) {
-		case B_COPY:
-		case B_CUT:
-		case B_PASTE:
-		case B_SELECT_ALL:
-			//to avoid crash! (WIP)
-			break;
 		case COLUMNVIEW_CLICK: {
 			RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
 			if (range) {

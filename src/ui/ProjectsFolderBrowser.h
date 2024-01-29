@@ -56,8 +56,11 @@ public:
 
 	int32			CountProjects() const;
 	ProjectFolder*	ProjectAt(int32 index) const;
+	ProjectFolder*	ProjectByPath(const BString& fullPath) const;
 
 	const BObjectList<ProjectFolder>*	GetProjectList() const;
+
+	void			SelectAndScroll(ProjectFolder*);
 
 private:
 

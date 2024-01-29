@@ -163,8 +163,14 @@ public:
 	}
 };
 
+bool		GetGenioDirectory(BPath& destPath);
 BPath		GetDataDirectory();
 BPath		GetUserSettingsDirectory();
 
 bool	IsXMasPeriod();
+
+BString	ReadFileContent(const char* filename, off_t maxSize);
+
+BString	GetVersion();
+
 #endif // UTILS_H

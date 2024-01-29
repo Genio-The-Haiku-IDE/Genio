@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Genio
+ * Copyright 2018-2024, Genio
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -23,47 +23,35 @@ ConfigManager::ConfigManager(const int32 messageWhat)
 }
 
 
-auto ConfigManager::operator[](const char* key) -> ConfigManagerReturn
+auto
+ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 {
 	return ConfigManagerReturn(key, *this);
 }
 
-bool
-ConfigManager::_CheckKeyIsValid(const char* key) const
-{
-	type_code type;
-	if (storage.GetInfo(key, &type) != B_OK) {
-		BString detail("No config key: ");
-		detail << key;
-		debugger(detail.String());
-		LogFatal(detail.String());
-		throw new std::exception();
-	}
-	return true;
-}
 
 bool
 ConfigManager::Has(GMessage& msg, const char* key) const
 {
 	type_code type;
-	return (msg.GetInfo(key, &type) == B_OK);
+	return msg.GetInfo(key, &type) == B_OK;
 }
 
 
 status_t
 ConfigManager::LoadFromFile(BPath path)
 {
-	GMessage fromFile;
 	BFile file;
 	status_t status = file.SetTo(path.Path(), B_READ_ONLY);
 	if (status == B_OK) {
+		GMessage fromFile;
 		status = fromFile.Unflatten(&file);
 		if (status == B_OK) {
 			GMessage msg;
 			int i = 0;
-			while (configuration.FindMessage("config", i++, &msg) == B_OK) {
+			while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 				const char* key = msg["key"];
-				if (fromFile.Has(key) && _SameTypeAndFixedSize(&fromFile, key, &storage, key)) {
+				if (fromFile.Has(key) && _SameTypeAndFixedSize(&fromFile, key, &fStorage, key)) {
 					(*this)[msg["key"]] = fromFile[msg["key"]];
 					LogInfo("Configuration files loading value for key [%s]", (const char*)msg["key"]);
 				} else {
@@ -73,6 +61,61 @@ ConfigManager::LoadFromFile(BPath path)
 		}
 	}
 	return status;
+}
+
+
+status_t
+ConfigManager::SaveToFile(BPath path) const
+{
+	BFile file;
+	status_t status = file.SetTo(path.Path(), B_WRITE_ONLY | B_CREATE_FILE);
+	if (status == B_OK) {
+		status = fStorage.Flatten(&file);
+	}
+	return status;
+}
+
+
+void
+ConfigManager::ResetToDefaults()
+{
+	// Will also send notifications for every setting change
+	GMessage msg;
+	int i = 0;
+	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
+		fStorage[msg["key"]] = msg["default_value"]; //to force the key creation
+		(*this)[msg["key"]] = msg["default_value"]; //to force the update
+	}
+}
+
+
+bool
+ConfigManager::HasAllDefaultValues()
+{
+	GMessage msg;
+	int i = 0;
+	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
+		if (fStorage[msg["key"]] != msg["default_value"]) {
+			LogDebug("Differs for key %s\n", (const char*)msg["key"]);
+			return false;
+		}
+	}
+	return true;
+}
+
+
+void
+ConfigManager::PrintAll() const
+{
+	PrintValues();
+	fConfiguration.PrintToStream();
+}
+
+
+void
+ConfigManager::PrintValues() const
+{
+	fStorage.PrintToStream();
 }
 
 
@@ -93,56 +136,16 @@ ConfigManager::_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
 }
 
 
-status_t
-ConfigManager::SaveToFile(BPath path)
-{
-	BFile file;
-	status_t status = file.SetTo(path.Path(), B_WRITE_ONLY | B_CREATE_FILE);
-	if (status == B_OK) {
-		status = storage.Flatten(&file);
-	}
-	return status;
-}
-
-
-void
-ConfigManager::ResetToDefaults()
-{
-	// Will also send notifications for every setting change
-	GMessage msg;
-	int i = 0;
-	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
-		storage[msg["key"]] = msg["default_value"]; //to force the key creation
-		(*this)[msg["key"]] = msg["default_value"]; //to force the update
-	}
-}
-
-
 bool
-ConfigManager::HasAllDefaultValues()
+ConfigManager::_CheckKeyIsValid(const char* key) const
 {
-	GMessage msg;
-	int i = 0;
-	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
-		if (storage[msg["key"]] != msg["default_value"]) {
-			LogDebug("Differs for key %s\n", (const char*)msg["key"]);
-			return false;
-		}
+	type_code type;
+	if (fStorage.GetInfo(key, &type) != B_OK) {
+		BString detail("No config key: ");
+		detail << key;
+		debugger(detail.String());
+		LogFatal(detail.String());
+		throw new std::exception();
 	}
 	return true;
-}
-
-
-void
-ConfigManager::PrintAll() const
-{
-	PrintValues();
-	configuration.PrintToStream();
-}
-
-
-void
-ConfigManager::PrintValues() const
-{
-	storage.PrintToStream();
 }

@@ -10,9 +10,11 @@
 #include <Locker.h>
 #include <atomic>
 #include <MessageFilter.h>
+#include <Messenger.h>
+
 #include "MessageHandler.h"
 #include "json_fwd.hpp"
-#include <Messenger.h>
+#include "LSPCapabilities.h"
 
 class  LSPTextDocument;
 struct TextDocumentContentChangeEvent;
@@ -27,6 +29,7 @@ struct WorkspaceEdit;
 struct ConfigurationSettings;
 enum class TypeHierarchyDirection: int;
 class LSPPipeClient;
+class LSPServerConfigInterface;
 
 using json = nlohmann::json;
 
@@ -34,12 +37,14 @@ using json = nlohmann::json;
 class LSPProjectWrapper : public BHandler {
 
 public:
-			LSPProjectWrapper(BPath rootPath, BMessenger& msgr);
-	virtual ~LSPProjectWrapper() = default;
+			LSPProjectWrapper(BPath rootPath,
+							  const BMessenger& msgr, const LSPServerConfigInterface& serverConfig);
+
+	virtual ~LSPProjectWrapper();
+
+	const LSPServerConfigInterface&	ServerConfig() { return fServerConfig;}
 
 	virtual	void	MessageReceived(BMessage* message);
-
-	bool	Dispose();
 
 	bool	RegisterTextDocument(LSPTextDocument* fw);
 	void	UnregisterTextDocument(LSPTextDocument* fw);
@@ -48,6 +53,10 @@ public:
     void onResponse(RequestID ID, value &result);
     void onError(RequestID ID, value &error);
     void onRequest(std::string method, value &params, value &ID);
+
+
+	bool HasCapability(const LSPCapability flag);
+
 
 public:
     RequestID Initialize(option<DocumentUri> rootUri = {});
@@ -94,6 +103,7 @@ private:
 	bool	_Create();
 	LSPPipeClient*			fLSPPipeClient;
 	LSPTextDocument*	_DocumentByURI(const char* uri);
+	bool _CheckAndSetCapability(json& capas, const char* str, const LSPCapability flag);
 
 	typedef std::map<std::string, LSPTextDocument*> MapFile;
 
@@ -107,6 +117,8 @@ private:
 	std::string fRootURI;
 	BMessenger fMessenger;
 	uint32		fWhat;
+	const LSPServerConfigInterface& fServerConfig;
+	uint32	fServerCapabilities;
 };
 
 #endif // _H_LSPProjectWrapper

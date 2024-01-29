@@ -251,7 +251,11 @@ struct Diagnostic {
     int severity = 0;
 
     /// The diagnostic's code. Can be omitted.
-    std::string code;
+	/// Note: this has been removed as can be a string (clangd) or a int (ccls)
+	/// we must implement a proper deserializer but because so far is not used,
+	/// let's just comment it.
+
+    ///std::string code; //code?: integer | string;
 
     /// A human-readable string describing the source of this
     /// diagnostic, e.g. 'typescript' or 'super lint'.

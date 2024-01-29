@@ -279,12 +279,6 @@ void
 ProjectsFolderBrowser::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case B_COPY:
-		case B_CUT:
-		case B_PASTE:
-		case B_SELECT_ALL:
-			//to avoid crash! (WIP)
-			break;
 		case B_PATH_MONITOR:
 		{
 			if (Logger::IsDebugEnabled())
@@ -373,6 +367,7 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 					BOutlineListView::MessageReceived(message);
 					break;
 			}
+		 break;
 		}
 		default:
 			BOutlineListView::MessageReceived(message);
@@ -795,17 +790,43 @@ ProjectsFolderBrowser::InitRename(ProjectItem *item)
 	Invalidate();
 }
 
+
 int32
 ProjectsFolderBrowser::CountProjects() const
 {
 	return fProjectList.CountItems();
 }
 
+
 ProjectFolder*
 ProjectsFolderBrowser::ProjectAt(int32 index) const
 {
 	return fProjectList.ItemAt(index);
 }
+
+
+ProjectFolder*
+ProjectsFolderBrowser::ProjectByPath(const BString& fullPath) const
+{
+	for (int32 i = 0; i < CountProjects(); i++) {
+		ProjectFolder* project = ProjectAt(i);
+		if (project != nullptr && project->Path() == fullPath)
+			return project;
+	}
+	return nullptr;
+}
+
+void
+ProjectsFolderBrowser::SelectAndScroll(ProjectFolder* projectFolder)
+{
+	ProjectItem* item = GetProjectItemForProject(projectFolder);
+	if (item != nullptr) {
+		Select(IndexOf(item));
+		ScrollToSelection();
+	}
+
+}
+
 
 const BObjectList<ProjectFolder>*
 ProjectsFolderBrowser::GetProjectList() const

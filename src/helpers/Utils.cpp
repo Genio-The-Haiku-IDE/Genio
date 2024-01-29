@@ -7,6 +7,7 @@
 #include "Utils.h"
 
 #include <Alert.h>
+#include <AppFileInfo.h>
 #include <Application.h>
 #include <Bitmap.h>
 #include <Catalog.h>
@@ -18,13 +19,14 @@
 #include <RadioButton.h>
 #include <Resources.h>
 #include <Roster.h>
-
 #include <algorithm>
 #include <string>
 #include <DateTime.h>
+#include <SystemCatalog.h>
 
 #include "GenioNamespace.h"
 
+using BPrivate::gSystemCatalog;
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Utilities"
@@ -306,32 +308,40 @@ GetUserSettingsDirectory()
 	return userPath;
 }
 
+bool
+GetGenioDirectory(BPath& destPath)
+{
+	// Default template directory
+	app_info info;
+	if (be_app->GetAppInfo(&info) == B_OK) {
+		BPath genioPath(&info.ref);
+		BPath parentPath;
+		if (genioPath.GetParent(&destPath) == B_OK) {
+			return true;
+		}
+	}
+	return false;
+}
+
 BPath
 GetDataDirectory()
 {
 	// Default template directory
 	app_info info;
-	BPath dataPath;
-	if (be_app->GetAppInfo(&info) == B_OK) {
-		// This code should work both for the case where Genio is
-		// in the "app" subdirectory, like in the repo,
-		// and when it's in the package.
-		BPath genioPath(&info.ref);
-		BPath parentPath;
-		if (genioPath.GetParent(&parentPath) == B_OK) {
-			dataPath = parentPath;
-			dataPath.Append("data");
-			// Genio
-			// data/templates/
-			if (!BEntry(dataPath.Path(), true).IsDirectory()) {
-				// app/Genio
-				// data/templates/
-				parentPath.GetParent(&dataPath);
-				dataPath.Append("data");
-			}
+	BPath genioPath;
+	if (GetGenioDirectory(genioPath)) {
+		genioPath.Append("data");
+		// ./Genio
+		// ./data/templates/
+		if (!BEntry(genioPath.Path(), true).IsDirectory()) {
+			// ./app/Genio
+			// ./data/templates/
+			genioPath.GetParent(&genioPath);
+			genioPath.GetParent(&genioPath);
+			genioPath.Append("data");
 		}
 	}
-	return dataPath;
+	return genioPath;
 }
 
 void Menu_MakeEmpty(BMenu *menu)
@@ -346,4 +356,90 @@ bool	IsXMasPeriod()
 	BDate today = BDate::CurrentDate(B_LOCAL_TIME);
 	return ((today.Month() == 12 && today.Day() >= 20) ||
 		    (today.Month() == 1  && today.Day() <= 10));
+}
+
+BString
+ReadFileContent(const char* filename, off_t maxSize)
+{
+	BString read;
+	BPath destPath;
+	if (!GetGenioDirectory(destPath))
+		return read;
+	destPath.Append(filename);
+	status_t status;
+	BFile file;
+	if ((status = file.SetTo(destPath.Path(), B_READ_ONLY)) != B_OK)
+		return read;
+	if ((status = file.InitCheck()) != B_OK)
+		return read;
+
+	off_t size;
+	file.GetSize(&size);
+
+	size_t maxlen = std::max(maxSize, size);
+
+	char* buffer = new char[size + 1];
+	off_t len = file.Read(buffer, size);
+	buffer[len] = '\0';
+	read.SetTo(buffer, maxlen);
+	delete[] buffer;
+	return read;
+}
+
+// mostly taken from BAboutWindow
+BString
+GetVersion()
+{
+	app_info info;
+	if (be_app->GetAppInfo(&info) != B_OK)
+		return NULL;
+
+	BFile file(&info.ref, B_READ_ONLY);
+	BAppFileInfo appMime(&file);
+	if (appMime.InitCheck() != B_OK)
+		return NULL;
+
+	version_info versionInfo;
+	if (appMime.GetVersionInfo(&versionInfo, B_APP_VERSION_KIND) == B_OK) {
+		if (versionInfo.major == 0 && versionInfo.middle == 0
+			&& versionInfo.minor == 0) {
+			return NULL;
+		}
+
+		const char* version = B_TRANSLATE_MARK("Version");
+		version = gSystemCatalog.GetString(version, "AboutWindow");
+		BString appVersion(version);
+		appVersion << " " << versionInfo.major << "." << versionInfo.middle;
+		if (versionInfo.minor > 0)
+			appVersion << "." << versionInfo.minor;
+
+		// Add the version variety
+		const char* variety = NULL;
+		switch (versionInfo.variety) {
+			case B_DEVELOPMENT_VERSION:
+				variety = B_TRANSLATE_MARK("development");
+				break;
+			case B_ALPHA_VERSION:
+				variety = B_TRANSLATE_MARK("alpha");
+				break;
+			case B_BETA_VERSION:
+				variety = B_TRANSLATE_MARK("beta");
+				break;
+			case B_GAMMA_VERSION:
+				variety = B_TRANSLATE_MARK("gamma");
+				break;
+			case B_GOLDEN_MASTER_VERSION:
+				variety = B_TRANSLATE_MARK("gold master");
+				break;
+		}
+
+		if (variety != NULL) {
+			variety = gSystemCatalog.GetString(variety, "AboutWindow");
+			appVersion << "-" << variety;
+		}
+
+		return appVersion;
+	}
+
+	return NULL;
 }

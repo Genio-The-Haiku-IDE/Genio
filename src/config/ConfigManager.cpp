@@ -163,14 +163,14 @@ ConfigManager::LoadFromFile(BPath messageFilePath, BPath attributeFilePath)
 	AttributePSP storageA(attributeFilePath, PermanentStorageProvider::kPSPReadMode);
 	GMessage msg;
 	int i = 0;
-	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
+	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		const char* key = msg["key"];
 		StorageType storageType = (StorageType)((int32)msg["storage_type"]);
 		status_t status = B_ERROR;
 		if (storageType == kStorageTypeBMessage && storageM.InitCheck() == B_OK) {
-			status = storageM.LoadKey(*this, key, storage, msg);
+			status = storageM.LoadKey(*this, key, fStorage, msg);
 		} else if (storageType == kStorageTypeAttribute && storageA.InitCheck() == B_OK) {
-			status = storageA.LoadKey(*this, key, storage, msg);
+			status = storageA.LoadKey(*this, key, fStorage, msg);
 		}
 		if (status == B_OK) {
 			LogInfo("Config file: loaded value for key [%s] (StorageType %d)", key, storageType);
@@ -189,14 +189,14 @@ ConfigManager::SaveToFile(BPath messageFilePath, BPath attributeFilePath)
 	AttributePSP storageA(attributeFilePath, PermanentStorageProvider::kPSPWriteMode);
 	GMessage msg;
 	int i = 0;
-	while (configuration.FindMessage("config", i++, &msg) == B_OK) {
+	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		const char* key = msg["key"];
 		status_t status = B_ERROR;
 		StorageType storageType = (StorageType)((int32)msg["storage_type"]);
 		if (storageType == kStorageTypeBMessage && storageM.InitCheck() == B_OK) {
-			status = storageM.SaveKey(*this, key, storage);
+			status = storageM.SaveKey(*this, key, fStorage);
 		} else if (storageType == kStorageTypeAttribute && storageA.InitCheck() == B_OK) {
-			status = storageA.SaveKey(*this, key, storage);
+			status = storageA.SaveKey(*this, key, fStorage);
 		}
 		if (status == B_OK) {
 			LogInfo("Config file: saved value for key [%s] (StorageType %d)", key, storageType);

@@ -24,8 +24,8 @@
 #define B_TRANSLATION_CONTEXT "Editor"
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
-#define IND_DIAG 1 //Style for Problems
-#define IND_LINK 2 //Style for Links
+#define IND_DIAG INDICATOR_CONTAINER + 1 //Style for Problems
+#define IND_LINK INDICATOR_CONTAINER + 2 //Style for Links
 
 LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	:

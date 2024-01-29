@@ -28,6 +28,7 @@
 #include <Path.h>
 #include <PopUpMenu.h>
 #include <Window.h>
+#include <MessageRunner.h>
 
 #include <cassert>
 #include <cstdio>
@@ -367,7 +368,25 @@ ProjectsFolderBrowser::MessageReceived(BMessage* message)
 					BOutlineListView::MessageReceived(message);
 					break;
 			}
-		 break;
+			break;
+		}
+		case MSG_BROWSER_SELECT_ITEM:
+		{
+			entry_ref ref;
+			ProjectItem* item = (ProjectItem*)message->GetPointer("parent_item", nullptr);
+
+			if (item != nullptr && message->FindRef("ref", &ref) == B_OK) {
+				int32 howMany = BOutlineListView::CountItemsUnder(item, true);
+				for(int32 i=0; i<howMany;i++) {
+					ProjectItem* subItem = (ProjectItem*)BOutlineListView::ItemUnderAt(item, true, i);
+					if (*subItem->GetSourceItem()->EntryRef() == ref) {
+							Select(IndexOf(subItem));
+							ScrollToSelection();
+							break;
+					}
+				}
+			}
+			break;
 		}
 		default:
 			BOutlineListView::MessageReceived(message);
@@ -817,16 +836,26 @@ ProjectsFolderBrowser::ProjectByPath(const BString& fullPath) const
 }
 
 void
-ProjectsFolderBrowser::SelectAndScroll(ProjectFolder* projectFolder)
+ProjectsFolderBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 {
 	ProjectItem* item = GetProjectItemForProject(projectFolder);
 	if (item != nullptr) {
 		Select(IndexOf(item));
 		ScrollToSelection();
 	}
-
 }
 
+void
+ProjectsFolderBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref)
+{
+	// Let's select the new created file.
+	// just send a message to the ProjectBrowser with the new ref
+	// .. after some milliseconds..
+	BMessage selectMessage(MSG_BROWSER_SELECT_ITEM);
+	selectMessage.AddPointer("parent_item", parent);
+	selectMessage.AddRef("ref", &ref);
+	BMessageRunner::StartSending(BMessenger(this), &selectMessage, 300, 1);
+}
 
 const BObjectList<ProjectFolder>*
 ProjectsFolderBrowser::GetProjectList() const

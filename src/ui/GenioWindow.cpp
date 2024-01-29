@@ -221,7 +221,7 @@ GenioWindow::GenioWindow(BRect frame)
 			}
 		}
 		if (fActiveProject != nullptr)
-			GetProjectBrowser()->SelectAndScroll(fActiveProject);
+			GetProjectBrowser()->SelectProjectAndScroll(fActiveProject);
 
 		fDisableProjectNotifications = false;
 		if (status == B_OK) {
@@ -869,12 +869,15 @@ GenioWindow::MessageReceived(BMessage* message)
 				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 					const entry_ref* ref = item->GetSourceItem()->EntryRef();
-					status = TemplateManager::CreateNewFolder(ref);
+					entry_ref ref_new;
+					status = TemplateManager::CreateNewFolder(ref, &ref_new);
 					if (status != B_OK) {
 						OKAlert(B_TRANSLATE("New folder"),
 								B_TRANSLATE("Error creating folder"),
 								B_WARNING_ALERT);
 						LogError("Invalid destination directory [%s]", ref->name);
+					} else {
+						GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, ref_new);
 					}
 				} else {
 					LogError("Can't find current item");
@@ -903,6 +906,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			// new_file_template corresponds to creating a new file
 			if (type ==  "new_file_template") {
 				entry_ref source;
+				entry_ref ref_new;
 				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 					const entry_ref* dest = item->GetSourceItem()->EntryRef();
@@ -910,13 +914,15 @@ GenioWindow::MessageReceived(BMessage* message)
 						LogError("Can't find ref in message!");
 						return;
 					}
-					status_t status = TemplateManager::CopyFileTemplate(&source, dest);
+					status_t status = TemplateManager::CopyFileTemplate(&source, dest, &ref_new);
 					if (status != B_OK) {
 						OKAlert(B_TRANSLATE("New file"),
 								B_TRANSLATE("Could not create a new file"),
 								B_WARNING_ALERT);
 						LogError("Invalid destination directory [%s]", dest->name);
 						return;
+					} else {
+						GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, ref_new);
 					}
 				}
 			}
@@ -3560,7 +3566,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	}
 
 	//ensure it's selected:
-	GetProjectBrowser()->SelectAndScroll(newProject);
+	GetProjectBrowser()->SelectProjectAndScroll(newProject);
 
 	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 

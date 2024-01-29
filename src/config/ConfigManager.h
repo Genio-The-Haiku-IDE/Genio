@@ -22,7 +22,7 @@ public:
 		void AddConfig(const char* group,
 		               const char* key,
 					   const char* label,
-					   T default_value,
+					   T defaultValue,
 					   GMessage* cfg = nullptr,
 					   StorageType storageType = kStorageTypeBMessage) {
 
@@ -51,6 +51,8 @@ public:
 		void PrintAll() const;
 		void PrintValues() const;
 
+		bool _SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
+									BMessage* msgR, const char* keyR) const;
 		auto operator[](const char* key) -> ConfigManagerReturn;
 
 		bool Has(GMessage& msg, const char* key) const;

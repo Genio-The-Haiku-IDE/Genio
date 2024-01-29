@@ -44,11 +44,9 @@ LSPEditorWrapper::ApplySettings()
 {
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, (255 | (0 << 8) | (0 << 16)));
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_DIAG, INDIC_SQUIGGLE);
-	fEditor->SendMessage(SCI_INDICSETALPHA, IND_DIAG, 100);
 
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
-	fEditor->SendMessage(SCI_INDICSETALPHA, IND_LINK, 100);
 
 	fEditor->SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 

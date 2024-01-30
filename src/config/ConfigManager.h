@@ -51,8 +51,6 @@ public:
 		void PrintAll() const;
 		void PrintValues() const;
 
-		bool _SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
-									BMessage* msgR, const char* keyR) const;
 		auto operator[](const char* key) -> ConfigManagerReturn;
 
 		bool Has(GMessage& msg, const char* key) const;

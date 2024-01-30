@@ -64,104 +64,58 @@ public:
 	virtual	void 				MessageReceived(BMessage* message);
 
 			void				ApplySettings();
-			void				BookmarkClearAll(int marker);
-			bool				BookmarkGoToNext();
-			bool				BookmarkGoToPrevious();
-			void				BookmarkToggle(int position);
 			void				TrimTrailingWhitespace();
-			bool				CanClear();
 			bool				CanCopy();
 			bool				CanCut();
 			bool				CanPaste();
 			bool				CanRedo();
 			bool				CanUndo();
-			void				Clear();
-			void				CommentSelectedLines();
 			void				Copy();
-			int32				CountLines();
 			void				Cut();
-			void				DuplicateCurrentLine();
-			void				DeleteSelectedLines();
 			int32				EndOfLine();
-			void				EndOfLineConvert(int32 eolMode);
-			void				EnsureVisiblePolicy();
 		const BString			FilePath() const;
 			entry_ref *const	FileRef() { return &fFileRef; }
-			int32				Find(const BString&  text, int flags, bool backwards = false);
-			int					FindInTarget(const BString& search, int flags, int startPosition, int endPosition);
-			int32				FindMarkAll(const BString& text, int flags);
-			int					FindNext(const BString& search, int flags, bool wrap);
-			int					FindPrevious(const BString& search, int flags, bool wrap);
-			int32				GetCurrentPosition();
+
+
+
 			void				GoToLine(int32 line);
 			void				GoToLSPPosition(int32 line, int character);
 			void				GrabFocus();
 			bool				IsFoldingAvailable() { return fFoldingAvailable; }
 			bool				IsModified() { return fModified; }
-			bool				IsOverwrite();
-			BString const		IsOverwriteString();
+
 			bool				IsParsingAvailable() { return fParsingAvailable; }
-			bool				IsReadOnly();
-			bool				IsSearchSelected(const BString& search, int flags);
-			bool				IsTextSelected();
-			status_t			LoadFromFile();
-			BString const		ModeString();
-			BString				Name() const { return fFileName; }
-			node_ref *const		NodeRef() { return &fNodeRef; }
 			void				NotificationReceived(SCNotification* n);
-			void				OverwriteToggle();
 			void				Paste();
 			void				Redo();
 			status_t			Reload();
-			int					ReplaceAndFindNext(const BString& selection,
-									const BString& replacement, int flags, bool wrap);
-			int					ReplaceAndFindPrevious(const BString& selection,
-									const BString& replacement, int flags, bool wrap);
-			int32				ReplaceAll(const BString& selection,
-									const BString& replacement, int flags);
-			void 				ReplaceMessage(int position, const BString& selection,
-									const BString& replacement);
-			int					ReplaceOne(const BString& selection,
-									const BString& replacement);
+
+			bool				IsReadOnly();
+			bool				IsTextSelected();
+			status_t			LoadFromFile();
+			BString				Name() const { return fFileName; }
+			node_ref *const		NodeRef() { return &fNodeRef; }
+			bool				IsOverwrite();
+
+
+
 			ssize_t				SaveToFile();
-			void				ScrollCaret();
-			void				SelectAll();
-	const 	BString				Selection();
-			void				SendPositionChanges();
 			status_t			SetFileRef(entry_ref* ref);
 			void				SetReadOnly(bool readOnly = true);
 			status_t			SetSavedCaretPosition();
-			int					SetSearchFlags(bool matchCase, bool wholeWord,
-									bool wordStart,	bool regExp, bool posix);
 			void				SetTarget(const BMessenger& target);
 			status_t			StartMonitoring();
 			status_t			StopMonitoring();
-			void				ToggleFolding();
-			void				ShowLineEndings(bool show);
-			void				ShowWhiteSpaces(bool show);
-			bool				LineEndingsVisible();
-			bool				WhiteSpacesVisible();
-
 
 			void				SetProjectFolder(ProjectFolder*);
 			ProjectFolder*		GetProjectFolder() const { return fProjectFolder; }
-			void				SetZoom(int32 zoom);
 			void				Undo();
-			void				Completion();
-			void				Format();
-			void				GoToDefinition();
-			void				GoToDeclaration();
-			void				GoToImplementation();
-			void				SwitchSourceHeader();
-			void				UncommentSelection();
 
-			void 				ContextMenu(BPoint point);
 
 			void				SetProblems(const BMessage* diagnostics);
 			void				GetProblems(BMessage* diagnostics);
 
 			filter_result		BeforeKeyDown(BMessage*);
-			filter_result		OnArrowKey(int8 ch);
 
 			std::string			FileType() const { return fFileType; }
 			void				SetFileType(std::string fileType) { fFileType = fileType; }
@@ -175,6 +129,63 @@ public:
 
 
 private:
+
+			int					ReplaceAndFindNext(const BString& selection,
+									const BString& replacement, int flags, bool wrap);
+			int					ReplaceAndFindPrevious(const BString& selection,
+									const BString& replacement, int flags, bool wrap);
+			int32				ReplaceAll(const BString& selection,
+									const BString& replacement, int flags);
+			void 				ReplaceMessage(int position, const BString& selection,
+									const BString& replacement);
+			int					ReplaceOne(const BString& selection,
+									const BString& replacement);
+			int					SetSearchFlags(bool matchCase, bool wholeWord,
+									bool wordStart,	bool regExp, bool posix);
+			int32				FindMarkAll(const BString& text, int flags);
+			int					FindNext(const BString& search, int flags, bool wrap);
+			int					FindPrevious(const BString& search, int flags, bool wrap);
+			int					FindInTarget(const BString& search, int flags, int startPosition, int endPosition);
+			int32				Find(const BString&  text, int flags, bool backwards = false);
+			filter_result		OnArrowKey(int8 ch);
+			void				SetZoom(int32 zoom);
+			void				Completion();
+			void				Format();
+			void				GoToDefinition();
+			void				GoToDeclaration();
+			void				GoToImplementation();
+			void				SwitchSourceHeader();
+			void				UncommentSelection();
+
+			void 				ContextMenu(BPoint point);
+			void				ToggleFolding();
+			void				ShowLineEndings(bool show);
+			void				ShowWhiteSpaces(bool show);
+			bool				LineEndingsVisible();
+			bool				WhiteSpacesVisible();
+			void				ScrollCaret();
+			void				SelectAll();
+	const 	BString				Selection();
+			void				SendPositionChanges();
+			BString const		ModeString();
+			void				OverwriteToggle();
+			BString const		IsOverwriteString();
+			bool				IsSearchSelected(const BString& search, int flags);
+			int32				GetCurrentPosition();
+			void				CommentSelectedLines();
+			int32				CountLines();
+
+			void				DuplicateCurrentLine();
+			void				DeleteSelectedLines();
+			void				EndOfLineConvert(int32 eolMode);
+			void				EnsureVisiblePolicy();
+			bool				CanClear();
+			void				Clear();
+			void				BookmarkClearAll(int marker);
+			bool				BookmarkGoToNext();
+			bool				BookmarkGoToPrevious();
+			void				BookmarkToggle(int position);
+
 			BString	const		_EndOfLineString();
 			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();

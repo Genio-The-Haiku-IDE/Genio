@@ -2,8 +2,16 @@
 
 #include <Autolock.h>
 #include <Application.h>
+#include <Path.h>
 
 #include "GMessage.h"
+
+enum StorageType {
+	kStorageTypeBMessage  = 0,
+	kStorageTypeAttribute = 1,
+
+	kStorageTypeCountNb   = 2
+};
 
 class ConfigManagerReturn;
 class ConfigManager {
@@ -11,9 +19,13 @@ public:
 		explicit ConfigManager(const int32 messageWhat);
 
 		template<typename T>
-		void AddConfig(const char* group, const char* key, const char* label,
-			T defaultValue, GMessage* cfg = nullptr)
-		{
+		void AddConfig(const char* group,
+		               const char* key,
+					   const char* label,
+					   T defaultValue,
+					   GMessage* cfg = nullptr,
+					   StorageType storageType = kStorageTypeBMessage) {
+
 			GMessage configKey;
 			if (cfg)
 				configKey = *cfg;
@@ -23,14 +35,15 @@ public:
 			configKey["label"]    		= label;
 			configKey["default_value"]  = defaultValue;
 			configKey["type_code"] 		= MessageValue<T>::Type();
+			configKey["storage_type"]	= (int32)storageType;
 
 			fStorage[key] = defaultValue;
 
 			fConfiguration.AddMessage("config", &configKey);
 		}
 
-		status_t LoadFromFile(BPath path);
-		status_t SaveToFile(BPath path) const;
+		status_t	LoadFromFile(BPath messageFilePath, BPath attributeFilePath = BPath());
+		status_t	SaveToFile(BPath messageFilePath, BPath attributeFilePath = BPath());
 
 		void ResetToDefaults();
 		bool HasAllDefaultValues();
@@ -76,9 +89,7 @@ private:
 		BLocker	 fLocker;
 		int32	 fWhat;
 
-		bool	_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
-									  BMessage* msgR, const char* keyR) const;
-		bool	_CheckKeyIsValid(const char* key) const;
+    bool	_CheckKeyIsValid(const char* key) const;
 };
 
 

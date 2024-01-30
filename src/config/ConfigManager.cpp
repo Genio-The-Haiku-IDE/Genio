@@ -252,23 +252,6 @@ ConfigManager::PrintValues() const
 
 
 bool
-ConfigManager::_SameTypeAndFixedSize(BMessage* msgL, const char* keyL,
-									  BMessage* msgR, const char* keyR) const
-{
-	type_code typeL = 0;
-	bool fixedSizeL = false;
-	if (msgL->GetInfo(keyL, &typeL, &fixedSizeL) == B_OK) {
-		type_code typeR = 0;
-		bool fixedSizeR = false;
-		if (msgR->GetInfo(keyR, &typeR, &fixedSizeR) == B_OK) {
-			return (typeL == typeR && fixedSizeL == fixedSizeR);
-		}
-	}
-	return false;
-}
-
-
-bool
 ConfigManager::_CheckKeyIsValid(const char* key) const
 {
 	type_code type;

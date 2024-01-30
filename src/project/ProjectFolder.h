@@ -2,14 +2,13 @@
  * Copyright 2023 Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef PROJECT_FOLDER_H
-#define PROJECT_FOLDER_H
-
+#pragma once
 
 #include <Entry.h>
+#include <Messenger.h>
 #include <ObjectList.h>
 #include <String.h>
-#include <Messenger.h>
+
 #include <vector>
 
 #include "GitRepository.h"
@@ -34,8 +33,8 @@ enum BuildMode {
 	DebugMode
 };
 
-class ProjectFolder;
 
+class ProjectFolder;
 class SourceItem {
 public:
 					explicit	SourceItem(const BString& path);
@@ -105,7 +104,6 @@ public:
 
 	LSPProjectWrapper*			GetLSPServer(const BString& fileType);
 
-
 private:
 	void						_PrepareSettings();
 	status_t					_LoadOldSettings();
@@ -120,5 +118,3 @@ private:
 	bool						fIsBuilding;
 	BString						fFullPath;
 };
-
-#endif // PROJECT_FOLDER_H

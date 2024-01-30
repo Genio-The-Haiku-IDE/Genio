@@ -80,6 +80,7 @@ SourceItem::UpdateEntryRef(const entry_ref& ref)
 }
 
 
+// ProjectFolder
 ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	:
 	SourceItem(ref),
@@ -100,9 +101,8 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
 			fFullPath.String(), ex.Error(), ex.what());
 	}
-
-	//fLSPProjectWrapper = new LSPProjectWrapper(fFullPath.String(), msgr);
 }
+
 
 LSPProjectWrapper*
 ProjectFolder::GetLSPServer(const BString& fileType)
@@ -131,6 +131,7 @@ ProjectFolder::~ProjectFolder()
 status_t
 ProjectFolder::Open()
 {
+	ASSERT(fSettings == nullptr);
 	fSettings = new ConfigManager(kMsgProjectSettingsUpdated);
 	_PrepareSettings();
 

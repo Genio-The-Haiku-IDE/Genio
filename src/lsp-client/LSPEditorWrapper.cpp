@@ -24,8 +24,8 @@
 #define B_TRANSLATION_CONTEXT "Editor"
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
-#define IND_DIAG 1 //Style for Problems
-#define IND_LINK 2 //Style for Links
+#define IND_DIAG INDICATOR_CONTAINER + 1 //Style for Problems
+#define IND_LINK INDICATOR_CONTAINER + 2 //Style for Links
 
 LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	:
@@ -44,11 +44,9 @@ LSPEditorWrapper::ApplySettings()
 {
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, (255 | (0 << 8) | (0 << 16)));
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_DIAG, INDIC_SQUIGGLE);
-	fEditor->SendMessage(SCI_INDICSETALPHA, IND_DIAG, 100);
 
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
-	fEditor->SendMessage(SCI_INDICSETALPHA, IND_LINK, 100);
 
 	fEditor->SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 
@@ -406,18 +404,20 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 	if (!fLSPProjectWrapper || !fEditor)
 		return;
 
-	if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
-		!Contains(kWordCharacters, ch)) {
-		fEditor->SendMessage(SCI_AUTOCCANCEL);
-	}
+	if(ch != 0) {
+		if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
+			!Contains(kWordCharacters, ch)) {
+			fEditor->SendMessage(SCI_AUTOCCANCEL);
+		}
 
-	if (fLSPProjectWrapper->HasCapability(kLCapCompletion) &&
-			Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
+		if (fLSPProjectWrapper->HasCapability(kLCapCompletion) &&
+				Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
 
-		if (fCallTip.IsVisible())
-			fCallTip.HideCallTip();
+			if (fCallTip.IsVisible())
+				fCallTip.HideCallTip();
 
-		StartCompletion();
+			StartCompletion();
+		}
 	}
 
 	if (fLSPProjectWrapper->HasCapability(kLCapSignatureHelp)) {

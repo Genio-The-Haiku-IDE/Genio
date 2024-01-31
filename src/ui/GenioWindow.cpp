@@ -1705,7 +1705,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		// new file to load..
 		selectTabInfo.AddBool("caret_position", true);
-		int32 index = fTabManager->CountTabs();
+		int32 index = fTabManager->SelectedTabIndex() + 1;
 		Editor* editor = _AddEditorTab(&ref, index, &selectTabInfo);
 
 		// TODO: using assert() is not nice, try to handle
@@ -1721,12 +1721,13 @@ GenioWindow::_FileOpen(BMessage* msg)
 		editor->ApplySettings();
 
 		// Let's assign the right project to the Editor
-		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
-			ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
+		for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
+			ProjectFolder * project = GetProjectBrowser()->ProjectAt(cycleIndex);
 			_TryAssociateOrphanedEditorsWithProject(project);
 		}
 
-		fTabManager->SelectTab(index, &selectTabInfo);
+		// Select the newly added tab
+		fTabManager->SelectTab(fTabManager->TabForView(editor), &selectTabInfo);
 
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
 		noticeMessage.AddString("file_name", editor->FilePath());
@@ -1734,11 +1735,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		LogInfo("File open: %s [%d]", editor->Name().String(), fTabManager->CountTabs() - 1);
 	}
-
-	// If at least 1 item or more were added select the first
-	// of them.
-	if (nextIndex < fTabManager->CountTabs())
-		fTabManager->SelectTab(nextIndex);
 
 	return status;
 }

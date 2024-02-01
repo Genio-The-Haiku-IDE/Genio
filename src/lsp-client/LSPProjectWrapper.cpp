@@ -74,6 +74,12 @@ LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 		_Create();
 
 	fTextDocs[X(textDocument)] = textDocument;
+
+	if (fInitialized) {
+		value emptyParam;
+		textDocument->onResponse("initialize", emptyParam);
+	}
+
 	return true;
 }
 
@@ -193,6 +199,9 @@ LSPProjectWrapper::onResponse(RequestID id, value& result)
 	if (id.compare("initialize") == 0) {
 		fInitialized.store(true);
 		Initialized(result);
+		for(std::pair<std::string, LSPTextDocument*> doc : fTextDocs) {
+			doc.second->onResponse(id, result);
+		}
 		return;
 	}
 	if (id.compare("shutdown") == 0) {

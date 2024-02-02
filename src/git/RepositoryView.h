@@ -43,12 +43,7 @@ public:
 private:
 
 	BranchItem*		_InitEmptySuperItem(const BString &label);
-	void			_BuildBranchTree(const BString &branch, BranchItem *rootItem,
-						uint32 branchType, const auto& checker);
-
-	template <typename T>
-	T* 				FindItem(const BString& name, T* startItem, bool oneLevelOnly,
-						uint32 outlinelevel);
+	void			_BuildBranchTree(const BString &branch, uint32 branchType, const auto& checker);
 
 	void			_ShowPopupMenu(BPoint where);
 

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<!--
+ * Copyright 2024
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Humdinger <humdingerb@gmail.com>
+-->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="robots" content="all" />
+	<link rel="stylesheet" type="text/css" href="./_doc.css" />
+	<title>Genio's User Documentation</title>
+
+</head>
+<body>
+
+<div id="navbar">
+<a href="ReadMe.html">QuickStart</a> <a class="active" href="editor.html">Editor</a> <a href="panes.html">Panes</a> <a href="toolbar.html">Toolbar</a> <a href="menus.html">Menus</a> <a href="settings.html">Settings</a>
+</div>
+
+<div id="content">
+
+<h1>The Editor</h1>
+
+<p>The editor view takes naturally the largest part of the main window. In the <span class="menu">Window</span> menu it can be made <span class="menu">Fullscreen</span> (<span class="key">ALT</span>&nbsp;<span class="key">ENTER</span>), in <span class="menu">Focus mode</span> (<span class="key">SHIFT</span>&nbsp;<span class="key">ALT</span>&nbsp;<span class="key">ENTER</span>) the toolbar and the projects and output panes are hidden to minimize distractions.<br />
+Hit <span class="key">ALT</span>&nbsp;<span class="key">ENTER</span> again to return to normal mode.</p>
+
+
+<h2><a id="elements" name="elements">Elements of the editor view</a></h2>
+
+<p style="text-align:center"><img src="./images/editor-view.png" style="border:none" alt="Editor view" /></p>
+
+<h3><a id="tab" name="tab">File tab</a></h3>
+
+<p>Every file is displayed in a tab in the editor view. In the <a href="settings.html#project-settings">Project settings</a>, each project can be assigned a color, which is displayed before the file name. This makes it easy to see at a glance where a file is coming from. A tooltip provides the same info textually.</p>
+
+
+<h3><a id="margins" name="margins">Margins</a></h3>
+
+<p>There are four margins that you can show/hide in <a href="settings.html#genio-settings">Genio's settings</a>:</p>
+
+<ul>
+<li><p><b>Line number margin</b><br/>
+Clicking on a line in the <em>Line number margin</em> selects that whole line. You can drag over multiple lines while holding the mouse button to select them all.</p></li>
+
+<li><p><b>Bookmark margin</b><br/>
+A click in the <em>Bookmark margin</em> adds a little icon at that line and you can now jump between those bookmarks with the commands in <span class="menu">Search|Bookmark</span>.</p></li>
+
+<li><p><b>Folding margin</b><br/>
+The <em>Folding margin</em> has little '<tt> - </tt>' widgets at the start of code blocks that are between brackets. Click on the widget, and it turns into a '<tt> + </tt>' and the code block gets folded into a single horizontal line. Click on the widget again to unfold the code block.<br />
+From the <span class="menu">View</span> menu you can quickly <span class="menu">Un/Fold all</span>, or use the corresponding icon from the <a href="toolbar.html#icons">Toolbar</a>.</p></li>
+
+<li><p><b>Comment margin</b><br/>
+A click in the <em>Comment margin</em> quickly un/comments that line.</p></li>
+</ul>
+
+
+<h3><a id="lock-menu" name="lock-menu">Lock Menu</a></h3>
+
+<p>This is a pop-up menu allowing you to make the current file <span class="menu">Read-only</span> to prevent accidental changes. It's the same as clicking the lock icon in the <a href="toolbar.html#icons">Toolbar</a>.<br />
+Locked files are marked with a little lock symbol in the tab.</p>
+
+
+<h3><a id="line-column" name="line-column">Line/Column display</a></h3>
+
+<p>It doesn't only display the line and column number of the current cursor position. Click it to open a panel to enter a line number to jump to. The same is done with <span class="menu">Search|Go to line…</span> or <span class="key">ALT</span>&nbsp;<span class="key">,</span>.</p>
+
+
+<h3><a id="status" name="status">Status display</a></h3>
+
+<p>The status area displays three types of information:</p>
+
+<ul>
+<li><p>The current writing mode (INS = insert, OVR = overwrite). Clicking it toggles the mode, which is normally done with <span class="key">INS</span>  on the keyboard.</p></li>
+
+<li><p>The line endings of the current file (LF = Linefeed, CR = Carriage Return).</p></li>
+
+<li><p>The file's write permissions (RW = read/write, RO = read-only).</p></li>
+</ul>
+
+
+<h3><a id="vruler" name="vruler">Vertical ruler</a></h3>
+
+<p>In <a href="settings.html#genio-settings">Genio's settings</a> you can opt to display a vertical line at a specific column to remind you to keep to a maximal line length, for example, 100 chars.</p>
+
+
+<h2><a id="working" name="working">Working with the editor</a></h2>
+
+<p>Let's have a quick look at some features that make working in the editor more fun and efficient.</p>
+
+
+<h3><a id="switch" name="switch">Indenting blocks of code</a></h3>
+
+<p>If you want to change the indention of a block of code, you select its lines and just press <span class="key">TAB</span> to indent more, or <span class="key">SHIFT</span>&nbsp;<span class="key">TAB</span> to indent less.</p>
+
+
+<h3><a id="switch" name="switch">Switch between source and header</a></h3>
+
+<p>With a quick <span class="key">ALT</span>&nbsp;<span class="key">TAB</span> or <span class="menu">View|Switch source/header</span>, you can jump between a .cpp and its .h file.</p>
+
+
+<h3><a id="link" name="link">Links and info on headers</a></h3>
+
+<p style="text-align:center"><img src="./images/editor-linked_info.png" style="border:none" alt="Links and info on headers" /></p>
+
+<p>Included headers are underlined to mark them as link. Simply click on one to open the header file.<br />
+Hover your mouse over it and a tooltip shows the header's location on disk and which functions etc. it provides and are used from it.</p>
+
+
+<h3><a id="jumpdef" name="jumpdef">Jump to definition/declaration</a></h3>
+
+<p>You can jump between the definition and declartion of a member variable, function or class etc. and vice-versa. Either right-click on it and choose <span class="menu">Go to definition/declaration</span> or hit <span class="key">ALT</span>&nbsp;<span class="key">G</span> after placing the cursor on it.</p>
+
+
+<h3><a id="correction" name="correction">Code correction</a></h3>
+
+<p>Genio is constantly having an eye on your code and warns about errors and typos etc. Potential issues are marked with a red squiggly underline.</p>
+
+<p style="text-align:center"><img src="./images/editor-correction.png" style="border:none" alt="Code correction" /></p>
+
+<p>If you hover the mouse pointer over a such underlined part, a tooltip will explain the issue. Also keep an eye on the <a href="panes.html#problems">Problems tab</a> in the output pane at the bottom.<br />
+If there's a fix available, you can apply it with a right-click and choosing the fix from the pop-up menu. Here we need to add a semicolon at the end of line 323.</p>
+
+
+<h3><a id="completion" name="completion">Code completion</a></h3>
+
+<p>Using <span class="menu">Edit|Autocomplete</span>, or more conveniently <span class="key">ALT</span>&nbsp;<span class="key">SPACEBAR</span>, can make you more efficient and sometimes saves you having to consult the API documentation.</p>
+<p>This example illustrates the usage:</p>
+
+<p style="text-align:center"><img src="./images/editor-completion-1.png" style="border:none" alt="Code completion" /></p>
+
+<p>Hitting <span class="key">ALT</span>&nbsp;<span class="key">SPACEBAR</span> after entering "desk" pops up a window where you can choose the correct object with <span class="key">↓</span>&nbsp;<span class="key">↑</span> and insert it with <span class="key">ENTER</span>.</p>
+
+<p style="text-align:center"><img src="./images/editor-completion-2.png" style="border:none" alt="Code completion" /></p>
+
+<p>When entering the ".", you get another window with the available functions of that object (here BDeskbar). If you continue writing, the selection jumps to the matching function. Again use <span class="key">↓</span>&nbsp;<span class="key">↑</span> and insert it with <span class="key">ENTER</span>.</p>
+
+<p style="text-align:center"><img src="./images/editor-completion-3.png" style="border:none" alt="Code completion" /></p>
+
+<p>Now another window pops up to show the type of arguments the picked function expects. If it is overloaded so there are several functions of that name, but with different parameters, you can use <span class="key">↓</span>&nbsp;<span class="key">↑</span> to see what's available.</p>
+
+<p><span class="key">ESC</span> closes all these pop-up windows.</p>
+
+<hr />
+<a href="ReadMe.html" style="border:none;float:left">Back: QuickStart</a>
+<a href="panes.html" style="border:none;float:right">Next: Panes</a>
+<p></p>
+</div>
+</body>
+</html>

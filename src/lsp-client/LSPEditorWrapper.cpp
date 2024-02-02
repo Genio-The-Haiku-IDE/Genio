@@ -24,15 +24,17 @@
 #define B_TRANSLATION_CONTEXT "Editor"
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
-#define IND_DIAG 1 //Style for Problems
-#define IND_LINK 2 //Style for Links
+#define IND_DIAG INDICATOR_CONTAINER + 1 //Style for Problems
+#define IND_LINK INDICATOR_CONTAINER + 2 //Style for Links
 
 LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	:
 	LSPTextDocument(filenamePath, editor->FileType().c_str()),
 	fEditor(editor),
 	fToolTip(nullptr),
-	fLSPProjectWrapper(nullptr)
+	fLSPProjectWrapper(nullptr),
+	fCallTip(editor),
+	fInitialized(false)
 {
 	assert(fEditor);
 }
@@ -43,11 +45,9 @@ LSPEditorWrapper::ApplySettings()
 {
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, (255 | (0 << 8) | (0 << 16)));
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_DIAG, INDIC_SQUIGGLE);
-	fEditor->SendMessage(SCI_INDICSETALPHA, IND_DIAG, 100);
 
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
-	fEditor->SendMessage(SCI_INDICSETALPHA, IND_LINK, 100);
 
 	fEditor->SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 
@@ -120,18 +120,24 @@ LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 
 	SetFileType(fEditor->FileType().c_str());
 
-	if (cW->RegisterTextDocument(this)) {
-		fLSPProjectWrapper = cW;
-		didOpen();
+	fLSPProjectWrapper = cW;
+	if (!cW->RegisterTextDocument(this)) {
+		fLSPProjectWrapper = nullptr;
 	}
 }
 
+bool
+LSPEditorWrapper::IsInitialized()
+{
+	return (fInitialized && fLSPProjectWrapper != nullptr);
+}
 
 void
 LSPEditorWrapper::didOpen()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
+
 	const char* text = (const char*) fEditor->SendMessage(SCI_GETCHARACTERPOINTER);
 
 	fLSPProjectWrapper->DidOpen(this, text, FileType().String());
@@ -142,8 +148,9 @@ LSPEditorWrapper::didOpen()
 void
 LSPEditorWrapper::didClose()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
+
 
 	if (fEditor) {
 		_RemoveAllDiagnostics();
@@ -157,8 +164,9 @@ LSPEditorWrapper::didClose()
 void
 LSPEditorWrapper::didSave()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
+
 
 	fLSPProjectWrapper->DidSave(this);
 }
@@ -168,7 +176,7 @@ void
 LSPEditorWrapper::didChange(
 	const char* text, long len, Sci_Position start_pos, Sci_Position poslength)
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	Sci_Position end_pos = fEditor->SendMessage(SCI_POSITIONRELATIVE, start_pos, poslength);
@@ -202,7 +210,7 @@ LSPEditorWrapper::_DoFormat(json& params)
 void
 LSPEditorWrapper::Format()
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	// format a range or format the whole doc?
@@ -222,7 +230,7 @@ LSPEditorWrapper::Format()
 void
 LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 {
-	if (!fLSPProjectWrapper || !fEditor || !IsStatusValid())
+	if (!IsInitialized()|| !fEditor || !IsStatusValid())
 		return;
 
 	Position position;
@@ -245,7 +253,7 @@ LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 void
 LSPEditorWrapper::StartHover(Sci_Position sci_position)
 {
-	if (!fLSPProjectWrapper || sci_position < 0 || !IsStatusValid()) {
+	if (!IsInitialized() || sci_position < 0 || !IsStatusValid()) {
 		return;
 	}
 
@@ -280,7 +288,7 @@ LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnosti
 void
 LSPEditorWrapper::EndHover()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
 	BAutolock l(fEditor->Looper());
 	if (l.IsLocked()) {
@@ -292,7 +300,7 @@ LSPEditorWrapper::EndHover()
 void
 LSPEditorWrapper::SwitchSourceHeader()
 {
-	if (!fLSPProjectWrapper || !IsStatusValid())
+	if (!IsInitialized() || !IsStatusValid())
 		return;
 	fLSPProjectWrapper->SwitchSourceHeader(this);
 }
@@ -301,7 +309,7 @@ LSPEditorWrapper::SwitchSourceHeader()
 void
 LSPEditorWrapper::SelectedCompletion(const char* text)
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	if (fCurrentCompletion.items.size() > 0) {
@@ -364,7 +372,7 @@ LSPEditorWrapper::SelectedCompletion(const char* text)
 void
 LSPEditorWrapper::StartCompletion()
 {
-	if (!fLSPProjectWrapper || !fEditor || !IsStatusValid())
+	if (!IsInitialized() || !fEditor || !IsStatusValid())
 		return;
 
 	// let's check if a completion is ongoing
@@ -386,200 +394,51 @@ LSPEditorWrapper::StartCompletion()
 	fLSPProjectWrapper->Completion(this, position, context);
 }
 
-// TODO move these, check if they are all used.. and move to a config section
-// as these are c++/java parameters.. not sure they fit for all languages.
-
-const std::string kCalltipParametersEnd(")");
-const std::string kCalltipParametersStart("(");
-const std::string kCalltipWordCharacters("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-const std::string kCalltipParametersSeparators(",");
-
-bool
-LSPEditorWrapper::StartCallTip(bool searchStart)
+void
+LSPEditorWrapper::NextCallTip()
 {
-	Sci_Position pos = fEditor->SendMessage(SCI_GETCURRENTPOS);
-	fCalltipStartPosition = pos;
-	fCalltipPosition = pos;
-
-	Position position;
-	FromSciPositionToLSPPosition(pos, &position);
-
-	if (searchStart) {
-		std::string line = GetCurrentLine();
-		Sci_Position current = position.character;
-		do {
-			int braces = 0;
-			while (
-				current > 0 && (braces || !Contains(kCalltipParametersStart, line[current - 1]))) {
-				if (Contains(kCalltipParametersStart, line[current - 1]))
-					braces--;
-				else if (Contains(kCalltipParametersEnd, line[current - 1]))
-					braces++;
-				current--;
-				pos--;
-			}
-			if (current > 0) {
-				current--;
-				pos--;
-			} else
-				break;
-			while (current > 0 && IsASpace(line[current - 1])) {
-				current--;
-				pos--;
-			}
-		} while (current > 0 && !Contains(kCalltipWordCharacters, line[current - 1]));
-
-		if (current <= 0)
-			return false;
-
-		fStartCalltipWord = current - 1;
-		while (
-			fStartCalltipWord > 0 && Contains(kCalltipWordCharacters, line[fStartCalltipWord - 1])) {
-			fStartCalltipWord--;
-		}
-
-		Position newPos;
-		newPos.line = position.line;
-		newPos.character = fStartCalltipWord;
-		fCalltipPosition = FromLSPPositionToSciPosition(&newPos);
-	}
-
-	fLSPProjectWrapper->SignatureHelp(this, position);
-
-	return true;
+	fCallTip.NextCallTip();
 }
-
 
 void
-LSPEditorWrapper::UpdateCallTip(int deltaPos)
+LSPEditorWrapper::PrevCallTip()
 {
-	LogTraceF("BEFORE currentCalltip %d", fCurrentCalltip);
-	if (deltaPos == 1 && fCurrentCalltip > 0 && fCurrentCalltip + 1)
-		fCurrentCalltip--;
-	else if (deltaPos == 2 && fCurrentCalltip + 1 < fMaxCalltip)
-		fCurrentCalltip++;
-
-	LogTraceF("AFTER currentCalltip %d", fCurrentCalltip);
-
-	fFunctionDefinition = "";
-
-	if (fMaxCalltip > 1)
-		fFunctionDefinition += "\001 " + std::to_string(fCurrentCalltip + 1) + " of "
-			+ std::to_string(fMaxCalltip) + " \002";
-
-	fFunctionDefinition += fLastCalltip.signatures[fCurrentCalltip].label;
-
-	LogTraceF("functionDefinition %s", fFunctionDefinition.c_str());
-
-	Sci_Position hackPos = fEditor->SendMessage(SCI_GETCURRENTPOS);
-	fEditor->SendMessage(SCI_SETCURRENTPOS, fCalltipStartPosition);
-	fEditor->SendMessage(SCI_CALLTIPSHOW, fCalltipPosition, (sptr_t) (fFunctionDefinition.c_str()));
-	fEditor->SendMessage(SCI_SETCURRENTPOS, hackPos);
-
-	ContinueCallTip();
+	fCallTip.PrevCallTip();
 }
-
-
-void
-LSPEditorWrapper::ContinueCallTip()
-{
-	std::string line = GetCurrentLine();
-	Position position;
-	GetCurrentLSPPosition(&position);
-
-	Sci_Position current = position.character;
-
-	int braces = 0;
-	size_t commas = 0;
-	for (Sci_Position i = fStartCalltipWord; i < current; i++) {
-		if (Contains(kCalltipParametersStart, line[i]))
-			braces++;
-		else if (Contains(kCalltipParametersEnd, line[i]) && braces > 0)
-			braces--;
-		else if (braces == 1 && Contains(kCalltipParametersSeparators, line[i]))
-			commas++;
-	}
-
-	// if the num of commas is not compatible with current calltip
-	// try to find a better one..
-    if (fLastCalltip.signatures.size() <= 0)
-		return;
-
-	auto params = fLastCalltip.signatures[fCurrentCalltip].parameters;
-	// printf("1) DEBUG:%s %ld, %ld\n", params.dump().c_str(), params.size(), commas);
-	if (commas > params.size()) {
-		for (int i = 0; i < fMaxCalltip; i++) {
-			if (commas < fLastCalltip.signatures[i].parameters.size()) {
-				fCurrentCalltip = i;
-				UpdateCallTip(0);
-				return;
-			}
-		}
-	}
-
-	if (params.size() > commas) {
-		// printf("2) DEBUG:%s\n", params.dump().c_str());
-		int base = fFunctionDefinition.find("\002", 0);
-		int start = base + params[commas].labelOffsets.first;
-		int end = base + params[commas].labelOffsets.second;
-		// printf("DEBUG:%s %d,%d\n", params.dump().c_str(), start, end);
-		fEditor->SendMessage(SCI_CALLTIPSETHLT, start + 1, end + 1);
-	} else if (commas == 0 && params.size() == 0) {
-		// printf("3) DEBUG: reset\n");
-		fEditor->SendMessage(SCI_CALLTIPSETHLT, 1, 1);
-	}
-}
-
 
 void
 LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 {
 	// printf("on char %c\n", ch);
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
-	/* algo took from SciTE editor .. */
-	const Sci_Position selStart = fEditor->SendMessage(SCI_GETSELECTIONSTART);
-	const Sci_Position selEnd = fEditor->SendMessage(SCI_GETSELECTIONEND);
-	if ((selEnd == selStart) && (selStart > 0)) {
-		if (fEditor->SendMessage(SCI_CALLTIPACTIVE)) {
-			if (Contains(kCalltipParametersEnd, ch)) {
-				fBraceCount--;
-				if (fBraceCount < 1)
-					fEditor->SendMessage(SCI_CALLTIPCANCEL);
-				else
-					StartCallTip(true);
-			} else if (Contains(kCalltipParametersStart, ch)) {
-				fBraceCount++;
-				StartCallTip(true);
-			} else {
-				ContinueCallTip();
-			}
-		} else if (fEditor->SendMessage(SCI_AUTOCACTIVE)) {
-			if (Contains(kCalltipParametersStart, ch)) {
-				fBraceCount++;
-				StartCallTip(true);
-			} else if (Contains(kCalltipParametersEnd, ch)) {
-				fBraceCount--;
-			} else if (!Contains(wordCharacters, ch)) {
-				fEditor->SendMessage(SCI_AUTOCCANCEL);
-				if (Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
-					StartCompletion();
-				}
-			}
-		} else {
-			if (fLSPProjectWrapper->HasCapability(kLCapSignatureHelp) &&
-				Contains(kCalltipParametersStart, ch)) {
-				fBraceCount = 1;
-				StartCallTip(true);
-			} else {
-				if (fLSPProjectWrapper->HasCapability(kLCapCompletion) &&
-				    Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
+	if(ch != 0) {
+		if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
+			!Contains(kWordCharacters, ch)) {
+			fEditor->SendMessage(SCI_AUTOCCANCEL);
+		}
 
-					StartCompletion();
+		if (fLSPProjectWrapper->HasCapability(kLCapCompletion) &&
+				Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
 
-				}
-			}
+			if (fCallTip.IsVisible())
+				fCallTip.HideCallTip();
+
+			StartCompletion();
+		}
+	}
+
+	if (fLSPProjectWrapper->HasCapability(kLCapSignatureHelp)) {
+		CallTipAction action = fCallTip.UpdateCallTip(ch, ch == 0);
+		if (action == CALLTIP_NEWDATA) {
+
+			Position lsp_position;
+			FromSciPositionToLSPPosition(fCallTip.Position(), &lsp_position);
+			fLSPProjectWrapper->SignatureHelp(this, lsp_position);
+
+		} else if (action == CALLTIP_UPDATE) {
+			fCallTip.ShowCallTip();
 		}
 	}
 }
@@ -651,14 +510,9 @@ LSPEditorWrapper::_DoGoTo(nlohmann::json& items)
 void
 LSPEditorWrapper::_DoSignatureHelp(json& result)
 {
-	fLastCalltip = result.get<SignatureHelp>(); // result["signatures"];
-	fCurrentCalltip = 0;
-	fMaxCalltip = 0;
-
-	if (fCurrentCalltip < (int)fLastCalltip.signatures.size()) {
-		fMaxCalltip = fLastCalltip.signatures.size();
-		UpdateCallTip(0);
-	}
+	auto signs = result.get<SignatureHelp>().signatures;
+	fCallTip.UpdateSignatures(signs);
+	fCallTip.ShowCallTip();
 }
 
 
@@ -812,6 +666,12 @@ LSPEditorWrapper::_RemoveAllDocumentLinks()
 	fLastDocumentLinks.clear();
 }
 
+void
+LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
+{
+	fInitialized = true;
+	didOpen();
+}
 
 void
 LSPEditorWrapper::_DoDocumentLink(nlohmann::json& result)
@@ -878,6 +738,7 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
 	IF_ID("textDocument/completion", _DoCompletion);
 	IF_ID("textDocument/documentLink", _DoDocumentLink);
+	IF_ID("initialize", _DoInitialize);
 
 	LogError("LSPEditorWrapper::onResponse not handled! [%s]", id.c_str());
 }

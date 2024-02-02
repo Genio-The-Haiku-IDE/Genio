@@ -151,6 +151,80 @@ void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case MSG_REPLACE_ALL:
+		case MSG_REPLACE_NEXT:
+		case MSG_REPLACE_ONE:
+		case MSG_REPLACE_PREVIOUS:
+		{
+			BString text = message->GetString("text", "");
+			BString replace = message->GetString("replace", "");
+
+			GrabFocus();
+			bool matchCase = message->GetBool("match_case", false);
+			bool wholeWord = message->GetBool("whole_word", false);
+
+			int flags = SetSearchFlags(matchCase, wholeWord, false, false, false);
+			bool wrap = message->GetBool("wrap", false);
+			int32 kind = message->GetInt32("kind", REPLACE_NONE);
+
+			switch (kind) {
+				case REPLACE_ALL: {
+					ReplaceAll(text, replace, flags);
+					break;
+				}
+				case REPLACE_NEXT: {
+					ReplaceAndFindNext(text, replace, flags, wrap);
+					break;
+				}
+				case REPLACE_ONE: {
+					ReplaceOne(text, replace);
+					break;
+				}
+				case REPLACE_PREVIOUS: {
+					ReplaceAndFindPrevious(text, replace, flags, wrap);
+					break;
+				}
+				default:
+					break;
+			}
+			break;
+		}
+		case MSG_FIND_MARK_ALL:
+		{
+			BString text = message->GetString("text", "");
+			if (text.IsEmpty())
+				return;
+			GrabFocus();
+			bool matchCase = message->GetBool("match_case", false);
+			bool wholeWord = message->GetBool("whole_word", false);
+
+			int flags = SetSearchFlags(matchCase, wholeWord, false, false, false);
+
+			FindMarkAll(text, flags);
+
+			break;
+		}
+		case MSG_FIND_NEXT:
+		case MSG_FIND_PREVIOUS:
+		{
+			BString text = message->GetString("text", "");
+			if (text.IsEmpty())
+				return;
+
+			GrabFocus();
+			bool matchCase = message->GetBool("match_case", false);
+			bool wholeWord = message->GetBool("whole_word", false);
+
+			int flags = SetSearchFlags(matchCase, wholeWord, false, false, false);
+			bool wrap = message->GetBool("wrap", false);
+
+			if (message->GetBool("backward", false) == false)
+				FindNext(text, flags, wrap);
+			else
+				FindPrevious(text, flags, wrap);
+
+			break;
+		}
 		case MSG_BOOKMARK_CLEAR_ALL:
 			BookmarkClearAll(sci_BOOKMARK);
 		break;
@@ -430,9 +504,9 @@ Editor::Cut()
 
 
 BString const
-Editor::EndOfLineString()
+Editor::_EndOfLineString()
 {
-	int32 eolMode = _EndOfLine();
+	int32 eolMode = EndOfLine();
 
 	switch (eolMode) {
 		case SC_EOL_CRLF:
@@ -455,6 +529,9 @@ Editor::EndOfLineConvert(int32 eolMode)
 		return;
 
 	SendMessage(SCI_CONVERTEOLS, eolMode, UNSET);
+	SendMessage(SCI_SETEOLMODE, eolMode, UNSET);
+
+	UpdateStatusBar();
 }
 
 
@@ -802,6 +879,10 @@ Editor::NotificationReceived(SCNotification* notification)
 				_CommentLine(notification->position);
 			break;
 		}
+		case SCN_AUTOCCOMPLETED:
+		case SCN_AUTOCCANCELLED:
+			fLSPEditorWrapper->CharAdded(0);
+			break;
 		case SCN_AUTOCSELECTION: {
 			fLSPEditorWrapper->SelectedCompletion(notification->text);
 			break;
@@ -813,9 +894,8 @@ Editor::NotificationReceived(SCNotification* notification)
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
 				fLSPEditorWrapper->didChange("", 0, notification->position, notification->length);
 			}
-			if (notification->modificationType & SC_MOD_DELETETEXT && notification->length == 1) {
-				if (SendMessage(SCI_CALLTIPACTIVE))
-					fLSPEditorWrapper->ContinueCallTip();
+			if (notification->modificationType & SC_MOD_DELETETEXT) {
+					fLSPEditorWrapper->CharAdded(0);
 			}
 			if (notification->linesAdded != 0)
 				if (gCFG["show_linenumber"])
@@ -823,7 +903,11 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_CALLTIPCLICK: {
-			fLSPEditorWrapper->UpdateCallTip(notification->position);
+			//fLSPEditorWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
+			if (notification->position == 1)
+				fLSPEditorWrapper->NextCallTip();
+			else
+				fLSPEditorWrapper->PrevCallTip();
 			break;
 		}
 		case SCN_DWELLSTART: {
@@ -893,7 +977,11 @@ filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
-		fLSPEditorWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
+		if (key == B_UP_ARROW)
+			fLSPEditorWrapper->NextCallTip();
+		else
+			fLSPEditorWrapper->PrevCallTip();
+
 		return B_SKIP_MESSAGE;
 	}
 	return B_DISPATCH_MESSAGE;
@@ -1212,7 +1300,7 @@ Editor::UpdateStatusBar()
 	update.AddInt32("column", column + 1);
 	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
 	update.AddString("readOnly", ModeString());
-	update.AddString("eol", EndOfLineString());
+	update.AddString("eol", _EndOfLineString());
 
 	fStatusView->SetStatus(&update);
 }
@@ -1663,7 +1751,7 @@ Editor::CommentSelectedLines()
 
 
 int32
-Editor::_EndOfLine()
+Editor::EndOfLine()
 {
 	return SendMessage(SCI_GETEOLMODE, UNSET, UNSET);
 }
@@ -1672,14 +1760,6 @@ Editor::_EndOfLine()
 void
 Editor::_EndOfLineAssign(char *buffer, int32 size)
 {
-#ifdef USE_LINEBREAKS_ATTRS
-	BNode node(&fFileRef);
-	if (node.ReadAttr("be:line_breaks", B_INT32_TYPE, 0, &eol, sizeof(eol)) > 0) {
-		SendMessage(SCI_SETEOLMODE, eol, UNSET);
-		return;
-	}
-#endif
-
 	// Empty file, use default LF
 	if (size == 0) {
 		SendMessage(SCI_SETEOLMODE, SC_EOL_LF, UNSET);

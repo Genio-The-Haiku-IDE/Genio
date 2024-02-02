@@ -87,14 +87,21 @@ GenioApp::AboutRequested()
 
 	// create the about window
 	const char* authors[] = {
-		"D. Alfano",
-		"A. Anzani",
-		"S. Ceccherini",
+		"Davide Alfano",
+		"Andrea Anzani",
+		"Stefano Ceccherini",
 		NULL
 	};
 
-	window->AddCopyright(2023, "The Genio Team");
+	const char* contributors[] = {
+		"Humdinger",
+		"Máximo Castañeda",
+		NULL
+	};
+
+	window->AddCopyright(2022, "The Genio Team");
 	window->AddAuthors(authors);
+	window->AddText(B_TRANSLATE("Contributors:"), contributors);
 	window->SetVersion(GetVersion().String());
 
 	BStringList list = _SplitChangeLog(kChangeLog);

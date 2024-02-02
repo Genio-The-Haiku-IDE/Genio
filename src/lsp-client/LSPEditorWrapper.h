@@ -14,7 +14,7 @@
 #include "Sci_Position.h"
 #include "protocol_objects.h"
 #include "LSPCapabilities.h"
-
+#include "CallTipContext.h"
 
 class LSPProjectWrapper;
 class Editor;
@@ -56,23 +56,9 @@ public:
 
 		void	CharAdded(const char ch /*utf-8?*/);
 
-		/* experimental */
-		void	ContinueCallTip();
-		void	UpdateCallTip(int deltaPos);
+		void	NextCallTip();
+		void	PrevCallTip();
 
-private:
-		/* experimental section */
-		bool	StartCallTip(bool searchStart);
-
-		int 	fBraceCount = 0;
-		int 	fStartCalltipWord;
-		Sci_Position fCalltipPosition;
-		Sci_Position fCalltipStartPosition;
-		SignatureHelp 	fLastCalltip;
-		int 	fCurrentCalltip = 0;
-		int 	fMaxCalltip = 0;
-		std::string fFunctionDefinition;
-		/************************/
 public:
 		//still experimental
 		//std::string		fID;
@@ -95,12 +81,15 @@ public:
 	BTextToolTip* 		fToolTip;
 	LSPProjectWrapper*	fLSPProjectWrapper;
 	BString				fFileStatus;
+	CallTipContext		fCallTip;
+	bool				fInitialized;
 
 	struct LSPDiagnostic { InfoRange range; Diagnostic diagnostic; std::string fixTitle;};
 
 	int32	DiagnosticFromPosition(Sci_Position p, LSPDiagnostic& dia);
 
 private:
+	bool	IsInitialized();
 	std::vector<LSPDiagnostic>	fLastDiagnostics;
 	std::vector<InfoRange>		fLastDocumentLinks;
 
@@ -121,6 +110,7 @@ private:
 	void	_DoDiagnostics(nlohmann::json& params);
 	void	_DoDocumentLink(nlohmann::json& params);
 	void	_DoFileStatus(nlohmann::json& params);
+	void	_DoInitialize(nlohmann::json& params);
 
 private:
 	//utils
@@ -133,6 +123,8 @@ private:
 	void			OpenFileURI(std::string uri, int32 line = -1, int32 character = -1);
 	std::string 	GetCurrentLine();
 	bool			IsStatusValid();
+
+
 };
 
 #endif // LSPEditorWrapper_H

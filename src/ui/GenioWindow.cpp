@@ -1676,7 +1676,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
 		// Check existence
 		BEntry entry(&ref);
-		if (entry.Exists() == false)
+		if (!entry.Exists())
 			continue;
 		// first let's see if it's already opened.
 		const int32 openedIndex = _GetEditorIndex(&ref);
@@ -1708,6 +1708,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 		int32 index = fTabManager->SelectedTabIndex() + 1;
 		Editor* editor = _AddEditorTab(&ref, index, &selectTabInfo);
 
+		LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
+
 		// TODO: using assert() is not nice, try to handle
 		// this gracefully if possible
 		assert(index >= 0);
@@ -1715,25 +1717,27 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		status = editor->LoadFromFile();
 		if (status != B_OK) {
+			LogError("Failed loading file: %s", ::strerror(status));
 			continue;
 		}
 
 		editor->ApplySettings();
 
-		// Let's assign the right project to the Editor
-		for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
-			ProjectFolder * project = GetProjectBrowser()->ProjectAt(cycleIndex);
-			_TryAssociateOrphanedEditorsWithProject(project);
-		}
-
 		// Select the newly added tab
-		fTabManager->SelectTab(fTabManager->TabForView(editor), &selectTabInfo);
+		int32 newIndex = fTabManager->TabForView(editor);
+		fTabManager->SelectTab(newIndex, &selectTabInfo);
 
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
 		noticeMessage.AddString("file_name", editor->FilePath());
 		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
 
-		LogInfo("File open: %s [%d]", editor->Name().String(), fTabManager->CountTabs() - 1);
+		LogInfo("File open: %s [%d]", editor->Name().String(), newIndex - 1);
+	}
+
+	// Assign the right project to the Editor
+	for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
+		ProjectFolder * project = GetProjectBrowser()->ProjectAt(cycleIndex);
+		_TryAssociateOrphanedEditorsWithProject(project);
 	}
 
 	return status;

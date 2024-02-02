@@ -2,28 +2,19 @@
  * Copyright 2023, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef EditorTabManager_H
-#define EditorTabManager_H
+#pragma once
 
-
-#include <SupportDefs.h>
 #include "TabManager.h"
 
 class Editor;
-
 class EditorTabManager : public TabManager {
 public:
 	EditorTabManager(const BMessenger& target);
 
-	Editor*		EditorAt(int32 index);
-	Editor*		SelectedEditor();
-	Editor*		EditorBy(entry_ref* ref);
+	Editor*		EditorAt(int32 index) const;
+	Editor*		SelectedEditor() const;
+	Editor*		EditorBy(const entry_ref* ref) const;
+	Editor*		EditorBy(const node_ref* nodeRef) const;
 
-	BString		GetToolTipText(int32 index);
-
-private:
-
+	BString		GetToolTipText(int32 index) override;
 };
-
-
-#endif // _H

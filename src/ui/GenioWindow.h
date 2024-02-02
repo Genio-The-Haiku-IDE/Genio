@@ -56,7 +56,6 @@ public:
 								GenioWindow(BRect frame);
 	virtual						~GenioWindow();
 
-	virtual void				DispatchMessage(BMessage* message, BHandler* handler);
 	virtual void				MessageReceived(BMessage* message);
 	virtual void				MenusBeginning();
 	virtual void				MenusEnded();
@@ -69,9 +68,8 @@ public:
 	ProjectsFolderBrowser*		GetProjectBrowser() const;
 
 private:
-			status_t			_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
+			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
 
-			void				_BuildDone(BMessage* msg);
 			status_t			_BuildProject();
 			status_t			_CleanProject();
 
@@ -91,9 +89,10 @@ private:
 			void				_PreFileSave(Editor* editor);
 			void				_PostFileSave(Editor* editor);
 			void				_FindGroupShow(bool show);
-			int32				_FindMarkAll(const BString text);
-			void				_FindNext(const BString& strToFind, bool backwards);
+			void				_FindMarkAll(BMessage* message);
+			void				_FindNext(BMessage* message, bool backwards);
 			void				_FindInFiles();
+			void				_AddSearchFlags(BMessage* msg);
 
 			int32				_GetEditorIndex(const entry_ref* ref) const;
 			int32				_GetEditorIndex(node_ref* nref) const;
@@ -129,7 +128,7 @@ private:
 			status_t			_ShowInTracker(const entry_ref& ref, const node_ref* nref = NULL);
 			status_t			_OpenTerminalWorkingDirectory();
 
-			int					_Replace(int what);
+			void				_Replace(BMessage* message, int32 kind);
 			bool				_ReplaceAllow() const;
 			void				_ReplaceGroupShow(bool show);
 			status_t			_RunInConsole(const BString& command);
@@ -158,6 +157,9 @@ private:
 			TemplatesMenu*		fFileNewMenuItem;
 
 			BMenu*				fLineEndingsMenu;
+			BMenuItem*			fLineEndingCRLF;
+			BMenuItem*			fLineEndingLF;
+			BMenuItem*			fLineEndingCR;
 			BMenu*				fLanguageMenu;
 			BMenu*				fBookmarksMenu;
 			BMenuItem*			fBookmarkToggleItem;

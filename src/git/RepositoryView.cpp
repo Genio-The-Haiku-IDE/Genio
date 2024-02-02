@@ -192,27 +192,30 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 		MakeEmpty();
 
 		// populate local branches
-		auto locals = _InitEmptySuperItem(B_TRANSLATE("Local branches"));
+		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
 		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
+		std::sort(local_branches.begin(), local_branches.end());
 		for(auto &branch : local_branches) {
-			_BuildBranchTree(branch, locals, kLocalBranch,
+			_BuildBranchTree(branch, kLocalBranch,
 				[&](const auto &branchname) {
 					return (branchname == fCurrentBranch);
 				});
 		}
 
 		// populate remote branches
-		auto remotes = _InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+		_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
 		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
+		std::sort(remote_branches.begin(), remote_branches.end());
 		for(auto &branch : remote_branches) {
-			_BuildBranchTree(branch, remotes, kRemoteBranch, NullLambda);
+			_BuildBranchTree(branch, kRemoteBranch, NullLambda);
 		}
 
 		// populate tags
-		auto tags = _InitEmptySuperItem(B_TRANSLATE("Tags"));
+		_InitEmptySuperItem(B_TRANSLATE("Tags"));
 		auto all_tags = repo->GetTags();
+		std::sort(all_tags.begin(), all_tags.end());
 		for(auto &tag : all_tags) {
-			_BuildBranchTree(tag, tags, kTag, NullLambda);
+			_BuildBranchTree(tag, kTag, NullLambda);
 		}
 	} catch (const GitException &ex) {
 		OKAlert("Git", ex.Message(), B_INFO_ALERT);
@@ -225,67 +228,47 @@ RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &
 
 
 void
-RepositoryView::_BuildBranchTree(const BString &branch, BranchItem *rootItem, uint32 branchType,
-									const auto& checker)
+RepositoryView::_BuildBranchTree(const BString &branch, uint32 branchType, const auto& checker)
 {
 	// Do not show an outline
 	if (!gCFG["repository_outline"]) {
-		StyledItem* item = new BranchItem(branch.String(), branch.String(), branchType);
+		StyledItem* item = new BranchItem(branch.String(), branch.String(), branchType, 1);
 		if (checker(branch))
 			item->SetTextFontFace(B_UNDERSCORE_FACE);
-		AddUnder(item, rootItem);
+		AddItem(item);
 		return;
 	}
 
 	// show the outline
-	BranchItem *parentitem = rootItem;
 	std::filesystem::path path = branch.String();
 	std::vector<std::string> parts(path.begin(), path.end());
-	for (uint32 i = 0; i < parts.size(); i++) {
-		uint32 lastIndex = parts.size();
+	uint32 lastIndex = parts.size() - 1;
+	uint32 i = 0;
 
+	BranchItem* lastItem = (BranchItem*)FullListLastItem();
+	if (lastItem->OutlineLevel() > 0) {
+		path = lastItem->BranchName();
+		std::vector<std::string> lastItemParts(path.begin(), path.end());
+		uint32 lastCompareIndex = std::min<uint32>(lastIndex, parts.size() - 1);
+		while (i < lastCompareIndex) {
+			if (parts.at(i) != lastItemParts.at(i))
+				break;
+			i++;
+		}
+	}
+
+	while (i < lastIndex) {
 		BString partName = parts.at(i).c_str();
-		auto partItem = FindItem<BranchItem>(partName, rootItem, false, i+1);
-		if (partItem != nullptr) {
-			parentitem = partItem;
-		} else {
-			if (i == (lastIndex-1)) {
-				auto newItem = new BranchItem(branch.String(), partName, branchType, i);
-				if (checker(branch))
-					newItem->SetTextFontFace(B_UNDERSCORE_FACE);
-				AddUnder(newItem, parentitem);
-				parentitem = rootItem;
-			} else {
-				auto newItem = new BranchItem(branch.String(), partName, kHeader, i);
-				if (AddUnder(newItem, parentitem))
-					parentitem = newItem;
-			}
-		}
-	}
-}
-
-
-template <typename T>
-T*
-RepositoryView::FindItem(const BString& name, T* startItem, bool oneLevelOnly, uint32 outlinelevel)
-{
-	const int32 countItems = FullListCountItems();
-	const int32 startIndex = 0;
-	// LogInfo("FindItem: item '%s' under '%s' with countItems = %d, startIndex = %d",
-		// name.String(), startItem->Text(), countItems, startIndex);
-	for (int32 i = startIndex; i< countItems; i++) {
-		// LogInfo("FindItem: for i = %d to %d", i, countItems);
-		T *item = dynamic_cast<T*>(ItemUnderAt(startItem, oneLevelOnly, i));
-		// LogInfo("FindItem: current item '%s' at %d", item->Text(), i);
-		if (item != nullptr &&
-			name.ICompare(item->Text()) == 0 &&
-			item->OutlineLevel() == outlinelevel) {
-			// LogInfo("FindItem: *** found item '%s' at level", item->Text(), item->OutlineLevel());
-			return item;
-		}
+		auto newItem = new BranchItem(branch.String(), partName, kHeader, i + 1);
+		AddItem(newItem);
+		i++;
 	}
 
-	return nullptr;
+	BString partName = parts.at(i).c_str();
+	auto newItem = new BranchItem(branch.String(), partName, branchType, i + 1);
+	if (checker(branch))
+		newItem->SetTextFontFace(B_UNDERSCORE_FACE);
+	AddItem(newItem);
 }
 
 

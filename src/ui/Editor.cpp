@@ -111,6 +111,8 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 
 	// Comment margin
 	SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
+	//Wrap visual flag
+	SendMessage(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_MARGIN);
 }
 
 bool
@@ -336,14 +338,12 @@ Editor::ApplySettings()
 
 	_HighlightBraces();
 
-	// TODO: Implement this settings:
-	/*if(fPreferences->fWrapLines == true) {
-		fEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_WORD, 0);
+	if((bool)gCFG["wrap_lines"] == true) {
+		SendMessage(SCI_SETWRAPMODE, SC_WRAP_WORD, 0);
 	} else {
-		fEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_NONE, 0);
+		SendMessage(SCI_SETWRAPMODE, SC_WRAP_NONE, 0);
 	}
 
-	*/
 	// Folding
 	_SetFoldMargin(gCFG["enable_folding"]);
 

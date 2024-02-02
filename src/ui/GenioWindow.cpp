@@ -268,6 +268,10 @@ GenioWindow::Show()
 
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
+		ActionManager::SetPressed(MSG_WRAP_LINES, gCFG["wrap_lines"]);
+
+		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
+		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 
 		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
@@ -781,17 +785,18 @@ GenioWindow::MessageReceived(BMessage* message)
 			fGoToLineWindow->ShowCentered(Frame());
 			break;
 		case MSG_WHITE_SPACES_TOGGLE:
-		{
 			gCFG["show_white_space"] = !gCFG["show_white_space"];
-			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 			break;
-		}
 		case MSG_LINE_ENDINGS_TOGGLE:
-		{
 			gCFG["show_line_endings"] = !gCFG["show_line_endings"];
-			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 			break;
-		}
+		case MSG_TOGGLE_SPACES_ENDINGS:
+			gCFG["show_line_endings"] = !ActionManager::IsPressed(MSG_TOGGLE_SPACES_ENDINGS);
+			gCFG["show_white_space"]  = !ActionManager::IsPressed(MSG_TOGGLE_SPACES_ENDINGS);
+			break;
+		case MSG_WRAP_LINES:
+			gCFG["wrap_lines"] = !gCFG["wrap_lines"];
+			break;
 		case MSG_DUPLICATE_LINE:
 		case MSG_DELETE_LINES:
 		case MSG_COMMENT_SELECTED_LINES:
@@ -2580,10 +2585,16 @@ GenioWindow::_InitActions()
 								   "kIconFold_4");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
 								   B_TRANSLATE("Show white spaces"),
-								   B_TRANSLATE("Show white spaces"), "kIconShowPunctuation");
+								   B_TRANSLATE("Show white spaces"), "");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
 								   B_TRANSLATE("Show line endings"),
 								   B_TRANSLATE("Show line endings"), "");
+	ActionManager::RegisterAction(MSG_TOGGLE_SPACES_ENDINGS,
+								   B_TRANSLATE("Show white spaces and line endings"),
+								   B_TRANSLATE("Show white spaces"), "kIconShowPunctuation");
+	ActionManager::RegisterAction(MSG_WRAP_LINES,
+								   B_TRANSLATE("Wrap lines"),
+								   B_TRANSLATE("Wrap lines"), "kIconWrapLines");
 
 	ActionManager::RegisterAction(MSG_FILE_TRIM_TRAILING_SPACE,
 								  B_TRANSLATE("Trim trailing whitespace"),
@@ -2892,10 +2903,12 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, viewMenu);
 	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, viewMenu);
 	ActionManager::AddItem(MSG_LINE_ENDINGS_TOGGLE, viewMenu);
+	ActionManager::AddItem(MSG_WRAP_LINES, viewMenu);
 	ActionManager::AddItem(MSG_SWITCHSOURCE, viewMenu);
 	ActionManager::SetEnabled(MSG_FILE_FOLD_TOGGLE, false);
 	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
+	ActionManager::SetEnabled(MSG_WRAP_LINES, false);
 	ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 
 	BMenu* searchMenu = new BMenu(B_TRANSLATE("Search"));
@@ -3101,7 +3114,8 @@ GenioWindow::_InitToolbar()
 	ActionManager::AddItem(MSG_FILE_SAVE_ALL, fToolBar);
 	fToolBar->AddSeparator();
 
-	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, fToolBar);
+	ActionManager::AddItem(MSG_TOGGLE_SPACES_ENDINGS, fToolBar);
+	ActionManager::AddItem(MSG_WRAP_LINES, fToolBar);
 	fToolBar->AddSeparator();
 
 	ActionManager::AddItem(MSG_BUILD_PROJECT, fToolBar);
@@ -3997,6 +4011,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetPressed(MSG_TEXT_OVERWRITE, false);
 		ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
 		ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
+		ActionManager::SetEnabled(MSG_TOGGLE_SPACES_ENDINGS, false);
+		ActionManager::SetEnabled(MSG_WRAP_LINES, false);
 
 		ActionManager::SetEnabled(MSG_DUPLICATE_LINE, false);
 		ActionManager::SetEnabled(MSG_DELETE_LINES, false);
@@ -4059,6 +4075,10 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, true);
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, true);
+
+  ActionManager::SetEnabled(MSG_TOGGLE_SPACES_ENDINGS, true);
+	ActionManager::SetEnabled(MSG_WRAP_LINES, true);
+
 	fLineEndingCRLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CRLF);
 	fLineEndingLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_LF);
 	fLineEndingCR->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CR);
@@ -4126,6 +4146,19 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		fFindWrapCheck->SetValue(gCFG["find_wrap"] ? B_CONTROL_ON : B_CONTROL_OFF);
 		fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
 		fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
+	} else
+	if (key.Compare("wrap_lines") == 0) {
+		ActionManager::SetPressed(MSG_WRAP_LINES, gCFG["wrap_lines"]);
+	} else
+	if (key.Compare("show_white_space") == 0) {
+		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
+		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
+		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
+	} else
+	if (key.Compare("show_line_endings") == 0) {
+		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
+		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
+		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 	}
 
 	_CollapseOrExpandProjects();

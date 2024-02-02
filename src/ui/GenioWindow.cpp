@@ -2034,7 +2034,7 @@ GenioWindow::_FindInFiles()
 			grepCommand << " --exclude-dir=" << excludeDir << "";
 	}
 
-	grepCommand += " -IHrn";
+	grepCommand += " -IFHrn";
 	grepCommand += extraParameters;
 	grepCommand += " -- ";
 	grepCommand += EscapeQuotesWrap(text);
@@ -2045,7 +2045,7 @@ GenioWindow::_FindInFiles()
 	fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
 
 	_ShowLog(kSearchResult);
-	_UpdateFindMenuItems(text);
+	_UpdateFindMenuItems(fFindTextControl->Text());
 }
 
 

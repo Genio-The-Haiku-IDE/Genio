@@ -720,9 +720,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 				const BString& text(fFindTextControl->Text());
 				if (fTabManager->SelectedEditor())
-					_FindNext(message, false);
+					PostMessage(MSG_FIND_NEXT);
 				else
-					_FindInFiles();
+					PostMessage(MSG_FIND_IN_FILES);
 
 				fFindTextControl->MakeFocus(true);
 			}

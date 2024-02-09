@@ -432,7 +432,6 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 
 	cfg.AddConfig("Hidden", "ui_bounds", "ui_bounds", BRect(40, 40, 839, 639));
 	cfg.AddConfig("Hidden", "config_version", "config_version", "2.0");
-	cfg.AddConfig("Hidden", "run_without_buffering", "run_without_buffering", true);
 }
 
 

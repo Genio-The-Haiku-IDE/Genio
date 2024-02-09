@@ -3437,7 +3437,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	std::vector<int32> unsavedFiles;
 	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {
 		Editor* editor = fTabManager->EditorAt(index);
-		if (editor->IsModified())
+		if (editor->IsModified() && editor->GetProjectFolder() == project)
 			unsavedFiles.push_back(index);
 	}
 

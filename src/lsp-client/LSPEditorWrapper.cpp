@@ -275,13 +275,13 @@ LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnosti
 	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_DIAG, sci_position) == 1) {
 		for (auto& ir : fLastDiagnostics) {
 			index++;
-			if (sci_position > ir.range.from && sci_position <= ir.range.to) {
+			if (sci_position >= ir.range.from && sci_position < ir.range.to) {
 				dia = ir;
 				return index;
 			}
 		}
 	}
-	return index;
+	return -1;
 }
 
 

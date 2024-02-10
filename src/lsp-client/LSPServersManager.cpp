@@ -67,11 +67,22 @@ public:
 std::vector<LSPServerConfigInterface*> LSPServersManager::fConfigs;
 
 /*static*/
+bool
+LSPServersManager::_AddValidConfig(LSPServerConfigInterface* interface)
+{
+	if (interface->Argc() > 0 && BEntry(interface->Argv()[0], true).Exists()) {
+		fConfigs.push_back(interface);
+		return true;
+	}
+	return false;
+}
+
+/*static*/
 status_t
 LSPServersManager::InitLSPServersConfig()
 {
-	fConfigs.push_back(new ClangdServerConfig());
-	fConfigs.push_back(new PylspServerConfig());
+	_AddValidConfig(new ClangdServerConfig());
+	_AddValidConfig(new PylspServerConfig());
 	return B_OK;
 }
 

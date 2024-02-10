@@ -33,7 +33,7 @@ public:
 		};
 
 		fArgv = {
-			"clangd",
+			"/boot/system/bin/clangd",
 			strdup(logLevel.c_str()),
 			"--offset-encoding=utf-8",
 			"--pretty",
@@ -71,7 +71,7 @@ status_t
 LSPServersManager::InitLSPServersConfig()
 {
 	fConfigs.push_back(new ClangdServerConfig());
-	// fConfigs.push_back(new PylspServer());
+	fConfigs.push_back(new PylspServerConfig());
 	return B_OK;
 }
 

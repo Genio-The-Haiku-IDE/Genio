@@ -56,7 +56,7 @@ GenioApp::GenioApp()
 	_PrepareConfig(gCFG);
 
 	// Global settings file check.
-	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {
+	if (gCFG.LoadFromFile({fConfigurationPath}) != B_OK) {
 		LogInfo("Cannot load global settings file");
 	}
 
@@ -74,7 +74,7 @@ GenioApp::GenioApp()
 GenioApp::~GenioApp()
 {
 	// Save settings on quit, anyway
-	gCFG.SaveToFile(fConfigurationPath);
+	gCFG.SaveToFile({fConfigurationPath});
 	LSPServersManager::DisposeLSPServersConfig();
 }
 
@@ -180,7 +180,7 @@ GenioApp::MessageReceived(BMessage* message)
 					else if (::strcmp(key, "log_level") == 0)
 						Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 				}
-				gCFG.SaveToFile(fConfigurationPath);
+				gCFG.SaveToFile({fConfigurationPath});
 				LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
 			}
 			break;

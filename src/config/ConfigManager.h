@@ -3,6 +3,7 @@
 #include <Autolock.h>
 #include <Application.h>
 #include <Path.h>
+#include <array>
 
 #include "GMessage.h"
 
@@ -13,10 +14,12 @@ enum StorageType {
 	kStorageTypeCountNb   = 2
 };
 
+class PermanentStorageProvider;
 class ConfigManagerReturn;
 class ConfigManager {
 public:
 		explicit ConfigManager(const int32 messageWhat);
+				 ~ConfigManager();
 
 		template<typename T>
 		void AddConfig(const char* group,
@@ -40,10 +43,13 @@ public:
 			fStorage[key] = defaultValue;
 
 			fConfiguration.AddMessage("config", &configKey);
+
+			if (fPSPList[(int32)storageType] == nullptr)
+				fPSPList[(int32)storageType] = CreatePSPByType(storageType);
 		}
 
-		status_t	LoadFromFile(BPath messageFilePath, BPath attributeFilePath = BPath());
-		status_t	SaveToFile(BPath messageFilePath, BPath attributeFilePath = BPath());
+		status_t	SaveToFile(std::array<BPath, kStorageTypeCountNb> paths);
+		status_t	LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths);
 
 		void ResetToDefaults();
 		bool HasAllDefaultValues();
@@ -88,8 +94,10 @@ private:
 		GMessage fConfiguration;
 		BLocker	 fLocker;
 		int32	 fWhat;
+		PermanentStorageProvider*	fPSPList[kStorageTypeCountNb];
 
     bool	_CheckKeyIsValid(const char* key) const;
+	PermanentStorageProvider*	CreatePSPByType(StorageType type);
 };
 
 

@@ -17,9 +17,11 @@ class PermanentStorageProvider {
 public:
 	enum kPSPMode { kPSPReadMode, kPSPWriteMode };
 
-						PermanentStorageProvider(BPath destination, kPSPMode mode) {};
+						PermanentStorageProvider() {};
+						virtual ~PermanentStorageProvider(){};
 
-	virtual status_t	InitCheck() = 0;
+	virtual status_t	Open(BPath destination, kPSPMode mode) = 0;
+	virtual status_t	Close() = 0;
 	virtual status_t	LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& parConfig) = 0;
 	virtual status_t	SaveKey(ConfigManager& manager, const char* key, GMessage& storage) = 0;
 
@@ -27,20 +29,27 @@ public:
 
 class BMessagePSP : public PermanentStorageProvider {
 public:
-		BMessagePSP(BPath dest, kPSPMode mode): PermanentStorageProvider(dest, mode){
-			status = file.SetTo(dest.Path(), mode == PermanentStorageProvider::kPSPReadMode ? B_READ_ONLY : (B_WRITE_ONLY | B_CREATE_FILE));
+		BMessagePSP() {}
+
+		status_t	Open(BPath dest, kPSPMode mode) {
+			uint32 fileMode =  mode == PermanentStorageProvider::kPSPReadMode ? B_READ_ONLY : (B_WRITE_ONLY | B_CREATE_FILE);
+			status_t status = file.SetTo(dest.Path(), fileMode);
 			if (status == B_OK && file.IsReadable()) {
 				status = fromFile.Unflatten(&file);
 			}
-		}
-		~BMessagePSP() {
-			if (status == B_OK && file.IsWritable()) {
-				fromFile.Flatten(&file);
-				file.Flush();
-			}
+			return status;
 		}
 
-		status_t	InitCheck() {
+		status_t Close() {
+			status_t status = file.InitCheck();
+			if (status == B_OK && file.IsWritable()) {
+				status = fromFile.Flatten(&file);
+				if (status == B_OK) {
+					status = file.Flush();
+				}
+				file.Unset();
+				return status;
+			}
 			return status;
 		}
 
@@ -59,7 +68,7 @@ public:
 	private:
 		BFile file;
 		GMessage fromFile;
-		status_t status = B_ERROR;
+
 
 		bool _SameTypeAndFixedSize(
 			BMessage* msgL, const char* keyL, BMessage* msgR, const char* keyR) const
@@ -79,11 +88,10 @@ public:
 
 class AttributePSP : public PermanentStorageProvider {
 public:
-		AttributePSP(BPath attributeFilePath, kPSPMode mode): PermanentStorageProvider(attributeFilePath, mode){
-			status = nodeAttr.SetTo(attributeFilePath.Path());
-		}
+		AttributePSP(){}
 
-	status_t	InitCheck() { return status; }
+	status_t	Open(BPath attributeFilePath, kPSPMode mode) { return nodeAttr.SetTo(attributeFilePath.Path()); }
+	status_t 	Close() { return B_OK;}
 	status_t	LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& paramerConfig)
 	{
 		BString attrName("genio:");
@@ -127,7 +135,6 @@ public:
 	}
 private:
 	BNode	nodeAttr;
-	status_t status = B_ERROR;
 };
 
 
@@ -137,6 +144,31 @@ ConfigManager::ConfigManager(const int32 messageWhat)
 	fWhat(messageWhat)
 {
 	assert(fLocker.InitCheck() == B_OK);
+	for (int32 i=0;i< kStorageTypeCountNb;i++)
+		fPSPList[i] = nullptr;
+}
+ConfigManager::~ConfigManager()
+{
+	for (int32 i=0;i< kStorageTypeCountNb;i++)
+		if (fPSPList[i] != nullptr) {
+			delete fPSPList[i];
+			fPSPList[i] = nullptr;
+		}
+}
+
+PermanentStorageProvider*
+ConfigManager::CreatePSPByType(StorageType type)
+{
+	switch (type) {
+		case kStorageTypeBMessage:
+			return new BMessagePSP();
+		case kStorageTypeAttribute:
+			return new AttributePSP();
+		default:
+			LogErrorF("Invalid StorageType! %d", type);
+			return nullptr;
+	};
+	return nullptr;
 }
 
 
@@ -156,53 +188,70 @@ ConfigManager::Has(GMessage& msg, const char* key) const
 
 
 status_t
-ConfigManager::LoadFromFile(BPath messageFilePath, BPath attributeFilePath)
+ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
 	status_t status = B_OK;
-	BMessagePSP storageM(messageFilePath, PermanentStorageProvider::kPSPReadMode);
-	AttributePSP storageA(attributeFilePath, PermanentStorageProvider::kPSPReadMode);
+	for (int32 i=0;i<kStorageTypeCountNb;i++) {
+		if (fPSPList[i] != nullptr &&
+			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPReadMode) != B_OK)
+
+			return B_ERROR;
+	}
 	GMessage msg;
 	int i = 0;
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		const char* key = msg["key"];
 		StorageType storageType = (StorageType)((int32)msg["storage_type"]);
-		status_t status = B_ERROR;
-		if (storageType == kStorageTypeBMessage && storageM.InitCheck() == B_OK) {
-			status = storageM.LoadKey(*this, key, fStorage, msg);
-		} else if (storageType == kStorageTypeAttribute && storageA.InitCheck() == B_OK) {
-			status = storageA.LoadKey(*this, key, fStorage, msg);
+		PermanentStorageProvider* provider = fPSPList[storageType];
+		if (provider == nullptr) {
+			LogErrorF("Invalid  PermanentStorageProvider (%d)", storageType);
+			return B_ERROR;
 		}
+		status_t status = provider->LoadKey(*this, key, fStorage, msg);
+
 		if (status == B_OK) {
 			LogInfo("Config file: loaded value for key [%s] (StorageType %d)", key, storageType);
 		} else {
 			LogError("Config file: unable to get valid key [%s] (%s) (StorageType %d)", key, strerror(status), storageType);
 		}
 	}
+	for (int32 i=0;i<kStorageTypeCountNb;i++) {
+		if (fPSPList[i] != nullptr)
+			fPSPList[i]->Close();
+	}
 	return status;
 }
 
 status_t
-ConfigManager::SaveToFile(BPath messageFilePath, BPath attributeFilePath)
+ConfigManager::SaveToFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
 	status_t status = B_OK;
-	BMessagePSP storageM(messageFilePath, PermanentStorageProvider::kPSPWriteMode);
-	AttributePSP storageA(attributeFilePath, PermanentStorageProvider::kPSPWriteMode);
+	for (int32 i=0;i<kStorageTypeCountNb;i++) {
+		if (fPSPList[i] != nullptr &&
+			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPWriteMode) != B_OK)
+
+			return B_ERROR;
+	}
 	GMessage msg;
 	int i = 0;
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		const char* key = msg["key"];
-		status_t status = B_ERROR;
 		StorageType storageType = (StorageType)((int32)msg["storage_type"]);
-		if (storageType == kStorageTypeBMessage && storageM.InitCheck() == B_OK) {
-			status = storageM.SaveKey(*this, key, fStorage);
-		} else if (storageType == kStorageTypeAttribute && storageA.InitCheck() == B_OK) {
-			status = storageA.SaveKey(*this, key, fStorage);
+		PermanentStorageProvider* provider = fPSPList[storageType];
+		if (provider == nullptr) {
+			LogErrorF("Invalid PermanentStorageProvider (%d)", storageType);
+			return B_ERROR;
 		}
+		status_t status = provider->SaveKey(*this, key, fStorage);
 		if (status == B_OK) {
 			LogInfo("Config file: saved value for key [%s] (StorageType %d)", key, storageType);
 		} else {
 			LogError("Config file: unable to store valid key [%s] (%s) (StorageType %d)", key, strerror(status), storageType);
 		}
+	}
+	for (int32 i=0;i<kStorageTypeCountNb;i++) {
+		if (fPSPList[i] != nullptr)
+			fPSPList[i]->Close();
 	}
 	return status;
 }

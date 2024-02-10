@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 status_t FSCheckCopiable(BEntry *src, BEntry *dest);
 status_t FSCopyFile(BEntry *src, BEntry *dest, bool clobber);
 status_t FSMoveFile(BEntry *src, BEntry *dest, bool clobber);
-status_t FSChmod(const fs::path& path, fs::perms perm, bool recurse = false);
+status_t FSMakeWritable(const fs::path& path, bool recurse = false);
 status_t FSDeleteFolder(BEntry *dirEntry);
 
 #endif

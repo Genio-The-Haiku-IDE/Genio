@@ -9,6 +9,7 @@
 #include "ConfigManager.h"
 #include "LSPProjectWrapper.h"
 #include "GenioApp.h"
+#include "Log.h"
 #include <vector>
 #include <string>
 
@@ -74,6 +75,7 @@ LSPServersManager::_AddValidConfig(LSPServerConfigInterface* interface)
 		fConfigs.push_back(interface);
 		return true;
 	}
+	LogInfo("LSP Server [%s] not installed!", interface->Argv()[0]);
 	return false;
 }
 

@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "ConfigManager.h"
+#include "OptionPopUpString.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ConfigWindow"
@@ -379,7 +380,7 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		{
 			if (config.Has("mode")) {
 				if (BString((const char*)config["mode"]).Compare("options") == 0){
-					return _CreatePopUp<int32>(config);
+					return _CreatePopUp<int32, BOptionPopUp>(config);
 				}
 			} else {
 				BSpinner* sp = new GControl<BSpinner, int32>(config, fConfigManager[config["key"]], fConfigManager);
@@ -394,8 +395,8 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		case B_STRING_TYPE:
 		{
 			if (config.Has("mode")) {
-				if (BString((const char*)config["mode"]).Compare("options") == 0){
-					return _CreatePopUp<const char*>(config);
+				if (BString((const char*)config["mode"]).Compare("options") == 0) {
+					return _CreatePopUp<const char*, OptionPopUpString>(config);
 				}
 			} else {
 				GControl<BTextControl, const char*>* control = new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]], fConfigManager);
@@ -422,18 +423,18 @@ ConfigWindow::MakeControlFor(GMessage& config)
 }
 
 
-template<typename T>
+template<typename T, typename POPUP>
 BOptionPopUp*
 ConfigWindow::_CreatePopUp(GMessage& config)
 {
-	auto popUp = new GControl<BOptionPopUp, T>(config, fConfigManager[config["key"]], fConfigManager);
+	auto popUp = new GControl<POPUP, T>(config, fConfigManager[config["key"]], fConfigManager);
 	int32 c = 1;
 	while (true) {
 		BString key("option_");
 		key << c;
 		if (!config.Has(key.String()))
 			break;
-		popUp->AddOption(config[key.String()]["label"], config[key.String()]["value"]);
+		popUp->AddOption(config[key.String()]["label"], (T)config[key.String()]["value"]);
 		c++;
 	}
 	popUp->LoadValue(fConfigManager[config["key"]]);

@@ -87,9 +87,12 @@ EditorTabManager::GetToolTipText(int32 index)
 	BString label("");
 	Editor* editor = EditorAt(index);
 	if (editor) {
-		label << editor->Name();
+		label << editor->FilePath();
 		ProjectFolder* project = editor->GetProjectFolder();
 		if (project) {
+			if (label.StartsWith(project->Path()))
+				label.Remove(0, project->Path().Length() + 1);
+					// Length + 1 to also remove the path separator
 			label << "\n" << B_TRANSLATE("Project") << ": " << project->Name();
 			if (project->Active())
 				label << " (" << B_TRANSLATE("Active") << ")";

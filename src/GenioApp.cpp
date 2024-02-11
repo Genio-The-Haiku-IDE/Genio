@@ -356,9 +356,8 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	}
 
 	GMessage fontCfg = { {"mode","options"},
-			  {"option_1", { {"value", ""}, {"label", B_TRANSLATE("Default font") } } },
-			  {"option_2", { {"value", "Noto Sans Display"}, {"label", B_TRANSLATE("2") } } }
-	};/*
+			  {"option_1", { {"value", ""}, {"label", B_TRANSLATE("Default font") } } }
+	};
 	c = 2;
 	int32 numFamilies = count_font_families();
 	for(int32 i = 0; i < numFamilies; i++) {
@@ -369,7 +368,7 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 			fontCfg[key.String()] = { {"value", family}, {"label", family } };
 			c++;
 		}
-	}*/
+	}
 	BString editor(B_TRANSLATE("Editor"));
 	cfg.AddConfig(editor.String(), "edit_fontfamily", B_TRANSLATE("Font"), "", &fontCfg);
 	cfg.AddConfig(editor.String(), "edit_fontsize", B_TRANSLATE("Font size:"), -1, &sizes);

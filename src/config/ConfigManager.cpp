@@ -305,11 +305,8 @@ ConfigManager::_CheckKeyIsValid(const char* key) const
 {
 	type_code type;
 	if (fStorage.GetInfo(key, &type) != B_OK) {
-		BString detail("No config key: ");
-		detail << key;
-		debugger(detail.String());
-		LogFatal(detail.String());
-		throw new std::exception();
+		LogError("No config key: %s", key);
+		return false;
 	}
 	return true;
 }

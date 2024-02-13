@@ -948,7 +948,7 @@ filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
-		if (key == B_UP_ARROW)
+		if (key == B_DOWN_ARROW)
 			fLSPEditorWrapper->NextCallTip();
 		else
 			fLSPEditorWrapper->PrevCallTip();

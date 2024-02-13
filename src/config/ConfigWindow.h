@@ -35,7 +35,7 @@ private:
 	BView*	_Init();
 	void 	_PopulateListView();
 
-	template<typename T>
+	template<typename T, typename POPUP>
 	BOptionPopUp*	_CreatePopUp(GMessage& config);
 
 	BOutlineListView* 	fGroupList;

@@ -1532,6 +1532,10 @@ void
 Editor::_ApplyExtensionSettings()
 {
 	BFont font = be_fixed_font;
+	BString fontFamily = gCFG["edit_fontfamily"];
+	if (!fontFamily.IsEmpty()){
+		font.SetFamilyAndStyle(fontFamily, nullptr);
+	}
 	int32 fontSize = gCFG["edit_fontsize"];
 	if (fontSize > 0)
 		font.SetSize(fontSize);

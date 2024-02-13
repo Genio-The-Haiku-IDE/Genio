@@ -82,12 +82,14 @@ public:
 	LSPProjectWrapper*	fLSPProjectWrapper;
 	BString				fFileStatus;
 	CallTipContext		fCallTip;
+	bool				fInitialized;
 
 	struct LSPDiagnostic { InfoRange range; Diagnostic diagnostic; std::string fixTitle;};
 
 	int32	DiagnosticFromPosition(Sci_Position p, LSPDiagnostic& dia);
 
 private:
+	bool	IsInitialized();
 	std::vector<LSPDiagnostic>	fLastDiagnostics;
 	std::vector<InfoRange>		fLastDocumentLinks;
 
@@ -109,6 +111,7 @@ private:
 	void	_DoDocumentLink(nlohmann::json& params);
 	void	_DoFileStatus(nlohmann::json& params);
 	void	_DoDocumentSymbol(nlohmann::json& params);
+	void	_DoInitialize(nlohmann::json& params);
 
 	void	_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& v, BMessage& msg);
 private:

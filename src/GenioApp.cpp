@@ -56,7 +56,7 @@ GenioApp::GenioApp()
 	_PrepareConfig(gCFG);
 
 	// Global settings file check.
-	if (gCFG.LoadFromFile(fConfigurationPath) != B_OK) {
+	if (gCFG.LoadFromFile({fConfigurationPath}) != B_OK) {
 		LogInfo("Cannot load global settings file");
 	}
 
@@ -74,7 +74,7 @@ GenioApp::GenioApp()
 GenioApp::~GenioApp()
 {
 	// Save settings on quit, anyway
-	gCFG.SaveToFile(fConfigurationPath);
+	gCFG.SaveToFile({fConfigurationPath});
 	LSPServersManager::DisposeLSPServersConfig();
 }
 
@@ -87,14 +87,21 @@ GenioApp::AboutRequested()
 
 	// create the about window
 	const char* authors[] = {
-		"D. Alfano",
-		"A. Anzani",
-		"S. Ceccherini",
+		"Davide Alfano",
+		"Andrea Anzani",
+		"Stefano Ceccherini",
 		NULL
 	};
 
-	window->AddCopyright(2023, "The Genio Team");
+	const char* contributors[] = {
+		"Humdinger",
+		"Máximo Castañeda",
+		NULL
+	};
+
+	window->AddCopyright(2022, "The Genio Team");
 	window->AddAuthors(authors);
+	window->AddText(B_TRANSLATE("Contributors:"), contributors);
 	window->SetVersion(GetVersion().String());
 
 	BStringList list = _SplitChangeLog(kChangeLog);
@@ -173,7 +180,7 @@ GenioApp::MessageReceived(BMessage* message)
 					else if (::strcmp(key, "log_level") == 0)
 						Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 				}
-				gCFG.SaveToFile(fConfigurationPath);
+				gCFG.SaveToFile({fConfigurationPath});
 				LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
 			}
 			break;
@@ -349,7 +356,22 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 		c++;
 	}
 
+	GMessage fontCfg = { {"mode","options"},
+			  {"option_1", { {"value", ""}, {"label", B_TRANSLATE("Default font") } } }
+	};
+	c = 2;
+	int32 numFamilies = count_font_families();
+	for(int32 i = 0; i < numFamilies; i++) {
+		font_family family;
+		if(get_font_family(i, &family) == B_OK) {
+			BString key("option_");
+			key << c;
+			fontCfg[key.String()] = { {"value", family}, {"label", family } };
+			c++;
+		}
+	}
 	BString editor(B_TRANSLATE("Editor"));
+	cfg.AddConfig(editor.String(), "edit_fontfamily", B_TRANSLATE("Font"), "", &fontCfg);
 	cfg.AddConfig(editor.String(), "edit_fontsize", B_TRANSLATE("Font size:"), -1, &sizes);
 	cfg.AddConfig(editor.String(), "syntax_highlight", B_TRANSLATE("Enable syntax highlighting"), true);
 	cfg.AddConfig(editor.String(), "brace_match", B_TRANSLATE("Enable brace matching"), true);
@@ -384,6 +406,7 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(editorVisual.String(), "enable_folding", B_TRANSLATE("Enable folding"), true);
 	cfg.AddConfig(editorVisual.String(), "show_white_space", B_TRANSLATE("Show whitespace"), false);
 	cfg.AddConfig(editorVisual.String(), "show_line_endings", B_TRANSLATE("Show line endings"), false);
+	cfg.AddConfig(editorVisual.String(), "wrap_lines", B_TRANSLATE("Wrap lines"), true);
 	cfg.AddConfig(editorVisual.String(), "show_ruler", B_TRANSLATE("Show vertical ruler"), true);
 	GMessage limits = {{ {"min", 0}, {"max", 500} }};
 	cfg.AddConfig(editorVisual.String(), "ruler_column", B_TRANSLATE("Set ruler to column:"), 100, &limits);

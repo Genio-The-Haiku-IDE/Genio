@@ -20,7 +20,9 @@ enum {
 	MSG_PROJECT_MENU_OPEN_FILE			= 'pmof',
 	MSG_PROJECT_MENU_NEW_FILE			= 'pmnf',
 	MSG_PROJECT_MENU_RENAME_FILE		= 'pmrf',
-	MSG_PROJECT_MENU_DO_RENAME_FILE		= 'pmdr'
+	MSG_PROJECT_MENU_DO_RENAME_FILE		= 'pmdr',
+
+	MSG_BROWSER_SELECT_ITEM				= 'sele'
 };
 
 class ProjectFolder;
@@ -60,7 +62,9 @@ public:
 
 	const BObjectList<ProjectFolder>*	GetProjectList() const;
 
-	void			SelectAndScroll(ProjectFolder*);
+	void			SelectProjectAndScroll(ProjectFolder*);
+
+	void			SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref); //ugly name..
 
 private:
 

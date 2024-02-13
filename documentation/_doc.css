@@ -40,9 +40,13 @@ a:hover, a:active {
 	color: #ff4500;
 }
 
-h3 a:hover, a:active {
-	text-decoration: none;
-	color: #000000;
+/* Some headers act as anchors, don't give them a hover effect */
+
+h1, h2, h3, h4, h5 {
+	a:hover, a:active {
+		text-decoration: none;
+		color: #000;
+	}
 }
 
 /* heading and navigation */
@@ -90,18 +94,26 @@ hr {
 	border: dotted thin #e0e0e0;
 }
 h1 {
-	font-size: 1.3em;
+	font-size: 1.6em;
 	border-bottom: dotted thin #e0e0e0;
-	margin-bottom: 45px;
+	margin: 45px;
+	text-align: center;
 }
 h2 {
-	font-size: 1.2em;
+	font-size: 1.5em;
 	border-bottom: dotted thin #e0e0e0;
 	margin-top: 40px;
 }
 h3 {
-	font-size: 1em;
+	font-size: 1.2em;
 	border-bottom: none;
+	margin-top: 30px;
+	margin-bottom: 0px;
+}
+h4 {
+	font-size: 1.1em;
+	border-bottom: none;
+	margin-top: 30px;
 	margin-bottom: 0px;
 }
 .key {				/* Shortcut (separate with &#160; */
@@ -135,6 +147,16 @@ h3 {
     font-size: 0.9em;
     font-family: monospace;
 }
+.cli {				/* Shell command or file */
+    background-color: #e8e8e8;
+    font-size: 0.9em;
+    font-family: monospace;
+}
+
+tt {
+	background-color: #e8e8e8;
+}
+
 td.onelinetop {
 	vertical-align: top;
 	white-space: nowrap;
@@ -161,4 +183,17 @@ ul {
 	margin-top: 15px;
 	min-height: 42px;
 	background: #e4ffde url(icons/info-box_32.png) 15px 15px no-repeat;
+}
+
+/* Images floating to the left of text */
+.floatleft {
+	border:none;
+	padding:0 1em 2em 0;
+	float:left
+}
+
+.icons {
+	border:none;
+	padding:0 2em 0 0.5em;
+	float:right
 }

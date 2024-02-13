@@ -150,7 +150,7 @@ private:
 			int					FindNext(const BString& search, int flags, bool wrap);
 			int					FindPrevious(const BString& search, int flags, bool wrap);
 			int					FindInTarget(const BString& search, int flags, int startPosition, int endPosition);
-			int32				Find(const BString&  text, int flags, bool backwards = false);
+			int32				Find(const BString&  text, int flags, bool backwards, bool onWrap);
 			filter_result		OnArrowKey(int8 ch);
 			void				SetZoom(int32 zoom);
 			void				Completion();

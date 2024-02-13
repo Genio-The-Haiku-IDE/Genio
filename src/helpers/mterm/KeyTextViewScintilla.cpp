@@ -120,8 +120,12 @@ KeyTextViewScintilla::BeforeKeyDown(BMessage* msg, BView* scintillaView)
 		  case B_PAGE_UP:
 		  case B_PAGE_DOWN:
 			break;
-
+		  case B_ENTER:
+			return B_DISPATCH_MESSAGE;
 		  case B_BACKSPACE:
+		    if (kRealModifiers & modifiers())
+				return B_SKIP_MESSAGE;
+
 			if (fCaretPosition != -1) {
 				SendMessage(SCI_SETCURRENTPOS, fCaretPosition);
 				SendMessage(SCI_SETANCHOR, fCaretPosition);
@@ -133,19 +137,12 @@ KeyTextViewScintilla::BeforeKeyDown(BMessage* msg, BView* scintillaView)
 			return B_SKIP_MESSAGE;
 
 		  default:
-			  if (kRealModifiers & modifiers()) {
-				return B_DISPATCH_MESSAGE;
-			  }
+			  if (bytes[numBytes - 1] < 32)
+				return B_SKIP_MESSAGE;
 
 			  if (fCaretPosition != -1) {
 					SendMessage(SCI_SETCURRENTPOS, fCaretPosition);
 					SendMessage(SCI_SETANCHOR, fCaretPosition);
-				}
-				fBuffer.Append(bytes, numBytes);
-				if (bytes[numBytes - 1] == B_ENTER) {
-					GMessage msg = {{"what", kKTVInputBuffer}, {"buffer", fBuffer}};
-					BMessenger(Parent()).SendMessage(&msg);
-					ClearBuffer();
 				}
 				return B_DISPATCH_MESSAGE;
 
@@ -161,6 +158,13 @@ KeyTextViewScintilla::NotificationReceived(SCNotification* notification)
 
 	switch (pNmhdr->code) {
 		case SCN_CHARADDED: {
+			char ch = static_cast<char>(notification->ch);
+			fBuffer.Append(ch, 1);
+			if (ch == B_ENTER) {
+				GMessage msg = {{"what", kKTVInputBuffer}, {"buffer", fBuffer}};
+				BMessenger(Parent()).SendMessage(&msg);
+				ClearBuffer();
+			}
 			fCaretPosition = SendMessage(SCI_GETCURRENTPOS);
 			break;
 		}

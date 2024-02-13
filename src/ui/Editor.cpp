@@ -111,6 +111,8 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 
 	// Comment margin
 	SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
+	//Wrap visual flag
+	SendMessage(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_MARGIN);
 }
 
 bool
@@ -149,6 +151,80 @@ void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case MSG_REPLACE_ALL:
+		case MSG_REPLACE_NEXT:
+		case MSG_REPLACE_ONE:
+		case MSG_REPLACE_PREVIOUS:
+		{
+			BString text = message->GetString("text", "");
+			BString replace = message->GetString("replace", "");
+
+			GrabFocus();
+			bool matchCase = message->GetBool("match_case", false);
+			bool wholeWord = message->GetBool("whole_word", false);
+
+			int flags = SetSearchFlags(matchCase, wholeWord, false, false, false);
+			bool wrap = message->GetBool("wrap", false);
+			int32 kind = message->GetInt32("kind", REPLACE_NONE);
+
+			switch (kind) {
+				case REPLACE_ALL: {
+					ReplaceAll(text, replace, flags);
+					break;
+				}
+				case REPLACE_NEXT: {
+					ReplaceAndFindNext(text, replace, flags, wrap);
+					break;
+				}
+				case REPLACE_ONE: {
+					ReplaceOne(text, replace);
+					break;
+				}
+				case REPLACE_PREVIOUS: {
+					ReplaceAndFindPrevious(text, replace, flags, wrap);
+					break;
+				}
+				default:
+					break;
+			}
+			break;
+		}
+		case MSG_FIND_MARK_ALL:
+		{
+			BString text = message->GetString("text", "");
+			if (text.IsEmpty())
+				return;
+			GrabFocus();
+			bool matchCase = message->GetBool("match_case", false);
+			bool wholeWord = message->GetBool("whole_word", false);
+
+			int flags = SetSearchFlags(matchCase, wholeWord, false, false, false);
+
+			FindMarkAll(text, flags);
+
+			break;
+		}
+		case MSG_FIND_NEXT:
+		case MSG_FIND_PREVIOUS:
+		{
+			BString text = message->GetString("text", "");
+			if (text.IsEmpty())
+				return;
+
+			GrabFocus();
+			bool matchCase = message->GetBool("match_case", false);
+			bool wholeWord = message->GetBool("whole_word", false);
+
+			int flags = SetSearchFlags(matchCase, wholeWord, false, false, false);
+			bool wrap = message->GetBool("wrap", false);
+
+			if (message->GetBool("backward", false) == false)
+				FindNext(text, flags, wrap);
+			else
+				FindPrevious(text, flags, wrap);
+
+			break;
+		}
 		case MSG_BOOKMARK_CLEAR_ALL:
 			BookmarkClearAll(sci_BOOKMARK);
 		break;
@@ -262,14 +338,12 @@ Editor::ApplySettings()
 
 	_HighlightBraces();
 
-	// TODO: Implement this settings:
-	/*if(fPreferences->fWrapLines == true) {
-		fEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_WORD, 0);
+	if((bool)gCFG["wrap_lines"] == true) {
+		SendMessage(SCI_SETWRAPMODE, SC_WRAP_WORD, 0);
 	} else {
-		fEditor->SendMessage(SCI_SETWRAPMODE, SC_WRAP_NONE, 0);
+		SendMessage(SCI_SETWRAPMODE, SC_WRAP_NONE, 0);
 	}
 
-	*/
 	// Folding
 	_SetFoldMargin(gCFG["enable_folding"]);
 
@@ -430,9 +504,9 @@ Editor::Cut()
 
 
 BString const
-Editor::EndOfLineString()
+Editor::_EndOfLineString()
 {
-	int32 eolMode = _EndOfLine();
+	int32 eolMode = EndOfLine();
 
 	switch (eolMode) {
 		case SC_EOL_CRLF:
@@ -455,6 +529,9 @@ Editor::EndOfLineConvert(int32 eolMode)
 		return;
 
 	SendMessage(SCI_CONVERTEOLS, eolMode, UNSET);
+	SendMessage(SCI_SETEOLMODE, eolMode, UNSET);
+
+	UpdateStatusBar();
 }
 
 
@@ -473,37 +550,36 @@ Editor::FilePath() const
 	return path.Path();
 }
 
-
 int32
-Editor::Find(const BString&  text, int flags, bool backwards /* = false */)
+Editor::Find(const BString&  text, int flags, bool backwards, bool onWrap)
 {
-	SendMessage(SCI_SEARCHANCHOR, UNSET, UNSET);
-	int position;
-	if (backwards == false)
-		position = SendMessage(SCI_SEARCHNEXT, flags, (sptr_t) text.String());
-	else
-		position = SendMessage(SCI_SEARCHPREV, flags, (sptr_t) text.String());
+	const Sci_Position anchor = SendMessage(SCI_GETANCHOR);
+	const Sci_Position current = SendMessage(SCI_GETCURRENTPOS);
+	const int length = SendMessage(SCI_GETLENGTH);
 
-	if (position != -1) {
-		SendMessage(SCI_ENSUREVISIBLEENFORCEPOLICY,
-			SendMessage(SCI_LINEFROMPOSITION, position, UNSET), UNSET);
-
-		SendMessage(SCI_SCROLLCARET, UNSET, UNSET);
+	int position =  -1;
+	if (!onWrap) {
+		position = backwards ? FindInTarget(text, flags, std::min(anchor, current), 0)
+							 : FindInTarget(text, flags, std::max(anchor, current), length);
+	} else {
+		position = backwards ? FindInTarget(text, flags, length, std::max(anchor, current))
+							 : FindInTarget(text, flags, 0, std::min(anchor, current));
 	}
 
+	if (position != -1) {
+		int end = SendMessage(SCI_GETTARGETEND);
+		SendMessage(SCI_SETANCHOR, position);
+		SendMessage(SCI_SETCURRENTPOS, end);
+	}
 	return position;
 }
-
 
 int
 Editor::FindInTarget(const BString& search, int flags, int startPosition, int endPosition)
 {
-	SendMessage(SCI_SETTARGETSTART, startPosition, UNSET);
-	SendMessage(SCI_SETTARGETEND, endPosition, UNSET);
+	SendMessage(SCI_SETTARGETRANGE, startPosition, endPosition);
 	SendMessage(SCI_SETSEARCHFLAGS, flags, UNSET);
-	int position = SendMessage(SCI_SEARCHINTARGET, search.Length(), (sptr_t) search.String());
-
-	return position;
+	return SendMessage(SCI_SEARCHINTARGET, search.Length(), (sptr_t) search.String());
 }
 
 
@@ -559,31 +635,16 @@ Editor::FindMarkAll(const BString& text, int flags)
 	return count;
 }
 
-
-static bool sFound = false;
-
-
 int
 Editor::FindNext(const BString& search, int flags, bool wrap)
 {
-	if (sFound == true || IsSearchSelected(search, flags) == true)
-		SendMessage(SCI_CHARRIGHT, UNSET, UNSET);
+	int position = Find(search, flags, false, false);
 
-	int position = Find(search, flags);
-	if (position != -1)
-		sFound = true;
-	else if (position == -1 && wrap == false) {
-		sFound = false;
+	if (position == -1 && wrap == false) {
 		BMessage message(EDITOR_FIND_NEXT_MISS);
 		fTarget.SendMessage(&message);
 	} else if (position == -1 && wrap == true) {
-		sFound = false;
-		// If wrap and not found go to saved position
-		int savedPosition = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
-		SendMessage(SCI_SETSEL, 0, 0);
-		position = Find(search, flags);
-		if (position == -1)
-			SendMessage(SCI_GOTOPOS, savedPosition, 0);
+		position = Find(search, flags, false, true);
 	}
 	return position;
 }
@@ -592,25 +653,12 @@ Editor::FindNext(const BString& search, int flags, bool wrap)
 int
 Editor::FindPrevious(const BString& search, int flags, bool wrap)
 {
-	if (sFound == true)
-		SendMessage(SCI_CHARLEFT, 0, 0);
-
-	int position = Find(search, flags, true);
-	if (position != -1)
-		sFound = true;
-	else if (position == -1 && wrap == false) {
-		sFound = false;
+	int position = Find(search, flags, true, false);
+	if (position == -1 && wrap == false) {
 		BMessage message(EDITOR_FIND_PREV_MISS);
 		fTarget.SendMessage(&message);
 	} else if (position == -1 && wrap == true) {
-		sFound = false;
-		// If wrap and not found go to saved position
-		int savedPosition = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
-		int endPosition = SendMessage(SCI_GETTEXTLENGTH, UNSET, UNSET);
-		SendMessage(SCI_SETSEL, endPosition, endPosition);
-		position = Find(search, flags, true);
-		if (position == -1)
-			SendMessage(SCI_GOTOPOS, savedPosition, 0);
+		position = Find(search, flags, true, true);
 	}
 	return position;
 }
@@ -1223,7 +1271,7 @@ Editor::UpdateStatusBar()
 	update.AddInt32("column", column + 1);
 	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
 	update.AddString("readOnly", ModeString());
-	update.AddString("eol", EndOfLineString());
+	update.AddString("eol", _EndOfLineString());
 
 	fStatusView->SetStatus(&update);
 }
@@ -1484,6 +1532,10 @@ void
 Editor::_ApplyExtensionSettings()
 {
 	BFont font = be_fixed_font;
+	BString fontFamily = gCFG["edit_fontfamily"];
+	if (!fontFamily.IsEmpty()){
+		font.SetFamilyAndStyle(fontFamily, nullptr);
+	}
 	int32 fontSize = gCFG["edit_fontsize"];
 	if (fontSize > 0)
 		font.SetSize(fontSize);
@@ -1674,7 +1726,7 @@ Editor::CommentSelectedLines()
 
 
 int32
-Editor::_EndOfLine()
+Editor::EndOfLine()
 {
 	return SendMessage(SCI_GETEOLMODE, UNSET, UNSET);
 }
@@ -1683,14 +1735,6 @@ Editor::_EndOfLine()
 void
 Editor::_EndOfLineAssign(char *buffer, int32 size)
 {
-#ifdef USE_LINEBREAKS_ATTRS
-	BNode node(&fFileRef);
-	if (node.ReadAttr("be:line_breaks", B_INT32_TYPE, 0, &eol, sizeof(eol)) > 0) {
-		SendMessage(SCI_SETEOLMODE, eol, UNSET);
-		return;
-	}
-#endif
-
 	// Empty file, use default LF
 	if (size == 0) {
 		SendMessage(SCI_SETEOLMODE, SC_EOL_LF, UNSET);

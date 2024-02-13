@@ -24,8 +24,8 @@
 #define B_TRANSLATION_CONTEXT "Editor"
 
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
-#define IND_DIAG 1 //Style for Problems
-#define IND_LINK 2 //Style for Links
+#define IND_DIAG INDICATOR_CONTAINER + 1 //Style for Problems
+#define IND_LINK INDICATOR_CONTAINER + 2 //Style for Links
 
 LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	:
@@ -33,7 +33,8 @@ LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	fEditor(editor),
 	fToolTip(nullptr),
 	fLSPProjectWrapper(nullptr),
-	fCallTip(editor)
+	fCallTip(editor),
+	fInitialized(false)
 {
 	assert(fEditor);
 }
@@ -44,11 +45,9 @@ LSPEditorWrapper::ApplySettings()
 {
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, (255 | (0 << 8) | (0 << 16)));
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_DIAG, INDIC_SQUIGGLE);
-	fEditor->SendMessage(SCI_INDICSETALPHA, IND_DIAG, 100);
 
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
-	fEditor->SendMessage(SCI_INDICSETALPHA, IND_LINK, 100);
 
 	fEditor->SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 
@@ -121,18 +120,24 @@ LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 
 	SetFileType(fEditor->FileType().c_str());
 
-	if (cW->RegisterTextDocument(this)) {
-		fLSPProjectWrapper = cW;
-		didOpen();
+	fLSPProjectWrapper = cW;
+	if (!cW->RegisterTextDocument(this)) {
+		fLSPProjectWrapper = nullptr;
 	}
 }
 
+bool
+LSPEditorWrapper::IsInitialized()
+{
+	return (fInitialized && fLSPProjectWrapper != nullptr);
+}
 
 void
 LSPEditorWrapper::didOpen()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
+
 	const char* text = (const char*) fEditor->SendMessage(SCI_GETCHARACTERPOINTER);
 
 	fLSPProjectWrapper->DidOpen(this, text, FileType().String());
@@ -143,8 +148,9 @@ LSPEditorWrapper::didOpen()
 void
 LSPEditorWrapper::didClose()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
+
 
 	if (fEditor) {
 		_RemoveAllDiagnostics();
@@ -158,8 +164,9 @@ LSPEditorWrapper::didClose()
 void
 LSPEditorWrapper::didSave()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
+
 
 	fLSPProjectWrapper->DidSave(this);
 }
@@ -169,7 +176,7 @@ void
 LSPEditorWrapper::didChange(
 	const char* text, long len, Sci_Position start_pos, Sci_Position poslength)
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	Sci_Position end_pos = fEditor->SendMessage(SCI_POSITIONRELATIVE, start_pos, poslength);
@@ -203,7 +210,7 @@ LSPEditorWrapper::_DoFormat(json& params)
 void
 LSPEditorWrapper::Format()
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	// format a range or format the whole doc?
@@ -223,7 +230,7 @@ LSPEditorWrapper::Format()
 void
 LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 {
-	if (!fLSPProjectWrapper || !fEditor || !IsStatusValid())
+	if (!IsInitialized()|| !fEditor || !IsStatusValid())
 		return;
 
 	Position position;
@@ -246,7 +253,7 @@ LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 void
 LSPEditorWrapper::StartHover(Sci_Position sci_position)
 {
-	if (!fLSPProjectWrapper || sci_position < 0 || !IsStatusValid()) {
+	if (!IsInitialized() || sci_position < 0 || !IsStatusValid()) {
 		return;
 	}
 
@@ -268,20 +275,20 @@ LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnosti
 	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_DIAG, sci_position) == 1) {
 		for (auto& ir : fLastDiagnostics) {
 			index++;
-			if (sci_position > ir.range.from && sci_position <= ir.range.to) {
+			if (sci_position >= ir.range.from && sci_position < ir.range.to) {
 				dia = ir;
 				return index;
 			}
 		}
 	}
-	return index;
+	return -1;
 }
 
 
 void
 LSPEditorWrapper::EndHover()
 {
-	if (!fLSPProjectWrapper)
+	if (!IsInitialized())
 		return;
 	BAutolock l(fEditor->Looper());
 	if (l.IsLocked()) {
@@ -293,7 +300,7 @@ LSPEditorWrapper::EndHover()
 void
 LSPEditorWrapper::SwitchSourceHeader()
 {
-	if (!fLSPProjectWrapper || !IsStatusValid())
+	if (!IsInitialized() || !IsStatusValid())
 		return;
 	fLSPProjectWrapper->SwitchSourceHeader(this);
 }
@@ -302,7 +309,7 @@ LSPEditorWrapper::SwitchSourceHeader()
 void
 LSPEditorWrapper::SelectedCompletion(const char* text)
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
 	if (fCurrentCompletion.items.size() > 0) {
@@ -365,7 +372,7 @@ LSPEditorWrapper::SelectedCompletion(const char* text)
 void
 LSPEditorWrapper::StartCompletion()
 {
-	if (!fLSPProjectWrapper || !fEditor || !IsStatusValid())
+	if (!IsInitialized() || !fEditor || !IsStatusValid())
 		return;
 
 	// let's check if a completion is ongoing
@@ -403,21 +410,23 @@ void
 LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 {
 	// printf("on char %c\n", ch);
-	if (!fLSPProjectWrapper || !fEditor)
+	if (!IsInitialized() || !fEditor)
 		return;
 
-	if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
-		!Contains(kWordCharacters, ch)) {
-		fEditor->SendMessage(SCI_AUTOCCANCEL);
-	}
+	if(ch != 0) {
+		if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
+			!Contains(kWordCharacters, ch)) {
+			fEditor->SendMessage(SCI_AUTOCCANCEL);
+		}
 
-	if (fLSPProjectWrapper->HasCapability(kLCapCompletion) &&
-			Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
+		if (fLSPProjectWrapper->HasCapability(kLCapCompletion) &&
+				Contains(fLSPProjectWrapper->triggerCharacters(), ch)) {
 
-		if (fCallTip.IsVisible())
-			fCallTip.HideCallTip();
+			if (fCallTip.IsVisible())
+				fCallTip.HideCallTip();
 
-		StartCompletion();
+			StartCompletion();
+		}
 	}
 
 	if (fLSPProjectWrapper->HasCapability(kLCapSignatureHelp)) {
@@ -657,6 +666,12 @@ LSPEditorWrapper::_RemoveAllDocumentLinks()
 	fLastDocumentLinks.clear();
 }
 
+void
+LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
+{
+	fInitialized = true;
+	didOpen();
+}
 
 void
 LSPEditorWrapper::_DoDocumentLink(nlohmann::json& result)
@@ -723,6 +738,7 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
 	IF_ID("textDocument/completion", _DoCompletion);
 	IF_ID("textDocument/documentLink", _DoDocumentLink);
+	IF_ID("initialize", _DoInitialize);
 
 	LogError("LSPEditorWrapper::onResponse not handled! [%s]", id.c_str());
 }

@@ -42,6 +42,7 @@
 #include "ConsoleIOView.h"
 #include "ConsoleIOThread.h"
 #include "EditorKeyDownMessageFilter.h"
+#include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
 #include "EditorTabManager.h"
 #include "FSUtils.h"
@@ -114,6 +115,9 @@ GenioWindow::GenioWindow(BRect frame)
 												B_QUIT_ON_WINDOW_CLOSE)
 	, fMenuBar(nullptr)
 	, fLineEndingsMenu(nullptr)
+	, fLineEndingCRLF(nullptr)
+	, fLineEndingLF(nullptr)
+	, fLineEndingCR(nullptr)
 	, fLanguageMenu(nullptr)
 	, fBookmarksMenu(nullptr)
 	, fBookmarkToggleItem(nullptr)
@@ -194,6 +198,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorKeyDownMessageFilter());
+	AddCommonFilter(new EditorMouseWheelMessageFilter());
 
 	// Load workspace - reopen projects
 	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
@@ -215,6 +220,9 @@ GenioWindow::GenioWindow(BRect frame)
 				}
 			}
 		}
+		if (fActiveProject != nullptr)
+			GetProjectBrowser()->SelectProjectAndScroll(fActiveProject);
+
 		fDisableProjectNotifications = false;
 		if (status == B_OK) {
 			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
@@ -260,6 +268,10 @@ GenioWindow::Show()
 
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
+		ActionManager::SetPressed(MSG_WRAP_LINES, gCFG["wrap_lines"]);
+
+		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
+		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 
 		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
@@ -279,28 +291,6 @@ GenioWindow::~GenioWindow()
 
 
 void
-GenioWindow::DispatchMessage(BMessage* message, BHandler* handler)
-{
-	//TODO: understand this part of code and move it to a better place.
-	/*if (handler == fConsoleIOView) {
-		if (message->what == B_KEY_DOWN) {
-			int8 key;
-			if (message->FindInt8("byte", 0, &key) == B_OK) {
-				// A little hack to make Console I/O pipe act as line-input
-				fConsoleStdinLine << static_cast<const char>(key);
-				fConsoleIOView->ConsoleOutputReceived(1, (const char*)&key);
-				if (key == B_RETURN) {
-					fConsoleIOThread->PushInput(fConsoleStdinLine);
-					fConsoleStdinLine = "";
-				}
-			}
-		}
-	}*/
-	BWindow::DispatchMessage(message, handler);
-}
-
-
-void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
@@ -308,9 +298,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			entry_ref ref;
 			if (message->FindRef("refs", &ref) == B_OK) {
-				int32 index = _GetEditorIndex(&ref);
-				if (index >= 0) {
-					Editor* editor = fTabManager->EditorAt(index);
+				Editor* editor = fTabManager->EditorBy(&ref);
+				if (editor != nullptr) {
 					PostMessage(message, editor);
 				}
 			}
@@ -679,6 +668,31 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_VIEW_ZOOMRESET:
 			gCFG["editor_zoom"] = 0;
 			break;
+		case MSG_WHEEL_WITH_COMMAND_KEY:
+		{
+			float deltaX = 0.0f;
+			float deltaY = 0.0f;
+			message->FindFloat("be:wheel_delta_x", &deltaX);
+			message->FindFloat("be:wheel_delta_y", &deltaY);
+
+			if (deltaX == 0.0f && deltaY == 0.0f)
+				return;
+
+			if (deltaY == 0.0f)
+				deltaY = deltaX;
+
+			int32 zoom = gCFG["editor_zoom"];
+
+			if (deltaY < 0  && zoom < 20) {
+				zoom++;
+				gCFG["editor_zoom"] = zoom;
+			} else if (deltaY > 0 && zoom > -10) {
+				zoom--;
+				gCFG["editor_zoom"] = zoom;
+			}
+			break;
+		}
+		break;
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow(true);
 			break;
@@ -689,10 +703,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_FIND_MARK_ALL:
 		{
-			BString textToFind(fFindTextControl->Text());
-			if (!textToFind.IsEmpty()) {
-				_FindMarkAll(textToFind);
-			}
+			_FindMarkAll(message);
 			break;
 		}
 		case MSG_FIND_MENU_SELECTED:
@@ -709,9 +720,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 				const BString& text(fFindTextControl->Text());
 				if (fTabManager->SelectedEditor())
-					_FindNext(text, false);
+					PostMessage(MSG_FIND_NEXT);
 				else
-					_FindInFiles();
+					PostMessage(MSG_FIND_IN_FILES);
 
 				fFindTextControl->MakeFocus(true);
 			}
@@ -719,14 +730,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_FIND_NEXT:
 		{
-			const BString& text(fFindTextControl->Text());
-			_FindNext(text, false);
+			_FindNext(message, false);
 			break;
 		}
 		case MSG_FIND_PREVIOUS:
 		{
-			const BString& text(fFindTextControl->Text());
-			_FindNext(text, true);
+			_FindNext(message, true);
 			break;
 		}
 		case MSG_FIND_GROUP_TOGGLED:
@@ -776,17 +785,18 @@ GenioWindow::MessageReceived(BMessage* message)
 			fGoToLineWindow->ShowCentered(Frame());
 			break;
 		case MSG_WHITE_SPACES_TOGGLE:
-		{
 			gCFG["show_white_space"] = !gCFG["show_white_space"];
-			ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 			break;
-		}
 		case MSG_LINE_ENDINGS_TOGGLE:
-		{
 			gCFG["show_line_endings"] = !gCFG["show_line_endings"];
-			ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 			break;
-		}
+		case MSG_TOGGLE_SPACES_ENDINGS:
+			gCFG["show_line_endings"] = !ActionManager::IsPressed(MSG_TOGGLE_SPACES_ENDINGS);
+			gCFG["show_white_space"]  = !ActionManager::IsPressed(MSG_TOGGLE_SPACES_ENDINGS);
+			break;
+		case MSG_WRAP_LINES:
+			gCFG["wrap_lines"] = !gCFG["wrap_lines"];
+			break;
 		case MSG_DUPLICATE_LINE:
 		case MSG_DELETE_LINES:
 		case MSG_COMMENT_SELECTED_LINES:
@@ -864,12 +874,15 @@ GenioWindow::MessageReceived(BMessage* message)
 				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 					const entry_ref* ref = item->GetSourceItem()->EntryRef();
-					status = TemplateManager::CreateNewFolder(ref);
+					entry_ref ref_new;
+					status = TemplateManager::CreateNewFolder(ref, &ref_new);
 					if (status != B_OK) {
 						OKAlert(B_TRANSLATE("New folder"),
 								B_TRANSLATE("Error creating folder"),
 								B_WARNING_ALERT);
 						LogError("Invalid destination directory [%s]", ref->name);
+					} else {
+						GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, ref_new);
 					}
 				} else {
 					LogError("Can't find current item");
@@ -898,6 +911,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			// new_file_template corresponds to creating a new file
 			if (type ==  "new_file_template") {
 				entry_ref source;
+				entry_ref ref_new;
 				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
 				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 					const entry_ref* dest = item->GetSourceItem()->EntryRef();
@@ -905,13 +919,15 @@ GenioWindow::MessageReceived(BMessage* message)
 						LogError("Can't find ref in message!");
 						return;
 					}
-					status_t status = TemplateManager::CopyFileTemplate(&source, dest);
+					status_t status = TemplateManager::CopyFileTemplate(&source, dest, &ref_new);
 					if (status != B_OK) {
 						OKAlert(B_TRANSLATE("New file"),
 								B_TRANSLATE("Could not create a new file"),
 								B_WARNING_ALERT);
 						LogError("Invalid destination directory [%s]", dest->name);
 						return;
+					} else {
+						GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, ref_new);
 					}
 				}
 			}
@@ -969,7 +985,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ReplaceGroupShow(true);
 			break;
 		case MSG_REPLACE_ALL:
-			_Replace(REPLACE_ALL);
+			_Replace(message, REPLACE_ALL);
 			break;
 		case MSG_REPLACE_GROUP_TOGGLED:
 			_ReplaceGroupShow(fReplaceGroup->IsHidden());
@@ -984,13 +1000,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_REPLACE_NEXT:
-			_Replace(REPLACE_NEXT);
+			_Replace(message, REPLACE_NEXT);
 			break;
 		case MSG_REPLACE_ONE:
-			_Replace(REPLACE_ONE);
+			_Replace(message, REPLACE_ONE);
 			break;
 		case MSG_REPLACE_PREVIOUS:
-			_Replace(REPLACE_PREVIOUS);
+			_Replace(message, REPLACE_PREVIOUS);
 			break;
 		case MSG_RUN_CONSOLE_PROGRAM_SHOW:
 		{
@@ -1438,13 +1454,13 @@ GenioWindow::QuitRequested()
 }
 
 
-status_t
+Editor*
 GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
 {
 	Editor* editor = new Editor(ref, BMessenger(this));
 	fTabManager->AddTab(editor, ref->name, index, addInfo);
 
-	return B_OK;
+	return editor;
 }
 
 
@@ -1695,12 +1711,12 @@ GenioWindow::_FileOpen(BMessage* msg)
 		// new file to load..
 		selectTabInfo.AddBool("caret_position", true);
 		int32 index = fTabManager->CountTabs();
-		if (_AddEditorTab(&ref, index, &selectTabInfo) != B_OK) {
-			// Error.
-			continue;
-		}
-		Editor* editor = fTabManager->EditorAt(index);
-		assert(index >= 0 && editor);
+		Editor* editor = _AddEditorTab(&ref, index, &selectTabInfo);
+
+		// TODO: using assert() is not nice, try to handle
+		// this gracefully if possible
+		assert(index >= 0);
+		assert(editor != nullptr);
 
 		status = editor->LoadFromFile();
 		if (status != B_OK) {
@@ -1709,18 +1725,10 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		editor->ApplySettings();
 
-		/*
-			Let's assign the right "LSPClientWrapper" to the Editor..
-		*/
-		// Check if already open
-		BString baseDir("");
+		// Let's assign the right project to the Editor
 		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
 			ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
-			BString projectPath = project->Path();
-			projectPath = projectPath.Append("/");
-			if (editor->FilePath().StartsWith(projectPath)) {
-				editor->SetProjectFolder(project);
-			}
+			_TryAssociateOrphanedEditorsWithProject(project);
 		}
 
 		fTabManager->SelectTab(index, &selectTabInfo);
@@ -1963,51 +1971,42 @@ GenioWindow::_FindGroupShow(bool show)
 }
 
 
-int32
-GenioWindow::_FindMarkAll(const BString text)
+void
+GenioWindow::_FindMarkAll(BMessage* message)
 {
-	Editor* editor = fTabManager->SelectedEditor();
-	if (!editor)
-		return 0;
+	BString textToFind(fFindTextControl->Text());
+	if (textToFind.IsEmpty())
+		return;
 
-	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
-										fFindWholeWordCheck->Value(),
-										false, false, false);
+	_AddSearchFlags(message);
+	message->SetString("text", textToFind);
+	message->SetBool("wrap", fFindWrapCheck->Value());
+	_ForwardToSelectedEditor(message);
+	_UpdateFindMenuItems(textToFind);
 
-	int countMarks = editor->FindMarkAll(text, flags);
+}
 
-	editor->GrabFocus();
-
-	_UpdateFindMenuItems(text);
-
-	return countMarks;
+void
+GenioWindow::_AddSearchFlags(BMessage* msg)
+{
+	msg->SetBool("match_case", fFindCaseSensitiveCheck->Value());
+	msg->SetBool("whole_word", fFindWholeWordCheck->Value());
 }
 
 
 void
-GenioWindow::_FindNext(const BString& strToFind, bool backwards)
+GenioWindow::_FindNext(BMessage* message, bool backwards)
 {
-	if (strToFind.IsEmpty())
+	BString textToFind(fFindTextControl->Text());
+	if (textToFind.IsEmpty())
 		return;
 
-	Editor* editor = fTabManager->SelectedEditor();
-
-	if (!editor)
-		return;
-
-	editor->GrabFocus();
-
-	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
-										fFindWholeWordCheck->Value(),
-										false, false, false);
-	bool wrap = fFindWrapCheck->Value();
-
-	if (backwards == false)
-		editor->FindNext(strToFind, flags, wrap);
-	else
-		editor->FindPrevious(strToFind, flags, wrap);
-
-	_UpdateFindMenuItems(strToFind);
+	_AddSearchFlags(message);
+	message->SetString("text", textToFind);
+	message->SetBool("wrap", fFindWrapCheck->Value());
+	message->SetBool("backward", backwards);
+	_ForwardToSelectedEditor(message);
+	_UpdateFindMenuItems(textToFind);
 }
 
 
@@ -2040,7 +2039,7 @@ GenioWindow::_FindInFiles()
 			grepCommand << " --exclude-dir=" << excludeDir << "";
 	}
 
-	grepCommand += " -IHrn";
+	grepCommand += " -IFHrn";
 	grepCommand += extraParameters;
 	grepCommand += " -- ";
 	grepCommand += EscapeQuotesWrap(text);
@@ -2051,49 +2050,29 @@ GenioWindow::_FindInFiles()
 	fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
 
 	_ShowLog(kSearchResult);
-	_UpdateFindMenuItems(text);
+	_UpdateFindMenuItems(fFindTextControl->Text());
 }
 
 
 int32
 GenioWindow::_GetEditorIndex(const entry_ref* ref) const
 {
-	BEntry entry(ref, true);
-	int32 filesCount = fTabManager->CountTabs();
-	for (int32 index = 0; index < filesCount; index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		if (editor == nullptr) {
-			BString notification;
-			notification
-				<< "Index " << index << ": NULL editor pointer";
-			LogInfo(notification.String());
-			continue;
-		}
-		BEntry matchEntry(editor->FileRef(), true);
-		if (matchEntry == entry)
-			return index;
-	}
-	return -1;
+	Editor* editor = fTabManager->EditorBy(ref);
+	if (editor == nullptr)
+		return -1;
+
+	return fTabManager->TabForView(editor);
 }
 
 
 int32
-GenioWindow::_GetEditorIndex(node_ref* nref) const
+GenioWindow::_GetEditorIndex(node_ref* nodeRef) const
 {
-	int32 filesCount = fTabManager->CountTabs();
-	for (int32 index = 0; index < filesCount; index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		if (editor == nullptr) {
-			BString notification;
-			notification
-				<< "Index " << index << ": NULL editor pointer";
-			LogInfo(notification.String());
-			continue;
-		}
-		if (*nref == *editor->NodeRef())
-			return index;
-	}
-	return -1;
+	Editor* editor = fTabManager->EditorBy(nodeRef);
+	if (editor == nullptr)
+		return -1;
+
+	return fTabManager->TabForView(editor);
 }
 
 
@@ -2606,10 +2585,16 @@ GenioWindow::_InitActions()
 								   "kIconFold_4");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
 								   B_TRANSLATE("Show white spaces"),
-								   B_TRANSLATE("Show white spaces"), "kIconShowPunctuation");
+								   B_TRANSLATE("Show white spaces"), "");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
 								   B_TRANSLATE("Show line endings"),
 								   B_TRANSLATE("Show line endings"), "");
+	ActionManager::RegisterAction(MSG_TOGGLE_SPACES_ENDINGS,
+								   B_TRANSLATE("Show white spaces and line endings"),
+								   B_TRANSLATE("Show white spaces"), "kIconShowPunctuation");
+	ActionManager::RegisterAction(MSG_WRAP_LINES,
+								   B_TRANSLATE("Wrap lines"),
+								   B_TRANSLATE("Wrap lines"), "kIconWrapLines");
 
 	ActionManager::RegisterAction(MSG_FILE_TRIM_TRAILING_SPACE,
 								  B_TRANSLATE("Trim trailing whitespace"),
@@ -2876,12 +2861,12 @@ GenioWindow::_InitMenu()
 	editMenu->AddSeparatorItem();
 
 	fLineEndingsMenu = new BMenu(B_TRANSLATE("Line endings"));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Unix"),
-		new BMessage(MSG_EOL_CONVERT_TO_UNIX)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Dos"),
-		new BMessage(MSG_EOL_CONVERT_TO_DOS)));
-	fLineEndingsMenu->AddItem(new BMenuItem(B_TRANSLATE("Mac"),
-		new BMessage(MSG_EOL_CONVERT_TO_MAC)));
+	fLineEndingsMenu->AddItem((fLineEndingLF = new BMenuItem(B_TRANSLATE("LF (Haiku, Unix, macOS)"),
+		new BMessage(MSG_EOL_CONVERT_TO_UNIX))));
+	fLineEndingsMenu->AddItem((fLineEndingCRLF = new BMenuItem(B_TRANSLATE("CRLF (Windows, Dos)"),
+		new BMessage(MSG_EOL_CONVERT_TO_DOS))));
+	fLineEndingsMenu->AddItem((fLineEndingCR = new BMenuItem(B_TRANSLATE("CR (Classic Mac OS)"),
+		new BMessage(MSG_EOL_CONVERT_TO_MAC))));
 
 	ActionManager::SetEnabled(B_UNDO, false);
 	ActionManager::SetEnabled(B_REDO, false);
@@ -2918,10 +2903,12 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, viewMenu);
 	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, viewMenu);
 	ActionManager::AddItem(MSG_LINE_ENDINGS_TOGGLE, viewMenu);
+	ActionManager::AddItem(MSG_WRAP_LINES, viewMenu);
 	ActionManager::AddItem(MSG_SWITCHSOURCE, viewMenu);
 	ActionManager::SetEnabled(MSG_FILE_FOLD_TOGGLE, false);
 	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
+	ActionManager::SetEnabled(MSG_WRAP_LINES, false);
 	ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 
 	BMenu* searchMenu = new BMenu(B_TRANSLATE("Search"));
@@ -3127,7 +3114,8 @@ GenioWindow::_InitToolbar()
 	ActionManager::AddItem(MSG_FILE_SAVE_ALL, fToolBar);
 	fToolBar->AddSeparator();
 
-	ActionManager::AddItem(MSG_WHITE_SPACES_TOGGLE, fToolBar);
+	ActionManager::AddItem(MSG_TOGGLE_SPACES_ENDINGS, fToolBar);
+	ActionManager::AddItem(MSG_WRAP_LINES, fToolBar);
 	fToolBar->AddSeparator();
 
 	ActionManager::AddItem(MSG_BUILD_PROJECT, fToolBar);
@@ -3336,11 +3324,10 @@ GenioWindow::_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project)
 		LogTrace("Open project [%s] vs editor project [%s]",
 			projectPath.Path(), editor->FilePath().String());
 		if (editor->GetProjectFolder() == NULL) {
-			BPath parent;
-			if (BPath(editor->FilePath()).GetParent(&parent) == B_OK
-				&& parent == projectPath) {
+			// TODO: This isn't perfect: if we open a subfolder of
+			// an existing project as new project, the two would clash
+			if (editor->FilePath().StartsWith(projectPath.Path()))
 				editor->SetProjectFolder(project);
-			}
 		}
 	}
 }
@@ -3450,7 +3437,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	std::vector<int32> unsavedFiles;
 	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {
 		Editor* editor = fTabManager->EditorAt(index);
-		if (editor->IsModified())
+		if (editor->IsModified() && editor->GetProjectFolder() == project)
 			unsavedFiles.push_back(index);
 	}
 
@@ -3592,6 +3579,9 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		opened = "Active project open: ";
 	}
 
+	//ensure it's selected:
+	GetProjectBrowser()->SelectProjectAndScroll(newProject);
+
 	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 
 	BString projectPath = newProject->Path();
@@ -3692,48 +3682,23 @@ GenioWindow::_ShowInTracker(const entry_ref& ref, const node_ref* nref)
 }
 
 
-int
-GenioWindow::_Replace(int what)
+void
+GenioWindow::_Replace(BMessage* message, int32 kind)
 {
 	if (_ReplaceAllow() == false)
-		return REPLACE_SKIP;
+		return;
 
-	BString selection(fFindTextControl->Text());
-	BString replacement(fReplaceTextControl->Text());
-	int retValue = REPLACE_NONE;
+	BString text(fFindTextControl->Text());
+	BString replace(fReplaceTextControl->Text());
 
-	Editor* editor = fTabManager->SelectedEditor();
-	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
-										fFindWholeWordCheck->Value(),
-										false, false, false);
-
-	bool wrap = fFindWrapCheck->Value();
-
-	switch (what) {
-		case REPLACE_ALL: {
-			retValue = editor->ReplaceAll(selection, replacement, flags);
-			editor->GrabFocus();
-			break;
-		}
-		case REPLACE_NEXT: {
-			retValue = editor->ReplaceAndFindNext(selection, replacement, flags, wrap);
-			break;
-		}
-		case REPLACE_ONE: {
-			retValue = editor->ReplaceOne(selection, replacement);
-			break;
-		}
-		case REPLACE_PREVIOUS: {
-			retValue = editor->ReplaceAndFindPrevious(selection, replacement, flags, wrap);
-			break;
-		}
-		default:
-			return REPLACE_NONE;
-	}
-	_UpdateFindMenuItems(fFindTextControl->Text());
-	_UpdateReplaceMenuItems(fReplaceTextControl->Text());
-
-	return retValue;
+	_AddSearchFlags(message);
+	message->SetString("text", text);
+	message->SetString("replace", replace);
+	message->SetBool("wrap", fFindWrapCheck->Value());
+	message->SetInt32("kind", kind);
+	_ForwardToSelectedEditor(message);
+	_UpdateFindMenuItems(text);
+	_UpdateReplaceMenuItems(replace);
 }
 
 
@@ -3750,30 +3715,6 @@ GenioWindow::_ReplaceAllow() const
 	return true;
 }
 
-
-/*
-void
-GenioWindow::_ReplaceAndFind()
-{
-	if (_ReplaceAllow() == false)
-		return;
-
-	BString selection(fFindTextControl->Text());
-	BString replacement(fReplaceTextControl->Text());
-	editor = fEditorObjectList->ItemAt(fTabManager->SelectedTabIndex());
-
-	int flags = editor->SetSearchFlags(fFindCaseSensitiveCheck->Value(),
-										fFindWholeWordCheck->Value(),
-										false, false, false);
-
-	bool wrap = fFindWrapCheck->Value();
-
-	editor->ReplaceAndFind(selection, replacement, flags, wrap);
-
-	_UpdateFindMenuItems(fFindTextControl->Text());
-	_UpdateReplaceMenuItems(fReplaceTextControl->Text());
-}
-*/
 
 
 void
@@ -4009,6 +3950,11 @@ GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 
 	// Menu Items
 
+	fLineEndingCRLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CRLF);
+	fLineEndingLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_LF);
+	fLineEndingCR->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CR);
+	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
+
 	ActionManager::SetEnabled(B_UNDO, editor->CanUndo());
 	ActionManager::SetEnabled(B_REDO, editor->CanRedo());
 	ActionManager::SetPressed(MSG_TEXT_OVERWRITE, editor->IsOverwrite());
@@ -4065,6 +4011,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetPressed(MSG_TEXT_OVERWRITE, false);
 		ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, false);
 		ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, false);
+		ActionManager::SetEnabled(MSG_TOGGLE_SPACES_ENDINGS, false);
+		ActionManager::SetEnabled(MSG_WRAP_LINES, false);
 
 		ActionManager::SetEnabled(MSG_DUPLICATE_LINE, false);
 		ActionManager::SetEnabled(MSG_DELETE_LINES, false);
@@ -4078,6 +4026,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
 		ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 
+		fLineEndingCRLF->SetMarked(false);
+		fLineEndingLF->SetMarked(false);
+		fLineEndingCR->SetMarked(false);
 		fLineEndingsMenu->SetEnabled(false);
 		fLanguageMenu->SetEnabled(false);
 		ActionManager::SetEnabled(MSG_FIND_NEXT, false);
@@ -4125,6 +4076,12 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, true);
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, true);
 
+  ActionManager::SetEnabled(MSG_TOGGLE_SPACES_ENDINGS, true);
+	ActionManager::SetEnabled(MSG_WRAP_LINES, true);
+
+	fLineEndingCRLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CRLF);
+	fLineEndingLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_LF);
+	fLineEndingCR->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CR);
 	fLineEndingsMenu->SetEnabled(!editor->IsReadOnly());
 	fLanguageMenu->SetEnabled(true);
 	//Setting the right message type:
@@ -4189,6 +4146,19 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		fFindWrapCheck->SetValue(gCFG["find_wrap"] ? B_CONTROL_ON : B_CONTROL_OFF);
 		fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
 		fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
+	} else
+	if (key.Compare("wrap_lines") == 0) {
+		ActionManager::SetPressed(MSG_WRAP_LINES, gCFG["wrap_lines"]);
+	} else
+	if (key.Compare("show_white_space") == 0) {
+		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
+		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
+		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
+	} else
+	if (key.Compare("show_line_endings") == 0) {
+		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
+		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
+		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 	}
 
 	_CollapseOrExpandProjects();

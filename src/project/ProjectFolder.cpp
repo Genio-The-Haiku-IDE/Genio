@@ -80,6 +80,7 @@ SourceItem::UpdateEntryRef(const entry_ref& ref)
 }
 
 
+// ProjectFolder
 ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 	:
 	SourceItem(ref),
@@ -100,9 +101,8 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
 		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
 			fFullPath.String(), ex.Error(), ex.what());
 	}
-
-	//fLSPProjectWrapper = new LSPProjectWrapper(fFullPath.String(), msgr);
 }
+
 
 LSPProjectWrapper*
 ProjectFolder::GetLSPServer(const BString& fileType)
@@ -131,6 +131,7 @@ ProjectFolder::~ProjectFolder()
 status_t
 ProjectFolder::Open()
 {
+	ASSERT(fSettings == nullptr);
 	fSettings = new ConfigManager(kMsgProjectSettingsUpdated);
 	_PrepareSettings();
 
@@ -174,7 +175,7 @@ ProjectFolder::LoadSettings()
 
 	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
-	status_t status = fSettings->LoadFromFile(path.Path());
+	status_t status = fSettings->LoadFromFile({ path.Path(), BPath(Path()) });
 	if (status != B_OK) {
 		// Try to load old style settings
 		status = _LoadOldSettings();
@@ -194,7 +195,7 @@ ProjectFolder::SaveSettings()
 
 	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
-	status_t status = fSettings->SaveToFile(path.Path());
+	status_t status = fSettings->SaveToFile({ path.Path(), BPath(Path()) });
 	if (status != B_OK) {
 		LogErrorF("Cannot save settings: %s", ::strerror(status));
 	}
@@ -362,7 +363,7 @@ ProjectFolder::_PrepareSettings()
 	};
 	rgb_color color = ui_color(B_PANEL_BACKGROUND_COLOR);
 	fSettings->AddConfig("General", "color",
-		B_TRANSLATE("Color:"), color);
+		B_TRANSLATE("Color:"), color, nullptr, kStorageTypeAttribute);
 
 	fSettings->AddConfig("Build", "build_mode",
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);

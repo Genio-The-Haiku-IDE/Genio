@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<!--
+ * Copyright 2024
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Humdinger <humdingerb@gmail.com>
+-->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="robots" content="all" />
+	<link rel="stylesheet" type="text/css" href="./_doc.css" />
+	<title>Genio's User Documentation</title>
+
+</head>
+<body>
+
+<div id="navbar">
+<a href="ReadMe.html">QuickStart</a> <a href="editor.html">Editor</a> <a class="active" href="panes.html">Panes</a> <a href="toolbar.html">Toolbar</a> <a href="menus.html">Menus</a> <a href="settings.html">Settings</a>
+</div>
+
+<div id="content">
+
+<h1>The Panes</h1>
+
+<p>Genio's main window contains two panes besides the toolbar and the editor view: The "Projects" pane on the left and the "Output" pane at the bottom. They can be toggled on and off with the first two icons in the toolbar, or with the menu <span class="menu">Window|Appearance</span>.</p>
+
+
+<h2><a id="projects-pane" name="projects-pane">The "Projects" pane</a></h2>
+
+<p>The "Projects" pane holds two tabs: the first to manage the files and folders of open projects, the second to manage source control related issues.</p>
+
+
+<h3><a id="projects" name="projects">Projects</a></h3>
+
+<p><img src="./images/panes-projects.png" class="floatleft" alt="Projects" /></p>
+
+<p>You can have multiple projects open at the same time, but only one can be "active". This is indicated by a bolded project name.<br />
+Commands like <span class="menu">Project|Build project</span> or a search in the whole project work only on the currently active project. A project can be <span class="menu">Set active</span> from the context menu when right-clicking it.
+</p>
+
+<p>The context menu provides more commands to manage your project, depending on what item it was invoked on. Right-clicking the project name (= top folder), let's you build your project, close it, open its <a href="settings.html">Project settings</a>, add new files from templates or open its folder in Tracker, among other things.</p>
+
+<p>A right-click on files or folders inside the project allows you to rename, delete or open a file with its preferred application, etc.</p>
+
+<p>Double-clicking a file opens it in the editor view.</p>
+<p style="clear:left"></p>
+
+
+<h3><a id="source-control" name="source-control">Source control</a></h3>
+
+<p><img src="./images/panes-source_control.png" class="floatleft" alt="Source control" /></p>
+
+<p>In this tab you find most often needed actions to interact with your git repository. It also shows the structure of your repository; your local and remote branches, forks and tags.</p>
+
+<p>You switch to a different branch with a double-click, or by choosing from the <span class="menu">Current branch</span> menu.</p>
+
+<p>A right-click on a branch opens a context menu to switch, create, rename or delete branches, etc.</p>
+
+<p>With the <b>⁝</b> icon at the right above the list, you can execute several git commands like fetch or stash or apply stashed changes.</p>
+
+<p>If there isn't a git repository already, Genio offers you to <span class="button">Init a repository</span>.</p>
+<p style="clear:left"></p>
+
+
+<h2><a id="output-pane" name="output-pane">The "Output" pane</a></h2>
+
+<p>The "Output" pane consists of four tabs: <span class="menu">Problems</span>, the <span class="menu">Build log</span>, the <span class="menu">Console I/O</span> and <span class="menu">Search results</span>.</p>
+
+
+<h3><a id="problems" name="problems">Problems</a></h3>
+
+<p style="text-align:center"><img src="./images/panes-output_problems.png" style="border:none" alt="Problems" /></p>
+
+<p>Clang is continuously analyzing the current file in the editor view and reports any problems it thinks it has found. Sometimes those are false positives and can be ignored. Often it's very helpful, however, to spot typos or missing commas etc.<br />
+A right-click on a row offers to fix the issue.</p>
+
+
+<h3><a id="build-log" name="build-log">Build log</a></h3>
+
+<p style="text-align:center"><img src="./images/panes-output_build_log.png" style="border:none" alt="Build log" /></p>
+
+<p>When you're building your project, the "Build log" tab pops up, showing the build process.<br />
+Warnings and errors are printed in red, showing in which file, on what line and column the error was encountered. Click on it, and you're transported right to it.</p>
+
+<p>The buttons on the right <span class="button">Clear</span> the log or <span class="button">Stop</span> the running process.<br />
+The checkboxes above them de/activate <span class="menu">stdout</span> and <span class="menu">stderr</span>. You can <span class="menu">Wrap</span> long lines, and de/activate the <span class="menu">Banner</span> which prints the executed command at the start and end of the build process.</p>
+
+
+<h3><a id="console-io" name="console-io">Console I/O</a></h3>
+
+<p style="text-align:center"><img src="./images/panes-output_console_io.png" style="border:none" alt="Console I/O" /></p>
+
+<p>If you execute a command from the <span class="menu">Git</span> menu, like <span class="cli">git status</span>, or choose to <span class="menu">Run console program</span> or <span class="menu">Run target</span> from the <a href="toolbar.html">Toolbar</a>, its output will appear in the "Console I/O" tab.</p>
+
+<p>The buttons and checkboxes do the same as described above for the "Build log".</p>
+
+
+<h3><a id="search-results" name="search-results">Search results</a></h3>
+
+<p style="text-align:center"><img src="./images/panes-output_search_results.png" style="border:none" alt="Search results" /></p>
+
+<p>If you click the icon <span class="menu">Find in project</span> in the <a href="toolbar.html">Find bar</a>, this tab will show all the hits from all files of the currently active project. Double-click to jump to the search result.</p>
+
+
+<hr />
+<a href="editor.html" style="border:none;float:left">Back: Editor</a>
+<a href="toolbar.html" style="border:none;float:right">Next: Toolbar</a>
+<p></p>
+</div>
+</body>
+</html>

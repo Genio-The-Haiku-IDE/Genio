@@ -40,6 +40,7 @@ using namespace Genio::Task;
 class MTerm{
 public:
 			MTerm(const BMessenger& msgr);
+			~MTerm();
 			void Run(int argc, const char* const* argv);
 			void Kill(); //exp
 
@@ -50,11 +51,10 @@ private:
 
 	static int32	_RunReaderThread(void* data);
 
-	pid_t	fExecProcessID;
-	int		fFd;
-	thread_id fReaderThread;
-	BMessenger	fMessenger;
-	Task<status_t>* fReadTask;
+	pid_t				fExecProcessID;
+	int					fFd;
+	BMessenger			fMessenger;
+	Task<status_t>* 	fReadTask;
 };
 
 

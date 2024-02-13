@@ -153,9 +153,14 @@ initialize_termios(struct termios &tio)
 #include <Handler.h>
 using namespace Genio::Task;
 
-MTerm::MTerm(const BMessenger& msgr) : fExecProcessID(-1), fMessenger(msgr), fReadTask(nullptr)
+MTerm::MTerm(const BMessenger& msgr) : fExecProcessID(-1), fFd(-1), fMessenger(msgr), fReadTask(nullptr)
 {
 
+}
+
+MTerm::~MTerm()
+{
+	Kill();
 }
 
 void
@@ -166,18 +171,25 @@ MTerm::Run(int argc, const char* const* argv)
 		return;
 	}
 
-	fReadTask = new Task<status_t>("_ReadThread", fMessenger, std::bind(&MTerm::_ReadThread, *this));
+	fReadTask = new Task<status_t>("_ReadThread", fMessenger, std::bind(&MTerm::_ReadThread, this));
 	fReadTask->Run();
 }
 
 void
 MTerm::Kill()
 {
-	if(fExecProcessID > -1)
+	if(fExecProcessID > -1) {
 		kill_thread(fExecProcessID);
-	if (fReadTask)
+		fExecProcessID = -1;
+	}
+	if (fReadTask) {
 		fReadTask->Stop();
-	close(fFd);
+		fReadTask = nullptr;
+	}
+	if (fFd > -1) {
+		close(fFd);
+		fFd = -1;
+	}
 }
 
 
@@ -374,20 +386,18 @@ MTerm::_Spawn(int argc, const char* const* argv)
 status_t
 MTerm::_ReadThread()
 {
-	//TODO: spawn a new thread to read..
 	uchar buf[READ_BUF_SIZE];
-//	int i=0;
 	while(1) {
 		// Read PTY
 		ssize_t nread = read(fFd, buf, READ_BUF_SIZE);
 		if (nread <= 0) {
-			//GMessage msg = {{"what", kMTReadDone }};
-			//fMessenger.SendMessage(&msg);
-			return B_OK;
+			break;
 		}
 		GMessage msg = {{"what", kMTOutputText },{"text", BString((const char*)buf, nread)}};
 		fMessenger.SendMessage(&msg);
 	}
+
+	return B_OK;
 }
 
 void

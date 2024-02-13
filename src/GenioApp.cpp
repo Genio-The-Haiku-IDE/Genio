@@ -355,7 +355,22 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 		c++;
 	}
 
+	GMessage fontCfg = { {"mode","options"},
+			  {"option_1", { {"value", ""}, {"label", B_TRANSLATE("Default font") } } }
+	};
+	c = 2;
+	int32 numFamilies = count_font_families();
+	for(int32 i = 0; i < numFamilies; i++) {
+		font_family family;
+		if(get_font_family(i, &family) == B_OK) {
+			BString key("option_");
+			key << c;
+			fontCfg[key.String()] = { {"value", family}, {"label", family } };
+			c++;
+		}
+	}
 	BString editor(B_TRANSLATE("Editor"));
+	cfg.AddConfig(editor.String(), "edit_fontfamily", B_TRANSLATE("Font"), "", &fontCfg);
 	cfg.AddConfig(editor.String(), "edit_fontsize", B_TRANSLATE("Font size:"), -1, &sizes);
 	cfg.AddConfig(editor.String(), "syntax_highlight", B_TRANSLATE("Enable syntax highlighting"), true);
 	cfg.AddConfig(editor.String(), "brace_match", B_TRANSLATE("Enable brace matching"), true);

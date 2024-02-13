@@ -333,6 +333,9 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(general.String(), "log_level",
 		B_TRANSLATE("Log level:"), (int32)LOG_LEVEL_ERROR, &levels);
 
+	GMessage log_limits = {{ {"min", 1024}, {"max", 4096} }};
+	cfg.AddConfig(general.String(), "log_size", B_TRANSLATE("Log size:"), 1024, &log_limits);
+
 	BString generalStartup = general;
 	generalStartup.Append("/").Append(B_TRANSLATE("Startup"));
 	cfg.AddConfig(generalStartup.String(), "reopen_projects", B_TRANSLATE("Reload projects"), true);

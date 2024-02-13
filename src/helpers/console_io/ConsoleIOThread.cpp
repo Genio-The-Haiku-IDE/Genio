@@ -12,6 +12,7 @@
 #include "ConsoleIOThread.h"
 
 #include <Autolock.h>
+#include <Debug.h>
 #include <Messenger.h>
 
 #include <errno.h>
@@ -45,9 +46,9 @@ ConsoleIOThread::~ConsoleIOThread()
 status_t
 ConsoleIOThread::_RunExternalProcess()
 {
+	ASSERT(fExternalProcessId < 0);
 	BAutolock lock(fProcessIDLock);
 	BString cmd;
-
 	status_t status = GetDataStore()->FindString("cmd", &cmd);
 	if (status != B_OK)
 		return status;
@@ -114,46 +115,49 @@ ConsoleIOThread::_RunExternalProcess()
 }
 
 
+/* virtual */
+status_t
+ConsoleIOThread::ThreadStartup(void)
+{
+	return _RunExternalProcess();
+}
+
+
 status_t
 ConsoleIOThread::ExecuteUnit()
 {
-	// first time: let's setup the external process.
-	// this way we always enter in the same managed loop
-	status_t status = B_OK;
-	if (fExternalProcessId < 0) {
-		BAutolock lock(fProcessIDLock);
-		status = _RunExternalProcess();
-	} else {
-		// read output and error from command
-		// send it to window
-		BString outStr("");
-		BString errStr("");
-		status = GetFromPipe(outStr, errStr);
+	if (fExternalProcessId < 0)
+		return B_NO_INIT;
 
-		if (status == B_OK) {
-			fLastOutputString += outStr;
-			fLastErrorString  += errStr;
+	// read output and error from command
+	// send it to window
+	BString outStr("");
+	BString errStr("");
+	status_t status = GetFromPipe(outStr, errStr);
+	if (status == B_OK) {
+		fLastOutputString += outStr;
+		fLastErrorString  += errStr;
 
-			if (!fLastOutputString.IsEmpty()) {
-				if (fLastOutputString.EndsWith("\n")) {
-					OnStdOutputLine(fLastOutputString);
-					fLastOutputString = "";
-				}
-			}
-
-			if (!fLastErrorString.IsEmpty()) {
-				if (fLastErrorString.EndsWith("\n")) {
-					OnStdErrorLine(fLastErrorString);
-					fLastErrorString = "";
-				}
-			}
-
-			if (!IsProcessAlive() && outStr.IsEmpty() && errStr.IsEmpty()) {
-				printf("DONE\n");
-				return EOF;
+		if (!fLastOutputString.IsEmpty()) {
+			if (fLastOutputString.EndsWith("\n")) {
+				OnStdOutputLine(fLastOutputString);
+				fLastOutputString = "";
 			}
 		}
+
+		if (!fLastErrorString.IsEmpty()) {
+			if (fLastErrorString.EndsWith("\n")) {
+				OnStdErrorLine(fLastErrorString);
+				fLastErrorString = "";
+			}
+		}
+
+		if (!IsProcessAlive() && outStr.IsEmpty() && errStr.IsEmpty()) {
+			LogTrace("ExecuteUnit() done!");
+			return EOF;
+		}
 	}
+
 	// streams are non blocking, sleep every 1ms
 	snooze(1000);
 	return status;
@@ -163,18 +167,18 @@ ConsoleIOThread::ExecuteUnit()
 void
 ConsoleIOThread::OnStdOutputLine(const BString& stdOut)
 {
-	BMessage out_message(CONSOLEIOTHREAD_STDOUT);
-	out_message.AddString("stdout", stdOut);
-	fTarget.SendMessage(&out_message);
+	BMessage outMessage(CONSOLEIOTHREAD_STDOUT);
+	outMessage.AddString("stdout", stdOut);
+	fTarget.SendMessage(&outMessage);
 }
 
 
 void
 ConsoleIOThread::OnStdErrorLine(const BString& stdErr)
 {
-	BMessage err_message(CONSOLEIOTHREAD_STDERR);
-	err_message.AddString("stderr", stdErr);
-	fTarget.SendMessage(&err_message);
+	BMessage errMessage(CONSOLEIOTHREAD_STDERR);
+	errMessage.AddString("stderr", stdErr);
+	fTarget.SendMessage(&errMessage);
 }
 
 
@@ -239,9 +243,8 @@ ConsoleIOThread::ClosePipes()
 
 
 bool
-ConsoleIOThread::IsProcessAlive()
+ConsoleIOThread::IsProcessAlive() const
 {
-	//BAutolock lock(fProcessIDLock);
 	thread_info info;
 	return get_thread_info(fExternalProcessId, &info) == B_OK;
 }

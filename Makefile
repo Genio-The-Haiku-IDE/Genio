@@ -1,8 +1,5 @@
 ## Genio - The Haiku IDE Makefile ##############################################
 
-arch := $(shell getarch)
-platform := $(shell uname -p)
-
 debug ?= 0
 ifeq ($(debug), 0)
 	DEBUGGER :=
@@ -27,7 +24,6 @@ ifeq ($(debug), 0)
 else
 	NAME := Genio_debug
 endif
-
 
 TARGET_DIR := app
 
@@ -55,6 +51,7 @@ SRCS += src/helpers/console_io/WordTextView.cpp
 SRCS += src/helpers/tabview/TabContainerView.cpp
 SRCS += src/helpers/tabview/TabManager.cpp
 SRCS += src/helpers/tabview/TabView.cpp
+SRCS += src/helpers/tabview/CircleColorMenuItem.cpp
 SRCS += src/helpers/Languages.cpp
 SRCS += src/helpers/Styler.cpp
 SRCS += src/lsp-client/LSPEditorWrapper.cpp
@@ -93,7 +90,6 @@ SRCS += src/templates/TemplatesMenu.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/helpers/PipeImage.cpp
 
-
 RDEFS := Genio.rdef
 
 LIBS  = be shared translation localestub $(STDCPPLIBS)
@@ -102,18 +98,13 @@ LIBS += git2
 LIBS += src/scintilla/bin/libscintilla.a
 LIBS += yaml-cpp
 
-# LIBPATHS = $(shell findpaths -a $(platform) B_FIND_PATH_DEVELOP_LIB_DIRECTORY)
-# LIBPATHS  = /boot/home/config/non-packaged/lib
-# $(info LIBPATHS="$(LIBPATHS)")
-
-SYSTEM_INCLUDE_PATHS  = $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private)
-SYSTEM_INCLUDE_PATHS  = $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
-SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/shared)
-SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/storage)
-SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/support)
-SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/tracker)
-SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/locale)
-SYSTEM_INCLUDE_PATHS += $(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY lexilla)
+SYSTEM_INCLUDE_PATHS  = $(BUILDHOME)/headers/private/interface
+SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/shared
+SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/storage
+SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/support
+SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/tracker
+SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/locale
+SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/lexilla
 SYSTEM_INCLUDE_PATHS += src/scintilla/haiku
 SYSTEM_INCLUDE_PATHS += src/scintilla/include
 
@@ -121,7 +112,6 @@ SYSTEM_INCLUDE_PATHS += src/scintilla/include
 SYSTEM_INCLUDE_PATHS += src/override
 
 CFLAGS += -Wall -Werror
-
 CXXFLAGS := -std=c++20 -fPIC
 
 #ifneq ($(BUILD_WITH_CLANG), 0)
@@ -140,14 +130,12 @@ $(OBJ_DIR)/%.o : %.cpp
 	$(CXX) -c $< $(INCLUDES) $(CFLAGS) $(CXXFLAGS) -o "$@"
 
 deps:
-#	$(MAKE) -C src/lexilla/src
 	$(MAKE) -C src/scintilla/haiku
 
 .PHONY: clean deps
 
 cleanall: clean
 	$(MAKE) clean -C src/scintilla/haiku
-	#$(MAKE) clean -C src/lexilla/src
 	rm -f txt2header
 	rm -f Changelog.h
 

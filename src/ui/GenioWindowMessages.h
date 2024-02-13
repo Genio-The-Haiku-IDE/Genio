@@ -33,6 +33,7 @@ enum {
 	MSG_TEXT_OVERWRITE			= 'teov',
 	MSG_WHITE_SPACES_TOGGLE		= 'whsp',
 	MSG_LINE_ENDINGS_TOGGLE		= 'lien',
+	MSG_TOGGLE_SPACES_ENDINGS	= 'tsen',
 	MSG_DUPLICATE_LINE			= 'duli',
 	MSG_DELETE_LINES			= 'deli',
 	MSG_COMMENT_SELECTED_LINES	= 'cosl',
@@ -40,6 +41,7 @@ enum {
 	MSG_EOL_CONVERT_TO_DOS		= 'ectd',
 	MSG_EOL_CONVERT_TO_MAC		= 'ectm',
 	MSG_FILE_TRIM_TRAILING_SPACE = 'trim',
+	MSG_WRAP_LINES			     = 'wrln',
 
 	MSG_AUTOCOMPLETION			= 'auto',
 	MSG_FORMAT					= 'form',
@@ -123,6 +125,8 @@ enum {
 
 	MSG_HELP_GITHUB					= 'hegh',
 	MSG_HELP_DOCS					= 'hdoc',
+
+	MSG_WHEEL_WITH_COMMAND_KEY		= 'waco'
 };
 
 

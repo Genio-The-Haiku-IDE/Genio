@@ -20,7 +20,6 @@
 #include <Catalog.h>
 #include <GroupView.h>
 #include <MenuBar.h>
-#include <MenuItem.h>
 #include <PopUpMenu.h>
 #include <Rect.h>
 #include <SpaceLayoutItem.h>
@@ -29,6 +28,7 @@
 #include "TabContainerView.h"
 #include "TabView.h"
 #include "Utils.h"
+#include "CircleColorMenuItem.h"
 
 #include <stdexcept>
 
@@ -215,6 +215,44 @@ private:
 };
 
 
+// #pragma mark - WebTabView
+
+
+class WebTabView : public TabView {
+public:
+	WebTabView(TabManagerController* controller);
+	~WebTabView();
+
+	virtual BSize MaxSize();
+
+	virtual	void DrawBackground(BView* owner, BRect frame, const BRect& updateRect,
+		bool isFirst, bool isLast, bool isFront);
+	virtual void DrawContents(BView* owner, BRect frame, const BRect& updateRect,
+		bool isFirst, bool isLast, bool isFront);
+
+	virtual void MouseDown(BPoint where, uint32 buttons);
+	virtual void MouseUp(BPoint where);
+	virtual void MouseMoved(BPoint where, uint32 transit,
+		const BMessage* dragMessage);
+
+	void SetIcon(const BBitmap* icon);
+	void SetColor(const rgb_color& color);
+	const rgb_color Color() const;
+
+private:
+	void _DrawCloseButton(BView* owner, BRect& frame, const BRect& updateRect,
+		bool isFirst, bool isLast, bool isFront);
+	BRect _CloseRectFrame(BRect frame) const;
+
+private:
+	BBitmap* fIcon;
+	rgb_color fColor;
+	TabManagerController* fController;
+	BPopUpMenu* fPopUpMenu;
+	bool fOverCloseRect;
+	bool fClicked;
+};
+
 class TabContainerGroup : public BGroupView {
 public:
 	TabContainerGroup(TabContainerView* tabContainerView)
@@ -237,6 +275,7 @@ public:
 			fTabMenuButton->SetTarget(this);
 	}
 
+
 	virtual void MessageReceived(BMessage* message)
 	{
 		switch (message->what) {
@@ -253,9 +292,10 @@ public:
 				BPopUpMenu* tabMenu = new BPopUpMenu("tab menu", true, false);
 				int tabCount = fTabContainerView->GetLayout()->CountItems();
 				for (int i = 0; i < tabCount; i++) {
-					TabView* tab = fTabContainerView->TabAt(i);
+					WebTabView* tab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(i));
+
 					if (tab) {
-						BMenuItem* item = new BMenuItem(tab->Label(), NULL);
+						BMenuItem* item = new CircleColorMenuItem(tab->Label(), tab->Color(), new BMessage());
 						tabMenu->AddItem(item);
 						if (tab->IsFront())
 							item->SetMarked(true);
@@ -385,8 +425,6 @@ public:
 			return;
 		fCurrentToolTip = toolTipText;
 		fManager->GetTabContainerView()->HideToolTip();
-		fManager->GetTabContainerView()->SetToolTip(
-			reinterpret_cast<BToolTip*>(NULL));
 		fManager->GetTabContainerView()->SetToolTip(fCurrentToolTip.String());
 	}
 
@@ -465,43 +503,6 @@ private:
 };
 
 
-// #pragma mark - WebTabView
-
-
-class WebTabView : public TabView {
-public:
-	WebTabView(TabManagerController* controller);
-	~WebTabView();
-
-	virtual BSize MaxSize();
-
-	virtual	void DrawBackground(BView* owner, BRect frame, const BRect& updateRect,
-		bool isFirst, bool isLast, bool isFront);
-	virtual void DrawContents(BView* owner, BRect frame, const BRect& updateRect,
-		bool isFirst, bool isLast, bool isFront);
-
-	virtual void MouseDown(BPoint where, uint32 buttons);
-	virtual void MouseUp(BPoint where);
-	virtual void MouseMoved(BPoint where, uint32 transit,
-		const BMessage* dragMessage);
-
-	void SetIcon(const BBitmap* icon);
-	void SetColor(const rgb_color& color);
-	const rgb_color Color() const;
-
-private:
-	void _DrawCloseButton(BView* owner, BRect& frame, const BRect& updateRect,
-		bool isFirst, bool isLast, bool isFront);
-	BRect _CloseRectFrame(BRect frame) const;
-
-private:
-	BBitmap* fIcon;
-	rgb_color fColor;
-	TabManagerController* fController;
-	BPopUpMenu* fPopUpMenu;
-	bool fOverCloseRect;
-	bool fClicked;
-};
 
 
 WebTabView::WebTabView(TabManagerController* controller)

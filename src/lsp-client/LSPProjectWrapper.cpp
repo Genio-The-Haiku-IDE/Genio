@@ -74,6 +74,12 @@ LSPProjectWrapper::RegisterTextDocument(LSPTextDocument* textDocument)
 		_Create();
 
 	fTextDocs[X(textDocument)] = textDocument;
+
+	if (fInitialized) {
+		value emptyParam;
+		textDocument->onResponse("initialize", emptyParam);
+	}
+
 	return true;
 }
 
@@ -195,6 +201,9 @@ LSPProjectWrapper::onResponse(RequestID id, value& result)
 	if (id.compare("initialize") == 0) {
 		fInitialized.store(true);
 		Initialized(result);
+		for(std::pair<std::string, LSPTextDocument*> doc : fTextDocs) {
+			doc.second->onResponse(id, result);
+		}
 		return;
 	}
 	if (id.compare("shutdown") == 0) {
@@ -386,7 +395,7 @@ RequestID
 LSPProjectWrapper::RangeFomatting(LSPTextDocument* textDocument, Range range)
 {
 	if (!HasCapability(kLCapDocRangeFormatting))
-		return 0;
+		return RequestID();
 
 	DocumentRangeFormattingParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
@@ -429,7 +438,7 @@ RequestID
 LSPProjectWrapper::Formatting(LSPTextDocument* textDocument)
 {
 	if (!HasCapability(kLCapDocFormatting))
-		return 0;
+		return RequestID();
 
 	DocumentFormattingParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
@@ -453,7 +462,7 @@ LSPProjectWrapper::Completion(
 	LSPTextDocument* textDocument, Position position, CompletionContext& context)
 {
 	if (!HasCapability(kLCapCompletion))
-		return 0;
+		return RequestID();
 
 	CompletionParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
@@ -467,7 +476,7 @@ RequestID
 LSPProjectWrapper::SignatureHelp(LSPTextDocument* textDocument, Position position)
 {
 	if (!HasCapability(kLCapSignatureHelp))
-		return 0;
+		return RequestID();
 
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
@@ -480,7 +489,7 @@ RequestID
 LSPProjectWrapper::GoToDefinition(LSPTextDocument* textDocument, Position position)
 {
 	if (!HasCapability(kLCapDefinition))
-		return 0;
+		return RequestID();
 
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
@@ -493,7 +502,7 @@ RequestID
 LSPProjectWrapper::GoToImplementation(LSPTextDocument* textDocument, Position position)
 {
 	if (!HasCapability(kLCapImplementation))
-		return 0;
+		return RequestID();
 
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
@@ -506,7 +515,7 @@ RequestID
 LSPProjectWrapper::GoToDeclaration(LSPTextDocument* textDocument, Position position)
 {
 	if (!HasCapability(kLCapDeclaration))
-		return 0;
+		return RequestID();
 
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
@@ -531,8 +540,6 @@ LSPProjectWrapper::SwitchSourceHeader(LSPTextDocument* textDocument)
 	TextDocumentIdentifier params;
 	params.uri = std::move(textDocument->GetFilenameURI().String());
 	return SendRequest(X(textDocument), "textDocument/switchSourceHeader", std::move(params));
-
-	return 0;
 }
 
 
@@ -551,7 +558,7 @@ RequestID
 LSPProjectWrapper::Hover(LSPTextDocument* textDocument, Position position)
 {
 	if (!HasCapability(kLCapHover))
-		return 0;
+		return RequestID();
 
 	TextDocumentPositionParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
@@ -615,7 +622,7 @@ RequestID
 LSPProjectWrapper::DocumentLink(LSPTextDocument* textDocument)
 {
 	if (!HasCapability(kLCapDocLink))
-		return 0;
+		return RequestID();
 
 	DocumentLinkParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());

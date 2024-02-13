@@ -37,7 +37,7 @@ TemplateManager::~TemplateManager()
 
 
 status_t
-TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* destination)
+TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* destination, entry_ref* newFileRef)
 {
 	// Copy template file to destination
 	BPath sourcePath(source);
@@ -52,7 +52,10 @@ TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* dest
 		BString err(strerror(status));
 		LogError("Error creating new file %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
 	} else {
-		FSChmod(destPath.Path(), fs::perms::all);
+		FSMakeWritable(destPath.Path());
+		if (newFileRef != nullptr) {
+			get_ref_for_path(destPath.Path(), newFileRef);
+		}
 	}
 
 	return status;
@@ -76,8 +79,8 @@ TemplateManager::CopyProjectTemplate(const entry_ref* source, const entry_ref* d
 		LogError("Error creating new template %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
 	} else {
 		// TODO: Default templates in a tipical HPKG installation are readonly
-		// we are setting all permissions recursively here
-		FSChmod(destPath.Path(), fs::perms::all, true);
+		// we are setting write permissions recursively here
+		FSMakeWritable(destPath.Path(), true);
 	}
 
 	return status;
@@ -92,12 +95,17 @@ TemplateManager::CreateTemplate(const entry_ref* file)
 
 
 status_t
-TemplateManager::CreateNewFolder(const entry_ref* destination)
+TemplateManager::CreateNewFolder(const entry_ref* destination, entry_ref* newFolderRef)
 {
 	BDirectory dir(destination);
-	status_t status = dir.CreateDirectory(B_TRANSLATE("New folder"), nullptr);
+	BDirectory newDir;
+	status_t status = dir.CreateDirectory(B_TRANSLATE("New folder"), &newDir);
 	if (status != B_OK) {
 		LogError("Invalid destination directory [%s]", destination->name);
+	} else if (newFolderRef != nullptr && newDir.InitCheck() == B_OK) {
+		BEntry entry;
+		newDir.GetEntry(&entry);
+		entry.GetRef(newFolderRef);
 	}
 	return status;
 }

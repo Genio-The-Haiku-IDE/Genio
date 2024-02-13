@@ -237,7 +237,7 @@ CallTipContext::ShowCallTip()
 
 	callTipText << info.label.c_str();
 
-	int32 hstart;
+	int32 hstart = 0;
 	int32 hend = 0;
 	for (size_t i = 0; i < info.parameters.size(); ++i) {
 		if (i == fCurrentParam)	{

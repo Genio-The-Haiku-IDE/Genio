@@ -51,6 +51,7 @@ SRCS += src/helpers/console_io/WordTextView.cpp
 SRCS += src/helpers/tabview/TabContainerView.cpp
 SRCS += src/helpers/tabview/TabManager.cpp
 SRCS += src/helpers/tabview/TabView.cpp
+SRCS += src/helpers/tabview/CircleColorMenuItem.cpp
 SRCS += src/helpers/Languages.cpp
 SRCS += src/helpers/Styler.cpp
 SRCS += src/lsp-client/LSPEditorWrapper.cpp

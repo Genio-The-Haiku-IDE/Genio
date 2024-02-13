@@ -369,21 +369,21 @@ ProjectFolder::_PrepareSettings()
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);
 
 	fSettings->AddConfig("Build/Release", "project_release_build_command",
-		B_TRANSLATE("Release build command:"), "");
+		B_TRANSLATE("Build command:"), "");
 	fSettings->AddConfig("Build/Release", "project_release_clean_command",
-		B_TRANSLATE("Release clean command:"), "");
+		B_TRANSLATE("Clean command:"), "");
 	fSettings->AddConfig("Build/Release", "project_release_execute_args",
-		B_TRANSLATE("Release execute args:"), "");
+		B_TRANSLATE("Execute args:"), "");
 	fSettings->AddConfig("Build/Release", "project_release_target",
-		B_TRANSLATE("Release target:"), "");
+		B_TRANSLATE("Target:"), "");
 	fSettings->AddConfig("Build/Debug", "project_debug_build_command",
-		B_TRANSLATE("Debug build command:"), "");
+		B_TRANSLATE("Build command:"), "");
 	fSettings->AddConfig("Build/Debug", "project_debug_clean_command",
-		B_TRANSLATE("Debug clean command:"), "");
+		B_TRANSLATE("Clean command:"), "");
 	fSettings->AddConfig("Build/Debug", "project_debug_execute_args",
-		B_TRANSLATE("Debug execute args:"), "");
+		B_TRANSLATE("Execute args:"), "");
 	fSettings->AddConfig("Build/Debug", "project_debug_target",
-		B_TRANSLATE("Debug target:"), "");
+		B_TRANSLATE("Target:"), "");
 
 	fSettings->AddConfig("Run", "project_run_in_terminal",
 		B_TRANSLATE("Run in terminal"), false);

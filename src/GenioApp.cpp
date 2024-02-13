@@ -411,18 +411,19 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(editorVisual.String(), "ruler_column", B_TRANSLATE("Set ruler to column:"), 100, &limits);
 
 	BString build(B_TRANSLATE("Build"));
-	cfg.AddConfig(build.String(), "wrap_console",   B_TRANSLATE("Wrap console"), false);
-	cfg.AddConfig(build.String(), "console_banner", B_TRANSLATE("Console banner"), true);
-	cfg.AddConfig(build.String(), "build_on_save",  B_TRANSLATE("Auto-Build on resource save"), false);
-	cfg.AddConfig(build.String(), "save_on_build",  B_TRANSLATE("Auto-Save changed files when building"), false);
+	cfg.AddConfig(build.String(), "wrap_console", B_TRANSLATE("Wrap lines in console"), false);
+	cfg.AddConfig(build.String(), "console_banner", B_TRANSLATE_COMMENT("Console banner",
+		"A separating line inserted at the start and end of a command output in the console. Short as possible."), true);
+	cfg.AddConfig(build.String(), "build_on_save", B_TRANSLATE("Auto-Build on resource save"), false);
+	cfg.AddConfig(build.String(), "save_on_build", B_TRANSLATE("Auto-Save changed files when building"), false);
 
 	BString editorFind = editor;
 	editorFind.Append("/").Append(B_TRANSLATE("Find"));
-	cfg.AddConfig(editorFind.String(), "find_wrap", B_TRANSLATE("Wrap"), false);
-	cfg.AddConfig(editorFind.String(), "find_whole_word", B_TRANSLATE("Whole word"), false);
-	cfg.AddConfig(editorFind.String(), "find_match_case", B_TRANSLATE("Match case"), false);
-	cfg.AddConfig(editorFind.String(), "find_exclude_directory", B_TRANSLATE("Exclude folders:"),
-															".*,objects.*");
+	cfg.AddConfig(editorFind.String(), "find_wrap", B_TRANSLATE_COMMENT("Wrap around",
+		"Continue searching from the beginning when reaching the end of the file"), false);
+	cfg.AddConfig(editorFind.String(), "find_whole_word", B_TRANSLATE_COMMENT("Whole word", "Short as possible."), false);
+	cfg.AddConfig(editorFind.String(), "find_match_case", B_TRANSLATE_COMMENT("Match case", "Short as possible."), false);
+	cfg.AddConfig(editorFind.String(), "find_exclude_directory", B_TRANSLATE("Exclude folders:"), ".*,objects.*");
 
 	GMessage lsplevels = { {"mode", "options"},
 						   {"note", B_TRANSLATE("This setting will be updated on restart.")},

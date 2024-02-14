@@ -1,16 +1,17 @@
-1	English	application/x-vnd.Genio	718629891
+1	English	application/x-vnd.Genio	899390217
 Close	RemoteProjectWindow		Close
-Debug target:	ProjectSettingsWindow		Debug target:
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
-Dos	GenioWindow		Dos
 Enable brace matching	SettingsWindow		Enable brace matching
 Clear	ConsoleIOView		Clear
+Font	SettingsWindow		Font
 Project	EditorTabManager		Project
+CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
 Switch source/header	GenioWindow		Switch source/header
 Comment selected lines	GenioWindow		Comment selected lines
 Project	ProjectsFolderBrowser		Project
 Make file read-only	GenioWindow		Make file read-only
+Wrap lines in console	SettingsWindow		Wrap lines in console
 Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Show toolbar	GenioWindow		Show toolbar
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
@@ -37,12 +38,10 @@ Fetch prune	SourceControlPanel		Fetch prune
 Settings	ConfigWindow		Settings
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
 Editor zoom:	SettingsWindow		Editor zoom:
-Wrap	GenioWindow		Wrap
 Save all	GenioWindow		Save all
 OK	GoToLineWindow		OK
 Log (oneline)	GenioWindow	The git command	Log (oneline)
 Go to line…	GenioWindow		Go to line…
-Release execute args:	ProjectSettingsWindow		Release execute args:
 Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
 Select all	GenioWindow		Select all
 New folder	TemplateManager		New folder
@@ -63,16 +62,15 @@ Redo	GenioWindow		Redo
 beta	Utilities		beta
 Show projects pane	SettingsWindow		Show projects pane
 Active	EditorTabManager		Active
-Release target:	ProjectSettingsWindow		Release target:
 Find	SettingsWindow		Find
 Console I/O	GenioWindow		Console I/O
 Run	GenioWindow		Run
 Open Terminal	ProjectsFolderBrowser		Open Terminal
 Save current file	GenioWindow		Save current file
 Project	GenioWindow		Project
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
 Reload	GenioWindow		Reload
 Replace	GenioWindow		Replace
-Show white spaces	GenioWindow		Show white spaces
 Switch to previous file	GenioWindow		Switch to previous file
 Stashed changes applied.	SourceControlPanel		Stashed changes applied.
 Cancel	GenioWindow		Cancel
@@ -96,6 +94,7 @@ Rename branch:	SourceControlPanel		Rename branch:
 Conflicts	SourceControlPanel		Conflicts
 New file	GenioWindow		New file
 Previous	GenioWindow	Bookmark menu	Previous
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
 Show output pane	GenioWindow		Show output pane
 Delete file	ProjectsFolderBrowser		Delete file
 Read-only	GenioWindow		Read-only
@@ -103,15 +102,18 @@ Help…	GenioWindow		Help…
 The local path is not valid or does not exist	RemoteProjectWindow		The local path is not valid or does not exist
 Cancel	GitCredentialsWindow		Cancel
 Fetch	SourceControlPanel		Fetch
+Match case	SettingsWindow	Short as possible.	Match case
 Color:	ProjectSettingsWindow		Color:
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
 Find	GenioWindow		Find
 Invalid project folder	GenioWindow		Invalid project folder
 Discard	GenioWindow		Discard
 Fullscreen	GenioWindow		Fullscreen
+Match case	GenioWindow	Short as possible.	Match case
 Build mode	GenioWindow		Build mode
 Mark caret line	SettingsWindow		Mark caret line
-Wrap console	SettingsWindow		Wrap console
 Toggle	GenioWindow	Bookmark menu	Toggle
+Whole word	GenioWindow	Short as possible.	Whole word
 Replace and find previous	GenioWindow		Replace and find previous
 Replace all	GenioWindow		Replace all
 Delete dialog	SourceControlPanel		Delete dialog
@@ -127,6 +129,7 @@ Conflicts	GenioWindow		Conflicts
 Replace:	GenioWindow		Replace:
 Tag	GenioWindow	The git command	Tag
 Ignore	GenioWindow		Ignore
+Show whitespace and line endings	GenioWindow		Show whitespace and line endings
 Run console program	GenioWindow		Run console program
 Branch	GenioWindow	The git command	Branch
 Remote branches	SourceControlPanel		Remote branches
@@ -148,9 +151,9 @@ Delete	GenioWindow		Delete
 Browse…	RemoteProjectWindow		Browse…
 Go to line	GoToLineWindow		Go to line
 Rename \"%selected_branch%\"	SourceControlPanel		Rename \"%selected_branch%\"
-Match case	GenioWindow		Match case
 There are unsaved changes.\nSelect the files to save.	QuitAlert		There are unsaved changes.\nSelect the files to save.
 Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
 Show repository outline	SettingsWindow		Show repository outline
 Pull	GenioWindow	The git command	Pull
 Save	GenioWindow		Save
@@ -160,6 +163,7 @@ Go to declaration	GenioWindow		Go to declaration
 Quit	GenioWindow		Quit
 Switch to next file	GenioWindow		Switch to next file
 Show projects pane	GenioWindow		Show projects pane
+Execute args:	ProjectSettingsWindow		Execute args:
 Log destination:	SettingsWindow		Log destination:
 stdout	ConsoleIOView		stdout
 Save all files	GenioWindow		Save all files
@@ -167,12 +171,12 @@ Save selected	QuitAlert		Save selected
 Search results	SearchResultPanel		Search results
 New file staged	GitRepository		New file staged
 Reload projects	SettingsWindow		Reload projects
-Console banner	SettingsWindow		Console banner
 Overwrite	GenioWindow		Overwrite
 Edit user templates…	TemplatesMenu		Edit user templates…
 Open…	GenioWindow		Open…
 Changes stashed.	SourceControlPanel		Changes stashed.
 Go to definition	GenioWindow		Go to definition
+Clean command:	ProjectSettingsWindow		Clean command:
 Cancel	RemoteProjectWindow		Cancel
 Stop	RemoteProjectWindow		Stop
 Rename file	ProjectsFolderBrowser		Rename file
@@ -189,13 +193,14 @@ File deleted	GitRepository		File deleted
 Don't save	GenioWindow		Don't save
 Search	GenioWindow		Search
 Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
-Banner	ConsoleIOView		Banner
 Editor	SettingsWindow		Editor
-Whole word	SettingsWindow		Whole word
+Build command:	ProjectSettingsWindow		Build command:
 Error creating folder	GenioWindow		Error creating folder
 Delete	SourceControlPanel		Delete
 Replace and find next	GenioWindow		Replace and find next
+Target:	ProjectSettingsWindow		Target:
 Show/Hide projects pane	GenioWindow		Show/Hide projects pane
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Wrap around
 Source	ProblemsPanel		Source
 Current branch:	SourceControlPanel		Current branch:
 Show full path in window title	SettingsWindow		Show full path in window title
@@ -205,18 +210,18 @@ See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\
 Reset zoom	GenioWindow		Reset zoom
 Don't save	Editor		Don't save
 Stop	ConsoleIOView		Stop
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Wrap around
 Show line endings	SettingsWindow		Show line endings
+Contributors:	GenioApp		Contributors:
 File modified	GitRepository		File modified
 Show toolbar	SettingsWindow		Show toolbar
 Fetch prune completed.	SourceControlPanel		Fetch prune completed.
-Whole word	GenioWindow		Whole word
 Made with love in Italy	GenioApp		Made with love in Italy
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Default size	SettingsWindow		Default size
 Show comment margin	SettingsWindow		Show comment margin
 File \"%file%\" was apparently modified, reload it?	GenioWindow		File \"%file%\" was apparently modified, reload it?
 Configure	GenioWindow		Configure
-Unix	GenioWindow		Unix
 Cancel	GoToLineWindow		Cancel
 Bookmark all	GenioWindow		Bookmark all
 Appearance	GenioWindow		Appearance
@@ -231,23 +236,21 @@ Do not create the initial commit	SourceControlPanel		Do not create the initial c
 Reload files	SettingsWindow		Reload files
 Password:	GitCredentialsWindow		Password:
 Build mode:	ProjectSettingsWindow		Build mode:
+Wrap lines	GenioWindow		Wrap lines
+Whole word	SettingsWindow	Short as possible.	Whole word
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
-Debug execute args:	ProjectSettingsWindow		Debug execute args:
 Cut	GenioWindow		Cut
 Font size:	SettingsWindow		Font size:
 Zoom out	GenioWindow		Zoom out
 Exclude folders:	SettingsWindow		Exclude folders:
 Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
-Match case	SettingsWindow		Match case
 Base path:	RemoteProjectWindow		Base path:
 Save as…	GenioWindow		Save as…
-Mac	GenioWindow		Mac
 Fix: %fix_desc%	Editor		Fix: %fix_desc%
 Fetch completed.	SourceControlPanel		Fetch completed.
 Log	GenioWindow	The git command	Log
 Show config	GenioWindow	The git command	Show config
 Show/Hide output pane	GenioWindow		Show/Hide output pane
-Release clean command:	ProjectSettingsWindow		Release clean command:
 Projects	GenioWindow		Projects
 Go to implementation	GenioWindow		Go to implementation
 Run target	GenioWindow		Run target
@@ -258,13 +261,15 @@ Could not create a new file	GenioWindow		Could not create a new file
 Save all	QuitAlert		Save all
 Close project	ProjectsFolderBrowser		Close project
 gamma	Utilities		gamma
+Show whitespace	GenioWindow		Show whitespace
 Source control	SourceControlPanel		Source control
 Delete folder	ProjectsFolderBrowser		Delete folder
 Format	GenioWindow		Format
-Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
+Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
+Default font	SettingsWindow		Default font
 Show in Tracker	ProjectsFolderBrowser		Show in Tracker
-Release build command:	ProjectSettingsWindow		Release build command:
+Wrap lines	SettingsWindow		Wrap lines
 Actions	SourceControlPanel		Actions
 Defaults	ConfigWindow		Defaults
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
@@ -281,7 +286,6 @@ Show whitespace	SettingsWindow		Show whitespace
 Close all	GenioWindow		Close all
 You can't create a new folder here, please select a project or another folder	GenioWindow		You can't create a new folder here, please select a project or another folder
 Next	GenioWindow	Bookmark menu	Next
-Wrap	ConsoleIOView		Wrap
 Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
 Clear all	GenioWindow	Bookmark menu	Clear all
 Repository	SourceControlPanel		Repository
@@ -302,7 +306,6 @@ Current branch	ProjectsFolderBrowser		Current branch
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
 Clean project	ProjectsFolderBrowser		Clean project
 Open project…	GenioWindow		Open project…
-Debug clean command:	ProjectSettingsWindow		Debug clean command:
 Run in terminal	ProjectSettingsWindow		Run in terminal
 Build project	ProjectsFolderBrowser		Build project
 Remotes	SourceControlPanel		Remotes
@@ -311,6 +314,7 @@ Choose project…	SourceControlPanel		Choose project…
 File deleted from index	GitRepository		File deleted from index
 An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
 Edit	GenioWindow		Edit
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Console banner
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Find next	GenioWindow		Find next
 The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
@@ -321,8 +325,6 @@ Project settings…	GenioWindow		Project settings…
 OK	Utilities		OK
 Location	SearchResultPanel		Location
 Paste	GenioWindow		Paste
-Wrap	SettingsWindow		Wrap
-Debug build command:	ProjectSettingsWindow		Debug build command:
 Visual	SettingsWindow		Visual
 Cancel	GTextAlert		Cancel
 Source control	SettingsWindow		Source control

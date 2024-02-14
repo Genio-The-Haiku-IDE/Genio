@@ -5,6 +5,9 @@
  */
 #include "Logger.h"
 
+#include "ConfigManager.h"
+#include "GenioApp.h"
+
 #include <cctype>
 #include <stdarg.h>
 #include <syslog.h>
@@ -28,7 +31,7 @@ Logger::SetDestination(int destination)
 void
 Logger::LogFormat(const char* fmtString, ...)
 {
-	char logString[1024];
+	char logString[(int32)gCFG["log_size"]];
 	va_list argp;
 	::va_start(argp, fmtString);
 	::vsnprintf(logString, sizeof(logString), fmtString, argp);
@@ -42,7 +45,7 @@ void
 Logger::LogFormat(log_level level, const char* fmtString, ...)
 {
 	// Prepend the log level
-	char fullString[1024 + 4];
+	char fullString[(int32)gCFG["log_size"] + 4];
 	snprintf(fullString, 4 + 1, "{%c} ", toupper(Logger::NameForLevel(level)[0]));
 
 	// pass the offsetted array to vsnprintf

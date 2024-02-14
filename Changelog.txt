@@ -1,5 +1,5 @@
 v2.1
-	- Added user documentation (courthesy of Humdinger).
+	- Added user documentation (courtesy of Humdinger).
 	- UI: Improved the tab close button position and size.
 	- UI: Improved the Project settings window (Humdinger).
 	- Fixed performances regression, especially while cleaning a build.

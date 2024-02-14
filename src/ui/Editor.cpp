@@ -300,6 +300,13 @@ Editor::MessageReceived(BMessage* message)
 			if (fLSPEditorWrapper)
 				fLSPEditorWrapper->ApplyFix(message);
 		}
+		case kCallTipClick: {
+			int32 position = message->GetInt32("position", 0);
+			if (position == 1)
+				fLSPEditorWrapper->PrevCallTip();
+			else
+				fLSPEditorWrapper->NextCallTip();
+		}
 		break;
 		case kClassOutline:
 		{
@@ -880,12 +887,8 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_CALLTIPCLICK: {
-			//fLSPEditorWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
-			if (notification->position == 1)
-				fLSPEditorWrapper->NextCallTip();
-			else
-				fLSPEditorWrapper->PrevCallTip();
-			break;
+			GMessage click = {{"what",kCallTipClick},{"position", (int32)notification->position}};
+			Looper()->PostMessage(&click, this);
 		}
 		case SCN_DWELLSTART: {
 			fLSPEditorWrapper->StartHover(notification->position);
@@ -954,7 +957,7 @@ filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
-		if (key == B_UP_ARROW)
+		if (key == B_DOWN_ARROW)
 			fLSPEditorWrapper->NextCallTip();
 		else
 			fLSPEditorWrapper->PrevCallTip();

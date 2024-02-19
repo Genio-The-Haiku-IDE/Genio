@@ -8,17 +8,44 @@
 #include "Editor.h"
 #include "Log.h"
 #include "ProjectFolder.h"
-
+#include <MenuItem.h>
 #include <Catalog.h>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EditorTabManager"
 
+enum {
+	MSG_CLOSE_TAB			= 'cltb',
+	MSG_CLOSE_TABS_ALL		= 'clta',
+	MSG_CLOSE_TABS_OTHER	= 'clto'
+};
 
-EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target)
+
+EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target), fPopUpMenu(nullptr)
 {
+	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
+
+	BMessage* closeMessage = new BMessage(MSG_CLOSE_TAB);
+	closeMessage->AddPointer("tab_source", this);
+	BMenuItem* close = new BMenuItem("Close", closeMessage);
+
+	BMessage* closeAllMessage = new BMessage(MSG_CLOSE_TABS_ALL);
+	closeAllMessage->AddPointer("tab_source", this);
+	BMenuItem* closeAll = new BMenuItem("Close all", closeAllMessage);
+
+	BMessage* closeOtherMessage = new BMessage(MSG_CLOSE_TABS_OTHER);
+	closeOtherMessage->AddPointer("tab_source", this);
+	BMenuItem* closeOther = new BMenuItem("Close other", closeOtherMessage);
+
+	fPopUpMenu->AddItem(close);
+	fPopUpMenu->AddItem(closeAll);
+	fPopUpMenu->AddItem(closeOther);
 }
 
+EditorTabManager::~EditorTabManager()
+{
+	delete fPopUpMenu;
+}
 
 Editor*
 EditorTabManager::EditorAt(int32 index) const
@@ -99,4 +126,51 @@ EditorTabManager::GetToolTipText(int32 index)
 		}
 	}
 	return label;
+}
+
+void
+EditorTabManager::ShowTabMenu(BMessenger target, BPoint where)
+{
+		fPopUpMenu->SetTargetForItems(target);
+		fPopUpMenu->Go(where, true);
+}
+
+void
+EditorTabManager::HandleTabMenuAction(BMessage* message)
+{
+		switch (message->what) {
+			case MSG_CLOSE_TAB:
+			{
+				int32 index = -1;
+				if (message->FindInt32("tab_index", &index) == B_OK)
+					CloseTabs(&index, 1);
+				break;
+			}
+			case MSG_CLOSE_TABS_ALL: {
+				int32 count = CountTabs();
+				int32 tabsToClose[count];
+				int32 added = 0;
+				for (auto i = count - 1; i >= 0; i--) {
+					tabsToClose[added++] = i;
+				}
+				CloseTabs(tabsToClose, added);
+				break;
+			}
+			case MSG_CLOSE_TABS_OTHER: {
+				int32 index = -1;
+				int32 count = CountTabs();
+				int32 tabsToClose[count];
+				int32 added = 0;
+				if (message->FindInt32("tab_index", &index) == B_OK) {
+					for (auto i = count - 1; i >= 0; i--) {
+						if (i != index)
+							tabsToClose[added++] = i;
+					}
+					CloseTabs(tabsToClose, added);
+				}
+				break;
+			}
+			default:
+				break;
+		}
 }

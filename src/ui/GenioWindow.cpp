@@ -2660,6 +2660,9 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_FORMAT,
 								   B_TRANSLATE("Format"));
 
+	ActionManager::RegisterAction(kClassOutline,
+								  B_TRANSLATE("Update class outline"));
+
 	ActionManager::RegisterAction(MSG_GOTODEFINITION,
 								   B_TRANSLATE("Go to definition"), "","", 'G');
 
@@ -2727,7 +2730,7 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTLINE,
 								   B_TRANSLATE("Show right pane"),
 	                               B_TRANSLATE("Show/Hide right pane"),
-								   "kIconWinStat");
+								   "kIconWinOutline");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
 								   B_TRANSLATE("Show output pane"),
@@ -2905,9 +2908,7 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
-
-	editMenu->AddItem(new BMenuItem(B_TRANSLATE("Update class outline"),
-		new BMessage(kClassOutline)));
+	ActionManager::AddItem(kClassOutline, editMenu);
 
 	editMenu->AddSeparatorItem();
 
@@ -2935,6 +2936,7 @@ GenioWindow::_InitMenu()
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 	ActionManager::SetEnabled(MSG_FORMAT, false);
+	ActionManager::SetEnabled(kClassOutline, false);
 
 	fLineEndingsMenu->SetEnabled(false);
 
@@ -4083,6 +4085,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 		ActionManager::SetEnabled(MSG_FORMAT, false);
+		ActionManager::SetEnabled(kClassOutline, false);
 		ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
 		ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
 		ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
@@ -4165,6 +4168,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, !editor->IsReadOnly() && editor->HasLSPCapability(kLCapCompletion));
 	ActionManager::SetEnabled(MSG_FORMAT, !editor->IsReadOnly() && editor->HasLSPCapability(kLCapDocFormatting));
+	ActionManager::SetEnabled(kClassOutline, editor->HasLSPCapability(kLCapDocumentSymbols));
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->HasLSPCapability(kLCapDefinition));
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->HasLSPCapability(kLCapDeclaration));
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->HasLSPCapability(kLCapImplementation));

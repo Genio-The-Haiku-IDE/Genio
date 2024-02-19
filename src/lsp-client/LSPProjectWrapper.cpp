@@ -331,7 +331,7 @@ LSPProjectWrapper::Initialized(json& result)
 		_CheckAndSetCapability(capas, "documentLinkProvider", kLCapDocLink);
 		_CheckAndSetCapability(capas, "hoverProvider", kLCapHover);
 		_CheckAndSetCapability(capas, "signatureHelpProvider", kLCapSignatureHelp);
-		_CheckAndSetCapability(capas, "documentSymbolProvider", kLCapDocumentSymbol);
+		_CheckAndSetCapability(capas, "documentSymbolProvider", kLCapDocumentSymbols);
 	}
 
 	SendNotify("initialized", json());
@@ -569,7 +569,7 @@ LSPProjectWrapper::Hover(LSPTextDocument* textDocument, Position position)
 RequestID
 LSPProjectWrapper::DocumentSymbol(LSPTextDocument* textDocument)
 {
-	if (!HasCapability(kLCapDocumentSymbol))
+	if (!HasCapability(kLCapDocumentSymbols))
 		return RequestID();
 
 	DocumentSymbolParams params;

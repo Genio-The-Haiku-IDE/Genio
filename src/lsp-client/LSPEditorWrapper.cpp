@@ -407,6 +407,16 @@ LSPEditorWrapper::PrevCallTip()
 }
 
 void
+LSPEditorWrapper::RequestDocumentSymbols()
+{
+	if (!fLSPProjectWrapper || !fEditor)
+		return;
+
+	fLSPProjectWrapper->DocumentSymbol(this);
+}
+
+
+void
 LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 {
 	// printf("on char %c\n", ch);

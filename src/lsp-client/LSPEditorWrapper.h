@@ -54,6 +54,7 @@ public:
 
 		void	IndicatorClick(Sci_Position position);
 
+		void	RequestDocumentSymbols();
 		void	CharAdded(const char ch /*utf-8?*/);
 
 		void	NextCallTip();

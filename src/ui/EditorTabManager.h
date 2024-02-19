@@ -5,11 +5,13 @@
 #pragma once
 
 #include "TabManager.h"
+#include <PopUpMenu.h>
 
 class Editor;
 class EditorTabManager : public TabManager {
 public:
 	EditorTabManager(const BMessenger& target);
+	~EditorTabManager();
 
 	Editor*		EditorAt(int32 index) const;
 	Editor*		SelectedEditor() const;
@@ -17,4 +19,10 @@ public:
 	Editor*		EditorBy(const node_ref* nodeRef) const;
 
 	BString		GetToolTipText(int32 index) override;
+
+	void		ShowTabMenu(BMessenger target, BPoint where);
+	void 		HandleTabMenuAction(BMessage* message);
+
+private:
+	BPopUpMenu* fPopUpMenu;
 };

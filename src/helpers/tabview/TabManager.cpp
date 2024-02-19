@@ -248,7 +248,7 @@ private:
 	BBitmap* fIcon;
 	rgb_color fColor;
 	TabManagerController* fController;
-	BPopUpMenu* fPopUpMenu;
+
 	bool fOverCloseRect;
 	bool fClicked;
 };
@@ -403,6 +403,11 @@ public:
 		fManager->TabSelected(index, selInfo);
 	}
 
+	void ShowTabMenu(BMessenger target, BPoint where)
+	{
+		fManager->ShowTabMenu(target, where);
+	}
+
 	virtual bool HasFrames()
 	{
 		return false;
@@ -455,7 +460,8 @@ public:
 
 	virtual void HandleTabMenuAction(BMessage* message)
 	{
-		switch (message->what) {
+		fManager->HandleTabMenuAction(message);
+		/*switch (message->what) {
 			case MSG_CLOSE_TAB:
 			{
 				int32 index = -1;
@@ -489,7 +495,7 @@ public:
 			}
 			default:
 				break;
-		}
+		}*/
 	}
 private:
 	TabManager*			fManager;
@@ -511,34 +517,15 @@ WebTabView::WebTabView(TabManagerController* controller)
 	fIcon(NULL),
 	fColor(ui_color(B_PANEL_BACKGROUND_COLOR)),
 	fController(controller),
-	fPopUpMenu(nullptr),
 	fOverCloseRect(false),
 	fClicked(false)
 {
-	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
-
-	BMessage* closeMessage = new BMessage(MSG_CLOSE_TAB);
-	closeMessage->AddPointer("tab_source", this);
-	BMenuItem* close = new BMenuItem("Close", closeMessage);
-
-	BMessage* closeAllMessage = new BMessage(MSG_CLOSE_TABS_ALL);
-	closeAllMessage->AddPointer("tab_source", this);
-	BMenuItem* closeAll = new BMenuItem("Close all", closeAllMessage);
-
-	BMessage* closeOtherMessage = new BMessage(MSG_CLOSE_TABS_OTHER);
-	closeOtherMessage->AddPointer("tab_source", this);
-	BMenuItem* closeOther = new BMenuItem("Close other", closeOtherMessage);
-
-	fPopUpMenu->AddItem(close);
-	fPopUpMenu->AddItem(closeAll);
-	fPopUpMenu->AddItem(closeOther);
 }
 
 
 WebTabView::~WebTabView()
 {
 	delete fIcon;
-	delete fPopUpMenu;
 }
 
 
@@ -635,8 +622,7 @@ WebTabView::MouseDown(BPoint where, uint32 buttons)
 	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
 		ContainerView()->ConvertToScreen(&where);
 		BMessenger messenger(ContainerView());
-		fPopUpMenu->SetTargetForItems(messenger);
-		fPopUpMenu->Go(where, true);
+		fController->ShowTabMenu(messenger, where);
 		return;
 	}
 

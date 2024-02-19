@@ -331,6 +331,7 @@ LSPProjectWrapper::Initialized(json& result)
 		_CheckAndSetCapability(capas, "documentLinkProvider", kLCapDocLink);
 		_CheckAndSetCapability(capas, "hoverProvider", kLCapHover);
 		_CheckAndSetCapability(capas, "signatureHelpProvider", kLCapSignatureHelp);
+		_CheckAndSetCapability(capas, "documentSymbolProvider", kLCapDocumentSymbol);
 	}
 
 	SendNotify("initialized", json());

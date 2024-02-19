@@ -14,7 +14,8 @@ enum LSPCapability {
 	kLCapImplementation       = (1U << 5),
 	kLCapDocLink              = (1U << 6),
 	kLCapHover                = (1U << 7),
-	kLCapSignatureHelp        = (1U << 8)
+	kLCapSignatureHelp        = (1U << 8),
+	kLCapDocumentSymbol		  = (1U << 0)
 };
 
 #define kMsgCapabilitiesUpdated 'CaUp'

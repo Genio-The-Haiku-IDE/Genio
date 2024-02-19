@@ -569,6 +569,9 @@ LSPProjectWrapper::Hover(LSPTextDocument* textDocument, Position position)
 RequestID
 LSPProjectWrapper::DocumentSymbol(LSPTextDocument* textDocument)
 {
+	if (!HasCapability(kLCapDocumentSymbol))
+		return RequestID();
+
 	DocumentSymbolParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
 	return SendRequest(X(textDocument), "textDocument/documentSymbol", std::move(params));

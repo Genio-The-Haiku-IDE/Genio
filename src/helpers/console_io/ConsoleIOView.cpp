@@ -293,8 +293,9 @@ ConsoleIOView::_Init()
 
 	fStdoutEnabled = new BCheckBox(B_TRANSLATE("stdout"));
 	fStderrEnabled = new BCheckBox(B_TRANSLATE("stderr"));
-	fWrapEnabled = new BCheckBox(B_TRANSLATE("Wrap"));
-	fBannerEnabled = new BCheckBox(B_TRANSLATE("Banner"));
+	fWrapEnabled = new BCheckBox(B_TRANSLATE_COMMENT("Wrap", "As in wrapping long lines. Short as possible."));
+	fBannerEnabled = new BCheckBox(B_TRANSLATE_COMMENT("Banner",
+		"A separating line inserted at the start and end of a command output in the console. Short as possible."));
 	fClearButton = new BButton(B_TRANSLATE("Clear"), new BMessage(MSG_CLEAR_OUTPUT));
 	fStopButton = new BButton(B_TRANSLATE("Stop"), new BMessage(MSG_STOP_PROCESS));
 

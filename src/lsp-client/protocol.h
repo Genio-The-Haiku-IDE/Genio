@@ -200,6 +200,89 @@ NLOHMANN_JSON_SERIALIZE_ENUM(FailureHandlingKind, {
     {FailureHandlingKind::TextOnlyTransactional, "textOnlyTransactional"}
 })
 
+
+namespace CodeActionKind {
+
+	/**
+	 * Empty kind.
+	 */
+	const std::string Empty("");
+
+	/**
+	 * Base kind for quickfix actions: 'quickfix'.
+	 */
+	const std::string QuickFix("quickfix");
+
+	/**
+	 * Base kind for refactoring actions: 'refactor'.
+	 */
+	const std::string Refactor("refactor");
+
+	/**
+	 * Base kind for refactoring extraction actions: 'refactor.extract'.
+	 *
+	 * Example extract actions:
+	 *
+	 * - Extract method
+	 * - Extract function
+	 * - Extract variable
+	 * - Extract interface from class
+	 * - ...
+	 */
+	const std::string RefactorExtract("refactor.extract");
+
+	/**
+	 * Base kind for refactoring inline actions: 'refactor.inline'.
+	 *
+	 * Example inline actions:
+	 *
+	 * - Inline function
+	 * - Inline variable
+	 * - Inline constant
+	 * - ...
+	 */
+	const std::string RefactorInline("refactor.inline");
+
+	/**
+	 * Base kind for refactoring rewrite actions: 'refactor.rewrite'.
+	 *
+	 * Example rewrite actions:
+	 *
+	 * - Convert JavaScript function to class
+	 * - Add or remove parameter
+	 * - Encapsulate field
+	 * - Make method static
+	 * - Move method to base class
+	 * - ...
+	 */
+	const std::string RefactorRewrite("refactor.rewrite");
+
+	/**
+	 * Base kind for source actions: `source`.
+	 *
+	 * Source code actions apply to the entire file.
+	 */
+	const std::string Source("source");
+
+	/**
+	 * Base kind for an organize imports source action:
+	 * `source.organizeImports`.
+	 */
+	const std::string SourceOrganizeImports("source.organizeImports");
+
+	/**
+	 * Base kind for a 'fix all' source action: `source.fixAll`.
+	 *
+	 * 'Fix all' actions automatically fix errors that have a clear fix that
+	 * do not require user input. They should not suppress errors or perform
+	 * unsafe fixes such as generating new types or classes.
+	 *
+	 * @since 3.17.0
+	 */
+	const std::string SourceFixAll("source.fixAll");
+}
+
+//
 struct ClientCapabilities {
     /// The supported set of SymbolKinds for workspace/symbol.
     /// workspace.symbol.symbolKind.valueSet
@@ -240,7 +323,9 @@ struct ClientCapabilities {
 
     /// Client supports CodeAction return value for textDocument/codeAction.
     /// textDocument.codeAction.codeActionLiteralSupport.
-    bool CodeActionStructure = true;
+    //CodeActionLiteralSupport CodeActionStructure;
+	std::vector<std::string> CodeActionKinds;
+
     /// Supported encodings for LSP character offsets. (clangd extension).
     std::vector<OffsetEncoding> offsetEncoding = {OffsetEncoding::UTF8};
     /// The content format that should be used for Hover requests.
@@ -255,6 +340,8 @@ struct ClientCapabilities {
         for (int i = 0; i <= 25; ++i) {
             CompletionItemKinds.push_back((CompletionItemKind) i);
         }
+
+		CodeActionKinds.push_back(CodeActionKind::QuickFix);
     }
 };
 JSON_SERIALIZE(ClientCapabilities,MAP_JSON(
@@ -271,7 +358,11 @@ JSON_SERIALIZE(ClientCapabilities,MAP_JSON(
                         MAP_KV("completionItemKind", MAP_TO("valueSet", CompletionItemKinds)),
                         MAP_TO("editsNearCursor", CompletionFixes)
                 ),
-                MAP_KV("codeAction", MAP_TO("codeActionLiteralSupport", CodeActionStructure)),
+                MAP_KV("codeAction",
+						MAP_KV("codeActionLiteralSupport",
+						MAP_KV("codeActionKind",
+							MAP_TO("valueSet", CodeActionKinds)))
+				),
                 MAP_KV("documentSymbol", MAP_TO("hierarchicalDocumentSymbolSupport", HierarchicalDocumentSymbol)),
                 MAP_KV("hover",  //HoverClientCapabilities
                         MAP_TO("contentFormat", HoverContentFormat)),
@@ -737,10 +828,15 @@ JSON_SERIALIZE(CompletionList, {}, {
 
 JSON_SERIALIZE(ParameterInformation, {}, {
 
-	if (j.contains("label") && j.type() == nlohmann::detail::value_t::string)
-		j.at("label").get_to(value.labelString);
-	else
-		j.at("label").get_to(value.labelOffsets);
+	if (j.contains("label")) {
+		try {
+			j.at("label").get_to(value.labelString);
+		} catch(...) {
+			try {
+				j.at("label").get_to(value.labelOffsets);
+			} catch(...) {}
+		}
+	}
 
     FROM_KEY(documentation);
 });

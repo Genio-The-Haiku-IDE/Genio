@@ -25,6 +25,4 @@ public:
 
 private:
 	BPopUpMenu* fPopUpMenu;
-	BMenuItem*  fFindInBrowser;
-
 };

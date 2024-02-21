@@ -21,10 +21,10 @@ EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target
 	ActionManager::AddItem(MSG_FILE_CLOSE, 	fPopUpMenu);
 	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fPopUpMenu);
 	ActionManager::AddItem(MSG_FILE_CLOSE_OTHER, fPopUpMenu);
-	fFindInBrowser = new BMenuItem("Find in browser", new BMessage(MSG_FIND_IN_BROWSER));
 
 	fPopUpMenu->AddSeparatorItem();
-	fPopUpMenu->AddItem(fFindInBrowser);
+
+	ActionManager::AddItem(MSG_FIND_IN_BROWSER, fPopUpMenu);
 
 	fPopUpMenu->SetTargetForItems(target);
 }
@@ -122,9 +122,5 @@ EditorTabManager::ShowTabMenu(BMessenger target, BPoint where, int32 index)
 		if (fPopUpMenu->ItemAt(i)->Message() != nullptr)
 			fPopUpMenu->ItemAt(i)->Message()->SetInt32("tab_index", index);
 	}
-
-	Editor* editor = EditorAt(index);
-	fFindInBrowser->SetEnabled(editor && editor->GetProjectFolder());
-
 	fPopUpMenu->Go(where, true);
 }

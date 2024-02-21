@@ -75,7 +75,10 @@ public:
 		};
 	}
 	const bool	IsFileTypeSupported(const BString& fileType) const {
-		return (fileType.Compare("cs") != 0);
+		return (fileType.Compare("cs") != 0 &&
+				fileType.Compare("cproj") != 0 &&
+				fileType.Compare("sln") != 0 &&
+				fileType.Compare("cake") != 0);
 	}
 };
 

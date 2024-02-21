@@ -74,7 +74,7 @@ public:
 			void				SetCloseButtonsAvailable(bool available);
 
 	virtual BString				GetToolTipText(int32 index) { return TabLabel(index);}
-	virtual void				ShowTabMenu(BMessenger target, BPoint where) {};
+	virtual void				ShowTabMenu(BMessenger target, BPoint where, int32 index) {};
 	virtual void 				HandleTabMenuAction(BMessage* message){};
 
 private:

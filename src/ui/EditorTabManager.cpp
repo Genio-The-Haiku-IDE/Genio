@@ -8,7 +8,8 @@
 #include "Editor.h"
 #include "Log.h"
 #include "ProjectFolder.h"
-#include <MenuItem.h>
+#include "ActionManager.h"
+#include "GenioWindowMessages.h"
 #include <Catalog.h>
 
 #undef B_TRANSLATION_CONTEXT
@@ -17,29 +18,22 @@
 enum {
 	MSG_CLOSE_TAB			= 'cltb',
 	MSG_CLOSE_TABS_ALL		= 'clta',
-	MSG_CLOSE_TABS_OTHER	= 'clto'
+	MSG_CLOSE_TABS_OTHER	= 'clto',
+	MSG_FIND_IN_BROWSER		= 'clfb'
 };
-
 
 EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target), fPopUpMenu(nullptr)
 {
 	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
+	ActionManager::AddItem(MSG_FILE_CLOSE, 	fPopUpMenu);
+	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fPopUpMenu);
 
-	BMessage* closeMessage = new BMessage(MSG_CLOSE_TAB);
-	closeMessage->AddPointer("tab_source", this);
-	BMenuItem* close = new BMenuItem("Close", closeMessage);
+	fCloseOther = new BMenuItem("Close other", new BMessage(MSG_CLOSE_TABS_OTHER));
+	fFindInBrowser = new BMenuItem("Find in browser", new BMessage(MSG_FIND_IN_BROWSER));
 
-	BMessage* closeAllMessage = new BMessage(MSG_CLOSE_TABS_ALL);
-	closeAllMessage->AddPointer("tab_source", this);
-	BMenuItem* closeAll = new BMenuItem("Close all", closeAllMessage);
-
-	BMessage* closeOtherMessage = new BMessage(MSG_CLOSE_TABS_OTHER);
-	closeOtherMessage->AddPointer("tab_source", this);
-	BMenuItem* closeOther = new BMenuItem("Close other", closeOtherMessage);
-
-	fPopUpMenu->AddItem(close);
-	fPopUpMenu->AddItem(closeAll);
-	fPopUpMenu->AddItem(closeOther);
+	fPopUpMenu->AddItem(fCloseOther);
+	fPopUpMenu->AddSeparatorItem();
+	fPopUpMenu->AddItem(fFindInBrowser);
 }
 
 EditorTabManager::~EditorTabManager()
@@ -129,48 +123,49 @@ EditorTabManager::GetToolTipText(int32 index)
 }
 
 void
-EditorTabManager::ShowTabMenu(BMessenger target, BPoint where)
+EditorTabManager::ShowTabMenu(BMessenger target, BPoint where, int32 index)
 {
-		fPopUpMenu->SetTargetForItems(target);
-		fPopUpMenu->Go(where, true);
+	for (int32 i=0;i<fPopUpMenu->CountItems();i++) {
+		if (fPopUpMenu->ItemAt(i)->Message() != nullptr)
+			fPopUpMenu->ItemAt(i)->Message()->SetInt32("tab_index", index);
+	}
+
+	Editor* editor = EditorAt(index);
+	fFindInBrowser->SetEnabled(editor && editor->GetProjectFolder());
+
+	fPopUpMenu->SetTargetForItems(target);
+	fPopUpMenu->Go(where, true);
 }
 
 void
 EditorTabManager::HandleTabMenuAction(BMessage* message)
 {
-		switch (message->what) {
-			case MSG_CLOSE_TAB:
-			{
-				int32 index = -1;
-				if (message->FindInt32("tab_index", &index) == B_OK)
-					CloseTabs(&index, 1);
-				break;
-			}
-			case MSG_CLOSE_TABS_ALL: {
-				int32 count = CountTabs();
-				int32 tabsToClose[count];
-				int32 added = 0;
-				for (auto i = count - 1; i >= 0; i--) {
+	int32 index = message->GetInt32("tab_index", -1);
+	if (index < 0)
+		return;
+
+	switch (message->what) {
+		case MSG_CLOSE_TABS_OTHER:
+		{
+
+			int32 count = CountTabs();
+			int32 tabsToClose[count];
+			int32 added = 0;
+
+			for (auto i = count - 1; i >= 0; i--) {
+				if (i != index)
 					tabsToClose[added++] = i;
-				}
-				CloseTabs(tabsToClose, added);
-				break;
 			}
-			case MSG_CLOSE_TABS_OTHER: {
-				int32 index = -1;
-				int32 count = CountTabs();
-				int32 tabsToClose[count];
-				int32 added = 0;
-				if (message->FindInt32("tab_index", &index) == B_OK) {
-					for (auto i = count - 1; i >= 0; i--) {
-						if (i != index)
-							tabsToClose[added++] = i;
-					}
-					CloseTabs(tabsToClose, added);
-				}
-				break;
-			}
-			default:
-				break;
+			CloseTabs(tabsToClose, added);
+
+			break;
 		}
+		case MSG_FIND_IN_BROWSER:
+		{
+			//Editor* editor = EditorAt(index);
+			break;
+		}
+		default:
+			break;
+	}
 }

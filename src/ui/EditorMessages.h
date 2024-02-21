@@ -7,7 +7,8 @@
 
 
 enum {
-	kApplyFix			= 'Fixy'
+	kApplyFix			= 'Fixy',
+	kCallTipClick		= 'Ctck'
 };
 
 

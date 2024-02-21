@@ -458,10 +458,6 @@ public:
 		fManager->MoveTabs(fromIndex, toIndex);
 	}
 
-	virtual void HandleTabMenuAction(BMessage* message)
-	{
-		fManager->HandleTabMenuAction(message);
-	}
 private:
 	TabManager*			fManager;
 	TabContainerGroup*	fTabContainerGroup;

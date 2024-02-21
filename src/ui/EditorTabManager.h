@@ -22,11 +22,9 @@ public:
 	BString		GetToolTipText(int32 index) override;
 
 	void		ShowTabMenu(BMessenger target, BPoint where,int32 index);
-	void 		HandleTabMenuAction(BMessage* message);
 
 private:
 	BPopUpMenu* fPopUpMenu;
-	BMenuItem*  fCloseOther;
 	BMenuItem*  fFindInBrowser;
 
 };

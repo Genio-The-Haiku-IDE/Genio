@@ -15,25 +15,18 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EditorTabManager"
 
-enum {
-	MSG_CLOSE_TAB			= 'cltb',
-	MSG_CLOSE_TABS_ALL		= 'clta',
-	MSG_CLOSE_TABS_OTHER	= 'clto',
-	MSG_FIND_IN_BROWSER		= 'clfb'
-};
-
 EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target), fPopUpMenu(nullptr)
 {
 	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
 	ActionManager::AddItem(MSG_FILE_CLOSE, 	fPopUpMenu);
 	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fPopUpMenu);
-
-	fCloseOther = new BMenuItem("Close other", new BMessage(MSG_CLOSE_TABS_OTHER));
+	ActionManager::AddItem(MSG_FILE_CLOSE_OTHER, fPopUpMenu);
 	fFindInBrowser = new BMenuItem("Find in browser", new BMessage(MSG_FIND_IN_BROWSER));
 
-	fPopUpMenu->AddItem(fCloseOther);
 	fPopUpMenu->AddSeparatorItem();
 	fPopUpMenu->AddItem(fFindInBrowser);
+
+	fPopUpMenu->SetTargetForItems(target);
 }
 
 EditorTabManager::~EditorTabManager()
@@ -133,39 +126,5 @@ EditorTabManager::ShowTabMenu(BMessenger target, BPoint where, int32 index)
 	Editor* editor = EditorAt(index);
 	fFindInBrowser->SetEnabled(editor && editor->GetProjectFolder());
 
-	fPopUpMenu->SetTargetForItems(target);
 	fPopUpMenu->Go(where, true);
-}
-
-void
-EditorTabManager::HandleTabMenuAction(BMessage* message)
-{
-	int32 index = message->GetInt32("tab_index", -1);
-	if (index < 0)
-		return;
-
-	switch (message->what) {
-		case MSG_CLOSE_TABS_OTHER:
-		{
-
-			int32 count = CountTabs();
-			int32 tabsToClose[count];
-			int32 added = 0;
-
-			for (auto i = count - 1; i >= 0; i--) {
-				if (i != index)
-					tabsToClose[added++] = i;
-			}
-			CloseTabs(tabsToClose, added);
-
-			break;
-		}
-		case MSG_FIND_IN_BROWSER:
-		{
-			//Editor* editor = EditorAt(index);
-			break;
-		}
-		default:
-			break;
-	}
 }

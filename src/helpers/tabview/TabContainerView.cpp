@@ -123,14 +123,9 @@ TabContainerView::MessageReceived(BMessage* message)
 				}
 				break;
 			}
-		default: {
-			int32 index;
-			if (message->FindInt32("tab_index", &index) == B_OK) {
-				fController->HandleTabMenuAction(message);
-			}
+		default:
 			BGroupView::MessageReceived(message);
-		}
-		break;
+			break;
 	}
 }
 

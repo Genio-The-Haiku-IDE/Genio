@@ -75,7 +75,6 @@ public:
 
 	virtual BString				GetToolTipText(int32 index) { return TabLabel(index);}
 	virtual void				ShowTabMenu(BMessenger target, BPoint where, int32 index) {};
-	virtual void 				HandleTabMenuAction(BMessage* message){};
 
 private:
 #if INTEGRATE_MENU_INTO_TAB_BAR

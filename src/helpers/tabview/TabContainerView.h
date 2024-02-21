@@ -34,8 +34,6 @@ public:
 
 		virtual	void			MoveTabs(int32 fromIndex, int32 toIndex) = 0;
 
-		virtual void			HandleTabMenuAction(BMessage* message) = 0;
-
 	};
 
 public:

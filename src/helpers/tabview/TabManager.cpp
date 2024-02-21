@@ -403,9 +403,9 @@ public:
 		fManager->TabSelected(index, selInfo);
 	}
 
-	void ShowTabMenu(BMessenger target, BPoint where)
+	void ShowTabMenu(BMessenger target, BPoint where, int32 index)
 	{
-		fManager->ShowTabMenu(target, where);
+		fManager->ShowTabMenu(target, where, index);
 	}
 
 	virtual bool HasFrames()
@@ -461,41 +461,6 @@ public:
 	virtual void HandleTabMenuAction(BMessage* message)
 	{
 		fManager->HandleTabMenuAction(message);
-		/*switch (message->what) {
-			case MSG_CLOSE_TAB:
-			{
-				int32 index = -1;
-				if (message->FindInt32("tab_index", &index) == B_OK)
-					fManager->CloseTabs(&index, 1);
-				break;
-			}
-			case MSG_CLOSE_TABS_ALL: {
-				int32 count = fManager->CountTabs();
-				int32 tabsToClose[count];
-				int32 added = 0;
-				for (auto i = count - 1; i >= 0; i--) {
-					tabsToClose[added++] = i;
-				}
-				fManager->CloseTabs(tabsToClose, added);
-				break;
-			}
-			case MSG_CLOSE_TABS_OTHER: {
-				int32 index = -1;
-				int32 count = fManager->CountTabs();
-				int32 tabsToClose[count];
-				int32 added = 0;
-				if (message->FindInt32("tab_index", &index) == B_OK) {
-					for (auto i = count - 1; i >= 0; i--) {
-						if (i != index)
-							tabsToClose[added++] = i;
-					}
-					fManager->CloseTabs(tabsToClose, added);
-				}
-				break;
-			}
-			default:
-				break;
-		}*/
 	}
 private:
 	TabManager*			fManager;
@@ -622,7 +587,8 @@ WebTabView::MouseDown(BPoint where, uint32 buttons)
 	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
 		ContainerView()->ConvertToScreen(&where);
 		BMessenger messenger(ContainerView());
-		fController->ShowTabMenu(messenger, where);
+		int32 index = ContainerView()->IndexOf(this);
+		fController->ShowTabMenu(messenger, where, index);
 		return;
 	}
 

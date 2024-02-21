@@ -123,20 +123,14 @@ TabContainerView::MessageReceived(BMessage* message)
 				}
 				break;
 			}
-			case MSG_CLOSE_TAB:
-			case MSG_CLOSE_TABS_ALL:
-			case MSG_CLOSE_TABS_OTHER:
-			{
-				TabView* view = NULL;
-				if (message->FindPointer("tab_source", (void**)&view) == B_OK) {
-					message->AddInt32("tab_index", IndexOf(view));
-				}
+		default: {
+			int32 index;
+			if (message->FindInt32("tab_index", &index) == B_OK) {
 				fController->HandleTabMenuAction(message);
-				break;
 			}
-		default:
 			BGroupView::MessageReceived(message);
-			break;
+		}
+		break;
 	}
 }
 

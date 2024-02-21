@@ -2411,9 +2411,13 @@ GenioWindow::_InitCentralSplit()
 	fFindTextControl->SetExplicitMaxSize(fFindTextControl->MinSize());
 
 
-	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE("Match case"), new BMessage(MSG_FIND_MATCH_CASE));
-	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE("Whole word"), new BMessage(MSG_FIND_WHOLE_WORD));
-	fFindWrapCheck = new BCheckBox(B_TRANSLATE("Wrap"), new BMessage(MSG_FIND_WRAP));
+	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE_COMMENT("Match case", "Short as possible."),
+		new BMessage(MSG_FIND_MATCH_CASE));
+	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE_COMMENT("Whole word", "Short as possible."),
+		new BMessage(MSG_FIND_WHOLE_WORD));
+	fFindWrapCheck = new BCheckBox(B_TRANSLATE_COMMENT("Wrap around",
+		"Continue searching from the beginning when reaching the end of the file. Short as possible."),
+		new BMessage(MSG_FIND_WRAP));
 
 	fFindWrapCheck->SetValue(gCFG["find_wrap"] ? B_CONTROL_ON : B_CONTROL_OFF);
 	fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
@@ -2584,14 +2588,14 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Fold/Unfold all"),
 								   "kIconFold_4");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
-								   B_TRANSLATE("Show white spaces"),
-								   B_TRANSLATE("Show white spaces"), "");
+								   B_TRANSLATE("Show whitespace"),
+								   B_TRANSLATE("Show whitespace"), "");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
 								   B_TRANSLATE("Show line endings"),
 								   B_TRANSLATE("Show line endings"), "");
 	ActionManager::RegisterAction(MSG_TOGGLE_SPACES_ENDINGS,
-								   B_TRANSLATE("Show white spaces and line endings"),
-								   B_TRANSLATE("Show white spaces"), "kIconShowPunctuation");
+								   B_TRANSLATE("Show whitespace and line endings"),
+								   B_TRANSLATE("Show whitespace"), "kIconShowPunctuation");
 	ActionManager::RegisterAction(MSG_WRAP_LINES,
 								   B_TRANSLATE("Wrap lines"),
 								   B_TRANSLATE("Wrap lines"), "kIconWrapLines");
@@ -3437,7 +3441,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	std::vector<int32> unsavedFiles;
 	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {
 		Editor* editor = fTabManager->EditorAt(index);
-		if (editor->IsModified())
+		if (editor->IsModified() && editor->GetProjectFolder() == project)
 			unsavedFiles.push_back(index);
 	}
 

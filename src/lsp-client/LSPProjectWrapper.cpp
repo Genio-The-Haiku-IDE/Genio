@@ -103,6 +103,8 @@ LSPProjectWrapper::_Create()
 	looper->AddHandler(this);
 	BMessenger thisProject = BMessenger(this, looper);
 
+	chdir(Name());
+
 	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 
 	status_t started = fLSPPipeClient->Start((const char**)fServerConfig.Argv(), fServerConfig.Argc());

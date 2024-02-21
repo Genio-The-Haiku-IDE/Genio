@@ -65,6 +65,21 @@ public:
 	}
 };
 
+class OmniSharpServerConfig : public LSPServerConfigInterface {
+public:
+	OmniSharpServerConfig() {
+		fArgv = {
+			"/boot/system/non-packaged/bin/dotnet/dotnet",
+			"/boot/system/non-packaged/bin/OmniSharp/OmniSharp.dll",
+			"-lsp",
+			"-v",
+		};
+	}
+	const bool	IsFileTypeSupported(const BString& fileType) const {
+		return (fileType.Compare("cs") != 0);
+	}
+};
+
 std::vector<LSPServerConfigInterface*> LSPServersManager::fConfigs;
 
 /*static*/
@@ -85,6 +100,7 @@ LSPServersManager::InitLSPServersConfig()
 {
 	_AddValidConfig(new ClangdServerConfig());
 	_AddValidConfig(new PylspServerConfig());
+  _AddValidConfig(new OmniSharpServerConfig());
 	return B_OK;
 }
 

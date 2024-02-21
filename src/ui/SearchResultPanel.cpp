@@ -10,6 +10,7 @@
 #include <Catalog.h>
 #include <Window.h>
 #include <string>
+
 #include "ActionManager.h"
 #include "GenioWindowMessages.h"
 
@@ -25,26 +26,32 @@ enum {
 };
 
 class RangeRow : public BRow {
-	public:
-		RangeRow(){};
+public:
+	RangeRow()
+	{
+	};
 
-		BMessage	fRange;
+	BMessage fRange;
 };
 
-class BBoldStringField : public BStringField
-{
+
+class BBoldStringField : public BStringField {
 public:
 	BBoldStringField(const char* str): BStringField(str){}
 };
-class BFontStringColumn : public BStringColumn
-{
+
+
+class BFontStringColumn : public BStringColumn {
 public:
 	BFontStringColumn(const char* title, float width, float minWidth, float maxWidth,
-		uint32 truncate, alignment align = B_ALIGN_LEFT)
-		: BStringColumn(title, width, minWidth, maxWidth, truncate, align){
-		};
+			uint32 truncate, alignment align = B_ALIGN_LEFT)
+		:
+		BStringColumn(title, width, minWidth, maxWidth, truncate, align)
+	{
+	}
 
-	void DrawField(BField* field, BRect rect, BView* parent) {
+	void DrawField(BField* field, BRect rect, BView* parent)
+	{
 		if (dynamic_cast<BBoldStringField*>(field)) {
 			BFont current;
 			parent->GetFont(&current);
@@ -57,26 +64,28 @@ public:
 	}
 };
 
+
 #define SearchResultPanelLabel B_TRANSLATE("Search results")
 
-SearchResultPanel::SearchResultPanel(BTabView* tabView): BColumnListView(SearchResultPanelLabel,
-									B_NAVIGABLE, B_FANCY_BORDER, true)
-									, fGrepThread(nullptr)
-									, fTabView(tabView)
-									, fCountResults(0)
-
+SearchResultPanel::SearchResultPanel(BTabView* tabView)
+	:
+	BColumnListView(SearchResultPanelLabel, B_NAVIGABLE, B_FANCY_BORDER, true),
+	fGrepThread(nullptr),
+	fTabView(tabView),
+	fCountResults(0)
 {
 	AddColumn(new BFontStringColumn(B_TRANSLATE("Location"),
 								1000.0, 20.0, 2000.0, 0), kLocationColumn);
-	//SetFont(be_fixed_font);
 }
+
+
 void
 SearchResultPanel::SetTabLabel(BString label)
 {
 	if (!fTabView)
 		return;
 
-	for (int32 i=0;i<fTabView->CountTabs();i++) {
+	for (int32 i = 0; i < fTabView->CountTabs(); i++) {
 		if (fTabView->ViewForTab(i) == this) {
 			fTabView->TabAt(i)->SetLabel(label.String());
 			break;
@@ -84,11 +93,13 @@ SearchResultPanel::SetTabLabel(BString label)
 	}
 }
 
+
 void
 SearchResultPanel::StartSearch(BString command, BString projectPath)
 {
 	if (fGrepThread)
 		return;
+
 	fCountResults = 0;
 	fProjectPath = projectPath;
 	if (!fProjectPath.EndsWith("/"))
@@ -119,11 +130,12 @@ SearchResultPanel::AttachedToWindow()
 void
 SearchResultPanel::MessageReceived(BMessage* msg)
 {
-	switch(msg->what) {
+	switch (msg->what) {
 		case MSG_REPORT_RESULT:
 			UpdateSearch(msg);
-		break;
-		case SEARCHRESULT_CLICK:{
+			break;
+		case SEARCHRESULT_CLICK:
+		{
 			RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
 			if (range && range->fRange.what == B_REFS_RECEIVED) {
 				Window()->PostMessage(&range->fRange);
@@ -131,9 +143,10 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 				BRow* selected = CurrentSelection();
 				ExpandOrCollapse(selected, !selected->IsExpanded());
 			}
+			break;
 		}
-		break;
-		case MSG_GREP_DONE: {
+		case MSG_GREP_DONE:
+		{
 			if (fGrepThread) {
 				fGrepThread->InterruptExternal();
 				delete fGrepThread;
@@ -141,13 +154,14 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 			}
 			_UpdateTabLabel(std::to_string(fCountResults).c_str());
 			ActionManager::SetEnabled(MSG_FIND_IN_FILES, true);
+			break;
 		}
-		break;
 		default:
 			BColumnListView::MessageReceived(msg);
 			break;
-	};
+	}
 }
+
 
 void
 SearchResultPanel::ClearSearch()
@@ -155,6 +169,7 @@ SearchResultPanel::ClearSearch()
 	Clear();
 	_UpdateTabLabel();
 }
+
 
 void
 SearchResultPanel::UpdateSearch(BMessage* msg)

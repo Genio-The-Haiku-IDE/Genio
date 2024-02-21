@@ -50,7 +50,7 @@ public:
 		void	SwitchSourceHeader();
 		void	StartHover(Sci_Position sci_position);
 		void	EndHover();
-
+		void	GetCodeActions(Range range, Diagnostic& diagnostic);
 
 		void	IndicatorClick(Sci_Position position);
 
@@ -86,11 +86,14 @@ public:
 
 	struct LSPDiagnostic { InfoRange range; Diagnostic diagnostic; std::string fixTitle;};
 
+	struct LSPCodeAction { InfoRange range; CodeAction action; std::string fixTitle;};
+
 	int32	DiagnosticFromPosition(Sci_Position p, LSPDiagnostic& dia);
 
 private:
 	bool	IsInitialized();
 	std::vector<LSPDiagnostic>	fLastDiagnostics;
+	std::vector<LSPCodeAction>	fLastCodeActions;
 	std::vector<InfoRange>		fLastDocumentLinks;
 
 	void				_ShowToolTip(const char* text);
@@ -111,6 +114,7 @@ private:
 	void	_DoDocumentLink(nlohmann::json& params);
 	void	_DoFileStatus(nlohmann::json& params);
 	void	_DoInitialize(nlohmann::json& params);
+	void	_DoCodeActions(nlohmann::json& params);
 
 private:
 	//utils

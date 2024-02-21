@@ -395,6 +395,14 @@ LSPEditorWrapper::StartCompletion()
 }
 
 void
+LSPEditorWrapper::GetCodeActions(Range range, Diagnostic& diagnostic)
+{
+	CodeActionContext context;
+	context.diagnostics.push_back(diagnostic);
+	fLSPProjectWrapper->CodeAction(this, range, context);
+}
+
+void
 LSPEditorWrapper::NextCallTip()
 {
 	fCallTip.NextCallTip();
@@ -634,6 +642,10 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 		dia["lsp:character"] = v.range.start.character;
 		dia["quickFix"] = false;
 		dia["title"] = B_TRANSLATE("No fix available");
+
+		if (v.codeActions.value().size() == 0)
+			GetCodeActions(v.range, lspDiag.diagnostic);
+
 		if (v.codeActions.value().size() > 0) {
 			if (v.codeActions.value()[0].edit.has()){
 				dia["quickFix"] = true;
@@ -656,6 +668,28 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 		fLSPProjectWrapper->DocumentLink(this);
 }
 
+void
+LSPEditorWrapper::_DoCodeActions(nlohmann::json& params)
+{
+	// auto vect = params["codeActions"].get<std::vector<CodeAction>>();
+	// fLastCodeActions.clear();
+//
+	// BMessage toJson('diag');
+	// int32 index = 0;
+//
+	// for (auto& v : vect) {
+//
+		// LSPCodeAction lspAction;
+		// Range& r = v.;
+		// InfoRange& ir = lspDiag.range;
+		// ir.from = FromLSPPositionToSciPosition(&r.start);
+		// ir.to = FromLSPPositionToSciPosition(&r.end);
+		// ir.info = v.message;
+//
+		// lspDiag.diagnostic = v;
+	// }
+
+}
 
 void
 LSPEditorWrapper::_RemoveAllDocumentLinks()
@@ -739,6 +773,7 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/completion", _DoCompletion);
 	IF_ID("textDocument/documentLink", _DoDocumentLink);
 	IF_ID("initialize", _DoInitialize);
+	IF_ID("textDocument/codeAction", _DoCodeActions);
 
 	LogError("LSPEditorWrapper::onResponse not handled! [%s]", id.c_str());
 }

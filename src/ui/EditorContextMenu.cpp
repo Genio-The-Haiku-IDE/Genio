@@ -53,6 +53,10 @@ EditorContextMenu::_CreateMenu()
 	ActionManager::AddItem(MSG_GOTODEFINITION, sMenu);
 	ActionManager::AddItem(MSG_GOTODECLARATION, sMenu);
 	ActionManager::AddItem(MSG_GOTOIMPLEMENTATION, sMenu);
+
+	sMenu->AddSeparatorItem();
+
+	ActionManager::AddItem(MSG_FIND_IN_BROWSER, sMenu);
 }
 
 

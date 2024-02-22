@@ -3322,15 +3322,16 @@ void
 GenioWindow::_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project)
 {
 	// let's check if any open editor is related to this project
-	BPath projectPath = project->Path().String();
+	BString projectPath = project->Path().String();
+	projectPath = projectPath.Append("/");
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 		Editor* editor = fTabManager->EditorAt(index);
 		LogTrace("Open project [%s] vs editor project [%s]",
-			projectPath.Path(), editor->FilePath().String());
+			projectPath.String(), editor->FilePath().String());
 		if (editor->GetProjectFolder() == NULL) {
 			// TODO: This isn't perfect: if we open a subfolder of
 			// an existing project as new project, the two would clash
-			if (editor->FilePath().StartsWith(projectPath.Path()))
+			if (editor->FilePath().StartsWith(projectPath))
 				editor->SetProjectFolder(project);
 		}
 	}

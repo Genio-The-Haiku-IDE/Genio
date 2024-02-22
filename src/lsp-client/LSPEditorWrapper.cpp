@@ -504,12 +504,18 @@ void
 LSPEditorWrapper::_DoGoTo(nlohmann::json& items)
 {
 	if (!items.empty()) {
+		Location location;
+
 		// TODO if more than one match??
-		auto first = items[0];
-		std::string uri = first["uri"].get<std::string>();
+		// clangd sends an array of Locations while OmniSharp seems to conform to the standard
+		// and sends just one.
+		if (items.is_array())
+			location = items[0].get<Location>();
+		else
+			location = items.get<Location>();
 
-		Position pos = first["range"]["start"].get<Position>();
-
+		std::string uri = location.uri;
+		Position pos = location.range.start;
 		OpenFileURI(uri, pos.line + 1, pos.character);
 	}
 }

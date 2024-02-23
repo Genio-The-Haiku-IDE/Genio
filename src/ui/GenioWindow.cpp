@@ -2659,7 +2659,7 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Go to implementation"));
 
 	ActionManager::RegisterAction(MSG_FIND_IN_BROWSER,
-								  B_TRANSLATE("Show in Projects browser"), "", "", 'Y');
+								  B_TRANSLATE("Show in projects browser"), "", "", 'Y');
 
 	ActionManager::RegisterAction(MSG_SWITCHSOURCE,
 								   B_TRANSLATE("Switch source/header"), "", "", B_TAB);
@@ -2852,6 +2852,8 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FILE_CLOSE,     fileMenu);
 	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fileMenu);
 	ActionManager::AddItem(MSG_FILE_CLOSE_OTHER, fileMenu);
+	fileMenu->AddSeparatorItem();
+	ActionManager::AddItem(MSG_FIND_IN_BROWSER, fileMenu);
 
 	ActionManager::SetEnabled(MSG_FILE_NEW,  false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE, false);
@@ -2976,9 +2978,6 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_GOTODEFINITION, searchMenu);
 	ActionManager::AddItem(MSG_GOTODECLARATION, searchMenu);
 	ActionManager::AddItem(MSG_GOTOIMPLEMENTATION, searchMenu);
-
-	searchMenu->AddSeparatorItem();
-	ActionManager::AddItem(MSG_FIND_IN_BROWSER, searchMenu);
 
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, false);

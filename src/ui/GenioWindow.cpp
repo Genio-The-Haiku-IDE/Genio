@@ -2659,7 +2659,7 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Go to implementation"));
 
 	ActionManager::RegisterAction(MSG_FIND_IN_BROWSER,
-								  B_TRANSLATE("Find in browser"));
+								  B_TRANSLATE("Show in Projects browser"), "", "", 'Y');
 
 	ActionManager::RegisterAction(MSG_SWITCHSOURCE,
 								   B_TRANSLATE("Switch source/header"), "", "", B_TAB);

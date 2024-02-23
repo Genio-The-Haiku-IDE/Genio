@@ -122,5 +122,12 @@ EditorTabManager::ShowTabMenu(BMessenger target, BPoint where, int32 index)
 		if (fPopUpMenu->ItemAt(i)->Message() != nullptr)
 			fPopUpMenu->ItemAt(i)->Message()->SetInt32("tab_index", index);
 	}
+
+
+	bool isFindInBrowserEnable = ActionManager::IsEnabled(MSG_FIND_IN_BROWSER);
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, (EditorAt(index) != nullptr && EditorAt(index)->GetProjectFolder() != nullptr));
+
 	fPopUpMenu->Go(where, true);
+
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, isFindInBrowserEnable);
 }

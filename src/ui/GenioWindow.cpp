@@ -3774,10 +3774,18 @@ GenioWindow::_RunTarget()
 
 	chdir(fActiveProject->Path());
 
-	// If there's no app just return, should not happen
+	// If there's no app just return
 	BEntry entry(fActiveProject->GetTarget());
-	if (!entry.Exists())
+	if (fActiveProject->GetTarget().IsEmpty() || !entry.Exists()) {
+		LogInfoF("Target for project [%s] doesn't exist.", fActiveProject->Name().String());
+
+		BString message;
+		message << "Invalid run command!\n"
+				   "Please configure the project to provide\n"
+				   "a valid run configuration.";
+		_AlertInvalidBuildConfig(message);
 		return;
+	}
 
 	// Check if run args present
 	BString args = fActiveProject->GetExecuteArgs();
@@ -3906,16 +3914,9 @@ GenioWindow::_UpdateProjectActivation(bool active)
 
 		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, true);
 
-		// Target exists: enable run button
-		chdir(fActiveProject->Path());
-		BEntry entry(fActiveProject->GetTarget());
-		if (entry.Exists()) {
-			ActionManager::SetEnabled(MSG_RUN_TARGET, true);
-			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
-		} else {
-			ActionManager::SetEnabled(MSG_RUN_TARGET, false);
-			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
-		}
+		ActionManager::SetEnabled(MSG_RUN_TARGET, true);
+		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
+
 	} else { // here project is inactive
 		fGitMenu->SetEnabled(false);
 		ActionManager::SetEnabled(MSG_RUN_TARGET, false);

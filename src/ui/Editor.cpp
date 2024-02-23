@@ -308,9 +308,15 @@ Editor::MessageReceived(BMessage* message)
 				fLSPEditorWrapper->NextCallTip();
 		}
 		break;
+		case kClassOutline:
+		{
+			if (fLSPEditorWrapper)
+				fLSPEditorWrapper->RequestDocumentSymbols();
+			break;
+		}
 		default:
 			BScintillaView::MessageReceived(message);
-		break;
+			break;
 	}
 }
 
@@ -1812,7 +1818,10 @@ Editor::_SetFoldMargin(bool enabled)
 void
 Editor::SetProblems(const BMessage* diagnostics)
 {
-	BAutolock lock(fProblemsLock);
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
 	fProblems = *diagnostics;
 	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
 	fProblems.AddRef("ref", &fFileRef);
@@ -1823,6 +1832,32 @@ Editor::SetProblems(const BMessage* diagnostics)
 void
 Editor::GetProblems(BMessage* diagnostics)
 {
-	BAutolock lock(fProblemsLock);
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
 	*diagnostics = fProblems;
+}
+
+void
+Editor::SetDocumentSymbols(const BMessage* symbols)
+{
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
+	fDocumentSymbols = *symbols;
+	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
+	fDocumentSymbols.AddRef("ref", &fFileRef);
+	Window()->PostMessage(&fDocumentSymbols);
+}
+
+void
+Editor::GetDocumentSymbols(BMessage* symbols)
+{
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
+	*symbols = fDocumentSymbols;
 }

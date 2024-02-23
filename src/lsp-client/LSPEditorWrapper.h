@@ -54,6 +54,7 @@ public:
 
 		void	IndicatorClick(Sci_Position position);
 
+		void	RequestDocumentSymbols();
 		void	CharAdded(const char ch /*utf-8?*/);
 
 		void	NextCallTip();
@@ -110,8 +111,10 @@ private:
 	void	_DoDiagnostics(nlohmann::json& params);
 	void	_DoDocumentLink(nlohmann::json& params);
 	void	_DoFileStatus(nlohmann::json& params);
+	void	_DoDocumentSymbol(nlohmann::json& params);
 	void	_DoInitialize(nlohmann::json& params);
 
+	void	_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& v, BMessage& msg);
 private:
 	//utils
 	void 			FromSciPositionToLSPPosition(const Sci_Position &pos, Position *lsp_position);

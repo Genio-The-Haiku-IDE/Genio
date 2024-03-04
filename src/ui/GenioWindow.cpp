@@ -570,7 +570,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ForwardToSelectedEditor(message);
 		break;
 		case MSG_FILE_CLOSE:
-			_FileRequestClose(fTabManager->SelectedTabIndex());
+			_FileRequestClose(message->GetInt32("tab_index", fTabManager->SelectedTabIndex()));
 			break;
 		case MSG_FILE_CLOSE_ALL:
 			_FileCloseAll();
@@ -809,6 +809,17 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_SWITCHSOURCE:
 			_ForwardToSelectedEditor(message);
 			break;
+		case MSG_FIND_IN_BROWSER:
+		{
+			int32 index = message->GetInt32("tab_index", fTabManager->SelectedTabIndex());
+			Editor*	editor = fTabManager->EditorAt(index);
+			if (editor == nullptr || editor->GetProjectFolder() == nullptr)
+				return;
+
+			GetProjectBrowser()->SelectItemByRef(editor->GetProjectFolder(), *editor->FileRef());
+
+			break;
+		}
 		case MSG_MAKE_BINDCATALOGS:
 			_MakeBindcatalogs();
 			break;
@@ -1086,6 +1097,19 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->GrabFocus();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 			}
+			break;
+		}
+		case MSG_FILE_CLOSE_OTHER:
+		{
+			int32 index = message->GetInt32("tab_index", fTabManager->SelectedTabIndex());
+			int32 count = fTabManager->CountTabs();
+			BMessage others;
+			for (auto i = count - 1; i >= 0; i--) {
+				if (i != index)
+					others.AddInt32("index", i);
+			}
+
+			_CloseMultipleTabs(&others);
 			break;
 		}
 		case TABMANAGER_TAB_CLOSE_MULTI:
@@ -2556,6 +2580,9 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Close all"),
 								   "", "", 'W', B_SHIFT_KEY);
 
+	ActionManager::RegisterAction(MSG_FILE_CLOSE_OTHER,
+								  B_TRANSLATE("Close other"));
+
 	ActionManager::RegisterAction(B_QUIT_REQUESTED,
 	                               B_TRANSLATE("Quit"),
 								   "", "", 'Q');
@@ -2630,6 +2657,9 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_GOTOIMPLEMENTATION,
 								   B_TRANSLATE("Go to implementation"));
+
+	ActionManager::RegisterAction(MSG_FIND_IN_BROWSER,
+								  B_TRANSLATE("Show in projects browser"), "", "", 'Y');
 
 	ActionManager::RegisterAction(MSG_SWITCHSOURCE,
 								   B_TRANSLATE("Switch source/header"), "", "", B_TAB);
@@ -2821,6 +2851,9 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_FILE_CLOSE,     fileMenu);
 	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fileMenu);
+	ActionManager::AddItem(MSG_FILE_CLOSE_OTHER, fileMenu);
+	fileMenu->AddSeparatorItem();
+	ActionManager::AddItem(MSG_FIND_IN_BROWSER, fileMenu);
 
 	ActionManager::SetEnabled(MSG_FILE_NEW,  false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE, false);
@@ -2828,6 +2861,7 @@ GenioWindow::_InitMenu()
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);
 	ActionManager::SetEnabled(MSG_FILE_CLOSE, false);
 	ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, false);
+	ActionManager::SetEnabled(MSG_FILE_CLOSE_OTHER, false);
 
 	fMenuBar->AddItem(fileMenu);
 
@@ -2948,7 +2982,7 @@ GenioWindow::_InitMenu()
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
-
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, false);
 	fMenuBar->AddItem(searchMenu);
 
 	BMenu* projectMenu = new BMenu(B_TRANSLATE("Project"));
@@ -3322,15 +3356,16 @@ void
 GenioWindow::_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project)
 {
 	// let's check if any open editor is related to this project
-	BPath projectPath = project->Path().String();
+	BString projectPath = project->Path().String();
+	projectPath = projectPath.Append("/");
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 		Editor* editor = fTabManager->EditorAt(index);
 		LogTrace("Open project [%s] vs editor project [%s]",
-			projectPath.Path(), editor->FilePath().String());
+			projectPath.String(), editor->FilePath().String());
 		if (editor->GetProjectFolder() == NULL) {
 			// TODO: This isn't perfect: if we open a subfolder of
 			// an existing project as new project, the two would clash
-			if (editor->FilePath().StartsWith(projectPath.Path()))
+			if (editor->FilePath().StartsWith(projectPath))
 				editor->SetProjectFolder(project);
 		}
 	}
@@ -3773,10 +3808,18 @@ GenioWindow::_RunTarget()
 
 	chdir(fActiveProject->Path());
 
-	// If there's no app just return, should not happen
+	// If there's no app just return
 	BEntry entry(fActiveProject->GetTarget());
-	if (!entry.Exists())
+	if (fActiveProject->GetTarget().IsEmpty() || !entry.Exists()) {
+		LogInfoF("Target for project [%s] doesn't exist.", fActiveProject->Name().String());
+
+		BString message;
+		message << "Invalid run command!\n"
+				   "Please configure the project to provide\n"
+				   "a valid run configuration.";
+		_AlertInvalidBuildConfig(message);
 		return;
+	}
 
 	// Check if run args present
 	BString args = fActiveProject->GetExecuteArgs();
@@ -3905,16 +3948,9 @@ GenioWindow::_UpdateProjectActivation(bool active)
 
 		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, true);
 
-		// Target exists: enable run button
-		chdir(fActiveProject->Path());
-		BEntry entry(fActiveProject->GetTarget());
-		if (entry.Exists()) {
-			ActionManager::SetEnabled(MSG_RUN_TARGET, true);
-			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
-		} else {
-			ActionManager::SetEnabled(MSG_RUN_TARGET, false);
-			ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
-		}
+		ActionManager::SetEnabled(MSG_RUN_TARGET, true);
+		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
+
 	} else { // here project is inactive
 		fGitMenu->SetEnabled(false);
 		ActionManager::SetEnabled(MSG_RUN_TARGET, false);
@@ -4001,6 +4037,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_FILE_SAVE_AS, false);
 		ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);
 		ActionManager::SetEnabled(MSG_FILE_CLOSE, false);
+		ActionManager::SetEnabled(MSG_FILE_CLOSE_OTHER, false);
 		ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, false);
 
 		ActionManager::SetEnabled(MSG_BUFFER_LOCK, false);
@@ -4028,6 +4065,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
 		ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
 		ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
+		ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, false);
 		ActionManager::SetEnabled(MSG_SWITCHSOURCE, false);
 
 		fLineEndingCRLF->SetMarked(false);
@@ -4056,6 +4094,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(B_REDO, editor->CanRedo());
 	ActionManager::SetEnabled(MSG_FILE_SAVE, editor->IsModified());
 	ActionManager::SetEnabled(MSG_FILE_CLOSE, true);
+	ActionManager::SetEnabled(MSG_FILE_CLOSE_OTHER, fTabManager->CountTabs()>1);
 
 	ActionManager::SetEnabled(MSG_BUFFER_LOCK, true);
 	ActionManager::SetPressed(MSG_BUFFER_LOCK, editor->IsReadOnly());
@@ -4107,6 +4146,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->HasLSPCapability(kLCapDefinition));
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->HasLSPCapability(kLCapDeclaration));
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->HasLSPCapability(kLCapImplementation));
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, editor->GetProjectFolder() != nullptr);
 	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (editor->FileType().compare("cpp") == 0));
 
 	ActionManager::SetEnabled(MSG_FIND_NEXT, true);

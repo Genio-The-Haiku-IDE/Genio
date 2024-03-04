@@ -29,7 +29,7 @@
 #include <PopUpMenu.h>
 #include <Window.h>
 #include <MessageRunner.h>
-
+#include <StringList.h>
 #include <cassert>
 #include <cstdio>
 
@@ -856,6 +856,50 @@ ProjectsFolderBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const 
 	selectMessage.AddRef("ref", &ref);
 	BMessageRunner::StartSending(BMessenger(this), &selectMessage, 300, 1);
 }
+
+
+/*
+	This method implements an 'optimized' version for searching with a ref on the browser.
+	The basic implementaion parses all the items.. (could be usefull in PathMonitor procedures)
+*/
+void
+ProjectsFolderBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
+{
+	ProjectItem* projectItem = GetProjectItemForProject(project);
+	if (projectItem == nullptr)
+		return;
+
+	BPath path(&ref);
+	BString fullpath = BPath(&ref).Path();
+	if (fullpath.StartsWith(project->Path().String())) {
+		fullpath = fullpath.RemoveFirst(project->Path().String());
+
+		bool found = false;
+		BStringList list;
+		fullpath.Split("/", true, list);
+		for (int i=0;i<list.CountStrings();i++) {
+			for (int32 j=0;j<CountItemsUnder(projectItem, true) ;j++) {
+				ProjectItem* pItem = (ProjectItem*)ItemUnderAt(projectItem, true, j);
+				if (pItem->GetSourceItem()->Name().Compare(list.StringAt(i)) == 0) {
+					Expand(projectItem);
+
+					projectItem = pItem;
+					found = (i == list.CountStrings() - 1);
+					break;
+				}
+			}
+		}
+		if (found) {
+			LogInfoF("Found ProjectItem! %s", projectItem->GetSourceItem()->Name().String());
+			Select(IndexOf(projectItem));
+			ScrollToSelection();
+		}
+	}
+
+	return;
+}
+
+
 
 const BObjectList<ProjectFolder>*
 ProjectsFolderBrowser::GetProjectList() const

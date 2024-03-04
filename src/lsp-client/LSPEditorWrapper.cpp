@@ -498,13 +498,18 @@ LSPEditorWrapper::_ShowToolTip(const char* text)
 void
 LSPEditorWrapper::_DoHover(nlohmann::json& result)
 {
-	if (result == nlohmann::detail::value_t::null) {
+	if (result == nlohmann::detail::value_t::null &&
+		!result["contents"].contains("value")) {
 		EndHover();
 		return;
 	}
 
 	std::string tip = result["contents"]["value"].get<std::string>();
 
+	if (tip.empty()) {
+		EndHover();
+		return;
+	}
 	_ShowToolTip(tip.c_str());
 }
 

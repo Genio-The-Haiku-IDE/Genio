@@ -1511,8 +1511,9 @@ Editor::SetProjectFolder(ProjectFolder* proj)
 	else
 		fLSPEditorWrapper->UnsetLSPServer();
 
-	BMessage empty;
-	SetProblems(&empty);
+	// BMessage empty;
+	// SetProblems(&empty);
+	SetProblems();
 }
 
 
@@ -1810,19 +1811,10 @@ Editor::_SetFoldMargin(bool enabled)
 
 
 void
-Editor::SetProblems(const BMessage* diagnostics)
+Editor::SetProblems()
 {
 	BAutolock lock(fProblemsLock);
-	fProblems = *diagnostics;
 	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
 	fProblems.AddRef("ref", &fFileRef);
 	Window()->PostMessage(&fProblems);
-}
-
-
-void
-Editor::GetProblems(BMessage* diagnostics)
-{
-	BAutolock lock(fProblemsLock);
-	*diagnostics = fProblems;
 }

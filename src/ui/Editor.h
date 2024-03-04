@@ -112,8 +112,7 @@ public:
 			void				Undo();
 
 
-			void				SetProblems(const BMessage* diagnostics);
-			void				GetProblems(BMessage* diagnostics);
+			void				SetProblems();
 
 			filter_result		BeforeKeyDown(BMessage*);
 

@@ -16,6 +16,18 @@
 #include "LSPCapabilities.h"
 #include "CallTipContext.h"
 
+struct InfoRange {
+	Sci_Position	from;
+	Sci_Position	to;
+	std::string		info;
+};
+
+struct LSPDiagnostic {
+	InfoRange range;
+	Diagnostic diagnostic;
+	std::string fixTitle;
+};
+
 class LSPProjectWrapper;
 class Editor;
 class LSPEditorWrapper : public LSPTextDocument {
@@ -26,7 +38,8 @@ public:
 		GOTO_IMPLEMENTATION
 	};
 
-public:
+
+
 				LSPEditorWrapper(BPath filenamePath, Editor* fEditor);
 		virtual	~LSPEditorWrapper() {};
 		void	ApplySettings();
@@ -50,7 +63,9 @@ public:
 		void	SwitchSourceHeader();
 		void	StartHover(Sci_Position sci_position);
 		void	EndHover();
-		void	GetCodeActions(Range range, Diagnostic& diagnostic);
+		void	GetDiagnostics(std::vector<LSPDiagnostic>& diagnostics) { diagnostics = fLastDiagnostics; }
+		void	RequestCodeActions(Diagnostic& diagnostic);
+		void	CodeActionResolve(value &params);
 
 		void	IndicatorClick(Sci_Position position);
 
@@ -60,20 +75,14 @@ public:
 		void	PrevCallTip();
 
 public:
-		//still experimental
-		//std::string		fID;
-		void onNotify(std::string method, value &params);
-		void onResponse(RequestID ID, value &result);
-		void onError(RequestID ID, value &error);
-		void onRequest(std::string method, value &params, value &ID);
-
-
-
-	struct InfoRange {
-		Sci_Position	from;
-		Sci_Position	to;
-		std::string		info;
-	};
+	//still experimental
+	//std::string		fID;
+	void onNotify(std::string method, value &params);
+	void onResponse(RequestID ID, value &result);
+	void onError(RequestID ID, value &error);
+	void onRequest(std::string method, value &params, value &ID);
+	int32 DiagnosticFromPosition(Sci_Position p, LSPDiagnostic& dia);
+	int32 DiagnosticFromRange(Range& range, LSPDiagnostic& dia);
 
 	Editor*				fEditor;
 	CompletionList		fCurrentCompletion;
@@ -84,16 +93,9 @@ public:
 	CallTipContext		fCallTip;
 	bool				fInitialized;
 
-	struct LSPDiagnostic { InfoRange range; Diagnostic diagnostic; std::string fixTitle;};
-
-	struct LSPCodeAction { InfoRange range; CodeAction action; std::string fixTitle;};
-
-	int32	DiagnosticFromPosition(Sci_Position p, LSPDiagnostic& dia);
-
 private:
 	bool	IsInitialized();
 	std::vector<LSPDiagnostic>	fLastDiagnostics;
-	std::vector<LSPCodeAction>	fLastCodeActions;
 	std::vector<InfoRange>		fLastDocumentLinks;
 
 	void				_ShowToolTip(const char* text);
@@ -115,6 +117,7 @@ private:
 	void	_DoFileStatus(nlohmann::json& params);
 	void	_DoInitialize(nlohmann::json& params);
 	void	_DoCodeActions(nlohmann::json& params);
+	void	_DoCodeActionResolve(nlohmann::json& params);
 
 private:
 	//utils

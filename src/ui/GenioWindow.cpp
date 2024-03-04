@@ -353,7 +353,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (message->FindRef("ref", &ref) == B_OK) {
 				Editor* editor = fTabManager->EditorBy(&ref);
 				if (editor == fTabManager->SelectedEditor()) {
-					fProblemsPanel->UpdateProblems(message);
+					fProblemsPanel->UpdateProblems(editor);
 				}
 			}
 			break;
@@ -1074,8 +1074,8 @@ GenioWindow::MessageReceived(BMessage* message)
 					LogError("Selecting editor but it's null! (index %d)", index);
 					break;
 				}
-				const int32 be_line   = message->GetInt32("be:line", -1);
-				const int32 lsp_char  = message->GetInt32("lsp:character", -1);
+				const int32 be_line   = message->GetInt32("start:line", -1);
+				const int32 lsp_char  = message->GetInt32("start:character", -1);
 
 				if (lsp_char >= 0 && be_line > -1) {
 					editor->GoToLSPPosition(be_line - 1, lsp_char);
@@ -1666,12 +1666,12 @@ GenioWindow::_FileOpen(BMessage* msg)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
 		nextIndex = fTabManager->CountTabs();
 
-	const int32 be_line   = msg->GetInt32("be:line", -1);
-	const int32 lsp_char  = msg->GetInt32("lsp:character", -1);
+	const int32 be_line   = msg->GetInt32("start:line", -1);
+	const int32 lsp_char  = msg->GetInt32("start:character", -1);
 
 	BMessage selectTabInfo;
-	selectTabInfo.AddInt32("be:line", be_line);
-	selectTabInfo.AddInt32("lsp:character", lsp_char);
+	selectTabInfo.AddInt32("start:line", be_line);
+	selectTabInfo.AddInt32("start:character", lsp_char);
 
 	bool openWithPreferred	= msg->GetBool("openWithPreferred", false);
 
@@ -4080,7 +4080,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_WHITE_SPACES_TOGGLE, true);
 	ActionManager::SetEnabled(MSG_LINE_ENDINGS_TOGGLE, true);
 
-  ActionManager::SetEnabled(MSG_TOGGLE_SPACES_ENDINGS, true);
+	ActionManager::SetEnabled(MSG_TOGGLE_SPACES_ENDINGS, true);
 	ActionManager::SetEnabled(MSG_WRAP_LINES, true);
 
 	fLineEndingCRLF->SetMarked(!editor->IsReadOnly() && editor->EndOfLine() == SC_EOL_CRLF);
@@ -4124,9 +4124,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	bool filesNeedSave = _FilesNeedSave();
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 
-	BMessage diagnostics;
-	editor->GetProblems(&diagnostics);
-	fProblemsPanel->UpdateProblems(&diagnostics);
+	fProblemsPanel->UpdateProblems(editor);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

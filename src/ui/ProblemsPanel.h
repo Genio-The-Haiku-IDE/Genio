@@ -5,6 +5,7 @@
 #ifndef ProblemsPanel_H
 #define ProblemsPanel_H
 
+#include "Editor.h"
 #include <ColumnListView.h>
 #include <SupportDefs.h>
 #include <TabView.h>
@@ -17,7 +18,7 @@ public:
 		ProblemsPanel(BTabView*);
 		virtual ~ProblemsPanel();
 
-		void UpdateProblems(BMessage* msg);
+		void UpdateProblems(Editor* editor);
 
 		virtual void MessageReceived(BMessage* msg);
 		virtual void AttachedToWindow();

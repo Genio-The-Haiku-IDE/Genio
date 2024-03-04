@@ -53,6 +53,10 @@ EditorContextMenu::_CreateMenu()
 	ActionManager::AddItem(MSG_GOTODEFINITION, sMenu);
 	ActionManager::AddItem(MSG_GOTODECLARATION, sMenu);
 	ActionManager::AddItem(MSG_GOTOIMPLEMENTATION, sMenu);
+
+	sMenu->AddSeparatorItem();
+
+	ActionManager::AddItem(MSG_FIND_IN_BROWSER, sMenu);
 }
 
 
@@ -96,5 +100,10 @@ EditorContextMenu::Show(Editor* editor, BPoint point)
 		ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
 	}
 
+	bool isFindInBrowserEnable = ActionManager::IsEnabled(MSG_FIND_IN_BROWSER);
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, (editor->GetProjectFolder() != nullptr));
+
 	menu->Go(BPoint(point.x, point.y), true);
+
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, isFindInBrowserEnable);
 }

@@ -26,6 +26,7 @@ enum {
 	MSG_FILE_SAVE_ALL			= 'fsal',
 	MSG_FILE_CLOSE				= 'ficl',
 	MSG_FILE_CLOSE_ALL			= 'fcal',
+	MSG_FILE_CLOSE_OTHER		= 'fcot',
 	MSG_FILE_FOLD_TOGGLE		= 'fifo',
 
 	// Edit menu
@@ -50,7 +51,7 @@ enum {
 	MSG_GOTODECLARATION			= 'gocl',
 	MSG_GOTOIMPLEMENTATION		= 'goim',
 	MSG_SWITCHSOURCE			= 'swit',
-
+	MSG_FIND_IN_BROWSER			= 'finb',
 
 	// view
 	MSG_VIEW_ZOOMIN				= 'zoin',

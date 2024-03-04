@@ -8,17 +8,31 @@
 #include "Editor.h"
 #include "Log.h"
 #include "ProjectFolder.h"
-
+#include "ActionManager.h"
+#include "GenioWindowMessages.h"
 #include <Catalog.h>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EditorTabManager"
 
-
-EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target)
+EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target), fPopUpMenu(nullptr)
 {
+	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
+	ActionManager::AddItem(MSG_FILE_CLOSE, 	fPopUpMenu);
+	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fPopUpMenu);
+	ActionManager::AddItem(MSG_FILE_CLOSE_OTHER, fPopUpMenu);
+
+	fPopUpMenu->AddSeparatorItem();
+
+	ActionManager::AddItem(MSG_FIND_IN_BROWSER, fPopUpMenu);
+
+	fPopUpMenu->SetTargetForItems(target);
 }
 
+EditorTabManager::~EditorTabManager()
+{
+	delete fPopUpMenu;
+}
 
 Editor*
 EditorTabManager::EditorAt(int32 index) const
@@ -99,4 +113,21 @@ EditorTabManager::GetToolTipText(int32 index)
 		}
 	}
 	return label;
+}
+
+void
+EditorTabManager::ShowTabMenu(BMessenger target, BPoint where, int32 index)
+{
+	for (int32 i=0;i<fPopUpMenu->CountItems();i++) {
+		if (fPopUpMenu->ItemAt(i)->Message() != nullptr)
+			fPopUpMenu->ItemAt(i)->Message()->SetInt32("tab_index", index);
+	}
+
+
+	bool isFindInBrowserEnable = ActionManager::IsEnabled(MSG_FIND_IN_BROWSER);
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, (EditorAt(index) != nullptr && EditorAt(index)->GetProjectFolder() != nullptr));
+
+	fPopUpMenu->Go(where, true);
+
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, isFindInBrowserEnable);
 }

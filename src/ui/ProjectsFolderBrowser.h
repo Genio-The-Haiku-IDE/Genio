@@ -65,6 +65,7 @@ public:
 	void			SelectProjectAndScroll(ProjectFolder*);
 
 	void			SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref); //ugly name..
+	void			SelectItemByRef(ProjectFolder* project, const entry_ref& ref);
 
 private:
 

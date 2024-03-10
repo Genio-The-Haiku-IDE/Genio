@@ -927,8 +927,30 @@ Editor::BeforeKeyDown(BMessage* message)
 		case B_UP_ARROW:
 		case B_DOWN_ARROW:
 			return OnArrowKey(key);
-		default:
+		default: {
+			int32 position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
+            int32 anchor = SendMessage(SCI_GETANCHOR, UNSET, UNSET);
+
+			if (position != anchor) {
+				if (key == '(') {
+					// IsReadOnly?
+					// enable undo accumulation
+					SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+
+					if (position > anchor) {
+						SendMessage(SCI_INSERTTEXT, position, (sptr_t)")");
+						SendMessage(SCI_INSERTTEXT, anchor, (sptr_t)"(");
+					}
+					else {
+						SendMessage(SCI_INSERTTEXT, anchor, (sptr_t)")");
+						SendMessage(SCI_INSERTTEXT, position, (sptr_t)"(");
+					}
+					SendMessage(SCI_ENDUNDOACTION, 0, 0);
+					return B_SKIP_MESSAGE;
+				}
+			}
 			break;
+			}
 	};
 
 	return B_DISPATCH_MESSAGE;

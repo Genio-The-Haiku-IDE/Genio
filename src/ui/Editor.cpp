@@ -908,6 +908,18 @@ Editor::NotificationReceived(SCNotification* notification)
 			_BraceHighlight();
 			// Selection/Position has changed
 			if (notification->updated & SC_UPDATE_SELECTION) {
+				// Ugly hack to enable mouse selection scrolling
+				// in both directions
+				int32 position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
+				int32 anchor = SendMessage(SCI_GETANCHOR, UNSET, UNSET);
+				if (anchor != position) {
+					int32 line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
+					if (line == SendMessage(SCI_GETFIRSTVISIBLELINE, UNSET, UNSET))
+						SendMessage(SCI_SETFIRSTVISIBLELINE, line - 1, UNSET);
+					else
+						SendMessage(SCI_SCROLLCARET, UNSET, UNSET);
+				}
+
 				// Send position to main window so it can update the menus.
 				SendPositionChanges();
 				// Update status bar

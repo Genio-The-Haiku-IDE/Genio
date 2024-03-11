@@ -186,10 +186,10 @@ ViewStyle::ViewStyle(size_t stylesSize_) :
 	controlCharWidth = 0;
 	selbar = Platform::Chrome();
 	selbarlight = Platform::ChromeHighlight();
-	styles[StyleLineNumber].fore = ColourRGBA(0, 0, 0);
+	styles[StyleLineNumber].fore = black;
 	styles[StyleLineNumber].back = Platform::Chrome();
 
-	elementBaseColours[Element::Caret] = ColourRGBA(0, 0, 0);
+	elementBaseColours[Element::Caret] = black;
 	elementBaseColours[Element::CaretAdditional] = ColourRGBA(0x7f, 0x7f, 0x7f);
 	elementAllowsTranslucent.insert({
 		Element::Caret,
@@ -459,7 +459,7 @@ void ViewStyle::ClearStyles() {
 	styles[StyleLineNumber].back = Platform::Chrome();
 
 	// Set call tip fore/back to match the values previously set for call tips
-	styles[StyleCallTip].back = ColourRGBA(0xff, 0xff, 0xff);
+	styles[StyleCallTip].back = white;
 	styles[StyleCallTip].fore = ColourRGBA(0x80, 0x80, 0x80);
 }
 
@@ -530,8 +530,8 @@ bool ViewStyle::IsLineFrameOpaque(bool caretActive, bool lineContainsCaret) cons
 // display itself (as long as it's not an MarkerSymbol::Empty marker).  These are checked in order
 // with the earlier taking precedence.  When multiple markers cause background override,
 // the colour for the highest numbered one is used.
-std::optional<ColourRGBA> ViewStyle::Background(int marksOfLine, bool caretActive, bool lineContainsCaret) const {
-	std::optional<ColourRGBA> background;
+ColourOptional ViewStyle::Background(int marksOfLine, bool caretActive, bool lineContainsCaret) const {
+	ColourOptional background;
 	if (!caretLine.frame && (caretActive || caretLine.alwaysShow) &&
 		(caretLine.layer == Layer::Base) && lineContainsCaret) {
 		background = ElementColour(Element::CaretLineBack);
@@ -601,7 +601,7 @@ void ViewStyle::AddMultiEdge(int column, ColourRGBA colour) {
 		EdgeProperties(column, colour));
 }
 
-std::optional<ColourRGBA> ViewStyle::ElementColour(Element element) const {
+ColourOptional ViewStyle::ElementColour(Element element) const {
 	ElementMap::const_iterator search = elementColours.find(element);
 	if (search != elementColours.end()) {
 		if (search->second.has_value()) {
@@ -615,6 +615,14 @@ std::optional<ColourRGBA> ViewStyle::ElementColour(Element element) const {
 		}
 	}
 	return {};
+}
+
+ColourRGBA ViewStyle::ElementColourForced(Element element) const {
+	// Like ElementColour but never returns empty - when not found return opaque black.
+	// This method avoids warnings for unwrapping potentially empty optionals from
+	// Visual C++ Code Analysis
+	const ColourOptional colour = ElementColour(element);
+	return colour.value_or(black);
 }
 
 bool ViewStyle::ElementAllowsTranslucent(Element element) const {
@@ -704,8 +712,7 @@ bool ViewStyle::SetWrapIndentMode(WrapIndentMode wrapIndentMode_) noexcept {
 
 bool ViewStyle::IsBlockCaretStyle() const noexcept {
 	return ((caret.style & CaretStyle::InsMask) == CaretStyle::Block) ||
-		FlagSet(caret.style, CaretStyle::OverstrikeBlock) ||
-		FlagSet(caret.style, CaretStyle::Curses);
+		FlagSet(caret.style, (CaretStyle::OverstrikeBlock | CaretStyle::Curses));
 }
 
 bool ViewStyle::IsCaretVisible(bool isMainSelection) const noexcept {

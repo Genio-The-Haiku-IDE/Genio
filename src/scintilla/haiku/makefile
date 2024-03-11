@@ -55,7 +55,8 @@ SRCOBJS:= \
 	Selection.o Style.o \
 	UniConversion.o UniqueString.o \
 	ViewStyle.o \
-	XPM.o
+	XPM.o \
+       UndoHistory.o
 	
 HAIKUOBJS:= \
 	PlatHaiku.o \

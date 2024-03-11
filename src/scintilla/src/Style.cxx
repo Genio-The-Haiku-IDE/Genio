@@ -65,14 +65,15 @@ int DefaultFontSize() noexcept {
 
 Style::Style(const char *fontName_) noexcept :
 	FontSpecification(fontName_, DefaultFontSize() * FontSizeMultiplier),
-	fore(0,0,0),
-	back(0xff, 0xff, 0xff),
+	fore(black),
+	back(white),
 	eolFilled(false),
 	underline(false),
 	caseForce(CaseForce::mixed),
 	visible(true),
 	changeable(true),
-	hotspot(false) {
+	hotspot(false),
+	invisibleRepresentation{} {
 }
 
 void Style::Copy(std::shared_ptr<Font> font_, const FontMeasurements &fm_) noexcept {

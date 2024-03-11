@@ -11,6 +11,7 @@
 #include <MessageFilter.h>
 #include <Messenger.h>
 #include <ScintillaView.h>
+#include <vector>
 
 #include "LSPCapabilities.h"
 
@@ -224,13 +225,16 @@ private:
 			int					fCurrentLine;
 			int					fCurrentColumn;
 
-			LSPEditorWrapper*		fLSPEditorWrapper;
+			LSPEditorWrapper*	fLSPEditorWrapper;
 			ProjectFolder*		fProjectFolder;
-			editor::StatusView*			fStatusView;
+			editor::StatusView*	fStatusView;
 
 			BMessage	fProblems;
 			BLocker		fProblemsLock;
 
+			//format: <openchar><eos><closechar><eos>
+			const char* fAutocloseChars = "(\0)\0\"\0\"\0\'\0\'\0[\0]\0{\0}\0";
+			int32		fAutocloseNum = 5*4; //("'[{
 };
 
 #endif // EDITOR_H

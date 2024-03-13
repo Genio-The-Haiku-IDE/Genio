@@ -12,6 +12,7 @@
 #include <MessageFilter.h>
 #include <Messenger.h>
 
+#include "LSPServersManager.h"
 #include "MessageHandler.h"
 #include "json_fwd.hpp"
 #include "LSPCapabilities.h"
@@ -98,6 +99,8 @@ public:
 
     RequestID 	SendRequest(RequestID id, string_ref method, value params);
     void 		SendNotify(string_ref method, value params);
+
+	int32 GetOffset() const { return fServerConfig.GetOffset(); }
 
     std::string&	allCommitCharacters() { return fAllCommitCharacters; } //not yet used.
     std::string&	triggerCharacters() { return fTriggerCharacters; } //for completion

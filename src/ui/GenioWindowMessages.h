@@ -50,6 +50,7 @@ enum {
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
 	MSG_GOTOIMPLEMENTATION		= 'goim',
+	MSG_RENAME					= 'rena',
 	MSG_SWITCHSOURCE			= 'swit',
 	MSG_FIND_IN_BROWSER			= 'finb',
 

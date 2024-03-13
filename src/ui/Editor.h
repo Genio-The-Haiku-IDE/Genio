@@ -13,6 +13,7 @@
 #include <ScintillaView.h>
 
 #include "LSPCapabilities.h"
+#include "json_fwd.hpp"
 
 class LSPEditorWrapper;
 class ProjectFolder;
@@ -64,6 +65,7 @@ public:
 	virtual	void 				MessageReceived(BMessage* message);
 
 			void				ApplySettings();
+			void				ApplyEdit(std::string info);
 			void				TrimTrailingWhitespace();
 			bool				CanCopy();
 			bool				CanCut();
@@ -153,6 +155,7 @@ private:
 			void				GoToDefinition();
 			void				GoToDeclaration();
 			void				GoToImplementation();
+			void				Rename();
 			void				SwitchSourceHeader();
 			void				UncommentSelection();
 
@@ -165,6 +168,7 @@ private:
 			void				ScrollCaret();
 			void				SelectAll();
 	const 	BString				Selection();
+	const 	BString				GetSymbol();
 			void				SendPositionChanges();
 			BString const		ModeString();
 			void				OverwriteToggle();

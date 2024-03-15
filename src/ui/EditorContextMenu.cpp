@@ -57,6 +57,10 @@ EditorContextMenu::_CreateMenu()
 
 	sMenu->AddSeparatorItem();
 
+	ActionManager::AddItem(MSG_RENAME, sMenu);
+
+	sMenu->AddSeparatorItem();
+
 	ActionManager::AddItem(MSG_FIND_IN_BROWSER, sMenu);
 }
 

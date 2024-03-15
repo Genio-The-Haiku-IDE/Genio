@@ -41,6 +41,8 @@ public:
 			"--header-insertion-decorators=false",
 			"--pch-storage=memory"
 		};
+
+		fOffset = 1;
 	}
 
 	const bool	IsFileTypeSupported(const BString& fileType) const {
@@ -75,10 +77,12 @@ public:
 			"/boot/system/non-packaged/bin/dotnet/dotnet",
 			"/boot/system/non-packaged/bin/OmniSharp/OmniSharp.dll",
 			"-lsp",
-			"--hostPID",
-			strdup(spid.String()),
 			"-v",
+			"--hostPID",
+			strdup(spid.String())
 		};
+
+		fOffset = 0;
 	}
 	const bool	IsFileTypeSupported(const BString& fileType) const {
 		return (fileType.Compare("cs") != 0 &&

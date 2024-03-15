@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include "json.hpp"
 #include "uri.h"
 
 struct Position {
@@ -324,7 +325,8 @@ struct CodeAction {
     /// A command this code action executes. If a code action provides an edit
     /// and a command, first the edit is executed and then the command.
     option<LspCommand> command;
-};
 
+	option<nlohmann::json> data;
+};
 
 #endif // protocol_objects_H

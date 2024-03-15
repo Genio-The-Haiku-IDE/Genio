@@ -1,5 +1,6 @@
 /*
  * Copyright 2023, Andrea Anzani 
+ * Copyright 2024, Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -80,17 +81,21 @@ EditorContextMenu::Show(Editor* editor, BPoint point)
 
 	LSPEditorWrapper* lsp = editor->GetLSPEditorWrapper();
 	if (lsp) {
-		LSPEditorWrapper::LSPDiagnostic dia;
+		LSPDiagnostic dia;
 		BPoint p = editor->ConvertFromScreen(point);
 		Sci_Position sci_position = editor->SendMessage(SCI_POSITIONFROMPOINT, p.x, p.y);
 		int32 index = lsp->DiagnosticFromPosition(sci_position, dia);
 		if ( index > -1 && dia.diagnostic.codeActions.value().size() > 0) {
-			sFixMenu->ItemAt(0)->SetLabel(dia.fixTitle.c_str());
-			sFixMenu->ItemAt(0)->SetMessage(new GMessage({{"what",kApplyFix},{"index", index},
-														  {"quickFix", true}}));
-			menu = sFixMenu;
-			menu->SetTargetForItems((BHandler*)editor);
-			lsp->EndHover();
+			sFixMenu->RemoveItems(0, sFixMenu->CountItems(), true);
+			std::vector<CodeAction> actions = dia.diagnostic.codeActions.value();
+			for (int i = 0; i < static_cast<int>(actions.size()); i++) {
+				auto item = new BMenuItem(actions[i].title.c_str(),
+					new GMessage({{"what", kApplyFix}, {"index", index}, {"action", i}, {"quickFix", true}}));
+				sFixMenu->AddItem(item);
+				menu = sFixMenu;
+				menu->SetTargetForItems((BHandler*)editor);
+				lsp->EndHover();
+			}
 		}
 	}
 

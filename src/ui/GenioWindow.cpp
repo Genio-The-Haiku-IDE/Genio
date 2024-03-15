@@ -352,7 +352,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				Editor* editor = fTabManager->EditorBy(&ref);
-				if (editor == fTabManager->SelectedEditor()) {
+				if (editor != nullptr && editor == fTabManager->SelectedEditor()) {
 					fProblemsPanel->UpdateProblems(editor);
 				}
 			}

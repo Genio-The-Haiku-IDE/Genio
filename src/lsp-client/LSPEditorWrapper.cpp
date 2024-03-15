@@ -10,7 +10,6 @@
 #include <Path.h>
 #include <Window.h>
 #include <Catalog.h>
-#include <Json.h>
 
 #include <algorithm>
 #include <cstdio>
@@ -230,8 +229,6 @@ LSPEditorWrapper::_DoFormat(json& params)
 void
 LSPEditorWrapper::_DoRename(json& params)
 {
-	printf("_DoRename: %s\n", params.dump().c_str());
-
 	BMessage bjson;
 	for (auto& [uri, edits] : params["changes"].items()) {
 		for (auto& e: edits) {
@@ -785,9 +782,6 @@ LSPEditorWrapper::_DoCodeActionResolve(nlohmann::json& params)
 				auto caIdentifier = ca.data.value()["Identifier"].get<std::string>();
 				auto actionIdentifier = action.data.value()["Identifier"].get<std::string>();
 				if (caIdentifier == actionIdentifier) {
-					// printf("_DoCodeActionResolve: Identifier match! = %s\n", caIdentifier.c_str());
-					// printf("_DoCodeActionResolve: Name = %s\n", action.data.value()["Name"].get<std::string>().c_str());
-					// printf("_DoCodeActionResolve: Range = %s\n", action.data.value()["Range"].dump().c_str());
 					ca.edit = action.edit;
 				}
 			}

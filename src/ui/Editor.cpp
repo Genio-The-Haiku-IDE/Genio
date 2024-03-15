@@ -13,6 +13,7 @@
 #include <Application.h>
 #include <Catalog.h>
 #include <Control.h>
+#include <ControlLook.h>
 #include <ILexer.h>
 #include <Lexilla.h>
 #include <NodeMonitor.h>
@@ -36,8 +37,6 @@
 #include "ScintillaUtils.h"
 #include "Styler.h"
 #include "Utils.h"
-#include "json_fwd.hpp"
-
 
 
 #undef B_TRANSLATION_CONTEXT

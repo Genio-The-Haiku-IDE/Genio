@@ -57,7 +57,6 @@ public:
 		void	didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength);
 		void	didSave();
 
-		int32	GetOffset() const { return fLSPProjectWrapper->GetOffset(); }
 		void	StartCompletion();
 		void	SelectedCompletion(const char* text);
 		void	Format();

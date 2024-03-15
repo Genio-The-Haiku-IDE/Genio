@@ -122,8 +122,6 @@ LSPEditorWrapper::ApplyEdit(std::string info)
 		return;
 
 	auto items = nlohmann::json::parse(info);
-	printf("ApplyEdit(string): %s\n", info.c_str());
-	printf("ApplyEdit(json): %s\n", items.dump().c_str());
 	fEditor->SendMessage(SCI_BEGINUNDOACTION, 0, 0);
 
 	for (nlohmann::json::reverse_iterator it = items.rbegin(); it != items.rend(); ++it) {

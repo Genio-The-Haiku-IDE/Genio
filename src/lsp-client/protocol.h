@@ -14,6 +14,7 @@
 #include <tuple>
 #include <map>
 #include <memory>
+#include "LSPProjectWrapper.h"
 #include "uri.h"
 #include "json.hpp"
 
@@ -323,8 +324,9 @@ struct ClientCapabilities {
 
     /// Client supports CodeAction return value for textDocument/codeAction.
     /// textDocument.codeAction.codeActionLiteralSupport.
-    //CodeActionLiteralSupport CodeActionStructure;
+    // CodeActionLiteralSupport CodeActionStructure;
 	std::vector<std::string> CodeActionKinds;
+	std::vector<std::string> CodeActionResolveSupport;
 
     /// Supported encodings for LSP character offsets. (clangd extension).
     std::vector<OffsetEncoding> offsetEncoding = {OffsetEncoding::UTF8};
@@ -342,6 +344,7 @@ struct ClientCapabilities {
         }
 
 		CodeActionKinds.push_back(CodeActionKind::QuickFix);
+		CodeActionResolveSupport.push_back("edit");
     }
 };
 JSON_SERIALIZE(ClientCapabilities,MAP_JSON(
@@ -359,6 +362,7 @@ JSON_SERIALIZE(ClientCapabilities,MAP_JSON(
                         MAP_TO("editsNearCursor", CompletionFixes)
                 ),
                 MAP_KV("codeAction",
+						MAP_KV("resolveSupport", MAP_TO("properties", CodeActionResolveSupport)),
 						MAP_KV("codeActionLiteralSupport",
 						MAP_KV("codeActionKind",
 							MAP_TO("valueSet", CodeActionKinds)))
@@ -672,8 +676,24 @@ JSON_SERIALIZE(DiagnosticRelatedInformation, MAP_JSON(MAP_KEY(location), MAP_KEY
 
 
 //struct Diagnostic
-JSON_SERIALIZE(Diagnostic, {/*NOT REQUIRED*/},{FROM_KEY(range);/*FROM_KEY(code);*/FROM_KEY(source);FROM_KEY(message);
-                FROM_KEY(relatedInformation);FROM_KEY(category);FROM_KEY(codeActions);});
+JSON_SERIALIZE(Diagnostic,
+	MAP_JSON(
+		MAP_KEY(range),
+		MAP_KEY(source),
+		MAP_KEY(message),
+		MAP_KEY(relatedInformation),
+		MAP_KEY(category),
+		MAP_KEY(codeActions)
+	),
+	{
+		FROM_KEY(range);
+		/*FROM_KEY(code);*/
+		FROM_KEY(source);
+		FROM_KEY(message);
+		FROM_KEY(relatedInformation);
+		FROM_KEY(category);
+		FROM_KEY(codeActions);
+	});
 
 struct PublishDiagnosticsParams {
     /**
@@ -719,8 +739,9 @@ JSON_SERIALIZE(LspCommand, MAP_JSON(MAP_KEY(command), MAP_KEY(workspaceEdit), MA
         {FROM_KEY(command);FROM_KEY(workspaceEdit);FROM_KEY(tweakArgs);FROM_KEY(title);});
 
 //struct CodeAction
-JSON_SERIALIZE(CodeAction, MAP_JSON(MAP_KEY(title), MAP_KEY(kind), MAP_KEY(diagnostics), MAP_KEY(edit), MAP_KEY(command)),
-        {FROM_KEY(title);FROM_KEY(kind);FROM_KEY(diagnostics);FROM_KEY(edit);FROM_KEY(command)});
+JSON_SERIALIZE(CodeAction, MAP_JSON(MAP_KEY(title), MAP_KEY(kind), MAP_KEY(diagnostics), MAP_KEY(edit), MAP_KEY(command), MAP_KEY(data)),
+        {FROM_KEY(title);FROM_KEY(kind);FROM_KEY(diagnostics);FROM_KEY(edit);FROM_KEY(command);FROM_KEY(data)});
+
 
 struct SymbolInformation {
     /// The name of this symbol.

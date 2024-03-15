@@ -1,5 +1,6 @@
 /*
  * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ * Copyright 2024, Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -10,6 +11,7 @@
 #include <Window.h>
 #include <Catalog.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <debugger.h>
 #include <unistd.h>
@@ -96,10 +98,11 @@ LSPEditorWrapper::ApplyFix(BMessage* info)
 		return;
 
 	int32 diaIndex = info->GetInt32("index", -1);
+	int32 actIndex = info->GetInt32("action", -1);
 	if (diaIndex >= 0 && fLastDiagnostics.size() > (size_t)diaIndex) {
 		//how are we sure the fix list is syncronized? (TODO: how?)
 		std::map<std::string, std::vector<TextEdit>> map =
-			fLastDiagnostics.at(diaIndex).diagnostic.codeActions.value()[0].edit.value().changes.value();
+			fLastDiagnostics.at(diaIndex).diagnostic.codeActions.value()[actIndex].edit.value().changes.value();
 		for (auto& ed : map){
 			if (GetFilenameURI().ICompare(ed.first.c_str()) == 0) {
 				for (TextEdit& te : ed.second) {
@@ -282,6 +285,20 @@ LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnosti
 		}
 	}
 	return -1;
+}
+
+int32
+LSPEditorWrapper::DiagnosticFromRange(Range& range, LSPDiagnostic& dia)
+{
+	int32 index = -1;
+	for (auto& ir : fLastDiagnostics) {
+		index++;
+		if (ir.diagnostic.range == range) {
+			dia = ir;
+			return index;
+		}
+	}
+	return index;
 }
 
 
@@ -501,12 +518,18 @@ void
 LSPEditorWrapper::_DoGoTo(nlohmann::json& items)
 {
 	if (!items.empty()) {
+		Location location;
+
 		// TODO if more than one match??
-		auto first = items[0];
-		std::string uri = first["uri"].get<std::string>();
+		// clangd sends an array of Locations while OmniSharp seems to conform to the standard
+		// and sends just one.
+		if (items.is_array())
+			location = items[0].get<Location>();
+		else
+			location = items.get<Location>();
 
-		Position pos = first["range"]["start"].get<Position>();
-
+		std::string uri = location.uri;
+		Position pos = location.range.start;
 		OpenFileURI(uri, pos.line + 1, pos.character);
 	}
 }
@@ -606,7 +629,6 @@ LSPEditorWrapper::_RemoveAllDiagnostics()
 	fLastDiagnostics.clear();
 }
 
-#include "GMessage.h"
 void
 LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 {
@@ -614,8 +636,6 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 
 	_RemoveAllDiagnostics();
 
-	BMessage toJson('diag');
-	int32 index = 0;
 	for (auto& v : vect) {
 		LSPDiagnostic lspDiag;
 
@@ -630,30 +650,21 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 		LogTrace("Diagnostics [%ld->%ld] [%s]", ir.from, ir.to, ir.info.c_str());
 		fEditor->SendMessage(SCI_INDICATORFILLRANGE, ir.from, ir.to - ir.from);
 
-		GMessage dia;
-		dia["category"] = v.category.value().c_str();
-		dia["message"] = v.message.c_str();
-		dia["source"] = v.source.c_str();
-		dia["index"] = index++;
-		dia["be:line"] = v.range.start.line + 1;
-		dia["lsp:character"] = v.range.start.character;
-		dia["quickFix"] = false;
-		dia["title"] = B_TRANSLATE("No fix available");
-		if (v.codeActions.value().size() > 0) {
-			if (v.codeActions.value()[0].edit.has()){
-				dia["quickFix"] = true;
-				BString str(B_TRANSLATE("Fix: %fix_desc%"));
-				str.ReplaceAll("%fix_desc%", v.codeActions.value()[0].title.c_str());
-				dia["title"] = str.String();
-			}
+		// dia["be:line"] = v.range.start.line + 1;
+		// dia["lsp:character"] = v.range.start.character;
+
+		if (v.codeActions.value().size() == 0) {
+			// if the language serve does not support in-line code actions we request them
+			// asyncronously
+			// TODO: Check the capability
+			RequestCodeActions(v);
 		}
-		lspDiag.fixTitle = (const char*)dia["title"];
-		toJson.AddMessage("diagnostic", &dia);
+
 		fLastDiagnostics.push_back(lspDiag);
 	}
 
 	if (fEditor->LockLooper()) {
-		fEditor->SetProblems(&toJson);
+		fEditor->SetProblems();
 		fEditor->UnlockLooper();
 	}
 
@@ -661,6 +672,82 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 		fLSPProjectWrapper->DocumentLink(this);
 }
 
+void
+LSPEditorWrapper::RequestCodeActions(Diagnostic& diagnostic)
+{
+	CodeActionContext context;
+	context.diagnostics.push_back(std::move(diagnostic));
+	fLSPProjectWrapper->CodeAction(this, diagnostic.range, context);
+}
+
+void
+LSPEditorWrapper::CodeActionResolve(value &params)
+{
+	fLSPProjectWrapper->CodeActionResolve(this, params);
+}
+
+void
+LSPEditorWrapper::_DoCodeActions(nlohmann::json& params)
+{
+	for (auto& v : params) {
+
+		CodeAction action;
+
+		action.kind = v["kind"].get<std::string>();
+		action.title = v["title"].get<std::string>();
+		auto data = v["data"];
+		action.data = data;
+
+		Range range;
+		range.start.character = data["Range"]["Start"]["Character"].get<int>();
+		range.start.line = data["Range"]["Start"]["Line"].get<int>();
+		range.end.character = data["Range"]["End"]["Character"].get<int>();
+		range.end.line = data["Range"]["End"]["Line"].get<int>();
+
+		for (auto& d: fLastDiagnostics) {
+			if (d.diagnostic.range == range) {
+				d.diagnostic.codeActions.value().push_back(action);
+				action.diagnostics.value().push_back(d.diagnostic);
+
+				if (v["edit"].empty())
+					CodeActionResolve(v);
+			}
+		}
+	}
+}
+
+void
+LSPEditorWrapper::_DoCodeActionResolve(nlohmann::json& params)
+{
+	CodeAction action;
+
+	action.kind = params["kind"].get<std::string>();
+	action.title = params["title"].get<std::string>();
+	action.edit = params["edit"].get<WorkspaceEdit>();
+	auto data = params["data"];
+	action.data = data;
+
+	Range range;
+	range.start.character = data["Range"]["Start"]["Character"].get<int>();
+	range.start.line = data["Range"]["Start"]["Line"].get<int>();
+	range.end.character = data["Range"]["End"]["Character"].get<int>();
+	range.end.line = data["Range"]["End"]["Line"].get<int>();
+
+	for (auto& d: fLastDiagnostics) {
+		if (d.diagnostic.range == range) {
+			for (auto& ca: d.diagnostic.codeActions.value()) {
+				auto caIdentifier = ca.data.value()["Identifier"].get<std::string>();
+				auto actionIdentifier = action.data.value()["Identifier"].get<std::string>();
+				if (caIdentifier == actionIdentifier) {
+					// printf("_DoCodeActionResolve: Identifier match! = %s\n", caIdentifier.c_str());
+					// printf("_DoCodeActionResolve: Name = %s\n", action.data.value()["Name"].get<std::string>().c_str());
+					// printf("_DoCodeActionResolve: Range = %s\n", action.data.value()["Range"].dump().c_str());
+					ca.edit = action.edit;
+				}
+			}
+		}
+	}
+}
 
 void
 LSPEditorWrapper::_RemoveAllDocumentLinks()
@@ -744,6 +831,8 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/completion", _DoCompletion);
 	IF_ID("textDocument/documentLink", _DoDocumentLink);
 	IF_ID("initialize", _DoInitialize);
+	IF_ID("textDocument/codeAction", _DoCodeActions);
+	IF_ID("codeAction/resolve", _DoCodeActionResolve);
 
 	LogError("LSPEditorWrapper::onResponse not handled! [%s]", id.c_str());
 }
@@ -835,9 +924,9 @@ LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character)
 			if (entry.GetRef(&ref) == B_OK) {
 				refs.AddRef("refs", &ref);
 				if (line != -1) {
-					refs.AddInt32("be:line", line);
+					refs.AddInt32("start:line", line);
 					if (character != -1)
-						refs.AddInt32("lsp:character", character);
+						refs.AddInt32("start:character", character);
 				}
 				be_app->PostMessage(&refs);
 			}

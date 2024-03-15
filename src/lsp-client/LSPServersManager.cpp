@@ -68,17 +68,46 @@ public:
 class OmniSharpServerConfig : public LSPServerConfigInterface {
 public:
 	OmniSharpServerConfig() {
+		thread_id pid = find_thread(NULL);
+		BString spid;
+		spid.SetToFormat("%d", pid);
 		fArgv = {
 			"/boot/system/non-packaged/bin/dotnet/dotnet",
 			"/boot/system/non-packaged/bin/OmniSharp/OmniSharp.dll",
 			"-lsp",
+			"--hostPID",
+			strdup(spid.String()),
 			"-v",
 		};
 	}
 	const bool	IsFileTypeSupported(const BString& fileType) const {
-		return (fileType.Compare("cs") != 0);
+		return (fileType.Compare("cs") != 0 &&
+				fileType.Compare("csproj") != 0 &&
+				fileType.Compare("sln") != 0 &&
+				fileType.Compare("cake") != 0);
 	}
 };
+
+// Experimental config for csharp-language-server by razzmatazz
+// class CSharpLanguageServerConfig : public LSPServerConfigInterface {
+// public:
+	// CSharpLanguageServerConfig() {
+		// fArgv = {
+			// "/boot/system/non-packaged/bin/dotnet/dotnet",
+			// "/boot/home/workspace/csharp-language-server/src/CSharpLanguageServer/bin/Debug/net8.0/CSharpLanguageServer.dll",
+			// "-s",
+			// "##SOLUTION##"
+		// };
+	// }
+	// const bool	IsFileTypeSupported(const BString& fileType) const {
+		// return (fileType.Compare("cs") != 0 &&
+				// fileType.Compare("csproj") != 0 &&
+				// fileType.Compare("sln") != 0 &&
+				// fileType.Compare("cake") != 0);
+	// }
+// };
+
+
 
 std::vector<LSPServerConfigInterface*> LSPServersManager::fConfigs;
 
@@ -100,7 +129,7 @@ LSPServersManager::InitLSPServersConfig()
 {
 	_AddValidConfig(new ClangdServerConfig());
 	_AddValidConfig(new PylspServerConfig());
-  _AddValidConfig(new OmniSharpServerConfig());
+	_AddValidConfig(new OmniSharpServerConfig());
 	return B_OK;
 }
 

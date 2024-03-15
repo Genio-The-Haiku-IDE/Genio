@@ -85,7 +85,7 @@ WordTextView::MouseDown(BPoint where)
 			BMessage msg(B_REFS_RECEIVED);
 			msg.AddRef("refs", &ref);
 			if (fCurrentPositions[0] != 0)
-				msg.AddInt32("be:line", fCurrentPositions[0]);
+				msg.AddInt32("start:line", fCurrentPositions[0]);
 
 			Window()->PostMessage(&msg);
 		}

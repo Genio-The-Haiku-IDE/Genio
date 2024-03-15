@@ -23,7 +23,6 @@ public:
 	virtual const bool   IsFileTypeSupported (const BString& fileType) const = 0;
 	const char* const* Argv() const { return fArgv.data(); }
 				int32  Argc() const { return fArgv.size(); }
-	int32 GetOffset() const { return fOffset; }
 
 protected:
 	std::vector<const char*>	fArgv;

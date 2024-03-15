@@ -1690,7 +1690,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
 		nextIndex = fTabManager->CountTabs();
 
-	const int32 be_line   = msg->GetInt32("start:line", -1);
+	const int32 be_line   = msg->GetInt32("start:line", msg->GetInt32("be:line", -1));
 	const int32 lsp_char  = msg->GetInt32("start:character", -1);
 
 	BMessage selectTabInfo;

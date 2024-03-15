@@ -13,7 +13,7 @@
 #include <ScintillaView.h>
 
 #include "LSPCapabilities.h"
-#include "json_fwd.hpp"
+
 
 class LSPEditorWrapper;
 class ProjectFolder;
@@ -169,6 +169,7 @@ private:
 			void				SelectAll();
 	const 	BString				Selection();
 	const 	BString				GetSymbol();
+	const 	BRect				GetSymbolSurroundingRect();
 			void				SendPositionChanges();
 			BString const		ModeString();
 			void				OverwriteToggle();

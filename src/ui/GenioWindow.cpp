@@ -1651,15 +1651,21 @@ GenioWindow::_FileCloseAll()
 }
 
 
-//
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
 {
 	int32 nextIndex;
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
-	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
-		nextIndex = fTabManager->CountTabs();
+	if (msg->FindInt32("opened_index", &nextIndex) != B_OK) {
+		// This keeps track of which tab to select:
+		// Should open and select a tab on the right of the currently selected one
+		nextIndex = fTabManager->SelectedTabIndex();
+		if (nextIndex == -1)
+			nextIndex = fTabManager->CountTabs();
+		else
+			nextIndex++;
+	}
 
 	const int32 be_line   = msg->GetInt32("be:line", -1);
 	const int32 lsp_char  = msg->GetInt32("lsp:character", -1);
@@ -1724,15 +1730,17 @@ GenioWindow::_FileOpen(BMessage* msg)
 		editor->ApplySettings();
 
 		// Select the newly added tab
-		int32 newIndex = fTabManager->TabForView(editor);
-		fTabManager->SelectTab(newIndex, &selectTabInfo);
+		fTabManager->SelectTab(index, &selectTabInfo);
 
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
 		noticeMessage.AddString("file_name", editor->FilePath());
 		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
 
-		LogInfo("File open: %s [%d]", editor->Name().String(), newIndex - 1);
+		LogInfo("File open: %s [%d]", editor->Name().String(), index);
 	}
+
+	if (nextIndex < fTabManager->CountTabs())
+		fTabManager->SelectTab(nextIndex);
 
 	// Assign the right project to the Editor
 	for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {

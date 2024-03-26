@@ -1680,15 +1680,21 @@ GenioWindow::_FileCloseAll()
 }
 
 
-//
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
 {
 	int32 nextIndex;
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
-	if (msg->FindInt32("opened_index", &nextIndex) != B_OK)
-		nextIndex = fTabManager->CountTabs();
+	if (msg->FindInt32("opened_index", &nextIndex) != B_OK) {
+		// This keeps track of which tab to select:
+		// Should open and select a tab on the right of the currently selected one
+		nextIndex = fTabManager->SelectedTabIndex();
+		if (nextIndex == -1)
+			nextIndex = fTabManager->CountTabs();
+		else
+			nextIndex++;
+	}
 
 	const int32 be_line   = msg->GetInt32("start:line", msg->GetInt32("be:line", -1));
 	const int32 lsp_char  = msg->GetInt32("start:character", -1);
@@ -1705,7 +1711,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
 		// Check existence
 		BEntry entry(&ref);
-		if (entry.Exists() == false)
+		if (!entry.Exists())
 			continue;
 		// first let's see if it's already opened.
 		const int32 openedIndex = _GetEditorIndex(&ref);
@@ -1725,7 +1731,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		if (!_FileIsSupported(&ref)) {
 			if (openWithPreferred)
-				_FileOpenWithPreferredApp(&ref); //TODO make this optional?
+				_FileOpenWithPreferredApp(&ref); // TODO: make this optional?
 			continue;
 		}
 
@@ -1734,40 +1740,42 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		// new file to load..
 		selectTabInfo.AddBool("caret_position", true);
-		int32 index = fTabManager->CountTabs();
+		int32 index = fTabManager->SelectedTabIndex() + 1;
 		Editor* editor = _AddEditorTab(&ref, index, &selectTabInfo);
 
-		// TODO: using assert() is not nice, try to handle
-		// this gracefully if possible
-		assert(index >= 0);
-		assert(editor != nullptr);
+		LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
+
+		if (index < 0 || editor == nullptr) {
+			LogError("Failed adding editor");
+			continue;
+		}
 
 		status = editor->LoadFromFile();
 		if (status != B_OK) {
+			LogError("Failed loading file: %s", ::strerror(status));
 			continue;
 		}
 
 		editor->ApplySettings();
 
-		// Let's assign the right project to the Editor
-		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
-			ProjectFolder * project = GetProjectBrowser()->ProjectAt(index);
-			_TryAssociateOrphanedEditorsWithProject(project);
-		}
-
+		// Select the newly added tab
 		fTabManager->SelectTab(index, &selectTabInfo);
 
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
 		noticeMessage.AddString("file_name", editor->FilePath());
 		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
 
-		LogInfo("File open: %s [%d]", editor->Name().String(), fTabManager->CountTabs() - 1);
+		LogInfo("File open: %s [%d]", editor->Name().String(), index);
 	}
 
-	// If at least 1 item or more were added select the first
-	// of them.
 	if (nextIndex < fTabManager->CountTabs())
 		fTabManager->SelectTab(nextIndex);
+
+	// Assign the right project to the Editor
+	for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
+		ProjectFolder * project = GetProjectBrowser()->ProjectAt(cycleIndex);
+		_TryAssociateOrphanedEditorsWithProject(project);
+	}
 
 	return status;
 }

@@ -1702,7 +1702,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		if (!_FileIsSupported(&ref)) {
 			if (openWithPreferred)
-				_FileOpenWithPreferredApp(&ref); //TODO make this optional?
+				_FileOpenWithPreferredApp(&ref); // TODO: make this optional?
 			continue;
 		}
 
@@ -1716,10 +1716,10 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
 
-		// TODO: using assert() is not nice, try to handle
-		// this gracefully if possible
-		assert(index >= 0);
-		assert(editor != nullptr);
+		if (index < 0 || editor == nullptr) {
+			LogError("Failed adding editor");
+			continue;
+		}
 
 		status = editor->LoadFromFile();
 		if (status != B_OK) {

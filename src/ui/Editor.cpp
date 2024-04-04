@@ -1267,6 +1267,25 @@ Editor::GetSymbol()
 }
 
 
+const BRect
+Editor::GetSymbolSurroundingRect()
+{
+	int32 position = SendMessage(SCI_GETCURRENTPOS);
+	int32 start = SendMessage(SCI_WORDSTARTPOSITION, position);
+	int32 end = SendMessage(SCI_WORDENDPOSITION, position);
+	int32 line = SendMessage(SCI_LINEFROMPOSITION, position);
+	int32 height = SendMessage(SCI_TEXTHEIGHT, line);
+
+	BRect surroundingRect;
+	surroundingRect.left = SendMessage(SCI_POINTXFROMPOSITION, UNSET, start);
+	surroundingRect.top = SendMessage(SCI_POINTYFROMPOSITION, UNSET, start);
+	surroundingRect.right = SendMessage(SCI_POINTXFROMPOSITION, UNSET, end);
+	surroundingRect.bottom = SendMessage(SCI_POINTYFROMPOSITION, UNSET, end) + height;
+	ConvertToScreen(&surroundingRect);
+	return surroundingRect;
+}
+
+
 // it sends Selection/Position changes.
 void
 Editor::SendPositionChanges()
@@ -1515,6 +1534,17 @@ Editor::Rename()
 	auto result = alert->Go();
 	if (result.Button == GAlertButtons::OkButton)
 		fLSPEditorWrapper->Rename(result.Result.String());
+
+	// auto symbol = GetSymbol();
+	// auto rect = GetSymbolSurroundingRect();
+	// rect.right += be_control_look->DefaultLabelSpacing();
+	// BWindow *win = new BWindow(rect, symbol, B_BORDERED_WINDOW_LOOK, B_MODAL_ALL_WINDOW_FEEL, 0);
+	// BTextView *tv = new BTextView(symbol);
+	// tv->SetTextRect(win->Bounds());
+	// tv->SetText(symbol);
+	// tv->AdoptSystemColors();
+	// win->AddChild(tv);
+	// win->Show();
 }
 
 

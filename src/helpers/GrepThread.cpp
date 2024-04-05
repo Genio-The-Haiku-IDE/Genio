@@ -45,7 +45,7 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 		lineMessage.what = B_REFS_RECEIVED;
 		lineMessage.AddString("text", text);
 		lineMessage.AddRef("refs", &fCurrentRef);
-		lineMessage.AddInt32("be:line", lineNumber);
+		lineMessage.AddInt32("start:line", lineNumber);
 		fCurrentMessage.AddMessage("line", &lineMessage);
 	}
 }

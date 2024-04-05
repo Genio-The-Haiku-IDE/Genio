@@ -248,7 +248,7 @@ private:
 	BBitmap* fIcon;
 	rgb_color fColor;
 	TabManagerController* fController;
-	BPopUpMenu* fPopUpMenu;
+
 	bool fOverCloseRect;
 	bool fClicked;
 };
@@ -403,6 +403,11 @@ public:
 		fManager->TabSelected(index, selInfo);
 	}
 
+	void ShowTabMenu(BMessenger target, BPoint where, int32 index)
+	{
+		fManager->ShowTabMenu(target, where, index);
+	}
+
 	virtual bool HasFrames()
 	{
 		return false;
@@ -453,44 +458,6 @@ public:
 		fManager->MoveTabs(fromIndex, toIndex);
 	}
 
-	virtual void HandleTabMenuAction(BMessage* message)
-	{
-		switch (message->what) {
-			case MSG_CLOSE_TAB:
-			{
-				int32 index = -1;
-				if (message->FindInt32("tab_index", &index) == B_OK)
-					fManager->CloseTabs(&index, 1);
-				break;
-			}
-			case MSG_CLOSE_TABS_ALL: {
-				int32 count = fManager->CountTabs();
-				int32 tabsToClose[count];
-				int32 added = 0;
-				for (auto i = count - 1; i >= 0; i--) {
-					tabsToClose[added++] = i;
-				}
-				fManager->CloseTabs(tabsToClose, added);
-				break;
-			}
-			case MSG_CLOSE_TABS_OTHER: {
-				int32 index = -1;
-				int32 count = fManager->CountTabs();
-				int32 tabsToClose[count];
-				int32 added = 0;
-				if (message->FindInt32("tab_index", &index) == B_OK) {
-					for (auto i = count - 1; i >= 0; i--) {
-						if (i != index)
-							tabsToClose[added++] = i;
-					}
-					fManager->CloseTabs(tabsToClose, added);
-				}
-				break;
-			}
-			default:
-				break;
-		}
-	}
 private:
 	TabManager*			fManager;
 	TabContainerGroup*	fTabContainerGroup;
@@ -511,34 +478,15 @@ WebTabView::WebTabView(TabManagerController* controller)
 	fIcon(NULL),
 	fColor(ui_color(B_PANEL_BACKGROUND_COLOR)),
 	fController(controller),
-	fPopUpMenu(nullptr),
 	fOverCloseRect(false),
 	fClicked(false)
 {
-	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
-
-	BMessage* closeMessage = new BMessage(MSG_CLOSE_TAB);
-	closeMessage->AddPointer("tab_source", this);
-	BMenuItem* close = new BMenuItem("Close", closeMessage);
-
-	BMessage* closeAllMessage = new BMessage(MSG_CLOSE_TABS_ALL);
-	closeAllMessage->AddPointer("tab_source", this);
-	BMenuItem* closeAll = new BMenuItem("Close all", closeAllMessage);
-
-	BMessage* closeOtherMessage = new BMessage(MSG_CLOSE_TABS_OTHER);
-	closeOtherMessage->AddPointer("tab_source", this);
-	BMenuItem* closeOther = new BMenuItem("Close other", closeOtherMessage);
-
-	fPopUpMenu->AddItem(close);
-	fPopUpMenu->AddItem(closeAll);
-	fPopUpMenu->AddItem(closeOther);
 }
 
 
 WebTabView::~WebTabView()
 {
 	delete fIcon;
-	delete fPopUpMenu;
 }
 
 
@@ -635,8 +583,8 @@ WebTabView::MouseDown(BPoint where, uint32 buttons)
 	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
 		ContainerView()->ConvertToScreen(&where);
 		BMessenger messenger(ContainerView());
-		fPopUpMenu->SetTargetForItems(messenger);
-		fPopUpMenu->Go(where, true);
+		int32 index = ContainerView()->IndexOf(this);
+		fController->ShowTabMenu(messenger, where, index);
 		return;
 	}
 

@@ -1517,8 +1517,9 @@ Editor::SetProjectFolder(ProjectFolder* proj)
 	else
 		fLSPEditorWrapper->UnsetLSPServer();
 
-	BMessage empty;
-	SetProblems(&empty);
+	// BMessage empty;
+	// SetProblems(&empty);
+	SetProblems();
 }
 
 
@@ -1816,28 +1817,17 @@ Editor::_SetFoldMargin(bool enabled)
 
 
 void
-Editor::SetProblems(const BMessage* diagnostics)
+Editor::SetProblems()
 {
 	// make absolutely sure we're locked
 	if (!Window()->IsLocked()) {
 		debugger("The looper must be locked !");
 	}
-	fProblems = *diagnostics;
 	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
 	fProblems.AddRef("ref", &fFileRef);
 	Window()->PostMessage(&fProblems);
 }
 
-
-void
-Editor::GetProblems(BMessage* diagnostics)
-{
-	// make absolutely sure we're locked
-	if (!Window()->IsLocked()) {
-		debugger("The looper must be locked !");
-	}
-	*diagnostics = fProblems;
-}
 
 void
 Editor::SetDocumentSymbols(const BMessage* symbols)
@@ -1851,6 +1841,7 @@ Editor::SetDocumentSymbols(const BMessage* symbols)
 	fDocumentSymbols.AddRef("ref", &fFileRef);
 	Window()->PostMessage(&fDocumentSymbols);
 }
+
 
 void
 Editor::GetDocumentSymbols(BMessage* symbols)

@@ -103,6 +103,8 @@ LSPProjectWrapper::_Create()
 	looper->AddHandler(this);
 	BMessenger thisProject = BMessenger(this, looper);
 
+	chdir(Name());
+
 	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 
 	status_t started = fLSPPipeClient->Start((const char**)fServerConfig.Argv(), fServerConfig.Argc());
@@ -446,13 +448,26 @@ LSPProjectWrapper::Formatting(LSPTextDocument* textDocument)
 
 
 RequestID
-LSPProjectWrapper::CodeAction(LSPTextDocument* textDocument, Range range, CodeActionContext context)
+LSPProjectWrapper::CodeAction(LSPTextDocument* textDocument, Range range, CodeActionContext& context)
 {
 	CodeActionParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
 	params.range = range;
-	params.context = std::move(context);
-	return SendRequest(X(textDocument), "textDocument/codeAction", std::move(params));
+	params.context = context;
+	return SendRequest(X(textDocument), "textDocument/codeAction", params);
+}
+
+
+RequestID
+LSPProjectWrapper::CodeActionResolve(LSPTextDocument* textDocument, struct CodeAction& data)
+{
+	return SendRequest(X(textDocument), "codeAction/resolve", data);
+}
+
+RequestID
+LSPProjectWrapper::CodeActionResolve(LSPTextDocument* textDocument, nlohmann::json& data)
+{
+	return SendRequest(X(textDocument), "codeAction/resolve", data);
 }
 
 

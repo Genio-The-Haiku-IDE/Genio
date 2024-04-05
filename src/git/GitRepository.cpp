@@ -50,9 +50,10 @@ namespace Genio::Git {
 	bool
 	GitRepository::IsInitialized()
 	{
-		// if the repository gets corrupted or the .git folder is deleted, we need to check the
-		// status again and put the repository in an uninitialized state
-		if (!GitRepository::IsValid(fRepositoryPath)) {
+		// If the repository gets corrupted or the .git folder is deleted, we need to check the
+		// status again and put the repository in an uninitialized state.
+		// If it was not initialized but it is valid now, it may have been initialized externally.
+		if (!GitRepository::IsValid(fRepositoryPath) || !fInitialized) {
 			fInitialized = false;
 			// Let's make an attempt to reopen the repository if necessary
 			_Open();

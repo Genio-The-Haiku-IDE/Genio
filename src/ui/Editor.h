@@ -113,8 +113,7 @@ public:
 			void				Undo();
 
 
-			void				SetProblems(const BMessage* diagnostics);
-			void				GetProblems(BMessage* diagnostics);
+			void				SetProblems();
 
 			void				SetDocumentSymbols(const BMessage* symbols);
 			void				GetDocumentSymbols(BMessage* symbols);

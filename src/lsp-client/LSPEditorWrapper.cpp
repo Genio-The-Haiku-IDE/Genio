@@ -115,6 +115,22 @@ LSPEditorWrapper::ApplyFix(BMessage* info)
 
 
 void
+LSPEditorWrapper::ApplyEdit(std::string info)
+{
+	if (!HasLSPServer())
+		return;
+
+	auto items = nlohmann::json::parse(info);
+	fEditor->SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+
+	for (nlohmann::json::reverse_iterator it = items.rbegin(); it != items.rend(); ++it) {
+		ApplyTextEdit((*it));
+	}
+	fEditor->SendMessage(SCI_ENDUNDOACTION, 0, 0);
+}
+
+
+void
 LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 
 	assert(cW);
@@ -211,6 +227,21 @@ LSPEditorWrapper::_DoFormat(json& params)
 
 
 void
+LSPEditorWrapper::_DoRename(json& params)
+{
+	BMessage bjson;
+	for (auto& [uri, edits] : params["changes"].items()) {
+		for (auto& e: edits) {
+			auto edit = e.get<TextEdit>();
+			edit.range.start.line += 1;
+			edit.range.end.line += 1;
+		}
+		OpenFileURI(uri, -1, -1, edits.dump().c_str());
+	}
+}
+
+
+void
 LSPEditorWrapper::Format()
 {
 	if (!IsInitialized() || !fEditor)
@@ -250,6 +281,18 @@ LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 			fLSPProjectWrapper->GoToImplementation(this, position);
 			break;
 	}
+}
+
+
+void
+LSPEditorWrapper::Rename(std::string newName)
+{
+	if (!IsInitialized()|| !fEditor || !IsStatusValid())
+		return;
+
+	Position position;
+	GetCurrentLSPPosition(&position);
+	fLSPProjectWrapper->Rename(this, position, newName);
 }
 
 
@@ -739,9 +782,6 @@ LSPEditorWrapper::_DoCodeActionResolve(nlohmann::json& params)
 				auto caIdentifier = ca.data.value()["Identifier"].get<std::string>();
 				auto actionIdentifier = action.data.value()["Identifier"].get<std::string>();
 				if (caIdentifier == actionIdentifier) {
-					// printf("_DoCodeActionResolve: Identifier match! = %s\n", caIdentifier.c_str());
-					// printf("_DoCodeActionResolve: Name = %s\n", action.data.value()["Name"].get<std::string>().c_str());
-					// printf("_DoCodeActionResolve: Range = %s\n", action.data.value()["Range"].dump().c_str());
 					ca.edit = action.edit;
 				}
 			}
@@ -823,6 +863,7 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/hover", _DoHover);
 	IF_ID("textDocument/rangeFormatting", _DoFormat);
 	IF_ID("textDocument/formatting", _DoFormat);
+	IF_ID("textDocument/rename", _DoRename);
 	IF_ID("textDocument/definition", _DoGoTo);
 	IF_ID("textDocument/declaration", _DoGoTo);
 	IF_ID("textDocument/implementation", _DoGoTo);
@@ -913,7 +954,7 @@ LSPEditorWrapper::ApplyTextEdit(TextEdit &textEdit)
 }
 
 void
-LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character)
+LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character, BString edits)
 {
 	BUrl url(uri.c_str());
 	if (url.IsValid() && url.HasPath()) {
@@ -928,6 +969,8 @@ LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character)
 					if (character != -1)
 						refs.AddInt32("start:character", character);
 				}
+				if (!edits.IsEmpty())
+					refs.AddString("edit", edits);
 				be_app->PostMessage(&refs);
 			}
 		}

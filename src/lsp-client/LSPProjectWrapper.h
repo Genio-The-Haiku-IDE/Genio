@@ -12,6 +12,7 @@
 #include <MessageFilter.h>
 #include <Messenger.h>
 
+#include "LSPServersManager.h"
 #include "MessageHandler.h"
 #include "json_fwd.hpp"
 #include "LSPCapabilities.h"

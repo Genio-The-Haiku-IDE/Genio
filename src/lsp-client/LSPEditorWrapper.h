@@ -10,6 +10,7 @@
 
 #include <vector>
 
+#include "LSPProjectWrapper.h"
 #include "LSPTextDocument.h"
 #include "Sci_Position.h"
 #include "protocol_objects.h"
@@ -38,8 +39,6 @@ public:
 		GOTO_IMPLEMENTATION
 	};
 
-
-
 				LSPEditorWrapper(BPath filenamePath, Editor* fEditor);
 		virtual	~LSPEditorWrapper() {};
 		void	ApplySettings();
@@ -48,6 +47,8 @@ public:
 		bool	HasLSPServer();
 		bool	HasLSPServerCapability(const LSPCapability cap);
 		void	ApplyFix(BMessage* info);
+		void 	ApplyEdit(std::string info);
+		void	GoTo(LSPEditorWrapper::GoToType type);
 
 private:
 		void	didOpen();
@@ -59,7 +60,7 @@ public:
 		void	StartCompletion();
 		void	SelectedCompletion(const char* text);
 		void	Format();
-		void	GoTo(LSPEditorWrapper::GoToType type);
+		void	Rename(std::string newName);
 		void	SwitchSourceHeader();
 		void	StartHover(Sci_Position sci_position);
 		void	EndHover();
@@ -107,7 +108,8 @@ private:
 private:
 	//callbacks:
 	void	_DoFormat(nlohmann::json& params);
-	void 	_DoHover(nlohmann::json& params);
+	void	_DoRename(nlohmann::json& params);
+	void	_DoHover(nlohmann::json& params);
 	void	_DoGoTo(nlohmann::json& params);
 	void	_DoSignatureHelp(nlohmann::json& params);
 	void	_DoSwitchSourceHeader(nlohmann::json& params);
@@ -127,7 +129,8 @@ private:
 	void 			FromSciPositionToRange(Sci_Position s_start, Sci_Position s_end, Range *range);
 	Sci_Position 	ApplyTextEdit(nlohmann::json &textEdit);
 	Sci_Position 	ApplyTextEdit(TextEdit &textEdit);
-	void			OpenFileURI(std::string uri, int32 line = -1, int32 character = -1);
+	void			OpenFileURI(std::string uri, int32 line = -1, int32 character = -1,
+						BString edits = "");
 	std::string 	GetCurrentLine();
 	bool			IsStatusValid();
 

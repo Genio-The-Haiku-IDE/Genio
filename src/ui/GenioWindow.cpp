@@ -54,6 +54,7 @@
 #include "GoToLineWindow.h"
 #include "GSettings.h"
 #include "IconMenuItem.h"
+#include "json.hpp"
 #include "Languages.h"
 #include "Log.h"
 #include "ProblemsPanel.h"
@@ -806,6 +807,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_GOTODEFINITION:
 		case MSG_GOTODECLARATION:
 		case MSG_GOTOIMPLEMENTATION:
+		case MSG_RENAME:
 		case MSG_SWITCHSOURCE:
 			_ForwardToSelectedEditor(message);
 			break;
@@ -1724,8 +1726,15 @@ GenioWindow::_FileOpen(BMessage* msg)
 				} else if (be_line > -1) {
 					fTabManager->SelectedEditor()->GoToLine(be_line);
 				}
+
 				fTabManager->SelectedEditor()->GrabFocus();
 			}
+
+			// apply LSP edits
+			std::string edit = msg->GetString("edit", "");
+			if (!edit.empty())
+				fTabManager->SelectedEditor()->ApplyEdit(edit);
+
 			continue;
 		}
 
@@ -1765,6 +1774,11 @@ GenioWindow::_FileOpen(BMessage* msg)
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
 		noticeMessage.AddString("file_name", editor->FilePath());
 		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
+
+		// apply LSP edits
+		std::string edit = msg->GetString("edit", "");
+		if (!edit.empty())
+			fTabManager->SelectedEditor()->ApplyEdit(edit);
 
 		LogInfo("File open: %s [%d]", editor->Name().String(), index);
 	}
@@ -2663,6 +2677,9 @@ GenioWindow::_InitActions()
 
 	ActionManager::RegisterAction(MSG_GOTOIMPLEMENTATION,
 								   B_TRANSLATE("Go to implementation"));
+
+	ActionManager::RegisterAction(MSG_RENAME,
+								   B_TRANSLATE("Rename..."));
 
 	ActionManager::RegisterAction(MSG_FIND_IN_BROWSER,
 								  B_TRANSLATE("Show in projects browser"), "", "", 'Y');
@@ -4152,6 +4169,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->HasLSPCapability(kLCapDefinition));
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->HasLSPCapability(kLCapDeclaration));
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->HasLSPCapability(kLCapImplementation));
+	ActionManager::SetEnabled(MSG_RENAME, editor->HasLSPCapability(kLCapRename));
 	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, editor->GetProjectFolder() != nullptr);
 	ActionManager::SetEnabled(MSG_SWITCHSOURCE, (editor->FileType().compare("cpp") == 0));
 

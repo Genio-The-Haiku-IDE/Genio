@@ -249,6 +249,7 @@ enum class IndicFlag {
 enum class AutoCompleteOption {
 	Normal = 0,
 	FixedSize = 1,
+	SelectFirstItem = 2,
 };
 
 enum class IndentView {
@@ -624,6 +625,7 @@ enum class CompletionMethods {
 	Tab = 3,
 	Newline = 4,
 	Command = 5,
+	SingleChoice = 6,
 };
 
 enum class CharacterSource {

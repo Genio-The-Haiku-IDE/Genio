@@ -1784,7 +1784,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 		editor->ApplySettings();
 
 		// Select the newly added tab
-		fTabManager->SelectTab(index, &selectTabInfo);
+		int32 newIndex = fTabManager->TabForView(editor);
+		fTabManager->SelectTab(newIndex, &selectTabInfo);
 
 		// TODO: Move some stuff into _PostFileLoad()
 		_PostFileLoad(editor);
@@ -1795,9 +1796,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		LogInfo("File open: %s [%d]", editor->Name().String(), index);
 	}
-
-	if (nextIndex < fTabManager->CountTabs())
-		fTabManager->SelectTab(nextIndex);
 
 	// Assign the right project to the Editor
 	for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {

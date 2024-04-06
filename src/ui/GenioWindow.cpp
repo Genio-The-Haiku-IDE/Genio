@@ -1759,7 +1759,8 @@ GenioWindow::_FileOpen(BMessage* msg)
 		editor->ApplySettings();
 
 		// Select the newly added tab
-		fTabManager->SelectTab(index, &selectTabInfo);
+		int32 newIndex = fTabManager->TabForView(editor);
+		fTabManager->SelectTab(newIndex, &selectTabInfo);
 
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
 		noticeMessage.AddString("file_name", editor->FilePath());
@@ -1767,9 +1768,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		LogInfo("File open: %s [%d]", editor->Name().String(), index);
 	}
-
-	if (nextIndex < fTabManager->CountTabs())
-		fTabManager->SelectTab(nextIndex);
 
 	// Assign the right project to the Editor
 	for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {

@@ -25,11 +25,13 @@ public:
 	virtual		void	Pulse();
 				void	SetLoadingStatus(status loadingStatus);
 
+
 private:
 	void	_UpdateDocumentSymbols(BMessage* msg);
 	void	_RecursiveAddSymbols(BListItem* parent, BMessage* msg);
 
 	BOutlineListView* fListView;
+	BScrollView* fScrollView;
 	ToolBar*	fToolBar;
 	entry_ref	fCurrentRef;
 	status		fLoadingStatus;

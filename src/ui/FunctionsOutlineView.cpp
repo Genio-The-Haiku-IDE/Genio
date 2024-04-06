@@ -17,6 +17,8 @@
 #include "EditorMessages.h"
 #include "ToolBar.h"
 
+#include "Log.h"
+
 #define kGoToSymbol	'gots'
 #define kMsgSort 'sort'
 #define kMsgCollapseAll 'coll'
@@ -65,7 +67,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 	SetFlags(Flags() | B_PULSE_NEEDED);
 
 	fListView = new BOutlineListView("listview");
-	BScrollView* scrollView = new BScrollView("scrollview", fListView,
+	fScrollView = new BScrollView("scrollview", fListView,
 		B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fToolBar = new ToolBar();
 	fToolBar->ChangeIconSize(16);
@@ -77,7 +79,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 	BLayoutBuilder::Group<>(this)
 		.AddGroup(B_VERTICAL, 0)
 			.Add(fToolBar)
-			.Add(scrollView)
+			.Add(fScrollView)
 		.End();
 }
 
@@ -194,15 +196,31 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 	if (selected != nullptr)
 		selectedItemText = selected->Text();
 
+	// Save the vertical scrolling value
+	BScrollBar* vertScrollBar = fScrollView->ScrollBar(B_VERTICAL);
+	float scrolledValue = vertScrollBar->Value();
+
 	fListView->MakeEmpty();
 	// TODO: Improve
 	fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
-	if (msg->FindRef("ref", &fCurrentRef) != B_OK)
+
+	entry_ref newRef;
+	if (msg->FindRef("ref", &newRef) != B_OK)
 		return;
 
 	fListView->MakeEmpty();
 	// TODO: This is done synchronously
 	_RecursiveAddSymbols(nullptr, msg);
+
+	// same file, don't reset the vertical scrolling value
+	if (newRef == fCurrentRef) {
+		vertScrollBar->SetValue(scrolledValue);
+	}
+
+	fCurrentRef = newRef;
+
+	if (sSorted)
+		fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
 
 	// List could have been changed. Try to re-select old selected item
 	if (!selectedItemText.IsEmpty()) {

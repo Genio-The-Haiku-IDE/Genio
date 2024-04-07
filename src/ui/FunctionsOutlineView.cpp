@@ -10,9 +10,12 @@
 #include <LayoutBuilder.h>
 #include <NaturalCompare.h>
 #include <OutlineListView.h>
+#include <ScrollView.h>
 #include <StringView.h>
 #include <Window.h>
 
+// TODO: We need this for EDITOR_UPDATE_SYMBOLS: move it elsewhere
+// so we can remove dependency
 #include "Editor.h"
 #include "EditorMessages.h"
 #include "ToolBar.h"
@@ -201,7 +204,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 		return;
 	}
 
-	msg->PrintToStream();
 	BStringItem* selected = dynamic_cast<BStringItem*>(fListView->ItemAt(fListView->CurrentSelection()));
 	BString selectedItemText;
 	if (selected != nullptr)

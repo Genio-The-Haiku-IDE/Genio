@@ -13,6 +13,7 @@
 #include <Application.h>
 #include <Catalog.h>
 #include <Control.h>
+#include <ControlLook.h>
 #include <ILexer.h>
 #include <Lexilla.h>
 #include <NodeMonitor.h>
@@ -28,6 +29,7 @@
 #include "GenioApp.h"
 #include "GenioWindowMessages.h"
 #include "GoToLineWindow.h"
+#include "alert/GTextAlert.h"
 #include "Languages.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
@@ -35,7 +37,6 @@
 #include "ScintillaUtils.h"
 #include "Styler.h"
 #include "Utils.h"
-
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -285,6 +286,9 @@ Editor::MessageReceived(BMessage* message)
 		case MSG_GOTOIMPLEMENTATION:
 			GoToImplementation();
 		break;
+		case MSG_RENAME:
+			Rename();
+		break;
 		case MSG_SWITCHSOURCE:
 			SwitchSourceHeader();
 		break;
@@ -373,6 +377,12 @@ Editor::ApplySettings()
 
 	// custom ContextMenu!
 	SendMessage(SCI_USEPOPUP, SC_POPUP_NEVER, 0);
+}
+
+void
+Editor::ApplyEdit(std::string info)
+{
+	fLSPEditorWrapper->ApplyEdit(info);
 }
 
 void
@@ -1250,6 +1260,18 @@ Editor::Selection()
 	return text;
 }
 
+const BString
+Editor::GetSymbol()
+{
+	int32 position = SendMessage(SCI_GETCURRENTPOS);
+	int32 start = SendMessage(SCI_WORDSTARTPOSITION, position);
+	int32 end = SendMessage(SCI_WORDENDPOSITION, position);
+	int32 size = end - start;
+	char text[size];
+	GetText(start, size, text);
+	return text;
+}
+
 
 // it sends Selection/Position changes.
 void
@@ -1488,6 +1510,17 @@ void
 Editor::GoToImplementation()
 {
 	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_IMPLEMENTATION);
+}
+
+void
+Editor::Rename()
+{
+	// Getting the symbol from the language server would require many async steps.
+	// We instead ask Scintilla to deliver it which should be almost if not entirely accurate
+	auto alert = new GTextAlert(B_TRANSLATE("Rename"), B_TRANSLATE("Rename symbol:"), GetSymbol());
+	auto result = alert->Go();
+	if (result.Button == GAlertButtons::OkButton)
+		fLSPEditorWrapper->Rename(result.Result.String());
 }
 
 

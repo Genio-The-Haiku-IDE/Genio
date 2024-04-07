@@ -374,8 +374,8 @@ GenioWindow::MessageReceived(BMessage* message)
 					SendNotices(EDITOR_UPDATE_SYMBOLS, &notifyMessage);
 				}
 			}
+			break;
 		}
-		break;
 		case B_ABOUT_REQUESTED:
 			be_app->PostMessage(B_ABOUT_REQUESTED);
 			break;

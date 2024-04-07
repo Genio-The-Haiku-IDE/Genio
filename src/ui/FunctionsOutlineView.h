@@ -23,8 +23,6 @@ public:
 	virtual		void	DetachedFromWindow();
 	virtual		void	MessageReceived(BMessage* msg);
 	virtual		void	Pulse();
-				void	SetLoadingStatus(status loadingStatus);
-
 
 private:
 	void	_UpdateDocumentSymbols(BMessage* msg);
@@ -34,6 +32,5 @@ private:
 	BScrollView* fScrollView;
 	ToolBar*	fToolBar;
 	entry_ref	fCurrentRef;
-	status		fLoadingStatus;
 	bigtime_t	fLastUpdateTime;
 };

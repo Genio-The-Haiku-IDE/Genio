@@ -120,8 +120,10 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 				case EDITOR_UPDATE_SYMBOLS:
 				{
 					BMessage symbols;
-					msg->FindMessage("symbols", &symbols);
-					_UpdateDocumentSymbols(&symbols);
+					if (msg->FindMessage("symbols", &symbols) == B_OK)
+						_UpdateDocumentSymbols(&symbols);
+					else
+						_UpdateDocumentSymbols(nullptr);
 					break;
 				}
 				default:
@@ -191,6 +193,15 @@ FunctionsOutlineView::Pulse()
 void
 FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 {
+	LogTrace("_UpdateDocumentSymbol()");
+	if (msg == nullptr) {
+		fListView->MakeEmpty();
+		// TODO: Improve
+		fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
+		return;
+	}
+
+	msg->PrintToStream();
 	BStringItem* selected = dynamic_cast<BStringItem*>(fListView->ItemAt(fListView->CurrentSelection()));
 	BString selectedItemText;
 	if (selected != nullptr)
@@ -201,29 +212,36 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 	float scrolledValue = vertScrollBar->Value();
 
 	fListView->MakeEmpty();
-	// TODO: Improve
-	fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
 
 	entry_ref newRef;
-	if (msg->FindRef("ref", &newRef) != B_OK)
+	if (msg->FindRef("ref", &newRef) != B_OK) {
+		LogTrace("_UpdateDocumentSymbol(): ref not found.");
+		// TODO: Improve
+		fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
 		return;
+	}
+
+	LogTrace("_UpdateDocumentSymbol(): found ref.");
+
+	// Add "pending..."
+	// TODO: Improve
+	fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
 
 	fListView->MakeEmpty();
 	// TODO: This is done synchronously
 	_RecursiveAddSymbols(nullptr, msg);
 
-	// same file, don't reset the vertical scrolling value
+	// same document, don't reset the vertical scrolling value
 	if (newRef == fCurrentRef) {
 		vertScrollBar->SetValue(scrolledValue);
 	}
 
-	fCurrentRef = newRef;
-
 	if (sSorted)
 		fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
 
-	// List could have been changed. Try to re-select old selected item
-	if (!selectedItemText.IsEmpty()) {
+	// List could have been changed.
+	// Try to re-select old selected item, but only if it's the same document
+	if (newRef == fCurrentRef && !selectedItemText.IsEmpty()) {
 		for (int32 i = 0; i < fListView->CountItems(); i++) {
 			BStringItem* item = dynamic_cast<BStringItem*>(fListView->ItemAt(i));
 			if (item != nullptr && selectedItemText == item->Text()) {
@@ -232,6 +250,8 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 			}
 		}
 	}
+
+	fCurrentRef = newRef;
 
 	fListView->SetInvocationMessage(new BMessage(kGoToSymbol));
 	fListView->SetTarget(this);

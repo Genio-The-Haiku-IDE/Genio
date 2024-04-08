@@ -76,7 +76,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 	fToolBar->ChangeIconSize(16);
 	// TODO: Icons
 	//fToolBar->AddAction(kMsgCollapseAll, "Collapse all", "kIconGitRepo", true);
-	fToolBar->AddAction(kMsgSort, B_TRANSLATE("Sort"), "kIconGitMore", true);
+	fToolBar->AddAction(kMsgSort, B_TRANSLATE("Sort"), "kIconOutlineSort", true);
 	fToolBar->SetExplicitMinSize(BSize(250, B_SIZE_UNSET));
 	fToolBar->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
 	BLayoutBuilder::Group<>(this)

@@ -300,10 +300,10 @@ Editor::MessageReceived(BMessage* message)
 			ApplySettings();
 			//NOTE (TODO?) we are not changing any LSP configuration!
 		break;
-		case kApplyFix: {
+		case kApplyFix:
 			if (fLSPEditorWrapper)
 				fLSPEditorWrapper->ApplyFix(message);
-		}
+			break;
 		case kCallTipClick: {
 			int32 position = message->GetInt32("position", 0);
 			if (position == 1)

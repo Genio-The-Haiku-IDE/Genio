@@ -14,7 +14,7 @@ class FunctionsOutlineView : public BView {
 public:
 	enum status {
 		STATUS_EMPTY = 0,
-		STATUS_LOADING,
+		STATUS_PENDING,
 		STATUS_LOADED
 	};
 			FunctionsOutlineView();
@@ -32,5 +32,6 @@ private:
 	BScrollView* fScrollView;
 	ToolBar*	fToolBar;
 	entry_ref	fCurrentRef;
+	status		fStatus;
 	bigtime_t	fSymbolsLastUpdateTime;
 };

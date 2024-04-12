@@ -66,6 +66,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 	BView(B_TRANSLATE("Class outline"), B_WILL_DRAW),
 	fListView(nullptr),
 	fToolBar(nullptr),
+	fStatus(STATUS_EMPTY),
 	fSymbolsLastUpdateTime(0)
 {
 	SetFlags(Flags() | B_PULSE_NEEDED);
@@ -85,6 +86,8 @@ FunctionsOutlineView::FunctionsOutlineView()
 			.Add(fToolBar)
 			.Add(fScrollView)
 		.End();
+
+	_UpdateDocumentSymbols(nullptr);
 }
 
 
@@ -115,11 +118,17 @@ FunctionsOutlineView::DetachedFromWindow()
 void
 FunctionsOutlineView::Pulse()
 {
+	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
+	// We already requested symbols, just need to wait a bit
+	if (editor != nullptr && *editor->FileRef() == fCurrentRef &&
+			fStatus == STATUS_PENDING)
+		return;
+
 	// TODO: Not very nice: we should request symbols update only if there's a
 	// change. But we shouldn't ask one for EVERY change.
 	// Maybe editor knows, but I wasn't able to make it work there
 	// Update every 10 seconds
-	const bigtime_t kUpdatePeriod = 10000000LL;
+	const bigtime_t kUpdatePeriod = 5000000LL;
 
 	// TODO: Not very nice design-wise, either:
 	// ideally we shouldn't know about Editor or LSPEditorWrapper.
@@ -127,18 +136,15 @@ FunctionsOutlineView::Pulse()
 	// and then we would receive this info via BMessage
 	bigtime_t currentTime = system_time();
 	if (currentTime - fSymbolsLastUpdateTime > kUpdatePeriod) {
-		Editor* editor = gMainWindow->TabManager()->SelectedEditor();
-		if (editor != nullptr) {
-			editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
-			// If list is empty, add "Pending..."
-			if (fListView->CountItems() == 0) {
-				LogTrace("_UpdateDocumentSymbol(): found ref.");
-				// Add "pending..."
-				// TODO: Improve
-				fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
-			}
+		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
+		fStatus = STATUS_PENDING;
+		// If list is empty, add "Pending..."
+		if (fListView->CountItems() == 0) {
+			LogTrace("_UpdateDocumentSymbol(): found ref.");
+			// Add "pending..."
+			// TODO: Improve
+			fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
 		}
-		fSymbolsLastUpdateTime = currentTime;
 	}
 }
 
@@ -239,6 +245,8 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 	fListView->MakeEmpty();
 	// TODO: This is done synchronously
 	_RecursiveAddSymbols(nullptr, msg);
+
+	fStatus = STATUS_LOADED;
 
 	// same document, don't reset the vertical scrolling value
 	if (newRef == fCurrentRef) {

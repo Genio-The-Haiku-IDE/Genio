@@ -68,6 +68,8 @@ public:
 	void						SetActiveProject(ProjectFolder *project);
 	ProjectsFolderBrowser*		GetProjectBrowser() const;
 
+	EditorTabManager*			TabManager() const;
+
 private:
 			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
 

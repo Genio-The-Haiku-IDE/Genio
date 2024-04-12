@@ -312,17 +312,13 @@ Editor::MessageReceived(BMessage* message)
 				fLSPEditorWrapper->NextCallTip();
 		}
 		break;
-		case kClassOutline:
-		{
-			if (fLSPEditorWrapper)
-				fLSPEditorWrapper->RequestDocumentSymbols();
-			break;
-		}
+
 		default:
 			BScintillaView::MessageReceived(message);
 			break;
 	}
 }
+
 
 void
 Editor::ApplySettings()
@@ -1260,6 +1256,7 @@ Editor::Selection()
 	return text;
 }
 
+
 const BString
 Editor::GetSymbol()
 {
@@ -1865,6 +1862,7 @@ Editor::SetProblems()
 void
 Editor::SetDocumentSymbols(const BMessage* symbols)
 {
+	LogError("Editor::SetDocumentSymbols(const BMessage* symbols)");
 	// make absolutely sure we're locked
 	if (!Window()->IsLocked()) {
 		debugger("The looper must be locked !");
@@ -1883,5 +1881,6 @@ Editor::GetDocumentSymbols(BMessage* symbols)
 	if (!Window()->IsLocked()) {
 		debugger("The looper must be locked !");
 	}
+
 	*symbols = fDocumentSymbols;
 }

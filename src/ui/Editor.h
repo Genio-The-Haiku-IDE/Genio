@@ -64,7 +64,6 @@ public:
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
 	virtual	void 				MessageReceived(BMessage* message);
-
 			void				ApplySettings();
 			void				ApplyEdit(std::string info);
 			void				TrimTrailingWhitespace();

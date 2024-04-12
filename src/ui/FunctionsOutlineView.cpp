@@ -14,10 +14,11 @@
 #include <StringView.h>
 #include <Window.h>
 
-// TODO: We need this for EDITOR_UPDATE_SYMBOLS: move it elsewhere
-// so we can remove dependency
 #include "Editor.h"
-#include "EditorMessages.h"
+#include "EditorTabManager.h"
+#include "GenioWindow.h"
+#include "GenioWindowMessages.h"
+#include "LSPEditorWrapper.h"
 #include "ToolBar.h"
 
 #include "Log.h"
@@ -65,7 +66,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 	BView(B_TRANSLATE("Class outline"), B_WILL_DRAW),
 	fListView(nullptr),
 	fToolBar(nullptr),
-	fLastUpdateTime(system_time())
+	fSymbolsLastUpdateTime(0)
 {
 	SetFlags(Flags() | B_PULSE_NEEDED);
 
@@ -93,7 +94,7 @@ FunctionsOutlineView::AttachedToWindow()
 {
 	fToolBar->SetTarget(this);
 	if (LockLooper()) {
-		Window()->StartWatching(this, EDITOR_UPDATE_SYMBOLS);
+		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 		UnlockLooper();
 	}
 }
@@ -104,8 +105,40 @@ void
 FunctionsOutlineView::DetachedFromWindow()
 {
 	if (LockLooper()) {
-		Window()->StopWatching(this, EDITOR_UPDATE_SYMBOLS);
+		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 		UnlockLooper();
+	}
+}
+
+
+/* virtual */
+void
+FunctionsOutlineView::Pulse()
+{
+	// TODO: Not very nice: we should request symbols update only if there's a
+	// change. But we shouldn't ask one for EVERY change.
+	// Maybe editor knows, but I wasn't able to make it work there
+	// Update every 10 seconds
+	const bigtime_t kUpdatePeriod = 10000000LL;
+
+	// TODO: Not very nice design-wise, either:
+	// ideally we shouldn't know about Editor or LSPEditorWrapper.
+	// There should be a way for Editor to retrieving symbols when needed
+	// and then we would receive this info via BMessage
+	bigtime_t currentTime = system_time();
+	if (currentTime - fSymbolsLastUpdateTime > kUpdatePeriod) {
+		Editor* editor = gMainWindow->TabManager()->SelectedEditor();
+		if (editor != nullptr) {
+			editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
+			// If list is empty, add "Pending..."
+			if (fListView->CountItems() == 0) {
+				LogTrace("_UpdateDocumentSymbol(): found ref.");
+				// Add "pending..."
+				// TODO: Improve
+				fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
+			}
+		}
+		fSymbolsLastUpdateTime = currentTime;
 	}
 }
 
@@ -120,12 +153,13 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			int32 code;
 			msg->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
-				case EDITOR_UPDATE_SYMBOLS:
+				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
+					fSymbolsLastUpdateTime = system_time();
 					BMessage symbols;
-					if (msg->FindMessage("symbols", &symbols) == B_OK)
+					if (msg->FindMessage("symbols", &symbols) == B_OK) {
 						_UpdateDocumentSymbols(&symbols);
-					else
+					} else
 						_UpdateDocumentSymbols(nullptr);
 					break;
 				}
@@ -175,32 +209,12 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 }
 
 
-/* virtual */
-void
-FunctionsOutlineView::Pulse()
-{
-	// Update every 10 seconds
-	const bigtime_t kUpdatePeriod = 10000000LL;
-
-	bigtime_t currentTime = system_time();
-	if (currentTime - fLastUpdateTime > kUpdatePeriod) {
-		// TODO: Maybe move this to the Editor which knows if a file has been modified
-		// TODO: we send a message to the window which sends it to the editor
-		// which then ... : refactor
-		Window()->PostMessage(kClassOutline);
-		fLastUpdateTime = currentTime;
-	}
-}
-
-
 void
 FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 {
 	LogTrace("_UpdateDocumentSymbol()");
 	if (msg == nullptr) {
 		fListView->MakeEmpty();
-		// TODO: Improve
-		fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
 		return;
 	}
 
@@ -213,21 +227,14 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 	BScrollBar* vertScrollBar = fScrollView->ScrollBar(B_VERTICAL);
 	float scrolledValue = vertScrollBar->Value();
 
-	fListView->MakeEmpty();
-
 	entry_ref newRef;
 	if (msg->FindRef("ref", &newRef) != B_OK) {
 		LogTrace("_UpdateDocumentSymbol(): ref not found.");
-		// TODO: Improve
-		fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
+		fListView->MakeEmpty();
 		return;
 	}
 
 	LogTrace("_UpdateDocumentSymbol(): found ref.");
-
-	// Add "pending..."
-	// TODO: Improve
-	fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
 
 	fListView->MakeEmpty();
 	// TODO: This is done synchronously

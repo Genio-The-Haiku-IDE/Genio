@@ -140,6 +140,9 @@ enum {
 	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch',	// file_name (string)
 													// needs_save (bool)
 
+	MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED	= 'esup',	// file_ref (ref)
+													// symbols (BMessage)
+
 	MSG_NOTIFY_BUILDING_PHASE			= 'blph',	// building (bool)
 
 	MSG_NOTIFY_PROJECT_LIST_CHANGED		= 'nplc',

@@ -368,12 +368,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
-				if (editor == fTabManager->SelectedEditor()) {
-					BMessage notifyMessage(EDITOR_UPDATE_SYMBOLS);
-					notifyMessage.AddMessage("symbols", message);
-					SendNotices(EDITOR_UPDATE_SYMBOLS, &notifyMessage);
-				}
+				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+				notifyMessage.AddMessage("symbols", message);
+				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
 			}
 			break;
 		}
@@ -1119,6 +1116,13 @@ GenioWindow::MessageReceived(BMessage* message)
 
 				editor->GrabFocus();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
+
+				BMessage symbolsChanged(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+				BMessage symbols;
+				editor->GetDocumentSymbols(&symbols);
+				symbolsChanged.AddMessage("symbols", &symbols);
+				symbolsChanged.AddRef("file_ref", editor->FileRef());
+				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
 			}
 			break;
 		}
@@ -1245,6 +1249,13 @@ ProjectsFolderBrowser*
 GenioWindow::GetProjectBrowser() const
 {
 	return fProjectsFolderBrowser;
+}
+
+
+EditorTabManager*
+GenioWindow::TabManager() const
+{
+	return fTabManager;
 }
 
 
@@ -4173,8 +4184,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		fProblemsPanel->ClearProblems();
 
-		BMessage empty(EDITOR_UPDATE_SYMBOLS);
-		SendNotices(EDITOR_UPDATE_SYMBOLS, &empty);
+		BMessage empty(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+		SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &empty);
 		return;
 	}
 
@@ -4263,6 +4274,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	editor->GetDocumentSymbols(&symbols);
 	BMessage noticeMessage(EDITOR_UPDATE_SYMBOLS);
 	noticeMessage.AddMessage("symbols", &symbols);
+	noticeMessage.PrintToStream();
 	SendNotices(EDITOR_UPDATE_SYMBOLS, &noticeMessage);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);

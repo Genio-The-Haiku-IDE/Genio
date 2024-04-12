@@ -32,5 +32,5 @@ private:
 	BScrollView* fScrollView;
 	ToolBar*	fToolBar;
 	entry_ref	fCurrentRef;
-	bigtime_t	fLastUpdateTime;
+	bigtime_t	fSymbolsLastUpdateTime;
 };

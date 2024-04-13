@@ -161,7 +161,6 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
 					LogTrace("Symbols updated");
-					fSymbolsLastUpdateTime = system_time();
 					BMessage symbols;
 					if (msg->FindMessage("symbols", &symbols) == B_OK) {
 						_UpdateDocumentSymbols(&symbols);
@@ -253,11 +252,19 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 		return;
 	}
 
-	LogTrace("_UpdateDocumentSymbol(): found ref: %s.", newRef.name);
-
+	if (newRef != fCurrentRef) {
+		if (fStatus != STATUS_DONE) {
+			if (!msg->HasMessage("symbol")) {
+				// We usually get a message with no symbols
+				// as soon as we switch tab
+				return;
+			}
+		}
+	}
 	fListView->MakeEmpty();
 	// TODO: This is done synchronously
 	_RecursiveAddSymbols(nullptr, msg);
+	fSymbolsLastUpdateTime = system_time();
 
 	fStatus = STATUS_DONE;
 

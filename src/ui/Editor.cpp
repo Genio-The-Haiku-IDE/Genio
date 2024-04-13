@@ -148,6 +148,7 @@ Editor::~Editor()
 	fLSPEditorWrapper = NULL;
 }
 
+
 void
 Editor::MessageReceived(BMessage* message)
 {
@@ -169,19 +170,23 @@ Editor::MessageReceived(BMessage* message)
 			int32 kind = message->GetInt32("kind", REPLACE_NONE);
 
 			switch (kind) {
-				case REPLACE_ALL: {
+				case REPLACE_ALL:
+				{
 					ReplaceAll(text, replace, flags);
 					break;
 				}
-				case REPLACE_NEXT: {
+				case REPLACE_NEXT:
+				{
 					ReplaceAndFindNext(text, replace, flags, wrap);
 					break;
 				}
-				case REPLACE_ONE: {
+				case REPLACE_ONE:
+				{
 					ReplaceOne(text, replace);
 					break;
 				}
-				case REPLACE_PREVIOUS: {
+				case REPLACE_PREVIOUS:
+				{
 					ReplaceAndFindPrevious(text, replace, flags, wrap);
 					break;
 				}
@@ -228,91 +233,92 @@ Editor::MessageReceived(BMessage* message)
 		}
 		case MSG_BOOKMARK_CLEAR_ALL:
 			BookmarkClearAll(sci_BOOKMARK);
-		break;
+			break;
 		case MSG_BOOKMARK_GOTO_NEXT:
 			if (!BookmarkGoToNext())
 				LogInfo("Next Bookmark not found");
-		break;
+			break;
 		case MSG_BOOKMARK_GOTO_PREVIOUS:
 			if (!BookmarkGoToPrevious())
 				LogInfo("Previous Bookmark not found");
-		break;
+			break;
 		case MSG_BOOKMARK_TOGGLE:
 			BookmarkToggle(GetCurrentPosition());
-		break;
+			break;
 		case MSG_EOL_CONVERT_TO_UNIX:
 			EndOfLineConvert(SC_EOL_LF);
-		break;
+			break;
 		case MSG_EOL_CONVERT_TO_DOS:
 			EndOfLineConvert(SC_EOL_CRLF);
-		break;
+			break;
 		case MSG_EOL_CONVERT_TO_MAC:
 			EndOfLineConvert(SC_EOL_CR);
-		break;
+			break;
 		case MSG_FILE_FOLD_TOGGLE:
 			ToggleFolding();
-		break;
-		case GTLW_GO: {
+			break;
+		case GTLW_GO:
+		{
 			int32 line;
 			if(message->FindInt32("line", &line) == B_OK) {
 				GoToLine(line);
 			}
+			break;
 		}
-		break;
 		case MSG_DUPLICATE_LINE:
 			DuplicateCurrentLine();
-		break;
+			break;
 		case MSG_DELETE_LINES:
 			DeleteSelectedLines();
-		break;
+			break;
 		case MSG_COMMENT_SELECTED_LINES:
 			CommentSelectedLines();
-		break;
+			break;
 		case MSG_FILE_TRIM_TRAILING_SPACE:
 			TrimTrailingWhitespace();
-		break;
+			break;
 		case MSG_AUTOCOMPLETION:
 			Completion();
-		break;
+			break;
 		case MSG_FORMAT:
 			Format();
-		break;
+			break;
 		case MSG_GOTODEFINITION:
 			GoToDefinition();
-		break;
+			break;
 		case MSG_GOTODECLARATION:
 			GoToDeclaration();
-		break;
+			break;
 		case MSG_GOTOIMPLEMENTATION:
 			GoToImplementation();
-		break;
+			break;
 		case MSG_RENAME:
 			Rename();
-		break;
+			break;
 		case MSG_SWITCHSOURCE:
 			SwitchSourceHeader();
-		break;
+			break;
 		case MSG_TEXT_OVERWRITE:
 			OverwriteToggle();
-		break;
+			break;
 		case MSG_SET_LANGUAGE:
 			SetFileType(std::string(message->GetString("lang", "")));
 			ApplySettings();
 			//NOTE (TODO?) we are not changing any LSP configuration!
-		break;
-		case kApplyFix: {
+			break;
+		case kApplyFix:
 			if (fLSPEditorWrapper)
 				fLSPEditorWrapper->ApplyFix(message);
-		}
-		case kCallTipClick: {
+			break;
+		case kCallTipClick:
+		{
 			int32 position = message->GetInt32("position", 0);
 			if (position == 1)
 				fLSPEditorWrapper->PrevCallTip();
 			else
 				fLSPEditorWrapper->NextCallTip();
+			break;
 		}
-		break;
-
 		default:
 			BScintillaView::MessageReceived(message);
 			break;

@@ -118,8 +118,12 @@ void
 FunctionsOutlineView::Pulse()
 {
 	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
+	if (editor == nullptr) {
+		_UpdateDocumentSymbols(nullptr);
+		return;
+	}
 	// We already requested symbols, just need to wait a bit
-	if (editor != nullptr && *editor->FileRef() == fCurrentRef &&
+	if (*editor->FileRef() == fCurrentRef &&
 			fStatus == STATUS_PENDING)
 		return;
 
@@ -127,7 +131,7 @@ FunctionsOutlineView::Pulse()
 	// change. But we shouldn't ask one for EVERY change.
 	// Maybe editor knows, but I wasn't able to make it work there
 	// Update every 10 seconds
-	const bigtime_t kUpdatePeriod = 5000000LL;
+	const bigtime_t kUpdatePeriod = 10000000LL;
 
 	// TODO: Not very nice design-wise, either:
 	// ideally we shouldn't know about Editor or LSPEditorWrapper.
@@ -138,11 +142,8 @@ FunctionsOutlineView::Pulse()
 		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
 		fStatus = STATUS_PENDING;
 		// If list is empty, add "Pending..."
-		if (fListView->CountItems() == 0) {
-			LogTrace("_UpdateDocumentSymbol(): found ref.");
-			// Add "pending..."
-			fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
-		}
+		fListView->MakeEmpty();
+		fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
 	}
 }
 
@@ -265,6 +266,8 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 		vertScrollBar->SetValue(scrolledValue);
 	}
 
+	fCurrentRef = newRef;
+
 	if (sSorted)
 		fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
 
@@ -279,8 +282,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 			}
 		}
 	}
-
-	fCurrentRef = newRef;
 
 	fListView->SetInvocationMessage(new BMessage(kGoToSymbol));
 	fListView->SetTarget(this);

@@ -76,8 +76,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 		B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fToolBar = new ToolBar();
 	fToolBar->ChangeIconSize(16);
-	// TODO: Icons
-	//fToolBar->AddAction(kMsgCollapseAll, "Collapse all", "kIconGitRepo", true);
+	// TODO: other actions
 	fToolBar->AddAction(kMsgSort, B_TRANSLATE("Sort"), "kIconOutlineSort", true);
 	fToolBar->SetExplicitMinSize(BSize(250, B_SIZE_UNSET));
 	fToolBar->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
@@ -142,7 +141,6 @@ FunctionsOutlineView::Pulse()
 		if (fListView->CountItems() == 0) {
 			LogTrace("_UpdateDocumentSymbol(): found ref.");
 			// Add "pending..."
-			// TODO: Improve
 			fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
 		}
 	}
@@ -161,6 +159,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			switch (code) {
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
+					LogTrace("Symbols updated");
 					fSymbolsLastUpdateTime = system_time();
 					BMessage symbols;
 					if (msg->FindMessage("symbols", &symbols) == B_OK) {
@@ -218,9 +217,23 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 void
 FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 {
-	LogTrace("_UpdateDocumentSymbol()");
+	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
+	switch (fStatus) {
+		case STATUS_PENDING:
+			LogTrace("status: STATUS_PENDING");
+			break;
+		case STATUS_EMPTY:
+			LogTrace("status: STATUS_EMPTY");
+			break;
+		default:
+			LogTrace("status: STATUS_DONE");
+			break;
+	}
+
 	if (msg == nullptr) {
 		fListView->MakeEmpty();
+		fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
+		fStatus = STATUS_EMPTY;
 		return;
 	}
 
@@ -235,18 +248,17 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 
 	entry_ref newRef;
 	if (msg->FindRef("ref", &newRef) != B_OK) {
-		LogTrace("_UpdateDocumentSymbol(): ref not found.");
-		fListView->MakeEmpty();
+		assert("_UpdateDocumentSymbol(): ref not found !!!!");
 		return;
 	}
 
-	LogTrace("_UpdateDocumentSymbol(): found ref.");
+	LogTrace("_UpdateDocumentSymbol(): found ref: %s.", newRef.name);
 
 	fListView->MakeEmpty();
 	// TODO: This is done synchronously
 	_RecursiveAddSymbols(nullptr, msg);
 
-	fStatus = STATUS_LOADED;
+	fStatus = STATUS_DONE;
 
 	// same document, don't reset the vertical scrolling value
 	if (newRef == fCurrentRef) {

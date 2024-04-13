@@ -1120,8 +1120,9 @@ GenioWindow::MessageReceived(BMessage* message)
 				BMessage symbolsChanged(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				BMessage symbols;
 				editor->GetDocumentSymbols(&symbols);
+				if (!symbols.HasRef("ref"))
+					symbols.AddRef("ref", editor->FileRef());
 				symbolsChanged.AddMessage("symbols", &symbols);
-				symbolsChanged.AddRef("file_ref", editor->FileRef());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
 			}
 			break;
@@ -4269,13 +4270,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 
 	fProblemsPanel->UpdateProblems(editor);
-
-	BMessage symbols;
-	editor->GetDocumentSymbols(&symbols);
-	BMessage noticeMessage(EDITOR_UPDATE_SYMBOLS);
-	noticeMessage.AddMessage("symbols", &symbols);
-	noticeMessage.PrintToStream();
-	SendNotices(EDITOR_UPDATE_SYMBOLS, &noticeMessage);
 
 	LogTraceF("called by: %s:%d", caller.String(), index);
 }

@@ -1862,7 +1862,6 @@ Editor::SetProblems()
 void
 Editor::SetDocumentSymbols(const BMessage* symbols)
 {
-	LogError("Editor::SetDocumentSymbols(const BMessage* symbols)");
 	// make absolutely sure we're locked
 	if (!Window()->IsLocked()) {
 		debugger("The looper must be locked !");

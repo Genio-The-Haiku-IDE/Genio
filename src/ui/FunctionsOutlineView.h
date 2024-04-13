@@ -15,7 +15,7 @@ public:
 	enum status {
 		STATUS_EMPTY = 0,
 		STATUS_PENDING,
-		STATUS_LOADED
+		STATUS_DONE
 	};
 			FunctionsOutlineView();
 

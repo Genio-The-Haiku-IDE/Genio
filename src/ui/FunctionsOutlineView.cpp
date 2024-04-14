@@ -37,10 +37,51 @@ public:
 			, fDetails ( details )
 			{}
 
+		virtual void DrawItem(BView* owner, BRect bounds, bool complete);
 		const BMessage& Details() const { return fDetails; }
 private:
 		BMessage	fDetails;
 };
+
+
+/* virtual */
+void
+SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
+{
+	// TODO: just an example
+	BString text(Text());
+	BString newText;
+	BString prefix;
+	int32 kind;
+	fDetails.FindInt32("kind", &kind);
+	switch (kind) {
+		case 2:
+			// method
+			prefix = "M";
+			break;
+		case 3:
+			// function
+			prefix = "f";
+			break;
+		case 5:
+			// field
+			prefix = "m";
+			break;
+		case 7:
+			// Class
+			prefix = "C";
+			break;
+		default:
+			break;
+	}
+
+	if (!prefix.IsEmpty())
+		newText.Append(prefix).Append(" ");
+	newText.Append(text);
+	SetText(newText.String());
+	BStringItem::DrawItem(owner, bounds, complete);
+	SetText(text.String());
+}
 
 
 static int

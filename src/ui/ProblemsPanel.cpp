@@ -90,12 +90,10 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 		}
 		break;
 		case COLUMNVIEW_SELECT: {
-			msg->PrintToStream();
 			BPoint where;
 			uint32 buttons = 0;
 			GetMouse(&where, &buttons);
 			where.PrintToStream();
-			printf("button = %ud\n", buttons);
 			where.x += 2; // to prevent occasional select
 			if (buttons & B_SECONDARY_MOUSE_BUTTON) {
 

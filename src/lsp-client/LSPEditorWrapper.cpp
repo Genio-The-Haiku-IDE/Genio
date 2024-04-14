@@ -862,6 +862,7 @@ LSPEditorWrapper::_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& vect, 
 	for (DocumentSymbol sym: vect) {
 		BMessage symbol;
 		symbol.AddString("name", sym.name.c_str());
+		symbol.AddInt32("kind", (int32)sym.kind);
 		BMessage child;
 		if (sym.children.size() > 0) {
 			_DoRecursiveDocumentSymbol(sym.children, child);

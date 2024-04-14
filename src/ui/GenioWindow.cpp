@@ -55,9 +55,9 @@
 #include "GoToLineWindow.h"
 #include "GSettings.h"
 #include "IconMenuItem.h"
-#include "json.hpp"
 #include "Languages.h"
 #include "Log.h"
+#include "LSPEditorWrapper.h"
 #include "ProblemsPanel.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
@@ -2021,8 +2021,8 @@ GenioWindow::_PreFileLoad(Editor* editor)
 void
 GenioWindow::_PostFileLoad(Editor* editor)
 {
-	BMessage message(kClassOutline);
-	PostMessage(&message, editor);
+	if (editor != nullptr)
+		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
 }
 
 

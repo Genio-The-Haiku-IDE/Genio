@@ -1,5 +1,4 @@
 ## Genio - The Haiku IDE Makefile ##############################################
-
 debug ?= 0
 ifeq ($(debug), 0)
 	DEBUGGER :=
@@ -30,6 +29,9 @@ TARGET_DIR := app
 TYPE := APP
 
 APP_MIME_SIG := "application/x-vnd.Genio"
+
+arch := $(shell getarch)
+platform := $(shell uname -p)
 
 SRCS := src/GenioApp.cpp
 SRCS += src/alert/GTextAlert.cpp
@@ -98,13 +100,13 @@ LIBS += git2
 LIBS += src/scintilla/bin/libscintilla.a
 LIBS += yaml-cpp
 
-SYSTEM_INCLUDE_PATHS  = $(BUILDHOME)/headers/private/interface
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/shared
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/storage
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/support
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/tracker
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/locale
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/lexilla
+SYSTEM_INCLUDE_PATHS  = $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/shared)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/storage)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/support)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/tracker)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/locale)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY lexilla)
 SYSTEM_INCLUDE_PATHS += src/scintilla/haiku
 SYSTEM_INCLUDE_PATHS += src/scintilla/include
 

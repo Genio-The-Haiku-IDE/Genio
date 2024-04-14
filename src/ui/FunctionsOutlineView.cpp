@@ -142,8 +142,10 @@ FunctionsOutlineView::Pulse()
 		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
 		fStatus = STATUS_PENDING;
 		// If list is empty, add "Pending..."
-		fListView->MakeEmpty();
-		fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
+		if (fListView->CountItems() == 1) {
+			fListView->MakeEmpty();
+			fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
+		}
 	}
 }
 

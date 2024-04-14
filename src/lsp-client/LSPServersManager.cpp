@@ -72,7 +72,7 @@ public:
 	OmniSharpServerConfig() {
 		thread_id pid = find_thread(NULL);
 		BString spid;
-		spid.SetToFormat("%d", pid);
+		spid.SetToFormat(B_PRIi32, pid);
 		fArgv = {
 			"/boot/system/non-packaged/bin/dotnet/dotnet",
 			"/boot/system/non-packaged/bin/OmniSharp/OmniSharp.dll",

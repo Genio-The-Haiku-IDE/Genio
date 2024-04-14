@@ -304,6 +304,12 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 			}
 		}
 	}
+
+	// Got a message from an unselected editor: ignore.
+	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
+	if (editor != nullptr && *editor->FileRef() != newRef)
+		return;
+
 	fListView->MakeEmpty();
 	// TODO: This is done synchronously
 	_RecursiveAddSymbols(nullptr, msg);

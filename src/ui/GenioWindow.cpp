@@ -298,8 +298,12 @@ GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kClassOutline:
-			_ForwardToSelectedEditor(message);
+		{
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor != nullptr)
+				editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
 			break;
+		}
 		case kApplyFix:
 		{
 			entry_ref ref;

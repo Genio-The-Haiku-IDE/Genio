@@ -1880,7 +1880,7 @@ Editor::SetDocumentSymbols(const BMessage* symbols)
 
 
 void
-Editor::GetDocumentSymbols(BMessage* symbols)
+Editor::GetDocumentSymbols(BMessage* symbols) const
 {
 	// make absolutely sure we're locked
 	if (!Window()->IsLocked()) {
@@ -1888,4 +1888,9 @@ Editor::GetDocumentSymbols(BMessage* symbols)
 	}
 
 	*symbols = fDocumentSymbols;
+
+	if (!symbols->HasRef("ref")) {
+		// Always add ref so we can identify the file (in FunctionsOutlineView)
+		symbols->AddRef("ref", &fFileRef);
+	}
 }

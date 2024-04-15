@@ -370,10 +370,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_UPDATE_SYMBOLS:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
+			entry_ref editorRef;
+			if (message->FindRef("ref", &editorRef) == B_OK) {
+				// add the ref also to the external message
 				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				notifyMessage.AddMessage("symbols", message);
+				notifyMessage.AddRef("ref", &editorRef);
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
 			}
 			break;
@@ -1121,12 +1123,17 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->GrabFocus();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 
+				// TODO: when closing then reopening a tab, the message will be empty
+				// because the symbols BMessage returned by GetDocumentSymbols()
+				// is empty as the Editor has just been created
 				BMessage symbolsChanged(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				BMessage symbols;
 				editor->GetDocumentSymbols(&symbols);
-				if (!symbols.HasRef("ref"))
-					symbols.AddRef("ref", editor->FileRef());
-				symbolsChanged.AddMessage("symbols", &symbols);
+				symbolsChanged.AddRef("ref", editor->FileRef());
+				if (!symbols.HasMessage("symbol"))
+					symbolsChanged.AddBool("pending", true);
+				else
+					symbolsChanged.AddMessage("symbols", &symbols);
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
 			}
 			break;
@@ -4189,8 +4196,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		fProblemsPanel->ClearProblems();
 
-		BMessage empty(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
-		SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &empty);
+		BMessage symbolNotice(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+		SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolNotice);
 		return;
 	}
 

@@ -25,8 +25,9 @@ public:
 	virtual		void	Pulse();
 
 private:
-	void	_UpdateDocumentSymbols(BMessage* msg);
-	void	_RecursiveAddSymbols(BListItem* parent, BMessage* msg);
+	void	_UpdateDocumentSymbols(const BMessage& msg,
+									const entry_ref* ref, bool pending);
+	void	_RecursiveAddSymbols(BListItem* parent, const BMessage* msg);
 
 	BOutlineListView* fListView;
 	BScrollView* fScrollView;

@@ -48,6 +48,9 @@ private:
 void
 SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
+#if 1
+	BStringItem::DrawItem(owner, bounds, complete);
+#else
 	// TODO: just an example
 	BString text(Text());
 	BString newText;
@@ -81,6 +84,7 @@ SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	SetText(newText.String());
 	BStringItem::DrawItem(owner, bounds, complete);
 	SetText(text.String());
+#endif
 }
 
 
@@ -126,8 +130,6 @@ FunctionsOutlineView::FunctionsOutlineView()
 			.Add(fToolBar)
 			.Add(fScrollView)
 		.End();
-
-	_UpdateDocumentSymbols(nullptr);
 }
 
 
@@ -159,25 +161,18 @@ void
 FunctionsOutlineView::Pulse()
 {
 	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
-	if (editor == nullptr) {
-		_UpdateDocumentSymbols(nullptr);
-		return;
-	}
-	// We already requested symbols, just need to wait a bit
-	if (*editor->FileRef() == fCurrentRef &&
-			fStatus == STATUS_PENDING)
+	if (editor == nullptr)
 		return;
 
 	// TODO: Not very nice: we should request symbols update only if there's a
 	// change. But we shouldn't ask one for EVERY change.
 	// Maybe editor knows, but I wasn't able to make it work there
+
 	// Update every 10 seconds
 	const bigtime_t kUpdatePeriod = 10000000LL;
 
 	// TODO: Not very nice design-wise, either:
 	// ideally we shouldn't know about Editor or LSPEditorWrapper.
-	// There should be a way for Editor to retrieving symbols when needed
-	// and then we would receive this info via BMessage
 	bigtime_t currentTime = system_time();
 	if (currentTime - fSymbolsLastUpdateTime > kUpdatePeriod) {
 		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
@@ -203,12 +198,20 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			switch (code) {
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
-					LogTrace("Symbols updated");
+					LogTrace("FunctionsOutlineView: Symbols updated message received");
+					entry_ref newRef;
+					if (msg->FindRef("ref", &newRef) != B_OK) {
+						// No ref means we don't have any opened file
+						fListView->MakeEmpty();
+						fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
+						fStatus = STATUS_EMPTY;
+						break;
+					}
+					bool pending = false;
+					msg->FindBool("pending", &pending);
 					BMessage symbols;
-					if (msg->FindMessage("symbols", &symbols) == B_OK) {
-						_UpdateDocumentSymbols(&symbols);
-					} else
-						_UpdateDocumentSymbols(nullptr);
+					msg->FindMessage("symbols", &symbols);
+					_UpdateDocumentSymbols(symbols, &newRef, pending);
 					break;
 				}
 				default:
@@ -258,27 +261,10 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 
 
 void
-FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
+FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
+	const entry_ref* newRef, bool pending)
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
-	switch (fStatus) {
-		case STATUS_PENDING:
-			LogTrace("status: STATUS_PENDING");
-			break;
-		case STATUS_EMPTY:
-			LogTrace("status: STATUS_EMPTY");
-			break;
-		default:
-			LogTrace("status: STATUS_DONE");
-			break;
-	}
-
-	if (msg == nullptr) {
-		fListView->MakeEmpty();
-		fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
-		fStatus = STATUS_EMPTY;
-		return;
-	}
 
 	BStringItem* selected = dynamic_cast<BStringItem*>(fListView->ItemAt(fListView->CurrentSelection()));
 	BString selectedItemText;
@@ -289,47 +275,44 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 	BScrollBar* vertScrollBar = fScrollView->ScrollBar(B_VERTICAL);
 	float scrolledValue = vertScrollBar->Value();
 
-	entry_ref newRef;
-	if (msg->FindRef("ref", &newRef) != B_OK) {
-		assert("_UpdateDocumentSymbol(): ref not found !!!!");
+	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
+	// Got a message from an unselected editor: ignore.
+	if (editor != nullptr && *editor->FileRef() != *newRef) {
+		LogTrace("Outline view got a message from an unselected editor. Ignoring...");
 		return;
 	}
 
-	if (newRef != fCurrentRef) {
-		if (fStatus != STATUS_DONE) {
-			if (!msg->HasMessage("symbol")) {
-				// We usually get a message with no symbols
-				// as soon as we switch tab
-				return;
-			}
+	if (*newRef != fCurrentRef || fStatus == STATUS_EMPTY) {
+		if (!msg.HasMessage("symbol") || pending) {
+			// We could get a message with no symbols as soon as we switch tab
+			// that means the LSP engine hasn't finished yet
+			LogTrace("message without symbol messages");
+			fListView->MakeEmpty();
+			fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
+			fStatus = STATUS_PENDING;
+
+			// TODO: We should request symbols to LSP, though
+			return;
 		}
 	}
 
-	// Got a message from an unselected editor: ignore.
-	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
-	if (editor != nullptr && *editor->FileRef() != newRef)
-		return;
-
 	fListView->MakeEmpty();
-	// TODO: This is done synchronously
-	_RecursiveAddSymbols(nullptr, msg);
+	_RecursiveAddSymbols(nullptr, &msg);
 	fSymbolsLastUpdateTime = system_time();
 
 	fStatus = STATUS_DONE;
 
 	// same document, don't reset the vertical scrolling value
-	if (newRef == fCurrentRef) {
+	if (*newRef == fCurrentRef) {
 		vertScrollBar->SetValue(scrolledValue);
 	}
-
-	fCurrentRef = newRef;
 
 	if (sSorted)
 		fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
 
 	// List could have been changed.
 	// Try to re-select old selected item, but only if it's the same document
-	if (newRef == fCurrentRef && !selectedItemText.IsEmpty()) {
+	if (*newRef == fCurrentRef && !selectedItemText.IsEmpty()) {
 		for (int32 i = 0; i < fListView->CountItems(); i++) {
 			BStringItem* item = dynamic_cast<BStringItem*>(fListView->ItemAt(i));
 			if (item != nullptr && selectedItemText == item->Text()) {
@@ -339,13 +322,15 @@ FunctionsOutlineView::_UpdateDocumentSymbols(BMessage* msg)
 		}
 	}
 
+	fCurrentRef = *newRef;
+
 	fListView->SetInvocationMessage(new BMessage(kGoToSymbol));
 	fListView->SetTarget(this);
 }
 
 
 void
-FunctionsOutlineView::_RecursiveAddSymbols(BListItem* parent, BMessage* msg)
+FunctionsOutlineView::_RecursiveAddSymbols(BListItem* parent, const BMessage* msg)
 {
 	int32 i = 0;
 	BMessage symbol;

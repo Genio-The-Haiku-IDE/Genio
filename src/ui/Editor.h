@@ -117,7 +117,7 @@ public:
 			void				SetProblems();
 
 			void				SetDocumentSymbols(const BMessage* symbols);
-			void				GetDocumentSymbols(BMessage* symbols);
+			void				GetDocumentSymbols(BMessage* symbols) const;
 
 			filter_result		BeforeKeyDown(BMessage*);
 

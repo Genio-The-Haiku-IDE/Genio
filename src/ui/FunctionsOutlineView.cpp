@@ -88,10 +88,20 @@ SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
 }
 
 
+// Sort by line
 static int
 CompareItems(const BListItem* itemA, const BListItem* itemB)
 {
-	return itemA - itemB;
+	const SymbolListItem* A = static_cast<const SymbolListItem*>(itemA);
+	const SymbolListItem* B = static_cast<const SymbolListItem*>(itemB);
+
+	int32 lineA;
+	A->Details().FindInt32("be:line", &lineA);
+
+	int32 lineB;
+	B->Details().FindInt32("be:line", &lineB);
+
+	return lineA - lineB;
 }
 
 
@@ -211,6 +221,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 					msg->FindBool("pending", &pending);
 					BMessage symbols;
 					msg->FindMessage("symbols", &symbols);
+					symbols.PrintToStream();
 					_UpdateDocumentSymbols(symbols, &newRef, pending);
 					break;
 				}

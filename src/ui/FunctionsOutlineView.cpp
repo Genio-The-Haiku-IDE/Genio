@@ -60,19 +60,23 @@ SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	switch (kind) {
 		case 2:
 			// method
-			prefix = "M";
+			prefix = "\xe2\x8c\xab";
 			break;
 		case 3:
 			// function
-			prefix = "f";
+			prefix = "\xe2\x8f\xb9";
 			break;
 		case 5:
 			// field
-			prefix = "m";
+			prefix = "\xe2\x8c\xac";
+			break;
+		case 6:
+			// Variable
+			prefix = "\xe2\x8c\xab";
 			break;
 		case 7:
 			// Class
-			prefix = "C";
+			prefix = "\xe2\x8c\xac";
 			break;
 		default:
 			break;
@@ -147,6 +151,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 void
 FunctionsOutlineView::AttachedToWindow()
 {
+	BView::AttachedToWindow();
 	fToolBar->SetTarget(this);
 	if (LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
@@ -163,6 +168,7 @@ FunctionsOutlineView::DetachedFromWindow()
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 		UnlockLooper();
 	}
+	BView::DetachedFromWindow();
 }
 
 

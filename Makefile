@@ -78,6 +78,7 @@ SRCS += src/ui/EditorStatusView.cpp
 SRCS += src/ui/Editor.cpp
 SRCS += src/ui/EditorContextMenu.cpp
 SRCS += src/ui/EditorTabManager.cpp
+SRCS += src/ui/FunctionsOutlineView.cpp
 SRCS += src/ui/GenioWindow.cpp
 SRCS += src/ui/GoToLineWindow.cpp
 SRCS += src/ui/IconCache.cpp

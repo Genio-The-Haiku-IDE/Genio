@@ -43,6 +43,7 @@ class BTextControl;
 class ConsoleIOView;
 class Editor;
 class EditorTabManager;
+class FunctionsOutlineView;
 class GoToLineWindow;
 class ProblemsPanel;
 class ProjectFolder;
@@ -67,6 +68,8 @@ public:
 	void						SetActiveProject(ProjectFolder *project);
 	ProjectsFolderBrowser*		GetProjectBrowser() const;
 
+	EditorTabManager*			TabManager() const;
+
 private:
 			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
 
@@ -86,6 +89,8 @@ private:
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
 			int32				_FilesNeedSave();
+			void				_PreFileLoad(Editor* editor);
+			void				_PostFileLoad(Editor* editor);
 			void				_PreFileSave(Editor* editor);
 			void				_PostFileSave(Editor* editor);
 			void				_FindGroupShow(bool show);
@@ -105,7 +110,8 @@ private:
 			void				_InitCentralSplit();
 			void				_InitMenu();
 			void				_InitOutputSplit();
-			void				_InitSideSplit();
+			void				_InitLeftSplit();
+			void				_InitRightSplit();
 			void				_InitToolbar();
 			void				_InitWindow();
 
@@ -200,6 +206,10 @@ private:
 			BScrollView*		fSourceControlPanelScroll;
 
 			ProjectFolder		*fActiveProject;
+
+			// Right panels
+			BTabView*	  		fRightTabView;
+			FunctionsOutlineView* fFunctionsOutlineView;
 
 			// Editor group
 			EditorTabManager*	fTabManager;

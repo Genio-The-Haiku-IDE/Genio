@@ -46,6 +46,7 @@
 #include "EditorMessages.h"
 #include "EditorTabManager.h"
 #include "FSUtils.h"
+#include "FunctionsOutlineView.h"
 #include "GenioApp.h"
 #include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
@@ -54,9 +55,9 @@
 #include "GoToLineWindow.h"
 #include "GSettings.h"
 #include "IconMenuItem.h"
-#include "json.hpp"
 #include "Languages.h"
 #include "Log.h"
+#include "LSPEditorWrapper.h"
 #include "ProblemsPanel.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
@@ -264,8 +265,9 @@ GenioWindow::Show()
 
 	if (LockLooper()) {
 		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
-		_ShowView(fOutputTabView,   gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
-		_ShowView(fToolBar,         gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
+		_ShowView(fRightTabView, gCFG["show_right_pane"], MSG_SHOW_HIDE_OUTLINE);
+		_ShowView(fOutputTabView, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
@@ -295,6 +297,13 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case kClassOutline:
+		{
+			Editor* editor = fTabManager->SelectedEditor();
+			if (editor != nullptr)
+				editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
+			break;
+		}
 		case kApplyFix:
 		{
 			entry_ref ref;
@@ -356,6 +365,18 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (editor != nullptr && editor == fTabManager->SelectedEditor()) {
 					fProblemsPanel->UpdateProblems(editor);
 				}
+			}
+			break;
+		}
+		case EDITOR_UPDATE_SYMBOLS:
+		{
+			entry_ref editorRef;
+			if (message->FindRef("ref", &editorRef) == B_OK) {
+				// add the ref also to the external message
+				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+				notifyMessage.AddMessage("symbols", message);
+				notifyMessage.AddRef("ref", &editorRef);
+				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
 			}
 			break;
 		}
@@ -1058,6 +1079,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_SHOW_HIDE_PROJECTS:
 			_ShowView(fProjectsTabView, fProjectsTabView->IsHidden(), MSG_SHOW_HIDE_PROJECTS);
 			break;
+		case MSG_SHOW_HIDE_OUTLINE:
+			_ShowView(fRightTabView, fRightTabView->IsHidden(), MSG_SHOW_HIDE_OUTLINE);
+			break;
 		case MSG_SHOW_HIDE_OUTPUT:
 			_ShowView(fOutputTabView, fOutputTabView->IsHidden(), MSG_SHOW_HIDE_OUTPUT);
 			break;
@@ -1098,6 +1122,19 @@ GenioWindow::MessageReceived(BMessage* message)
 
 				editor->GrabFocus();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
+
+				// TODO: when closing then reopening a tab, the message will be empty
+				// because the symbols BMessage returned by GetDocumentSymbols()
+				// is empty as the Editor has just been created
+				BMessage symbolsChanged(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+				BMessage symbols;
+				editor->GetDocumentSymbols(&symbols);
+				symbolsChanged.AddRef("ref", editor->FileRef());
+				if (!symbols.HasMessage("symbol"))
+					symbolsChanged.AddBool("pending", true);
+				else
+					symbolsChanged.AddMessage("symbols", &symbols);
+				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
 			}
 			break;
 		}
@@ -1227,6 +1264,13 @@ GenioWindow::GetProjectBrowser() const
 }
 
 
+EditorTabManager*
+GenioWindow::TabManager() const
+{
+	return fTabManager;
+}
+
+
 //Freely inspired by the haiku Terminal fullscreen function.
 void
 GenioWindow::_ToogleScreenMode(int32 action)
@@ -1248,6 +1292,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 
 		ActionManager::SetEnabled(MSG_TOGGLE_TOOLBAR, false);
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_PROJECTS, false);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTLINE, false);
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTPUT, false);
 
 		if (action == MSG_FULLSCREEN) {
@@ -1255,6 +1300,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		} else if (action == MSG_FOCUS_MODE) {
 			_ShowView(fToolBar,         false, MSG_TOGGLE_TOOLBAR);
 			_ShowView(fProjectsTabView, false, MSG_SHOW_HIDE_PROJECTS);
+			_ShowView(fRightTabView, false, MSG_SHOW_HIDE_OUTLINE);
 			_ShowView(fOutputTabView,   false, MSG_SHOW_HIDE_OUTPUT);
 			fScreenMode = kFocus;
 		}
@@ -1270,10 +1316,12 @@ GenioWindow::_ToogleScreenMode(int32 action)
 
 		ActionManager::SetEnabled(MSG_TOGGLE_TOOLBAR, true);
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_PROJECTS, true);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTLINE, true);
 		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTPUT, true);
 
 		_ShowView(fToolBar,         fScreenModeSettings["show_toolbar"], MSG_TOGGLE_TOOLBAR);
 		_ShowView(fProjectsTabView, fScreenModeSettings["show_projects"] , MSG_SHOW_HIDE_PROJECTS);
+		_ShowView(fRightTabView, 	fScreenModeSettings["show_right_pane"] , MSG_SHOW_HIDE_OUTLINE);
 		_ShowView(fOutputTabView,   fScreenModeSettings["show_output"], MSG_SHOW_HIDE_OUTPUT);
 
 		fScreenMode = kDefault;
@@ -1771,6 +1819,9 @@ GenioWindow::_FileOpen(BMessage* msg)
 		int32 newIndex = fTabManager->TabForView(editor);
 		fTabManager->SelectTab(newIndex, &selectTabInfo);
 
+		// TODO: Move some stuff into _PostFileLoad()
+		_PostFileLoad(editor);
+
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
 		noticeMessage.AddString("file_name", editor->FilePath());
 		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
@@ -1969,6 +2020,20 @@ GenioWindow::_FilesNeedSave()
 	}
 
 	return count;
+}
+
+
+void
+GenioWindow::_PreFileLoad(Editor* editor)
+{
+}
+
+
+void
+GenioWindow::_PostFileLoad(Editor* editor)
+{
+	if (editor != nullptr)
+		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
 }
 
 
@@ -2669,6 +2734,9 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_FORMAT,
 								   B_TRANSLATE("Format"));
 
+	ActionManager::RegisterAction(kClassOutline,
+								  B_TRANSLATE("Update class outline"));
+
 	ActionManager::RegisterAction(MSG_GOTODEFINITION,
 								   B_TRANSLATE("Go to definition"), "","", 'G');
 
@@ -2733,10 +2801,16 @@ GenioWindow::_InitActions()
 								   "kIconTerminal");
 //add missing menus
 
+	// TODO: Should we call those  left/right panes ?
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,
 								   B_TRANSLATE("Show projects pane"),
 								   B_TRANSLATE("Show/Hide projects pane"),
 								   "kIconWinNav");
+
+	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTLINE,
+								   B_TRANSLATE("Show right pane"),
+	                               B_TRANSLATE("Show/Hide right pane"),
+								   "kIconWinOutline");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
 								   B_TRANSLATE("Show output pane"),
@@ -2918,6 +2992,7 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
+	ActionManager::AddItem(kClassOutline, editMenu);
 
 	editMenu->AddSeparatorItem();
 
@@ -2945,6 +3020,7 @@ GenioWindow::_InitMenu()
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 	ActionManager::SetEnabled(MSG_FORMAT, false);
+	ActionManager::SetEnabled(kClassOutline, false);
 
 	fLineEndingsMenu->SetEnabled(false);
 
@@ -3132,6 +3208,7 @@ GenioWindow::_InitMenu()
 
 	BMenu* submenu = new BMenu(B_TRANSLATE("Appearance"));
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, submenu);
+	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE,   submenu);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   submenu);
 	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
 	windowMenu->AddItem(submenu);
@@ -3165,6 +3242,7 @@ GenioWindow::_InitToolbar()
 	fToolBar->ChangeIconSize(kDefaultIconSize);
 
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, fToolBar);
+	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE, fToolBar);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   fToolBar);
 	fToolBar->AddSeparator();
 
@@ -3228,7 +3306,7 @@ GenioWindow::_InitOutputSplit()
 
 
 void
-GenioWindow::_InitSideSplit()
+GenioWindow::_InitLeftSplit()
 {
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
@@ -3245,14 +3323,22 @@ GenioWindow::_InitSideSplit()
 
 
 void
+GenioWindow::_InitRightSplit()
+{
+	// Outline view
+	fRightTabView = new BTabView("OutlineTabview");
+	fFunctionsOutlineView = new FunctionsOutlineView();
+	fRightTabView->AddTab(fFunctionsOutlineView);
+}
+
+
+void
 GenioWindow::_InitWindow()
 {
 	_InitToolbar();
-
-	_InitSideSplit();
-
+	_InitLeftSplit();
 	_InitCentralSplit();
-
+	_InitRightSplit();
 	_InitOutputSplit();
 
 	// Layout
@@ -3265,6 +3351,7 @@ GenioWindow::_InitWindow()
 			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
 				.Add(fProjectsTabView, kProjectsWeight)
 				.Add(fEditorTabsGroup, kEditorWeight)  // Editor
+				.Add(fRightTabView, 1)
 			.End() // sidebar split
 			.Add(fOutputTabView, kOutputWeight)
 		.End() //  output split
@@ -4085,6 +4172,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 		ActionManager::SetEnabled(MSG_FORMAT, false);
+		ActionManager::SetEnabled(kClassOutline, false);
 		ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
 		ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
 		ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
@@ -4107,6 +4195,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		_UpdateWindowTitle(nullptr);
 
 		fProblemsPanel->ClearProblems();
+
+		BMessage symbolNotice(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+		SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolNotice);
 		return;
 	}
 
@@ -4166,6 +4257,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, !editor->IsReadOnly() && editor->HasLSPCapability(kLCapCompletion));
 	ActionManager::SetEnabled(MSG_FORMAT, !editor->IsReadOnly() && editor->HasLSPCapability(kLCapDocFormatting));
+	ActionManager::SetEnabled(kClassOutline, editor->HasLSPCapability(kLCapDocumentSymbols));
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->HasLSPCapability(kLCapDefinition));
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->HasLSPCapability(kLCapDeclaration));
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->HasLSPCapability(kLCapImplementation));

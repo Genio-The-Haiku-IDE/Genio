@@ -15,10 +15,10 @@
 #include <Window.h>
 
 #include "Editor.h"
+#include "EditorMessages.h"
 #include "EditorTabManager.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
-#include "LSPEditorWrapper.h"
 #include "ToolBar.h"
 
 #include "Log.h"
@@ -184,14 +184,14 @@ FunctionsOutlineView::Pulse()
 	// change. But we shouldn't ask one for EVERY change.
 	// Maybe editor knows, but I wasn't able to make it work there
 
-	// Update every 10 seconds
-	const bigtime_t kUpdatePeriod = 10000000LL;
+	// Update every 5 seconds
+	const bigtime_t kUpdatePeriod = 5000000LL;
 
-	// TODO: Not very nice design-wise, either:
-	// ideally we shouldn't know about Editor or LSPEditorWrapper.
 	bigtime_t currentTime = system_time();
 	if (currentTime - fSymbolsLastUpdateTime > kUpdatePeriod) {
-		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
+		// Window will request symbols through Editor
+		Window()->PostMessage(kClassOutline);
+
 		fStatus = STATUS_PENDING;
 		// If list is empty, add "Pending..."
 		if (fListView->CountItems() == 1) {

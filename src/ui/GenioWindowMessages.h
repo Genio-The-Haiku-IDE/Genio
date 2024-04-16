@@ -111,6 +111,7 @@ enum {
 
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
+	MSG_SHOW_HIDE_OUTLINE			= 'shol',
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',
 	MSG_FULLSCREEN					= 'fscr',
 	MSG_FOCUS_MODE					= 'focu',
@@ -138,6 +139,10 @@ enum {
 	MSG_NOTIFY_EDITOR_FILE_CLOSED 		= 'efcx',	// file_name (string)
 	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch',	// file_name (string)
 													// needs_save (bool)
+
+	MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED	= 'esup',	// ref (ref)
+													// symbols (BMessage)
+													// pending (bool) (optional)
 
 	MSG_NOTIFY_BUILDING_PHASE			= 'blph',	// building (bool)
 

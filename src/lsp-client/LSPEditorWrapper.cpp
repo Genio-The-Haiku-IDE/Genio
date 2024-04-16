@@ -467,6 +467,16 @@ LSPEditorWrapper::PrevCallTip()
 }
 
 void
+LSPEditorWrapper::RequestDocumentSymbols()
+{
+	if (fLSPProjectWrapper == nullptr || fEditor == nullptr)
+		return;
+
+	fLSPProjectWrapper->DocumentSymbol(this);
+}
+
+
+void
 LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 {
 	// printf("on char %c\n", ch);
@@ -835,6 +845,37 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 }
 
 
+void
+LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
+{
+	BMessage msg('symb');
+	auto vect = params.get<std::vector<DocumentSymbol>>();
+	_DoRecursiveDocumentSymbol(vect, msg);
+
+	if (fEditor != nullptr)
+		fEditor->SetDocumentSymbols(&msg);
+
+}
+
+void
+LSPEditorWrapper::_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& vect, BMessage& msg)
+{
+	for (DocumentSymbol sym: vect) {
+		BMessage symbol;
+		symbol.AddString("name", sym.name.c_str());
+		symbol.AddInt32("kind", (int32)sym.kind);
+		BMessage child;
+		if (sym.children.size() > 0) {
+			_DoRecursiveDocumentSymbol(sym.children, child);
+		}
+		symbol.AddMessage("children", &child);
+		symbol.AddInt32("start:line", sym.selectionRange.start.line + 1);
+		symbol.AddInt32("start:character", sym.selectionRange.start.character);
+		msg.AddMessage("symbol", &symbol);
+	}
+}
+
+
 bool
 LSPEditorWrapper::IsStatusValid()
 {
@@ -871,6 +912,7 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
 	IF_ID("textDocument/completion", _DoCompletion);
 	IF_ID("textDocument/documentLink", _DoDocumentLink);
+	IF_ID("textDocument/documentSymbol", _DoDocumentSymbol);
 	IF_ID("initialize", _DoInitialize);
 	IF_ID("textDocument/codeAction", _DoCodeActions);
 	IF_ID("codeAction/resolve", _DoCodeActionResolve);

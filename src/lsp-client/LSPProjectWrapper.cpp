@@ -334,6 +334,7 @@ LSPProjectWrapper::Initialized(json& result)
 		_CheckAndSetCapability(capas, "hoverProvider", kLCapHover);
 		_CheckAndSetCapability(capas, "signatureHelpProvider", kLCapSignatureHelp);
 		_CheckAndSetCapability(capas, "renameProvider", kLCapRename);
+		_CheckAndSetCapability(capas, "documentSymbolProvider", kLCapDocumentSymbols);
 	}
 
 	SendNotify("initialized", json());
@@ -584,6 +585,9 @@ LSPProjectWrapper::Hover(LSPTextDocument* textDocument, Position position)
 RequestID
 LSPProjectWrapper::DocumentSymbol(LSPTextDocument* textDocument)
 {
+	if (!HasCapability(kLCapDocumentSymbols))
+		return RequestID();
+
 	DocumentSymbolParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
 	return SendRequest(X(textDocument), "textDocument/documentSymbol", std::move(params));

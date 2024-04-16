@@ -1262,6 +1262,7 @@ Editor::Selection()
 	return text;
 }
 
+
 const BString
 Editor::GetSymbol()
 {
@@ -1854,8 +1855,42 @@ Editor::_SetFoldMargin(bool enabled)
 void
 Editor::SetProblems()
 {
-	BAutolock lock(fProblemsLock);
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
 	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
 	fProblems.AddRef("ref", &fFileRef);
 	Window()->PostMessage(&fProblems);
+}
+
+
+void
+Editor::SetDocumentSymbols(const BMessage* symbols)
+{
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
+	fDocumentSymbols = *symbols;
+	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
+	fDocumentSymbols.AddRef("ref", &fFileRef);
+	Window()->PostMessage(&fDocumentSymbols);
+}
+
+
+void
+Editor::GetDocumentSymbols(BMessage* symbols) const
+{
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
+
+	*symbols = fDocumentSymbols;
+
+	if (!symbols->HasRef("ref")) {
+		// Always add ref so we can identify the file (in FunctionsOutlineView)
+		symbols->AddRef("ref", &fFileRef);
+	}
 }

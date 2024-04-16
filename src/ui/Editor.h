@@ -31,7 +31,8 @@ enum {
 	EDITOR_REPLACE_ONE				= 'Eron',
 	EDITOR_REPLACE_ALL_COUNT		= 'Erac',
 	EDITOR_UPDATE_SAVEPOINT			= 'EUSP',
-	EDITOR_UPDATE_DIAGNOSTICS		= 'diag'
+	EDITOR_UPDATE_DIAGNOSTICS		= 'diag',
+	EDITOR_UPDATE_SYMBOLS			= 'symb'
 };
 
 /*
@@ -63,7 +64,6 @@ public:
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
 	virtual	void 				MessageReceived(BMessage* message);
-
 			void				ApplySettings();
 			void				ApplyEdit(std::string info);
 			void				TrimTrailingWhitespace();
@@ -115,6 +115,9 @@ public:
 
 
 			void				SetProblems();
+
+			void				SetDocumentSymbols(const BMessage* symbols);
+			void				GetDocumentSymbols(BMessage* symbols) const;
 
 			filter_result		BeforeKeyDown(BMessage*);
 
@@ -233,8 +236,7 @@ private:
 			editor::StatusView*			fStatusView;
 
 			BMessage	fProblems;
-			BLocker		fProblemsLock;
-
+			BMessage	fDocumentSymbols;
 };
 
 #endif // EDITOR_H

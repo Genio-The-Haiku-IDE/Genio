@@ -869,8 +869,8 @@ LSPEditorWrapper::_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& vect, 
 			_DoRecursiveDocumentSymbol(sym.children, child);
 		}
 		symbol.AddMessage("children", &child);
-		symbol.AddInt32("be:line", sym.selectionRange.start.line + 1);
-		symbol.AddInt32("lsp:character", sym.selectionRange.start.character);
+		symbol.AddInt32("start:line", sym.selectionRange.start.line + 1);
+		symbol.AddInt32("start:character", sym.selectionRange.start.character);
 		msg.AddMessage("symbol", &symbol);
 	}
 }

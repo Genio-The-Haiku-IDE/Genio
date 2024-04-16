@@ -469,7 +469,7 @@ LSPEditorWrapper::PrevCallTip()
 void
 LSPEditorWrapper::RequestDocumentSymbols()
 {
-	if (!fLSPProjectWrapper || !fEditor)
+	if (fLSPProjectWrapper == nullptr || fEditor == nullptr)
 		return;
 
 	fLSPProjectWrapper->DocumentSymbol(this);
@@ -844,6 +844,7 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 	SetFileStatus(state.c_str());
 }
 
+
 void
 LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 {
@@ -851,7 +852,7 @@ LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 	auto vect = params.get<std::vector<DocumentSymbol>>();
 	_DoRecursiveDocumentSymbol(vect, msg);
 
-	if (fEditor)
+	if (fEditor != nullptr)
 		fEditor->SetDocumentSymbols(&msg);
 
 }

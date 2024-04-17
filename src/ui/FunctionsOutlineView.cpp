@@ -192,7 +192,6 @@ FunctionsOutlineView::Pulse()
 		// Window will request symbols through Editor
 		Window()->PostMessage(kClassOutline);
 
-		fStatus = STATUS_PENDING;
 		// If list is empty, add "Pending..."
 		if (fListView->CountItems() == 1) {
 			fListView->MakeEmpty();
@@ -214,20 +213,21 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			switch (code) {
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
+					BMessage symbols;
+					if (msg->FindMessage("symbols", &symbols) != B_OK) {
+						debugger("No symbols message");
+						break;
+					}
+
 					LogTrace("FunctionsOutlineView: Symbols updated message received");
 					entry_ref newRef;
 					if (msg->FindRef("ref", &newRef) != B_OK) {
 						// No ref means we don't have any opened file
 						fListView->MakeEmpty();
 						fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
-						fStatus = STATUS_EMPTY;
 						break;
 					}
-					bool pending = false;
-					msg->FindBool("pending", &pending);
-					BMessage symbols;
-					msg->FindMessage("symbols", &symbols);
-					_UpdateDocumentSymbols(symbols, &newRef, pending);
+					_UpdateDocumentSymbols(symbols, &newRef);
 					break;
 				}
 				default:
@@ -278,9 +278,18 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 
 void
 FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
-	const entry_ref* newRef, bool pending)
+	const entry_ref* newRef)
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
+
+	int32 status = Editor::STATUS_NOT_INITIALIZED;
+	msg.FindInt32("status", &status);
+	if (status == Editor::STATUS_NO_SYMBOLS) {
+		// means we don't have any opened file, or file has no symbols
+		fListView->MakeEmpty();
+		fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
+		return;
+	}
 
 	BStringItem* selected = dynamic_cast<BStringItem*>(fListView->ItemAt(fListView->CurrentSelection()));
 	BString selectedItemText;
@@ -298,25 +307,18 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 		return;
 	}
 
-	if (*newRef != fCurrentRef || fStatus == STATUS_EMPTY) {
-		if (!msg.HasMessage("symbol") || pending) {
-			// We could get a message with no symbols as soon as we switch tab
-			// that means the LSP engine hasn't finished yet
-			LogTrace("message without symbol messages");
-			fListView->MakeEmpty();
-			fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
-			fStatus = STATUS_PENDING;
+	if (status == Editor::STATUS_NOT_INITIALIZED) {
+		// File just opened, LSP hasn't retrieved symbols yet
+		fListView->MakeEmpty();
+		fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
 
-			// TODO: We should request symbols to LSP, though
-			return;
-		}
+		// TODO: We should request symbols to LSP, though
+		return;
 	}
 
 	fListView->MakeEmpty();
 	_RecursiveAddSymbols(nullptr, &msg);
 	fSymbolsLastUpdateTime = system_time();
-
-	fStatus = STATUS_DONE;
 
 	// same document, don't reset the vertical scrolling value
 	if (*newRef == fCurrentRef) {

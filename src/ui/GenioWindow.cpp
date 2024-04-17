@@ -1130,10 +1130,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				BMessage symbols;
 				editor->GetDocumentSymbols(&symbols);
 				symbolsChanged.AddRef("ref", editor->FileRef());
-				if (!symbols.HasMessage("symbol"))
-					symbolsChanged.AddBool("pending", true);
-				else
-					symbolsChanged.AddMessage("symbols", &symbols);
+				symbolsChanged.AddMessage("symbols", &symbols);
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
 			}
 			break;
@@ -4197,6 +4194,9 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fProblemsPanel->ClearProblems();
 
 		BMessage symbolNotice(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+		BMessage symbols;
+		symbols.AddInt32("status", Editor::STATUS_NO_SYMBOLS);
+		symbolNotice.AddMessage("symbols", &symbols);
 		SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolNotice);
 		return;
 	}

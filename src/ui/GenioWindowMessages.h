@@ -142,7 +142,7 @@ enum {
 
 	MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED	= 'esup',	// ref (ref)
 													// symbols (BMessage)
-													// pending (bool) (optional)
+													// status (int32)
 
 	MSG_NOTIFY_BUILDING_PHASE			= 'blph',	// building (bool)
 

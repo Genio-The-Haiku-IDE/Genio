@@ -35,7 +35,7 @@ static bool sCollapsed = false;
 class SymbolListItem : public StyledItem {
 public:
 		SymbolListItem(BMessage& details)
-			: StyledItem(details.GetString("name"), 0, true, "")
+			: StyledItem(details.GetString("name"))
 			, fDetails ( details )
 			{}
 
@@ -50,13 +50,7 @@ private:
 void
 SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
-// #if 0
-	// BStringItem::DrawItem(owner, bounds, complete);
-// #else
-	// TODO: just an example
-
 	StyledItem::DrawItem(owner, bounds, complete);
-// #endif
 }
 
 

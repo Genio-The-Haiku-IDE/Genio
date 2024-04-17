@@ -154,12 +154,6 @@ FunctionsOutlineView::Pulse()
 	if (currentTime - fSymbolsLastUpdateTime > kUpdatePeriod) {
 		// Window will request symbols through Editor
 		Window()->PostMessage(kClassOutline);
-
-		// If list is empty, add "Pending..."
-		if (fListView->CountItems() == 1) {
-			fListView->MakeEmpty();
-			fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
-		}
 	}
 }
 
@@ -184,12 +178,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 
 					LogTrace("FunctionsOutlineView: Symbols updated message received");
 					entry_ref newRef;
-					if (msg->FindRef("ref", &newRef) != B_OK) {
-						// No ref means we don't have any opened file
-						fListView->MakeEmpty();
-						fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
-						break;
-					}
+					msg->FindRef("ref", &newRef);
 					_UpdateDocumentSymbols(symbols, &newRef);
 					break;
 				}
@@ -250,7 +239,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	if (status == Editor::STATUS_NO_SYMBOLS) {
 		// means we don't have any opened file, or file has no symbols
 		fListView->MakeEmpty();
-		fListView->AddItem(new BStringItem(B_TRANSLATE("Empty")));
+		fListView->AddItem(new BStringItem(B_TRANSLATE("No outline available")));
 		return;
 	}
 
@@ -273,7 +262,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	if (status == Editor::STATUS_NOT_INITIALIZED) {
 		// File just opened, LSP hasn't retrieved symbols yet
 		fListView->MakeEmpty();
-		fListView->AddItem(new BStringItem(B_TRANSLATE("Pending" B_UTF8_ELLIPSIS)));
+		fListView->AddItem(new BStringItem(B_TRANSLATE("Creating outline" B_UTF8_ELLIPSIS)));
 
 		// TODO: We should request symbols to LSP, though
 		return;

@@ -125,7 +125,6 @@ FunctionsOutlineView::FunctionsOutlineView()
 	BView(B_TRANSLATE("Class outline"), B_WILL_DRAW),
 	fListView(nullptr),
 	fToolBar(nullptr),
-	fStatus(STATUS_EMPTY),
 	fSymbolsLastUpdateTime(0)
 {
 	SetFlags(Flags() | B_PULSE_NEEDED);

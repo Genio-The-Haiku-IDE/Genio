@@ -30,6 +30,8 @@ public:
 	bool			HasToolTip() const;
 	void			SetToolTipText(const char *text);
 	const char*		GetToolTipText() const;
+    
+    void            SetIcon(const char *iconName);
 
 protected:
 	virtual BRect	DrawIcon(BView* owner, const BRect& bounds,

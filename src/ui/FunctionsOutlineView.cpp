@@ -23,6 +23,8 @@
 
 #include "Log.h"
 
+#include "StyledItem.h"
+
 #define kGoToSymbol	'gots'
 #define kMsgSort 'sort'
 #define kMsgCollapseAll 'coll'
@@ -30,10 +32,10 @@
 static bool sSorted = false;
 static bool sCollapsed = false;
 
-class SymbolListItem : public BStringItem {
+class SymbolListItem : public StyledItem {
 public:
 		SymbolListItem(BMessage& details)
-			: BStringItem(details.GetString("name"))
+			: StyledItem(details.GetString("name"), 0, true, "")
 			, fDetails ( details )
 			{}
 
@@ -48,35 +50,41 @@ private:
 void
 SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
-#if 1
-	BStringItem::DrawItem(owner, bounds, complete);
-#else
+// #if 0
+	// BStringItem::DrawItem(owner, bounds, complete);
+// #else
 	// TODO: just an example
 	BString text(Text());
 	BString newText;
 	BString prefix;
+    BString iconName;
 	int32 kind;
 	fDetails.FindInt32("kind", &kind);
 	switch (kind) {
 		case 2:
 			// method
 			prefix = "\xe2\x8c\xab";
+            iconName = "dark-symbol-method";
 			break;
 		case 3:
 			// function
 			prefix = "\xe2\x8f\xb9";
+            iconName = "dark-symbol-misc";
 			break;
 		case 5:
 			// field
 			prefix = "\xe2\x8c\xac";
+            iconName = "dark-symbol-field";
 			break;
 		case 6:
 			// Variable
 			prefix = "\xe2\x8c\xab";
+            iconName = "dark-symbol-variable";
 			break;
 		case 7:
 			// Class
 			prefix = "\xe2\x8c\xac";
+            iconName = "dark-symbol-class";
 			break;
 		default:
 			break;
@@ -86,9 +94,10 @@ SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		newText.Append(prefix).Append(" ");
 	newText.Append(text);
 	SetText(newText.String());
-	BStringItem::DrawItem(owner, bounds, complete);
+    SetIcon(iconName);
+	StyledItem::DrawItem(owner, bounds, complete);
 	SetText(text.String());
-#endif
+// #endif
 }
 
 

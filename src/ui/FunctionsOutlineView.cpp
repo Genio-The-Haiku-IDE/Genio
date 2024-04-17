@@ -122,7 +122,7 @@ CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 
 FunctionsOutlineView::FunctionsOutlineView()
 	:
-	BView(B_TRANSLATE("Class outline"), B_WILL_DRAW),
+	BView(B_TRANSLATE("Outline"), B_WILL_DRAW),
 	fListView(nullptr),
 	fToolBar(nullptr),
 	fSymbolsLastUpdateTime(0)

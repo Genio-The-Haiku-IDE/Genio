@@ -12,11 +12,6 @@ class BOutlineListView;
 class ToolBar;
 class FunctionsOutlineView : public BView {
 public:
-	enum status {
-		STATUS_EMPTY = 0,
-		STATUS_PENDING,
-		STATUS_DONE
-	};
 			FunctionsOutlineView();
 
 	virtual		void	AttachedToWindow();
@@ -33,6 +28,5 @@ private:
 	BScrollView* fScrollView;
 	ToolBar*	fToolBar;
 	entry_ref	fCurrentRef;
-	status		fStatus;
 	bigtime_t	fSymbolsLastUpdateTime;
 };

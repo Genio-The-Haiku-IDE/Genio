@@ -2805,8 +2805,8 @@ GenioWindow::_InitActions()
 								   "kIconWinNav");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTLINE,
-								   B_TRANSLATE("Show right pane"),
-	                               B_TRANSLATE("Show/Hide right pane"),
+								   B_TRANSLATE("Show outline"),
+	                               B_TRANSLATE("Show/Hide outline"),
 								   "kIconWinOutline");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,

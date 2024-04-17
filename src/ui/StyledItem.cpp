@@ -140,6 +140,12 @@ StyledItem::GetToolTipText() const
 	return fToolTipText.String();
 }
 
+void
+StyledItem::SetIcon(const char *iconName)
+{
+    fIconName = iconName;
+}
+
 
 /* virtual */
 void
@@ -167,7 +173,10 @@ StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
 		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
 	if (icon != nullptr) {
 		owner->SetDrawingMode(B_OP_ALPHA);
-		owner->DrawBitmapAsync(icon, iconStartingPoint);
+		// TODO: changed from "DrawBitmapAsync()":
+		// which caused weird drawing issues on the Outline view
+		// like disappearing icons. Investigate
+		owner->DrawBitmap(icon, iconStartingPoint);
 	}
 
 	return BRect(iconStartingPoint, BSize(iconSize, iconSize));

@@ -54,49 +54,8 @@ SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	// BStringItem::DrawItem(owner, bounds, complete);
 // #else
 	// TODO: just an example
-	BString text(Text());
-	BString newText;
-	BString prefix;
-    BString iconName;
-	int32 kind;
-	fDetails.FindInt32("kind", &kind);
-	switch (kind) {
-		case 2:
-			// method
-			prefix = "\xe2\x8c\xab";
-            iconName = "dark-symbol-method";
-			break;
-		case 3:
-			// function
-			prefix = "\xe2\x8f\xb9";
-            iconName = "dark-symbol-misc";
-			break;
-		case 5:
-			// field
-			prefix = "\xe2\x8c\xac";
-            iconName = "dark-symbol-field";
-			break;
-		case 6:
-			// Variable
-			prefix = "\xe2\x8c\xab";
-            iconName = "dark-symbol-variable";
-			break;
-		case 7:
-			// Class
-			prefix = "\xe2\x8c\xac";
-            iconName = "dark-symbol-class";
-			break;
-		default:
-			break;
-	}
 
-	if (!prefix.IsEmpty())
-		newText.Append(prefix).Append(" ");
-	newText.Append(text);
-	SetText(newText.String());
-    SetIcon(iconName);
 	StyledItem::DrawItem(owner, bounds, complete);
-	SetText(text.String());
 // #endif
 }
 
@@ -184,6 +143,8 @@ FunctionsOutlineView::DetachedFromWindow()
 void
 FunctionsOutlineView::Pulse()
 {
+	BView::Pulse();
+
 	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
 	if (editor == nullptr)
 		return;
@@ -355,21 +316,58 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 }
 
 
+static void
+AddSymbolIcon(SymbolListItem* item)
+{
+	BString iconName;
+	int32 kind;
+	item->Details().FindInt32("kind", &kind);
+	switch (kind) {
+		case 2:
+			// method
+            iconName = "dark-symbol-method";
+			break;
+		case 3:
+			// function
+            iconName = "dark-symbol-misc";
+			break;
+		case 5:
+			// field
+            iconName = "dark-symbol-field";
+			break;
+		case 6:
+			// Variable
+            iconName = "dark-symbol-variable";
+			break;
+		case 7:
+			// Class
+            iconName = "dark-symbol-class";
+			break;
+		default:
+			break;
+	}
+
+	if (!iconName.IsEmpty())
+		item->SetIcon(iconName);
+}
+
+
 void
 FunctionsOutlineView::_RecursiveAddSymbols(BListItem* parent, const BMessage* msg)
 {
 	int32 i = 0;
 	BMessage symbol;
 	while (msg->FindMessage("symbol", i++, &symbol) == B_OK) {
-		SymbolListItem* dad = new SymbolListItem(symbol);
+		SymbolListItem* item = new SymbolListItem(symbol);
+		AddSymbolIcon(item);
 		if (parent != nullptr)
-			fListView->AddUnder(dad, parent);
+			fListView->AddUnder(item, parent);
 		else
-			fListView->AddItem(dad);
+			fListView->AddItem(item);
 
 		BMessage child;
 		if (symbol.FindMessage("children", &child) == B_OK) {
-			_RecursiveAddSymbols(dad, &child);
+			_RecursiveAddSymbols(item, &child);
 		}
 	}
 }

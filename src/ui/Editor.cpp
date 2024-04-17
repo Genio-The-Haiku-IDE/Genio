@@ -65,6 +65,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
 	, fProjectFolder(NULL)
+	, fSymbolsStatus(STATUS_NOT_INITIALIZED)
 {
 	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
@@ -1872,9 +1873,15 @@ Editor::SetDocumentSymbols(const BMessage* symbols)
 	if (!Window()->IsLocked()) {
 		debugger("The looper must be locked !");
 	}
+	if (symbols->HasMessage("symbol"))
+		fSymbolsStatus = STATUS_HAS_SYMBOLS;
+	else
+		fSymbolsStatus = STATUS_NO_SYMBOLS;
+
 	fDocumentSymbols = *symbols;
 	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
 	fDocumentSymbols.AddRef("ref", &fFileRef);
+	fDocumentSymbols.AddInt32("status", fSymbolsStatus);
 	Window()->PostMessage(&fDocumentSymbols);
 }
 
@@ -1893,4 +1900,7 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 		// Always add ref so we can identify the file (in FunctionsOutlineView)
 		symbols->AddRef("ref", &fFileRef);
 	}
+
+	if (!symbols->HasInt32("status"))
+		symbols->AddInt32("status", fSymbolsStatus);
 }

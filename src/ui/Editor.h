@@ -59,8 +59,12 @@ constexpr auto sci_BOOKMARK = 0; //Marker
 
 
 class Editor : public BScintillaView {
-
 public:
+	enum symbols_status {
+		STATUS_NOT_INITIALIZED = 0,
+		STATUS_NO_SYMBOLS = 1,
+		STATUS_HAS_SYMBOLS = 2
+	};
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
 	virtual	void 				MessageReceived(BMessage* message);
@@ -231,12 +235,13 @@ private:
 			int					fCurrentLine;
 			int					fCurrentColumn;
 
-			LSPEditorWrapper*		fLSPEditorWrapper;
+			LSPEditorWrapper*	fLSPEditorWrapper;
 			ProjectFolder*		fProjectFolder;
-			editor::StatusView*			fStatusView;
+			editor::StatusView*	fStatusView;
 
-			BMessage	fProblems;
-			BMessage	fDocumentSymbols;
+			BMessage			fProblems;
+			BMessage			fDocumentSymbols;
+			symbols_status		fSymbolsStatus;
 };
 
 #endif // EDITOR_H

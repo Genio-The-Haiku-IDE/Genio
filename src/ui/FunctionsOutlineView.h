@@ -26,7 +26,7 @@ public:
 
 private:
 	void	_UpdateDocumentSymbols(const BMessage& msg,
-									const entry_ref* ref, bool pending);
+									const entry_ref* ref);
 	void	_RecursiveAddSymbols(BListItem* parent, const BMessage* msg);
 
 	BOutlineListView* fListView;

@@ -1,6 +1,6 @@
 # Configuring Clangd / LSP
 
-For more advanced IDE feateures, Genio implements the LSP protocol. (<https://microsoft.github.io/language-server-protocol/>)
+For more advanced IDE features, Genio implements the LSP protocol. (<https://microsoft.github.io/language-server-protocol/>)
 One of the most advanged C and C++ lsp server is 'clangd' included in the clang compiler suite. (more info <https://clangd.llvm.org/>)
 
 First pre-requisite is to install these packages:

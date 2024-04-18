@@ -93,3 +93,5 @@ We (try to) stick to the Haiku style for code, although with a few differences.
 ## License
 
 Genio is available under the MIT license. See [License.md](License.md).
+Outline LSP icons are taken from Visual Studio Code and released under Creative Commons license. 
+See [Visual Studio Code - Icons](https://github.com/microsoft/vscode-icons)

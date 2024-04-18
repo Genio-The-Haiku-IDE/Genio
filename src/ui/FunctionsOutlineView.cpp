@@ -125,7 +125,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 {
 	SetFlags(Flags() | B_PULSE_NEEDED);
 
-	fListView = new BOutlineListView("listview");
+	fListView = new SymbolOutlineListView("listview");
 	fScrollView = new BScrollView("scrollview", fListView,
 		B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fToolBar = new ToolBar();

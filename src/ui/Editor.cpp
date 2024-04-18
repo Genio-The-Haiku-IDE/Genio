@@ -320,6 +320,18 @@ Editor::MessageReceived(BMessage* message)
 				fLSPEditorWrapper->NextCallTip();
 			break;
 		}
+		case '0099':
+		{
+			BString symbol;
+			message->FindString("symbol", &symbol);
+			bool collapsed;
+			message->FindBool("collapsed", &collapsed);
+			if (collapsed) {
+				fCollapsedSymbols.insert(symbol.String());
+			} else
+				fCollapsedSymbols.erase(symbol.String());
+			break;
+		}
 		default:
 			BScintillaView::MessageReceived(message);
 			break;
@@ -1882,6 +1894,11 @@ Editor::SetDocumentSymbols(const BMessage* symbols)
 	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
 	fDocumentSymbols.AddRef("ref", &fFileRef);
 	fDocumentSymbols.AddInt32("status", fSymbolsStatus);
+
+	std::set<std::string>::const_iterator iterator;
+	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {
+		fDocumentSymbols.AddString("collapsed", iterator->c_str());
+	}
 	Window()->PostMessage(&fDocumentSymbols);
 }
 
@@ -1903,4 +1920,10 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 
 	if (!symbols->HasInt32("status"))
 		symbols->AddInt32("status", fSymbolsStatus);
+
+	symbols->RemoveName("collapsed");
+	std::set<std::string>::const_iterator iterator;
+	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {
+		symbols->AddString("collapsed", iterator->c_str());
+	}
 }

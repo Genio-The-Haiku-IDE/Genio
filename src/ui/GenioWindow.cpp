@@ -590,7 +590,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_EOL_CONVERT_TO_DOS:
 		case MSG_EOL_CONVERT_TO_MAC:
 			_ForwardToSelectedEditor(message);
-		break;
+			break;
 		case MSG_FILE_CLOSE:
 			_FileRequestClose(message->GetInt32("tab_index", fTabManager->SelectedTabIndex()));
 			break;
@@ -598,6 +598,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			_FileCloseAll();
 			break;
 		case MSG_FILE_FOLD_TOGGLE:
+			_ForwardToSelectedEditor(message);
+			break;
+		case '0099':
 			_ForwardToSelectedEditor(message);
 			break;
 		case MSG_FILE_MENU_SHOW:

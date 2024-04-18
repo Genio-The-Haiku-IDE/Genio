@@ -231,6 +231,18 @@ public:
 			}
 		}
 	}
+protected:
+	virtual void ExpandOrCollapse(BListItem* superItem, bool expand)
+	{
+		BOutlineListView::ExpandOrCollapse(superItem, expand);
+
+		BString symbol;
+		static_cast<SymbolListItem*>(superItem)->Details().FindString("name", &symbol);
+		BMessage message('0099');
+		message.AddString("symbol", symbol);
+		message.AddBool("collapsed", !expand);
+		Window()->PostMessage(&message);
+	}
 };
 
 
@@ -331,7 +343,6 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 						debugger("No symbols message");
 						break;
 					}
-
 					LogTrace("FunctionsOutlineView: Symbols updated message received");
 					entry_ref newRef;
 					msg->FindRef("ref", &newRef);
@@ -451,6 +462,24 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 		}
 	}
 
+	msg.PrintToStream();
+	// Collapse items
+	// TODO: Maybe to the opposite: have a list of collapsed items (which are less)
+	// and compare the listview ONCE with the smaller list of to-be-collapsed items
+	// TODO: symbol name isn't enough: we need to compare also with symbol kind
+	int32 i = 0;
+	BString collapsed;
+	while (msg.FindString("collapsed", i, &collapsed) == B_OK) {
+		for (int32 c = 0; c < fListView->CountItems(); c++) {
+			BStringItem* item = static_cast<BStringItem*>(fListView->ItemAt(c));
+			if (collapsed.Compare(item->Text()) == 0) {
+				fListView->Collapse(item);
+				break;
+			}
+		}
+		i++;
+	}
+
 	Window()->EnableUpdates();
 
 	fCurrentRef = *newRef;
@@ -458,7 +487,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	fListView->SetInvocationMessage(new BMessage(kGoToSymbol));
 	fListView->SetTarget(this);
 }
-
 
 
 void

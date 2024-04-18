@@ -24,6 +24,7 @@
 #include "Log.h"
 
 #include "StyledItem.h"
+#include "protocol_objects.h"
 
 #define kGoToSymbol	'gots'
 #define kMsgSort 'sort'
@@ -31,6 +32,8 @@
 
 static bool sSorted = false;
 static bool sCollapsed = false;
+
+const int32 kBrightnessBreakValue = 126;
 
 class SymbolListItem : public StyledItem {
 public:
@@ -50,6 +53,13 @@ private:
 void
 SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
+    BString iconName = GetIcon();
+    rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+	if (base.Brightness() >= kBrightnessBreakValue)
+        iconName.Prepend("light-");
+	else
+        iconName.Prepend("dark-");
+    SetIcon(iconName);
 	StyledItem::DrawItem(owner, bounds, complete);
 }
 
@@ -78,6 +88,27 @@ CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 }
 
 
+class SymbolOutlineListView: public BOutlineListView {
+public:
+    SymbolOutlineListView(const char* name) : BOutlineListView(name) {}
+
+    virtual void MouseMoved(BPoint point, uint32 transit, const BMessage* message)
+    {
+        if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
+            auto index = IndexOf(point);
+            if (index >= 0) {
+                SymbolListItem *item = dynamic_cast<SymbolListItem*>(ItemAt(index));
+                if (item->HasToolTip()) {
+                    SetToolTip(item->GetToolTipText());
+                } else {
+                    SetToolTip("");
+                }
+            }
+        }
+    }
+
+};
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "FunctionsOutlineView"
 
@@ -91,7 +122,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 {
 	SetFlags(Flags() | B_PULSE_NEEDED);
 
-	fListView = new BOutlineListView("listview");
+	fListView = new SymbolOutlineListView("listview");
 	fScrollView = new BScrollView("scrollview", fListView,
 		B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fToolBar = new ToolBar();
@@ -118,6 +149,7 @@ FunctionsOutlineView::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 		UnlockLooper();
 	}
+	// fListView->AddFilter(new MouseMovedMessageFilter(this));
 }
 
 
@@ -303,35 +335,127 @@ static void
 AddSymbolIcon(SymbolListItem* item)
 {
 	BString iconName;
+	BString toolTip;
 	int32 kind;
 	item->Details().FindInt32("kind", &kind);
-	switch (kind) {
-		case 2:
-			// method
-            iconName = "dark-symbol-method";
+    SymbolKind symbolKind = static_cast<SymbolKind>(kind);
+    
+    // const BString theme = 
+    
+	switch (symbolKind) {
+    	case SymbolKind::File:
+            iconName = "file";
+			toolTip = "File";
 			break;
-		case 3:
-			// function
-            iconName = "dark-symbol-misc";
+		case SymbolKind::Module:
+            iconName = "namespace";
+			toolTip = "Module";
 			break;
-		case 5:
-			// field
-            iconName = "dark-symbol-field";
+		case SymbolKind::Namespace:
+            iconName = "namespace";
+			toolTip = "Namespace";
 			break;
-		case 6:
-			// Variable
-            iconName = "dark-symbol-variable";
+		case SymbolKind::Package:
+            iconName = "namespace";
+			toolTip = "Package";
 			break;
-		case 7:
-			// Class
-            iconName = "dark-symbol-class";
+		case SymbolKind::Class:
+            iconName = "class";
+			toolTip = "Class";
+			break;
+		case SymbolKind::Method:
+            iconName = "method";
+			toolTip = "Method";
+			break;
+		case SymbolKind::Property:
+            iconName = "property";
+			toolTip = "Property";
+			break;
+        case SymbolKind::Field:
+            iconName = "field";
+			toolTip = "Field";
+			break;
+        case SymbolKind::Constructor:
+            iconName = "method";
+			toolTip = "Constructor";
+			break;
+        case SymbolKind::Enum:
+            iconName = "enum";
+			toolTip = "Enum";
+			break;
+        case SymbolKind::Interface:
+            iconName = "interface";
+			toolTip = "Interface";
+			break;
+        case SymbolKind::Function:
+            iconName = "method";
+			toolTip = "Function";
+			break;
+        case SymbolKind::Variable:
+            iconName = "variable";
+			toolTip = "Variable";
+			break;
+        case SymbolKind::Constant:
+            iconName = "constant";
+			toolTip = "Constant";
+			break;
+        case SymbolKind::String:
+            iconName = "string";
+			toolTip = "String";
+			break;
+        case SymbolKind::Number:
+            iconName = "numeric";
+			toolTip = "";
+			break;
+        case SymbolKind::Boolean:
+            iconName = "boolean";
+			toolTip = "Boolean";
+			break;
+        case SymbolKind::Array:
+            iconName = "array";
+			toolTip = "Array";
+			break;
+        case SymbolKind::Object:
+            iconName = "namespace";
+			toolTip = "Object";
+			break;
+        case SymbolKind::Key:
+            iconName = "key";
+			toolTip = "Key";
+			break;
+        case SymbolKind::Null: // icon not available
+            iconName = "misc";
+			toolTip = "Null";
+			break;
+        case SymbolKind::EnumMember:
+            iconName = "emum-member";
+			toolTip = "Enum member";
+			break;
+        case SymbolKind::Struct:
+            iconName = "structure";
+			toolTip = "Structure";
+			break;
+        case SymbolKind::Event:
+            iconName = "event";
+			toolTip = "Event";
+			break;
+        case SymbolKind::Operator:
+            iconName = "operator";
+			toolTip = "Operator";
+			break;
+        case SymbolKind::TypeParameter:
+            iconName = "parameter";
+			toolTip = "Type parameter";
 			break;
 		default:
 			break;
 	}
 
 	if (!iconName.IsEmpty())
-		item->SetIcon(iconName);
+		item->SetIcon(iconName.Prepend("symbol-"));
+		
+	if (!toolTip.IsEmpty())
+		item->SetToolTipText(toolTip);
 }
 
 

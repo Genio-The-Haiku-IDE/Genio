@@ -12,7 +12,7 @@ class BOutlineListView;
 class ToolBar;
 class FunctionsOutlineView : public BView {
 public:
-			FunctionsOutlineView();
+				FunctionsOutlineView();
 
 	virtual		void	AttachedToWindow();
 	virtual		void	DetachedFromWindow();

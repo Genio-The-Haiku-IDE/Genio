@@ -9,6 +9,8 @@
 
 #include "Editor.h"
 
+#include <regex>
+
 #include <Alert.h>
 #include <Application.h>
 #include <Catalog.h>
@@ -320,7 +322,7 @@ Editor::MessageReceived(BMessage* message)
 				fLSPEditorWrapper->NextCallTip();
 			break;
 		}
-		case '0099':
+		case MSG_COLLAPSE_SYMBOL_NODE:
 		{
 			BString symbol;
 			message->FindString("symbol", &symbol);
@@ -1533,7 +1535,13 @@ Editor::Rename()
 {
 	// Getting the symbol from the language server would require many async steps.
 	// We instead ask Scintilla to deliver it which should be almost if not entirely accurate
-	auto alert = new GTextAlert(B_TRANSLATE("Rename"), B_TRANSLATE("Rename symbol:"), GetSymbol());
+
+	// remove invalid leading characters
+	const std::string symbol = GetSymbol().String();
+	const std::regex leadingChars("^\\W+");
+	std::string str = std::regex_replace(symbol, leadingChars, "");
+
+	auto alert = new GTextAlert(B_TRANSLATE("Rename"), B_TRANSLATE("Rename symbol:"), str.c_str());
 	auto result = alert->Go();
 	if (result.Button == GAlertButtons::OkButton)
 		fLSPEditorWrapper->Rename(result.Result.String());

@@ -1,5 +1,6 @@
-1	English	application/x-vnd.Genio	899390217
+1	English	application/x-vnd.Genio	448934088
 Close	RemoteProjectWindow		Close
+Function	OutlineTooltips		Function
 Copy	GenioWindow		Copy
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
 Enable brace matching	SettingsWindow		Enable brace matching
@@ -19,6 +20,7 @@ Project settings…	ProjectsFolderBrowser		Project settings…
 Path	ProjectsFolderBrowser		Path
 development	Utilities		development
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
+Show outline pane	GenioWindow		Show outline pane
 Replace selection	GenioWindow		Replace selection
 Focus mode	GenioWindow		Focus mode
 URL:	RemoteProjectWindow		URL:
@@ -26,6 +28,7 @@ Switch to branch	GenioWindow		Switch to branch
 Show vertical ruler	SettingsWindow		Show vertical ruler
 Open file	ProjectsFolderBrowser		Open file
 Problems	ProblemsPanel		Problems
+Rename...	GenioWindow		Rename...
 Window	GenioWindow		Window
 Line endings	GenioWindow		Line endings
 Tab width:	SettingsWindow		Tab width:
@@ -48,16 +51,18 @@ New folder	TemplateManager		New folder
 Auto collapse/expand projects	SettingsWindow		Auto collapse/expand projects
 Destination folder:	RemoteProjectWindow		Destination folder:
 Make catkeys	GenioWindow		Make catkeys
+Null	OutlineTooltips		Null
 Status	GenioWindow	The git command	Status
 Show/Hide find bar	GenioWindow		Show/Hide find bar
 New file	GitRepository		New file
 Build log	GenioWindow		Build log
+Close file	GenioWindow		Close file
 Startup	SettingsWindow		Startup
 Continue	RemoteProjectWindow		Continue
-Close file	GenioWindow		Close file
 Editor style:	SettingsWindow		Editor style:
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
 Find previous	GenioWindow		Find previous
+Variable	OutlineTooltips		Variable
 Redo	GenioWindow		Redo
 beta	Utilities		beta
 Show projects pane	SettingsWindow		Show projects pane
@@ -68,8 +73,8 @@ Run	GenioWindow		Run
 Open Terminal	ProjectsFolderBrowser		Open Terminal
 Save current file	GenioWindow		Save current file
 Project	GenioWindow		Project
-Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
 Reload	GenioWindow		Reload
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
 Replace	GenioWindow		Replace
 Switch to previous file	GenioWindow		Switch to previous file
 Stashed changes applied.	SourceControlPanel		Stashed changes applied.
@@ -79,16 +84,19 @@ Stash changes	SourceControlPanel		Stash changes
 OK	ProjectsFolderBrowser		OK
 Genio	System name		Genio
 Clone	RemoteProjectWindow		Clone
-Release	GenioWindow		Release
 Keep	GenioWindow		Keep
+Release	GenioWindow		Release
 Unsaved files	QuitAlert		Unsaved files
 Debug	GenioWindow		Debug
+Enum member	OutlineTooltips		Enum member
 Undo	GenioWindow		Undo
 OK	GitCredentialsWindow		OK
 Username:	GitCredentialsWindow		Username:
 Open recent…	GenioWindow		Open recent…
+Boolean	OutlineTooltips		Boolean
 Save	Editor		Save
 Autocomplete	GenioWindow		Autocomplete
+Log size:	SettingsWindow		Log size:
 File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
 Rename branch:	SourceControlPanel		Rename branch:
 Conflicts	SourceControlPanel		Conflicts
@@ -104,8 +112,10 @@ Cancel	GitCredentialsWindow		Cancel
 Fetch	SourceControlPanel		Fetch
 Match case	SettingsWindow	Short as possible.	Match case
 Color:	ProjectSettingsWindow		Color:
+String	OutlineTooltips		String
 CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
 Find	GenioWindow		Find
+Property	OutlineTooltips		Property
 Invalid project folder	GenioWindow		Invalid project folder
 Discard	GenioWindow		Discard
 Fullscreen	GenioWindow		Fullscreen
@@ -113,23 +123,29 @@ Match case	GenioWindow	Short as possible.	Match case
 Build mode	GenioWindow		Build mode
 Mark caret line	SettingsWindow		Mark caret line
 Toggle	GenioWindow	Bookmark menu	Toggle
+Structure	OutlineTooltips		Structure
 Whole word	GenioWindow	Short as possible.	Whole word
-Replace and find previous	GenioWindow		Replace and find previous
 Replace all	GenioWindow		Replace all
+Replace and find previous	GenioWindow		Replace and find previous
 Delete dialog	SourceControlPanel		Delete dialog
 OK	GitAlert		OK
 Local branches	SourceControlPanel		Local branches
+Rename	Editor		Rename
 Debug project	GenioWindow		Debug project
 stderr	ConsoleIOView		stderr
+Method	OutlineTooltips		Method
 Genio project…	GenioWindow		Genio project…
 Project:	GenioWindow		Project:
 Go to line:	GoToLineWindow		Go to line:
+Constant	OutlineTooltips		Constant
+Outline	FunctionsOutlineView		Outline
 Close project	GenioWindow		Close project
 Conflicts	GenioWindow		Conflicts
 Replace:	GenioWindow		Replace:
 Tag	GenioWindow	The git command	Tag
 Ignore	GenioWindow		Ignore
 Show whitespace and line endings	GenioWindow		Show whitespace and line endings
+Object	OutlineTooltips		Object
 Run console program	GenioWindow		Run console program
 Branch	GenioWindow	The git command	Branch
 Remote branches	SourceControlPanel		Remote branches
@@ -145,7 +161,6 @@ OK	GTextAlert		OK
 Open remote Git project	RemoteProjectWindow		Open remote Git project
 Settings…	GenioWindow		Settings…
 General	SettingsWindow		General
-No fix available	Editor		No fix available
 Message	ProblemsPanel		Message
 Delete	GenioWindow		Delete
 Browse…	RemoteProjectWindow		Browse…
@@ -162,12 +177,18 @@ The project folder has been deleted or moved to another location and it will be 
 Go to declaration	GenioWindow		Go to declaration
 Quit	GenioWindow		Quit
 Switch to next file	GenioWindow		Switch to next file
+Event	OutlineTooltips		Event
 Show projects pane	GenioWindow		Show projects pane
 Execute args:	ProjectSettingsWindow		Execute args:
+Operator	OutlineTooltips		Operator
 Log destination:	SettingsWindow		Log destination:
-stdout	ConsoleIOView		stdout
+Key	OutlineTooltips		Key
+Rename symbol:	Editor		Rename symbol:
+Interface	OutlineTooltips		Interface
 Save all files	GenioWindow		Save all files
+stdout	ConsoleIOView		stdout
 Save selected	QuitAlert		Save selected
+Constructor	OutlineTooltips		Constructor
 Search results	SearchResultPanel		Search results
 New file staged	GitRepository		New file staged
 Reload projects	SettingsWindow		Reload projects
@@ -196,14 +217,16 @@ Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
 Editor	SettingsWindow		Editor
 Build command:	ProjectSettingsWindow		Build command:
 Error creating folder	GenioWindow		Error creating folder
-Delete	SourceControlPanel		Delete
 Replace and find next	GenioWindow		Replace and find next
+Delete	SourceControlPanel		Delete
 Target:	ProjectSettingsWindow		Target:
 Show/Hide projects pane	GenioWindow		Show/Hide projects pane
 Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Wrap around
 Source	ProblemsPanel		Source
 Current branch:	SourceControlPanel		Current branch:
+Type parameter	OutlineTooltips		Type parameter
 Show full path in window title	SettingsWindow		Show full path in window title
+Field	OutlineTooltips		Field
 View	GenioWindow		View
 Build project	GenioWindow		Build project
 See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
@@ -216,21 +239,27 @@ Contributors:	GenioApp		Contributors:
 File modified	GitRepository		File modified
 Show toolbar	SettingsWindow		Show toolbar
 Fetch prune completed.	SourceControlPanel		Fetch prune completed.
+Enum	OutlineTooltips		Enum
 Made with love in Italy	GenioApp		Made with love in Italy
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Default size	SettingsWindow		Default size
-Show comment margin	SettingsWindow		Show comment margin
 File \"%file%\" was apparently modified, reload it?	GenioWindow		File \"%file%\" was apparently modified, reload it?
+Show comment margin	SettingsWindow		Show comment margin
 Configure	GenioWindow		Configure
 Cancel	GoToLineWindow		Cancel
+Class	OutlineTooltips		Class
 Bookmark all	GenioWindow		Bookmark all
 Appearance	GenioWindow		Appearance
 Auto-Build on resource save	SettingsWindow		Auto-Build on resource save
 Cancel	Editor		Cancel
 Init repository	SourceControlPanel		Init repository
+File	OutlineTooltips		File
+Show/Hide outline pane	GenioWindow		Show/Hide outline pane
+Show in projects browser	GenioWindow		Show in projects browser
 Switch to branch	ProjectsFolderBrowser		Switch to branch
 Rename folder	ProjectsFolderBrowser		Rename folder
 File	GenioWindow		File
+Close other	GenioWindow		Close other
 Delete current line	GenioWindow		Delete current line
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
 Reload files	SettingsWindow		Reload files
@@ -244,17 +273,21 @@ Font size:	SettingsWindow		Font size:
 Zoom out	GenioWindow		Zoom out
 Exclude folders:	SettingsWindow		Exclude folders:
 Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
-Base path:	RemoteProjectWindow		Base path:
+Creating outline…	FunctionsOutlineView		Creating outline…
+No outline available	FunctionsOutlineView		No outline available
 Save as…	GenioWindow		Save as…
-Fix: %fix_desc%	Editor		Fix: %fix_desc%
+Base path:	RemoteProjectWindow		Base path:
 Fetch completed.	SourceControlPanel		Fetch completed.
 Log	GenioWindow	The git command	Log
 Show config	GenioWindow	The git command	Show config
 Show/Hide output pane	GenioWindow		Show/Hide output pane
 Projects	GenioWindow		Projects
+No fix available	ProblemsPanel		No fix available
 Go to implementation	GenioWindow		Go to implementation
+Array	OutlineTooltips		Array
 Run target	GenioWindow		Run target
 New	ProjectsFolderBrowser		New
+Line	ProblemsPanel		Line
 Language	GenioWindow		Language
 Show line endings	GenioWindow		Show line endings
 Could not create a new file	GenioWindow		Could not create a new file
@@ -265,6 +298,7 @@ Show whitespace	GenioWindow		Show whitespace
 Source control	SourceControlPanel		Source control
 Delete folder	ProjectsFolderBrowser		Delete folder
 Format	GenioWindow		Format
+Namespace	OutlineTooltips		Namespace
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
 Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
 Default font	SettingsWindow		Default font
@@ -274,13 +308,14 @@ Actions	SourceControlPanel		Actions
 Defaults	ConfigWindow		Defaults
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Zoom in	GenioWindow		Zoom in
+Show outline pane	SettingsWindow		Show outline pane
 Set ruler to column:	SettingsWindow		Set ruler to column:
 Fold/Unfold all	GenioWindow		Fold/Unfold all
 Enable folding	SettingsWindow		Enable folding
 Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
 Bookmark	GenioWindow		Bookmark
-Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
 New	GenioWindow		New
+Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
 gold master	Utilities		gold master
 Show whitespace	SettingsWindow		Show whitespace
 Close all	GenioWindow		Close all
@@ -289,6 +324,7 @@ Next	GenioWindow	Bookmark menu	Next
 Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
 Clear all	GenioWindow	Bookmark menu	Clear all
 Repository	SourceControlPanel		Repository
+Sort	FunctionsOutlineView		Sort
 File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
 Delete dialog	GenioWindow		Delete dialog
@@ -299,12 +335,13 @@ About…	GenioWindow		About…
 Find in project	GenioWindow		Find in project
 Create initial commit	SourceControlPanel		Create initial commit
 Category	ProblemsPanel		Category
-Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
 Close	GenioWindow		Close
+Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
 Tags	SourceControlPanel		Tags
 Current branch	ProjectsFolderBrowser		Current branch
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
 Clean project	ProjectsFolderBrowser		Clean project
+Module	OutlineTooltips		Module
 Open project…	GenioWindow		Open project…
 Run in terminal	ProjectSettingsWindow		Run in terminal
 Build project	ProjectsFolderBrowser		Build project
@@ -323,6 +360,7 @@ Git	GenioWindow		Git
 Enter a message for this stash	SourceControlPanel		Enter a message for this stash
 Project settings…	GenioWindow		Project settings…
 OK	Utilities		OK
+Package	OutlineTooltips		Package
 Location	SearchResultPanel		Location
 Paste	GenioWindow		Paste
 Visual	SettingsWindow		Visual

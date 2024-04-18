@@ -26,6 +26,9 @@
 #include "Log.h"
 
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "OutlineTooltips"
+
 #define kGoToSymbol	'gots'
 #define kMsgSort 'sort'
 #define kMsgCollapseAll 'coll'
@@ -72,63 +75,63 @@ SymbolListItem::SetIconAndTooltip()
 	switch (symbolKind) {
 		case SymbolKind::File:
 			iconName = "file";
-			toolTip = "File";
+			toolTip = B_TRANSLATE("File");
 			break;
 		case SymbolKind::Module:
 			iconName = "namespace";
-			toolTip = "Module";
+			toolTip = B_TRANSLATE("Module");
 			break;
 		case SymbolKind::Namespace:
 			iconName = "namespace";
-			toolTip = "Namespace";
+			toolTip = B_TRANSLATE("Namespace");
 			break;
 		case SymbolKind::Package:
 			iconName = "namespace";
-			toolTip = "Package";
+			toolTip = B_TRANSLATE("Package");
 			break;
 		case SymbolKind::Class:
 			iconName = "class";
-			toolTip = "Class";
+			toolTip = B_TRANSLATE("Class");
 			break;
 		case SymbolKind::Method:
 			iconName = "method";
-			toolTip = "Method";
+			toolTip = B_TRANSLATE("Method");
 			break;
 		case SymbolKind::Property:
 			iconName = "property";
-			toolTip = "Property";
+			toolTip = B_TRANSLATE("Property");
 			break;
 		case SymbolKind::Field:
 			iconName = "field";
-			toolTip = "Field";
+			toolTip = B_TRANSLATE("Field");
 			break;
 		case SymbolKind::Constructor:
 			iconName = "method";
-			toolTip = "Constructor";
+			toolTip = B_TRANSLATE("Constructor");
 			break;
 		case SymbolKind::Enum:
 			iconName = "enum";
-			toolTip = "Enum";
+			toolTip = B_TRANSLATE("Enum");
 			break;
 		case SymbolKind::Interface:
 			iconName = "interface";
-			toolTip = "Interface";
+			toolTip = B_TRANSLATE("Interface");
 			break;
 		case SymbolKind::Function:
 			iconName = "method";
-			toolTip = "Function";
+			toolTip = B_TRANSLATE("Function");
 			break;
 		case SymbolKind::Variable:
 			iconName = "variable";
-			toolTip = "Variable";
+			toolTip = B_TRANSLATE("Variable");
 			break;
 		case SymbolKind::Constant:
 			iconName = "constant";
-			toolTip = "Constant";
+			toolTip = B_TRANSLATE("Constant");
 			break;
 		case SymbolKind::String:
 			iconName = "string";
-			toolTip = "String";
+			toolTip = B_TRANSLATE("String");
 			break;
 		case SymbolKind::Number:
 			iconName = "numeric";
@@ -136,43 +139,43 @@ SymbolListItem::SetIconAndTooltip()
 			break;
 		case SymbolKind::Boolean:
 			iconName = "boolean";
-			toolTip = "Boolean";
+			toolTip = B_TRANSLATE("Boolean");
 			break;
 		case SymbolKind::Array:
 			iconName = "array";
-			toolTip = "Array";
+			toolTip = B_TRANSLATE("Array");
 			break;
 		case SymbolKind::Object:
 			iconName = "namespace";
-			toolTip = "Object";
+			toolTip = B_TRANSLATE("Object");
 			break;
 		case SymbolKind::Key:
 			iconName = "key";
-			toolTip = "Key";
+			toolTip = B_TRANSLATE("Key");
 			break;
 		case SymbolKind::Null: // icon not available
 			iconName = "misc";
-			toolTip = "Null";
+			toolTip = B_TRANSLATE("Null");
 			break;
 		case SymbolKind::EnumMember:
 			iconName = "emum-member";
-			toolTip = "Enum member";
+			toolTip = B_TRANSLATE("Enum member");
 			break;
 		case SymbolKind::Struct:
 			iconName = "structure";
-			toolTip = "Structure";
+			toolTip = B_TRANSLATE("Structure");
 			break;
 		case SymbolKind::Event:
 			iconName = "event";
-			toolTip = "Event";
+			toolTip = B_TRANSLATE("Event");
 			break;
 		case SymbolKind::Operator:
 			iconName = "operator";
-			toolTip = "Operator";
+			toolTip = B_TRANSLATE("Operator");
 			break;
 		case SymbolKind::TypeParameter:
 			iconName = "parameter";
-			toolTip = "Type parameter";
+			toolTip = B_TRANSLATE("Type parameter");
 			break;
 		default:
 			break;

@@ -236,7 +236,7 @@ public:
 			}
 		}
 	}
-    
+
     virtual void MouseDown(BPoint where)
     {
         int32 buttons = -1;
@@ -254,7 +254,7 @@ public:
             }
         }
     }
-    
+
 protected:
 	virtual void ExpandOrCollapse(BListItem* superItem, bool expand)
 	{
@@ -267,7 +267,7 @@ protected:
 		message.AddBool("collapsed", !expand);
 		Window()->PostMessage(&message);
 	}
-    
+
 private:
     void _ShowPopupMenu(BPoint where)
     {
@@ -279,7 +279,7 @@ private:
                 delete optionsMenu;
                 return;
             }
-            
+
             BMessage symbol;
             BString selectedSymbol;
             Position position;
@@ -287,16 +287,16 @@ private:
             selectedSymbol = symbol.GetString("name", nullptr);
             position.character = symbol.GetInt32("start:character", -1);
             position.line = symbol.GetInt32("start:line", -1);
-            
+
             StringFormatter fmt;
             fmt.Substitutions["%selected_symbol%"] = selectedSymbol;
-            
+
             optionsMenu->AddItem(
                 new BMenuItem(fmt << B_TRANSLATE("Go to \"%selected_symbol%\""),
                     new GMessage{
                         {"what", kMsgGoToSymbol},
                         {"index", index}}));
-                        
+
             BMenuItem *renameItem = new BMenuItem(fmt << B_TRANSLATE("Rename \"%selected_symbol%\""),
                     new GMessage{
                         {"what", kMsgRenameSymbol},
@@ -305,11 +305,11 @@ private:
                         {"start:character", position.character}});
             renameItem->SetEnabled((position.line != -1 && position.character != -1));
             optionsMenu->AddItem(renameItem);
-                        
+
             optionsMenu->SetTargetForItems(Target());
             optionsMenu->Go(ConvertToScreen(where), true);
             delete optionsMenu;
-            
+
         }
     }
 };
@@ -578,7 +578,6 @@ FunctionsOutlineView::_GoToSymbol(BMessage *msg)
         SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemAt(index));
         if (sym != nullptr) {
             BMessage go = sym->Details();
-            go.PrintToStream();
             go.what = B_REFS_RECEIVED;
             go.AddRef("refs", &fCurrentRef);
             Window()->PostMessage(&go);

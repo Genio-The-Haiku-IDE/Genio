@@ -24,7 +24,7 @@ private:
 									const entry_ref* ref);
 	void	    _RecursiveAddSymbols(BListItem* parent, const BMessage* msg);
     status_t    _GoToSymbol(BMessage *msg);
-    void        _RenameSymbol(BMessage *msg);
+	void        _RenameSymbol(BMessage *msg);
 
 	BOutlineListView* fListView;
 	BScrollView* fScrollView;

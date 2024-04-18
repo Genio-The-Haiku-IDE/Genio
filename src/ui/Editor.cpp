@@ -1540,7 +1540,7 @@ Editor::Rename()
     const std::string symbol = GetSymbol().String();
     const std::regex leadingChars("^\\W+");
     std::string str = std::regex_replace(symbol, leadingChars, "");
-    
+
 	auto alert = new GTextAlert(B_TRANSLATE("Rename"), B_TRANSLATE("Rename symbol:"), str.c_str());
 	auto result = alert->Go();
 	if (result.Button == GAlertButtons::OkButton)

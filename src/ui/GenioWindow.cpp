@@ -600,7 +600,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_FOLD_TOGGLE:
 			_ForwardToSelectedEditor(message);
 			break;
-		case '0099':
+		case MSG_COLLAPSE_SYMBOL_NODE:
 			_ForwardToSelectedEditor(message);
 			break;
 		case MSG_FILE_MENU_SHOW:

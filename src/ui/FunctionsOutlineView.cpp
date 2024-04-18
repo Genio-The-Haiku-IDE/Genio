@@ -441,27 +441,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	_RecursiveAddSymbols(nullptr, &msg);
 	fSymbolsLastUpdateTime = system_time();
 
-	// same document, don't reset the vertical scrolling value
-	if (*newRef == fCurrentRef) {
-		if (vertScrollBar->Value() != scrolledValue)
-			vertScrollBar->SetValue(scrolledValue);
-	}
-
-	if (sSorted)
-		fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
-
-	// List could have been changed.
-	// Try to re-select old selected item, but only if it's the same document
-	if (*newRef == fCurrentRef && !selectedItemText.IsEmpty()) {
-		for (int32 i = 0; i < fListView->CountItems(); i++) {
-			BStringItem* item = dynamic_cast<BStringItem*>(fListView->ItemAt(i));
-			if (item != nullptr && selectedItemText == item->Text()) {
-				fListView->Select(i, false);
-				break;
-			}
-		}
-	}
-
 	// Collapse items
 	// TODO: Maybe to the opposite: have a list of collapsed items (which are less)
 	// and compare the listview ONCE with the smaller list of to-be-collapsed items
@@ -469,14 +448,34 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	int32 i = 0;
 	BString collapsed;
 	while (msg.FindString("collapsed", i, &collapsed) == B_OK) {
-		for (int32 c = 0; c < fListView->CountItems(); c++) {
-			BStringItem* item = static_cast<BStringItem*>(fListView->ItemAt(c));
+		for (int32 itemIndex = 0; itemIndex < fListView->CountItems(); itemIndex++) {
+			BStringItem* item = static_cast<BStringItem*>(fListView->ItemAt(itemIndex));
 			if (collapsed.Compare(item->Text()) == 0) {
 				fListView->Collapse(item);
 				break;
 			}
 		}
 		i++;
+	}
+	if (sSorted)
+		fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
+
+	// same document, don't reset the vertical scrolling value
+	if (*newRef == fCurrentRef) {
+		if (vertScrollBar->Value() != scrolledValue)
+			vertScrollBar->SetValue(scrolledValue);
+	}
+
+	// List could have been changed.
+	// Try to re-select old selected item, but only if it's the same document
+	if (*newRef == fCurrentRef && !selectedItemText.IsEmpty()) {
+		for (int32 itemIndex = 0; itemIndex < fListView->CountItems(); itemIndex++) {
+			BStringItem* item = dynamic_cast<BStringItem*>(fListView->ItemAt(itemIndex));
+			if (item != nullptr && selectedItemText == item->Text()) {
+				fListView->Select(itemIndex, false);
+				break;
+			}
+		}
 	}
 
 	Window()->EnableUpdates();

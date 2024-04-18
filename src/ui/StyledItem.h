@@ -30,10 +30,10 @@ public:
 	bool			HasToolTip() const;
 	void			SetToolTipText(const char *text);
 	const char*		GetToolTipText() const;
-    
-    void            SetIcon(const char *iconName);
-    const char*     GetIcon() const;
-	
+
+	void			SetIcon(const char *iconName);
+	void			SetIconFollowsTheme(bool follow);
+
 protected:
 	virtual BRect	DrawIcon(BView* owner, const BRect& bounds,
 						const BBitmap* icon, float& iconSize);
@@ -44,4 +44,5 @@ private:
 	uint16			fFontFace;
 	BString			fExtraText;
 	BString			fToolTipText;
+	bool			fIconFollowsTheme;
 };

@@ -23,7 +23,8 @@ StyledItem::StyledItem(const char* text,
 	BStringItem(text, outlineLevel, expanded),
 	fIconName(iconName),
 	fFontFace(B_REGULAR_FACE),
-	fToolTipText()
+	fToolTipText(),
+	fIconFollowsTheme(false)
 {
 }
 
@@ -68,7 +69,16 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	if (fIconName != nullptr) {
 		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 		BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
-		GetVectorIcon(fIconName.String(), icon);
+		BString iconName = fIconName;
+		if (fIconFollowsTheme) {
+			const int32 kBrightnessBreakValue = 126;
+			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+			if (base.Brightness() >= kBrightnessBreakValue)
+				iconName.Prepend("light-");
+			else
+				iconName.Prepend("dark-");
+		}
+		GetVectorIcon(iconName.String(), icon);
 		iconRect = DrawIcon(owner, bounds, icon, iconSize);
 		delete icon;
 	}
@@ -143,14 +153,14 @@ StyledItem::GetToolTipText() const
 void
 StyledItem::SetIcon(const char *iconName)
 {
-    fIconName = iconName;
+	fIconName = iconName;
 }
 
 
-const char*
-StyledItem::GetIcon() const
+void
+StyledItem::SetIconFollowsTheme(bool follow)
 {
-    return fIconName;
+	fIconFollowsTheme = follow;
 }
 
 

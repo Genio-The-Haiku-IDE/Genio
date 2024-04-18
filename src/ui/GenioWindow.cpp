@@ -265,7 +265,7 @@ GenioWindow::Show()
 
 	if (LockLooper()) {
 		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
-		_ShowView(fRightTabView, gCFG["show_right_pane"], MSG_SHOW_HIDE_OUTLINE);
+		_ShowView(fRightTabView, gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
 		_ShowView(fOutputTabView, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 
@@ -1318,7 +1318,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 
 		_ShowView(fToolBar,         fScreenModeSettings["show_toolbar"], MSG_TOGGLE_TOOLBAR);
 		_ShowView(fProjectsTabView, fScreenModeSettings["show_projects"] , MSG_SHOW_HIDE_PROJECTS);
-		_ShowView(fRightTabView, 	fScreenModeSettings["show_right_pane"] , MSG_SHOW_HIDE_OUTLINE);
+		_ShowView(fRightTabView, 	fScreenModeSettings["show_outline"] , MSG_SHOW_HIDE_OUTLINE);
 		_ShowView(fOutputTabView,   fScreenModeSettings["show_output"], MSG_SHOW_HIDE_OUTPUT);
 
 		fScreenMode = kDefault;
@@ -2731,9 +2731,6 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_FORMAT,
 								   B_TRANSLATE("Format"));
 
-	ActionManager::RegisterAction(kClassOutline,
-								  B_TRANSLATE("Update class outline"));
-
 	ActionManager::RegisterAction(MSG_GOTODEFINITION,
 								   B_TRANSLATE("Go to definition"), "","", 'G');
 
@@ -2805,8 +2802,8 @@ GenioWindow::_InitActions()
 								   "kIconWinNav");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTLINE,
-								   B_TRANSLATE("Show outline"),
-	                               B_TRANSLATE("Show/Hide outline"),
+								   B_TRANSLATE("Show outline pane"),
+	                               B_TRANSLATE("Show/Hide outline pane"),
 								   "kIconWinOutline");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
@@ -2989,7 +2986,6 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
-	ActionManager::AddItem(kClassOutline, editMenu);
 
 	editMenu->AddSeparatorItem();
 
@@ -3017,7 +3013,6 @@ GenioWindow::_InitMenu()
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 	ActionManager::SetEnabled(MSG_FORMAT, false);
-	ActionManager::SetEnabled(kClassOutline, false);
 
 	fLineEndingsMenu->SetEnabled(false);
 
@@ -4169,7 +4164,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 		ActionManager::SetEnabled(MSG_FORMAT, false);
-		ActionManager::SetEnabled(kClassOutline, false);
 		ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
 		ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
 		ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
@@ -4257,7 +4251,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, !editor->IsReadOnly() && editor->HasLSPCapability(kLCapCompletion));
 	ActionManager::SetEnabled(MSG_FORMAT, !editor->IsReadOnly() && editor->HasLSPCapability(kLCapDocFormatting));
-	ActionManager::SetEnabled(kClassOutline, editor->HasLSPCapability(kLCapDocumentSymbols));
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->HasLSPCapability(kLCapDefinition));
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->HasLSPCapability(kLCapDeclaration));
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->HasLSPCapability(kLCapImplementation));

@@ -462,7 +462,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 		}
 	}
 
-	msg.PrintToStream();
 	// Collapse items
 	// TODO: Maybe to the opposite: have a list of collapsed items (which are less)
 	// and compare the listview ONCE with the smaller list of to-be-collapsed items

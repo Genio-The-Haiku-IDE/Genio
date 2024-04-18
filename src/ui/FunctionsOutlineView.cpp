@@ -221,10 +221,12 @@ public:
 			auto index = IndexOf(point);
 			if (index >= 0) {
 				SymbolListItem *item = dynamic_cast<SymbolListItem*>(ItemAt(index));
-				if (item->HasToolTip()) {
-					SetToolTip(item->GetToolTipText());
-				} else {
-					SetToolTip("");
+				if (item != nullptr) {
+					if (item->HasToolTip()) {
+						SetToolTip(item->GetToolTipText());
+					} else {
+						SetToolTip("");
+					}
 				}
 			}
 		}

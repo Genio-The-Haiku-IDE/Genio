@@ -41,6 +41,7 @@ public:
 			fDetails(details)
 		{
 			SetIconFollowsTheme(true);
+			SetIconAndTooltip();
 		}
 
 		virtual void DrawItem(BView* owner, BRect bounds, bool complete);
@@ -460,7 +461,6 @@ FunctionsOutlineView::_RecursiveAddSymbols(BListItem* parent, const BMessage* ms
 	BMessage symbol;
 	while (msg->FindMessage("symbol", i++, &symbol) == B_OK) {
 		SymbolListItem* item = new SymbolListItem(symbol);
-		item->SetIconAndTooltip();
 		if (parent != nullptr)
 			fListView->AddUnder(item, parent);
 		else

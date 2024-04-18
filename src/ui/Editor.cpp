@@ -1536,10 +1536,10 @@ Editor::Rename()
 	// Getting the symbol from the language server would require many async steps.
 	// We instead ask Scintilla to deliver it which should be almost if not entirely accurate
 
-    // remove non valid leading characters
-    const std::string symbol = GetSymbol().String();
-    const std::regex leadingChars("^\\W+");
-    std::string str = std::regex_replace(symbol, leadingChars, "");
+	// remove invalid leading characters
+	const std::string symbol = GetSymbol().String();
+	const std::regex leadingChars("^\\W+");
+	std::string str = std::regex_replace(symbol, leadingChars, "");
 
 	auto alert = new GTextAlert(B_TRANSLATE("Rename"), B_TRANSLATE("Rename symbol:"), str.c_str());
 	auto result = alert->Go();

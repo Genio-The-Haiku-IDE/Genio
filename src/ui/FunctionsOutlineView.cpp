@@ -225,11 +225,10 @@ public:
 			if (index >= 0) {
 				SymbolListItem *item = dynamic_cast<SymbolListItem*>(ItemAt(index));
 				if (item != nullptr) {
-					if (item->HasToolTip()) {
+					if (item->HasToolTip())
 						SetToolTip(item->GetToolTipText());
-					} else {
+					else
 						SetToolTip("");
-					}
 				}
 			}
 		}
@@ -271,9 +270,10 @@ FunctionsOutlineView::FunctionsOutlineView()
 	fToolBar->AddAction(kMsgSort, B_TRANSLATE("Sort"), "kIconOutlineSort", true);
 	fToolBar->SetExplicitMinSize(BSize(250, B_SIZE_UNSET));
 	fToolBar->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
-	BLayoutBuilder::Group<>(this)
+	BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
+		.Add(fToolBar)
 		.AddGroup(B_VERTICAL, 0)
-			.Add(fToolBar)
+			.SetInsets(-2, -2, -2, -2)
 			.Add(fScrollView)
 		.End();
 }

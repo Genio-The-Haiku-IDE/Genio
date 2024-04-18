@@ -32,7 +32,8 @@ public:
 	const char*		GetToolTipText() const;
     
     void            SetIcon(const char *iconName);
-
+    const char*     GetIcon() const;
+	
 protected:
 	virtual BRect	DrawIcon(BView* owner, const BRect& bounds,
 						const BBitmap* icon, float& iconSize);

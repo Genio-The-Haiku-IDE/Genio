@@ -80,7 +80,7 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	text << fExtraText;
 	DrawText(owner, text.String(), textPoint);
 
-	owner->Sync();
+	// owner->Sync();
 }
 
 
@@ -146,6 +146,12 @@ StyledItem::SetIcon(const char *iconName)
     fIconName = iconName;
 }
 
+const char *
+StyledItem::GetIcon() const
+{
+    return fIconName;
+}
+
 
 /* virtual */
 void
@@ -159,8 +165,6 @@ StyledItem::DrawText(BView* owner, const char* text, const BPoint& point)
 	owner->SetDrawingMode(B_OP_COPY);
 	owner->MovePenTo(point);
 	owner->DrawString(text);
-
-	owner->Sync();
 }
 
 
@@ -172,7 +176,7 @@ StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
 	BPoint iconStartingPoint(itemBounds.left + 4.0f,
 		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
 	if (icon != nullptr) {
-		owner->SetDrawingMode(B_OP_ALPHA);
+		// owner->SetDrawingMode(B_OP_ALPHA);
 		// TODO: changed from "DrawBitmapAsync()":
 		// which caused weird drawing issues on the Outline view
 		// like disappearing icons. Investigate

@@ -402,10 +402,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	if (selected != nullptr)
 		selectedItemText = selected->Text();
 
-	// Save the vertical scrolling value
-	BScrollBar* vertScrollBar = fScrollView->ScrollBar(B_VERTICAL);
-	float scrolledValue = vertScrollBar->Value();
-
 	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
 	// Got a message from an unselected editor: ignore.
 	if (editor != nullptr && *editor->FileRef() != *newRef) {
@@ -422,13 +418,20 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 		return;
 	}
 
+	// Save the vertical scrolling value
+	BScrollBar* vertScrollBar = fScrollView->ScrollBar(B_VERTICAL);
+	float scrolledValue = vertScrollBar->Value();
+
+	Window()->DisableUpdates();
+
 	fListView->MakeEmpty();
 	_RecursiveAddSymbols(nullptr, &msg);
 	fSymbolsLastUpdateTime = system_time();
 
 	// same document, don't reset the vertical scrolling value
 	if (*newRef == fCurrentRef) {
-		vertScrollBar->SetValue(scrolledValue);
+		if (vertScrollBar->Value() != scrolledValue)
+			vertScrollBar->SetValue(scrolledValue);
 	}
 
 	if (sSorted)
@@ -445,6 +448,8 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 			}
 		}
 	}
+
+	Window()->EnableUpdates();
 
 	fCurrentRef = *newRef;
 

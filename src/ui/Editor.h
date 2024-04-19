@@ -13,6 +13,7 @@
 #include <ScintillaView.h>
 
 #include <set>
+#include <utility>
 
 #include "LSPCapabilities.h"
 
@@ -244,7 +245,7 @@ private:
 			BMessage			fProblems;
 			BMessage			fDocumentSymbols;
 			symbols_status		fSymbolsStatus;
-			std::set<std::string>	fCollapsedSymbols;
+			std::set<std::pair<std::string, int32> > fCollapsedSymbols;
 };
 
 #endif // EDITOR_H

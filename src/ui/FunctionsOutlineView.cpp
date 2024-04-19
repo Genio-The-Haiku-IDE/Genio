@@ -19,11 +19,10 @@
 #include "EditorTabManager.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
-#include "StringFormatter.h"
 #include "protocol_objects.h"
+#include "StringFormatter.h"
 #include "StyledItem.h"
 #include "ToolBar.h"
-#include "GenioWindowMessages.h"
 
 #include "Log.h"
 
@@ -217,7 +216,11 @@ CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 
 class SymbolOutlineListView: public BOutlineListView {
 public:
-	SymbolOutlineListView(const char* name) : BOutlineListView(name) {}
+	SymbolOutlineListView(const char* name)
+		:
+		BOutlineListView(name)
+	{
+	}
 
 	virtual void MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 	{
@@ -472,11 +475,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 		return;
 	}
 
-	BStringItem* selected = dynamic_cast<BStringItem*>(fListView->ItemAt(fListView->CurrentSelection()));
-	BString selectedItemText;
-	if (selected != nullptr)
-		selectedItemText = selected->Text();
-
 	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
 	// Got a message from an unselected editor: ignore.
 	if (editor != nullptr && *editor->FileRef() != *newRef) {
@@ -488,11 +486,18 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 		// File just opened, LSP hasn't retrieved symbols yet
 		fListView->MakeEmpty();
 		fListView->AddItem(new BStringItem(B_TRANSLATE("Creating outline" B_UTF8_ELLIPSIS)));
-
-		// TODO: We should request symbols to LSP, though
+		// TODO: Should we request symbols to LSP ?
 		return;
 	}
 
+	// Save selected item
+	SymbolListItem* selected = dynamic_cast<SymbolListItem*>(fListView->ItemAt(fListView->CurrentSelection()));
+	if (selected != nullptr && *newRef == fCurrentRef) {
+		fSelectedSymbol.name = selected->Details().GetString("name");
+		fSelectedSymbol.kind = selected->Details().GetInt32("kind", -1);
+	} else {
+		fSelectedSymbol.name = "";
+	}
 	// Save the vertical scrolling value
 	BScrollBar* vertScrollBar = fScrollView->ScrollBar(B_VERTICAL);
 	float scrolledValue = vertScrollBar->Value();
@@ -528,18 +533,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 			vertScrollBar->SetValue(scrolledValue);
 	}
 
-	// List could have been changed.
-	// Try to re-select old selected item, but only if it's the same document
-	if (*newRef == fCurrentRef && !selectedItemText.IsEmpty()) {
-		for (int32 itemIndex = 0; itemIndex < fListView->CountItems(); itemIndex++) {
-			BStringItem* item = dynamic_cast<BStringItem*>(fListView->ItemAt(itemIndex));
-			if (item != nullptr && selectedItemText == item->Text()) {
-				fListView->Select(itemIndex, false);
-				break;
-			}
-		}
-	}
-
 	Window()->EnableUpdates();
 
 	fCurrentRef = *newRef;
@@ -560,6 +553,10 @@ FunctionsOutlineView::_RecursiveAddSymbols(BListItem* parent, const BMessage* ms
 			fListView->AddUnder(item, parent);
 		else
 			fListView->AddItem(item);
+
+		if (symbol.GetString("name") == fSelectedSymbol.name &&
+			symbol.GetInt32("kind", -1) == fSelectedSymbol.kind)
+			fListView->Select(fListView->IndexOf(item), false);
 
 		BMessage child;
 		if (symbol.FindMessage("children", &child) == B_OK) {

@@ -391,4 +391,15 @@ struct DocumentSymbol {
   std::vector<DocumentSymbol> children;
 };
 
+struct SymbolInformation {
+    /// The name of this symbol.
+    std::string name;
+    /// The kind of this symbol.
+    SymbolKind kind = SymbolKind::Class;
+    /// The location of this symbol.
+    Location location;
+    /// The name of the symbol containing this symbol.
+    option<std::string> containerName;
+};
+
 #endif // protocol_objects_H

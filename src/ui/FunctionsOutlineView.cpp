@@ -263,12 +263,13 @@ protected:
 	{
 		BOutlineListView::ExpandOrCollapse(superItem, expand);
 
-		BString symbol;
-		static_cast<SymbolListItem*>(superItem)->Details().FindString("name", &symbol);
-		BMessage message(MSG_COLLAPSE_SYMBOL_NODE);
-		message.AddString("symbol", symbol);
-		message.AddBool("collapsed", !expand);
-		Window()->PostMessage(&message);
+		SymbolListItem* item = dynamic_cast<SymbolListItem*>(superItem);
+		if (item != nullptr) {
+			BMessage message = item->Details();
+			message.what = MSG_COLLAPSE_SYMBOL_NODE;
+			message.AddBool("collapsed", !expand);
+			Window()->PostMessage(&message);
+		}
 	}
 
 private:
@@ -513,11 +514,14 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	// and compare the listview ONCE with the smaller list of to-be-collapsed items
 	// TODO: symbol name isn't enough: we need to compare also with symbol kind
 	int32 i = 0;
-	BString collapsed;
-	while (msg.FindString("collapsed", i, &collapsed) == B_OK) {
+	BString collapsedName;
+	int32 collapsedKind = -1;
+	while (msg.FindString("collapsed_name", i, &collapsedName) == B_OK) {
+		msg.FindInt32("collapsed_kind", i, &collapsedKind);
 		for (int32 itemIndex = 0; itemIndex < fListView->CountItems(); itemIndex++) {
-			BStringItem* item = static_cast<BStringItem*>(fListView->ItemAt(itemIndex));
-			if (collapsed.Compare(item->Text()) == 0) {
+			SymbolListItem* item = static_cast<SymbolListItem*>(fListView->ItemAt(itemIndex));
+			if (collapsedName.Compare(item->Details().GetString("name"))== 0
+				&& collapsedKind == item->Details().GetInt32("kind", -1)) {
 				fListView->Collapse(item);
 				break;
 			}

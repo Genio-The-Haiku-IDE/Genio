@@ -186,7 +186,7 @@ LSPEditorWrapper::didSave()
 	if (!IsInitialized())
 		return;
 
-
+	flushChanges();
 	fLSPProjectWrapper->DidSave(this);
 }
 
@@ -208,9 +208,20 @@ LSPEditorWrapper::didChange(
 	event.range = range;
 	event.text.assign(text, len);
 
-	std::vector<TextDocumentContentChangeEvent> changes{event};
+	//std::vector<TextDocumentContentChangeEvent> changes{event};
 
-	fLSPProjectWrapper->DidChange(this, changes, false);
+	//fLSPProjectWrapper->DidChange(this, changes, false);
+
+	fChanges.push_back(event);
+}
+
+void
+LSPEditorWrapper::flushChanges()
+{
+	if (fChanges.size() > 0) {
+		fLSPProjectWrapper->DidChange(this, fChanges, false);
+		fChanges.clear();
+	}
 }
 
 
@@ -495,6 +506,7 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 			if (fCallTip.IsVisible())
 				fCallTip.HideCallTip();
 
+			flushChanges();
 			StartCompletion();
 		}
 	}
@@ -503,6 +515,7 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 		CallTipAction action = fCallTip.UpdateCallTip(ch, ch == 0);
 		if (action == CALLTIP_NEWDATA) {
 
+			flushChanges();
 			Position lsp_position;
 			FromSciPositionToLSPPosition(fCallTip.Position(), &lsp_position);
 			fLSPProjectWrapper->SignatureHelp(this, lsp_position);
@@ -721,8 +734,10 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 		fEditor->UnlockLooper();
 	}
 
-	if (fLSPProjectWrapper)
+	if (fLSPProjectWrapper) {
 		fLSPProjectWrapper->DocumentLink(this);
+		fLSPProjectWrapper->DocumentSymbol(this);
+	}
 }
 
 void

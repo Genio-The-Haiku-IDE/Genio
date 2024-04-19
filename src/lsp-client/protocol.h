@@ -490,15 +490,7 @@ struct DidSaveTextDocumentParams {
 };
 JSON_SERIALIZE(DidSaveTextDocumentParams, MAP_JSON(MAP_KEY(textDocument)), {});
 
-struct TextDocumentContentChangeEvent {
-    /// The range of the document that changed.
-    option<Range> range;
-
-    /// The length of the range that got replaced.
-    //xed option<int> rangeLength;
-    /// The new text of the range/document.
-    std::string text;
-};
+//struct TextDocumentContentChangeEvent
 JSON_SERIALIZE(TextDocumentContentChangeEvent, MAP_JSON(MAP_KEY(range)/*, MAP_KEY(rangeLength)*/, MAP_KEY(text)), {});
 
 struct DidChangeTextDocumentParams {

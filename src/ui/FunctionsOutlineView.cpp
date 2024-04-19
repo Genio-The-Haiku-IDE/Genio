@@ -371,31 +371,6 @@ FunctionsOutlineView::DetachedFromWindow()
 
 /* virtual */
 void
-FunctionsOutlineView::Pulse()
-{
-	BView::Pulse();
-
-	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
-	if (editor == nullptr)
-		return;
-
-	// TODO: Not very nice: we should request symbols update only if there's a
-	// change. But we shouldn't ask one for EVERY change.
-	// Maybe editor knows, but I wasn't able to make it work there
-
-	// Update every 5 seconds
-	const bigtime_t kUpdatePeriod = 5000000LL;
-
-	bigtime_t currentTime = system_time();
-	if (currentTime - fSymbolsLastUpdateTime > kUpdatePeriod) {
-		// Window will request symbols through Editor
-		Window()->PostMessage(kClassOutline);
-	}
-}
-
-
-/* virtual */
-void
 FunctionsOutlineView::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {

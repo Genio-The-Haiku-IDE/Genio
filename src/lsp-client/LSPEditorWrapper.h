@@ -55,6 +55,7 @@ private:
 public:
 		void	didClose();
 		void	didChange(const char* text, long len, Sci_Position start_pos, Sci_Position poslength);
+		void	flushChanges();
 		void	didSave();
 
 		void	StartCompletion();
@@ -136,7 +137,7 @@ private:
 						BString edits = "");
 	std::string 	GetCurrentLine();
 	bool			IsStatusValid();
-
+	std::vector<TextDocumentContentChangeEvent> fChanges;
 
 };
 

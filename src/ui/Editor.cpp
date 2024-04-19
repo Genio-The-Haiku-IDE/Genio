@@ -47,6 +47,7 @@
 namespace Sci = Scintilla;
 using namespace Sci::Properties;
 
+const int kIdleTimeout = 500000; //1/2sec
 
 // Differentiate unset parameters from 0 ones
 // in scintilla messages
@@ -68,6 +69,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCurrentColumn(-1)
 	, fProjectFolder(NULL)
 	, fSymbolsStatus(STATUS_NOT_INITIALIZED)
+	, fIdleHandler(nullptr)
 {
 	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
@@ -156,6 +158,9 @@ void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case 'IDLE':
+			fLSPEditorWrapper->flushChanges();
+		break;
 		case MSG_REPLACE_ALL:
 		case MSG_REPLACE_NEXT:
 		case MSG_REPLACE_ONE:
@@ -880,6 +885,7 @@ Editor::NotificationReceived(SCNotification* notification)
 			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT)
 				fLSPEditorWrapper->CharAdded(notification->ch);
 			break;
+
 		}
 		case SCN_MARGINCLICK: {
 			if (notification->margin == sci_BOOKMARK_MARGIN)
@@ -901,12 +907,14 @@ Editor::NotificationReceived(SCNotification* notification)
 		case SCN_MODIFIED: {
 			if (notification->modificationType & SC_MOD_INSERTTEXT) {
 				fLSPEditorWrapper->didChange(notification->text, notification->length, notification->position, 0);
+				EvaluateIdleTime();
 			}
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
 				fLSPEditorWrapper->didChange("", 0, notification->position, notification->length);
 			}
 			if (notification->modificationType & SC_MOD_DELETETEXT) {
 					fLSPEditorWrapper->CharAdded(0);
+					EvaluateIdleTime();
 			}
 			if (notification->linesAdded != 0)
 				if (gCFG["show_linenumber"])
@@ -1933,5 +1941,28 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 	std::set<std::string>::const_iterator iterator;
 	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {
 		symbols->AddString("collapsed", iterator->c_str());
+	}
+}
+
+void
+Editor::EvaluateIdleTime()
+{
+	if (fIdleHandler == nullptr || fIdleHandler->SetInterval(kIdleTimeout) != B_OK) {
+		LogInfo("EvaluateIdleTime: Re-arming IdleHandler...");
+		if (fIdleHandler != nullptr)
+			delete fIdleHandler;
+
+		// create a message to update the project
+		BMessage message('IDLE');
+		fIdleHandler = new BMessageRunner(BMessenger(this), &message, kIdleTimeout, 1);
+		if (fIdleHandler->InitCheck() != B_OK) {
+			LogInfo("EvaluateIdleTime: Could not create fIdleHandler. Deleting it");
+			if (fIdleHandler != nullptr) {
+				delete fIdleHandler;
+				fIdleHandler = nullptr;
+			}
+		} else {
+			LogInfo("EvaluateIdleTime: fIdleHandler re-armed.");
+		}
 	}
 }

@@ -6,12 +6,18 @@
 
 #include <View.h>
 
+
 class BListItem;
 class BStringView;
 class BOutlineListView;
 class ToolBar;
 class FunctionsOutlineView : public BView {
 public:
+	// TODO: Maybe reuse LSP definition ?
+	struct Symbol {
+		BString name;
+		int32 kind;
+	};
 				FunctionsOutlineView();
 
 	virtual		void	AttachedToWindow();
@@ -29,6 +35,7 @@ private:
 	BOutlineListView* fListView;
 	BScrollView* fScrollView;
 	ToolBar*	fToolBar;
+	Symbol		fSelectedSymbol;
 	entry_ref	fCurrentRef;
 	bigtime_t	fSymbolsLastUpdateTime;
 };

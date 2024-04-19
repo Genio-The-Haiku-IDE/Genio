@@ -872,13 +872,12 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 void
 LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 {
-	BMessage msg('symb');
+	BMessage msg(EDITOR_UPDATE_SYMBOLS);
 	auto vect = params.get<std::vector<DocumentSymbol>>();
 	_DoRecursiveDocumentSymbol(vect, msg);
 
 	if (fEditor != nullptr)
 		fEditor->SetDocumentSymbols(&msg);
-
 }
 
 

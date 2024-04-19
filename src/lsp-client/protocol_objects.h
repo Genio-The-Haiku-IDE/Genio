@@ -57,6 +57,16 @@ struct Range {
     }
 };
 
+struct TextDocumentContentChangeEvent {
+    /// The range of the document that changed.
+    option<Range> range;
+
+    /// The length of the range that got replaced.
+    //xed option<int> rangeLength;
+    /// The new text of the range/document.
+    std::string text;
+};
+
 struct TextEdit {
     /// The range of the text document to be manipulated. To insert
     /// text into a document create a range where start === end.

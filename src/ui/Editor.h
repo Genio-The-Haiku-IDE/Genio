@@ -10,8 +10,8 @@
 #include <Locker.h>
 #include <MessageFilter.h>
 #include <Messenger.h>
-#include <ScintillaView.h>
-
+#include "ScintillaView.h"
+#include <MessageRunner.h>
 #include <set>
 #include <utility>
 
@@ -219,6 +219,8 @@ private:
 			template<typename T>
 			void				Set(typename T::type value) { T::Set(this, value); }
 
+			void	EvaluateIdleTime();
+
 private:
 
 			entry_ref			fFileRef;
@@ -246,6 +248,7 @@ private:
 			BMessage			fDocumentSymbols;
 			symbols_status		fSymbolsStatus;
 			std::set<std::pair<std::string, int32> > fCollapsedSymbols;
+			BMessageRunner*		fIdleHandler;
 };
 
 #endif // EDITOR_H

@@ -15,7 +15,6 @@
 #include <Window.h>
 
 #include "Editor.h"
-#include "EditorMessages.h"
 #include "EditorTabManager.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
@@ -251,7 +250,7 @@ public:
 
 		if (buttons == B_MOUSE_BUTTON(1)) {
 			return BOutlineListView::MouseDown(where);
-		} else  if ( buttons == B_MOUSE_BUTTON(2)) {
+		} else if ( buttons == B_MOUSE_BUTTON(2)) {
 			int32 index = IndexOf(where);
 			if (index >= 0) {
 				Select(index);
@@ -264,7 +263,6 @@ protected:
 	virtual void ExpandOrCollapse(BListItem* superItem, bool expand)
 	{
 		BOutlineListView::ExpandOrCollapse(superItem, expand);
-
 		SymbolListItem* item = dynamic_cast<SymbolListItem*>(superItem);
 		if (item != nullptr) {
 			BMessage message = item->Details();
@@ -314,9 +312,8 @@ private:
 
 			optionsMenu->SetTargetForItems(Target());
 			optionsMenu->Go(ConvertToScreen(where), true);
-			delete optionsMenu;
-
 		}
+		delete optionsMenu;
 	}
 };
 
@@ -328,8 +325,6 @@ FunctionsOutlineView::FunctionsOutlineView()
 	fToolBar(nullptr),
 	fSymbolsLastUpdateTime(0)
 {
-	SetFlags(Flags() | B_PULSE_NEEDED);
-
 	fListView = new SymbolOutlineListView("listview");
 	fScrollView = new BScrollView("scrollview", fListView,
 		B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
@@ -556,8 +551,8 @@ FunctionsOutlineView::_GoToSymbol(BMessage *msg)
 	if (index > -1) {
 		SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemAt(index));
 		if (sym != nullptr) {
-		BMessage go = sym->Details();
-		go.what = B_REFS_RECEIVED;
+			BMessage go = sym->Details();
+			go.what = B_REFS_RECEIVED;
 			go.AddRef("refs", &fCurrentRef);
 			Window()->PostMessage(&go);
 			status = B_OK;

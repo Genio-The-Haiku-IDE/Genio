@@ -158,7 +158,7 @@ void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case 'IDLE':
+		case kIdle:
 			fLSPEditorWrapper->flushChanges();
 			break;
 		case MSG_REPLACE_ALL:
@@ -1961,7 +1961,7 @@ Editor::EvaluateIdleTime()
 			delete fIdleHandler;
 
 		// create a message to update the project
-		BMessage message('IDLE');
+		BMessage message(kIdle);
 		fIdleHandler = new BMessageRunner(BMessenger(this), &message, kIdleTimeout, 1);
 		if (fIdleHandler->InitCheck() != B_OK) {
 			LogInfo("EvaluateIdleTime: Could not create fIdleHandler. Deleting it");

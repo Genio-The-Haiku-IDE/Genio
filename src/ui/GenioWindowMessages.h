@@ -53,6 +53,7 @@ enum {
 	MSG_RENAME					= 'rena',
 	MSG_SWITCHSOURCE			= 'swit',
 	MSG_FIND_IN_BROWSER			= 'finb',
+	MSG_COLLAPSE_SYMBOL_NODE	= 'mcsn',
 
 	// view
 	MSG_VIEW_ZOOMIN				= 'zoin',

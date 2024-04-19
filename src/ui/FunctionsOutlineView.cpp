@@ -20,23 +20,27 @@
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "protocol_objects.h"
+#include "StringFormatter.h"
 #include "StyledItem.h"
 #include "ToolBar.h"
 
 #include "Log.h"
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "FunctionsOutlineView"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "OutlineTooltips"
 
-#define kGoToSymbol	'gots'
-#define kMsgSort 'sort'
-#define kMsgCollapseAll 'coll'
+const int32 kMsgGoToSymbol		= 'gots';
+const int32 kMsgSort			= 'sort';
+const int32 kMsgCollapseAll		= 'coll';
+const int32 kMsgRenameSymbol	= 'rens';
 
 static bool sSorted = false;
 static bool sCollapsed = false;
 
-class SymbolListItem : public StyledItem {
+class SymbolListItem: public StyledItem {
 public:
 		SymbolListItem(BMessage& details)
 			:
@@ -153,7 +157,7 @@ SymbolListItem::SetIconAndTooltip()
 			iconName = "key";
 			toolTip = B_TRANSLATE("Key");
 			break;
-		case SymbolKind::Null: // icon not available
+		case SymbolKind::Null: // icon unavailable
 			iconName = "misc";
 			toolTip = B_TRANSLATE("Null");
 			break;
@@ -215,7 +219,11 @@ CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 
 class SymbolOutlineListView: public BOutlineListView {
 public:
-	SymbolOutlineListView(const char* name) : BOutlineListView(name) {}
+	SymbolOutlineListView(const char* name)
+		:
+		BOutlineListView(name)
+	{
+	}
 
 	virtual void MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 	{
@@ -233,23 +241,84 @@ public:
 			}
 		}
 	}
+
+	virtual void MouseDown(BPoint where)
+	{
+		int32 buttons = -1;
+		BMessage* message = Looper()->CurrentMessage();
+		if (message != NULL)
+			message->FindInt32("buttons", &buttons);
+
+		if (buttons == B_MOUSE_BUTTON(1)) {
+			return BOutlineListView::MouseDown(where);
+		} else  if ( buttons == B_MOUSE_BUTTON(2)) {
+			int32 index = IndexOf(where);
+			if (index >= 0) {
+				Select(index);
+				_ShowPopupMenu(where);
+			}
+		}
+	}
+
 protected:
 	virtual void ExpandOrCollapse(BListItem* superItem, bool expand)
 	{
 		BOutlineListView::ExpandOrCollapse(superItem, expand);
 
-		BString symbol;
-		static_cast<SymbolListItem*>(superItem)->Details().FindString("name", &symbol);
-		BMessage message('0099');
-		message.AddString("symbol", symbol);
-		message.AddBool("collapsed", !expand);
-		Window()->PostMessage(&message);
+		SymbolListItem* item = dynamic_cast<SymbolListItem*>(superItem);
+		if (item != nullptr) {
+			BMessage message = item->Details();
+			message.what = MSG_COLLAPSE_SYMBOL_NODE;
+			message.AddBool("collapsed", !expand);
+			Window()->PostMessage(&message);
+		}
+	}
+
+private:
+	void _ShowPopupMenu(BPoint where)
+	{
+		auto optionsMenu = new BPopUpMenu("Options", false, false);
+		auto index = IndexOf(where);
+		if (index >= 0) {
+			auto item = dynamic_cast<SymbolListItem*>(ItemAt(index));
+			if (item == nullptr) {
+				delete optionsMenu;
+				return;
+			}
+
+			BMessage symbol;
+			BString selectedSymbol;
+			Position position;
+			symbol = item->Details();
+			selectedSymbol = symbol.GetString("name", nullptr);
+			position.character = symbol.GetInt32("start:character", -1);
+			position.line = symbol.GetInt32("start:line", -1);
+
+			StringFormatter fmt;
+			fmt.Substitutions["%selected_symbol%"] = selectedSymbol;
+
+			optionsMenu->AddItem(
+				new BMenuItem(fmt << B_TRANSLATE("Go to \"%selected_symbol%\""),
+					new GMessage{
+						{"what", kMsgGoToSymbol},
+						{"index", index}}));
+
+			BMenuItem *renameItem = new BMenuItem(fmt << B_TRANSLATE("Rename \"%selected_symbol%\""),
+					new GMessage{
+						{"what", kMsgRenameSymbol},
+						{"index", index},
+						{"start:line", position.line},
+						{"start:character", position.character}});
+			renameItem->SetEnabled((position.line != -1 && position.character != -1));
+			optionsMenu->AddItem(renameItem);
+
+			optionsMenu->SetTargetForItems(Target());
+			optionsMenu->Go(ConvertToScreen(where), true);
+			delete optionsMenu;
+
+		}
 	}
 };
-
-
-#undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "FunctionsOutlineView"
 
 
 FunctionsOutlineView::FunctionsOutlineView()
@@ -357,18 +426,15 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			}
 			break;
 		}
-		case kGoToSymbol:
+		case kMsgGoToSymbol:
 		{
-			int32 index = msg->GetInt32("index", -1);
-			if (index > -1) {
-				SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemAt(index));
-				if (sym != nullptr) {
-					BMessage go = sym->Details();
-					go.what = B_REFS_RECEIVED;
-					go.AddRef("refs", &fCurrentRef);
-					Window()->PostMessage(&go);
-				}
-			}
+			_GoToSymbol(msg);
+			break;
+		}
+		case kMsgRenameSymbol:
+		{
+			if (_GoToSymbol(msg) == B_OK)
+				_RenameSymbol(msg);
 			break;
 		}
 		case kMsgSort:
@@ -413,11 +479,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 		return;
 	}
 
-	BStringItem* selected = dynamic_cast<BStringItem*>(fListView->ItemAt(fListView->CurrentSelection()));
-	BString selectedItemText;
-	if (selected != nullptr)
-		selectedItemText = selected->Text();
-
 	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
 	// Got a message from an unselected editor: ignore.
 	if (editor != nullptr && *editor->FileRef() != *newRef) {
@@ -429,11 +490,18 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 		// File just opened, LSP hasn't retrieved symbols yet
 		fListView->MakeEmpty();
 		fListView->AddItem(new BStringItem(B_TRANSLATE("Creating outline" B_UTF8_ELLIPSIS)));
-
-		// TODO: We should request symbols to LSP, though
+		// TODO: Should we request symbols to LSP ?
 		return;
 	}
 
+	// Save selected item
+	SymbolListItem* selected = dynamic_cast<SymbolListItem*>(fListView->ItemAt(fListView->CurrentSelection()));
+	if (selected != nullptr && *newRef == fCurrentRef) {
+		fSelectedSymbol.name = selected->Details().GetString("name");
+		fSelectedSymbol.kind = selected->Details().GetInt32("kind", -1);
+	} else {
+		fSelectedSymbol.name = "";
+	}
 	// Save the vertical scrolling value
 	BScrollBar* vertScrollBar = fScrollView->ScrollBar(B_VERTICAL);
 	float scrolledValue = vertScrollBar->Value();
@@ -449,11 +517,14 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	// and compare the listview ONCE with the smaller list of to-be-collapsed items
 	// TODO: symbol name isn't enough: we need to compare also with symbol kind
 	int32 i = 0;
-	BString collapsed;
-	while (msg.FindString("collapsed", i, &collapsed) == B_OK) {
+	BString collapsedName;
+	int32 collapsedKind = -1;
+	while (msg.FindString("collapsed_name", i, &collapsedName) == B_OK) {
+		msg.FindInt32("collapsed_kind", i, &collapsedKind);
 		for (int32 itemIndex = 0; itemIndex < fListView->CountItems(); itemIndex++) {
-			BStringItem* item = static_cast<BStringItem*>(fListView->ItemAt(itemIndex));
-			if (collapsed.Compare(item->Text()) == 0) {
+			SymbolListItem* item = static_cast<SymbolListItem*>(fListView->ItemAt(itemIndex));
+			if (collapsedName.Compare(item->Details().GetString("name"))== 0
+				&& collapsedKind == item->Details().GetInt32("kind", -1)) {
 				fListView->Collapse(item);
 				break;
 			}
@@ -469,23 +540,11 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 			vertScrollBar->SetValue(scrolledValue);
 	}
 
-	// List could have been changed.
-	// Try to re-select old selected item, but only if it's the same document
-	if (*newRef == fCurrentRef && !selectedItemText.IsEmpty()) {
-		for (int32 itemIndex = 0; itemIndex < fListView->CountItems(); itemIndex++) {
-			BStringItem* item = dynamic_cast<BStringItem*>(fListView->ItemAt(itemIndex));
-			if (item != nullptr && selectedItemText == item->Text()) {
-				fListView->Select(itemIndex, false);
-				break;
-			}
-		}
-	}
-
 	Window()->EnableUpdates();
 
 	fCurrentRef = *newRef;
 
-	fListView->SetInvocationMessage(new BMessage(kGoToSymbol));
+	fListView->SetInvocationMessage(new BMessage(kMsgGoToSymbol));
 	fListView->SetTarget(this);
 }
 
@@ -502,9 +561,40 @@ FunctionsOutlineView::_RecursiveAddSymbols(BListItem* parent, const BMessage* ms
 		else
 			fListView->AddItem(item);
 
+		if (symbol.GetString("name") == fSelectedSymbol.name &&
+			symbol.GetInt32("kind", -1) == fSelectedSymbol.kind)
+			fListView->Select(fListView->IndexOf(item), false);
+
 		BMessage child;
 		if (symbol.FindMessage("children", &child) == B_OK) {
 			_RecursiveAddSymbols(item, &child);
 		}
 	}
+}
+
+
+status_t
+FunctionsOutlineView::_GoToSymbol(BMessage *msg)
+{
+	status_t status = B_ERROR;
+	int32 index = msg->GetInt32("index", -1);
+	if (index > -1) {
+		SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemAt(index));
+		if (sym != nullptr) {
+		BMessage go = sym->Details();
+		go.what = B_REFS_RECEIVED;
+			go.AddRef("refs", &fCurrentRef);
+			Window()->PostMessage(&go);
+			status = B_OK;
+		}
+	}
+	return status;
+}
+
+
+void
+FunctionsOutlineView::_RenameSymbol(BMessage *msg)
+{
+	BMessage go(MSG_RENAME);
+	Window()->PostMessage(&go);
 }

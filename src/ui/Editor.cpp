@@ -9,6 +9,8 @@
 
 #include "Editor.h"
 
+#include <regex>
+
 #include <Alert.h>
 #include <Application.h>
 #include <Catalog.h>
@@ -320,16 +322,18 @@ Editor::MessageReceived(BMessage* message)
 				fLSPEditorWrapper->NextCallTip();
 			break;
 		}
-		case '0099':
+		case MSG_COLLAPSE_SYMBOL_NODE:
 		{
 			BString symbol;
-			message->FindString("symbol", &symbol);
+			message->FindString("name", &symbol);
+			int32 kind;
+			message->FindInt32("kind", &kind);
 			bool collapsed;
 			message->FindBool("collapsed", &collapsed);
 			if (collapsed) {
-				fCollapsedSymbols.insert(symbol.String());
+				fCollapsedSymbols.insert(std::make_pair(symbol.String(), kind));
 			} else
-				fCollapsedSymbols.erase(symbol.String());
+				fCollapsedSymbols.erase(std::make_pair(symbol.String(), kind));
 			break;
 		}
 		default:
@@ -1533,7 +1537,13 @@ Editor::Rename()
 {
 	// Getting the symbol from the language server would require many async steps.
 	// We instead ask Scintilla to deliver it which should be almost if not entirely accurate
-	auto alert = new GTextAlert(B_TRANSLATE("Rename"), B_TRANSLATE("Rename symbol:"), GetSymbol());
+
+	// remove invalid leading characters
+	const std::string symbol = GetSymbol().String();
+	const std::regex leadingChars("^\\W+");
+	std::string str = std::regex_replace(symbol, leadingChars, "");
+
+	auto alert = new GTextAlert(B_TRANSLATE("Rename"), B_TRANSLATE("Rename symbol:"), str.c_str());
 	auto result = alert->Go();
 	if (result.Button == GAlertButtons::OkButton)
 		fLSPEditorWrapper->Rename(result.Result.String());
@@ -1895,9 +1905,10 @@ Editor::SetDocumentSymbols(const BMessage* symbols)
 	fDocumentSymbols.AddRef("ref", &fFileRef);
 	fDocumentSymbols.AddInt32("status", fSymbolsStatus);
 
-	std::set<std::string>::const_iterator iterator;
+	std::set<std::pair<std::string, int32> >::const_iterator iterator;
 	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {
-		fDocumentSymbols.AddString("collapsed", iterator->c_str());
+		fDocumentSymbols.AddString("collapsed_name", iterator->first.c_str());
+		fDocumentSymbols.AddInt32("collapsed_kind", iterator->second);
 	}
 	Window()->PostMessage(&fDocumentSymbols);
 }
@@ -1921,9 +1932,14 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 	if (!symbols->HasInt32("status"))
 		symbols->AddInt32("status", fSymbolsStatus);
 
-	symbols->RemoveName("collapsed");
-	std::set<std::string>::const_iterator iterator;
+	// TODO: Refactor:
+	// we should add the "collapsed" property to the symbol, so that
+	// we can do a single pass in the Outline view
+	symbols->RemoveName("collapsed_name");
+	symbols->RemoveName("collapsed_kind");
+	std::set<std::pair<std::string, int32> >::const_iterator iterator;
 	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {
-		symbols->AddString("collapsed", iterator->c_str());
+		symbols->AddString("collapsed_name", iterator->first.c_str());
+		symbols->AddInt32("collapsed_kind", iterator->second);
 	}
 }

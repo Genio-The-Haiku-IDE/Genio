@@ -248,7 +248,7 @@ private:
 			BMessage			fDocumentSymbols;
 			symbols_status		fSymbolsStatus;
 			std::set<std::pair<std::string, int32> > fCollapsedSymbols;
-      BMessageRunner*			fIdleHandler;
+			BMessageRunner*		fIdleHandler;
 };
 
 #endif // EDITOR_H

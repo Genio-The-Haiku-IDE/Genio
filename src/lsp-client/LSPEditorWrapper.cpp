@@ -8,8 +8,8 @@
 
 #include <Application.h>
 #include <Path.h>
-#include <Window.h>
 #include <Catalog.h>
+#include <Window.h>
 
 #include <algorithm>
 #include <cstdio>
@@ -82,11 +82,13 @@ LSPEditorWrapper::HasLSPServer()
 	return (fLSPProjectWrapper != nullptr);
 }
 
+
 bool
 LSPEditorWrapper::HasLSPServerCapability(const LSPCapability cap)
 {
 	return (HasLSPServer() && fLSPProjectWrapper->HasCapability(cap));
 }
+
 
 void
 LSPEditorWrapper::ApplyFix(BMessage* info)
@@ -145,11 +147,13 @@ LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 	}
 }
 
+
 bool
 LSPEditorWrapper::IsInitialized()
 {
 	return (fInitialized && fLSPProjectWrapper != nullptr);
 }
+
 
 void
 LSPEditorWrapper::didOpen()
@@ -169,7 +173,6 @@ LSPEditorWrapper::didClose()
 {
 	if (!IsInitialized())
 		return;
-
 
 	if (fEditor) {
 		_RemoveAllDiagnostics();
@@ -208,12 +211,9 @@ LSPEditorWrapper::didChange(
 	event.range = range;
 	event.text.assign(text, len);
 
-	//std::vector<TextDocumentContentChangeEvent> changes{event};
-
-	//fLSPProjectWrapper->DidChange(this, changes, false);
-
 	fChanges.push_back(event);
 }
+
 
 void
 LSPEditorWrapper::flushChanges()
@@ -325,6 +325,7 @@ LSPEditorWrapper::StartHover(Sci_Position sci_position)
 	fLSPProjectWrapper->Hover(this, position);
 }
 
+
 int32
 LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnostic& dia)
 {
@@ -340,6 +341,7 @@ LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnosti
 	}
 	return -1;
 }
+
 
 int32
 LSPEditorWrapper::DiagnosticFromRange(Range& range, LSPDiagnostic& dia)
@@ -465,17 +467,20 @@ LSPEditorWrapper::StartCompletion()
 	fLSPProjectWrapper->Completion(this, position, context);
 }
 
+
 void
 LSPEditorWrapper::NextCallTip()
 {
 	fCallTip.NextCallTip();
 }
 
+
 void
 LSPEditorWrapper::PrevCallTip()
 {
 	fCallTip.PrevCallTip();
 }
+
 
 void
 LSPEditorWrapper::RequestDocumentSymbols()
@@ -617,7 +622,6 @@ LSPEditorWrapper::_DoSwitchSourceHeader(json& result)
 	OpenFileURI(url);
 }
 
-#include <stdio.h>
 
 void
 LSPEditorWrapper::_DoCompletion(json& params)
@@ -645,9 +649,7 @@ LSPEditorWrapper::_DoCompletion(json& params)
 			FromSciPositionToLSPPosition(fCompletionPosition, &pos);
 			item.textEdit.range.end = pos;
 
-			//printf("Debug completion 0 [%s]\n", item.textEdit.newText.c_str());
-
-			//funcy algo to find insertText before current position.
+			// fancy algo to find insertText before current position.
 			if (position.character == -1) {
 				line = GetCurrentLine();
 				GetCurrentLSPPosition(&position);
@@ -695,6 +697,7 @@ LSPEditorWrapper::_RemoveAllDiagnostics()
 	fLastDiagnostics.clear();
 }
 
+
 void
 LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 {
@@ -740,6 +743,7 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 	}
 }
 
+
 void
 LSPEditorWrapper::RequestCodeActions(Diagnostic& diagnostic)
 {
@@ -748,17 +752,18 @@ LSPEditorWrapper::RequestCodeActions(Diagnostic& diagnostic)
 	fLSPProjectWrapper->CodeAction(this, diagnostic.range, context);
 }
 
+
 void
 LSPEditorWrapper::CodeActionResolve(value &params)
 {
 	fLSPProjectWrapper->CodeActionResolve(this, params);
 }
 
+
 void
 LSPEditorWrapper::_DoCodeActions(nlohmann::json& params)
 {
 	for (auto& v : params) {
-
 		CodeAction action;
 
 		action.kind = v["kind"].get<std::string>();
@@ -783,6 +788,7 @@ LSPEditorWrapper::_DoCodeActions(nlohmann::json& params)
 		}
 	}
 }
+
 
 void
 LSPEditorWrapper::_DoCodeActionResolve(nlohmann::json& params)
@@ -814,6 +820,7 @@ LSPEditorWrapper::_DoCodeActionResolve(nlohmann::json& params)
 	}
 }
 
+
 void
 LSPEditorWrapper::_RemoveAllDocumentLinks()
 {
@@ -823,12 +830,14 @@ LSPEditorWrapper::_RemoveAllDocumentLinks()
 	fLastDocumentLinks.clear();
 }
 
+
 void
 LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
 {
 	fInitialized = true;
 	didOpen();
 }
+
 
 void
 LSPEditorWrapper::_DoDocumentLink(nlohmann::json& result)
@@ -871,6 +880,7 @@ LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 		fEditor->SetDocumentSymbols(&msg);
 
 }
+
 
 void
 LSPEditorWrapper::_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& vect, BMessage& msg)
@@ -995,6 +1005,7 @@ LSPEditorWrapper::ApplyTextEdit(json& textEditJson)
 	return ApplyTextEdit(textEdit);
 }
 
+
 Sci_Position
 LSPEditorWrapper::ApplyTextEdit(TextEdit &textEdit)
 {
@@ -1009,6 +1020,7 @@ LSPEditorWrapper::ApplyTextEdit(TextEdit &textEdit)
 
 	return s_pos + replaced;
 }
+
 
 void
 LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character, BString edits)

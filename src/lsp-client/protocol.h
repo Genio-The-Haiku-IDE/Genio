@@ -712,16 +712,7 @@ JSON_SERIALIZE(CodeAction, MAP_JSON(MAP_KEY(title), MAP_KEY(kind), MAP_KEY(diagn
 JSON_SERIALIZE(DocumentSymbol, {/*NOT REQUIRED*/},{FROM_KEY(name);FROM_KEY(detail);FROM_KEY(kind);FROM_KEY(deprecated);
                 FROM_KEY(range);FROM_KEY(selectionRange);FROM_KEY(children);});
 
-struct SymbolInformation {
-    /// The name of this symbol.
-    std::string name;
-    /// The kind of this symbol.
-    SymbolKind kind = SymbolKind::Class;
-    /// The location of this symbol.
-    Location location;
-    /// The name of the symbol containing this symbol.
-    std::string containerName;
-};
+//struct SymbolInformation
 JSON_SERIALIZE(SymbolInformation, MAP_JSON(MAP_KEY(name), MAP_KEY(kind), MAP_KEY(location), MAP_KEY(containerName)), {FROM_KEY(name);FROM_KEY(kind);FROM_KEY(location);FROM_KEY(containerName)});
 
 struct SymbolDetails {

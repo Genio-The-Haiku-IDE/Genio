@@ -873,9 +873,15 @@ void
 LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 {
 	BMessage msg(EDITOR_UPDATE_SYMBOLS);
-	auto vect = params.get<std::vector<DocumentSymbol>>();
-	_DoRecursiveDocumentSymbol(vect, msg);
-
+	if (params.is_array() && params.size() > 0) {
+		if (params[0]["location"].is_null()) {
+			auto vect = params.get<std::vector<DocumentSymbol>>();
+			_DoRecursiveDocumentSymbol(vect, msg);
+		} else {
+			auto vect = params.get<std::vector<SymbolInformation>>();
+			_DoLinearSymbolInformation(vect, msg);
+		}
+	}
 	if (fEditor != nullptr)
 		fEditor->SetDocumentSymbols(&msg);
 }
@@ -893,12 +899,26 @@ LSPEditorWrapper::_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& vect, 
 			_DoRecursiveDocumentSymbol(sym.children, child);
 		}
 		symbol.AddMessage("children", &child);
-		symbol.AddInt32("start:line", sym.selectionRange.start.line + 1);
-		symbol.AddInt32("start:character", sym.selectionRange.start.character);
+		Range& symbolRange = sym.selectionRange;
+		symbol.AddInt32("start:line", symbolRange.start.line + 1);
+		symbol.AddInt32("start:character", symbolRange.start.character);
 		msg.AddMessage("symbol", &symbol);
 	}
 }
 
+void
+LSPEditorWrapper::_DoLinearSymbolInformation(std::vector<SymbolInformation>& vect, BMessage& msg)
+{
+	for (SymbolInformation sym: vect) {
+		BMessage symbol;
+		symbol.AddString("name", sym.name.c_str());
+		symbol.AddInt32("kind", (int32)sym.kind);
+		Range& symbolRange = sym.location.range;
+		symbol.AddInt32("start:line", symbolRange.start.line + 1);
+		symbol.AddInt32("start:character", symbolRange.start.character);
+		msg.AddMessage("symbol", &symbol);
+	}
+}
 
 bool
 LSPEditorWrapper::IsStatusValid()

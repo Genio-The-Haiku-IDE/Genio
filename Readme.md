@@ -17,6 +17,7 @@ Some of the features of the Genio IDE are:
 *   Integrated source control with GIT (including opening a remote project)
 *   Find in files
 *   Links to file and build errors in Build Log and Console I/O
+*   Symbols outline view 
 *   "Problems" tab
 *   Build on save / Save on build
 *   User templates for quickly creating new files and projects

@@ -23,7 +23,6 @@ public:
 	virtual		void	AttachedToWindow();
 	virtual		void	DetachedFromWindow();
 	virtual		void	MessageReceived(BMessage* msg);
-	virtual		void	Pulse();
 
 private:
 	void        _UpdateDocumentSymbols(const BMessage& msg,

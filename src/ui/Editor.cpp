@@ -160,7 +160,7 @@ Editor::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case 'IDLE':
 			fLSPEditorWrapper->flushChanges();
-		break;
+			break;
 		case MSG_REPLACE_ALL:
 		case MSG_REPLACE_NEXT:
 		case MSG_REPLACE_ONE:

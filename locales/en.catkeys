@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	448934088
+1	English	application/x-vnd.Genio	1364022149
 Close	RemoteProjectWindow		Close
 Function	OutlineTooltips		Function
 Copy	GenioWindow		Copy
@@ -17,9 +17,11 @@ Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Show toolbar	GenioWindow		Show toolbar
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
 Project settings…	ProjectsFolderBrowser		Project settings…
+Sort	OutlineTooltips		Sort
 Path	ProjectsFolderBrowser		Path
 development	Utilities		development
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
+Rename symbol '%symbol_name%':	Editor		Rename symbol '%symbol_name%':
 Show outline pane	GenioWindow		Show outline pane
 Replace selection	GenioWindow		Replace selection
 Focus mode	GenioWindow		Focus mode
@@ -28,7 +30,6 @@ Switch to branch	GenioWindow		Switch to branch
 Show vertical ruler	SettingsWindow		Show vertical ruler
 Open file	ProjectsFolderBrowser		Open file
 Problems	ProblemsPanel		Problems
-Rename...	GenioWindow		Rename...
 Window	GenioWindow		Window
 Line endings	GenioWindow		Line endings
 Tab width:	SettingsWindow		Tab width:
@@ -77,8 +78,8 @@ Reload	GenioWindow		Reload
 Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
 Replace	GenioWindow		Replace
 Switch to previous file	GenioWindow		Switch to previous file
-Stashed changes applied.	SourceControlPanel		Stashed changes applied.
 Cancel	GenioWindow		Cancel
+Stashed changes applied.	SourceControlPanel		Stashed changes applied.
 Log level:	SettingsWindow		Log level:
 Stash changes	SourceControlPanel		Stash changes
 OK	ProjectsFolderBrowser		OK
@@ -138,7 +139,6 @@ Genio project…	GenioWindow		Genio project…
 Project:	GenioWindow		Project:
 Go to line:	GoToLineWindow		Go to line:
 Constant	OutlineTooltips		Constant
-Outline	FunctionsOutlineView		Outline
 Close project	GenioWindow		Close project
 Conflicts	GenioWindow		Conflicts
 Replace:	GenioWindow		Replace:
@@ -183,7 +183,6 @@ Execute args:	ProjectSettingsWindow		Execute args:
 Operator	OutlineTooltips		Operator
 Log destination:	SettingsWindow		Log destination:
 Key	OutlineTooltips		Key
-Rename symbol:	Editor		Rename symbol:
 Interface	OutlineTooltips		Interface
 Save all files	GenioWindow		Save all files
 stdout	ConsoleIOView		stdout
@@ -200,6 +199,7 @@ Go to definition	GenioWindow		Go to definition
 Clean command:	ProjectSettingsWindow		Clean command:
 Cancel	RemoteProjectWindow		Cancel
 Stop	RemoteProjectWindow		Stop
+Go to symbol	OutlineTooltips		Go to symbol
 Rename file	ProjectsFolderBrowser		Rename file
 Save dialog	Editor		Save dialog
 OK	SourceControlPanel		OK
@@ -239,6 +239,7 @@ Contributors:	GenioApp		Contributors:
 File modified	GitRepository		File modified
 Show toolbar	SettingsWindow		Show toolbar
 Fetch prune completed.	SourceControlPanel		Fetch prune completed.
+Outline	OutlineTooltips		Outline
 Enum	OutlineTooltips		Enum
 Made with love in Italy	GenioApp		Made with love in Italy
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
@@ -262,6 +263,7 @@ File	GenioWindow		File
 Close other	GenioWindow		Close other
 Delete current line	GenioWindow		Delete current line
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
+Creating outline…	OutlineTooltips		Creating outline…
 Reload files	SettingsWindow		Reload files
 Password:	GitCredentialsWindow		Password:
 Build mode:	ProjectSettingsWindow		Build mode:
@@ -273,12 +275,11 @@ Font size:	SettingsWindow		Font size:
 Zoom out	GenioWindow		Zoom out
 Exclude folders:	SettingsWindow		Exclude folders:
 Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
-Creating outline…	FunctionsOutlineView		Creating outline…
-No outline available	FunctionsOutlineView		No outline available
 Save as…	GenioWindow		Save as…
 Base path:	RemoteProjectWindow		Base path:
 Fetch completed.	SourceControlPanel		Fetch completed.
 Log	GenioWindow	The git command	Log
+No outline available	OutlineTooltips		No outline available
 Show config	GenioWindow	The git command	Show config
 Show/Hide output pane	GenioWindow		Show/Hide output pane
 Projects	GenioWindow		Projects
@@ -324,7 +325,6 @@ Next	GenioWindow	Bookmark menu	Next
 Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
 Clear all	GenioWindow	Bookmark menu	Clear all
 Repository	SourceControlPanel		Repository
-Sort	FunctionsOutlineView		Sort
 File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
 Delete dialog	GenioWindow		Delete dialog
@@ -341,6 +341,7 @@ Tags	SourceControlPanel		Tags
 Current branch	ProjectsFolderBrowser		Current branch
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
 Clean project	ProjectsFolderBrowser		Clean project
+Rename symbol…	GenioWindow		Rename symbol…
 Module	OutlineTooltips		Module
 Open project…	GenioWindow		Open project…
 Run in terminal	ProjectSettingsWindow		Run in terminal
@@ -363,6 +364,7 @@ OK	Utilities		OK
 Package	OutlineTooltips		Package
 Location	SearchResultPanel		Location
 Paste	GenioWindow		Paste
+Rename symbol…	OutlineTooltips		Rename symbol…
 Visual	SettingsWindow		Visual
 Cancel	GTextAlert		Cancel
 Source control	SettingsWindow		Source control

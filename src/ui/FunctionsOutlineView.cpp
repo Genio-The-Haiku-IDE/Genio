@@ -285,23 +285,18 @@ private:
 			}
 
 			BMessage symbol;
-			BString selectedSymbol;
 			Position position;
 			symbol = item->Details();
-			selectedSymbol = symbol.GetString("name", nullptr);
 			position.character = symbol.GetInt32("start:character", -1);
 			position.line = symbol.GetInt32("start:line", -1);
 
-			StringFormatter fmt;
-			fmt.Substitutions["%selected_symbol%"] = selectedSymbol;
-
 			optionsMenu->AddItem(
-				new BMenuItem(fmt << B_TRANSLATE("Go to \"%selected_symbol%\""),
+				new BMenuItem(B_TRANSLATE("Go to symbol"),
 					new GMessage{
 						{"what", kMsgGoToSymbol},
 						{"index", index}}));
 
-			BMenuItem *renameItem = new BMenuItem(fmt << B_TRANSLATE("Rename \"%selected_symbol%\""),
+			BMenuItem *renameItem = new BMenuItem(B_TRANSLATE("Rename symbol" B_UTF8_ELLIPSIS),
 					new GMessage{
 						{"what", kMsgRenameSymbol},
 						{"index", index},

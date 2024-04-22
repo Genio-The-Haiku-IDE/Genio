@@ -362,9 +362,6 @@ Editor::ApplySettings()
 	ShowWhiteSpaces(gCFG["show_white_space"]);
 	ShowLineEndings(gCFG["show_line_endings"]);
 
-	// SendMessage(SCI_SETTABWIDTH, (int) gCFG["tab_width"], 0);
-	// SendMessage(SCI_SETUSETABS, !(bool)gCFG["tab_to_space"], 0);
-	// FIXME: understand fEditor->SendMessage(SCI_SETINDENT, 0, 0);
 	// editorconfig
 	SendMessage(SCI_SETUSETABS, fIndentStyle==IndentStyle::Tab, 0);
 	SendMessage(SCI_SETTABWIDTH, fIndentSize, 0);
@@ -825,24 +822,24 @@ Editor::LoadEditorConfig()
 		// start parsing
 		// Ignore full path error, whose error code is EDITORCONFIG_PARSE_NOT_FULL_PATH
 		editorconfig_handle handle = editorconfig_handle_init();
-		int err_num;
-		if ((err_num = editorconfig_parse(FilePath().String(), handle)) != 0 &&
-				err_num != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
+		int errNum;
+		if ((errNum = editorconfig_parse(FilePath().String(), handle)) != 0 &&
+				errNum != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
 			editorconfig_handle_destroy(handle);
-			LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(err_num));
+			LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(errNum));
 			fHasEditorConfig = false;
 		} else {
 
 			fHasEditorConfig = true;
 
 			int32 i;
-			int32 name_value_count;
+			int32 nameValueCount;
 
-			name_value_count = editorconfig_handle_get_name_value_count(handle);
+			nameValueCount = editorconfig_handle_get_name_value_count(handle);
 
 			/* get settings */
 			int32 tabWidth;
-			for (i = 0; i < name_value_count; ++i) {
+			for (i = 0; i < nameValueCount; ++i) {
 				const char* name;
 				const char* value;
 

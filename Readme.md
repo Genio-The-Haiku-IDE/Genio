@@ -17,7 +17,7 @@ Some of the features of the Genio IDE are:
 *   Integrated source control with GIT (including opening a remote project)
 *   Find in files
 *   Links to file and build errors in Build Log and Console I/O
-*   Symbols outline view 
+*   Symbols outline view
 *   "Problems" tab
 *   Build on save / Save on build
 *   User templates for quickly creating new files and projects
@@ -64,9 +64,12 @@ For more advanced IDE features, Genio implements the LSP protocol. (<https://mic
 ### Prerequirements
 
 Genio requires Scintilla and Lexilla to implement various functionalities.
-It also requires libgit2 to implement Git features, libyaml_cpp to read yaml files and editorconfig_core_c to provide support for project wide .editorconfig settings.
-The needed development files are available in `libgit2_devel`, `lexilla_devel`, `yaml_cpp_devel`, and `editorconfig_core_c_devel` respectively.
-Execute `pkgman install libgit2_devel lexilla_devel yaml_cpp_devel editorconfig_core_c_devel` from Terminal.
+It also requires libgit2 to implement Git features, libyaml_cpp to read yaml files and
+editorconfig_core_c to provide support for project wide .editorconfig settings.
+The needed development files are available in `libgit2_devel`, `lexilla_devel`, `yaml_cpp_devel`,
+and `editorconfig_core_c_devel` respectively.
+Execute `pkgman install libgit2_devel lexilla_devel yaml_cpp_devel editorconfig_core_c_devel`
+from Terminal.
 
 If you would like to try a clang++ build:
 

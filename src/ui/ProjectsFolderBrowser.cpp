@@ -745,6 +745,21 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* re
 			projectFolder->SetGuessedBuilder("jam");
 			LogInfo("Guessed builder: jam");
 		}
+
+		// TODO: check if it is a .editorconfig and set a node watch on it
+		// There may be multiple ones, every change to any of them will trigger an update to every
+		// opened editors
+		// if (strcasecmp(entry.Name(), ".editorconfig") == 0) {
+			// status_t status;
+			// node_ref nodeRef;
+			// if ((status = entry.GetNodeRef(&nodeRef)) != B_OK) {
+				// LogErrorF("Can't get a node_ref! (%s) (%s)", entry.Name(), strerror(status));
+			// } else {
+				// if ((status = watch_node(&nodeRef, B_WATCH_NAME | B_WATCH_STAT, Window())) != B_OK) {
+					// LogErrorF("Can't start watch_node a node_ref! (%s) (%s)", entry.Name(), strerror(status));
+				// }
+			// }
+		// }
 	} else if (entry.IsDirectory()) {
 		BDirectory dir(&entry);
 		entry_ref nextRef;

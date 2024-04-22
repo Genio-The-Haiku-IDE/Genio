@@ -1551,7 +1551,10 @@ Editor::Rename()
 	const std::regex leadingChars("^\\W+");
 	std::string str = std::regex_replace(symbol, leadingChars, "");
 
-	auto alert = new GTextAlert(B_TRANSLATE("Rename"), B_TRANSLATE("Rename symbol:"), str.c_str());
+	BString label(B_TRANSLATE("Rename symbol '%symbol_name%':"));
+	label.ReplaceFirst("%symbol_name%", str.c_str());
+
+	auto alert = new GTextAlert(B_TRANSLATE("Rename"), label, str.c_str());
 	auto result = alert->Go();
 	if (result.Button == GAlertButtons::OkButton)
 		fLSPEditorWrapper->Rename(result.Result.String());

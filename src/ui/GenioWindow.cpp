@@ -2744,7 +2744,7 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Go to implementation"));
 
 	ActionManager::RegisterAction(MSG_RENAME,
-								   B_TRANSLATE("Rename..."));
+								   B_TRANSLATE("Rename symbol" B_UTF8_ELLIPSIS));
 
 	ActionManager::RegisterAction(MSG_FIND_IN_BROWSER,
 								  B_TRANSLATE("Show in projects browser"), "", "", 'Y');

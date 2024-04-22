@@ -63,10 +63,9 @@ For more advanced IDE features, Genio implements the LSP protocol. (<https://mic
 ### Prerequirements
 
 Genio requires Scintilla and Lexilla to implement various functionalities.
-It also requires libgit2 to implement Git features and libyaml_cpp to read yaml files.
-The needed development files are available in `libgit2_devel`, `lexilla_devel` and
-`yaml_cpp_devel`, respectively.
-Execute `pkgman install libgit2_devel lexilla_devel yaml_cpp_devel` from Terminal.
+It also requires libgit2 to implement Git features, libyaml_cpp to read yaml files and editorconfig_core_c to provide support for project wide .editorconfig settings.
+The needed development files are available in `libgit2_devel`, `lexilla_devel`, `yaml_cpp_devel`, and `editorconfig_core_c_devel` respectively.
+Execute `pkgman install libgit2_devel lexilla_devel yaml_cpp_devel editorconfig_core_c_devel` from Terminal.
 
 If you would like to try a clang++ build:
 
@@ -93,5 +92,5 @@ We (try to) stick to the Haiku style for code, although with a few differences.
 ## License
 
 Genio is available under the MIT license. See [License.md](License.md).
-Outline LSP icons are taken from Visual Studio Code and released under Creative Commons license. 
+Outline LSP icons are taken from Visual Studio Code and released under Creative Commons license.
 See [Visual Studio Code - Icons](https://github.com/microsoft/vscode-icons)

@@ -65,6 +65,13 @@ constexpr auto sci_COMMENT_MARGIN = 3;
 
 constexpr auto sci_BOOKMARK = 0; //Marker
 
+struct EditorConfig {
+	enum IndentStyle	IndentStyle;
+	int32				IndentSize;
+	int32				EndOfLine;
+	bool				TrimTrailingWhitespace;
+	bool				InsertFinalNewline; // Not implemented
+};
 
 class Editor : public BScintillaView {
 public:
@@ -255,11 +262,7 @@ private:
 
 			// editorconfig
 			bool				fHasEditorConfig;
-			IndentStyle			fIndentStyle;
-			int32				fIndentSize;
-			int32				fEndOfLine;
-			bool				fTrimTrailingWhitespace;
-			// bool				fInsertFinalNewline;
+			EditorConfig		fEditorConfig;
 
 			BMessageRunner*		fIdleHandler;
 };

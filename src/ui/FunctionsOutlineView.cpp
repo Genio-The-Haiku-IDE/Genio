@@ -248,15 +248,9 @@ public:
 		if (message != NULL)
 			message->FindInt32("buttons", &buttons);
 
-		if (buttons == B_MOUSE_BUTTON(1)) {
-			return BOutlineListView::MouseDown(where);
-		} else if ( buttons == B_MOUSE_BUTTON(2)) {
-			int32 index = IndexOf(where);
-			if (index >= 0) {
-				Select(index);
-				_ShowPopupMenu(where);
-			}
-		}
+		BOutlineListView::MouseDown(where);
+		if (buttons == B_MOUSE_BUTTON(2))
+			_ShowPopupMenu(where);
 	}
 
 protected:

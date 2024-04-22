@@ -628,20 +628,13 @@ void
 ProjectsFolderBrowser::MouseDown(BPoint where)
 {
 	int32 buttons = -1;
-
 	BMessage* message = Looper()->CurrentMessage();
 	 if (message != NULL)
 		 message->FindInt32("buttons", &buttons);
 
-	if (buttons == B_MOUSE_BUTTON(1)) {
-		BOutlineListView::MouseDown(where);
-	} else 	if ( buttons == B_MOUSE_BUTTON(2)) {
-		int32 index = IndexOf(where);
-		if (index >= 0) {
-			Select(index);
-			_ShowProjectItemPopupMenu(where);
-		}
-	}
+	BOutlineListView::MouseDown(where);
+	if ( buttons == B_MOUSE_BUTTON(2))
+		_ShowProjectItemPopupMenu(where);
 }
 
 

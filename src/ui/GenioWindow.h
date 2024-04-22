@@ -121,6 +121,10 @@ private:
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
 
+			void				_TemplateNewFolder(BMessage* message);
+			void				_TemplateNewProject(BMessage* message);
+			void				_TemplateNewFile(BMessage* message);
+
 			void				_ShowDocumentation();
 
 			// Project Folders

@@ -717,7 +717,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		break;
 		case MSG_FIND_GROUP_SHOW:
 			_FindGroupShow(true);
 			break;
@@ -883,7 +882,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				LogError("Invalid destination name %s", name.String());
 				return;
 			}
-
 			if (TemplateManager::CopyProjectTemplate(&templateRef, &destRef, name.String()) == B_OK) {
 				BPath destPath(&destRef);
 				destPath.Append(name.String());
@@ -907,66 +905,16 @@ GenioWindow::MessageReceived(BMessage* message)
 				return;
 			}
 
-			if (type == "new_folder") {
-				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
-				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-					const entry_ref* ref = item->GetSourceItem()->EntryRef();
-					entry_ref ref_new;
-					status = TemplateManager::CreateNewFolder(ref, &ref_new);
-					if (status != B_OK) {
-						OKAlert(B_TRANSLATE("New folder"),
-								B_TRANSLATE("Error creating folder"),
-								B_WARNING_ALERT);
-						LogError("Invalid destination directory [%s]", ref->name);
-					} else {
-						GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, ref_new);
-					}
-				} else {
-					LogError("Can't find current item");
-					OKAlert(B_TRANSLATE("New folder"),
-							B_TRANSLATE("You can't create a new folder here, "
-										"please select a project or another folder"),
-							B_WARNING_ALERT);
-					return;
-				}
-			}
-
-			// new_folder_template corresponds to creating a new project
-			// there is no need to check the selected item in the ProjectBrowser
-			// A FilePanel is shown to let the user select the destination of the new project
-			if (type == "new_folder_template") {
-				LogTrace("new_folder_template");
-				entry_ref template_ref;
-				if (message->FindRef("refs", &template_ref) == B_OK) {
-					BMessage *msg = new BMessage(MSG_CREATE_NEW_PROJECT);
-					msg->AddRef("template_ref", &template_ref);
-					fCreateNewProjectPanel->SetMessage(msg);
-					fCreateNewProjectPanel->Show();
-				}
-			}
-
-			// new_file_template corresponds to creating a new file
-			if (type ==  "new_file_template") {
-				entry_ref source;
-				entry_ref ref_new;
-				ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
-				if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-					const entry_ref* dest = item->GetSourceItem()->EntryRef();
-					if (message->FindRef("refs", &source) != B_OK) {
-						LogError("Can't find ref in message!");
-						return;
-					}
-					status_t status = TemplateManager::CopyFileTemplate(&source, dest, &ref_new);
-					if (status != B_OK) {
-						OKAlert(B_TRANSLATE("New file"),
-								B_TRANSLATE("Could not create a new file"),
-								B_WARNING_ALERT);
-						LogError("Invalid destination directory [%s]", dest->name);
-						return;
-					} else {
-						GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, ref_new);
-					}
-				}
+			if (type == "new_folder")
+				_TemplateNewFolder(message);
+			else if (type == "new_folder_template") {
+				// new_folder_template corresponds to creating a new project
+				// there is no need to check the selected item in the ProjectBrowser
+				// A FilePanel is shown to let the user select the destination of the new project
+				_TemplateNewProject(message);
+			} else if (type ==  "new_file_template") {
+				// new_file_template corresponds to creating a new file
+				_TemplateNewFile(message);
 			}
 			break;
 		}
@@ -3537,6 +3485,71 @@ GenioWindow::_ProjectRenameFile()
 {
 	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
 	fProjectsFolderBrowser->InitRename(item);
+}
+
+
+void
+GenioWindow::_TemplateNewFile(BMessage* message)
+{
+	entry_ref source;
+	entry_ref refNew;
+	ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
+	if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
+		const entry_ref* dest = item->GetSourceItem()->EntryRef();
+		if (message->FindRef("refs", &source) != B_OK) {
+			LogError("Can't find ref in message!");
+			return;
+		}
+		status_t status = TemplateManager::CopyFileTemplate(&source, dest, &refNew);
+		if (status != B_OK) {
+			OKAlert(B_TRANSLATE("New file"),
+					B_TRANSLATE("Could not create a new file"),
+					B_WARNING_ALERT);
+			LogError("Invalid destination directory [%s]", dest->name);
+		} else {
+			GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
+		}
+	}
+}
+
+
+void
+GenioWindow::_TemplateNewFolder(BMessage* message)
+{
+	ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
+	if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
+		const entry_ref* ref = item->GetSourceItem()->EntryRef();
+		entry_ref refNew;
+		status_t status = TemplateManager::CreateNewFolder(ref, &refNew);
+		if (status != B_OK) {
+			OKAlert(B_TRANSLATE("New folder"),
+				B_TRANSLATE("Error creating folder"),
+					B_WARNING_ALERT);
+			LogError("Invalid destination directory [%s]", ref->name);
+		} else {
+			GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
+		}
+	} else {
+		LogError("Can't find current item");
+		OKAlert(B_TRANSLATE("New folder"),
+				B_TRANSLATE("You can't create a new folder here, "
+							"please select a project or another folder"),
+				B_WARNING_ALERT);
+	}
+}
+
+
+void
+GenioWindow::_TemplateNewProject(BMessage* message)
+{
+	LogTrace("new_folder_template");
+	entry_ref template_ref;
+	if (message->FindRef("refs", &template_ref) == B_OK) {
+		BMessage *msg = new BMessage(MSG_CREATE_NEW_PROJECT);
+		msg->AddRef("template_ref", &template_ref);
+		fCreateNewProjectPanel->SetMessage(msg);
+		fCreateNewProjectPanel->Show();
+	}
 }
 
 

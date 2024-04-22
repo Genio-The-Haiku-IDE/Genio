@@ -16,6 +16,7 @@
 #include <Catalog.h>
 #include <Control.h>
 #include <ControlLook.h>
+#include <editorconfig/editorconfig.h>
 #include <ILexer.h>
 #include <Lexilla.h>
 #include <NodeMonitor.h>
@@ -24,6 +25,7 @@
 #include <Url.h>
 #include <Volume.h>
 
+#include "ActionManager.h"
 #include "ConfigManager.h"
 #include "EditorContextMenu.h"
 #include "EditorMessages.h"
@@ -74,6 +76,8 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	SetTarget(target);
 
 	fLSPEditorWrapper = new LSPEditorWrapper(BPath(&fFileRef), this);
+
+	LoadEditorConfig();
 
 	// MARGINS
 	SendMessage(SCI_SETMARGINS, 4, UNSET);
@@ -353,9 +357,17 @@ Editor::ApplySettings()
 	ShowWhiteSpaces(gCFG["show_white_space"]);
 	ShowLineEndings(gCFG["show_line_endings"]);
 
-	SendMessage(SCI_SETTABWIDTH, (int) gCFG["tab_width"], 0);
-	SendMessage(SCI_SETUSETABS, !(bool)gCFG["tab_to_space"], 0);
+	// SendMessage(SCI_SETTABWIDTH, (int) gCFG["tab_width"], 0);
+	// SendMessage(SCI_SETUSETABS, !(bool)gCFG["tab_to_space"], 0);
 	// FIXME: understand fEditor->SendMessage(SCI_SETINDENT, 0, 0);
+	// editorconfig
+	SendMessage(SCI_SETUSETABS, fIndentStyle==IndentStyle::Tab, 0);
+	SendMessage(SCI_SETTABWIDTH, fIndentSize, 0);
+	SendMessage(SCI_SETINDENT, 0, 0);
+	if (fTrimTrailingWhitespace)
+		TrimTrailingWhitespace();
+	EndOfLineConvert(fEndOfLine);
+
 	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), 0);
 	SendMessage(SCI_SETCARETLINEVISIBLEALWAYS, true, 0);
 	// TODO add settings: SendMessage(SCI_SETCARETLINEFRAME, fPreferences->fLineHighlightingMode ? 2
@@ -396,6 +408,8 @@ Editor::ApplySettings()
 
 	// custom ContextMenu!
 	SendMessage(SCI_USEPOPUP, SC_POPUP_NEVER, 0);
+
+	UpdateStatusBar();
 }
 
 void
@@ -454,22 +468,25 @@ Editor::BookmarkToggle(int position)
 void
 Editor::TrimTrailingWhitespace()
 {
-	Sci::Guard<SearchTarget, SearchFlags> guard(this);
+	if ((gCFG["ignore_editorconfig"] && gCFG["trim_trailing_whitespace"])
+		|| fTrimTrailingWhitespace) {
+		Sci::Guard<SearchTarget, SearchFlags> guard(this);
 
-	Sci_Position length = SendMessage(SCI_GETLENGTH, 0, 0);
-	Set<SearchTarget>({0, length});
-	Set<SearchFlags>(SCFIND_REGEXP | SCFIND_CXX11REGEX);
+		Sci_Position length = SendMessage(SCI_GETLENGTH, 0, 0);
+		Set<SearchTarget>({0, length});
+		Set<SearchFlags>(SCFIND_REGEXP | SCFIND_CXX11REGEX);
 
-	Sci::UndoAction action(this);
-	const std::string whitespace = "\\s+$";
-	int result;
-	do {
-		result = SendMessage(SCI_SEARCHINTARGET, whitespace.size(), (sptr_t)whitespace.c_str());
-		if (result != -1) {
-			SendMessage(SCI_REPLACETARGET, -1, (sptr_t)"");
-			Set<SearchTarget>({Get<SearchTargetEnd>(), length});
-		}
-	} while(result != -1);
+		Sci::UndoAction action(this);
+		const std::string whitespace = "\\s+$";
+		int result;
+		do {
+			result = SendMessage(SCI_SEARCHINTARGET, whitespace.size(), (sptr_t)whitespace.c_str());
+			if (result != -1) {
+				SendMessage(SCI_REPLACETARGET, -1, (sptr_t)"");
+				Set<SearchTarget>({Get<SearchTargetEnd>(), length});
+			}
+		} while(result != -1);
+	}
 }
 
 
@@ -787,6 +804,81 @@ Editor::IsTextSelected()
 {
 	return SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET) !=
 			SendMessage(SCI_GETANCHOR, UNSET, UNSET);
+}
+
+
+void
+Editor::LoadEditorConfig()
+{
+	fEndOfLine = EndOfLine();
+	fIndentStyle = (bool)gCFG["tab_to_space"] ? IndentStyle::Space : IndentStyle::Tab;
+	fIndentSize = (int)gCFG["tab_width"];
+	fTrimTrailingWhitespace = (bool)gCFG["trim_trailing_whitespace"];
+	fHasEditorConfig = false;
+
+	if (!(bool)gCFG["ignore_editorconfig"]) {
+		// start parsing
+		// Ignore full path error, whose error code is EDITORCONFIG_PARSE_NOT_FULL_PATH
+		editorconfig_handle handle = editorconfig_handle_init();
+		int err_num;
+		if ((err_num = editorconfig_parse(FilePath().String(), handle)) != 0 &&
+				err_num != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
+			editorconfig_handle_destroy(handle);
+			LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(err_num));
+			fHasEditorConfig = false;
+		} else {
+
+			fHasEditorConfig = true;
+
+			int32 i;
+			int32 name_value_count;
+
+			name_value_count = editorconfig_handle_get_name_value_count(handle);
+
+			/* get settings */
+			int32 tabWidth;
+			for (i = 0; i < name_value_count; ++i) {
+				const char* name;
+				const char* value;
+
+				editorconfig_handle_get_name_value(handle, i, &name, &value);
+
+				if (!strcmp(name, "indent_style")) {
+					fIndentStyle = !strcmp(value, "space") ? IndentStyle::Space : IndentStyle::Tab;
+				} else if (!strcmp(name, "tab_width")) {
+					if (strcmp(value, "undefine")) {
+						tabWidth = atoi(value);
+					}
+				} else if (!strcmp(name, "indent_size")) {
+					if (strcmp(value, "undefine")) {
+						int value_i = atoi(value);
+						if (!strcmp(value, "tab"))
+							fIndentSize = tabWidth;
+						else if (value_i > 0)
+							fIndentSize = value_i;
+					}
+				} else if (!strcmp(name, "end_of_line")) {
+					if (strcmp(value, "undefine")) {
+						if (!strcmp(value, "lf"))
+							fEndOfLine = SC_EOL_LF;
+						else if (!strcmp(value, "cr"))
+							fEndOfLine = SC_EOL_CR;
+						else if (!strcmp(value, "crlf"))
+							fEndOfLine = SC_EOL_CRLF;
+					}
+				} else if (!strcmp(name, "trim_trailing_whitespace")) {
+					if (strcmp(value, "undefine")) {
+						fTrimTrailingWhitespace = !strcmp(value, "true") ? true : false;
+					}
+				}
+				// TODO: add support?
+				// else if (!strcmp(name, "insert_final_newline"))
+					// fInsertFinalNewline = !strcmp(value, "true") ? true : false;
+			}
+
+			editorconfig_handle_destroy(handle);
+		}
+	}
 }
 
 
@@ -1323,6 +1415,10 @@ Editor::UpdateStatusBar()
 	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
 	update.AddString("readOnly", ModeString());
 	update.AddString("eol", _EndOfLineString());
+	update.AddString("editorconfig", fHasEditorConfig ? "\xF0\x9F\x97\x8E" : "\xF0\x9F\x8C\x90");
+	update.AddString("trim_trialing_whitespace", fTrimTrailingWhitespace ? "TRIM" : "NOTRIM");
+	update.AddString("indent_style", fIndentStyle == IndentStyle::Tab ? "TAB" : "SPACE");
+	update.AddInt32("indent_size", fIndentSize);
 
 	fStatusView->SetStatus(&update);
 }

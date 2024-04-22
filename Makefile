@@ -100,6 +100,7 @@ LIBS += columnlistview tracker
 LIBS += git2
 LIBS += src/scintilla/bin/libscintilla.a
 LIBS += yaml-cpp
+LIBS += editorconfig
 
 SYSTEM_INCLUDE_PATHS  = $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
 SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/shared)

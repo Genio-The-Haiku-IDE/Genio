@@ -1104,6 +1104,15 @@ GenioWindow::MessageReceived(BMessage* message)
 			window->Show();
 			break;
 		}
+		case MSG_RELOAD_EDITORCONFIG:
+		{
+			for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+				Editor* editor = fTabManager->EditorAt(index);
+				editor->LoadEditorConfig();
+				editor->ApplySettings();
+			}
+			break;
+		}
 		case TABMANAGER_TAB_SELECTED:
 		{
 			int32 index;
@@ -2042,8 +2051,7 @@ GenioWindow::_PreFileSave(Editor* editor)
 {
 	LogTrace("GenioWindow::_PreFileSave(%s)", editor->FilePath().String());
 
-	if (gCFG["trim_trailing_whitespace"])
-		editor->TrimTrailingWhitespace();
+	editor->TrimTrailingWhitespace();
 }
 
 
@@ -2853,6 +2861,11 @@ GenioWindow::_InitActions()
 								  B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
 								  "");
 
+	ActionManager::RegisterAction(MSG_RELOAD_EDITORCONFIG,
+								  B_TRANSLATE("Reload .editorconfig" B_UTF8_ELLIPSIS),
+								  B_TRANSLATE("Reload .editorconfig" B_UTF8_ELLIPSIS),
+								  "");
+
 	ActionManager::RegisterAction(MSG_BUFFER_LOCK,
 								  B_TRANSLATE("Read-only"),
 								  B_TRANSLATE("Make file read-only"), "kIconLocked");
@@ -3130,8 +3143,9 @@ GenioWindow::_InitMenu()
 
 	projectMenu->AddSeparatorItem();
 	ActionManager::AddItem(MSG_PROJECT_SETTINGS, projectMenu);
-
 	ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, false);
+	ActionManager::AddItem(MSG_RELOAD_EDITORCONFIG, projectMenu);
+	ActionManager::SetEnabled(MSG_RELOAD_EDITORCONFIG, true);
 
 	fMenuBar->AddItem(projectMenu);
 
@@ -4293,6 +4307,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	// TODO: apply other settings
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 		Editor* editor = fTabManager->EditorAt(index);
+		editor->LoadEditorConfig();
 		editor->ApplySettings();
 	}
 

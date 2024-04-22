@@ -1,3 +1,8 @@
+v3.x
+	- Improved support for OmniSharp with multiple Code Actions
+	- Rename symbols across multiple files
+	- Class Outline
+---
 v2.1
 	- Added user documentation (courtesy of Humdinger).
 	- UI: Improved the tab close button position and size.

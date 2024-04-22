@@ -9,7 +9,8 @@
 enum {
 	kApplyFix			= 'Fixy',
 	kClassOutline		= 'ClsO',
-	kCallTipClick		= 'Ctck'
+	kCallTipClick		= 'Ctck',
+	kIdle				= 'IDLE'
 };
 
 

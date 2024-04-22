@@ -10,8 +10,8 @@
 #include <Locker.h>
 #include <MessageFilter.h>
 #include <Messenger.h>
-#include <ScintillaView.h>
-
+#include "ScintillaView.h"
+#include <MessageRunner.h>
 #include <set>
 #include <utility>
 
@@ -223,6 +223,8 @@ private:
 			template<typename T>
 			void				Set(typename T::type value) { T::Set(this, value); }
 
+			void	EvaluateIdleTime();
+
 private:
 
 			entry_ref			fFileRef;
@@ -258,6 +260,8 @@ private:
 			int32				fEndOfLine;
 			bool				fTrimTrailingWhitespace;
 			// bool				fInsertFinalNewline;
+
+			BMessageRunner*		fIdleHandler;
 };
 
 #endif // EDITOR_H

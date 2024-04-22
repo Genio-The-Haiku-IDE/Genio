@@ -490,15 +490,7 @@ struct DidSaveTextDocumentParams {
 };
 JSON_SERIALIZE(DidSaveTextDocumentParams, MAP_JSON(MAP_KEY(textDocument)), {});
 
-struct TextDocumentContentChangeEvent {
-    /// The range of the document that changed.
-    option<Range> range;
-
-    /// The length of the range that got replaced.
-    //xed option<int> rangeLength;
-    /// The new text of the range/document.
-    std::string text;
-};
+//struct TextDocumentContentChangeEvent
 JSON_SERIALIZE(TextDocumentContentChangeEvent, MAP_JSON(MAP_KEY(range)/*, MAP_KEY(rangeLength)*/, MAP_KEY(text)), {});
 
 struct DidChangeTextDocumentParams {
@@ -720,16 +712,7 @@ JSON_SERIALIZE(CodeAction, MAP_JSON(MAP_KEY(title), MAP_KEY(kind), MAP_KEY(diagn
 JSON_SERIALIZE(DocumentSymbol, {/*NOT REQUIRED*/},{FROM_KEY(name);FROM_KEY(detail);FROM_KEY(kind);FROM_KEY(deprecated);
                 FROM_KEY(range);FROM_KEY(selectionRange);FROM_KEY(children);});
 
-struct SymbolInformation {
-    /// The name of this symbol.
-    std::string name;
-    /// The kind of this symbol.
-    SymbolKind kind = SymbolKind::Class;
-    /// The location of this symbol.
-    Location location;
-    /// The name of the symbol containing this symbol.
-    std::string containerName;
-};
+//struct SymbolInformation
 JSON_SERIALIZE(SymbolInformation, MAP_JSON(MAP_KEY(name), MAP_KEY(kind), MAP_KEY(location), MAP_KEY(containerName)), {FROM_KEY(name);FROM_KEY(kind);FROM_KEY(location);FROM_KEY(containerName)});
 
 struct SymbolDetails {

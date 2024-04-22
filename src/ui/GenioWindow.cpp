@@ -3268,6 +3268,8 @@ GenioWindow::_InitToolbar()
 
 	ActionManager::AddItem(MSG_BUILD_PROJECT, fToolBar);
 	ActionManager::AddItem(MSG_CLEAN_PROJECT, fToolBar);
+	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_RUN_TARGET, fToolBar);
 	ActionManager::AddItem(MSG_DEBUG_PROJECT, fToolBar);
 	fToolBar->AddSeparator();
@@ -4315,16 +4317,13 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		fFindWrapCheck->SetValue(gCFG["find_wrap"] ? B_CONTROL_ON : B_CONTROL_OFF);
 		fFindWholeWordCheck->SetValue(gCFG["find_whole_word"] ? B_CONTROL_ON : B_CONTROL_OFF);
 		fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
-	} else
-	if (key.Compare("wrap_lines") == 0) {
+	} else if (key.Compare("wrap_lines") == 0) {
 		ActionManager::SetPressed(MSG_WRAP_LINES, gCFG["wrap_lines"]);
-	} else
-	if (key.Compare("show_white_space") == 0) {
+	} else if (key.Compare("show_white_space") == 0) {
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
 		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
-	} else
-	if (key.Compare("show_line_endings") == 0) {
+	} else if (key.Compare("show_line_endings") == 0) {
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
 		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);

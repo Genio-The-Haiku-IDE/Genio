@@ -363,12 +363,12 @@ Editor::ApplySettings()
 	ShowLineEndings(gCFG["show_line_endings"]);
 
 	// editorconfig
-	SendMessage(SCI_SETUSETABS, fIndentStyle==IndentStyle::Tab, 0);
-	SendMessage(SCI_SETTABWIDTH, fIndentSize, 0);
+	SendMessage(SCI_SETUSETABS, fEditorConfig.IndentStyle==IndentStyle::Tab, 0);
+	SendMessage(SCI_SETTABWIDTH, fEditorConfig.IndentSize, 0);
 	SendMessage(SCI_SETINDENT, 0, 0);
-	if (fTrimTrailingWhitespace)
+	if (fEditorConfig.TrimTrailingWhitespace)
 		TrimTrailingWhitespace();
-	EndOfLineConvert(fEndOfLine);
+	EndOfLineConvert(fEditorConfig.EndOfLine);
 
 	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), 0);
 	SendMessage(SCI_SETCARETLINEVISIBLEALWAYS, true, 0);
@@ -471,7 +471,7 @@ void
 Editor::TrimTrailingWhitespace()
 {
 	if ((gCFG["ignore_editorconfig"] && gCFG["trim_trailing_whitespace"])
-		|| fTrimTrailingWhitespace) {
+		|| fEditorConfig.TrimTrailingWhitespace) {
 		Sci::Guard<SearchTarget, SearchFlags> guard(this);
 
 		Sci_Position length = SendMessage(SCI_GETLENGTH, 0, 0);
@@ -812,10 +812,10 @@ Editor::IsTextSelected()
 void
 Editor::LoadEditorConfig()
 {
-	fEndOfLine = EndOfLine();
-	fIndentStyle = (bool)gCFG["tab_to_space"] ? IndentStyle::Space : IndentStyle::Tab;
-	fIndentSize = (int)gCFG["tab_width"];
-	fTrimTrailingWhitespace = (bool)gCFG["trim_trailing_whitespace"];
+	fEditorConfig.EndOfLine = EndOfLine();
+	fEditorConfig.IndentStyle = (bool)gCFG["tab_to_space"] ? IndentStyle::Space : IndentStyle::Tab;
+	fEditorConfig.IndentSize = (int)gCFG["tab_width"];
+	fEditorConfig.TrimTrailingWhitespace = (bool)gCFG["trim_trailing_whitespace"];
 	fHasEditorConfig = false;
 
 	if (!(bool)gCFG["ignore_editorconfig"]) {
@@ -846,7 +846,7 @@ Editor::LoadEditorConfig()
 				editorconfig_handle_get_name_value(handle, i, &name, &value);
 
 				if (!strcmp(name, "indent_style")) {
-					fIndentStyle = !strcmp(value, "space") ? IndentStyle::Space : IndentStyle::Tab;
+					fEditorConfig.IndentStyle = !strcmp(value, "space") ? IndentStyle::Space : IndentStyle::Tab;
 				} else if (!strcmp(name, "tab_width")) {
 					if (strcmp(value, "undefine")) {
 						tabWidth = atoi(value);
@@ -855,27 +855,26 @@ Editor::LoadEditorConfig()
 					if (strcmp(value, "undefine")) {
 						int value_i = atoi(value);
 						if (!strcmp(value, "tab"))
-							fIndentSize = tabWidth;
+							fEditorConfig.IndentSize = tabWidth;
 						else if (value_i > 0)
-							fIndentSize = value_i;
+							fEditorConfig.IndentSize = value_i;
 					}
 				} else if (!strcmp(name, "end_of_line")) {
 					if (strcmp(value, "undefine")) {
 						if (!strcmp(value, "lf"))
-							fEndOfLine = SC_EOL_LF;
+							fEditorConfig.EndOfLine = SC_EOL_LF;
 						else if (!strcmp(value, "cr"))
-							fEndOfLine = SC_EOL_CR;
+							fEditorConfig.EndOfLine = SC_EOL_CR;
 						else if (!strcmp(value, "crlf"))
-							fEndOfLine = SC_EOL_CRLF;
+							fEditorConfig.EndOfLine = SC_EOL_CRLF;
 					}
 				} else if (!strcmp(name, "trim_trailing_whitespace")) {
 					if (strcmp(value, "undefine")) {
-						fTrimTrailingWhitespace = !strcmp(value, "true") ? true : false;
+						fEditorConfig.TrimTrailingWhitespace = !strcmp(value, "true") ? true : false;
 					}
 				}
-				// TODO: add support?
-				// else if (!strcmp(name, "insert_final_newline"))
-					// fInsertFinalNewline = !strcmp(value, "true") ? true : false;
+				else if (!strcmp(name, "insert_final_newline"))
+					fEditorConfig.InsertFinalNewline = !strcmp(value, "true") ? true : false;
 			}
 
 			editorconfig_handle_destroy(handle);
@@ -1421,9 +1420,9 @@ Editor::UpdateStatusBar()
 	update.AddString("readOnly", ModeString());
 	update.AddString("eol", _EndOfLineString());
 	update.AddString("editorconfig", fHasEditorConfig ? "\xF0\x9F\x97\x8E" : "\xF0\x9F\x8C\x90");
-	update.AddString("trim_trialing_whitespace", fTrimTrailingWhitespace ? "TRIM" : "NOTRIM");
-	update.AddString("indent_style", fIndentStyle == IndentStyle::Tab ? "TAB" : "SPACE");
-	update.AddInt32("indent_size", fIndentSize);
+	update.AddString("trim_trialing_whitespace", fEditorConfig.TrimTrailingWhitespace ? "TRIM" : "NOTRIM");
+	update.AddString("indent_style", fEditorConfig.IndentStyle == IndentStyle::Tab ? "TAB" : "SPACE");
+	update.AddInt32("indent_size", fEditorConfig.IndentSize);
 
 	fStatusView->SetStatus(&update);
 }

@@ -3254,6 +3254,8 @@ GenioWindow::_InitToolbar()
 
 	ActionManager::AddItem(MSG_BUILD_PROJECT, fToolBar);
 	ActionManager::AddItem(MSG_CLEAN_PROJECT, fToolBar);
+	fToolBar->AddSeparator();
+
 	ActionManager::AddItem(MSG_RUN_TARGET, fToolBar);
 	ActionManager::AddItem(MSG_DEBUG_PROJECT, fToolBar);
 	fToolBar->AddSeparator();

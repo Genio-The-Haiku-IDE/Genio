@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<!--
+ * Copyright 2024
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Humdinger 
+-->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="robots" content="all" />
+	<link rel="stylesheet" type="text/css" href="./_doc.css" />
+	<title>Genio's User Documentation - Project Settings</title>
+
+</head>
+<body>
+
+<div id="navbar">
+<a href="ReadMe.html">QuickStart</a> <a href="editor.html">Editor</a> <a href="panes.html">Panes</a> <a href="toolbar.html">Toolbar</a> <a href="menus.html">Menus</a> <a class="active" href="settings.html">Settings</a>
+</div>
+
+<div id="content">
+
+<table class="index" id="index" summary="index">
+<tbody><tr class="heading"><td>Index</td></tr>
+<tr class="index"><td>
+	<a href="#project-general">General</a><br />
+	<a href="#project-build">Build</a><br />
+	<a href="#project-build_release">┣━ Release</a><br />
+	<a href="#project-build_debug"> ┗━ Debug</a><br />
+	<a href="#project-run">Run</a>
+</td></tr>
+</tbody></table>
+
+<h1><a id="project" name="project">The Project Settings</a></h1>
+
+<p>From the list on the left, you choose the different settings categories.</p>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="project-general" name="project-general">General</a></h2>
+
+<p style="text-align:center"><img src="./images/project-settings-general.png" style="border:none;padding:15px" alt="Project settings: General" /></p>
+
+<p>You can assign a color to a project, which is used as background for the project's top folder in the Projects pane. It's also used for the colored dot in front of the filename in the tab bar of open files. This makes it easy to tell which of the opened files belong to what project.</p>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="project-build" name="project-build">Build</a></h2>
+
+<p style="text-align:center"><img src="./images/project-settings-build.png" style="border:none;padding:15px" alt="Project settings: Build" /></p>
+
+<p>Here you chose to build either in <span class="menu">release</span> or <span class="menu">debug</span> mode when invoking <span class="menu">Project|Build project</span> (<span class="key">ALT</span>&nbsp;<span class="key">B</span>) or via the toolbar icon.<br />
+There's also the <span class="menu">Project|Build mode</span> menu to quickly switch between the two modes.</p>
+
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="project-build_release" name="project-build_release">Build / Release</a></h3>
+
+<p style="text-align:center"><img src="./images/project-settings-build_release.png" style="border:none;padding:15px" alt="Genio settings: Build / Release" /></p>
+
+<p>On this page you configure the commands to use in release mode. The specific commands depend of course on your build system. In this example we use Make with the makefile_engine that comes with Haiku.</p>
+
+<table summary="layout">
+<tr><td class="onelinetop"><span class="menu">Build command</span></td>
+<td>The command executed when building via <span class="menu">Project|Build project</span> (<span class="key">ALT</span>&nbsp;<span class="key">B</span>) or via the toolbar icon.<br />
+<tt>-j$(nproc)</tt> is a flag to use all available CPU cores. You can add additional parameters, of course.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Clean command</span></td>
+<td>The command executed to remove everything from a previous build via <span class="menu">Project|Clean project</span> or via the toolbar icon.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Execute args</span></td>
+<td>You can add arguments when running the built app via <span class="menu">Project|Run target</span> (<span class="key">SHIFT</span>&nbsp;<span class="key">ALT</span>&nbsp;<span class="key">R</span>) or via the toolbar icon.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Target</span></td>
+<td>This is the path to where the build system (in this case the Makefile) puts the executable after a everything was successfully built.</td></tr>
+</table>
+
+<p>If you haven't configured your build commands correctly, the corresponding icon in the toolbar will be inactive.</p>
+
+
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="project-build_debug" name="project-build_debug">Build / Debug</a></h3>
+
+<p style="text-align:center"><img src="./images/project-settings-build_debug.png" style="border:none;padding:15px" alt="Genio settings: Build / Debug" /></p>
+
+<p>The settings for the debug build are identical to the ones for a release build above.</p>
+
+<p>In our Makefile build system example, <tt>debug=1</tt> triggers a build with debugging symbols etc.<br />
+The <tt>--loglevel o</tt> is specific to our example app &ndash; Genio &ndash; which parses command line parameters, this one instructing to use a specific log level.</p>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="project-run" name="project-run">Run</a></h2>
+
+<p style="text-align:center"><img src="./images/project-settings-run.png" style="border:none;padding:15px" alt="Project settings: Run" /></p>
+
+<p>If you enable <span class="menu">Run in terminal</span> Genio will simulate starting the built application in a Terminal environment, i.e. the appropriate environment variables are set etc.</p>
+
+<hr />
+<a href="settings-genio.html" style="border:none;float:left">Back: Genio Settings</a>
+<p></p>
+</div>
+</body>
+</html>

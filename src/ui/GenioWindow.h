@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "GMessage.h"
+#include "HvifImporter.h"
 
 enum {
 	kProjectsOutline = 0,
@@ -233,6 +234,7 @@ private:
 			BFilePanel*			fOpenProjectPanel;
 			BFilePanel*			fOpenProjectFolderPanel;
 			BFilePanel*			fCreateNewProjectPanel;
+			BFilePanel*			fImportHvifPanel;
 
 			// Bottom panels
 			BTabView*			fOutputTabView;
@@ -246,6 +248,8 @@ private:
 			GMessage			fScreenModeSettings;
 
 			bool				fDisableProjectNotifications;
+
+			HvifFilter*			fHvifFilter;
 #ifdef GDEBUG
 			BString				fTitlePrefix;
 #endif

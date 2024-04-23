@@ -166,6 +166,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fSavePanel(nullptr)
 	, fOpenProjectPanel(nullptr)
 	, fOpenProjectFolderPanel(nullptr)
+	, fImportHvifPanel(nullptr)
 	, fOutputTabView(nullptr)
 	, fProblemsPanel(nullptr)
 	, fBuildLogView(nullptr)
@@ -289,6 +290,8 @@ GenioWindow::~GenioWindow()
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
+	delete fImportHvifPanel;
+	delete fHvifFilter;
 	gMainWindow = nullptr;
 }
 
@@ -650,6 +653,11 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_OPEN:
 			fOpenPanel->Show();
 			break;
+		case MSG_IMPORT_HVIF:
+		{
+			fOpenPanel->Show();
+			break;
+		}
 		case MSG_FILE_PREVIOUS_SELECTED:
 		{
 			int32 index = fTabManager->SelectedTabIndex();
@@ -833,6 +841,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_GOTOIMPLEMENTATION:
 		case MSG_RENAME:
 		case MSG_SWITCHSOURCE:
+		case MSG_LOAD_HVIF:
 			_ForwardToSelectedEditor(message);
 			break;
 		case MSG_FIND_IN_BROWSER:
@@ -2668,6 +2677,9 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_FILE_CLOSE_OTHER,
 								  B_TRANSLATE("Close other"));
 
+	ActionManager::RegisterAction(MSG_IMPORT_HVIF,
+									B_TRANSLATE("Import HVIF" B_UTF8_ELLIPSIS));
+
 	ActionManager::RegisterAction(B_QUIT_REQUESTED,
 	                               B_TRANSLATE("Quit"),
 								   "", "", 'Q');
@@ -2934,6 +2946,7 @@ GenioWindow::_InitMenu()
 	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
 			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), nullptr, nullptr, this,
 			kRecentFilesNumber, true, nullptr, GenioNames::kApplicationSignature), nullptr));
+	ActionManager::AddItem(MSG_IMPORT_HVIF, fileMenu);
 
 	fileMenu->AddSeparatorItem();
 
@@ -2950,6 +2963,7 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FIND_IN_BROWSER, fileMenu);
 
 	ActionManager::SetEnabled(MSG_FILE_NEW,  false);
+	ActionManager::SetEnabled(MSG_IMPORT_HVIF,  false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE, false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_AS, false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);
@@ -3363,6 +3377,8 @@ GenioWindow::_InitWindow()
 
 	fOpenPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), &ref, B_FILE_NODE, true);
 	fSavePanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this), &ref, B_FILE_NODE, false);
+	fImportHvifPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), NULL, B_FILE_NODE, true,
+		new BMessage(MSG_LOAD_HVIF), fHvifFilter = new HvifFilter());
 
 	BMessage *openProjectFolderMessage = new BMessage(MSG_PROJECT_FOLDER_OPEN);
 	fOpenProjectFolderPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this),
@@ -4140,6 +4156,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(B_UNDO, false);
 		ActionManager::SetEnabled(B_REDO, false);
 
+		ActionManager::SetEnabled(MSG_IMPORT_HVIF, editor->FilePath().IEndsWith(".rdef"));
 		ActionManager::SetEnabled(MSG_FILE_SAVE, false);
 		ActionManager::SetEnabled(MSG_FILE_SAVE_AS, false);
 		ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);

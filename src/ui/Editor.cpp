@@ -838,7 +838,9 @@ Editor::LoadEditorConfig()
 			nameValueCount = editorconfig_handle_get_name_value_count(handle);
 
 			/* get settings */
-			int32 tabWidth;
+			// Defaults. TODO: This avoids the compiler error
+			// but maybe the code should be refactored
+			int32 tabWidth = 4;
 			for (i = 0; i < nameValueCount; ++i) {
 				const char* name;
 				const char* value;
@@ -848,9 +850,8 @@ Editor::LoadEditorConfig()
 				if (!strcmp(name, "indent_style")) {
 					fEditorConfig.IndentStyle = !strcmp(value, "space") ? IndentStyle::Space : IndentStyle::Tab;
 				} else if (!strcmp(name, "tab_width")) {
-					if (strcmp(value, "undefine")) {
+					if (strcmp(value, "undefine"))
 						tabWidth = atoi(value);
-					}
 				} else if (!strcmp(name, "indent_size")) {
 					if (strcmp(value, "undefine")) {
 						int value_i = atoi(value);
@@ -869,11 +870,9 @@ Editor::LoadEditorConfig()
 							fEditorConfig.EndOfLine = SC_EOL_CRLF;
 					}
 				} else if (!strcmp(name, "trim_trailing_whitespace")) {
-					if (strcmp(value, "undefine")) {
+					if (strcmp(value, "undefine"))
 						fEditorConfig.TrimTrailingWhitespace = !strcmp(value, "true") ? true : false;
-					}
-				}
-				else if (!strcmp(name, "insert_final_newline"))
+				} else if (!strcmp(name, "insert_final_newline"))
 					fEditorConfig.InsertFinalNewline = !strcmp(value, "true") ? true : false;
 			}
 

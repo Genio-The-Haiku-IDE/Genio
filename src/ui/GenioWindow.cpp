@@ -3506,8 +3506,9 @@ GenioWindow::_TemplateNewFile(BMessage* message)
 				B_WARNING_ALERT);
 		LogError("Invalid destination directory [%s]", dest.name);
 	} else {
-		// TODO: Fix this
-		//GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
+		ProjectItem* item = nullptr;
+		message->FindPointer("sender", (void**)&item);
+		GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
 	}
 }
 
@@ -3525,8 +3526,9 @@ GenioWindow::_TemplateNewFolder(BMessage* message)
 				B_WARNING_ALERT);
 		LogError("Invalid destination directory [%s]", ref.name);
 	} else {
-		// TODO: Fix this
-		//GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
+		ProjectItem* item = nullptr;
+		message->FindPointer("sender", (void**)&item);
+		GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
 	}
 }
 
@@ -4327,16 +4329,9 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 
 
 void
-GenioWindow::UpdateMenu(const entry_ref* ref)
+GenioWindow::UpdateMenu(const void* sender, const entry_ref* ref)
 {
-	BEntry entry(ref);
-	if (entry.IsFile()) {
-		// if this is a file, get parent directory
-		entry.GetParent(&entry);
-	}
-	entry_ref newRef;
-	entry.GetRef(&newRef);
-	fFileNewMenuItem->SetSenderEntryRef(&newRef);
+	fFileNewMenuItem->SetSender(sender, ref);
 }
 
 

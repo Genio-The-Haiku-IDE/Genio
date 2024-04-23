@@ -795,20 +795,17 @@ ProjectsFolderBrowser::SelectionChanged()
 	ProjectItem* selected = GetSelectedProjectItem();
 	if (selected != nullptr) {
 		GenioWindow *window = (GenioWindow*)Window();
-		window->UpdateMenu(selected->GetSourceItem()->EntryRef());
-
-		if (fFileNewProjectMenuItem == nullptr)
-			return;
-		// TODO: We are replicating GenioWindow::UpdateMenu here.
-		// merge the two
 		BEntry entry(selected->GetSourceItem()->EntryRef());
 		if (entry.IsFile()) {
-			// Get parent directory
+			// If this is a file, get the parent directory
 			entry.GetParent(&entry);
 		}
 		entry_ref newRef;
 		entry.GetRef(&newRef);
-		fFileNewProjectMenuItem->SetSenderEntryRef(&newRef);
+		window->UpdateMenu(selected, &newRef);
+
+		if (fFileNewProjectMenuItem != nullptr)
+			fFileNewProjectMenuItem->SetSender(selected, &newRef);
 	}
 }
 

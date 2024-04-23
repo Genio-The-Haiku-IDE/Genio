@@ -829,22 +829,17 @@ Editor::LoadEditorConfig()
 			LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(errNum));
 			fHasEditorConfig = false;
 		} else {
-
 			fHasEditorConfig = true;
 
-			int32 i;
-			int32 nameValueCount;
-
-			nameValueCount = editorconfig_handle_get_name_value_count(handle);
+			int32 nameValueCount = editorconfig_handle_get_name_value_count(handle);
 
 			/* get settings */
 			// Defaults. TODO: This avoids the compiler error
 			// but maybe the code should be refactored
 			int32 tabWidth = 4;
-			for (i = 0; i < nameValueCount; ++i) {
+			for (int32 i = 0; i < nameValueCount; ++i) {
 				const char* name;
 				const char* value;
-
 				editorconfig_handle_get_name_value(handle, i, &name, &value);
 
 				if (!strcmp(name, "indent_style")) {
@@ -854,11 +849,11 @@ Editor::LoadEditorConfig()
 						tabWidth = atoi(value);
 				} else if (!strcmp(name, "indent_size")) {
 					if (strcmp(value, "undefine")) {
-						int value_i = atoi(value);
+						int valueInt = atoi(value);
 						if (!strcmp(value, "tab"))
 							fEditorConfig.IndentSize = tabWidth;
-						else if (value_i > 0)
-							fEditorConfig.IndentSize = value_i;
+						else if (valueInt > 0)
+							fEditorConfig.IndentSize = valueInt;
 					}
 				} else if (!strcmp(name, "end_of_line")) {
 					if (strcmp(value, "undefine")) {

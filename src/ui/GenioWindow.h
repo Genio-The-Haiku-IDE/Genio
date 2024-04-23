@@ -63,7 +63,7 @@ public:
 	virtual bool				QuitRequested();
 	virtual void				Show();
 
-	void						UpdateMenu();
+	void						UpdateMenu(const void* sender, const entry_ref* ref);
 	ProjectFolder*				GetActiveProject() const;
 	void						SetActiveProject(ProjectFolder *project);
 	ProjectsFolderBrowser*		GetProjectBrowser() const;
@@ -120,6 +120,10 @@ private:
 
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
+
+			void				_TemplateNewFolder(BMessage* message);
+			void				_TemplateNewProject(BMessage* message);
+			void				_TemplateNewFile(BMessage* message);
 
 			void				_ShowDocumentation();
 

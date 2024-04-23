@@ -38,6 +38,11 @@ enum {
 	EDITOR_UPDATE_SYMBOLS			= 'symb'
 };
 
+enum IndentStyle {
+	Tab,
+	Space
+};
+
 /*
  * Not very smart: NONE,SKIP,DONE are Status
  * while the others are Function placeholders
@@ -60,6 +65,13 @@ constexpr auto sci_COMMENT_MARGIN = 3;
 
 constexpr auto sci_BOOKMARK = 0; //Marker
 
+struct EditorConfig {
+	enum IndentStyle	IndentStyle;
+	int32				IndentSize;
+	int32				EndOfLine;
+	bool				TrimTrailingWhitespace;
+	bool				InsertFinalNewline; // Not implemented
+};
 
 class Editor : public BScintillaView {
 public:
@@ -71,6 +83,7 @@ public:
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
 	virtual	void 				MessageReceived(BMessage* message);
+			void				LoadEditorConfig();
 			void				ApplySettings();
 			void				ApplyEdit(std::string info);
 			void				TrimTrailingWhitespace();
@@ -106,8 +119,6 @@ public:
 			node_ref *const		NodeRef() { return &fNodeRef; }
 			bool				IsOverwrite();
 
-
-
 			ssize_t				SaveToFile();
 			status_t			SetFileRef(entry_ref* ref);
 			void				SetReadOnly(bool readOnly = true);
@@ -119,7 +130,6 @@ public:
 			void				SetProjectFolder(ProjectFolder*);
 			ProjectFolder*		GetProjectFolder() const { return fProjectFolder; }
 			void				Undo();
-
 
 			void				SetProblems();
 
@@ -175,6 +185,7 @@ private:
 			void				ShowWhiteSpaces(bool show);
 			bool				LineEndingsVisible();
 			bool				WhiteSpacesVisible();
+
 			void				ScrollCaret();
 			void				SelectAll();
 	const 	BString				Selection();
@@ -248,6 +259,11 @@ private:
 			BMessage			fDocumentSymbols;
 			symbols_status		fSymbolsStatus;
 			std::set<std::pair<std::string, int32> > fCollapsedSymbols;
+
+			// editorconfig
+			bool				fHasEditorConfig;
+			EditorConfig		fEditorConfig;
+
 			BMessageRunner*		fIdleHandler;
 };
 

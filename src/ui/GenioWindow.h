@@ -63,7 +63,7 @@ public:
 	virtual bool				QuitRequested();
 	virtual void				Show();
 
-	void						UpdateMenu();
+	void						UpdateMenu(const entry_ref* ref);
 	ProjectFolder*				GetActiveProject() const;
 	void						SetActiveProject(ProjectFolder *project);
 	ProjectsFolderBrowser*		GetProjectBrowser() const;

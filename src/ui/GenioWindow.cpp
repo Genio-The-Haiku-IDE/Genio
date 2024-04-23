@@ -555,7 +555,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BOOKMARK_GOTO_PREVIOUS:
 		case MSG_BOOKMARK_TOGGLE:
 			_ForwardToSelectedEditor(message);
-		break;
+			break;
 		case MSG_BUFFER_LOCK:
 		{
 			Editor* editor = fTabManager->SelectedEditor();
@@ -642,7 +642,6 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_NEXT_SELECTED:
 		{
 			int32 index = fTabManager->SelectedTabIndex();
-
 			if (index < fTabManager->CountTabs() - 1)
 				fTabManager->SelectTab(index + 1);
 			break;
@@ -3493,23 +3492,21 @@ void
 GenioWindow::_TemplateNewFile(BMessage* message)
 {
 	entry_ref source;
+	entry_ref dest;
+	message->FindRef("sender_ref", &dest);
+	if (message->FindRef("refs", &source) != B_OK) {
+		LogError("Can't find ref in message!");
+		return;
+	}
 	entry_ref refNew;
-	ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
-	if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-		const entry_ref* dest = item->GetSourceItem()->EntryRef();
-		if (message->FindRef("refs", &source) != B_OK) {
-			LogError("Can't find ref in message!");
-			return;
-		}
-		status_t status = TemplateManager::CopyFileTemplate(&source, dest, &refNew);
-		if (status != B_OK) {
-			OKAlert(B_TRANSLATE("New file"),
-					B_TRANSLATE("Could not create a new file"),
-					B_WARNING_ALERT);
-			LogError("Invalid destination directory [%s]", dest->name);
-		} else {
-			GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
-		}
+	status_t status = TemplateManager::CopyFileTemplate(&source, &dest, &refNew);
+	if (status != B_OK) {
+		OKAlert(B_TRANSLATE("New file"),
+				B_TRANSLATE("Could not create a new file"),
+				B_WARNING_ALERT);
+		LogError("Invalid destination directory [%s]", dest.name);
+	} else {
+		//GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
 	}
 }
 
@@ -3517,26 +3514,28 @@ GenioWindow::_TemplateNewFile(BMessage* message)
 void
 GenioWindow::_TemplateNewFolder(BMessage* message)
 {
-	ProjectItem* item = fProjectsFolderBrowser->GetSelectedProjectItem();
-	if (item && item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-		const entry_ref* ref = item->GetSourceItem()->EntryRef();
-		entry_ref refNew;
-		status_t status = TemplateManager::CreateNewFolder(ref, &refNew);
-		if (status != B_OK) {
-			OKAlert(B_TRANSLATE("New folder"),
-				B_TRANSLATE("Error creating folder"),
-					B_WARNING_ALERT);
-			LogError("Invalid destination directory [%s]", ref->name);
-		} else {
-			GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
-		}
+	message->PrintToStream();
+	entry_ref ref;
+	message->FindRef("sender_ref", &ref);
+
+	LogError("_TemplateNewFolder: sender_ref: %s", ref.name);
+	entry_ref refNew;
+	status_t status = TemplateManager::CreateNewFolder(&ref, &refNew);
+	if (status != B_OK) {
+		OKAlert(B_TRANSLATE("New folder"),
+			B_TRANSLATE("Error creating folder"),
+				B_WARNING_ALERT);
+		LogError("Invalid destination directory [%s]", ref.name);
 	} else {
+		//GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
+	}
+	/* else {
 		LogError("Can't find current item");
 		OKAlert(B_TRANSLATE("New folder"),
 				B_TRANSLATE("You can't create a new folder here, "
 							"please select a project or another folder"),
 				B_WARNING_ALERT);
-	}
+	}*/
 }
 
 
@@ -4336,15 +4335,16 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 
 
 void
-GenioWindow::UpdateMenu()
+GenioWindow::UpdateMenu(const entry_ref* ref)
 {
-	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
-	if (item != nullptr) {
-		if (item->GetSourceItem()->Type() != SourceItemType::FileItem)
-			fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
-		else
-			fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
+	BEntry entry(ref);
+	if (entry.IsFile()) {
+		// if this is a file, get parent directory
+		entry.GetParent(&entry);
 	}
+	entry_ref newRef;
+	entry.GetRef(&newRef);
+	fFileNewMenuItem->SetSenderEntryRef(&newRef);
 }
 
 

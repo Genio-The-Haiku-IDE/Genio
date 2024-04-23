@@ -451,6 +451,8 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 	projectMenu->AddSeparatorItem();
 
+	SelectionChanged();
+
 	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
 	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
 	if (isFolder || isFile) {
@@ -462,8 +464,8 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
 			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
-		if (isFile)
-			fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
+		//if (isFile)
+			//fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
 		projectMenu->AddItem(openFileProjectMenuItem);
 		projectMenu->AddItem(deleteFileProjectMenuItem);
 		projectMenu->AddItem(renameFileProjectMenuItem);
@@ -790,8 +792,24 @@ ProjectsFolderBrowser::_CompareProjectItems(const BListItem* a, const BListItem*
 void
 ProjectsFolderBrowser::SelectionChanged()
 {
-	GenioWindow *window = (GenioWindow*)this->Window();
-	window->UpdateMenu();
+	ProjectItem* selected = GetSelectedProjectItem();
+	if (selected != nullptr) {
+		GenioWindow *window = (GenioWindow*)Window();
+		window->UpdateMenu(selected->GetSourceItem()->EntryRef());
+
+		if (fFileNewProjectMenuItem == nullptr)
+			return;
+		// TODO: We are replicating GenioWindow::UpdateMenu here.
+		// merge the two
+		BEntry entry(selected->GetSourceItem()->EntryRef());
+		if (entry.IsFile()) {
+			// Get parent directory
+			entry.GetParent(&entry);
+		}
+		entry_ref newRef;
+		entry.GetRef(&newRef);
+		fFileNewProjectMenuItem->SetSenderEntryRef(&newRef);
+	}
 }
 
 
@@ -891,7 +909,6 @@ ProjectsFolderBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& 
 
 	return;
 }
-
 
 
 const BObjectList<ProjectFolder>*

@@ -376,10 +376,13 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(editor.String(), "syntax_highlight", B_TRANSLATE("Enable syntax highlighting"), true);
 	cfg.AddConfig(editor.String(), "brace_match", B_TRANSLATE("Enable brace matching"), true);
 	cfg.AddConfig(editor.String(), "save_caret", B_TRANSLATE("Save caret position"), true);
+	cfg.AddConfig(editor.String(), "ignore_editorconfig", B_TRANSLATE("Ignore .editorconfig"), false);
 	cfg.AddConfig(editor.String(), "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
+	// TODO: change to "indent_style" to be coherent with editorconfig
 	cfg.AddConfig(editor.String(), "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
 
 	GMessage tabs = { {"min",1},{"max",8} };
+	// TODO: change to "indent_size" to be coherent with editorconfig
 	cfg.AddConfig(editor.String(), "tab_width", B_TRANSLATE("Tab width:"), 4, &tabs);
 
 	GMessage zooms = { {"min", -9}, {"max", 19} };

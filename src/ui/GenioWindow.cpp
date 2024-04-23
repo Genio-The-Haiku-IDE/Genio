@@ -2810,8 +2810,8 @@ GenioWindow::_InitActions()
 								  "");
 
 	ActionManager::RegisterAction(MSG_RELOAD_EDITORCONFIG,
-								  B_TRANSLATE("Reload .editorconfig" B_UTF8_ELLIPSIS),
-								  B_TRANSLATE("Reload .editorconfig" B_UTF8_ELLIPSIS),
+								  B_TRANSLATE("Reload .editorconfig"),
+								  B_TRANSLATE("Reload .editorconfig"),
 								  "");
 
 	ActionManager::RegisterAction(MSG_BUFFER_LOCK,

@@ -3506,6 +3506,7 @@ GenioWindow::_TemplateNewFile(BMessage* message)
 				B_WARNING_ALERT);
 		LogError("Invalid destination directory [%s]", dest.name);
 	} else {
+		// TODO: Fix this
 		//GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
 	}
 }
@@ -3514,11 +3515,8 @@ GenioWindow::_TemplateNewFile(BMessage* message)
 void
 GenioWindow::_TemplateNewFolder(BMessage* message)
 {
-	message->PrintToStream();
 	entry_ref ref;
 	message->FindRef("sender_ref", &ref);
-
-	LogError("_TemplateNewFolder: sender_ref: %s", ref.name);
 	entry_ref refNew;
 	status_t status = TemplateManager::CreateNewFolder(&ref, &refNew);
 	if (status != B_OK) {
@@ -3527,15 +3525,9 @@ GenioWindow::_TemplateNewFolder(BMessage* message)
 				B_WARNING_ALERT);
 		LogError("Invalid destination directory [%s]", ref.name);
 	} else {
+		// TODO: Fix this
 		//GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
 	}
-	/* else {
-		LogError("Can't find current item");
-		OKAlert(B_TRANSLATE("New folder"),
-				B_TRANSLATE("You can't create a new folder here, "
-							"please select a project or another folder"),
-				B_WARNING_ALERT);
-	}*/
 }
 
 

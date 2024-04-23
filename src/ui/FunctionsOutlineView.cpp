@@ -50,20 +50,11 @@ public:
 			SetIconAndTooltip();
 		}
 
-		virtual void DrawItem(BView* owner, BRect bounds, bool complete);
 		const BMessage& Details() const { return fDetails; }
 		void SetIconAndTooltip();
 private:
 		BMessage	fDetails;
 };
-
-
-/* virtual */
-void
-SymbolListItem::DrawItem(BView* owner, BRect bounds, bool complete)
-{
-	StyledItem::DrawItem(owner, bounds, complete);
-}
 
 
 void

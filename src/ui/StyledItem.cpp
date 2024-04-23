@@ -86,9 +86,7 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 					bounds.top + BaselineOffset());
 
 	// TODO: would be nice to draw extra text in different style
-	BString text(Text());
-	text << fExtraText;
-	DrawText(owner, text.String(), textPoint);
+	DrawText(owner, Text(), ExtraText(), textPoint);
 
 	owner->Sync();
 }
@@ -166,7 +164,8 @@ StyledItem::SetIconFollowsTheme(bool follow)
 
 /* virtual */
 void
-StyledItem::DrawText(BView* owner, const char* text, const BPoint& point)
+StyledItem::DrawText(BView* owner, const char* text,
+				const char* extraText, const BPoint& point)
 {
 	BFont font;
 	owner->GetFont(&font);
@@ -176,6 +175,8 @@ StyledItem::DrawText(BView* owner, const char* text, const BPoint& point)
 	owner->SetDrawingMode(B_OP_COPY);
 	owner->MovePenTo(point);
 	owner->DrawString(text);
+	if (extraText != nullptr)
+		owner->DrawString(extraText);
 }
 
 

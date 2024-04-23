@@ -870,17 +870,17 @@ GenioWindow::MessageReceived(BMessage* message)
 			entry_ref templateRef;
 			if (message->FindRef("template_ref", &templateRef) != B_OK) {
 				LogError("Invalid template %s", templateRef.name);
-				return;
+				break;
 			}
 			entry_ref destRef;
 			if (message->FindRef("directory", &destRef) != B_OK) {
 				LogError("Invalid destination directory %s", destRef.name);
-				return;
+				break;
 			}
 			BString name;
 			if (message->FindString("name", &name) != B_OK) {
 				LogError("Invalid destination name %s", name.String());
-				return;
+				break;
 			}
 			if (TemplateManager::CopyProjectTemplate(&templateRef, &destRef, name.String()) == B_OK) {
 				BPath destPath(&destRef);
@@ -902,7 +902,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			status_t status = message->FindString("type", &type);
 			if (status != B_OK) {
 				LogError("Can't find type!");
-				return;
+				break;
 			}
 
 			if (type == "new_folder")
@@ -1130,7 +1130,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_SET_LANGUAGE:
 			_ForwardToSelectedEditor(message);
 			break;
-		case MSG_HELP_GITHUB: {
+		case MSG_HELP_GITHUB:
+		{
 			char *argv[2] = {(char*)"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
 			be_roster->Launch("text/html", 1, argv);
 			break;
@@ -1140,7 +1141,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case kMsgCapabilitiesUpdated:
 			_UpdateTabChange(fTabManager->SelectedEditor(), "kMsgCapabilitiesUpdated");
-		break;
+			break;
 		default:
 			BWindow::MessageReceived(message);
 			break;

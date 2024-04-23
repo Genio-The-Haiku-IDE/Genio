@@ -29,6 +29,7 @@
 
 #include "IconMenuItem.h"
 
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplatesMenu"
 
@@ -96,6 +97,21 @@ TemplatesMenu::SetViewMode(ViewMode mode, bool enableNewFolder)
 	fEnableNewFolder = enableNewFolder;
 }
 
+
+void
+TemplatesMenu::SetSender(const void* sender, const entry_ref* ref)
+{
+	BEntry entry(ref);
+	BPath path;
+	path.SetTo(&entry);
+
+	fMessage->RemoveName("sender");
+	fMessage->AddPointer("sender", sender);
+	fMessage->RemoveName("sender_ref");
+	fMessage->AddRef("sender_ref", ref);
+}
+
+
 // BMessages are passed in the constructor for each of the events:
 // * Create new item
 // * Show user template folder
@@ -131,8 +147,17 @@ TemplatesMenu::_BuildMenu()
 
 	if (fShowNewFolder) {
 		// Always create a new message
+		// TODO: Why ?
+
+		void* sender = nullptr;
+		fMessage->FindPointer("sender", &sender);
+		entry_ref senderRef;
+		fMessage->FindRef("sender_ref", &senderRef);
 		BMessage *message = new BMessage(fMessage->what);
 		message->AddString("type","new_folder");
+		message->AddPointer("sender", sender);
+		message->AddRef("sender_ref", &senderRef);
+
 		// add the folder
 		IconMenuItem* menuItem = new IconMenuItem(B_TRANSLATE(kNewFolderLabel),
 			message, B_DIRECTORY_MIME_TYPE, B_MINI_ICON);
@@ -207,8 +232,14 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 				entry_ref ref;
 				entry.GetRef(&ref);
 
+				void* sender = nullptr;
+				fMessage->FindPointer("sender", &sender);
+				entry_ref senderRef;
+				fMessage->FindRef("sender_ref", &senderRef);
 				BMessage *message = new BMessage(fMessage->what);
 				message->AddRef("refs", &ref);
+				message->AddPointer("sender", sender);
+				message->AddRef("sender_ref", &senderRef);
 				if (entry.IsDirectory())
 					message->AddString("type","new_folder_template");
 				else

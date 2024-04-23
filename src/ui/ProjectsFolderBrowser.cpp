@@ -474,7 +474,7 @@ ProjectsFolderBrowser::_ShowProjectItemPopupMenu(BPoint where)
 
 	BMenuItem* showInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
 		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
-	BMenuItem* openTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open Terminal"),
+	BMenuItem* openTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open in Terminal"),
 		new BMessage(MSG_PROJECT_MENU_OPEN_TERMINAL));
 	showInTrackerProjectMenuItem->SetEnabled(true);
 	openTerminalProjectMenuItem->SetEnabled(true);

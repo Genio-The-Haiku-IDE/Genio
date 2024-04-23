@@ -3752,7 +3752,12 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 	if (selectedProjectItem == nullptr)
 		return B_BAD_VALUE;
 
-	BPath itemPath(selectedProjectItem->GetSourceItem()->EntryRef());
+	BEntry itemEntry(selectedProjectItem->GetSourceItem()->EntryRef());
+	if (!itemEntry.IsDirectory())
+		itemEntry.GetParent(&itemEntry);
+
+	BPath itemPath(&itemEntry);
+
 	const char* argv[] = {
 		"-w",
 		itemPath.Path(),

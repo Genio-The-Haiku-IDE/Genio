@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	2969121325
+1	English	application/x-vnd.Genio	302088753
 Close	RemoteProjectWindow		Close
 Function	OutlineTooltips		Function
 Copy	GenioWindow		Copy
@@ -6,7 +6,6 @@ Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new bran
 Enable brace matching	SettingsWindow		Enable brace matching
 Settings in .editorconfig applied	EditorStatusView		Settings in .editorconfig applied
 Clear	ConsoleIOView		Clear
-Font	SettingsWindow		Font
 Project	EditorTabManager		Project
 CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
 Switch source/header	GenioWindow		Switch source/header
@@ -19,6 +18,7 @@ Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Show toolbar	GenioWindow		Show toolbar
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
 Project settings…	ProjectsFolderBrowser		Project settings…
+Font:	SettingsWindow		Font:
 Sort	OutlineTooltips		Sort
 Path	ProjectsFolderBrowser		Path
 development	Utilities		development
@@ -113,6 +113,7 @@ The local path is not valid or does not exist	RemoteProjectWindow		The local pat
 Cancel	GitCredentialsWindow		Cancel
 Fetch	SourceControlPanel		Fetch
 Match case	SettingsWindow	Short as possible.	Match case
+Show line numbers	SettingsWindow		Show line numbers
 Color:	ProjectSettingsWindow		Color:
 String	OutlineTooltips		String
 CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
@@ -253,6 +254,7 @@ Class	OutlineTooltips		Class
 Bookmark all	GenioWindow		Bookmark all
 Appearance	GenioWindow		Appearance
 Auto-Build on resource save	SettingsWindow		Auto-Build on resource save
+Visuals	SettingsWindow		Visuals
 Cancel	Editor		Cancel
 Init repository	SourceControlPanel		Init repository
 File	OutlineTooltips		File
@@ -266,6 +268,7 @@ Delete current line	GenioWindow		Delete current line
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
 Creating outline…	OutlineTooltips		Creating outline…
 Reload files	SettingsWindow		Reload files
+Show folding margin	SettingsWindow		Show folding margin
 Password:	GitCredentialsWindow		Password:
 Build mode:	ProjectSettingsWindow		Build mode:
 Ignore .editorconfig	SettingsWindow		Ignore .editorconfig
@@ -316,7 +319,6 @@ Zoom in	GenioWindow		Zoom in
 Show outline pane	SettingsWindow		Show outline pane
 Set ruler to column:	SettingsWindow		Set ruler to column:
 Fold/Unfold all	GenioWindow		Fold/Unfold all
-Enable folding	SettingsWindow		Enable folding
 Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
 Bookmark	GenioWindow		Bookmark
 New	GenioWindow		New
@@ -332,7 +334,6 @@ File \"%file%\" was apparently removed.\nDo you want to keep the file or discard
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
 Delete dialog	GenioWindow		Delete dialog
 Convert tabs to spaces	SettingsWindow		Convert tabs to spaces
-Show line number	SettingsWindow		Show line number
 Project:	SourceControlPanel		Project:
 About…	GenioWindow		About…
 Find in project	GenioWindow		Find in project
@@ -368,7 +369,6 @@ Package	OutlineTooltips		Package
 Location	SearchResultPanel		Location
 Paste	GenioWindow		Paste
 Rename symbol…	OutlineTooltips		Rename symbol…
-Visual	SettingsWindow		Visual
 Cancel	GTextAlert		Cancel
 Source control	SettingsWindow		Source control
 Stash pop changes	SourceControlPanel		Stash pop changes

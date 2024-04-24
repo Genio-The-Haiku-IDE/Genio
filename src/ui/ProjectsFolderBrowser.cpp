@@ -39,6 +39,8 @@
 
 ProjectsFolderBrowser::ProjectsFolderBrowser()
 	: BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
+	, fFileNewProjectMenuItem (nullptr)
+	, fIsBuilding (false)
 {
 	fGenioWatchingFilter = new GenioWatchingFilter();
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));

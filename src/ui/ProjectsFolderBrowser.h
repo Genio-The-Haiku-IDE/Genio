@@ -86,10 +86,9 @@ private:
 	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
 
 private:
-	TemplatesMenu*		fFileNewProjectMenuItem;
-
-	bool				fIsBuilding = false;
-	GenioWatchingFilter* fGenioWatchingFilter;
+	TemplatesMenu*			fFileNewProjectMenuItem;
+	bool					fIsBuilding;
+	GenioWatchingFilter*	fGenioWatchingFilter;
 
 	//TODO: remove this and use a std::vector<std::pair or similar.
 	BObjectList<ProjectFolder>	fProjectList;

@@ -1778,25 +1778,20 @@ GenioWindow::_FileOpen(BMessage* msg)
 		int32 newIndex = fTabManager->TabForView(editor);
 		fTabManager->SelectTab(newIndex, &selectTabInfo);
 
-		// TODO: Move some stuff into _PostFileLoad()
+		// TODO: Move some other stuff into _PostFileLoad()
 		_PostFileLoad(editor);
 
-		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
-		noticeMessage.AddString("file_name", editor->FilePath());
-		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
-
+		// Assign the right project to the Editor
+		for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
+			ProjectFolder* project = GetProjectBrowser()->ProjectAt(cycleIndex);
+			_TryAssociateEditorWithProject(editor, project);
+		}
 		// apply LSP edits
 		std::string edit = msg->GetString("edit", "");
 		if (!edit.empty())
-			fTabManager->SelectedEditor()->ApplyEdit(edit);
+			editor->ApplyEdit(edit);
 
 		LogInfo("File open: %s [%d]", editor->Name().String(), index);
-	}
-
-	// Assign the right project to the Editor
-	for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
-		ProjectFolder * project = GetProjectBrowser()->ProjectAt(cycleIndex);
-		_TryAssociateOrphanedEditorsWithProject(project);
 	}
 
 	return status;
@@ -1993,6 +1988,10 @@ GenioWindow::_PostFileLoad(Editor* editor)
 {
 	if (editor != nullptr)
 		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
+
+	BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
+	noticeMessage.AddString("file_name", editor->FilePath());
+	SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
 }
 
 
@@ -3424,21 +3423,18 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 
 
 void
-GenioWindow::_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project)
+GenioWindow::_TryAssociateEditorWithProject(Editor* editor, ProjectFolder* project)
 {
-	// let's check if any open editor is related to this project
+	// let's check if editor belongs to this project
 	BString projectPath = project->Path().String();
 	projectPath = projectPath.Append("/");
-	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		LogTrace("Open project [%s] vs editor project [%s]",
-			projectPath.String(), editor->FilePath().String());
-		if (editor->GetProjectFolder() == NULL) {
-			// TODO: This isn't perfect: if we open a subfolder of
-			// an existing project as new project, the two would clash
-			if (editor->FilePath().StartsWith(projectPath))
-				editor->SetProjectFolder(project);
-		}
+	LogTrace("Open project [%s] vs editor project [%s]",
+		projectPath.String(), editor->FilePath().String());
+	if (editor->GetProjectFolder() == NULL) {
+		// TODO: This isn't perfect: if we open a subfolder of
+		// an existing project as new project, the two would clash
+		if (editor->FilePath().StartsWith(projectPath))
+			editor->SetProjectFolder(project);
 	}
 }
 
@@ -3758,7 +3754,10 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	notification << opened << newProject->Name() << " at " << projectPath;
 	LogInfo(notification.String());
 
-	_TryAssociateOrphanedEditorsWithProject(newProject);
+	for (int32 i = 0; i < fTabManager->CountTabs(); i++) {
+		Editor* editor = fTabManager->EditorAt(i);
+		_TryAssociateEditorWithProject(editor, newProject);
+	}
 
     // final touch, let's be sure the folder is added to the recent files.
     be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);

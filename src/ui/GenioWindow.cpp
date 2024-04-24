@@ -1085,12 +1085,14 @@ GenioWindow::MessageReceived(BMessage* message)
 				// TODO: when closing then reopening a tab, the message will be empty
 				// because the symbols BMessage returned by GetDocumentSymbols()
 				// is empty as the Editor has just been created
-				BMessage symbolsChanged(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
-				BMessage symbols;
-				editor->GetDocumentSymbols(&symbols);
-				symbolsChanged.AddRef("ref", editor->FileRef());
-				symbolsChanged.AddMessage("symbols", &symbols);
-				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
+				if (editor->HasLSPCapability(kLCapDocumentSymbols)) {
+					BMessage symbolsChanged(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+					BMessage symbols;
+					editor->GetDocumentSymbols(&symbols);
+					symbolsChanged.AddRef("ref", editor->FileRef());
+					symbolsChanged.AddMessage("symbols", &symbols);
+					SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
+				}
 			}
 			break;
 		}

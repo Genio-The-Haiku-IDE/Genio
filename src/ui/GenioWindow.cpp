@@ -1772,8 +1772,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 			continue;
 		}
 
-		editor->ApplySettings();
-
 		// Select the newly added tab
 		int32 newIndex = fTabManager->TabForView(editor);
 		fTabManager->SelectTab(newIndex, &selectTabInfo);
@@ -1986,12 +1984,13 @@ GenioWindow::_PreFileLoad(Editor* editor)
 void
 GenioWindow::_PostFileLoad(Editor* editor)
 {
-	if (editor != nullptr)
+	if (editor != nullptr) {
+		editor->ApplySettings();
 		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
-
-	BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
-	noticeMessage.AddString("file_name", editor->FilePath());
-	SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
+		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
+		noticeMessage.AddString("file_name", editor->FilePath());
+		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
+	}
 }
 
 

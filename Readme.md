@@ -81,17 +81,13 @@ If you would like to try a clang++ build:
 Execute `make deps && make` in Genio's top directory.
 The executable is created in `app` subdirectory.
 
-Genio can already be opened and built within Genio itself.
-The makefile has been updated to accept the *debug* parameter:
-
-*   debug=1 - Genio is built in debug mode
-*   debug=0 or parameter omitted - Genio is built in release mode
+Genio can also be built within Genio itself. 
 
 ## Contributions
 
 We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
 For code contributions, prefer Haiku API over posix, where applicable.
-We (try to) stick to the Haiku style for code, although with a few differences.
+We (try to) stick to the Haiku style for code, although we are a bit less strict sometimes. 
 
 ## License
 

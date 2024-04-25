@@ -47,7 +47,7 @@ class FunctionsOutlineView;
 class GoToLineWindow;
 class ProblemsPanel;
 class ProjectFolder;
-class ProjectsFolderBrowser;
+class ProjectsBrowser;
 class SearchResultPanel;
 class SourceControlPanel;
 class TemplatesMenu;
@@ -66,7 +66,7 @@ public:
 	void						UpdateMenu(const void* sender, const entry_ref* ref);
 	ProjectFolder*				GetActiveProject() const;
 	void						SetActiveProject(ProjectFolder *project);
-	ProjectsFolderBrowser*		GetProjectBrowser() const;
+	ProjectsBrowser*		GetProjectBrowser() const;
 
 	EditorTabManager*			TabManager() const;
 
@@ -203,7 +203,7 @@ private:
 			// Left panels
 			BTabView*	  		fProjectsTabView;
 
-			ProjectsFolderBrowser*	fProjectsFolderBrowser;
+			ProjectsBrowser*	fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
 			SourceControlPanel*	fSourceControlPanel;

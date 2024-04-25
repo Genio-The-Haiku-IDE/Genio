@@ -652,7 +652,7 @@ SourceControlPanel::_GetSelectedProject() const
 	GenioWindow* window = static_cast<GenioWindow*>(Window());
 	if (window == nullptr)
 		return nullptr;
-	ProjectsFolderBrowser* projectBrowser = window->GetProjectBrowser();
+	ProjectsBrowser* projectBrowser = window->GetProjectBrowser();
 	if (projectBrowser == nullptr)
 		return nullptr;
 

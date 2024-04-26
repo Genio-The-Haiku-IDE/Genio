@@ -8,24 +8,10 @@
 
 #include "TemplatesMenu.h"
 
-#include <Application.h>
 #include <Catalog.h>
-#include <ControlLook.h>
 #include <Directory.h>
-#include <FindDirectory.h>
-#include <Locale.h>
-#include <Menu.h>
 #include <MenuItem.h>
-#include <Message.h>
-#include <Mime.h>
-#include <MimeType.h>
 #include <MimeTypes.h>
-#include <NodeInfo.h>
-#include <Path.h>
-#include <Query.h>
-#include <Roster.h>
-
-#include <cstdio>
 
 #include "IconMenuItem.h"
 
@@ -37,7 +23,7 @@
 const char* kNewFolderLabel = "New folder";
 
 TemplatesMenu::TemplatesMenu(BHandler *target, const char* label,
-								BMessage *message, BMessage *show_template_message,
+								BMessage *message, BMessage *showTemplateMessage,
 								const BString& defaultDirectory,
 								const BString&  userDirectory,
 								ViewMode mode,
@@ -47,13 +33,13 @@ TemplatesMenu::TemplatesMenu(BHandler *target, const char* label,
 	fTarget(target),
 	fOpenItem(NULL),
 	fMessage(message),
-	fShowTemplateMessage(show_template_message),
+	fShowTemplateMessage(showTemplateMessage),
 	fViewMode(mode),
 	fDefaultDirectory(defaultDirectory),
 	fUserDirectory(userDirectory),
 	fShowNewFolder(showNewFolder),
 	fEnableNewFolder(true),
-	fShowTemplatesDirectory(fShowTemplateMessage!=nullptr ? true : false)
+	fShowTemplatesDirectory(fShowTemplateMessage != nullptr ? true : false)
 {
 }
 
@@ -101,10 +87,6 @@ TemplatesMenu::SetViewMode(ViewMode mode, bool enableNewFolder)
 void
 TemplatesMenu::SetSender(const void* sender, const entry_ref* ref)
 {
-	BEntry entry(ref);
-	BPath path;
-	path.SetTo(&entry);
-
 	fMessage->RemoveName("sender");
 	fMessage->AddPointer("sender", sender);
 	fMessage->RemoveName("sender_ref");
@@ -176,17 +158,17 @@ TemplatesMenu::_BuildMenu()
 			AddSeparatorItem();
 
 		// this is the message sent to open the templates folder
-		BMessage *template_message = new BMessage(fShowTemplateMessage->what);
+		BMessage *templateMessage = new BMessage(fShowTemplateMessage->what);
 		entry_ref dirRef;
 		BDirectory userTemplateDirectory(fUserDirectory);
 		BEntry entry;
 		if (userTemplateDirectory.GetEntry(&entry) == B_OK)
 			entry.GetRef(&dirRef);
-		template_message->AddRef("refs", &dirRef);
+		templateMessage->AddRef("refs", &dirRef);
 
 		// add item to show templates folder
 		fOpenItem = new BMenuItem(B_TRANSLATE("Edit user templates" B_UTF8_ELLIPSIS),
-			template_message);
+			templateMessage);
 		AddItem(fOpenItem);
 		if (dirRef == entry_ref())
 			fOpenItem->SetEnabled(false);

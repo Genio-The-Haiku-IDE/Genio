@@ -1,0 +1,15 @@
+build:
+  name: 'build-test on Haiku'
+  runs-on: 'ubuntu-latest'
+  container: 'docker.io/hectorm/qemu-haiku:latest'
+  steps:
+    - name: 'Wait until the VM is ready'
+      run: 'container-init & timeout 600 vmshell exit 0'
+    - name: 'Install packages'
+      run: 'vmshell pkgman install -y make libgit2_devel lexilla_devel yaml_cpp_devel editorconfig_core_c_devel'
+    - name: 'Checkout project'
+      uses: 'actions/checkout@main'
+    - name: 'Copy project to VM'
+      run: 'vmshell mkdir ./; tar -cf - ./ | vmshell tar -xf - -C ./'
+    - name: 'Test project'
+      run: 'vmshell make'

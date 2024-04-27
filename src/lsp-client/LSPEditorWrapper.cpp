@@ -271,6 +271,17 @@ LSPEditorWrapper::Format()
 	}
 }
 
+void
+LSPEditorWrapper::FindReferences()
+{
+	if (!IsInitialized() || !fEditor)
+		return;
+
+	Sci_Position s_start = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
+	Position pos;
+	FromSciPositionToLSPPosition(s_start, &pos);
+	fLSPProjectWrapper->References(this, pos);
+}
 
 void
 LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)

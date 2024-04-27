@@ -831,6 +831,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_GOTOIMPLEMENTATION:
 		case MSG_RENAME:
 		case MSG_SWITCHSOURCE:
+		case MSG_FIND_REFERENCES:
 			_ForwardToSelectedEditor(message);
 			break;
 		case MSG_FIND_IN_BROWSER:
@@ -2690,6 +2691,9 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_FORMAT,
 								   B_TRANSLATE("Format"));
 
+	ActionManager::RegisterAction(MSG_FIND_REFERENCES,
+									B_TRANSLATE("Find references"));
+
 	ActionManager::RegisterAction(MSG_GOTODEFINITION,
 								   B_TRANSLATE("Go to definition"), "","", 'G');
 
@@ -2950,6 +2954,7 @@ GenioWindow::_InitMenu()
 
 	ActionManager::AddItem(MSG_AUTOCOMPLETION, editMenu);
 	ActionManager::AddItem(MSG_FORMAT, editMenu);
+	ActionManager::AddItem(MSG_FIND_REFERENCES, editMenu);
 
 	editMenu->AddSeparatorItem();
 
@@ -2977,6 +2982,7 @@ GenioWindow::_InitMenu()
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 	ActionManager::SetEnabled(MSG_FORMAT, false);
+	ActionManager::SetEnabled(MSG_FIND_REFERENCES, false);
 
 	fLineEndingsMenu->SetEnabled(false);
 
@@ -4195,6 +4201,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		ActionManager::SetEnabled(MSG_AUTOCOMPLETION, false);
 		ActionManager::SetEnabled(MSG_FORMAT, false);
+		ActionManager::SetEnabled(MSG_FIND_REFERENCES, false);
+
 		ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
 		ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
 		ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, false);
@@ -4282,6 +4290,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	ActionManager::SetEnabled(MSG_AUTOCOMPLETION, !editor->IsReadOnly() && editor->HasLSPCapability(kLCapCompletion));
 	ActionManager::SetEnabled(MSG_FORMAT, !editor->IsReadOnly() && editor->HasLSPCapability(kLCapDocFormatting));
+	ActionManager::SetEnabled(MSG_FIND_REFERENCES,  editor->HasLSPCapability(kLCapReferences));
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, editor->HasLSPCapability(kLCapDefinition));
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, editor->HasLSPCapability(kLCapDeclaration));
 	ActionManager::SetEnabled(MSG_GOTOIMPLEMENTATION, editor->HasLSPCapability(kLCapImplementation));

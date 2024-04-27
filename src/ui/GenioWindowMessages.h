@@ -47,6 +47,7 @@ enum {
 
 	MSG_AUTOCOMPLETION			= 'auto',
 	MSG_FORMAT					= 'form',
+	MSG_FIND_REFERENCES			= 'fref',
 	MSG_SET_LANGUAGE			= 'sela',
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',

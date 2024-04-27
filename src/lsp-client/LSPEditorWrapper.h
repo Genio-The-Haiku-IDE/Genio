@@ -77,6 +77,8 @@ public:
 		void	NextCallTip();
 		void	PrevCallTip();
 
+		void	FindReferences();
+
 public:
 	//still experimental
 	//std::string		fID;

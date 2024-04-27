@@ -295,6 +295,9 @@ Editor::MessageReceived(BMessage* message)
 		case MSG_FORMAT:
 			Format();
 			break;
+		case MSG_FIND_REFERENCES:
+			fLSPEditorWrapper->FindReferences();
+			break;
 		case MSG_GOTODEFINITION:
 			GoToDefinition();
 			break;

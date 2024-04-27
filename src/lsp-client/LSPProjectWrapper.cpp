@@ -335,6 +335,7 @@ LSPProjectWrapper::Initialized(json& result)
 		_CheckAndSetCapability(capas, "signatureHelpProvider", kLCapSignatureHelp);
 		_CheckAndSetCapability(capas, "renameProvider", kLCapRename);
 		_CheckAndSetCapability(capas, "documentSymbolProvider", kLCapDocumentSymbols);
+		_CheckAndSetCapability(capas, "referencesProvider", kLCapReferences);
 	}
 
 	SendNotify("initialized", json());
@@ -542,6 +543,9 @@ LSPProjectWrapper::GoToDeclaration(LSPTextDocument* textDocument, Position posit
 RequestID
 LSPProjectWrapper::References(LSPTextDocument* textDocument, Position position)
 {
+	if (!HasCapability(kLCapReferences))
+		return RequestID();
+
 	ReferenceParams params;
 	params.textDocument.uri = std::move(textDocument->GetFilenameURI().String());
 	params.position = position;

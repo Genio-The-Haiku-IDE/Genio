@@ -3519,12 +3519,18 @@ GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
 		// and maybe into plugins
 		if (strcasecmp(entry.Name(), "makefile") == 0) {
 			// builder: make
-			projectFolder->SetBuildCommand("make", projectFolder->GetBuildMode());
+			projectFolder->SetBuildCommand("make", BuildMode::ReleaseMode);
+			projectFolder->SetCleanCommand("make clean", BuildMode::ReleaseMode);
+			projectFolder->SetBuildCommand("make", BuildMode::DebugMode);
+			projectFolder->SetCleanCommand("make clean", BuildMode::DebugMode);
 			LogInfo("Guessed builder: make");
 			break;
 		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
 			// builder: jam
-			projectFolder->SetBuildCommand("jam", projectFolder->GetBuildMode());
+			projectFolder->SetBuildCommand("jam", BuildMode::ReleaseMode);
+			projectFolder->SetCleanCommand("jam clean", BuildMode::ReleaseMode);
+			projectFolder->SetBuildCommand("jam", BuildMode::DebugMode);
+			projectFolder->SetCleanCommand("jam clean", BuildMode::DebugMode);
 			LogInfo("Guessed builder: jam");
 			break;
 		}

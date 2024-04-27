@@ -37,7 +37,7 @@
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
 
-ProjectsBrowser::ProjectsBrowser()
+ProjectBrowser::ProjectBrowser()
 	: BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
 	, fFileNewProjectMenuItem (nullptr)
 	, fIsBuilding (false)
@@ -48,7 +48,7 @@ ProjectsBrowser::ProjectsBrowser()
 }
 
 
-ProjectsBrowser::~ProjectsBrowser()
+ProjectBrowser::~ProjectBrowser()
 {
 	BPrivate::BPathMonitor::SetWatchingInterface(nullptr);
 	delete fGenioWatchingFilter;
@@ -56,7 +56,7 @@ ProjectsBrowser::~ProjectsBrowser()
 
 
 ProjectItem*
-ProjectsBrowser::_CreateNewProjectItem(ProjectItem* parentItem, BPath path)
+ProjectBrowser::_CreateNewProjectItem(ProjectItem* parentItem, BPath path)
 {
 	ProjectFolder *projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
 	SourceItem *sourceItem = new SourceItem(path.Path());
@@ -66,7 +66,7 @@ ProjectsBrowser::_CreateNewProjectItem(ProjectItem* parentItem, BPath path)
 
 
 ProjectItem*
-ProjectsBrowser::_CreatePath(BPath pathToCreate)
+ProjectBrowser::_CreatePath(BPath pathToCreate)
 {
 	LogTrace("Create path for %s", pathToCreate.Path());
 	ProjectItem *item = GetProjectItemByPath(pathToCreate.Path());
@@ -81,7 +81,7 @@ ProjectsBrowser::_CreatePath(BPath pathToCreate)
 
 			if (AddUnder(newItem,parentItem)) {
 				LogDebugF("AddUnder(%s,%s) (Parent %s)", newItem->Text(), parentItem->Text(), parent.Path());
-				SortItemsUnder(parentItem, true, ProjectsBrowser::_CompareProjectItems);
+				SortItemsUnder(parentItem, true, ProjectBrowser::_CompareProjectItems);
 				Collapse(newItem);
 			}
 			return newItem;
@@ -93,7 +93,7 @@ ProjectsBrowser::_CreatePath(BPath pathToCreate)
 
 
 void
-ProjectsBrowser::_UpdateNode(BMessage* message)
+ProjectBrowser::_UpdateNode(BMessage* message)
 {
 	int32 opCode;
 	if (message->FindInt32("opcode", &opCode) != B_OK)
@@ -142,7 +142,7 @@ ProjectsBrowser::_UpdateNode(BMessage* message)
 				}
 			} else {
 				RemoveItem(item);
-				SortItemsUnder(Superitem(item), true, ProjectsBrowser::_CompareProjectItems);
+				SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
 			}
 			break;
 		}
@@ -185,7 +185,7 @@ ProjectsBrowser::_UpdateNode(BMessage* message)
 						}
 					} else {
 						RemoveItem(item);
-						SortItemsUnder(Superitem(item), true, ProjectsBrowser::_CompareProjectItems);
+						SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
 					}
 				}
 			} else {
@@ -206,7 +206,7 @@ ProjectsBrowser::_UpdateNode(BMessage* message)
 								entry_ref entryRef;
 								newPathEntry.GetRef(&entryRef);
 								_ProjectFolderScan(parentItem, &entryRef, parentItem->GetSourceItem()->GetProjectFolder());
-								SortItemsUnder(parentItem, false, ProjectsBrowser::_CompareProjectItems);
+								SortItemsUnder(parentItem, false, ProjectBrowser::_CompareProjectItems);
 							} else {
 								//Plain file
 								_CreatePath(destination);
@@ -237,7 +237,7 @@ ProjectsBrowser::_UpdateNode(BMessage* message)
 									if (get_ref_for_path(newPath, &newRef) == B_OK) {
 										item->SetText(newName);
 										item->GetSourceItem()->UpdateEntryRef(newRef);
-										SortItemsUnder(Superitem(item), true, ProjectsBrowser::_CompareProjectItems);
+										SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
 									} else {
 										LogError("Can't find ref for newPath[%s]", newPath.String());
 										return;
@@ -255,12 +255,12 @@ ProjectsBrowser::_UpdateNode(BMessage* message)
 									}
 									bool status = RemoveItem(item);
 									if (status) {
-										SortItemsUnder(Superitem(item), true, ProjectsBrowser::_CompareProjectItems);
+										SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
 
 										ProjectItem *newItem = _CreateNewProjectItem(item, bp_newPath);
 										status = AddUnder(newItem, destinationItem);
 										if (status) {
-											SortItemsUnder(destinationItem, true, ProjectsBrowser::_CompareProjectItems);
+											SortItemsUnder(destinationItem, true, ProjectBrowser::_CompareProjectItems);
 										}
 									}
 								}
@@ -279,7 +279,7 @@ ProjectsBrowser::_UpdateNode(BMessage* message)
 
 /* virtual */
 void
-ProjectsBrowser::MessageReceived(BMessage* message)
+ProjectBrowser::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case B_PATH_MONITOR:
@@ -398,7 +398,7 @@ ProjectsBrowser::MessageReceived(BMessage* message)
 
 
 void
-ProjectsBrowser::_ShowProjectItemPopupMenu(BPoint where)
+ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 {
 	ProjectItem*  projectItem = GetSelectedProjectItem();
 	if (!projectItem)
@@ -493,7 +493,7 @@ ProjectsBrowser::_ShowProjectItemPopupMenu(BPoint where)
 // Optimize the search under a specific ProjectItem, tipically a
 // superitem (ProjectFolder)
 ProjectItem*
-ProjectsBrowser::GetProjectItemByPath(BString const& path) const
+ProjectBrowser::GetProjectItemByPath(BString const& path) const
 {
 	entry_ref ref;
 	status_t status = get_ref_for_path(path.String(), &ref);
@@ -514,7 +514,7 @@ ProjectsBrowser::GetProjectItemByPath(BString const& path) const
 
 
 ProjectItem*
-ProjectsBrowser::GetSelectedProjectItem() const
+ProjectBrowser::GetSelectedProjectItem() const
 {
 	const int32 selection = CurrentSelection();
 	if (selection < 0)
@@ -524,7 +524,7 @@ ProjectsBrowser::GetSelectedProjectItem() const
 }
 
 ProjectItem*
-ProjectsBrowser::GetProjectItemForProject(ProjectFolder* folder)
+ProjectBrowser::GetProjectItemForProject(ProjectFolder* folder)
 {
 	assert(fProjectProjectItemList.CountItems() == CountProjects());
 
@@ -537,14 +537,14 @@ ProjectsBrowser::GetProjectItemForProject(ProjectFolder* folder)
 
 
 ProjectFolder*
-ProjectsBrowser::GetProjectFromSelectedItem() const
+ProjectBrowser::GetProjectFromSelectedItem() const
 {
 	return GetProjectFromItem(GetSelectedProjectItem());
 }
 
 
 ProjectFolder*
-ProjectsBrowser::GetProjectFromItem(ProjectItem* item) const
+ProjectBrowser::GetProjectFromItem(ProjectItem* item) const
 {
 	if (item == nullptr)
 		return nullptr;
@@ -561,7 +561,7 @@ ProjectsBrowser::GetProjectFromItem(ProjectItem* item) const
 
 
 const entry_ref*
-ProjectsBrowser::GetSelectedProjectFileRef() const
+ProjectBrowser::GetSelectedProjectFileRef() const
 {
 	ProjectItem* selectedProjectItem = GetSelectedProjectItem();
 	return selectedProjectItem->GetSourceItem()->EntryRef();
@@ -569,7 +569,7 @@ ProjectsBrowser::GetSelectedProjectFileRef() const
 
 
 status_t
-ProjectsBrowser::_RenameCurrentSelectedFile(const BString& new_name)
+ProjectBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 {
 	status_t status = B_NOT_INITIALIZED;
 	ProjectItem *item = GetSelectedProjectItem();
@@ -584,7 +584,7 @@ ProjectsBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 
 /* virtual */
 void
-ProjectsBrowser::AttachedToWindow()
+ProjectBrowser::AttachedToWindow()
 {
 	BOutlineListView::AttachedToWindow();
 	BOutlineListView::SetTarget((BHandler*)this, Window());
@@ -601,7 +601,7 @@ ProjectsBrowser::AttachedToWindow()
 
 /* virtual */
 void
-ProjectsBrowser::DetachedFromWindow()
+ProjectBrowser::DetachedFromWindow()
 {
 	BOutlineListView::DetachedFromWindow();
 
@@ -619,7 +619,7 @@ ProjectsBrowser::DetachedFromWindow()
 // https://dev.haiku-os.org/ticket/18716
 
 void
-ProjectsBrowser::MouseUp(BPoint where)
+ProjectBrowser::MouseUp(BPoint where)
 {
 	if (CountItems() == 0)
 		return;
@@ -629,7 +629,7 @@ ProjectsBrowser::MouseUp(BPoint where)
 
 /* virtual */
 void
-ProjectsBrowser::MouseDown(BPoint where)
+ProjectBrowser::MouseDown(BPoint where)
 {
 	int32 buttons = -1;
 	BMessage* message = Looper()->CurrentMessage();
@@ -643,7 +643,7 @@ ProjectsBrowser::MouseDown(BPoint where)
 
 
 void
-ProjectsBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
+ProjectBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 {
 	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
 		auto index = IndexOf(point);
@@ -661,7 +661,7 @@ ProjectsBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* messag
 
 
 void
-ProjectsBrowser::ProjectFolderDepopulate(ProjectFolder* project)
+ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 {
 	const BString projectPath = project->Path();
 	status_t status = BPrivate::BPathMonitor::StopWatching(projectPath, BMessenger(this));
@@ -683,11 +683,11 @@ ProjectsBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 
 
 void
-ProjectsBrowser::ProjectFolderPopulate(ProjectFolder* project)
+ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
 	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
 	//NOTE: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
-	SortItemsUnder(nullptr, false, ProjectsBrowser::_CompareProjectItems);
+	SortItemsUnder(nullptr, false, ProjectBrowser::_CompareProjectItems);
 
 	const BString projectPath = project->Path();
 	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
@@ -707,7 +707,7 @@ ProjectsBrowser::ProjectFolderPopulate(ProjectFolder* project)
 
 
 ProjectItem*
-ProjectsBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder)
+ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder)
 {
 	ProjectItem *newItem;
 	if (item != nullptr) {
@@ -770,7 +770,7 @@ ProjectsBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Pro
 
 
 int
-ProjectsBrowser::_CompareProjectItems(const BListItem* a, const BListItem* b)
+ProjectBrowser::_CompareProjectItems(const BListItem* a, const BListItem* b)
 {
 	if (a == b)
 		return 0;
@@ -807,7 +807,7 @@ ProjectsBrowser::_CompareProjectItems(const BListItem* a, const BListItem* b)
 
 
 void
-ProjectsBrowser::SelectionChanged()
+ProjectBrowser::SelectionChanged()
 {
 	ProjectItem* selected = GetSelectedProjectItem();
 	if (selected != nullptr) {
@@ -828,7 +828,7 @@ ProjectsBrowser::SelectionChanged()
 
 
 void
-ProjectsBrowser::InitRename(ProjectItem *item)
+ProjectBrowser::InitRename(ProjectItem *item)
 {
 	item->InitRename(this, new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
 	Invalidate();
@@ -836,21 +836,21 @@ ProjectsBrowser::InitRename(ProjectItem *item)
 
 
 int32
-ProjectsBrowser::CountProjects() const
+ProjectBrowser::CountProjects() const
 {
 	return fProjectList.CountItems();
 }
 
 
 ProjectFolder*
-ProjectsBrowser::ProjectAt(int32 index) const
+ProjectBrowser::ProjectAt(int32 index) const
 {
 	return fProjectList.ItemAt(index);
 }
 
 
 ProjectFolder*
-ProjectsBrowser::ProjectByPath(const BString& fullPath) const
+ProjectBrowser::ProjectByPath(const BString& fullPath) const
 {
 	for (int32 i = 0; i < CountProjects(); i++) {
 		ProjectFolder* project = ProjectAt(i);
@@ -861,7 +861,7 @@ ProjectsBrowser::ProjectByPath(const BString& fullPath) const
 }
 
 void
-ProjectsBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
+ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 {
 	ProjectItem* item = GetProjectItemForProject(projectFolder);
 	if (item != nullptr) {
@@ -871,7 +871,7 @@ ProjectsBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 }
 
 void
-ProjectsBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref)
+ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref)
 {
 	// Let's select the new created file.
 	// just send a message to the ProjectBrowser with the new ref
@@ -888,7 +888,7 @@ ProjectsBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_
 	The basic implementaion parses all the items.. (could be usefull in PathMonitor procedures)
 */
 void
-ProjectsBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
+ProjectBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
 {
 	ProjectItem* projectItem = GetProjectItemForProject(project);
 	if (projectItem == nullptr)
@@ -926,7 +926,7 @@ ProjectsBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
 
 
 const BObjectList<ProjectFolder>*
-ProjectsBrowser::GetProjectList() const
+ProjectBrowser::GetProjectList() const
 {
 	return &fProjectList;
 }

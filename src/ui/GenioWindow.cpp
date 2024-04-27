@@ -1216,7 +1216,7 @@ GenioWindow::SetActiveProject(ProjectFolder *project)
 }
 
 
-ProjectsBrowser*
+ProjectBrowser*
 GenioWindow::GetProjectBrowser() const
 {
 	return fProjectsFolderBrowser;
@@ -3270,7 +3270,7 @@ GenioWindow::_InitLeftSplit()
 	// Projects View
 	fProjectsTabView = new BTabView("ProjectsTabview");
 
-	fProjectsFolderBrowser = new ProjectsBrowser();
+	fProjectsFolderBrowser = new ProjectBrowser();
 	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
 		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 	fProjectsTabView->AddTab(fProjectsFolderScroll);

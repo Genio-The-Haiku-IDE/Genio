@@ -120,6 +120,7 @@ private:
 
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
+			void				_ProjectGuessBuildCommand(ProjectFolder* project);
 
 			void				_TemplateNewFolder(BMessage* message);
 			void				_TemplateNewProject(BMessage* message);

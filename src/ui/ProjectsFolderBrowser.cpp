@@ -677,7 +677,6 @@ ProjectsFolderBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	fProjectProjectItemList.RemoveItem(listItem);
 	fProjectList.RemoveItem(project);
 
-
 	Invalidate();
 }
 
@@ -700,9 +699,8 @@ ProjectsFolderBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	Invalidate();
 	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
 			B_WATCH_RECURSIVELY, BMessenger(this));
-	if (status != B_OK ) {
+	if (status != B_OK)
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
-	}
 }
 
 
@@ -724,40 +722,7 @@ ProjectsFolderBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* re
 	BEntry entry(ref);
 	BEntry parent;
 	BPath parentPath;
-	// Check if there's a Jamfile or makefile in the root path
-	// of the project
-	if (entry.IsFile() && entry.GetParent(&parent) == B_OK
-		&& parent.GetPath(&parentPath) == B_OK
-		&& projectFolder->Path().Compare(parentPath.Path()) == 0) {
-		// guess builder type
-		// TODO: do it for real: set a flag or setting in project
-		// TODO: move this away from here, into a specialized class
-		// and maybe into plugins
-		if (strcasecmp(entry.Name(), "makefile") == 0) {
-			// builder: make
-			projectFolder->SetGuessedBuilder("make");
-			LogInfo("Guessed builder: make");
-		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
-			// builder: jam
-			projectFolder->SetGuessedBuilder("jam");
-			LogInfo("Guessed builder: jam");
-		}
-
-		// TODO: check if it is a .editorconfig and set a node watch on it
-		// There may be multiple ones, every change to any of them will trigger an update to every
-		// opened editors
-		// if (strcasecmp(entry.Name(), ".editorconfig") == 0) {
-			// status_t status;
-			// node_ref nodeRef;
-			// if ((status = entry.GetNodeRef(&nodeRef)) != B_OK) {
-				// LogErrorF("Can't get a node_ref! (%s) (%s)", entry.Name(), strerror(status));
-			// } else {
-				// if ((status = watch_node(&nodeRef, B_WATCH_NAME | B_WATCH_STAT, Window())) != B_OK) {
-					// LogErrorF("Can't start watch_node a node_ref! (%s) (%s)", entry.Name(), strerror(status));
-				// }
-			// }
-		// }
-	} else if (entry.IsDirectory()) {
+	if (entry.IsDirectory()) {
 		BDirectory dir(&entry);
 		entry_ref nextRef;
 		while (dir.GetNextRef(&nextRef) != B_ENTRY_NOT_FOUND) {

@@ -232,8 +232,6 @@ ProjectFolder::GetBuildCommand() const
 {
 	if (GetBuildMode() == BuildMode::ReleaseMode) {
 		BString build = (*fSettings)["project_release_build_command"];
-		if (build.IsEmpty())
-			build = fGuessedBuildCommand;
 		return build;
 	} else
 		return (*fSettings)["project_debug_build_command"];
@@ -255,8 +253,6 @@ ProjectFolder::GetCleanCommand() const
 {
 	if (GetBuildMode() == BuildMode::ReleaseMode) {
 		BString clean = (*fSettings)["project_release_clean_command"];
-		if (clean.IsEmpty())
-			clean = fGuessedCleanCommand;
 		return clean;
 	} else
 		return (*fSettings)["project_debug_clean_command"];
@@ -328,15 +324,6 @@ void
 ProjectFolder::InitRepository(bool createInitialCommit)
 {
 	fGitRepository->Init(createInitialCommit);
-}
-
-
-void
-ProjectFolder::SetGuessedBuilder(const BString& string)
-{
-	fGuessedBuildCommand = string;
-	fGuessedCleanCommand = string;
-	fGuessedCleanCommand.Append(" clean");
 }
 
 

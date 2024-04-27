@@ -67,12 +67,12 @@
 #include "SearchResultPanel.h"
 #include "SourceControlPanel.h"
 #include "SwitchBranchMenu.h"
+#include "Task.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
 #include "TextUtils.h"
 #include "Utils.h"
 #include "argv_split.h"
-
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -97,6 +97,7 @@ BRect dirtyFrameHack;
 
 static float kDefaultIconSize = 32.0;
 
+using Genio::Task::Task;
 
 static bool
 AcceptsCopyPaste(BView* view)
@@ -3500,6 +3501,38 @@ GenioWindow::_ProjectRenameFile()
 
 
 void
+GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
+{
+	if (!projectFolder->GetBuildCommand().IsEmpty())
+		return;
+
+	// TODO: descend into subfolders ?
+	BEntry entry;
+	BDirectory dir(projectFolder->Path());
+	while (dir.GetNextEntry(&entry) == B_OK) {
+		// Check if there's a Jamfile or makefile in the root path
+		// of the project
+		if (!entry.IsFile())
+			continue;
+		// guess builder type
+		// TODO: move this away from here, into a specialized class
+		// and maybe into plugins
+		if (strcasecmp(entry.Name(), "makefile") == 0) {
+			// builder: make
+			projectFolder->SetBuildCommand("make", projectFolder->GetBuildMode());
+			LogInfo("Guessed builder: make");
+			break;
+		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
+			// builder: jam
+			projectFolder->SetBuildCommand("jam", projectFolder->GetBuildMode());
+			LogInfo("Guessed builder: jam");
+			break;
+		}
+	}
+}
+
+
+void
 GenioWindow::_TemplateNewFile(BMessage* message)
 {
 	entry_ref source;
@@ -3730,6 +3763,22 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	}
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
+
+	// TODO: Move this elsewhere!
+	Task<status_t> *task = new Task<status_t>
+	(
+		"Detect",
+		BMessenger(this),
+		std::bind
+		(
+			&GenioWindow::_ProjectGuessBuildCommand,
+			this,
+			newProject
+		)
+	);
+
+	task->Run();
+
 
 	// Notify subscribers that project list has changed
 	if (!fDisableProjectNotifications)

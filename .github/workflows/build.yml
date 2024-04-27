@@ -1,15 +1,20 @@
-build:
-  name: 'build-test on Haiku'
-  runs-on: 'ubuntu-latest'
-  container: 'docker.io/hectorm/qemu-haiku:latest'
-  steps:
+name: Build
+
+on:
+  workflow_dispatch:
+jobs:  
+  build:
+    name: 'build on Haiku'
+    runs-on: 'ubuntu-latest'
+    container: 'docker.io/hectorm/qemu-haiku:latest'
+    steps:
     - name: 'Wait until the VM is ready'
       run: 'container-init & timeout 600 vmshell exit 0'
     - name: 'Install packages'
-      run: 'vmshell pkgman install -y make libgit2_devel lexilla_devel yaml_cpp_devel editorconfig_core_c_devel'
+      run: 'vmshell pkgman install -y haiku_devel make makefile_engine ibgit2_devel lexilla_devel yaml_cpp_devel editorconfig_core_c_devel'
     - name: 'Checkout project'
-      uses: 'actions/checkout@main'
+      uses: actions/checkout@v3
     - name: 'Copy project to VM'
-      run: 'vmshell mkdir ./; tar -cf - ./ | vmshell tar -xf - -C ./'
-    - name: 'Test project'
-      run: 'vmshell make'
+      run: 'vmshell mkdir ./src/; tar -cf - ./ | vmshell tar -xf - -C ./src/'
+    - name: 'Build project'
+      run: 'vmshell make BUILDHOME=\`finddir B_SYSTEM_DEVELOP_DIRECTORY\` -C ./src/'

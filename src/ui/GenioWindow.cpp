@@ -297,6 +297,9 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case 'rere':
+			BMessenger(fSearchResultPanel).SendMessage(message);
+		break;
 		case kClassOutline:
 		{
 			Editor* editor = fTabManager->SelectedEditor();

@@ -131,6 +131,19 @@ void
 SearchResultPanel::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
+		case 'rere': {
+			ActionManager::SetEnabled(MSG_FIND_IN_FILES, false);
+			_StopCurrentSearch();
+			ClearSearch();
+			_UpdateTabLabel("Find References");
+			BMessage filename;
+			int i=0;
+			while(msg->FindMessage("filename", i++, &filename) == B_OK){
+				UpdateSearch(&filename);
+			}
+			ActionManager::SetEnabled(MSG_FIND_IN_FILES, true);
+			break;
+		}
 		case MSG_REPORT_RESULT:
 			UpdateSearch(msg);
 			break;
@@ -147,11 +160,7 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 		}
 		case MSG_GREP_DONE:
 		{
-			if (fGrepThread) {
-				fGrepThread->InterruptExternal();
-				delete fGrepThread;
-				fGrepThread = nullptr;
-			}
+			_StopCurrentSearch();
 			_UpdateTabLabel(std::to_string(fCountResults).c_str());
 			ActionManager::SetEnabled(MSG_FIND_IN_FILES, true);
 			break;
@@ -175,6 +184,7 @@ void
 SearchResultPanel::UpdateSearch(BMessage* msg)
 {
 	BString filename = msg->GetString("filename", "");
+	printf("filename %s vs %s\n", filename.String(), fProjectPath.String());
 	filename.RemoveFirst(fProjectPath);
 	if (filename.IsEmpty())
 		return;
@@ -210,4 +220,14 @@ SearchResultPanel::_UpdateTabLabel(const char* txt)
 		label.Append(")");
 	}
 	SetTabLabel(label);
+}
+
+void
+SearchResultPanel::_StopCurrentSearch()
+{
+	if (fGrepThread) {
+		fGrepThread->InterruptExternal();
+		delete fGrepThread;
+		fGrepThread = nullptr;
+	}
 }

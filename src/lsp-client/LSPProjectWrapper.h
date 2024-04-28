@@ -103,6 +103,8 @@ public:
     std::string&	allCommitCharacters() { return fAllCommitCharacters; } //not yet used.
     std::string&	triggerCharacters() { return fTriggerCharacters; } //for completion
 
+	std::string&	GetRootURI() { return fRootURI; }
+
 private:
 	bool	_Create();
 	LSPPipeClient*			fLSPPipeClient;

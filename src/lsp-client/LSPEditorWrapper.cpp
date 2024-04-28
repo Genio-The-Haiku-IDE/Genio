@@ -831,6 +831,48 @@ LSPEditorWrapper::_DoCodeActionResolve(nlohmann::json& params)
 	}
 }
 
+void
+LSPEditorWrapper::_DoReferences(nlohmann::json& params)
+{
+	auto locations = params.get<std::vector<Location>>();
+	if (locations.size() > 0) {
+		BMessage results('rere');
+		BMessage current;
+		BString currentFilename = "";
+		BString rootURI = fLSPProjectWrapper->GetRootURI().c_str();
+		for(Location& l : locations) {
+			// here we prepare a BMessage to be sent to the GenioWindow
+			// (and it will be forwarded to the SearchResultPanel
+			// see "specs" at SearchResultPanel::UpdateSearch(BMessage* msg)
+			// the assumption here is that the results are ordered by uri
+
+			BString filename(l.uri.c_str());
+			filename = filename.RemoveFirst(rootURI);
+			if (filename != currentFilename) {
+				if (currentFilename != "")
+					results.AddMessage("filename", &current);
+
+				current.MakeEmpty();
+				current.AddString("filename", filename);
+				currentFilename = filename;
+				printf("current %s\n", currentFilename.String());
+			}
+
+			BMessage line;
+			BString text;
+			Sci_Position pos = FromLSPPositionToSciPosition(&l.range.start);
+			text << pos << ": " << "FIX_ME";
+			line.AddString("text", text);
+			current.AddMessage("line", &line);
+			printf("Location %s\n", filename.String());
+		}
+		if (currentFilename != "" && current.IsEmpty() == false)
+			results.AddMessage("filename", &current);
+		results.PrintToStream();
+		fEditor->Window()->PostMessage(&results);
+	}
+}
+
 
 void
 LSPEditorWrapper::_RemoveAllDocumentLinks()
@@ -971,6 +1013,7 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("initialize", _DoInitialize);
 	IF_ID("textDocument/codeAction", _DoCodeActions);
 	IF_ID("codeAction/resolve", _DoCodeActionResolve);
+	IF_ID("textDocument/references", _DoReferences);
 
 	LogError("LSPEditorWrapper::onResponse not handled! [%s]", id.c_str());
 }

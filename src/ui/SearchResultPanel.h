@@ -25,6 +25,7 @@ public:
 		void	SetTabLabel(BString label);
 
 private:
+		void	_StopCurrentSearch();
 		void	_UpdateTabLabel(const char* txt = nullptr);
 		void	ClearSearch();
 		void 	UpdateSearch(BMessage* msg);

@@ -1382,6 +1382,11 @@ Editor::GetSymbol()
 	int32 size = end - start;
 	char text[size];
 	GetText(start, size, text);
+
+	// remove invalid leading characters
+	const std::regex leadingChars("^\\W+");
+	std::string str = std::regex_replace(text, leadingChars, "");
+
 	return text;
 }
 
@@ -1635,15 +1640,11 @@ Editor::Rename()
 	// Getting the symbol from the language server would require many async steps.
 	// We instead ask Scintilla to deliver it which should be almost if not entirely accurate
 
-	// remove invalid leading characters
-	const std::string symbol = GetSymbol().String();
-	const std::regex leadingChars("^\\W+");
-	std::string str = std::regex_replace(symbol, leadingChars, "");
-
+	BString symbol = GetSymbol();
 	BString label(B_TRANSLATE("Rename symbol '%symbol_name%':"));
-	label.ReplaceFirst("%symbol_name%", str.c_str());
+	label.ReplaceFirst("%symbol_name%", symbol.String());
 
-	auto alert = new GTextAlert(B_TRANSLATE("Rename"), label, str.c_str());
+	auto alert = new GTextAlert(B_TRANSLATE("Rename"), label, symbol.String());
 	auto result = alert->Go();
 	if (result.Button == GAlertButtons::OkButton)
 		fLSPEditorWrapper->Rename(result.Result.String());

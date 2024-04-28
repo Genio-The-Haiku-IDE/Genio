@@ -298,6 +298,7 @@ GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case 'rere':
+			_ShowLog(kSearchResult);
 			BMessenger(fSearchResultPanel).SendMessage(message);
 		break;
 		case kClassOutline:

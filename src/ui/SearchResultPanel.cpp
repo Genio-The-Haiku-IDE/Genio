@@ -66,6 +66,7 @@ public:
 
 
 #define SearchResultPanelLabel B_TRANSLATE("Search results")
+#define FindReferencesLabel B_TRANSLATE("Find References")
 
 SearchResultPanel::SearchResultPanel(BTabView* tabView)
 	:
@@ -135,12 +136,16 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 			ActionManager::SetEnabled(MSG_FIND_IN_FILES, false);
 			_StopCurrentSearch();
 			ClearSearch();
-			_UpdateTabLabel("Find References");
+			_UpdateTabLabel("\xe2\x8c\x9b");
 			BMessage filename;
 			int i=0;
+			int total = 0;
 			while(msg->FindMessage("filename", i++, &filename) == B_OK){
-				UpdateSearch(&filename);
+				total += UpdateSearch(&filename);
 			}
+			BString label = FindReferencesLabel;
+			label << " (" << total << ")";
+			_UpdateTabLabel(label);
 			ActionManager::SetEnabled(MSG_FIND_IN_FILES, true);
 			break;
 		}
@@ -180,14 +185,13 @@ SearchResultPanel::ClearSearch()
 }
 
 
-void
+int32
 SearchResultPanel::UpdateSearch(BMessage* msg)
 {
 	BString filename = msg->GetString("filename", "");
-	printf("filename %s vs %s\n", filename.String(), fProjectPath.String());
 	filename.RemoveFirst(fProjectPath);
 	if (filename.IsEmpty())
-		return;
+		return 0;
 	RangeRow* parent = new RangeRow();
 	parent->fRange.MakeEmpty();
 
@@ -207,6 +211,7 @@ SearchResultPanel::UpdateSearch(BMessage* msg)
 				ExpandOrCollapse(parent, true);
 		}
 	}
+	return c;
 }
 
 

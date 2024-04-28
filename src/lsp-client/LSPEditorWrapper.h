@@ -97,6 +97,7 @@ public:
 	BString				fFileStatus;
 	CallTipContext		fCallTip;
 	bool				fInitialized;
+	BString				fLastReferencesSymbol;
 
 private:
 	bool	IsInitialized();

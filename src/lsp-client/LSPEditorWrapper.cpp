@@ -277,6 +277,8 @@ LSPEditorWrapper::FindReferences()
 	if (!IsInitialized() || !fEditor)
 		return;
 
+	fLastReferencesSymbol = fEditor->GetSymbol();
+
 	Sci_Position s_start = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
 	Position pos;
 	FromSciPositionToLSPPosition(s_start, &pos);
@@ -840,14 +842,23 @@ LSPEditorWrapper::_DoReferences(nlohmann::json& params)
 		BMessage current;
 		BString currentFilename = "";
 		BString rootURI = fLSPProjectWrapper->GetRootURI().c_str();
+		rootURI.RemoveFirst("file://");
 		for(Location& l : locations) {
 			// here we prepare a BMessage to be sent to the GenioWindow
 			// (and it will be forwarded to the SearchResultPanel
 			// see "specs" at SearchResultPanel::UpdateSearch(BMessage* msg)
+			// and at GrepThread::OnStdOutputLine(const BString& stdOut)
 			// the assumption here is that the results are ordered by uri
-
 			BString filename(l.uri.c_str());
+			filename.RemoveFirst("file://");
+			entry_ref ref;
+
+			if (get_ref_for_path(filename.String(), &ref) != B_OK){
+				continue;
+			}
 			filename = filename.RemoveFirst(rootURI);
+			if (filename.StartsWith("/"))
+				filename.RemoveFirst("/");
 			if (filename != currentFilename) {
 				if (currentFilename != "")
 					results.AddMessage("filename", &current);
@@ -855,20 +866,21 @@ LSPEditorWrapper::_DoReferences(nlohmann::json& params)
 				current.MakeEmpty();
 				current.AddString("filename", filename);
 				currentFilename = filename;
-				printf("current %s\n", currentFilename.String());
 			}
 
-			BMessage line;
+			BMessage line(B_REFS_RECEIVED);
 			BString text;
-			Sci_Position pos = FromLSPPositionToSciPosition(&l.range.start);
-			text << pos << ": " << "FIX_ME";
+			int32 linenum = l.range.start.line + 1;
+			int32 charnum = l.range.start.character;
+			text << linenum << ": " << fLastReferencesSymbol;
 			line.AddString("text", text);
+			line.AddRef("refs", &ref);
+			line.AddInt32("start:line", linenum);
+			line.AddInt32("start:character", charnum);
 			current.AddMessage("line", &line);
-			printf("Location %s\n", filename.String());
 		}
 		if (currentFilename != "" && current.IsEmpty() == false)
 			results.AddMessage("filename", &current);
-		results.PrintToStream();
 		fEditor->Window()->PostMessage(&results);
 	}
 }

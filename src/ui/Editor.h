@@ -148,7 +148,7 @@ public:
 			bool				HasLSPServer() const;
 			bool				HasLSPCapability(const LSPCapability cap);
 
-
+			const 	BString		GetSymbol();
 private:
 
 			int					ReplaceAndFindNext(const BString& selection,
@@ -189,7 +189,6 @@ private:
 			void				ScrollCaret();
 			void				SelectAll();
 	const 	BString				Selection();
-	const 	BString				GetSymbol();
 	const 	BRect				GetSymbolSurroundingRect();
 			void				SendPositionChanges();
 			BString const		ModeString();

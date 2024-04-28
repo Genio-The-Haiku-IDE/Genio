@@ -28,7 +28,7 @@ private:
 		void	_StopCurrentSearch();
 		void	_UpdateTabLabel(const char* txt = nullptr);
 		void	ClearSearch();
-		void 	UpdateSearch(BMessage* msg);
+		int32 	UpdateSearch(BMessage* msg);
 		GrepThread*	fGrepThread;
 		BString 	fProjectPath;
 		BTabView*	fTabView;

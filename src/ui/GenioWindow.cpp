@@ -10,19 +10,16 @@
 #include <string>
 
 #include <Alert.h>
-#include <Application.h>
-#include <Architecture.h>
 #include <Bitmap.h>
 #include <Button.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <Clipboard.h>
 #include <ControlLook.h>
-#include <DirMenu.h>
 #include <FilePanel.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
-#include <NodeInfo.h>
 #include <NodeMonitor.h>
 #include <Path.h>
 #include <PathFinder.h>
@@ -34,13 +31,11 @@
 #include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
-#include <Clipboard.h>
 
 #include "ActionManager.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "ConsoleIOView.h"
-#include "ConsoleIOThread.h"
 #include "EditorKeyDownMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
@@ -72,7 +67,6 @@
 #include "TextUtils.h"
 #include "Utils.h"
 #include "argv_split.h"
-
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -346,10 +340,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_ESCAPE_KEY:
 		{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
-					_FindGroupShow(false);
+				_FindGroupShow(false);
 			} else if (CurrentFocus() == fReplaceTextControl->TextView()) {
-					_ReplaceGroupShow(false);
-					fFindTextControl->MakeFocus(true);
+				_ReplaceGroupShow(false);
+				fFindTextControl->MakeFocus(true);
 			} else if (CurrentFocus() == fRunConsoleProgramText->TextView()) {
 				fRunConsoleProgramGroup->SetVisible(false);
 				fRunConsoleProgramText->MakeFocus(false);
@@ -1631,7 +1625,8 @@ GenioWindow::_DebugProject()
 	argv_split parser(fActiveProject->GetTarget().String());
 	parser.parse(fActiveProject->GetExecuteArgs().String());
 
-	return be_roster->Launch("application/x-vnd.Haiku-debugger", parser.getArguments().size() , parser.argv());
+	return be_roster->Launch("application/x-vnd.Haiku-debugger",
+		parser.getArguments().size() , parser.argv());
 }
 
 
@@ -1779,11 +1774,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 		// TODO: Move some other stuff into _PostFileLoad()
 		_PostFileLoad(editor);
 
-		// Assign the right project to the Editor
-		for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
-			ProjectFolder* project = GetProjectBrowser()->ProjectAt(cycleIndex);
-			_TryAssociateEditorWithProject(editor, project);
-		}
 		// apply LSP edits
 		std::string edit = msg->GetString("edit", "");
 		if (!edit.empty())
@@ -1919,11 +1909,10 @@ status_t
 GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 {
 	entry_ref ref;
-	BString name;
 	status_t status;
-
 	if ((status = message->FindRef("directory", &ref)) != B_OK)
 		return status;
+	BString name;
 	if ((status = message->FindString("name", &name)) != B_OK)
 		return status;
 
@@ -1931,12 +1920,10 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 	path.Append(name);
 	BEntry entry(path.Path(), true);
 	entry_ref newRef;
-
 	if ((status = entry.GetRef(&newRef)) != B_OK)
 		return status;
 
 	Editor* editor = fTabManager->EditorAt(selection);
-
 	if (editor == nullptr) {
 		BString notification;
 		notification
@@ -1985,6 +1972,11 @@ void
 GenioWindow::_PostFileLoad(Editor* editor)
 {
 	if (editor != nullptr) {
+		// Assign the right project to the Editor
+		for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
+			ProjectFolder* project = GetProjectBrowser()->ProjectAt(cycleIndex);
+			_TryAssociateEditorWithProject(editor, project);
+		}
 		editor->ApplySettings();
 		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
@@ -4341,7 +4333,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 	}
 
-	_CollapseOrExpandProjects();
+	 _CollapseOrExpandProjects();
 
 	Editor* selected = fTabManager->SelectedEditor();
 	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr);

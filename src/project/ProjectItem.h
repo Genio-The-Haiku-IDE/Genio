@@ -33,6 +33,9 @@ private:
 	bool			fOpenedInEditor;
 	BTextControl	*fTextControl;
 
+	BRect			DrawIcon(BView* owner, const BRect& bounds,
+							const float& iconSize) override;
+
 	void			_DestroyTextWidget();
 };
 

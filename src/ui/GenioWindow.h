@@ -2,8 +2,7 @@
  * Copyright 2017..2018 A. Mosca <amoscaster@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef GenioWINDOW_H
-#define GenioWINDOW_H
+#pragma once
 
 #include <ObjectList.h>
 #include <String.h>
@@ -256,5 +255,3 @@ private:
 };
 
 extern GenioWindow *gMainWindow;
-
-#endif //GenioWINDOW_H

@@ -10,19 +10,16 @@
 #include <string>
 
 #include <Alert.h>
-#include <Application.h>
-#include <Architecture.h>
 #include <Bitmap.h>
 #include <Button.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <Clipboard.h>
 #include <ControlLook.h>
-#include <DirMenu.h>
 #include <FilePanel.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
-#include <NodeInfo.h>
 #include <NodeMonitor.h>
 #include <Path.h>
 #include <PathFinder.h>
@@ -34,13 +31,11 @@
 #include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
-#include <Clipboard.h>
 
 #include "ActionManager.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "ConsoleIOView.h"
-#include "ConsoleIOThread.h"
 #include "EditorKeyDownMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
@@ -72,7 +67,6 @@
 #include "TextUtils.h"
 #include "Utils.h"
 #include "argv_split.h"
-
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -346,10 +340,10 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_ESCAPE_KEY:
 		{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
-					_FindGroupShow(false);
+				_FindGroupShow(false);
 			} else if (CurrentFocus() == fReplaceTextControl->TextView()) {
-					_ReplaceGroupShow(false);
-					fFindTextControl->MakeFocus(true);
+				_ReplaceGroupShow(false);
+				fFindTextControl->MakeFocus(true);
 			} else if (CurrentFocus() == fRunConsoleProgramText->TextView()) {
 				fRunConsoleProgramGroup->SetVisible(false);
 				fRunConsoleProgramText->MakeFocus(false);

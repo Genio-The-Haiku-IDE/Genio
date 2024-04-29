@@ -2,11 +2,9 @@
  * Copyright 2023 Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef PROJECT_ITEM_H
-#define PROJECT_ITEM_H
+#pragma once
 
 #include "StyledItem.h"
-
 
 class BTextControl;
 class SourceItem;
@@ -27,14 +25,16 @@ public:
 	void			AbortRename();
 	void			CommitRename();
 
+	static void		TickAnimation();
+
 private:
 	SourceItem		*fSourceItem;
 	bool			fNeedsSave;
 	bool			fOpenedInEditor;
 	BTextControl	*fTextControl;
 
+	static int32	sBuildAnimationIndex;
+
+	void			_DrawBuildIndicator(BView* owner);
 	void			_DestroyTextWidget();
 };
-
-
-#endif // PROJECT_ITEM_H

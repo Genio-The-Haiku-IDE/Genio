@@ -15,18 +15,16 @@
 #include <TextControl.h>
 #include <Window.h>
 
-#include "IconCache.h"
 #include "GitRepository.h"
+#include "IconCache.h"
 #include "ProjectFolder.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
 class ProjectItem;
-
 class TemporaryTextControl: public BTextControl {
 	typedef	BTextControl _inherited;
-
 
 public:
 	ProjectItem *fProjectItem;
@@ -58,18 +56,26 @@ public:
 
 	virtual void KeyDown(const char* bytes, int32 numBytes)
 	{
-		if (numBytes == 1 && *bytes == B_ESCAPE) {
-			fProjectItem->AbortRename();
-		}
-		if (numBytes == 1 && *bytes == B_RETURN) {
-			BMessage message(*Message());
-			message.AddString("_value", Text());
-			BMessenger(Parent()).SendMessage(&message);
-			fProjectItem->CommitRename();
+		if (numBytes == 1) {
+			if (*bytes == B_ESCAPE) {
+				fProjectItem->AbortRename();
+			} else if (*bytes == B_RETURN) {
+				BMessage message(*Message());
+				message.AddString("_value", Text());
+				BMessenger(Parent()).SendMessage(&message);
+				fProjectItem->CommitRename();
+			}
 		}
 	}
 };
 
+
+static const char kBuildAnimation[] = {
+	'|', '/', '-', '\\'
+};
+
+
+int32 ProjectItem::sBuildAnimationIndex = 0;
 
 ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
@@ -204,6 +210,9 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		}
 		DrawText(owner, Text(), ExtraText(), textPoint);
 
+		if (isProject) {
+			_DrawBuildIndicator(owner);
+		}
 		owner->Sync();
 	}
 }
@@ -267,6 +276,28 @@ ProjectItem::CommitRename()
 {
 	if (fTextControl != nullptr) {
 		_DestroyTextWidget();
+	}
+}
+
+
+/* static */
+void
+ProjectItem::TickAnimation()
+{
+	if (++ProjectItem::sBuildAnimationIndex > 3)
+		ProjectItem::sBuildAnimationIndex = 0;
+}
+
+
+void
+ProjectItem::_DrawBuildIndicator(BView* owner)
+{
+	ProjectFolder *project = static_cast<ProjectFolder*>(GetSourceItem());
+	if (project->IsBuilding()) {
+		owner->SetFont(be_fixed_font);
+		BString s(" ");
+		s << kBuildAnimation[sBuildAnimationIndex];
+		owner->DrawString(s);
 	}
 }
 

@@ -3771,9 +3771,11 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
 
 	// TODO: Move this elsewhere!
-	Task<status_t> *task = new Task<status_t>
+	BString taskName;
+	taskName << "Detect " << newProject->Name() << " build system";
+	Task<status_t> task
 	(
-		"Detect",
+		taskName,
 		BMessenger(this),
 		std::bind
 		(
@@ -3783,7 +3785,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		)
 	);
 
-	task->Run();
+	task.Run();
 
 
 	// Notify subscribers that project list has changed

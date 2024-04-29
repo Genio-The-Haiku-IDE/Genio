@@ -4333,7 +4333,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 	}
 
-	// _CollapseOrExpandProjects();
+	 _CollapseOrExpandProjects();
 
 	Editor* selected = fTabManager->SelectedEditor();
 	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr);

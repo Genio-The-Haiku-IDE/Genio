@@ -19,7 +19,6 @@
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "protocol_objects.h"
-#include "StringFormatter.h"
 #include "StyledItem.h"
 #include "ToolBar.h"
 
@@ -178,8 +177,13 @@ SymbolListItem::SetIconAndTooltip()
 	if (!iconName.IsEmpty())
 		SetIcon(iconName.Prepend("symbol-"));
 
-	if (!toolTip.IsEmpty())
+	if (!toolTip.IsEmpty()) {
+		BString detail  = Details().GetString("detail", "");
+		if (detail.IsEmpty() == false) {
+			toolTip.Append("\n").Append(detail);
+		}
 		SetToolTipText(toolTip);
+	}
 }
 
 

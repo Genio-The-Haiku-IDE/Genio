@@ -4,7 +4,7 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-#include "ProjectsFolderBrowser.h"
+#include "ProjectBrowser.h"
 
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"

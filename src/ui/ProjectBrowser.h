@@ -29,10 +29,10 @@ class ProjectFolder;
 class ProjectItem;
 class GenioWatchingFilter;
 
-class ProjectsFolderBrowser : public BOutlineListView {
+class ProjectBrowser : public BOutlineListView {
 public:
-					 ProjectsFolderBrowser();
-	virtual 		~ProjectsFolderBrowser();
+					 ProjectBrowser();
+	virtual 		~ProjectBrowser();
 
 	virtual	void	MouseUp(BPoint where);
 	virtual void	MouseDown(BPoint where);

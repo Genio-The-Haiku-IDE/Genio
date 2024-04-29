@@ -187,6 +187,13 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			const rgb_color oldColor = owner->HighColor();
 			owner->SetHighColor(projectFolder->Color());
 
+			// Set the font face here, otherwise StringWidth() won't return
+			// the correct width
+			BFont font;
+			owner->GetFont(&font);
+			font.SetFace(TextFontFace());
+			owner->SetFont(&font);
+
 			BRect circleRect;
 			circleRect.top = textPoint.y - BaselineOffset() + 2.5f;
 			circleRect.left = textPoint.x - 3;

@@ -1625,7 +1625,8 @@ GenioWindow::_DebugProject()
 	argv_split parser(fActiveProject->GetTarget().String());
 	parser.parse(fActiveProject->GetExecuteArgs().String());
 
-	return be_roster->Launch("application/x-vnd.Haiku-debugger", parser.getArguments().size() , parser.argv());
+	return be_roster->Launch("application/x-vnd.Haiku-debugger",
+		parser.getArguments().size() , parser.argv());
 }
 
 
@@ -1908,11 +1909,10 @@ status_t
 GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 {
 	entry_ref ref;
-	BString name;
 	status_t status;
-
 	if ((status = message->FindRef("directory", &ref)) != B_OK)
 		return status;
+	BString name;
 	if ((status = message->FindString("name", &name)) != B_OK)
 		return status;
 
@@ -1920,12 +1920,10 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 	path.Append(name);
 	BEntry entry(path.Path(), true);
 	entry_ref newRef;
-
 	if ((status = entry.GetRef(&newRef)) != B_OK)
 		return status;
 
 	Editor* editor = fTabManager->EditorAt(selection);
-
 	if (editor == nullptr) {
 		BString notification;
 		notification

@@ -1773,11 +1773,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 		// TODO: Move some other stuff into _PostFileLoad()
 		_PostFileLoad(editor);
 
-		// Assign the right project to the Editor
-		for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
-			ProjectFolder* project = GetProjectBrowser()->ProjectAt(cycleIndex);
-			_TryAssociateEditorWithProject(editor, project);
-		}
 		// apply LSP edits
 		std::string edit = msg->GetString("edit", "");
 		if (!edit.empty())
@@ -1979,6 +1974,11 @@ void
 GenioWindow::_PostFileLoad(Editor* editor)
 {
 	if (editor != nullptr) {
+		// Assign the right project to the Editor
+		for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
+			ProjectFolder* project = GetProjectBrowser()->ProjectAt(cycleIndex);
+			_TryAssociateEditorWithProject(editor, project);
+		}
 		editor->ApplySettings();
 		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
 		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
@@ -4335,7 +4335,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 	}
 
-	_CollapseOrExpandProjects();
+	// _CollapseOrExpandProjects();
 
 	Editor* selected = fTabManager->SelectedEditor();
 	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr);

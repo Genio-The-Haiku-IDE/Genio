@@ -25,7 +25,6 @@
 #include <Url.h>
 #include <Volume.h>
 
-#include "ActionManager.h"
 #include "ConfigManager.h"
 #include "EditorContextMenu.h"
 #include "EditorMessages.h"

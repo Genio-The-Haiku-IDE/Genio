@@ -23,13 +23,14 @@
 #include <File.h>
 #include <Looper.h>
 #include <MenuItem.h>
+#include <MessageRunner.h>
 #include <Mime.h>
 #include <NaturalCompare.h>
 #include <Path.h>
 #include <PopUpMenu.h>
-#include <Window.h>
-#include <MessageRunner.h>
 #include <StringList.h>
+#include <Window.h>
+
 #include <cassert>
 #include <cstdio>
 

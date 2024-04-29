@@ -352,27 +352,35 @@ ProjectFolder::_PrepareSettings()
 	fSettings->AddConfig("General", "color",
 		B_TRANSLATE("Color:"), color, nullptr, kStorageTypeAttribute);
 
-	fSettings->AddConfig("Build", "build_mode",
+	BString build(B_TRANSLATE("Build"));
+	fSettings->AddConfig(build, "build_mode",
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);
 
-	fSettings->AddConfig("Build/Release", "project_release_build_command",
+	BString release(B_TRANSLATE("Release"));
+	BString buildRelease(build);
+	buildRelease.Append("/").Append(release);
+	fSettings->AddConfig(buildRelease, "project_release_build_command",
 		B_TRANSLATE("Build command:"), "");
-	fSettings->AddConfig("Build/Release", "project_release_clean_command",
+	fSettings->AddConfig(buildRelease, "project_release_clean_command",
 		B_TRANSLATE("Clean command:"), "");
-	fSettings->AddConfig("Build/Release", "project_release_execute_args",
+	fSettings->AddConfig(buildRelease, "project_release_execute_args",
 		B_TRANSLATE("Execute args:"), "");
-	fSettings->AddConfig("Build/Release", "project_release_target",
-		B_TRANSLATE("Target:"), "");
-	fSettings->AddConfig("Build/Debug", "project_debug_build_command",
-		B_TRANSLATE("Build command:"), "");
-	fSettings->AddConfig("Build/Debug", "project_debug_clean_command",
-		B_TRANSLATE("Clean command:"), "");
-	fSettings->AddConfig("Build/Debug", "project_debug_execute_args",
-		B_TRANSLATE("Execute args:"), "");
-	fSettings->AddConfig("Build/Debug", "project_debug_target",
+	fSettings->AddConfig(buildRelease, "project_release_target",
 		B_TRANSLATE("Target:"), "");
 
-	fSettings->AddConfig("Run", "project_run_in_terminal",
+	BString debug("Debug");
+	BString buildDebug(build);
+	buildDebug.Append("/").Append(debug);
+	fSettings->AddConfig(buildDebug, "project_debug_build_command",
+		B_TRANSLATE("Build command:"), "");
+	fSettings->AddConfig(buildDebug, "project_debug_clean_command",
+		B_TRANSLATE("Clean command:"), "");
+	fSettings->AddConfig(buildDebug, "project_debug_execute_args",
+		B_TRANSLATE("Execute args:"), "");
+	fSettings->AddConfig(buildDebug, "project_debug_target",
+		B_TRANSLATE("Target:"), "");
+
+	fSettings->AddConfig(B_TRANSLATE("Run"), "project_run_in_terminal",
 		B_TRANSLATE("Run in terminal"), false);
 }
 

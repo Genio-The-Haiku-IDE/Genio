@@ -41,6 +41,6 @@ private:
 	static int32	sBuildAnimationIndex;
 	static std::vector<BBitmap*> sBuildAnimationFrames;
 
-	void			_DrawBuildIndicator(BView* owner);
+	void			_DrawBuildIndicator(BView* owner, BRect bounds);
 	void			_DestroyTextWidget();
 };

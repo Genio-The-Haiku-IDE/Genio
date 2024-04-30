@@ -210,10 +210,12 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			owner->FillRoundRect(circleRect, 9, 10);
 			owner->SetHighColor(oldColor);
 		}
+
+
 		DrawText(owner, Text(), ExtraText(), textPoint);
 
 		if (isProject) {
-			_DrawBuildIndicator(owner);
+			_DrawBuildIndicator(owner, bounds);
 		}
 		owner->Sync();
 	}
@@ -287,9 +289,9 @@ status_t
 ProjectItem::InitAnimationIcons()
 {
 	// TODO: icon names are "waiting-N" where N is the index
-	// 1 to 7
+	// 1 to 6
 	BResources* resources = BApplication::AppResources();
-	for (int32 i = 1; i < 8; i++) {
+	for (int32 i = 1; i < 7; i++) {
 		BString name("waiting-");
 		name << i;
 		size_t size;
@@ -332,16 +334,17 @@ ProjectItem::TickAnimation()
 
 
 void
-ProjectItem::_DrawBuildIndicator(BView* owner)
+ProjectItem::_DrawBuildIndicator(BView* owner, BRect bounds)
 {
 	ProjectFolder *project = static_cast<ProjectFolder*>(GetSourceItem());
 	if (project->IsBuilding()) {
 		try {
 			const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
 			if (frame != nullptr) {
-				owner->SetDrawingMode(B_OP_ALPHA);
-				owner->MovePenBy(4, - frame->Bounds().Height() + 7);
-				owner->DrawBitmap(frame);
+				owner->SetDrawingMode(B_OP_OVER);
+				bounds.left = bounds.right - bounds.Height();
+				bounds.OffsetBy(-1, 1);
+				owner->DrawBitmap(frame, bounds);
 			}
 		} catch (...) {
 			// nothing to do

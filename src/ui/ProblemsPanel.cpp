@@ -76,7 +76,7 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 {
 	switch(msg->what) {
 		case COLUMNVIEW_CLICK: {
-			msg->PrintToStream();
+			//msg->PrintToStream();
 			RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
 			if (range) {
 				GMessage refs = {
@@ -93,7 +93,7 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 			BPoint where;
 			uint32 buttons = 0;
 			GetMouse(&where, &buttons);
-			where.PrintToStream();
+			//where.PrintToStream();
 			where.x += 2; // to prevent occasional select
 			if (buttons & B_SECONDARY_MOUSE_BUTTON) {
 

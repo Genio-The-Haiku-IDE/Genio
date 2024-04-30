@@ -8,26 +8,13 @@
 
 #include "TemplatesMenu.h"
 
-#include <Application.h>
 #include <Catalog.h>
-#include <ControlLook.h>
 #include <Directory.h>
-#include <FindDirectory.h>
-#include <Locale.h>
-#include <Menu.h>
 #include <MenuItem.h>
-#include <Message.h>
-#include <Mime.h>
-#include <MimeType.h>
 #include <MimeTypes.h>
-#include <NodeInfo.h>
-#include <Path.h>
-#include <Query.h>
-#include <Roster.h>
-
-#include <cstdio>
 
 #include "IconMenuItem.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TemplatesMenu"
@@ -36,7 +23,7 @@
 const char* kNewFolderLabel = "New folder";
 
 TemplatesMenu::TemplatesMenu(BHandler *target, const char* label,
-								BMessage *message, BMessage *show_template_message,
+								BMessage *message, BMessage *showTemplateMessage,
 								const BString& defaultDirectory,
 								const BString&  userDirectory,
 								ViewMode mode,
@@ -46,13 +33,13 @@ TemplatesMenu::TemplatesMenu(BHandler *target, const char* label,
 	fTarget(target),
 	fOpenItem(NULL),
 	fMessage(message),
-	fShowTemplateMessage(show_template_message),
+	fShowTemplateMessage(showTemplateMessage),
 	fViewMode(mode),
 	fDefaultDirectory(defaultDirectory),
 	fUserDirectory(userDirectory),
 	fShowNewFolder(showNewFolder),
 	fEnableNewFolder(true),
-	fShowTemplatesDirectory(fShowTemplateMessage!=nullptr ? true : false)
+	fShowTemplatesDirectory(fShowTemplateMessage != nullptr ? true : false)
 {
 }
 
@@ -96,6 +83,17 @@ TemplatesMenu::SetViewMode(ViewMode mode, bool enableNewFolder)
 	fEnableNewFolder = enableNewFolder;
 }
 
+
+void
+TemplatesMenu::SetSender(const void* sender, const entry_ref* ref)
+{
+	fMessage->RemoveName("sender");
+	fMessage->AddPointer("sender", sender);
+	fMessage->RemoveName("sender_ref");
+	fMessage->AddRef("sender_ref", ref);
+}
+
+
 // BMessages are passed in the constructor for each of the events:
 // * Create new item
 // * Show user template folder
@@ -131,8 +129,17 @@ TemplatesMenu::_BuildMenu()
 
 	if (fShowNewFolder) {
 		// Always create a new message
+		// TODO: Why ?
+
+		void* sender = nullptr;
+		fMessage->FindPointer("sender", &sender);
+		entry_ref senderRef;
+		fMessage->FindRef("sender_ref", &senderRef);
 		BMessage *message = new BMessage(fMessage->what);
 		message->AddString("type","new_folder");
+		message->AddPointer("sender", sender);
+		message->AddRef("sender_ref", &senderRef);
+
 		// add the folder
 		IconMenuItem* menuItem = new IconMenuItem(B_TRANSLATE(kNewFolderLabel),
 			message, B_DIRECTORY_MIME_TYPE, B_MINI_ICON);
@@ -151,17 +158,17 @@ TemplatesMenu::_BuildMenu()
 			AddSeparatorItem();
 
 		// this is the message sent to open the templates folder
-		BMessage *template_message = new BMessage(fShowTemplateMessage->what);
+		BMessage *templateMessage = new BMessage(fShowTemplateMessage->what);
 		entry_ref dirRef;
 		BDirectory userTemplateDirectory(fUserDirectory);
 		BEntry entry;
 		if (userTemplateDirectory.GetEntry(&entry) == B_OK)
 			entry.GetRef(&dirRef);
-		template_message->AddRef("refs", &dirRef);
+		templateMessage->AddRef("refs", &dirRef);
 
 		// add item to show templates folder
 		fOpenItem = new BMenuItem(B_TRANSLATE("Edit user templates" B_UTF8_ELLIPSIS),
-			template_message);
+			templateMessage);
 		AddItem(fOpenItem);
 		if (dirRef == entry_ref())
 			fOpenItem->SetEnabled(false);
@@ -207,8 +214,14 @@ TemplatesMenu::_BuildTemplateItems(const BString& directory)
 				entry_ref ref;
 				entry.GetRef(&ref);
 
+				void* sender = nullptr;
+				fMessage->FindPointer("sender", &sender);
+				entry_ref senderRef;
+				fMessage->FindRef("sender_ref", &senderRef);
 				BMessage *message = new BMessage(fMessage->what);
 				message->AddRef("refs", &ref);
+				message->AddPointer("sender", sender);
+				message->AddRef("sender_ref", &senderRef);
 				if (entry.IsDirectory())
 					message->AddString("type","new_folder_template");
 				else

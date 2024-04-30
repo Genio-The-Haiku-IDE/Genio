@@ -2,8 +2,7 @@
  * Copyright 2017..2018 A. Mosca 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef GenioWINDOW_H
-#define GenioWINDOW_H
+#pragma once
 
 #include <ObjectList.h>
 #include <String.h>
@@ -48,7 +47,7 @@ class FunctionsOutlineView;
 class GoToLineWindow;
 class ProblemsPanel;
 class ProjectFolder;
-class ProjectsFolderBrowser;
+class ProjectBrowser;
 class SearchResultPanel;
 class SourceControlPanel;
 class TemplatesMenu;
@@ -64,10 +63,10 @@ public:
 	virtual bool				QuitRequested();
 	virtual void				Show();
 
-	void						UpdateMenu();
+	void						UpdateMenu(const void* sender, const entry_ref* ref);
 	ProjectFolder*				GetActiveProject() const;
 	void						SetActiveProject(ProjectFolder *project);
-	ProjectsFolderBrowser*		GetProjectBrowser() const;
+	ProjectBrowser*		GetProjectBrowser() const;
 
 	EditorTabManager*			TabManager() const;
 
@@ -122,6 +121,10 @@ private:
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
 
+			void				_TemplateNewFolder(BMessage* message);
+			void				_TemplateNewProject(BMessage* message);
+			void				_TemplateNewFile(BMessage* message);
+
 			void				_ShowDocumentation();
 
 			// Project Folders
@@ -129,7 +132,7 @@ private:
 			status_t			_ProjectFolderOpen(BMessage *message);
 			status_t			_ProjectFolderOpen(const entry_ref& ref, bool activate = false);
 			void				_ProjectFolderActivate(ProjectFolder* project);
-			void				_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project);
+			void				_TryAssociateEditorWithProject(Editor* editor, ProjectFolder* project);
 
 			status_t			_ShowSelectedItemInTracker();
 			status_t			_ShowInTracker(const entry_ref& ref, const node_ref* nref = NULL);
@@ -200,7 +203,7 @@ private:
 			// Left panels
 			BTabView*	  		fProjectsTabView;
 
-			ProjectsFolderBrowser*	fProjectsFolderBrowser;
+			ProjectBrowser*	fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
 			SourceControlPanel*	fSourceControlPanel;
@@ -256,5 +259,3 @@ private:
 };
 
 extern GenioWindow *gMainWindow;
-
-#endif //GenioWINDOW_H

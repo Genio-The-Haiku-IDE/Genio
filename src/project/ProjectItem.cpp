@@ -341,7 +341,7 @@ ProjectItem::_DrawBuildIndicator(BView* owner, BRect bounds)
 		try {
 			const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
 			if (frame != nullptr) {
-				owner->SetDrawingMode(B_OP_OVER);
+				owner->SetDrawingMode(B_OP_ALPHA);
 				bounds.left = bounds.right - bounds.Height();
 				bounds.OffsetBy(-1, 1);
 				owner->DrawBitmap(frame, frame->Bounds(), bounds);

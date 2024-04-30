@@ -5,21 +5,25 @@
 
 #include "ProjectItem.h"
 
+#include <Application.h>
 #include <Bitmap.h>
 #include <Catalog.h>
 #include <ControlLook.h>
 #include <Font.h>
 #include <NodeInfo.h>
 #include <OutlineListView.h>
+#include <Resources.h>
 #include <StringItem.h>
 #include <TextControl.h>
+#include <TranslationUtils.h>
 #include <Window.h>
-#include <iostream>
 
 #include "GitRepository.h"
 #include "IconCache.h"
 #include "ProjectFolder.h"
 #include "Utils.h"
+
+#include <iostream>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
@@ -284,11 +288,20 @@ ProjectItem::InitAnimationIcons()
 {
 	// TODO: icon names are "waiting-N" where N is the index
 	// 1 to 7
+	BResources* resources = BApplication::AppResources();
 	for (int32 i = 1; i < 8; i++) {
 		BString name("waiting-");
 		name << i;
-		BBitmap* frame = new BBitmap(BRect(BPoint(0, 0), BPoint(24, 24)), B_RGBA32);
-		GetVectorIcon(name.String(), frame);
+		size_t size;
+		const uint8* rawData = (const uint8*)resources->LoadResource(
+			B_RAW_TYPE, name.String(), &size);
+		if (rawData == nullptr) {
+			std::cout << "cannot load resource" << std::endl;
+			break;
+		}
+		BMemoryIO mem(rawData, size);
+		BBitmap* frame = BTranslationUtils::GetBitmap(&mem);
+
 		sBuildAnimationFrames.push_back(frame);
 	}
 	return B_OK;
@@ -313,7 +326,7 @@ ProjectItem::DisposeAnimationIcons()
 void
 ProjectItem::TickAnimation()
 {
-	if (++ProjectItem::sBuildAnimationIndex > (int32)sBuildAnimationFrames.size())
+	if (++ProjectItem::sBuildAnimationIndex >= (int32)sBuildAnimationFrames.size())
 		ProjectItem::sBuildAnimationIndex = 0;
 }
 

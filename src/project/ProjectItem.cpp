@@ -344,7 +344,7 @@ ProjectItem::_DrawBuildIndicator(BView* owner, BRect bounds)
 				owner->SetDrawingMode(B_OP_OVER);
 				bounds.left = bounds.right - bounds.Height();
 				bounds.OffsetBy(-1, 1);
-				owner->DrawBitmap(frame, bounds);
+				owner->DrawBitmap(frame, frame->Bounds(), bounds);
 			}
 		} catch (...) {
 			// nothing to do

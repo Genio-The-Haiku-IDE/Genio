@@ -84,7 +84,7 @@ SRCS += src/ui/GenioWindow.cpp
 SRCS += src/ui/GoToLineWindow.cpp
 SRCS += src/ui/IconCache.cpp
 SRCS += src/ui/ProblemsPanel.cpp
-SRCS += src/ui/ProjectsFolderBrowser.cpp
+SRCS += src/ui/ProjectBrowser.cpp
 SRCS += src/ui/SearchResultPanel.cpp
 SRCS += src/ui/StyledItem.cpp
 SRCS += src/ui/ToolBar.cpp
@@ -101,6 +101,7 @@ LIBS += columnlistview tracker
 LIBS += git2
 LIBS += src/scintilla/bin/libscintilla.a
 LIBS += yaml-cpp
+LIBS += editorconfig
 
 SYSTEM_INCLUDE_PATHS  = $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
 SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/shared)

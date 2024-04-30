@@ -36,9 +36,9 @@ public:
 
 protected:
 	virtual BRect	DrawIcon(BView* owner, const BRect& bounds,
-						const BBitmap* icon, float& iconSize);
+							const float& iconSize);
 	virtual void	DrawText(BView* owner, const char* text,
-						const BPoint& textPoint);
+						const char* extraText, const BPoint& textPoint);
 private:
 	BString			fIconName;
 	uint16			fFontFace;

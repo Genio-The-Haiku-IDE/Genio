@@ -17,6 +17,7 @@ enum {
 	MSG_PROJECT_SET_ACTIVE		= 'psac',	// TODO
 	MSG_PROJECT_SETTINGS		= 'prse',
 	MSG_PROJECT_FOLDER_OPEN		= 'pfop',
+	MSG_RELOAD_EDITORCONFIG		= 'reec',
 
 	// File menu
 	MSG_FILE_NEW				= 'fine',

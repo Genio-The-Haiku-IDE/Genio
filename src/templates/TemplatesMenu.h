@@ -41,6 +41,7 @@ public:
 	void					SetViewMode(ViewMode mode, bool enableNewFolder = true);
 	void 					ShowNewFolder(bool show) { fShowNewFolder = show; }
 	void 					EnableNewFolder(bool enable) { fEnableNewFolder = enable; }
+	void					SetSender(const void* sender, const entry_ref* ref);
 
 private:
 	bool 					_BuildMenu();

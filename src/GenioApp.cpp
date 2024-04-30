@@ -371,15 +371,18 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 		}
 	}
 	BString editor(B_TRANSLATE("Editor"));
-	cfg.AddConfig(editor.String(), "edit_fontfamily", B_TRANSLATE("Font"), "", &fontCfg);
+	cfg.AddConfig(editor.String(), "edit_fontfamily", B_TRANSLATE("Font:"), "", &fontCfg);
 	cfg.AddConfig(editor.String(), "edit_fontsize", B_TRANSLATE("Font size:"), -1, &sizes);
 	cfg.AddConfig(editor.String(), "syntax_highlight", B_TRANSLATE("Enable syntax highlighting"), true);
 	cfg.AddConfig(editor.String(), "brace_match", B_TRANSLATE("Enable brace matching"), true);
 	cfg.AddConfig(editor.String(), "save_caret", B_TRANSLATE("Save caret position"), true);
+	cfg.AddConfig(editor.String(), "ignore_editorconfig", B_TRANSLATE("Ignore .editorconfig"), false);
 	cfg.AddConfig(editor.String(), "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
+	// TODO: change to "indent_style" to be coherent with editorconfig
 	cfg.AddConfig(editor.String(), "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
 
 	GMessage tabs = { {"min",1},{"max",8} };
+	// TODO: change to "indent_size" to be coherent with editorconfig
 	cfg.AddConfig(editor.String(), "tab_width", B_TRANSLATE("Tab width:"), 4, &tabs);
 
 	GMessage zooms = { {"min", -9}, {"max", 19} };
@@ -398,12 +401,12 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	}
 
 	BString editorVisual = editor;
-	editorVisual.Append("/").Append(B_TRANSLATE("Visual"));
+	editorVisual.Append("/").Append(B_TRANSLATE("Visuals"));
 	cfg.AddConfig(editorVisual.String(), "editor_style", B_TRANSLATE("Editor style:"), "default", &styles);
-	cfg.AddConfig(editorVisual.String(), "show_linenumber", B_TRANSLATE("Show line number"), true);
+	cfg.AddConfig(editorVisual.String(), "show_linenumber", B_TRANSLATE("Show line numbers"), true);
 	cfg.AddConfig(editorVisual.String(), "show_commentmargin", B_TRANSLATE("Show comment margin"), true);
+	cfg.AddConfig(editorVisual.String(), "enable_folding", B_TRANSLATE("Show folding margin"), true);
 	cfg.AddConfig(editorVisual.String(), "mark_caretline", B_TRANSLATE("Mark caret line"), true);
-	cfg.AddConfig(editorVisual.String(), "enable_folding", B_TRANSLATE("Enable folding"), true);
 	cfg.AddConfig(editorVisual.String(), "show_white_space", B_TRANSLATE("Show whitespace"), false);
 	cfg.AddConfig(editorVisual.String(), "show_line_endings", B_TRANSLATE("Show line endings"), false);
 	cfg.AddConfig(editorVisual.String(), "wrap_lines", B_TRANSLATE("Wrap lines"), true);

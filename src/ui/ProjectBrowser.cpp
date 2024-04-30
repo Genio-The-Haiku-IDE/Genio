@@ -606,6 +606,8 @@ ProjectBrowser::AttachedToWindow()
 		Window()->UnlockLooper();
 	}
 
+	ProjectItem::InitAnimationIcons();
+
 	BMessage message(kTick);
 	if (sAnimationTickRunner == nullptr)
 		sAnimationTickRunner = new BMessageRunner(BMessenger(this), &message, bigtime_t(300000));
@@ -618,6 +620,8 @@ ProjectBrowser::DetachedFromWindow()
 {
 	delete sAnimationTickRunner;
 	sAnimationTickRunner = nullptr;
+
+	ProjectItem::DisposeAnimationIcons();
 
 	BOutlineListView::DetachedFromWindow();
 

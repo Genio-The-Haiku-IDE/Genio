@@ -6,6 +6,9 @@
 
 #include "StyledItem.h"
 
+#include <vector>
+
+class BBitmap;
 class BTextControl;
 class SourceItem;
 class ProjectItem : public StyledItem {
@@ -25,6 +28,8 @@ public:
 	void			AbortRename();
 	void			CommitRename();
 
+	static status_t	InitAnimationIcons();
+	static status_t DisposeAnimationIcons();
 	static void		TickAnimation();
 
 private:
@@ -34,6 +39,7 @@ private:
 	BTextControl	*fTextControl;
 
 	static int32	sBuildAnimationIndex;
+	static std::vector<BBitmap*> sBuildAnimationFrames;
 
 	void			_DrawBuildIndicator(BView* owner);
 	void			_DestroyTextWidget();

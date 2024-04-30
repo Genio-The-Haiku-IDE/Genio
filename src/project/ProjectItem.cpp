@@ -14,10 +14,12 @@
 #include <StringItem.h>
 #include <TextControl.h>
 #include <Window.h>
+#include <iostream>
 
 #include "GitRepository.h"
 #include "IconCache.h"
 #include "ProjectFolder.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
@@ -70,12 +72,8 @@ public:
 };
 
 
-static const char kBuildAnimation[] = {
-	'|', '/', '-', '\\'
-};
-
-
 int32 ProjectItem::sBuildAnimationIndex = 0;
+std::vector<BBitmap*> ProjectItem::sBuildAnimationFrames;
 
 ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
@@ -281,10 +279,41 @@ ProjectItem::CommitRename()
 
 
 /* static */
+status_t
+ProjectItem::InitAnimationIcons()
+{
+	// TODO: icon names are "waiting-N" where N is the index
+	// 1 to 7
+	for (int32 i = 1; i < 8; i++) {
+		BString name("waiting-");
+		name << i;
+		BBitmap* frame = new BBitmap(BRect(BPoint(0, 0), BPoint(24, 24)), B_RGBA32);
+		GetVectorIcon(name.String(), frame);
+		sBuildAnimationFrames.push_back(frame);
+	}
+	return B_OK;
+}
+
+
+/* static */
+status_t
+ProjectItem::DisposeAnimationIcons()
+{
+	for (std::vector<BBitmap*>::iterator i = sBuildAnimationFrames.begin();
+		i != sBuildAnimationFrames.end(); i++) {
+		delete *i;
+	}
+	sBuildAnimationFrames.clear();
+
+	return B_OK;
+}
+
+
+/* static */
 void
 ProjectItem::TickAnimation()
 {
-	if (++ProjectItem::sBuildAnimationIndex > 3)
+	if (++ProjectItem::sBuildAnimationIndex > (int32)sBuildAnimationFrames.size())
 		ProjectItem::sBuildAnimationIndex = 0;
 }
 
@@ -292,13 +321,19 @@ ProjectItem::TickAnimation()
 void
 ProjectItem::_DrawBuildIndicator(BView* owner)
 {
-	ProjectFolder *project = static_cast<ProjectFolder*>(GetSourceItem());
-	if (project->IsBuilding()) {
-		owner->SetFont(be_fixed_font);
-		BString s(" ");
-		s << kBuildAnimation[sBuildAnimationIndex];
-		owner->DrawString(s);
-	}
+	//ProjectFolder *project = static_cast<ProjectFolder*>(GetSourceItem());
+	//if (project->IsBuilding()) {
+		//const BBitmap* frame = sBuildAnimationFrames.at(0);
+		try {
+			const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
+			if (frame != nullptr) {
+				owner->SetDrawingMode(B_OP_ALPHA);
+				owner->DrawBitmap(frame);
+			}
+		} catch (...) {
+			// nothing to do
+		}
+	//}
 }
 
 
@@ -311,3 +346,4 @@ ProjectItem::_DestroyTextWidget()
 		fTextControl = nullptr;
 	}
 }
+

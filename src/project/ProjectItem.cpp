@@ -334,19 +334,19 @@ ProjectItem::TickAnimation()
 void
 ProjectItem::_DrawBuildIndicator(BView* owner)
 {
-	//ProjectFolder *project = static_cast<ProjectFolder*>(GetSourceItem());
-	//if (project->IsBuilding()) {
-		//const BBitmap* frame = sBuildAnimationFrames.at(0);
+	ProjectFolder *project = static_cast<ProjectFolder*>(GetSourceItem());
+	if (project->IsBuilding()) {
 		try {
 			const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
 			if (frame != nullptr) {
 				owner->SetDrawingMode(B_OP_ALPHA);
+				owner->MovePenBy(4, - frame->Bounds().Height() + 7);
 				owner->DrawBitmap(frame);
 			}
 		} catch (...) {
 			// nothing to do
 		}
-	//}
+	}
 }
 
 

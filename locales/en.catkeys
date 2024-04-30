@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	302088753
+1	English	application/x-vnd.Genio	4293410484
 Close	RemoteProjectWindow		Close
 Function	OutlineTooltips		Function
 Copy	GenioWindow		Copy
@@ -79,8 +79,8 @@ Reload	GenioWindow		Reload
 Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
 Replace	GenioWindow		Replace
 Switch to previous file	GenioWindow		Switch to previous file
-Stashed changes applied.	SourceControlPanel		Stashed changes applied.
 Cancel	GenioWindow		Cancel
+Stashed changes applied.	SourceControlPanel		Stashed changes applied.
 Log level:	SettingsWindow		Log level:
 Stash changes	SourceControlPanel		Stash changes
 OK	ProjectsFolderBrowser		OK
@@ -114,6 +114,7 @@ Cancel	GitCredentialsWindow		Cancel
 Fetch	SourceControlPanel		Fetch
 Match case	SettingsWindow	Short as possible.	Match case
 Show line numbers	SettingsWindow		Show line numbers
+Release	ProjectSettingsWindow		Release
 Color:	ProjectSettingsWindow		Color:
 String	OutlineTooltips		String
 CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
@@ -174,6 +175,7 @@ LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
 Show repository outline	SettingsWindow		Show repository outline
 Pull	GenioWindow	The git command	Pull
 Save	GenioWindow		Save
+Run	ProjectSettingsWindow		Run
 Restarting build…	ConsoleIOView		Restarting build…
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
 Go to declaration	GenioWindow		Go to declaration
@@ -204,6 +206,7 @@ Stop	RemoteProjectWindow		Stop
 Go to symbol	OutlineTooltips		Go to symbol
 Rename file	ProjectsFolderBrowser		Rename file
 Save dialog	Editor		Save dialog
+Build	ProjectSettingsWindow		Build
 OK	SourceControlPanel		OK
 Cancel	QuitAlert		Cancel
 Stash apply changes	SourceControlPanel		Stash apply changes

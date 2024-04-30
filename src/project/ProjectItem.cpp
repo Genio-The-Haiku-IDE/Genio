@@ -164,9 +164,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	else
 		SetTextFontFace(B_REGULAR_FACE);
 
-	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->EntryRef());
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-	BRect iconRect = DrawIcon(owner, bounds, icon, iconSize);
+	BRect iconRect = DrawIcon(owner, bounds, iconSize);
 
 	// There's a TextControl for renaming
 	if (fTextControl != nullptr) {
@@ -210,7 +209,6 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			owner->FillRoundRect(circleRect, 9, 10);
 			owner->SetHighColor(oldColor);
 		}
-
 
 		DrawText(owner, Text(), ExtraText(), textPoint);
 
@@ -330,6 +328,23 @@ ProjectItem::TickAnimation()
 {
 	if (++ProjectItem::sBuildAnimationIndex >= (int32)sBuildAnimationFrames.size())
 		ProjectItem::sBuildAnimationIndex = 0;
+}
+
+
+/* virtual */
+BRect
+ProjectItem::DrawIcon(BView* owner, const BRect& itemBounds,
+							const float& iconSize)
+{
+	BPoint iconStartingPoint(itemBounds.left + 4.0f,
+		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
+	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->EntryRef());
+	if (icon != nullptr) {
+		owner->SetDrawingMode(B_OP_ALPHA);
+		owner->DrawBitmapAsync(icon, iconStartingPoint);
+	}
+
+	return BRect(iconStartingPoint, BSize(iconSize, iconSize));
 }
 
 

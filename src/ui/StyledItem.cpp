@@ -68,19 +68,7 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	iconRect.right = iconRect.left + 4;
 	if (fIconName != nullptr) {
 		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-		BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
-		BString iconName = fIconName;
-		if (fIconFollowsTheme) {
-			const int32 kBrightnessBreakValue = 126;
-			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
-			if (base.Brightness() >= kBrightnessBreakValue)
-				iconName.Prepend("light-");
-			else
-				iconName.Prepend("dark-");
-		}
-		GetVectorIcon(iconName.String(), icon);
-		iconRect = DrawIcon(owner, bounds, icon, iconSize);
-		delete icon;
+		iconRect = DrawIcon(owner, bounds, iconSize);
 	}
 	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
@@ -148,6 +136,7 @@ StyledItem::GetToolTipText() const
 	return fToolTipText.String();
 }
 
+
 void
 StyledItem::SetIcon(const char *iconName)
 {
@@ -183,16 +172,25 @@ StyledItem::DrawText(BView* owner, const char* text,
 /* virtual */
 BRect
 StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
-	const BBitmap* icon, float &iconSize)
+					const float &iconSize)
 {
+	BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
+	BString iconName = fIconName;
+	if (fIconFollowsTheme) {
+		const int32 kBrightnessBreakValue = 126;
+		rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+		if (base.Brightness() >= kBrightnessBreakValue)
+			iconName.Prepend("light-");
+		else
+			iconName.Prepend("dark-");
+	}
+	GetVectorIcon(iconName.String(), icon);
 	BPoint iconStartingPoint(itemBounds.left + 4.0f,
 		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
 	if (icon != nullptr) {
 		owner->SetDrawingMode(B_OP_ALPHA);
-		// TODO: changed from "DrawBitmapAsync()":
-		// which caused weird drawing issues on the Outline view
-		// like disappearing icons. Investigate
 		owner->DrawBitmap(icon, iconStartingPoint);
+		delete icon;
 	}
 
 	return BRect(iconStartingPoint, BSize(iconSize, iconSize));

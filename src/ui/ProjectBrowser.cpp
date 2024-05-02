@@ -333,8 +333,10 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		}
 		case kTick:
 		{
-			ProjectItem::TickAnimation();
-			Invalidate();
+			if (fIsBuilding) {
+				ProjectItem::TickAnimation();
+				Invalidate();
+			}
 			break;
 		}
 		case B_OBSERVER_NOTICE_CHANGE:

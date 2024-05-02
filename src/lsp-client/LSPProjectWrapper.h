@@ -12,9 +12,11 @@
 #include <MessageFilter.h>
 #include <Messenger.h>
 
+#include "LSPServersManager.h"
 #include "MessageHandler.h"
 #include "json_fwd.hpp"
 #include "LSPCapabilities.h"
+#include "protocol_objects.h"
 
 class  LSPTextDocument;
 struct TextDocumentContentChangeEvent;
@@ -76,7 +78,9 @@ public:
     RequestID SelectionRange(LSPTextDocument* textDocument, std::vector<Position> &positions);
     RequestID OnTypeFormatting(LSPTextDocument* textDocument, Position position, string_ref ch);
     RequestID Formatting(LSPTextDocument* textDocument);
-    RequestID CodeAction(LSPTextDocument* textDocument, Range range, CodeActionContext context);
+    RequestID CodeAction(LSPTextDocument* textDocument, Range range, CodeActionContext& context);
+	RequestID CodeActionResolve(LSPTextDocument* textDocument, struct CodeAction& data);
+	RequestID CodeActionResolve(LSPTextDocument* textDocument, nlohmann::json& data);
     RequestID Completion(LSPTextDocument* textDocument, Position position, CompletionContext& context);
     RequestID SignatureHelp(LSPTextDocument* textDocument, Position position);
     RequestID GoToDefinition(LSPTextDocument* textDocument, Position position);

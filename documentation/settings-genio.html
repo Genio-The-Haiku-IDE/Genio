@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<!--
+ * Copyright 2024
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Humdinger <humdingerb@gmail.com>
+-->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="robots" content="all" />
+	<link rel="stylesheet" type="text/css" href="./_doc.css" />
+	<title>Genio's User Documentation - Genio Settings</title>
+
+</head>
+<body>
+
+<div id="navbar">
+<a href="ReadMe.html">QuickStart</a> <a href="editor.html">Editor</a> <a href="panes.html">Panes</a> <a href="toolbar.html">Toolbar</a> <a href="menus.html">Menus</a> <a class="active" href="settings.html">Settings</a>
+</div>
+
+<div id="content">
+
+<table class="index" id="index" summary="index">
+<tbody><tr class="heading"><td>Index</td></tr>
+<tr class="index"><td>
+	<a href="#general">General</a><br />
+	<a href="#general_startup"> ┗━ Startup</a><br />
+	<a href="#editor">Editor</a><br />
+	<a href="#editor_visual">┣━ Visual</a><br />
+	<a href="#editor_find"> ┗━ Find</a><br />
+	<a href="#build">Build</a><br />
+	<a href="#lsp">LSP</a><br />
+	<a href="#source_control">Source control</a>
+</td></tr>
+</tbody></table>
+
+<h1><a id="genio" name="genio">The Genio Settings</a></h1>
+
+<p>From the list on the left, you choose the different settings categories.</p>
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="genio-general" name="genio-general">General</a></h2>
+
+<p style="text-align:center"><img src="./images/genio-settings-general.png" style="border:none;padding:15px" alt="Genio settings: General" /></p>
+
+<table summary="layout">
+<tr><td class="onelinetop"><span class="menu">Projects folder</span></td>
+<td>This sets the default location for newly created projects.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Auto collapse/expand projects</span></td>
+<td>Genio will automatically expand a project you set to "active" and collapse the other currently open projects.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Show full path in window title</span></td>
+<td>Shows the full path or just the name of the current file.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Log destination</span></td>
+<td>Sets where Genio's log output gets written: <span class="menu">stdout</span>, <span class="menu">stderr</span>, <span class="menu">syslog</span> or <span class="menu">BeDC</span> (see <a href="https://pulkomandy.tk/gerrit/plugins/gitiles/devconsole">here</a>).</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Log level</span></td>
+<td>Sets the verbosity of Genio's log output. After <span class="menu">Off</span> it gets increasingly detailed: <span class="menu">Error</span>, <span class="menu">Info</span>, <span class="menu">Debug</span> and <span class="menu">Trace</span>.</td></tr>
+</table>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="genio-general_startup" name="genio-general_startup">General / Startup</a></h2>
+
+<p style="text-align:center"><img src="./images/genio-settings-general_startup.png" style="border:none;padding:15px" alt="Genio settings: General / Startup" /></p>
+
+<p>These settings determine how Genio will behave on startup: if the projects and files that were open when you last quit Genio are reloaded, and which panes etc. are to be shown by default when Genio launches.</p>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="genio-editor" name="genio-editor">Editor</a></h2>
+
+<p style="text-align:center"><img src="./images/genio-settings-editor.png" style="border:none;padding:15px" alt="Genio settings: Editor" /></p>
+
+<table summary="layout">
+<tr><td class="onelinetop"><span class="menu">Font<br />Font size</span></td>
+<td style="vertical-align: top;">You can set a font family and size if the system defaults don't work for you.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Enable syntax highlighting<br />Enables brace matching</span></td>
+<td style="vertical-align: top;">Colors keywords etc. and highlights opening/closing braces.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Save caret position</span></td>
+<td>Genio will remember the cursor position when you close and re-open a file.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Ignore .editorconfig</span></td>
+<td>Opt out of code formatting by <a href="https://editorconfig.org/">EditorConfig</a> (if your project uses that).</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Trim trailing whitespace on save</span></td>
+<td>Automatically removes those pesky spaces and tabs at the end of lines when you save a file.<br />
+This setting is only applied if no <span class="cli">.editorconfig</span> is being used.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Convert tabs to spaces</span></td>
+<td>While active, entered tabs are replaced with spaces. Tabs that are already in a file <i>are not</i> replaced.<br />
+This setting is only applied if no <span class="cli">.editorconfig</span> is being used.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Tab width</span></td>
+<td>Sets the width of tabs in spaces.<br />
+This setting is only applied if no <span class="cli">.editorconfig</span> is being used.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Editor zoom</span></td>
+<td>Sets the default zoom of the editor view. It can easily be overridden with the commands in the <a href="./menus.html#view">View menu</a> or by <span class="key">ALT</span> + mousewheeling.</td></tr>
+</table>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="genio-editor_visuals" name="genio-editor_visual">Editor / Visual</a></h2>
+
+<p style="text-align:center"><img src="./images/genio-settings-editor_visual.png" style="border:none;padding:15px" alt="Genio settings: Editor / Visual" /></p>
+
+<table summary="layout">
+<tr><td class="onelinetop"><span class="menu">Editor style</span></td>
+<td>Choose from a number of different color themes for the editor view.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Show line number<br />Show comment margin<br />Show folding margin</span></td>
+<td style="vertical-align: top;">Toggles the margins on the left (see <a href="./editor.html#elements">Elements of the editor view</a>).</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Mark caret line</span></td>
+<td>Highlights the current line of the cursor.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Show whitespace</span></td>
+<td>Shows symbols for spaces and tabs. This can also be toggled from the <span class="menu">View</span> menu or the toolbar.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Show line endings</span></td>
+<td>Shows symbols for line breaks &ndash; LF, CRLF, CR, depending on the setting of the file. This can also be toggled from the <span class="menu">View</span> menu.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Wrap lines</span></td>
+<td>Wraps lines that are longer than the editor view's width. This can also be toggled from the <span class="menu">View</span> menu or the toolbar.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Show vertical ruler</span></td>
+<td>Draws a vertical line at the column you set with the spinner below. It helps you keeping a limit on characters per line.</td></tr>
+</table>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="genio-editor_find" name="genio-editor_find">Editor / Find</a></h2>
+
+<p style="text-align:center"><img src="./images/genio-settings-editor_find.png" style="border:none;padding:15px" alt="Genio settings: Editor / Find" /></p>
+
+<p>The checkboxes set the defaults for <a href="./toolbar.html#find_bar">The Find bar</a>.</p>
+
+<table summary="layout">
+<tr><td class="onelinetop"><span class="menu">Wrap around</span></td>
+<td>Continue the search at the beginning of the file when it has reached the end (and vice-versa, if you reverse the direction by jumping to the previous match).</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Whole word</span></td>
+<td>Does not find partial matches.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Match case</span></td>
+<td>Respect upper and lower-case.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Exclude folders</span></td>
+<td>A comma separated list of folders that will be ignored when searching. Use '<tt>*</tt>' as wildcard.</td></tr>
+</table>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="genio-build" name="genio-build">Build</a></h2>
+
+<p style="text-align:center"><img src="./images/genio-settings-build.png" style="border:none;padding:15px" alt="Genio settings: Build" /></p>
+
+<table summary="layout">
+<tr><td class="onelinetop"><span class="menu">Wrap lines in console</span></td>
+<td>Wraps lines in the <a href="panes.html#console">Console I/O</a> tab of the output pane.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Console banner</span></td>
+<td>Prints the executed command at the start and end of the build process in the <a href="panes.html#console">Console I/O</a> tab of the output pane.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Auto-Build on resource save</span></td>
+<td>Builds the project automatically if changes to any of its files are saved.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Auto-Save changed files when building</span></td>
+<td>Saves all changed files automatically when a build was started.</td></tr>
+</table>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="genio-lsp" name="genio-lsp">LSP</a></h2>
+
+<p>LSP is Clang's language server protocol. Genio uses it for autocompletion, signature help, jumping to definition / implementation / declaration, quick fix, etc.</p>
+
+<p>You'll have to restart Genio for changes to take effect.</p>
+
+<p style="text-align:center"><img src="./images/genio-settings-lsp.png" style="border:none;padding:15px" alt="Genio settings: LSP" /></p>
+
+<table summary="layout">
+<tr><td class="onelinetop"><span class="menu">Log level</span></td>
+<td>Sets the verbosity of LSP's log output. It gets increasingly detailed: <span class="menu">Error</span>, <span class="menu">Info</span> and <span class="menu">Trace</span>.</td></tr>
+</table>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="genio-source_control" name="genio-source_control">Source control</a></h2>
+
+<p style="text-align:center"><img src="./images/genio-settings-source_control.png" style="border:none;padding:15px" alt="Genio settings: Source control" /></p>
+
+<table summary="layout">
+<tr><td class="onelinetop"><span class="menu">Show repository outline</span></td>
+<td>Shows the branches of the project's repository in a hierarchical structure.</td></tr>
+</table>
+
+
+<hr />
+<a href="settings.html" style="border:none;float:left">Back: Settings</a>
+<a href="settings-project.html" style="border:none;float:right">Next: Project Settings</a>
+<p></p>
+</div>
+</body>
+</html>

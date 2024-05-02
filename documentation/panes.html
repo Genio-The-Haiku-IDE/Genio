@@ -14,7 +14,7 @@
 	<meta http-equiv="Content-Style-Type" content="text/css" />
 	<meta name="robots" content="all" />
 	<link rel="stylesheet" type="text/css" href="./_doc.css" />
-	<title>Genio's User Documentation</title>
+	<title>Genio's User Documentation - Panes</title>
 
 </head>
 <body>
@@ -25,17 +25,36 @@
 
 <div id="content">
 
+<table class="index" id="index" summary="index">
+<tbody><tr class="heading"><td>Index</td></tr>
+<tr class="index"><td>
+	<a href="#projects-pane">The Projects pane</a><br />
+	<a href="#projects-projects">┣━ Projects</a><br />
+	<a href="#projects-source-control">┗━ Source control</a><br />
+	<a href="#output-pane">The Output pane</a><br />
+	<a href="#output-problems">┣━ Problems</a><br />
+	<a href="#output-build-log">┣━ Build log</a><br />
+	<a href="#output-console-io">┣━ Console I/O</a><br />
+	<a href="#output-search-results">┗━ Search results</a><br />
+	<a href="#outline-pane">The Outline"pane</a>
+</td></tr>
+</tbody></table>
+
 <h1>The Panes</h1>
 
-<p>Genio's main window contains two panes besides the toolbar and the editor view: The "Projects" pane on the left and the "Output" pane at the bottom. They can be toggled on and off with the first two icons in the toolbar, or with the menu <span class="menu">Window|Appearance</span>.</p>
+<p>Genio's main window contains three panes besides the toolbar and the editor view: The Projects pane on the left, the Outline pane on the right, and the Output pane at the bottom. They can be toggled on and off with the first three icons in the toolbar, or from the menu <span class="menu">Window|Appearance</span>.</p>
 
 
-<h2><a id="projects-pane" name="projects-pane">The "Projects" pane</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="projects-pane" name="projects-pane">The Projects pane</a></h2>
 
-<p>The "Projects" pane holds two tabs: the first to manage the files and folders of open projects, the second to manage source control related issues.</p>
+<p>The Projects pane holds two tabs: the first to manage the files and folders of open projects, the second to manage source control related issues.</p>
 
 
-<h3><a id="projects" name="projects">Projects</a></h3>
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="projects-projects" name="projects-projects">Projects</a></h3>
 
 <p><img src="./images/panes-projects.png" class="floatleft" alt="Projects" /></p>
 
@@ -43,7 +62,7 @@
 Commands like <span class="menu">Project|Build project</span> or a search in the whole project work only on the currently active project. A project can be <span class="menu">Set active</span> from the context menu when right-clicking it.
 </p>
 
-<p>The context menu provides more commands to manage your project, depending on what item it was invoked on. Right-clicking the project name (= top folder), let's you build your project, close it, open its <a href="settings.html">Project settings</a>, add new files from templates or open its folder in Tracker, among other things.</p>
+<p>The context menu provides more commands to manage your project, depending on what item it was invoked on. Right-clicking the project name (= top folder), let's you build your project, close it, open its <a href="settings-project.html">Project settings</a>, add new files from templates or open its folder in Tracker, among other things.</p>
 
 <p>A right-click on files or folders inside the project allows you to rename, delete or open a file with its preferred application, etc.</p>
 
@@ -51,7 +70,9 @@ Commands like <span class="menu">Project|Build project</span> or a search in the
 <p style="clear:left"></p>
 
 
-<h3><a id="source-control" name="source-control">Source control</a></h3>
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="projects-source-control" name="projects-source-control">Source control</a></h3>
 
 <p><img src="./images/panes-source_control.png" class="floatleft" alt="Source control" /></p>
 
@@ -67,20 +88,26 @@ Commands like <span class="menu">Project|Build project</span> or a search in the
 <p style="clear:left"></p>
 
 
-<h2><a id="output-pane" name="output-pane">The "Output" pane</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="output-pane" name="output-pane">The Output pane</a></h2>
 
-<p>The "Output" pane consists of four tabs: <span class="menu">Problems</span>, the <span class="menu">Build log</span>, the <span class="menu">Console I/O</span> and <span class="menu">Search results</span>.</p>
+<p>The Output pane consists of four tabs: <span class="menu">Problems</span>, the <span class="menu">Build log</span>, the <span class="menu">Console I/O</span> and <span class="menu">Search results</span>.</p>
 
 
-<h3><a id="problems" name="problems">Problems</a></h3>
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="output-problems" name="output-problems">Problems</a></h3>
 
 <p style="text-align:center"><img src="./images/panes-output_problems.png" style="border:none" alt="Problems" /></p>
 
 <p>Clang is continuously analyzing the current file in the editor view and reports any problems it thinks it has found. Sometimes those are false positives and can be ignored. Often it's very helpful, however, to spot typos or missing commas etc.<br />
-A right-click on a row offers to fix the issue.</p>
+A right-click on a row offers to fix the issue, if possible.</p>
 
 
-<h3><a id="build-log" name="build-log">Build log</a></h3>
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="output-build-log" name="output-build-log">Build log</a></h3>
 
 <p style="text-align:center"><img src="./images/panes-output_build_log.png" style="border:none" alt="Build log" /></p>
 
@@ -91,7 +118,9 @@ Warnings and errors are printed in red, showing in which file, on what line and 
 The checkboxes above them de/activate <span class="menu">stdout</span> and <span class="menu">stderr</span>. You can <span class="menu">Wrap</span> long lines, and de/activate the <span class="menu">Banner</span> which prints the executed command at the start and end of the build process.</p>
 
 
-<h3><a id="console-io" name="console-io">Console I/O</a></h3>
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="output-console-io" name="output-console-io">Console I/O</a></h3>
 
 <p style="text-align:center"><img src="./images/panes-output_console_io.png" style="border:none" alt="Console I/O" /></p>
 
@@ -100,12 +129,28 @@ The checkboxes above them de/activate <span class="menu">stdout</span> and <span
 <p>The buttons and checkboxes do the same as described above for the "Build log".</p>
 
 
-<h3><a id="search-results" name="search-results">Search results</a></h3>
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="output-search-results" name="output-search-results">Search results</a></h3>
 
 <p style="text-align:center"><img src="./images/panes-output_search_results.png" style="border:none" alt="Search results" /></p>
 
 <p>If you click the icon <span class="menu">Find in project</span> in the <a href="toolbar.html">Find bar</a>, this tab will show all the hits from all files of the currently active project. Double-click to jump to the search result.</p>
 
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="ouline-pane" name="outline-pane">The Outline pane</a></h2>
+
+<p><img src="./images/panes-outline.png" class="floatleft" alt="Outline" /></p>
+
+<p>The Outline pane shows all symbols &ndash; methods, functions, variables, classes, enums, etc. &ndash; of the current file. Normally ordered as they appear in the file, you can sort them alphabetically by clicking the icon-button at the top.</p>
+
+<p>Double-clicking an entry jumps to it in the file currently open in the editor.</p>
+
+<p>Right-clicking an entry, you can choose <span class="menu">Rename symbol…</span> from the context menu to change the name of that symbol in the whole project.</p>
+
+<p style="clear:left"></p>
 
 <hr />
 <a href="editor.html" style="border:none;float:left">Back: Editor</a>

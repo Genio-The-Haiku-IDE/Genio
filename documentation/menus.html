@@ -14,7 +14,7 @@
 	<meta http-equiv="Content-Style-Type" content="text/css" />
 	<meta name="robots" content="all" />
 	<link rel="stylesheet" type="text/css" href="./_doc.css" />
-	<title>Genio's User Documentation</title>
+	<title>Genio's User Documentation - Menus</title>
 
 </head>
 <body>
@@ -25,32 +25,54 @@
 
 <div id="content">
 
+<table class="index" id="index" summary="index">
+<tbody><tr class="heading"><td>Index</td></tr>
+<tr class="index"><td>
+	<a href="#genio">The Genio menu</a><br />
+	<a href="#file">The File menu</a><br />
+	<a href="#edit">The Edit menu</a><br />
+	<a href="#view">The View menu</a><br />
+	<a href="#search">The Search menu</a><br />
+	<a href="#project">The Project menu</a><br />
+	<a href="#git">The Git menu</a><br />
+	<a href="#window">The Window menu</a>
+</td></tr>
+</tbody></table>
+
 <h1>The Menus</h1>
 
 <p>The vast majority of Genio's menu items are trivial or obvious.<br />
 Let's go through all menus and only pick those items that deserve a bit of explanation.</p>
 
 
-<h2><a id="genio" name="genio">Genio menu</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="genio" name="genio">The Genio menu</a></h2>
 
 <img src="./images/menus-genio.png" class="floatleft" alt="Genio menu" />
 
 <p style="margin-top: 2.2em"><span class="menu">Genio project…</span> opens the GitHub page of the Genio project, as shortcut to file an <a href="https://github.com/Genio-The-Haiku-IDE/Genio/issues">issue</a> or participate in <a href="https://github.com/Genio-The-Haiku-IDE/Genio/discussions">discussions</a>.</p>
 
-<p><span class="menu">Settings…</span> opens the application's <a href="settings.html#genio-settings">Settings</a> window.</p>
+<p><span class="menu">Settings…</span> opens the application's <a href="settings-genio.html">Settings</a> window.</p>
 <p style="clear:left"></p>
 
 
-<h2><a id="file" name="file">File menu</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="file" name="file">The File menu</a></h2>
 
 <img src="./images/menus-file.png" class="floatleft" alt="File menu" />
 
-<p style="margin-top: 2.2em"><span class="menu">New…</span> offers a sub-menu with template files and folders.<br />
-In it is an item <span class="menu">Edit user templates…</span> that opens a folder where you can put your own files/folders to use as templates. Those, too, will be available in the <span class="menu">New…</span> menu.</p>
+<p style="margin-top: 2.2em"><span class="menu">New</span> offers a sub-menu with template files and folders.<br />
+In it is an item <span class="menu">Edit user templates…</span> that opens a folder where you can put your own files/folders to use as templates. Those, too, will then be available in the <span class="menu">New</span> sub-menu.</p>
+
+<p><span class="menu">Show in projects browser</span> will scroll to and select the file you're currently editing in the Projects pane.</p>
 <p style="clear:left"></p>
 
 
-<h2><a id="edit" name="edit">Edit menu</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="edit" name="edit">The Edit menu</a></h2>
 
 <img src="./images/menus-edit.png" class="floatleft" alt="Edit menu" />
 
@@ -64,7 +86,9 @@ In it is an item <span class="menu">Edit user templates…</span> that opens a f
 <p style="clear:left"></p>
 
 
-<h2><a id="view" name="view">View menu</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="view" name="view">The View menu</a></h2>
 
 <img src="./images/menus-view.png" class="floatleft" alt="View menu" />
 
@@ -72,7 +96,9 @@ In it is an item <span class="menu">Edit user templates…</span> that opens a f
 <p style="clear:left"></p>
 
 
-<h2><a id="search" name="search">Search menu</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="search" name="search">The Search menu</a></h2>
 
 <img src="./images/menus-search.png" class="floatleft" alt="Search menu" />
 
@@ -80,7 +106,9 @@ In it is an item <span class="menu">Edit user templates…</span> that opens a f
 <p style="clear:left"></p>
 
 
-<h2><a id="project" name="project">Project menu</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="project" name="project">The Project menu</a></h2>
 
 <img src="./images/menus-project.png" class="floatleft" alt="Project menu" />
 
@@ -90,13 +118,17 @@ In it is an item <span class="menu">Edit user templates…</span> that opens a f
 
 <p><span class="menu">Run target</span> will launch the built binary.</p>
 
-<p>For the above to work, you need to have your project properly configured in the <a href="settings.html#project">Project settings…</a>.</p>
+<p>For the above to work, you need to have your project properly configured in the <a href="settings-project.html#release">Project settings…</a>.</p>
 
 <p>If you're building a localized application, you can generate new en.catkeys with <span class="menu">Make catkeys</span> and do a <span class="menu">Make bindcatalogs</span> to add the available translations as resources to the built binary.</p>
+
+<p>If you're using <a href="https://editorconfig.org/">EditorConfig</a> to manage your coding style settings, you can choose <span class="menu">Reload .editorconfig</span> to force an update of the open files when you've edited an .editorconfig file.</p>
 <p style="clear:left"></p>
 
 
-<h2><a id="git" name="git">Git menu</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="git" name="git">The Git menu</a></h2>
 
 <img src="./images/menus-git.png" class="floatleft" alt="Git menu" />
 
@@ -106,7 +138,9 @@ In it is an item <span class="menu">Edit user templates…</span> that opens a f
 <p style="clear:left"></p>
 
 
-<h2><a id="window" name="window">Window menu</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="window" name="window">The Window menu</a></h2>
 
 <img src="./images/menus-window.png" class="floatleft" style="margin-bottom: 4em" alt="Window menu" />
 

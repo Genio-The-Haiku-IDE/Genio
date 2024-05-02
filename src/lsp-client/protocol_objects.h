@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include "json.hpp"
 #include "uri.h"
 
 struct Position {
@@ -54,6 +55,16 @@ struct Range {
     bool contains(Range Rng) const {
         return start <= Rng.start && Rng.end <= end;
     }
+};
+
+struct TextDocumentContentChangeEvent {
+    /// The range of the document that changed.
+    option<Range> range;
+
+    /// The length of the range that got replaced.
+    //xed option<int> rangeLength;
+    /// The new text of the range/document.
+    std::string text;
 };
 
 struct TextEdit {
@@ -324,7 +335,81 @@ struct CodeAction {
     /// A command this code action executes. If a code action provides an edit
     /// and a command, first the edit is executed and then the command.
     option<LspCommand> command;
+
+	option<nlohmann::json> data;
 };
 
+
+// enum class CompletionItemKind
+enum class SymbolKind {
+    File = 1,
+    Module = 2,
+    Namespace = 3,
+    Package = 4,
+    Class = 5,
+    Method = 6,
+    Property = 7,
+    Field = 8,
+    Constructor = 9,
+    Enum = 10,
+    Interface = 11,
+    Function = 12,
+    Variable = 13,
+    Constant = 14,
+    String = 15,
+    Number = 16,
+    Boolean = 17,
+    Array = 18,
+    Object = 19,
+    Key = 20,
+    Null = 21,
+    EnumMember = 22,
+    Struct = 23,
+    Event = 24,
+    Operator = 25,
+    TypeParameter = 26
+};
+
+/// Represents programming constructs like variables, classes, interfaces etc.
+/// that appear in a document. Document symbols can be hierarchical and they
+/// have two ranges: one that encloses its definition and one that points to its
+/// most interesting range, e.g. the range of an identifier.
+struct DocumentSymbol {
+  /// The name of this symbol.
+  std::string name;
+
+  /// More detail for this symbol, e.g the signature of a function.
+  std::string detail;
+
+  /// The kind of this symbol.
+  SymbolKind kind;
+
+  /// Indicates if this symbol is deprecated.
+  bool deprecated = false;
+
+  /// The range enclosing this symbol not including leading/trailing whitespace
+  /// but everything else like comments. This information is typically used to
+  /// determine if the clients cursor is inside the symbol to reveal in the
+  /// symbol in the UI.
+  Range range;
+
+  /// The range that should be selected and revealed when this symbol is being
+  /// picked, e.g the name of a function. Must be contained by the `range`.
+  Range selectionRange;
+
+  /// Children of this symbol, e.g. properties of a class.
+  std::vector<DocumentSymbol> children;
+};
+
+struct SymbolInformation {
+    /// The name of this symbol.
+    std::string name;
+    /// The kind of this symbol.
+    SymbolKind kind = SymbolKind::Class;
+    /// The location of this symbol.
+    Location location;
+    /// The name of the symbol containing this symbol.
+    option<std::string> containerName;
+};
 
 #endif // protocol_objects_H

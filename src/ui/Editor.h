@@ -10,9 +10,13 @@
 #include <Locker.h>
 #include <MessageFilter.h>
 #include <Messenger.h>
-#include <ScintillaView.h>
+#include "ScintillaView.h"
+#include <MessageRunner.h>
+#include <set>
+#include <utility>
 
 #include "LSPCapabilities.h"
+
 
 class LSPEditorWrapper;
 class ProjectFolder;
@@ -30,7 +34,13 @@ enum {
 	EDITOR_REPLACE_ONE				= 'Eron',
 	EDITOR_REPLACE_ALL_COUNT		= 'Erac',
 	EDITOR_UPDATE_SAVEPOINT			= 'EUSP',
-	EDITOR_UPDATE_DIAGNOSTICS		= 'diag'
+	EDITOR_UPDATE_DIAGNOSTICS		= 'diag',
+	EDITOR_UPDATE_SYMBOLS			= 'symb'
+};
+
+enum IndentStyle {
+	Tab,
+	Space
 };
 
 /*
@@ -55,15 +65,27 @@ constexpr auto sci_COMMENT_MARGIN = 3;
 
 constexpr auto sci_BOOKMARK = 0; //Marker
 
+struct EditorConfig {
+	enum IndentStyle	IndentStyle;
+	int32				IndentSize;
+	int32				EndOfLine;
+	bool				TrimTrailingWhitespace;
+	bool				InsertFinalNewline; // Not implemented
+};
 
 class Editor : public BScintillaView {
-
 public:
+	enum symbols_status {
+		STATUS_NOT_INITIALIZED = 0,
+		STATUS_NO_SYMBOLS = 1,
+		STATUS_HAS_SYMBOLS = 2
+	};
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
 	virtual	void 				MessageReceived(BMessage* message);
-
+			void				LoadEditorConfig();
 			void				ApplySettings();
+			void				ApplyEdit(std::string info);
 			void				TrimTrailingWhitespace();
 			bool				CanCopy();
 			bool				CanCut();
@@ -97,8 +119,6 @@ public:
 			node_ref *const		NodeRef() { return &fNodeRef; }
 			bool				IsOverwrite();
 
-
-
 			ssize_t				SaveToFile();
 			status_t			SetFileRef(entry_ref* ref);
 			void				SetReadOnly(bool readOnly = true);
@@ -111,9 +131,10 @@ public:
 			ProjectFolder*		GetProjectFolder() const { return fProjectFolder; }
 			void				Undo();
 
+			void				SetProblems();
 
-			void				SetProblems(const BMessage* diagnostics);
-			void				GetProblems(BMessage* diagnostics);
+			void				SetDocumentSymbols(const BMessage* symbols);
+			void				GetDocumentSymbols(BMessage* symbols) const;
 
 			filter_result		BeforeKeyDown(BMessage*);
 
@@ -154,6 +175,7 @@ private:
 			void				GoToDefinition();
 			void				GoToDeclaration();
 			void				GoToImplementation();
+			void				Rename();
 			void				SwitchSourceHeader();
 			void				UncommentSelection();
 
@@ -163,9 +185,12 @@ private:
 			void				ShowWhiteSpaces(bool show);
 			bool				LineEndingsVisible();
 			bool				WhiteSpacesVisible();
+
 			void				ScrollCaret();
 			void				SelectAll();
 	const 	BString				Selection();
+	const 	BString				GetSymbol();
+	const 	BRect				GetSymbolSurroundingRect();
 			void				SendPositionChanges();
 			BString const		ModeString();
 			void				OverwriteToggle();
@@ -205,6 +230,8 @@ private:
 			template<typename T>
 			void				Set(typename T::type value) { T::Set(this, value); }
 
+			void	EvaluateIdleTime();
+
 private:
 
 			entry_ref			fFileRef;
@@ -224,13 +251,20 @@ private:
 			int					fCurrentLine;
 			int					fCurrentColumn;
 
-			LSPEditorWrapper*		fLSPEditorWrapper;
+			LSPEditorWrapper*	fLSPEditorWrapper;
 			ProjectFolder*		fProjectFolder;
-			editor::StatusView*			fStatusView;
+			editor::StatusView*	fStatusView;
 
-			BMessage	fProblems;
-			BLocker		fProblemsLock;
+			BMessage			fProblems;
+			BMessage			fDocumentSymbols;
+			symbols_status		fSymbolsStatus;
+			std::set<std::pair<std::string, int32> > fCollapsedSymbols;
 
+			// editorconfig
+			bool				fHasEditorConfig;
+			EditorConfig		fEditorConfig;
+
+			BMessageRunner*		fIdleHandler;
 };
 
 #endif // EDITOR_H

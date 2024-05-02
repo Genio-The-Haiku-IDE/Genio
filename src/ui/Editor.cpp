@@ -9,10 +9,14 @@
 
 #include "Editor.h"
 
+#include <regex>
+
 #include <Alert.h>
 #include <Application.h>
 #include <Catalog.h>
 #include <Control.h>
+#include <ControlLook.h>
+#include <editorconfig/editorconfig.h>
 #include <ILexer.h>
 #include <Lexilla.h>
 #include <NodeMonitor.h>
@@ -28,6 +32,7 @@
 #include "GenioApp.h"
 #include "GenioWindowMessages.h"
 #include "GoToLineWindow.h"
+#include "alert/GTextAlert.h"
 #include "Languages.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
@@ -37,13 +42,13 @@
 #include "Utils.h"
 
 
-
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
 
 namespace Sci = Scintilla;
 using namespace Sci::Properties;
 
+const int kIdleTimeout = 500000; //1/2sec
 
 // Differentiate unset parameters from 0 ones
 // in scintilla messages
@@ -64,12 +69,16 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
 	, fProjectFolder(NULL)
+	, fSymbolsStatus(STATUS_NOT_INITIALIZED)
+	, fIdleHandler(nullptr)
 {
 	fStatusView = new editor::StatusView(this);
 	fFileName = BString(ref->name);
 	SetTarget(target);
 
 	fLSPEditorWrapper = new LSPEditorWrapper(BPath(&fFileRef), this);
+
+	LoadEditorConfig();
 
 	// MARGINS
 	SendMessage(SCI_SETMARGINS, 4, UNSET);
@@ -147,10 +156,14 @@ Editor::~Editor()
 	fLSPEditorWrapper = NULL;
 }
 
+
 void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case kIdle:
+			fLSPEditorWrapper->flushChanges();
+			break;
 		case MSG_REPLACE_ALL:
 		case MSG_REPLACE_NEXT:
 		case MSG_REPLACE_ONE:
@@ -168,19 +181,23 @@ Editor::MessageReceived(BMessage* message)
 			int32 kind = message->GetInt32("kind", REPLACE_NONE);
 
 			switch (kind) {
-				case REPLACE_ALL: {
+				case REPLACE_ALL:
+				{
 					ReplaceAll(text, replace, flags);
 					break;
 				}
-				case REPLACE_NEXT: {
+				case REPLACE_NEXT:
+				{
 					ReplaceAndFindNext(text, replace, flags, wrap);
 					break;
 				}
-				case REPLACE_ONE: {
+				case REPLACE_ONE:
+				{
 					ReplaceOne(text, replace);
 					break;
 				}
-				case REPLACE_PREVIOUS: {
+				case REPLACE_PREVIOUS:
+				{
 					ReplaceAndFindPrevious(text, replace, flags, wrap);
 					break;
 				}
@@ -227,85 +244,112 @@ Editor::MessageReceived(BMessage* message)
 		}
 		case MSG_BOOKMARK_CLEAR_ALL:
 			BookmarkClearAll(sci_BOOKMARK);
-		break;
+			break;
 		case MSG_BOOKMARK_GOTO_NEXT:
 			if (!BookmarkGoToNext())
 				LogInfo("Next Bookmark not found");
-		break;
+			break;
 		case MSG_BOOKMARK_GOTO_PREVIOUS:
 			if (!BookmarkGoToPrevious())
 				LogInfo("Previous Bookmark not found");
-		break;
+			break;
 		case MSG_BOOKMARK_TOGGLE:
 			BookmarkToggle(GetCurrentPosition());
-		break;
+			break;
 		case MSG_EOL_CONVERT_TO_UNIX:
 			EndOfLineConvert(SC_EOL_LF);
-		break;
+			break;
 		case MSG_EOL_CONVERT_TO_DOS:
 			EndOfLineConvert(SC_EOL_CRLF);
-		break;
+			break;
 		case MSG_EOL_CONVERT_TO_MAC:
 			EndOfLineConvert(SC_EOL_CR);
-		break;
+			break;
 		case MSG_FILE_FOLD_TOGGLE:
 			ToggleFolding();
-		break;
-		case GTLW_GO: {
+			break;
+		case GTLW_GO:
+		{
 			int32 line;
 			if(message->FindInt32("line", &line) == B_OK) {
 				GoToLine(line);
 			}
+			break;
 		}
-		break;
 		case MSG_DUPLICATE_LINE:
 			DuplicateCurrentLine();
-		break;
+			break;
 		case MSG_DELETE_LINES:
 			DeleteSelectedLines();
-		break;
+			break;
 		case MSG_COMMENT_SELECTED_LINES:
 			CommentSelectedLines();
-		break;
+			break;
 		case MSG_FILE_TRIM_TRAILING_SPACE:
 			TrimTrailingWhitespace();
-		break;
+			break;
 		case MSG_AUTOCOMPLETION:
 			Completion();
-		break;
+			break;
 		case MSG_FORMAT:
 			Format();
-		break;
+			break;
 		case MSG_GOTODEFINITION:
 			GoToDefinition();
-		break;
+			break;
 		case MSG_GOTODECLARATION:
 			GoToDeclaration();
-		break;
+			break;
 		case MSG_GOTOIMPLEMENTATION:
 			GoToImplementation();
-		break;
+			break;
+		case MSG_RENAME:
+			Rename();
+			break;
 		case MSG_SWITCHSOURCE:
 			SwitchSourceHeader();
-		break;
+			break;
 		case MSG_TEXT_OVERWRITE:
 			OverwriteToggle();
-		break;
+			break;
 		case MSG_SET_LANGUAGE:
 			SetFileType(std::string(message->GetString("lang", "")));
 			ApplySettings();
 			//NOTE (TODO?) we are not changing any LSP configuration!
-		break;
-		case kApplyFix: {
+			break;
+		case kApplyFix:
 			if (fLSPEditorWrapper)
 				fLSPEditorWrapper->ApplyFix(message);
+			break;
+		case kCallTipClick:
+		{
+			int32 position = message->GetInt32("position", 0);
+			if (position == 1)
+				fLSPEditorWrapper->PrevCallTip();
+			else
+				fLSPEditorWrapper->NextCallTip();
+			break;
 		}
-		break;
+		case MSG_COLLAPSE_SYMBOL_NODE:
+		{
+			BString symbol;
+			message->FindString("name", &symbol);
+			int32 kind;
+			message->FindInt32("kind", &kind);
+			bool collapsed;
+			message->FindBool("collapsed", &collapsed);
+			if (collapsed) {
+				fCollapsedSymbols.insert(std::make_pair(symbol.String(), kind));
+			} else
+				fCollapsedSymbols.erase(std::make_pair(symbol.String(), kind));
+			break;
+		}
 		default:
 			BScintillaView::MessageReceived(message);
-		break;
+			break;
 	}
 }
+
 
 void
 Editor::ApplySettings()
@@ -317,9 +361,14 @@ Editor::ApplySettings()
 	ShowWhiteSpaces(gCFG["show_white_space"]);
 	ShowLineEndings(gCFG["show_line_endings"]);
 
-	SendMessage(SCI_SETTABWIDTH, (int) gCFG["tab_width"], 0);
-	SendMessage(SCI_SETUSETABS, !(bool)gCFG["tab_to_space"], 0);
-	// FIXME: understand fEditor->SendMessage(SCI_SETINDENT, 0, 0);
+	// editorconfig
+	SendMessage(SCI_SETUSETABS, fEditorConfig.IndentStyle==IndentStyle::Tab, 0);
+	SendMessage(SCI_SETTABWIDTH, fEditorConfig.IndentSize, 0);
+	SendMessage(SCI_SETINDENT, 0, 0);
+	if (fEditorConfig.TrimTrailingWhitespace)
+		TrimTrailingWhitespace();
+	EndOfLineConvert(fEditorConfig.EndOfLine);
+
 	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), 0);
 	SendMessage(SCI_SETCARETLINEVISIBLEALWAYS, true, 0);
 	// TODO add settings: SendMessage(SCI_SETCARETLINEFRAME, fPreferences->fLineHighlightingMode ? 2
@@ -360,6 +409,14 @@ Editor::ApplySettings()
 
 	// custom ContextMenu!
 	SendMessage(SCI_USEPOPUP, SC_POPUP_NEVER, 0);
+
+	UpdateStatusBar();
+}
+
+void
+Editor::ApplyEdit(std::string info)
+{
+	fLSPEditorWrapper->ApplyEdit(info);
 }
 
 void
@@ -412,22 +469,25 @@ Editor::BookmarkToggle(int position)
 void
 Editor::TrimTrailingWhitespace()
 {
-	Sci::Guard<SearchTarget, SearchFlags> guard(this);
+	if ((gCFG["ignore_editorconfig"] && gCFG["trim_trailing_whitespace"])
+		|| fEditorConfig.TrimTrailingWhitespace) {
+		Sci::Guard<SearchTarget, SearchFlags> guard(this);
 
-	Sci_Position length = SendMessage(SCI_GETLENGTH, 0, 0);
-	Set<SearchTarget>({0, length});
-	Set<SearchFlags>(SCFIND_REGEXP | SCFIND_CXX11REGEX);
+		Sci_Position length = SendMessage(SCI_GETLENGTH, 0, 0);
+		Set<SearchTarget>({0, length});
+		Set<SearchFlags>(SCFIND_REGEXP | SCFIND_CXX11REGEX);
 
-	Sci::UndoAction action(this);
-	const std::string whitespace = "\\s+$";
-	int result;
-	do {
-		result = SendMessage(SCI_SEARCHINTARGET, whitespace.size(), (sptr_t)whitespace.c_str());
-		if (result != -1) {
-			SendMessage(SCI_REPLACETARGET, -1, (sptr_t)"");
-			Set<SearchTarget>({Get<SearchTargetEnd>(), length});
-		}
-	} while(result != -1);
+		Sci::UndoAction action(this);
+		const std::string whitespace = "\\s+$";
+		int result;
+		do {
+			result = SendMessage(SCI_SEARCHINTARGET, whitespace.size(), (sptr_t)whitespace.c_str());
+			if (result != -1) {
+				SendMessage(SCI_REPLACETARGET, -1, (sptr_t)"");
+				Set<SearchTarget>({Get<SearchTargetEnd>(), length});
+			}
+		} while(result != -1);
+	}
 }
 
 
@@ -748,6 +808,74 @@ Editor::IsTextSelected()
 }
 
 
+void
+Editor::LoadEditorConfig()
+{
+	fEditorConfig.EndOfLine = EndOfLine();
+	fEditorConfig.IndentStyle = (bool)gCFG["tab_to_space"] ? IndentStyle::Space : IndentStyle::Tab;
+	fEditorConfig.IndentSize = (int)gCFG["tab_width"];
+	fEditorConfig.TrimTrailingWhitespace = (bool)gCFG["trim_trailing_whitespace"];
+	fHasEditorConfig = false;
+
+	if (!(bool)gCFG["ignore_editorconfig"]) {
+		// start parsing
+		// Ignore full path error, whose error code is EDITORCONFIG_PARSE_NOT_FULL_PATH
+		editorconfig_handle handle = editorconfig_handle_init();
+		int errNum;
+		if ((errNum = editorconfig_parse(FilePath().String(), handle)) != 0 &&
+				errNum != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
+			editorconfig_handle_destroy(handle);
+			LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(errNum));
+			fHasEditorConfig = false;
+		} else {
+			fHasEditorConfig = true;
+
+			int32 nameValueCount = editorconfig_handle_get_name_value_count(handle);
+
+			/* get settings */
+			// Defaults. TODO: This avoids the compiler error
+			// but maybe the code should be refactored
+			int32 tabWidth = 4;
+			for (int32 i = 0; i < nameValueCount; ++i) {
+				const char* name;
+				const char* value;
+				editorconfig_handle_get_name_value(handle, i, &name, &value);
+
+				if (!strcmp(name, "indent_style")) {
+					fEditorConfig.IndentStyle = !strcmp(value, "space") ? IndentStyle::Space : IndentStyle::Tab;
+				} else if (!strcmp(name, "tab_width")) {
+					if (strcmp(value, "undefine"))
+						tabWidth = atoi(value);
+				} else if (!strcmp(name, "indent_size")) {
+					if (strcmp(value, "undefine")) {
+						int valueInt = atoi(value);
+						if (!strcmp(value, "tab"))
+							fEditorConfig.IndentSize = tabWidth;
+						else if (valueInt > 0)
+							fEditorConfig.IndentSize = valueInt;
+					}
+				} else if (!strcmp(name, "end_of_line")) {
+					if (strcmp(value, "undefine")) {
+						if (!strcmp(value, "lf"))
+							fEditorConfig.EndOfLine = SC_EOL_LF;
+						else if (!strcmp(value, "cr"))
+							fEditorConfig.EndOfLine = SC_EOL_CR;
+						else if (!strcmp(value, "crlf"))
+							fEditorConfig.EndOfLine = SC_EOL_CRLF;
+					}
+				} else if (!strcmp(name, "trim_trailing_whitespace")) {
+					if (strcmp(value, "undefine"))
+						fEditorConfig.TrimTrailingWhitespace = !strcmp(value, "true") ? true : false;
+				} else if (!strcmp(name, "insert_final_newline"))
+					fEditorConfig.InsertFinalNewline = !strcmp(value, "true") ? true : false;
+			}
+
+			editorconfig_handle_destroy(handle);
+		}
+	}
+}
+
+
 /*
  * Code (editable) taken from stylededit
  */
@@ -840,6 +968,7 @@ Editor::NotificationReceived(SCNotification* notification)
 			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT)
 				fLSPEditorWrapper->CharAdded(notification->ch);
 			break;
+
 		}
 		case SCN_MARGINCLICK: {
 			if (notification->margin == sci_BOOKMARK_MARGIN)
@@ -861,12 +990,14 @@ Editor::NotificationReceived(SCNotification* notification)
 		case SCN_MODIFIED: {
 			if (notification->modificationType & SC_MOD_INSERTTEXT) {
 				fLSPEditorWrapper->didChange(notification->text, notification->length, notification->position, 0);
+				EvaluateIdleTime();
 			}
 			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
 				fLSPEditorWrapper->didChange("", 0, notification->position, notification->length);
 			}
 			if (notification->modificationType & SC_MOD_DELETETEXT) {
 					fLSPEditorWrapper->CharAdded(0);
+					EvaluateIdleTime();
 			}
 			if (notification->linesAdded != 0)
 				if (gCFG["show_linenumber"])
@@ -874,12 +1005,8 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_CALLTIPCLICK: {
-			//fLSPEditorWrapper->UpdateCallTip(key == B_UP_ARROW ? 1 : 2);
-			if (notification->position == 1)
-				fLSPEditorWrapper->NextCallTip();
-			else
-				fLSPEditorWrapper->PrevCallTip();
-			break;
+			GMessage click = {{"what",kCallTipClick},{"position", (int32)notification->position}};
+			Looper()->PostMessage(&click, this);
 		}
 		case SCN_DWELLSTART: {
 			fLSPEditorWrapper->StartHover(notification->position);
@@ -948,7 +1075,7 @@ filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
-		if (key == B_UP_ARROW)
+		if (key == B_DOWN_ARROW)
 			fLSPEditorWrapper->NextCallTip();
 		else
 			fLSPEditorWrapper->PrevCallTip();
@@ -1242,6 +1369,19 @@ Editor::Selection()
 }
 
 
+const BString
+Editor::GetSymbol()
+{
+	int32 position = SendMessage(SCI_GETCURRENTPOS);
+	int32 start = SendMessage(SCI_WORDSTARTPOSITION, position);
+	int32 end = SendMessage(SCI_WORDENDPOSITION, position);
+	int32 size = end - start;
+	char text[size];
+	GetText(start, size, text);
+	return text;
+}
+
+
 // it sends Selection/Position changes.
 void
 Editor::SendPositionChanges()
@@ -1272,6 +1412,10 @@ Editor::UpdateStatusBar()
 	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
 	update.AddString("readOnly", ModeString());
 	update.AddString("eol", _EndOfLineString());
+	update.AddString("editorconfig", fHasEditorConfig ? "\xF0\x9F\x97\x8E" : "\xF0\x9F\x8C\x90");
+	update.AddString("trim_trialing_whitespace", fEditorConfig.TrimTrailingWhitespace ? "TRIM" : "NOTRIM");
+	update.AddString("indent_style", fEditorConfig.IndentStyle == IndentStyle::Tab ? "TAB" : "SPACE");
+	update.AddInt32("indent_size", fEditorConfig.IndentSize);
 
 	fStatusView->SetStatus(&update);
 }
@@ -1481,6 +1625,26 @@ Editor::GoToImplementation()
 	fLSPEditorWrapper->GoTo(LSPEditorWrapper::GOTO_IMPLEMENTATION);
 }
 
+void
+Editor::Rename()
+{
+	// Getting the symbol from the language server would require many async steps.
+	// We instead ask Scintilla to deliver it which should be almost if not entirely accurate
+
+	// remove invalid leading characters
+	const std::string symbol = GetSymbol().String();
+	const std::regex leadingChars("^\\W+");
+	std::string str = std::regex_replace(symbol, leadingChars, "");
+
+	BString label(B_TRANSLATE("Rename symbol '%symbol_name%':"));
+	label.ReplaceFirst("%symbol_name%", str.c_str());
+
+	auto alert = new GTextAlert(B_TRANSLATE("Rename"), label, str.c_str());
+	auto result = alert->Go();
+	if (result.Button == GAlertButtons::OkButton)
+		fLSPEditorWrapper->Rename(result.Result.String());
+}
+
 
 void
 Editor::SwitchSourceHeader()
@@ -1508,8 +1672,9 @@ Editor::SetProjectFolder(ProjectFolder* proj)
 	else
 		fLSPEditorWrapper->UnsetLSPServer();
 
-	BMessage empty;
-	SetProblems(&empty);
+	// BMessage empty;
+	// SetProblems(&empty);
+	SetProblems();
 }
 
 
@@ -1532,6 +1697,10 @@ void
 Editor::_ApplyExtensionSettings()
 {
 	BFont font = be_fixed_font;
+	BString fontFamily = gCFG["edit_fontfamily"];
+	if (!fontFamily.IsEmpty()){
+		font.SetFamilyAndStyle(fontFamily, nullptr);
+	}
 	int32 fontSize = gCFG["edit_fontsize"];
 	if (fontSize > 0)
 		font.SetSize(fontSize);
@@ -1803,10 +1972,12 @@ Editor::_SetFoldMargin(bool enabled)
 
 
 void
-Editor::SetProblems(const BMessage* diagnostics)
+Editor::SetProblems()
 {
-	BAutolock lock(fProblemsLock);
-	fProblems = *diagnostics;
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
 	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
 	fProblems.AddRef("ref", &fFileRef);
 	Window()->PostMessage(&fProblems);
@@ -1814,8 +1985,80 @@ Editor::SetProblems(const BMessage* diagnostics)
 
 
 void
-Editor::GetProblems(BMessage* diagnostics)
+Editor::SetDocumentSymbols(const BMessage* symbols)
 {
-	BAutolock lock(fProblemsLock);
-	*diagnostics = fProblems;
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
+	if (symbols->HasMessage("symbol"))
+		fSymbolsStatus = STATUS_HAS_SYMBOLS;
+	else
+		fSymbolsStatus = STATUS_NO_SYMBOLS;
+
+	fDocumentSymbols = *symbols;
+	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
+	fDocumentSymbols.AddRef("ref", &fFileRef);
+	fDocumentSymbols.AddInt32("status", fSymbolsStatus);
+
+	std::set<std::pair<std::string, int32> >::const_iterator iterator;
+	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {
+		fDocumentSymbols.AddString("collapsed_name", iterator->first.c_str());
+		fDocumentSymbols.AddInt32("collapsed_kind", iterator->second);
+	}
+	Window()->PostMessage(&fDocumentSymbols);
+}
+
+
+void
+Editor::GetDocumentSymbols(BMessage* symbols) const
+{
+	// make absolutely sure we're locked
+	if (!Window()->IsLocked()) {
+		debugger("The looper must be locked !");
+	}
+
+	*symbols = fDocumentSymbols;
+
+	if (!symbols->HasRef("ref")) {
+		// Always add ref so we can identify the file (in FunctionsOutlineView)
+		symbols->AddRef("ref", &fFileRef);
+	}
+
+	if (!symbols->HasInt32("status"))
+		symbols->AddInt32("status", fSymbolsStatus);
+
+	// TODO: Refactor:
+	// we should add the "collapsed" property to the symbol, so that
+	// we can do a single pass in the Outline view
+	symbols->RemoveName("collapsed_name");
+	symbols->RemoveName("collapsed_kind");
+	std::set<std::pair<std::string, int32> >::const_iterator iterator;
+	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {
+		symbols->AddString("collapsed_name", iterator->first.c_str());
+		symbols->AddInt32("collapsed_kind", iterator->second);
+	}
+}
+
+void
+Editor::EvaluateIdleTime()
+{
+	if (fIdleHandler == nullptr || fIdleHandler->SetInterval(kIdleTimeout) != B_OK) {
+		LogInfo("EvaluateIdleTime: Re-arming IdleHandler...");
+		if (fIdleHandler != nullptr)
+			delete fIdleHandler;
+
+		// create a message to update the project
+		BMessage message(kIdle);
+		fIdleHandler = new BMessageRunner(BMessenger(this), &message, kIdleTimeout, 1);
+		if (fIdleHandler->InitCheck() != B_OK) {
+			LogInfo("EvaluateIdleTime: Could not create fIdleHandler. Deleting it");
+			if (fIdleHandler != nullptr) {
+				delete fIdleHandler;
+				fIdleHandler = nullptr;
+			}
+		} else {
+			LogInfo("EvaluateIdleTime: fIdleHandler re-armed.");
+		}
+	}
 }

@@ -1,5 +1,4 @@
 ## Genio - The Haiku IDE Makefile ##############################################
-
 debug ?= 0
 ifeq ($(debug), 0)
 	DEBUGGER :=
@@ -31,6 +30,9 @@ TYPE := APP
 
 APP_MIME_SIG := "application/x-vnd.Genio"
 
+arch := $(shell getarch)
+platform := $(shell uname -p)
+
 SRCS := src/GenioApp.cpp
 SRCS += src/alert/GTextAlert.cpp
 SRCS += src/config/ConfigManager.cpp
@@ -54,6 +56,7 @@ SRCS += src/helpers/mterm/MTermView.cpp
 SRCS += src/helpers/tabview/TabContainerView.cpp
 SRCS += src/helpers/tabview/TabManager.cpp
 SRCS += src/helpers/tabview/TabView.cpp
+SRCS += src/helpers/tabview/CircleColorMenuItem.cpp
 SRCS += src/helpers/Languages.cpp
 SRCS += src/helpers/Styler.cpp
 SRCS += src/lsp-client/LSPEditorWrapper.cpp
@@ -78,11 +81,12 @@ SRCS += src/ui/EditorStatusView.cpp
 SRCS += src/ui/Editor.cpp
 SRCS += src/ui/EditorContextMenu.cpp
 SRCS += src/ui/EditorTabManager.cpp
+SRCS += src/ui/FunctionsOutlineView.cpp
 SRCS += src/ui/GenioWindow.cpp
 SRCS += src/ui/GoToLineWindow.cpp
 SRCS += src/ui/IconCache.cpp
 SRCS += src/ui/ProblemsPanel.cpp
-SRCS += src/ui/ProjectsFolderBrowser.cpp
+SRCS += src/ui/ProjectBrowser.cpp
 SRCS += src/ui/SearchResultPanel.cpp
 SRCS += src/ui/StyledItem.cpp
 SRCS += src/ui/ToolBar.cpp
@@ -99,14 +103,15 @@ LIBS += columnlistview tracker
 LIBS += git2
 LIBS += src/scintilla/bin/libscintilla.a
 LIBS += yaml-cpp
+LIBS += editorconfig
 
-SYSTEM_INCLUDE_PATHS  = $(BUILDHOME)/headers/private/interface
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/shared
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/storage
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/support
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/tracker
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/private/locale
-SYSTEM_INCLUDE_PATHS += $(BUILDHOME)/headers/lexilla
+SYSTEM_INCLUDE_PATHS  = $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/shared)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/storage)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/support)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/tracker)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/locale)
+SYSTEM_INCLUDE_PATHS += $(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY lexilla)
 SYSTEM_INCLUDE_PATHS += src/scintilla/haiku
 SYSTEM_INCLUDE_PATHS += src/scintilla/include
 

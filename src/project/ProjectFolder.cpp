@@ -175,7 +175,7 @@ ProjectFolder::LoadSettings()
 
 	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
-	status_t status = fSettings->LoadFromFile(path.Path(), BPath(Path()));
+	status_t status = fSettings->LoadFromFile({ path.Path(), BPath(Path()) });
 	if (status != B_OK) {
 		// Try to load old style settings
 		status = _LoadOldSettings();
@@ -195,7 +195,7 @@ ProjectFolder::SaveSettings()
 
 	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
-	status_t status = fSettings->SaveToFile(path.Path(), BPath(Path()));
+	status_t status = fSettings->SaveToFile({ path.Path(), BPath(Path()) });
 	if (status != B_OK) {
 		LogErrorF("Cannot save settings: %s", ::strerror(status));
 	}
@@ -365,27 +365,35 @@ ProjectFolder::_PrepareSettings()
 	fSettings->AddConfig("General", "color",
 		B_TRANSLATE("Color:"), color, nullptr, kStorageTypeAttribute);
 
-	fSettings->AddConfig("Build", "build_mode",
+	BString build(B_TRANSLATE("Build"));
+	fSettings->AddConfig(build, "build_mode",
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);
 
-	fSettings->AddConfig("Build/Release", "project_release_build_command",
-		B_TRANSLATE("Release build command:"), "");
-	fSettings->AddConfig("Build/Release", "project_release_clean_command",
-		B_TRANSLATE("Release clean command:"), "");
-	fSettings->AddConfig("Build/Release", "project_release_execute_args",
-		B_TRANSLATE("Release execute args:"), "");
-	fSettings->AddConfig("Build/Release", "project_release_target",
-		B_TRANSLATE("Release target:"), "");
-	fSettings->AddConfig("Build/Debug", "project_debug_build_command",
-		B_TRANSLATE("Debug build command:"), "");
-	fSettings->AddConfig("Build/Debug", "project_debug_clean_command",
-		B_TRANSLATE("Debug clean command:"), "");
-	fSettings->AddConfig("Build/Debug", "project_debug_execute_args",
-		B_TRANSLATE("Debug execute args:"), "");
-	fSettings->AddConfig("Build/Debug", "project_debug_target",
-		B_TRANSLATE("Debug target:"), "");
+	BString release(B_TRANSLATE("Release"));
+	BString buildRelease(build);
+	buildRelease.Append("/").Append(release);
+	fSettings->AddConfig(buildRelease, "project_release_build_command",
+		B_TRANSLATE("Build command:"), "");
+	fSettings->AddConfig(buildRelease, "project_release_clean_command",
+		B_TRANSLATE("Clean command:"), "");
+	fSettings->AddConfig(buildRelease, "project_release_execute_args",
+		B_TRANSLATE("Execute args:"), "");
+	fSettings->AddConfig(buildRelease, "project_release_target",
+		B_TRANSLATE("Target:"), "");
 
-	fSettings->AddConfig("Run", "project_run_in_terminal",
+	BString debug("Debug");
+	BString buildDebug(build);
+	buildDebug.Append("/").Append(debug);
+	fSettings->AddConfig(buildDebug, "project_debug_build_command",
+		B_TRANSLATE("Build command:"), "");
+	fSettings->AddConfig(buildDebug, "project_debug_clean_command",
+		B_TRANSLATE("Clean command:"), "");
+	fSettings->AddConfig(buildDebug, "project_debug_execute_args",
+		B_TRANSLATE("Execute args:"), "");
+	fSettings->AddConfig(buildDebug, "project_debug_target",
+		B_TRANSLATE("Target:"), "");
+
+	fSettings->AddConfig(B_TRANSLATE("Run"), "project_run_in_terminal",
 		B_TRANSLATE("Run in terminal"), false);
 }
 

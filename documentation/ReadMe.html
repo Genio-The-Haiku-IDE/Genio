@@ -28,7 +28,7 @@
 
 <img src="./images/genio_logo.png" style="border:none;padding-right:15px;float:left" alt="Big Genio icon" />
 
-<p>Genio is an Integrated Development Environment (IDE) for Haiku. It's using Scintilla for its advanced editing features, like syntax highlighting and folding code blocks. Clang is used to provide real time analysis to warn about problems, provide solutions in a tooltip, code completion and more.</p>
+<p>Genio is an Integrated Development Environment (IDE) for Haiku. It's using Scintilla for its advanced editing features, like syntax highlighting and folding code blocks. Clang's LSP is used to provide real time analysis to warn about problems, provide solutions in a tooltip, code completion and more. Optionally Genio respects formatting with <a href="https://editorconfig.org/">EditorConfig</a>.</p>
 
 <p>Most of Genio's features are easily discovered and don't need an explanation.<br />
 If you have questions or issues that should be added to the documentation, please use <a href="https://github.com/Genio-The-Haiku-IDE/Genio/discussions">Genio's Discussions forum</a>.</p>
@@ -37,7 +37,7 @@ If you have questions or issues that should be added to the documentation, pleas
 
 <h1>Quick start</h1>
 
-<p>For orientation, let's start with a quick overview of Genio's main window, with its <span class="menu">Projects</span> pane to the left (1), <span class="menu">Output</span> pane at the bottom (2), the <span class="menu">Editor</span> view at the right (3), and <span class="menu">Menu and Tool bar</span> at the top (4).</p>
+<p>For orientation, let's start with a quick overview of Genio's main window, with its <span class="menu">Projects</span> pane to the left (1), <span class="menu">Output</span> pane at the bottom (2), the <span class="menu">Outline</span> pane at the right (3), the <span class="menu">Editor</span> view in the middle (4), and <span class="menu">Menu and Toolbar</span> at the top (5).</p>
 
 <p style="text-align:center"><img src="./images/main_window.png" style="border:none" alt="Genio's main window" /></p>
 
@@ -80,13 +80,15 @@ A file dialog will open to browse to the location where you want to save your pr
 <p style="clear:left"></p>
 
 
-<h2><a id="project-settings" name="project-settings">Project settings</a></h2>
+<h2><a id="settings-project" name="settings-project">Project settings</a></h2>
 
 <p>To be able to build your project, you need to open the <span class="menu">Project|Project settings…</span>.</p>
 
-<p style="text-align:center"><img src="./images/project_settings.png" style="border:none;padding:15px" alt="Project settings" /></p>
+<p style="text-align:center"><img src="./images/project-settings-build_release.png" style="border:none;padding:15px" alt="Project settings: Release build" /></p>
 
-<p>Here you specify the correct commands to build in release or debug mode, depending on your build system. Genio recognizes "Make" and "Jam" build systems and tries to provide working commands, but you may want to tweak things a bit.</p>
+<p>Here you specify the correct commands to build your project and where to find the executable (the "<span class="menu">Target</span>") when it was successful. The commands to use depend on your build system. Genio recognizes "Make" and "Jam" build systems and tries to provide working commands, but you may want to tweak things a bit.</p>
+
+<p>For more details, please refer to <a href="settings-project.html">Project settings</a>.</p>
 
 <hr />
 <a href="editor.html" style="border:none;float:right">Next: Editor</a>

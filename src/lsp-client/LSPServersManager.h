@@ -9,6 +9,7 @@
 #include <SupportDefs.h>
 #include <string>
 #include <vector>
+#include <Entry.h>
 
 class LSPProjectWrapper;
 class LSPTextDocument;
@@ -25,6 +26,7 @@ public:
 
 protected:
 	std::vector<const char*>	fArgv;
+	int32 fOffset;
 };
 
 class LSPServersManager {
@@ -33,6 +35,7 @@ public:
 		static LSPProjectWrapper*	CreateLSPProject(const BPath& path, const BMessenger& msgr, const BString& fileType);
 		static status_t				DisposeLSPServersConfig();
 private:
+		static bool _AddValidConfig(LSPServerConfigInterface*);
 		static std::vector<LSPServerConfigInterface*>	fConfigs;
 };
 

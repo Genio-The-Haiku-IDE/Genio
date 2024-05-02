@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "ConfigManager.h"
+#include "OptionPopUpString.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ConfigWindow"
@@ -139,15 +140,15 @@ rgb_color GControl<BColorControl, rgb_color>::RetrieveValue()
 
 
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
-    : BWindow(BRect(100, 100, 700, 500), B_TRANSLATE("Settings"), B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
+    : BWindow(BRect(), B_TRANSLATE("Settings"), B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
               B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
       fConfigManager(configManager)
 {
 	fShowHidden = modifiers() & B_COMMAND_KEY;
 
-	CenterOnScreen();
 	SetLayout(new BGroupLayout(B_HORIZONTAL));
 	AddChild(_Init());
+	CenterOnScreen();
 }
 
 
@@ -206,7 +207,7 @@ ConfigWindow::QuitRequested()
 	if (CurrentFocus() != nullptr &&
 	    CurrentFocus()->Parent() != nullptr) {
 		BTextControl* control = dynamic_cast<BTextControl*>(CurrentFocus()->Parent());
-		if (control != nullptr) {
+		if (control != nullptr && fConfigManager.Configuration().Has(control->Name())) {
 			// let's avoid code duplications on how to invoke a config change.
 			// and let's do it syncronous to avoid messing up with the quit workflow!
 			GMessage msg = { {"what", kOnNewValue}, {"key", control->Name()}};
@@ -379,7 +380,7 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		{
 			if (config.Has("mode")) {
 				if (BString((const char*)config["mode"]).Compare("options") == 0){
-					return _CreatePopUp<int32>(config);
+					return _CreatePopUp<int32, BOptionPopUp>(config);
 				}
 			} else {
 				BSpinner* sp = new GControl<BSpinner, int32>(config, fConfigManager[config["key"]], fConfigManager);
@@ -394,8 +395,8 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		case B_STRING_TYPE:
 		{
 			if (config.Has("mode")) {
-				if (BString((const char*)config["mode"]).Compare("options") == 0){
-					return _CreatePopUp<const char*>(config);
+				if (BString((const char*)config["mode"]).Compare("options") == 0) {
+					return _CreatePopUp<const char*, OptionPopUpString>(config);
 				}
 			} else {
 				GControl<BTextControl, const char*>* control = new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]], fConfigManager);
@@ -422,18 +423,18 @@ ConfigWindow::MakeControlFor(GMessage& config)
 }
 
 
-template<typename T>
+template<typename T, typename POPUP>
 BOptionPopUp*
 ConfigWindow::_CreatePopUp(GMessage& config)
 {
-	auto popUp = new GControl<BOptionPopUp, T>(config, fConfigManager[config["key"]], fConfigManager);
+	auto popUp = new GControl<POPUP, T>(config, fConfigManager[config["key"]], fConfigManager);
 	int32 c = 1;
 	while (true) {
 		BString key("option_");
 		key << c;
 		if (!config.Has(key.String()))
 			break;
-		popUp->AddOption(config[key.String()]["label"], config[key.String()]["value"]);
+		popUp->AddOption(config[key.String()]["label"], (T)config[key.String()]["value"]);
 		c++;
 	}
 	popUp->LoadValue(fConfigManager[config["key"]]);

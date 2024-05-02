@@ -1,5 +1,6 @@
 /*
  * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ * Copyright 2024, Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -7,9 +8,10 @@
 
 #include <Application.h>
 #include <Path.h>
-#include <Window.h>
 #include <Catalog.h>
+#include <Window.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <debugger.h>
 #include <unistd.h>
@@ -80,11 +82,13 @@ LSPEditorWrapper::HasLSPServer()
 	return (fLSPProjectWrapper != nullptr);
 }
 
+
 bool
 LSPEditorWrapper::HasLSPServerCapability(const LSPCapability cap)
 {
 	return (HasLSPServer() && fLSPProjectWrapper->HasCapability(cap));
 }
+
 
 void
 LSPEditorWrapper::ApplyFix(BMessage* info)
@@ -96,10 +100,11 @@ LSPEditorWrapper::ApplyFix(BMessage* info)
 		return;
 
 	int32 diaIndex = info->GetInt32("index", -1);
+	int32 actIndex = info->GetInt32("action", -1);
 	if (diaIndex >= 0 && fLastDiagnostics.size() > (size_t)diaIndex) {
 		//how are we sure the fix list is syncronized? (TODO: how?)
 		std::map<std::string, std::vector<TextEdit>> map =
-			fLastDiagnostics.at(diaIndex).diagnostic.codeActions.value()[0].edit.value().changes.value();
+			fLastDiagnostics.at(diaIndex).diagnostic.codeActions.value()[actIndex].edit.value().changes.value();
 		for (auto& ed : map){
 			if (GetFilenameURI().ICompare(ed.first.c_str()) == 0) {
 				for (TextEdit& te : ed.second) {
@@ -108,6 +113,22 @@ LSPEditorWrapper::ApplyFix(BMessage* info)
 			}
 		}
 	}
+}
+
+
+void
+LSPEditorWrapper::ApplyEdit(std::string info)
+{
+	if (!HasLSPServer())
+		return;
+
+	auto items = nlohmann::json::parse(info);
+	fEditor->SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+
+	for (nlohmann::json::reverse_iterator it = items.rbegin(); it != items.rend(); ++it) {
+		ApplyTextEdit((*it));
+	}
+	fEditor->SendMessage(SCI_ENDUNDOACTION, 0, 0);
 }
 
 
@@ -126,11 +147,13 @@ LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 	}
 }
 
+
 bool
 LSPEditorWrapper::IsInitialized()
 {
 	return (fInitialized && fLSPProjectWrapper != nullptr);
 }
+
 
 void
 LSPEditorWrapper::didOpen()
@@ -151,7 +174,6 @@ LSPEditorWrapper::didClose()
 	if (!IsInitialized())
 		return;
 
-
 	if (fEditor) {
 		_RemoveAllDiagnostics();
 		_RemoveAllDocumentLinks();
@@ -167,7 +189,7 @@ LSPEditorWrapper::didSave()
 	if (!IsInitialized())
 		return;
 
-
+	flushChanges();
 	fLSPProjectWrapper->DidSave(this);
 }
 
@@ -189,9 +211,17 @@ LSPEditorWrapper::didChange(
 	event.range = range;
 	event.text.assign(text, len);
 
-	std::vector<TextDocumentContentChangeEvent> changes{event};
+	fChanges.push_back(event);
+}
 
-	fLSPProjectWrapper->DidChange(this, changes, false);
+
+void
+LSPEditorWrapper::flushChanges()
+{
+	if (fChanges.size() > 0) {
+		fLSPProjectWrapper->DidChange(this, fChanges, false);
+		fChanges.clear();
+	}
 }
 
 
@@ -204,6 +234,21 @@ LSPEditorWrapper::_DoFormat(json& params)
 		ApplyTextEdit((*it));
 	}
 	fEditor->SendMessage(SCI_ENDUNDOACTION, 0, 0);
+}
+
+
+void
+LSPEditorWrapper::_DoRename(json& params)
+{
+	BMessage bjson;
+	for (auto& [uri, edits] : params["changes"].items()) {
+		for (auto& e: edits) {
+			auto edit = e.get<TextEdit>();
+			edit.range.start.line += 1;
+			edit.range.end.line += 1;
+		}
+		OpenFileURI(uri, -1, -1, edits.dump().c_str());
+	}
 }
 
 
@@ -251,6 +296,18 @@ LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 
 
 void
+LSPEditorWrapper::Rename(std::string newName)
+{
+	if (!IsInitialized()|| !fEditor || !IsStatusValid())
+		return;
+
+	Position position;
+	GetCurrentLSPPosition(&position);
+	fLSPProjectWrapper->Rename(this, position, newName);
+}
+
+
+void
 LSPEditorWrapper::StartHover(Sci_Position sci_position)
 {
 	if (!IsInitialized() || sci_position < 0 || !IsStatusValid()) {
@@ -268,6 +325,7 @@ LSPEditorWrapper::StartHover(Sci_Position sci_position)
 	fLSPProjectWrapper->Hover(this, position);
 }
 
+
 int32
 LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnostic& dia)
 {
@@ -275,10 +333,25 @@ LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnosti
 	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_DIAG, sci_position) == 1) {
 		for (auto& ir : fLastDiagnostics) {
 			index++;
-			if (sci_position > ir.range.from && sci_position <= ir.range.to) {
+			if (sci_position >= ir.range.from && sci_position < ir.range.to) {
 				dia = ir;
 				return index;
 			}
+		}
+	}
+	return -1;
+}
+
+
+int32
+LSPEditorWrapper::DiagnosticFromRange(Range& range, LSPDiagnostic& dia)
+{
+	int32 index = -1;
+	for (auto& ir : fLastDiagnostics) {
+		index++;
+		if (ir.diagnostic.range == range) {
+			dia = ir;
+			return index;
 		}
 	}
 	return index;
@@ -394,17 +467,30 @@ LSPEditorWrapper::StartCompletion()
 	fLSPProjectWrapper->Completion(this, position, context);
 }
 
+
 void
 LSPEditorWrapper::NextCallTip()
 {
 	fCallTip.NextCallTip();
 }
 
+
 void
 LSPEditorWrapper::PrevCallTip()
 {
 	fCallTip.PrevCallTip();
 }
+
+
+void
+LSPEditorWrapper::RequestDocumentSymbols()
+{
+	if (fLSPProjectWrapper == nullptr || fEditor == nullptr)
+		return;
+
+	fLSPProjectWrapper->DocumentSymbol(this);
+}
+
 
 void
 LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
@@ -425,6 +511,7 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 			if (fCallTip.IsVisible())
 				fCallTip.HideCallTip();
 
+			flushChanges();
 			StartCompletion();
 		}
 	}
@@ -433,6 +520,7 @@ LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 		CallTipAction action = fCallTip.UpdateCallTip(ch, ch == 0);
 		if (action == CALLTIP_NEWDATA) {
 
+			flushChanges();
 			Position lsp_position;
 			FromSciPositionToLSPPosition(fCallTip.Position(), &lsp_position);
 			fLSPProjectWrapper->SignatureHelp(this, lsp_position);
@@ -481,13 +569,18 @@ LSPEditorWrapper::_ShowToolTip(const char* text)
 void
 LSPEditorWrapper::_DoHover(nlohmann::json& result)
 {
-	if (result == nlohmann::detail::value_t::null) {
+	if (result == nlohmann::detail::value_t::null &&
+		!result["contents"].contains("value")) {
 		EndHover();
 		return;
 	}
 
 	std::string tip = result["contents"]["value"].get<std::string>();
 
+	if (tip.empty()) {
+		EndHover();
+		return;
+	}
 	_ShowToolTip(tip.c_str());
 }
 
@@ -496,12 +589,18 @@ void
 LSPEditorWrapper::_DoGoTo(nlohmann::json& items)
 {
 	if (!items.empty()) {
+		Location location;
+
 		// TODO if more than one match??
-		auto first = items[0];
-		std::string uri = first["uri"].get<std::string>();
+		// clangd sends an array of Locations while OmniSharp seems to conform to the standard
+		// and sends just one.
+		if (items.is_array())
+			location = items[0].get<Location>();
+		else
+			location = items.get<Location>();
 
-		Position pos = first["range"]["start"].get<Position>();
-
+		std::string uri = location.uri;
+		Position pos = location.range.start;
 		OpenFileURI(uri, pos.line + 1, pos.character);
 	}
 }
@@ -523,7 +622,6 @@ LSPEditorWrapper::_DoSwitchSourceHeader(json& result)
 	OpenFileURI(url);
 }
 
-#include <stdio.h>
 
 void
 LSPEditorWrapper::_DoCompletion(json& params)
@@ -551,9 +649,7 @@ LSPEditorWrapper::_DoCompletion(json& params)
 			FromSciPositionToLSPPosition(fCompletionPosition, &pos);
 			item.textEdit.range.end = pos;
 
-			//printf("Debug completion 0 [%s]\n", item.textEdit.newText.c_str());
-
-			//funcy algo to find insertText before current position.
+			// fancy algo to find insertText before current position.
 			if (position.character == -1) {
 				line = GetCurrentLine();
 				GetCurrentLSPPosition(&position);
@@ -601,7 +697,7 @@ LSPEditorWrapper::_RemoveAllDiagnostics()
 	fLastDiagnostics.clear();
 }
 
-#include "GMessage.h"
+
 void
 LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 {
@@ -609,8 +705,6 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 
 	_RemoveAllDiagnostics();
 
-	BMessage toJson('diag');
-	int32 index = 0;
 	for (auto& v : vect) {
 		LSPDiagnostic lspDiag;
 
@@ -625,35 +719,105 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 		LogTrace("Diagnostics [%ld->%ld] [%s]", ir.from, ir.to, ir.info.c_str());
 		fEditor->SendMessage(SCI_INDICATORFILLRANGE, ir.from, ir.to - ir.from);
 
-		GMessage dia;
-		dia["category"] = v.category.value().c_str();
-		dia["message"] = v.message.c_str();
-		dia["source"] = v.source.c_str();
-		dia["index"] = index++;
-		dia["be:line"] = v.range.start.line + 1;
-		dia["lsp:character"] = v.range.start.character;
-		dia["quickFix"] = false;
-		dia["title"] = B_TRANSLATE("No fix available");
-		if (v.codeActions.value().size() > 0) {
-			if (v.codeActions.value()[0].edit.has()){
-				dia["quickFix"] = true;
-				BString str(B_TRANSLATE("Fix: %fix_desc%"));
-				str.ReplaceAll("%fix_desc%", v.codeActions.value()[0].title.c_str());
-				dia["title"] = str.String();
-			}
+		// dia["be:line"] = v.range.start.line + 1;
+		// dia["lsp:character"] = v.range.start.character;
+
+		if (v.codeActions.value().size() == 0) {
+			// if the language serve does not support in-line code actions we request them
+			// asyncronously
+			// TODO: Check the capability
+			RequestCodeActions(v);
 		}
-		lspDiag.fixTitle = (const char*)dia["title"];
-		toJson.AddMessage("diagnostic", &dia);
+
 		fLastDiagnostics.push_back(lspDiag);
 	}
 
 	if (fEditor->LockLooper()) {
-		fEditor->SetProblems(&toJson);
+		fEditor->SetProblems();
 		fEditor->UnlockLooper();
 	}
 
-	if (fLSPProjectWrapper)
+	if (fLSPProjectWrapper) {
 		fLSPProjectWrapper->DocumentLink(this);
+		fLSPProjectWrapper->DocumentSymbol(this);
+	}
+}
+
+
+void
+LSPEditorWrapper::RequestCodeActions(Diagnostic& diagnostic)
+{
+	CodeActionContext context;
+	context.diagnostics.push_back(std::move(diagnostic));
+	fLSPProjectWrapper->CodeAction(this, diagnostic.range, context);
+}
+
+
+void
+LSPEditorWrapper::CodeActionResolve(value &params)
+{
+	fLSPProjectWrapper->CodeActionResolve(this, params);
+}
+
+
+void
+LSPEditorWrapper::_DoCodeActions(nlohmann::json& params)
+{
+	for (auto& v : params) {
+		CodeAction action;
+
+		action.kind = v["kind"].get<std::string>();
+		action.title = v["title"].get<std::string>();
+		auto data = v["data"];
+		action.data = data;
+
+		Range range;
+		range.start.character = data["Range"]["Start"]["Character"].get<int>();
+		range.start.line = data["Range"]["Start"]["Line"].get<int>();
+		range.end.character = data["Range"]["End"]["Character"].get<int>();
+		range.end.line = data["Range"]["End"]["Line"].get<int>();
+
+		for (auto& d: fLastDiagnostics) {
+			if (d.diagnostic.range == range) {
+				d.diagnostic.codeActions.value().push_back(action);
+				action.diagnostics.value().push_back(d.diagnostic);
+
+				if (v["edit"].empty())
+					CodeActionResolve(v);
+			}
+		}
+	}
+}
+
+
+void
+LSPEditorWrapper::_DoCodeActionResolve(nlohmann::json& params)
+{
+	CodeAction action;
+
+	action.kind = params["kind"].get<std::string>();
+	action.title = params["title"].get<std::string>();
+	action.edit = params["edit"].get<WorkspaceEdit>();
+	auto data = params["data"];
+	action.data = data;
+
+	Range range;
+	range.start.character = data["Range"]["Start"]["Character"].get<int>();
+	range.start.line = data["Range"]["Start"]["Line"].get<int>();
+	range.end.character = data["Range"]["End"]["Character"].get<int>();
+	range.end.line = data["Range"]["End"]["Line"].get<int>();
+
+	for (auto& d: fLastDiagnostics) {
+		if (d.diagnostic.range == range) {
+			for (auto& ca: d.diagnostic.codeActions.value()) {
+				auto caIdentifier = ca.data.value()["Identifier"].get<std::string>();
+				auto actionIdentifier = action.data.value()["Identifier"].get<std::string>();
+				if (caIdentifier == actionIdentifier) {
+					ca.edit = action.edit;
+				}
+			}
+		}
+	}
 }
 
 
@@ -666,12 +830,14 @@ LSPEditorWrapper::_RemoveAllDocumentLinks()
 	fLastDocumentLinks.clear();
 }
 
+
 void
 LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
 {
 	fInitialized = true;
 	didOpen();
 }
+
 
 void
 LSPEditorWrapper::_DoDocumentLink(nlohmann::json& result)
@@ -703,6 +869,58 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 }
 
 
+void
+LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
+{
+	BMessage msg(EDITOR_UPDATE_SYMBOLS);
+	if (params.is_array() && params.size() > 0) {
+		if (params[0]["location"].is_null()) {
+			auto vect = params.get<std::vector<DocumentSymbol>>();
+			_DoRecursiveDocumentSymbol(vect, msg);
+		} else {
+			auto vect = params.get<std::vector<SymbolInformation>>();
+			_DoLinearSymbolInformation(vect, msg);
+		}
+	}
+	if (fEditor != nullptr)
+		fEditor->SetDocumentSymbols(&msg);
+}
+
+
+void
+LSPEditorWrapper::_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& vect, BMessage& msg)
+{
+	for (DocumentSymbol sym: vect) {
+		BMessage symbol;
+		symbol.AddString("name", sym.name.c_str());
+		symbol.AddInt32("kind", (int32)sym.kind);
+		symbol.AddString("detail", sym.detail.c_str());
+		BMessage child;
+		if (sym.children.size() > 0) {
+			_DoRecursiveDocumentSymbol(sym.children, child);
+		}
+		symbol.AddMessage("children", &child);
+		Range& symbolRange = sym.selectionRange;
+		symbol.AddInt32("start:line", symbolRange.start.line + 1);
+		symbol.AddInt32("start:character", symbolRange.start.character);
+		msg.AddMessage("symbol", &symbol);
+	}
+}
+
+void
+LSPEditorWrapper::_DoLinearSymbolInformation(std::vector<SymbolInformation>& vect, BMessage& msg)
+{
+	for (SymbolInformation sym: vect) {
+		BMessage symbol;
+		symbol.AddString("name", sym.name.c_str());
+		symbol.AddInt32("kind", (int32)sym.kind);
+		Range& symbolRange = sym.location.range;
+		symbol.AddInt32("start:line", symbolRange.start.line + 1);
+		symbol.AddInt32("start:character", symbolRange.start.character);
+		msg.AddMessage("symbol", &symbol);
+	}
+}
+
 bool
 LSPEditorWrapper::IsStatusValid()
 {
@@ -731,6 +949,7 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/hover", _DoHover);
 	IF_ID("textDocument/rangeFormatting", _DoFormat);
 	IF_ID("textDocument/formatting", _DoFormat);
+	IF_ID("textDocument/rename", _DoRename);
 	IF_ID("textDocument/definition", _DoGoTo);
 	IF_ID("textDocument/declaration", _DoGoTo);
 	IF_ID("textDocument/implementation", _DoGoTo);
@@ -738,7 +957,10 @@ LSPEditorWrapper::onResponse(RequestID id, value& result)
 	IF_ID("textDocument/switchSourceHeader", _DoSwitchSourceHeader);
 	IF_ID("textDocument/completion", _DoCompletion);
 	IF_ID("textDocument/documentLink", _DoDocumentLink);
+	IF_ID("textDocument/documentSymbol", _DoDocumentSymbol);
 	IF_ID("initialize", _DoInitialize);
+	IF_ID("textDocument/codeAction", _DoCodeActions);
+	IF_ID("codeAction/resolve", _DoCodeActionResolve);
 
 	LogError("LSPEditorWrapper::onResponse not handled! [%s]", id.c_str());
 }
@@ -803,6 +1025,7 @@ LSPEditorWrapper::ApplyTextEdit(json& textEditJson)
 	return ApplyTextEdit(textEdit);
 }
 
+
 Sci_Position
 LSPEditorWrapper::ApplyTextEdit(TextEdit &textEdit)
 {
@@ -818,8 +1041,9 @@ LSPEditorWrapper::ApplyTextEdit(TextEdit &textEdit)
 	return s_pos + replaced;
 }
 
+
 void
-LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character)
+LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character, BString edits)
 {
 	BUrl url(uri.c_str());
 	if (url.IsValid() && url.HasPath()) {
@@ -830,10 +1054,12 @@ LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character)
 			if (entry.GetRef(&ref) == B_OK) {
 				refs.AddRef("refs", &ref);
 				if (line != -1) {
-					refs.AddInt32("be:line", line);
+					refs.AddInt32("start:line", line);
 					if (character != -1)
-						refs.AddInt32("lsp:character", character);
+						refs.AddInt32("start:character", character);
 				}
+				if (!edits.IsEmpty())
+					refs.AddString("edit", edits);
 				be_app->PostMessage(&refs);
 			}
 		}

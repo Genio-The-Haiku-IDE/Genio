@@ -2,8 +2,7 @@
  * Copyright 2017..2018 A. Mosca <amoscaster@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef GenioWINDOW_H
-#define GenioWINDOW_H
+#pragma once
 
 #include <ObjectList.h>
 #include <String.h>
@@ -43,10 +42,11 @@ class BTextControl;
 class ConsoleIOView;
 class Editor;
 class EditorTabManager;
+class FunctionsOutlineView;
 class GoToLineWindow;
 class ProblemsPanel;
 class ProjectFolder;
-class ProjectsFolderBrowser;
+class ProjectBrowser;
 class SearchResultPanel;
 class SourceControlPanel;
 class TemplatesMenu;
@@ -64,10 +64,12 @@ public:
 	virtual bool				QuitRequested();
 	virtual void				Show();
 
-	void						UpdateMenu();
+	void						UpdateMenu(const void* sender, const entry_ref* ref);
 	ProjectFolder*				GetActiveProject() const;
 	void						SetActiveProject(ProjectFolder *project);
-	ProjectsFolderBrowser*		GetProjectBrowser() const;
+	ProjectBrowser*		GetProjectBrowser() const;
+
+	EditorTabManager*			TabManager() const;
 
 private:
 			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
@@ -88,6 +90,8 @@ private:
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
 			int32				_FilesNeedSave();
+			void				_PreFileLoad(Editor* editor);
+			void				_PostFileLoad(Editor* editor);
 			void				_PreFileSave(Editor* editor);
 			void				_PostFileSave(Editor* editor);
 			void				_FindGroupShow(bool show);
@@ -107,7 +111,8 @@ private:
 			void				_InitCentralSplit();
 			void				_InitMenu();
 			void				_InitOutputSplit();
-			void				_InitSideSplit();
+			void				_InitLeftSplit();
+			void				_InitRightSplit();
 			void				_InitToolbar();
 			void				_InitWindow();
 
@@ -117,6 +122,10 @@ private:
 			void				_ProjectFileDelete();
 			void				_ProjectRenameFile();
 
+			void				_TemplateNewFolder(BMessage* message);
+			void				_TemplateNewProject(BMessage* message);
+			void				_TemplateNewFile(BMessage* message);
+
 			void				_ShowDocumentation();
 
 			// Project Folders
@@ -124,7 +133,7 @@ private:
 			status_t			_ProjectFolderOpen(BMessage *message);
 			status_t			_ProjectFolderOpen(const entry_ref& ref, bool activate = false);
 			void				_ProjectFolderActivate(ProjectFolder* project);
-			void				_TryAssociateOrphanedEditorsWithProject(ProjectFolder* project);
+			void				_TryAssociateEditorWithProject(Editor* editor, ProjectFolder* project);
 
 			status_t			_ShowSelectedItemInTracker();
 			status_t			_ShowInTracker(const entry_ref& ref, const node_ref* nref = NULL);
@@ -195,13 +204,17 @@ private:
 			// Left panels
 			BTabView*	  		fProjectsTabView;
 
-			ProjectsFolderBrowser*	fProjectsFolderBrowser;
+			ProjectBrowser*	fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
 			SourceControlPanel*	fSourceControlPanel;
 			BScrollView*		fSourceControlPanelScroll;
 
 			ProjectFolder		*fActiveProject;
+
+			// Right panels
+			BTabView*	  		fRightTabView;
+			FunctionsOutlineView* fFunctionsOutlineView;
 
 			// Editor group
 			EditorTabManager*	fTabManager;
@@ -244,5 +257,3 @@ private:
 };
 
 extern GenioWindow *gMainWindow;
-
-#endif //GenioWINDOW_H

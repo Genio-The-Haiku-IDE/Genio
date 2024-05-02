@@ -41,6 +41,7 @@ public:
 			void			SetStatus(BMessage* mesage);
 	virtual	void			Draw(BRect bounds);
 	virtual	void			MouseDown(BPoint point);
+	virtual void			MouseMoved(BPoint point, uint32 transit, const BMessage* message);
 
 protected:
 	virtual	float			Width();
@@ -49,6 +50,7 @@ private:
 			void			_ShowDirMenu();
 			void			_DrawNavigationButton(BRect rect);
 			static void		_CreateMenu(BWindow*);
+			BRect			_GetCellRect(int32 cell);
 
 
 private:
@@ -57,13 +59,16 @@ private:
 		kOverwriteMode,
 		kLineFeed,
 		kFileStateCell,
+		kEditorConfig,
+		kTrimWhitespace,
+		kIndent,
 		kStatusCellCount
 	};
 			BString			fCellText[kStatusCellCount];
 			float			fCellWidth[kStatusCellCount];
 			bool			fNavigationPressed;
 			float			fNavigationButtonWidth;
-			
+
 			static BPopUpMenu*		sMenu;
 };
 

@@ -17,7 +17,7 @@ html {
 	background: #FFF;
 }
 body {
-    font-size: 0.9em;
+	font-size: 0.9em;
 	font-family: "Noto Sans",Arial,Helvetica,sans-serif;
 	line-height: 1.5;
 	min-width: 45em;
@@ -49,35 +49,69 @@ h1, h2, h3, h4, h5 {
 	}
 }
 
+/* Index table */
+
+table.index {
+	margin: 6px 6px 6px 30px;
+	padding: 1px;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #e0e0e0;
+	float: right;
+	position: relative;
+}
+table.index tr.heading {
+	background-color: #e0e0e0;
+	text-align: center;
+	font-weight: bold;
+	font-size: 1.1em;
+}
+table.index tr.index {
+	background-color: #eeeeee;
+}
+table.index td {
+	padding: 5px 20px;
+}
+
+table.index a:link, table.index a:visited {
+	font-weight: normal;
+	text-decoration: none;
+	color: #dc3c01;
+}
+table.index a:hover, table.index a:active {
+	text-decoration: underline;
+	color: #ff4500;
+}
+
 /* heading and navigation */
 
-
 #navbar {
-  overflow: hidden;
-  background-color: #555;
-  position: fixed;
-  top: 0;
-  width: 100%;
+	overflow: hidden;
+	background-color: #555;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 10;
 }
 
 #navbar a {
-  float: left;
-  display: block;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 0px 14px;
-  text-decoration: none;
-  font-size: 12px;
+	float: left;
+	display: block;
+	color: #f2f2f2;
+	text-align: center;
+	padding: 0px 14px;
+	text-decoration: none;
+	font-size: 12px;
 }
 
 #navbar a:hover {
-  background-color: #ddd;
-  color: black;
+	background-color: #ddd;
+	color: black;
 }
 
 #navbar a.active {
-  background-color: #D1A600;
-  color: white;
+	background-color: #D1A600;
+	color: white;
 }
 
 #content {
@@ -85,8 +119,6 @@ h1, h2, h3, h4, h5 {
 	margin-right: 20px;
 	padding-top: 5px;
 }
-
-
 
 
 hr {
@@ -126,7 +158,7 @@ h4 {
 	border-width: 1px;
 	padding: 0px 2px;
 	background-color: #e8e8e8;
-    font-family: sans;
+	font-family: sans;
 	font-variant: small-caps;
 	font-size: 1em;
 }
@@ -137,20 +169,20 @@ h4 {
 	color: #24225e;
 }
 .button {			/* Button */
-    font-size: 1.0em;
-    font-family: serif;
-    font-style: italic;
+	font-size: 1.0em;
+	font-family: serif;
+	font-style: italic;
 	color: #33583c;
 }
 .path {				/* File path */
-    background-color: #e8e8e8;
-    font-size: 0.9em;
-    font-family: monospace;
+	background-color: #e8e8e8;
+	font-size: 0.9em;
+	font-family: monospace;
 }
 .cli {				/* Shell command or file */
-    background-color: #e8e8e8;
-    font-size: 0.9em;
-    font-family: monospace;
+	background-color: #e8e8e8;
+	font-size: 0.9em;
+	font-family: monospace;
 }
 
 tt {
@@ -158,12 +190,15 @@ tt {
 }
 
 td.onelinetop {
+	padding-right: 1em;
 	vertical-align: top;
 	white-space: nowrap;
 }
+
 ol {
 	padding-left: 20px;
 }
+
 ul {
 	padding-left: 14px;
 }

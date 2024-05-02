@@ -17,6 +17,7 @@ enum {
 	MSG_PROJECT_SET_ACTIVE		= 'psac',	// TODO
 	MSG_PROJECT_SETTINGS		= 'prse',
 	MSG_PROJECT_FOLDER_OPEN		= 'pfop',
+	MSG_RELOAD_EDITORCONFIG		= 'reec',
 
 	// File menu
 	MSG_FILE_NEW				= 'fine',
@@ -26,6 +27,7 @@ enum {
 	MSG_FILE_SAVE_ALL			= 'fsal',
 	MSG_FILE_CLOSE				= 'ficl',
 	MSG_FILE_CLOSE_ALL			= 'fcal',
+	MSG_FILE_CLOSE_OTHER		= 'fcot',
 	MSG_FILE_FOLD_TOGGLE		= 'fifo',
 
 	// Edit menu
@@ -49,8 +51,10 @@ enum {
 	MSG_GOTODEFINITION			= 'gode',
 	MSG_GOTODECLARATION			= 'gocl',
 	MSG_GOTOIMPLEMENTATION		= 'goim',
+	MSG_RENAME					= 'rena',
 	MSG_SWITCHSOURCE			= 'swit',
-
+	MSG_FIND_IN_BROWSER			= 'finb',
+	MSG_COLLAPSE_SYMBOL_NODE	= 'mcsn',
 
 	// view
 	MSG_VIEW_ZOOMIN				= 'zoin',
@@ -109,6 +113,7 @@ enum {
 
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
+	MSG_SHOW_HIDE_OUTLINE			= 'shol',
 	MSG_SHOW_HIDE_OUTPUT			= 'shou',
 	MSG_FULLSCREEN					= 'fscr',
 	MSG_FOCUS_MODE					= 'focu',
@@ -136,6 +141,10 @@ enum {
 	MSG_NOTIFY_EDITOR_FILE_CLOSED 		= 'efcx',	// file_name (string)
 	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch',	// file_name (string)
 													// needs_save (bool)
+
+	MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED	= 'esup',	// ref (ref)
+													// symbols (BMessage)
+													// status (int32)
 
 	MSG_NOTIFY_BUILDING_PHASE			= 'blph',	// building (bool)
 

@@ -52,7 +52,7 @@ TemplateManager::CopyFileTemplate(const entry_ref* source, const entry_ref* dest
 		BString err(strerror(status));
 		LogError("Error creating new file %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
 	} else {
-		FSChmod(destPath.Path(), fs::perms::all);
+		FSMakeWritable(destPath.Path());
 		if (newFileRef != nullptr) {
 			get_ref_for_path(destPath.Path(), newFileRef);
 		}
@@ -79,8 +79,8 @@ TemplateManager::CopyProjectTemplate(const entry_ref* source, const entry_ref* d
 		LogError("Error creating new template %s in %s: %s", sourcePath.Path(), destPath.Path(),err.String());
 	} else {
 		// TODO: Default templates in a tipical HPKG installation are readonly
-		// we are setting all permissions recursively here
-		FSChmod(destPath.Path(), fs::perms::all, true);
+		// we are setting write permissions recursively here
+		FSMakeWritable(destPath.Path(), true);
 	}
 
 	return status;

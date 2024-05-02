@@ -29,8 +29,8 @@
 #include "GitAlert.h"
 #include "GTextAlert.h"
 #include "Log.h"
+#include "ProjectBrowser.h"
 #include "ProjectFolder.h"
-#include "ProjectsFolderBrowser.h"
 #include "RepositoryView.h"
 #include "StringFormatter.h"
 #include "Utils.h"
@@ -652,7 +652,7 @@ SourceControlPanel::_GetSelectedProject() const
 	GenioWindow* window = static_cast<GenioWindow*>(Window());
 	if (window == nullptr)
 		return nullptr;
-	ProjectsFolderBrowser* projectBrowser = window->GetProjectBrowser();
+	ProjectBrowser* projectBrowser = window->GetProjectBrowser();
 	if (projectBrowser == nullptr)
 		return nullptr;
 

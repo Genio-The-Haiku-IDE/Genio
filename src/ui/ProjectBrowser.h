@@ -29,10 +29,10 @@ class ProjectFolder;
 class ProjectItem;
 class GenioWatchingFilter;
 
-class ProjectsFolderBrowser : public BOutlineListView {
+class ProjectBrowser : public BOutlineListView {
 public:
-					 ProjectsFolderBrowser();
-	virtual 		~ProjectsFolderBrowser();
+					 ProjectBrowser();
+	virtual 		~ProjectBrowser();
 
 	virtual	void	MouseUp(BPoint where);
 	virtual void	MouseDown(BPoint where);
@@ -65,6 +65,7 @@ public:
 	void			SelectProjectAndScroll(ProjectFolder*);
 
 	void			SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref); //ugly name..
+	void			SelectItemByRef(ProjectFolder* project, const entry_ref& ref);
 
 private:
 
@@ -85,10 +86,9 @@ private:
 	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
 
 private:
-	TemplatesMenu*		fFileNewProjectMenuItem;
-
-	bool				fIsBuilding = false;
-	GenioWatchingFilter* fGenioWatchingFilter;
+	TemplatesMenu*			fFileNewProjectMenuItem;
+	bool					fIsBuilding;
+	GenioWatchingFilter*	fGenioWatchingFilter;
 
 	//TODO: remove this and use a std::vector<std::pair or similar.
 	BObjectList<ProjectFolder>	fProjectList;

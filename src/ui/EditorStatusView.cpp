@@ -141,6 +141,40 @@ StatusView::Draw(BRect updateRect)
 
 
 void
+StatusView::MouseMoved(BPoint where, uint32 transit, const BMessage* message)
+{
+	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
+		BRect cellRect = _GetCellRect(kEditorConfig);
+		if (where.x < cellRect.right &&	where.x > cellRect.left) {
+			if (fCellText[kEditorConfig] == "\xF0\x9F\x97\x8E")
+				SetToolTip(B_TRANSLATE("Settings in .editorconfig applied"));
+			else
+				SetToolTip(B_TRANSLATE("Global settings applied"));
+		} else {
+			SetToolTip("");
+		}
+	}
+}
+
+
+BRect
+StatusView::_GetCellRect(int32 cell)
+{
+	BRect rect;
+	rect.bottom = Frame().bottom;
+	rect.top = Frame().top;
+
+	for (int32 i = 0; i < cell; i++) {
+		rect.left += fCellWidth[i];
+	}
+	rect.left += fNavigationButtonWidth;
+	rect.right = rect.left + fCellWidth[cell];
+
+	return rect;
+}
+
+
+void
 StatusView::MouseDown(BPoint where)
 {
 	if (where.x < fNavigationButtonWidth) {
@@ -191,9 +225,16 @@ StatusView::SetStatus(BMessage* message)
 		fCellText[kPositionCell].SetToFormat("%" B_PRIi32 ":%" B_PRIi32, line, column);
 	}
 
-	fCellText[kOverwriteMode] = message->GetString("overwrite", "");
-	fCellText[kLineFeed] 	  = message->GetString("eol", "");
-	fCellText[kFileStateCell] = message->GetString("readOnly", "");
+	fCellText[kOverwriteMode] 	= message->GetString("overwrite", "");
+	fCellText[kLineFeed] 	  	= message->GetString("eol", "");
+	fCellText[kFileStateCell] 	= message->GetString("readOnly", "");
+	fCellText[kEditorConfig] 	= message->GetString("editorconfig", "");
+	fCellText[kTrimWhitespace] 	= message->GetString("trim_trialing_whitespace", "");
+
+	BString style = message->GetString("indent_style", "");
+	int32 size = message->GetInt32("indent_size", -1);
+
+	fCellText[kIndent].SetToFormat("%s:%" B_PRIi32, style.String(), size);
 
 	Invalidate();
 }

@@ -222,12 +222,12 @@ namespace fs = std::filesystem;
 
 
 status_t
-FSChmod(const fs::path& path, fs::perms perm, bool recurse)
+FSMakeWritable(const fs::path& path, bool recurse)
 {
-    fs::permissions(path, perm); // set permissions on the top directory
+    fs::permissions(path, fs::perms::owner_write, fs::perm_options::add);
     if (recurse) {
 		for (auto& de : fs::recursive_directory_iterator(path)) {
-			fs::permissions(de, perm); // set permissions
+			fs::permissions(de, fs::perms::owner_write, fs::perm_options::add);
 		}
 	}
 	return B_OK;

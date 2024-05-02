@@ -14,6 +14,7 @@
 #include <tuple>
 #include <map>
 #include <memory>
+#include "LSPProjectWrapper.h"
 #include "uri.h"
 #include "json.hpp"
 
@@ -125,34 +126,7 @@ enum class TextDocumentSyncKind {
     Incremental = 2,
 };
 // enum class CompletionItemKind
-enum class SymbolKind {
-    File = 1,
-    Module = 2,
-    Namespace = 3,
-    Package = 4,
-    Class = 5,
-    Method = 6,
-    Property = 7,
-    Field = 8,
-    Constructor = 9,
-    Enum = 10,
-    Interface = 11,
-    Function = 12,
-    Variable = 13,
-    Constant = 14,
-    String = 15,
-    Number = 16,
-    Boolean = 17,
-    Array = 18,
-    Object = 19,
-    Key = 20,
-    Null = 21,
-    EnumMember = 22,
-    Struct = 23,
-    Event = 24,
-    Operator = 25,
-    TypeParameter = 26
-};
+
 enum class OffsetEncoding {
     // Any string is legal on the wire. Unrecognized encodings parse as this.
     UnsupportedEncoding,
@@ -200,6 +174,89 @@ NLOHMANN_JSON_SERIALIZE_ENUM(FailureHandlingKind, {
     {FailureHandlingKind::TextOnlyTransactional, "textOnlyTransactional"}
 })
 
+
+namespace CodeActionKind {
+
+	/**
+	 * Empty kind.
+	 */
+	const std::string Empty("");
+
+	/**
+	 * Base kind for quickfix actions: 'quickfix'.
+	 */
+	const std::string QuickFix("quickfix");
+
+	/**
+	 * Base kind for refactoring actions: 'refactor'.
+	 */
+	const std::string Refactor("refactor");
+
+	/**
+	 * Base kind for refactoring extraction actions: 'refactor.extract'.
+	 *
+	 * Example extract actions:
+	 *
+	 * - Extract method
+	 * - Extract function
+	 * - Extract variable
+	 * - Extract interface from class
+	 * - ...
+	 */
+	const std::string RefactorExtract("refactor.extract");
+
+	/**
+	 * Base kind for refactoring inline actions: 'refactor.inline'.
+	 *
+	 * Example inline actions:
+	 *
+	 * - Inline function
+	 * - Inline variable
+	 * - Inline constant
+	 * - ...
+	 */
+	const std::string RefactorInline("refactor.inline");
+
+	/**
+	 * Base kind for refactoring rewrite actions: 'refactor.rewrite'.
+	 *
+	 * Example rewrite actions:
+	 *
+	 * - Convert JavaScript function to class
+	 * - Add or remove parameter
+	 * - Encapsulate field
+	 * - Make method static
+	 * - Move method to base class
+	 * - ...
+	 */
+	const std::string RefactorRewrite("refactor.rewrite");
+
+	/**
+	 * Base kind for source actions: `source`.
+	 *
+	 * Source code actions apply to the entire file.
+	 */
+	const std::string Source("source");
+
+	/**
+	 * Base kind for an organize imports source action:
+	 * `source.organizeImports`.
+	 */
+	const std::string SourceOrganizeImports("source.organizeImports");
+
+	/**
+	 * Base kind for a 'fix all' source action: `source.fixAll`.
+	 *
+	 * 'Fix all' actions automatically fix errors that have a clear fix that
+	 * do not require user input. They should not suppress errors or perform
+	 * unsafe fixes such as generating new types or classes.
+	 *
+	 * @since 3.17.0
+	 */
+	const std::string SourceFixAll("source.fixAll");
+}
+
+//
 struct ClientCapabilities {
     /// The supported set of SymbolKinds for workspace/symbol.
     /// workspace.symbol.symbolKind.valueSet
@@ -240,7 +297,10 @@ struct ClientCapabilities {
 
     /// Client supports CodeAction return value for textDocument/codeAction.
     /// textDocument.codeAction.codeActionLiteralSupport.
-    bool CodeActionStructure = true;
+    // CodeActionLiteralSupport CodeActionStructure;
+	std::vector<std::string> CodeActionKinds;
+	std::vector<std::string> CodeActionResolveSupport;
+
     /// Supported encodings for LSP character offsets. (clangd extension).
     std::vector<OffsetEncoding> offsetEncoding = {OffsetEncoding::UTF8};
     /// The content format that should be used for Hover requests.
@@ -255,6 +315,9 @@ struct ClientCapabilities {
         for (int i = 0; i <= 25; ++i) {
             CompletionItemKinds.push_back((CompletionItemKind) i);
         }
+
+		CodeActionKinds.push_back(CodeActionKind::QuickFix);
+		CodeActionResolveSupport.push_back("edit");
     }
 };
 JSON_SERIALIZE(ClientCapabilities,MAP_JSON(
@@ -271,7 +334,12 @@ JSON_SERIALIZE(ClientCapabilities,MAP_JSON(
                         MAP_KV("completionItemKind", MAP_TO("valueSet", CompletionItemKinds)),
                         MAP_TO("editsNearCursor", CompletionFixes)
                 ),
-                MAP_KV("codeAction", MAP_TO("codeActionLiteralSupport", CodeActionStructure)),
+                MAP_KV("codeAction",
+						MAP_KV("resolveSupport", MAP_TO("properties", CodeActionResolveSupport)),
+						MAP_KV("codeActionLiteralSupport",
+						MAP_KV("codeActionKind",
+							MAP_TO("valueSet", CodeActionKinds)))
+				),
                 MAP_KV("documentSymbol", MAP_TO("hierarchicalDocumentSymbolSupport", HierarchicalDocumentSymbol)),
                 MAP_KV("hover",  //HoverClientCapabilities
                         MAP_TO("contentFormat", HoverContentFormat)),
@@ -422,15 +490,7 @@ struct DidSaveTextDocumentParams {
 };
 JSON_SERIALIZE(DidSaveTextDocumentParams, MAP_JSON(MAP_KEY(textDocument)), {});
 
-struct TextDocumentContentChangeEvent {
-    /// The range of the document that changed.
-    option<Range> range;
-
-    /// The length of the range that got replaced.
-    //xed option<int> rangeLength;
-    /// The new text of the range/document.
-    std::string text;
-};
+//struct TextDocumentContentChangeEvent
 JSON_SERIALIZE(TextDocumentContentChangeEvent, MAP_JSON(MAP_KEY(range)/*, MAP_KEY(rangeLength)*/, MAP_KEY(text)), {});
 
 struct DidChangeTextDocumentParams {
@@ -581,8 +641,24 @@ JSON_SERIALIZE(DiagnosticRelatedInformation, MAP_JSON(MAP_KEY(location), MAP_KEY
 
 
 //struct Diagnostic
-JSON_SERIALIZE(Diagnostic, {/*NOT REQUIRED*/},{FROM_KEY(range);/*FROM_KEY(code);*/FROM_KEY(source);FROM_KEY(message);
-                FROM_KEY(relatedInformation);FROM_KEY(category);FROM_KEY(codeActions);});
+JSON_SERIALIZE(Diagnostic,
+	MAP_JSON(
+		MAP_KEY(range),
+		MAP_KEY(source),
+		MAP_KEY(message),
+		MAP_KEY(relatedInformation),
+		MAP_KEY(category),
+		MAP_KEY(codeActions)
+	),
+	{
+		FROM_KEY(range);
+		/*FROM_KEY(code);*/
+		FROM_KEY(source);
+		FROM_KEY(message);
+		FROM_KEY(relatedInformation);
+		FROM_KEY(category);
+		FROM_KEY(codeActions);
+	});
 
 struct PublishDiagnosticsParams {
     /**
@@ -628,19 +704,15 @@ JSON_SERIALIZE(LspCommand, MAP_JSON(MAP_KEY(command), MAP_KEY(workspaceEdit), MA
         {FROM_KEY(command);FROM_KEY(workspaceEdit);FROM_KEY(tweakArgs);FROM_KEY(title);});
 
 //struct CodeAction
-JSON_SERIALIZE(CodeAction, MAP_JSON(MAP_KEY(title), MAP_KEY(kind), MAP_KEY(diagnostics), MAP_KEY(edit), MAP_KEY(command)),
-        {FROM_KEY(title);FROM_KEY(kind);FROM_KEY(diagnostics);FROM_KEY(edit);FROM_KEY(command)});
+JSON_SERIALIZE(CodeAction, MAP_JSON(MAP_KEY(title), MAP_KEY(kind), MAP_KEY(diagnostics), MAP_KEY(edit), MAP_KEY(command), MAP_KEY(data)),
+        {FROM_KEY(title);FROM_KEY(kind);FROM_KEY(diagnostics);FROM_KEY(edit);FROM_KEY(command);FROM_KEY(data)});
 
-struct SymbolInformation {
-    /// The name of this symbol.
-    std::string name;
-    /// The kind of this symbol.
-    SymbolKind kind = SymbolKind::Class;
-    /// The location of this symbol.
-    Location location;
-    /// The name of the symbol containing this symbol.
-    std::string containerName;
-};
+
+//TODO Write Serialize for DocumentSymbol (one way only);
+JSON_SERIALIZE(DocumentSymbol, {/*NOT REQUIRED*/},{FROM_KEY(name);FROM_KEY(detail);FROM_KEY(kind);FROM_KEY(deprecated);
+                FROM_KEY(range);FROM_KEY(selectionRange);FROM_KEY(children);});
+
+//struct SymbolInformation
 JSON_SERIALIZE(SymbolInformation, MAP_JSON(MAP_KEY(name), MAP_KEY(kind), MAP_KEY(location), MAP_KEY(containerName)), {FROM_KEY(name);FROM_KEY(kind);FROM_KEY(location);FROM_KEY(containerName)});
 
 struct SymbolDetails {
@@ -737,10 +809,15 @@ JSON_SERIALIZE(CompletionList, {}, {
 
 JSON_SERIALIZE(ParameterInformation, {}, {
 
-	if (j.contains("label") && j.type() == nlohmann::detail::value_t::string)
-		j.at("label").get_to(value.labelString);
-	else
-		j.at("label").get_to(value.labelOffsets);
+	if (j.contains("label")) {
+		try {
+			j.at("label").get_to(value.labelString);
+		} catch(...) {
+			try {
+				j.at("label").get_to(value.labelOffsets);
+			} catch(...) {}
+		}
+	}
 
     FROM_KEY(documentation);
 });

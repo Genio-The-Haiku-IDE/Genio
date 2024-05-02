@@ -14,7 +14,7 @@
 	<meta http-equiv="Content-Style-Type" content="text/css" />
 	<meta name="robots" content="all" />
 	<link rel="stylesheet" type="text/css" href="./_doc.css" />
-	<title>Genio's User Documentation</title>
+	<title>Genio's User Documentation - Toolbar</title>
 
 </head>
 <body>
@@ -25,6 +25,16 @@
 
 <div id="content">
 
+<table class="index" id="index" summary="index">
+<tbody><tr class="heading"><td>Index</td></tr>
+<tr class="index"><td>
+	<a href="#toolbar-icons">The icons</a><br />
+	<a href="#find-bar">The Find bar</a><br />
+	<a href="#replace-bar">The Replace bar</a><br />
+	<a href="#console-bar">The Console bar</a>
+</td></tr>
+</tbody></table>
+
 <h1>The Toolbar</h1>
 
 <p>At the top of the main window Genio has a toolbar to provide quick access by clicking its icons. It can be toggled on and off with the menu <span class="menu">Window|Appearance</span>.</p>
@@ -34,15 +44,17 @@
 <p>All icons are explained by a tooltip if you hover the mouse pointer over it. Let's go through them quickly anyway.</p>
 
 
-<h2><a id="toolbar-icons" name="toolbar-icons">The icons</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="toolbar-icons" name="toolbar-icons">The icons</a></h2>
 
 <table summary="layout">
 <tr><td>
 <img src="./images/icons/kIconWinNav.png" alt="Show/Hide projects pane" />
-<img src="./images/icons/kIconWinStat.png" class="icons" alt="Show/Hide output pane" />
+<img src="./images/icons/kIconWinOutline.png" alt="Show/Hide outline pane" /><br />
+<img src="./images/icons/kIconWinStat.png" alt="Show/Hide output pane" />
 </td><td style="vertical-align: middle">
-<p>Show or hide the projects pane, also with menu <span class="menu">Window|Appearance|Show projects pane</span>.<br />
-Show or hide the output pane, also with menu <span class="menu">Window|Appearance|Show output pane</span>.</p>
+<p>Show or hide the projects, outline, or output pane, also with the menu items under <span class="menu">Window|Appearance</span>.</p>
 </td></tr>
 
 <tr><td>
@@ -68,9 +80,15 @@ Save all changed files,  also with menu <span class="menu">File|Save all</span>,
 </td></tr>
 
 <tr><td>
-<img src="./images/icons/kIconShowPunctuation.png" class="icons" alt="Show/Hide white spaces" />
+<img src="./images/icons/kIconShowPunctuation.png" class="icons" alt="Show/Hide whitespace" />
 </td><td style="vertical-align: middle">
-<p>Show or hide spaces and tabs, also with menu <span class="menu">View|Show white spaces</span>.</p>
+<p>Show or hide spaces and tabs, also with menu <span class="menu">View|Show whitespace</span>.</p>
+</td></tr>
+
+<tr><td>
+<img src="./images/icons/kIconWrapLines.png" class="icons" alt="Wrap/Un-wrap long lines" />
+</td><td style="vertical-align: middle">
+<p>Wrap or un-wrap lines that are longer than the editor view's width, also with menu <span class="menu">View|Wrap lines</span>.</p>
 </td></tr>
 
 <tr><td style="vertical-align: top; padding-top: 1.5em">
@@ -79,7 +97,7 @@ Save all changed files,  also with menu <span class="menu">File|Save all</span>,
 </td><td style="vertical-align: top">
 <p>Build the active project in the set <span class="menu">Build mode</span>, also with menu <span class="menu">Project|Build</span>, <span class="key">ALT</span>&nbsp;<span class="key">B</span>.<br />
 Clean the active project in the set <span class="menu">Build mode</span>, also with menu <span class="menu">Project|Clean</span>.<br /><br />
-The above only works with correctly configured <a href="settings.html">Project settings</a>.</p>
+The above only works with correctly configured <a href="settings-project.html#release">Project settings</a>.</p>
 </td></tr>
 
 <tr><td style="vertical-align: top; padding-top: 1.5em">
@@ -88,7 +106,7 @@ The above only works with correctly configured <a href="settings.html">Project s
 </td><td style="vertical-align: top">
 <p>Run the built target, also with menu <span class="menu">Project|Run target</span>, <span class="key">ALT</span>&nbsp;<span class="key">SHIFT</span>&nbsp;<span class="key">R</span>.<br />
 Run the built target in the Debugger, also with menu <span class="menu">Project|Debug project</span>.<br /><br />
-The above only works with correctly configured <a href="settings.html">Project settings</a>.</p>
+The above only works with correctly configured <a href="settings-project.html#release">Project settings</a>.</p>
 </td></tr>
 
 <tr><td>
@@ -133,23 +151,25 @@ Switch to the next file (the tab to the right), also with <span class="key">OPT<
 </table>
 
 
-<h2><a id="find-bar" name="find-bar">The Find bar</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="find-bar" name="find-bar">The Find bar</a></h2>
 
 <p>If there's text selected while hitting <span class="key">ALT</span>&nbsp;<span class="key">F</span> or clicking the 'Find' icon, it will be pre-filled in the 'Find' text field.<br />
-Past search strings can be found in the <span class="menu">Find</span> pop-up menu.</p>
+Previous search strings can be found in the <span class="menu">Find</span> pop-up menu.</p>
 
 <p style="text-align:center"><img src="./images/toolbar-find_bar.png" alt="Find bar" /></p>
 
 <p>The arrow icons will jump to the next/previous match, the keyboard shortcut is <span class="key">ALT</span>&nbsp;<span class="key">↓</span>&nbsp;/&nbsp;<span class="key">↑</span>.</p>
 
 <table summary="layout">
-<tr><td style="vertical-align: top; padding-right: 1em"><span class="menu">Wrap</span></td>
+<tr><td class="onelinetop"><span class="menu">Wrap&nbsp;around</span></td>
 <td>Continue the search at the beginning of the file when it has reached the end (and vice-versa, if you reverse the direction by jumping to the previous match).</td></tr>
 
-<tr><td style="vertical-align: top; padding-right: 1em"><span class="menu">Whole&nbsp;word</span></td>
+<tr><td class="onelinetop"><span class="menu">Whole&nbsp;word</span></td>
 <td>Does not find partial matches.</td></tr>
 
-<tr><td style="vertical-align: top; padding-right: 1em"><span class="menu">Match&nbsp;case</span></td>
+<tr><td class="onelinetop"><span class="menu">Match&nbsp;case</span></td>
 <td>Respect upper and lower-case.</td></tr>
 </table>
 
@@ -159,10 +179,12 @@ The last icon on the right will search through all files of the active project. 
 <p><span class="key">ESC</span> closes the Find bar.</p>
 
 
-<h2><a id="replace-bar" name="replace-bar">The Replace bar</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="replace-bar" name="replace-bar">The Replace bar</a></h2>
 
 <p>If there's text selected while hitting <span class="key">ALT</span>&nbsp;<span class="key">R</span> or clicking the 'Replace' icon, it will be pre-filled in the 'Replace' text field.<br />
-Past replace strings can be found in the <span class="menu">Replace</span> pop-up menu.</p>
+Previous replace strings can be found in the <span class="menu">Replace</span> pop-up menu.</p>
 
 <p style="text-align:center"><img src="./images/toolbar-replace_bar.png" alt="Find bar" /></p>
 
@@ -170,7 +192,9 @@ Past replace strings can be found in the <span class="menu">Replace</span> pop-u
 
 <p><span class="key">ESC</span> closes the Replace bar.</p>
 
-<h2><a id="console-bar" name="console-icons">The Console bar</a></h2>
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="console-bar" name="console-bar">The Console bar</a></h2>
 
 <p>Clicking the 'Run console program' icon in the toolbar, opens the Console bar:</p>
 

@@ -612,7 +612,7 @@ ProjectBrowser::AttachedToWindow()
 
 	BMessage message(kTick);
 	if (sAnimationTickRunner == nullptr)
-		sAnimationTickRunner = new BMessageRunner(BMessenger(this), &message, bigtime_t(300000));
+		sAnimationTickRunner = new BMessageRunner(BMessenger(this), &message, bigtime_t(100000));
 }
 
 

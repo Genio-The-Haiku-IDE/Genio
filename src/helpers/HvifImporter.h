@@ -10,11 +10,9 @@
 
 class HvifFilter : public BRefFilter {
 public:
-							HvifFilter();
-							~HvifFilter();
-
-	virtual bool			Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
-								const char* filetype);
+            HvifFilter();
+            ~HvifFilter();
+	bool	Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat, const char* filetype);
 };
 
 

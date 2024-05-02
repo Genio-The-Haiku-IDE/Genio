@@ -10,8 +10,6 @@
 
 
 HvifFilter::HvifFilter()
-	:
-	BRefFilter()
 {
 }
 
@@ -25,15 +23,29 @@ bool
 HvifFilter::Filter(const entry_ref* ref, BNode* node, struct stat_beos* stat,
 						const char* filetype)
 {
-	bool isHvif = false;
-	if (BString(ref->name).IEndsWith(".rdef"))
-		isHvif = true;
-	return isHvif;
+    if (strcmp("application/x-vnd.Be-directory", filetype) == 0) {
+        return true;
+	}
+    if (strcmp("application/x-vnd.Be-symlink", filetype) == 0) {
+		BEntry entry(ref, true);
+		if (entry.IsDirectory())
+			return true;
+	}
+	if (strcmp("image/x-hvif", filetype) == 0) {
+		return true;
+	}
+    BString name(ref->name);
+    int32 dot = name.FindLast('.');
+    if (dot != B_ERROR) {
+        if (name.IFindFirst(".hvif", dot) != B_ERROR)
+            return true;
+    }
+    return false;
 }
 
 
 BString HvifImporter(entry_ref &ref)
 {
-	return "HVIF!";
+	return "";
 }
 

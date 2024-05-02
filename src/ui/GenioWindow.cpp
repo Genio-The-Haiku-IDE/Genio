@@ -2656,7 +2656,8 @@ GenioWindow::_InitActions()
 								   B_TRANSLATE("Show line endings"), "");
 	ActionManager::RegisterAction(MSG_TOGGLE_SPACES_ENDINGS,
 								   B_TRANSLATE("Show whitespace and line endings"),
-								   B_TRANSLATE("Show whitespace"), "kIconShowPunctuation");
+								   B_TRANSLATE("Show whitespace and line endings"),
+								   "kIconShowPunctuation");
 	ActionManager::RegisterAction(MSG_WRAP_LINES,
 								   B_TRANSLATE("Wrap lines"),
 								   B_TRANSLATE("Wrap lines"), "kIconWrapLines");

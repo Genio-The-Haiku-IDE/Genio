@@ -334,6 +334,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		case kTick:
 		{
 			if (fIsBuilding) {
+				// TODO: Only invalidate the project item
 				ProjectItem::TickAnimation();
 				Invalidate();
 			}

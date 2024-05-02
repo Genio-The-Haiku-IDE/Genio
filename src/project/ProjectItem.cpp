@@ -23,7 +23,6 @@
 #include "ProjectFolder.h"
 #include "Utils.h"
 
-#include <iostream>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
@@ -78,6 +77,7 @@ public:
 
 int32 ProjectItem::sBuildAnimationIndex = 0;
 std::vector<BBitmap*> ProjectItem::sBuildAnimationFrames;
+
 
 ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
@@ -212,7 +212,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 		DrawText(owner, Text(), ExtraText(), textPoint);
 
-		if (isProject) {
+		if (isProject && static_cast<ProjectFolder*>(GetSourceItem())->IsBuilding()) {
 			_DrawBuildIndicator(owner, bounds);
 		}
 		owner->Sync();
@@ -302,7 +302,7 @@ ProjectItem::InitAnimationIcons()
 		const uint8* rawData = (const uint8*)resources->LoadResource(
 			B_RAW_TYPE, name.String(), &size);
 		if (rawData == nullptr) {
-			std::cout << "cannot load resource" << std::endl;
+			LogError("InitAnimationIcons: Cannot load resource");
 			break;
 		}
 		BMemoryIO mem(rawData, size);
@@ -357,19 +357,16 @@ ProjectItem::DrawIcon(BView* owner, const BRect& itemBounds,
 void
 ProjectItem::_DrawBuildIndicator(BView* owner, BRect bounds)
 {
-	ProjectFolder *project = static_cast<ProjectFolder*>(GetSourceItem());
-	if (project->IsBuilding()) {
-		try {
-			const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
-			if (frame != nullptr) {
-				owner->SetDrawingMode(B_OP_ALPHA);
-				bounds.left = bounds.right - bounds.Height();
-				bounds.OffsetBy(-1, 1);
-				owner->DrawBitmap(frame, frame->Bounds(), bounds);
-			}
-		} catch (...) {
-			// nothing to do
+	try {
+		const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
+		if (frame != nullptr) {
+			owner->SetDrawingMode(B_OP_ALPHA);
+			bounds.left = bounds.right - bounds.Height();
+			bounds.OffsetBy(-1, 1);
+			owner->DrawBitmap(frame, frame->Bounds(), bounds);
 		}
+	} catch (...) {
+		// nothing to do
 	}
 }
 

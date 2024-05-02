@@ -291,6 +291,12 @@ ProjectItem::InitAnimationIcons()
 	BResources* resources = BApplication::AppResources();
 	for (int32 i = 1; i < 7; i++) {
 		BString name("waiting-");
+		const int32 kBrightnessBreakValue = 126;
+		rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+		if (base.Brightness() >= kBrightnessBreakValue)
+			name.Append("light-");
+		else
+			name.Append("dark-");
 		name << i;
 		size_t size;
 		const uint8* rawData = (const uint8*)resources->LoadResource(

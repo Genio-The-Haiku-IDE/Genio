@@ -9,15 +9,21 @@
 #include <Catalog.h>
 #include <ControlLook.h>
 #include <Font.h>
+#include <MenuItem.h>
 #include <NodeInfo.h>
 #include <OutlineListView.h>
+#include <PopUpMenu.h>
 #include <StringItem.h>
 #include <TextControl.h>
 #include <Window.h>
 
 #include "IconCache.h"
+#include "GenioWindowMessages.h"
 #include "GitRepository.h"
+#include "ProjectBrowser.h"
 #include "ProjectFolder.h"
+#include "TemplateManager.h"
+#include "TemplatesMenu.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
@@ -267,6 +273,103 @@ ProjectItem::CommitRename()
 	if (fTextControl != nullptr) {
 		_DestroyTextWidget();
 	}
+}
+
+
+BPopUpMenu*
+ProjectItem::BuildPopupMenu()
+{
+	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
+
+	TemplatesMenu *fileNewProjectMenuItem = new TemplatesMenu(nullptr, B_TRANSLATE("New"),
+		new BMessage(MSG_PROJECT_MENU_NEW_FILE), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
+		TemplateManager::GetDefaultTemplateDirectory(),
+		TemplateManager::GetUserTemplateDirectory(),
+		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
+
+	fileNewProjectMenuItem->SetEnabled(true);
+
+	if (GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"),
+			new BMessage(MSG_PROJECT_MENU_CLOSE));
+		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"),
+			new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
+		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
+			new BMessage(MSG_PROJECT_SETTINGS));
+		projectMenu->AddItem(closeProjectMenuItem);
+		projectMenu->AddItem(setActiveProjectMenuItem);
+		projectMenu->AddItem(projectSettingsMenuItem);
+		closeProjectMenuItem->SetEnabled(true);
+		projectMenu->AddSeparatorItem();
+//		projectMenu->AddItem(new SwitchBranchMenu(Window(), B_TRANSLATE("Switch to branch"),
+	//												new BMessage(MSG_GIT_SWITCH_BRANCH), project->Path()));
+		projectMenu->AddSeparatorItem();
+		BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),
+			new BMessage(MSG_BUILD_PROJECT));
+		BMenuItem* cleanMenuItem = new BMenuItem(B_TRANSLATE("Clean project"),
+			new BMessage(MSG_CLEAN_PROJECT));
+		projectMenu->AddItem(buildMenuItem);
+		projectMenu->AddItem(cleanMenuItem);
+//		setActiveProjectMenuItem->SetEnabled(!project->Active());
+		/*if (!project->Active())
+			setActiveProjectMenuItem->SetEnabled(true);
+		if (fIsBuilding || !project->Active()) {
+			projectSettingsMenuItem->SetEnabled(false);
+			buildMenuItem->SetEnabled(false);
+			cleanMenuItem->SetEnabled(false);
+		}*/
+	}
+
+	projectMenu->AddItem(fileNewProjectMenuItem);
+	fileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
+	projectMenu->AddSeparatorItem();
+
+	//SelectionChanged();
+	//GenioWindow *window = (GenioWindow*)Window();
+	BEntry entry(GetSourceItem()->EntryRef());
+	if (entry.IsFile()) {
+		// If this is a file, get the parent directory
+		entry.GetParent(&entry);
+	}
+	entry_ref newRef;
+	entry.GetRef(&newRef);
+	//window->UpdateMenu(selected, &newRef);
+
+	if (fileNewProjectMenuItem != nullptr)
+		fileNewProjectMenuItem->SetSender(this, &newRef);
+
+	bool isFolder = GetSourceItem()->Type() == SourceItemType::FolderItem;
+	bool isFile = GetSourceItem()->Type() == SourceItemType::FileItem;
+	if (isFolder || isFile) {
+		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
+			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),
+			new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
+		BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
+			new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
+			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
+			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
+		projectMenu->AddItem(openFileProjectMenuItem);
+		projectMenu->AddItem(deleteFileProjectMenuItem);
+		projectMenu->AddItem(renameFileProjectMenuItem);
+		deleteFileProjectMenuItem->SetEnabled(true);
+		renameFileProjectMenuItem->SetEnabled(true);
+		openFileProjectMenuItem->SetEnabled(isFile);
+	}
+
+	BMenuItem* showInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
+		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
+	BMenuItem* openTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open in Terminal"),
+		new BMessage(MSG_PROJECT_MENU_OPEN_TERMINAL));
+	showInTrackerProjectMenuItem->SetEnabled(true);
+	openTerminalProjectMenuItem->SetEnabled(true);
+	projectMenu->AddItem(showInTrackerProjectMenuItem);
+	projectMenu->AddItem(openTerminalProjectMenuItem);
+
+//	projectMenu->SetTargetForItems(Window());
+//	projectMenu->Go(ConvertToScreen(where), true);
+
+	return projectMenu;
 }
 
 

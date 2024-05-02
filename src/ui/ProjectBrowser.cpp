@@ -401,7 +401,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 void
 ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 {
-	ProjectItem*  projectItem = GetSelectedProjectItem();
+	/*ProjectItem*  projectItem = GetSelectedProjectItem();
 	if (!projectItem)
 		return;
 
@@ -485,7 +485,13 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	openTerminalProjectMenuItem->SetEnabled(true);
 	projectMenu->AddItem(showInTrackerProjectMenuItem);
 	projectMenu->AddItem(openTerminalProjectMenuItem);
+*/
 
+	ProjectItem*  projectItem = GetSelectedProjectItem();
+	if (!projectItem)
+		return;
+
+	BPopUpMenu* projectMenu = projectItem->BuildPopupMenu();
 	projectMenu->SetTargetForItems(Window());
 	projectMenu->Go(ConvertToScreen(where), true);
 }

@@ -1235,6 +1235,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		fScreenModeSettings["show_projects"] = !fProjectsTabView->IsHidden();
 		fScreenModeSettings["show_output"]   = !fOutputTabView->IsHidden();
 		fScreenModeSettings["show_toolbar"]  = !fToolBar->IsHidden();
+		fScreenModeSettings["show_outline"]  = !fRightTabView->IsHidden();
 
 		BScreen screen(this);
 		fMenuBar->Hide();

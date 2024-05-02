@@ -648,7 +648,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_IMPORT_HVIF:
 		{
-			fOpenPanel->Show();
+			fImportHvifPanel->Show();
 			break;
 		}
 		case MSG_FILE_PREVIOUS_SELECTED:
@@ -3331,8 +3331,10 @@ GenioWindow::_InitWindow()
 
 	fOpenPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), &ref, B_FILE_NODE, true);
 	fSavePanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this), &ref, B_FILE_NODE, false);
-	fImportHvifPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), NULL, B_FILE_NODE, true,
-		new BMessage(MSG_LOAD_HVIF), fHvifFilter = new HvifFilter());
+
+	fHvifFilter = new HvifFilter();
+	fImportHvifPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), nullptr, B_FILE_NODE, true,
+		new BMessage(MSG_LOAD_HVIF), fHvifFilter);
 
 	BMessage *openProjectFolderMessage = new BMessage(MSG_PROJECT_FOLDER_OPEN);
 	fOpenProjectFolderPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this),
@@ -4174,7 +4176,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(B_UNDO, false);
 		ActionManager::SetEnabled(B_REDO, false);
 
-		ActionManager::SetEnabled(MSG_IMPORT_HVIF, editor->FilePath().IEndsWith(".rdef"));
 		ActionManager::SetEnabled(MSG_FILE_SAVE, false);
 		ActionManager::SetEnabled(MSG_FILE_SAVE_AS, false);
 		ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);
@@ -4243,6 +4244,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_FILE_SAVE, editor->IsModified());
 	ActionManager::SetEnabled(MSG_FILE_CLOSE, true);
 	ActionManager::SetEnabled(MSG_FILE_CLOSE_OTHER, fTabManager->CountTabs()>1);
+	ActionManager::SetEnabled(MSG_IMPORT_HVIF, editor->FilePath().IEndsWith(".rdef"));
 
 	ActionManager::SetEnabled(MSG_BUFFER_LOCK, true);
 	ActionManager::SetPressed(MSG_BUFFER_LOCK, editor->IsReadOnly());

@@ -32,6 +32,7 @@
 #include "GenioApp.h"
 #include "GenioWindowMessages.h"
 #include "GoToLineWindow.h"
+#include "HvifImporter.h"
 #include "alert/GTextAlert.h"
 #include "Languages.h"
 #include "Log.h"
@@ -342,6 +343,15 @@ Editor::MessageReceived(BMessage* message)
 				fCollapsedSymbols.insert(std::make_pair(symbol.String(), kind));
 			} else
 				fCollapsedSymbols.erase(std::make_pair(symbol.String(), kind));
+			break;
+		}
+		case MSG_LOAD_HVIF:
+		{
+			entry_ref ref;
+			for (auto count = 0; message->FindRef("refs", count, &ref) == B_OK; count++) {
+				// HvifImporter(ref);
+				SendMessage(SCI_INSERTTEXT, UNSET, (sptr_t)HvifImporter(ref).String());
+			}
 			break;
 		}
 		default:

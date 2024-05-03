@@ -28,8 +28,8 @@ enum {
 	MSG_FILE_CLOSE				= 'ficl',
 	MSG_FILE_CLOSE_ALL			= 'fcal',
 	MSG_FILE_CLOSE_OTHER		= 'fcot',
-	MSG_IMPORT_HVIF				= 'hvif',
-	MSG_LOAD_HVIF				= 'lhvf',
+	MSG_IMPORT_RESOURCE			= 'ires',
+	MSG_LOAD_RESOURCE			= 'lres',
 	MSG_FILE_FOLD_TOGGLE		= 'fifo',
 
 	// Edit menu

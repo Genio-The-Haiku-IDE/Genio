@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "GMessage.h"
-#include "HvifImporter.h"
+#include "ResourceImport.h"
 
 enum {
 	kProjectsOutline = 0,
@@ -251,8 +251,6 @@ private:
 			GMessage			fScreenModeSettings;
 
 			bool				fDisableProjectNotifications;
-
-			HvifFilter*			fHvifFilter;
 #ifdef GDEBUG
 			BString				fTitlePrefix;
 #endif

@@ -9,6 +9,7 @@
 
 #include "Editor.h"
 
+#include <string>
 #include <regex>
 
 #include <Alert.h>
@@ -32,7 +33,7 @@
 #include "GenioApp.h"
 #include "GenioWindowMessages.h"
 #include "GoToLineWindow.h"
-#include "HvifImporter.h"
+#include "ResourceImport.h"
 #include "alert/GTextAlert.h"
 #include "Languages.h"
 #include "Log.h"
@@ -345,13 +346,9 @@ Editor::MessageReceived(BMessage* message)
 				fCollapsedSymbols.erase(std::make_pair(symbol.String(), kind));
 			break;
 		}
-		case MSG_LOAD_HVIF:
+		case MSG_LOAD_RESOURCE:
 		{
-			entry_ref ref;
-			for (auto count = 0; message->FindRef("refs", count, &ref) == B_OK; count++) {
-				// HvifImporter(ref);
-				SendMessage(SCI_INSERTTEXT, UNSET, (sptr_t)HvifImporter(ref).String());
-			}
+			_LoadResources(message);
 			break;
 		}
 		default:
@@ -1727,6 +1724,32 @@ Editor::_ApplyExtensionSettings()
 		auto styles = Languages::ApplyLanguage(this, fFileType.c_str());
 		Styler::ApplyLanguage(this, styles);
 	}
+}
+
+
+void
+Editor::_LoadResources(BMessage *message)
+{
+	int32 startIndex = -1;
+	auto alert = new GTextAlert(B_TRANSLATE("Index"),
+		B_TRANSLATE("Do you want to set a starting index?"), "");
+	auto result = alert->Go();
+	if (result.Button == GAlertButtons::OkButton) {
+		startIndex = std::stoi(result.Result.String());
+	}
+
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+
+	entry_ref ref;
+	int32 index = -1;
+	for (int32 count = 0; message->FindRef("refs", count, &ref) == B_OK; count++) {
+		if (startIndex != -1)
+			index = startIndex + count;
+		ResourceImport resource(ref, index);
+		SendMessage(SCI_ADDTEXT, resource.GetArray().Length(), (sptr_t)resource.GetArray().String());
+	}
+
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
 }
 
 

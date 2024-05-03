@@ -2,12 +2,13 @@
  * Copyright 2023 Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef PROJECT_ITEM_H
-#define PROJECT_ITEM_H
+#pragma once
 
 #include "StyledItem.h"
 
+#include <vector>
 
+class BBitmap;
 class BTextControl;
 class SourceItem;
 class ProjectItem : public StyledItem {
@@ -27,17 +28,22 @@ public:
 	void			AbortRename();
 	void			CommitRename();
 
+	static status_t	InitAnimationIcons();
+	static status_t DisposeAnimationIcons();
+	static void		TickAnimation();
+
 private:
 	SourceItem		*fSourceItem;
 	bool			fNeedsSave;
 	bool			fOpenedInEditor;
 	BTextControl	*fTextControl;
 
+	static int32	sBuildAnimationIndex;
+	static std::vector<BBitmap*> sBuildAnimationFrames;
+
 	BRect			DrawIcon(BView* owner, const BRect& bounds,
 							const float& iconSize) override;
 
+	void			_DrawBuildIndicator(BView* owner, BRect bounds);
 	void			_DestroyTextWidget();
 };
-
-
-#endif // PROJECT_ITEM_H

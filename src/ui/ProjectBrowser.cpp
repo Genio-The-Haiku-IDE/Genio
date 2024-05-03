@@ -34,9 +34,13 @@
 #include <cassert>
 #include <cstdio>
 
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
+const uint32 kTick = 'tick';
+
+static BMessageRunner* sAnimationTickRunner;
 
 ProjectBrowser::ProjectBrowser()
 	: BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
@@ -313,7 +317,6 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			msg.AddRef("refs", item->GetSourceItem()->EntryRef());
 			msg.AddBool("openWithPreferred", true);
 			Window()->PostMessage(&msg);
-			return;
 			break;
 		}
 		case MSG_PROJECT_MENU_DO_RENAME_FILE:
@@ -325,6 +328,15 @@ ProjectBrowser::MessageReceived(BMessage* message)
 							BString(B_TRANSLATE("An error occurred attempting to rename file ")) <<
 								newName, B_WARNING_ALERT);
 				}
+			}
+			break;
+		}
+		case kTick:
+		{
+			if (fIsBuilding) {
+				// TODO: Only invalidate the project item
+				ProjectItem::TickAnimation();
+				Invalidate();
 			}
 			break;
 		}
@@ -524,6 +536,7 @@ ProjectBrowser::GetSelectedProjectItem() const
 	return dynamic_cast<ProjectItem*>(ItemAt(selection));
 }
 
+
 ProjectItem*
 ProjectBrowser::GetProjectItemForProject(ProjectFolder* folder)
 {
@@ -597,6 +610,12 @@ ProjectBrowser::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->UnlockLooper();
 	}
+
+	ProjectItem::InitAnimationIcons();
+
+	BMessage message(kTick);
+	if (sAnimationTickRunner == nullptr)
+		sAnimationTickRunner = new BMessageRunner(BMessenger(this), &message, bigtime_t(100000));
 }
 
 
@@ -604,6 +623,11 @@ ProjectBrowser::AttachedToWindow()
 void
 ProjectBrowser::DetachedFromWindow()
 {
+	delete sAnimationTickRunner;
+	sAnimationTickRunner = nullptr;
+
+	ProjectItem::DisposeAnimationIcons();
+
 	BOutlineListView::DetachedFromWindow();
 
 	if (Window()->LockLooper()) {

@@ -136,6 +136,7 @@ StyledItem::GetToolTipText() const
 	return fToolTipText.String();
 }
 
+
 void
 StyledItem::SetIcon(const char *iconName)
 {

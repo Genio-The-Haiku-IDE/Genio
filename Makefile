@@ -93,7 +93,7 @@ SRCS += src/templates/TemplatesMenu.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/helpers/PipeImage.cpp
 
-RDEFS := Genio.rdef
+RDEFS := Genio.rdef Spinner.rdef
 
 LIBS  = be shared translation localestub $(STDCPPLIBS)
 LIBS += columnlistview tracker

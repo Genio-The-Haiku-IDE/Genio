@@ -160,7 +160,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fSavePanel(nullptr)
 	, fOpenProjectPanel(nullptr)
 	, fOpenProjectFolderPanel(nullptr)
-	, fImportHvifPanel(nullptr)
+	, fImportResourcePanel(nullptr)
 	, fOutputTabView(nullptr)
 	, fProblemsPanel(nullptr)
 	, fBuildLogView(nullptr)
@@ -284,7 +284,7 @@ GenioWindow::~GenioWindow()
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
-	delete fImportHvifPanel;
+	delete fImportResourcePanel;
 	gMainWindow = nullptr;
 }
 
@@ -647,7 +647,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_IMPORT_RESOURCE:
 		{
-			fImportHvifPanel->Show();
+			fImportResourcePanel->Show();
 			break;
 		}
 		case MSG_FILE_PREVIOUS_SELECTED:
@@ -3331,7 +3331,7 @@ GenioWindow::_InitWindow()
 	fOpenPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), &ref, B_FILE_NODE, true);
 	fSavePanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this), &ref, B_FILE_NODE, false);
 
-	fImportHvifPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), nullptr, B_FILE_NODE, true,
+	fImportResourcePanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), nullptr, B_FILE_NODE, true,
 		new BMessage(MSG_LOAD_RESOURCE));
 
 	BMessage *openProjectFolderMessage = new BMessage(MSG_PROJECT_FOLDER_OPEN);

@@ -237,7 +237,7 @@ private:
 			BFilePanel*			fOpenProjectPanel;
 			BFilePanel*			fOpenProjectFolderPanel;
 			BFilePanel*			fCreateNewProjectPanel;
-			BFilePanel*			fImportHvifPanel;
+			BFilePanel*			fImportResourcePanel;
 
 			// Bottom panels
 			BTabView*			fOutputTabView;

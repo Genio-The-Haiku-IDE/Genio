@@ -1746,7 +1746,7 @@ Editor::_LoadResources(BMessage *message)
 		if (startIndex != -1)
 			index = startIndex + count;
 		ResourceImport resource(ref, index);
-		SendMessage(SCI_ADDTEXT, resource.GetArray().Length(), (sptr_t)resource.GetArray().String());
+		SendMessage(SCI_APPENDTEXT, resource.GetArray().Length(), (sptr_t)resource.GetArray().String());
 	}
 
 	SendMessage(SCI_BEGINUNDOACTION, 0, 0);

@@ -826,11 +826,10 @@ Editor::LoadEditorConfig()
 				errNum != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
 			editorconfig_handle_destroy(handle);
 			LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(errNum));
-			fHasEditorConfig = false;
 		} else {
-			fHasEditorConfig = true;
-
 			int32 nameValueCount = editorconfig_handle_get_name_value_count(handle);
+			if (nameValueCount != 0)
+				fHasEditorConfig = true;
 
 			/* get settings */
 			// Defaults. TODO: This avoids the compiler error

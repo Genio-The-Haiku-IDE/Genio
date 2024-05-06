@@ -150,16 +150,16 @@ GenioApp::ArgvReceived(int32 argc, char** argv)
 	if (i <= 0)
 		return;
 
-	BMessage *message = new BMessage(B_REFS_RECEIVED);
+	BMessage message(B_REFS_RECEIVED);
 	while (i < argc) {
 		entry_ref ref;
 		if (get_ref_for_path(argv[i], &ref) == B_OK) {
-			message->AddRef("refs", &ref);
+			message.AddRef("refs", &ref);
 		}
 		i++;
 	}
 
-	PostMessage(message);
+	PostMessage(&message);
 }
 
 

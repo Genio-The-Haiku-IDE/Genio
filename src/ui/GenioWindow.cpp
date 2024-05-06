@@ -1688,18 +1688,7 @@ GenioWindow::_FileCloseAll()
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
 {
-	int32 nextIndex = 0;
-	// If user choose to reopen files reopen right index
-	// otherwise use default behaviour (see below)
-	if (msg->FindInt32("opened_index", &nextIndex) != B_OK) {
-		// This keeps track of which tab to select:
-		// Should open and select a tab on the right of the currently selected one
-		nextIndex = fTabManager->SelectedTabIndex();
-		if (nextIndex == -1)
-			nextIndex = fTabManager->CountTabs();
-		else
-			nextIndex++;
-	}
+	int32 opened_index = msg->GetInt32("opened_index", fTabManager->SelectedTabIndex() + 1);
 
 	const int32 be_line   = msg->GetInt32("start:line", msg->GetInt32("be:line", -1));
 	const int32 lsp_char  = msg->GetInt32("start:character", -1);
@@ -1782,6 +1771,9 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 		LogInfo("File open: %s [%d]", editor->Name().String(), index);
 	}
+
+	if (opened_index > -1 && fTabManager->CountTabs() > opened_index)
+		fTabManager->SelectTab(opened_index);
 
 	return status;
 }

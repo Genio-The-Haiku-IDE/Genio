@@ -236,16 +236,16 @@ GenioWindow::GenioWindow(BRect frame)
 		if (!files.IsEmpty()) {
 			entry_ref ref;
 			int32 index = -1, count;
-			BMessage *message = new BMessage(B_REFS_RECEIVED);
+			BMessage message(B_REFS_RECEIVED);
 
 			if (files.FindInt32("opened_index", &index) == B_OK) {
-				message->AddInt32("opened_index", index);
+				message.AddInt32("opened_index", index);
 
 				for (count = 0; files.FindRef("file_to_reopen", count, &ref) == B_OK; count++)
-					message->AddRef("refs", &ref);
+					message.AddRef("refs", &ref);
 				// Found an index and found some files, post message
 				if (index > -1 && count > 0)
-					PostMessage(message);
+					PostMessage(&message);
 			}
 		}
 	}
@@ -1688,7 +1688,7 @@ GenioWindow::_FileCloseAll()
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
 {
-	int32 nextIndex;
+	int32 nextIndex = 0;
 	// If user choose to reopen files reopen right index
 	// otherwise use default behaviour (see below)
 	if (msg->FindInt32("opened_index", &nextIndex) != B_OK) {

@@ -1008,7 +1008,8 @@ Editor::NotificationReceived(SCNotification* notification)
 			Looper()->PostMessage(&click, this);
 		}
 		case SCN_DWELLSTART: {
-			fLSPEditorWrapper->StartHover(notification->position);
+			if (Window()->IsActive())
+				fLSPEditorWrapper->StartHover(notification->position);
 			break;
 		}
 		case SCN_DWELLEND: {

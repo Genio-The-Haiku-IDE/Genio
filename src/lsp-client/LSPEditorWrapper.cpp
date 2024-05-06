@@ -569,6 +569,9 @@ LSPEditorWrapper::_ShowToolTip(const char* text)
 void
 LSPEditorWrapper::_DoHover(nlohmann::json& result)
 {
+	if (fEditor == nullptr || fEditor->Window()->IsActive() == false)
+		return;
+
 	if (result == nlohmann::detail::value_t::null &&
 		!result["contents"].contains("value")) {
 		EndHover();

@@ -365,8 +365,6 @@ Editor::ApplySettings()
 	SendMessage(SCI_SETUSETABS, fEditorConfig.IndentStyle==IndentStyle::Tab, 0);
 	SendMessage(SCI_SETTABWIDTH, fEditorConfig.IndentSize, 0);
 	SendMessage(SCI_SETINDENT, 0, 0);
-	if (fEditorConfig.TrimTrailingWhitespace)
-		TrimTrailingWhitespace();
 	EndOfLineConvert(fEditorConfig.EndOfLine);
 
 	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), 0);

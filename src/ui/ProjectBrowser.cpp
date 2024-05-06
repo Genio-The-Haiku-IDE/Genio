@@ -182,9 +182,9 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 								message->FindInt32("device", &ref.device);
 								message->FindString("name", &name);
 								ref.set_name(name);
-								auto msg = new BMessage(MSG_PROJECT_FOLDER_OPEN);
-								msg->AddRef("refs", &ref);
-								Window()->PostMessage(msg);
+								BMessage msg(MSG_PROJECT_FOLDER_OPEN);
+								msg.AddRef("refs", &ref);
+								Window()->PostMessage(&msg);
 							}
 							UnlockLooper();
 						}

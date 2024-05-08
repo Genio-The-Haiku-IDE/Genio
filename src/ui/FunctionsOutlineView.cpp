@@ -151,7 +151,7 @@ SymbolListItem::SetIconAndTooltip()
 			toolTip = B_TRANSLATE("Null");
 			break;
 		case SymbolKind::EnumMember:
-			iconName = "emum-member";
+			iconName = "enum-member";
 			toolTip = B_TRANSLATE("Enum member");
 			break;
 		case SymbolKind::Struct:

@@ -184,14 +184,18 @@ StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
 		else
 			iconName.Prepend("dark-");
 	}
-	GetVectorIcon(iconName.String(), icon);
 	BPoint iconStartingPoint(itemBounds.left + 4.0f,
 		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
-	if (icon != nullptr) {
+
+	if (GetVectorIcon(iconName.String(), icon) == B_OK) {
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->DrawBitmap(icon, iconStartingPoint);
-		delete icon;
+	} else {
+		BString error(fIconName);
+		error << ": icon not found!";
+		debugger(error.String());
 	}
 
+	delete icon;
 	return BRect(iconStartingPoint, BSize(iconSize, iconSize));
 }

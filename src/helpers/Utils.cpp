@@ -54,20 +54,20 @@ GetFileExtension(const std::string filename)
 }
 
 
-void
+status_t
 GetVectorIcon(const std::string icon, BBitmap* bitmap)
 {
 	if(bitmap == nullptr)
-		return;
+		return B_ERROR;
 
 	BResources* resources = BApplication::AppResources();
 	size_t size;
 	const uint8* rawIcon;
 	rawIcon = (const uint8*) resources->LoadResource(B_VECTOR_ICON_TYPE, icon.c_str(), &size);
 	if(rawIcon == nullptr)
-		return;
+		return B_ERROR;
 
-	BIconUtils::GetVectorIcon(rawIcon, size, bitmap);
+	return BIconUtils::GetVectorIcon(rawIcon, size, bitmap);
 }
 
 

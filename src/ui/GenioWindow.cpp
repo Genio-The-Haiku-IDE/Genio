@@ -1720,6 +1720,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 				}
 
 				fTabManager->SelectedEditor()->GrabFocus();
+				opened_index = -1;
 			}
 
 			// apply LSP edits

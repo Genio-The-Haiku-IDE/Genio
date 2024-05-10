@@ -158,8 +158,8 @@ GenioApp::ArgvReceived(int32 argc, char** argv)
 		}
 		i++;
 	}
-
-	PostMessage(&message);
+	if (message.HasRef("refs"))
+		PostMessage(&message);
 }
 
 

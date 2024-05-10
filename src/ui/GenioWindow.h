@@ -81,7 +81,13 @@ private:
 			void				_FileCloseAll();
 			bool				_FileRequestSaveList(std::vector<int32>& unsavedIndex);
 			bool				_FileRequestSaveAllModified();
+
 			status_t			_FileOpen(BMessage* msg);
+			status_t			_FileOpenAtStartup(BMessage* msg);
+			status_t			_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred,  int32 be_line, int32 lsp_char);
+			status_t			_SelectEditorToPosition(int32 index, int32 be_line, int32 lsp_char);
+			void				_ApplyEditsToSelectedEditor(BMessage* msg);
+
 			bool				_FileIsSupported(const entry_ref* ref);
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
 			status_t			_FileSave(int32	index);

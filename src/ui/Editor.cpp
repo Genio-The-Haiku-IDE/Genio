@@ -69,7 +69,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
 	, fProjectFolder(NULL)
-	, fSymbolsStatus(STATUS_NOT_INITIALIZED)
+//	, fSymbolsStatus(STATUS_NOT_INITIALIZED)
 	, fIdleHandler(nullptr)
 {
 	fStatusView = new editor::StatusView(this);
@@ -122,6 +122,8 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	//Wrap visual flag
 	SendMessage(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_MARGIN);
+
+	fDocumentSymbols.AddInt32("status", STATUS_UNKOWN);
 }
 
 bool
@@ -2024,7 +2026,7 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 	}
 
 	if (!symbols->HasInt32("status"))
-		symbols->AddInt32("status", fSymbolsStatus);
+		symbols->AddInt32("status", STATUS_UNKOWN);
 
 	// TODO: Refactor:
 	// we should add the "collapsed" property to the symbol, so that

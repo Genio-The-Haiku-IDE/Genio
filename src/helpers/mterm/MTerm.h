@@ -21,10 +21,10 @@
 
 #pragma once
 
-
-#include <SupportDefs.h>
-#include <OS.h>
 #include <Messenger.h>
+#include <OS.h>
+#include <SupportDefs.h>
+
 #include "Task.h"
 
 #define READ_BUF_SIZE 2048
@@ -37,7 +37,7 @@ enum MTermMessages {
 
 using namespace Genio::Task;
 
-class MTerm{
+class MTerm {
 public:
 			MTerm(const BMessenger& msgr);
 			~MTerm();

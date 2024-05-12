@@ -42,6 +42,7 @@ MTermView::~MTermView()
 	_EnsureStopped();
 }
 
+
 status_t
 MTermView::RunCommand(BMessage* cmd_message)
 {
@@ -74,7 +75,7 @@ MTermView::MessageReceived(BMessage* message)
 		{
 			BString cmd = message->GetString("cmd", "");
 			if (cmd.IsEmpty())
-				return;
+				break;
 			_EnsureStopped();
 
 			fBannerClaim = message->GetString("banner_claim", "");
@@ -125,6 +126,7 @@ MTermView::_EnsureStopped()
 	fBannerClaim = "";
 }
 
+
 void
 MTermView::_BannerMessage(BString status)
 {
@@ -164,6 +166,7 @@ MTermView::EnableStopButton(bool doIt)
 	fStopButton->SetEnabled(doIt);
 }
 
+
 void
 MTermView::_Init()
 {
@@ -190,6 +193,7 @@ MTermView::_HandleOutput(const BString& info)
 {
 	fKeyTextView->Append(info);
 }
+
 
 KeyTextViewScintilla*
 MTermView::TextView()

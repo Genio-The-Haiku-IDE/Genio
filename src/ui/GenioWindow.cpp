@@ -2336,7 +2336,8 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 	int32 opcode;
 	status_t status;
 	if ((status = msg->FindInt32("opcode", &opcode)) != B_OK) {
-		// TODO notify
+		LogError("Node monitor message without an opcode!");
+		msg->PrintToStream();
 		return;
 	}
 
@@ -2373,8 +2374,11 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 				|| msg->FindInt64("node", &nref.node) != B_OK)
 					break;
 
-			// Special case: not real B_ENTRY_REMOVED.
-			// Happens on a 'git switch' command.
+			// Some git commands generate a B_ENTRY_REMOVED
+			// even if the file is just 'replaced' by another version
+			// to avoid this to be managed as a real file removed event,
+			// let's check if the removed file exists.
+
 			node_ref dirRef;
 			dirRef.device = nref.device;
 			dirRef.node = dir;
@@ -2387,15 +2391,25 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 					if (path.Append(name.String()) == B_OK) {
 						entry.SetTo(path.Path());
 						if (entry.Exists()) {
-						// this will automatically send a file update.
+							// a B_STAT_CHANGED will follow.
 							return;
 						}
 					}
-
 				}
 			}
 
-			_HandleExternalRemoveModification(_GetEditorIndex(&nref));
+			// It could happens that the above check fails even if the file is there
+			// (maybe because the file is quickly recreated and we check in the instant where there is no file)
+			// lets take some time by reposting the same message to the Looper!
+			if (msg->GetBool("second_try", false) == true) {
+				// If after the second check, the file is really missing..
+				// Let's handle as a true file removed event.
+				_HandleExternalRemoveModification(_GetEditorIndex(&nref));
+			} else {
+				// Let's try again.
+				msg->AddBool("second_try", true);
+				PostMessage(msg);
+			}
 			break;
 		}
 		case B_STAT_CHANGED: {
@@ -2406,60 +2420,10 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 				|| msg->FindInt64("node", &nref.node) != B_OK
 				|| msg->FindInt32("fields", &fields) != B_OK)
 					break;
-#if defined DEBUG
-switch (fields) {
-	case B_STAT_MODE:
-	case B_STAT_UID:
-	case B_STAT_GID:
-		LogDebugF("MODES");
-		break;
-	case B_STAT_SIZE:
-		LogDebugF("B_STAT_SIZE");
-		break;
-	case B_STAT_ACCESS_TIME:
-		LogDebugF("B_STAT_ACCESS_TIME");
-		break;
-	case B_STAT_MODIFICATION_TIME:
-		LogDebugF("B_STAT_MODIFICATION_TIME");
-		break;
-	case B_STAT_CREATION_TIME:
-		LogDebugF("B_STAT_CREATION_TIME");
-		break;
-	case B_STAT_CHANGE_TIME:
-		LogDebugF("B_STAT_CHANGE_TIME");
-		break;
-	case B_STAT_INTERIM_UPDATE:
-		LogDebugF("B_STAT_INTERIM_UPDATE");
-		break;
-	default:
-		LogDebugF("fields is: %d", fields);
-		break;
-}
-#endif
+
 			if ((fields & (B_STAT_MODE | B_STAT_UID | B_STAT_GID)) != 0)
-				; 			// TODO recheck permissions
-			/*
-			 * Note: Pe and StyledEdit seems to cope differently on modifications,
-			 *       firing different messages on the same modification of the
-			 *       same file.
-			 *   E.g. on changing file size
-			 *				Pe fires				StyledEdit fires
-			 *			B_STAT_CHANGE_TIME			B_STAT_CHANGE_TIME
-			 *			B_STAT_CHANGE_TIME			fields is: 0x2008
-			 *			fields is: 0x28				B_STAT_CHANGE_TIME
-			 *										B_STAT_CHANGE_TIME
-			 *										B_STAT_CHANGE_TIME
-			 *										B_STAT_MODIFICATION_TIME
-			 *
-			 *   E.g. on changing file data but keeping the same file size
-			 *				Pe fires				StyledEdit fires
-			 *			B_STAT_CHANGE_TIME			B_STAT_CHANGE_TIME
-			 *			B_STAT_CHANGE_TIME			fields is: 0x2008
-			 *			B_STAT_MODIFICATION_TIME	B_STAT_CHANGE_TIME
-			 *										B_STAT_CHANGE_TIME
-			 *										B_STAT_CHANGE_TIME
-			 *										B_STAT_MODIFICATION_TIME
-			 */
+				break; 			// TODO recheck permissions
+
 			if (((fields & B_STAT_MODIFICATION_TIME)  != 0)
 			// Do not reload if the file just got touched
 				&& ((fields & B_STAT_ACCESS_TIME)  == 0)) {

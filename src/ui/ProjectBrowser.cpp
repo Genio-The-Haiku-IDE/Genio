@@ -432,12 +432,20 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	fFileNewProjectMenuItem->SetEnabled(true);
 
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"),
-			new BMessage(MSG_PROJECT_MENU_CLOSE));
-		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"),
-			new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
+
+		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
+		closePrj->AddPointer("project", (void*)project);
+		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"), closePrj);
+
+		BMessage* setActive = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
+		setActive->AddPointer("project", (void*)project);
+		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"), setActive);
+
+		BMessage* projSettings = new BMessage(MSG_PROJECT_SETTINGS);
+		projSettings->AddPointer("project", (void*)project);
 		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
-			new BMessage(MSG_PROJECT_SETTINGS));
+			projSettings);
+
 		projectMenu->AddItem(closeProjectMenuItem);
 		projectMenu->AddItem(setActiveProjectMenuItem);
 		projectMenu->AddItem(projectSettingsMenuItem);
@@ -637,19 +645,6 @@ ProjectBrowser::DetachedFromWindow()
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->UnlockLooper();
 	}
-}
-
-// NOTE: this is a workaround to avoid a bug introduced on BListItem on 06-Dec-2023
-// https://github.com/haiku/haiku/commit/6761bf581fd14cac9fd22825fa6baa399263dc83
-// https://dev.haiku-os.org/ticket/18716
-
-void
-ProjectBrowser::MouseUp(BPoint where)
-{
-	if (CountItems() == 0)
-		return;
-
-	BOutlineListView::MouseUp(where);
 }
 
 /* virtual */

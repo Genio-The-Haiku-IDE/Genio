@@ -2738,7 +2738,7 @@ GenioWindow::_InitActions()
 								   "","",'O', B_SHIFT_KEY | B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_CLOSE,
-								   B_TRANSLATE("Close project"),
+								   B_TRANSLATE("Close active project"),
 								   "", "", 'C', B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,
@@ -3590,9 +3590,6 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 {
 	if (project == nullptr)
 		return;
-
-	printf("Chiudo il progetto: %s\n", project->Name().String());
-
 
 	std::vector<int32> unsavedFiles;
 	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {

@@ -911,9 +911,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_PROJECT_MENU_CLOSE:
-			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromSelectedItem());
+		case MSG_PROJECT_MENU_CLOSE: {
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", fProjectsFolderBrowser->GetProjectFromSelectedItem());
+			_ProjectFolderClose(project);
 			break;
+		}
 		case MSG_PROJECT_MENU_DELETE_FILE:
 			_ProjectFileDelete();
 			break;
@@ -926,9 +928,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_MENU_OPEN_TERMINAL:
 			_OpenTerminalWorkingDirectory();
 			break;
-		case MSG_PROJECT_MENU_SET_ACTIVE:
-			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromSelectedItem());
+		case MSG_PROJECT_MENU_SET_ACTIVE: {
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			if (project != nullptr)
+				_ProjectFolderActivate(project);
 			break;
+		}
 		case MSG_PROJECT_OPEN:
 			fOpenProjectFolderPanel->Show();
 			break;
@@ -945,12 +950,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_SETTINGS:
 		{
-			if (fActiveProject != nullptr) {
-				ConfigWindow* window = new ConfigWindow(fActiveProject->Settings());
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", fActiveProject);
+			if (project != nullptr) {
+				ConfigWindow* window = new ConfigWindow(project->Settings());
 				// TODO: Translate
 				BString windowTitle(B_TRANSLATE("Project:"));
 				windowTitle.Append(" ");
-				windowTitle.Append(fActiveProject->Name());
+				windowTitle.Append(project->Name());
 				window->SetTitle(windowTitle.String());
 				window->Show();
 			}

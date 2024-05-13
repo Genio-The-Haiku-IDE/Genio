@@ -131,7 +131,9 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 			if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 				if (LockLooper()) {
 					Select(IndexOf(item));
-					Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+					BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
+					closePrj.AddPointer("project", item->GetSourceItem());
+					Window()->PostMessage(&closePrj);
 
 					// It seems not possible to track the project folder to the new
 					// location outside of the watched path. So we close the project
@@ -167,7 +169,9 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 					if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 						if (LockLooper()) {
 							Select(IndexOf(item));
-							Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+							BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
+							closePrj.AddPointer("project", item->GetSourceItem());
+							Window()->PostMessage(&closePrj);
 
 							auto alert = new BAlert("ProjectFolderChanged",
 							B_TRANSLATE("The project folder has been renamed. It will be closed and reopened automatically."),
@@ -464,7 +468,6 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		if (!project->Active())
 			setActiveProjectMenuItem->SetEnabled(true);
 		if (fIsBuilding || !project->Active()) {
-			projectSettingsMenuItem->SetEnabled(false);
 			buildMenuItem->SetEnabled(false);
 			cleanMenuItem->SetEnabled(false);
 		}

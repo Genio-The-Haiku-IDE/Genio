@@ -912,7 +912,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_MENU_CLOSE: {
-			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", fProjectsFolderBrowser->GetProjectFromSelectedItem());
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project",
+									  fProjectsFolderBrowser->GetProjectFromSelectedItem());
 			_ProjectFolderClose(project);
 			break;
 		}
@@ -3589,6 +3590,9 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 {
 	if (project == nullptr)
 		return;
+
+	printf("Chiudo il progetto: %s\n", project->Name().String());
+
 
 	std::vector<int32> unsavedFiles;
 	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {

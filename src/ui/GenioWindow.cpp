@@ -1683,99 +1683,129 @@ GenioWindow::_FileCloseAll()
 	}
 }
 
+status_t
+GenioWindow::_FileOpenAtStartup(BMessage* msg)
+{
+	int32 opened_index = msg->GetInt32("opened_index", 0);
+	entry_ref ref;
+	int32 refsCount = 0;
+	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
+		_FileOpenWithPosition(&ref, false, -1,-1);
+	}
+	if (fTabManager->CountTabs() > opened_index) {
+		fTabManager->SelectTab(opened_index);
+	}
+	return B_OK;
+}
 
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
 {
-	int32 opened_index = msg->GetInt32("opened_index", fTabManager->SelectedTabIndex() + 1);
+	//start-up files.
+	if (msg->HasInt32("opened_index")) {
+		return _FileOpenAtStartup(msg);
+	}
 
-	const int32 be_line   = msg->GetInt32("start:line", msg->GetInt32("be:line", -1));
-	const int32 lsp_char  = msg->GetInt32("start:character", -1);
-
-	BMessage selectTabInfo;
-	selectTabInfo.AddInt32("start:line", be_line);
-	selectTabInfo.AddInt32("start:character", lsp_char);
-
-	bool openWithPreferred	= msg->GetBool("openWithPreferred", false);
-
-	status_t status = B_OK;
+	int32 firstAdded = -1;
 	entry_ref ref;
 	int32 refsCount = 0;
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
-		// Check existence
-		BEntry entry(&ref);
-		if (!entry.Exists())
-			continue;
-		// first let's see if it's already opened.
-		const int32 openedIndex = _GetEditorIndex(&ref);
-		if (openedIndex != -1) {
-			if (openedIndex != fTabManager->SelectedTabIndex()) {
-				fTabManager->SelectTab(openedIndex, &selectTabInfo);
-			} else {
-				if (lsp_char >= 0 && be_line > -1) {
-					fTabManager->SelectedEditor()->GoToLSPPosition(be_line - 1, lsp_char);
-				} else if (be_line > -1) {
-					fTabManager->SelectedEditor()->GoToLine(be_line);
-				}
 
-				fTabManager->SelectedEditor()->GrabFocus();
-			}
+		const int32 be_line   = msg->GetInt32("start:line", msg->GetInt32("be:line", -1));
+		const int32 lsp_char  = msg->GetInt32("start:character", -1);
+		const bool openWithPreferred = msg->GetBool("openWithPreferred", false);
 
-			// apply LSP edits
-			std::string edit = msg->GetString("edit", "");
-			if (!edit.empty())
-				fTabManager->SelectedEditor()->ApplyEdit(edit);
-
-			opened_index = -1;
-			continue;
+		int32 index = _GetEditorIndex(&ref);
+		if (index != -1) {
+			_SelectEditorToPosition(index, be_line, lsp_char);
+		} else {
+			if(_FileOpenWithPosition(&ref , openWithPreferred, be_line, lsp_char) != B_OK)
+				continue;
+			index = _GetEditorIndex(&ref);
 		}
 
-		if (!_FileIsSupported(&ref)) {
-			if (openWithPreferred)
-				_FileOpenWithPreferredApp(&ref); // TODO: make this optional?
-			continue;
-		}
-
-		// register the file as a recent one.
-		be_roster->AddToRecentDocuments(&ref, GenioNames::kApplicationSignature);
-
-		// new file to load..
-		selectTabInfo.AddBool("caret_position", true);
-		int32 index = fTabManager->SelectedTabIndex() + 1;
-		Editor* editor = _AddEditorTab(&ref, index, &selectTabInfo);
-
-		LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
-
-		if (index < 0 || editor == nullptr) {
-			LogError("Failed adding editor");
-			continue;
-		}
-
-		status = editor->LoadFromFile();
-		if (status != B_OK) {
-			LogError("Failed loading file: %s", ::strerror(status));
-			continue;
-		}
-
-		// Select the newly added tab
-		int32 newIndex = fTabManager->TabForView(editor);
-		fTabManager->SelectTab(newIndex, &selectTabInfo);
-
-		// TODO: Move some other stuff into _PostFileLoad()
-		_PostFileLoad(editor);
-
-		// apply LSP edits
-		std::string edit = msg->GetString("edit", "");
-		if (!edit.empty())
-			editor->ApplyEdit(edit);
-
-		LogInfo("File open: %s [%d]", editor->Name().String(), index);
+		_ApplyEditsToSelectedEditor(msg);
+		if (firstAdded == -1)
+			firstAdded = index;
 	}
 
-	if (opened_index > -1 && fTabManager->CountTabs() > opened_index)
-		fTabManager->SelectTab(opened_index);
+	if (firstAdded > -1 && fTabManager->CountTabs() > firstAdded) {
+		fTabManager->SelectTab(firstAdded);
+	}
 
-	return status;
+	return B_OK;
+}
+
+void
+GenioWindow::_ApplyEditsToSelectedEditor(BMessage* msg)
+{
+	// apply LSP edits
+	std::string edit = msg->GetString("edit", "");
+	if (!edit.empty())
+		fTabManager->SelectedEditor()->ApplyEdit(edit);
+}
+
+status_t
+GenioWindow::_SelectEditorToPosition(int32 index, int32 be_line, int32 lsp_char)
+{
+	GMessage selectTabInfo = {{"start:line", be_line},{"start:character", lsp_char}};
+
+	if (index != fTabManager->SelectedTabIndex()) {
+		fTabManager->SelectTab(index, &selectTabInfo);
+	} else {
+		Editor* selected = fTabManager->SelectedEditor();
+		if (lsp_char >= 0 && be_line > -1) {
+			selected->GoToLSPPosition(be_line - 1, lsp_char);
+		} else if (be_line > -1) {
+			selected->GoToLine(be_line);
+		}
+		selected->GrabFocus();
+	}
+	return B_OK;
+}
+status_t
+GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32 be_line, int32 lsp_char)
+{
+	if (!BEntry(ref).Exists())
+			return B_ERROR;
+
+	if (!_FileIsSupported(ref)) {
+		if (openWithPreferred)
+			_FileOpenWithPreferredApp(ref); // TODO: make this optional?
+		return B_ERROR;
+	}
+
+	//this will force getting the caret position from file attributes when loaded.
+	GMessage selectTabInfo = {{ "caret_position", true }, {"start:line", be_line},{"start:character", lsp_char}};
+
+	int32 index = fTabManager->SelectedTabIndex() + 1;
+	Editor* editor = _AddEditorTab(ref, index, &selectTabInfo);
+
+	LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
+
+	if (index < 0 || editor == nullptr) {
+		LogError("Failed adding editor");
+		return B_ERROR;
+	}
+
+	status_t status = editor->LoadFromFile();
+	if (status != B_OK) {
+		LogError("Failed loading file: %s", ::strerror(status));
+		return status;
+	}
+
+	// register the file as a recent one.
+	be_roster->AddToRecentDocuments(ref, GenioNames::kApplicationSignature);
+
+	// Select the newly added tab
+	int32 newIndex = fTabManager->TabForView(editor);
+	fTabManager->SelectTab(newIndex, &selectTabInfo);
+
+	// TODO: Move some other stuff into _PostFileLoad()
+	_PostFileLoad(editor);
+
+	LogInfo("File open: %s [%d]", editor->Name().String(), index);
+	return B_OK;
 }
 
 

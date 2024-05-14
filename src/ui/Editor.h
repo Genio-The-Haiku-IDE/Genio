@@ -75,17 +75,11 @@ struct EditorConfig {
 
 class Editor : public BScintillaView {
 public:
-	/*enum symbols_status {
-		STATUS_NOT_INITIALIZED	= 0, //"Creating outline"
-		STATUS_NO_SYMBOLS		= 1, //"No outline available"
-		STATUS_HAS_SYMBOLS		= 2
-	};*/
-	/* new symbol status */
 	enum symbols_status {
 		STATUS_UNKOWN			= 0, // "<empty string>"
 		STATUS_NO_CAPABILITY	= 1, // "No outline available"
 		STATUS_REQUESTED		= 2, // "Creating outline"
-		_STATUS_HAS_SYMBOLS		= 3
+		STATUS_HAS_SYMBOLS		= 3, // <list of symbols (if any)>
 	};
 
 								Editor(entry_ref* ref, const BMessenger& target);
@@ -141,7 +135,7 @@ public:
 
 			void				SetProblems();
 
-			void				SetDocumentSymbols(const BMessage* symbols);
+			void				SetDocumentSymbols(const BMessage* symbols, Editor::symbols_status status);
 			void				GetDocumentSymbols(BMessage* symbols) const;
 
 			filter_result		BeforeKeyDown(BMessage*);

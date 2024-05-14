@@ -1985,21 +1985,17 @@ Editor::SetProblems()
 
 
 void
-Editor::SetDocumentSymbols(const BMessage* symbols)
+Editor::SetDocumentSymbols(const BMessage* symbols, Editor::symbols_status status)
 {
 	// make absolutely sure we're locked
 	if (!Window()->IsLocked()) {
 		debugger("The looper must be locked !");
 	}
-	if (symbols->HasMessage("symbol"))
-		fSymbolsStatus = STATUS_HAS_SYMBOLS;
-	else
-		fSymbolsStatus = STATUS_NO_SYMBOLS;
 
 	fDocumentSymbols = *symbols;
 	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
 	fDocumentSymbols.AddRef("ref", &fFileRef);
-	fDocumentSymbols.AddInt32("status", fSymbolsStatus);
+	fDocumentSymbols.AddInt32("status", status);
 
 	std::set<std::pair<std::string, int32> >::const_iterator iterator;
 	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {

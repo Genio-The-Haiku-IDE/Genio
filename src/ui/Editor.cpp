@@ -122,6 +122,9 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	//Wrap visual flag
 	SendMessage(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_MARGIN);
+
+	// This ensure that a GoToLine call will try to center on screen the line.
+	SendMessage(SCI_SETVISIBLEPOLICY, VISIBLE_STRICT);
 }
 
 bool

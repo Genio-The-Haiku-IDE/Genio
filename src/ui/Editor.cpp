@@ -124,6 +124,9 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	SendMessage(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_MARGIN);
 
 	fDocumentSymbols.AddInt32("status", STATUS_UNKOWN);
+
+	// This ensure that a GoToLine call will try to center on screen the line.
+	SendMessage(SCI_SETVISIBLEPOLICY, VISIBLE_STRICT);
 }
 
 bool

@@ -4234,10 +4234,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		fProblemsPanel->ClearProblems();
 
-		BMessage symbolNotice(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
-		BMessage symbols;
-		symbols.AddInt32("status", Editor::STATUS_NO_SYMBOLS);
-		symbolNotice.AddMessage("symbols", &symbols);
+		GMessage symbolNotice = {{ "what", MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED},
+								 { "symbols", {{"status", Editor::STATUS_UNKOWN}}}};
 		SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolNotice);
 		return;
 	}

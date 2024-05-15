@@ -16,6 +16,7 @@
 #include <OptionPopUp.h>
 #include <OutlineListView.h>
 #include <ScrollView.h>
+#include <SeparatorView.h>
 #include <Spinner.h>
 #include <StringView.h>
 #include <TextControl.h>
@@ -410,6 +411,10 @@ ConfigWindow::MakeControlFor(GMessage& config)
 			GControl<BColorControl, rgb_color>* control =
 				new GControl<BColorControl, rgb_color>(config, fConfigManager[config["key"]], fConfigManager);
 			return control;
+		}
+		case B_OBJECT_TYPE:
+		{
+			return new BSeparatorView(config["key"], config["label"]);
 		}
 		default:
 		{

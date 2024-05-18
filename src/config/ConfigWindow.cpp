@@ -414,7 +414,13 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		}
 		case B_OBJECT_TYPE:
 		{
-			return new BSeparatorView(config["key"], config["label"]);
+			BView* view = new BStringView(config["key"], config["label"]);
+			BSeparatorView* separator = new BSeparatorView(view);
+			BSize size = view->MinSize();
+			size.width  += size.width/3.0;
+			size.height *= 2.0;
+			separator->SetExplicitMinSize(size);
+			return separator;
 		}
 		default:
 		{

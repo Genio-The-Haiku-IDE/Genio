@@ -22,7 +22,7 @@ public:
 		explicit ConfigManager(const int32 messageWhat);
 				 ~ConfigManager();
 
-		void AddSeparator(const char* group,
+		void AddConfigSeparator(const char* group,
 						  const char* key,
 						  const char* label) {
 

@@ -17,6 +17,7 @@
 #include "LSPEditorWrapper.h"
 #include "GMessage.h"
 #include "EditorMessages.h"
+#include "ProjectBrowser.h"
 
 #undef  B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -62,6 +63,15 @@ EditorContextMenu::_CreateMenu()
 	sMenu->AddSeparatorItem();
 
 	ActionManager::AddItem(MSG_FIND_IN_BROWSER, sMenu);
+
+	entry_ref ref;
+	BMessage* refMessage = new BMessage();
+	refMessage->AddRef("ref", &ref);
+	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, sMenu, refMessage);
+
+	refMessage = new BMessage(*refMessage);
+	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, sMenu, refMessage);
+
 }
 
 
@@ -109,10 +119,15 @@ EditorContextMenu::Show(Editor* editor, BPoint point)
 		ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
 	}
 
+	ActionManager::GetMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER, sMenu)->ReplaceRef("ref", editor->FileRef());
+	ActionManager::GetMessage(MSG_PROJECT_MENU_OPEN_TERMINAL, sMenu)->ReplaceRef("ref", editor->FileRef());
+
+
 	bool isFindInBrowserEnable = ActionManager::IsEnabled(MSG_FIND_IN_BROWSER);
 	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, (editor->GetProjectFolder() != nullptr));
 
 	menu->Go(BPoint(point.x, point.y), true);
 
 	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, isFindInBrowserEnable);
+
 }

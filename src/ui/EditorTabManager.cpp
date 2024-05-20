@@ -6,7 +6,9 @@
 
 #include "EditorTabManager.h"
 #include "Editor.h"
+#include "GMessage.h"
 #include "Log.h"
+#include "ProjectBrowser.h"
 #include "ProjectFolder.h"
 #include "ActionManager.h"
 #include "GenioWindowMessages.h"
@@ -25,6 +27,8 @@ EditorTabManager::EditorTabManager(const BMessenger& target) : TabManager(target
 	fPopUpMenu->AddSeparatorItem();
 
 	ActionManager::AddItem(MSG_FIND_IN_BROWSER, fPopUpMenu);
+	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, fPopUpMenu);
+	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, fPopUpMenu);
 
 	fPopUpMenu->SetTargetForItems(target);
 }
@@ -118,9 +122,18 @@ EditorTabManager::GetToolTipText(int32 index)
 void
 EditorTabManager::ShowTabMenu(BMessenger target, BPoint where, int32 index)
 {
+	Editor* editor = EditorAt(index);
 	for (int32 i=0;i<fPopUpMenu->CountItems();i++) {
-		if (fPopUpMenu->ItemAt(i)->Message() != nullptr)
-			fPopUpMenu->ItemAt(i)->Message()->SetInt32("tab_index", index);
+		BMessage* msg = fPopUpMenu->ItemAt(i)->Message();
+		if (msg != nullptr) {
+			msg->SetInt32("tab_index", index);
+			if (editor != nullptr) {
+				if (msg->HasRef("ref"))
+					msg->ReplaceRef("ref", editor->FileRef());
+				else
+					msg->AddRef("ref", editor->FileRef());
+			}
+		}
 	}
 
 

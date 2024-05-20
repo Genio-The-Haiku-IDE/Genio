@@ -920,12 +920,22 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_MENU_RENAME_FILE:
 			_ProjectRenameFile();
 			break;
-		case MSG_PROJECT_MENU_SHOW_IN_TRACKER:
-			_ShowSelectedItemInTracker();
-			break;
-		case MSG_PROJECT_MENU_OPEN_TERMINAL:
-			_OpenTerminalWorkingDirectory();
-			break;
+		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				_ShowItemInTracker(&ref);
+				return;
+			}
+		}
+		break;
+		case MSG_PROJECT_MENU_OPEN_TERMINAL:{
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				_OpenTerminalWorkingDirectory(&ref);
+				return;
+			}
+		}
+		break;
 		case MSG_PROJECT_MENU_SET_ACTIVE:
 			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromSelectedItem());
 			break;
@@ -2862,6 +2872,15 @@ GenioWindow::_InitActions()
 								  B_TRANSLATE("Bookmark all"),
 								  "kIconBookmarkPen");
 
+
+	ActionManager::RegisterAction(MSG_PROJECT_MENU_SHOW_IN_TRACKER,
+								  B_TRANSLATE("Show in Tracker"),
+								  B_TRANSLATE("Show in Tracker"));
+
+	ActionManager::RegisterAction(MSG_PROJECT_MENU_OPEN_TERMINAL,
+								  B_TRANSLATE("Open in Terminal"),
+								  B_TRANSLATE("Open in Terminal"));
+
 }
 
 
@@ -3782,14 +3801,13 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 
 status_t
-GenioWindow::_OpenTerminalWorkingDirectory()
+GenioWindow::_OpenTerminalWorkingDirectory(const entry_ref* ref)
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
-	if (selectedProjectItem == nullptr)
+	if (ref == nullptr)
 		return B_BAD_VALUE;
 
-	BEntry itemEntry(selectedProjectItem->GetSourceItem()->EntryRef());
+	BEntry itemEntry(ref);
 	if (!itemEntry.IsDirectory())
 		itemEntry.GetParent(&itemEntry);
 
@@ -3819,14 +3837,13 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 
 
 status_t
-GenioWindow::_ShowSelectedItemInTracker()
+GenioWindow::_ShowItemInTracker(const entry_ref* ref)
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
-	if (selectedProjectItem == nullptr)
+	if (ref == nullptr)
 		return B_BAD_VALUE;
 
-	BEntry itemEntry(selectedProjectItem->GetSourceItem()->EntryRef());
+	BEntry itemEntry(ref);
 	status_t status = itemEntry.InitCheck();
 	if (status == B_OK) {
 		BEntry parentDirectory;

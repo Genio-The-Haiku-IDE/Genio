@@ -1086,6 +1086,10 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->GrabFocus();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 
+
+				GetProjectBrowser()->SelectItemByRef(editor->GetProjectFolder(), *editor->FileRef());
+
+
 				// TODO: when closing then reopening a tab, the message will be empty
 				// because the symbols BMessage returned by GetDocumentSymbols()
 				// is empty as the Editor has just been created

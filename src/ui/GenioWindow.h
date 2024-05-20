@@ -139,9 +139,9 @@ private:
 			void				_ProjectFolderActivate(ProjectFolder* project);
 			void				_TryAssociateEditorWithProject(Editor* editor, ProjectFolder* project);
 
-			status_t			_ShowSelectedItemInTracker();
+			status_t			_ShowItemInTracker(const entry_ref*);
 			status_t			_ShowInTracker(const entry_ref& ref, const node_ref* nref = NULL);
-			status_t			_OpenTerminalWorkingDirectory();
+			status_t			_OpenTerminalWorkingDirectory(const entry_ref* ref);
 
 			void				_Replace(BMessage* message, int32 kind);
 			bool				_ReplaceAllow() const;

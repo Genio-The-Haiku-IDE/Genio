@@ -54,13 +54,17 @@ ActionManager::RegisterAction(int32   msgWhat,
 }
 
 status_t
-ActionManager::AddItem(int32 msgWhat, BMenu* menu)
+ActionManager::AddItem(int32 msgWhat, BMenu* menu, BMessage* extraFields)
 {
 	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
 
 	Action* action = instance.fActionMap[msgWhat];
-	BMenuItem* item = new BMenuItem(action->label, new BMessage(msgWhat), action->shortcut, action->modifiers);
+	if (extraFields == nullptr) {
+		extraFields = new BMessage(msgWhat);
+	}
+	extraFields->what = msgWhat;
+	BMenuItem* item = new BMenuItem(action->label, extraFields, action->shortcut, action->modifiers);
 	menu->AddItem(item);
 	item->SetEnabled(action->enabled);
 	item->SetMarked(action->pressed);
@@ -69,12 +73,16 @@ ActionManager::AddItem(int32 msgWhat, BMenu* menu)
 }
 
 status_t
-ActionManager::AddItem(int32 msgWhat, ToolBar* bar)
+ActionManager::AddItem(int32 msgWhat, ToolBar* bar, BMessage* extraFields)
 {
 	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
 		return B_ERROR;
 	Action* action = instance.fActionMap[msgWhat];
-	bar->AddAction(msgWhat, action->toolTip, action->iconResourceName, true);
+	if (extraFields == nullptr) {
+		extraFields = new BMessage(msgWhat);
+	}
+	extraFields->what = msgWhat;
+	bar->AddAction(extraFields, action->toolTip, action->iconResourceName, true);
 	bar->SetActionEnabled(msgWhat, action->enabled);
 	bar->SetActionPressed(msgWhat, action->pressed);
 	action->toolBarList.AddItem(bar);
@@ -154,4 +162,20 @@ ActionManager::IsEnabled(int32 msgWhat)
 	Action* action = instance.fActionMap[msgWhat];
 
 	return action->enabled;
+}
+
+
+/*static*/
+BMessage*
+ActionManager::GetMessage(int32 msgWhat, BMenu* menu)
+{
+	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+		return nullptr;
+	Action* action = instance.fActionMap[msgWhat];
+
+	for (int i=0; i<action->menuItemList.CountItems();i++)
+		if (action->menuItemList.ItemAt(i)->Menu() == menu)
+			return action->menuItemList.ItemAt(i)->Message();
+
+	return nullptr;
 }

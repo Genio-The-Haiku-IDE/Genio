@@ -424,15 +424,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
 
-	int32 status = Editor::STATUS_NOT_INITIALIZED;
-	msg.FindInt32("status", &status);
-	if (status == Editor::STATUS_NO_SYMBOLS) {
-		// means we don't have any opened file, or file has no symbols
-		fListView->MakeEmpty();
-		fListView->AddItem(new BStringItem(B_TRANSLATE("No outline available")));
-		return;
-	}
-
 	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
 	// Got a message from an unselected editor: ignore.
 	if (editor != nullptr && *editor->FileRef() != *newRef) {
@@ -440,12 +431,21 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 		return;
 	}
 
-	if (status == Editor::STATUS_NOT_INITIALIZED) {
-		// File just opened, LSP hasn't retrieved symbols yet
-		fListView->MakeEmpty();
-		fListView->AddItem(new BStringItem(B_TRANSLATE("Creating outline" B_UTF8_ELLIPSIS)));
-		// TODO: Should we request symbols to LSP ?
-		return;
+	int32 status = msg.GetInt32("status", Editor::STATUS_UNKOWN);
+	switch (status) {
+		case Editor::STATUS_UNKOWN:
+			fListView->MakeEmpty();
+			return;
+		case Editor::STATUS_NO_CAPABILITY:
+			fListView->MakeEmpty();
+			fListView->AddItem(new BStringItem(B_TRANSLATE("No outline available")));
+			return;
+		case Editor::STATUS_REQUESTED:
+			fListView->MakeEmpty();
+			fListView->AddItem(new BStringItem(B_TRANSLATE("Creating outline")));
+			return;
+		default:
+			break;
 	}
 
 	// Save selected item

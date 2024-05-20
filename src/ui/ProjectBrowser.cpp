@@ -6,6 +6,7 @@
 
 #include "ProjectBrowser.h"
 
+#include "ActionManager.h"
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"
 #include "GenioWindow.h"
@@ -500,14 +501,12 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		openFileProjectMenuItem->SetEnabled(isFile);
 	}
 
-	BMenuItem* showInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
-		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
-	BMenuItem* openTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open in Terminal"),
-		new BMessage(MSG_PROJECT_MENU_OPEN_TERMINAL));
-	showInTrackerProjectMenuItem->SetEnabled(true);
-	openTerminalProjectMenuItem->SetEnabled(true);
-	projectMenu->AddItem(showInTrackerProjectMenuItem);
-	projectMenu->AddItem(openTerminalProjectMenuItem);
+	BMessage* refMessage = new BMessage();
+	refMessage->AddRef("ref", projectItem->GetSourceItem()->EntryRef());
+	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, projectMenu, refMessage);
+
+	BMessage* refMessage2 = new BMessage(*refMessage);
+	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, projectMenu, refMessage2);
 
 	projectMenu->SetTargetForItems(Window());
 	projectMenu->Go(ConvertToScreen(where), true);

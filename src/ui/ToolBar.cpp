@@ -63,6 +63,21 @@ ToolBar::AddAction(uint32 command, const char* toolTipText,
 
 
 void
+ToolBar::AddAction(BMessage* msg, const char* toolTipText,
+	const char* iconName, bool lockable)
+{
+	BBitmap *icon = nullptr;
+	if (iconName != nullptr) {
+		icon = new BBitmap(BRect(fIconSize - 1.0f), 0, B_RGBA32);
+		GetVectorIcon(iconName, icon);
+		fActionIcons.emplace(std::make_pair(msg->what, iconName));
+	}
+	BToolBar::AddAction(msg, fDefaultTarget, icon, toolTipText,
+		nullptr, lockable);
+}
+
+
+void
 ToolBar::ChangeIconSize(float newSize)
 {
 	fIconSize = newSize;

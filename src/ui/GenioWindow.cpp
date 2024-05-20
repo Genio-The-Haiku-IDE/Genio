@@ -911,16 +911,25 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_PROJECT_MENU_CLOSE:
-			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromSelectedItem());
+		case MSG_PROJECT_MENU_CLOSE: {
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project",
+									  fProjectsFolderBrowser->GetProjectFromSelectedItem());
+			_ProjectFolderClose(project);
 			break;
+		}
 		case MSG_PROJECT_MENU_DELETE_FILE:
 			_ProjectFileDelete();
 			break;
 		case MSG_PROJECT_MENU_RENAME_FILE:
 			_ProjectRenameFile();
 			break;
-		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
+		case MSG_PROJECT_MENU_SET_ACTIVE: {
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			if (project != nullptr)
+				_ProjectFolderActivate(project);
+     }
+      break;
+      case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				_ShowItemInTracker(&ref);
@@ -936,9 +945,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 		}
 		break;
-		case MSG_PROJECT_MENU_SET_ACTIVE:
-			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromSelectedItem());
-			break;
 		case MSG_PROJECT_OPEN:
 			fOpenProjectFolderPanel->Show();
 			break;
@@ -955,12 +961,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_SETTINGS:
 		{
-			if (fActiveProject != nullptr) {
-				ConfigWindow* window = new ConfigWindow(fActiveProject->Settings());
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", fActiveProject);
+			if (project != nullptr) {
+				ConfigWindow* window = new ConfigWindow(project->Settings());
 				// TODO: Translate
 				BString windowTitle(B_TRANSLATE("Project:"));
 				windowTitle.Append(" ");
-				windowTitle.Append(fActiveProject->Name());
+				windowTitle.Append(project->Name());
 				window->SetTitle(windowTitle.String());
 				window->Show();
 			}
@@ -2775,7 +2782,7 @@ GenioWindow::_InitActions()
 								   "","",'O', B_SHIFT_KEY | B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_CLOSE,
-								   B_TRANSLATE("Close project"),
+								   B_TRANSLATE("Close active project"),
 								   "", "", 'C', B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,

@@ -389,9 +389,6 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	// TODO: change to "indent_size" to be coherent with editorconfig
 	cfg.AddConfig(editor.String(), "tab_width", B_TRANSLATE("Tab width:"), 4, &tabs);
 
-	GMessage zooms = { {"min", -9}, {"max", 19} };
-	cfg.AddConfig(editor.String(), "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
-
 	GMessage styles = { {"mode", "options"} };
 	std::set<std::string> allStyles;
 	Styler::GetAvailableStyles(allStyles);
@@ -417,6 +414,8 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(editorVisual.String(), "show_ruler", B_TRANSLATE("Show vertical ruler"), true);
 	GMessage limits = { {"min", 0}, {"max", 500} };
 	cfg.AddConfig(editorVisual.String(), "ruler_column", B_TRANSLATE("Set ruler to column:"), 100, &limits);
+	GMessage zooms = { {"min", -9}, {"max", 19} };
+	cfg.AddConfig(editorVisual.String(), "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
 	BString build(B_TRANSLATE("Build"));
 	cfg.AddConfig(build.String(), "wrap_console", B_TRANSLATE("Wrap lines in console"), false);

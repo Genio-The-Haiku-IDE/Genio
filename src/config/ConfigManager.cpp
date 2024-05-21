@@ -137,6 +137,16 @@ private:
 	BNode	nodeAttr;
 };
 
+class NoStorePSP : public PermanentStorageProvider {
+public:
+						NoStorePSP(){}
+
+	virtual status_t	Open(BPath destination, kPSPMode mode) { return B_OK; }
+	virtual status_t	Close() { return B_OK; }
+	virtual status_t	LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& parConfig) { return B_OK; }
+	virtual status_t	SaveKey(ConfigManager& manager, const char* key, GMessage& storage) { return B_OK; }
+
+};
 
 ConfigManager::ConfigManager(const int32 messageWhat)
 	:
@@ -164,6 +174,8 @@ ConfigManager::CreatePSPByType(StorageType type)
 			return new BMessagePSP();
 		case kStorageTypeAttribute:
 			return new AttributePSP();
+		case kStorageTypeNoStore:
+			return new NoStorePSP();
 		default:
 			LogErrorF("Invalid StorageType! %d", type);
 			return nullptr;

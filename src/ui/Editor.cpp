@@ -1313,17 +1313,16 @@ Editor::ReplaceOne(const BString& selection, const BString& replacement)
 }
 
 
-ssize_t
+status_t
 Editor::SaveToFile()
 {
 	BFile file;
 	status_t status = file.SetTo(&fFileRef, B_READ_WRITE | B_ERASE_FILE | B_CREATE_FILE);
 	if (status != B_OK)
-		return 0;
+		return status;
 
-	// TODO warn user
 	if ((status = file.Lock()) != B_OK)
-		return 0;
+		return status;
 
 	off_t size = SendMessage(SCI_GETLENGTH, UNSET, UNSET);
 	file.Seek(0, SEEK_SET);
@@ -1333,18 +1332,19 @@ Editor::SaveToFile()
 
 	off_t bytes = file.Write(buffer, size);
 	file.Flush();
-
-	// TODO warn user
-	if ((status = file.Unlock()) != B_OK)
-		return 0;
-
 	delete[] buffer;
+
+	if ((status = file.Unlock()) != B_OK)
+		return status;
+
+	if (bytes != size)
+		return B_ERROR;
 
 	SendMessage(SCI_SETSAVEPOINT, UNSET, UNSET);
 
 	fLSPEditorWrapper->didSave();
 
-	return bytes;
+	return B_OK;
 }
 
 

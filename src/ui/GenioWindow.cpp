@@ -1916,16 +1916,15 @@ GenioWindow::_FileSave(int32 index)
 	// Stop monitoring if needed
 	editor->StopMonitoring();
 
-	ssize_t written = editor->SaveToFile();
-	ssize_t length = editor->SendMessage(SCI_GETLENGTH, 0, 0);
+	status_t saveStatus = editor->SaveToFile();
 
 	// Restart monitoring
 	editor->StartMonitoring();
 
-	if (length == written)
-		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
+	if (saveStatus == B_OK)
+		LogInfoF("File saved! (%s)", editor->FilePath().String());
 	else
-		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
+		LogErrorF("Error saving file! (%s): ", editor->FilePath().String(), ::strerror(saveStatus));
 
 	_PostFileSave(editor);
 

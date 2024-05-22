@@ -121,7 +121,7 @@ public:
 			node_ref *const		NodeRef() { return &fNodeRef; }
 			bool				IsOverwrite();
 
-			ssize_t				SaveToFile();
+			status_t			SaveToFile();
 			status_t			SetFileRef(entry_ref* ref);
 			void				SetReadOnly(bool readOnly = true);
 			status_t			SetSavedCaretPosition();

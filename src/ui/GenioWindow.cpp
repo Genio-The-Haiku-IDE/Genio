@@ -159,6 +159,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fSavePanel(nullptr)
 	, fOpenProjectPanel(nullptr)
 	, fOpenProjectFolderPanel(nullptr)
+	, fImportResourcePanel(nullptr)
 	, fOutputTabView(nullptr)
 	, fProblemsPanel(nullptr)
 	, fBuildLogView(nullptr)
@@ -282,6 +283,7 @@ GenioWindow::~GenioWindow()
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
+	delete fImportResourcePanel;
 	gMainWindow = nullptr;
 }
 
@@ -642,6 +644,11 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_OPEN:
 			fOpenPanel->Show();
 			break;
+		case MSG_IMPORT_RESOURCE:
+		{
+			fImportResourcePanel->Show();
+			break;
+		}
 		case MSG_FILE_PREVIOUS_SELECTED:
 		{
 			int32 index = fTabManager->SelectedTabIndex();
@@ -824,6 +831,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_GOTOIMPLEMENTATION:
 		case MSG_RENAME:
 		case MSG_SWITCHSOURCE:
+		case MSG_LOAD_RESOURCE:
 			_ForwardToSelectedEditor(message);
 			break;
 		case MSG_FIND_IN_BROWSER:
@@ -910,24 +918,40 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_PROJECT_MENU_CLOSE:
-			_ProjectFolderClose(fProjectsFolderBrowser->GetProjectFromSelectedItem());
+		case MSG_PROJECT_MENU_CLOSE: {
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project",
+									  fProjectsFolderBrowser->GetProjectFromSelectedItem());
+			_ProjectFolderClose(project);
 			break;
+		}
 		case MSG_PROJECT_MENU_DELETE_FILE:
 			_ProjectFileDelete();
 			break;
 		case MSG_PROJECT_MENU_RENAME_FILE:
 			_ProjectRenameFile();
 			break;
-		case MSG_PROJECT_MENU_SHOW_IN_TRACKER:
-			_ShowSelectedItemInTracker();
-			break;
-		case MSG_PROJECT_MENU_OPEN_TERMINAL:
-			_OpenTerminalWorkingDirectory();
-			break;
-		case MSG_PROJECT_MENU_SET_ACTIVE:
-			_ProjectFolderActivate(fProjectsFolderBrowser->GetProjectFromSelectedItem());
-			break;
+		case MSG_PROJECT_MENU_SET_ACTIVE: {
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			if (project != nullptr)
+				_ProjectFolderActivate(project);
+     }
+      break;
+      case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				_ShowItemInTracker(&ref);
+				return;
+			}
+		}
+		break;
+		case MSG_PROJECT_MENU_OPEN_TERMINAL:{
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				_OpenTerminalWorkingDirectory(&ref);
+				return;
+			}
+		}
+		break;
 		case MSG_PROJECT_OPEN:
 			fOpenProjectFolderPanel->Show();
 			break;
@@ -944,12 +968,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_SETTINGS:
 		{
-			if (fActiveProject != nullptr) {
-				ConfigWindow* window = new ConfigWindow(fActiveProject->Settings());
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", fActiveProject);
+			if (project != nullptr) {
+				ConfigWindow* window = new ConfigWindow(project->Settings());
 				// TODO: Translate
 				BString windowTitle(B_TRANSLATE("Project:"));
 				windowTitle.Append(" ");
-				windowTitle.Append(fActiveProject->Name());
+				windowTitle.Append(project->Name());
 				window->SetTitle(windowTitle.String());
 				window->Show();
 			}
@@ -1075,17 +1100,20 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->GrabFocus();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 
+
+				GetProjectBrowser()->SelectItemByRef(editor->GetProjectFolder(), *editor->FileRef());
+
+
 				// TODO: when closing then reopening a tab, the message will be empty
 				// because the symbols BMessage returned by GetDocumentSymbols()
 				// is empty as the Editor has just been created
-				if (editor->HasLSPCapability(kLCapDocumentSymbols)) {
-					BMessage symbolsChanged(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
-					BMessage symbols;
-					editor->GetDocumentSymbols(&symbols);
-					symbolsChanged.AddRef("ref", editor->FileRef());
-					symbolsChanged.AddMessage("symbols", &symbols);
-					SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
-				}
+				BMessage symbolsChanged(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+				BMessage symbols;
+				editor->GetDocumentSymbols(&symbols);
+				symbolsChanged.AddRef("ref", editor->FileRef());
+				symbolsChanged.AddMessage("symbols", &symbols);
+				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
+
 			}
 			break;
 		}
@@ -1683,98 +1711,129 @@ GenioWindow::_FileCloseAll()
 	}
 }
 
+status_t
+GenioWindow::_FileOpenAtStartup(BMessage* msg)
+{
+	int32 opened_index = msg->GetInt32("opened_index", 0);
+	entry_ref ref;
+	int32 refsCount = 0;
+	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
+		_FileOpenWithPosition(&ref, false, -1,-1);
+	}
+	if (fTabManager->CountTabs() > opened_index) {
+		fTabManager->SelectTab(opened_index);
+	}
+	return B_OK;
+}
 
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
 {
-	int32 opened_index = msg->GetInt32("opened_index", fTabManager->SelectedTabIndex() + 1);
+	//start-up files.
+	if (msg->HasInt32("opened_index")) {
+		return _FileOpenAtStartup(msg);
+	}
 
-	const int32 be_line   = msg->GetInt32("start:line", msg->GetInt32("be:line", -1));
-	const int32 lsp_char  = msg->GetInt32("start:character", -1);
-
-	BMessage selectTabInfo;
-	selectTabInfo.AddInt32("start:line", be_line);
-	selectTabInfo.AddInt32("start:character", lsp_char);
-
-	bool openWithPreferred	= msg->GetBool("openWithPreferred", false);
-
-	status_t status = B_OK;
+	int32 firstAdded = -1;
 	entry_ref ref;
 	int32 refsCount = 0;
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
-		// Check existence
-		BEntry entry(&ref);
-		if (!entry.Exists())
-			continue;
-		// first let's see if it's already opened.
-		const int32 openedIndex = _GetEditorIndex(&ref);
-		if (openedIndex != -1) {
-			if (openedIndex != fTabManager->SelectedTabIndex()) {
-				fTabManager->SelectTab(openedIndex, &selectTabInfo);
-			} else {
-				if (lsp_char >= 0 && be_line > -1) {
-					fTabManager->SelectedEditor()->GoToLSPPosition(be_line - 1, lsp_char);
-				} else if (be_line > -1) {
-					fTabManager->SelectedEditor()->GoToLine(be_line);
-				}
 
-				fTabManager->SelectedEditor()->GrabFocus();
-			}
+		const int32 be_line   = msg->GetInt32("start:line", msg->GetInt32("be:line", -1));
+		const int32 lsp_char  = msg->GetInt32("start:character", -1);
+		const bool openWithPreferred = msg->GetBool("openWithPreferred", false);
 
-			// apply LSP edits
-			std::string edit = msg->GetString("edit", "");
-			if (!edit.empty())
-				fTabManager->SelectedEditor()->ApplyEdit(edit);
-
-			continue;
+		int32 index = _GetEditorIndex(&ref);
+		if (index != -1) {
+			_SelectEditorToPosition(index, be_line, lsp_char);
+		} else {
+			if(_FileOpenWithPosition(&ref , openWithPreferred, be_line, lsp_char) != B_OK)
+				continue;
+			index = _GetEditorIndex(&ref);
 		}
 
-		if (!_FileIsSupported(&ref)) {
-			if (openWithPreferred)
-				_FileOpenWithPreferredApp(&ref); // TODO: make this optional?
-			continue;
-		}
-
-		// register the file as a recent one.
-		be_roster->AddToRecentDocuments(&ref, GenioNames::kApplicationSignature);
-
-		// new file to load..
-		selectTabInfo.AddBool("caret_position", true);
-		int32 index = fTabManager->SelectedTabIndex() + 1;
-		Editor* editor = _AddEditorTab(&ref, index, &selectTabInfo);
-
-		LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
-
-		if (index < 0 || editor == nullptr) {
-			LogError("Failed adding editor");
-			continue;
-		}
-
-		status = editor->LoadFromFile();
-		if (status != B_OK) {
-			LogError("Failed loading file: %s", ::strerror(status));
-			continue;
-		}
-
-		// Select the newly added tab
-		int32 newIndex = fTabManager->TabForView(editor);
-		fTabManager->SelectTab(newIndex, &selectTabInfo);
-
-		// TODO: Move some other stuff into _PostFileLoad()
-		_PostFileLoad(editor);
-
-		// apply LSP edits
-		std::string edit = msg->GetString("edit", "");
-		if (!edit.empty())
-			editor->ApplyEdit(edit);
-
-		LogInfo("File open: %s [%d]", editor->Name().String(), index);
+		_ApplyEditsToSelectedEditor(msg);
+		if (firstAdded == -1)
+			firstAdded = index;
 	}
 
-	if (opened_index > -1 && fTabManager->CountTabs() > opened_index)
-		fTabManager->SelectTab(opened_index);
+	if (firstAdded > -1 && fTabManager->CountTabs() > firstAdded) {
+		fTabManager->SelectTab(firstAdded);
+	}
 
-	return status;
+	return B_OK;
+}
+
+void
+GenioWindow::_ApplyEditsToSelectedEditor(BMessage* msg)
+{
+	// apply LSP edits
+	std::string edit = msg->GetString("edit", "");
+	if (!edit.empty())
+		fTabManager->SelectedEditor()->ApplyEdit(edit);
+}
+
+status_t
+GenioWindow::_SelectEditorToPosition(int32 index, int32 be_line, int32 lsp_char)
+{
+	GMessage selectTabInfo = {{"start:line", be_line},{"start:character", lsp_char}};
+
+	if (index != fTabManager->SelectedTabIndex()) {
+		fTabManager->SelectTab(index, &selectTabInfo);
+	} else {
+		Editor* selected = fTabManager->SelectedEditor();
+		if (lsp_char >= 0 && be_line > -1) {
+			selected->GoToLSPPosition(be_line - 1, lsp_char);
+		} else if (be_line > -1) {
+			selected->GoToLine(be_line);
+		}
+		selected->GrabFocus();
+	}
+	return B_OK;
+}
+status_t
+GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32 be_line, int32 lsp_char)
+{
+	if (!BEntry(ref).Exists())
+			return B_ERROR;
+
+	if (!_FileIsSupported(ref)) {
+		if (openWithPreferred)
+			_FileOpenWithPreferredApp(ref); // TODO: make this optional?
+		return B_ERROR;
+	}
+
+	//this will force getting the caret position from file attributes when loaded.
+	GMessage selectTabInfo = {{ "caret_position", true }, {"start:line", be_line},{"start:character", lsp_char}};
+
+	int32 index = fTabManager->SelectedTabIndex() + 1;
+	Editor* editor = _AddEditorTab(ref, index, &selectTabInfo);
+
+	LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
+
+	if (index < 0 || editor == nullptr) {
+		LogError("Failed adding editor");
+		return B_ERROR;
+	}
+
+	status_t status = editor->LoadFromFile();
+	if (status != B_OK) {
+		LogError("Failed loading file: %s", ::strerror(status));
+		return status;
+	}
+
+	// register the file as a recent one.
+	be_roster->AddToRecentDocuments(ref, GenioNames::kApplicationSignature);
+
+	// Select the newly added tab
+	int32 newIndex = fTabManager->TabForView(editor);
+	fTabManager->SelectTab(newIndex, &selectTabInfo);
+
+	// TODO: Move some other stuff into _PostFileLoad()
+	_PostFileLoad(editor);
+
+	LogInfo("File open: %s [%d]", editor->Name().String(), index);
+	return B_OK;
 }
 
 
@@ -1856,16 +1915,15 @@ GenioWindow::_FileSave(int32 index)
 	// Stop monitoring if needed
 	editor->StopMonitoring();
 
-	ssize_t written = editor->SaveToFile();
-	ssize_t length = editor->SendMessage(SCI_GETLENGTH, 0, 0);
+	status_t saveStatus = editor->SaveToFile();
 
 	// Restart monitoring
 	editor->StartMonitoring();
 
-	if (length == written)
-		LogInfoF("File saved! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
+	if (saveStatus == B_OK)
+		LogInfoF("File saved! (%s)", editor->FilePath().String());
 	else
-		LogErrorF("Error saving file! (%s) bytes(%ld) -> written(%ld)", editor->FilePath().String(), length, written);
+		LogErrorF("Error saving file! (%s): ", editor->FilePath().String(), ::strerror(saveStatus));
 
 	_PostFileSave(editor);
 
@@ -2305,7 +2363,8 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 	int32 opcode;
 	status_t status;
 	if ((status = msg->FindInt32("opcode", &opcode)) != B_OK) {
-		// TODO notify
+		LogError("Node monitor message without an opcode!");
+		msg->PrintToStream();
 		return;
 	}
 
@@ -2342,8 +2401,11 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 				|| msg->FindInt64("node", &nref.node) != B_OK)
 					break;
 
-			// Special case: not real B_ENTRY_REMOVED.
-			// Happens on a 'git switch' command.
+			// Some git commands generate a B_ENTRY_REMOVED
+			// even if the file is just 'replaced' by another version
+			// to avoid this to be managed as a real file removed event,
+			// let's check if the removed file exists.
+
 			node_ref dirRef;
 			dirRef.device = nref.device;
 			dirRef.node = dir;
@@ -2356,15 +2418,25 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 					if (path.Append(name.String()) == B_OK) {
 						entry.SetTo(path.Path());
 						if (entry.Exists()) {
-						// this will automatically send a file update.
+							// a B_STAT_CHANGED will follow.
 							return;
 						}
 					}
-
 				}
 			}
 
-			_HandleExternalRemoveModification(_GetEditorIndex(&nref));
+			// It could happens that the above check fails even if the file is there
+			// (maybe because the file is quickly recreated and we check in the instant where there is no file)
+			// lets take some time by reposting the same message to the Looper!
+			if (msg->GetBool("second_try", false) == true) {
+				// If after the second check, the file is really missing..
+				// Let's handle as a true file removed event.
+				_HandleExternalRemoveModification(_GetEditorIndex(&nref));
+			} else {
+				// Let's try again.
+				msg->AddBool("second_try", true);
+				PostMessage(msg);
+			}
 			break;
 		}
 		case B_STAT_CHANGED: {
@@ -2375,60 +2447,10 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 				|| msg->FindInt64("node", &nref.node) != B_OK
 				|| msg->FindInt32("fields", &fields) != B_OK)
 					break;
-#if defined DEBUG
-switch (fields) {
-	case B_STAT_MODE:
-	case B_STAT_UID:
-	case B_STAT_GID:
-		LogDebugF("MODES");
-		break;
-	case B_STAT_SIZE:
-		LogDebugF("B_STAT_SIZE");
-		break;
-	case B_STAT_ACCESS_TIME:
-		LogDebugF("B_STAT_ACCESS_TIME");
-		break;
-	case B_STAT_MODIFICATION_TIME:
-		LogDebugF("B_STAT_MODIFICATION_TIME");
-		break;
-	case B_STAT_CREATION_TIME:
-		LogDebugF("B_STAT_CREATION_TIME");
-		break;
-	case B_STAT_CHANGE_TIME:
-		LogDebugF("B_STAT_CHANGE_TIME");
-		break;
-	case B_STAT_INTERIM_UPDATE:
-		LogDebugF("B_STAT_INTERIM_UPDATE");
-		break;
-	default:
-		LogDebugF("fields is: %d", fields);
-		break;
-}
-#endif
+
 			if ((fields & (B_STAT_MODE | B_STAT_UID | B_STAT_GID)) != 0)
-				; 			// TODO recheck permissions
-			/*
-			 * Note: Pe and StyledEdit seems to cope differently on modifications,
-			 *       firing different messages on the same modification of the
-			 *       same file.
-			 *   E.g. on changing file size
-			 *				Pe fires				StyledEdit fires
-			 *			B_STAT_CHANGE_TIME			B_STAT_CHANGE_TIME
-			 *			B_STAT_CHANGE_TIME			fields is: 0x2008
-			 *			fields is: 0x28				B_STAT_CHANGE_TIME
-			 *										B_STAT_CHANGE_TIME
-			 *										B_STAT_CHANGE_TIME
-			 *										B_STAT_MODIFICATION_TIME
-			 *
-			 *   E.g. on changing file data but keeping the same file size
-			 *				Pe fires				StyledEdit fires
-			 *			B_STAT_CHANGE_TIME			B_STAT_CHANGE_TIME
-			 *			B_STAT_CHANGE_TIME			fields is: 0x2008
-			 *			B_STAT_MODIFICATION_TIME	B_STAT_CHANGE_TIME
-			 *										B_STAT_CHANGE_TIME
-			 *										B_STAT_CHANGE_TIME
-			 *										B_STAT_MODIFICATION_TIME
-			 */
+				break; 			// TODO recheck permissions
+
 			if (((fields & B_STAT_MODIFICATION_TIME)  != 0)
 			// Do not reload if the file just got touched
 				&& ((fields & B_STAT_ACCESS_TIME)  == 0)) {
@@ -2608,6 +2630,9 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_FILE_CLOSE_OTHER,
 								  B_TRANSLATE("Close other"));
 
+	ActionManager::RegisterAction(MSG_IMPORT_RESOURCE,
+									B_TRANSLATE("Import as RDEF array" B_UTF8_ELLIPSIS));
+
 	ActionManager::RegisterAction(B_QUIT_REQUESTED,
 	                               B_TRANSLATE("Quit"),
 								   "", "", 'Q');
@@ -2730,7 +2755,7 @@ GenioWindow::_InitActions()
 								   "","",'O', B_SHIFT_KEY | B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_CLOSE,
-								   B_TRANSLATE("Close project"),
+								   B_TRANSLATE("Close active project"),
 								   "", "", 'C', B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,
@@ -2831,6 +2856,15 @@ GenioWindow::_InitActions()
 								  B_TRANSLATE("Bookmark all"),
 								  "kIconBookmarkPen");
 
+
+	ActionManager::RegisterAction(MSG_PROJECT_MENU_SHOW_IN_TRACKER,
+								  B_TRANSLATE("Show in Tracker"),
+								  B_TRANSLATE("Show in Tracker"));
+
+	ActionManager::RegisterAction(MSG_PROJECT_MENU_OPEN_TERMINAL,
+								  B_TRANSLATE("Open in Terminal"),
+								  B_TRANSLATE("Open in Terminal"));
+
 }
 
 
@@ -2880,6 +2914,7 @@ GenioWindow::_InitMenu()
 	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
 			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), nullptr, nullptr, this,
 			kRecentFilesNumber, true, nullptr, GenioNames::kApplicationSignature), nullptr));
+	ActionManager::AddItem(MSG_IMPORT_RESOURCE, fileMenu);
 
 	fileMenu->AddSeparatorItem();
 
@@ -2896,6 +2931,7 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FIND_IN_BROWSER, fileMenu);
 
 	ActionManager::SetEnabled(MSG_FILE_NEW,  false);
+	ActionManager::SetEnabled(MSG_IMPORT_RESOURCE,  false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE, false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_AS, false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);
@@ -3311,6 +3347,9 @@ GenioWindow::_InitWindow()
 
 	fOpenPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), &ref, B_FILE_NODE, true);
 	fSavePanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this), &ref, B_FILE_NODE, false);
+
+	fImportResourcePanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this), nullptr, B_FILE_NODE, true,
+		new BMessage(MSG_LOAD_RESOURCE));
 
 	BMessage *openProjectFolderMessage = new BMessage(MSG_PROJECT_FOLDER_OPEN);
 	fOpenProjectFolderPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this),
@@ -3752,14 +3791,13 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 
 status_t
-GenioWindow::_OpenTerminalWorkingDirectory()
+GenioWindow::_OpenTerminalWorkingDirectory(const entry_ref* ref)
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
-	if (selectedProjectItem == nullptr)
+	if (ref == nullptr)
 		return B_BAD_VALUE;
 
-	BEntry itemEntry(selectedProjectItem->GetSourceItem()->EntryRef());
+	BEntry itemEntry(ref);
 	if (!itemEntry.IsDirectory())
 		itemEntry.GetParent(&itemEntry);
 
@@ -3789,14 +3827,13 @@ GenioWindow::_OpenTerminalWorkingDirectory()
 
 
 status_t
-GenioWindow::_ShowSelectedItemInTracker()
+GenioWindow::_ShowItemInTracker(const entry_ref* ref)
 {
 	// TODO: return value is ignored: make it void ?
-	ProjectItem* selectedProjectItem = fProjectsFolderBrowser->GetSelectedProjectItem();
-	if (selectedProjectItem == nullptr)
+	if (ref == nullptr)
 		return B_BAD_VALUE;
 
-	BEntry itemEntry(selectedProjectItem->GetSourceItem()->EntryRef());
+	BEntry itemEntry(ref);
 	status_t status = itemEntry.InitCheck();
 	if (status == B_OK) {
 		BEntry parentDirectory;
@@ -4204,10 +4241,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 		fProblemsPanel->ClearProblems();
 
-		BMessage symbolNotice(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
-		BMessage symbols;
-		symbols.AddInt32("status", Editor::STATUS_NO_SYMBOLS);
-		symbolNotice.AddMessage("symbols", &symbols);
+		GMessage symbolNotice = {{ "what", MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED},
+								 { "symbols", {{"status", Editor::STATUS_UNKOWN}}}};
 		SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolNotice);
 		return;
 	}
@@ -4220,6 +4255,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	ActionManager::SetEnabled(MSG_FILE_SAVE, editor->IsModified());
 	ActionManager::SetEnabled(MSG_FILE_CLOSE, true);
 	ActionManager::SetEnabled(MSG_FILE_CLOSE_OTHER, fTabManager->CountTabs()>1);
+	ActionManager::SetEnabled(MSG_IMPORT_RESOURCE, editor->FilePath().IEndsWith(".rdef"));
 
 	ActionManager::SetEnabled(MSG_BUFFER_LOCK, true);
 	ActionManager::SetPressed(MSG_BUFFER_LOCK, editor->IsReadOnly());

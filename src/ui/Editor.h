@@ -76,10 +76,12 @@ struct EditorConfig {
 class Editor : public BScintillaView {
 public:
 	enum symbols_status {
-		STATUS_NOT_INITIALIZED = 0,
-		STATUS_NO_SYMBOLS = 1,
-		STATUS_HAS_SYMBOLS = 2
+		STATUS_UNKOWN			= 0, // "<empty string>"
+		STATUS_NO_CAPABILITY	= 1, // "No outline available"
+		STATUS_REQUESTED		= 2, // "Creating outline"
+		STATUS_HAS_SYMBOLS		= 3, // <list of symbols (if any)>
 	};
+
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
 	virtual	void 				MessageReceived(BMessage* message);
@@ -119,7 +121,7 @@ public:
 			node_ref *const		NodeRef() { return &fNodeRef; }
 			bool				IsOverwrite();
 
-			ssize_t				SaveToFile();
+			status_t			SaveToFile();
 			status_t			SetFileRef(entry_ref* ref);
 			void				SetReadOnly(bool readOnly = true);
 			status_t			SetSavedCaretPosition();
@@ -133,7 +135,7 @@ public:
 
 			void				SetProblems();
 
-			void				SetDocumentSymbols(const BMessage* symbols);
+			void				SetDocumentSymbols(const BMessage* symbols, Editor::symbols_status status);
 			void				GetDocumentSymbols(BMessage* symbols) const;
 
 			filter_result		BeforeKeyDown(BMessage*);
@@ -220,6 +222,7 @@ private:
 			BString	const		_EndOfLineString();
 			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();
+			void 				_LoadResources(BMessage *message);
 			void				_MaintainIndentation(char c);
 			void				_SetLineIndentation(int line, int indent);
 			void				_BraceHighlight();
@@ -263,7 +266,7 @@ private:
 
 			BMessage			fProblems;
 			BMessage			fDocumentSymbols;
-			symbols_status		fSymbolsStatus;
+			//symbols_status		fSymbolsStatus;
 			std::set<std::pair<std::string, int32> > fCollapsedSymbols;
 
 			// editorconfig

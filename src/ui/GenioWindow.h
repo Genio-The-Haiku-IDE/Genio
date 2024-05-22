@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "GMessage.h"
+#include "ResourceImport.h"
 
 enum {
 	kProjectsOutline = 0,
@@ -242,6 +243,7 @@ private:
 			BFilePanel*			fOpenProjectPanel;
 			BFilePanel*			fOpenProjectFolderPanel;
 			BFilePanel*			fCreateNewProjectPanel;
+			BFilePanel*			fImportResourcePanel;
 
 			// Bottom panels
 			BTabView*			fOutputTabView;

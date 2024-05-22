@@ -216,6 +216,7 @@ private:
 			BString	const		_EndOfLineString();
 			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();
+			void 				_LoadResources(BMessage *message);
 			void				_MaintainIndentation(char c);
 			void				_SetLineIndentation(int line, int indent);
 			void				_BraceHighlight();

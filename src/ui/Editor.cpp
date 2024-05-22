@@ -69,7 +69,6 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
 	, fProjectFolder(NULL)
-//	, fSymbolsStatus(STATUS_NOT_INITIALIZED)
 	, fIdleHandler(nullptr)
 {
 	fStatusView = new editor::StatusView(this);
@@ -129,11 +128,13 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	SendMessage(SCI_SETVISIBLEPOLICY, VISIBLE_STRICT);
 }
 
+
 bool
 Editor::HasLSPServer() const
 {
 	return (fLSPEditorWrapper && fLSPEditorWrapper->HasLSPServer());
 }
+
 
 bool
 Editor::HasLSPCapability(const LSPCapability cap)
@@ -416,11 +417,13 @@ Editor::ApplySettings()
 	UpdateStatusBar();
 }
 
+
 void
 Editor::ApplyEdit(std::string info)
 {
 	fLSPEditorWrapper->ApplyEdit(info);
 }
+
 
 void
 Editor::BookmarkClearAll(int marker)
@@ -497,23 +500,23 @@ Editor::TrimTrailingWhitespace()
 bool
 Editor::CanClear()
 {
-	return ((SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
-				!IsReadOnly());
+	return (SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
+				!IsReadOnly();
 }
 
 
 bool
 Editor::CanCopy()
 {
-	return (SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0);
+	return SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0;
 }
 
 
 bool
 Editor::CanCut()
 {
-	return ((SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
-				!IsReadOnly());
+	return (SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
+				!IsReadOnly();
 }
 
 
@@ -613,6 +616,7 @@ Editor::FilePath() const
 	return path.Path();
 }
 
+
 int32
 Editor::Find(const BString&  text, int flags, bool backwards, bool onWrap)
 {
@@ -636,6 +640,7 @@ Editor::Find(const BString&  text, int flags, bool backwards, bool onWrap)
 	}
 	return position;
 }
+
 
 int
 Editor::FindInTarget(const BString& search, int flags, int startPosition, int endPosition)
@@ -698,6 +703,7 @@ Editor::FindMarkAll(const BString& text, int flags)
 	return count;
 }
 
+
 int
 Editor::FindNext(const BString& search, int flags, bool wrap)
 {
@@ -748,6 +754,7 @@ Editor::GoToLine(int32 line)
 	SendMessage(SCI_GOTOLINE, line, UNSET);
 	EnsureVisiblePolicy();
 }
+
 
 void
 Editor::GoToLSPPosition(int32 line, int character)
@@ -1536,7 +1543,7 @@ Editor::StartMonitoring()
 		LogErrorF("Can't start watch_node a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
 		return status;
 	}
-	return	B_OK;
+	return B_OK;
 }
 
 
@@ -1665,18 +1672,15 @@ void
 Editor::SetProjectFolder(ProjectFolder* proj)
 {
 	fProjectFolder = proj;
-	if (proj) {
+	if (proj != nullptr) {
 		LSPProjectWrapper* lspProject = proj->GetLSPServer(fFileType.c_str());
-		if (lspProject)
+		if (lspProject != nullptr)
 			fLSPEditorWrapper->SetLSPServer(lspProject);
 		else
 			fLSPEditorWrapper->UnsetLSPServer();
-	}
-	else
+	} else
 		fLSPEditorWrapper->UnsetLSPServer();
 
-	// BMessage empty;
-	// SetProblems(&empty);
 	SetProblems();
 }
 

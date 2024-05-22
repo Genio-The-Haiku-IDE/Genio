@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 Nexus6 <nexus6.haiku@icloud.com>
+ * Copyright 2022-2023 Nexus6 <nexus6@disroot.org>
  * Copyright 2017..2018 A. Mosca <amoscaster@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
@@ -90,7 +90,6 @@ static float kOutputWeight  = 0.4f;
 BRect dirtyFrameHack;
 
 static float kDefaultIconSize = 32.0;
-
 
 static bool
 AcceptsCopyPaste(BView* view)
@@ -3159,6 +3158,7 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FULLSCREEN, windowMenu);
 	ActionManager::AddItem(MSG_FOCUS_MODE, windowMenu);
 	fMenuBar->AddItem(windowMenu);
+
 }
 
 

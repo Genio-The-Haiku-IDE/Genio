@@ -71,7 +71,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
 	, fProjectFolder(NULL)
-	, fSymbolsStatus(STATUS_NOT_INITIALIZED)
+//	, fSymbolsStatus(STATUS_NOT_INITIALIZED)
 	, fIdleHandler(nullptr)
 {
 	fStatusView = new editor::StatusView(this);
@@ -124,6 +124,11 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	//Wrap visual flag
 	SendMessage(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_MARGIN);
+
+	fDocumentSymbols.AddInt32("status", STATUS_UNKOWN);
+
+	// This ensure that a GoToLine call will try to center on screen the line.
+	SendMessage(SCI_SETVISIBLEPOLICY, VISIBLE_STRICT);
 }
 
 bool
@@ -372,8 +377,6 @@ Editor::ApplySettings()
 	SendMessage(SCI_SETUSETABS, fEditorConfig.IndentStyle==IndentStyle::Tab, 0);
 	SendMessage(SCI_SETTABWIDTH, fEditorConfig.IndentSize, 0);
 	SendMessage(SCI_SETINDENT, 0, 0);
-	if (fEditorConfig.TrimTrailingWhitespace)
-		TrimTrailingWhitespace();
 	EndOfLineConvert(fEditorConfig.EndOfLine);
 
 	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), 0);
@@ -833,11 +836,10 @@ Editor::LoadEditorConfig()
 				errNum != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
 			editorconfig_handle_destroy(handle);
 			LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(errNum));
-			fHasEditorConfig = false;
 		} else {
-			fHasEditorConfig = true;
-
 			int32 nameValueCount = editorconfig_handle_get_name_value_count(handle);
+			if (nameValueCount != 0)
+				fHasEditorConfig = true;
 
 			/* get settings */
 			// Defaults. TODO: This avoids the compiler error
@@ -1016,7 +1018,8 @@ Editor::NotificationReceived(SCNotification* notification)
 			Looper()->PostMessage(&click, this);
 		}
 		case SCN_DWELLSTART: {
-			fLSPEditorWrapper->StartHover(notification->position);
+			if (Window()->IsActive())
+				fLSPEditorWrapper->StartHover(notification->position);
 			break;
 		}
 		case SCN_DWELLEND: {
@@ -2018,21 +2021,17 @@ Editor::SetProblems()
 
 
 void
-Editor::SetDocumentSymbols(const BMessage* symbols)
+Editor::SetDocumentSymbols(const BMessage* symbols, Editor::symbols_status status)
 {
 	// make absolutely sure we're locked
 	if (!Window()->IsLocked()) {
 		debugger("The looper must be locked !");
 	}
-	if (symbols->HasMessage("symbol"))
-		fSymbolsStatus = STATUS_HAS_SYMBOLS;
-	else
-		fSymbolsStatus = STATUS_NO_SYMBOLS;
 
 	fDocumentSymbols = *symbols;
 	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
 	fDocumentSymbols.AddRef("ref", &fFileRef);
-	fDocumentSymbols.AddInt32("status", fSymbolsStatus);
+	fDocumentSymbols.AddInt32("status", status);
 
 	std::set<std::pair<std::string, int32> >::const_iterator iterator;
 	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {
@@ -2059,7 +2058,7 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 	}
 
 	if (!symbols->HasInt32("status"))
-		symbols->AddInt32("status", fSymbolsStatus);
+		symbols->AddInt32("status", STATUS_UNKOWN);
 
 	// TODO: Refactor:
 	// we should add the "collapsed" property to the symbol, so that

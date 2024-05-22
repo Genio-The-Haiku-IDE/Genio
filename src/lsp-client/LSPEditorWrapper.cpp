@@ -569,6 +569,9 @@ LSPEditorWrapper::_ShowToolTip(const char* text)
 void
 LSPEditorWrapper::_DoHover(nlohmann::json& result)
 {
+	if (fEditor == nullptr || fEditor->Window()->IsActive() == false)
+		return;
+
 	if (result == nlohmann::detail::value_t::null &&
 		!result["contents"].contains("value")) {
 		EndHover();
@@ -836,6 +839,11 @@ LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
 {
 	fInitialized = true;
 	didOpen();
+	BMessage symbols;
+	if (HasLSPServerCapability(kLCapDocumentSymbols))
+		fEditor->SetDocumentSymbols(&symbols, Editor::STATUS_REQUESTED);
+	else
+		fEditor->SetDocumentSymbols(&symbols, Editor::STATUS_NO_CAPABILITY);
 }
 
 
@@ -883,7 +891,7 @@ LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 		}
 	}
 	if (fEditor != nullptr)
-		fEditor->SetDocumentSymbols(&msg);
+		fEditor->SetDocumentSymbols(&msg, Editor::STATUS_HAS_SYMBOLS);
 }
 
 

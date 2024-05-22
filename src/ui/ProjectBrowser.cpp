@@ -6,6 +6,7 @@
 
 #include "ProjectBrowser.h"
 
+#include "ActionManager.h"
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"
 #include "GenioWindow.h"
@@ -34,9 +35,13 @@
 #include <cassert>
 #include <cstdio>
 
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
+const uint32 kTick = 'tick';
+
+static BMessageRunner* sAnimationTickRunner;
 
 ProjectBrowser::ProjectBrowser()
 	: BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
@@ -127,7 +132,9 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 			if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 				if (LockLooper()) {
 					Select(IndexOf(item));
-					Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+					BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
+					closePrj.AddPointer("project", item->GetSourceItem());
+					Window()->PostMessage(&closePrj);
 
 					// It seems not possible to track the project folder to the new
 					// location outside of the watched path. So we close the project
@@ -163,7 +170,9 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 					if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 						if (LockLooper()) {
 							Select(IndexOf(item));
-							Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+							BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
+							closePrj.AddPointer("project", item->GetSourceItem());
+							Window()->PostMessage(&closePrj);
 
 							auto alert = new BAlert("ProjectFolderChanged",
 							B_TRANSLATE("The project folder has been renamed. It will be closed and reopened automatically."),
@@ -178,9 +187,9 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 								message->FindInt32("device", &ref.device);
 								message->FindString("name", &name);
 								ref.set_name(name);
-								auto msg = new BMessage(MSG_PROJECT_FOLDER_OPEN);
-								msg->AddRef("refs", &ref);
-								Window()->PostMessage(msg);
+								BMessage msg(MSG_PROJECT_FOLDER_OPEN);
+								msg.AddRef("refs", &ref);
+								Window()->PostMessage(&msg);
 							}
 							UnlockLooper();
 						}
@@ -313,7 +322,6 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			msg.AddRef("refs", item->GetSourceItem()->EntryRef());
 			msg.AddBool("openWithPreferred", true);
 			Window()->PostMessage(&msg);
-			return;
 			break;
 		}
 		case MSG_PROJECT_MENU_DO_RENAME_FILE:
@@ -325,6 +333,15 @@ ProjectBrowser::MessageReceived(BMessage* message)
 							BString(B_TRANSLATE("An error occurred attempting to rename file ")) <<
 								newName, B_WARNING_ALERT);
 				}
+			}
+			break;
+		}
+		case kTick:
+		{
+			if (fIsBuilding) {
+				// TODO: Only invalidate the project item
+				ProjectItem::TickAnimation();
+				Invalidate();
 			}
 			break;
 		}
@@ -420,12 +437,20 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	fFileNewProjectMenuItem->SetEnabled(true);
 
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"),
-			new BMessage(MSG_PROJECT_MENU_CLOSE));
-		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"),
-			new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
+
+		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
+		closePrj->AddPointer("project", (void*)project);
+		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"), closePrj);
+
+		BMessage* setActive = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
+		setActive->AddPointer("project", (void*)project);
+		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"), setActive);
+
+		BMessage* projSettings = new BMessage(MSG_PROJECT_SETTINGS);
+		projSettings->AddPointer("project", (void*)project);
 		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
-			new BMessage(MSG_PROJECT_SETTINGS));
+			projSettings);
+
 		projectMenu->AddItem(closeProjectMenuItem);
 		projectMenu->AddItem(setActiveProjectMenuItem);
 		projectMenu->AddItem(projectSettingsMenuItem);
@@ -444,7 +469,6 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		if (!project->Active())
 			setActiveProjectMenuItem->SetEnabled(true);
 		if (fIsBuilding || !project->Active()) {
-			projectSettingsMenuItem->SetEnabled(false);
 			buildMenuItem->SetEnabled(false);
 			cleanMenuItem->SetEnabled(false);
 		}
@@ -477,14 +501,12 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		openFileProjectMenuItem->SetEnabled(isFile);
 	}
 
-	BMenuItem* showInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
-		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
-	BMenuItem* openTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open in Terminal"),
-		new BMessage(MSG_PROJECT_MENU_OPEN_TERMINAL));
-	showInTrackerProjectMenuItem->SetEnabled(true);
-	openTerminalProjectMenuItem->SetEnabled(true);
-	projectMenu->AddItem(showInTrackerProjectMenuItem);
-	projectMenu->AddItem(openTerminalProjectMenuItem);
+	BMessage* refMessage = new BMessage();
+	refMessage->AddRef("ref", projectItem->GetSourceItem()->EntryRef());
+	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, projectMenu, refMessage);
+
+	BMessage* refMessage2 = new BMessage(*refMessage);
+	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, projectMenu, refMessage2);
 
 	projectMenu->SetTargetForItems(Window());
 	projectMenu->Go(ConvertToScreen(where), true);
@@ -523,6 +545,7 @@ ProjectBrowser::GetSelectedProjectItem() const
 
 	return dynamic_cast<ProjectItem*>(ItemAt(selection));
 }
+
 
 ProjectItem*
 ProjectBrowser::GetProjectItemForProject(ProjectFolder* folder)
@@ -597,6 +620,12 @@ ProjectBrowser::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->UnlockLooper();
 	}
+
+	ProjectItem::InitAnimationIcons();
+
+	BMessage message(kTick);
+	if (sAnimationTickRunner == nullptr)
+		sAnimationTickRunner = new BMessageRunner(BMessenger(this), &message, bigtime_t(100000));
 }
 
 
@@ -604,6 +633,11 @@ ProjectBrowser::AttachedToWindow()
 void
 ProjectBrowser::DetachedFromWindow()
 {
+	delete sAnimationTickRunner;
+	sAnimationTickRunner = nullptr;
+
+	ProjectItem::DisposeAnimationIcons();
+
 	BOutlineListView::DetachedFromWindow();
 
 	if (Window()->LockLooper()) {
@@ -613,19 +647,6 @@ ProjectBrowser::DetachedFromWindow()
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->UnlockLooper();
 	}
-}
-
-// NOTE: this is a workaround to avoid a bug introduced on BListItem on 06-Dec-2023
-// https://github.com/haiku/haiku/commit/6761bf581fd14cac9fd22825fa6baa399263dc83
-// https://dev.haiku-os.org/ticket/18716
-
-void
-ProjectBrowser::MouseUp(BPoint where)
-{
-	if (CountItems() == 0)
-		return;
-
-	BOutlineListView::MouseUp(where);
 }
 
 /* virtual */

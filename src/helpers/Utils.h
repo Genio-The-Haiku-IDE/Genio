@@ -30,7 +30,7 @@ struct entry_ref;
 std::string GetFileName(const std::string filename);
 std::string GetFileExtension(const std::string filename);
 // Gets an icon from executable's resources
-void GetVectorIcon(const std::string icon, BBitmap* bitmap);
+status_t GetVectorIcon(const std::string icon, BBitmap* bitmap);
 
 
 std::string ParseFileArgument(const std::string argument,

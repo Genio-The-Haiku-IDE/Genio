@@ -72,7 +72,7 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 	snprintf(buffer, sizeof(buffer), "\nresource(%s, \"%s\") %s array {\n",
 		indexString.String(),
 		name.String(), type.String());
-	size_t size = strlen(buffer);
+	size_t size = strnlen(buffer, sizeof(buffer));
 
 	ssize_t written = stream->Write(buffer, size);
 	if (written < 0)
@@ -103,7 +103,7 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 						b[24], b[25], b[26], b[27],
 						b[28], b[29], b[30], b[31]);
 
-		size = strlen(buffer);
+		size = strnlen(buffer, sizeof(buffer));
 		written = stream->Write(buffer, size);
 		if (written != (ssize_t)size) {
 			if (written >= 0)
@@ -119,7 +119,7 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 	// beginning of last line
 	if (ret >= B_OK && sourceSize > 0) {
 		snprintf(buffer, sizeof(buffer), "	$\"");
-		size = strlen(buffer);
+		size = strnlen(buffer, sizeof(buffer));
 		written = stream->Write(buffer, size);
 		if (written != (ssize_t)size) {
 			if (written >= 0)
@@ -133,7 +133,7 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 	if (ret >= B_OK && sourceSize > 0) {
 		for (size_t i = 0; i < sourceSize; i++) {
 			snprintf(buffer, sizeof(buffer), "%.2X", b[i]);
-			size = strlen(buffer);
+			size = strnlen(buffer, sizeof(buffer));
 			written = stream->Write(buffer, size);
 			if (written != (ssize_t)size) {
 				if (written >= 0)
@@ -147,7 +147,7 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 	if (ret >= B_OK) {
 		// finish
 		snprintf(buffer, sizeof(buffer), endQuotes ? "\"\n};\n" : "};\n");
-		size = strlen(buffer);
+		size = strnlen(buffer, sizeof(buffer));
 		written = stream->Write(buffer, size);
 		if (written != (ssize_t)size) {
 			if (written >= 0)

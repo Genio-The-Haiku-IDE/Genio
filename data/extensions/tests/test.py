@@ -152,7 +152,7 @@ def main():
 	Insert()
 	Undo()
 	Append()
-	# Undo()
+	Undo()
 
 
 if __name__ == "__main__":

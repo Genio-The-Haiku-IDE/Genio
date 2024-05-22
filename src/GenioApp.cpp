@@ -479,8 +479,8 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 // Genio Scripting
 namespace Properties {
 	enum GeneralProperties {
-		Editors,
-		Editor,
+		EditorCount,
+		EditorCreate,
 		SelectedEditor
 	};
 
@@ -496,7 +496,7 @@ namespace Properties {
 
 const property_info sGeneralProperties[] = {
 	{
-		"Editors", {B_COUNT_PROPERTIES, 0},
+		"Editor", {B_COUNT_PROPERTIES, 0},
 		{B_DIRECT_SPECIFIER, 0},
 		"Return the number of Editors opened.",
 		0,
@@ -523,14 +523,14 @@ const property_info sEditorProperties[] = {
 	{
 		"Selection", {B_GET_PROPERTY, B_SET_PROPERTY, 0},
 		{B_DIRECT_SPECIFIER, B_RANGE_SPECIFIER, 0},
-		"Return the selected text from the current editor.",
+		"Get/Set the selected text.",
 		0,
 		{B_STRING_TYPE, B_STRING_TYPE, 0}
 	},
 	{
 		"Symbol", {B_GET_PROPERTY, 0},
 		{B_DIRECT_SPECIFIER, 0},
-		"Return the symbol under the caret from the current editor.",
+		"Return the symbol under the caret.",
 		0,
 		{B_STRING_TYPE, 0}
 	},
@@ -594,14 +594,14 @@ GenioApp::_HandleScripting(BMessage* data)
 	BPropertyInfo propertyInfo(const_cast<property_info*>(sGeneralProperties));
 	int32 match = propertyInfo.FindMatch(data, index, &specifier, what, property);
 	switch (match) {
-		case Properties::GeneralProperties::Editors:
+		case Properties::GeneralProperties::EditorCount:
 		{
 			if (data->what == B_COUNT_PROPERTIES) {
 				result = reply.AddInt32("result", fGenioWindow->TabManager()->CountTabs());
 			}
 			break;
 		}
-		case Properties::GeneralProperties::Editor:
+		case Properties::GeneralProperties::EditorCreate:
 		{
 			if (data->what == B_CREATE_PROPERTY) {
 				BString name;

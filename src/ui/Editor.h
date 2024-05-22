@@ -158,6 +158,7 @@ public:
 			void				Append(BString text);
 			const 	BString		GetLine(int32 lineNumber);
 			void				InsertLine(BString text, int32 lineNumber);
+			int32				CountLines();
 
 private:
 
@@ -206,7 +207,6 @@ private:
 			bool				IsSearchSelected(const BString& search, int flags);
 			int32				GetCurrentPosition();
 			void				CommentSelectedLines();
-			int32				CountLines();
 
 			void				DuplicateCurrentLine();
 			void				DeleteSelectedLines();

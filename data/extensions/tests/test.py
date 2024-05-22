@@ -5,7 +5,7 @@
 
 import sys, time
 from Be import BMessenger, BMessage, BString, BEntry, BPath, \
-	B_EXECUTE_PROPERTY, B_GET_PROPERTY, B_SET_PROPERTY, B_CREATE_PROPERTY, B_ANY_TYPE
+	B_EXECUTE_PROPERTY, B_GET_PROPERTY, B_SET_PROPERTY, B_CREATE_PROPERTY, B_COUNT_PROPERTIES
 
 genio = BMessenger("application/x-vnd.Genio")
 
@@ -47,6 +47,17 @@ def SetSelection(index, length):
 	genio.SendMessage(message, None)
 
 
+def GetLine(lineNumber):
+	message = BMessage(B_GET_PROPERTY)
+	message.AddSpecifier("Line", lineNumber)
+	message.AddSpecifier("SelectedEditor")
+	reply = BMessage()
+	genio.SendMessage(message, reply)
+	result = reply.GetString("result", "")
+	error = reply.GetInt32("error", 0)
+	return result, error
+
+
 def Line():
 	testString = "\t\tThis is a new line\n"
 	message = BMessage(B_SET_PROPERTY)
@@ -58,19 +69,23 @@ def Line():
 	result = reply.GetString("result", "")
 	error = reply.GetInt32("error", 0)
 
-	message = BMessage(B_GET_PROPERTY)
-	message.AddSpecifier("Line", 2)
-	message.AddSpecifier("SelectedEditor")
-	reply = BMessage()
-	genio.SendMessage(message, reply)
-	result = reply.GetString("result", "")
+	GetLine(2)
 	# print("Expected result: " + testString)
 	# print("Result: " + result)
-	error = reply.GetInt32("error", 0)
 	if result == testString and error == 0:
 		print("test *Line* PASSED!")
 	else:
 		print("test *Line* FAILED! with error: " + str(error))
+
+
+def CountLines():
+	message = BMessage(B_COUNT_PROPERTIES)
+	message.AddSpecifier("Line")
+	message.AddSpecifier("SelectedEditor")
+	reply = BMessage()
+	genio.SendMessage(message, reply)
+	result = reply.GetInt32("result", -1)
+	return result
 
 
 def Insert():
@@ -98,6 +113,28 @@ def Insert():
 	else:
 		print("test *Insert* FAILED! with error: " + str(error))
 
+
+def Append():
+	testString = "**NEW LINE**"
+	newLine = "\n" + testString
+
+	message = BMessage(B_SET_PROPERTY)
+	message.AddSpecifier("Text")
+	message.AddSpecifier("SelectedEditor")
+	message.AddString("data", newLine)
+	genio.SendMessage(message, None)
+
+	lineCount = CountLines()
+	print("line count: ", lineCount)
+	result, error = GetLine(lineCount-1)
+	print("Expected result: " + testString)
+	print("Result: " + result)
+	if result == testString and error == 0:
+		print("test *Append* PASSED!")
+	else:
+		print("test *Append* FAILED! with error: " + str(error))
+
+
 def Undo():
 	message = BMessage(B_EXECUTE_PROPERTY)
 	message.AddSpecifier("Undo")
@@ -114,6 +151,8 @@ def main():
 	Undo()
 	Insert()
 	Undo()
+	Append()
+	# Undo()
 
 
 if __name__ == "__main__":

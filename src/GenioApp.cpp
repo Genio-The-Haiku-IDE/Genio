@@ -488,6 +488,7 @@ namespace Properties {
 		Selection,
 		Symbol,
 		Text,
+		LineCount,
 		Line,
 		Undo,
 		Redo
@@ -542,6 +543,13 @@ const property_info sEditorProperties[] = {
 		"If Index is -1 append at the end of the file.",
 		0,
 		{B_STRING_TYPE, 0}
+	},
+	{
+		"Line", {B_COUNT_PROPERTIES, 0},
+		{B_DIRECT_SPECIFIER, 0},
+		"Return the number of lines in the document.",
+		0,
+		{B_INT32_TYPE, 0}
 	},
 	{
 		"Line", {B_GET_PROPERTY, B_SET_PROPERTY, 0},
@@ -674,6 +682,13 @@ GenioApp::_HandleScripting(BMessage* data)
 							}
 						}
 					}
+					break;
+				}
+				case Properties::EditorProperties::LineCount:
+				{
+					if (data->what == B_COUNT_PROPERTIES)
+						if (editor != nullptr)
+							result = reply.AddInt32("result", editor->CountLines());
 					break;
 				}
 				case Properties::EditorProperties::Line:

@@ -13,7 +13,7 @@ def main():
 	message = BMessage(B_SET_PROPERTY)
 	message.AddSpecifier("Line",2)
 	message.AddSpecifier("SelectedEditor")
-	message.AddString("data","Pipp0")
+	message.AddString("data","test")
 	reply = BMessage()
 	genio.SendMessage(message, reply)
 	result = reply.GetString("result", "")
@@ -21,3 +21,4 @@ def main():
 
 if __name__ == "__main__":
 	main()
+**NEW LINE**

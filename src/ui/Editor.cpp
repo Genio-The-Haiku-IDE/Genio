@@ -1439,7 +1439,7 @@ Editor::GetLine(int32 lineNumber)
 {
 	int32 lineLength = SendMessage(SCI_LINELENGTH, lineNumber, UNSET);
 	char *lineBuffer = new char[lineLength + 1];
-	memset(lineBuffer, '\0', lineLength + 1);
+	lineBuffer[lineLength] = '\0';
 	SendMessage(SCI_GETLINE, lineNumber, (sptr_t)lineBuffer);
 	BString line(lineBuffer, lineLength);
 	delete[] lineBuffer;
@@ -1926,12 +1926,7 @@ Editor::_CommentLine(int32 position)
 
 	const std::string lineCommenter = fCommenter + ' ';
 	int32 lineNumber = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
-	int32 lineLength = SendMessage(SCI_LINELENGTH, lineNumber, UNSET);
-	char *lineBuffer = new char[lineLength + 1];
-	memset(lineBuffer, '\0', lineLength + 1);
-	SendMessage(SCI_GETLINE, lineNumber, (sptr_t)lineBuffer);
-	std::string line(lineBuffer, lineLength);
-	delete[] lineBuffer;
+	std::string line(GetLine(lineNumber).String());
 
 	// Calculate offset of first non-space
 	std::size_t offset = line.find_first_not_of("\t ");

@@ -6,8 +6,8 @@
 
 #include "ResourceImport.h"
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include <DataIO.h>
 #include <Entry.h>
@@ -51,24 +51,25 @@ ResourceImport::ResourceImport(entry_ref &ref, int32 index)
 	}
 }
 
+
 ResourceImport::~ResourceImport()
 {
 }
+
 
 status_t
 ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* stream,
 	BString name, BString type, int32 index) const
 {
-	char buffer[2048];
 	// write header
-
 	BString indexString;
 	if (index != -1)
 		indexString << index;
 	else
 		indexString << "<your resource id here>";
 
-	sprintf(buffer, "\nresource(%s, \"%s\") %s array {\n",
+	char buffer[2048];
+	snprintf(buffer, sizeof(buffer), "\nresource(%s, \"%s\") %s array {\n",
 		indexString.String(),
 		name.String(), type.String());
 	size_t size = strlen(buffer);
@@ -84,7 +85,8 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 
 	// print one line (32 values)
 	while (sourceSize >= 32) {
-		sprintf(buffer, "	$\"%.2X%.2X%.2X%.2X"
+		snprintf(buffer, sizeof(buffer),
+					"	$\"%.2X%.2X%.2X%.2X"
 						"%.2X%.2X%.2X%.2X"
 						"%.2X%.2X%.2X%.2X"
 						"%.2X%.2X%.2X%.2X"
@@ -116,7 +118,7 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 	}
 	// beginning of last line
 	if (ret >= B_OK && sourceSize > 0) {
-		sprintf(buffer, "	$\"");
+		snprintf(buffer, sizeof(buffer), "	$\"");
 		size = strlen(buffer);
 		written = stream->Write(buffer, size);
 		if (written != (ssize_t)size) {
@@ -130,7 +132,7 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 	bool endQuotes = sourceSize > 0;
 	if (ret >= B_OK && sourceSize > 0) {
 		for (size_t i = 0; i < sourceSize; i++) {
-			sprintf(buffer, "%.2X", b[i]);
+			snprintf(buffer, sizeof(buffer), "%.2X", b[i]);
 			size = strlen(buffer);
 			written = stream->Write(buffer, size);
 			if (written != (ssize_t)size) {
@@ -144,7 +146,7 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 	}
 	if (ret >= B_OK) {
 		// finish
-		sprintf(buffer, endQuotes ? "\"\n};\n" : "};\n");
+		snprintf(buffer, sizeof(buffer), endQuotes ? "\"\n};\n" : "};\n");
 		size = strlen(buffer);
 		written = stream->Write(buffer, size);
 		if (written != (ssize_t)size) {
@@ -157,4 +159,3 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 
 	return ret;
 }
-

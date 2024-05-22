@@ -201,6 +201,18 @@ SearchResultPanel::UpdateSearch(BMessage* msg)
 
 
 void
+SearchResultPanel::KeyDown(const char* bytes, int32 numBytes)
+{
+	if (numBytes > 0 && bytes[0] == B_DELETE) {
+		RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
+		if (range != nullptr)
+			RemoveRow(range);
+	}
+	BColumnListView::KeyDown(bytes, numBytes);
+}
+
+
+void
 SearchResultPanel::_UpdateTabLabel(const char* txt)
 {
 	BString label = SearchResultPanelLabel;

@@ -150,16 +150,16 @@ GenioApp::ArgvReceived(int32 argc, char** argv)
 	if (i <= 0)
 		return;
 
-	BMessage *message = new BMessage(B_REFS_RECEIVED);
+	BMessage message(B_REFS_RECEIVED);
 	while (i < argc) {
 		entry_ref ref;
 		if (get_ref_for_path(argv[i], &ref) == B_OK) {
-			message->AddRef("refs", &ref);
+			message.AddRef("refs", &ref);
 		}
 		i++;
 	}
-
-	PostMessage(message);
+	if (message.HasRef("refs"))
+		PostMessage(&message);
 }
 
 
@@ -377,6 +377,10 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(editor.String(), "brace_match", B_TRANSLATE("Enable brace matching"), true);
 	cfg.AddConfig(editor.String(), "save_caret", B_TRANSLATE("Save caret position"), true);
 	cfg.AddConfig(editor.String(), "ignore_editorconfig", B_TRANSLATE("Ignore .editorconfig"), false);
+
+	cfg.AddConfigSeparator(editor.String(), "banner_ignore_editorconfig", B_TRANSLATE_COMMENT("These are only applied if no .editorconfig is used:",
+		"The translation shouldn't be much longer than the English original"));
+
 	cfg.AddConfig(editor.String(), "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
 	// TODO: change to "indent_style" to be coherent with editorconfig
 	cfg.AddConfig(editor.String(), "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
@@ -384,9 +388,6 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	GMessage tabs = { {"min",1},{"max",8} };
 	// TODO: change to "indent_size" to be coherent with editorconfig
 	cfg.AddConfig(editor.String(), "tab_width", B_TRANSLATE("Tab width:"), 4, &tabs);
-
-	GMessage zooms = { {"min", -9}, {"max", 19} };
-	cfg.AddConfig(editor.String(), "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
 	GMessage styles = { {"mode", "options"} };
 	std::set<std::string> allStyles;
@@ -413,6 +414,8 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(editorVisual.String(), "show_ruler", B_TRANSLATE("Show vertical ruler"), true);
 	GMessage limits = { {"min", 0}, {"max", 500} };
 	cfg.AddConfig(editorVisual.String(), "ruler_column", B_TRANSLATE("Set ruler to column:"), 100, &limits);
+	GMessage zooms = { {"min", -9}, {"max", 19} };
+	cfg.AddConfig(editorVisual.String(), "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
 	BString build(B_TRANSLATE("Build"));
 	cfg.AddConfig(build.String(), "wrap_console", B_TRANSLATE("Wrap lines in console"), false);

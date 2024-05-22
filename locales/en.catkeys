@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	4293410484
+1	English	application/x-vnd.Genio	2604643766
 Close	RemoteProjectWindow		Close
 Function	OutlineTooltips		Function
 Copy	GenioWindow		Copy
@@ -16,6 +16,7 @@ Global settings applied	EditorStatusView		Global settings applied
 Wrap lines in console	SettingsWindow		Wrap lines in console
 Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Show toolbar	GenioWindow		Show toolbar
+Creating outline	OutlineTooltips		Creating outline
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
 Project settings…	ProjectsFolderBrowser		Project settings…
 Font:	SettingsWindow		Font:
@@ -92,10 +93,11 @@ Unsaved files	QuitAlert		Unsaved files
 Debug	GenioWindow		Debug
 Enum member	OutlineTooltips		Enum member
 Undo	GenioWindow		Undo
-OK	GitCredentialsWindow		OK
 Username:	GitCredentialsWindow		Username:
+OK	GitCredentialsWindow		OK
 Open recent…	GenioWindow		Open recent…
 Boolean	OutlineTooltips		Boolean
+Open in Terminal	GenioWindow		Open in Terminal
 Save	Editor		Save
 Autocomplete	GenioWindow		Autocomplete
 Log size:	SettingsWindow		Log size:
@@ -105,6 +107,7 @@ Conflicts	SourceControlPanel		Conflicts
 New file	GenioWindow		New file
 Previous	GenioWindow	Bookmark menu	Previous
 Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	These are only applied if no .editorconfig is used:
 Show output pane	GenioWindow		Show output pane
 Delete file	ProjectsFolderBrowser		Delete file
 Read-only	GenioWindow		Read-only
@@ -142,7 +145,6 @@ Genio project…	GenioWindow		Genio project…
 Project:	GenioWindow		Project:
 Go to line:	GoToLineWindow		Go to line:
 Constant	OutlineTooltips		Constant
-Close project	GenioWindow		Close project
 Conflicts	GenioWindow		Conflicts
 Replace:	GenioWindow		Replace:
 Tag	GenioWindow	The git command	Tag
@@ -269,7 +271,6 @@ File	GenioWindow		File
 Close other	GenioWindow		Close other
 Delete current line	GenioWindow		Delete current line
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
-Creating outline…	OutlineTooltips		Creating outline…
 Reload files	SettingsWindow		Reload files
 Show folding margin	SettingsWindow		Show folding margin
 Password:	GitCredentialsWindow		Password:
@@ -296,7 +297,6 @@ No fix available	ProblemsPanel		No fix available
 Go to implementation	GenioWindow		Go to implementation
 Array	OutlineTooltips		Array
 Run target	GenioWindow		Run target
-Open in Terminal	ProjectsFolderBrowser		Open in Terminal
 New	ProjectsFolderBrowser		New
 Line	ProblemsPanel		Line
 Language	GenioWindow		Language
@@ -313,14 +313,15 @@ Namespace	OutlineTooltips		Namespace
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
 Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
 Default font	SettingsWindow		Default font
-Show in Tracker	ProjectsFolderBrowser		Show in Tracker
 Wrap lines	SettingsWindow		Wrap lines
 Actions	SourceControlPanel		Actions
 Defaults	ConfigWindow		Defaults
+Close active project	GenioWindow		Close active project
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Zoom in	GenioWindow		Zoom in
 Show outline pane	SettingsWindow		Show outline pane
 Set ruler to column:	SettingsWindow		Set ruler to column:
+Show in Tracker	GenioWindow		Show in Tracker
 Fold/Unfold all	GenioWindow		Fold/Unfold all
 Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
 Bookmark	GenioWindow		Bookmark

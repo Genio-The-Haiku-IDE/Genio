@@ -2,6 +2,12 @@ v3.x
 	- Improved support for OmniSharp with multiple Code Actions
 	- Rename symbols across multiple files
 	- Class Outline
+	- Added an animated icon to a project item when a build is in progress
+	- Added support for .editorconfig
+	- Import multiple files into a RDEF editor as an array
+	- Select an item in the project browser when the current editor changes
+	- Experimental support for application scripting and extensions
+	- Fixed clang compiler required packages
 ---
 v2.1
 	- Added user documentation (courtesy of Humdinger).

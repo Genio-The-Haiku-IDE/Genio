@@ -150,6 +150,15 @@ public:
 			bool				HasLSPServer() const;
 			bool				HasLSPCapability(const LSPCapability cap);
 
+			// Scripting methods
+			const 	BString		Selection();
+			void				SetSelection(int32 start, int32 end);
+			const 	BString		GetSymbol();
+			void				Insert(BString text, int32 start = -1);
+			void				Append(BString text);
+			const 	BString		GetLine(int32 lineNumber);
+			void				InsertLine(BString text, int32 lineNumber);
+			int32				CountLines();
 
 private:
 
@@ -190,8 +199,6 @@ private:
 
 			void				ScrollCaret();
 			void				SelectAll();
-	const 	BString				Selection();
-	const 	BString				GetSymbol();
 	const 	BRect				GetSymbolSurroundingRect();
 			void				SendPositionChanges();
 			BString const		ModeString();
@@ -200,7 +207,6 @@ private:
 			bool				IsSearchSelected(const BString& search, int flags);
 			int32				GetCurrentPosition();
 			void				CommentSelectedLines();
-			int32				CountLines();
 
 			void				DuplicateCurrentLine();
 			void				DeleteSelectedLines();

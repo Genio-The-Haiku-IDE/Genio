@@ -1,0 +1,23 @@
+# **EXAMPLE FILE TO TEST GENIO SCRIPTING CAPABILITY**
+
+# Copyright 2024, The Genio Team
+# All rights reserved. Distributed under the terms of the MIT license.
+# Author: Nexus6 <nexus6@disroot.org>
+
+import sys
+from Be import BMessenger, BMessage\
+	B_EXECUTE_PROPERTY, B_GET_PROPERTY, B_SET_PROPERTY, B_CREATE_PROPERTY
+
+def main():
+	genio = BMessenger("application/x-vnd.Genio")
+	message = BMessage(B_SET_PROPERTY)
+	message.AddSpecifier("Line",2)
+	message.AddSpecifier("SelectedEditor")
+	message.AddString("data","test")
+	reply = BMessage()
+	genio.SendMessage(message, reply)
+	result = reply.GetString("result", "")
+	print(result)
+
+if __name__ == "__main__":
+	main()

@@ -120,7 +120,6 @@ private:
 
 	std::string fRootURI;
 	BMessenger fMessenger;
-	uint32		fWhat;
 	const LSPServerConfigInterface& fServerConfig;
 	uint32	fServerCapabilities;
 };

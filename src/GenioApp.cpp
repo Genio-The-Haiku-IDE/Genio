@@ -589,11 +589,6 @@ GenioApp::_HandleScripting(BMessage* data)
 
 	status_t status = data->GetCurrentSpecifier(&index, &specifier, &what, &property);
 
-	// TODO: remove
-	data->PrintToStream();
-	printf("Index %d\nWhat %d\nProperty %s\nSpecifier\n", index, what, property);
-	specifier.PrintToStream();
-
 	if (status != B_OK || index == -1) {
 		BApplication::MessageReceived(data);
 		return;
@@ -756,7 +751,7 @@ GenioApp::_HandleScripting(BMessage* data)
 status_t
 GenioApp::GetSupportedSuites(BMessage* data)
 {
-	if (data == NULL)
+	if (data == nullptr)
 		return B_BAD_VALUE;
 
 	status_t status = data->AddString("suites", GenioNames::kApplicationSignature);
@@ -764,11 +759,9 @@ GenioApp::GetSupportedSuites(BMessage* data)
 		return status;
 
 	BPropertyInfo propertyInfo(const_cast<property_info*>(sGeneralProperties));
-
 	status = data->AddFlat("messages", &propertyInfo);
-	if (status != B_OK)
-		return status;
-
+	if (status == B_OK)
+		status = BApplication::GetSupportedSuites(data);
 	return status;
 }
 

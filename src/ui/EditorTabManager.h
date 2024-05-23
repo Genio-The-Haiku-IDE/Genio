@@ -21,7 +21,7 @@ public:
 
 	BString		GetToolTipText(int32 index) override;
 
-	void		ShowTabMenu(BMessenger target, BPoint where,int32 index);
+	void		ShowTabMenu(BMessenger target, BPoint where,int32 index) override;
 
 private:
 	BPopUpMenu* fPopUpMenu;

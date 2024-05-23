@@ -16,8 +16,8 @@ public:
 					ProjectItem(SourceItem *sourceFile);
 					virtual ~ProjectItem();
 
-	virtual void 	DrawItem(BView* owner, BRect bounds, bool complete);
-	virtual void 	Update(BView* owner, const BFont* font);
+	void 			DrawItem(BView* owner, BRect bounds, bool complete) override;
+	void 			Update(BView* owner, const BFont* font) override;
 
 	SourceItem		*GetSourceItem() const { return fSourceItem; };
 

@@ -3506,6 +3506,9 @@ GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
 	if (!projectFolder->GetBuildCommand().IsEmpty())
 		return;
 
+	// So we start the spinner and disable the settings menu
+	projectFolder->SetBuildingState(true);
+
 	// TODO: descend into subfolders ?
 	BEntry entry;
 	BDirectory dir(projectFolder->Path());
@@ -3521,8 +3524,8 @@ GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
 			// builder: make
 			projectFolder->SetBuildCommand("make", BuildMode::ReleaseMode);
 			projectFolder->SetCleanCommand("make clean", BuildMode::ReleaseMode);
-			projectFolder->SetBuildCommand("make", BuildMode::DebugMode);
-			projectFolder->SetCleanCommand("make clean", BuildMode::DebugMode);
+			projectFolder->SetBuildCommand("DEBUGGER=1 make", BuildMode::DebugMode);
+			projectFolder->SetCleanCommand("DEBUGGER=1 make clean", BuildMode::DebugMode);
 			LogInfo("Guessed builder: make");
 			break;
 		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
@@ -3535,6 +3538,7 @@ GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
 			break;
 		}
 	}
+	projectFolder->SetBuildingState(false);
 }
 
 

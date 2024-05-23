@@ -75,7 +75,7 @@ from Terminal.
 
 If you would like to try a clang++ build:
 
-*   Install `llvm_clang` hpkg from HaikuPorts
+*   Install `llvm17_clang` and `llvm17_lld` hpkgs from HaikuPorts
 *   Set `BUILD_WITH_CLANG` to `1` in `Makefile`
 
 ### Compiling
@@ -83,13 +83,13 @@ If you would like to try a clang++ build:
 Execute `make deps && make` in Genio's top directory.
 The executable is created in `app` subdirectory.
 
-Genio can also be built within Genio itself. 
+Genio can also be built within Genio itself.
 
 ## Contributions
 
 We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
 For code contributions, prefer Haiku API over posix, where applicable.
-We (try to) stick to the Haiku style for code, although we are a bit less strict sometimes. 
+We (try to) stick to the Haiku style for code, although we are a bit less strict sometimes.
 
 ## License
 

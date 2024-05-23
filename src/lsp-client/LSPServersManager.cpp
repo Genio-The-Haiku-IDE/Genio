@@ -5,14 +5,15 @@
 
 
 #include "LSPServersManager.h"
-#include "LSPLogLevels.h"
+
 #include "ConfigManager.h"
-#include "LSPProjectWrapper.h"
 #include "GenioApp.h"
 #include "Log.h"
+#include "LSPLogLevels.h"
+#include "LSPProjectWrapper.h"
+
 #include <vector>
 #include <string>
-
 
 
 class ClangdServerConfig : public LSPServerConfigInterface {
@@ -72,7 +73,7 @@ public:
 	OmniSharpServerConfig() {
 		thread_id pid = find_thread(NULL);
 		BString spid;
-		spid.SetToFormat(B_PRIi32, pid);
+		spid << (int32)pid;
 		fArgv = {
 			"/boot/system/non-packaged/bin/dotnet/dotnet",
 			"/boot/system/non-packaged/bin/OmniSharp/OmniSharp.dll",

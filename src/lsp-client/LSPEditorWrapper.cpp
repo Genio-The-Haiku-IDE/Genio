@@ -241,13 +241,20 @@ void
 LSPEditorWrapper::_DoRename(json& params)
 {
 	BMessage bjson;
-	for (auto& [uri, edits] : params["changes"].items()) {
-		for (auto& e: edits) {
-			auto edit = e.get<TextEdit>();
-			edit.range.start.line += 1;
-			edit.range.end.line += 1;
+	if (params["changes"].is_array()) {
+		for (auto& [uri, edits] : params["changes"].items()) {
+			for (auto& e: edits) {
+				auto edit = e.get<TextEdit>();
+				edit.range.start.line += 1;
+				edit.range.end.line += 1;
+			}
+			OpenFileURI(uri, -1, -1, edits.dump().c_str());
 		}
-		OpenFileURI(uri, -1, -1, edits.dump().c_str());
+	} else if (params["documentChanges"].is_array()) {
+		for (auto& block : params["documentChanges"]) {
+			std::string uri = block["textDocument"]["uri"].get<std::string>();
+			OpenFileURI(uri, -1, -1, block["edits"].dump().c_str());
+		}
 	}
 }
 

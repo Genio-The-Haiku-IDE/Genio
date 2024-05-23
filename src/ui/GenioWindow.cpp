@@ -3379,7 +3379,7 @@ GenioWindow::_MakeBindcatalogs()
 	// TODO: this only works for makefile_engine based projects
 	BMessage message;
 	if (fActiveProject->GetBuildMode() == BuildMode::DebugMode)
-		message.AddString("cmd", "DEBUGGER=1 make bindcatalogs");
+		message.AddString("cmd", "DEBUGGER=TRUE make bindcatalogs");
 	else
 		message.AddString("cmd", "make bindcatalogs");
 	message.AddString("cmd_type", "bindcatalogs");

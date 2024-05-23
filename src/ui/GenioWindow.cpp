@@ -62,6 +62,7 @@
 #include "SearchResultPanel.h"
 #include "SourceControlPanel.h"
 #include "SwitchBranchMenu.h"
+#include "Task.h"
 #include "TemplatesMenu.h"
 #include "TemplateManager.h"
 #include "TextUtils.h"
@@ -91,6 +92,7 @@ BRect dirtyFrameHack;
 
 static float kDefaultIconSize = 32.0;
 
+using Genio::Task::Task;
 
 static bool
 AcceptsCopyPaste(BView* view)
@@ -3525,6 +3527,48 @@ GenioWindow::_ProjectRenameFile()
 
 
 void
+GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
+{
+	if (!projectFolder->GetBuildCommand().IsEmpty())
+		return;
+
+	// So we start the spinner and disable the settings menu
+	projectFolder->SetBuildingState(true);
+
+	// TODO: descend into subfolders ?
+	BEntry entry;
+	BDirectory dir(projectFolder->Path());
+	while (dir.GetNextEntry(&entry) == B_OK) {
+		// Check if there's a Jamfile or makefile in the root path
+		// of the project
+		if (!entry.IsFile())
+			continue;
+		// guess builder type
+		// TODO: move this away from here, into a specialized class
+		// and maybe into plugins
+		if (strcasecmp(entry.Name(), "makefile") == 0) {
+			// builder: make
+			projectFolder->SetBuildCommand("make", BuildMode::ReleaseMode);
+			projectFolder->SetCleanCommand("make clean", BuildMode::ReleaseMode);
+			projectFolder->SetBuildCommand("DEBUGGER=1 make", BuildMode::DebugMode);
+			projectFolder->SetCleanCommand("DEBUGGER=1 make clean", BuildMode::DebugMode);
+			LogInfo("Guessed builder: make");
+			break;
+		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
+			// builder: jam
+			projectFolder->SetBuildCommand("jam", BuildMode::ReleaseMode);
+			projectFolder->SetCleanCommand("jam clean", BuildMode::ReleaseMode);
+			projectFolder->SetBuildCommand("jam", BuildMode::DebugMode);
+			projectFolder->SetCleanCommand("jam clean", BuildMode::DebugMode);
+			LogInfo("Guessed builder: jam");
+			break;
+		}
+	}
+	projectFolder->SetBuildingState(false);
+}
+
+
+void
 GenioWindow::_TemplateNewFile(BMessage* message)
 {
 	entry_ref source;
@@ -3755,6 +3799,24 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	}
 
 	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
+
+	// TODO: Move this elsewhere!
+	BString taskName;
+	taskName << "Detect " << newProject->Name() << " build system";
+	Task<status_t> task
+	(
+		taskName,
+		BMessenger(this),
+		std::bind
+		(
+			&GenioWindow::_ProjectGuessBuildCommand,
+			this,
+			newProject
+		)
+	);
+
+	task.Run();
+
 
 	// Notify subscribers that project list has changed
 	if (!fDisableProjectNotifications)

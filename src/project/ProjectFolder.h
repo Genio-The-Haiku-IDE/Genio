@@ -98,8 +98,6 @@ public:
 	GitRepository*				GetRepository() const;
 	void						InitRepository(bool createInitialCommit = true);
 
-	void						SetGuessedBuilder(const BString& string);
-
 	const rgb_color				Color() const;
 
 	LSPProjectWrapper*			GetLSPServer(const BString& fileType);
@@ -109,8 +107,6 @@ private:
 	status_t					_LoadOldSettings();
 
 	bool						fActive;
-	BString						fGuessedBuildCommand;
-	BString						fGuessedCleanCommand;
 	std::vector<LSPProjectWrapper*>	fLSPProjectWrappers;
 	ConfigManager*				fSettings;
 	BMessenger					fMessenger;

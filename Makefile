@@ -30,6 +30,7 @@ APP_MIME_SIG := "application/x-vnd.Genio"
 arch := $(shell getarch)
 platform := $(shell uname -p)
 
+SRCS := src/ExtensionManager.cpp
 SRCS := src/GenioApp.cpp
 SRCS += src/alert/GTextAlert.cpp
 SRCS += src/config/ConfigManager.cpp

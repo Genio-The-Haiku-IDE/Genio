@@ -11,6 +11,7 @@
 #include <StringList.h>
 
 class ConfigManager;
+class ExtensionManager;
 class GenioWindow;
 class GenioApp : public BApplication {
 public:
@@ -37,6 +38,8 @@ private:
 
 	GenioWindow*			fGenioWindow;
 	BPath					fConfigurationPath;
+
+	ExtensionManager*		fExtensionManager;
 };
 
 extern ConfigManager gCFG;

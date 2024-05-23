@@ -1,9 +1,6 @@
 ## Genio - The Haiku IDE Makefile ##############################################
 debug ?= 0
-ifeq ($(debug), 0)
-	DEBUGGER :=
-	CFLAGS :=
-else
+ifneq ($(debug), 0)
 	DEBUGGER := TRUE
 	CFLAGS := -DGDEBUG
 endif
@@ -18,10 +15,10 @@ ifeq ($(BUILD_WITH_CLANG), 1)
 	LD  := clang++
 endif
 
-ifeq ($(debug), 0)
-	NAME := Genio
-else
+ifeq ($(strip $(DEBUGGER)), TRUE)
 	NAME := Genio_debug
+else
+	NAME := Genio
 endif
 
 TARGET_DIR := app

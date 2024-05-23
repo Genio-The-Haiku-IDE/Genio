@@ -1,5 +1,5 @@
 /*
- * Orininal code from Idea project
+ * Original code from Ideam project
  * Parts borrowed from SciTe and Koder editors
  * Copyright 2017 A. Mosca 
  * Copyright (c) Neil Hodgson
@@ -1376,6 +1376,7 @@ Editor::SelectAll()
 }
 
 
+// Scripting methods
 const BString
 Editor::Selection()
 {
@@ -1395,7 +1396,65 @@ Editor::GetSymbol()
 	int32 size = end - start;
 	char text[size];
 	GetText(start, size, text);
-	return text;
+	// remove invalid leading characters
+	const std::regex leadingChars("^\\W+");
+	std::string str = std::regex_replace(text, leadingChars, "");
+	return BString(str.c_str());
+}
+
+
+void
+Editor::SetSelection(int32 start, int32 end)
+{
+	SendMessage(SCI_SETSELECTIONSTART, start);
+	SendMessage(SCI_SETSELECTIONEND, end);
+}
+
+
+void
+Editor::Append(BString text)
+{
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+	SendMessage(SCI_APPENDTEXT, text.Length(), (sptr_t)text.String());
+	ScrollCaret();
+	SendMessage(SCI_ENDUNDOACTION, 0, 0);
+}
+
+
+void
+Editor::Insert(BString text, int32 start)
+{
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+	if (start == -1)
+		SendMessage(SCI_REPLACESEL, UNSET, (sptr_t)text.String());
+	else
+		SendMessage(SCI_INSERTTEXT, start, (sptr_t)text.String());
+	ScrollCaret();
+	SendMessage(SCI_ENDUNDOACTION, 0, 0);
+}
+
+
+const BString
+Editor::GetLine(int32 lineNumber)
+{
+	int32 lineLength = SendMessage(SCI_LINELENGTH, lineNumber, UNSET);
+	char *lineBuffer = new char[lineLength + 1];
+	lineBuffer[lineLength] = '\0';
+	SendMessage(SCI_GETLINE, lineNumber, (sptr_t)lineBuffer);
+	BString line(lineBuffer, lineLength);
+	delete[] lineBuffer;
+	return line;
+}
+
+
+void
+Editor::InsertLine(BString text, int32 lineNumber)
+{
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+	SendMessage(SCI_GOTOLINE, lineNumber, UNSET);
+	Insert(text, -1);
+	SendMessage(SCI_NEWLINE, UNSET, UNSET);
+	SendMessage(SCI_ENDUNDOACTION, 0, 0);
 }
 
 
@@ -1648,15 +1707,12 @@ Editor::Rename()
 	// Getting the symbol from the language server would require many async steps.
 	// We instead ask Scintilla to deliver it which should be almost if not entirely accurate
 
-	// remove invalid leading characters
-	const std::string symbol = GetSymbol().String();
-	const std::regex leadingChars("^\\W+");
-	std::string str = std::regex_replace(symbol, leadingChars, "");
+	BString symbol = GetSymbol();
 
 	BString label(B_TRANSLATE("Rename symbol '%symbol_name%':"));
-	label.ReplaceFirst("%symbol_name%", str.c_str());
+	label.ReplaceFirst("%symbol_name%", symbol);
 
-	auto alert = new GTextAlert(B_TRANSLATE("Rename"), label, str.c_str());
+	auto alert = new GTextAlert(B_TRANSLATE("Rename"), label, symbol);
 	auto result = alert->Go();
 	if (result.Button == GAlertButtons::OkButton)
 		fLSPEditorWrapper->Rename(result.Result.String());
@@ -1870,11 +1926,7 @@ Editor::_CommentLine(int32 position)
 
 	const std::string lineCommenter = fCommenter + ' ';
 	int32 lineNumber = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
-	int32 lineLength = SendMessage(SCI_LINELENGTH, lineNumber, UNSET);
-	char *lineBuffer = new char[lineLength];
-	SendMessage(SCI_GETLINE, lineNumber, (sptr_t)lineBuffer);
-	std::string line(lineBuffer);
-	delete[] lineBuffer;
+	std::string line(GetLine(lineNumber).String());
 
 	// Calculate offset of first non-space
 	std::size_t offset = line.find_first_not_of("\t ");

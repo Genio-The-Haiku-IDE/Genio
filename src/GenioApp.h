@@ -24,6 +24,12 @@ public:
 	virtual	void			ReadyToRun();
 	virtual	void			RefsReceived(BMessage* message);
 
+	// Scripting
+	void					_HandleScripting(BMessage* data);
+	virtual status_t		GetSupportedSuites(BMessage* data);
+	virtual	BHandler*		ResolveSpecifier(BMessage* message, int32 index,
+								BMessage* specifier, int32 what, const char* property);
+
 private:
 	static BStringList		_SplitChangeLog(const char* changeLog);
 	int						_HandleArgs(int argc, char **argv);

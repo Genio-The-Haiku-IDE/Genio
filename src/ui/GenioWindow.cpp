@@ -3197,6 +3197,7 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FULLSCREEN, windowMenu);
 	ActionManager::AddItem(MSG_FOCUS_MODE, windowMenu);
 	fMenuBar->AddItem(windowMenu);
+
 }
 
 

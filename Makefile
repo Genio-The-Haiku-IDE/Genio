@@ -6,7 +6,7 @@ ifneq ($(debug), 0)
 endif
 
 ## clang build flag ############################################################
-BUILD_WITH_CLANG := 0
+BUILD_WITH_CLANG ?= 0
 ################################################################################
 ifeq ($(BUILD_WITH_CLANG), 1)
 	# clang build

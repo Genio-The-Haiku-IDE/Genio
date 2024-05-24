@@ -364,14 +364,22 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			switch (code) {
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
+					entry_ref newRef;
+					msg->FindRef("ref", &newRef);
+					Editor* editor = gMainWindow->TabManager()->SelectedEditor();
+					// Got a message from an unselected editor: ignore.
+					if (editor != nullptr && *editor->FileRef() != newRef) {
+						LogTrace("Outline view got a message from an unselected editor. Ignoring...");
+						return;
+					}
+
 					BMessage symbols;
 					if (msg->FindMessage("symbols", &symbols) != B_OK) {
 						debugger("No symbols message");
 						break;
 					}
 					LogTrace("FunctionsOutlineView: Symbols updated message received");
-					entry_ref newRef;
-					msg->FindRef("ref", &newRef);
+
 					_UpdateDocumentSymbols(symbols, &newRef);
 					SelectSymbolByCaretPosition(msg->GetInt32("position", -1));
 					break;
@@ -423,7 +431,7 @@ void
 FunctionsOutlineView::SelectSymbolByCaretPosition(int32 position)
 {
 	BListItem* sym = _RecursiveSymbolByCaretPosition(position, nullptr);
-	if (sym != nullptr) {
+	if (sym != nullptr && sym->IsSelected() == false) {
 		fListView->Select(fListView->IndexOf(sym));
 		fListView->ScrollToSelection();
 	}
@@ -456,13 +464,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	const entry_ref* newRef)
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
-
-	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
-	// Got a message from an unselected editor: ignore.
-	if (editor != nullptr && *editor->FileRef() != *newRef) {
-		LogTrace("Outline view got a message from an unselected editor. Ignoring...");
-		return;
-	}
 
 	int32 status = msg.GetInt32("status", Editor::STATUS_UNKOWN);
 	switch (status) {

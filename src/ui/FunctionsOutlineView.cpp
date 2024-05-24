@@ -448,8 +448,11 @@ FunctionsOutlineView::_RecursiveSymbolByCaretPosition(int32 position, BListItem*
 		if (position >= sym->Details().GetInt32("range:start:line", -1) &&
 			position <= sym->Details().GetInt32("range:end:line", -1) ) {
 
-			if (fListView->CountItemsUnder(sym, true) > 0)
-				return _RecursiveSymbolByCaretPosition(position, sym);
+			if (fListView->CountItemsUnder(sym, true) > 0 && sym->IsExpanded()) {
+				BListItem* subSym = _RecursiveSymbolByCaretPosition(position, sym);
+				if (subSym != nullptr)
+					return subSym;
+			}
 
 			return sym;
 		}

@@ -376,7 +376,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				notifyMessage.AddMessage("symbols", message);
 				notifyMessage.AddRef("ref", &editorRef);
 				if (editor != nullptr)
-					notifyMessage.AddInt32("position", editor->GetCurrentPosition());
+					notifyMessage.AddInt32("caret_line", editor->GetCurrentLineNumber());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
 			}
 			break;
@@ -1120,7 +1120,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->GetDocumentSymbols(&symbols);
 				symbolsChanged.AddRef("ref", editor->FileRef());
 				symbolsChanged.AddMessage("symbols", &symbols);
-				symbolsChanged.AddInt32("position", editor->GetCurrentPosition());
+				symbolsChanged.AddInt32("caret_line", editor->GetCurrentLineNumber());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
 
 			}

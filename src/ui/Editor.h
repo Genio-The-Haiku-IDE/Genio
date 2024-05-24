@@ -159,7 +159,8 @@ public:
 			const 	BString		GetLine(int32 lineNumber);
 			void				InsertLine(BString text, int32 lineNumber);
 			int32				CountLines();
-			int32				GetCurrentPosition();
+			int32				GetCurrentLineNumber();
+
 private:
 
 			int					ReplaceAndFindNext(const BString& selection,
@@ -217,7 +218,7 @@ private:
 			bool				BookmarkGoToNext();
 			bool				BookmarkGoToPrevious();
 			void				BookmarkToggle(int position);
-
+			int32				GetCurrentPosition();
 			BString	const		_EndOfLineString();
 			void				UpdateStatusBar();
 			void				_ApplyExtensionSettings();

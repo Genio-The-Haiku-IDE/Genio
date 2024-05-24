@@ -739,6 +739,11 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 	return position;
 }
 
+int32
+Editor::GetCurrentLineNumber()
+{
+	return SendMessage(SCI_LINEFROMPOSITION, SendMessage(SCI_GETCURRENTPOS, 0, 0), 0);
+}
 
 int32
 Editor::GetCurrentPosition()

@@ -381,7 +381,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 					LogTrace("FunctionsOutlineView: Symbols updated message received");
 
 					_UpdateDocumentSymbols(symbols, &newRef);
-					SelectSymbolByCaretPosition(msg->GetInt32("position", -1));
+					SelectSymbolByCaretPosition(msg->GetInt32("caret_line", -1));
 					break;
 				}
 				default:

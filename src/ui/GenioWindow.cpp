@@ -370,10 +370,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			entry_ref editorRef;
 			if (message->FindRef("ref", &editorRef) == B_OK) {
+				Editor* editor = fTabManager->EditorBy(&editorRef);
 				// add the ref also to the external message
 				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				notifyMessage.AddMessage("symbols", message);
 				notifyMessage.AddRef("ref", &editorRef);
+				if (editor != nullptr)
+					notifyMessage.AddInt32("position", editor->GetCurrentPosition());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
 			}
 			break;
@@ -528,6 +531,8 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (editor == fTabManager->SelectedEditor()) {
 					// Enable Cut,Copy,Paste shortcuts
 					_UpdateSavepointChange(editor, "EDITOR_POSITION_CHANGED");
+					//update the OulineView according to the new position.
+					fFunctionsOutlineView->SelectSymbolByCaretPosition(message->GetInt32("line", -1));
 				}
 			}
 			break;
@@ -1115,6 +1120,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->GetDocumentSymbols(&symbols);
 				symbolsChanged.AddRef("ref", editor->FileRef());
 				symbolsChanged.AddMessage("symbols", &symbols);
+				symbolsChanged.AddInt32("position", editor->GetCurrentPosition());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
 
 			}

@@ -373,6 +373,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 					entry_ref newRef;
 					msg->FindRef("ref", &newRef);
 					_UpdateDocumentSymbols(symbols, &newRef);
+					SelectSymbolByCaretPosition(msg->GetInt32("position", -1));
 					break;
 				}
 				default:
@@ -416,6 +417,38 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			break;
 	}
 }
+
+
+void
+FunctionsOutlineView::SelectSymbolByCaretPosition(int32 position)
+{
+	BListItem* sym = _RecursiveSymbolByCaretPosition(position, nullptr);
+	if (sym != nullptr) {
+		fListView->Select(fListView->IndexOf(sym));
+		fListView->ScrollToSelection();
+	}
+}
+
+
+BListItem*
+FunctionsOutlineView::_RecursiveSymbolByCaretPosition(int32 position, BListItem* parent)
+{
+	for(int32 i=0;i<fListView->CountItemsUnder(parent, true);i++) {
+		SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemUnderAt(parent, true, i));
+		if (sym == nullptr)
+			return nullptr;
+		if (position >= sym->Details().GetInt32("range:start:line", -1) &&
+			position <= sym->Details().GetInt32("range:end:line", -1) ) {
+
+			if (fListView->CountItemsUnder(sym, true) > 0)
+				return _RecursiveSymbolByCaretPosition(position, sym);
+
+			return sym;
+		}
+	}
+	return nullptr;
+}
+
 
 
 void

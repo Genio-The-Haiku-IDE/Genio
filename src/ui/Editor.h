@@ -159,7 +159,7 @@ public:
 			const 	BString		GetLine(int32 lineNumber);
 			void				InsertLine(BString text, int32 lineNumber);
 			int32				CountLines();
-
+			int32				GetCurrentPosition();
 private:
 
 			int					ReplaceAndFindNext(const BString& selection,
@@ -205,7 +205,6 @@ private:
 			void				OverwriteToggle();
 			BString const		IsOverwriteString();
 			bool				IsSearchSelected(const BString& search, int flags);
-			int32				GetCurrentPosition();
 			void				CommentSelectedLines();
 
 			void				DuplicateCurrentLine();

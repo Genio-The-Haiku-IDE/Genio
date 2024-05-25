@@ -1390,7 +1390,7 @@ Editor::Selection()
 const BString
 Editor::GetSymbol()
 {
-	int32 position = SendMessage(SCI_GETCURRENTPOS);
+	int32 position = SendMessage(SCI_GETSELECTIONSTART, 0, 0);
 	int32 start = SendMessage(SCI_WORDSTARTPOSITION, position);
 	int32 end = SendMessage(SCI_WORDENDPOSITION, position);
 	int32 size = end - start;

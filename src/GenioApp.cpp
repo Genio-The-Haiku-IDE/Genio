@@ -491,7 +491,8 @@ namespace Properties {
 		LineCount,
 		Line,
 		Undo,
-		Redo
+		Redo,
+		Ref
 	};
 }
 
@@ -571,6 +572,13 @@ const property_info sEditorProperties[] = {
 		"Redo last change.",
 		0,
 		{0}
+	},
+	{
+		"Ref", {B_GET_PROPERTY, 0},
+		{B_DIRECT_SPECIFIER, 0},
+		"Return the entry_ref of the document.",
+		0,
+		{B_REF_TYPE, 0}
 	},
 	{ 0 }
 };
@@ -724,6 +732,13 @@ GenioApp::_HandleScripting(BMessage* data)
 							result = B_OK;
 						}
 					}
+					break;
+				}
+				case Properties::EditorProperties::Ref:
+				{
+					if (data->what == B_GET_PROPERTY)
+						if (editor != nullptr)
+							result = reply.AddRef("result", editor->FileRef());
 					break;
 				}
 			}

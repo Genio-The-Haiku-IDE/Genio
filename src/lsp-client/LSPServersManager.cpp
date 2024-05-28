@@ -47,8 +47,8 @@ public:
 	}
 
 	const bool	IsFileTypeSupported(const BString& fileType) const {
-		if (fileType.Compare("cpp")  != 0 &&
-			fileType.Compare("c")    != 0 &&
+		if (fileType.Compare("cpp") != 0 &&
+			fileType.Compare("c") != 0 &&
 			fileType.Compare("makefile") != 0)
 			return false;
 		return true;
@@ -64,7 +64,7 @@ public:
 		};
 	}
 	const bool	IsFileTypeSupported(const BString& fileType) const {
-		return (fileType.Compare("python")  == 0);
+		return (fileType.Compare("python") == 0);
 	}
 };
 
@@ -86,10 +86,7 @@ public:
 		fOffset = 0;
 	}
 	const bool	IsFileTypeSupported(const BString& fileType) const {
-		return (fileType.Compare("cs") != 0 &&
-				fileType.Compare("csproj") != 0 &&
-				fileType.Compare("sln") != 0 &&
-				fileType.Compare("cake") != 0);
+		return (fileType.Compare("csharp") == 0);
 	}
 };
 

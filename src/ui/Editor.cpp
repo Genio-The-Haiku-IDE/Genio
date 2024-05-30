@@ -124,7 +124,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	//Wrap visual flag
 	SendMessage(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_MARGIN);
 
-	fDocumentSymbols.AddInt32("status", STATUS_UNKOWN);
+	fDocumentSymbols.AddInt32("status", STATUS_UNKNOWN);
 
 	// This ensure that a GoToLine call will try to center on screen the line.
 	SendMessage(SCI_SETVISIBLEPOLICY, VISIBLE_STRICT);
@@ -2119,7 +2119,7 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 	}
 
 	if (!symbols->HasInt32("status"))
-		symbols->AddInt32("status", STATUS_UNKOWN);
+		symbols->AddInt32("status", STATUS_UNKNOWN);
 
 	// TODO: Refactor:
 	// we should add the "collapsed" property to the symbol, so that

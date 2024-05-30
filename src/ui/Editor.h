@@ -76,7 +76,7 @@ struct EditorConfig {
 class Editor : public BScintillaView {
 public:
 	enum symbols_status {
-		STATUS_UNKOWN			= 0, // "<empty string>"
+		STATUS_UNKNOWN			= 0, // "<empty string>"
 		STATUS_NO_CAPABILITY	= 1, // "No outline available"
 		STATUS_REQUESTED		= 2, // "Creating outline"
 		STATUS_HAS_SYMBOLS		= 3, // <list of symbols (if any)>

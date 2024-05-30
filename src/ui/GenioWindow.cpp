@@ -4320,7 +4320,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fProblemsPanel->ClearProblems();
 
 		GMessage symbolNotice = {{ "what", MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED},
-								 { "symbols", {{"status", Editor::STATUS_UNKOWN}}}};
+								 { "symbols", {{"status", Editor::STATUS_UNKNOWN}}}};
 		SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolNotice);
 		return;
 	}

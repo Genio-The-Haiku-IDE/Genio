@@ -468,9 +468,9 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
 
-	int32 status = msg.GetInt32("status", Editor::STATUS_UNKOWN);
+	int32 status = msg.GetInt32("status", Editor::STATUS_UNKNOWN);
 	switch (status) {
-		case Editor::STATUS_UNKOWN:
+		case Editor::STATUS_UNKNOWN:
 			fListView->MakeEmpty();
 			return;
 		case Editor::STATUS_NO_CAPABILITY:

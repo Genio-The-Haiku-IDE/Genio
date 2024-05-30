@@ -38,66 +38,67 @@ const int32 kDefaultPressed = 'DEFA';
 template<class C, typename T>
 class GControl : public C {
 public:
-		GControl(GMessage& msg, T value, ConfigManager& cfg)
-			:
-			C("", "", nullptr),
-			fConfigManager(cfg) {
-				C::SetName(msg["key"]);
-				C::SetLabel(msg["label"]);
-				LoadValue(value);
+	GControl(GMessage& msg, T value, ConfigManager& cfg)
+	:
+	C("", "", nullptr),
+	fConfigManager(cfg) {
+		C::SetName(msg["key"]);
+		C::SetLabel(msg["label"]);
+		LoadValue(value);
 
-				GMessage* invoke = new GMessage(kOnNewValue);
-				(*invoke)["key"] = msg["key"];
+		GMessage* invoke = new GMessage(kOnNewValue);
+		(*invoke)["key"] = msg["key"];
 
-				C::SetMessage(invoke);
-			}
+		C::SetMessage(invoke);
+	}
 
-		void AttachedToWindow() {
-			C::AttachedToWindow();
-			C::SetTarget(this);
-		}
-		void MessageReceived(BMessage* msg) {
-			GMessage& gsm = *(GMessage*)(msg);
-			if (msg->what == kOnNewValue) {
-				fConfigManager[gsm["key"]] = RetrieveValue();
-			} else if (msg->what == kSetValueNoUpdate) {
-				LoadValue(fConfigManager[gsm["key"]]);
-			} else
-				C::MessageReceived(msg);
-		}
+	void AttachedToWindow() {
+		C::AttachedToWindow();
+		C::SetTarget(this);
+	}
 
-		T RetrieveValue() {
-			return (T)C::Value();
-		}
+	void MessageReceived(BMessage* msg) {
+		GMessage& gsm = *(GMessage*)(msg);
+		if (msg->what == kOnNewValue) {
+			fConfigManager[gsm["key"]] = RetrieveValue();
+		} else if (msg->what == kSetValueNoUpdate) {
+			LoadValue(fConfigManager[gsm["key"]]);
+		} else
+			C::MessageReceived(msg);
+	}
 
-		void LoadValue(T value) {
-			C::SetValue(value);
-		}
+	T RetrieveValue() {
+		return (T)C::Value();
+	}
+
+	void LoadValue(T value) {
+		C::SetValue(value);
+	}
 private:
-		ConfigManager&	fConfigManager;
+	ConfigManager&	fConfigManager;
 };
 
 
 template<>
 const char* GControl<BTextControl, const char*>::RetrieveValue()
 {
-       return BTextControl::Text();
+	return BTextControl::Text();
 }
 
 
 template<>
 void GControl<BTextControl, const char*>::LoadValue(const char* value)
 {
-       BTextControl::SetText(value);
+	BTextControl::SetText(value);
 }
 
 
 template<>
 const char* GControl<BOptionPopUp, const char*>::RetrieveValue()
 {
-	   const char* label = nullptr;
-	   BOptionPopUp::SelectedOption(&label, nullptr);
-	   return label;
+	const char* label = nullptr;
+	BOptionPopUp::SelectedOption(&label, nullptr);
+	return label;
 }
 
 
@@ -141,9 +142,10 @@ rgb_color GControl<BColorControl, rgb_color>::RetrieveValue()
 
 
 ConfigWindow::ConfigWindow(ConfigManager &configManager)
-    : BWindow(BRect(), B_TRANSLATE("Settings"), B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
-              B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
-      fConfigManager(configManager)
+    :
+	BWindow(BRect(), B_TRANSLATE("Settings"), B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
+		B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
+    fConfigManager(configManager)
 {
 	fShowHidden = modifiers() & B_COMMAND_KEY;
 
@@ -198,6 +200,7 @@ ConfigWindow::_Init()
 
 	return theView;
 }
+
 
 bool
 ConfigWindow::QuitRequested()
@@ -281,7 +284,8 @@ ConfigWindow::_PopulateListView()
 			i++;
 		}
 
-		if (i == dividedByGroup.end() && (fShowHidden || (strcmp((const char*)msg["group"], "Hidden") != 0)) ) {
+		if (i == dividedByGroup.end() &&
+			(fShowHidden || (strcmp((const char*)msg["group"], "Hidden") != 0)) ) {
 			GMessage first = {{ {"group", (const char*)msg["group"]} }};
 			first.AddMessage("config", &msg);
 			dividedByGroup.push_back(first);
@@ -374,17 +378,19 @@ ConfigWindow::MakeControlFor(GMessage& config)
 	switch (type) {
 		case B_BOOL_TYPE:
 		{
-			BCheckBox* cb = new GControl<BCheckBox, bool>(config, fConfigManager[config["key"]], fConfigManager);
+			BCheckBox* cb = new GControl<BCheckBox, bool>(config, fConfigManager[config["key"]],
+				fConfigManager);
 			return cb;
 		}
 		case B_INT32_TYPE:
 		{
 			if (config.Has("mode")) {
-				if (BString((const char*)config["mode"]).Compare("options") == 0){
+				if (BString((const char*)config["mode"]).Compare("options") == 0) {
 					return _CreatePopUp<int32, BOptionPopUp>(config);
 				}
 			} else {
-				BSpinner* sp = new GControl<BSpinner, int32>(config, fConfigManager[config["key"]], fConfigManager);
+				BSpinner* sp = new GControl<BSpinner, int32>(config, fConfigManager[config["key"]],
+					fConfigManager);
 				sp->SetValue(fConfigManager[config["key"]]);
 				if (config.Has("max"))
 					sp->SetMaxValue(config["max"]);
@@ -400,7 +406,9 @@ ConfigWindow::MakeControlFor(GMessage& config)
 					return _CreatePopUp<const char*, OptionPopUpString>(config);
 				}
 			} else {
-				GControl<BTextControl, const char*>* control = new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]], fConfigManager);
+				GControl<BTextControl, const char*>* control =
+					new GControl<BTextControl, const char*>(config, fConfigManager[config["key"]],
+						fConfigManager);
 				// TODO: Improve
 				control->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
 				return control;
@@ -409,7 +417,8 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		case B_RGB_COLOR_TYPE:
 		{
 			GControl<BColorControl, rgb_color>* control =
-				new GControl<BColorControl, rgb_color>(config, fConfigManager[config["key"]], fConfigManager);
+				new GControl<BColorControl, rgb_color>(config, fConfigManager[config["key"]],
+					fConfigManager);
 			return control;
 		}
 		case B_OBJECT_TYPE:

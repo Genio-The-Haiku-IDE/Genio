@@ -20,5 +20,5 @@ auto GMessage::operator[](const char* key) -> GMessageReturn { return GMessageRe
 
 template<>
 bool
-GMessageReturn::is_what<int>(int w) { if (strcmp(fKey, "what") == 0) {fMsg->what = w; return true;} return false; }
+GMessageReturn::is_what<int32>(int32 w) { if (strcmp(fKey, "what") == 0) {fMsg->what = w; return true;} return false; }
 

@@ -405,9 +405,9 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			sSorted = !sSorted;
 			fToolBar->SetActionPressed(kMsgSort, sSorted);
 			if (sSorted)
-				fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
+				fListView->FullListSortItems(&CompareItemsText);
 			else
-				fListView->SortItemsUnder(nullptr, true, &CompareItems);
+				fListView->FullListSortItems(&CompareItems);
 			break;
 		}
 		case kMsgCollapseAll:

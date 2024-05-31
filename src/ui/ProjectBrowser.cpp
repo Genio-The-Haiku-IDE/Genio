@@ -396,8 +396,6 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			ProjectItem* item = (ProjectItem*)message->GetPointer("parent_item", nullptr);
 
 			if (item != nullptr && message->FindRef("ref", &ref) == B_OK) {
-				if (item->IsExpanded() == false)
-					Expand(item);
 				int32 howMany = BOutlineListView::CountItemsUnder(item, true);
 				for(int32 i=0; i<howMany;i++) {
 					ProjectItem* subItem = (ProjectItem*)BOutlineListView::ItemUnderAt(item, true, i);

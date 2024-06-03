@@ -4,7 +4,7 @@
 # Author: Nexus6 
 
 import sys, time
-from Be import BMessenger, BMessage, BString, BEntry, BPath, \
+from Be import BMessenger, BMessage, BString, BEntry, BPath, entry_ref, \
     B_EXECUTE_PROPERTY, B_GET_PROPERTY, B_SET_PROPERTY, B_CREATE_PROPERTY, B_COUNT_PROPERTIES
 
 genio = BMessenger("application/x-vnd.Genio")
@@ -146,6 +146,21 @@ def Undo():
     genio.SendMessage(message, None)
 
 
+def Ref():
+    message = BMessage(B_GET_PROPERTY)
+    message.AddSpecifier("Ref")
+    message.AddSpecifier("SelectedEditor")
+    reply = BMessage()
+    genio.SendMessage(message, reply)
+    ref = entry_ref()
+    rez = reply.FindRef("result", ref)
+    if rez == 0:
+        fullpath = BPath(ref).Path()
+        print("test *Ref* PASSED! path: " + fullpath)
+    else:
+        print("test *Ref* FAILED!")
+
+
 def main():
     OpenEditor()
     time.sleep(1)
@@ -157,6 +172,7 @@ def main():
     Append()
     Undo()
     print("All changes undone.")
+    Ref()
 
 
 if __name__ == "__main__":

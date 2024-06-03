@@ -45,7 +45,7 @@
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="genio-general" name="genio-general">General</a></h2>
+<a id="general" name="general">General</a></h2>
 
 <p style="text-align:center"><img src="./images/genio-settings-general.png" style="border:none;padding:15px" alt="Genio settings: General" /></p>
 
@@ -69,7 +69,7 @@
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="genio-general_startup" name="genio-general_startup">General / Startup</a></h2>
+<a id="general_startup" name="general_startup">General / Startup</a></h2>
 
 <p style="text-align:center"><img src="./images/genio-settings-general_startup.png" style="border:none;padding:15px" alt="Genio settings: General / Startup" /></p>
 
@@ -78,7 +78,7 @@
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="genio-editor" name="genio-editor">Editor</a></h2>
+<a id="editor" name="editor">Editor</a></h2>
 
 <p style="text-align:center"><img src="./images/genio-settings-editor.png" style="border:none;padding:15px" alt="Genio settings: Editor" /></p>
 
@@ -94,27 +94,25 @@
 
 <tr><td class="onelinetop"><span class="menu">Ignore .editorconfig</span></td>
 <td>Opt out of code formatting by <a href="https://editorconfig.org/">EditorConfig</a> (if your project uses that).</td></tr>
+</table>
 
+<p>The rest of the settings are only applied if no <span class="cli">.editorconfig</span> is being used. That is, you either have the above <span class="menu">Ignore .editorconfig</span> checked, or your project simply doesn't use EditorConfig.</p>
+
+<table summary="layout">
 <tr><td class="onelinetop"><span class="menu">Trim trailing whitespace on save</span></td>
-<td>Automatically removes those pesky spaces and tabs at the end of lines when you save a file.<br />
-This setting is only applied if no <span class="cli">.editorconfig</span> is being used.</td></tr>
+<td>Automatically removes those pesky spaces and tabs at the end of lines when you save a file.</td></tr>
 
 <tr><td class="onelinetop"><span class="menu">Convert tabs to spaces</span></td>
-<td>While active, entered tabs are replaced with spaces. Tabs that are already in a file <i>are not</i> replaced.<br />
-This setting is only applied if no <span class="cli">.editorconfig</span> is being used.</td></tr>
+<td>While active, entered tabs are replaced with spaces. Tabs that are already in a file <i>are not</i> replaced.</td></tr>
 
 <tr><td class="onelinetop"><span class="menu">Tab width</span></td>
-<td>Sets the width of tabs in spaces.<br />
-This setting is only applied if no <span class="cli">.editorconfig</span> is being used.</td></tr>
-
-<tr><td class="onelinetop"><span class="menu">Editor zoom</span></td>
-<td>Sets the default zoom of the editor view. It can easily be overridden with the commands in the <a href="./menus.html#view">View menu</a> or by <span class="key">ALT</span> + mousewheeling.</td></tr>
+<td>Sets the width of tabs in spaces.</td></tr>
 </table>
 
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="genio-editor_visuals" name="genio-editor_visual">Editor / Visual</a></h2>
+<a id="editor_visuals" name="editor_visual">Editor / Visual</a></h2>
 
 <p style="text-align:center"><img src="./images/genio-settings-editor_visual.png" style="border:none;padding:15px" alt="Genio settings: Editor / Visual" /></p>
 
@@ -139,12 +137,15 @@ This setting is only applied if no <span class="cli">.editorconfig</span> is bei
 
 <tr><td class="onelinetop"><span class="menu">Show vertical ruler</span></td>
 <td>Draws a vertical line at the column you set with the spinner below. It helps you keeping a limit on characters per line.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Editor zoom</span></td>
+<td>Sets the default zoom of the editor view. It can easily be overridden with the commands in the <a href="./menus.html#view">View menu</a> or by <span class="key">ALT</span> + mousewheeling.</td></tr>
 </table>
 
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="genio-editor_find" name="genio-editor_find">Editor / Find</a></h2>
+<a id="editor_find" name="editor_find">Editor / Find</a></h2>
 
 <p style="text-align:center"><img src="./images/genio-settings-editor_find.png" style="border:none;padding:15px" alt="Genio settings: Editor / Find" /></p>
 
@@ -167,7 +168,7 @@ This setting is only applied if no <span class="cli">.editorconfig</span> is bei
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="genio-build" name="genio-build">Build</a></h2>
+<a id="build" name="build">Build</a></h2>
 
 <p style="text-align:center"><img src="./images/genio-settings-build.png" style="border:none;padding:15px" alt="Genio settings: Build" /></p>
 
@@ -188,7 +189,7 @@ This setting is only applied if no <span class="cli">.editorconfig</span> is bei
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="genio-lsp" name="genio-lsp">LSP</a></h2>
+<a id="lsp" name="lsp">LSP</a></h2>
 
 <p>LSP is Clang's language server protocol. Genio uses it for autocompletion, signature help, jumping to definition / implementation / declaration, quick fix, etc.</p>
 
@@ -204,7 +205,7 @@ This setting is only applied if no <span class="cli">.editorconfig</span> is bei
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="genio-source_control" name="genio-source_control">Source control</a></h2>
+<a id="source_control" name="source_control">Source control</a></h2>
 
 <p style="text-align:center"><img src="./images/genio-settings-source_control.png" style="border:none;padding:15px" alt="Genio settings: Source control" /></p>
 

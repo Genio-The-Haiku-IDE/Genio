@@ -182,7 +182,7 @@ GenioApp::_HandleScripting(BMessage* data)
 			data->SetCurrentSpecifier(0);
 			if (data->GetCurrentSpecifier(&index, &specifier, &what, &property) != B_OK)
 				break;
-			specifier.PrintToStream();
+			//specifier.PrintToStream();
 
 			editor = fGenioWindow->TabManager()->SelectedEditor();
 

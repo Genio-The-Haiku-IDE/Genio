@@ -412,6 +412,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_NODE_MONITOR:
 			_HandleNodeMonitorMsg(message);
 			break;
+		case kCheckEntryRemoved:
+			_CheckEntryRemoved(message);
+			break;
 		case B_REDO:
 		{
 			Editor* editor = fTabManager->SelectedEditor();
@@ -2350,6 +2353,13 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 		return;
 
 	Editor* editor = fTabManager->EditorAt(index);
+	_HandleExternalStatModification(editor);
+}
+
+
+void
+GenioWindow::_HandleExternalStatModification(Editor* editor)
+{
 
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
@@ -2372,6 +2382,65 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 
 
 void
+GenioWindow::_CheckEntryRemoved(BMessage *msg)
+{
+	node_ref nref;
+	BString name;
+	int64 dir;
+
+	if (msg->FindInt32("device", &nref.device) != B_OK
+		|| msg->FindString("name", &name) != B_OK
+		|| msg->FindInt64("directory", &dir) != B_OK
+		|| msg->FindInt64("node", &nref.node) != B_OK)
+			return;
+
+
+	// Let's check if the path exists, if the file is loaded in Genio
+	// and if the current genio node_ref is the same as the one of the path received.
+
+	node_ref dirRef;
+	dirRef.device = nref.device;
+	dirRef.node = dir;
+	BDirectory fileDir(&dirRef);
+	if (fileDir.InitCheck() == B_OK) {
+		BEntry entry;
+		if (fileDir.GetEntry(&entry) == B_OK) {
+			BPath path;
+			entry.GetPath(&path);
+			if (path.Append(name.String()) == B_OK) {
+				entry.SetTo(path.Path());
+				if (entry.Exists()) {
+					Editor* editor = fTabManager->EditorBy(&nref);
+					if (editor == nullptr) {
+						return;
+					}
+					node_ref newNode;
+					if (entry.GetNodeRef(&newNode) == B_OK) {
+						// same path but different node_ref
+						// it means someone is removing the old
+						// and moving over another file.
+						if ( newNode != nref) {
+							entry_ref xref;
+							entry.GetRef(&xref);
+							editor->StopMonitoring();
+							editor->SetFileRef(&xref);
+							editor->StartMonitoring();
+							_HandleExternalStatModification(editor);
+						}
+						// else a B_STAT_CHANGED is notifyng the change.
+					}
+					return;
+				}
+			}
+		}
+	}
+
+	// the file is gone for sure!
+	_HandleExternalRemoveModification(_GetEditorIndex(&nref));
+}
+
+
+void
 GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 {
 	int32 opcode;
@@ -2388,7 +2457,7 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 			int64 srcDir;
 			int64 dstDir;
 			BString name;
-			const char* oldName;
+			BString oldName;
 
 			if (msg->FindInt32("device", &device) != B_OK
 				|| msg->FindInt64("to directory", &dstDir) != B_OK
@@ -2397,62 +2466,33 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 				|| msg->FindString("from name", &oldName) != B_OK)
 					break;
 
-			entry_ref oldRef(device, srcDir, oldName);
-			entry_ref newRef(device, dstDir, name);
+			entry_ref oldRef(device, srcDir, oldName.String());
+			entry_ref newRef(device, dstDir, name.String());
 
 			_HandleExternalMoveModification(&oldRef, &newRef);
 
 			break;
 		}
 		case B_ENTRY_REMOVED: {
-			node_ref nref;
-			BString name;
-			int64 dir;
-
-			if (msg->FindInt32("device", &nref.device) != B_OK
-				|| msg->FindString("name", &name) != B_OK
-				|| msg->FindInt64("directory", &dir) != B_OK
-				|| msg->FindInt64("node", &nref.node) != B_OK)
-					break;
+			// This message can be triggered by different use cases
 
 			// Some git commands generate a B_ENTRY_REMOVED
-			// even if the file is just 'replaced' by another version
-			// to avoid this to be managed as a real file removed event,
-			// let's check if the removed file exists.
+			// even if the file is just restored from a previous version.
+			// (same entry_ref, same node_ref)
 
-			node_ref dirRef;
-			dirRef.device = nref.device;
-			dirRef.node = dir;
-			BDirectory fileDir(&dirRef);
-			if (fileDir.InitCheck() == B_OK) {
-				BEntry entry;
-				if (fileDir.GetEntry(&entry) == B_OK) {
-					BPath path;
-					entry.GetPath(&path);
-					if (path.Append(name.String()) == B_OK) {
-						entry.SetTo(path.Path());
-						if (entry.Exists()) {
-							// a B_STAT_CHANGED will follow.
-							return;
-						}
-					}
-				}
-			}
+			// Some other command (for example haiku-format)
+			// delete the file, and then move another file to the old path.
+			// (same entry_ref, different node_ref)
 
-			// It could happens that the above check fails even if the file is there
-			// (maybe because the file is quickly recreated and we check in the instant where there is no file)
-			// lets take some time by reposting the same message to the Looper!
-			if (msg->GetBool("second_try", false) == true) {
-				// If after the second check, the file is really missing..
-				// Let's handle as a true file removed event.
-				_HandleExternalRemoveModification(_GetEditorIndex(&nref));
-			} else {
-				// Let's try again.
-				msg->AddBool("second_try", true);
-				PostMessage(msg);
-			}
-			break;
+			// Of course he could be a real file removed (deleted).
+
+			// Let's deferr the decision to some milliseconds to have a better understanding
+			// of what's going on.
+
+			msg->what = kCheckEntryRemoved;
+			BMessageRunner::StartSending(this, msg, 1500, 1);
 		}
+		break;
 		case B_STAT_CHANGED: {
 			node_ref nref;
 			int32 fields;
@@ -2468,6 +2508,7 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 			if (((fields & B_STAT_MODIFICATION_TIME)  != 0)
 			// Do not reload if the file just got touched
 				&& ((fields & B_STAT_ACCESS_TIME)  == 0)) {
+//				BNode node(&nref);
 				_HandleExternalStatModification(_GetEditorIndex(&nref));
 			}
 

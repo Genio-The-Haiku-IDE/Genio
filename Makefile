@@ -31,6 +31,7 @@ arch := $(shell getarch)
 platform := $(shell uname -p)
 
 SRCS := src/GenioApp.cpp
+SRCS += src/GenioScripting.cpp
 SRCS += src/alert/GTextAlert.cpp
 SRCS += src/config/ConfigManager.cpp
 SRCS += src/config/ConfigWindow.cpp

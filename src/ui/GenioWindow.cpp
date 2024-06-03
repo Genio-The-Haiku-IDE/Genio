@@ -2248,6 +2248,12 @@ GenioWindow::_Git(const BString& git_command)
 void
 GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef)
 {
+	int32 index = _GetEditorIndex(oldRef);
+	if (index < 0) {
+		LogError("_HandleExternalMoveModification: Invalid move file: oldRef doesn't exist");
+		return;
+	}
+
 	BEntry oldEntry(oldRef, true), newEntry(newRef, true);
 	BPath oldPath, newPath;
 
@@ -2265,8 +2271,6 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
  		B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 
  	alert->SetShortcut(0, B_ESCAPE);
-
-	int32 index = _GetEditorIndex(oldRef);
 
  	int32 choice = alert->Go();
 

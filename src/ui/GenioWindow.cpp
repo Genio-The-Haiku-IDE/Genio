@@ -2206,15 +2206,14 @@ void
 GenioWindow::_GetFocusAndSelection(BTextControl* control) const
 {
 	control->MakeFocus(true);
-	// If some text is selected, use that TODO index check
+	// If some text is selected, use that
 	Editor* editor = fTabManager->SelectedEditor();
-	if (editor && editor->IsTextSelected()) {
-		int32 size = editor->SendMessage(SCI_GETSELTEXT, 0, 0);
-		char text[size + 1];
-		editor->SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text);
-		control->SetText(text);
-	} else
-		control->TextView()->Clear();
+	if (editor) {
+		BString selection = editor->Selection();
+		if (selection.IsEmpty() == false) {
+			control->SetText(selection.String());
+		}
+	}
 }
 
 

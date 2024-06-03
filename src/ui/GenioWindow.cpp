@@ -1775,6 +1775,11 @@ GenioWindow::_FileOpen(BMessage* msg)
 		fTabManager->SelectTab(firstAdded);
 	}
 
+	// reply to Editor create scripting
+	BMessage reply(B_REPLY);
+	reply.AddInt32("result", firstAdded);
+	msg->SendReply(&reply);
+
 	return B_OK;
 }
 

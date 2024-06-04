@@ -241,7 +241,7 @@ void
 LSPEditorWrapper::_DoRename(json& params)
 {
 	BMessage bjson;
-	if (params["changes"].is_array()) {
+	if (!params["changes"].is_null()) {
 		for (auto& [uri, edits] : params["changes"].items()) {
 			for (auto& e: edits) {
 				auto edit = e.get<TextEdit>();

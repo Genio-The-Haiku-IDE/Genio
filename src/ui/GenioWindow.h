@@ -112,7 +112,9 @@ private:
 			void				_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef);
 			void				_HandleExternalRemoveModification(int32 index);
 			void				_HandleExternalStatModification(int32 index);
+			void				_HandleExternalStatModification(Editor* editor);
 			void				_HandleNodeMonitorMsg(BMessage* msg);
+			void				_CheckEntryRemoved(BMessage* msg);
 			void				_InitCentralSplit();
 			void				_InitMenu();
 			void				_InitOutputSplit();

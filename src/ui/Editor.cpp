@@ -1028,6 +1028,7 @@ Editor::NotificationReceived(SCNotification* notification)
 		case SCN_CALLTIPCLICK: {
 			GMessage click = {{"what",kCallTipClick},{"position", (int32)notification->position}};
 			Looper()->PostMessage(&click, this);
+			break;
 		}
 		case SCN_DWELLSTART: {
 			if (Window()->IsActive())

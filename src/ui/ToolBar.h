@@ -24,6 +24,10 @@ public:
 
 	void			AddAction(uint32 command, const char* toolTipText,
 						const char* iconName = nullptr, bool lockable = false);
+
+	void			AddAction(BMessage* msg, const char* toolTipText,
+						const char* iconName = nullptr, bool lockable = false);
+
 	void			ChangeIconSize(float newSize);
 
 	void			SetEnabled(bool enable);

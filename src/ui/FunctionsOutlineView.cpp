@@ -151,7 +151,7 @@ SymbolListItem::SetIconAndTooltip()
 			toolTip = B_TRANSLATE("Null");
 			break;
 		case SymbolKind::EnumMember:
-			iconName = "emum-member";
+			iconName = "enum-member";
 			toolTip = B_TRANSLATE("Enum member");
 			break;
 		case SymbolKind::Struct:
@@ -364,15 +364,24 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			switch (code) {
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
+					entry_ref newRef;
+					msg->FindRef("ref", &newRef);
+					Editor* editor = gMainWindow->TabManager()->SelectedEditor();
+					// Got a message from an unselected editor: ignore.
+					if (editor != nullptr && *editor->FileRef() != newRef) {
+						LogTrace("Outline view got a message from an unselected editor. Ignoring...");
+						return;
+					}
+
 					BMessage symbols;
 					if (msg->FindMessage("symbols", &symbols) != B_OK) {
 						debugger("No symbols message");
 						break;
 					}
 					LogTrace("FunctionsOutlineView: Symbols updated message received");
-					entry_ref newRef;
-					msg->FindRef("ref", &newRef);
+
 					_UpdateDocumentSymbols(symbols, &newRef);
+					SelectSymbolByCaretPosition(msg->GetInt32("caret_line", -1));
 					break;
 				}
 				default:
@@ -396,9 +405,9 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			sSorted = !sSorted;
 			fToolBar->SetActionPressed(kMsgSort, sSorted);
 			if (sSorted)
-				fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
+				fListView->FullListSortItems(&CompareItemsText);
 			else
-				fListView->SortItemsUnder(nullptr, true, &CompareItems);
+				fListView->FullListSortItems(&CompareItems);
 			break;
 		}
 		case kMsgCollapseAll:
@@ -419,33 +428,61 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 
 
 void
+FunctionsOutlineView::SelectSymbolByCaretPosition(int32 position)
+{
+	BListItem* sym = _RecursiveSymbolByCaretPosition(position, nullptr);
+	if (sym != nullptr && sym->IsSelected() == false) {
+		fListView->Select(fListView->IndexOf(sym));
+		fListView->ScrollToSelection();
+	}
+}
+
+
+BListItem*
+FunctionsOutlineView::_RecursiveSymbolByCaretPosition(int32 position, BListItem* parent)
+{
+	for(int32 i=0;i<fListView->CountItemsUnder(parent, true);i++) {
+		SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemUnderAt(parent, true, i));
+		if (sym == nullptr)
+			return nullptr;
+		if (position >= sym->Details().GetInt32("range:start:line", -1) &&
+			position <= sym->Details().GetInt32("range:end:line", -1) ) {
+
+			if (fListView->CountItemsUnder(sym, true) > 0 && sym->IsExpanded()) {
+				BListItem* subSym = _RecursiveSymbolByCaretPosition(position, sym);
+				if (subSym != nullptr)
+					return subSym;
+			}
+
+			return sym;
+		}
+	}
+	return nullptr;
+}
+
+
+
+void
 FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
 	const entry_ref* newRef)
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
 
-	int32 status = Editor::STATUS_NOT_INITIALIZED;
-	msg.FindInt32("status", &status);
-	if (status == Editor::STATUS_NO_SYMBOLS) {
-		// means we don't have any opened file, or file has no symbols
-		fListView->MakeEmpty();
-		fListView->AddItem(new BStringItem(B_TRANSLATE("No outline available")));
-		return;
-	}
-
-	Editor* editor = gMainWindow->TabManager()->SelectedEditor();
-	// Got a message from an unselected editor: ignore.
-	if (editor != nullptr && *editor->FileRef() != *newRef) {
-		LogTrace("Outline view got a message from an unselected editor. Ignoring...");
-		return;
-	}
-
-	if (status == Editor::STATUS_NOT_INITIALIZED) {
-		// File just opened, LSP hasn't retrieved symbols yet
-		fListView->MakeEmpty();
-		fListView->AddItem(new BStringItem(B_TRANSLATE("Creating outline" B_UTF8_ELLIPSIS)));
-		// TODO: Should we request symbols to LSP ?
-		return;
+	int32 status = msg.GetInt32("status", Editor::STATUS_UNKNOWN);
+	switch (status) {
+		case Editor::STATUS_UNKNOWN:
+			fListView->MakeEmpty();
+			return;
+		case Editor::STATUS_NO_CAPABILITY:
+			fListView->MakeEmpty();
+			fListView->AddItem(new BStringItem(B_TRANSLATE("No outline available")));
+			return;
+		case Editor::STATUS_REQUESTED:
+			fListView->MakeEmpty();
+			fListView->AddItem(new BStringItem(B_TRANSLATE("Creating outline")));
+			return;
+		default:
+			break;
 	}
 
 	// Save selected item

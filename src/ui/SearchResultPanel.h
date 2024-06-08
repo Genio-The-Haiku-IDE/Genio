@@ -19,8 +19,9 @@ public:
 
 		void StartSearch(BString command, BString projectPath);
 
-		virtual void MessageReceived(BMessage* msg);
+		virtual void	MessageReceived(BMessage* msg);
 		virtual void	AttachedToWindow();
+		virtual void 	KeyDown(const char* bytes, int32 numBytes);
 
 		void	SetTabLabel(BString label);
 

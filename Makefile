@@ -1,15 +1,12 @@
 ## Genio - The Haiku IDE Makefile ##############################################
 debug ?= 0
-ifeq ($(debug), 0)
-	DEBUGGER :=
-	CFLAGS :=
-else
+ifneq ($(debug), 0)
 	DEBUGGER := TRUE
 	CFLAGS := -DGDEBUG
 endif
 
 ## clang build flag ############################################################
-BUILD_WITH_CLANG := 0
+BUILD_WITH_CLANG ?= 0
 ################################################################################
 ifeq ($(BUILD_WITH_CLANG), 1)
 	# clang build
@@ -18,10 +15,10 @@ ifeq ($(BUILD_WITH_CLANG), 1)
 	LD  := clang++
 endif
 
-ifeq ($(debug), 0)
-	NAME := Genio
-else
+ifeq ($(strip $(DEBUGGER)), TRUE)
 	NAME := Genio_debug
+else
+	NAME := Genio
 endif
 
 TARGET_DIR := app
@@ -34,12 +31,14 @@ arch := $(shell getarch)
 platform := $(shell uname -p)
 
 SRCS := src/GenioApp.cpp
+SRCS += src/GenioScripting.cpp
 SRCS += src/alert/GTextAlert.cpp
 SRCS += src/config/ConfigManager.cpp
 SRCS += src/config/ConfigWindow.cpp
 SRCS += src/config/GMessage.cpp
 SRCS += src/helpers/ActionManager.cpp
 SRCS += src/helpers/FSUtils.cpp
+SRCS += src/helpers/ResourceImport.cpp
 SRCS += src/helpers/GSettings.cpp
 SRCS += src/helpers/Logger.cpp
 SRCS += src/helpers/StatusView.cpp
@@ -96,7 +95,7 @@ SRCS += src/templates/TemplatesMenu.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/helpers/PipeImage.cpp
 
-RDEFS := Genio.rdef
+RDEFS := Genio.rdef Spinner.rdef
 
 LIBS  = be shared translation localestub $(STDCPPLIBS)
 LIBS += columnlistview tracker
@@ -155,4 +154,7 @@ Changelog.h : Changelog.txt txt2header
 
 txt2header :
 	$(CXX) txt2header.cpp -o txt2header
+
+compiledb:
+	compiledb make -Bnwk
 

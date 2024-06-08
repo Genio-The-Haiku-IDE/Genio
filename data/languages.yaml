@@ -18,7 +18,7 @@ cpp:
     extensions: [ cc, cpp, cxx, h, hh, hpp, hxx, dox ]
 csharp:
     name: C#
-    extensions: [ cs, csproj]
+    extensions: [ cs, csproj, sln, cake]
 css:
     name: CSS
     extensions: [ css ]

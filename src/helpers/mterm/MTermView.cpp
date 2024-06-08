@@ -59,6 +59,7 @@ MTermView::MessageReceived(BMessage* message)
 		case kTermViewClear: {
 			TextView()->ClearAll();
 			TextView()->ClearBuffer();
+			break;
 		}
 		case kMTOutputText: {
 			BString info = message->GetString("text","");

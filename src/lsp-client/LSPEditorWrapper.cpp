@@ -241,13 +241,20 @@ void
 LSPEditorWrapper::_DoRename(json& params)
 {
 	BMessage bjson;
-	for (auto& [uri, edits] : params["changes"].items()) {
-		for (auto& e: edits) {
-			auto edit = e.get<TextEdit>();
-			edit.range.start.line += 1;
-			edit.range.end.line += 1;
+	if (!params["changes"].is_null()) {
+		for (auto& [uri, edits] : params["changes"].items()) {
+			for (auto& e: edits) {
+				auto edit = e.get<TextEdit>();
+				edit.range.start.line += 1;
+				edit.range.end.line += 1;
+			}
+			OpenFileURI(uri, -1, -1, edits.dump().c_str());
 		}
-		OpenFileURI(uri, -1, -1, edits.dump().c_str());
+	} else if (params["documentChanges"].is_array()) {
+		for (auto& block : params["documentChanges"]) {
+			std::string uri = block["textDocument"]["uri"].get<std::string>();
+			OpenFileURI(uri, -1, -1, block["edits"].dump().c_str());
+		}
 	}
 }
 
@@ -569,6 +576,9 @@ LSPEditorWrapper::_ShowToolTip(const char* text)
 void
 LSPEditorWrapper::_DoHover(nlohmann::json& result)
 {
+	if (fEditor == nullptr || fEditor->Window()->IsActive() == false)
+		return;
+
 	if (result == nlohmann::detail::value_t::null &&
 		!result["contents"].contains("value")) {
 		EndHover();
@@ -836,6 +846,11 @@ LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
 {
 	fInitialized = true;
 	didOpen();
+	BMessage symbols;
+	if (HasLSPServerCapability(kLCapDocumentSymbols))
+		fEditor->SetDocumentSymbols(&symbols, Editor::STATUS_REQUESTED);
+	else
+		fEditor->SetDocumentSymbols(&symbols, Editor::STATUS_NO_CAPABILITY);
 }
 
 
@@ -883,7 +898,7 @@ LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 		}
 	}
 	if (fEditor != nullptr)
-		fEditor->SetDocumentSymbols(&msg);
+		fEditor->SetDocumentSymbols(&msg, Editor::STATUS_HAS_SYMBOLS);
 }
 
 
@@ -903,6 +918,9 @@ LSPEditorWrapper::_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& vect, 
 		Range& symbolRange = sym.selectionRange;
 		symbol.AddInt32("start:line", symbolRange.start.line + 1);
 		symbol.AddInt32("start:character", symbolRange.start.character);
+		Range& range = sym.range;
+		symbol.AddInt32("range:start:line", range.start.line + 1);
+		symbol.AddInt32("range:end:line", 	range.end.line + 1);
 		msg.AddMessage("symbol", &symbol);
 	}
 }

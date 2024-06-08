@@ -6,6 +6,7 @@
 
 #include "ProjectBrowser.h"
 
+#include "ActionManager.h"
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"
 #include "GenioWindow.h"
@@ -34,14 +35,19 @@
 #include <cassert>
 #include <cstdio>
 
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
+const uint32 kTick = 'tick';
+
+static BMessageRunner* sAnimationTickRunner;
 
 ProjectBrowser::ProjectBrowser()
-	: BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
-	, fFileNewProjectMenuItem (nullptr)
-	, fIsBuilding (false)
+	:
+	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST),
+	fFileNewProjectMenuItem(nullptr),
+	fIsBuilding(false)
 {
 	fGenioWatchingFilter = new GenioWatchingFilter();
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
@@ -121,13 +127,15 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 			LogDebug("path %s", spath.String());
 			ProjectItem *item = GetProjectItemByPath(spath);
 			if (!item) {
-					LogError("Can't find an item to remove [%s]", spath.String());
-					return;
+				LogError("Can't find an item to remove [%s]", spath.String());
+				return;
 			}
 			if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 				if (LockLooper()) {
 					Select(IndexOf(item));
-					Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+					BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
+					closePrj.AddPointer("project", item->GetSourceItem());
+					Window()->PostMessage(&closePrj);
 
 					// It seems not possible to track the project folder to the new
 					// location outside of the watched path. So we close the project
@@ -163,7 +171,9 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 					if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 						if (LockLooper()) {
 							Select(IndexOf(item));
-							Window()->PostMessage(MSG_PROJECT_MENU_CLOSE);
+							BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
+							closePrj.AddPointer("project", item->GetSourceItem());
+							Window()->PostMessage(&closePrj);
 
 							auto alert = new BAlert("ProjectFolderChanged",
 							B_TRANSLATE("The project folder has been renamed. It will be closed and reopened automatically."),
@@ -178,9 +188,9 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 								message->FindInt32("device", &ref.device);
 								message->FindString("name", &name);
 								ref.set_name(name);
-								auto msg = new BMessage(MSG_PROJECT_FOLDER_OPEN);
-								msg->AddRef("refs", &ref);
-								Window()->PostMessage(msg);
+								BMessage msg(MSG_PROJECT_FOLDER_OPEN);
+								msg.AddRef("refs", &ref);
+								Window()->PostMessage(&msg);
 							}
 							UnlockLooper();
 						}
@@ -299,7 +309,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 				return;
 			}
 			ProjectItem* item = dynamic_cast<ProjectItem*>(ItemAt(index));
-			if (!item) {
+			if (item == nullptr) {
 				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find item at index %d", index);
 				return;
 			}
@@ -313,7 +323,6 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			msg.AddRef("refs", item->GetSourceItem()->EntryRef());
 			msg.AddBool("openWithPreferred", true);
 			Window()->PostMessage(&msg);
-			return;
 			break;
 		}
 		case MSG_PROJECT_MENU_DO_RENAME_FILE:
@@ -325,6 +334,15 @@ ProjectBrowser::MessageReceived(BMessage* message)
 							BString(B_TRANSLATE("An error occurred attempting to rename file ")) <<
 								newName, B_WARNING_ALERT);
 				}
+			}
+			break;
+		}
+		case kTick:
+		{
+			if (fIsBuilding) {
+				// TODO: Only invalidate the project item
+				ProjectItem::TickAnimation();
+				Invalidate();
 			}
 			break;
 		}
@@ -366,7 +384,6 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					fIsBuilding = building;
 					break;
 				}
-
 				default:
 					BOutlineListView::MessageReceived(message);
 					break;
@@ -375,17 +392,16 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		}
 		case MSG_BROWSER_SELECT_ITEM:
 		{
-			entry_ref ref;
 			ProjectItem* item = (ProjectItem*)message->GetPointer("parent_item", nullptr);
-
+			entry_ref ref;
 			if (item != nullptr && message->FindRef("ref", &ref) == B_OK) {
 				int32 howMany = BOutlineListView::CountItemsUnder(item, true);
-				for(int32 i=0; i<howMany;i++) {
+				for (int32 i = 0; i < howMany; i++) {
 					ProjectItem* subItem = (ProjectItem*)BOutlineListView::ItemUnderAt(item, true, i);
 					if (*subItem->GetSourceItem()->EntryRef() == ref) {
-							Select(IndexOf(subItem));
-							ScrollToSelection();
-							break;
+						Select(IndexOf(subItem));
+						ScrollToSelection();
+						break;
 					}
 				}
 			}
@@ -401,8 +417,8 @@ ProjectBrowser::MessageReceived(BMessage* message)
 void
 ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 {
-	ProjectItem*  projectItem = GetSelectedProjectItem();
-	if (!projectItem)
+	ProjectItem* projectItem = GetSelectedProjectItem();
+	if (projectItem == nullptr)
 		return;
 
 	ProjectFolder *project = GetProjectFromItem(projectItem);
@@ -420,12 +436,19 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	fFileNewProjectMenuItem->SetEnabled(true);
 
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"),
-			new BMessage(MSG_PROJECT_MENU_CLOSE));
-		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"),
-			new BMessage(MSG_PROJECT_MENU_SET_ACTIVE));
+		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
+		closePrj->AddPointer("project", (void*)project);
+		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"), closePrj);
+
+		BMessage* setActive = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
+		setActive->AddPointer("project", (void*)project);
+		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"), setActive);
+
+		BMessage* projSettings = new BMessage(MSG_PROJECT_SETTINGS);
+		projSettings->AddPointer("project", (void*)project);
 		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
-			new BMessage(MSG_PROJECT_SETTINGS));
+			projSettings);
+
 		projectMenu->AddItem(closeProjectMenuItem);
 		projectMenu->AddItem(setActiveProjectMenuItem);
 		projectMenu->AddItem(projectSettingsMenuItem);
@@ -444,7 +467,6 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		if (!project->Active())
 			setActiveProjectMenuItem->SetEnabled(true);
 		if (fIsBuilding || !project->Active()) {
-			projectSettingsMenuItem->SetEnabled(false);
 			buildMenuItem->SetEnabled(false);
 			cleanMenuItem->SetEnabled(false);
 		}
@@ -467,8 +489,7 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
 			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
-		//if (isFile)
-			//fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::DISABLE_FILES_VIEW_MODE, false);
+
 		projectMenu->AddItem(openFileProjectMenuItem);
 		projectMenu->AddItem(deleteFileProjectMenuItem);
 		projectMenu->AddItem(renameFileProjectMenuItem);
@@ -477,18 +498,17 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		openFileProjectMenuItem->SetEnabled(isFile);
 	}
 
-	BMenuItem* showInTrackerProjectMenuItem = new BMenuItem(B_TRANSLATE("Show in Tracker"),
-		new BMessage(MSG_PROJECT_MENU_SHOW_IN_TRACKER));
-	BMenuItem* openTerminalProjectMenuItem = new BMenuItem(B_TRANSLATE("Open in Terminal"),
-		new BMessage(MSG_PROJECT_MENU_OPEN_TERMINAL));
-	showInTrackerProjectMenuItem->SetEnabled(true);
-	openTerminalProjectMenuItem->SetEnabled(true);
-	projectMenu->AddItem(showInTrackerProjectMenuItem);
-	projectMenu->AddItem(openTerminalProjectMenuItem);
+	BMessage* refMessage = new BMessage();
+	refMessage->AddRef("ref", projectItem->GetSourceItem()->EntryRef());
+	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, projectMenu, refMessage);
+
+	BMessage* refMessage2 = new BMessage(*refMessage);
+	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, projectMenu, refMessage2);
 
 	projectMenu->SetTargetForItems(Window());
 	projectMenu->Go(ConvertToScreen(where), true);
 }
+
 
 // TODO:
 // Optimize the search under a specific ProjectItem, tipically a
@@ -523,6 +543,7 @@ ProjectBrowser::GetSelectedProjectItem() const
 
 	return dynamic_cast<ProjectItem*>(ItemAt(selection));
 }
+
 
 ProjectItem*
 ProjectBrowser::GetProjectItemForProject(ProjectFolder* folder)
@@ -574,7 +595,7 @@ ProjectBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 {
 	status_t status = B_NOT_INITIALIZED;
 	ProjectItem *item = GetSelectedProjectItem();
-	if (item) {
+	if (item != nullptr) {
 		BEntry entry(item->GetSourceItem()->EntryRef());
 		if (entry.Exists())
 			status = entry.Rename(new_name, false);
@@ -597,6 +618,12 @@ ProjectBrowser::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->UnlockLooper();
 	}
+
+	ProjectItem::InitAnimationIcons();
+
+	BMessage message(kTick);
+	if (sAnimationTickRunner == nullptr)
+		sAnimationTickRunner = new BMessageRunner(BMessenger(this), &message, bigtime_t(100000));
 }
 
 
@@ -604,6 +631,11 @@ ProjectBrowser::AttachedToWindow()
 void
 ProjectBrowser::DetachedFromWindow()
 {
+	delete sAnimationTickRunner;
+	sAnimationTickRunner = nullptr;
+
+	ProjectItem::DisposeAnimationIcons();
+
 	BOutlineListView::DetachedFromWindow();
 
 	if (Window()->LockLooper()) {
@@ -615,18 +647,6 @@ ProjectBrowser::DetachedFromWindow()
 	}
 }
 
-// NOTE: this is a workaround to avoid a bug introduced on BListItem on 06-Dec-2023
-// https://github.com/haiku/haiku/commit/6761bf581fd14cac9fd22825fa6baa399263dc83
-// https://dev.haiku-os.org/ticket/18716
-
-void
-ProjectBrowser::MouseUp(BPoint where)
-{
-	if (CountItems() == 0)
-		return;
-
-	BOutlineListView::MouseUp(where);
-}
 
 /* virtual */
 void
@@ -634,8 +654,8 @@ ProjectBrowser::MouseDown(BPoint where)
 {
 	int32 buttons = -1;
 	BMessage* message = Looper()->CurrentMessage();
-	 if (message != NULL)
-		 message->FindInt32("buttons", &buttons);
+	if (message != NULL)
+		message->FindInt32("buttons", &buttons);
 
 	BOutlineListView::MouseDown(where);
 	if ( buttons == B_MOUSE_BUTTON(2))
@@ -656,7 +676,6 @@ ProjectBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message
 				SetToolTip("");
 			}
 		}
-	} else {
 	}
 }
 
@@ -678,7 +697,6 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	fProjectProjectItemList.RemoveItem(listItem);
 	fProjectList.RemoveItem(project);
 
-
 	Invalidate();
 }
 
@@ -687,7 +705,7 @@ void
 ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
 	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
-	//NOTE: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
+	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
 	SortItemsUnder(nullptr, false, ProjectBrowser::_CompareProjectItems);
 
 	const BString projectPath = project->Path();
@@ -701,9 +719,8 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	Invalidate();
 	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
 			B_WATCH_RECURSIVELY, BMessenger(this));
-	if (status != B_OK ) {
+	if (status != B_OK)
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
-	}
 }
 
 
@@ -725,40 +742,7 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 	BEntry entry(ref);
 	BEntry parent;
 	BPath parentPath;
-	// Check if there's a Jamfile or makefile in the root path
-	// of the project
-	if (entry.IsFile() && entry.GetParent(&parent) == B_OK
-		&& parent.GetPath(&parentPath) == B_OK
-		&& projectFolder->Path().Compare(parentPath.Path()) == 0) {
-		// guess builder type
-		// TODO: do it for real: set a flag or setting in project
-		// TODO: move this away from here, into a specialized class
-		// and maybe into plugins
-		if (strcasecmp(entry.Name(), "makefile") == 0) {
-			// builder: make
-			projectFolder->SetGuessedBuilder("make");
-			LogInfo("Guessed builder: make");
-		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
-			// builder: jam
-			projectFolder->SetGuessedBuilder("jam");
-			LogInfo("Guessed builder: jam");
-		}
-
-		// TODO: check if it is a .editorconfig and set a node watch on it
-		// There may be multiple ones, every change to any of them will trigger an update to every
-		// opened editors
-		// if (strcasecmp(entry.Name(), ".editorconfig") == 0) {
-			// status_t status;
-			// node_ref nodeRef;
-			// if ((status = entry.GetNodeRef(&nodeRef)) != B_OK) {
-				// LogErrorF("Can't get a node_ref! (%s) (%s)", entry.Name(), strerror(status));
-			// } else {
-				// if ((status = watch_node(&nodeRef, B_WATCH_NAME | B_WATCH_STAT, Window())) != B_OK) {
-					// LogErrorF("Can't start watch_node a node_ref! (%s) (%s)", entry.Name(), strerror(status));
-				// }
-			// }
-		// }
-	} else if (entry.IsDirectory()) {
+	if (entry.IsDirectory()) {
 		BDirectory dir(&entry);
 		entry_ref nextRef;
 		while (dir.GetNextRef(&nextRef) != B_ENTRY_NOT_FOUND) {
@@ -783,11 +767,11 @@ ProjectBrowser::_CompareProjectItems(const BListItem* a, const BListItem* b)
 	const char* nameB = B->Text();
 	SourceItem *itemB = B->GetSourceItem();
 
-	if (itemA->Type()==SourceItemType::FolderItem && itemB->Type()==SourceItemType::FileItem) {
+	if (itemA->Type() == SourceItemType::FolderItem && itemB->Type() == SourceItemType::FileItem) {
 		return -1;
 	}
 
-	if (itemA->Type()==SourceItemType::FileItem && itemB->Type()==SourceItemType::FolderItem) {
+	if (itemA->Type() == SourceItemType::FileItem && itemB->Type() == SourceItemType::FolderItem) {
 		return 1;
 	}
 
@@ -886,7 +870,7 @@ ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_r
 
 /*
 	This method implements an 'optimized' version for searching with a ref on the browser.
-	The basic implementaion parses all the items.. (could be usefull in PathMonitor procedures)
+	The basic implementaion parses all the items.. (could be useful in PathMonitor procedures)
 */
 void
 ProjectBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
@@ -896,15 +880,15 @@ ProjectBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
 		return;
 
 	BPath path(&ref);
-	BString fullpath = BPath(&ref).Path();
+	BString fullpath = path.Path();
 	if (fullpath.StartsWith(project->Path().String())) {
 		fullpath = fullpath.RemoveFirst(project->Path().String());
 
 		bool found = false;
 		BStringList list;
 		fullpath.Split("/", true, list);
-		for (int i=0;i<list.CountStrings();i++) {
-			for (int32 j=0;j<CountItemsUnder(projectItem, true) ;j++) {
+		for (int32 i = 0; i < list.CountStrings(); i++) {
+			for (int32 j = 0; j < CountItemsUnder(projectItem, true); j++) {
 				ProjectItem* pItem = (ProjectItem*)ItemUnderAt(projectItem, true, j);
 				if (pItem->GetSourceItem()->Name().Compare(list.StringAt(i)) == 0) {
 					Expand(projectItem);
@@ -921,8 +905,6 @@ ProjectBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
 			ScrollToSelection();
 		}
 	}
-
-	return;
 }
 
 

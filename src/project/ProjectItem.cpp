@@ -5,28 +5,31 @@
 
 #include "ProjectItem.h"
 
+#include <Application.h>
 #include <Bitmap.h>
 #include <Catalog.h>
 #include <ControlLook.h>
 #include <Font.h>
 #include <NodeInfo.h>
 #include <OutlineListView.h>
+#include <Resources.h>
 #include <StringItem.h>
 #include <TextControl.h>
+#include <TranslationUtils.h>
 #include <Window.h>
 
-#include "IconCache.h"
 #include "GitRepository.h"
+#include "IconCache.h"
 #include "ProjectFolder.h"
+#include "Utils.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectsFolderBrowser"
 
 class ProjectItem;
-
 class TemporaryTextControl: public BTextControl {
 	typedef	BTextControl _inherited;
-
 
 public:
 	ProjectItem *fProjectItem;
@@ -58,17 +61,22 @@ public:
 
 	virtual void KeyDown(const char* bytes, int32 numBytes)
 	{
-		if (numBytes == 1 && *bytes == B_ESCAPE) {
-			fProjectItem->AbortRename();
-		}
-		if (numBytes == 1 && *bytes == B_RETURN) {
-			BMessage message(*Message());
-			message.AddString("_value", Text());
-			BMessenger(Parent()).SendMessage(&message);
-			fProjectItem->CommitRename();
+		if (numBytes == 1) {
+			if (*bytes == B_ESCAPE) {
+				fProjectItem->AbortRename();
+			} else if (*bytes == B_RETURN) {
+				BMessage message(*Message());
+				message.AddString("_value", Text());
+				BMessenger(Parent()).SendMessage(&message);
+				fProjectItem->CommitRename();
+			}
 		}
 	}
 };
+
+
+int32 ProjectItem::sBuildAnimationIndex = 0;
+std::vector<BBitmap*> ProjectItem::sBuildAnimationFrames;
 
 
 ProjectItem::ProjectItem(SourceItem *sourceItem)
@@ -201,8 +209,12 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			owner->FillRoundRect(circleRect, 9, 10);
 			owner->SetHighColor(oldColor);
 		}
+
 		DrawText(owner, Text(), ExtraText(), textPoint);
 
+		if (isProject && static_cast<ProjectFolder*>(GetSourceItem())->IsBuilding()) {
+			_DrawBuildIndicator(owner, bounds);
+		}
 		owner->Sync();
 	}
 }
@@ -226,7 +238,7 @@ ProjectItem::SetOpenedInEditor(bool open)
 void
 ProjectItem::Update(BView* owner, const BFont* font)
 {
-	StyledItem::Update(owner, be_bold_font);
+	StyledItem::Update(owner, font);
 }
 
 
@@ -270,6 +282,61 @@ ProjectItem::CommitRename()
 }
 
 
+/* static */
+status_t
+ProjectItem::InitAnimationIcons()
+{
+	// TODO: icon names are "waiting-N" where N is the index
+	// 1 to 6
+	BResources* resources = BApplication::AppResources();
+	for (int32 i = 1; i < 7; i++) {
+		BString name("waiting-");
+		const int32 kBrightnessBreakValue = 126;
+		rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+		if (base.Brightness() >= kBrightnessBreakValue)
+			name.Append("light-");
+		else
+			name.Append("dark-");
+		name << i;
+		size_t size;
+		const uint8* rawData = (const uint8*)resources->LoadResource(
+			B_RAW_TYPE, name.String(), &size);
+		if (rawData == nullptr) {
+			LogError("InitAnimationIcons: Cannot load resource");
+			break;
+		}
+		BMemoryIO mem(rawData, size);
+		BBitmap* frame = BTranslationUtils::GetBitmap(&mem);
+
+		sBuildAnimationFrames.push_back(frame);
+	}
+	return B_OK;
+}
+
+
+/* static */
+status_t
+ProjectItem::DisposeAnimationIcons()
+{
+	for (std::vector<BBitmap*>::iterator i = sBuildAnimationFrames.begin();
+		i != sBuildAnimationFrames.end(); i++) {
+		delete *i;
+	}
+	sBuildAnimationFrames.clear();
+
+	return B_OK;
+}
+
+
+/* static */
+void
+ProjectItem::TickAnimation()
+{
+	if (++ProjectItem::sBuildAnimationIndex >= (int32)sBuildAnimationFrames.size())
+		ProjectItem::sBuildAnimationIndex = 0;
+}
+
+
 /* virtual */
 BRect
 ProjectItem::DrawIcon(BView* owner, const BRect& itemBounds,
@@ -288,6 +355,23 @@ ProjectItem::DrawIcon(BView* owner, const BRect& itemBounds,
 
 
 void
+ProjectItem::_DrawBuildIndicator(BView* owner, BRect bounds)
+{
+	try {
+		const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
+		if (frame != nullptr) {
+			owner->SetDrawingMode(B_OP_ALPHA);
+			bounds.left = bounds.right - bounds.Height();
+			bounds.OffsetBy(-1, 1);
+			owner->DrawBitmap(frame, frame->Bounds(), bounds);
+		}
+	} catch (...) {
+		// nothing to do
+	}
+}
+
+
+void
 ProjectItem::_DestroyTextWidget()
 {
 	if (fTextControl != nullptr) {
@@ -296,3 +380,4 @@ ProjectItem::_DestroyTextWidget()
 		fTextControl = nullptr;
 	}
 }
+

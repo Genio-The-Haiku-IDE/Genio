@@ -1,5 +1,5 @@
 /*
- * Orininal code from Idea project
+ * Original code from Ideam project
  * Parts borrowed from SciTe and Koder editors
  * Copyright 2017 A. Mosca 
  * Copyright (c) Neil Hodgson
@@ -9,6 +9,7 @@
 
 #include "Editor.h"
 
+#include <string>
 #include <regex>
 
 #include <Alert.h>
@@ -32,6 +33,7 @@
 #include "GenioApp.h"
 #include "GenioWindowMessages.h"
 #include "GoToLineWindow.h"
+#include "ResourceImport.h"
 #include "alert/GTextAlert.h"
 #include "Languages.h"
 #include "Log.h"
@@ -69,7 +71,6 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
 	, fProjectFolder(NULL)
-	, fSymbolsStatus(STATUS_NOT_INITIALIZED)
 	, fIdleHandler(nullptr)
 {
 	fStatusView = new editor::StatusView(this);
@@ -122,13 +123,20 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	SendMessage(SCI_SETMARGINSENSITIVEN, sci_COMMENT_MARGIN, 1);
 	//Wrap visual flag
 	SendMessage(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_MARGIN);
+
+	fDocumentSymbols.AddInt32("status", STATUS_UNKNOWN);
+
+	// This ensure that a GoToLine call will try to center on screen the line.
+	SendMessage(SCI_SETVISIBLEPOLICY, VISIBLE_STRICT);
 }
+
 
 bool
 Editor::HasLSPServer() const
 {
 	return (fLSPEditorWrapper && fLSPEditorWrapper->HasLSPServer());
 }
+
 
 bool
 Editor::HasLSPCapability(const LSPCapability cap)
@@ -344,6 +352,11 @@ Editor::MessageReceived(BMessage* message)
 				fCollapsedSymbols.erase(std::make_pair(symbol.String(), kind));
 			break;
 		}
+		case MSG_LOAD_RESOURCE:
+		{
+			_LoadResources(message);
+			break;
+		}
 		default:
 			BScintillaView::MessageReceived(message);
 			break;
@@ -365,8 +378,6 @@ Editor::ApplySettings()
 	SendMessage(SCI_SETUSETABS, fEditorConfig.IndentStyle==IndentStyle::Tab, 0);
 	SendMessage(SCI_SETTABWIDTH, fEditorConfig.IndentSize, 0);
 	SendMessage(SCI_SETINDENT, 0, 0);
-	if (fEditorConfig.TrimTrailingWhitespace)
-		TrimTrailingWhitespace();
 	EndOfLineConvert(fEditorConfig.EndOfLine);
 
 	SendMessage(SCI_SETCARETLINEVISIBLE, bool(gCFG["mark_caretline"]), 0);
@@ -413,11 +424,13 @@ Editor::ApplySettings()
 	UpdateStatusBar();
 }
 
+
 void
 Editor::ApplyEdit(std::string info)
 {
 	fLSPEditorWrapper->ApplyEdit(info);
 }
+
 
 void
 Editor::BookmarkClearAll(int marker)
@@ -494,23 +507,23 @@ Editor::TrimTrailingWhitespace()
 bool
 Editor::CanClear()
 {
-	return ((SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
-				!IsReadOnly());
+	return (SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
+				!IsReadOnly();
 }
 
 
 bool
 Editor::CanCopy()
 {
-	return (SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0);
+	return SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0;
 }
 
 
 bool
 Editor::CanCut()
 {
-	return ((SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
-				!IsReadOnly());
+	return (SendMessage(SCI_GETSELECTIONEMPTY, UNSET, UNSET) == 0) &&
+				!IsReadOnly();
 }
 
 
@@ -610,6 +623,7 @@ Editor::FilePath() const
 	return path.Path();
 }
 
+
 int32
 Editor::Find(const BString&  text, int flags, bool backwards, bool onWrap)
 {
@@ -633,6 +647,7 @@ Editor::Find(const BString&  text, int flags, bool backwards, bool onWrap)
 	}
 	return position;
 }
+
 
 int
 Editor::FindInTarget(const BString& search, int flags, int startPosition, int endPosition)
@@ -695,6 +710,7 @@ Editor::FindMarkAll(const BString& text, int flags)
 	return count;
 }
 
+
 int
 Editor::FindNext(const BString& search, int flags, bool wrap)
 {
@@ -723,6 +739,11 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 	return position;
 }
 
+int32
+Editor::GetCurrentLineNumber()
+{
+	return SendMessage(SCI_LINEFROMPOSITION, SendMessage(SCI_GETCURRENTPOS, 0, 0), 0);
+}
 
 int32
 Editor::GetCurrentPosition()
@@ -745,6 +766,7 @@ Editor::GoToLine(int32 line)
 	SendMessage(SCI_GOTOLINE, line, UNSET);
 	EnsureVisiblePolicy();
 }
+
 
 void
 Editor::GoToLSPPosition(int32 line, int character)
@@ -826,11 +848,10 @@ Editor::LoadEditorConfig()
 				errNum != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
 			editorconfig_handle_destroy(handle);
 			LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(errNum));
-			fHasEditorConfig = false;
 		} else {
-			fHasEditorConfig = true;
-
 			int32 nameValueCount = editorconfig_handle_get_name_value_count(handle);
+			if (nameValueCount != 0)
+				fHasEditorConfig = true;
 
 			/* get settings */
 			// Defaults. TODO: This avoids the compiler error
@@ -1007,9 +1028,11 @@ Editor::NotificationReceived(SCNotification* notification)
 		case SCN_CALLTIPCLICK: {
 			GMessage click = {{"what",kCallTipClick},{"position", (int32)notification->position}};
 			Looper()->PostMessage(&click, this);
+			break;
 		}
 		case SCN_DWELLSTART: {
-			fLSPEditorWrapper->StartHover(notification->position);
+			if (Window()->IsActive())
+				fLSPEditorWrapper->StartHover(notification->position);
 			break;
 		}
 		case SCN_DWELLEND: {
@@ -1310,17 +1333,16 @@ Editor::ReplaceOne(const BString& selection, const BString& replacement)
 }
 
 
-ssize_t
+status_t
 Editor::SaveToFile()
 {
 	BFile file;
 	status_t status = file.SetTo(&fFileRef, B_READ_WRITE | B_ERASE_FILE | B_CREATE_FILE);
 	if (status != B_OK)
-		return 0;
+		return status;
 
-	// TODO warn user
 	if ((status = file.Lock()) != B_OK)
-		return 0;
+		return status;
 
 	off_t size = SendMessage(SCI_GETLENGTH, UNSET, UNSET);
 	file.Seek(0, SEEK_SET);
@@ -1330,18 +1352,19 @@ Editor::SaveToFile()
 
 	off_t bytes = file.Write(buffer, size);
 	file.Flush();
-
-	// TODO warn user
-	if ((status = file.Unlock()) != B_OK)
-		return 0;
-
 	delete[] buffer;
+
+	if ((status = file.Unlock()) != B_OK)
+		return status;
+
+	if (bytes != size)
+		return B_ERROR;
 
 	SendMessage(SCI_SETSAVEPOINT, UNSET, UNSET);
 
 	fLSPEditorWrapper->didSave();
 
-	return bytes;
+	return B_OK;
 }
 
 
@@ -1359,6 +1382,7 @@ Editor::SelectAll()
 }
 
 
+// Scripting methods
 const BString
 Editor::Selection()
 {
@@ -1372,13 +1396,71 @@ Editor::Selection()
 const BString
 Editor::GetSymbol()
 {
-	int32 position = SendMessage(SCI_GETCURRENTPOS);
+	int32 position = SendMessage(SCI_GETSELECTIONSTART, 0, 0);
 	int32 start = SendMessage(SCI_WORDSTARTPOSITION, position);
 	int32 end = SendMessage(SCI_WORDENDPOSITION, position);
 	int32 size = end - start;
 	char text[size];
 	GetText(start, size, text);
-	return text;
+	// remove invalid leading characters
+	const std::regex leadingChars("^\\W+");
+	std::string str = std::regex_replace(text, leadingChars, "");
+	return BString(str.c_str());
+}
+
+
+void
+Editor::SetSelection(int32 start, int32 end)
+{
+	SendMessage(SCI_SETSELECTIONSTART, start);
+	SendMessage(SCI_SETSELECTIONEND, end);
+}
+
+
+void
+Editor::Append(BString text)
+{
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+	SendMessage(SCI_APPENDTEXT, text.Length(), (sptr_t)text.String());
+	ScrollCaret();
+	SendMessage(SCI_ENDUNDOACTION, 0, 0);
+}
+
+
+void
+Editor::Insert(BString text, int32 start)
+{
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+	if (start == -1)
+		SendMessage(SCI_REPLACESEL, UNSET, (sptr_t)text.String());
+	else
+		SendMessage(SCI_INSERTTEXT, start, (sptr_t)text.String());
+	ScrollCaret();
+	SendMessage(SCI_ENDUNDOACTION, 0, 0);
+}
+
+
+const BString
+Editor::GetLine(int32 lineNumber)
+{
+	int32 lineLength = SendMessage(SCI_LINELENGTH, lineNumber, UNSET);
+	char *lineBuffer = new char[lineLength + 1];
+	lineBuffer[lineLength] = '\0';
+	SendMessage(SCI_GETLINE, lineNumber, (sptr_t)lineBuffer);
+	BString line(lineBuffer, lineLength);
+	delete[] lineBuffer;
+	return line;
+}
+
+
+void
+Editor::InsertLine(BString text, int32 lineNumber)
+{
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+	SendMessage(SCI_GOTOLINE, lineNumber, UNSET);
+	Insert(text, -1);
+	SendMessage(SCI_NEWLINE, UNSET, UNSET);
+	SendMessage(SCI_ENDUNDOACTION, 0, 0);
 }
 
 
@@ -1533,7 +1615,7 @@ Editor::StartMonitoring()
 		LogErrorF("Can't start watch_node a node_ref! (%s) (%s)", fFileRef.name, strerror(status));
 		return status;
 	}
-	return	B_OK;
+	return B_OK;
 }
 
 
@@ -1631,15 +1713,12 @@ Editor::Rename()
 	// Getting the symbol from the language server would require many async steps.
 	// We instead ask Scintilla to deliver it which should be almost if not entirely accurate
 
-	// remove invalid leading characters
-	const std::string symbol = GetSymbol().String();
-	const std::regex leadingChars("^\\W+");
-	std::string str = std::regex_replace(symbol, leadingChars, "");
+	BString symbol = GetSymbol();
 
 	BString label(B_TRANSLATE("Rename symbol '%symbol_name%':"));
-	label.ReplaceFirst("%symbol_name%", str.c_str());
+	label.ReplaceFirst("%symbol_name%", symbol);
 
-	auto alert = new GTextAlert(B_TRANSLATE("Rename"), label, str.c_str());
+	auto alert = new GTextAlert(B_TRANSLATE("Rename"), label, symbol);
 	auto result = alert->Go();
 	if (result.Button == GAlertButtons::OkButton)
 		fLSPEditorWrapper->Rename(result.Result.String());
@@ -1662,18 +1741,15 @@ void
 Editor::SetProjectFolder(ProjectFolder* proj)
 {
 	fProjectFolder = proj;
-	if (proj) {
+	if (proj != nullptr) {
 		LSPProjectWrapper* lspProject = proj->GetLSPServer(fFileType.c_str());
-		if (lspProject)
+		if (lspProject != nullptr)
 			fLSPEditorWrapper->SetLSPServer(lspProject);
 		else
 			fLSPEditorWrapper->UnsetLSPServer();
-	}
-	else
+	} else
 		fLSPEditorWrapper->UnsetLSPServer();
 
-	// BMessage empty;
-	// SetProblems(&empty);
 	SetProblems();
 }
 
@@ -1717,6 +1793,32 @@ Editor::_ApplyExtensionSettings()
 		auto styles = Languages::ApplyLanguage(this, fFileType.c_str());
 		Styler::ApplyLanguage(this, styles);
 	}
+}
+
+
+void
+Editor::_LoadResources(BMessage *message)
+{
+	int32 startIndex = -1;
+	auto alert = new GTextAlert(B_TRANSLATE("Index"),
+		B_TRANSLATE("Do you want to set a starting index?"), "");
+	auto result = alert->Go();
+	if (result.Button == GAlertButtons::OkButton) {
+		startIndex = std::stoi(result.Result.String());
+	}
+
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+
+	entry_ref ref;
+	int32 index = -1;
+	for (int32 count = 0; message->FindRef("refs", count, &ref) == B_OK; count++) {
+		if (startIndex != -1)
+			index = startIndex + count;
+		ResourceImport resource(ref, index);
+		SendMessage(SCI_APPENDTEXT, resource.GetArray().Length(), (sptr_t)resource.GetArray().String());
+	}
+
+	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
 }
 
 
@@ -1830,11 +1932,7 @@ Editor::_CommentLine(int32 position)
 
 	const std::string lineCommenter = fCommenter + ' ';
 	int32 lineNumber = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
-	int32 lineLength = SendMessage(SCI_LINELENGTH, lineNumber, UNSET);
-	char *lineBuffer = new char[lineLength];
-	SendMessage(SCI_GETLINE, lineNumber, (sptr_t)lineBuffer);
-	std::string line(lineBuffer);
-	delete[] lineBuffer;
+	std::string line(GetLine(lineNumber).String());
 
 	// Calculate offset of first non-space
 	std::size_t offset = line.find_first_not_of("\t ");
@@ -1985,21 +2083,17 @@ Editor::SetProblems()
 
 
 void
-Editor::SetDocumentSymbols(const BMessage* symbols)
+Editor::SetDocumentSymbols(const BMessage* symbols, Editor::symbols_status status)
 {
 	// make absolutely sure we're locked
 	if (!Window()->IsLocked()) {
 		debugger("The looper must be locked !");
 	}
-	if (symbols->HasMessage("symbol"))
-		fSymbolsStatus = STATUS_HAS_SYMBOLS;
-	else
-		fSymbolsStatus = STATUS_NO_SYMBOLS;
 
 	fDocumentSymbols = *symbols;
 	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
 	fDocumentSymbols.AddRef("ref", &fFileRef);
-	fDocumentSymbols.AddInt32("status", fSymbolsStatus);
+	fDocumentSymbols.AddInt32("status", status);
 
 	std::set<std::pair<std::string, int32> >::const_iterator iterator;
 	for (iterator = fCollapsedSymbols.begin(); iterator != fCollapsedSymbols.end(); iterator++) {
@@ -2026,7 +2120,7 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 	}
 
 	if (!symbols->HasInt32("status"))
-		symbols->AddInt32("status", fSymbolsStatus);
+		symbols->AddInt32("status", STATUS_UNKNOWN);
 
 	// TODO: Refactor:
 	// we should add the "collapsed" property to the symbol, so that

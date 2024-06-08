@@ -220,7 +220,7 @@ ProjectFolder::GetBuildMode() const
 void
 ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 {
-	if (GetBuildMode() == BuildMode::ReleaseMode)
+	if (mode == BuildMode::ReleaseMode)
 		(*fSettings)["project_release_build_command"] = command;
 	else
 		(*fSettings)["project_debug_build_command"] = command;
@@ -232,8 +232,6 @@ ProjectFolder::GetBuildCommand() const
 {
 	if (GetBuildMode() == BuildMode::ReleaseMode) {
 		BString build = (*fSettings)["project_release_build_command"];
-		if (build.IsEmpty())
-			build = fGuessedBuildCommand;
 		return build;
 	} else
 		return (*fSettings)["project_debug_build_command"];
@@ -243,7 +241,7 @@ ProjectFolder::GetBuildCommand() const
 void
 ProjectFolder::SetCleanCommand(BString const& command, BuildMode mode)
 {
-	if (GetBuildMode() == BuildMode::ReleaseMode)
+	if (mode == BuildMode::ReleaseMode)
 		(*fSettings)["project_release_clean_command"] = command;
 	else
 		(*fSettings)["project_debug_clean_command"] = command;
@@ -255,8 +253,6 @@ ProjectFolder::GetCleanCommand() const
 {
 	if (GetBuildMode() == BuildMode::ReleaseMode) {
 		BString clean = (*fSettings)["project_release_clean_command"];
-		if (clean.IsEmpty())
-			clean = fGuessedCleanCommand;
 		return clean;
 	} else
 		return (*fSettings)["project_debug_clean_command"];
@@ -266,7 +262,7 @@ ProjectFolder::GetCleanCommand() const
 void
 ProjectFolder::SetExecuteArgs(BString const& args, BuildMode mode)
 {
-	if (GetBuildMode() == BuildMode::ReleaseMode)
+	if (mode == BuildMode::ReleaseMode)
 		(*fSettings)["project_release_execute_args"] = args;
 	else
 		(*fSettings)["project_debug_execute_args"] = args;
@@ -286,7 +282,7 @@ ProjectFolder::GetExecuteArgs() const
 void
 ProjectFolder::SetTarget(BString const& path, BuildMode mode)
 {
-	if (GetBuildMode() == BuildMode::ReleaseMode)
+	if (mode == BuildMode::ReleaseMode)
 		(*fSettings)["project_release_target"] = path;
 	else
 		(*fSettings)["project_debug_target"] = path;
@@ -328,15 +324,6 @@ void
 ProjectFolder::InitRepository(bool createInitialCommit)
 {
 	fGitRepository->Init(createInitialCommit);
-}
-
-
-void
-ProjectFolder::SetGuessedBuilder(const BString& string)
-{
-	fGuessedBuildCommand = string;
-	fGuessedCleanCommand = string;
-	fGuessedCleanCommand.Append(" clean");
 }
 
 

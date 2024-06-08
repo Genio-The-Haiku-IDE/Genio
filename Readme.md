@@ -58,7 +58,8 @@ Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code 
 For more advanced IDE features, Genio implements the LSP protocol. (<https://microsoft.github.io/language-server-protocol/>)
 
 * For C and C++ projects you can use clangd. See [Configuring-clangd-lsp.md](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/Configuring-clangd-lsp.md)
-* For Python projects use can install and use [Python LSP Server](https://github.com/python-lsp/python-lsp-server)
+* For Python projects you can install and use [Python LSP Server](https://github.com/python-lsp/python-lsp-server)
+* For C# projects you can install and use [OmniSharp](https://github.com/nexus6-haiku/omnisharp-roslyn-haiku)
 
 ## Building Genio
 
@@ -74,7 +75,7 @@ from Terminal.
 
 If you would like to try a clang++ build:
 
-*   Install `llvm_clang` hpkg from HaikuPorts
+*   Install `llvm17_clang` and `llvm17_lld` hpkgs from HaikuPorts
 *   Set `BUILD_WITH_CLANG` to `1` in `Makefile`
 
 ### Compiling
@@ -82,13 +83,13 @@ If you would like to try a clang++ build:
 Execute `make deps && make` in Genio's top directory.
 The executable is created in `app` subdirectory.
 
-Genio can also be built within Genio itself. 
+Genio can also be built within Genio itself.
 
 ## Contributions
 
 We gladly accept contributions, especially for bug fixes. Feel free to submit PRs.
 For code contributions, prefer Haiku API over posix, where applicable.
-We (try to) stick to the Haiku style for code, although we are a bit less strict sometimes. 
+We (try to) stick to the Haiku style for code, although we are a bit less strict sometimes.
 
 ## License
 

@@ -152,3 +152,6 @@ Changelog.h : Changelog.txt txt2header
 txt2header :
 	$(CXX) txt2header.cpp -o txt2header
 
+compiledb:
+	compiledb make -Bnwk
+

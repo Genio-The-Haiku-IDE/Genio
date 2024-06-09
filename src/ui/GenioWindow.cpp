@@ -3615,8 +3615,8 @@ GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
 			// builder: make
 			projectFolder->SetBuildCommand("make", BuildMode::ReleaseMode);
 			projectFolder->SetCleanCommand("make clean", BuildMode::ReleaseMode);
-			projectFolder->SetBuildCommand("DEBUGGER=1 make", BuildMode::DebugMode);
-			projectFolder->SetCleanCommand("DEBUGGER=1 make clean", BuildMode::DebugMode);
+			projectFolder->SetBuildCommand("make DEBUGGER=1", BuildMode::DebugMode);
+			projectFolder->SetCleanCommand("make DEBUGGER=1 clean", BuildMode::DebugMode);
 			LogInfo("Guessed builder: make");
 			break;
 		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {

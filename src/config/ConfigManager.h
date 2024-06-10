@@ -80,7 +80,7 @@ public:
 
 		auto operator[](const char* key) -> ConfigManagerReturn;
 
-		bool Has(GMessage& msg, const char* key) const;
+		bool HasKey(const char* key) const;
 
 		GMessage& Configuration() { return fConfiguration; }
 

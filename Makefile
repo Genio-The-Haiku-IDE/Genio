@@ -30,8 +30,7 @@ APP_MIME_SIG := "application/x-vnd.Genio"
 arch := $(shell getarch)
 platform := $(shell uname -p)
 
-SRCS := src/ExtensionManager.cpp
-SRCS := src/GenioApp.cpp
+SRCS += src/GenioApp.cpp
 SRCS += src/alert/GTextAlert.cpp
 SRCS += src/config/ConfigManager.cpp
 SRCS += src/config/ConfigWindow.cpp
@@ -91,6 +90,9 @@ SRCS += src/templates/IconMenuItem.cpp
 SRCS += src/templates/TemplatesMenu.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/helpers/PipeImage.cpp
+SRCS += src/extensions/ToolsMenu.cpp
+SRCS += src/extensions/ExtensionManager.cpp
+
 
 RDEFS := Genio.rdef Spinner.rdef
 

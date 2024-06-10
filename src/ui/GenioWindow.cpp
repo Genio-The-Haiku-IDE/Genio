@@ -40,6 +40,7 @@
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
 #include "EditorTabManager.h"
+#include "ExtensionManager.h"
 #include "FSUtils.h"
 #include "FunctionsOutlineView.h"
 #include "GenioApp.h"
@@ -68,6 +69,7 @@
 #include "TextUtils.h"
 #include "Utils.h"
 #include "argv_split.h"
+#include "ToolsMenu.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -295,6 +297,17 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case MSG_INVOKE_EXTENSION:
+		{
+			printf("window ");
+			message->PrintToStream();
+			entry_ref ref;
+			if (message->FindRef("refs", &ref) == B_OK)
+				be_roster->Launch(&ref);
+			else
+				LogError("Can't find entry_ref");
+			break;
+		}
 		case kClassOutline:
 		{
 			Editor* editor = fTabManager->SelectedEditor();
@@ -3197,6 +3210,15 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FULLSCREEN, windowMenu);
 	ActionManager::AddItem(MSG_FOCUS_MODE, windowMenu);
 	fMenuBar->AddItem(windowMenu);
+
+
+	ExtensionContext context = {
+		// .editor = fTabManager->CountTabs()>0 ? fTabManager->SelectedEditor() : nullptr
+		.editor = nullptr
+	};
+	auto toolsMenu = new ToolsMenu(B_TRANSLATE("Tools"), context, MSG_INVOKE_EXTENSION, this);
+	fMenuBar->AddItem(toolsMenu);
+	toolsMenu->SetTargetForItems(toolsMenu);
 
 }
 

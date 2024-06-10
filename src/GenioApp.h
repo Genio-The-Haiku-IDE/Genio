@@ -6,12 +6,12 @@
 
 #pragma once
 
+#include "ExtensionManager.h"
 #include <Application.h>
 #include <Path.h>
 #include <StringList.h>
 
 class ConfigManager;
-class ExtensionManager;
 class GenioWindow;
 class GenioApp : public BApplication {
 public:
@@ -30,6 +30,8 @@ public:
 	virtual status_t		GetSupportedSuites(BMessage* data);
 	virtual	BHandler*		ResolveSpecifier(BMessage* message, int32 index,
 								BMessage* specifier, int32 what, const char* property);
+
+	ExtensionManager*		GetExtensionManager() { return fExtensionManager; };
 
 private:
 	static BStringList		_SplitChangeLog(const char* changeLog);

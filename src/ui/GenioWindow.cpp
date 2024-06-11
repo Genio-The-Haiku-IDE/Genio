@@ -194,8 +194,13 @@ GenioWindow::GenioWindow(BRect frame)
 		AddShortcut(index + kAsciiPos, B_COMMAND_KEY, selectTab);
 	}
 
-	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_PREVIOUS_SELECTED, B_LEFT_ARROW, B_OPTION_KEY));
-	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW, B_OPTION_KEY));
+	// TODO: we use ALT+N (where N is 1-9) to switch tab (like Web+), and CTRL+LEFT/RIGHT to switch
+	// to previous/next. Too bad ALT+LEFT/RIGHT are already taken. Maybe we should change to
+	// CTRL+N (but should be changed in Web+, too)
+	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_PREVIOUS_SELECTED, B_LEFT_ARROW,
+		B_CONTROL_KEY));
+	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW,
+		B_CONTROL_KEY));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorKeyDownMessageFilter());
@@ -383,10 +388,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			entry_ref editorRef;
 			if (message->FindRef("ref", &editorRef) == B_OK) {
+				Editor* editor = fTabManager->EditorBy(&editorRef);
 				// add the ref also to the external message
 				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				notifyMessage.AddMessage("symbols", message);
 				notifyMessage.AddRef("ref", &editorRef);
+				if (editor != nullptr)
+					notifyMessage.AddInt32("caret_line", editor->GetCurrentLineNumber());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
 			}
 			break;
@@ -416,6 +424,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case B_NODE_MONITOR:
 			_HandleNodeMonitorMsg(message);
+			break;
+		case kCheckEntryRemoved:
+			_CheckEntryRemoved(message);
 			break;
 		case B_REDO:
 		{
@@ -541,6 +552,8 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (editor == fTabManager->SelectedEditor()) {
 					// Enable Cut,Copy,Paste shortcuts
 					_UpdateSavepointChange(editor, "EDITOR_POSITION_CHANGED");
+					//update the OulineView according to the new position.
+					fFunctionsOutlineView->SelectSymbolByCaretPosition(message->GetInt32("line", -1));
 				}
 			}
 			break;
@@ -1128,6 +1141,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->GetDocumentSymbols(&symbols);
 				symbolsChanged.AddRef("ref", editor->FileRef());
 				symbolsChanged.AddMessage("symbols", &symbols);
+				symbolsChanged.AddInt32("caret_line", editor->GetCurrentLineNumber());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
 
 			}
@@ -1777,6 +1791,11 @@ GenioWindow::_FileOpen(BMessage* msg)
 		fTabManager->SelectTab(firstAdded);
 	}
 
+	// reply to Editor create scripting
+	BMessage reply(B_REPLY);
+	reply.AddInt32("result", firstAdded);
+	msg->SendReply(&reply);
+
 	return B_OK;
 }
 
@@ -2203,15 +2222,14 @@ void
 GenioWindow::_GetFocusAndSelection(BTextControl* control) const
 {
 	control->MakeFocus(true);
-	// If some text is selected, use that TODO index check
+	// If some text is selected, use that
 	Editor* editor = fTabManager->SelectedEditor();
-	if (editor && editor->IsTextSelected()) {
-		int32 size = editor->SendMessage(SCI_GETSELTEXT, 0, 0);
-		char text[size + 1];
-		editor->SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text);
-		control->SetText(text);
-	} else
-		control->TextView()->Clear();
+	if (editor) {
+		BString selection = editor->Selection();
+		if (selection.IsEmpty() == false) {
+			control->SetText(selection.String());
+		}
+	}
 }
 
 
@@ -2245,6 +2263,12 @@ GenioWindow::_Git(const BString& git_command)
 void
 GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef)
 {
+	int32 index = _GetEditorIndex(oldRef);
+	if (index < 0) {
+		LogError("_HandleExternalMoveModification: Invalid move file: oldRef doesn't exist");
+		return;
+	}
+
 	BEntry oldEntry(oldRef, true), newEntry(newRef, true);
 	BPath oldPath, newPath;
 
@@ -2262,8 +2286,6 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
  		B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 
  	alert->SetShortcut(0, B_ESCAPE);
-
-	int32 index = _GetEditorIndex(oldRef);
 
  	int32 choice = alert->Go();
 
@@ -2352,6 +2374,13 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 		return;
 
 	Editor* editor = fTabManager->EditorAt(index);
+	_HandleExternalStatModification(editor);
+}
+
+
+void
+GenioWindow::_HandleExternalStatModification(Editor* editor)
+{
 
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
@@ -2374,6 +2403,65 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 
 
 void
+GenioWindow::_CheckEntryRemoved(BMessage *msg)
+{
+	node_ref nref;
+	BString name;
+	int64 dir;
+
+	if (msg->FindInt32("device", &nref.device) != B_OK
+		|| msg->FindString("name", &name) != B_OK
+		|| msg->FindInt64("directory", &dir) != B_OK
+		|| msg->FindInt64("node", &nref.node) != B_OK)
+			return;
+
+
+	// Let's check if the path exists, if the file is loaded in Genio
+	// and if the current genio node_ref is the same as the one of the path received.
+
+	node_ref dirRef;
+	dirRef.device = nref.device;
+	dirRef.node = dir;
+	BDirectory fileDir(&dirRef);
+	if (fileDir.InitCheck() == B_OK) {
+		BEntry entry;
+		if (fileDir.GetEntry(&entry) == B_OK) {
+			BPath path;
+			entry.GetPath(&path);
+			if (path.Append(name.String()) == B_OK) {
+				entry.SetTo(path.Path());
+				if (entry.Exists()) {
+					Editor* editor = fTabManager->EditorBy(&nref);
+					if (editor == nullptr) {
+						return;
+					}
+					node_ref newNode;
+					if (entry.GetNodeRef(&newNode) == B_OK) {
+						// same path but different node_ref
+						// it means someone is removing the old
+						// and moving over another file.
+						if ( newNode != nref) {
+							entry_ref xref;
+							entry.GetRef(&xref);
+							editor->StopMonitoring();
+							editor->SetFileRef(&xref);
+							editor->StartMonitoring();
+							_HandleExternalStatModification(editor);
+						}
+						// else a B_STAT_CHANGED is notifyng the change.
+					}
+					return;
+				}
+			}
+		}
+	}
+
+	// the file is gone for sure!
+	_HandleExternalRemoveModification(_GetEditorIndex(&nref));
+}
+
+
+void
 GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 {
 	int32 opcode;
@@ -2390,7 +2478,7 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 			int64 srcDir;
 			int64 dstDir;
 			BString name;
-			const char* oldName;
+			BString oldName;
 
 			if (msg->FindInt32("device", &device) != B_OK
 				|| msg->FindInt64("to directory", &dstDir) != B_OK
@@ -2399,62 +2487,33 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 				|| msg->FindString("from name", &oldName) != B_OK)
 					break;
 
-			entry_ref oldRef(device, srcDir, oldName);
-			entry_ref newRef(device, dstDir, name);
+			entry_ref oldRef(device, srcDir, oldName.String());
+			entry_ref newRef(device, dstDir, name.String());
 
 			_HandleExternalMoveModification(&oldRef, &newRef);
 
 			break;
 		}
 		case B_ENTRY_REMOVED: {
-			node_ref nref;
-			BString name;
-			int64 dir;
-
-			if (msg->FindInt32("device", &nref.device) != B_OK
-				|| msg->FindString("name", &name) != B_OK
-				|| msg->FindInt64("directory", &dir) != B_OK
-				|| msg->FindInt64("node", &nref.node) != B_OK)
-					break;
+			// This message can be triggered by different use cases
 
 			// Some git commands generate a B_ENTRY_REMOVED
-			// even if the file is just 'replaced' by another version
-			// to avoid this to be managed as a real file removed event,
-			// let's check if the removed file exists.
+			// even if the file is just restored from a previous version.
+			// (same entry_ref, same node_ref)
 
-			node_ref dirRef;
-			dirRef.device = nref.device;
-			dirRef.node = dir;
-			BDirectory fileDir(&dirRef);
-			if (fileDir.InitCheck() == B_OK) {
-				BEntry entry;
-				if (fileDir.GetEntry(&entry) == B_OK) {
-					BPath path;
-					entry.GetPath(&path);
-					if (path.Append(name.String()) == B_OK) {
-						entry.SetTo(path.Path());
-						if (entry.Exists()) {
-							// a B_STAT_CHANGED will follow.
-							return;
-						}
-					}
-				}
-			}
+			// Some other command (for example haiku-format)
+			// delete the file, and then move another file to the old path.
+			// (same entry_ref, different node_ref)
 
-			// It could happens that the above check fails even if the file is there
-			// (maybe because the file is quickly recreated and we check in the instant where there is no file)
-			// lets take some time by reposting the same message to the Looper!
-			if (msg->GetBool("second_try", false) == true) {
-				// If after the second check, the file is really missing..
-				// Let's handle as a true file removed event.
-				_HandleExternalRemoveModification(_GetEditorIndex(&nref));
-			} else {
-				// Let's try again.
-				msg->AddBool("second_try", true);
-				PostMessage(msg);
-			}
-			break;
+			// Of course he could be a real file removed (deleted).
+
+			// Let's deferr the decision to some milliseconds to have a better understanding
+			// of what's going on.
+
+			msg->what = kCheckEntryRemoved;
+			BMessageRunner::StartSending(this, msg, 1500, 1);
 		}
+		break;
 		case B_STAT_CHANGED: {
 			node_ref nref;
 			int32 fields;
@@ -2470,6 +2529,7 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 			if (((fields & B_STAT_MODIFICATION_TIME)  != 0)
 			// Do not reload if the file just got touched
 				&& ((fields & B_STAT_ACCESS_TIME)  == 0)) {
+//				BNode node(&nref);
 				_HandleExternalStatModification(_GetEditorIndex(&nref));
 			}
 
@@ -3578,8 +3638,8 @@ GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
 			// builder: make
 			projectFolder->SetBuildCommand("make", BuildMode::ReleaseMode);
 			projectFolder->SetCleanCommand("make clean", BuildMode::ReleaseMode);
-			projectFolder->SetBuildCommand("DEBUGGER=1 make", BuildMode::DebugMode);
-			projectFolder->SetCleanCommand("DEBUGGER=1 make clean", BuildMode::DebugMode);
+			projectFolder->SetBuildCommand("make DEBUGGER=1", BuildMode::DebugMode);
+			projectFolder->SetCleanCommand("make DEBUGGER=1 clean", BuildMode::DebugMode);
 			LogInfo("Guessed builder: make");
 			break;
 		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
@@ -4332,7 +4392,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		fProblemsPanel->ClearProblems();
 
 		GMessage symbolNotice = {{ "what", MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED},
-								 { "symbols", {{"status", Editor::STATUS_UNKOWN}}}};
+								 { "symbols", {{"status", Editor::STATUS_UNKNOWN}}}};
 		SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolNotice);
 		return;
 	}

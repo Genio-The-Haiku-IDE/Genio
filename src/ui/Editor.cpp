@@ -124,7 +124,7 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	//Wrap visual flag
 	SendMessage(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_MARGIN);
 
-	fDocumentSymbols.AddInt32("status", STATUS_UNKOWN);
+	fDocumentSymbols.AddInt32("status", STATUS_UNKNOWN);
 
 	// This ensure that a GoToLine call will try to center on screen the line.
 	SendMessage(SCI_SETVISIBLEPOLICY, VISIBLE_STRICT);
@@ -739,6 +739,11 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 	return position;
 }
 
+int32
+Editor::GetCurrentLineNumber()
+{
+	return SendMessage(SCI_LINEFROMPOSITION, SendMessage(SCI_GETCURRENTPOS, 0, 0), 0);
+}
 
 int32
 Editor::GetCurrentPosition()
@@ -1023,6 +1028,7 @@ Editor::NotificationReceived(SCNotification* notification)
 		case SCN_CALLTIPCLICK: {
 			GMessage click = {{"what",kCallTipClick},{"position", (int32)notification->position}};
 			Looper()->PostMessage(&click, this);
+			break;
 		}
 		case SCN_DWELLSTART: {
 			if (Window()->IsActive())
@@ -1390,7 +1396,7 @@ Editor::Selection()
 const BString
 Editor::GetSymbol()
 {
-	int32 position = SendMessage(SCI_GETCURRENTPOS);
+	int32 position = SendMessage(SCI_GETSELECTIONSTART, 0, 0);
 	int32 start = SendMessage(SCI_WORDSTARTPOSITION, position);
 	int32 end = SendMessage(SCI_WORDENDPOSITION, position);
 	int32 size = end - start;
@@ -2114,7 +2120,7 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 	}
 
 	if (!symbols->HasInt32("status"))
-		symbols->AddInt32("status", STATUS_UNKOWN);
+		symbols->AddInt32("status", STATUS_UNKNOWN);
 
 	// TODO: Refactor:
 	// we should add the "collapsed" property to the symbol, so that

@@ -9,4 +9,8 @@ indent_style = tab
 indent_size = 4
 
 [*.py]
+<<<<<<< HEAD
 indent_style = space
+=======
+indent_style = space
+>>>>>>> main

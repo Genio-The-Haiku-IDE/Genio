@@ -30,7 +30,8 @@ APP_MIME_SIG := "application/x-vnd.Genio"
 arch := $(shell getarch)
 platform := $(shell uname -p)
 
-SRCS += src/GenioApp.cpp
+SRCS := src/GenioApp.cpp
+SRCS += src/GenioScripting.cpp
 SRCS += src/alert/GTextAlert.cpp
 SRCS += src/config/ConfigManager.cpp
 SRCS += src/config/ConfigWindow.cpp
@@ -153,4 +154,7 @@ Changelog.h : Changelog.txt txt2header
 
 txt2header :
 	$(CXX) txt2header.cpp -o txt2header
+
+compiledb:
+	compiledb make -Bnwk
 

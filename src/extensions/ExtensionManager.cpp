@@ -15,8 +15,11 @@
 #include <Resources.h>
 #include <fs_attr.h>
 
+#include "Editor.h"
+#include "boolinq/boolinq.h"
 #include "Utils.h"
 #include "Log.h"
+#include "wildcard.h"
 
 
 const char* kExtensionDirectory = "extensions";
@@ -87,7 +90,7 @@ ExtensionManager::_ScanExtensions(BString directory)
 						{
 							BString fileType;
 							int i = 0;
-							while(msg.FindString("FileType", i, &fileType) == B_OK) {
+							while(msg.FindString("FileTypes", i, &fileType) == B_OK) {
 								extension.FileTypes.push_back(fileType);
 								i++;
 							}
@@ -147,4 +150,30 @@ ExtensionManager::_GetUserDirectory()
 	create_directory(userPath.Path(), 0777);
 
 	return userPath.Path();
+}
+
+std::vector<ExtensionInfo>
+ExtensionManager::GetScriptExtensions(ExtensionContext& context)
+{
+	std::vector<ExtensionInfo> extensions;
+
+	for(auto& extension: fExtensions) {
+		if (extension.Type == "Script") {
+			extension.Enabled = false;
+			if ((context.editor != nullptr &&
+					std::count(extension.Scope.begin(), extension.Scope.end(), "Editor")) ||
+				(context.project != nullptr &&
+					std::count(extension.Scope.begin(), extension.Scope.end(), "ProjectBrowser"))) {
+				auto filePath = context.editor->FilePath();
+				for(auto& ft: extension.FileTypes) {
+					if (wildcard(ft.String(), filePath.String())) {
+						extension.Enabled = true;
+						break;
+					}
+				}
+			}
+			extensions.push_back(extension);
+		}
+	}
+	return extensions;
 }

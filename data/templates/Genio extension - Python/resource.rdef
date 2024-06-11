@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-resource app_signature "application/x-vnd.Genio.ShowDocumentation";
-=======
-resource app_signature "application/x-vnd.MyName-MyApp";
->>>>>>> Stashed changes
+resource app_signature "application/x-vnd.Genio.ShowDocumentationZeal";
 
 resource app_flags B_SINGLE_LAUNCH;
 
@@ -14,30 +10,20 @@ resource app_version {
 	variety = B_APPV_FINAL,
 	internal = 0,
 
-<<<<<<< Updated upstream
 	short_info = "Show documentation in Zeal",
-	long_info  = "A Genio extensions to show documentation in Zeal."
+	long_info  = "A Genio extension to show documentation in Zeal."
 };
 
-resource
+resource("GENIO:EXTENSION") message
 {
-	"extras_menu" = true,
-	"context_menu" = true,
-    uint32 "modifier" = 0,
-    "shortcut" = "Z",
-    // "type" = "Command",
-    "context" = "Editor",
-	"context" = "ProjectBrowser",
-    "files" = "*"
-=======
-	short_info = "A short description",
-	long_info  = "A little bit longer description of the app."
+	"ShowInToolsMenu" = true,
+	"ShowInContextMenu" = true,
+    "Shortcut" = "Z",
+    "Type" = "Script",
+	"Scope" = "Editor",
+    "FileTypes" = "*"
 };
 
-resource file_types message {
-	"types" = "text/plain"
->>>>>>> Stashed changes
-};
 
 resource vector_icon {
 	$"6E6369660E0500020006023C43C6B9E5E23A85A83CEE414268F44A445900BDE2"

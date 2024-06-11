@@ -14,6 +14,7 @@ class Editor;
 class ProjectFolder;
 
 struct ExtensionInfo {
+	bool Enabled;
 	BString Name;
 	BString Signature;
 	BString ShortDescription;
@@ -40,7 +41,7 @@ class ExtensionManager {
 public:
 	ExtensionManager();
 
-	std::vector<ExtensionInfo>& GetExtensions(ExtensionContext& context) { return fExtensions; };
+	std::vector<ExtensionInfo> GetScriptExtensions(ExtensionContext& context);
 
 private:
 	void _ScanExtensions(BString directory);

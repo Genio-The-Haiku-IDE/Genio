@@ -44,8 +44,6 @@ def main():
         if symbol != "" and error == 0:
             OpenZeal(symbol)
 
-    print("Terminato")
-
 
 if __name__ == "__main__":
     main()

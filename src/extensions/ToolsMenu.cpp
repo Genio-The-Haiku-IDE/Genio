@@ -21,13 +21,15 @@
 #define B_TRANSLATION_CONTEXT "ToolsMenu"
 
 
-ToolsMenu::ToolsMenu(const char* label, ExtensionContext& context, uint32 command, BHandler *target)
+ToolsMenu::ToolsMenu(const char* label, uint32 command, BHandler *target,
+	std::function<ExtensionContext()> context_lambda)
 	:
 	BMenu(label),
-	fContext(&context),
 	fCommand(command),
-	fTarget(target)
+	fTarget(target),
+	fContextLambda(context_lambda)
 {
+
 }
 
 
@@ -52,19 +54,21 @@ ToolsMenu::_BuildMenu()
 
 	auto app = reinterpret_cast<GenioApp *>(be_app);
 	auto extManager = app->GetExtensionManager();
-	auto extensions = extManager->GetExtensions(*fContext);
-	for (auto &extension: extensions) {
-		BMessage *extensionMessage = new BMessage(fCommand);
-		extensionMessage->AddString("ShortDescription", extension.ShortDescription);
-		extensionMessage->AddRef("refs", &extension.Ref);
+	auto context = fContextLambda();
+	auto extensions = extManager->GetScriptExtensions(context);
+	if (extensions.size() > 0) {
+		for (auto &extension: extensions) {
+			BMessage *extensionMessage = new BMessage(fCommand);
+			extensionMessage->AddString("ShortDescription", extension.ShortDescription);
+			extensionMessage->AddRef("refs", &extension.Ref);
 
-		auto item = new BMenuItem(extension.ShortDescription, extensionMessage,
-			extension.Shortcut, B_OPTION_KEY);
+			auto item = new BMenuItem(extension.ShortDescription, extensionMessage,
+				extension.Shortcut, B_OPTION_KEY);
 
-		item->SetEnabled(true);
-		AddItem(item);
+			item->SetEnabled(extension.Enabled);
+			AddItem(item);
+		}
+	} else {
+		SetEnabled(false);
 	}
-
-	AddSeparatorItem();
-	// ActionManager::AddItem(MSG_MANAGE_EXTENSIONS, tools);
 }

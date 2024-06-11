@@ -3212,14 +3212,14 @@ GenioWindow::_InitMenu()
 	fMenuBar->AddItem(windowMenu);
 
 
-	ExtensionContext context = {
-		// .editor = fTabManager->CountTabs()>0 ? fTabManager->SelectedEditor() : nullptr
-		.editor = nullptr
+	auto context = [&]() {
+		ExtensionContext context = {
+			.editor = fTabManager->CountTabs()>0 ? fTabManager->SelectedEditor() : nullptr
+		};
+		return context;
 	};
-	auto toolsMenu = new ToolsMenu(B_TRANSLATE("Tools"), context, MSG_INVOKE_EXTENSION, this);
+	auto toolsMenu = new ToolsMenu(B_TRANSLATE("Tools"), MSG_INVOKE_EXTENSION, this, context);
 	fMenuBar->AddItem(toolsMenu);
-	toolsMenu->SetTargetForItems(toolsMenu);
-
 }
 
 

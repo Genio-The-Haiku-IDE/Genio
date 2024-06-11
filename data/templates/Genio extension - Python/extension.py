@@ -10,28 +10,6 @@ from Be import BMessenger, BMessage, \
 genio = BMessenger("application/x-vnd.Genio")
 
 
-def GetSymbol():
-    message = BMessage(B_GET_PROPERTY)
-    message.AddSpecifier("Symbol")
-    message.AddSpecifier("SelectedEditor")
-    reply = BMessage()
-    genio.SendMessage(message, reply)
-    result = reply.GetString("result", "")
-    error = reply.GetInt32("error", 0)
-    return result, error
-
-
-def GetSelection():
-    message = BMessage(B_GET_PROPERTY)
-    message.AddSpecifier("Selection")
-    message.AddSpecifier("SelectedEditor")
-    reply = BMessage()
-    genio.SendMessage(message, reply)
-    result = reply.GetString("result", "")
-    error = reply.GetInt32("error", 0)
-    return result, error
-
-
 def main():
     # your main starts here
 

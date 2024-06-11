@@ -12,6 +12,7 @@
 #pragma once
 
 #include <Menu.h>
+#include <functional>
 
 #include "ExtensionManager.h"
 
@@ -19,8 +20,8 @@
 class ToolsMenu : public BMenu {
 public:
 
-							ToolsMenu(const char* label, ExtensionContext& context, uint32 command,
-								BHandler *target);
+							ToolsMenu(const char* label, uint32 command, BHandler *target,
+								std::function<ExtensionContext()> context_lamba);
 	virtual 				~ToolsMenu();
 
 	virtual void 			AttachedToWindow();
@@ -28,7 +29,8 @@ public:
 private:
 	void 					_BuildMenu();
 
-	ExtensionContext*		fContext;
 	uint32					fCommand;
 	BHandler*				fTarget;
+	std::function<ExtensionContext()> fContextLambda;
+	bool					fFilterOut;
 };

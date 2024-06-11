@@ -7,6 +7,8 @@
 
 #include "ExtensionManager.h"
 
+#include <algorithm>
+
 #include <AppFileInfo.h>
 #include <Directory.h>
 #include <Entry.h>
@@ -16,7 +18,6 @@
 #include <fs_attr.h>
 
 #include "Editor.h"
-#include "boolinq/boolinq.h"
 #include "Utils.h"
 #include "Log.h"
 #include "wildcard.h"
@@ -162,17 +163,23 @@ ExtensionManager::GetScriptExtensions(ExtensionContext& context)
 			extension.Enabled = false;
 			if ((context.editor != nullptr &&
 					std::count(extension.Scope.begin(), extension.Scope.end(), "Editor")) ||
-				(context.project != nullptr &&
+				(context.projectItem != nullptr &&
 					std::count(extension.Scope.begin(), extension.Scope.end(), "ProjectBrowser"))) {
 				auto filePath = context.editor->FilePath();
 				for(auto& ft: extension.FileTypes) {
-					if (wildcard(ft.String(), filePath.String())) {
+					if (wildcard(ft.ToLower().String(), filePath.ToLower().String())) {
 						extension.Enabled = true;
 						break;
 					}
 				}
 			}
-			extensions.push_back(extension);
+			if (context.menuKind == ExtensionToolsMenu && extension.ShowInToolsMenu) {
+				extensions.push_back(extension);
+			} else if (context.menuKind == ExtensionContextMenu && extension.ShowInContextMenu) {
+				if (extension.Enabled)
+					extensions.push_back(extension);
+			}
+
 		}
 	}
 	return extensions;

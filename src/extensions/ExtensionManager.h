@@ -11,7 +11,7 @@
 #include <String.h>
 
 class Editor;
-class ProjectFolder;
+class ProjectItem;
 
 struct ExtensionInfo {
 	bool Enabled;
@@ -30,10 +30,15 @@ struct ExtensionInfo {
 	std::vector<BString> FileTypes;
 };
 
+enum ExtensionMenuKind {
+	ExtensionToolsMenu,
+	ExtensionContextMenu
+};
 
 struct ExtensionContext {
+	ExtensionMenuKind menuKind;
 	Editor* editor = nullptr;
-	ProjectFolder* project = nullptr;
+	ProjectItem* projectItem = nullptr;
 };
 
 

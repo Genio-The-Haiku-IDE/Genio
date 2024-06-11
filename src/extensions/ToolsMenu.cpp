@@ -48,6 +48,13 @@ ToolsMenu::AttachedToWindow()
 
 
 void
+ToolsMenu::SetContext(std::function<ExtensionContext()> context_lamba)
+{
+	fContextLambda = context_lamba;
+}
+
+
+void
 ToolsMenu::_BuildMenu()
 {
 	RemoveItems(0, CountItems(), true);

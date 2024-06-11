@@ -3214,6 +3214,7 @@ GenioWindow::_InitMenu()
 
 	auto context = [&]() {
 		ExtensionContext context = {
+			.menuKind = ExtensionToolsMenu,
 			.editor = fTabManager->CountTabs()>0 ? fTabManager->SelectedEditor() : nullptr
 		};
 		return context;

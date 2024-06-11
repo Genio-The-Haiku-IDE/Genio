@@ -15,6 +15,7 @@
 #include "ProjectItem.h"
 #include "SwitchBranchMenu.h"
 #include "TemplateManager.h"
+#include "ToolsMenu.h"
 #include "Utils.h"
 
 #include <Alert.h>
@@ -507,6 +508,17 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 
 	BMessage* refMessage2 = new BMessage(*refMessage);
 	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, projectMenu, refMessage2);
+
+	auto context = [&]() {
+		ExtensionContext context = {
+			.menuKind = ExtensionContextMenu,
+			.projectItem = projectItem
+		};
+		return context;
+	};
+	auto toolsMenu = new ToolsMenu(B_TRANSLATE("Tools"), MSG_INVOKE_EXTENSION, this, context);
+	projectMenu->AddSeparatorItem();
+	projectMenu->AddItem(toolsMenu);
 
 	projectMenu->SetTargetForItems(Window());
 	projectMenu->Go(ConvertToScreen(where), true);

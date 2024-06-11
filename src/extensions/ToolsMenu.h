@@ -26,11 +26,13 @@ public:
 
 	virtual void 			AttachedToWindow();
 
+	void 					SetContext(std::function<ExtensionContext()> context_lamba);
+	void 					SetTarget(BHandler *target) { fTarget = target; }
+
 private:
 	void 					_BuildMenu();
 
 	uint32					fCommand;
 	BHandler*				fTarget;
 	std::function<ExtensionContext()> fContextLambda;
-	bool					fFilterOut;
 };

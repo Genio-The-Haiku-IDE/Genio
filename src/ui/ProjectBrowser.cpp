@@ -401,6 +401,10 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					if (*subItem->GetSourceItem()->EntryRef() == ref) {
 						Select(IndexOf(subItem));
 						ScrollToSelection();
+						bool doRename = message->GetBool("rename", false);
+						if (doRename) {
+							InitRename(subItem);
+						}
 						break;
 					}
 				}
@@ -864,6 +868,7 @@ ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_r
 	BMessage selectMessage(MSG_BROWSER_SELECT_ITEM);
 	selectMessage.AddPointer("parent_item", parent);
 	selectMessage.AddRef("ref", &ref);
+	selectMessage.AddBool("rename", true);
 	BMessageRunner::StartSending(BMessenger(this), &selectMessage, 300, 1);
 }
 

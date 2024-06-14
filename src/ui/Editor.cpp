@@ -1786,13 +1786,14 @@ Editor::_ApplyExtensionSettings()
 	if (gCFG["syntax_highlight"] && fFileType != "") {
 		fSyntaxAvailable = true;
 		fFoldingAvailable = true;
-		fBracingAvailable = true;
 		fParsingAvailable = true;
 		fCommenter = "";
 
 		auto styles = Languages::ApplyLanguage(this, fFileType.c_str());
 		Styler::ApplyLanguage(this, styles);
 	}
+
+	fBracingAvailable = gCFG["brace_match"];
 }
 
 

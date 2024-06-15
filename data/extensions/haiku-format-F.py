@@ -4,7 +4,7 @@
 # Author: Andrea Anzani <andrea.anzani@gmail.com>
 
 import subprocess
-from Be import InterfaceDefs, BAlert, BMessenger, BMessage, BPath, entry_ref, B_GET_PROPERTY, B_WIDTH_AS_USUAL, B_INFO_ALERT
+from Be import BMessenger, BMessage, BPath, entry_ref, B_GET_PROPERTY
 
 genio = BMessenger("application/x-vnd.Genio")
 
@@ -34,11 +34,13 @@ def main():
             try:
                 result = subprocess.run(["haiku-format", "-i", path])
                 run = result.returncode
-            except:
+            except Exception:
                 print("Error in executing haiku-format.")
             if run != 0:
                 print("Return code " + str(run))
-                subprocess.run(["alert", "--warning", "Could not run haiku-format.\n Ensure the package is installed!"])
+                subprocess.run(["alert", "--warning",
+                                "Could not run haiku-format.\n"
+                                "Ensure the package is installed!"])
 
 
 if __name__ == "__main__":

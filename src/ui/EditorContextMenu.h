@@ -6,6 +6,7 @@
 #define EditorContextMenu_H
 
 
+#include "ToolsMenu.h"
 #include <Point.h>
 #include <SupportDefs.h>
 
@@ -22,6 +23,7 @@ private:
 
 	static BPopUpMenu*	sMenu;
 	static BPopUpMenu*	sFixMenu;
+	static ToolsMenu*	sToolsMenu;
 	static void _CreateMenu();
 
 };

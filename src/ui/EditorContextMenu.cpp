@@ -7,6 +7,7 @@
 #include "EditorContextMenu.h"
 
 #include "Editor.h"
+#include "ExtensionManager.h"
 #include "GenioWindowMessages.h"
 
 #include <Autolock.h>
@@ -18,6 +19,7 @@
 #include "GMessage.h"
 #include "EditorMessages.h"
 #include "ProjectBrowser.h"
+#include "ToolsMenu.h"
 
 #undef  B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -25,6 +27,7 @@
 
 BPopUpMenu* EditorContextMenu::sMenu = nullptr;
 BPopUpMenu* EditorContextMenu::sFixMenu = nullptr;
+ToolsMenu* EditorContextMenu::sToolsMenu = nullptr;
 
 EditorContextMenu::EditorContextMenu()
 {
@@ -72,6 +75,10 @@ EditorContextMenu::_CreateMenu()
 	refMessage = new BMessage(*refMessage);
 	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, sMenu, refMessage);
 
+	// Extensions
+	sToolsMenu = new ToolsMenu(B_TRANSLATE("Tools"), MSG_INVOKE_EXTENSION, nullptr, nullptr);
+	sMenu->AddSeparatorItem();
+	sMenu->AddItem(sToolsMenu);
 }
 
 
@@ -125,6 +132,17 @@ EditorContextMenu::Show(Editor* editor, BPoint point)
 
 	bool isFindInBrowserEnable = ActionManager::IsEnabled(MSG_FIND_IN_BROWSER);
 	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, (editor->GetProjectFolder() != nullptr));
+
+	// Extensions
+	auto context = [&]() {
+		ExtensionContext context = {
+			.menuKind = ExtensionContextMenu,
+			.editor = editor
+		};
+		return context;
+	};
+	sToolsMenu->SetTarget((BHandler*)editor->Window());
+	sToolsMenu->SetContext(context);
 
 	menu->Go(BPoint(point.x, point.y), true);
 

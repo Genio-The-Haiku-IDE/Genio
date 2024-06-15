@@ -133,7 +133,9 @@ enum {
 	MSG_HELP_GITHUB					= 'hegh',
 	MSG_HELP_DOCS					= 'hdoc',
 
-	MSG_WHEEL_WITH_COMMAND_KEY		= 'waco'
+	MSG_WHEEL_WITH_COMMAND_KEY		= 'waco',
+
+	MSG_INVOKE_EXTENSION			= 'iex_'
 };
 
 

@@ -91,6 +91,9 @@ SRCS += src/templates/IconMenuItem.cpp
 SRCS += src/templates/TemplatesMenu.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/helpers/PipeImage.cpp
+SRCS += src/extensions/ToolsMenu.cpp
+SRCS += src/extensions/ExtensionManager.cpp
+
 
 RDEFS := Genio.rdef Spinner.rdef
 

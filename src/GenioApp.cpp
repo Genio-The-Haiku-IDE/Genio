@@ -18,6 +18,7 @@
 #include "ConfigManager.h"
 #include "Editor.h"
 #include "EditorTabManager.h"
+#include "ExtensionManager.h"
 #include "GenioNamespace.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
@@ -50,7 +51,8 @@ const char kChangeLog[] = {
 GenioApp::GenioApp()
 	:
 	BApplication(GenioNames::kApplicationSignature),
-	fGenioWindow(nullptr)
+	fGenioWindow(nullptr),
+	fExtensionManager(nullptr)
 {
 	find_directory(B_USER_SETTINGS_DIRECTORY, &fConfigurationPath);
 	fConfigurationPath.Append(GenioNames::kApplicationName);
@@ -69,6 +71,8 @@ GenioApp::GenioApp()
 	Languages::LoadLanguages();
 
 	LSPServersManager::InitLSPServersConfig();
+
+	fExtensionManager = new ExtensionManager();
 
 	fGenioWindow = new GenioWindow(BRect(gCFG["ui_bounds"]));
 }
@@ -236,7 +240,6 @@ GenioApp::ReadyToRun()
 {
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
-
 	fGenioWindow->Show();
 }
 

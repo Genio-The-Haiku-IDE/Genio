@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "ExtensionManager.h"
 #include <Application.h>
 #include <Path.h>
 #include <StringList.h>
@@ -30,6 +31,8 @@ public:
 	virtual	BHandler*		ResolveSpecifier(BMessage* message, int32 index,
 								BMessage* specifier, int32 what, const char* property);
 
+	ExtensionManager*		GetExtensionManager() { return fExtensionManager; };
+
 private:
 	static BStringList		_SplitChangeLog(const char* changeLog);
 	int						_HandleArgs(int argc, char **argv);
@@ -37,6 +40,8 @@ private:
 
 	GenioWindow*			fGenioWindow;
 	BPath					fConfigurationPath;
+
+	ExtensionManager*		fExtensionManager;
 };
 
 extern ConfigManager gCFG;

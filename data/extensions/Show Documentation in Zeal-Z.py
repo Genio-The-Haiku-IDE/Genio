@@ -44,8 +44,6 @@ def OpenZeal(symbol):
                         "Could not run Zeal.\n"
                         "Ensure the package is installed!"])
 
-    # subprocess.run(["alert", "--warning", "Could not run Zeal.\n Ensure the package is installed!"])
-
 
 def main():
     selection, error = GetSelection()

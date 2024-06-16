@@ -4,7 +4,7 @@
 # Author: Nexus6 <nexus6@disroot.org>
 
 import subprocess
-from Be import BMessenger, BMessage, BEntry, entry_ref, B_GET_PROPERTY, B_CREATE_PROPERTY
+from Be import BMessenger, BMessage, B_GET_PROPERTY
 
 genio = BMessenger("application/x-vnd.Genio")
 
@@ -32,7 +32,19 @@ def GetSelection():
 
 
 def OpenZeal(symbol):
-    subprocess.Popen(["Zeal", symbol])
+    run = -1
+    try:
+        result = subprocess.run(["Zeal", symbol])
+        run = result.returncode
+    except Exception:
+        print("Error executing Zeal.")
+    if run != 0:
+        print("Return code " + str(run))
+        subprocess.run(["alert", "--warning",
+                        "Could not run Zeal.\n"
+                        "Ensure the package is installed!"])
+
+    # subprocess.run(["alert", "--warning", "Could not run Zeal.\n Ensure the package is installed!"])
 
 
 def main():

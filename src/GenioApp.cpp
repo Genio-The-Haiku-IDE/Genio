@@ -18,6 +18,7 @@
 #include "ConfigManager.h"
 #include "Editor.h"
 #include "EditorTabManager.h"
+#include "ExtensionManager.h"
 #include "GenioNamespace.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
@@ -69,6 +70,8 @@ GenioApp::GenioApp()
 	Languages::LoadLanguages();
 
 	LSPServersManager::InitLSPServersConfig();
+
+	fExtensionManager = new ExtensionManager();
 
 	fGenioWindow = new GenioWindow(BRect(gCFG["ui_bounds"]));
 }

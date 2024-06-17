@@ -3,8 +3,8 @@
 # All rights reserved. Distributed under the terms of the MIT license.
 # Author: Nexus6 <nexus6@disroot.org>
 
-import sys, time
-from Be import BMessenger, BMessage, BString, BEntry, BPath, entry_ref, \
+import time
+from Be import BMessenger, BMessage, BEntry, BPath, entry_ref, \
     B_EXECUTE_PROPERTY, B_GET_PROPERTY, B_SET_PROPERTY, B_CREATE_PROPERTY, B_COUNT_PROPERTIES
 
 genio = BMessenger("application/x-vnd.Genio")

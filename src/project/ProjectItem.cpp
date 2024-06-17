@@ -257,10 +257,6 @@ ProjectItem::InitRename(BView* owner, BMessage* message)
 		const int32 index = listView->IndexOf(this);
 		BRect itemRect = listView->ItemFrame(index);
 
-		BMessage mm;
-		mm.AddRect("rect",itemRect);
-		mm.PrintToStream();
-
 		fTextControl = new TemporaryTextControl(itemRect, "RenameTextWidget",
 											"", Text(), message, this,
 											B_FOLLOW_NONE);

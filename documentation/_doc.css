@@ -185,6 +185,16 @@ h4 {
 	font-family: monospace;
 }
 
+pre.terminal {			/* Terminal output*/
+	border-color: #ffb11f;
+	border-style: dotted;
+	border-width: thin;
+	margin: 0em;
+	padding: 1.5em;
+	background-color: #3a3a3a;
+	color: #ffb11f;
+}
+
 tt {
 	background-color: #e8e8e8;
 }
@@ -212,12 +222,11 @@ ul {
 	border-radius: 10px;
 	border-style: dotted;
 	border-width: thin;
-	border-color: #dcdcdc;
+	border-color: 8f7200;
 	padding: 10px 15px 10px 80px;
-	margin-bottom: 15px;
-	margin-top: 15px;
+	margin: 15px 56px 15px 56px;
 	min-height: 42px;
-	background: #e4ffde url(icons/info-box_32.png) 15px 15px no-repeat;
+	background: #ffe992 url(./images/icons/info-box_32.png) 15px 15px no-repeat;
 }
 
 /* Images floating to the left of text */

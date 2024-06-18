@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<!--
+ * Copyright 2024
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Freaxed
+ *		Stefano Ceccherini
+ *		Nexus6
+ *		Humdinger 
+-->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="robots" content="all" />
+	<link rel="stylesheet" type="text/css" href="./_doc.css" />
+	<title>Genio's User Documentation - Configuring LSP</title>
+
+</head>
+<body>
+
+<div id="navbar">
+<a href="ReadMe.html">QuickStart</a> <a href="editor.html">Editor</a> <a href="panes.html">Panes</a> <a href="toolbar.html">Toolbar</a> <a href="menus.html">Menus</a> <a class="active" href="settings.html">Settings: LSP</a>
+</div>
+
+<div id="content">
+
+<table class="index" id="index" summary="index">
+<tbody><tr class="heading"><td>Index</td></tr>
+<tr class="index"><td>
+	<a href="#lsp-install">Install the needed packages</a><br />
+	<a href="#lsp-project">Configure the project</a><br />
+	<a href="#lsp-make">┣━ Build system 'make'</a><br />
+	<a href="#lsp-cmake">┣━ Build system 'cmake'</a><br />
+	<a href="#lsp-jam"> ┗━ Build system 'jam'</a><br />
+	<a href="#lsp-compiler">Configure the compiler</a>
+</td></tr>
+</tbody></table>
+
+<h1><a id="lsp" name="lsp">Configuring Clangd / LSP</a></h1>
+
+<p>For more advanced IDE features, Genio implements the <a href="https://microsoft.github.io/language-server-protocol/">LSP protocol</a>. One of the most advanced C and C++ lsp server is 'clangd' included in the clang compiler suite (more info at <a href="https://clangd.llvm.org/">https://clangd.llvm.org/</a>).</p>
+
+<p>The clangd tool interacts with the IDE to provide all the advanced features like autocompletion, function signature information, diagnostic errors, jump to header, etc.<br />
+To obtain the best from the tool you need to configure it and your project. At the moment this configurations must be done manually, but we aim to improve Genio in order to manage these configs in a more automatic and user-friendly way.</p>
+
+<p>Keep in mind that clangd tries to compile and index a set of files to provide the best information and diagnostics results.</p>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="lsp-install" name="lsp-install">Install the needed packages</a></h2>
+
+<p>Only two packages and their dependencies are needed:</p>
+<ul>
+<li>The latest LLVM (clang) (at the time of writing is version 17)</li>
+<li>The gcc_syslibs_devel package</li>
+</ul>
+<p>You install those with:</p>
+
+<p><pre class="terminal">pkgman install llvm17_clang gcc_syslibs_devel</pre></p>
+
+<p>Once installed, you'll have the command <tt>clangd</tt> ready to be used by Genio.</p>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="lsp-project" name="lsp-project">Configure the project</a></h2>
+
+<p>Due to the nature of a C++ project, clangd needs to know how to compile each file.<br />
+Although not being mandatory, providing a compile database file (<tt>compile_commands.json</tt>) is strongly recommended for a better experience. It lets clangd handle complex situations like symbol renaming in multiple files other than .cpp and .h, for example.</p>
+
+<p>The file contains, for each file of the project, the list of all the flags and include paths your compiler needs.<br />
+There are useful tools that create the <tt>compile_commands.json</tt> file automatically from a build tool like make, jam or cmake. Usually this is enough to let clangd work correctly in most cases.</p>
+
+<div class="box-info">You should regenerate the database when you make changes to your project, like adding/removing files or system headers etc. Otherwise it becomes out-of-date and some things like symbol-renaming won't work flawlessly anymore.</div>
+
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="lsp-make" name="lsp-make">Build system 'make'</a></h3>
+
+<p>The best tool so far tested is the python program called <a href="https://github.com/nickdiego/compiledb">compiledb</a>. You install it with "<tt>pip3 install compiledb</tt>".<br />
+To produce the database, run it as:</p>
+
+<pre class="terminal">compiledb make -Bnwk</pre>
+
+<p>Another tool available on HaikuDepot is <a href="https://github.com/rizsotto/Bear">bear</a>.</p>
+
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="lsp-cmake" name="lsp-cmake">Build system 'cmake'</a></h3>
+
+<p><pre class="terminal">cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ...</pre></p>
+
+<p>Or, in <tt>CMakeLists.txt</tt> add:</p>
+
+<pre>set(CMAKE_EXPORT_COMPILE_COMMANDS ON)</pre>
+
+<h3>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="lsp-jam" name="lsp-jam">Build system 'jam' (Haiku version)</a></h3>
+
+<p><pre class="terminal">jam -c</pre></p>
+
+<p>More info on jam at the <a href="https://www.freelists.org/post/haiku-development/linting-and-autocomplete-How-to-generate-compile-commandsjson-alternatives">Development Mailinglist</a>.</p>
+<p>More general info at <a href="https://clang.llvm.org/docs/JSONCompilationDatabase.html">https://clang.llvm.org/docs/JSONCompilationDatabase.html</a>.</p>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="lsp-compiler" name="lsp-compiler">Configure the compiler</a></h2>
+
+<p>With the default configuration, clangd should already recognize system include paths.<br />
+If you want to add more includes or finetune some settings, you need to add a configuration file. The best place to create the file is at <span class="path">/boot/home/config/settings/clangd/config.yaml</span>.</p>
+
+<p>More info with all the configuration flags can be found here at <a href="https://clangd.llvm.org/config">https://clangd.llvm.org/config</a>.</p>
+
+<hr />
+<a href="settings-project.html" style="border:none;float:left">Back: Project Settings</a>
+<p></p>
+</div>
+</body>
+</html>

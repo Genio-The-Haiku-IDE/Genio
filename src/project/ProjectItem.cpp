@@ -256,6 +256,7 @@ ProjectItem::InitRename(BView* owner, BMessage* message)
 		BOutlineListView* listView = static_cast<BOutlineListView*>(owner);
 		const int32 index = listView->IndexOf(this);
 		BRect itemRect = listView->ItemFrame(index);
+
 		fTextControl = new TemporaryTextControl(itemRect, "RenameTextWidget",
 											"", Text(), message, this,
 											B_FOLLOW_NONE);

@@ -823,6 +823,9 @@ ProjectBrowser::InitRename(ProjectItem *item)
 	if (Superitem(item)->IsExpanded() == false)
 		Expand(Superitem(item));
 
+	Select(IndexOf(item));
+	ScrollToSelection();
+
 	item->InitRename(this, new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
 	Invalidate();
 }

@@ -820,8 +820,8 @@ void
 ProjectBrowser::InitRename(ProjectItem *item)
 {
 	//ensure the item is visible!
-	if (this->Superitem(item)->IsExpanded() == false)
-		this->Expand(this->Superitem(item));
+	if (Superitem(item)->IsExpanded() == false)
+		Expand(Superitem(item));
 
 	item->InitRename(this, new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
 	Invalidate();

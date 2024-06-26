@@ -9,7 +9,9 @@ v3.0
 	- Added support for .editorconfig.
 	- Added ability to import multiple files into a RDEF file as array (resources).
 	- Added ability to set a custom font for the editor.
+	- Changed key combo to switch tabs (it's CTRL+LEFT/RIGHT now).
 	- Select an item in the project browser when the current editor changes.
+	- Automatically put a new item in rename mode in the project browser.
 	- Project settings handling has been rewritten and they are now applied live.
 	- Added function to remove a search result.
 	- Fixed flickering in find prev/next.
@@ -17,10 +19,15 @@ v3.0
 	- Fixed opening files location in Terminal.
 	- Fixed sometimes missing diagnostic tooltip (Máximo Castañeda).
 	- Fixed source control menu not working on Haiku x86.
+	- Fixed brace matching option not working.
+	- Fixed glitch while renaming the last item in the project browser.
+	- Fixed closing settings window with uncommitted configuration.
+	- Fixed occasional hang with calltip / autocomplete.
 	- When closing a project, only ask to save project files (Máximo Castañeda).
 	- Experimental support for application scripting and extensions.
 	- Improved support for OmniSharp with multiple Code Actions.
 	- Improved documentation (Humdinger).
+	- Improved handling of node monitoring in some corner cases.
 	- Updated Scintilla to version 5.4.3.
 	- Localization: help translators by using B_TRANSLATE_COMMENT (Humdinger).
 	- Fixed clang build and documentation.

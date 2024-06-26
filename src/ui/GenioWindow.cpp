@@ -3269,9 +3269,11 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FOCUS_MODE, windowMenu);
 	fMenuBar->AddItem(windowMenu);
 
-
-	auto toolsMenu = new ToolsMenu(B_TRANSLATE("Tools"), MSG_INVOKE_EXTENSION, this);
-	fMenuBar->AddItem(toolsMenu);
+	auto app = reinterpret_cast<GenioApp *>(be_app);
+	if (app->GetExtensionManager()->GetExtensions().size() > 0) {
+		auto toolsMenu = new ToolsMenu(B_TRANSLATE("Tools"), MSG_INVOKE_EXTENSION, this);
+		fMenuBar->AddItem(toolsMenu);
+	}
 }
 
 

@@ -192,10 +192,10 @@ ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 
 
 bool
-ConfigManager::Has(GMessage& msg, const char* key) const
+ConfigManager::HasKey(const char* key) const
 {
 	type_code type;
-	return msg.GetInfo(key, &type) == B_OK;
+	return fStorage.GetInfo(key, &type) == B_OK;
 }
 
 

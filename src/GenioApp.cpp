@@ -1,13 +1,13 @@
 /*
  * Copyright 2017 A. Mosca 
- * Copyright 2023, The Genio Team
+ * Copyright 2023-2024, The Genio Team
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
 #include "GenioApp.h"
 
-#include <Alert.h>
 #include <AboutWindow.h>
+#include <Alert.h>
 #include <Bitmap.h>
 #include <Catalog.h>
 #include <FindDirectory.h>
@@ -16,17 +16,16 @@
 #include <getopt.h>
 
 #include "ConfigManager.h"
-#include "Editor.h"
-#include "EditorTabManager.h"
+#include "ExtensionManager.h"
 #include "GenioNamespace.h"
 #include "GenioWindow.h"
-#include "GenioWindowMessages.h"
 #include "Languages.h"
 #include "Log.h"
 #include "LSPLogLevels.h"
+#include "LSPServersManager.h"
 #include "Styler.h"
 #include "Utils.h"
-#include "LSPServersManager.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
@@ -69,6 +68,8 @@ GenioApp::GenioApp()
 	Languages::LoadLanguages();
 
 	LSPServersManager::InitLSPServersConfig();
+
+	fExtensionManager = new ExtensionManager();
 
 	fGenioWindow = new GenioWindow(BRect(gCFG["ui_bounds"]));
 }
@@ -170,7 +171,8 @@ void
 GenioApp::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case B_OBSERVER_NOTICE_CHANGE: {
+		case B_OBSERVER_NOTICE_CHANGE:
+		{
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			if (code == gCFG.UpdateMessageWhat()) {
@@ -262,6 +264,7 @@ GenioApp::_SplitChangeLog(const char* changeLog)
 	}
 	return list;
 }
+
 
 int
 GenioApp::_HandleArgs(int argc, char **argv)
@@ -473,9 +476,6 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	GMessage log_limits = { {"min", 1024}, {"max", 4096} };
 	cfg.AddConfig("Hidden", "log_size", B_TRANSLATE("Log size:"), 1024, &log_limits);
 }
-
-
-
 
 
 int

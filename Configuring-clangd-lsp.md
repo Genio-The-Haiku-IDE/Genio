@@ -24,12 +24,14 @@ Two main configuration point:
 
 ## The project
 
-To let understand clangd how you want each file to be compiled, you should provide
-a compile database file (compile_commands.json).
-The file contains, for each file of the project, the list of all the flags
-and include paths your compiler needs.
-There are usefull tools to let you create the compile_commands.json file automatically
-from a building tool like make, jam or cmake.
+Due to the nature of a C++ project, clangd needs to know how to compile each file.
+Although not being mandatory, providing a compile database file (compile_commands.json)
+is strongly recommended for a better experience. It lets clangd handle complex
+situations like symbol renaming in multiple files other than .cpp and .h, for example.
+The file contains, for each file of the project, the list of all the flags and include
+paths your compiler needs.
+There are useful tools that create the compile_commands.json file automatically
+from a build tool like make, jam or cmake.
 Usually this is enough to let clangd work correctly in most cases.
 
 ### For make
@@ -52,7 +54,7 @@ or, in CMakeLists.txt
 ### For Jam (haiku version)
   >
   > jam -c
-  
+
 More info: <https://www.freelists.org/post/haiku-development/linting-and-autocomplete-How-to-generate-compile-commandsjson-alternatives>
 
 More info <https://clang.llvm.org/docs/JSONCompilationDatabase.html>

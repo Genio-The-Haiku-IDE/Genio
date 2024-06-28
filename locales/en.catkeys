@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	2604643766
+1	English	application/x-vnd.Genio	3363721737
 Close	RemoteProjectWindow		Close
 Function	OutlineTooltips		Function
 Copy	GenioWindow		Copy
@@ -103,6 +103,7 @@ Autocomplete	GenioWindow		Autocomplete
 Log size:	SettingsWindow		Log size:
 File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
 Rename branch:	SourceControlPanel		Rename branch:
+Import as RDEF array…	GenioWindow		Import as RDEF array…
 Conflicts	SourceControlPanel		Conflicts
 New file	GenioWindow		New file
 Previous	GenioWindow	Bookmark menu	Previous
@@ -202,6 +203,7 @@ Edit user templates…	TemplatesMenu		Edit user templates…
 Open…	GenioWindow		Open…
 Changes stashed.	SourceControlPanel		Changes stashed.
 Go to definition	GenioWindow		Go to definition
+Index	Editor		Index
 Clean command:	ProjectSettingsWindow		Clean command:
 Cancel	RemoteProjectWindow		Cancel
 Stop	RemoteProjectWindow		Stop
@@ -270,6 +272,8 @@ Rename folder	ProjectsFolderBrowser		Rename folder
 File	GenioWindow		File
 Close other	GenioWindow		Close other
 Delete current line	GenioWindow		Delete current line
+Tools	GenioWindow		Tools
+Do you want to set a starting index?	Editor		Do you want to set a starting index?
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
 Reload files	SettingsWindow		Reload files
 Show folding margin	SettingsWindow		Show folding margin
@@ -357,8 +361,8 @@ Build project	ProjectsFolderBrowser		Build project
 Remotes	SourceControlPanel		Remotes
 Copy name	SourceControlPanel		Copy name
 Choose project…	SourceControlPanel		Choose project…
-File deleted from index	GitRepository		File deleted from index
 An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
+File deleted from index	GitRepository		File deleted from index
 Edit	GenioWindow		Edit
 Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Console banner
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?

@@ -40,6 +40,7 @@
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
 #include "EditorTabManager.h"
+#include "ExtensionManager.h"
 #include "FSUtils.h"
 #include "FunctionsOutlineView.h"
 #include "GenioApp.h"
@@ -69,6 +70,8 @@
 #include "Utils.h"
 #include "argv_split.h"
 #include "MTermView.h"
+#include "ToolsMenu.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -300,6 +303,15 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case MSG_INVOKE_EXTENSION:
+		{
+			entry_ref ref;
+			if (message->FindRef("refs", &ref) == B_OK)
+				be_roster->Launch(&ref);
+			else
+				LogError("Can't find entry_ref");
+			break;
+		}
 		case kClassOutline:
 		{
 			Editor* editor = fTabManager->SelectedEditor();
@@ -3261,6 +3273,11 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_FOCUS_MODE, windowMenu);
 	fMenuBar->AddItem(windowMenu);
 
+	auto app = reinterpret_cast<GenioApp *>(be_app);
+	if (app->GetExtensionManager()->GetExtensions().size() > 0) {
+		auto toolsMenu = new ToolsMenu(B_TRANSLATE("Tools"), MSG_INVOKE_EXTENSION, this);
+		fMenuBar->AddItem(toolsMenu);
+	}
 }
 
 
@@ -3618,8 +3635,8 @@ GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
 			// builder: make
 			projectFolder->SetBuildCommand("make", BuildMode::ReleaseMode);
 			projectFolder->SetCleanCommand("make clean", BuildMode::ReleaseMode);
-			projectFolder->SetBuildCommand("DEBUGGER=1 make", BuildMode::DebugMode);
-			projectFolder->SetCleanCommand("DEBUGGER=1 make clean", BuildMode::DebugMode);
+			projectFolder->SetBuildCommand("make DEBUGGER=1", BuildMode::DebugMode);
+			projectFolder->SetCleanCommand("make DEBUGGER=1 clean", BuildMode::DebugMode);
 			LogInfo("Guessed builder: make");
 			break;
 		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {

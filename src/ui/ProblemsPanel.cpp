@@ -6,15 +6,18 @@
 
 
 #include "ProblemsPanel.h"
+
 #include "EditorMessages.h"
 #include "GMessage.h"
 #include "LSPEditorWrapper.h"
 
-#include <ColumnTypes.h>
 #include <Catalog.h>
-#include <Window.h>
-#include <PopUpMenu.h>
+#include <ColumnTypes.h>
 #include <MenuItem.h>
+#include <PopUpMenu.h>
+#include <TabView.h>
+#include <Window.h>
+
 #include <string>
 
 #undef B_TRANSLATION_CONTEXT
@@ -58,9 +61,11 @@ ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
 								100.0, 20.0, 200.0, 0), kPositionColumn);
 }
 
+
 ProblemsPanel::~ProblemsPanel()
 {
 }
+
 
 void
 ProblemsPanel::AttachedToWindow()
@@ -71,12 +76,12 @@ ProblemsPanel::AttachedToWindow()
 	SetTarget(this);
 }
 
+
 void
 ProblemsPanel::MessageReceived(BMessage* msg)
 {
-	switch(msg->what) {
+	switch (msg->what) {
 		case COLUMNVIEW_CLICK: {
-			//msg->PrintToStream();
 			RangeRow* range = dynamic_cast<RangeRow*>(CurrentSelection());
 			if (range) {
 				GMessage refs = {
@@ -87,16 +92,14 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 				refs.AddRef("refs",  range->fEditor->FileRef());
 				Window()->PostMessage(&refs);
 			}
+			break;
 		}
-		break;
 		case COLUMNVIEW_SELECT: {
 			BPoint where;
 			uint32 buttons = 0;
 			GetMouse(&where, &buttons);
-			//where.PrintToStream();
 			where.x += 2; // to prevent occasional select
 			if (buttons & B_SECONDARY_MOUSE_BUTTON) {
-
 				RangeRow* row = dynamic_cast<RangeRow*>(CurrentSelection());
 				if (!row)
 					return;
@@ -114,7 +117,7 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 					int32 index = lsp->DiagnosticFromRange(range, dia);
 					fPopUpMenu = new BPopUpMenu("_popup");
 					fPopUpMenu->SetRadioMode(false);
-					if ( index > -1 && dia.diagnostic.codeActions.value().size() > 0) {
+					if (index > -1 && dia.diagnostic.codeActions.value().size() > 0) {
 						std::vector<CodeAction> actions = dia.diagnostic.codeActions.value();
 						for (int i = 0; i < static_cast<int>(actions.size()); i++) {
 							auto item = new BMenuItem(actions[i].title.c_str(),
@@ -132,13 +135,14 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 					delete fPopUpMenu;
 				}
 			}
+			break;
 		}
-		break;
 		default:
 			BColumnListView::MessageReceived(msg);
-		break;
+			break;
 	};
 }
+
 
 void
 ProblemsPanel::UpdateProblems(Editor* editor)
@@ -172,12 +176,14 @@ ProblemsPanel::UpdateProblems(Editor* editor)
 	}
 }
 
+
 void
 ProblemsPanel::ClearProblems()
 {
 	Clear();
 	_UpdateTabLabel();
 }
+
 
 void
 ProblemsPanel::_UpdateTabLabel()
@@ -191,7 +197,6 @@ ProblemsPanel::_UpdateTabLabel()
 		label.Append(std::to_string(CountRows()).c_str());
 		label.Append(")");
 	}
-
 
 	for (int32 i = 0; i < fTabView->CountTabs(); i++) {
 		if (fTabView->ViewForTab(i) == this) {

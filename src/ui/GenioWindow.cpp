@@ -3405,21 +3405,7 @@ GenioWindow::_InitWindow()
 	_InitRightSplit();
 	_InitOutputSplit();
 
-	// Layout
-	fRootLayout = BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
-		.Add(fMenuBar)
-		.Add(fToolBar)
-
-		.AddSplit(B_VERTICAL, 0.0f) // output split
-		.SetInsets(-2.0f, 0.0f, -2.0f, -2.0f)
-			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
-				.Add(fProjectsTabView, kProjectsWeight)
-				.Add(fEditorTabsGroup, kEditorWeight)  // Editor
-				.Add(fRightTabView, 1)
-			.End() // sidebar split
-			.Add(fOutputTabView, kOutputWeight)
-		.End() //  output split
-	;
+	_Layout();
 
 	// Panels
 	const char* projectsDirectory = gCFG["projects_directory"];
@@ -3443,6 +3429,42 @@ GenioWindow::_InitWindow()
 										&ref, B_DIRECTORY_NODE, false,
 										new BMessage(MSG_CREATE_NEW_PROJECT),
 										NULL, true, true);
+}
+
+
+void
+GenioWindow::_Layout()
+{
+	int32 layout = gCFG["window_layout"];
+	if (layout == 1) {
+		fRootLayout = BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
+		.Add(fMenuBar)
+		.Add(fToolBar)
+        .AddSplit(B_VERTICAL, 0.0f) // output split
+			.SetInsets(-2.0f, 0.0f, -2.0f, -2.0f)
+			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
+				.Add(fProjectsTabView, kProjectsWeight)
+				.Add(fEditorTabsGroup, kEditorWeight)  // Editor
+				.Add(fRightTabView, 1)
+			.End() // sidebar split
+			.Add(fOutputTabView, kOutputWeight)
+		.End();
+	} else {
+		fRootLayout = BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
+		.Add(fMenuBar)
+		.Add(fToolBar)
+		.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
+			.Add(fProjectsTabView, kProjectsWeight)
+			.AddSplit(B_VERTICAL, 0.0f)
+				.AddSplit(B_HORIZONTAL, 0.0f)
+					.Add(fEditorTabsGroup, kEditorWeight)  // Editor
+					.Add(fRightTabView, 1)
+				.End()
+				.SetInsets(-2.0f, 0.0f, -2.0f, -2.0f)
+				.Add(fOutputTabView, kOutputWeight)
+			.End()
+		.End();
+	}
 }
 
 

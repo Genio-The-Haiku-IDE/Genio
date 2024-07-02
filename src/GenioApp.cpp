@@ -352,6 +352,19 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 
 	BString generalStartup = general;
 	generalStartup.Append("/").Append(B_TRANSLATE("Startup"));
+
+	GMessage layouts = {
+		{"mode", "options"},
+		{"option_1", {
+			{"value", (int32)1 },
+			{"label", "Layout 1" }}},
+		{"option_2", {
+			{"value", (int32)2 },
+			{"label", "Layout 2" }}}
+	};
+	cfg.AddConfig(general.String(), "window_layout",
+		B_TRANSLATE("Window Layout:"), (int32)1, &layouts);
+
 	cfg.AddConfig(generalStartup.String(), "reopen_projects", B_TRANSLATE("Reload projects"), true);
 	cfg.AddConfig(generalStartup.String(), "reopen_files", B_TRANSLATE("Reload files"), true);
 	cfg.AddConfig(generalStartup.String(), "show_projects", B_TRANSLATE("Show projects pane"), true);

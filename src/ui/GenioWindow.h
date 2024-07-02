@@ -124,6 +124,7 @@ private:
 			void				_InitRightSplit();
 			void				_InitToolbar();
 			void				_InitWindow();
+			void				_Layout();
 
 			void				_MakeBindcatalogs();
 			void				_MakeCatkeys();

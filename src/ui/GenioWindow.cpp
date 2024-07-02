@@ -69,6 +69,7 @@
 #include "TextUtils.h"
 #include "Utils.h"
 #include "argv_split.h"
+#include "MTermView.h"
 #include "ToolsMenu.h"
 
 
@@ -168,7 +169,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fOutputTabView(nullptr)
 	, fProblemsPanel(nullptr)
 	, fBuildLogView(nullptr)
-	, fConsoleIOView(nullptr)
+	, fMTermView(nullptr)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultPanel(nullptr)
 	, fScreenMode(kDefault)
@@ -453,6 +454,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case kTermViewDone:
+			_UpdateProjectActivation(fActiveProject != nullptr);
+			break;
 		case CONSOLEIOTHREAD_EXIT:
 		{
 			BString cmdType = message->GetString("cmd_type", "");
@@ -2241,7 +2245,7 @@ GenioWindow::_Git(const BString& git_command)
 	// Pretend building or running
 	_UpdateProjectActivation(false);
 
-	fConsoleIOView->Clear();
+	//fConsoleIOView->Clear();
 	_ShowLog(kOutputLog);
 
 	BString command;
@@ -2254,7 +2258,7 @@ GenioWindow::_Git(const BString& git_command)
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
 
-	return fConsoleIOView->RunCommand(&message);
+	return fMTermView->RunCommand(&message);
 }
 
 
@@ -3354,13 +3358,13 @@ GenioWindow::_InitOutputSplit()
 
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
 
-	fConsoleIOView = new ConsoleIOView(B_TRANSLATE("Console I/O"), BMessenger(this));
+	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
 	fSearchResultPanel = new SearchResultPanel(fOutputTabView);
 
 	fOutputTabView->AddTab(fProblemsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
-	fOutputTabView->AddTab(fConsoleIOView);
+	fOutputTabView->AddTab(fMTermView);
 	fOutputTabView->AddTab(fSearchResultPanel);
 }
 
@@ -4094,7 +4098,7 @@ GenioWindow::_RunInConsole(const BString& command)
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", command);
 
-	return fConsoleIOView->RunCommand(&message);
+	return fMTermView->RunCommand(&message);
 }
 
 
@@ -4128,13 +4132,9 @@ GenioWindow::_RunTarget()
 		// Don't do that in graphical mode
 		_UpdateProjectActivation(false);
 
-		fConsoleIOView->Clear();
 		_ShowLog(kOutputLog);
 
 		BString command;
-		if ((bool)gCFG["run_without_buffering"]) {
-			command << "stdbuf -i0 -e0 -o0 ";
-		}
 		command << fActiveProject->GetTarget();
 		if (!args.IsEmpty())
 			command << " " << args;
@@ -4151,9 +4151,9 @@ GenioWindow::_RunTarget()
 							{"cmd_type", "build"},
 							{"banner_claim", claim }};
 
-		fConsoleIOView->MakeFocus(true);
+		fMTermView->MakeFocus(true);
 
-		fConsoleIOView->RunCommand(&message);
+		fMTermView->RunCommand(&message);
 
 	} else {
 		argv_split parser(fActiveProject->GetTarget().String());

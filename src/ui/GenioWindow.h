@@ -52,6 +52,8 @@ class SearchResultPanel;
 class SourceControlPanel;
 class TemplatesMenu;
 class ToolBar;
+class MTermView;
+
 class GenioWindow : public BWindow {
 public:
 								GenioWindow(BRect frame);
@@ -252,7 +254,7 @@ private:
 			BTabView*			fOutputTabView;
 			ProblemsPanel*		fProblemsPanel;
 			ConsoleIOView*		fBuildLogView;
-			ConsoleIOView*		fConsoleIOView;
+			MTermView*			fMTermView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultPanel*	fSearchResultPanel;
 

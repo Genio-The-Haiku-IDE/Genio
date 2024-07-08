@@ -337,11 +337,21 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (code == gCFG.UpdateMessageWhat()) {
 				_HandleConfigurationChanged(message);
 			} else if (code == kMsgProjectSettingsUpdated) {
+				ProjectFolder* project = (ProjectFolder*) message->GetPointer("project_folder", nullptr);
+				if (project == nullptr) {
+					LogError("Update project configuration message without a project folder pointer!");
+					return;
+				}
 				BString key(message->GetString("key", ""));
 				if (key.IsEmpty())
 					break;
-				// Update debug/release
-				_UpdateProjectActivation(fActiveProject != nullptr);
+
+				if (project == fActiveProject || fActiveProject == nullptr) {
+					// Update debug/release
+					_UpdateProjectActivation(fActiveProject != nullptr);
+				} else {
+					fProjectsFolderBrowser->Invalidate();
+				}
 
 				// TODO: refactor
 				if (key == "color") {
@@ -354,7 +364,7 @@ GenioWindow::MessageReceived(BMessage* message)
 					}
 				}
 				// Save project settings
-				fActiveProject->SaveSettings();
+				project->SaveSettings();
 			}
 			break;
 		}

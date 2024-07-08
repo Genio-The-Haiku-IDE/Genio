@@ -150,9 +150,9 @@ public:
 
 ConfigManager::ConfigManager(const int32 messageWhat)
 	:
-	fLocker("ConfigManager lock"),
-	fWhat(messageWhat)
+	fLocker("ConfigManager lock")
 {
+	fNoticeMessage.what = messageWhat;
 	assert(fLocker.InitCheck() == B_OK);
 	for (int32 i=0;i< kStorageTypeCountNb;i++)
 		fPSPList[i] = nullptr;

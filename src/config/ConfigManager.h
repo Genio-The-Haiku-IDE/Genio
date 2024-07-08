@@ -84,7 +84,9 @@ public:
 
 		GMessage& Configuration() { return fConfiguration; }
 
-		int32 UpdateMessageWhat() const { return fWhat; }
+		int32 UpdateMessageWhat() const { return fNoticeMessage.what; }
+
+		BMessage*	NoticeMessage() { return &fNoticeMessage; }
 
 private:
 friend ConfigManagerReturn;
@@ -103,18 +105,18 @@ friend ConfigManagerReturn;
 			if (!_CheckKeyIsValid(key))
 				return;
 			fStorage[key] = n;
-			GMessage noticeMessage(fWhat);
+			GMessage noticeMessage = fNoticeMessage;
 			noticeMessage["key"]  	= key;
 			noticeMessage["value"]  = fStorage[key];
 			if (be_app != nullptr)
-				be_app->SendNotices(fWhat, &noticeMessage);
+				be_app->SendNotices(noticeMessage.what, &noticeMessage);
 		}
 
 private:
 		GMessage fStorage;
 		GMessage fConfiguration;
 		BLocker	 fLocker;
-		int32	 fWhat;
+		GMessage fNoticeMessage;
 		PermanentStorageProvider*	fPSPList[kStorageTypeCountNb];
 
     bool	_CheckKeyIsValid(const char* key) const;

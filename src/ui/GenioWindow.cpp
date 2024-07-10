@@ -337,7 +337,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (code == gCFG.UpdateMessageWhat()) {
 				_HandleConfigurationChanged(message);
 			} else if (code == kMsgProjectSettingsUpdated) {
-				ProjectFolder* project = (ProjectFolder*) message->GetPointer("project_folder", nullptr);
+				const ProjectFolder* project
+					= reinterpret_cast<const ProjectFolder*>(message->GetPointer("project_folder", nullptr));
 				if (project == nullptr) {
 					LogError("Update project configuration message without a project folder pointer!");
 					return;
@@ -364,7 +365,7 @@ GenioWindow::MessageReceived(BMessage* message)
 					}
 				}
 				// Save project settings
-				project->SaveSettings();
+				const_cast<ProjectFolder*>(project)->SaveSettings();
 			}
 			break;
 		}

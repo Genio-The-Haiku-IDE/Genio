@@ -383,7 +383,7 @@ ProjectFolder::_PrepareSettings()
 	fSettings->AddConfig(B_TRANSLATE("Run"), "project_run_in_terminal",
 		B_TRANSLATE("Run in terminal"), false);
 
-	fSettings->NoticeMessage()->AddPointer("project_folder", (void*)this);
+	fSettings->NoticeMessage()->AddPointer("project_folder", reinterpret_cast<void*>(this));
 }
 
 

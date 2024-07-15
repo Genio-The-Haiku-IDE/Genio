@@ -1,4 +1,4 @@
-1	Turkish	application/x-vnd.Genio	2467019101
+1	Turkish	application/x-vnd.Genio	3363721737
 About…	GenioWindow		Hakkında…
 An error occurred while switching branch:	GenioWindow		Dal değiştirirken bir hata oluştu:
 Appearance	GenioWindow		Görünüş
@@ -13,33 +13,35 @@ Cancel	GenioWindow		Vazgeç
 Clean project	GenioWindow		Projeyi temizle
 Clear all	GenioWindow	Bookmark menu	Tümünü temizle
 Close	GenioWindow		Kapat
+Close active project	GenioWindow		Etkin projeyi kapat
 Close all	GenioWindow		Tümünü kapat
 Close file	GenioWindow		Dosyayı kapat
-Close project	GenioWindow		Projeyi kapat
+Close other	GenioWindow		Diğerini kapat
 Comment selected lines	GenioWindow		Seçili satırları yorum yap
 Configure	GenioWindow		Yapılandır
 Conflicts	GenioWindow		Çakışmalar
 Console I/O	GenioWindow		Konsol G/Ç
 Copy	GenioWindow		Kopyala
 Could not create a new file	GenioWindow		Yeni bir dosya oluşturulamadı
-Could not delete \"%name%\".\n\n	GenioWindow		\"%name%\" silinemedi.\n\n
+Could not delete \"%name%\".\n\n	GenioWindow		“%name%” silinemedi.\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Klasik Mac OS)
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
 Cut	GenioWindow		Kes
-Debug	GenioWindow		Hata ayıkla
+Debug	GenioWindow		Hata ayıklama
 Debug project	GenioWindow		Proje hatalarını ayıkla
 Delete	GenioWindow		Sil
 Delete current line	GenioWindow		Geçerli satırı sil
 Delete dialog	GenioWindow		İletişim kutusunu sil
-Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Öge siliniyor: \"%name%\".\n\nSilme sonrası öge artık kullanılamayacak.\nSilmeyi gerçekten istiyor musunuz?
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Öge siliniyor: “%name%”.\n\nSilme sonrası öge artık kullanılamayacak.\nSilmeyi gerçekten istiyor musunuz?
 Discard	GenioWindow		At
 Don't save	GenioWindow		Kaydetme
-Dos	GenioWindow		Dos
 Duplicate current line	GenioWindow		Geçerli satırı çoğalt
 Edit	GenioWindow		Düzen
 Error creating folder	GenioWindow		Klasör oluşturulurken hata
 File	GenioWindow		Dosya
-File \"%file%\" was apparently modified, reload it?	GenioWindow		\"%file%\" dosyası değiştirilmiş, yeniden yüklensin mi?
-File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		\"%file%\" dosyası taşınmış.\nYok saymak, kapatmak veya yeniden yüklemek mi istiyorsunuz?
-File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		\"%file%\" dosyası taşınmış.\nDosyayı tutmak mı yoksa atmak mı istiyorsunuz?\nTutar ve değiştirirseniz onu kaydedin, yoksa kaybolur.
+File \"%file%\" was apparently modified, reload it?	GenioWindow		“%file%” dosyası değiştirilmiş, yeniden yüklensin mi?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		“%file%” dosyası taşınmış.\nYok saymak, kapatmak veya yeniden yüklemek mi istiyorsunuz?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		“%file%” dosyası taşınmış.\nDosyayı tutmak mı yoksa atmak mı istiyorsunuz?\nTutar ve değiştirirseniz onu kaydedin, yoksa kaybolur.
 Find	GenioWindow		Bul
 Find in project	GenioWindow		Projede bul
 Find next	GenioWindow		Sonrakini bul
@@ -57,22 +59,24 @@ Go to implementation	GenioWindow		Uygulamaya git
 Go to line…	GenioWindow		Satıra git…
 Help…	GenioWindow		Yardım…
 Ignore	GenioWindow		Yok say
+Import as RDEF array…	GenioWindow		RDEF dizilişi olarak içe aktar…
 Invalid project folder	GenioWindow		Geçersiz proje klasörü
 Keep	GenioWindow		Tut
 Language	GenioWindow		Dil
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
 Line endings	GenioWindow		Satır sonları
 Log	GenioWindow	The git command	Günlük
 Log (oneline)	GenioWindow	The git command	Günlük (tek satır)
-Mac	GenioWindow		Mac
 Make bindcatalogs	GenioWindow		bindcatalogs yap
 Make catkeys	GenioWindow		catkeys yap
 Make file read-only	GenioWindow		Dosyayı saltokunur yap
-Match case	GenioWindow		BÜYÜK/küçük harf eşleştir
+Match case	GenioWindow	Short as possible.	BÜYÜK/küçük harf eşleştir
 New	GenioWindow		Yeni
 New file	GenioWindow		Yeni dosya
 New folder	GenioWindow		Yeni klasör
 Next	GenioWindow	Bookmark menu	Sonraki
 Open files list	GenioWindow		Dosyalar listesini aç
+Open in Terminal	GenioWindow		Uçbirimde aç
 Open project…	GenioWindow		Proje aç…
 Open recent…	GenioWindow		Son kullanılanı aç…
 Open remote project…	GenioWindow		Uzak proje aç…
@@ -82,14 +86,17 @@ Paste	GenioWindow		Yapıştır
 Previous	GenioWindow	Bookmark menu	Önceki
 Project	GenioWindow		Proje
 Project settings…	GenioWindow		Proje ayarları…
+Project:	GenioWindow		Proje:
 Projects	GenioWindow		Projeler
 Pull	GenioWindow	The git command	Çek
 Pull (rebase)	GenioWindow	The git command	Çek (yeniden temellendir)
 Quit	GenioWindow		Çık
 Read-only	GenioWindow		Saltokunur
 Redo	GenioWindow		Yinele
-Release	GenioWindow		Bırak
+Release	GenioWindow		Yayım
 Reload	GenioWindow		Yeniden yükle
+Reload .editorconfig	GenioWindow		.editorconfig dosyasını yeniden yükle
+Rename symbol…	GenioWindow		Sembolü yeniden adlandır…
 Replace	GenioWindow		Değiştir
 Replace all	GenioWindow		Tümünü değiştir
 Replace and find next	GenioWindow		Değiştir ve sonrakini bul
@@ -104,18 +111,23 @@ Save	GenioWindow		Kaydet
 Save all	GenioWindow		Tümünü kaydet
 Save all files	GenioWindow		Tüm dosyaları kaydet
 Save as…	GenioWindow		Farklı kaydet…
-Save changes to file \"%file%\"	GenioWindow		Değişiklikleri \"%file%\" dosyasına kaydet
+Save changes to file \"%file%\"	GenioWindow		Değişiklikleri “%file%” dosyasına kaydet
 Save current file	GenioWindow		Geçerli dosyayı kaydet
 Search	GenioWindow		Ara
 Select all	GenioWindow		Tümünü seç
 Settings…	GenioWindow		Ayarlar…
 Show config	GenioWindow	The git command	Yapılandırmayı göster
+Show in projects browser	GenioWindow		Projeler tarayıcısında göster
+Show in Tracker	GenioWindow		İzleyici’de göster
 Show line endings	GenioWindow		Satır sonlarını göster
+Show outline pane	GenioWindow		Ana hat bölmesini göster
 Show output pane	GenioWindow		Çıktı panelini göster
 Show projects pane	GenioWindow		Projeler panelini göster
 Show toolbar	GenioWindow		Araç çubuğunu göster
-Show white spaces	GenioWindow		Boşlukları göster
+Show whitespace	GenioWindow		Boşlukları göster
+Show whitespace and line endings	GenioWindow		Boşlukları ve satır sonlarını göster
 Show/Hide find bar	GenioWindow		Bul çubuğunu göster/gizle
+Show/Hide outline pane	GenioWindow		Ana hat bölmesini göster/gizle
 Show/Hide output pane	GenioWindow		Çıktı panelini göster/gizle
 Show/Hide projects pane	GenioWindow		Projeler panelini göster/gizle
 Show/Hide replace bar	GenioWindow		Değiştir çubuğunu göster/gizle
@@ -127,39 +139,17 @@ Switch to next file	GenioWindow		Sonraki dosyaya geç
 Switch to previous file	GenioWindow		Önceki dosyaya geç
 Tag	GenioWindow	The git command	Etiketle
 Toggle	GenioWindow	Bookmark menu	Aç/Kapat
+Tools	GenioWindow		Araçlar
 Trim trailing whitespace	GenioWindow		Sondaki boşlukları kırp
 Undo	GenioWindow		Geri al
-Unix	GenioWindow		Unix
 View	GenioWindow		Görüntü
-Whole word	GenioWindow		Tam sözcük
+Whole word	GenioWindow	Short as possible.	Tam sözcük
 Window	GenioWindow		Pencere
-Wrap	GenioWindow		Kaydır
-You can't create a new folder here, please select a project or another folder	GenioWindow		Burada yeni bir klasör oluşturamazsınız, lütfen bir proje veya başka bir klasör seçin
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Sözcükleri kaydır
+Wrap lines	GenioWindow		Kaydır
 Zoom in	GenioWindow		Yakınlaştır
 Zoom out	GenioWindow		Uzaklaştır
-Active	EditorTabManager		Etkin
-Project	EditorTabManager		Proje
-An error occurred attempting to rename file 	ProjectsFolderBrowser		Dosyayı yeniden adlandırma sırasında bir hata oluştu
-Build project	ProjectsFolderBrowser		Projeyi yap
-Clean project	ProjectsFolderBrowser		Projeyi temizle
-Close project	ProjectsFolderBrowser		Projeyi kapat
-Current branch	ProjectsFolderBrowser		Geçerli dal
-Delete file	ProjectsFolderBrowser		Dosyayı sil
-Delete folder	ProjectsFolderBrowser		Klasörü sil
-New	ProjectsFolderBrowser		Yeni
-OK	ProjectsFolderBrowser		Tamam
-Open file	ProjectsFolderBrowser		Dosya aç
-Open Terminal	ProjectsFolderBrowser		Uçbirim aç
-Path	ProjectsFolderBrowser		Yol
-Project	ProjectsFolderBrowser		Proje
-Project settings…	ProjectsFolderBrowser		Proje ayarları…
-Rename file	ProjectsFolderBrowser		Dosyayı yeniden adlandır
-Rename folder	ProjectsFolderBrowser		Klasörü yeniden adlandır
-Set active	ProjectsFolderBrowser		Etkin kıl
-Show in Tracker	ProjectsFolderBrowser		İzleyici'de göster
-Switch to branch	ProjectsFolderBrowser		Dala geç
-The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Proje klasörü başka bir konuma taşındı veya silindi; bu nedenle kapatılacak ve çalışma alanından kaldırılacak.
-The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Proje klasörü yeniden adlandırıldı. Kendiliğinden kapatılacak ve yeniden açılacak.
+Actions	SourceControlPanel		Eylemler
 An unknown error occurred.	SourceControlPanel		Bilinmeyen bir hata oluştu.
 Cancel	SourceControlPanel		Vazgeç
 Changes stashed.	SourceControlPanel		Değişiklikler zulalandı.
@@ -168,12 +158,12 @@ Choose project…	SourceControlPanel		Proje seç…
 Conflicts	SourceControlPanel		Çakışmalar
 Copy name	SourceControlPanel		Adı kopyala
 Create initial commit	SourceControlPanel		İlk işlemeyi oluştur
-Create new branch from \"%selected_branch%\"	SourceControlPanel		\"%selected_branch%\" dalından yeni dal oluştur
+Create new branch from \"%selected_branch%\"	SourceControlPanel		“%selected_branch%” dalından yeni dal oluştur
 Current branch:	SourceControlPanel		Geçerli dal:
 Delete	SourceControlPanel		Sil
-Delete \"%selected_branch%\"	SourceControlPanel		\"%selected_branch%\" dalını sil
+Delete \"%selected_branch%\"	SourceControlPanel		“%selected_branch%” dalını sil
 Delete dialog	SourceControlPanel		İletişim kutusunu sil
-Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		\"%branch%\" dalı silinecek.\n\nSilme sonrası bu öge tümüyle kaybolacak.\nSilmeyi gerçekten istiyor musunuz?
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		“%branch%” dalı silinecek.\n\nSilme sonrası bu öge tümüyle kaybolacak.\nSilmeyi gerçekten istiyor musunuz?
 Do not create the initial commit	SourceControlPanel		İlk işlemeyi oluşturma
 Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		İlk işlemeyi yapmadan bir depo ilklendirmeyi gerçekten istiyor musunuz?
 Enter a message for this stash	SourceControlPanel		Bu zula için bir ileti gir
@@ -184,11 +174,10 @@ Fetch prune completed.	SourceControlPanel		Getir buda tamamlandı.
 Init repository	SourceControlPanel		Depoyu ilklendir
 Local branches	SourceControlPanel		Yerel dallar
 OK	SourceControlPanel		Tamam
-Options	SourceControlPanel		Seçenekler
 Project:	SourceControlPanel		Proje:
 Remote branches	SourceControlPanel		Uzak dallar
 Remotes	SourceControlPanel		Uzak konumlar
-Rename \"%selected_branch%\"	SourceControlPanel		\"%selected_branch%\" dalını yeniden adlandır
+Rename \"%selected_branch%\"	SourceControlPanel		“%selected_branch%” dalını yeniden adlandır
 Rename branch	SourceControlPanel		Dalı yeniden adlandır
 Rename branch:	SourceControlPanel		Dalı yeniden adlandır:
 Repository	SourceControlPanel		Depo
@@ -198,48 +187,112 @@ Stash changes	SourceControlPanel		Değişiklikleri zulala
 Stash pop changes	SourceControlPanel		Değişiklikleri zuladan patlat
 Stashed changes applied.	SourceControlPanel		Zulalanan değişiklikler uygulandı.
 Stashed changes popped.	SourceControlPanel		Zulalanan değişiklikler patlatıldı.
-Switch to \"%selected_branch%\"	SourceControlPanel		\"%selected_branch%\" dalına geç
+Switch to \"%selected_branch%\"	SourceControlPanel		“%selected_branch%” dalına geç
 Tags	SourceControlPanel		Etiketler
 The project is building, changing branch not allowed.	SourceControlPanel		Proje yapılıyor; dal değiştirmeye izin yok
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Bu projenin bir git deposu yok.\nİlklendirmek için aşağı tıklayın.
+Active	EditorTabManager		Etkin
+Project	EditorTabManager		Proje
+alpha	Utilities		alfa
+beta	Utilities		beta
+development	Utilities		geliştirme
+gamma	Utilities		gama
+gold master	Utilities		ana baskı
+OK	Utilities		Tamam
+Version	Utilities		Sürüm
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Dosyayı yeniden adlandırma sırasında bir hata oluştu
+Build project	ProjectsFolderBrowser		Projeyi yap
+Clean project	ProjectsFolderBrowser		Projeyi temizle
+Close project	ProjectsFolderBrowser		Projeyi kapat
+Current branch	ProjectsFolderBrowser		Geçerli dal
+Delete file	ProjectsFolderBrowser		Dosyayı sil
+Delete folder	ProjectsFolderBrowser		Klasörü sil
+New	ProjectsFolderBrowser		Yeni
+OK	ProjectsFolderBrowser		Tamam
+Open file	ProjectsFolderBrowser		Dosya aç
+Path	ProjectsFolderBrowser		Yol
+Project	ProjectsFolderBrowser		Proje
+Project settings…	ProjectsFolderBrowser		Proje ayarları…
+Rename file	ProjectsFolderBrowser		Dosyayı yeniden adlandır
+Rename folder	ProjectsFolderBrowser		Klasörü yeniden adlandır
+Set active	ProjectsFolderBrowser		Etkin kıl
+Switch to branch	ProjectsFolderBrowser		Dala geç
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Proje klasörü başka bir konuma taşındı veya silindi; bu nedenle kapatılacak ve çalışma alanından kaldırılacak.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Proje klasörü yeniden adlandırıldı. Kendiliğinden kapatılacak ve yeniden açılacak.
 Another command is running.	ConsoleIOView		Başka bir komut çalışıyor.
-Banner	ConsoleIOView		Afiş
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Afiş
 Clear	ConsoleIOView		Temizle
 Restarting build…	ConsoleIOView		Yapı yeniden başlatılıyor…
 stderr	ConsoleIOView		standart hata
 stdout	ConsoleIOView		standart çıktı
 Stop	ConsoleIOView		Durdur
-Wrap	ConsoleIOView		Kaydır
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Kaydır
+Array	OutlineTooltips		Diziliş
+Boolean	OutlineTooltips		Boole
+Class	OutlineTooltips		Sınıf
+Constant	OutlineTooltips		Sabit
+Constructor	OutlineTooltips		Yapıcı
+Creating outline	OutlineTooltips		Ana hat oluşturuluyor
+Enum	OutlineTooltips		Numaralandırma
+Enum member	OutlineTooltips		Numaralandırma üyesi
+Event	OutlineTooltips		Olay
+Field	OutlineTooltips		Alan
+File	OutlineTooltips		Dosya
+Function	OutlineTooltips		İşlev
+Go to symbol	OutlineTooltips		Sembole git
+Interface	OutlineTooltips		Arayüz
+Key	OutlineTooltips		Anahtar
+Method	OutlineTooltips		Yöntem
+Module	OutlineTooltips		Modül
+Namespace	OutlineTooltips		Ad alanı
+No outline available	OutlineTooltips		Kullanılabilir ana hat yok
+Null	OutlineTooltips		Boş
+Object	OutlineTooltips		Nesne
+Operator	OutlineTooltips		İşleç
+Outline	OutlineTooltips		Ana hat
+Package	OutlineTooltips		Paket
+Property	OutlineTooltips		Özellik
+Rename symbol…	OutlineTooltips		Sembolü yeniden adlandır…
+Sort	OutlineTooltips		Sırala
+String	OutlineTooltips		Dizi
+Structure	OutlineTooltips		Yapı
+Type parameter	OutlineTooltips		Tür parametresi
+Variable	OutlineTooltips		Değişken
 Auto collapse/expand projects	SettingsWindow		Projeleri kendiliğinden genişlet/daralt
 Auto-Build on resource save	SettingsWindow		Özkaynaklar kaydedildiğinde kendiliğinden yap
 Auto-Save changed files when building	SettingsWindow		Yaparken değiştirilen dosyaları kendiliğinden kaydet
 Build	SettingsWindow		Yapı
-Console banner	SettingsWindow		Konsol afişi
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Konsol afişi
 Convert tabs to spaces	SettingsWindow		Sekmeleri boşluklara dönüştür
+Default font	SettingsWindow		Öntanımlı yazıtipi
 Default size	SettingsWindow		Saptanmış boyut
 Editor	SettingsWindow		Düzenleyici
 Editor style:	SettingsWindow		Düzenleyici biçemi:
 Editor zoom:	SettingsWindow		Düzenleyici yakınlaştırması:
 Enable brace matching	SettingsWindow		Ayraç eşleştirmeyi etkinleştir
-Enable folding	SettingsWindow		Katlamayı etkinleştir
 Enable syntax highlighting	SettingsWindow		Sözdizim vurgulamayı etkinleştir
 Exclude folders:	SettingsWindow		Şu klasörleri dışarıda tut:
 Find	SettingsWindow		Bul
 Font size:	SettingsWindow		Yazıtipi boyutu:
+Font:	SettingsWindow		Yazıtipi:
 General	SettingsWindow		Genel
+Ignore .editorconfig	SettingsWindow		.editorconfig dosyasını yok say
 Log destination:	SettingsWindow		Günlük konumu:
 Log level:	SettingsWindow		Günlük düzeyi:
+Log size:	SettingsWindow		Günlük boyutu:
 Mark caret line	SettingsWindow		İmleç satırını imle
-Match case	SettingsWindow		BÜYÜK/küçük harf eşleştir
+Match case	SettingsWindow	Short as possible.	BÜYÜK/küçük harf eşleştir
 Projects folder:	SettingsWindow		Projeler klasörü:
 Reload files	SettingsWindow		Dosyaları yeniden yükle
 Reload projects	SettingsWindow		Projeleri yeniden yükle
 Save caret position	SettingsWindow		İmleç konumunu kaydet
 Set ruler to column:	SettingsWindow		Cetveli şu sütuna koy:
 Show comment margin	SettingsWindow		Yorum kenar boşluğunu göster
+Show folding margin	SettingsWindow		Katlama boşluğunu göster
 Show full path in window title	SettingsWindow		Pencere başlığında tam yolu göster
 Show line endings	SettingsWindow		Satır sonlarını göster
-Show line number	SettingsWindow		Satır numarasını göster
+Show line numbers	SettingsWindow		Satır numarasını göster
+Show outline pane	SettingsWindow		Ana hat bölmesini göster
 Show output pane	SettingsWindow		Çıktı panelini göster
 Show projects pane	SettingsWindow		Projeler panelini göster
 Show repository outline	SettingsWindow		Depo ana hattını göster
@@ -249,12 +302,14 @@ Show whitespace	SettingsWindow		Boşlukları göster
 Source control	SettingsWindow		Kaynak denetimi
 Startup	SettingsWindow		Başlangıç
 Tab width:	SettingsWindow		Sekme genişliği:
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Bunlar bir .editorconfig kullanılmazsa uygulanırlar:
 This setting will be updated on restart.	SettingsWindow		Bu ayar, yeniden başlatma sonrası güncellenir.
 Trim trailing whitespace on save	SettingsWindow		Kaydederken sondaki boşlukları kırp
-Visual	SettingsWindow		Görsel
-Whole word	SettingsWindow		Tam sözcük
-Wrap	SettingsWindow		Kaydır
-Wrap console	SettingsWindow		Konsolu kaydır
+Visuals	SettingsWindow		Görseller
+Whole word	SettingsWindow	Short as possible.	Tam sözcük
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Sözcükleri kaydır
+Wrap lines	SettingsWindow		Kaydır
+Wrap lines in console	SettingsWindow		Konsolu kaydır
 Base path:	RemoteProjectWindow		Taban yol:
 Browse…	RemoteProjectWindow		Göz at…
 Cancel	RemoteProjectWindow		Vazgeç
@@ -267,31 +322,28 @@ Open remote Git project	RemoteProjectWindow		Uzak Git projesi aç
 Stop	RemoteProjectWindow		Durdur
 The local path is not valid or does not exist	RemoteProjectWindow		Yerel yol geçerli değil veya yok
 URL:	RemoteProjectWindow		URL:
-Build commands	ProjectSettingsWindow		Yapı komutları
-Cancel	ProjectSettingsWindow		Vazgeç
-Debug build command:	ProjectSettingsWindow		Hata ayıklama yapım komutu:
-Debug clean command:	ProjectSettingsWindow		Hata ayıklama temizlik komutu:
-Debug execute arguments:	ProjectSettingsWindow		Hata ayıklama yürüt argümanları:
-Debug project target:	ProjectSettingsWindow		Hata ayıklama proje hedefi:
-Default	ProjectSettingsWindow		Saptanmış
-OK	ProjectSettingsWindow		Tamam
-Project:	ProjectSettingsWindow		Proje:
-Release build command:	ProjectSettingsWindow		Yayım yapım komutu:
-Release clean command:	ProjectSettingsWindow		Yayım temizlik komutu:
-Release execute arguments:	ProjectSettingsWindow		Kararlı yürüt argümanları:
-Release project target:	ProjectSettingsWindow		Kararlı proje hedefi:
-Run in Terminal	ProjectSettingsWindow		Uçbirimde çalıştır
-Target	ProjectSettingsWindow		Hedef
+Build	ProjectSettingsWindow		Yapı
+Build command:	ProjectSettingsWindow		Yapı komutu:
+Build mode:	ProjectSettingsWindow		Yapı kipi:
+Clean command:	ProjectSettingsWindow		Temizlik komutu:
+Color:	ProjectSettingsWindow		Renk:
+Execute args:	ProjectSettingsWindow		Yürütme argümanları:
+Release	ProjectSettingsWindow		Yayım
+Run	ProjectSettingsWindow		Çalıştır
+Run in terminal	ProjectSettingsWindow		Uçbirimde çalıştır
+Target:	ProjectSettingsWindow		Hedef:
 Cancel	GoToLineWindow		Vazgeç
 Go to line	GoToLineWindow		Satıra git
 Go to line:	GoToLineWindow		Satıra git:
 OK	GoToLineWindow		Tamam
 Cancel	Editor		Vazgeç
+Do you want to set a starting index?	Editor		Bir başlangıç indeksi ayarlamak istiyor musunuz?
 Don't save	Editor		Kaydetme
-Fix: %fix_desc%	Editor		Düzelt: %fix_desc%
-No fix available	Editor		Kullanılabilir düzeltme yok
+Index	Editor		İndeks
+Rename	Editor		Yeniden adlandır
+Rename symbol '%symbol_name%':	Editor		“%symbol_name%” sembolünü yeniden adlandır:
 Save	Editor		Kaydet
-Save changes to file \"%filename%\"?	Editor		Değişiklikler \"%filename%\" dosyasına kaydedilsin mi?
+Save changes to file \"%filename%\"?	Editor		Değişiklikler “%filename%” dosyasına kaydedilsin mi?
 Save dialog	Editor		Kaydet iletişim kutusu
 Cancel	QuitAlert		Vazgeç
 Don't save	QuitAlert		Kaydetme
@@ -300,16 +352,23 @@ Save selected	QuitAlert		Seçiliyi kaydet
 There are unsaved changes.\nSelect the files to save.	QuitAlert		Kaydedilmemiş değişiklikler var.\nKaydedilecek dosyaları seçin.
 Unsaved files	QuitAlert		Kaydedilmemiş dosyalar
 Cancel	GitCredentialsWindow		Vazgeç
-Git - User Credentials	GitCredentialsWindow		Git - Kullanıcı bilgileri
+Git - User Credentials	GitCredentialsWindow		Git — Kullanıcı bilgileri
 OK	GitCredentialsWindow		Tamam
 Password:	GitCredentialsWindow		Parola:
 Username:	GitCredentialsWindow		Kullanıcı adı:
 Cancel	GTextAlert		Vazgeç
 OK	GTextAlert		Tamam
 Category	ProblemsPanel		Kategori
+Line	ProblemsPanel		Satır
 Message	ProblemsPanel		İleti
+No fix available	ProblemsPanel		Kullanılabilir düzeltme yok
 Problems	ProblemsPanel		Sorunlar
 Source	ProblemsPanel		Kaynak
+Contributors:	GenioApp		Katkıcılar:
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio, Ideam’ın bir çatalıdır ve MIT lisansı altında kullanılabilir.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio şunları kullanır:\nScintilla lib\nTelif hakkı 1998–2003, Neil Hodgson tarafından <neilh@scintilla.org>\n\nHaiku için Scintilla\nTelif hakkı 2011, Andrea Anzani tarafından <andrea.anzani@gmail.com>\nTelif hakkı 2014–2015, Kacper Kasper tarafından <kacperkasper@gmail.com>\n\n
+Made with love in Italy	GenioApp		İtalya’da sevgiyle yapıldı
+See credits for a complete list.\n\n	GenioApp		Tam bir liste için emeği geçenler bölümüne bakın.\n\n
 Defaults	ConfigWindow		Saptanmışlar
 Settings	ConfigWindow		Ayarlar
 Edit user templates…	TemplatesMenu		Kullanıcı şablonlarını düzenle…
@@ -320,12 +379,9 @@ File modified on index	GitRepository		Dosya indekste değiştirildi
 New file	GitRepository		Yeni dosya
 New file staged	GitRepository		Yeni dosya hazırlandı
 Genio	System name		Genio
-Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio, Ideam'ın bir çatalıdır ve MIT lisansı altında kullanılabilir.
-Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio şunları kullanır:\nScintilla lib\nTelif hakkı 1998-2003, Neil Hodgson tarafından <neilh@scintilla.org>\n\nHaiku için Scintilla\nTelif hakkı 2011, Andrea Anzani tarafından <andrea.anzani@gmail.com>\nTelif hakkı 2014-2015, Kacper Kasper tarafından <kacperkasper@gmail.com>\n\n
-Made with love in Italy	GenioApp		İtalya'da, sevgi ile yapıldı
-See credits for a complete list.\n\n	GenioApp		Tam bir liste için emeği geçenler bölümüne bakın.\n\n
+Global settings applied	EditorStatusView		Global ayarlar uygulandı
+Settings in .editorconfig applied	EditorStatusView		.editorconfig içindeki ayarlar uygulandı
 Location	SearchResultPanel		Konum
 Search results	SearchResultPanel		Arama sonuçları
 New folder	TemplateManager		Yeni klasör
-OK	Utilities		Tamam
 OK	GitAlert		Tamam

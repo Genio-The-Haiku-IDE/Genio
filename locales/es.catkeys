@@ -1,4 +1,4 @@
-1	Spanish	application/x-vnd.Genio	2467019101
+1	Spanish	application/x-vnd.Genio	3363721737
 About…	GenioWindow		Acerca de…
 An error occurred while switching branch:	GenioWindow		Ha ocurrido un error al intentar cambiar de rama:
 Appearance	GenioWindow		Apariencia
@@ -13,9 +13,10 @@ Cancel	GenioWindow		Cancelar
 Clean project	GenioWindow		Limpiar proyecto
 Clear all	GenioWindow	Bookmark menu	Limpiar todos
 Close	GenioWindow		Cerrar
+Close active project	GenioWindow		Cerrar proyecto activo
 Close all	GenioWindow		Cerrar todo
 Close file	GenioWindow		Cerrar archivo
-Close project	GenioWindow		Cerrar proyecto
+Close other	GenioWindow		Cerrar los demás
 Comment selected lines	GenioWindow		Convertir líneas seleccionadas a comentario 
 Configure	GenioWindow		Configurar
 Conflicts	GenioWindow		Conflictos
@@ -23,6 +24,8 @@ Console I/O	GenioWindow		Consola de E/S
 Copy	GenioWindow		Copiar
 Could not create a new file	GenioWindow		No se pudo crear un nuevo archivo
 Could not delete \"%name%\".\n\n	GenioWindow		No se pudo borrar \"%name%\".\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
 Cut	GenioWindow		Cortar
 Debug	GenioWindow		Depuración
 Debug project	GenioWindow		Depurar proyecto
@@ -32,7 +35,6 @@ Delete dialog	GenioWindow		Borrar diálogo
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Eliminando elemento: \"%name%\".\n\nDespués de ser borrado no se podrá recuperar.\n¿Desea eliminarlo de todas formas?
 Discard	GenioWindow		Descartar
 Don't save	GenioWindow		No guardar
-Dos	GenioWindow		Dos
 Duplicate current line	GenioWindow		Duplicar línea actual
 Edit	GenioWindow		Edición
 Error creating folder	GenioWindow		Error al crear carpeta
@@ -57,22 +59,24 @@ Go to implementation	GenioWindow		Ir a implementación
 Go to line…	GenioWindow		Ir a línea…
 Help…	GenioWindow		Ayuda…
 Ignore	GenioWindow		Ignorar
+Import as RDEF array…	GenioWindow		Importar como arreglo RDEF…
 Invalid project folder	GenioWindow		Carpeta de proyecto inválida
 Keep	GenioWindow		Mantener
 Language	GenioWindow		Lenguaje de programación
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
 Line endings	GenioWindow		Secuencia de fin de línea
 Log	GenioWindow	The git command	Log
 Log (oneline)	GenioWindow	The git command	Log (una sola línea)
-Mac	GenioWindow		Mac
 Make bindcatalogs	GenioWindow		Ejecutar make bindcatalogs
 Make catkeys	GenioWindow		Ejecutar make catkeys
 Make file read-only	GenioWindow		Hacer archivo de sólo lectura
-Match case	GenioWindow		Coincidir mayúsculas y minúsculas
+Match case	GenioWindow	Short as possible.	Coincidir capitalización
 New	GenioWindow		Nuevo
 New file	GenioWindow		Nuevo archivo
 New folder	GenioWindow		Nueva carpeta
 Next	GenioWindow	Bookmark menu	Siguiente
 Open files list	GenioWindow		Lista de archivos abiertos
+Open in Terminal	GenioWindow		Abrir en Terminal
 Open project…	GenioWindow		Abrir proyecto…
 Open recent…	GenioWindow		Abrir reciente…
 Open remote project…	GenioWindow		Abrir proyecto remoto…
@@ -82,6 +86,7 @@ Paste	GenioWindow		Pegar
 Previous	GenioWindow	Bookmark menu	Anterior
 Project	GenioWindow		Proyecto
 Project settings…	GenioWindow		Ajustes del proyecto…
+Project:	GenioWindow		Proyecto:
 Projects	GenioWindow		Proyectos
 Pull	GenioWindow	The git command	Pull
 Pull (rebase)	GenioWindow	The git command	Pull (rebase)
@@ -90,6 +95,8 @@ Read-only	GenioWindow		Sólo lectura
 Redo	GenioWindow		Rehacer
 Release	GenioWindow		Lanzamiento
 Reload	GenioWindow		Recargar
+Reload .editorconfig	GenioWindow		Volver a cargar .editorconfig
+Rename symbol…	GenioWindow		Renombrar símbolo…
 Replace	GenioWindow		Reemplazar
 Replace all	GenioWindow		Reemplazar todo
 Replace and find next	GenioWindow		Reemplazar y buscar siguiente
@@ -110,12 +117,17 @@ Search	GenioWindow		Buscar
 Select all	GenioWindow		Seleccionar todo
 Settings…	GenioWindow		Ajustes…
 Show config	GenioWindow	The git command	Show config
+Show in projects browser	GenioWindow		Mostrar en el navegador de proyectos
+Show in Tracker	GenioWindow		Mostrar en Tracker
 Show line endings	GenioWindow		Mostrar finales de línea
+Show outline pane	GenioWindow		Mostrar panel de esquema
 Show output pane	GenioWindow		Mostrar panel de salida
 Show projects pane	GenioWindow		Mostrar panel de proyectos
 Show toolbar	GenioWindow		Mostrar barra de herramientas
-Show white spaces	GenioWindow		Mostrar espacios en blanco
+Show whitespace	GenioWindow		Mostrar espacios en blanco
+Show whitespace and line endings	GenioWindow		Mostrar espacios y finales de línea
 Show/Hide find bar	GenioWindow		Mostrar/ocultar barra de búsqueda
+Show/Hide outline pane	GenioWindow		Mostrar/ocultar panel de esquema
 Show/Hide output pane	GenioWindow		Mostrar/ocultar panel de salida
 Show/Hide projects pane	GenioWindow		Mostrar/Ocultar panel de proyectos
 Show/Hide replace bar	GenioWindow		Mostrar/ocultar barra de reemplazar
@@ -127,39 +139,17 @@ Switch to next file	GenioWindow		Cambiar al siguiente archivo
 Switch to previous file	GenioWindow		Cambiar al archivo anterior
 Tag	GenioWindow	The git command	Tag
 Toggle	GenioWindow	Bookmark menu	Cambiar
+Tools	GenioWindow		Herramientas
 Trim trailing whitespace	GenioWindow		Quitar espacios en blanco
 Undo	GenioWindow		Deshacer
-Unix	GenioWindow		Unix
 View	GenioWindow		Ver
-Whole word	GenioWindow		Palabra completa
+Whole word	GenioWindow	Short as possible.	Palabra completa
 Window	GenioWindow		Ventana
-Wrap	GenioWindow		Volver al inicio
-You can't create a new folder here, please select a project or another folder	GenioWindow		No se puede crear aquí una nueva carpeta. Seleccione un proyecto u otra carpeta
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Volver al inicio
+Wrap lines	GenioWindow		Ajuste de línea
 Zoom in	GenioWindow		Acercar
 Zoom out	GenioWindow		Alejar
-Active	EditorTabManager		Activo
-Project	EditorTabManager		Proyecto
-An error occurred attempting to rename file 	ProjectsFolderBrowser		Ha ocurrido un error al intentar renombrar el archivo
-Build project	ProjectsFolderBrowser		Compilar proyecto
-Clean project	ProjectsFolderBrowser		Limpiar proyecto
-Close project	ProjectsFolderBrowser		Cerrar proyecto
-Current branch	ProjectsFolderBrowser		Rama actual
-Delete file	ProjectsFolderBrowser		Borrar archivo
-Delete folder	ProjectsFolderBrowser		Eliminar carpeta
-New	ProjectsFolderBrowser		Nuevo
-OK	ProjectsFolderBrowser		Aceptar
-Open file	ProjectsFolderBrowser		Abrir archivo
-Open Terminal	ProjectsFolderBrowser		Abrir terminal
-Path	ProjectsFolderBrowser		Ruta
-Project	ProjectsFolderBrowser		Proyecto
-Project settings…	ProjectsFolderBrowser		Ajustes del proyecto…
-Rename file	ProjectsFolderBrowser		Renombrar archivo
-Rename folder	ProjectsFolderBrowser		Renombrar carpeta
-Set active	ProjectsFolderBrowser		Establecer como activo
-Show in Tracker	ProjectsFolderBrowser		Mostrar en Tracker
-Switch to branch	ProjectsFolderBrowser		Cambiar a rama
-The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La carpeta del proyecto ha sido eliminada o movida a otra ubicación, por lo que se cerrará y descargará del espacio de trabajo.
-The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		La carpeta del proyecto ha sido renombrada. Se cerrará y reabrirá automáticamente.
+Actions	SourceControlPanel		Acciones
 An unknown error occurred.	SourceControlPanel		Ha ocurrido un error desconocido.
 Cancel	SourceControlPanel		Cancelar
 Changes stashed.	SourceControlPanel		Cambios añadidos al depósito (stash).
@@ -184,7 +174,6 @@ Fetch prune completed.	SourceControlPanel		Consulta de cambios (fetch) con limpi
 Init repository	SourceControlPanel		Iniciar repositorio
 Local branches	SourceControlPanel		Ramas locales
 OK	SourceControlPanel		Aceptar
-Options	SourceControlPanel		Opciones
 Project:	SourceControlPanel		Proyecto:
 Remote branches	SourceControlPanel		Ramas remotas
 Remotes	SourceControlPanel		Remotos
@@ -202,44 +191,108 @@ Switch to \"%selected_branch%\"	SourceControlPanel		Cambiar a \"%selected_branch
 Tags	SourceControlPanel		Etiquetas
 The project is building, changing branch not allowed.	SourceControlPanel		El proyecto se está compilando. No se permite cambiar de rama.
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Este proyecto no tiene un repositorio de git.\nHaga clic abajo para iniciar uno.
+Active	EditorTabManager		Activo
+Project	EditorTabManager		Proyecto
+alpha	Utilities		alfa
+beta	Utilities		beta
+development	Utilities		desarrollo
+gamma	Utilities		gama
+gold master	Utilities		maestro dorado
+OK	Utilities		Aceptar
+Version	Utilities		Versión
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Ha ocurrido un error al intentar renombrar el archivo
+Build project	ProjectsFolderBrowser		Compilar proyecto
+Clean project	ProjectsFolderBrowser		Limpiar proyecto
+Close project	ProjectsFolderBrowser		Cerrar proyecto
+Current branch	ProjectsFolderBrowser		Rama actual
+Delete file	ProjectsFolderBrowser		Borrar archivo
+Delete folder	ProjectsFolderBrowser		Eliminar carpeta
+New	ProjectsFolderBrowser		Nuevo
+OK	ProjectsFolderBrowser		Aceptar
+Open file	ProjectsFolderBrowser		Abrir archivo
+Path	ProjectsFolderBrowser		Ruta
+Project	ProjectsFolderBrowser		Proyecto
+Project settings…	ProjectsFolderBrowser		Ajustes del proyecto…
+Rename file	ProjectsFolderBrowser		Renombrar archivo
+Rename folder	ProjectsFolderBrowser		Renombrar carpeta
+Set active	ProjectsFolderBrowser		Establecer como activo
+Switch to branch	ProjectsFolderBrowser		Cambiar a rama
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		La carpeta del proyecto ha sido eliminada o movida a otra ubicación, por lo que se cerrará y descargará del espacio de trabajo.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		La carpeta del proyecto ha sido renombrada. Se cerrará y reabrirá automáticamente.
 Another command is running.	ConsoleIOView		Se está ejecutando otro comando.
-Banner	ConsoleIOView		Pancartas
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Pancartas
 Clear	ConsoleIOView		Limpiar
 Restarting build…	ConsoleIOView		Reiniciando compilación…
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
 Stop	ConsoleIOView		Detener
-Wrap	ConsoleIOView		Ajuste de línea
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Ajuste de línea
+Array	OutlineTooltips		Arreglo
+Boolean	OutlineTooltips		Booleano
+Class	OutlineTooltips		Clase
+Constant	OutlineTooltips		Constante
+Constructor	OutlineTooltips		Constructor
+Creating outline	OutlineTooltips		Creando esquema
+Enum	OutlineTooltips		Enumerado
+Enum member	OutlineTooltips		Miembro de enumerado
+Event	OutlineTooltips		Evento
+Field	OutlineTooltips		Campo
+File	OutlineTooltips		Archivo
+Function	OutlineTooltips		Función
+Go to symbol	OutlineTooltips		Ir a símbolo
+Interface	OutlineTooltips		Interfaz
+Key	OutlineTooltips		Clave
+Method	OutlineTooltips		Método
+Module	OutlineTooltips		Módulo
+Namespace	OutlineTooltips		Espacio de nombres
+No outline available	OutlineTooltips		No hay un esquema disponible
+Null	OutlineTooltips		Nulo
+Object	OutlineTooltips		Objeto
+Operator	OutlineTooltips		Operador
+Outline	OutlineTooltips		Esquema
+Package	OutlineTooltips		Paquete
+Property	OutlineTooltips		Propiedad
+Rename symbol…	OutlineTooltips		Renombrar símbolo…
+Sort	OutlineTooltips		Ordenar
+String	OutlineTooltips		Cadena
+Structure	OutlineTooltips		Estructura
+Type parameter	OutlineTooltips		Tipo de parámetro
+Variable	OutlineTooltips		Variable
 Auto collapse/expand projects	SettingsWindow		Contraer/expandir automáticamente los proyectos
 Auto-Build on resource save	SettingsWindow		Compilar automáticamente al guardar el recurso
 Auto-Save changed files when building	SettingsWindow		Guardar automáticamente al compilar
 Build	SettingsWindow		Compilación
-Console banner	SettingsWindow		Pancarta de la consola
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Pancarta de la consola
 Convert tabs to spaces	SettingsWindow		Convertir tabulaciones a espacios
+Default font	SettingsWindow		Fuente predeterminada
 Default size	SettingsWindow		Tamaño predeterminado
 Editor	SettingsWindow		Editor
 Editor style:	SettingsWindow		Estilo del editor:
 Editor zoom:	SettingsWindow		Ampliación del editor:
 Enable brace matching	SettingsWindow		Habilitar coincidencia de llaves
-Enable folding	SettingsWindow		Habilitar contracción de líneas
 Enable syntax highlighting	SettingsWindow		Habilitar resaltado de sintaxis
 Exclude folders:	SettingsWindow		Excluir carpetas:
 Find	SettingsWindow		Búsqueda
 Font size:	SettingsWindow		Tamaño de fuente:
+Font:	SettingsWindow		Fuente:
 General	SettingsWindow		General
+Ignore .editorconfig	SettingsWindow		Ignorar .editorconfig
 Log destination:	SettingsWindow		Destino del registro:
 Log level:	SettingsWindow		Nivel de registro:
+Log size:	SettingsWindow		Tamaño del registro:
 Mark caret line	SettingsWindow		Resaltar línea del cursor
-Match case	SettingsWindow		Coincidir mayúsculas y minúsculas
+Match case	SettingsWindow	Short as possible.	Coincidir capitalización
 Projects folder:	SettingsWindow		Carpeta de proyectos:
 Reload files	SettingsWindow		Recargar archivos
 Reload projects	SettingsWindow		Recargar proyectos
 Save caret position	SettingsWindow		Guardar posición del cursor
 Set ruler to column:	SettingsWindow		Establecer regla a la columna:
 Show comment margin	SettingsWindow		Mostrar márgen de comentario
+Show folding margin	SettingsWindow		Mostrar margen de plegado
 Show full path in window title	SettingsWindow		Mostrar ruta completa en el título de la ventana
 Show line endings	SettingsWindow		Mostrar finales de línea
-Show line number	SettingsWindow		Mostrar número de línea
+Show line numbers	SettingsWindow		Mostrar números de línea
+Show outline pane	SettingsWindow		Mostrar panel de esquema
 Show output pane	SettingsWindow		Mostrar panel de salida
 Show projects pane	SettingsWindow		Mostrar panel de proyectos
 Show repository outline	SettingsWindow		Mostrar repositorio como árbol
@@ -249,12 +302,14 @@ Show whitespace	SettingsWindow		Mostrar espacios en blanco
 Source control	SettingsWindow		Control de código
 Startup	SettingsWindow		Inicio
 Tab width:	SettingsWindow		Ancho de tabulación:  
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Estas sólo se aplican si no se usa un .editorconfig:
 This setting will be updated on restart.	SettingsWindow		Este ajuste se aplicará al reinicio.
 Trim trailing whitespace on save	SettingsWindow		Eliminar espacios en blanco al final de las líneas al guardar
-Visual	SettingsWindow		Visual
-Whole word	SettingsWindow		Palabra completa
-Wrap	SettingsWindow		Volver al inicio
-Wrap console	SettingsWindow		Ajuste de línea de la consola
+Visuals	SettingsWindow		Visuales
+Whole word	SettingsWindow	Short as possible.	Palabra completa
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Volver al inicio
+Wrap lines	SettingsWindow		Ajuste de línea
+Wrap lines in console	SettingsWindow		Ajuste de línea de la consola
 Base path:	RemoteProjectWindow		Ruta de base:
 Browse…	RemoteProjectWindow		Explorar…
 Cancel	RemoteProjectWindow		Cancelar
@@ -267,29 +322,26 @@ Open remote Git project	RemoteProjectWindow		Abrir proyecto remoto de Git
 Stop	RemoteProjectWindow		Detener
 The local path is not valid or does not exist	RemoteProjectWindow		La ruta local no es válida o no existe
 URL:	RemoteProjectWindow		URL:
-Build commands	ProjectSettingsWindow		Comandos de compilación
-Cancel	ProjectSettingsWindow		Cancelar
-Debug build command:	ProjectSettingsWindow		Compilación de «depuración»:
-Debug clean command:	ProjectSettingsWindow		Limpieza de «depuración»:
-Debug execute arguments:	ProjectSettingsWindow		Argumentos de «depuración»:
-Debug project target:	ProjectSettingsWindow		Destino de «depuración»:
-Default	ProjectSettingsWindow		Predeterminado
-OK	ProjectSettingsWindow		Aceptar
-Project:	ProjectSettingsWindow		Proyecto:
-Release build command:	ProjectSettingsWindow		Compilación de «lanzamiento»:
-Release clean command:	ProjectSettingsWindow		Limpieza de «lanzamiento»:
-Release execute arguments:	ProjectSettingsWindow		Argumentos de «lanzamiento»:
-Release project target:	ProjectSettingsWindow		Destino de «lanzamiento»:
-Run in Terminal	ProjectSettingsWindow		Ejecutar en Terminal
-Target	ProjectSettingsWindow		Destino
+Build	ProjectSettingsWindow		Compilar
+Build command:	ProjectSettingsWindow		Comando de compilación:
+Build mode:	ProjectSettingsWindow		Build mode:
+Clean command:	ProjectSettingsWindow		Comando de limpieza:
+Color:	ProjectSettingsWindow		Color:
+Execute args:	ProjectSettingsWindow		Args. de ejecución:
+Release	ProjectSettingsWindow		Lanzamiento
+Run	ProjectSettingsWindow		Ejecutar
+Run in terminal	ProjectSettingsWindow		Ejecutar en Terminal
+Target:	ProjectSettingsWindow		Destino:
 Cancel	GoToLineWindow		Cancelar
 Go to line	GoToLineWindow		Ir a línea
 Go to line:	GoToLineWindow		Ir a línea:
 OK	GoToLineWindow		Aceptar
 Cancel	Editor		Cancelar
+Do you want to set a starting index?	Editor		¿Desea establecer un índice de inicio?
 Don't save	Editor		No guardar
-Fix: %fix_desc%	Editor		Corrección: %fix_desc%
-No fix available	Editor		No hay una corrección disponible
+Index	Editor		Índice
+Rename	Editor		Renombrar
+Rename symbol '%symbol_name%':	Editor		Renombrar símbolo '%symbol_name%':
 Save	Editor		Guardar
 Save changes to file \"%filename%\"?	Editor		¿Desea guardar los cambios al archivo \"%filename%\"?
 Save dialog	Editor		Cuadro de diálogo de guardar
@@ -307,9 +359,16 @@ Username:	GitCredentialsWindow		Nombre de usuario:
 Cancel	GTextAlert		Cancelar
 OK	GTextAlert		Aceptar
 Category	ProblemsPanel		Categoría
+Line	ProblemsPanel		Línea
 Message	ProblemsPanel		Mensaje
+No fix available	ProblemsPanel		No hay una corrección disponible
 Problems	ProblemsPanel		Problemas
 Source	ProblemsPanel		Fuente
+Contributors:	GenioApp		Colaboradores:
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio es un software nacido a partir de Ideam y disponible bajo la licencia MIT.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio utiliza:\nLa biblioteca Scintilla\nCopyright 1998-2003 por Neil Hodgson \n\nScintilla para Haiku\nCopyright 2011 por Andrea Anzani \nCopyright 2014-2015 por Kacper Kasper \n\n
+Made with love in Italy	GenioApp		Hecho con amor desde Italia
+See credits for a complete list.\n\n	GenioApp		Véase los créditos por una lista completa.\n\n
 Defaults	ConfigWindow		Predeterminados
 Settings	ConfigWindow		Ajustes
 Edit user templates…	TemplatesMenu		Editar plantillas de usuario…
@@ -320,12 +379,9 @@ File modified on index	GitRepository		Archivo modificado en el índice
 New file	GitRepository		Archivo nuevo
 New file staged	GitRepository		Nuevo archivo en el área de preparación (stage)
 Genio	System name		Genio
-Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio es un software nacido a partir de Ideam y disponible bajo la licencia MIT.
-Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio utiliza:\nLa biblioteca Scintilla\nCopyright 1998-2003 por Neil Hodgson \n\nScintilla para Haiku\nCopyright 2011 por Andrea Anzani \nCopyright 2014-2015 por Kacper Kasper \n\n
-Made with love in Italy	GenioApp		Hecho con amor desde Italia
-See credits for a complete list.\n\n	GenioApp		Véase los créditos por una lista completa.\n\n
+Global settings applied	EditorStatusView		Ajustes globales aplicados
+Settings in .editorconfig applied	EditorStatusView		Ajustes aplicados en .editorconfig
 Location	SearchResultPanel		Ubicación
 Search results	SearchResultPanel		Resultados de búsqueda
 New folder	TemplateManager		Nueva carpeta
-OK	Utilities		Aceptar
 OK	GitAlert		Aceptar

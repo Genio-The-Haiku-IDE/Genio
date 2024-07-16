@@ -18,9 +18,9 @@ public:
 	GrepThread(BMessage* cmd_message, const BMessenger& consoleTarget);
 
 protected:
-	virtual	void	OnStdOutputLine(const BString& stdOut) override;
-	virtual void	OnStdErrorLine(const BString& stdErr) override {};
-	virtual void	ThreadExitNotification() override;
+			void	OnStdOutputLine(const BString& stdOut) override;
+			void	OnStdErrorLine(const BString& stdErr) override {};
+			void	ThreadExitNotification() override;
 private:
 	char fCurrentFileName[B_PATH_NAME_LENGTH];
 	char fLine[MAX_LINE_LEN];

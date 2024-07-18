@@ -7,8 +7,8 @@ in the clang compiler suite (more info here: <https://clangd.llvm.org/>).
 
 First pre-requisite is to install these packages:
 
-*   latest LLVM (clang) (at the time of writing is version 17)
-*   gcc_syslibs_devel package
+* latest LLVM (clang) (at the time of writing is version 17)
+* gcc_syslibs_devel package
 
 Once installed you should have the command 'clangd' ready to be used by Genio.
 The clangd tool interacts with the IDE to provide all the advanced features like autocompletion,

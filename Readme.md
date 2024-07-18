@@ -13,33 +13,33 @@ Genio is a native and fully functional IDE for the [Haiku operating system](http
 
 Some of the features of the Genio IDE are:
 
-*   LSP Server support (autocompletion, signature help, go to definition/implementation/declaration, quick fix, format)
-*   Multi-project browser
-*   Integrated source control with GIT (including opening a remote project)
-*   Find in files
-*   Links to file and build errors in Build Log and Console I/O
-*   Symbols outline view
-*   "Problems" tab
-*   Build on save / Save on build
-*   User templates for quickly creating new files and projects
-*   Rich editor with many features:
-    *   Multiple tabs
-    *   Syntax highlighting for many languages
-    *   Highlight/Trim whitespace
-    *   Comment/uncomment lines
-    *   Duplicate current line
-    *   Delete lines
-    *   Switch between source and header
-*   Full screen and Focus mode
+* LSP Server support (autocompletion, signature help, go to definition/implementation/declaration, quick fix, format)
+* Multi-project browser
+* Integrated source control with GIT (including opening a remote project)
+* Find in files
+* Links to file and build errors in Build Log and Console I/O
+* Symbols outline view
+* "Problems" tab
+* Build on save / Save on build
+* User templates for quickly creating new files and projects
+* Rich editor with many features:
+  * Multiple tabs
+  * Syntax highlighting for many languages
+  * Highlight/Trim whitespace
+  * Comment/uncomment lines
+  * Duplicate current line
+  * Delete lines
+  * Switch between source and header
+* Full screen and Focus mode
 
 Genio started off as a fork of [Ideam](https://github.com/AmosCaster/ideam), and
  the editor is based on [Scintilla for Haiku](https://sourceforge.net/p/scintilla/haiku/ci/default/tree/).
 
 We also took inspiration and code from the editor [Koder](https://github.com/KapiX/Koder).
 
-*   strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
-    *   gcc_syslibs_devel
-    *   llvm17_clang
+* strongly recommended for full Genio experience (autocompletion, jump to definition, etc):
+  * gcc_syslibs_devel
+  * llvm17_clang
 
 ```bash
 pkgman install gcc_syslibs_devel llvm17_clang
@@ -49,9 +49,9 @@ pkgman install gcc_syslibs_devel llvm17_clang
 
 Genio aims to be an easy, simple yet powerful IDE for Haiku inspired by VS Code and Nova.
 
-*   Plug-in architecture
-*   Bring the editor up-to-date and on par with other Haiku editors (Koder, Pe)
-*   Compiler error parser
+* Plug-in architecture
+* Bring the editor up-to-date and on par with other Haiku editors (Koder, Pe)
+* Compiler error parser
 
 ## Configuring LSP
 
@@ -75,8 +75,8 @@ from Terminal.
 
 If you would like to try a clang++ build:
 
-*   Install `llvm17_clang` and `llvm17_lld` hpkgs from HaikuPorts
-*   Set `BUILD_WITH_CLANG` to `1` in `Makefile`
+* Install `llvm17_clang` and `llvm17_lld` hpkgs from HaikuPorts
+* Set `BUILD_WITH_CLANG` to `1` in `Makefile`
 
 ### Compiling
 

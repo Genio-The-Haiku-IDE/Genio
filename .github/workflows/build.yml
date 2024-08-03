@@ -19,6 +19,8 @@ jobs:
       run: 'container-init & timeout 600 vmshell exit 0'
     - name: 'Install packages'
       run: 'vmshell pkgman install -y gcc haiku_devel make makefile_engine libgit2_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel'
+    - name: 'Reboot VM'
+      run: 'sv force-restart qemu ||:; timeout 600 vmshell exit 0'
     - name: 'Checkout project'
       uses: actions/checkout@v4
     - name: 'Copy project to VM'

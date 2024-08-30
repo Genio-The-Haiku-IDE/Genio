@@ -134,7 +134,7 @@ GenioApp::AboutRequested()
 	window->AddExtraInfo(extraInfo);
 	window->ResizeBy(0, 200);
 
-	//xmas-icon!
+	// xmas-icon!
 	if (IsXMasPeriod() && window->Icon()) {
 		GetVectorIcon("xmas-icon", window->Icon());
 	}
@@ -236,6 +236,8 @@ GenioApp::RefsReceived(BMessage* message)
 void
 GenioApp::ReadyToRun()
 {
+	BApplication::ReadyToRun();
+
 	// let's subscribe config changes updates
 	StartWatching(this, MSG_NOTIFY_CONFIGURATION_UPDATED);
 

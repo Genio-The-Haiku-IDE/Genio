@@ -35,6 +35,10 @@ public:
 	void			SetIconFollowsTheme(bool follow);
 
 protected:
+	// called from DrawItem: sets up colors
+	// can be called by overridden DrawItem() to avoid duplication
+	virtual void	DrawItemPrepare(BView* owner, BRect bounds, bool complete);
+
 	virtual BRect	DrawIcon(BView* owner, const BRect& bounds,
 							const float& iconSize);
 	virtual void	DrawText(BView* owner, const char* text,

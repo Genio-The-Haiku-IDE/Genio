@@ -39,29 +39,7 @@ StyledItem::~StyledItem()
 void
 StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
-	// TODO: Inherited classes which reimplement this method could duplicate
-	// most of this code. See if there's a way to move it to a common method
-	if (Text() == NULL)
-		return;
-
-	if (IsSelected() || complete) {
-		rgb_color oldLowColor = owner->LowColor();
-		rgb_color color;
-		if (IsSelected())
-			color = ui_color(B_LIST_SELECTED_BACKGROUND_COLOR);
-		else
-			color = owner->ViewColor();
-		owner->SetLowColor(color);
-		owner->FillRect(bounds, B_SOLID_LOW);
-		owner->SetLowColor(oldLowColor);
-	}
-
-	if (IsSelected())
-		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
-	else
-		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
-
-	// TODO: until here (see comment above)
+	DrawItemPrepare(owner, bounds, complete);
 
 	float iconSize = 0;
 	BRect iconRect = bounds;
@@ -148,6 +126,33 @@ void
 StyledItem::SetIconFollowsTheme(bool follow)
 {
 	fIconFollowsTheme = follow;
+}
+
+
+/* virtual */
+void
+StyledItem::DrawItemPrepare(BView* owner, BRect bounds, bool complete)
+{
+	// most of this code. See if there's a way to move it to a common method
+	if (Text() == NULL)
+		return;
+
+	if (IsSelected() || complete) {
+		rgb_color oldLowColor = owner->LowColor();
+		rgb_color color;
+		if (IsSelected())
+			color = ui_color(B_LIST_SELECTED_BACKGROUND_COLOR);
+		else
+			color = owner->ViewColor();
+		owner->SetLowColor(color);
+		owner->FillRect(bounds, B_SOLID_LOW);
+		owner->SetLowColor(oldLowColor);
+	}
+
+	if (IsSelected())
+		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
+	else
+		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
 }
 
 

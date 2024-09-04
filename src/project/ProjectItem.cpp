@@ -102,32 +102,7 @@ ProjectItem::~ProjectItem()
 void
 ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
-	// TODO: this part is duplicated between StyledItem and here:
-	// Move to a common method so inherited classes don't have
-	// to duplicate
-	if (Text() == NULL)
-		return;
-
-	if (IsSelected() || complete) {
-		rgb_color oldLowColor = owner->LowColor();
-		rgb_color color;
-		if (IsSelected())
-			color = ui_color(B_LIST_SELECTED_BACKGROUND_COLOR);
-		else
-			color = owner->ViewColor();
-		owner->SetLowColor(color);
-		owner->FillRect(bounds, B_SOLID_LOW);
-		owner->SetLowColor(oldLowColor);
-	}
-
-	owner->SetFont(be_plain_font);
-
-	if (IsSelected())
-		owner->SetHighColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR));
-	else
-		owner->SetHighColor(ui_color(B_LIST_ITEM_TEXT_COLOR));
-
-	// TODO: until here... (see comment above)
+	DrawItemPrepare(owner, bounds, complete);
 
 	bool isProject = GetSourceItem()->Type() == SourceItemType::ProjectFolderItem;
 	if (isProject) {

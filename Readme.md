@@ -6,7 +6,6 @@
 ![Screenshot](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/artwork/screenshot/Genio-screenshot-3.0.png)
 ![Screenshot-Dark](https://github.com/Genio-The-Haiku-IDE/Genio/blob/main/artwork/screenshot/Genio-screenshot-dark-3.0.png)
 
-
 ## Introduction
 
 Genio is a native and fully functional IDE for the [Haiku operating system](https://www.haiku-os.org)

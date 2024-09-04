@@ -18,11 +18,11 @@
 #include "EditorTabManager.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
+#include "Log.h"
 #include "protocol_objects.h"
 #include "StyledItem.h"
 #include "ToolBar.h"
 
-#include "Log.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "FunctionsOutlineView"
@@ -59,12 +59,11 @@ private:
 void
 SymbolListItem::SetIconAndTooltip()
 {
-	BString iconName;
-	BString toolTip;
 	int32 kind;
 	Details().FindInt32("kind", &kind);
 	SymbolKind symbolKind = static_cast<SymbolKind>(kind);
-
+	BString iconName;
+	BString toolTip;
 	switch (symbolKind) {
 		case SymbolKind::File:
 			iconName = "file";
@@ -128,6 +127,7 @@ SymbolListItem::SetIconAndTooltip()
 			break;
 		case SymbolKind::Number:
 			iconName = "numeric";
+			// TODO: is this correct ?
 			toolTip = "";
 			break;
 		case SymbolKind::Boolean:
@@ -273,9 +273,8 @@ private:
 				return;
 			}
 
-			BMessage symbol;
+			BMessage symbol = item->Details();
 			Position position;
-			symbol = item->Details();
 			position.character = symbol.GetInt32("start:character", -1);
 			position.line = symbol.GetInt32("start:line", -1);
 
@@ -293,7 +292,6 @@ private:
 						{"start:character", position.character}});
 			renameItem->SetEnabled((position.line != -1 && position.character != -1));
 			optionsMenu->AddItem(renameItem);
-
 			optionsMenu->SetTargetForItems(Target());
 			optionsMenu->Go(ConvertToScreen(where), true);
 		}
@@ -431,7 +429,7 @@ void
 FunctionsOutlineView::SelectSymbolByCaretPosition(int32 position)
 {
 	BListItem* sym = _RecursiveSymbolByCaretPosition(position, nullptr);
-	if (sym != nullptr && sym->IsSelected() == false) {
+	if (sym != nullptr && !sym->IsSelected()) {
 		fListView->Select(fListView->IndexOf(sym));
 		fListView->ScrollToSelection();
 	}
@@ -441,7 +439,7 @@ FunctionsOutlineView::SelectSymbolByCaretPosition(int32 position)
 BListItem*
 FunctionsOutlineView::_RecursiveSymbolByCaretPosition(int32 position, BListItem* parent)
 {
-	for(int32 i=0;i<fListView->CountItemsUnder(parent, true);i++) {
+	for (int32 i = 0; i< fListView->CountItemsUnder(parent, true); i++) {
 		SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemUnderAt(parent, true, i));
 		if (sym == nullptr)
 			return nullptr;
@@ -461,10 +459,8 @@ FunctionsOutlineView::_RecursiveSymbolByCaretPosition(int32 position, BListItem*
 }
 
 
-
 void
-FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg,
-	const entry_ref* newRef)
+FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_ref* newRef)
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
 

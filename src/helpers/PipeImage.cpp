@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ * Copyright 2023-2024 Andrea Anzani <andrea.anzani@gmail.com>
  *
  * Source code derived from AGMSScriptOCron
  * 	Copyright (c) 2018 by Alexander G. M. Smith.
@@ -11,12 +11,12 @@
 
 #include <cerrno>
 #include <cstdlib>
-#include <unistd.h>
 #include <image.h>
+#include <unistd.h>
 
 #include <Locker.h>
 
- //lock access play with stdin/stdout
+// lock access play with stdin/stdout
 BLocker* PipeImage::sLockStdFilesPntr = new BLocker ("Std-In-Out Changed Lock");
 
 status_t
@@ -33,31 +33,30 @@ PipeImage::Init(const char **argv, int32 argc, bool dupStdErr, bool resume)
 
 	sLockStdFilesPntr->Lock();
 
-	int originalStdIn = dup (STDIN_FILENO);
-	int PipeFlags = fcntl (originalStdIn, F_GETFD);
+	int originalStdIn = dup(STDIN_FILENO);
+	int PipeFlags = fcntl(originalStdIn, F_GETFD);
 	PipeFlags |= FD_CLOEXEC;
-	fcntl (originalStdIn, F_SETFD, PipeFlags);
+	fcntl(originalStdIn, F_SETFD, PipeFlags);
 
-	int originalStdOut = dup (STDOUT_FILENO);
-	PipeFlags = fcntl (originalStdOut, F_GETFD);
+	int originalStdOut = dup(STDOUT_FILENO);
+	PipeFlags = fcntl(originalStdOut, F_GETFD);
 	PipeFlags |= FD_CLOEXEC;
-	fcntl (originalStdOut, F_SETFD, PipeFlags);
+	fcntl(originalStdOut, F_SETFD, PipeFlags);
 
 	int originalStdErr = 0;
 	if (fDupStdErr) {
 		originalStdErr = dup(STDERR_FILENO);
-		PipeFlags = fcntl (originalStdErr, F_GETFD);
+		PipeFlags = fcntl(originalStdErr, F_GETFD);
 		PipeFlags |= FD_CLOEXEC;
-		fcntl (originalStdErr, F_SETFD, PipeFlags);
+		fcntl(originalStdErr, F_SETFD, PipeFlags);
 	}
 
-  sLockStdFilesPntr->Unlock();
+	sLockStdFilesPntr->Unlock();
 
-
-	if (pipe (fOutPipe) != 0) // Returns -1 if failed, 0 if okay.
+	if (pipe(fOutPipe) != 0) // Returns -1 if failed, 0 if okay.
 		return errno; // Pipe creation failed.
 
-	if (pipe (fInPipe) != 0) // Returns -1 if failed, 0 if okay.
+	if (pipe(fInPipe) != 0) // Returns -1 if failed, 0 if okay.
 		return errno; // Pipe creation failed.
 
 	if (fDupStdErr) {
@@ -66,20 +65,20 @@ PipeImage::Init(const char **argv, int32 argc, bool dupStdErr, bool resume)
 	}
 
 	// Write end of the outPipe NOT used by the child, make it close on exec.
-	PipeFlags = fcntl (fOutPipe[WRITE_END], F_GETFD);
+	PipeFlags = fcntl(fOutPipe[WRITE_END], F_GETFD);
 	PipeFlags |= FD_CLOEXEC;
-	fcntl (fOutPipe[WRITE_END], F_SETFD, PipeFlags);
+	fcntl(fOutPipe[WRITE_END], F_SETFD, PipeFlags);
 
 	// Read end of the inPipe NOT used by the child, make it close on exec.
-	PipeFlags = fcntl (fInPipe[READ_END], F_GETFD);
+	PipeFlags = fcntl(fInPipe[READ_END], F_GETFD);
 	PipeFlags |= FD_CLOEXEC;
-	fcntl (fInPipe[READ_END], F_SETFD, PipeFlags);
+	fcntl(fInPipe[READ_END], F_SETFD, PipeFlags);
 
 	if (fDupStdErr) {
 		// Read end of the errPipe NOT used by the child, make it close on exec.
-		PipeFlags = fcntl (fErrPipe[READ_END], F_GETFD);
+		PipeFlags = fcntl(fErrPipe[READ_END], F_GETFD);
 		PipeFlags |= FD_CLOEXEC;
-		fcntl (fErrPipe[READ_END], F_SETFD, PipeFlags);
+		fcntl(fErrPipe[READ_END], F_SETFD, PipeFlags);
 	}
 
 	dup2(fInPipe[WRITE_END], STDOUT_FILENO);
@@ -93,19 +92,16 @@ PipeImage::Init(const char **argv, int32 argc, bool dupStdErr, bool resume)
 	}
 
 	status_t stat = B_OK;
-	fChildpid = load_image (argc, argv, const_cast<const char **>(environ));
-	if (fChildpid < 0)
-	{
+	fChildpid = load_image(argc, argv, const_cast<const char **>(environ));
+	if (fChildpid < 0) {
 		if (fDupStdErr) {
 			close(fErrPipe[READ_END]);
 		}
 		close(fOutPipe[WRITE_END]);
 		close(fInPipe[READ_END]);
 		stat = fChildpid;
-	}
-	else
-	{
-		setpgid (fChildpid, fChildpid);
+	} else {
+		setpgid(fChildpid, fChildpid);
 		if (resume)
 			resume_thread (fChildpid); // rock'n'roll!
 	}
@@ -117,15 +113,16 @@ PipeImage::Init(const char **argv, int32 argc, bool dupStdErr, bool resume)
 
 	sLockStdFilesPntr->Lock();
 
-	dup2 (originalStdIn, STDIN_FILENO);
-	dup2 (originalStdOut, STDOUT_FILENO);
+	dup2(originalStdIn, STDIN_FILENO);
+	dup2(originalStdOut, STDOUT_FILENO);
 	if (fDupStdErr) {
-		dup2 (originalStdErr, STDERR_FILENO);
+		dup2(originalStdErr, STDERR_FILENO);
 	}
 	sLockStdFilesPntr->Unlock();
 
 	return stat;
 }
+
 
 void
 PipeImage::Close()
@@ -137,16 +134,19 @@ PipeImage::Close()
 	close(fInPipe[READ_END]);
 }
 
+
 PipeImage::~PipeImage()
 {
 	Close();
 }
 
+
 pid_t
-PipeImage::GetChildPid()
+PipeImage::GetChildPid() const
 {
 	return fChildpid;
 }
+
 
 ssize_t
 PipeImage::ReadError(void* buffer, size_t size)
@@ -161,9 +161,9 @@ PipeImage::Read(void* buffer, size_t size)
 	return read(fInPipe[READ_END], buffer, size);
 }
 
+
 ssize_t
 PipeImage::Write(const void* buffer, size_t size)
 {
 	return write(fOutPipe[WRITE_END], buffer, size);
 }
-

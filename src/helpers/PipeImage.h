@@ -1,9 +1,8 @@
-/*
- * Copyright 2023, Andrea Anzani 
+ /*
+ * Copyright 2023-2024, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef PipeImage_H
-#define PipeImage_H
+#pragma once
 
 #include <SupportDefs.h>
 
@@ -15,35 +14,29 @@
 
 class BLocker;
 class PipeImage {
-
 public:
+	status_t Init(const char **argv, int32 argc, bool dupStdErr, bool resume);
 
-  status_t Init(const char **argv, int32 argc, bool dupStdErr, bool resume);
+	virtual ~PipeImage();
 
-  virtual ~PipeImage();
-  void	Close();
+	void Close();
 
-  pid_t GetChildPid();
+	pid_t GetChildPid() const;
 
-  ssize_t ReadError(void* buffer, size_t size);
-  ssize_t Read(void* buffer, size_t size);
-  ssize_t Write(const void* buffer, size_t size);
+	ssize_t ReadError(void* buffer, size_t size);
+	ssize_t Read(void* buffer, size_t size);
+	ssize_t Write(const void* buffer, size_t size);
 
-  static BLocker *sLockStdFilesPntr;
+	static BLocker *sLockStdFilesPntr;
 
-  int GetStdOutFD() { return fInPipe[READ_END]; };
-  int GetStdErrFD() { return fErrPipe[READ_END]; };
-  int GetStdInFD() { return fOutPipe[WRITE_END]; };
+	int GetStdOutFD() const { return fInPipe[READ_END]; };
+	int GetStdErrFD() const { return fErrPipe[READ_END]; };
+	int GetStdInFD() const { return fOutPipe[WRITE_END]; };
 
 protected:
-
-
-  pid_t fChildpid;
-  int fOutPipe[2];
-  int fInPipe[2];
-  int fErrPipe[2];
-  bool	fDupStdErr;
+	pid_t fChildpid;
+	int fOutPipe[2];
+	int fInPipe[2];
+	int fErrPipe[2];
+	bool fDupStdErr;
 };
-
-
-#endif // PipeImage_H

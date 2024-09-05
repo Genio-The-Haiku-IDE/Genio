@@ -1,19 +1,18 @@
 /*
- * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ * Copyright 2023-2024, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef ActionManager_H
-#define ActionManager_H
+#pragma once
 
 
-#include <SupportDefs.h>
-#include <map>
-#include <String.h>
 #include <MenuItem.h>
-#include "ToolBar.h"
+#include <String.h>
+
+#include <map>
+
 
 class Action;
-
+class ToolBar;
 class ActionManager {
 public:
 	static status_t RegisterAction(int32   msgWhat,
@@ -40,20 +39,15 @@ public:
 	//TODO: static BMessage*	GetMessage(int32 msgWhat, ToolBar*);
 
 	// disable copy costructor and assignment operator
-
 	ActionManager(const ActionManager &) = delete;
 	ActionManager & operator = (const ActionManager &) = delete;
 
 private:
-
 	typedef std::map<int32, Action*> ActionMap;
 	ActionMap	fActionMap;
 
-	static ActionManager instance;
+	static ActionManager sInstance;
 
 	 ActionManager() {};
 	~ActionManager();
 };
-
-
-#endif // ActionManager_H

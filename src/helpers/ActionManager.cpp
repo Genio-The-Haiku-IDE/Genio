@@ -1,14 +1,17 @@
 /*
- * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ * Copyright 2023-2024, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
 
 #include "ActionManager.h"
-#include "ObjectList.h"
+
 #include <Button.h>
 
-ActionManager ActionManager::instance;
+#include "ObjectList.h"
+#include "ToolBar.h"
+
+ActionManager ActionManager::sInstance;
 
 class Action {
 public:
@@ -24,14 +27,16 @@ public:
 	BObjectList<ToolBar>	toolBarList;
 };
 
+
 ActionManager::~ActionManager()
 {
 	ActionMap::reverse_iterator it;
-	for (it = instance.fActionMap.rbegin(); it != instance.fActionMap.rend(); it++) {
+	for (it = sInstance.fActionMap.rbegin(); it != sInstance.fActionMap.rend(); it++) {
 		delete it->second;
 	}
-	instance.fActionMap.clear();
+	sInstance.fActionMap.clear();
 }
+
 
 status_t
 ActionManager::RegisterAction(int32   msgWhat,
@@ -49,17 +54,18 @@ ActionManager::RegisterAction(int32   msgWhat,
 	action->toolTip = toolTip;
 	action->shortcut = shortcut;
 	action->modifiers = modifiers;
-	instance.fActionMap[msgWhat] = action;
+	sInstance.fActionMap[msgWhat] = action;
 	return B_OK;
 }
+
 
 status_t
 ActionManager::AddItem(int32 msgWhat, BMenu* menu, BMessage* extraFields)
 {
-	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+	if (sInstance.fActionMap.find(msgWhat) == sInstance.fActionMap.end())
 		return B_ERROR;
 
-	Action* action = instance.fActionMap[msgWhat];
+	Action* action = sInstance.fActionMap[msgWhat];
 	if (extraFields == nullptr) {
 		extraFields = new BMessage(msgWhat);
 	}
@@ -72,12 +78,14 @@ ActionManager::AddItem(int32 msgWhat, BMenu* menu, BMessage* extraFields)
 	return B_OK;
 }
 
+
 status_t
 ActionManager::AddItem(int32 msgWhat, ToolBar* bar, BMessage* extraFields)
 {
-	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+	if (sInstance.fActionMap.find(msgWhat) == sInstance.fActionMap.end())
 		return B_ERROR;
-	Action* action = instance.fActionMap[msgWhat];
+
+	Action* action = sInstance.fActionMap[msgWhat];
 	if (extraFields == nullptr) {
 		extraFields = new BMessage(msgWhat);
 	}
@@ -89,54 +97,55 @@ ActionManager::AddItem(int32 msgWhat, ToolBar* bar, BMessage* extraFields)
 	return B_OK;
 }
 
+
 status_t
 ActionManager::SetEnabled(int32 msgWhat, bool enabled)
 {
-	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+	if (sInstance.fActionMap.find(msgWhat) == sInstance.fActionMap.end())
 		return B_ERROR;
-	Action* action = instance.fActionMap[msgWhat];
 
+	Action* action = sInstance.fActionMap[msgWhat];
 	action->enabled = enabled;
 
-	for (int i=0; i<action->menuItemList.CountItems();i++)
+	for (int32 i = 0; i < action->menuItemList.CountItems(); i++)
 		action->menuItemList.ItemAt(i)->SetEnabled(enabled);
-	for (int i=0; i<action->toolBarList.CountItems();i++)
+	for (int32 i = 0; i < action->toolBarList.CountItems(); i++)
 		action->toolBarList.ItemAt(i)->SetActionEnabled(msgWhat, enabled);
 
 	return B_OK;
-
 }
+
 
 status_t
 ActionManager::SetPressed(int32 msgWhat, bool pressed)
 {
-	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+	if (sInstance.fActionMap.find(msgWhat) == sInstance.fActionMap.end())
 		return B_ERROR;
-	Action* action = instance.fActionMap[msgWhat];
 
+	Action* action = sInstance.fActionMap[msgWhat];
 	action->pressed = pressed;
 
-	for (int i=0; i<action->menuItemList.CountItems();i++)
+	for (int32 i = 0; i < action->menuItemList.CountItems(); i++)
 		action->menuItemList.ItemAt(i)->SetMarked(pressed);
 
-	for (int i=0; i<action->toolBarList.CountItems();i++)
+	for (int32 i = 0; i < action->toolBarList.CountItems(); i++)
 		action->toolBarList.ItemAt(i)->SetActionPressed(msgWhat, pressed);
 
 	return B_OK;
 
 }
 
+
 status_t
 ActionManager::SetToolTip(int32 msgWhat, const char* tooltip)
 {
-	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+	if (sInstance.fActionMap.find(msgWhat) == sInstance.fActionMap.end())
 		return B_ERROR;
 
-	Action* action = instance.fActionMap[msgWhat];
-
+	Action* action = sInstance.fActionMap[msgWhat];
 	action->toolTip = tooltip;
 
-	for (int i=0; i<action->toolBarList.CountItems();i++) {
+	for (int32 i = 0; i < action->toolBarList.CountItems(); i++) {
 		BButton* button = action->toolBarList.ItemAt(i)->FindButton(msgWhat);
 		if (button)
 			button->SetToolTip(action->toolTip);
@@ -145,22 +154,25 @@ ActionManager::SetToolTip(int32 msgWhat, const char* tooltip)
 	return B_OK;
 }
 
+
 bool
 ActionManager::IsPressed(int32 msgWhat)
 {
-	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+	if (sInstance.fActionMap.find(msgWhat) == sInstance.fActionMap.end())
 		return false;
-	Action* action = instance.fActionMap[msgWhat];
 
+	Action* action = sInstance.fActionMap[msgWhat];
 	return action->pressed;
 }
+
+
 bool
 ActionManager::IsEnabled(int32 msgWhat)
 {
-	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+	if (sInstance.fActionMap.find(msgWhat) == sInstance.fActionMap.end())
 		return false;
-	Action* action = instance.fActionMap[msgWhat];
 
+	Action* action = sInstance.fActionMap[msgWhat];
 	return action->enabled;
 }
 
@@ -169,11 +181,11 @@ ActionManager::IsEnabled(int32 msgWhat)
 BMessage*
 ActionManager::GetMessage(int32 msgWhat, BMenu* menu)
 {
-	if (instance.fActionMap.find(msgWhat) == instance.fActionMap.end())
+	if (sInstance.fActionMap.find(msgWhat) == sInstance.fActionMap.end())
 		return nullptr;
-	Action* action = instance.fActionMap[msgWhat];
 
-	for (int i=0; i<action->menuItemList.CountItems();i++)
+	Action* action = sInstance.fActionMap[msgWhat];
+	for (int32 i = 0; i < action->menuItemList.CountItems(); i++)
 		if (action->menuItemList.ItemAt(i)->Menu() == menu)
 			return action->menuItemList.ItemAt(i)->Message();
 

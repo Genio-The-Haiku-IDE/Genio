@@ -70,9 +70,13 @@ void
 SwitchBranchMenu::AttachedToWindow()
 {
 	if (fDetectActiveProject) {
+		auto activeProject = gMainWindow->GetActiveProject();
 		// GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
 		// fActiveProjectPath = window->GetActiveProject()->Path().String();
-		fActiveProjectPath = gMainWindow->GetActiveProject()->Path().String();
+		if (activeProject != nullptr)
+			fActiveProjectPath = activeProject->Path().String();
+		else
+			fActiveProjectPath = "";
 	}
 	_BuildMenu();
 

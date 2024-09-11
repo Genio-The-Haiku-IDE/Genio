@@ -14,6 +14,7 @@
 #include <StringView.h>
 #include <Window.h>
 
+#include "ActionManager.h"
 #include "Editor.h"
 #include "EditorTabManager.h"
 #include "GenioWindow.h"
@@ -292,6 +293,17 @@ private:
 						{"start:character", position.character}});
 			renameItem->SetEnabled((position.line != -1 && position.character != -1));
 			optionsMenu->AddItem(renameItem);
+			optionsMenu->AddSeparatorItem();
+
+			ActionManager::AddItem(MSG_GOTODEFINITION, optionsMenu,
+					new GMessage{
+						{"index", index}});
+			ActionManager::AddItem(MSG_GOTODECLARATION, optionsMenu,
+					new GMessage{
+						{"index", index}});
+			ActionManager::AddItem(MSG_GOTOIMPLEMENTATION, optionsMenu,
+					new GMessage{
+						{"index", index}});
 			optionsMenu->SetTargetForItems(Target());
 			optionsMenu->Go(ConvertToScreen(where), true);
 		}
@@ -398,6 +410,16 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 				_RenameSymbol(msg);
 			break;
 		}
+		case MSG_GOTODEFINITION:
+		case MSG_GOTODECLARATION:
+		case MSG_GOTOIMPLEMENTATION:
+		{
+			if (_GoToSymbol(msg)) {;
+				BMessage message(msg->what);
+				Window()->PostMessage(&message);
+			}
+			break;
+		}
 		case kMsgSort:
 		{
 			sSorted = !sSorted;
@@ -439,7 +461,7 @@ FunctionsOutlineView::SelectSymbolByCaretPosition(int32 position)
 BListItem*
 FunctionsOutlineView::_RecursiveSymbolByCaretPosition(int32 position, BListItem* parent)
 {
-	for (int32 i = 0; i< fListView->CountItemsUnder(parent, true); i++) {
+	for (int32 i = 0; i < fListView->CountItemsUnder(parent, true); i++) {
 		SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemUnderAt(parent, true, i));
 		if (sym == nullptr)
 			return nullptr;

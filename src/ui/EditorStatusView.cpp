@@ -146,7 +146,7 @@ StatusView::MouseMoved(BPoint where, uint32 transit, const BMessage* message)
 	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
 		BRect cellRect = _GetCellRect(kEditorConfig);
 		if (where.x < cellRect.right &&	where.x > cellRect.left) {
-			if (fCellText[kEditorConfig] == "\xF0\x9F\x97\x8E")
+			if (fCellText[kEditorConfig] == BString(EDITORCONFIG_YES_GLYPH))
 				SetToolTip(B_TRANSLATE("Settings in .editorconfig applied"));
 			else
 				SetToolTip(B_TRANSLATE("Global settings applied"));

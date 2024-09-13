@@ -26,6 +26,9 @@ class BPopUpMenu;
 class BScrollView;
 class Editor;
 
+#define EDITORCONFIG_YES_GLYPH "\xF0\x9F\x97\x8E"
+#define EDITORCONFIG_NO_GLYPH "\xF0\x9F\x8C\x90"
+
 namespace editor {
 
 class StatusView : public controls::StatusView {

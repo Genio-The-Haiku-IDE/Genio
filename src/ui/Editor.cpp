@@ -1197,7 +1197,7 @@ Editor::ReplaceAndFindPrevious(const BString& selection,
 	int retValue = REPLACE_NONE;
 	int position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 
-	if (IsSearchSelected(selection, flags) == true) {
+	if (IsSearchSelected(selection, flags)) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
 		SendMessage(SCI_SETTARGETRANGE, position, 0);
 		retValue = REPLACE_DONE;
@@ -1211,7 +1211,7 @@ Editor::ReplaceAndFindPrevious(const BString& selection,
 	if (position != -1) {
 		SendMessage(SCI_SETSEL, position + selection.Length(), position);
 		retValue = REPLACE_DONE;
-	} else if (wrap == true) {
+	} else if (wrap) {
 		// position == -1: not found or reached file start, ensue second case
 		int endDoc = SendMessage(SCI_GETTEXTLENGTH, UNSET, UNSET);
 		SendMessage(SCI_SETTARGETRANGE, endDoc, 0);
@@ -1235,8 +1235,7 @@ Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
 	int position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
 	int endPosition = SendMessage(SCI_GETTEXTLENGTH, UNSET, UNSET);
 
-	if (IsSearchSelected(selection, flags) == true) {
-		//SendMessage(SCI_CHARRIGHT, UNSET, UNSET);
+	if (IsSearchSelected(selection, flags)) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
 		SendMessage(SCI_SETTARGETRANGE, position + replacement.Length(), endPosition);
 		retValue = REPLACE_DONE;
@@ -1249,7 +1248,7 @@ Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
 	if (position != -1) {
 		SendMessage(SCI_SETSEL, position, position + selection.Length());
 		retValue = REPLACE_DONE;
-	} else if (wrap == true) {
+	} else if (wrap) {
 		// position == -1: not found or reached file end, ensue second case
 		SendMessage(SCI_TARGETWHOLEDOCUMENT, UNSET, UNSET);
 		position = SendMessage(SCI_SEARCHINTARGET, selection.Length(),

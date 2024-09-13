@@ -1493,7 +1493,7 @@ Editor::UpdateStatusBar()
 	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());
 	update.AddString("readOnly", ModeString());
 	update.AddString("eol", _EndOfLineString());
-	update.AddString("editorconfig", fHasEditorConfig ? "\xF0\x9F\x97\x8E" : "\xF0\x9F\x8C\x90");
+	update.AddString("editorconfig", fHasEditorConfig ? EDITORCONFIG_YES_GLYPH : EDITORCONFIG_NO_GLYPH);
 	update.AddString("trim_trialing_whitespace", fEditorConfig.TrimTrailingWhitespace ? "TRIM" : "NOTRIM");
 	update.AddString("indent_style", fEditorConfig.IndentStyle == IndentStyle::Tab ? "TAB" : "SPACE");
 	update.AddInt32("indent_size", fEditorConfig.IndentSize);

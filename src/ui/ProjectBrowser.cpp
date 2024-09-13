@@ -701,6 +701,8 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	fProjectProjectItemList.RemoveItem(listItem);
 	fProjectList.RemoveItem(project);
 
+	if (CountItems() == 0)
+		AddItem(new StyledItem(B_TRANSLATE("Drop folder here to add as new project")));
 	Invalidate();
 }
 
@@ -708,6 +710,9 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 void
 ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
+	if (CountItems() == 1 && dynamic_cast<ProjectItem*>(ItemAt(0)) == nullptr)
+		RemoveItem(ItemAt(0));
+
 	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
 	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
 	SortItemsUnder(nullptr, false, ProjectBrowser::_CompareProjectItems);

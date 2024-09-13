@@ -628,6 +628,9 @@ ProjectBrowser::AttachedToWindow()
 	BMessage message(kTick);
 	if (sAnimationTickRunner == nullptr)
 		sAnimationTickRunner = new BMessageRunner(BMessenger(this), &message, bigtime_t(100000));
+
+	if (CountItems() == 0)
+		AddItem(new StyledItem(B_TRANSLATE("Drop folder here to add as new project")));
 }
 
 
@@ -703,6 +706,7 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 
 	if (CountItems() == 0)
 		AddItem(new StyledItem(B_TRANSLATE("Drop folder here to add as new project")));
+
 	Invalidate();
 }
 

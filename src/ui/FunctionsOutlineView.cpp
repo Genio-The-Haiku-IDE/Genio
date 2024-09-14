@@ -59,11 +59,10 @@ private:
 void
 SymbolListItem::SetIconAndTooltip()
 {
+	SymbolKind symbolKind;
+	Details().FindInt32("kind", reinterpret_cast<int32*>(&symbolKind));
 	BString iconName;
 	BString toolTip;
-	int32 kind;
-	Details().FindInt32("kind", &kind);
-	SymbolKind symbolKind = static_cast<SymbolKind>(kind);
 
 	switch (symbolKind) {
 		case SymbolKind::File:
@@ -178,8 +177,8 @@ SymbolListItem::SetIconAndTooltip()
 		SetIcon(iconName.Prepend("symbol-"));
 
 	if (!toolTip.IsEmpty()) {
-		BString detail  = Details().GetString("detail", "");
-		if (detail.IsEmpty() == false) {
+		const BString detail  = Details().GetString("detail", "");
+		if (!detail.IsEmpty()) {
 			toolTip.Append("\n").Append(detail);
 		}
 		SetToolTipText(toolTip);
@@ -207,7 +206,10 @@ CompareItems(const BListItem* itemA, const BListItem* itemB)
 static int
 CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 {
-	return BPrivate::NaturalCompare(((BStringItem*)itemA)->Text(), ((BStringItem*)itemB)->Text());
+	return BPrivate::NaturalCompare(
+		static_cast<const BStringItem*>(itemA)->Text(),
+		static_cast<const BStringItem*>(itemB)->Text()
+	);
 }
 
 
@@ -232,7 +234,8 @@ public:
 					else
 						SetToolTip("");
 				}
-			}
+			} else
+				SetToolTip("");
 		}
 	}
 
@@ -264,14 +267,11 @@ protected:
 private:
 	void _ShowPopupMenu(BPoint where)
 	{
-		auto optionsMenu = new BPopUpMenu("Options", false, false);
 		auto index = IndexOf(where);
 		if (index >= 0) {
 			auto item = dynamic_cast<SymbolListItem*>(ItemAt(index));
-			if (item == nullptr) {
-				delete optionsMenu;
+			if (item == nullptr)
 				return;
-			}
 
 			BMessage symbol;
 			Position position;
@@ -279,6 +279,7 @@ private:
 			position.character = symbol.GetInt32("start:character", -1);
 			position.line = symbol.GetInt32("start:line", -1);
 
+			auto optionsMenu = new BPopUpMenu("Options", false, false);
 			optionsMenu->AddItem(
 				new BMenuItem(B_TRANSLATE("Go to symbol"),
 					new GMessage{
@@ -296,8 +297,8 @@ private:
 
 			optionsMenu->SetTargetForItems(Target());
 			optionsMenu->Go(ConvertToScreen(where), true);
+			delete optionsMenu;
 		}
-		delete optionsMenu;
 	}
 };
 
@@ -364,6 +365,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			switch (code) {
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
+					LogError("MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED");
 					entry_ref newRef;
 					msg->FindRef("ref", &newRef);
 					Editor* editor = gMainWindow->TabManager()->SelectedEditor();
@@ -441,7 +443,7 @@ FunctionsOutlineView::SelectSymbolByCaretPosition(int32 position)
 BListItem*
 FunctionsOutlineView::_RecursiveSymbolByCaretPosition(int32 position, BListItem* parent)
 {
-	for(int32 i=0;i<fListView->CountItemsUnder(parent, true);i++) {
+	for (int32 i = 0; i < fListView->CountItemsUnder(parent, true); i++) {
 		SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemUnderAt(parent, true, i));
 		if (sym == nullptr)
 			return nullptr;
@@ -589,3 +591,4 @@ FunctionsOutlineView::_RenameSymbol(BMessage *msg)
 	BMessage go(MSG_RENAME);
 	Window()->PostMessage(&go);
 }
+

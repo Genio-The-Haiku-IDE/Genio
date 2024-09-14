@@ -33,6 +33,7 @@
 #include <StringItem.h>
 
 #include "ActionManager.h"
+#include "argv_split.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "ConsoleIOView.h"
@@ -54,6 +55,7 @@
 #include "Languages.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
+#include "MTermView.h"
 #include "ProblemsPanel.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
@@ -64,13 +66,11 @@
 #include "SourceControlPanel.h"
 #include "SwitchBranchMenu.h"
 #include "Task.h"
-#include "TemplatesMenu.h"
 #include "TemplateManager.h"
+#include "TemplatesMenu.h"
 #include "TextUtils.h"
-#include "Utils.h"
-#include "argv_split.h"
-#include "MTermView.h"
 #include "ToolsMenu.h"
+#include "Utils.h"
 
 
 #undef B_TRANSLATION_CONTEXT

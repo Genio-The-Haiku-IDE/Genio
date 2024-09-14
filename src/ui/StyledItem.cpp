@@ -138,7 +138,7 @@ StyledItem::DrawItemPrepare(BView* owner, BRect bounds, bool complete)
 		return;
 
 	if (IsSelected() || complete) {
-		rgb_color oldLowColor = owner->LowColor();
+		const rgb_color oldLowColor = owner->LowColor();
 		rgb_color color;
 		if (IsSelected())
 			color = ui_color(B_LIST_SELECTED_BACKGROUND_COLOR);
@@ -179,28 +179,30 @@ BRect
 StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
 					const float &iconSize)
 {
-	BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
-	BString iconName = fIconName;
+	BString iconPrefix;
 	if (fIconFollowsTheme) {
 		const int32 kBrightnessBreakValue = 126;
-		rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+		const rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 		if (base.Brightness() >= kBrightnessBreakValue)
-			iconName.Prepend("light-");
+			iconPrefix = "light-";
 		else
-			iconName.Prepend("dark-");
+			iconPrefix = "dark-";
 	}
+
 	BPoint iconStartingPoint(itemBounds.left + 4.0f,
 		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
 
-	if (GetVectorIcon(iconName.String(), icon) == B_OK) {
+	BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
+	BString iconFullName = iconPrefix.Append(fIconName);
+	if (GetVectorIcon(iconFullName.String(), icon) == B_OK) {
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->DrawBitmap(icon, iconStartingPoint);
 	} else {
-		BString error(fIconName);
+		BString error(iconFullName);
 		error << ": icon not found!";
 		debugger(error.String());
 	}
-
 	delete icon;
+
 	return BRect(iconStartingPoint, BSize(iconSize, iconSize));
 }

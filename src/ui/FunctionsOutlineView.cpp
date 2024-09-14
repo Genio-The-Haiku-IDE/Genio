@@ -406,6 +406,8 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 		}
 		case kMsgRenameSymbol:
 		{
+			// TODO: GoToSymbol is not synchronous,
+			// so this won't work always correctly
 			if (_GoToSymbol(msg) == B_OK)
 				_RenameSymbol(msg);
 			break;
@@ -414,7 +416,8 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 		case MSG_GOTODECLARATION:
 		case MSG_GOTOIMPLEMENTATION:
 		{
-			if (_GoToSymbol(msg)) {;
+			// TODO: see above
+			if (_GoToSymbol(msg) == B_OK) {;
 				BMessage message(msg->what);
 				Window()->PostMessage(&message);
 			}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, The Genio Team
+ * Copyright 2023-2024, The Genio Team
  * All rights reserved. Distributed under the terms of the MIT license.
  * Authors:
  * 		Nexus6 
@@ -127,20 +127,19 @@ const property_info sEditorProperties[] = {
 void
 GenioApp::_HandleScripting(BMessage* data)
 {
-	BMessage reply(B_REPLY);
-	status_t result = B_BAD_SCRIPT_SYNTAX;
 	const char* property = nullptr;
 	int32 index = -1;
 	int32 what = 0;
 	BMessage specifier;
-	Editor* editor = nullptr;
-
 	status_t status = data->GetCurrentSpecifier(&index, &specifier, &what, &property);
-
 	if (status != B_OK || index == -1) {
 		BApplication::MessageReceived(data);
 		return;
 	}
+
+	status_t result = B_BAD_SCRIPT_SYNTAX;
+	BMessage reply(B_REPLY);
+	Editor* editor = nullptr;
 
 	BPropertyInfo propertyInfo(const_cast<property_info*>(sGeneralProperties));
 	int32 match = propertyInfo.FindMatch(data, index, &specifier, what, property);
@@ -182,7 +181,6 @@ GenioApp::_HandleScripting(BMessage* data)
 			data->SetCurrentSpecifier(0);
 			if (data->GetCurrentSpecifier(&index, &specifier, &what, &property) != B_OK)
 				break;
-			//specifier.PrintToStream();
 
 			editor = fGenioWindow->TabManager()->SelectedEditor();
 
@@ -242,9 +240,7 @@ GenioApp::_HandleScripting(BMessage* data)
 					if (editor != nullptr) {
 						BString text;
 						int32 line = -1;
-
-						if (specifier.FindInt32("index", &line) == B_OK)
-						{
+						if (specifier.FindInt32("index", &line) == B_OK) {
 							if (data->what == B_SET_PROPERTY) {
 								if (data->FindString("data", &text) == B_OK) {
 									editor->InsertLine(text, line);

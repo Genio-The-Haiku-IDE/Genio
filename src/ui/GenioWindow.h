@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "GMessage.h"
-#include "ResourceImport.h"
 
 enum {
 	kProjectsOutline = 0,
@@ -68,9 +67,10 @@ public:
 	void						UpdateMenu(const void* sender, const entry_ref* ref);
 	ProjectFolder*				GetActiveProject() const;
 	void						SetActiveProject(ProjectFolder *project);
-	ProjectBrowser*		GetProjectBrowser() const;
+	ProjectBrowser*				GetProjectBrowser() const;
 
 	EditorTabManager*			TabManager() const;
+	::TemplatesMenu*			TemplatesMenu();
 
 private:
 			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
@@ -175,7 +175,7 @@ private:
 
 private:
 			BMenuBar*			fMenuBar;
-			TemplatesMenu*		fFileNewMenuItem;
+			::TemplatesMenu*	fFileNewMenuItem;
 
 			BMenu*				fLineEndingsMenu;
 			BMenuItem*			fLineEndingCRLF;

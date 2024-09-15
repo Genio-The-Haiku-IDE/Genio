@@ -9,7 +9,6 @@
 #include <OutlineListView.h>
 #include <ObjectList.h>
 
-#include "TemplatesMenu.h"
 
 enum {
 	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
@@ -85,7 +84,6 @@ private:
 	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
 
 private:
-	TemplatesMenu*			fFileNewProjectMenuItem;
 	bool					fIsBuilding;
 	GenioWatchingFilter*	fGenioWatchingFilter;
 

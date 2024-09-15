@@ -14,7 +14,7 @@
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "SwitchBranchMenu.h"
-#include "TemplateManager.h"
+#include "TemplatesMenu.h"
 #include "Utils.h"
 
 #include <Alert.h>
@@ -46,7 +46,6 @@ static BMessageRunner* sAnimationTickRunner;
 ProjectBrowser::ProjectBrowser()
 	:
 	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST),
-	fFileNewProjectMenuItem(nullptr),
 	fIsBuilding(false)
 {
 	fGenioWatchingFilter = new GenioWatchingFilter();
@@ -431,14 +430,6 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 
 	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
 
-	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
-		new BMessage(MSG_PROJECT_MENU_NEW_FILE), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
-		TemplateManager::GetDefaultTemplateDirectory(),
-		TemplateManager::GetUserTemplateDirectory(),
-		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
-
-	fFileNewProjectMenuItem->SetEnabled(true);
-
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
 		closePrj->AddPointer("project", (void*)project);
@@ -476,8 +467,9 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 		}
 	}
 
-	projectMenu->AddItem(fFileNewProjectMenuItem);
-	fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
+	::TemplatesMenu* templatesMenu = gMainWindow->TemplatesMenu();
+	projectMenu->AddItem(templatesMenu);
+	templatesMenu->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 	projectMenu->AddSeparatorItem();
 
 	SelectionChanged();
@@ -809,7 +801,6 @@ ProjectBrowser::SelectionChanged()
 {
 	ProjectItem* selected = GetSelectedProjectItem();
 	if (selected != nullptr) {
-		GenioWindow *window = (GenioWindow*)Window();
 		BEntry entry(selected->GetSourceItem()->EntryRef());
 		if (entry.IsFile()) {
 			// If this is a file, get the parent directory
@@ -817,10 +808,7 @@ ProjectBrowser::SelectionChanged()
 		}
 		entry_ref newRef;
 		entry.GetRef(&newRef);
-		window->UpdateMenu(selected, &newRef);
-
-		if (fFileNewProjectMenuItem != nullptr)
-			fFileNewProjectMenuItem->SetSender(selected, &newRef);
+		gMainWindow->UpdateMenu(selected, &newRef);
 	}
 }
 

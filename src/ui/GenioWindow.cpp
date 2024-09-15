@@ -1304,6 +1304,13 @@ GenioWindow::TabManager() const
 }
 
 
+::TemplatesMenu*
+GenioWindow::TemplatesMenu()
+{
+	return fFileNewMenuItem;
+}
+
+
 //Freely inspired by the haiku Terminal fullscreen function.
 void
 GenioWindow::_ToogleScreenMode(int32 action)
@@ -3000,9 +3007,7 @@ GenioWindow::_InitMenu()
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
 
-	//ActionManager::AddItem(MSG_FILE_NEW,      fileMenu);
-
-	fileMenu->AddItem(fFileNewMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
+	fileMenu->AddItem(fFileNewMenuItem = new ::TemplatesMenu(this, B_TRANSLATE("New"),
 			new BMessage(MSG_FILE_NEW), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
 			TemplateManager::GetDefaultTemplateDirectory(),
 			TemplateManager::GetUserTemplateDirectory(),

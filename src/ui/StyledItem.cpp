@@ -133,7 +133,6 @@ StyledItem::SetIconFollowsTheme(bool follow)
 void
 StyledItem::DrawItemPrepare(BView* owner, BRect bounds, bool complete)
 {
-	// most of this code. See if there's a way to move it to a common method
 	if (Text() == NULL)
 		return;
 

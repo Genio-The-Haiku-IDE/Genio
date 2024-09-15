@@ -209,9 +209,9 @@ GenioApp::_HandleScripting(BMessage* data)
 				{
 					if (data->what == B_GET_PROPERTY) {
 						if (editor != nullptr)
-								result = reply.AddString("result", editor->GetSymbol());
-						break;
+							result = reply.AddString("result", editor->GetSymbol());
 					}
+					break;
 				}
 				case Properties::EditorProperties::Text:
 				{

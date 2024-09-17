@@ -22,11 +22,14 @@
 #include <Directory.h>
 #include <Entry.h>
 #include <File.h>
+#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
 #include <Looper.h>
 #include <MenuItem.h>
 #include <MessageRunner.h>
 #include <Mime.h>
 #include <NaturalCompare.h>
+#include <OutlineListView.h>
 #include <Path.h>
 #include <PopUpMenu.h>
 #include <StringList.h>
@@ -43,14 +46,34 @@ const uint32 kTick = 'tick';
 
 static BMessageRunner* sAnimationTickRunner;
 
+class ProjectOutlineListView : public BOutlineListView {
+public:
+					ProjectOutlineListView();
+	virtual 		~ProjectOutlineListView();
+
+	virtual void	MouseDown(BPoint where);
+	virtual void	MouseMoved(BPoint point, uint32 transit, const BMessage* message);
+	virtual void	AttachedToWindow();
+	virtual void	DetachedFromWindow();
+	virtual void	MessageReceived(BMessage* message);
+
+	virtual void	SelectionChanged();
+
+};
+
+
 ProjectBrowser::ProjectBrowser()
 	:
-	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST),
+	BView("ProjectBrowser", B_WILL_DRAW),
 	fFileNewProjectMenuItem(nullptr),
 	fIsBuilding(false)
 {
+	fOutlineListView = new ProjectOutlineListView();
+	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
+		.AddGroup(B_HORIZONTAL)
+			.Add(fOutlineListView)
+		.End();
 	fGenioWatchingFilter = new GenioWatchingFilter();
-	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);
 }
 
@@ -86,10 +109,10 @@ ProjectBrowser::_CreatePath(BPath pathToCreate)
 			LogTrace("Creating path %s", pathToCreate.Path());
 			ProjectItem* newItem = _CreateNewProjectItem(parentItem, pathToCreate);
 
-			if (AddUnder(newItem,parentItem)) {
+			if (fOutlineListView->AddUnder(newItem,parentItem)) {
 				LogDebugF("AddUnder(%s,%s) (Parent %s)", newItem->Text(), parentItem->Text(), parent.Path());
-				SortItemsUnder(parentItem, true, ProjectBrowser::_CompareProjectItems);
-				Collapse(newItem);
+				//SortItemsUnder(parentItem, true, ProjectBrowser::_CompareProjectItems);
+				fOutlineListView->Collapse(newItem);
 			}
 			return newItem;
 		}
@@ -132,7 +155,7 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 			}
 			if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 				if (LockLooper()) {
-					Select(IndexOf(item));
+					fOutlineListView->Select(fOutlineListView->IndexOf(item));
 					BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
 					closePrj.AddPointer("project", item->GetSourceItem());
 					Window()->PostMessage(&closePrj);
@@ -150,8 +173,8 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 					UnlockLooper();
 				}
 			} else {
-				RemoveItem(item);
-				SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
+				fOutlineListView->RemoveItem(item);
+				//SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
 			}
 			break;
 		}
@@ -170,7 +193,7 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 					// the project folder is being renamed
 					if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 						if (LockLooper()) {
-							Select(IndexOf(item));
+							fOutlineListView->Select(fOutlineListView->IndexOf(item));
 							BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
 							closePrj.AddPointer("project", item->GetSourceItem());
 							Window()->PostMessage(&closePrj);
@@ -195,8 +218,8 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 							UnlockLooper();
 						}
 					} else {
-						RemoveItem(item);
-						SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
+						fOutlineListView->RemoveItem(item);
+						//SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
 					}
 				}
 			} else {
@@ -217,7 +240,7 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 								entry_ref entryRef;
 								newPathEntry.GetRef(&entryRef);
 								_ProjectFolderScan(parentItem, &entryRef, parentItem->GetSourceItem()->GetProjectFolder());
-								SortItemsUnder(parentItem, false, ProjectBrowser::_CompareProjectItems);
+								//SortItemsUnder(parentItem, false, ProjectBrowser::_CompareProjectItems);
 							} else {
 								//Plain file
 								_CreatePath(destination);
@@ -248,7 +271,7 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 									if (get_ref_for_path(newPath, &newRef) == B_OK) {
 										item->SetText(newName);
 										item->GetSourceItem()->UpdateEntryRef(newRef);
-										SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
+										//SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
 									} else {
 										LogError("Can't find ref for newPath[%s]", newPath.String());
 										return;
@@ -259,20 +282,20 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 										LogError("Can't find an item to move oldPath [%s]", oldPath.String());
 										return;
 									}
-									ProjectItem *destinationItem = GetProjectItemByPath(bp_newParent.Path());
+									/*ProjectItem *destinationItem = GetProjectItemByPath(bp_newParent.Path());
 									if (!item) {
 										LogError("Can't find an item to move newParent [%s]", bp_newParent.Path());
 										return;
-									}
-									bool status = RemoveItem(item);
+									}*/
+									bool status = fOutlineListView->RemoveItem(item);
 									if (status) {
-										SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
+									/*	fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item), true, ProjectBrowser::_CompareProjectItems);
 
 										ProjectItem *newItem = _CreateNewProjectItem(item, bp_newPath);
-										status = AddUnder(newItem, destinationItem);
+										status = fOutlineListView->AddUnder(newItem, destinationItem);
 										if (status) {
-											SortItemsUnder(destinationItem, true, ProjectBrowser::_CompareProjectItems);
-										}
+											fOutlineListView->SortItemsUnder(destinationItem, true, ProjectBrowser::_CompareProjectItems);
+										}*/
 									}
 								}
 							}
@@ -308,16 +331,16 @@ ProjectBrowser::MessageReceived(BMessage* message)
 				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find index!");
 				return;
 			}
-			ProjectItem* item = dynamic_cast<ProjectItem*>(ItemAt(index));
+			ProjectItem* item = dynamic_cast<ProjectItem*>(fOutlineListView->ItemAt(index));
 			if (item == nullptr) {
 				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find item at index %d", index);
 				return;
 			}
-			if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
+			/*if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 				ExpandOrCollapse(item, !item->IsExpanded());
 				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) ExpandOrCollapse(%s)", item->GetSourceItem()->Name().String());
 				return;
-			}
+			}*/
 
 			BMessage msg(B_REFS_RECEIVED);
 			msg.AddRef("refs", item->GetSourceItem()->EntryRef());
@@ -385,7 +408,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					break;
 				}
 				default:
-					BOutlineListView::MessageReceived(message);
+					BView::MessageReceived(message);
 					break;
 			}
 			break;
@@ -395,12 +418,12 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			ProjectItem* item = (ProjectItem*)message->GetPointer("parent_item", nullptr);
 			entry_ref ref;
 			if (item != nullptr && message->FindRef("ref", &ref) == B_OK) {
-				int32 howMany = BOutlineListView::CountItemsUnder(item, true);
+				int32 howMany = fOutlineListView->CountItemsUnder(item, true);
 				for (int32 i = 0; i < howMany; i++) {
-					ProjectItem* subItem = (ProjectItem*)BOutlineListView::ItemUnderAt(item, true, i);
+					ProjectItem* subItem = (ProjectItem*)fOutlineListView->ItemUnderAt(item, true, i);
 					if (*subItem->GetSourceItem()->EntryRef() == ref) {
-						Select(IndexOf(subItem));
-						ScrollToSelection();
+						fOutlineListView->Select(fOutlineListView->IndexOf(subItem));
+						fOutlineListView->ScrollToSelection();
 						bool doRename = message->GetBool("rename", false);
 						if (doRename) {
 							InitRename(subItem);
@@ -412,7 +435,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			break;
 		}
 		default:
-			BOutlineListView::MessageReceived(message);
+			BView::MessageReceived(message);
 			break;
 	}
 }
@@ -480,7 +503,7 @@ ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
 	fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 	projectMenu->AddSeparatorItem();
 
-	SelectionChanged();
+	//SelectionChanged();
 
 	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
 	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
@@ -527,9 +550,9 @@ ProjectBrowser::GetProjectItemByPath(BString const& path) const
 		return nullptr;
 	}
 
-	const int32 countItems = FullListCountItems();
+	const int32 countItems = fOutlineListView->FullListCountItems();
 	for (int32 i = 0; i < countItems; i++) {
-		ProjectItem *item = dynamic_cast<ProjectItem*>(FullListItemAt(i));
+		ProjectItem *item = dynamic_cast<ProjectItem*>(fOutlineListView->FullListItemAt(i));
 		if (item != nullptr && *item->GetSourceItem()->EntryRef() == ref)
 			return item;
 	}
@@ -541,11 +564,11 @@ ProjectBrowser::GetProjectItemByPath(BString const& path) const
 ProjectItem*
 ProjectBrowser::GetSelectedProjectItem() const
 {
-	const int32 selection = CurrentSelection();
+	const int32 selection = fOutlineListView->CurrentSelection();
 	if (selection < 0)
 		return nullptr;
 
-	return dynamic_cast<ProjectItem*>(ItemAt(selection));
+	return dynamic_cast<ProjectItem*>(fOutlineListView->ItemAt(selection));
 }
 
 
@@ -612,9 +635,6 @@ ProjectBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 void
 ProjectBrowser::AttachedToWindow()
 {
-	BOutlineListView::AttachedToWindow();
-	BOutlineListView::SetTarget((BHandler*)this, Window());
-
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
@@ -629,8 +649,8 @@ ProjectBrowser::AttachedToWindow()
 	if (sAnimationTickRunner == nullptr)
 		sAnimationTickRunner = new BMessageRunner(BMessenger(this), &message, bigtime_t(100000));
 
-	if (CountItems() == 0)
-		AddItem(new StyledItem(B_TRANSLATE("Drop folder here to add as new project")));
+	if (fOutlineListView->CountItems() == 0)
+		fOutlineListView->AddItem(new StyledItem(B_TRANSLATE("Drop folder here to add as new project")));
 }
 
 
@@ -643,8 +663,6 @@ ProjectBrowser::DetachedFromWindow()
 
 	ProjectItem::DisposeAnimationIcons();
 
-	BOutlineListView::DetachedFromWindow();
-
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
@@ -656,7 +674,7 @@ ProjectBrowser::DetachedFromWindow()
 
 
 /* virtual */
-void
+/*void
 ProjectBrowser::MouseDown(BPoint where)
 {
 	int32 buttons = -1;
@@ -668,23 +686,7 @@ ProjectBrowser::MouseDown(BPoint where)
 	if ( buttons == B_MOUSE_BUTTON(2))
 		_ShowProjectItemPopupMenu(where);
 }
-
-
-void
-ProjectBrowser::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
-{
-	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
-		auto index = IndexOf(point);
-		if (index >= 0) {
-			ProjectItem *item = reinterpret_cast<ProjectItem*>(ItemAt(index));
-			if (item->HasToolTip()) {
-				SetToolTip(item->GetToolTipText());
-			} else {
-				SetToolTip("");
-			}
-		}
-	}
-}
+*/
 
 
 void
@@ -697,15 +699,15 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	}
 	ProjectItem* listItem = GetProjectItemForProject(project);
 	if (listItem)
-		RemoveItem(listItem);
+		fOutlineListView->RemoveItem(listItem);
 	else
 		LogErrorF("Can't find ProjectItem for path [%s]", projectPath.String());
 
 	fProjectProjectItemList.RemoveItem(listItem);
 	fProjectList.RemoveItem(project);
 
-	if (CountItems() == 0)
-		AddItem(new StyledItem(B_TRANSLATE("Drop folder here to add as new project")));
+	if (fOutlineListView->CountItems() == 0)
+		fOutlineListView->AddItem(new StyledItem(B_TRANSLATE("Drop folder here to add as new project")));
 
 	Invalidate();
 }
@@ -714,12 +716,13 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 void
 ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
-	if (CountItems() == 1 && dynamic_cast<ProjectItem*>(ItemAt(0)) == nullptr)
-		RemoveItem(ItemAt(0));
+	if (fOutlineListView->CountItems() == 1
+		&& dynamic_cast<ProjectItem*>(fOutlineListView->ItemAt(0)) == nullptr)
+		fOutlineListView->RemoveItem(fOutlineListView->ItemAt(0));
 
 	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
 	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
-	SortItemsUnder(nullptr, false, ProjectBrowser::_CompareProjectItems);
+	//fOutlineListView->SortItemsUnder(nullptr, false, ProjectBrowser::_CompareProjectItems);
 
 	const BString projectPath = project->Path();
 	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
@@ -745,11 +748,11 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 		SourceItem *sourceItem = new SourceItem(*ref);
 		sourceItem->SetProjectFolder(projectFolder);
 		newItem = new ProjectItem(sourceItem);
-		AddUnder(newItem, item);
-		Collapse(newItem);
+		fOutlineListView->AddUnder(newItem, item);
+		fOutlineListView->Collapse(newItem);
 	} else {
 		newItem = new ProjectItem(projectFolder);
-		AddItem(newItem);
+		fOutlineListView->AddItem(newItem);
 	}
 
 	BEntry entry(ref);
@@ -766,7 +769,7 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 	return newItem;
 }
 
-
+/*
 int
 ProjectBrowser::_CompareProjectItems(const BListItem* a, const BListItem* b)
 {
@@ -802,8 +805,8 @@ ProjectBrowser::_CompareProjectItems(const BListItem* a, const BListItem* b)
 
 	return 0;
 }
-
-
+*/
+/*
 void
 ProjectBrowser::SelectionChanged()
 {
@@ -823,17 +826,17 @@ ProjectBrowser::SelectionChanged()
 			fFileNewProjectMenuItem->SetSender(selected, &newRef);
 	}
 }
-
+*/
 
 void
 ProjectBrowser::InitRename(ProjectItem *item)
 {
 	//ensure the item is visible!
-	if (Superitem(item)->IsExpanded() == false)
-		Expand(Superitem(item));
+	if (fOutlineListView->Superitem(item)->IsExpanded() == false)
+		fOutlineListView->Expand(fOutlineListView->Superitem(item));
 
-	Select(IndexOf(item));
-	ScrollToSelection();
+	fOutlineListView->Select(fOutlineListView->IndexOf(item));
+	fOutlineListView->ScrollToSelection();
 
 	item->InitRename(this, new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
 	Invalidate();
@@ -870,8 +873,8 @@ ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 {
 	ProjectItem* item = GetProjectItemForProject(projectFolder);
 	if (item != nullptr) {
-		Select(IndexOf(item));
-		ScrollToSelection();
+		fOutlineListView->Select(fOutlineListView->IndexOf(item));
+		fOutlineListView->ScrollToSelection();
 	}
 }
 
@@ -909,10 +912,10 @@ ProjectBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
 		BStringList list;
 		fullpath.Split("/", true, list);
 		for (int32 i = 0; i < list.CountStrings(); i++) {
-			for (int32 j = 0; j < CountItemsUnder(projectItem, true); j++) {
-				ProjectItem* pItem = (ProjectItem*)ItemUnderAt(projectItem, true, j);
+			for (int32 j = 0; j < fOutlineListView->CountItemsUnder(projectItem, true); j++) {
+				ProjectItem* pItem = (ProjectItem*)fOutlineListView->ItemUnderAt(projectItem, true, j);
 				if (pItem->GetSourceItem()->Name().Compare(list.StringAt(i)) == 0) {
-					Expand(projectItem);
+					fOutlineListView->Expand(projectItem);
 
 					projectItem = pItem;
 					found = (i == list.CountStrings() - 1);
@@ -922,8 +925,8 @@ ProjectBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
 		}
 		if (found) {
 			LogInfoF("Found ProjectItem! %s", projectItem->GetSourceItem()->Name().String());
-			Select(IndexOf(projectItem));
-			ScrollToSelection();
+			fOutlineListView->Select(fOutlineListView->IndexOf(projectItem));
+			fOutlineListView->ScrollToSelection();
 		}
 	}
 }
@@ -933,4 +936,80 @@ const BObjectList<ProjectFolder>*
 ProjectBrowser::GetProjectList() const
 {
 	return &fProjectList;
+}
+
+
+// ProjectOutlineListView
+ProjectOutlineListView::ProjectOutlineListView()
+	:
+	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
+{
+	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+}
+
+
+/* virtual */
+ProjectOutlineListView::~ProjectOutlineListView()
+{
+}
+
+
+/* virtual */
+void
+ProjectOutlineListView::MouseDown(BPoint where)
+{
+	BOutlineListView::MouseDown(where);
+}
+
+
+/* virtual */
+void
+ProjectOutlineListView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
+{
+	BOutlineListView::MouseMoved(point, transit, message);
+
+	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
+		auto index = IndexOf(point);
+		if (index >= 0) {
+			ProjectItem *item = reinterpret_cast<ProjectItem*>(ItemAt(index));
+			if (item->HasToolTip()) {
+				SetToolTip(item->GetToolTipText());
+			} else {
+				SetToolTip("");
+			}
+		}
+	}
+}
+
+
+/* virtual */
+void
+ProjectOutlineListView::AttachedToWindow()
+{
+	BOutlineListView::AttachedToWindow();
+	BOutlineListView::SetTarget((BHandler*)this, Window());
+}
+
+
+/* virtual */
+void
+ProjectOutlineListView::DetachedFromWindow()
+{
+	BOutlineListView::DetachedFromWindow();
+}
+
+
+/* virtual */
+void
+ProjectOutlineListView::MessageReceived(BMessage* message)
+{
+	BOutlineListView::MessageReceived(message);
+}
+
+
+/* virtual */
+void
+ProjectOutlineListView::SelectionChanged()
+{
+	BOutlineListView::SelectionChanged();
 }

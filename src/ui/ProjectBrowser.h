@@ -6,7 +6,6 @@
 #define ProjectsFolderBrowser_H
 
 
-#include <OutlineListView.h>
 #include <ObjectList.h>
 
 #include "TemplatesMenu.h"
@@ -25,17 +24,16 @@ enum {
 	MSG_BROWSER_SELECT_ITEM				= 'sele'
 };
 
+class ProjectOutlineListView;
 class ProjectFolder;
 class ProjectItem;
 class GenioWatchingFilter;
 
-class ProjectBrowser : public BOutlineListView {
+class ProjectBrowser : public BView {
 public:
 					 ProjectBrowser();
 	virtual 		~ProjectBrowser();
 
-	virtual void	MouseDown(BPoint where);
-	virtual void	MouseMoved(BPoint point, uint32 transit, const BMessage* message);
 	virtual void	AttachedToWindow();
 	virtual void	DetachedFromWindow();
 	virtual void	MessageReceived(BMessage* message);
@@ -50,8 +48,6 @@ public:
 
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
-
-	virtual void	SelectionChanged();
 
 	void			InitRename(ProjectItem *item);
 
@@ -76,7 +72,7 @@ private:
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
 
-	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
+//	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
 
 	void			_UpdateNode(BMessage *message);
 
@@ -85,6 +81,7 @@ private:
 	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
 
 private:
+	ProjectOutlineListView*	fOutlineListView;
 	TemplatesMenu*			fFileNewProjectMenuItem;
 	bool					fIsBuilding;
 	GenioWatchingFilter*	fGenioWatchingFilter;

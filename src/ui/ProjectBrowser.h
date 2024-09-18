@@ -2,13 +2,12 @@
  * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef ProjectsFolderBrowser_H
-#define ProjectsFolderBrowser_H
+#pragma once
 
+#include <View.h>
 
 #include <ObjectList.h>
 
-#include "TemplatesMenu.h"
 
 enum {
 	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
@@ -48,6 +47,8 @@ public:
 
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
+
+	void			ExpandActiveProjects();
 
 	void			InitRename(ProjectItem *item);
 
@@ -89,6 +90,3 @@ private:
 	BObjectList<ProjectFolder>	fProjectList;
 	BObjectList<ProjectItem>	fProjectProjectItemList;
 };
-
-
-#endif // ProjectsFolderBrowser_H

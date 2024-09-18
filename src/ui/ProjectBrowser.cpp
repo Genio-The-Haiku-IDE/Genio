@@ -15,6 +15,7 @@
 #include "ProjectItem.h"
 #include "SwitchBranchMenu.h"
 #include "TemplateManager.h"
+#include "TemplatesMenu.h"
 #include "Utils.h"
 
 #include <Alert.h>
@@ -693,6 +694,20 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 			B_WATCH_RECURSIVELY, BMessenger(this));
 	if (status != B_OK)
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
+}
+
+
+void
+ProjectBrowser::ExpandActiveProjects()
+{
+	for (int32 i = 0; i < CountProjects(); i++) {
+		ProjectFolder* prj = ProjectAt(i);
+		ProjectItem* item = GetProjectItemForProject(prj);
+		if (prj->Active())
+			fOutlineListView->Expand(item);
+		else
+			fOutlineListView->Collapse(item);
+	}
 }
 
 

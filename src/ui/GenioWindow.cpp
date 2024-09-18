@@ -4559,15 +4559,8 @@ GenioWindow::_UpdateWindowTitle(const char* filePath)
 void
 GenioWindow::_CollapseOrExpandProjects()
 {
-	/*if (gCFG["auto_expand_collapse_projects"]) {
+	if (gCFG["auto_expand_collapse_projects"]) {
 		// Expand active project, collapse other
-		for (int32 i = 0; i < GetProjectBrowser()->CountProjects(); i++) {
-			ProjectFolder* prj = GetProjectBrowser()->ProjectAt(i);
-			ProjectItem* item = GetProjectBrowser()->GetProjectItemForProject(prj);
-			if (prj == fActiveProject)
-				GetProjectBrowser()->Expand(item);
-			else
-				fProjectsFolderBrowser->Collapse(item);
-		}
-	}*/
+		GetProjectBrowser()->ExpandActiveProjects();
+	}
 }

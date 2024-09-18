@@ -60,7 +60,13 @@ public:
 	virtual void	MessageReceived(BMessage* message);
 
 	virtual void	SelectionChanged();
+
 	static int 		CompareProjectItems(const BListItem* a, const BListItem* b);
+
+private:
+	void			_ShowProjectItemPopupMenu(BPoint where);
+
+	TemplatesMenu*	fFileNewProjectMenuItem;
 };
 
 
@@ -114,7 +120,6 @@ public:
 ProjectBrowser::ProjectBrowser()
 	:
 	BView("ProjectBrowser", B_WILL_DRAW),
-	fFileNewProjectMenuItem(nullptr),
 	fIsBuilding(false)
 {
 	fOutlineListView = new ProjectOutlineListView();
@@ -503,102 +508,6 @@ ProjectBrowser::MessageReceived(BMessage* message)
 }
 
 
-void
-ProjectBrowser::_ShowProjectItemPopupMenu(BPoint where)
-{
-	ProjectItem* projectItem = GetSelectedProjectItem();
-	if (projectItem == nullptr)
-		return;
-
-	ProjectFolder *project = GetProjectFromItem(projectItem);
-	if (project == nullptr)
-		return;
-
-	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
-
-	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
-		new BMessage(MSG_PROJECT_MENU_NEW_FILE), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
-		TemplateManager::GetDefaultTemplateDirectory(),
-		TemplateManager::GetUserTemplateDirectory(),
-		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
-
-	fFileNewProjectMenuItem->SetEnabled(true);
-
-	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
-		closePrj->AddPointer("project", (void*)project);
-		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"), closePrj);
-
-		BMessage* setActive = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
-		setActive->AddPointer("project", (void*)project);
-		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"), setActive);
-
-		BMessage* projSettings = new BMessage(MSG_PROJECT_SETTINGS);
-		projSettings->AddPointer("project", (void*)project);
-		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
-			projSettings);
-
-		projectMenu->AddItem(closeProjectMenuItem);
-		projectMenu->AddItem(setActiveProjectMenuItem);
-		projectMenu->AddItem(projectSettingsMenuItem);
-		closeProjectMenuItem->SetEnabled(true);
-		projectMenu->AddSeparatorItem();
-		projectMenu->AddItem(new SwitchBranchMenu(Window(), B_TRANSLATE("Switch to branch"),
-													new BMessage(MSG_GIT_SWITCH_BRANCH), project->Path()));
-		projectMenu->AddSeparatorItem();
-		BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),
-			new BMessage(MSG_BUILD_PROJECT));
-		BMenuItem* cleanMenuItem = new BMenuItem(B_TRANSLATE("Clean project"),
-			new BMessage(MSG_CLEAN_PROJECT));
-		projectMenu->AddItem(buildMenuItem);
-		projectMenu->AddItem(cleanMenuItem);
-		setActiveProjectMenuItem->SetEnabled(!project->Active());
-		if (!project->Active())
-			setActiveProjectMenuItem->SetEnabled(true);
-		if (fIsBuilding || !project->Active()) {
-			buildMenuItem->SetEnabled(false);
-			cleanMenuItem->SetEnabled(false);
-		}
-	}
-
-	projectMenu->AddItem(fFileNewProjectMenuItem);
-	fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
-	projectMenu->AddSeparatorItem();
-
-	//SelectionChanged();
-
-	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
-	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
-	if (isFolder || isFile) {
-		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
-			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),
-			new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
-		BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
-			new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
-		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
-			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
-			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
-
-		projectMenu->AddItem(openFileProjectMenuItem);
-		projectMenu->AddItem(deleteFileProjectMenuItem);
-		projectMenu->AddItem(renameFileProjectMenuItem);
-		deleteFileProjectMenuItem->SetEnabled(true);
-		renameFileProjectMenuItem->SetEnabled(true);
-		openFileProjectMenuItem->SetEnabled(isFile);
-	}
-
-	BMessage* refMessage = new BMessage();
-	refMessage->AddRef("ref", projectItem->GetSourceItem()->EntryRef());
-	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, projectMenu, refMessage);
-
-	BMessage* refMessage2 = new BMessage(*refMessage);
-	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, projectMenu, refMessage2);
-
-	projectMenu->SetTargetForItems(Window());
-	projectMenu->Go(ConvertToScreen(where), true);
-}
-
-
 // TODO:
 // Optimize the search under a specific ProjectItem, tipically a
 // superitem (ProjectFolder)
@@ -733,22 +642,6 @@ ProjectBrowser::DetachedFromWindow()
 		Window()->UnlockLooper();
 	}
 }
-
-
-/* virtual */
-/*void
-ProjectBrowser::MouseDown(BPoint where)
-{
-	int32 buttons = -1;
-	BMessage* message = Looper()->CurrentMessage();
-	if (message != NULL)
-		message->FindInt32("buttons", &buttons);
-
-	BOutlineListView::MouseDown(where);
-	if ( buttons == B_MOUSE_BUTTON(2))
-		_ShowProjectItemPopupMenu(where);
-}
-*/
 
 
 void
@@ -969,7 +862,8 @@ ProjectBrowser::GetProjectList() const
 // ProjectOutlineListView
 ProjectOutlineListView::ProjectOutlineListView()
 	:
-	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST)
+	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST),
+	fFileNewProjectMenuItem(nullptr)
 {
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 }
@@ -985,7 +879,14 @@ ProjectOutlineListView::~ProjectOutlineListView()
 void
 ProjectOutlineListView::MouseDown(BPoint where)
 {
+	int32 buttons = -1;
+	BMessage* message = Looper()->CurrentMessage();
+	if (message != NULL)
+		message->FindInt32("buttons", &buttons);
+
 	BOutlineListView::MouseDown(where);
+	if ( buttons == B_MOUSE_BUTTON(2))
+		_ShowProjectItemPopupMenu(where);
 }
 
 
@@ -1076,4 +977,105 @@ ProjectOutlineListView::CompareProjectItems(const BListItem* a, const BListItem*
 		return BPrivate::NaturalCompare(nameA, nameB);
 
 	return 0;
+}
+
+
+void
+ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
+{
+	// TODO: This duplicates some code in ProjectBrowser
+	const int32 selection = CurrentSelection();
+	if (selection < 0)
+		return;
+
+	ProjectItem* projectItem = dynamic_cast<ProjectItem*>(ItemAt(selection));
+	ProjectFolder *project;
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+		project = static_cast<ProjectFolder*>(projectItem->GetSourceItem());
+	} else {
+		project = static_cast<ProjectFolder*>(projectItem->GetSourceItem()->GetProjectFolder());
+	}
+
+	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
+
+	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
+		new BMessage(MSG_PROJECT_MENU_NEW_FILE), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
+		TemplateManager::GetDefaultTemplateDirectory(),
+		TemplateManager::GetUserTemplateDirectory(),
+		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
+
+	fFileNewProjectMenuItem->SetEnabled(true);
+
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
+		closePrj->AddPointer("project", (void*)project);
+		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"), closePrj);
+
+		BMessage* setActive = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
+		setActive->AddPointer("project", (void*)project);
+		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"), setActive);
+
+		BMessage* projSettings = new BMessage(MSG_PROJECT_SETTINGS);
+		projSettings->AddPointer("project", (void*)project);
+		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
+			projSettings);
+
+		projectMenu->AddItem(closeProjectMenuItem);
+		projectMenu->AddItem(setActiveProjectMenuItem);
+		projectMenu->AddItem(projectSettingsMenuItem);
+		closeProjectMenuItem->SetEnabled(true);
+		projectMenu->AddSeparatorItem();
+		projectMenu->AddItem(new SwitchBranchMenu(Window(), B_TRANSLATE("Switch to branch"),
+													new BMessage(MSG_GIT_SWITCH_BRANCH), project->Path()));
+		projectMenu->AddSeparatorItem();
+		BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),
+			new BMessage(MSG_BUILD_PROJECT));
+		BMenuItem* cleanMenuItem = new BMenuItem(B_TRANSLATE("Clean project"),
+			new BMessage(MSG_CLEAN_PROJECT));
+		projectMenu->AddItem(buildMenuItem);
+		projectMenu->AddItem(cleanMenuItem);
+		setActiveProjectMenuItem->SetEnabled(!project->Active());
+		if (!project->Active())
+			setActiveProjectMenuItem->SetEnabled(true);
+		if (/*fIsBuilding || */!project->Active()) {
+			buildMenuItem->SetEnabled(false);
+			cleanMenuItem->SetEnabled(false);
+		}
+	}
+
+	projectMenu->AddItem(fFileNewProjectMenuItem);
+	fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
+	projectMenu->AddSeparatorItem();
+
+	SelectionChanged();
+
+	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
+	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
+	if (isFolder || isFile) {
+		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
+			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),
+			new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
+		BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
+			new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
+			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
+			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
+
+		projectMenu->AddItem(openFileProjectMenuItem);
+		projectMenu->AddItem(deleteFileProjectMenuItem);
+		projectMenu->AddItem(renameFileProjectMenuItem);
+		deleteFileProjectMenuItem->SetEnabled(true);
+		renameFileProjectMenuItem->SetEnabled(true);
+		openFileProjectMenuItem->SetEnabled(isFile);
+	}
+
+	BMessage* refMessage = new BMessage();
+	refMessage->AddRef("ref", projectItem->GetSourceItem()->EntryRef());
+	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, projectMenu, refMessage);
+
+	BMessage* refMessage2 = new BMessage(*refMessage);
+	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, projectMenu, refMessage2);
+
+	projectMenu->SetTargetForItems(Window());
+	projectMenu->Go(ConvertToScreen(where), true);
 }

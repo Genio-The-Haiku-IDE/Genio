@@ -82,7 +82,6 @@ private:
 
 private:
 	ProjectOutlineListView*	fOutlineListView;
-	TemplatesMenu*			fFileNewProjectMenuItem;
 	bool					fIsBuilding;
 	GenioWatchingFilter*	fGenioWatchingFilter;
 

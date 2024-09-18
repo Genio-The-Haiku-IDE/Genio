@@ -61,6 +61,7 @@ public:
 
 	virtual void	SelectionChanged();
 
+	ProjectItem*	ProjectItemAt(int32 index) const;
 	ProjectItem*	GetSelectedProjectItem() const;
 
 	static int 		CompareProjectItems(const BListItem* a, const BListItem* b);
@@ -402,17 +403,18 @@ ProjectBrowser::MessageReceived(BMessage* message)
 				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find index!");
 				return;
 			}
-			ProjectItem* item = dynamic_cast<ProjectItem*>(fOutlineListView->ItemAt(index));
+			ProjectItem* item = fOutlineListView->ProjectItemAt(index);
 			if (item == nullptr) {
 				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find item at index %d", index);
 				return;
 			}
-			/*if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
+#if 0
+			if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
 				ExpandOrCollapse(item, !item->IsExpanded());
 				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) ExpandOrCollapse(%s)", item->GetSourceItem()->Name().String());
 				return;
-			}*/
-
+			}
+#endif
 			BMessage msg(B_REFS_RECEIVED);
 			msg.AddRef("refs", item->GetSourceItem()->EntryRef());
 			msg.AddBool("openWithPreferred", true);
@@ -877,7 +879,7 @@ ProjectOutlineListView::MouseMoved(BPoint point, uint32 transit, const BMessage*
 	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
 		auto index = IndexOf(point);
 		if (index >= 0) {
-			ProjectItem *item = reinterpret_cast<ProjectItem*>(ItemAt(index));
+			ProjectItem *item = ProjectItemAt(index);
 			if (item->HasToolTip()) {
 				SetToolTip(item->GetToolTipText());
 			} else {
@@ -937,13 +939,20 @@ ProjectOutlineListView::SelectionChanged()
 
 
 ProjectItem*
+ProjectOutlineListView::ProjectItemAt(int32 index) const
+{
+	return static_cast<ProjectItem*>(ItemAt(index));
+}
+
+
+ProjectItem*
 ProjectOutlineListView::GetSelectedProjectItem() const
 {
 	const int32 selection = CurrentSelection();
 	if (selection < 0)
 		return nullptr;
 
-	return dynamic_cast<ProjectItem*>(ItemAt(selection));
+	return ProjectItemAt(selection);
 }
 
 

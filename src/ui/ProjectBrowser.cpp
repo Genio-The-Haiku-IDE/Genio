@@ -59,7 +59,7 @@ public:
 	virtual void	MessageReceived(BMessage* message);
 
 	virtual void	SelectionChanged();
-
+	static int 		CompareProjectItems(const BListItem* a, const BListItem* b);
 };
 
 
@@ -115,7 +115,8 @@ ProjectBrowser::_CreatePath(BPath pathToCreate)
 
 			if (fOutlineListView->AddUnder(newItem,parentItem)) {
 				LogDebugF("AddUnder(%s,%s) (Parent %s)", newItem->Text(), parentItem->Text(), parent.Path());
-				//SortItemsUnder(parentItem, true, ProjectBrowser::_CompareProjectItems);
+				fOutlineListView->SortItemsUnder(parentItem, true,
+					ProjectOutlineListView::CompareProjectItems);
 				fOutlineListView->Collapse(newItem);
 			}
 			return newItem;
@@ -178,7 +179,8 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 				}
 			} else {
 				fOutlineListView->RemoveItem(item);
-				//SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
+				fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
+					true, ProjectOutlineListView::CompareProjectItems);
 			}
 			break;
 		}
@@ -244,7 +246,8 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 								entry_ref entryRef;
 								newPathEntry.GetRef(&entryRef);
 								_ProjectFolderScan(parentItem, &entryRef, parentItem->GetSourceItem()->GetProjectFolder());
-								//SortItemsUnder(parentItem, false, ProjectBrowser::_CompareProjectItems);
+								fOutlineListView->SortItemsUnder(parentItem, false,
+										ProjectOutlineListView::CompareProjectItems);
 							} else {
 								//Plain file
 								_CreatePath(destination);
@@ -726,7 +729,7 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 
 	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
 	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
-	//fOutlineListView->SortItemsUnder(nullptr, false, ProjectBrowser::_CompareProjectItems);
+	fOutlineListView->SortItemsUnder(nullptr, false, ProjectOutlineListView::CompareProjectItems);
 
 	const BString projectPath = project->Path();
 	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
@@ -773,46 +776,10 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 	return newItem;
 }
 
-/*
-int
-ProjectBrowser::_CompareProjectItems(const BListItem* a, const BListItem* b)
-{
-	if (a == b)
-		return 0;
 
-	const ProjectItem* A = dynamic_cast<const ProjectItem*>(a);
-	const ProjectItem* B = dynamic_cast<const ProjectItem*>(b);
-	const char* nameA = A->Text();
-	SourceItem *itemA = A->GetSourceItem();
-	const char* nameB = B->Text();
-	SourceItem *itemB = B->GetSourceItem();
-
-	if (itemA->Type() == SourceItemType::FolderItem && itemB->Type() == SourceItemType::FileItem) {
-		return -1;
-	}
-
-	if (itemA->Type() == SourceItemType::FileItem && itemB->Type() == SourceItemType::FolderItem) {
-		return 1;
-	}
-
-	if (nameA == NULL) {
-		return 1;
-	}
-
-	if (nameB == NULL) {
-		return -1;
-	}
-
-	// Natural order sort
-	if (nameA != NULL && nameB != NULL)
-		return BPrivate::NaturalCompare(nameA, nameB);
-
-	return 0;
-}
-*/
 /*
 void
-ProjectBrowser::SelectionChanged()
+ProjectOutlineListView::SelectionChanged()
 {
 	ProjectItem* selected = GetSelectedProjectItem();
 	if (selected != nullptr) {
@@ -872,6 +839,7 @@ ProjectBrowser::ProjectByPath(const BString& fullPath) const
 	return nullptr;
 }
 
+
 void
 ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 {
@@ -881,6 +849,7 @@ ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 		fOutlineListView->ScrollToSelection();
 	}
 }
+
 
 void
 ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref)
@@ -1016,4 +985,41 @@ void
 ProjectOutlineListView::SelectionChanged()
 {
 	BOutlineListView::SelectionChanged();
+}
+
+
+int
+ProjectOutlineListView::CompareProjectItems(const BListItem* a, const BListItem* b)
+{
+	if (a == b)
+		return 0;
+
+	const ProjectItem* A = dynamic_cast<const ProjectItem*>(a);
+	const ProjectItem* B = dynamic_cast<const ProjectItem*>(b);
+	const char* nameA = A->Text();
+	SourceItem *itemA = A->GetSourceItem();
+	const char* nameB = B->Text();
+	SourceItem *itemB = B->GetSourceItem();
+
+	if (itemA->Type() == SourceItemType::FolderItem && itemB->Type() == SourceItemType::FileItem) {
+		return -1;
+	}
+
+	if (itemA->Type() == SourceItemType::FileItem && itemB->Type() == SourceItemType::FolderItem) {
+		return 1;
+	}
+
+	if (nameA == NULL) {
+		return 1;
+	}
+
+	if (nameB == NULL) {
+		return -1;
+	}
+
+	// Natural order sort
+	if (nameA != NULL && nameB != NULL)
+		return BPrivate::NaturalCompare(nameA, nameB);
+
+	return 0;
 }

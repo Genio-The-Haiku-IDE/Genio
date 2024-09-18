@@ -751,7 +751,7 @@ ProjectBrowser::InitRename(ProjectItem *item)
 	fOutlineListView->Select(fOutlineListView->IndexOf(item));
 	fOutlineListView->ScrollToSelection();
 
-	item->InitRename(this, new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
+	item->InitRename(fOutlineListView, new BMessage(MSG_PROJECT_MENU_DO_RENAME_FILE));
 	Invalidate();
 }
 

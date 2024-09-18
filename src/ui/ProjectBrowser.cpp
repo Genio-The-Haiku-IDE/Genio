@@ -32,6 +32,7 @@
 #include <OutlineListView.h>
 #include <Path.h>
 #include <PopUpMenu.h>
+#include <ScrollView.h>
 #include <StringList.h>
 #include <Window.h>
 
@@ -69,9 +70,12 @@ ProjectBrowser::ProjectBrowser()
 	fIsBuilding(false)
 {
 	fOutlineListView = new ProjectOutlineListView();
+	BScrollView* scrollView = new BScrollView("scrollview", fOutlineListView,
+		B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
+
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 		.AddGroup(B_HORIZONTAL)
-			.Add(fOutlineListView)
+			.Add(scrollView)
 		.End();
 	fGenioWatchingFilter = new GenioWatchingFilter();
 	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);

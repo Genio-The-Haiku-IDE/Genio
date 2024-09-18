@@ -34,6 +34,7 @@
 #include <PopUpMenu.h>
 #include <ScrollView.h>
 #include <StringList.h>
+#include <StringView.h>
 #include <Window.h>
 
 #include <cassert>
@@ -63,6 +64,53 @@ public:
 };
 
 
+const pattern kStripePattern = {
+	0xcc, 0x66, 0x33, 0x99,
+	0xcc, 0x66, 0x33, 0x99
+};
+
+class ProjectDropView : public BView {
+public:
+	ProjectDropView()
+		:
+		BView("ProjectDropView", B_WILL_DRAW|B_FULL_UPDATE_ON_RESIZE)
+	{
+		BString dropLabel = B_TRANSLATE("Drop folder here");
+		BStringView* stringView = new BStringView("drop", dropLabel.String());
+		BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
+			.AddGroup(B_VERTICAL, 3)
+				.AddGlue()
+				.AddStrut(1)
+				.Add(stringView)
+				.AddGlue()
+			.End();
+
+		stringView->SetAlignment(B_ALIGN_CENTER);
+
+		BFont font;
+		stringView->GetFont(&font);
+		font.SetFace(B_CONDENSED_FACE);
+		stringView->SetFont(&font);
+	}
+	virtual void Draw(BRect updateRect)
+	{
+		SetDrawingMode(B_OP_ALPHA);
+		SetLowColor(0, 0, 0);
+		float tint = B_DARKEN_2_TINT;
+		const int32 kBrightnessBreakValue = 126;
+		const rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+		if (base.Brightness() >= kBrightnessBreakValue)
+			tint = B_LIGHTEN_2_TINT;
+
+		SetHighColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR),	tint));
+		BRect innerRect = Bounds().InsetByCopy(10, 10);
+		FillRect(innerRect, B_SOLID_LOW);
+		StrokeRect(innerRect);
+		FillRect(innerRect.InsetBySelf(3, 3), kStripePattern);
+	}
+};
+
+
 ProjectBrowser::ProjectBrowser()
 	:
 	BView("ProjectBrowser", B_WILL_DRAW),
@@ -70,13 +118,16 @@ ProjectBrowser::ProjectBrowser()
 	fIsBuilding(false)
 {
 	fOutlineListView = new ProjectOutlineListView();
+	ProjectDropView* projectDropView = new ProjectDropView();
+
 	BScrollView* scrollView = new BScrollView("scrollview", fOutlineListView,
 		B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
 
-	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
-		.AddGroup(B_HORIZONTAL)
-			.Add(scrollView)
-		.End();
+	BLayoutBuilder::Cards<>(this)
+		.Add(scrollView)
+		.Add(projectDropView)
+		.SetVisibleItem(int32(0));
+
 	fGenioWatchingFilter = new GenioWatchingFilter();
 	BPrivate::BPathMonitor::SetWatchingInterface(fGenioWatchingFilter);
 }
@@ -225,7 +276,8 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 						}
 					} else {
 						fOutlineListView->RemoveItem(item);
-						//SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
+						fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
+							true, ProjectOutlineListView::CompareProjectItems);
 					}
 				}
 			} else {
@@ -289,20 +341,23 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 										LogError("Can't find an item to move oldPath [%s]", oldPath.String());
 										return;
 									}
-									/*ProjectItem *destinationItem = GetProjectItemByPath(bp_newParent.Path());
+									ProjectItem *destinationItem = GetProjectItemByPath(bp_newParent.Path());
 									if (!item) {
 										LogError("Can't find an item to move newParent [%s]", bp_newParent.Path());
 										return;
-									}*/
+									}
 									bool status = fOutlineListView->RemoveItem(item);
 									if (status) {
-									/*	fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item), true, ProjectBrowser::_CompareProjectItems);
+										fOutlineListView->SortItemsUnder(
+											fOutlineListView->Superitem(item), true,
+												ProjectOutlineListView::CompareProjectItems);
 
 										ProjectItem *newItem = _CreateNewProjectItem(item, bp_newPath);
 										status = fOutlineListView->AddUnder(newItem, destinationItem);
 										if (status) {
-											fOutlineListView->SortItemsUnder(destinationItem, true, ProjectBrowser::_CompareProjectItems);
-										}*/
+											fOutlineListView->SortItemsUnder(destinationItem, true,
+												ProjectOutlineListView::CompareProjectItems);
+										}
 									}
 								}
 							}
@@ -657,7 +712,7 @@ ProjectBrowser::AttachedToWindow()
 		sAnimationTickRunner = new BMessageRunner(BMessenger(this), &message, bigtime_t(100000));
 
 	if (fOutlineListView->CountItems() == 0)
-		fOutlineListView->AddItem(new StyledItem(B_TRANSLATE("Drop folder here to add as new project")));
+		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(1));
 }
 
 
@@ -714,7 +769,7 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	fProjectList.RemoveItem(project);
 
 	if (fOutlineListView->CountItems() == 0)
-		fOutlineListView->AddItem(new StyledItem(B_TRANSLATE("Drop folder here to add as new project")));
+		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(1));
 
 	Invalidate();
 }
@@ -723,9 +778,8 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 void
 ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
-	if (fOutlineListView->CountItems() == 1
-		&& dynamic_cast<ProjectItem*>(fOutlineListView->ItemAt(0)) == nullptr)
-		fOutlineListView->RemoveItem(fOutlineListView->ItemAt(0));
+	if (fOutlineListView->CountItems() == 0)
+		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(0));
 
 	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
 	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)

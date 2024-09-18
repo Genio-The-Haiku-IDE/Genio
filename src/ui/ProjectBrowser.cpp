@@ -61,6 +61,8 @@ public:
 
 	virtual void	SelectionChanged();
 
+	ProjectItem*	GetSelectedProjectItem() const;
+
 	static int 		CompareProjectItems(const BListItem* a, const BListItem* b);
 
 private:
@@ -117,6 +119,7 @@ public:
 };
 
 
+// ProjectBrowser
 ProjectBrowser::ProjectBrowser()
 	:
 	BView("ProjectBrowser", B_WILL_DRAW),
@@ -335,7 +338,8 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 									if (get_ref_for_path(newPath, &newRef) == B_OK) {
 										item->SetText(newName);
 										item->GetSourceItem()->UpdateEntryRef(newRef);
-										//SortItemsUnder(Superitem(item), true, ProjectBrowser::_CompareProjectItems);
+										fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
+											true, ProjectOutlineListView::CompareProjectItems);
 									} else {
 										LogError("Can't find ref for newPath[%s]", newPath.String());
 										return;
@@ -535,11 +539,7 @@ ProjectBrowser::GetProjectItemByPath(BString const& path) const
 ProjectItem*
 ProjectBrowser::GetSelectedProjectItem() const
 {
-	const int32 selection = fOutlineListView->CurrentSelection();
-	if (selection < 0)
-		return nullptr;
-
-	return dynamic_cast<ProjectItem*>(fOutlineListView->ItemAt(selection));
+	return fOutlineListView->GetSelectedProjectItem();
 }
 
 
@@ -723,28 +723,6 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 	return newItem;
 }
 
-
-/*
-void
-ProjectOutlineListView::SelectionChanged()
-{
-	ProjectItem* selected = GetSelectedProjectItem();
-	if (selected != nullptr) {
-		GenioWindow *window = (GenioWindow*)Window();
-		BEntry entry(selected->GetSourceItem()->EntryRef());
-		if (entry.IsFile()) {
-			// If this is a file, get the parent directory
-			entry.GetParent(&entry);
-		}
-		entry_ref newRef;
-		entry.GetRef(&newRef);
-		window->UpdateMenu(selected, &newRef);
-
-		if (fFileNewProjectMenuItem != nullptr)
-			fFileNewProjectMenuItem->SetSender(selected, &newRef);
-	}
-}
-*/
 
 void
 ProjectBrowser::InitRename(ProjectItem *item)
@@ -940,6 +918,32 @@ void
 ProjectOutlineListView::SelectionChanged()
 {
 	BOutlineListView::SelectionChanged();
+	ProjectItem* selected = GetSelectedProjectItem();
+	if (selected != nullptr) {
+		GenioWindow *window = gMainWindow;
+		BEntry entry(selected->GetSourceItem()->EntryRef());
+		if (entry.IsFile()) {
+			// If this is a file, get the parent directory
+			entry.GetParent(&entry);
+		}
+		entry_ref newRef;
+		entry.GetRef(&newRef);
+		window->UpdateMenu(selected, &newRef);
+
+		if (fFileNewProjectMenuItem != nullptr)
+			fFileNewProjectMenuItem->SetSender(selected, &newRef);
+	}
+}
+
+
+ProjectItem*
+ProjectOutlineListView::GetSelectedProjectItem() const
+{
+	const int32 selection = CurrentSelection();
+	if (selection < 0)
+		return nullptr;
+
+	return dynamic_cast<ProjectItem*>(ItemAt(selection));
 }
 
 
@@ -984,11 +988,7 @@ void
 ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 {
 	// TODO: This duplicates some code in ProjectBrowser
-	const int32 selection = CurrentSelection();
-	if (selection < 0)
-		return;
-
-	ProjectItem* projectItem = dynamic_cast<ProjectItem*>(ItemAt(selection));
+	ProjectItem* projectItem = GetSelectedProjectItem();
 	ProjectFolder *project;
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		project = static_cast<ProjectFolder*>(projectItem->GetSourceItem());

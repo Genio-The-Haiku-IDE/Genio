@@ -1061,7 +1061,7 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		setActiveProjectMenuItem->SetEnabled(!project->Active());
 		if (!project->Active())
 			setActiveProjectMenuItem->SetEnabled(true);
-		if (/*fIsBuilding || */!project->Active()) {
+		if (project->IsBuilding() || !project->Active()) {
 			buildMenuItem->SetEnabled(false);
 			cleanMenuItem->SetEnabled(false);
 		}

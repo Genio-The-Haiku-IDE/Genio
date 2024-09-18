@@ -1101,5 +1101,10 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, projectMenu, refMessage2);
 
 	projectMenu->SetTargetForItems(Window());
-	projectMenu->Go(ConvertToScreen(where), true);
+
+	// Open menu slightly off wrt the click, so it doesn't open right under the mouse
+	BPoint menuPoint = ConvertToScreen(where);
+	menuPoint.x += 1;
+	menuPoint.y += 1;
+	projectMenu->Go(menuPoint, true);
 }

@@ -453,7 +453,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			// file / folder drag'n'drop
 			entry_ref ref;
 			if (message->FindRef("refs", &ref) == B_OK &&
-				BEntry(&ref).IsDirectory()) {
+				BEntry(&ref, true).IsDirectory()) {
 				_ProjectFolderOpen(message);
 				break;
 			}
@@ -3852,7 +3852,7 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 status_t
 GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 {
-	BEntry dirEntry(&ref);
+	BEntry dirEntry(&ref, true);
 	if (!dirEntry.Exists())
 		return B_NAME_NOT_FOUND;
 
@@ -3892,7 +3892,14 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	}
 
 	BMessenger msgr(this);
-	ProjectFolder* newProject = new ProjectFolder(ref, msgr);
+
+	// if the original entry_ref was a symlink we need to resolve the path and pass it
+	// ProjectFolder
+	entry_ref resolved_ref;
+	if (dirEntry.GetRef(&resolved_ref) == B_ERROR)
+		return B_ERROR;
+
+	ProjectFolder* newProject = new ProjectFolder(resolved_ref, msgr);
 	status = newProject->Open();
 	if (status != B_OK) {
 		BString notification;

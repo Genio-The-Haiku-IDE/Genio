@@ -445,7 +445,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			if (fIsBuilding) {
 				// TODO: Only invalidate the project item and
 				// Maybe move inside the ProjectOutlineListView
-				ProjectItem::TickAnimation();
+				ProjectTitleItem::TickAnimation();
 				fOutlineListView->Invalidate();
 			}
 			break;
@@ -636,7 +636,7 @@ ProjectBrowser::AttachedToWindow()
 		Window()->UnlockLooper();
 	}
 
-	ProjectItem::InitAnimationIcons();
+	ProjectTitleItem::InitAnimationIcons();
 
 	BMessage message(kTick);
 	if (sAnimationTickRunner == nullptr)
@@ -654,7 +654,7 @@ ProjectBrowser::DetachedFromWindow()
 	delete sAnimationTickRunner;
 	sAnimationTickRunner = nullptr;
 
-	ProjectItem::DisposeAnimationIcons();
+	ProjectTitleItem::DisposeAnimationIcons();
 
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
@@ -741,7 +741,8 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 		fOutlineListView->AddUnder(newItem, item);
 		fOutlineListView->Collapse(newItem);
 	} else {
-		newItem = new ProjectItem(projectFolder);
+		// Add project title
+		newItem = new ProjectTitleItem(projectFolder);
 		fOutlineListView->AddItem(newItem);
 	}
 

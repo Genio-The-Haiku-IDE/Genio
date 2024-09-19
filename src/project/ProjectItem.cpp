@@ -286,13 +286,6 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	owner->FillRoundRect(circleRect, 9, 10);
 	owner->SetHighColor(oldColor);
 
-	DrawText(owner, Text(), ExtraText(), textPoint);
-
-	if (static_cast<ProjectFolder*>(GetSourceItem())->IsBuilding()) {
-		_DrawBuildIndicator(owner, bounds);
-	}
-	owner->Sync();
-
 	// TODO: this part is quite computationally intensive
 	// and shoud be moved away from the DrawItem.
 	BString projectName = Text();
@@ -307,6 +300,13 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		}
 	} catch (const Genio::Git::GitException &ex) {
 	}
+
+	DrawText(owner, Text(), ExtraText(), textPoint);
+
+	if (static_cast<ProjectFolder*>(GetSourceItem())->IsBuilding()) {
+		_DrawBuildIndicator(owner, bounds);
+	}
+	owner->Sync();
 
 	BString toolTipText;
 	toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",

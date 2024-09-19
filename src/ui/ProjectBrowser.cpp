@@ -514,6 +514,18 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case 'DATA':
+		{
+			// file / folder drag'n'drop
+			entry_ref ref;
+			if (message->FindRef("refs", &ref) == B_OK &&
+				BEntry(&ref, true).IsDirectory()) {
+				BMessage openProjectMessage = *message;
+				openProjectMessage.what = MSG_PROJECT_FOLDER_OPEN;
+				Window()->PostMessage(&openProjectMessage);
+				break;
+			}
+		}
 		default:
 			BView::MessageReceived(message);
 			break;

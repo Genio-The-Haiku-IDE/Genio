@@ -414,13 +414,14 @@ ProjectBrowser::MessageReceived(BMessage* message)
 				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find item at index %d", index);
 				return;
 			}
-#if 0
 			if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-				ExpandOrCollapse(item, !item->IsExpanded());
-				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) ExpandOrCollapse(%s)", item->GetSourceItem()->Name().String());
+				if (item->IsExpanded())
+					fOutlineListView->Collapse(item);
+				else
+					fOutlineListView->Expand(item);
+				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) Expand/Collapse(%s)", item->GetSourceItem()->Name().String());
 				return;
 			}
-#endif
 			BMessage msg(B_REFS_RECEIVED);
 			msg.AddRef("refs", item->GetSourceItem()->EntryRef());
 			msg.AddBool("openWithPreferred", true);

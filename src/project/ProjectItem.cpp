@@ -219,23 +219,6 @@ ProjectItem::DrawIcon(BView* owner, const BRect& itemBounds,
 	return BRect(iconStartingPoint, BSize(iconSize, iconSize));
 }
 
-/*
-void
-ProjectItem::_DrawBuildIndicator(BView* owner, BRect bounds)
-{
-	try {
-		const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
-		if (frame != nullptr) {
-			owner->SetDrawingMode(B_OP_ALPHA);
-			bounds.left = bounds.right - bounds.Height();
-			bounds.OffsetBy(-1, 1);
-			owner->DrawBitmap(frame, frame->Bounds(), bounds);
-		}
-	} catch (...) {
-		// nothing to do
-	}
-}
-*/
 
 void
 ProjectItem::_DestroyTextWidget()
@@ -271,9 +254,6 @@ ProjectTitleItem::~ProjectTitleItem()
 void
 ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
-	// TODO: This method needs refactoring:
-	// too long and complex
-
 	DrawItemPrepare(owner, bounds, complete);
 
 	ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
@@ -281,6 +261,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		SetTextFontFace(B_BOLD_FACE);
 	else
 		SetTextFontFace(B_REGULAR_FACE);
+
 	// TODO: this part is quite computationally intensive
 	// and shoud be moved away from the DrawItem.
 
@@ -311,7 +292,6 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 					bounds.top + BaselineOffset());
 
 	// Fill background to the project color
-	//ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
 	const rgb_color oldColor = owner->HighColor();
 	owner->SetHighColor(projectFolder->Color());
 

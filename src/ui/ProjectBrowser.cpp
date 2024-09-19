@@ -464,7 +464,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					ProjectItem* item = GetProjectItemByPath(fileName);
 					if (item != nullptr) {
 						item->SetOpenedInEditor(open);
-						Invalidate();
+						fOutlineListView->Invalidate();
 					}
 					break;
 				}
@@ -477,7 +477,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					ProjectItem* item = GetProjectItemByPath(fileName);
 					if (item != nullptr) {
 						item->SetNeedsSave(needsSave);
-						Invalidate();
+						fOutlineListView->Invalidate();
 					}
 					break;
 				}

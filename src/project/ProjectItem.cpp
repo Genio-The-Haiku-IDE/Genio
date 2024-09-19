@@ -102,6 +102,9 @@ ProjectItem::~ProjectItem()
 void
 ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
+	// TODO: This method needs refactoring:
+	// too long and complex
+
 	DrawItemPrepare(owner, bounds, complete);
 
 	bool isProject = GetSourceItem()->Type() == SourceItemType::ProjectFolderItem;
@@ -134,9 +137,9 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 									B_TRANSLATE("Path"), projectPath.String(),
 									B_TRANSLATE("Current branch"), branchName.String());
 		SetToolTipText(toolTipText);
-	} else if (fOpenedInEditor)
+	} else if (fOpenedInEditor) {
 		SetTextFontFace(B_ITALIC_FACE);
-	else
+	} else
 		SetTextFontFace(B_REGULAR_FACE);
 
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
@@ -179,9 +182,8 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			// Set the font face here, otherwise StringWidth() won't return
 			// the correct width
 			BFont font;
-			owner->GetFont(&font);
 			font.SetFace(TextFontFace());
-			owner->SetFont(&font);
+			owner->SetFont(&font, B_FONT_FACE);
 
 			BRect circleRect;
 			circleRect.top = textPoint.y - BaselineOffset() + 2.5f;

@@ -161,9 +161,8 @@ StyledItem::DrawText(BView* owner, const char* text,
 				const char* extraText, const BPoint& point)
 {
 	BFont font;
-	owner->GetFont(&font);
 	font.SetFace(fFontFace);
-	owner->SetFont(&font);
+	owner->SetFont(&font, B_FONT_FACE);
 
 	owner->SetDrawingMode(B_OP_COPY);
 	owner->MovePenTo(point);

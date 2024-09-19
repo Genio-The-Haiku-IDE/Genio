@@ -28,9 +28,9 @@ public:
 	void			AbortRename();
 	void			CommitRename();
 
-	static status_t	InitAnimationIcons();
-	static status_t DisposeAnimationIcons();
-	static void		TickAnimation();
+protected:
+	BRect			DrawIcon(BView* owner, const BRect& bounds,
+							const float& iconSize) override;
 
 private:
 	SourceItem		*fSourceItem;
@@ -41,9 +41,27 @@ private:
 	static int32	sBuildAnimationIndex;
 	static std::vector<BBitmap*> sBuildAnimationFrames;
 
+	void			_DestroyTextWidget();
+};
+
+
+class ProjectTitleItem : public ProjectItem {
+public:
+	ProjectTitleItem(SourceItem *sourceFile);
+	virtual ~ProjectTitleItem();
+
+	void 			DrawItem(BView* owner, BRect bounds, bool complete) override;
+
+	static status_t	InitAnimationIcons();
+	static status_t DisposeAnimationIcons();
+	static void		TickAnimation();
+
+private:
+	static int32	sBuildAnimationIndex;
+	static std::vector<BBitmap*> sBuildAnimationFrames;
+
 	BRect			DrawIcon(BView* owner, const BRect& bounds,
 							const float& iconSize) override;
 
 	void			_DrawBuildIndicator(BView* owner, BRect bounds);
-	void			_DestroyTextWidget();
 };

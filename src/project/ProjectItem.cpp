@@ -75,10 +75,6 @@ public:
 };
 
 
-int32 ProjectItem::sBuildAnimationIndex = 0;
-std::vector<BBitmap*> ProjectItem::sBuildAnimationFrames;
-
-
 ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
 	StyledItem(sourceItem->Name()),
@@ -102,42 +98,9 @@ ProjectItem::~ProjectItem()
 void
 ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
-	// TODO: This method needs refactoring:
-	// too long and complex
-
 	DrawItemPrepare(owner, bounds, complete);
 
-	bool isProject = GetSourceItem()->Type() == SourceItemType::ProjectFolderItem;
-	if (isProject) {
-		ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
-		if (projectFolder->Active())
-			SetTextFontFace(B_BOLD_FACE);
-		else
-			SetTextFontFace(B_REGULAR_FACE);
-
-		// TODO: this part is quite computationally intensive
-		// and shoud be moved away from the DrawItem.
-
-		BString projectName = Text();
-		BString projectPath = projectFolder->Path();
-		BString branchName;
-		try {
-			if (projectFolder->GetRepository()) {
-				branchName = projectFolder->GetRepository()->GetCurrentBranch();
-				BString extraText;
-				extraText << "  [" << branchName << "]";
-				SetExtraText(extraText);
-			}
-		} catch (const Genio::Git::GitException &ex) {
-		}
-
-		BString toolTipText;
-		toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
-									B_TRANSLATE("Project"), projectName.String(),
-									B_TRANSLATE("Path"), projectPath.String(),
-									B_TRANSLATE("Current branch"), branchName.String());
-		SetToolTipText(toolTipText);
-	} else if (fOpenedInEditor) {
+	if (fOpenedInEditor) {
 		SetTextFontFace(B_ITALIC_FACE);
 	} else
 		SetTextFontFace(B_REGULAR_FACE);
@@ -166,39 +129,13 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 						bounds.top + BaselineOffset());
 
 		// TODO: Apply any style change here (i.e. bold, italic)
-		if (!isProject) {
-			if (fNeedsSave)
-				SetExtraText("*");
-			else
-				SetExtraText("");
-		}
-
-		if (isProject) {
-			// Fill background to the project color
-			ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
-			const rgb_color oldColor = owner->HighColor();
-			owner->SetHighColor(projectFolder->Color());
-
-			// Set the font face here, otherwise StringWidth() won't return
-			// the correct width
-			BFont font;
-			font.SetFace(TextFontFace());
-			owner->SetFont(&font, B_FONT_FACE);
-
-			BRect circleRect;
-			circleRect.top = textPoint.y - BaselineOffset() + 2.5f;
-			circleRect.left = textPoint.x - 3;
-			circleRect.bottom = textPoint.y + 6;
-			circleRect.right = circleRect.left + owner->StringWidth(Text()) + 5;
-			owner->FillRoundRect(circleRect, 9, 10);
-			owner->SetHighColor(oldColor);
-		}
+		if (fNeedsSave)
+			SetExtraText("*");
+		else
+			SetExtraText("");
 
 		DrawText(owner, Text(), ExtraText(), textPoint);
 
-		if (isProject && static_cast<ProjectFolder*>(GetSourceItem())->IsBuilding()) {
-			_DrawBuildIndicator(owner, bounds);
-		}
 		owner->Sync();
 	}
 }
@@ -266,9 +203,144 @@ ProjectItem::CommitRename()
 }
 
 
+/* virtual */
+BRect
+ProjectItem::DrawIcon(BView* owner, const BRect& itemBounds,
+							const float& iconSize)
+{
+	BPoint iconStartingPoint(itemBounds.left + 4.0f,
+		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
+	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->EntryRef());
+	if (icon != nullptr) {
+		owner->SetDrawingMode(B_OP_ALPHA);
+		owner->DrawBitmapAsync(icon, iconStartingPoint);
+	}
+
+	return BRect(iconStartingPoint, BSize(iconSize, iconSize));
+}
+
+/*
+void
+ProjectItem::_DrawBuildIndicator(BView* owner, BRect bounds)
+{
+	try {
+		const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
+		if (frame != nullptr) {
+			owner->SetDrawingMode(B_OP_ALPHA);
+			bounds.left = bounds.right - bounds.Height();
+			bounds.OffsetBy(-1, 1);
+			owner->DrawBitmap(frame, frame->Bounds(), bounds);
+		}
+	} catch (...) {
+		// nothing to do
+	}
+}
+*/
+
+void
+ProjectItem::_DestroyTextWidget()
+{
+	if (fTextControl != nullptr) {
+		fTextControl->RemoveSelf();
+		delete fTextControl;
+		fTextControl = nullptr;
+	}
+}
+
+
+// ProjectTitleItem
+
+int32 ProjectTitleItem::sBuildAnimationIndex = 0;
+std::vector<BBitmap*> ProjectTitleItem::sBuildAnimationFrames;
+
+
+ProjectTitleItem::ProjectTitleItem(SourceItem *sourceFile)
+	:
+	ProjectItem(sourceFile)
+{
+}
+
+
+/* virtual */
+ProjectTitleItem::~ProjectTitleItem()
+{
+}
+
+
+/* virtual */
+void
+ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
+{
+	// TODO: This method needs refactoring:
+	// too long and complex
+
+	DrawItemPrepare(owner, bounds, complete);
+
+	ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
+	if (projectFolder->Active())
+		SetTextFontFace(B_BOLD_FACE);
+	else
+		SetTextFontFace(B_REGULAR_FACE);
+	// TODO: this part is quite computationally intensive
+	// and shoud be moved away from the DrawItem.
+
+	BString projectName = Text();
+	BString projectPath = projectFolder->Path();
+	BString branchName;
+	try {
+		if (projectFolder->GetRepository()) {
+			branchName = projectFolder->GetRepository()->GetCurrentBranch();
+			BString extraText;
+			extraText << "  [" << branchName << "]";
+			SetExtraText(extraText);
+		}
+	} catch (const Genio::Git::GitException &ex) {
+	}
+
+	BString toolTipText;
+	toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
+								B_TRANSLATE("Project"), projectName.String(),
+								B_TRANSLATE("Path"), projectPath.String(),
+								B_TRANSLATE("Current branch"), branchName.String());
+	SetToolTipText(toolTipText);
+
+	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	BRect iconRect = DrawIcon(owner, bounds, iconSize);
+
+	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
+					bounds.top + BaselineOffset());
+
+	// Fill background to the project color
+	//ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
+	const rgb_color oldColor = owner->HighColor();
+	owner->SetHighColor(projectFolder->Color());
+
+	// Set the font face here, otherwise StringWidth() won't return
+	// the correct width
+	BFont font;
+	font.SetFace(TextFontFace());
+	owner->SetFont(&font, B_FONT_FACE);
+
+	BRect circleRect;
+	circleRect.top = textPoint.y - BaselineOffset() + 2.5f;
+	circleRect.left = textPoint.x - 3;
+	circleRect.bottom = textPoint.y + 6;
+	circleRect.right = circleRect.left + owner->StringWidth(Text()) + 5;
+	owner->FillRoundRect(circleRect, 9, 10);
+	owner->SetHighColor(oldColor);
+
+	DrawText(owner, Text(), ExtraText(), textPoint);
+
+	if (static_cast<ProjectFolder*>(GetSourceItem())->IsBuilding()) {
+		_DrawBuildIndicator(owner, bounds);
+	}
+	owner->Sync();
+}
+
+
 /* static */
 status_t
-ProjectItem::InitAnimationIcons()
+ProjectTitleItem::InitAnimationIcons()
 {
 	// TODO: icon names are "waiting-N" where N is the index
 	// 1 to 6
@@ -300,7 +372,7 @@ ProjectItem::InitAnimationIcons()
 
 /* static */
 status_t
-ProjectItem::DisposeAnimationIcons()
+ProjectTitleItem::DisposeAnimationIcons()
 {
 	for (std::vector<BBitmap*>::iterator i = sBuildAnimationFrames.begin();
 		i != sBuildAnimationFrames.end(); i++) {
@@ -314,32 +386,24 @@ ProjectItem::DisposeAnimationIcons()
 
 /* static */
 void
-ProjectItem::TickAnimation()
+ProjectTitleItem::TickAnimation()
 {
-	if (++ProjectItem::sBuildAnimationIndex >= (int32)sBuildAnimationFrames.size())
-		ProjectItem::sBuildAnimationIndex = 0;
+	if (++ProjectTitleItem::sBuildAnimationIndex >= (int32)sBuildAnimationFrames.size())
+		ProjectTitleItem::sBuildAnimationIndex = 0;
 }
 
 
 /* virtual */
 BRect
-ProjectItem::DrawIcon(BView* owner, const BRect& itemBounds,
+ProjectTitleItem::DrawIcon(BView* owner, const BRect& itemBounds,
 							const float& iconSize)
 {
-	BPoint iconStartingPoint(itemBounds.left + 4.0f,
-		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
-	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->EntryRef());
-	if (icon != nullptr) {
-		owner->SetDrawingMode(B_OP_ALPHA);
-		owner->DrawBitmapAsync(icon, iconStartingPoint);
-	}
-
-	return BRect(iconStartingPoint, BSize(iconSize, iconSize));
+	return ProjectItem::DrawIcon(owner, itemBounds, iconSize);
 }
 
 
 void
-ProjectItem::_DrawBuildIndicator(BView* owner, BRect bounds)
+ProjectTitleItem::_DrawBuildIndicator(BView* owner, BRect bounds)
 {
 	try {
 		const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
@@ -353,15 +417,3 @@ ProjectItem::_DrawBuildIndicator(BView* owner, BRect bounds)
 		// nothing to do
 	}
 }
-
-
-void
-ProjectItem::_DestroyTextWidget()
-{
-	if (fTextControl != nullptr) {
-		fTextControl->RemoveSelf();
-		delete fTextControl;
-		fTextControl = nullptr;
-	}
-}
-

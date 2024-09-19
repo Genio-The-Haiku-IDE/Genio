@@ -443,9 +443,10 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		case kTick:
 		{
 			if (fIsBuilding) {
-				// TODO: Only invalidate the project item
+				// TODO: Only invalidate the project item and
+				// Maybe move inside the ProjectOutlineListView
 				ProjectItem::TickAnimation();
-				Invalidate();
+				fOutlineListView->Invalidate();
 			}
 			break;
 		}

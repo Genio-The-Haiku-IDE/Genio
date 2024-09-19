@@ -83,7 +83,7 @@ class ProjectDropView : public BView {
 public:
 	ProjectDropView()
 		:
-		BView("ProjectDropView", B_WILL_DRAW|B_FULL_UPDATE_ON_RESIZE)
+		BView("ProjectDropView", B_WILL_DRAW|B_FRAME_EVENTS|B_FULL_UPDATE_ON_RESIZE)
 	{
 		BString dropLabel = B_TRANSLATE("Drop folder here");
 		BStringView* stringView = new BStringView("drop", dropLabel.String());
@@ -101,6 +101,11 @@ public:
 		stringView->GetFont(&font);
 		font.SetFace(B_CONDENSED_FACE);
 		stringView->SetFont(&font);
+
+		// TODO: These should not be needed, but without them the
+		// splitview which separates editor from the left pane doesn't move at all
+		SetExplicitMinSize(BSize(0, B_SIZE_UNSET));
+		SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
 	}
 	virtual void Draw(BRect updateRect)
 	{
@@ -124,7 +129,7 @@ public:
 // ProjectBrowser
 ProjectBrowser::ProjectBrowser()
 	:
-	BView("ProjectBrowser", B_WILL_DRAW),
+	BView("ProjectBrowser", B_WILL_DRAW|B_FRAME_EVENTS),
 	fIsBuilding(false)
 {
 	fOutlineListView = new ProjectOutlineListView();

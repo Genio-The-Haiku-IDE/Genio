@@ -100,13 +100,13 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
 	DrawItemPrepare(owner, bounds, complete);
 
-	if (fOpenedInEditor) {
-		SetTextFontFace(B_ITALIC_FACE);
-	} else
-		SetTextFontFace(B_REGULAR_FACE);
-
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BRect iconRect = DrawIcon(owner, bounds, iconSize);
+
+	if (fOpenedInEditor)
+		SetTextFontFace(B_ITALIC_FACE);
+	else
+		SetTextFontFace(B_REGULAR_FACE);
 
 	// There's a TextControl for renaming
 	if (fTextControl != nullptr) {
@@ -256,37 +256,14 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
 	DrawItemPrepare(owner, bounds, complete);
 
+	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	BRect iconRect = DrawIcon(owner, bounds, iconSize);
+
 	ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
 	if (projectFolder->Active())
 		SetTextFontFace(B_BOLD_FACE);
 	else
 		SetTextFontFace(B_REGULAR_FACE);
-
-	// TODO: this part is quite computationally intensive
-	// and shoud be moved away from the DrawItem.
-
-	BString projectName = Text();
-	BString projectPath = projectFolder->Path();
-	BString branchName;
-	try {
-		if (projectFolder->GetRepository()) {
-			branchName = projectFolder->GetRepository()->GetCurrentBranch();
-			BString extraText;
-			extraText << "  [" << branchName << "]";
-			SetExtraText(extraText);
-		}
-	} catch (const Genio::Git::GitException &ex) {
-	}
-
-	BString toolTipText;
-	toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
-								B_TRANSLATE("Project"), projectName.String(),
-								B_TRANSLATE("Path"), projectPath.String(),
-								B_TRANSLATE("Current branch"), branchName.String());
-	SetToolTipText(toolTipText);
-
-	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-	BRect iconRect = DrawIcon(owner, bounds, iconSize);
 
 	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
@@ -315,6 +292,28 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		_DrawBuildIndicator(owner, bounds);
 	}
 	owner->Sync();
+
+	// TODO: this part is quite computationally intensive
+	// and shoud be moved away from the DrawItem.
+	BString projectName = Text();
+	BString projectPath = projectFolder->Path();
+	BString branchName;
+	try {
+		if (projectFolder->GetRepository()) {
+			branchName = projectFolder->GetRepository()->GetCurrentBranch();
+			BString extraText;
+			extraText << "  [" << branchName << "]";
+			SetExtraText(extraText);
+		}
+	} catch (const Genio::Git::GitException &ex) {
+	}
+
+	BString toolTipText;
+	toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
+								B_TRANSLATE("Project"), projectName.String(),
+								B_TRANSLATE("Path"), projectPath.String(),
+								B_TRANSLATE("Current branch"), branchName.String());
+	SetToolTipText(toolTipText);
 }
 
 

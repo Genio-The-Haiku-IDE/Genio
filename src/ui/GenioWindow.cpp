@@ -449,16 +449,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case 'DATA':
-		{
-			// file / folder drag'n'drop
-			entry_ref ref;
-			if (message->FindRef("refs", &ref) == B_OK &&
-				BEntry(&ref).IsDirectory()) {
-				_ProjectFolderOpen(message);
-				break;
-			}
-			// Fallthrough
-		}
 		case B_REFS_RECEIVED:
 			_FileOpen(message);
 			Activate();
@@ -3397,9 +3387,7 @@ GenioWindow::_InitLeftSplit()
 	fProjectsTabView = new BTabView("ProjectsTabview");
 
 	fProjectsFolderBrowser = new ProjectBrowser();
-	fProjectsFolderScroll = new BScrollView(B_TRANSLATE("Projects"),
-		fProjectsFolderBrowser, B_FRAME_EVENTS | B_WILL_DRAW, true, true, B_FANCY_BORDER);
-	fProjectsTabView->AddTab(fProjectsFolderScroll);
+	fProjectsTabView->AddTab(fProjectsFolderBrowser);
 
 	// Source Control
 	fSourceControlPanel = new SourceControlPanel();
@@ -3854,7 +3842,7 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 status_t
 GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 {
-	BEntry dirEntry(&ref);
+	BEntry dirEntry(&ref, true);
 	if (!dirEntry.Exists())
 		return B_NAME_NOT_FOUND;
 
@@ -3894,7 +3882,14 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	}
 
 	BMessenger msgr(this);
-	ProjectFolder* newProject = new ProjectFolder(ref, msgr);
+
+	// if the original entry_ref was a symlink we need to resolve the path and pass it
+	// ProjectFolder
+	entry_ref resolved_ref;
+	if (dirEntry.GetRef(&resolved_ref) == B_ERROR)
+		return B_ERROR;
+
+	ProjectFolder* newProject = new ProjectFolder(resolved_ref, msgr);
 	status = newProject->Open();
 	if (status != B_OK) {
 		BString notification;
@@ -4563,13 +4558,6 @@ GenioWindow::_CollapseOrExpandProjects()
 {
 	if (gCFG["auto_expand_collapse_projects"]) {
 		// Expand active project, collapse other
-		for (int32 i = 0; i < GetProjectBrowser()->CountProjects(); i++) {
-			ProjectFolder* prj = GetProjectBrowser()->ProjectAt(i);
-			ProjectItem* item = GetProjectBrowser()->GetProjectItemForProject(prj);
-			if (prj == fActiveProject)
-				GetProjectBrowser()->Expand(item);
-			else
-				fProjectsFolderBrowser->Collapse(item);
-		}
+		GetProjectBrowser()->ExpandActiveProjects();
 	}
 }

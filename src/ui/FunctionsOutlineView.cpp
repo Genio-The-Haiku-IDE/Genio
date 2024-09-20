@@ -343,7 +343,7 @@ FunctionsOutlineView::AttachedToWindow()
 void
 FunctionsOutlineView::DetachedFromWindow()
 {
-	if (gMainWindow->LockLooper()) {
+	if (gMainWindow != nullptr && gMainWindow->LockLooper()) {
 		gMainWindow->StopWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 		gMainWindow->UnlockLooper();
 	}

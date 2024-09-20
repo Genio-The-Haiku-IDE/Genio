@@ -332,9 +332,9 @@ FunctionsOutlineView::AttachedToWindow()
 {
 	BView::AttachedToWindow();
 	fToolBar->SetTarget(this);
-	if (LockLooper()) {
+	if (gMainWindow->LockLooper()) {
 		gMainWindow->StartWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
-		UnlockLooper();
+		gMainWindow->UnlockLooper();
 	}
 }
 
@@ -343,9 +343,9 @@ FunctionsOutlineView::AttachedToWindow()
 void
 FunctionsOutlineView::DetachedFromWindow()
 {
-	if (LockLooper()) {
+	if (gMainWindow->LockLooper()) {
 		gMainWindow->StopWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
-		UnlockLooper();
+		gMainWindow->UnlockLooper();
 	}
 	BView::DetachedFromWindow();
 }

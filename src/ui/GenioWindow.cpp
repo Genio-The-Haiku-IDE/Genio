@@ -46,7 +46,6 @@
 #include "FunctionsOutlineView.h"
 #include "GenioApp.h"
 #include "GenioNamespace.h"
-#include "GenioSecondaryWindow.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
 #include "GitRepository.h"
@@ -286,8 +285,6 @@ GenioWindow::Show()
 		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		UnlockLooper();
 	}
-
-	(new GenioSecondaryWindow(BRect(200, 200, 500, 700), "outline", new FunctionsOutlineView()))->Show();
 }
 
 

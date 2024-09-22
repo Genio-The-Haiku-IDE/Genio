@@ -260,7 +260,7 @@ protected:
 			BMessage message = item->Details();
 			message.what = MSG_COLLAPSE_SYMBOL_NODE;
 			message.AddBool("collapsed", !expand);
-			Window()->PostMessage(&message);
+			gMainWindow->PostMessage(&message);
 		}
 	}
 
@@ -332,9 +332,9 @@ FunctionsOutlineView::AttachedToWindow()
 {
 	BView::AttachedToWindow();
 	fToolBar->SetTarget(this);
-	if (LockLooper()) {
-		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
-		UnlockLooper();
+	if (gMainWindow->LockLooper()) {
+		gMainWindow->StartWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+		gMainWindow->UnlockLooper();
 	}
 }
 
@@ -343,9 +343,9 @@ FunctionsOutlineView::AttachedToWindow()
 void
 FunctionsOutlineView::DetachedFromWindow()
 {
-	if (LockLooper()) {
-		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
-		UnlockLooper();
+	if (gMainWindow != nullptr && gMainWindow->LockLooper()) {
+		gMainWindow->StopWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+		gMainWindow->UnlockLooper();
 	}
 	BView::DetachedFromWindow();
 }
@@ -575,7 +575,7 @@ FunctionsOutlineView::_GoToSymbol(BMessage *msg)
 			BMessage go = sym->Details();
 			go.what = B_REFS_RECEIVED;
 			go.AddRef("refs", &fCurrentRef);
-			Window()->PostMessage(&go);
+			gMainWindow->PostMessage(&go);
 			status = B_OK;
 		}
 	}
@@ -587,5 +587,5 @@ void
 FunctionsOutlineView::_RenameSymbol(BMessage *msg)
 {
 	BMessage go(MSG_RENAME);
-	Window()->PostMessage(&go);
+	gMainWindow->PostMessage(&go);
 }

@@ -98,9 +98,8 @@ public:
 		stringView->SetAlignment(B_ALIGN_CENTER);
 
 		BFont font;
-		stringView->GetFont(&font);
 		font.SetFace(B_CONDENSED_FACE);
-		stringView->SetFont(&font);
+		stringView->SetFont(&font, B_FONT_FACE);
 
 		// TODO: These should not be needed, but without them the
 		// splitview which separates editor from the left pane doesn't move at all

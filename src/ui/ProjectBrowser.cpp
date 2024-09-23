@@ -517,14 +517,14 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		}
 		case 'DATA':
 		{
-			// file / folder drag'n'drop
 			entry_ref ref;
-			if (message->FindRef("refs", &ref) == B_OK &&
-				BEntry(&ref, true).IsDirectory()) {
-				BMessage openProjectMessage = *message;
-				openProjectMessage.what = MSG_PROJECT_FOLDER_OPEN;
-				Window()->PostMessage(&openProjectMessage);
-				break;
+			int32 refsCount = 0;
+			while (message->FindRef("refs", refsCount++, &ref) == B_OK) {
+				if (BEntry(&ref, true).IsDirectory()) {
+					BMessage openProjectMessage(MSG_PROJECT_FOLDER_OPEN);
+					openProjectMessage.AddRef("refs", &ref);
+					Window()->PostMessage(&openProjectMessage);
+				}
 			}
 		}
 		default:

@@ -1232,7 +1232,7 @@ GenioWindow::MenusBeginning()
 	BTextView* textView = nullptr;
 
 	if (view->Parent() != nullptr &&
-	    (editor = dynamic_cast<Editor*>(view->Parent())) != nullptr) {
+		(editor = dynamic_cast<Editor*>(view->Parent())) != nullptr) {
 			ActionManager::SetEnabled(B_CUT,   editor->CanCut());
 			ActionManager::SetEnabled(B_COPY,  editor->CanCopy());
 			ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
@@ -1750,6 +1750,7 @@ GenioWindow::_FileCloseAll()
 	}
 }
 
+
 status_t
 GenioWindow::_FileOpenAtStartup(BMessage* msg)
 {
@@ -1764,6 +1765,7 @@ GenioWindow::_FileOpenAtStartup(BMessage* msg)
 	}
 	return B_OK;
 }
+
 
 status_t
 GenioWindow::_FileOpen(BMessage* msg)
@@ -1808,6 +1810,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 	return B_OK;
 }
 
+
 void
 GenioWindow::_ApplyEditsToSelectedEditor(BMessage* msg)
 {
@@ -1816,6 +1819,7 @@ GenioWindow::_ApplyEditsToSelectedEditor(BMessage* msg)
 	if (!edit.empty())
 		fTabManager->SelectedEditor()->ApplyEdit(edit);
 }
+
 
 status_t
 GenioWindow::_SelectEditorToPosition(int32 index, int32 be_line, int32 lsp_char)
@@ -1835,6 +1839,8 @@ GenioWindow::_SelectEditorToPosition(int32 index, int32 be_line, int32 lsp_char)
 	}
 	return B_OK;
 }
+
+
 status_t
 GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32 be_line, int32 lsp_char)
 {
@@ -2137,6 +2143,7 @@ GenioWindow::_FindMarkAll(BMessage* message)
 
 }
 
+
 void
 GenioWindow::_AddSearchFlags(BMessage* msg)
 {
@@ -2353,14 +2360,14 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 	text.ReplaceFirst("%file%", fileName);
 
 	BAlert* alert = new BAlert("FileRemoveDialog", text,
- 		B_TRANSLATE("Keep"), B_TRANSLATE("Discard"), nullptr,
- 		B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+		B_TRANSLATE("Keep"), B_TRANSLATE("Discard"), nullptr,
+		B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 
- 	alert->SetShortcut(0, B_ESCAPE);
+	alert->SetShortcut(0, B_ESCAPE);
 
- 	int32 choice = alert->Go();
+	int32 choice = alert->Go();
 
- 	if (choice == 0) {
+	if (choice == 0) {
 	 	// If not modified save it or it will be lost, if modified let
 	 	// the user decide
 	 	if (editor->IsModified() == false)
@@ -2397,13 +2404,13 @@ GenioWindow::_HandleExternalStatModification(Editor* editor)
 	text.ReplaceFirst("%file%", editor->Name());
 
 	BAlert* alert = new BAlert("FileReloadDialog", text,
- 		B_TRANSLATE("Ignore"), B_TRANSLATE("Reload"), nullptr,
- 		B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+		B_TRANSLATE("Ignore"), B_TRANSLATE("Reload"), nullptr,
+		B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 
- 	alert->SetShortcut(0, B_ESCAPE);
+	alert->SetShortcut(0, B_ESCAPE);
 
 	editor->StopMonitoring();
- 	if (alert->Go() == 1) {
+	if (alert->Go() == 1) {
 		editor->Reload();
 		LogInfoF("File info: %s modified externally", editor->Name().String());
 	}
@@ -2621,7 +2628,6 @@ GenioWindow::_InitCentralSplit()
 	fReplaceGroup->AddGlue();
 	fReplaceGroup->Hide();
 
-
 	// Run group
 	fRunConsoleProgramText = new BTextControl("ReplaceTextControl", "", "",
 		new BMessage(MSG_RUN_CONSOLE_PROGRAM));
@@ -2681,127 +2687,126 @@ void
 GenioWindow::_InitActions()
 {
 	ActionManager::RegisterAction(MSG_FILE_OPEN,
-								   B_TRANSLATE("Open" B_UTF8_ELLIPSIS),
-								   "", "", 'O');
+									B_TRANSLATE("Open" B_UTF8_ELLIPSIS),
+									"", "", 'O');
 
 	ActionManager::RegisterAction(MSG_FILE_NEW,
-								   B_TRANSLATE("New"),
-								   "", "");
+									B_TRANSLATE("New"),
+									"", "");
 
 	ActionManager::RegisterAction(MSG_FILE_SAVE,
-								   B_TRANSLATE("Save"),
-								   B_TRANSLATE("Save current file"),
-								   "kIconSave", 'S');
+									B_TRANSLATE("Save"),
+									B_TRANSLATE("Save current file"),
+									"kIconSave", 'S');
 
 	ActionManager::RegisterAction(MSG_FILE_SAVE_AS,
-								   B_TRANSLATE("Save as" B_UTF8_ELLIPSIS),
-								   "","");
+									B_TRANSLATE("Save as" B_UTF8_ELLIPSIS),
+									"","");
 
 	ActionManager::RegisterAction(MSG_FILE_SAVE_ALL,
-								   B_TRANSLATE("Save all"),
-								   B_TRANSLATE("Save all files"),
-								   "kIconSaveAll", 'S', B_SHIFT_KEY);
-
+									B_TRANSLATE("Save all"),
+									B_TRANSLATE("Save all files"),
+									"kIconSaveAll", 'S', B_SHIFT_KEY);
 
 	ActionManager::RegisterAction(MSG_FILE_CLOSE,
-								   B_TRANSLATE("Close"),
-								   B_TRANSLATE("Close file"),
-								   "kIconClose", 'W');
+									B_TRANSLATE("Close"),
+									B_TRANSLATE("Close file"),
+									"kIconClose", 'W');
 
 	ActionManager::RegisterAction(MSG_FILE_CLOSE_ALL,
-								   B_TRANSLATE("Close all"),
-								   "", "", 'W', B_SHIFT_KEY);
+									B_TRANSLATE("Close all"),
+									"", "", 'W', B_SHIFT_KEY);
 
 	ActionManager::RegisterAction(MSG_FILE_CLOSE_OTHER,
-								  B_TRANSLATE("Close other"));
+									B_TRANSLATE("Close other"));
 
 	ActionManager::RegisterAction(MSG_IMPORT_RESOURCE,
 									B_TRANSLATE("Import as RDEF array" B_UTF8_ELLIPSIS));
 
 	ActionManager::RegisterAction(B_QUIT_REQUESTED,
-	                               B_TRANSLATE("Quit"),
-								   "", "", 'Q');
+									B_TRANSLATE("Quit"),
+									"", "", 'Q');
 	ActionManager::RegisterAction(B_UNDO,
-								   B_TRANSLATE("Undo"),
-								   B_TRANSLATE("Undo"),
-								   "kIconUndo", 'Z');
+									B_TRANSLATE("Undo"),
+									B_TRANSLATE("Undo"),
+									"kIconUndo", 'Z');
 	ActionManager::RegisterAction(B_REDO,
-								   B_TRANSLATE("Redo"),
-								   B_TRANSLATE("Redo"),
-								   "kIconRedo", 'Z', B_SHIFT_KEY);
+									B_TRANSLATE("Redo"),
+									B_TRANSLATE("Redo"),
+									"kIconRedo", 'Z', B_SHIFT_KEY);
 
 	ActionManager::RegisterAction(B_CUT,
-	                               B_TRANSLATE("Cut"),
-								   "", "", 'X');
+									B_TRANSLATE("Cut"),
+									"", "", 'X');
 	ActionManager::RegisterAction(B_COPY,
-	                               B_TRANSLATE("Copy"),
-								   "", "", 'C');
+									B_TRANSLATE("Copy"),
+									"", "", 'C');
 	ActionManager::RegisterAction(B_PASTE,
-	                               B_TRANSLATE("Paste"),
-								   "", "", 'V');
+									B_TRANSLATE("Paste"),
+									"", "", 'V');
 	ActionManager::RegisterAction(B_SELECT_ALL,
-								   B_TRANSLATE("Select all"),
-								   "", "", 'A');
+									B_TRANSLATE("Select all"),
+									"", "", 'A');
 	ActionManager::RegisterAction(MSG_TEXT_OVERWRITE,
-								   B_TRANSLATE("Overwrite"),
-								   "", "");
+									B_TRANSLATE("Overwrite"),
+									"", "");
 	ActionManager::RegisterAction(MSG_FILE_FOLD_TOGGLE,
-								   B_TRANSLATE("Fold/Unfold all"),
-								   B_TRANSLATE("Fold/Unfold all"),
-								   "kIconFold_4");
+									B_TRANSLATE("Fold/Unfold all"),
+									B_TRANSLATE("Fold/Unfold all"),
+									"kIconFold_4");
 	ActionManager::RegisterAction(MSG_WHITE_SPACES_TOGGLE,
-								   B_TRANSLATE("Show whitespace"),
-								   B_TRANSLATE("Show whitespace"), "");
+									B_TRANSLATE("Show whitespace"),
+									B_TRANSLATE("Show whitespace"), "");
 	ActionManager::RegisterAction(MSG_LINE_ENDINGS_TOGGLE,
-								   B_TRANSLATE("Show line endings"),
-								   B_TRANSLATE("Show line endings"), "");
+									B_TRANSLATE("Show line endings"),
+									B_TRANSLATE("Show line endings"), "");
 	ActionManager::RegisterAction(MSG_TOGGLE_SPACES_ENDINGS,
-								   B_TRANSLATE("Show whitespace and line endings"),
-								   B_TRANSLATE("Show whitespace and line endings"),
-								   "kIconShowPunctuation");
+									B_TRANSLATE("Show whitespace and line endings"),
+									B_TRANSLATE("Show whitespace and line endings"),
+									"kIconShowPunctuation");
 	ActionManager::RegisterAction(MSG_WRAP_LINES,
-								   B_TRANSLATE("Wrap lines"),
-								   B_TRANSLATE("Wrap lines"), "kIconWrapLines");
+									B_TRANSLATE("Wrap lines"),
+									B_TRANSLATE("Wrap lines"), "kIconWrapLines");
 
 	ActionManager::RegisterAction(MSG_FILE_TRIM_TRAILING_SPACE,
-								  B_TRANSLATE("Trim trailing whitespace"),
-								  "", "");
+									B_TRANSLATE("Trim trailing whitespace"),
+									"", "");
 
 
 	ActionManager::RegisterAction(MSG_DUPLICATE_LINE,
-								   B_TRANSLATE("Duplicate current line"),
-								   "", "", 'K');
+									B_TRANSLATE("Duplicate current line"),
+									"", "", 'K');
 	ActionManager::RegisterAction(MSG_DELETE_LINES,
-								   B_TRANSLATE("Delete current line"),
-								   "", "", 'D');
+									B_TRANSLATE("Delete current line"),
+									"", "", 'D');
 
 	ActionManager::RegisterAction(MSG_COMMENT_SELECTED_LINES,
-								   B_TRANSLATE("Comment selected lines"),
-								   "", "", 'C', B_SHIFT_KEY);
+									B_TRANSLATE("Comment selected lines"),
+									"", "", 'C', B_SHIFT_KEY);
 
 	ActionManager::RegisterAction(MSG_AUTOCOMPLETION,
-								   B_TRANSLATE("Autocomplete"), "","", B_SPACE);
+									B_TRANSLATE("Autocomplete"), "","", B_SPACE);
 
 	ActionManager::RegisterAction(MSG_FORMAT,
-								   B_TRANSLATE("Format"));
+									B_TRANSLATE("Format"));
 
 	ActionManager::RegisterAction(MSG_GOTODEFINITION,
-								   B_TRANSLATE("Go to definition"), "","", 'G');
+									B_TRANSLATE("Go to definition"), "","", 'G');
 
 	ActionManager::RegisterAction(MSG_GOTODECLARATION,
-								   B_TRANSLATE("Go to declaration"));
+									B_TRANSLATE("Go to declaration"));
 
 	ActionManager::RegisterAction(MSG_GOTOIMPLEMENTATION,
-								   B_TRANSLATE("Go to implementation"));
+									B_TRANSLATE("Go to implementation"));
 
 	ActionManager::RegisterAction(MSG_RENAME,
-								   B_TRANSLATE("Rename symbol" B_UTF8_ELLIPSIS));
+									B_TRANSLATE("Rename symbol" B_UTF8_ELLIPSIS));
 
 	ActionManager::RegisterAction(MSG_FIND_IN_BROWSER,
-								  B_TRANSLATE("Show in projects browser"), "", "", 'Y');
+									B_TRANSLATE("Show in projects browser"), "", "", 'Y');
 
 	ActionManager::RegisterAction(MSG_SWITCHSOURCE,
-								   B_TRANSLATE("Switch source/header"), "", "", B_TAB);
+									B_TRANSLATE("Switch source/header"), "", "", B_TAB);
 
 	ActionManager::RegisterAction(MSG_VIEW_ZOOMIN,  B_TRANSLATE("Zoom in"), "", "", '+');
 	ActionManager::RegisterAction(MSG_VIEW_ZOOMOUT, B_TRANSLATE("Zoom out"), "", "", '-');
@@ -2809,146 +2814,145 @@ GenioWindow::_InitActions()
 
 
 	ActionManager::RegisterAction(MSG_FIND_GROUP_TOGGLED, //MSG_FIND_GROUP_SHOW,
-								   B_TRANSLATE("Find"),
-								   B_TRANSLATE("Show/Hide find bar"),
-								   "kIconFind");
+									B_TRANSLATE("Find"),
+									B_TRANSLATE("Show/Hide find bar"),
+									"kIconFind");
 
 	ActionManager::RegisterAction(MSG_REPLACE_GROUP_TOGGLED, //MSG_REPLACE_GROUP_SHOW,
-								   B_TRANSLATE("Replace"),
-								   B_TRANSLATE("Show/Hide replace bar"),
-								   "kIconReplace");
+									B_TRANSLATE("Replace"),
+									B_TRANSLATE("Show/Hide replace bar"),
+									"kIconReplace");
 
 
 	ActionManager::RegisterAction(MSG_FIND_GROUP_SHOW,
-								   B_TRANSLATE("Find"),
-								   "", "", 'F');
+									B_TRANSLATE("Find"),
+									"", "", 'F');
 
 	ActionManager::RegisterAction(MSG_REPLACE_GROUP_SHOW,
-								   B_TRANSLATE("Replace"),
-								   "", "", 'R');
+									B_TRANSLATE("Replace"),
+									"", "", 'R');
 
 	ActionManager::RegisterAction(MSG_GOTO_LINE,
-								   B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
-								   "", "", ',');
+									B_TRANSLATE("Go to line" B_UTF8_ELLIPSIS),
+									"", "", ',');
 
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN,
-								   B_TRANSLATE("Open project" B_UTF8_ELLIPSIS),
-								   "","",'O', B_OPTION_KEY);
+									B_TRANSLATE("Open project" B_UTF8_ELLIPSIS),
+									"","",'O', B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_OPEN_REMOTE,
-								   B_TRANSLATE("Open remote project" B_UTF8_ELLIPSIS),
-								   "","",'O', B_SHIFT_KEY | B_OPTION_KEY);
+									B_TRANSLATE("Open remote project" B_UTF8_ELLIPSIS),
+									"","",'O', B_SHIFT_KEY | B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_PROJECT_CLOSE,
-								   B_TRANSLATE("Close active project"),
-								   "", "", 'C', B_OPTION_KEY);
+									B_TRANSLATE("Close active project"),
+									"", "", 'C', B_OPTION_KEY);
 
 	ActionManager::RegisterAction(MSG_RUN_CONSOLE_PROGRAM_SHOW,
-								   B_TRANSLATE("Run console program"),
-								   B_TRANSLATE("Run console program"),
-								   "kIconTerminal");
+									B_TRANSLATE("Run console program"),
+									B_TRANSLATE("Run console program"),
+									"kIconTerminal");
 //add missing menus
 
 	// TODO: Should we call those  left/right panes ?
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,
-								   B_TRANSLATE("Show projects pane"),
-								   B_TRANSLATE("Show/Hide projects pane"),
-								   "kIconWinNav");
+									B_TRANSLATE("Show projects pane"),
+									B_TRANSLATE("Show/Hide projects pane"),
+									"kIconWinNav");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTLINE,
-								   B_TRANSLATE("Show outline pane"),
-	                               B_TRANSLATE("Show/Hide outline pane"),
-								   "kIconWinOutline");
+									B_TRANSLATE("Show outline pane"),
+									B_TRANSLATE("Show/Hide outline pane"),
+									"kIconWinOutline");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
-								   B_TRANSLATE("Show output pane"),
-	                               B_TRANSLATE("Show/Hide output pane"),
-								   "kIconWinStat");
+									B_TRANSLATE("Show output pane"),
+									B_TRANSLATE("Show/Hide output pane"),
+									"kIconWinStat");
 
 	ActionManager::RegisterAction(MSG_FULLSCREEN,
-								   B_TRANSLATE("Fullscreen"),
-	                               B_TRANSLATE("Fullscreen"),
-								   "", B_ENTER);
+									B_TRANSLATE("Fullscreen"),
+									B_TRANSLATE("Fullscreen"),
+									"", B_ENTER);
 
 	ActionManager::RegisterAction(MSG_FOCUS_MODE,
-								   B_TRANSLATE("Focus mode"),
-	                               B_TRANSLATE("Focus mode"),
-								   "", B_ENTER, B_SHIFT_KEY);
+									B_TRANSLATE("Focus mode"),
+									B_TRANSLATE("Focus mode"),
+									"", B_ENTER, B_SHIFT_KEY);
 
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
-								   B_TRANSLATE("Show toolbar"));
-
+									B_TRANSLATE("Show toolbar"));
 
 	ActionManager::RegisterAction(MSG_BUILD_PROJECT,
-								  B_TRANSLATE("Build project"),
-								  B_TRANSLATE("Build project"),
-								  "kIconBuild", 'B');
+									B_TRANSLATE("Build project"),
+									B_TRANSLATE("Build project"),
+									"kIconBuild", 'B');
 
 	ActionManager::RegisterAction(MSG_CLEAN_PROJECT,
-								  B_TRANSLATE("Clean project"),
-								  B_TRANSLATE("Clean project"),
-								  "kIconClean");
+									B_TRANSLATE("Clean project"),
+									B_TRANSLATE("Clean project"),
+									"kIconClean");
 
 	ActionManager::RegisterAction(MSG_RUN_TARGET,
-								  B_TRANSLATE("Run target"),
-								  B_TRANSLATE("Run target"),
-								  "kIconRun", 'R', B_SHIFT_KEY);
+									B_TRANSLATE("Run target"),
+									B_TRANSLATE("Run target"),
+									"kIconRun", 'R', B_SHIFT_KEY);
 
 	ActionManager::RegisterAction(MSG_DEBUG_PROJECT,
-								  B_TRANSLATE("Debug project"),
-								  B_TRANSLATE("Debug project"),
-								  "kIconDebug");
+									B_TRANSLATE("Debug project"),
+									B_TRANSLATE("Debug project"),
+									"kIconDebug");
 
 	ActionManager::RegisterAction(MSG_PROJECT_SETTINGS,
-								  B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
-								  B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
-								  "");
+									B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
+									B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
+									"");
 
 	ActionManager::RegisterAction(MSG_RELOAD_EDITORCONFIG,
-								  B_TRANSLATE("Reload .editorconfig"),
-								  B_TRANSLATE("Reload .editorconfig"),
-								  "");
+									B_TRANSLATE("Reload .editorconfig"),
+									B_TRANSLATE("Reload .editorconfig"),
+									"");
 
 	ActionManager::RegisterAction(MSG_BUFFER_LOCK,
-								  B_TRANSLATE("Read-only"),
-								  B_TRANSLATE("Make file read-only"), "kIconLocked");
+									B_TRANSLATE("Read-only"),
+									B_TRANSLATE("Make file read-only"), "kIconLocked");
 
 	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, "",
-						          B_TRANSLATE("Switch to previous file"), "kIconBack_1");
+									B_TRANSLATE("Switch to previous file"), "kIconBack_1");
 
 	ActionManager::RegisterAction(MSG_FILE_NEXT_SELECTED, "",
-								  B_TRANSLATE("Switch to next file"), "kIconForward_2");
+									B_TRANSLATE("Switch to next file"), "kIconForward_2");
 
 	// Find Panel
 	ActionManager::RegisterAction(MSG_FIND_NEXT,
-								  B_TRANSLATE("Find next"),
-								  B_TRANSLATE("Find next"),
-								   "kIconDown_3",
-								  B_DOWN_ARROW, B_COMMAND_KEY);
+									B_TRANSLATE("Find next"),
+									B_TRANSLATE("Find next"),
+									"kIconDown_3",
+									B_DOWN_ARROW, B_COMMAND_KEY);
 
 	ActionManager::RegisterAction(MSG_FIND_PREVIOUS,
-								  B_TRANSLATE("Find previous"),
-								  B_TRANSLATE("Find previous"),
-								  "kIconUp_3",
-								  B_UP_ARROW, B_COMMAND_KEY);
+									B_TRANSLATE("Find previous"),
+									B_TRANSLATE("Find previous"),
+									"kIconUp_3",
+									B_UP_ARROW, B_COMMAND_KEY);
 	ActionManager::RegisterAction(MSG_FIND_IN_FILES,
-								  B_TRANSLATE("Find in project"),
-								  B_TRANSLATE("Find in project"),
-								  "kIconFindInFiles");
+									B_TRANSLATE("Find in project"),
+									B_TRANSLATE("Find in project"),
+									"kIconFindInFiles");
 
 	ActionManager::RegisterAction(MSG_FIND_MARK_ALL,
-								  B_TRANSLATE("Bookmark all"),
-								  B_TRANSLATE("Bookmark all"),
-								  "kIconBookmarkPen");
+									B_TRANSLATE("Bookmark all"),
+									B_TRANSLATE("Bookmark all"),
+									"kIconBookmarkPen");
 
 
 	ActionManager::RegisterAction(MSG_PROJECT_MENU_SHOW_IN_TRACKER,
-								  B_TRANSLATE("Show in Tracker"),
-								  B_TRANSLATE("Show in Tracker"));
+									B_TRANSLATE("Show in Tracker"),
+									B_TRANSLATE("Show in Tracker"));
 
 	ActionManager::RegisterAction(MSG_PROJECT_MENU_OPEN_TERMINAL,
-								  B_TRANSLATE("Open in Terminal"),
-								  B_TRANSLATE("Open in Terminal"));
+									B_TRANSLATE("Open in Terminal"),
+									B_TRANSLATE("Open in Terminal"));
 
 }
 
@@ -2986,7 +2990,7 @@ GenioWindow::_InitMenu()
 
 	BMenu* fileMenu = new BMenu(B_TRANSLATE("File"));
 
-	//ActionManager::AddItem(MSG_FILE_NEW,      fileMenu);
+	//ActionManager::AddItem(MSG_FILE_NEW, fileMenu);
 
 	fileMenu->AddItem(fFileNewMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
 			new BMessage(MSG_FILE_NEW), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
@@ -2994,7 +2998,7 @@ GenioWindow::_InitMenu()
 			TemplateManager::GetUserTemplateDirectory(),
 			TemplatesMenu::SHOW_ALL_VIEW_MODE,	true));
 
-	ActionManager::AddItem(MSG_FILE_OPEN,     fileMenu);
+	ActionManager::AddItem(MSG_FILE_OPEN, fileMenu);
 
 	fileMenu->AddItem(new BMenuItem(BRecentFilesList::NewFileListMenu(
 			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), nullptr, nullptr, this,
@@ -3015,8 +3019,8 @@ GenioWindow::_InitMenu()
 	fileMenu->AddSeparatorItem();
 	ActionManager::AddItem(MSG_FIND_IN_BROWSER, fileMenu);
 
-	ActionManager::SetEnabled(MSG_FILE_NEW,  false);
-	ActionManager::SetEnabled(MSG_IMPORT_RESOURCE,  false);
+	ActionManager::SetEnabled(MSG_FILE_NEW, false);
+	ActionManager::SetEnabled(MSG_IMPORT_RESOURCE, false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE, false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_AS, false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, false);
@@ -3271,8 +3275,8 @@ GenioWindow::_InitMenu()
 
 	BMenu* submenu = new BMenu(B_TRANSLATE("Appearance"));
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, submenu);
-	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE,   submenu);
-	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   submenu);
+	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE, submenu);
+	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT, submenu);
 	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
 	windowMenu->AddItem(submenu);
 	windowMenu->AddSeparatorItem();
@@ -3312,7 +3316,7 @@ GenioWindow::_InitToolbar()
 
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, fToolBar);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE, fToolBar);
-	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT,   fToolBar);
+	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT, fToolBar);
 	fToolBar->AddSeparator();
 
 	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, fToolBar);
@@ -3816,7 +3820,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		ActionManager::SetEnabled(MSG_PROJECT_CLOSE, false);
 
 	BString notification;
-	notification << closed << " "  << name;
+	notification << closed << " " << name;
 	LogInfo(notification.String());
 }
 
@@ -3942,8 +3946,8 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		_TryAssociateEditorWithProject(editor, newProject);
 	}
 
-    // final touch, let's be sure the folder is added to the recent files.
-    be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
+	// final touch, let's be sure the folder is added to the recent files.
+	be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
 
 	return B_OK;
 }
@@ -4068,7 +4072,6 @@ GenioWindow::_ReplaceAllow() const
 
 	return true;
 }
-
 
 
 void

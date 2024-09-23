@@ -962,7 +962,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_MENU_CLOSE: {
 			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project",
-									  fProjectsFolderBrowser->GetProjectFromSelectedItem());
+									fProjectsFolderBrowser->GetProjectFromSelectedItem());
 			_ProjectFolderClose(project);
 			break;
 		}
@@ -976,24 +976,24 @@ GenioWindow::MessageReceived(BMessage* message)
 			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
 			if (project != nullptr)
 				_ProjectFolderActivate(project);
-     }
-      break;
-      case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
+			break;
+		}
+		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				_ShowItemInTracker(&ref);
 				return;
 			}
+			break;
 		}
-		break;
 		case MSG_PROJECT_MENU_OPEN_TERMINAL:{
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				_OpenTerminalWorkingDirectory(&ref);
 				return;
 			}
+			break;
 		}
-		break;
 		case MSG_PROJECT_OPEN:
 			fOpenProjectFolderPanel->Show();
 			break;
@@ -1142,9 +1142,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->GrabFocus();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 
-
 				GetProjectBrowser()->SelectItemByRef(editor->GetProjectFolder(), *editor->FileRef());
-
 
 				// TODO: when closing then reopening a tab, the message will be empty
 				// because the symbols BMessage returned by GetDocumentSymbols()
@@ -1156,7 +1154,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				symbolsChanged.AddMessage("symbols", &symbols);
 				symbolsChanged.AddInt32("caret_line", editor->GetCurrentLineNumber());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &symbolsChanged);
-
 			}
 			break;
 		}
@@ -1169,7 +1166,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (i != index)
 					others.AddInt32("index", i);
 			}
-
 			_CloseMultipleTabs(&others);
 			break;
 		}

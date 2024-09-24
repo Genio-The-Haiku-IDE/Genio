@@ -67,7 +67,6 @@ SRCS += src/lsp-client/Transport.cpp
 SRCS += src/lsp-client/LSPReaderThread.cpp
 SRCS += src/lsp-client/LSPServersManager.cpp
 SRCS += src/lsp-client/CallTipContext.cpp
-SRCS += src/override/BarberPole.cpp
 SRCS += src/project/ProjectFolder.cpp
 SRCS += src/project/ProjectItem.cpp
 SRCS += src/git/BranchItem.cpp
@@ -116,9 +115,6 @@ SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY priva
 SYSTEM_INCLUDE_PATHS += $(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY lexilla)
 SYSTEM_INCLUDE_PATHS += src/scintilla/haiku
 SYSTEM_INCLUDE_PATHS += src/scintilla/include
-
-# For BarberPole.h, which is not available in beta4
-SYSTEM_INCLUDE_PATHS += src/override
 
 WARNINGS = ALL
 COMPILER_FLAGS = -Werror -std=c++20 -fPIC

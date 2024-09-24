@@ -100,7 +100,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
 	DrawItemPrepare(owner, bounds, complete);
 
-	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	const float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BRect iconRect = DrawIcon(owner, bounds, iconSize);
 
 	if (fOpenedInEditor)
@@ -268,28 +268,29 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
 
-	// Fill background to the project color
-	const rgb_color oldColor = owner->HighColor();
-	owner->SetHighColor(projectFolder->Color());
-
 	// Set the font face here, otherwise StringWidth() won't return
 	// the correct width
 	BFont font;
 	font.SetFace(TextFontFace());
 	owner->SetFont(&font, B_FONT_FACE);
 
+	const rgb_color oldColor = owner->HighColor();
+
+	// "highlight" the project title item with the project color
+	owner->SetHighColor(projectFolder->Color());
 	BRect circleRect;
 	circleRect.top = textPoint.y - BaselineOffset() + 2.5f;
 	circleRect.left = textPoint.x - 3;
 	circleRect.bottom = textPoint.y + 6;
 	circleRect.right = circleRect.left + owner->StringWidth(Text()) + 5;
 	owner->FillRoundRect(circleRect, 9, 10);
+
 	owner->SetHighColor(oldColor);
 
 	// TODO: this part is quite computationally intensive
 	// and shoud be moved away from the DrawItem.
-	BString projectName = Text();
-	BString projectPath = projectFolder->Path();
+	const BString projectName = Text();
+	const BString projectPath = projectFolder->Path();
 	BString branchName;
 	try {
 		if (projectFolder->GetRepository()) {
@@ -303,7 +304,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	DrawText(owner, Text(), ExtraText(), textPoint);
 
-	if (static_cast<ProjectFolder*>(GetSourceItem())->IsBuilding()) {
+	if (projectFolder->IsBuilding()) {
 		_DrawBuildIndicator(owner, bounds);
 	}
 	owner->Sync();
@@ -327,7 +328,7 @@ ProjectTitleItem::InitAnimationIcons()
 	for (int32 i = 1; i < 7; i++) {
 		BString name("waiting-");
 		const int32 kBrightnessBreakValue = 126;
-		rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+		const rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 		if (base.Brightness() >= kBrightnessBreakValue)
 			name.Append("light-");
 		else
@@ -377,6 +378,8 @@ BRect
 ProjectTitleItem::DrawIcon(BView* owner, const BRect& itemBounds,
 							const float& iconSize)
 {
+	// TODO: We could draw a bigger icon here,
+	// but IconCache needs to be reworked
 	return ProjectItem::DrawIcon(owner, itemBounds, iconSize);
 }
 

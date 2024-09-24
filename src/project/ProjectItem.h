@@ -38,9 +38,6 @@ private:
 	bool			fOpenedInEditor;
 	BTextControl	*fTextControl;
 
-	static int32	sBuildAnimationIndex;
-	static std::vector<BBitmap*> sBuildAnimationFrames;
-
 	void			_DestroyTextWidget();
 };
 

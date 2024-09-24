@@ -46,6 +46,7 @@
 #include "FunctionsOutlineView.h"
 #include "GenioApp.h"
 #include "GenioNamespace.h"
+#include "GenioSecondaryWindow.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
 #include "GitRepository.h"
@@ -3452,6 +3453,8 @@ GenioWindow::_InitWindow()
 										&ref, B_DIRECTORY_NODE, false,
 										new BMessage(MSG_CREATE_NEW_PROJECT),
 										NULL, true, true);
+	BWindow* win = new GenioSecondaryWindow(BRect(100, 100, 300, 600), "search", new SearchResultPanel(nullptr));
+	win->Show();
 }
 
 

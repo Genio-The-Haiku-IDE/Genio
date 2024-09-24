@@ -6,9 +6,12 @@
 
 #include "GrepThread.h"
 
+#include <Looper.h>
 
-GrepThread::GrepThread(BMessage* cmd_message, const BMessenger& consoleTarget)
-	: ConsoleIOThread(cmd_message, consoleTarget)
+GrepThread::GrepThread(BMessage* cmd_message, const BMessenger& consoleTarget, BLooper* looper)
+	:
+	ConsoleIOThread(cmd_message, consoleTarget),
+	fLooper(looper)
 {
 	fCurrentMessage.MakeEmpty();
 	fCurrentFileName[0] = '\0';
@@ -31,6 +34,8 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 	if (textPos > 0) {
 		if (strcmp(fNextFileName, fCurrentFileName) != 0) {
 			fTarget.SendMessage(&fCurrentMessage);
+			if (fLooper != nullptr)
+				fLooper->SendNotices(fCurrentMessage.what, &fCurrentMessage);
 			strncpy(fCurrentFileName, fNextFileName, B_PATH_NAME_LENGTH);
 			BEntry entry(fNextFileName);
 			entry.GetRef(&fCurrentRef);
@@ -54,10 +59,15 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 void
 GrepThread::ThreadExitNotification()
 {
-	if (fCurrentMessage.HasMessage("line"))
+	if (fCurrentMessage.HasMessage("line")) {
 		fTarget.SendMessage(&fCurrentMessage);
-
+		if (fLooper != nullptr)
+			fLooper->SendNotices(fCurrentMessage.what, &fCurrentMessage);
+	}
 	fCurrentMessage.MakeEmpty();
 	fCurrentMessage.what = MSG_GREP_DONE;
 	fTarget.SendMessage(&fCurrentMessage);
+	if (fLooper != nullptr)
+		fLooper->SendNotices(fCurrentMessage.what, &fCurrentMessage);
+
 }

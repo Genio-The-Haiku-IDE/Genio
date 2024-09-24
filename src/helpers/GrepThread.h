@@ -15,7 +15,7 @@ enum {
 
 class GrepThread : public ConsoleIOThread {
 public:
-	GrepThread(BMessage* cmd_message, const BMessenger& consoleTarget);
+	GrepThread(BMessage* cmd_message, const BMessenger& consoleTarget, BLooper* looper);
 
 protected:
 			void	OnStdOutputLine(const BString& stdOut) override;
@@ -27,4 +27,5 @@ private:
 	char fNextFileName[B_PATH_NAME_LENGTH];
 	BMessage fCurrentMessage;
 	entry_ref fCurrentRef;
+	BLooper* fLooper;
 };

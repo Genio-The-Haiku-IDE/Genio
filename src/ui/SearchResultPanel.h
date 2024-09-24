@@ -29,7 +29,7 @@ private:
 		void	_UpdateTabLabel(const char* txt = nullptr);
 		void	ClearSearch();
 		void 	UpdateSearch(BMessage* msg);
-		GrepThread*	fGrepThread;
+		static GrepThread*	sGrepThread;
 		BString 	fProjectPath;
 		BTabView*	fTabView;
 		int32		fCountResults;

@@ -12,6 +12,7 @@
 #include <string>
 
 #include "ActionManager.h"
+#include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -65,12 +66,13 @@ public:
 };
 
 
+GrepThread*	SearchResultPanel::sGrepThread = nullptr;
+
 #define SearchResultPanelLabel B_TRANSLATE("Search results")
 
 SearchResultPanel::SearchResultPanel(BTabView* tabView)
 	:
 	BColumnListView(SearchResultPanelLabel, B_NAVIGABLE, B_FANCY_BORDER, true),
-	fGrepThread(nullptr),
 	fTabView(tabView),
 	fCountResults(0)
 {
@@ -97,7 +99,7 @@ SearchResultPanel::SetTabLabel(BString label)
 void
 SearchResultPanel::StartSearch(BString command, BString projectPath)
 {
-	if (fGrepThread)
+	if (sGrepThread != nullptr)
 		return;
 
 	fCountResults = 0;
@@ -112,8 +114,8 @@ SearchResultPanel::StartSearch(BString command, BString projectPath)
 	ActionManager::SetEnabled(MSG_FIND_IN_FILES, false);
 
 	_UpdateTabLabel("\xe2\x8c\x9b");//U+231x
-	fGrepThread = new GrepThread(&message, BMessenger(this));
-	fGrepThread->Start();
+	sGrepThread = new GrepThread(&message, BMessenger(this), gMainWindow);
+	sGrepThread->Start();
 }
 
 
@@ -124,15 +126,27 @@ SearchResultPanel::AttachedToWindow()
 	SetInvocationMessage(new BMessage(SEARCHRESULT_CLICK));
 	SetTarget(this);
 	_UpdateTabLabel();
+	if (Window() != gMainWindow) {
+		gMainWindow->Lock();
+		gMainWindow->StartWatching(this, SEARCHRESULT_CLICK);
+		gMainWindow->StartWatching(this, MSG_REPORT_RESULT);
+		gMainWindow->Unlock();
+	}
 }
 
 
 void
 SearchResultPanel::MessageReceived(BMessage* msg)
 {
-	switch (msg->what) {
+	BMessage* message = msg;
+	if (msg->what == B_OBSERVER_NOTICE_CHANGE) {
+		int32 newWhat = msg->GetInt32("be:observe_change_what", 0);
+		message->what = newWhat;
+		// fall through
+	}
+	switch (message->what) {
 		case MSG_REPORT_RESULT:
-			UpdateSearch(msg);
+			UpdateSearch(message);
 			break;
 		case SEARCHRESULT_CLICK:
 		{
@@ -147,10 +161,10 @@ SearchResultPanel::MessageReceived(BMessage* msg)
 		}
 		case MSG_GREP_DONE:
 		{
-			if (fGrepThread) {
-				fGrepThread->InterruptExternal();
-				delete fGrepThread;
-				fGrepThread = nullptr;
+			if (sGrepThread != nullptr) {
+				sGrepThread->InterruptExternal();
+				delete sGrepThread;
+				sGrepThread = nullptr;
 			}
 			_UpdateTabLabel(std::to_string(fCountResults).c_str());
 			ActionManager::SetEnabled(MSG_FIND_IN_FILES, true);

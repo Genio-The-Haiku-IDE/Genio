@@ -11,6 +11,7 @@
 
 class StyledItem : public BStringItem {
 public:
+
 					StyledItem(const char* text,
 								uint32 outlineLevel = 0,
 								bool expanded = true,
@@ -26,6 +27,8 @@ public:
 
 	void			SetExtraText(const char* extraText);
 	const char*		ExtraText() const;
+	void			SetExtraTextColor(const rgb_color& color);
+	rgb_color		ExtraTextColor() const;
 
 	bool			HasToolTip() const;
 	void			SetToolTipText(const char *text);
@@ -46,7 +49,10 @@ protected:
 private:
 	BString			fIconName;
 	uint16			fFontFace;
+	// TODO: Maybe allocate these dynamically since ExtraText
+	// is not always used
 	BString			fExtraText;
+	rgb_color* 		fExtraTextColor;
 	BString			fToolTipText;
 	bool			fIconFollowsTheme;
 };

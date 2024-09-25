@@ -23,6 +23,7 @@ StyledItem::StyledItem(const char* text,
 	BStringItem(text, outlineLevel, expanded),
 	fIconName(iconName),
 	fFontFace(B_REGULAR_FACE),
+	fExtraTextColor(nullptr),
 	fToolTipText(),
 	fIconFollowsTheme(false)
 {
@@ -32,6 +33,7 @@ StyledItem::StyledItem(const char* text,
 /* virtual */
 StyledItem::~StyledItem()
 {
+	delete fExtraTextColor;
 }
 
 
@@ -52,6 +54,7 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 					bounds.top + BaselineOffset());
 
 	// TODO: would be nice to draw extra text in different style
+	// at least we can draw in different color now
 	DrawText(owner, Text(), ExtraText(), textPoint);
 
 	owner->Sync();
@@ -91,6 +94,28 @@ const char*
 StyledItem::ExtraText() const
 {
 	return fExtraText.String();
+}
+
+
+void
+StyledItem::SetExtraTextColor(const rgb_color& color)
+{
+	delete fExtraTextColor;
+	fExtraTextColor = new rgb_color(color);
+}
+
+
+rgb_color
+StyledItem::ExtraTextColor() const
+{
+	if (fExtraTextColor != nullptr)
+		return *fExtraTextColor;
+
+	// TODO: might not be what we want
+	if (IsSelected())
+		return ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR);
+	else
+		return ui_color(B_LIST_ITEM_TEXT_COLOR);
 }
 
 
@@ -167,8 +192,10 @@ StyledItem::DrawText(BView* owner, const char* text,
 	owner->SetDrawingMode(B_OP_COPY);
 	owner->MovePenTo(point);
 	owner->DrawString(text);
-	if (extraText != nullptr)
+	if (extraText != nullptr) {
+		owner->SetHighColor(ExtraTextColor());
 		owner->DrawString(extraText);
+	}
 }
 
 

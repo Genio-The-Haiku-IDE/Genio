@@ -2,31 +2,30 @@
  * Copyright 2023, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef Draggable_H
-#define Draggable_H
+#pragma once
 
+#include <Point.h>
 
-#include <SupportDefs.h>
-#include <stdio.h>
+#include <cmath>
 
 class Draggable {
 public:
 	Draggable() {};
-	
+
 	void OnMouseDown(BPoint where )
 	{
 		fDragging = false;
 		fTryDrag = true;
 		fDragPoint = where;
 	}
-	
+
 	void OnMouseUp(BPoint where)
 	{
 		fTryDrag = false;
 		fDragging = false;
 		fDragPoint = BPoint(0, 0);
 	}
-	
+
 	void OnMouseMoved(BPoint where)
 	{
 		if (fTryDrag) {
@@ -38,12 +37,12 @@ public:
 				fDragging = InitiateDrag(fDragPoint);
 			}
 		}
-	}	
+	}
 	virtual bool InitiateDrag(BPoint where)
 	{
 		return false;
 	}
-	
+
 private:
 
 	bool 	fTryDrag   = false;
@@ -51,6 +50,3 @@ private:
 	BPoint	fDragPoint = BPoint(0, 0);
 
 };
-
-
-#endif // Draggable.h_H

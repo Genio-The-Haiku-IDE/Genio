@@ -67,11 +67,11 @@ public:
 
 #define SearchResultPanelLabel B_TRANSLATE("Search results")
 
-SearchResultPanel::SearchResultPanel(BTabView* tabView)
+SearchResultPanel::SearchResultPanel()
 	:
 	BColumnListView(SearchResultPanelLabel, B_NAVIGABLE, B_FANCY_BORDER, true),
 	fGrepThread(nullptr),
-	fTabView(tabView),
+	fTabView(nullptr),
 	fCountResults(0)
 {
 	AddColumn(new BFontStringColumn(B_TRANSLATE("Location"),

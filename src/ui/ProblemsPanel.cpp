@@ -46,9 +46,9 @@ class RangeRow : public BRow {
 
 #define ProblemLabel B_TRANSLATE("Problems")
 
-ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
+ProblemsPanel::ProblemsPanel(): BColumnListView(ProblemLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)
-									, fTabView(tabView)
+									, fTabView(nullptr)
 
 {
 	AddColumn(new BStringColumn( B_TRANSLATE("Category"),

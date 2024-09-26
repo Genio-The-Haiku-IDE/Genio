@@ -15,7 +15,7 @@
 
 class SearchResultPanel : public BColumnListView {
 public:
-		SearchResultPanel(BTabView*);
+		SearchResultPanel();
 
 		void StartSearch(BString command, BString projectPath);
 

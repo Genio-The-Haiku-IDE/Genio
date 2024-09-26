@@ -12,7 +12,7 @@ class BTabView;
 class Editor;
 class ProblemsPanel : public BColumnListView {
 public:
-		ProblemsPanel(BTabView*);
+		ProblemsPanel();
 		virtual ~ProblemsPanel();
 
 		void UpdateProblems(Editor* editor);

@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "GMessage.h"
+#include "TabManager.h"
 
 
 enum {
@@ -48,6 +49,8 @@ class SourceControlPanel;
 class TemplatesMenu;
 class ToolBar;
 class MTermView;
+
+
 
 class GenioWindow : public BWindow {
 public:
@@ -246,7 +249,7 @@ private:
 			BFilePanel*			fImportResourcePanel;
 
 			// Bottom panels
-			BTabView*			fOutputTabView;
+			::TabManager*			fOutputTabView;
 			ProblemsPanel*		fProblemsPanel;
 			ConsoleIOView*		fBuildLogView;
 			MTermView*			fMTermView;

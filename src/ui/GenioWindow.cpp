@@ -65,6 +65,7 @@
 #include "SearchResultPanel.h"
 #include "SourceControlPanel.h"
 #include "SwitchBranchMenu.h"
+#include "TabManager.h"
 #include "Task.h"
 #include "TemplateManager.h"
 #include "TemplatesMenu.h"
@@ -271,7 +272,7 @@ GenioWindow::Show()
 	if (LockLooper()) {
 		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
 		_ShowView(fRightTabView, gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
-		_ShowView(fOutputTabView, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowView(fOutputTabView->ContainerView(), gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
@@ -1093,7 +1094,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ShowView(fRightTabView, fRightTabView->IsHidden(), MSG_SHOW_HIDE_OUTLINE);
 			break;
 		case MSG_SHOW_HIDE_OUTPUT:
-			_ShowView(fOutputTabView, fOutputTabView->IsHidden(), MSG_SHOW_HIDE_OUTPUT);
+			_ShowView(fOutputTabView->ContainerView(), fOutputTabView->ContainerView()->IsHidden(), MSG_SHOW_HIDE_OUTPUT);
 			break;
 		case MSG_FULLSCREEN:
 		case MSG_FOCUS_MODE:
@@ -1299,7 +1300,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		fScreenModeSettings["saved_frame"] = Frame();
 		fScreenModeSettings["saved_look"] = (int32)Look();
 		fScreenModeSettings["show_projects"] = !fProjectsTabView->IsHidden();
-		fScreenModeSettings["show_output"]   = !fOutputTabView->IsHidden();
+		fScreenModeSettings["show_output"]   = !fOutputTabView->ContainerView()->IsHidden();
 		fScreenModeSettings["show_toolbar"]  = !fToolBar->IsHidden();
 		fScreenModeSettings["show_outline"]  = !fRightTabView->IsHidden();
 
@@ -1321,7 +1322,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 			_ShowView(fToolBar,         false, MSG_TOGGLE_TOOLBAR);
 			_ShowView(fProjectsTabView, false, MSG_SHOW_HIDE_PROJECTS);
 			_ShowView(fRightTabView, false, MSG_SHOW_HIDE_OUTLINE);
-			_ShowView(fOutputTabView,   false, MSG_SHOW_HIDE_OUTPUT);
+			_ShowView(fOutputTabView->ContainerView(),   false, MSG_SHOW_HIDE_OUTPUT);
 			fScreenMode = kFocus;
 		}
 	} else { // exit fullscreen
@@ -1342,7 +1343,7 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		_ShowView(fToolBar,         fScreenModeSettings["show_toolbar"], MSG_TOGGLE_TOOLBAR);
 		_ShowView(fProjectsTabView, fScreenModeSettings["show_projects"] , MSG_SHOW_HIDE_PROJECTS);
 		_ShowView(fRightTabView, 	fScreenModeSettings["show_outline"] , MSG_SHOW_HIDE_OUTLINE);
-		_ShowView(fOutputTabView,   fScreenModeSettings["show_output"], MSG_SHOW_HIDE_OUTPUT);
+		_ShowView(fOutputTabView->ContainerView(),   fScreenModeSettings["show_output"], MSG_SHOW_HIDE_OUTPUT);
 
 		fScreenMode = kDefault;
 	}
@@ -1491,7 +1492,7 @@ GenioWindow::QuitRequested()
 		_ToogleScreenMode(-1);
 
 	gCFG["show_projects"] = !fProjectsTabView->IsHidden();
-	gCFG["show_output"]   = !fOutputTabView->IsHidden();
+	gCFG["show_output"]   = !fOutputTabView->ContainerView()->IsHidden();
 	gCFG["show_toolbar"]  = !fToolBar->IsHidden();
 
 	// Files to reopen
@@ -3363,20 +3364,23 @@ void
 GenioWindow::_InitOutputSplit()
 {
 	// Output
-	fOutputTabView = new BTabView("OutputTabview");
+	//fOutputTabView = new BTabView("OutputTabview");
+	fOutputTabView = new ::TabManager(BMessenger(this));
+	fTabManager->GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, fProjectsTabView->TabHeight()));
+	fTabManager->GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, fProjectsTabView->TabHeight()));
 
-	fProblemsPanel = new ProblemsPanel(fOutputTabView);
+	fProblemsPanel = new ProblemsPanel();
 
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
 
 	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
-	fSearchResultPanel = new SearchResultPanel(fOutputTabView);
+	fSearchResultPanel = new SearchResultPanel();
 
-	fOutputTabView->AddTab(fProblemsPanel);
-	fOutputTabView->AddTab(fBuildLogView);
-	fOutputTabView->AddTab(fMTermView);
-	fOutputTabView->AddTab(fSearchResultPanel);
+	fOutputTabView->AddTab(fProblemsPanel, "Problems");
+	fOutputTabView->AddTab(fBuildLogView, "Build log");
+	fOutputTabView->AddTab(fMTermView, "Console I/O");
+	fOutputTabView->AddTab(fSearchResultPanel, "Search results");
 }
 
 
@@ -3426,7 +3430,8 @@ GenioWindow::_InitWindow()
 				.Add(fEditorTabsGroup, kEditorWeight)  // Editor
 				.Add(fRightTabView, 1)
 			.End() // sidebar split
-			.Add(fOutputTabView, kOutputWeight)
+			.Add(fOutputTabView->TabGroup())
+			.Add(fOutputTabView->ContainerView(), kOutputWeight)
 		.End() //  output split
 	;
 
@@ -4191,10 +4196,10 @@ GenioWindow::_SetMakefileBuildMode()
 void
 GenioWindow::_ShowLog(int32 index)
 {
-	if (fOutputTabView->IsHidden())
-		fOutputTabView ->Show();
+	if (fOutputTabView->ContainerView()->IsHidden())
+		fOutputTabView->ContainerView()->Show();
 
-	fOutputTabView->Select(index);
+	fOutputTabView->SelectTab(index);
 }
 
 

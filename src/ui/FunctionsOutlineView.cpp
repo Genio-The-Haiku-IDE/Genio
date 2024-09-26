@@ -23,12 +23,9 @@
 #include "StyledItem.h"
 #include "ToolBar.h"
 
-
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "FunctionsOutlineView"
 
-#undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "OutlineTooltips"
 
 const int32 kMsgGoToSymbol		= 'gots';
 const int32 kMsgSort			= 'sort';
@@ -193,11 +190,8 @@ CompareItems(const BListItem* itemA, const BListItem* itemB)
 	const SymbolListItem* A = static_cast<const SymbolListItem*>(itemA);
 	const SymbolListItem* B = static_cast<const SymbolListItem*>(itemB);
 
-	int32 lineA;
-	A->Details().FindInt32("start:line", &lineA);
-
-	int32 lineB;
-	B->Details().FindInt32("start:line", &lineB);
+	int32 lineA = A->Details().GetInt32("start:line", 0);
+	int32 lineB = B->Details().GetInt32("start:line", 0);
 
 	return lineA - lineB;
 }
@@ -273,7 +267,7 @@ private:
 			if (item == nullptr)
 				return;
 
-			BMessage symbol = item->Details();
+			const BMessage symbol = item->Details();
 			Position position;
 			position.character = symbol.GetInt32("start:character", -1);
 			position.line = symbol.GetInt32("start:line", -1);
@@ -366,6 +360,10 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 					LogError("MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED");
 					entry_ref newRef;
 					msg->FindRef("ref", &newRef);
+
+					// TODO: Find a way to avoid this call: if we ever manage to
+					// implement undockable tabs, this call would need to lock the main window
+					// and it's not nice
 					Editor* editor = gMainWindow->TabManager()->SelectedEditor();
 					// Got a message from an unselected editor: ignore.
 					if (editor != nullptr && *editor->FileRef() != newRef) {

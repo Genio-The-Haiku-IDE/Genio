@@ -2651,6 +2651,7 @@ GenioWindow::_InitCentralSplit()
 	// Editor tab & view
 
 	fTabManager = new EditorTabManager(BMessenger(this));
+	fTabManager->SetColorIndicatorAvailable(true);
 	fTabManager->GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, fProjectsTabView->TabHeight()));
 	fTabManager->GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, fProjectsTabView->TabHeight()));
 

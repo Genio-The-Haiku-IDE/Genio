@@ -444,6 +444,16 @@ public:
 	{
 		return fCloseButtonsAvailable;
 	}
+
+	void SetColorIndicatorAvailable(bool available)
+	{
+		fColorIndicatorAvailable = available;
+	}
+
+	bool ColorIndicatorAvailable() const
+	{
+		return fColorIndicatorAvailable;
+	}
 #if 0
 	void SetDoubleClickOutsideTabsMessage(const BMessage& message,
 		const BMessenger& target);
@@ -462,6 +472,7 @@ private:
 	TabManager*			fManager;
 	TabContainerGroup*	fTabContainerGroup;
 	bool				fCloseButtonsAvailable;
+	bool				fColorIndicatorAvailable;
 #if 0
 	BMessage*			fDoubleClickOutsideTabsMessage;
 	BMessenger			fTarget;
@@ -556,17 +567,18 @@ WebTabView::DrawContents(BView* owner, BRect frame, const BRect& updateRect,
 		frame.left = frame.left + kIconSize + kIconInset * 2;
 	}
 
-	// Draw colored circle before text
-	BRect circleFrame(frame);
-	circleFrame.OffsetBy(0, 1);
-	circleFrame.right = circleFrame.left + circleFrame.Height();
-	circleFrame.InsetBy(5, 5);
-	owner->SetHighColor(fColor);
-	owner->FillEllipse(circleFrame);
-	owner->SetHighColor(tint_color(fColor, B_DARKEN_1_TINT));
-	owner->StrokeEllipse(circleFrame);
-	frame.left = circleFrame.right + be_control_look->DefaultLabelSpacing();
-
+	if (fController->ColorIndicatorAvailable()) {
+		// Draw colored circle before text
+		BRect circleFrame(frame);
+		circleFrame.OffsetBy(0, 1);
+		circleFrame.right = circleFrame.left + circleFrame.Height();
+		circleFrame.InsetBy(5, 5);
+		owner->SetHighColor(fColor);
+		owner->FillEllipse(circleFrame);
+		owner->SetHighColor(tint_color(fColor, B_DARKEN_1_TINT));
+		owner->StrokeEllipse(circleFrame);
+		frame.left = circleFrame.right + be_control_look->DefaultLabelSpacing();
+	}
 	TabView::DrawContents(owner, frame, updateRect, isFirst, isLast, isFront);
 }
 
@@ -734,7 +746,8 @@ TabManagerController::TabManagerController(TabManager* manager)
 	fCloseButtonsAvailable(false),
 	fDoubleClickOutsideTabsMessage(NULL)
 #endif
-	fCloseButtonsAvailable(true)
+	fCloseButtonsAvailable(true),
+	fColorIndicatorAvailable(false)
 {
 }
 
@@ -1095,5 +1108,15 @@ TabManager::SetCloseButtonsAvailable(bool available)
 	if (available == fController->CloseButtonsAvailable())
 		return;
 	fController->SetCloseButtonsAvailable(available);
+	fTabContainerView->Invalidate();
+}
+
+
+void
+TabManager::SetColorIndicatorAvailable(bool available)
+{
+	if (available == fController->ColorIndicatorAvailable())
+		return;
+	fController->SetColorIndicatorAvailable(available);
 	fTabContainerView->Invalidate();
 }

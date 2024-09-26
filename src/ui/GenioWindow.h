@@ -11,11 +11,6 @@
 #include <vector>
 
 #include "GMessage.h"
-#include "ResourceImport.h"
-
-enum {
-	kProjectsOutline = 0,
-};
 
 
 enum {

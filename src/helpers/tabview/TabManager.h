@@ -72,6 +72,7 @@ public:
 			void				SetTabColor(const BView* containedView,
 									const rgb_color& color);
 			void				SetCloseButtonsAvailable(bool available);
+			void				SetColorIndicatorAvailable(bool available);
 
 	virtual BString				GetToolTipText(int32 index) { return TabLabel(index);}
 	virtual void				ShowTabMenu(BMessenger target, BPoint where, int32 index) {};

@@ -1,9 +1,8 @@
 /*
- * Copyright 2023, Nexus6 
+ * Copyright 2023-2024, Nexus6 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef ICON_CACHE_H
-#define ICON_CACHE_H
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -29,5 +28,3 @@ private:
 
 	static IconCache sInstance;
 };
-
-#endif // ICON_CACHE_H

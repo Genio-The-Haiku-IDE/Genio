@@ -1142,7 +1142,10 @@ GenioWindow::MessageReceived(BMessage* message)
 				editor->GrabFocus();
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 
-				GetProjectBrowser()->SelectItemByRef(editor->GetProjectFolder(), *editor->FileRef());
+				BMessage tabSelectedNotice(MSG_NOTIFY_EDITOR_FILE_SELECTED);
+				tabSelectedNotice.AddPointer("project", editor->GetProjectFolder());
+				tabSelectedNotice.AddRef("ref", editor->FileRef());
+				SendNotices(MSG_NOTIFY_EDITOR_FILE_SELECTED, &tabSelectedNotice);
 
 				// TODO: when closing then reopening a tab, the message will be empty
 				// because the symbols BMessage returned by GetDocumentSymbols()

@@ -467,6 +467,16 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					}
 					break;
 				}
+				case MSG_NOTIFY_EDITOR_FILE_SELECTED:
+				{
+					entry_ref ref;
+					if (message->FindRef("ref", &ref) != B_OK)
+						break;
+					const ProjectFolder* project =
+						reinterpret_cast<const ProjectFolder*>(message->GetPointer("project", nullptr));
+					SelectItemByRef(const_cast<ProjectFolder*>(project), ref);
+					break;
+				}
 				case MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED:
 				{
 					bool needsSave = false;
@@ -630,6 +640,7 @@ ProjectBrowser::AttachedToWindow()
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
+		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_SELECTED);
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->UnlockLooper();
@@ -658,6 +669,7 @@ ProjectBrowser::DetachedFromWindow()
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
+		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_SELECTED);
 		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->UnlockLooper();

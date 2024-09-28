@@ -146,6 +146,9 @@ enum {
 	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch',	// file_name (string)
 													// needs_save (bool)
 
+	// tab selected
+	MSG_NOTIFY_EDITOR_FILE_SELECTED		= 'efsl',	// ref (ref)
+
 	MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED	= 'esup',	// ref (ref)
 													// symbols (BMessage)
 													// status (int32)

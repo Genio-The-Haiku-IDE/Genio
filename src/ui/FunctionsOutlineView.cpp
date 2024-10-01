@@ -357,7 +357,6 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			switch (code) {
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
-					LogError("MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED");
 					entry_ref newRef;
 					msg->FindRef("ref", &newRef);
 
@@ -383,6 +382,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 					break;
 				}
 				default:
+					BView::MessageReceived(msg);
 					break;
 			}
 			break;

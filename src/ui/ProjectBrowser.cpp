@@ -524,7 +524,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case 'DATA':
+		case B_SIMPLE_DATA:
 		{
 			entry_ref ref;
 			int32 refsCount = 0;

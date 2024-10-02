@@ -448,7 +448,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case 'DATA':
+		case B_SIMPLE_DATA:
 		case B_REFS_RECEIVED:
 			_FileOpen(message);
 			Activate();

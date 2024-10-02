@@ -575,7 +575,7 @@ ProjectBrowser::GetSelectedProjectItem() const
 
 
 ProjectItem*
-ProjectBrowser::GetProjectItemForProject(ProjectFolder* folder)
+ProjectBrowser::GetProjectItemForProject(ProjectFolder* folder) const
 {
 	assert(fProjectProjectItemList.CountItems() == CountProjects());
 
@@ -616,6 +616,40 @@ ProjectBrowser::GetSelectedProjectFileRef() const
 {
 	ProjectItem* selectedProjectItem = GetSelectedProjectItem();
 	return selectedProjectItem->GetSourceItem()->EntryRef();
+}
+
+
+ProjectItem*
+ProjectBrowser::GetItemByRef(ProjectFolder* project, const entry_ref& ref) const
+{
+	ProjectItem* projectItem = GetProjectItemForProject(project);
+	if (projectItem == nullptr)
+		return nullptr;
+
+	bool found = false;
+	BPath path(&ref);
+	BString fullpath = path.Path();
+	if (fullpath.StartsWith(project->Path().String())) {
+		fullpath = fullpath.RemoveFirst(project->Path().String());
+
+		BStringList list;
+		fullpath.Split("/", true, list);
+		for (int32 i = 0; i < list.CountStrings(); i++) {
+			for (int32 j = 0; j < fOutlineListView->CountItemsUnder(projectItem, true); j++) {
+				ProjectItem* pItem = (ProjectItem*)fOutlineListView->ItemUnderAt(projectItem, true, j);
+				if (pItem->GetSourceItem()->Name().Compare(list.StringAt(i)) == 0) {
+					fOutlineListView->Expand(projectItem);
+					projectItem = pItem;
+					found = (i == list.CountStrings() - 1);
+					break;
+				}
+			}
+		}
+	}
+	if (!found)
+		return nullptr;
+
+	return projectItem;
 }
 
 
@@ -845,35 +879,12 @@ ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_r
 void
 ProjectBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
 {
-	ProjectItem* projectItem = GetProjectItemForProject(project);
-	if (projectItem == nullptr)
-		return;
+	ProjectItem* projectItem = GetItemByRef(project, ref);
 
-	BPath path(&ref);
-	BString fullpath = path.Path();
-	if (fullpath.StartsWith(project->Path().String())) {
-		fullpath = fullpath.RemoveFirst(project->Path().String());
-
-		bool found = false;
-		BStringList list;
-		fullpath.Split("/", true, list);
-		for (int32 i = 0; i < list.CountStrings(); i++) {
-			for (int32 j = 0; j < fOutlineListView->CountItemsUnder(projectItem, true); j++) {
-				ProjectItem* pItem = (ProjectItem*)fOutlineListView->ItemUnderAt(projectItem, true, j);
-				if (pItem->GetSourceItem()->Name().Compare(list.StringAt(i)) == 0) {
-					fOutlineListView->Expand(projectItem);
-
-					projectItem = pItem;
-					found = (i == list.CountStrings() - 1);
-					break;
-				}
-			}
-		}
-		if (found) {
-			LogInfoF("Found ProjectItem! %s", projectItem->GetSourceItem()->Name().String());
-			fOutlineListView->Select(fOutlineListView->IndexOf(projectItem));
-			fOutlineListView->ScrollToSelection();
-		}
+	if (projectItem != nullptr) {
+		LogInfoF("Found ProjectItem! %s", projectItem->GetSourceItem()->Name().String());
+		fOutlineListView->Select(fOutlineListView->IndexOf(projectItem));
+		fOutlineListView->ScrollToSelection();
 	}
 }
 

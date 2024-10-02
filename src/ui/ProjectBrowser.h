@@ -38,12 +38,14 @@ public:
 	virtual void	MessageReceived(BMessage* message);
 
 	ProjectItem*	GetSelectedProjectItem() const;
-	ProjectItem*	GetProjectItemForProject(ProjectFolder*);
+	ProjectItem*	GetProjectItemForProject(ProjectFolder*) const;
 
 	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
 	ProjectFolder*	GetProjectFromSelectedItem() const;
 
 	const entry_ref* GetSelectedProjectFileRef() const;
+
+	ProjectItem*	GetItemByRef(ProjectFolder* project, const entry_ref& ref) const;
 
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);

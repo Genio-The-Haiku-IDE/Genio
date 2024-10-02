@@ -10,6 +10,7 @@
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"
 #include "GenioWindow.h"
+#include "Editor.h"
 #include "Log.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
@@ -490,6 +491,33 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					}
 					break;
 				}
+				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
+				{
+					BMessage symbols;
+					if (message->FindMessage("symbols", &symbols) != B_OK)
+						break;
+
+					entry_ref editorRef;
+					if (symbols.FindRef("ref", &editorRef) != B_OK)
+						break;
+
+					// TODO: don't hardcode first project
+					ProjectFolder* project = ProjectAt(0);
+					ProjectItem* item = GetItemByRef(project, editorRef);
+					int32 status = symbols.GetInt32("status", Editor::STATUS_UNKNOWN);
+					switch (status) {
+						case Editor::STATUS_REQUESTED:
+							item->SetExtraTextColor(rgb_color(0, 255, 0));
+							break;
+						case Editor::STATUS_UNKNOWN:
+						case Editor::STATUS_NO_CAPABILITY:
+						default:
+							item->SetExtraTextColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+							break;
+					}
+					fOutlineListView->Invalidate();
+					break;
+				}
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
 					bool building = false;
@@ -677,6 +705,7 @@ ProjectBrowser::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_SELECTED);
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 		Window()->UnlockLooper();
 	}
 

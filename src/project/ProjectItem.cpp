@@ -391,7 +391,8 @@ ProjectTitleItem::_DrawBuildIndicator(BView* owner, BRect bounds)
 		const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
 		if (frame != nullptr) {
 			owner->SetDrawingMode(B_OP_ALPHA);
-			bounds.left = bounds.right - bounds.Height();
+			bounds.left = owner->PenLocation().x + 5;
+			bounds.right = bounds.left + bounds.Height();
 			bounds.OffsetBy(-1, 1);
 			owner->DrawBitmap(frame, frame->Bounds(), bounds);
 		}

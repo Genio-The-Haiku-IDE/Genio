@@ -49,6 +49,7 @@
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
 #include "GitRepository.h"
+#include "GlobalStatusView.h"
 #include "GoToLineWindow.h"
 #include "GSettings.h"
 #include "IconMenuItem.h"
@@ -3432,6 +3433,7 @@ GenioWindow::_InitWindow()
 			.End() // sidebar split
 			.Add(fOutputTabView, kOutputWeight)
 		.End() //  output split
+		.Add(new GlobalStatusView())
 	;
 
 	// Panels

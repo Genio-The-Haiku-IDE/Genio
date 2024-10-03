@@ -4278,6 +4278,10 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	}
 
 	fProjectsFolderBrowser->Invalidate();
+	// TODO: For some reason the above call doesn't trigger redraw of (some?) of
+	// the items of the child BOutlineListView
+	// Obviously this shouldn't be done
+	fProjectsFolderBrowser->FindView("ProjectBrowserOutline")->Invalidate();
 }
 
 

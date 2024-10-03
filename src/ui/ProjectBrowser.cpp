@@ -899,7 +899,7 @@ ProjectBrowser::GetProjectList() const
 // ProjectOutlineListView
 ProjectOutlineListView::ProjectOutlineListView()
 	:
-	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST),
+	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST),
 	fFileNewProjectMenuItem(nullptr)
 {
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));

@@ -63,6 +63,7 @@ TabContainerView::MinSize()
 	return size;
 }
 
+
 void
 TabContainerView::OnDrop(BMessage* msg)
 {
@@ -85,6 +86,8 @@ TabContainerView::OnDrop(BMessage* msg)
 
 	Invalidate();
 }
+
+
 void
 TabContainerView::MessageReceived(BMessage* message)
 {
@@ -160,6 +163,7 @@ TabContainerView::Draw(BRect updateRect)
 	_DrawTabIndicator();
 }
 
+
 void
 TabContainerView::_DrawTabIndicator()
 {
@@ -188,10 +192,7 @@ TabContainerView::MouseDown(BPoint where)
 		fLastMouseEventTab->MouseDown(where, buttons);
 	else {
 		if ((buttons & B_TERTIARY_MOUSE_BUTTON) != 0) {
-#if 0
-			// Middle click outside tabs should always open a new tab.
-			fController->DoubleClickOutsideTabs();
-#endif
+			// Does nothing
 		} else if (clicks > 1)
 			fClickCount++;
 		else
@@ -214,9 +215,6 @@ TabContainerView::MouseUp(BPoint where)
 		// any tab. So even if fLastMouseEventTab has been reset to NULL
 		// because this tab was removed during mouse down, we wouldn't
 		// run the "outside tabs" code below.
-#if 0
-		fController->DoubleClickOutsideTabs();
-#endif
 		fClickCount = 0;
 	}
 	// Always check the tab under the mouse again, since we don't update

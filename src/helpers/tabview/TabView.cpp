@@ -51,9 +51,6 @@ BSize
 TabView::MinSize()
 {
 	BSize size(MaxSize());
-#if 0
-	size.width = 60.0f;
-#endif
 	size.width = 200.0f;
 	return size;
 }
@@ -183,10 +180,9 @@ TabView::SetIsLast(bool isLast)
 void
 TabView::Update(bool isFirst, bool isLast, bool isFront)
 {
-#if 1
 	if (fIsFirst == isFirst && fIsLast == isLast && fIsFront == isFront)
 		return;
-#endif
+
 	fIsFirst = isFirst;
 	fIsLast = isLast;
 	fIsFront = isFront;

@@ -8,13 +8,9 @@
 
 #include <GroupView.h>
 
-#if 0
-class TabView;
-#else
-#include "TabView.h"
-#endif
 
 #include "Draggable.h"
+#include "TabView.h"
 
 
 class TabContainerView : public BGroupView, public Draggable {
@@ -25,8 +21,6 @@ public:
 
 		virtual	bool			HasFrames() = 0;
 		virtual	TabView*		CreateTabView() = 0;
-
-//		virtual	void			DoubleClickOutsideTabs() = 0;
 
 		virtual	void			UpdateTabScrollability(bool canScrollLeft,
 									bool canScrollRight) = 0;

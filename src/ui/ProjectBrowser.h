@@ -38,14 +38,25 @@ public:
 	virtual void	MessageReceived(BMessage* message);
 
 	ProjectItem*	GetSelectedProjectItem() const;
+	const entry_ref* GetSelectedProjectFileRef() const;
+
+	ProjectItem*	GetItemByRef(ProjectFolder* project, const entry_ref& ref) const;
+
 	ProjectItem*	GetProjectItemForProject(ProjectFolder*) const;
 
 	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
 	ProjectFolder*	GetProjectFromSelectedItem() const;
 
-	const entry_ref* GetSelectedProjectFileRef() const;
+	int32			CountProjects() const;
+	ProjectFolder*	ProjectAt(int32 index) const;
+	ProjectFolder*	ProjectByPath(const BString& fullPath) const;
 
-	ProjectItem*	GetItemByRef(ProjectFolder* project, const entry_ref& ref) const;
+	const 			BObjectList<ProjectFolder>* GetProjectList() const;
+
+	void			SelectProjectAndScroll(ProjectFolder*);
+
+	void			SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref); //ugly name..
+	void			SelectItemByRef(ProjectFolder* project, const entry_ref& ref);
 
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
@@ -53,18 +64,6 @@ public:
 	void			ExpandActiveProjects();
 
 	void			InitRename(ProjectItem *item);
-
-	int32			CountProjects() const;
-	ProjectFolder*	ProjectAt(int32 index) const;
-	ProjectFolder*	ProjectByPath(const BString& fullPath) const;
-
-	const BObjectList<ProjectFolder>*	GetProjectList() const;
-
-	void			SelectProjectAndScroll(ProjectFolder*);
-
-	void			SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref); //ugly name..
-	void			SelectItemByRef(ProjectFolder* project, const entry_ref& ref);
-
 private:
 
 	ProjectItem*	GetProjectItemByPath(const BString& path) const;
@@ -74,8 +73,6 @@ private:
 	ProjectItem*	_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
-
-//	static	int		_CompareProjectItems(const BListItem* a, const BListItem* b);
 
 	void			_UpdateNode(BMessage *message);
 

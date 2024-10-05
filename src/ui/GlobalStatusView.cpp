@@ -4,12 +4,8 @@
  */
 #include "GlobalStatusView.h"
 
-#include <Application.h>
-#include <Bitmap.h>
-#include <CardLayout.h>
 #include <Catalog.h>
 #include <GroupLayoutBuilder.h>
-#include <IconUtils.h>
 #include <LayoutBuilder.h>
 #include <LayoutUtils.h>
 #include <Message.h>
@@ -24,12 +20,15 @@
 #define B_TRANSLATION_CONTEXT "GlobalStatusView"
 
 
+const bigtime_t kTextAutohideTimeout = 3000000ULL;
+
 
 GlobalStatusView::GlobalStatusView()
 	:
 	BView("global_status_view", B_WILL_DRAW|B_PULSE_NEEDED),
 	fStatusBar(nullptr),
-	fStringView(nullptr)
+	fStringView(nullptr),
+	fLastStatusChange(system_time())
 {
 	fStatusBar = new BStatusBar("progress_bar", "");
 	fStatusBar->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
@@ -79,6 +78,8 @@ GlobalStatusView::MessageReceived(BMessage *message)
 						fStringView->SetText(B_TRANSLATE("Building" B_UTF8_ELLIPSIS));
 					else
 						fStringView->SetText(B_TRANSLATE("Finished building"));
+
+					fLastStatusChange = system_time();
 				}
 				default:
 					BView::MessageReceived(message);
@@ -98,6 +99,8 @@ void
 GlobalStatusView::Pulse()
 {
 	BView::Pulse();
+	if (system_time() >= fLastStatusChange + kTextAutohideTimeout)
+		fStringView->SetText("");
 }
 
 

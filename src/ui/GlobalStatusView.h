@@ -25,4 +25,5 @@ public:
 private:
 	BStatusBar*		fStatusBar;
 	BStringView*	fStringView;
+	bigtime_t		fLastStatusChange;
 };

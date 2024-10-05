@@ -23,5 +23,6 @@ public:
 	virtual BSize MaxSize();
 
 private:
-	BStatusBar* fStatusBar;
+	BStatusBar*		fStatusBar;
+	BStringView*	fStringView;
 };

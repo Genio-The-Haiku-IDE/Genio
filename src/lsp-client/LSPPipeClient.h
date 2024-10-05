@@ -3,17 +3,16 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-#ifndef LSP_CLIENT_H
-#define LSP_CLIENT_H
+#pragma once
 
 #include <unistd.h>
 
-#include "Transport.h"
-#include <Locker.h>
 #include "PipeImage.h"
+#include "Transport.h"
+
+#include <Locker.h>
 
 class LSPReaderThread;
-
 class LSPPipeClient : public AsyncJsonTransport {
 
 public:
@@ -35,7 +34,6 @@ public:
 	void	KillThread();
 
 private:
-
   int 	ReadMessageHeader();
   bool	ReadHeaderLine(char* header, size_t maxlen);
   int 	Read(int length, std::string &out);
@@ -47,5 +45,3 @@ private:
   LSPReaderThread*	fReaderThread;
   PipeImage			fPipeImage;
 };
-
-#endif //LSP_CLIENT_H

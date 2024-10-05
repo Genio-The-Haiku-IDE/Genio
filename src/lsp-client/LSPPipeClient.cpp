@@ -7,10 +7,11 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
+
 #include "LSPPipeClient.h"
+
 #include "Log.h"
 #include "LSPReaderThread.h"
-#include <Messenger.h>
 
 status_t
 LSPPipeClient::Start(const char **argv, int32 argc)
@@ -21,11 +22,13 @@ LSPPipeClient::Start(const char **argv, int32 argc)
 	return image_status;
 }
 
+
 void
 LSPPipeClient::Close()
 {
 	fPipeImage.Close();
 }
+
 
 LSPPipeClient::~LSPPipeClient()
 {
@@ -33,13 +36,14 @@ LSPPipeClient::~LSPPipeClient()
 	ForceQuit();
 }
 
+
 bool
 LSPPipeClient::ReadHeaderLine(char* header, size_t maxlen)
 {
-	int hasRead = 0;
+	ssize_t hasRead = 0;
 	size_t length = 0;
 	while ((hasRead = fPipeImage.Read(&header[length], 1)) != -1) {
-		if (hasRead == 0 || length >= maxlen-1) // pipe eof or protection
+		if (hasRead == 0 || length >= maxlen - 1) // pipe eof or protection
 			return false;
 
 		if (header[length] == '\n') {
@@ -49,15 +53,17 @@ LSPPipeClient::ReadHeaderLine(char* header, size_t maxlen)
 	}
 	return true;
 }
+
+
 int
 LSPPipeClient::ReadMessageHeader()
 {
 	char szReadBuffer[255];
 	int len = 0;
-	while(ReadHeaderLine(szReadBuffer, 255)) {
-		if (strncmp(szReadBuffer, "Content-Length: ", 16) == 0) {
-			len = atoi(szReadBuffer + 16);
-		} else if (strncmp(szReadBuffer, "\r\n", 2) == 0) {
+	while (ReadHeaderLine(szReadBuffer, 255)) {
+		if (::strncmp(szReadBuffer, "Content-Length: ", 16) == 0) {
+			len = ::atoi(szReadBuffer + 16);
+		} else if (::strncmp(szReadBuffer, "\r\n", 2) == 0) {
 			break;
 		} else {
 			LogTrace("Unsuported LSP message header: %s", szReadBuffer);
@@ -66,11 +72,12 @@ LSPPipeClient::ReadMessageHeader()
 	return len;
 }
 
+
 int
 LSPPipeClient::Read(int length, std::string &out)
 {
 	int readSize = 0;
-	int hasRead;
+	ssize_t hasRead;
 	out.resize(length);
 	while ((hasRead = fPipeImage.Read(&out[readSize], length)) != -1) {
 		if (hasRead == 0) // pipe eof
@@ -89,12 +96,11 @@ LSPPipeClient::Read(int length, std::string &out)
 bool
 LSPPipeClient::Write(std::string &in)
 {
-	int hasWritten = 0;
-	int writeSize = 0;
-	int totalSize = in.length();
+	ssize_t hasWritten = 0;
+	size_t writeSize = 0;
+	size_t totalSize = in.length();
 
-	if (fWriteLock.Lock()) // for production code: WithTimeout(1000000) == B_OK)
-	{
+	if (fWriteLock.Lock()) { // for production code: WithTimeout(1000000) == B_OK)
 		while ((hasWritten = fPipeImage.Write(&in[writeSize], totalSize)) != -1) {
 			writeSize += hasWritten;
 			if (writeSize >= totalSize || hasWritten == 0) {
@@ -121,6 +127,8 @@ LSPPipeClient::readMessage(std::string &json)
 	LogTrace("Client - rcv %d:\n%s\n", length, json.c_str());
 	return true;
 }
+
+
 bool
 LSPPipeClient::writeMessage(std::string &content)
 {
@@ -132,17 +140,20 @@ LSPPipeClient::writeMessage(std::string &content)
 
 
 LSPPipeClient::LSPPipeClient(uint32 what, BMessenger& msgr)
-			   : AsyncJsonTransport(what, msgr)
-			   , fReaderThread(nullptr)
+	:
+	AsyncJsonTransport(what, msgr),
+	fReaderThread(nullptr)
 {
-
 }
+
 
 pid_t
 LSPPipeClient::GetChildPid()
 {
 	return fPipeImage.GetChildPid();
 }
+
+
 void
 LSPPipeClient::ForceQuit()
 {
@@ -153,6 +164,7 @@ LSPPipeClient::ForceQuit()
 	PostMessage(B_QUIT_REQUESTED);
 }
 
+
 void
 LSPPipeClient::KillThread()
 {
@@ -160,11 +172,13 @@ LSPPipeClient::KillThread()
 		fReaderThread->Kill();
 }
 
+
 bool
 LSPPipeClient::HasQuitBeenRequested()
 {
 	return fReaderThread && fReaderThread->HasQuitBeenRequested();
 }
+
 
 thread_id
 LSPPipeClient::Run()
@@ -173,6 +187,7 @@ LSPPipeClient::Run()
 	fReaderThread->Start();
 	return BLooper::Run();
 }
+
 
 void
 LSPPipeClient::Quit()

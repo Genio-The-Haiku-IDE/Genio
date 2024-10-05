@@ -2,10 +2,7 @@
  * Copyright 2023, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef LSPReaderThread_H
-#define LSPReaderThread_H
-
-#include <SupportDefs.h>
+#pragma once
 
 #include "GenericThread.h"
 
@@ -14,9 +11,7 @@ class LSPReaderThread : public GenericThread {
 public:
 		LSPReaderThread(LSPPipeClient& looper);
 
-		status_t ExecuteUnit();
+		status_t ExecuteUnit() override;
 private:
 	LSPPipeClient&	fTransport;
 };
-
-#endif // LSPReaderThread_H

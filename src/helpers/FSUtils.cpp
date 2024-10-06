@@ -132,6 +132,7 @@ FSCopyFile(BEntry *src, BEntry *dest, bool clobber)
 		destfile->Write(buffer, bytes_read);
 	} while (bytes_read > 0);
 
+	delete[] buffer;
 	delete srcfile;
 	delete destfile;
 

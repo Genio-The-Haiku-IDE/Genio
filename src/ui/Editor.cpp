@@ -1402,12 +1402,10 @@ Editor::Insert(BString text, int32 start)
 const BString
 Editor::GetLine(int32 lineNumber)
 {
-	int32 lineLength = SendMessage(SCI_LINELENGTH, lineNumber, UNSET);
-	char *lineBuffer = new char[lineLength + 1];
-	lineBuffer[lineLength] = '\0';
-	SendMessage(SCI_GETLINE, lineNumber, (sptr_t)lineBuffer);
-	BString line(lineBuffer, lineLength);
-	delete[] lineBuffer;
+	const int32 lineLength = SendMessage(SCI_LINELENGTH, lineNumber, UNSET);
+	BString line;
+	SendMessage(SCI_GETLINE, lineNumber, (sptr_t)line.LockBuffer(lineLength + 1));
+	line.UnlockBuffer(lineLength);
 	return line;
 }
 

@@ -1342,9 +1342,10 @@ Editor::SelectAll()
 const BString
 Editor::Selection()
 {
-	int32 size = SendMessage(SCI_GETSELTEXT, 0, 0);
-	char text[size + 1];
-	SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text);
+	const int32 size = SendMessage(SCI_GETSELTEXT, 0, 0);
+	BString text;
+	SendMessage(SCI_GETSELTEXT, 0, (sptr_t)text.LockBuffer(size + 1));
+	text.UnlockBuffer();
 	return text;
 }
 
@@ -1355,12 +1356,14 @@ Editor::GetSymbol()
 	int32 position = SendMessage(SCI_GETSELECTIONSTART, 0, 0);
 	int32 start = SendMessage(SCI_WORDSTARTPOSITION, position);
 	int32 end = SendMessage(SCI_WORDENDPOSITION, position);
-	int32 size = end - start;
-	char text[size];
+	const int32 size = end - start;
+	BString string;
+	char* text = string.LockBuffer(size);
 	GetText(start, size, text);
 	// remove invalid leading characters
 	const std::regex leadingChars("^\\W+");
 	std::string str = std::regex_replace(text, leadingChars, "");
+	string.UnlockBuffer();
 	return BString(str.c_str());
 }
 

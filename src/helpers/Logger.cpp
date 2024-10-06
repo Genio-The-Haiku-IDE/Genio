@@ -31,12 +31,19 @@ Logger::SetDestination(int destination)
 void
 Logger::LogFormat(const char* fmtString, ...)
 {
+#if __clang__
+	char* logString = new char[(int32)gCFG["log_size"]];
+#else
 	char logString[(int32)gCFG["log_size"]];
+#endif
 	va_list argp;
 	::va_start(argp, fmtString);
 	::vsnprintf(logString, sizeof(logString), fmtString, argp);
 	::va_end(argp);
 	_DoLog(LOG_LEVEL_INFO, logString);
+#if __clang__
+	delete[] logString;
+#endif
 }
 
 
@@ -45,7 +52,11 @@ void
 Logger::LogFormat(log_level level, const char* fmtString, ...)
 {
 	// Prepend the log level
+#if __clang__
+	char* fullString = new char[(int32)gCFG["log_size"] + 4];
+#else
 	char fullString[(int32)gCFG["log_size"] + 4];
+#endif
 	snprintf(fullString, 4 + 1, "{%c} ", toupper(Logger::NameForLevel(level)[0]));
 
 	// pass the offsetted array to vsnprintf
@@ -55,6 +66,9 @@ Logger::LogFormat(log_level level, const char* fmtString, ...)
 	::vsnprintf(logString, sizeof(fullString) - 4, fmtString, argp);
 	::va_end(argp);
 	_DoLog(level, fullString);
+#if __clang__
+	delete[] fullString;
+#endif
 }
 
 

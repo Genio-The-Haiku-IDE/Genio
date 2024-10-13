@@ -12,8 +12,8 @@
 #include "LSPLogLevels.h"
 #include "LSPProjectWrapper.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 
 class ClangdServerConfig : public LSPServerConfigInterface {
@@ -55,6 +55,7 @@ public:
 	}
 };
 
+
 class PylspServerConfig : public LSPServerConfigInterface {
 public:
 	PylspServerConfig() {
@@ -67,6 +68,7 @@ public:
 		return (fileType.Compare("python") == 0);
 	}
 };
+
 
 class OmniSharpServerConfig : public LSPServerConfigInterface {
 public:
@@ -89,6 +91,7 @@ public:
 		return (fileType.Compare("csharp") == 0);
 	}
 };
+
 
 // Experimental config for csharp-language-server by razzmatazz
 // class CSharpLanguageServerConfig : public LSPServerConfigInterface {
@@ -113,7 +116,8 @@ public:
 
 std::vector<LSPServerConfigInterface*> LSPServersManager::fConfigs;
 
-/*static*/
+
+/* static */
 bool
 LSPServersManager::_AddValidConfig(LSPServerConfigInterface* interface)
 {
@@ -125,7 +129,8 @@ LSPServersManager::_AddValidConfig(LSPServerConfigInterface* interface)
 	return false;
 }
 
-/*static*/
+
+/* static */
 status_t
 LSPServersManager::InitLSPServersConfig()
 {
@@ -135,7 +140,8 @@ LSPServersManager::InitLSPServersConfig()
 	return B_OK;
 }
 
-/*static*/
+
+/* static */
 status_t
 LSPServersManager::DisposeLSPServersConfig()
 {
@@ -146,7 +152,8 @@ LSPServersManager::DisposeLSPServersConfig()
 	return B_OK;
 }
 
-/*static*/
+
+/* static */
 LSPProjectWrapper*
 LSPServersManager::CreateLSPProject(const BPath& path, const BMessenger& msgr, const BString& fileType)
 {

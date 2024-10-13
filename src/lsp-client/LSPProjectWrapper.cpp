@@ -108,9 +108,11 @@ LSPProjectWrapper::_Create()
 	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 
 	status_t started = fLSPPipeClient->Start((const char**)fServerConfig.Argv(), fServerConfig.Argc());
-
-	if ( started != B_OK) {
+	if (started != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
+		// TODO: We usually never get here if the LSP server isn't installed
+		// since in ProjectFolder::GetLSPServer() we check if an installed LSP server
+		// supports a given file type
 		LogInfo("Can't execute lsp sever to provide advanced features! Please install '%s'",
 				fServerConfig.Argv()[0]);
 		return false;

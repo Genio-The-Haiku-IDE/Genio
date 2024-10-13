@@ -225,7 +225,7 @@ StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
 	} else {
 		BString error(iconFullName);
 		error << ": icon not found!";
-		debugger(error.String());
+		LogError(error.String());
 	}
 	delete icon;
 

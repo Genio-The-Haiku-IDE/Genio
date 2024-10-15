@@ -2,6 +2,8 @@ v3.1
 	- Fixed crash when hovering over Git Switch to branch menu without an active project.
 	- Fixed FindAndReplacePrevious/Next corner cases.
 	- Fixed tooltip showing spuriously on Outline view in certain cases.
+	- Fixed small memory leak when creating projects from template.
+	- Allows reading templates and other data from B_SYSTEM_DATA_DIRECTORY.
 ---
 v3.0
 	- Added new function to rename symbols automatically across a project.

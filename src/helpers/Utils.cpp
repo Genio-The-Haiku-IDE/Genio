@@ -26,6 +26,7 @@
 
 #include "GenioNamespace.h"
 
+#include <iostream>
 using BPrivate::gSystemCatalog;
 
 #undef B_TRANSLATION_CONTEXT
@@ -326,7 +327,7 @@ GetGenioDirectory(BPath& destPath)
 BPath
 GetDataDirectory()
 {
-	// Default template directory
+	// When running from repository folder
 	app_info info;
 	BPath genioPath;
 	if (GetGenioDirectory(genioPath)) {
@@ -340,6 +341,15 @@ GetDataDirectory()
 			genioPath.GetParent(&genioPath);
 			genioPath.Append("data");
 		}
+	}
+
+	// fallback to /system/data/Genio
+	// (which would be the case when Genio is installed)
+	if (!BEntry(genioPath.Path(), true).IsDirectory()) {
+		if (find_directory (B_SYSTEM_DATA_DIRECTORY, &genioPath, true) == B_OK)
+			genioPath.Append("Genio");
+		else
+			genioPath = "";
 	}
 	return genioPath;
 }

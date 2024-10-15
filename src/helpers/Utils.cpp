@@ -334,7 +334,6 @@ GetDataDirectory()
 		if (BEntry(genioPath.Path(), true).IsDirectory())
 			return genioPath;
 	}
-	return genioPath;
 
 	// When running from repository folder
 	// TODO: Would be nice to check this before the other one

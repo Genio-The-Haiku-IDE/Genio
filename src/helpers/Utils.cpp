@@ -12,6 +12,7 @@
 #include <Bitmap.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <DateTime.h>
 #include <FindDirectory.h>
 #include <IconUtils.h>
 #include <MessageFilter.h>
@@ -19,14 +20,14 @@
 #include <RadioButton.h>
 #include <Resources.h>
 #include <Roster.h>
+#include <SystemCatalog.h>
+
 #include <algorithm>
 #include <string>
-#include <DateTime.h>
-#include <SystemCatalog.h>
 
 #include "GenioNamespace.h"
 
-#include <iostream>
+
 using BPrivate::gSystemCatalog;
 
 #undef B_TRANSLATION_CONTEXT
@@ -38,7 +39,7 @@ GetFileName(const std::string filename)
 {
 	size_t pos = filename.rfind('.');
 	// pos != 0 is for dotfiles
-	if(pos != std::string::npos && pos != 0)
+	if (pos != std::string::npos && pos != 0)
 		return filename.substr(0, pos);
 	return filename;
 }
@@ -49,7 +50,7 @@ GetFileExtension(const std::string filename)
 {
 	size_t pos = filename.rfind('.');
 	// pos != 0 is for dotfiles
-	if(pos != std::string::npos && pos != 0)
+	if (pos != std::string::npos && pos != 0)
 		return filename.substr(pos + 1);
 	return "";
 }
@@ -58,14 +59,14 @@ GetFileExtension(const std::string filename)
 status_t
 GetVectorIcon(const std::string icon, BBitmap* bitmap)
 {
-	if(bitmap == nullptr)
+	if (bitmap == nullptr)
 		return B_ERROR;
 
 	BResources* resources = BApplication::AppResources();
 	size_t size;
 	const uint8* rawIcon;
-	rawIcon = (const uint8*) resources->LoadResource(B_VECTOR_ICON_TYPE, icon.c_str(), &size);
-	if(rawIcon == nullptr)
+	rawIcon = (const uint8*)resources->LoadResource(B_VECTOR_ICON_TYPE, icon.c_str(), &size);
+	if (rawIcon == nullptr)
 		return B_ERROR;
 
 	return BIconUtils::GetVectorIcon(rawIcon, size, bitmap);
@@ -130,6 +131,8 @@ bool IsChecked(T* control)
 {
 	return control->Value() == B_CONTROL_ON;
 }
+
+
 template bool IsChecked<BCheckBox>(BCheckBox*);
 template bool IsChecked<BRadioButton>(BRadioButton*);
 
@@ -139,6 +142,8 @@ void SetChecked(T* control, bool checked)
 {
 	control->SetValue(checked ? B_CONTROL_ON : B_CONTROL_OFF);
 }
+
+
 template void SetChecked<BCheckBox>(BCheckBox*, bool);
 template void SetChecked<BRadioButton>(BRadioButton*, bool);
 
@@ -153,7 +158,8 @@ OKAlert(const char* title, const char* message, alert_type type)
 }
 
 
-int32 rgb_colorToSciColor(rgb_color color)
+int32
+rgb_colorToSciColor(rgb_color color)
 {
 	return color.red | (color.green << 8) | (color.blue << 16);
 }
@@ -170,12 +176,14 @@ KeyDownMessageFilter::KeyDownMessageFilter(uint32 commandToSend, char key,
 {
 }
 
+
 uint32
 KeyDownMessageFilter::AllowedModifiers()
 {
 	return B_COMMAND_KEY | B_OPTION_KEY | B_SHIFT_KEY | B_CONTROL_KEY
 		| B_MENU_KEY;
 }
+
 
 filter_result
 KeyDownMessageFilter::Filter(BMessage* message, BHandler** target)
@@ -208,7 +216,8 @@ find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
 }
 
 
-void ProgressNotification(const BString& group, const BString&  title, const BString&  messageID,
+void
+ProgressNotification(const BString& group, const BString&  title, const BString&  messageID,
 							const BString& content, float progress, bigtime_t timeout)
 {
 	BNotification notification(B_PROGRESS_NOTIFICATION);
@@ -220,7 +229,9 @@ void ProgressNotification(const BString& group, const BString&  title, const BSt
 	notification.Send(timeout);
 }
 
-void ShowNotification(const BString& group, const BString&  title, const BString&  messageID,
+
+void
+ShowNotification(const BString& group, const BString&  title, const BString&  messageID,
 							const BString& content, notification_type type, bigtime_t timeout)
 {
 	BNotification notification(type);
@@ -231,10 +242,12 @@ void ShowNotification(const BString& group, const BString&  title, const BString
 	notification.Send(timeout);
 }
 
+
 #define FIND_IN_ARRAY(ARRAY, VALUE) (std::find(std::begin(ARRAY), std::end(ARRAY), VALUE) != std::end(ARRAY));
 
 std::string sourceExt[] = {".cpp", ".c", ".cc", ".cxx", ".c++"}; //, ".m", ".mm"};
 std::string headerExt[] = {".h", ".hh", ".hpp", ".hxx"}; //, ".inc"};
+
 
 bool
 IsCppSourceExtension(std::string extension)
@@ -242,11 +255,13 @@ IsCppSourceExtension(std::string extension)
 	return FIND_IN_ARRAY(sourceExt, extension);
 }
 
+
 bool
 IsCppHeaderExtension(std::string extension)
 {
 	return FIND_IN_ARRAY(headerExt, extension);
 }
+
 
 status_t
 FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
@@ -298,16 +313,17 @@ FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 	return foundFile.GetRef(foundRef);
 }
 
+
 BPath
 GetUserSettingsDirectory()
 {
 	BPath userPath;
-
-	status_t status = find_directory (B_USER_SETTINGS_DIRECTORY, &userPath, true);
+	status_t status = find_directory(B_USER_SETTINGS_DIRECTORY, &userPath, true);
 	if (status == B_OK)
 		userPath.Append(GenioNames::kApplicationName);
 	return userPath;
 }
+
 
 bool
 GetGenioDirectory(BPath& destPath)
@@ -323,6 +339,7 @@ GetGenioDirectory(BPath& destPath)
 	}
 	return false;
 }
+
 
 BPath
 GetDataDirectory()
@@ -356,19 +373,24 @@ GetDataDirectory()
 	return genioPath;
 }
 
-void Menu_MakeEmpty(BMenu *menu)
+
+void
+Menu_MakeEmpty(BMenu *menu)
 {
 	for (int32 index = menu->CountItems() - 1; index > -1; index--)
 		menu->RemoveItem(index);
 }
 
-bool	IsXMasPeriod()
+
+bool
+IsXMasPeriod()
 {
 	//dates between 20-Dec and 10-Jan included.
 	BDate today = BDate::CurrentDate(B_LOCAL_TIME);
 	return ((today.Month() == 12 && today.Day() >= 20) ||
 		    (today.Month() == 1  && today.Day() <= 10));
 }
+
 
 BString
 ReadFileContent(const char* filename, off_t maxSize)
@@ -397,6 +419,7 @@ ReadFileContent(const char* filename, off_t maxSize)
 	delete[] buffer;
 	return read;
 }
+
 
 // mostly taken from BAboutWindow
 BString

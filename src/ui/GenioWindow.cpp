@@ -1783,6 +1783,10 @@ GenioWindow::_FileOpen(BMessage* msg)
 	entry_ref ref;
 	int32 refsCount = 0;
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
+		if (BEntry(&ref).IsDirectory()) {
+			_ProjectFolderOpen(msg);
+			continue;
+		}
 
 		const int32 be_line   = msg->GetInt32("start:line", msg->GetInt32("be:line", -1));
 		const int32 lsp_char  = msg->GetInt32("start:character", -1);
@@ -4280,6 +4284,10 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	}
 
 	fProjectsFolderBrowser->Invalidate();
+	// TODO: For some reason the above call doesn't trigger redraw of (some?) of
+	// the items of the child BOutlineListView
+	// Obviously this shouldn't be done
+	fProjectsFolderBrowser->FindView("ProjectBrowserOutline")->Invalidate();
 }
 
 

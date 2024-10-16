@@ -132,35 +132,6 @@ public:
 	}
 };
 
-#if 0
-class NewTabButton : public TabButton {
-public:
-	NewTabButton(BMessage* message)
-		: TabButton(message)
-	{
-		SetToolTip("New tab (Cmd-T)");
-	}
-
-	virtual BSize MinSize()
-	{
-		return BSize(18, 12);
-	}
-
-	virtual void DrawSymbol(BRect frame, const BRect& updateRect,
-		const rgb_color& base)
-	{
-		SetHighColor(tint_color(base, B_DARKEN_4_TINT));
-		float inset = 3;
-		frame.InsetBy(2, 2);
-		frame.top++;
-		frame.left++;
-		FillRoundRect(BRect(frame.left, frame.top + inset,
-			frame.right, frame.bottom - inset), 1, 1);
-		FillRoundRect(BRect(frame.left + inset, frame.top,
-			frame.right - inset, frame.bottom), 1, 1);
-	}
-};
-#endif
 
 class TabMenuTabButton : public TabButton {
 public:
@@ -414,9 +385,7 @@ public:
 	}
 
 	virtual TabView* CreateTabView();
-#if 0
-	virtual void DoubleClickOutsideTabs();
-#endif
+
 	virtual void UpdateTabScrollability(bool canScrollLeft,
 		bool canScrollRight)
 	{
@@ -454,10 +423,7 @@ public:
 	{
 		return fColorIndicatorAvailable;
 	}
-#if 0
-	void SetDoubleClickOutsideTabsMessage(const BMessage& message,
-		const BMessenger& target);
-#endif
+
 	void SetTabContainerGroup(TabContainerGroup* tabContainerGroup)
 	{
 		fTabContainerGroup = tabContainerGroup;
@@ -473,10 +439,6 @@ private:
 	TabContainerGroup*	fTabContainerGroup;
 	bool				fCloseButtonsAvailable;
 	bool				fColorIndicatorAvailable;
-#if 0
-	BMessage*			fDoubleClickOutsideTabsMessage;
-	BMessenger			fTarget;
-#endif
 	BString				fCurrentToolTip;
 };
 
@@ -754,9 +716,6 @@ TabManagerController::TabManagerController(TabManager* manager)
 
 TabManagerController::~TabManagerController()
 {
-#if 0
-	delete fDoubleClickOutsideTabsMessage;
-#endif
 }
 
 
@@ -766,13 +725,6 @@ TabManagerController::CreateTabView()
 	return new WebTabView(this);
 }
 
-#if 0
-void
-TabManagerController::DoubleClickOutsideTabs()
-{
-	fTarget.SendMessage(fDoubleClickOutsideTabsMessage);
-}
-#endif
 
 void
 TabManagerController::CloseTab(int32 index)
@@ -780,16 +732,6 @@ TabManagerController::CloseTab(int32 index)
 	fManager->CloseTabs(&index, 1);
 }
 
-#if 0
-void
-TabManagerController::SetDoubleClickOutsideTabsMessage(const BMessage& message,
-	const BMessenger& target)
-{
-	delete fDoubleClickOutsideTabsMessage;
-	fDoubleClickOutsideTabsMessage = new BMessage(message);
-	fTarget = target;
-}
-#endif
 
 // #pragma mark - TabManager
 
@@ -799,10 +741,6 @@ TabManager::TabManager(const BMessenger& target)
     fController(new TabManagerController(this)),
     fTarget(target)
 {
-#if 0
-	fController->SetDoubleClickOutsideTabsMessage(*newTabMessage,
-		be_app_messenger);
-#endif
 	fContainerView = new BView("web view container", 0);
 	fCardLayout = new BCardLayout();
 	fContainerView->SetLayout(fCardLayout);
@@ -828,11 +766,6 @@ TabManager::TabManager(const BMessenger& target)
 		new BMessage(MSG_SCROLL_TABS_LEFT)));
 	fTabContainerGroup->AddScrollRightButton(new ScrollRightTabButton(
 		new BMessage(MSG_SCROLL_TABS_RIGHT)));
-#if 0
-	NewTabButton* newTabButton = new NewTabButton(newTabMessage);
-	newTabButton->SetTarget(be_app);
-	fTabContainerGroup->GroupLayout()->AddView(newTabButton, 0.0f);
-#endif
 	fTabContainerGroup->AddTabMenuButton(new TabMenuTabButton(
 		new BMessage(MSG_OPEN_TAB_MENU)));
 
@@ -1072,6 +1005,7 @@ TabManager::SetTabLabel(int32 tabIndex, const char* label)
 	fTabContainerView->SetTabLabel(tabIndex, label);
 }
 
+
 const BString&
 TabManager::TabLabel(int32 tabIndex)
 {
@@ -1081,6 +1015,7 @@ TabManager::TabLabel(int32 tabIndex)
 	else
 		return kEmptyString;
 }
+
 
 void
 TabManager::SetTabIcon(const BView* containedView, const BBitmap* icon)

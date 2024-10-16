@@ -1,31 +1,23 @@
 ## Genio - The Haiku IDE Makefile ##############################################
+COMPILER_FLAGS = -Werror -std=c++20 -fPIC
+WARNINGS = ALL
+
+TARGET_DIR := app
+TYPE := APP
+
+APP_MIME_SIG := "application/x-vnd.Genio"
+
 debug ?= 0
 ifneq ($(debug), 0)
 	DEBUGGER := TRUE
-	CFLAGS := -DGDEBUG
-endif
-
-## clang build flag ############################################################
-BUILD_WITH_CLANG ?= 0
-################################################################################
-ifeq ($(BUILD_WITH_CLANG), 1)
-	# clang build
-	CC  := clang
-	CXX := clang++
-	LD  := clang++
 endif
 
 ifeq ($(strip $(DEBUGGER)), TRUE)
 	NAME := Genio_debug
+	COMPILER_FLAGS += -DGDEBUG
 else
 	NAME := Genio
 endif
-
-TARGET_DIR := app
-
-TYPE := APP
-
-APP_MIME_SIG := "application/x-vnd.Genio"
 
 arch := $(shell getarch)
 platform := $(shell uname -p)
@@ -117,23 +109,31 @@ SYSTEM_INCLUDE_PATHS += $(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_
 SYSTEM_INCLUDE_PATHS += src/scintilla/haiku
 SYSTEM_INCLUDE_PATHS += src/scintilla/include
 
-WARNINGS = ALL
-COMPILER_FLAGS = -Werror -std=c++20 -fPIC
 
-#ifneq ($(BUILD_WITH_CLANG), 0)
-	ifneq ($(debug), 0)
-		CXXFLAGS += -gdwarf-3
-	endif
-#endif
+## clang build flag ############################################################
+BUILD_WITH_CLANG ?= 0
+################################################################################
+ifeq ($(BUILD_WITH_CLANG), 1)
+	# clang build
+	CC  := clang
+	CXX := clang++
+	LD  := clang++
+	COMPILER_FLAGS += -gdwarf-3
+endif
+
 
 LOCALES := ca de en_AU en_GB en es_419 es fr fur it nb tr
 
 ## Include the Makefile-Engine
 include $(BUILDHOME)/etc/makefile-engine
 
-## CXXFLAGS rule
-$(OBJ_DIR)/%.o : %.cpp
-	$(CXX) -c $< $(INCLUDES) $(CFLAGS) $(CXXFLAGS) -o "$@"
+# Rules to compile the resource definition files.
+# Taken from makefile_engine and removed  CFLAGS because
+# clang doesn't like if we pass -std=c++20 to it
+$(OBJ_DIR)/%.rsrc : %.rdef
+	cat $< | $(CC) -E $(INCLUDES) - | grep -av '^#' | $(RESCOMP) -I $(dir $<) -o "$@" -
+$(OBJ_DIR)/%.rsrc : %.RDEF
+	cat $< | $(CC) -E $(INCLUDES)  - | grep -av '^#' | $(RESCOMP) -I $(dir $<) -o "$@" -
 
 deps:
 	$(MAKE) -C src/scintilla/haiku

@@ -442,10 +442,12 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		case kTick:
 		{
 			if (fIsBuilding) {
-				// TODO: Only invalidate the project item and
-				// Maybe move inside the ProjectOutlineListView
+				// TODO: Only invalidate the active project item ?
 				ProjectTitleItem::TickAnimation();
-				fOutlineListView->Invalidate();
+				for (int32 i = 0; i != fProjectProjectItemList.CountItems(); i++) {
+					int32 itemIndex = fOutlineListView->IndexOf(fProjectProjectItemList.ItemAt(i));
+					fOutlineListView->InvalidateItem(itemIndex);
+				}
 			}
 			break;
 		}
@@ -899,7 +901,7 @@ ProjectBrowser::GetProjectList() const
 // ProjectOutlineListView
 ProjectOutlineListView::ProjectOutlineListView()
 	:
-	BOutlineListView("ProjectsFolderOutline", B_SINGLE_SELECTION_LIST),
+	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST),
 	fFileNewProjectMenuItem(nullptr)
 {
 	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));

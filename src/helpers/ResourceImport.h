@@ -20,7 +20,7 @@ public:
 
 				BString GetArray() { return fRdefArray; }
 private:
-	status_t 	_Import(const uint8* source, size_t sourceSize, BPositionIO* stream,
+	status_t 	_Import(BDataIO* const source, size_t sourceSize, BPositionIO* stream,
 					BString name, BString type, int32 index) const;
 	BString		fRdefArray;
 	BFile		fFile;

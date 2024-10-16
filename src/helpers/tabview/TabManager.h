@@ -11,9 +11,7 @@
 #define TAB_MANAGER_H
 
 #include <Messenger.h>
-#if 0
-#include <TabView.h>
-#endif
+
 #include "TabView.h"
 
 enum {

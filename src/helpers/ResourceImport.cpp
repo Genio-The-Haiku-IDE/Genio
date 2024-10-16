@@ -24,10 +24,8 @@ ResourceImport::ResourceImport(entry_ref &ref, int32 index)
 		off_t size;
 		if (fFile.GetSize(&size) != B_OK)
 			return;
-		uint8 fileBuffer[size];
 		BMallocIO stringBuffer;
 		stringBuffer.SetSize(size);
-		fFile.Read(fileBuffer, size);
 
 		BString type;
 		BNode node(&ref);
@@ -42,7 +40,7 @@ ResourceImport::ResourceImport(entry_ref &ref, int32 index)
 			}
 		}
 
-		if (_Import((const uint8*)fileBuffer, size,	&stringBuffer, ref.name, type, index) != B_OK)
+		if (_Import(&fFile, size, &stringBuffer, ref.name, type, index) != B_OK)
 			LogError("Opening file for import failed with error %s", strerror(status));
 		else
 			fRdefArray.SetTo((const char*)stringBuffer.Buffer());
@@ -58,7 +56,7 @@ ResourceImport::~ResourceImport()
 
 
 status_t
-ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* stream,
+ResourceImport::_Import(BDataIO* const source, size_t sourceSize, BPositionIO* stream,
 	BString name, BString type, int32 index) const
 {
 	// write header
@@ -81,10 +79,11 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 		return B_ERROR;
 
 	status_t ret = B_OK;
-	const uint8* b = source;
 
 	// print one line (32 values)
 	while (sourceSize >= 32) {
+		uint8 b[32];
+		source->Read(b, 32);
 		snprintf(buffer, sizeof(buffer),
 					"	$\"%.2X%.2X%.2X%.2X"
 						"%.2X%.2X%.2X%.2X"
@@ -114,7 +113,6 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 		}
 
 		sourceSize -= 32;
-		b += 32;
 	}
 	// beginning of last line
 	if (ret >= B_OK && sourceSize > 0) {
@@ -132,7 +130,9 @@ ResourceImport::_Import(const uint8* source, size_t sourceSize, BPositionIO* str
 	bool endQuotes = sourceSize > 0;
 	if (ret >= B_OK && sourceSize > 0) {
 		for (size_t i = 0; i < sourceSize; i++) {
-			snprintf(buffer, sizeof(buffer), "%.2X", b[i]);
+			uint8 b;
+			source->Read(&b, sizeof(b));
+			snprintf(buffer, sizeof(buffer), "%.2X", b);
 			size = strnlen(buffer, sizeof(buffer));
 			written = stream->Write(buffer, size);
 			if (written != (ssize_t)size) {

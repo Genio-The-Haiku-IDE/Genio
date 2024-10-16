@@ -26,6 +26,7 @@
 
 #include "GenioNamespace.h"
 
+#include <iostream>
 using BPrivate::gSystemCatalog;
 
 #undef B_TRANSLATION_CONTEXT
@@ -326,9 +327,19 @@ GetGenioDirectory(BPath& destPath)
 BPath
 GetDataDirectory()
 {
-	// Default template directory
-	app_info info;
 	BPath genioPath;
+	// /system/data/Genio when installed from package
+	if (find_directory(B_SYSTEM_DATA_DIRECTORY, &genioPath, true) == B_OK) {
+		genioPath.Append("Genio");
+		if (BEntry(genioPath.Path(), true).IsDirectory())
+			return genioPath;
+	}
+
+	// When running from repository folder
+	// TODO: Would be nice to check this before the other one
+	// but it's troubling when isntalled from packages,
+	// because it ends up in /system/data/ and not in /system/data/Genio/
+	app_info info;
 	if (GetGenioDirectory(genioPath)) {
 		genioPath.Append("data");
 		// ./Genio
@@ -341,6 +352,7 @@ GetDataDirectory()
 			genioPath.Append("data");
 		}
 	}
+
 	return genioPath;
 }
 

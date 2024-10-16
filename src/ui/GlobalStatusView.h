@@ -6,10 +6,10 @@
 
 #include <View.h>
 
+class BarberPole;
 class BBitmap;
 class BStatusBar;
 class BStringView;
-class SquareBitmapView;
 class GlobalStatusView : public BView {
 public:
 	GlobalStatusView();
@@ -24,6 +24,7 @@ public:
 
 private:
 	BStatusBar*		fStatusBar;
+	BarberPole*		fBarberPole;
 	BStringView*	fStringView;
 	bigtime_t		fLastStatusChange;
 };

@@ -1,9 +1,10 @@
 /*
- * Copyright 2013-2023, Stefano Ceccherini <stefano.ceccherini@gmail.com>
+ * Copyright 2013-2024, Stefano Ceccherini <stefano.ceccherini@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #include "GlobalStatusView.h"
 
+#include <BarberPole.h>
 #include <Catalog.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
@@ -27,21 +28,29 @@ GlobalStatusView::GlobalStatusView()
 	:
 	BView("global_status_view", B_WILL_DRAW|B_PULSE_NEEDED),
 	fStatusBar(nullptr),
+	fBarberPole(nullptr),
 	fStringView(nullptr),
 	fLastStatusChange(system_time())
 {
-	fStatusBar = new BStatusBar("progress_bar", "");
-	fStatusBar->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
+	//fStatusBar = new BStatusBar("progress_bar", "");
+	//fStatusBar->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
 
+	fBarberPole = new BarberPole("barber pole");
+	//fBarberPole->SetExplicitMinSize(BSize(100, B_SIZE_UNLIMITED));
+	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNLIMITED));
+	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
 	fStringView = new BStringView("text", "");
-	fStringView->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
-
-	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
+	fStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
+	fStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+	BLayoutBuilder::Group<>(this, B_HORIZONTAL, 0)
 		.SetInsets(0)
 		.Add(fStringView)
-		.Add(fStatusBar);
+		.Add(fBarberPole)
+		.AddGlue()
+		//.Add(fStatusBar);
+		.End();
 	// TODO:
-	fStatusBar->Hide();
+	//fStatusBar->Hide();
 }
 
 
@@ -74,11 +83,13 @@ GlobalStatusView::MessageReceived(BMessage *message)
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
 					bool building = message->GetBool("building", false);
-					if (building)
+					if (building) {
 						fStringView->SetText(B_TRANSLATE("Building" B_UTF8_ELLIPSIS));
-					else
+						fBarberPole->Start();
+					} else {
 						fStringView->SetText(B_TRANSLATE("Finished building"));
-
+						fBarberPole->Stop();
+					}
 					fLastStatusChange = system_time();
 				}
 				default:
@@ -116,5 +127,3 @@ GlobalStatusView::MaxSize()
 {
 	return BView::MaxSize();
 }
-
-

@@ -360,6 +360,7 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(generalStartup.String(), "show_outline", B_TRANSLATE("Show outline pane"), true);
 	cfg.AddConfig(generalStartup.String(), "show_output", B_TRANSLATE("Show output pane"), true);
 	cfg.AddConfig(generalStartup.String(), "show_toolbar", B_TRANSLATE("Show toolbar"), true);
+	cfg.AddConfig(generalStartup.String(), "show_statusbar", B_TRANSLATE("Show statusbar"), true);
 
 	GMessage sizes;
 	sizes = { {"mode","options"},

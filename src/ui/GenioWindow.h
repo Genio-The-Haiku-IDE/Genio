@@ -226,6 +226,7 @@ private:
 
 			ToolBar*			fFindGroup;
 			ToolBar*			fReplaceGroup;
+			BView*				fStatusView;
 			BMenuField*			fFindMenuField;
 			BMenuField*			fReplaceMenuField;
 			BTextControl*		fFindTextControl;

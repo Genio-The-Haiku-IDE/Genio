@@ -27,7 +27,7 @@ const bigtime_t kTextAutohideTimeout = 3000000ULL;
 GlobalStatusView::GlobalStatusView()
 	:
 	BView("global_status_view", B_WILL_DRAW|B_PULSE_NEEDED),
-	fStatusBar(nullptr),
+	//fStatusBar(nullptr),
 	fBarberPole(nullptr),
 	fStringView(nullptr),
 	fLastStatusChange(system_time())

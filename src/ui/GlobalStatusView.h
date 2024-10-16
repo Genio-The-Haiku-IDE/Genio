@@ -23,7 +23,7 @@ public:
 	virtual BSize MaxSize();
 
 private:
-	BStatusBar*		fStatusBar;
+	//BStatusBar*		fStatusBar;
 	BarberPole*		fBarberPole;
 	BStringView*	fStringView;
 	bigtime_t		fLastStatusChange;

@@ -120,10 +120,19 @@ ifeq ($(BUILD_WITH_CLANG), 1)
 	COMPILER_FLAGS += -gdwarf-3
 endif
 
+
 LOCALES := ca de en_AU en_GB en es_419 es fr fur it nb tr
 
 ## Include the Makefile-Engine
 include $(BUILDHOME)/etc/makefile-engine
+
+# Rules to compile the resource definition files.
+# Taken from makefile_engine and removed  CFLAGS because
+# clang doesn't like if we pass -std=c++20 to it
+$(OBJ_DIR)/%.rsrc : %.rdef
+	cat $< | $(CC) -E $(INCLUDES) - | grep -av '^#' | $(RESCOMP) -I $(dir $<) -o "$@" -
+$(OBJ_DIR)/%.rsrc : %.RDEF
+	cat $< | $(CC) -E $(INCLUDES)  - | grep -av '^#' | $(RESCOMP) -I $(dir $<) -o "$@" -
 
 deps:
 	$(MAKE) -C src/scintilla/haiku

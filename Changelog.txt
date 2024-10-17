@@ -1,3 +1,8 @@
+v4.0 (development)
+	- Folders can now be dropped in the project browser to open them as a project.
+	- Added a status bar to show build status.
+	- Improved build indicator.
+---
 v3.1
 	- Fixed crash when hovering over Git Switch to branch menu without an active project.
 	- Fixed FindAndReplacePrevious/Next corner cases.

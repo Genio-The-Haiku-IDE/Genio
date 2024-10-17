@@ -15,6 +15,7 @@ public:
 	GlobalStatusView();
 
 	virtual void AttachedToWindow();
+	virtual void DetachedFromWindow();
 	virtual void Draw(BRect updateRect);
 	virtual void MessageReceived(BMessage *message);
 	virtual void Pulse();
@@ -23,8 +24,8 @@ public:
 	virtual BSize MaxSize();
 
 private:
-	//BStatusBar*		fStatusBar;
 	BarberPole*		fBarberPole;
 	BStringView*	fStringView;
 	bigtime_t		fLastStatusChange;
+	bool			fDontHideText;
 };

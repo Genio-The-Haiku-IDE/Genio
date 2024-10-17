@@ -49,6 +49,7 @@
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
 #include "GitRepository.h"
+#include "GlobalStatusView.h"
 #include "GoToLineWindow.h"
 #include "GSettings.h"
 #include "IconMenuItem.h"
@@ -150,6 +151,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fTabManager(nullptr)
 	, fFindGroup(nullptr)
 	, fReplaceGroup(nullptr)
+	, fStatusView(nullptr)
 	, fFindMenuField(nullptr)
 	, fReplaceMenuField(nullptr)
 	, fFindTextControl(nullptr)
@@ -273,6 +275,7 @@ GenioWindow::Show()
 		_ShowView(fRightTabView, gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
 		_ShowView(fOutputTabView, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
+		_ShowView(fToolBar, gCFG["show_statusbar"],	MSG_TOGGLE_STATUSBAR);
 
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
@@ -1104,6 +1107,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_TOGGLE_TOOLBAR:
 			_ShowView(fToolBar, fToolBar->IsHidden(), MSG_TOGGLE_TOOLBAR);
+			break;
+		case MSG_TOGGLE_STATUSBAR:
+			_ShowView(fStatusView, fStatusView->IsHidden(), MSG_TOGGLE_STATUSBAR);
 			break;
 		case MSG_WINDOW_SETTINGS:
 		{
@@ -2891,6 +2897,9 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_TOGGLE_TOOLBAR,
 									B_TRANSLATE("Show toolbar"));
 
+	ActionManager::RegisterAction(MSG_TOGGLE_STATUSBAR,
+									B_TRANSLATE("Show statusbar"));
+
 	ActionManager::RegisterAction(MSG_BUILD_PROJECT,
 									B_TRANSLATE("Build project"),
 									B_TRANSLATE("Build project"),
@@ -3286,6 +3295,7 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE, submenu);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT, submenu);
 	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
+	ActionManager::AddItem(MSG_TOGGLE_STATUSBAR, submenu);
 	windowMenu->AddItem(submenu);
 	windowMenu->AddSeparatorItem();
 	ActionManager::AddItem(MSG_FULLSCREEN, windowMenu);
@@ -3436,6 +3446,7 @@ GenioWindow::_InitWindow()
 			.End() // sidebar split
 			.Add(fOutputTabView, kOutputWeight)
 		.End() //  output split
+		.Add(fStatusView = new GlobalStatusView())
 	;
 
 	// Panels

@@ -76,6 +76,7 @@ SRCS += src/ui/EditorTabManager.cpp
 SRCS += src/ui/FunctionsOutlineView.cpp
 SRCS += src/ui/GenioWindow.cpp
 SRCS += src/ui/GenioSecondaryWindow.cpp
+SRCS += src/ui/GlobalStatusView.cpp
 SRCS += src/ui/GoToLineWindow.cpp
 SRCS += src/ui/IconCache.cpp
 SRCS += src/ui/ProblemsPanel.cpp

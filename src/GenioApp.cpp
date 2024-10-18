@@ -356,11 +356,14 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	generalStartup.Append("/").Append(B_TRANSLATE("Startup"));
 	cfg.AddConfig(generalStartup.String(), "reopen_projects", B_TRANSLATE("Reload projects"), true);
 	cfg.AddConfig(generalStartup.String(), "reopen_files", B_TRANSLATE("Reload files"), true);
-	cfg.AddConfig(generalStartup.String(), "show_projects", B_TRANSLATE("Show projects pane"), true);
-	cfg.AddConfig(generalStartup.String(), "show_outline", B_TRANSLATE("Show outline pane"), true);
-	cfg.AddConfig(generalStartup.String(), "show_output", B_TRANSLATE("Show output pane"), true);
-	cfg.AddConfig(generalStartup.String(), "show_toolbar", B_TRANSLATE("Show toolbar"), true);
-	cfg.AddConfig(generalStartup.String(), "show_statusbar", B_TRANSLATE("Show statusbar"), true);
+
+	BString generalAppearance = general;
+	generalAppearance.Append("/").Append(B_TRANSLATE("Appearance"));
+	cfg.AddConfig(generalAppearance.String(), "show_projects", B_TRANSLATE("Show projects pane"), true);
+	cfg.AddConfig(generalAppearance.String(), "show_outline", B_TRANSLATE("Show outline pane"), true);
+	cfg.AddConfig(generalAppearance.String(), "show_output", B_TRANSLATE("Show output pane"), true);
+	cfg.AddConfig(generalAppearance.String(), "show_toolbar", B_TRANSLATE("Show toolbar"), true);
+	cfg.AddConfig(generalAppearance.String(), "show_statusbar", B_TRANSLATE("Show statusbar"), true);
 
 	GMessage sizes;
 	sizes = { {"mode","options"},

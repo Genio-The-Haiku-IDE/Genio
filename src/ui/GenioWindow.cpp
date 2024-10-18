@@ -481,6 +481,7 @@ GenioWindow::MessageReceived(BMessage* message)
 
 				BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 				noticeMessage.AddBool("building", false);
+				noticeMessage.AddString("project_name", fActiveProject->Name());
 				SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
 				fActiveProject->SetBuildingState(false);
@@ -1608,6 +1609,7 @@ GenioWindow::_BuildProject()
 
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 	noticeMessage.AddBool("building", true);
+	noticeMessage.AddString("project_name", fActiveProject->Name());
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
 	fActiveProject->SetBuildingState(true);
@@ -1665,6 +1667,7 @@ GenioWindow::_CleanProject()
 
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 	noticeMessage.AddBool("building", true);
+	noticeMessage.AddString("project_name", fActiveProject->Name());
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
 	fActiveProject->SetBuildingState(true);

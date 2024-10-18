@@ -99,15 +99,20 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					// TODO: if we passed also the project name we could
 					// show "Building <projectname>"
 					bool building = message->GetBool("building", false);
+					BString projectName = message->GetString("project_name");
+					BString text;
 					if (building) {
-						fStringView->SetText(B_TRANSLATE("Building" B_UTF8_ELLIPSIS));
+						text = B_TRANSLATE("Building \"%project%\"" B_UTF8_ELLIPSIS);
 						fDontHideText = true;
 						fBarberPole->Start();
 					} else {
-						fStringView->SetText(B_TRANSLATE("Finished building"));
+						text = B_TRANSLATE("Finished building \"%project%\"");
 						fDontHideText = false;
 						fBarberPole->Stop();
 					}
+					text.ReplaceFirst("\"%project%\"", projectName);
+					fStringView->SetText(text.String());
+
 					fLastStatusChange = system_time();
 				}
 				default:

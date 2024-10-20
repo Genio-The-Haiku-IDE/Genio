@@ -44,7 +44,7 @@ GlobalStatusView::GlobalStatusView()
 	BBox* box = new BBox("box");
 	box->SetBorder(B_FANCY_BORDER);
 	BLayoutBuilder::Group<>(box, B_HORIZONTAL)
-		.SetInsets(4, 4)
+		.SetInsets(8, 0, 0, 0)
 		.Add(fStringView)
 		.Add(fBarberPole);
 

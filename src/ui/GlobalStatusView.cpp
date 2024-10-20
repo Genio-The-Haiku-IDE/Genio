@@ -96,8 +96,6 @@ GlobalStatusView::MessageReceived(BMessage *message)
 			switch (what) {
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
-					// TODO: if we passed also the project name we could
-					// show "Building <projectname>"
 					bool building = message->GetBool("building", false);
 					BString projectName = message->GetString("project_name");
 					BString text;

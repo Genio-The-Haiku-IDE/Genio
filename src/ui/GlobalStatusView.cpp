@@ -5,6 +5,7 @@
 #include "GlobalStatusView.h"
 
 #include <BarberPole.h>
+#include <Box.h>
 #include <Catalog.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
@@ -27,15 +28,11 @@ const bigtime_t kTextAutohideTimeout = 5000000ULL;
 GlobalStatusView::GlobalStatusView()
 	:
 	BView("global_status_view", B_WILL_DRAW|B_PULSE_NEEDED),
-	//fStatusBar(nullptr),
 	fBarberPole(nullptr),
 	fStringView(nullptr),
 	fLastStatusChange(system_time()),
 	fDontHideText(false)
 {
-	//fStatusBar = new BStatusBar("progress_bar", "");
-	//fStatusBar->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
-
 	fBarberPole = new BarberPole("barber pole");
 	//fBarberPole->SetExplicitMinSize(BSize(100, B_SIZE_UNLIMITED));
 	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNLIMITED));
@@ -43,15 +40,18 @@ GlobalStatusView::GlobalStatusView()
 	fStringView = new BStringView("text", "");
 	fStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
 	fStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
-		.SetInsets(2)
+
+	BBox* box = new BBox("box");
+	box->SetBorder(B_FANCY_BORDER);
+	BLayoutBuilder::Group<>(box, B_HORIZONTAL)
+		.SetInsets(4, 4)
 		.Add(fStringView)
-		.Add(fBarberPole)
+		.Add(fBarberPole);
+
+	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
 		.AddGlue()
-		//.Add(fStatusBar);
+		.Add(box)
 		.End();
-	// TODO:
-	//fStatusBar->Hide();
 }
 
 
@@ -131,8 +131,9 @@ void
 GlobalStatusView::Pulse()
 {
 	BView::Pulse();
-	if (!fDontHideText && system_time() >= fLastStatusChange + kTextAutohideTimeout)
+	if (!fDontHideText && system_time() >= fLastStatusChange + kTextAutohideTimeout) {
 		fStringView->SetText("");
+	}
 }
 
 

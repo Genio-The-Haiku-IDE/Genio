@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2023, Stefano Ceccherini 
+ * Copyright 2013-2024, Stefano Ceccherini 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #pragma once
@@ -7,8 +7,6 @@
 #include <View.h>
 
 class BarberPole;
-class BBitmap;
-class BStatusBar;
 class BStringView;
 class GlobalStatusView : public BView {
 public:

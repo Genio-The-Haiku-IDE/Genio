@@ -57,17 +57,18 @@ void
 GoToLineWindow::MessageReceived(BMessage* message)
 {
 	switch(message->what) {
-	case GTLW_GO: {
-		int32 line = std::stoi(fLine->Text());
-		message->AddInt32("line", line);
-		fOwner->PostMessage(message);
-	}
-	case GTLW_CANCEL:
-		Hide();
-	break;
-	default:
-		BWindow::MessageReceived(message);
-	break;
+		case GTLW_GO: {
+			int32 line = std::stoi(fLine->Text());
+			message->AddInt32("line", line);
+			fOwner->PostMessage(message);
+			// fall through
+		}
+		case GTLW_CANCEL:
+			Hide();
+			break;
+		default:
+			BWindow::MessageReceived(message);
+			break;
 	}
 }
 

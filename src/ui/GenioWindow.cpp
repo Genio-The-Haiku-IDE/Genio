@@ -275,7 +275,7 @@ GenioWindow::Show()
 		_ShowView(fRightTabView, gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
 		_ShowView(fOutputTabView, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
-		_ShowView(fToolBar, gCFG["show_statusbar"],	MSG_TOGGLE_STATUSBAR);
+		_ShowView(fStatusView, gCFG["show_statusbar"],	MSG_TOGGLE_STATUSBAR);
 
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);

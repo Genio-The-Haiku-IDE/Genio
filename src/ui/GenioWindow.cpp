@@ -1091,13 +1091,19 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_SHOW_HIDE_PROJECTS:
-			_ShowView(fProjectsTabView, fProjectsTabView->IsHidden(), MSG_SHOW_HIDE_PROJECTS);
+			gCFG["show_projects"] = !bool(gCFG["show_projects"]);
 			break;
 		case MSG_SHOW_HIDE_OUTLINE:
-			_ShowView(fRightTabView, fRightTabView->IsHidden(), MSG_SHOW_HIDE_OUTLINE);
+			gCFG["show_outline"] = !bool(gCFG["show_outline"]);
 			break;
 		case MSG_SHOW_HIDE_OUTPUT:
-			_ShowView(fOutputTabView, fOutputTabView->IsHidden(), MSG_SHOW_HIDE_OUTPUT);
+			gCFG["show_output"] = !bool(gCFG["show_output"]);
+			break;
+		case MSG_TOGGLE_TOOLBAR:
+			gCFG["show_toolbar"] = !bool(gCFG["show_toolbar"]);
+			break;
+		case MSG_TOGGLE_STATUSBAR:
+			gCFG["show_statusbar"] = !bool(gCFG["show_statusbar"]);
 			break;
 		case MSG_FULLSCREEN:
 		case MSG_FOCUS_MODE:
@@ -1105,12 +1111,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_TEXT_OVERWRITE:
 			_ForwardToSelectedEditor(message);
-			break;
-		case MSG_TOGGLE_TOOLBAR:
-			_ShowView(fToolBar, fToolBar->IsHidden(), MSG_TOGGLE_TOOLBAR);
-			break;
-		case MSG_TOGGLE_STATUSBAR:
-			_ShowView(fStatusView, fStatusView->IsHidden(), MSG_TOGGLE_STATUSBAR);
 			break;
 		case MSG_WINDOW_SETTINGS:
 		{
@@ -4545,6 +4545,16 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
 		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
+	} else if (key.Compare("show_projects") == 0) {
+		_ShowView(fProjectsTabView, bool(gCFG["show_projects"]), MSG_SHOW_HIDE_PROJECTS);
+	} else if (key.Compare("show_outline") == 0) {
+		_ShowView(fRightTabView, bool(gCFG["show_outline"]), MSG_SHOW_HIDE_OUTLINE);
+	} else if (key.Compare("show_output") == 0) {
+		_ShowView(fOutputTabView, bool(gCFG["show_output"]), MSG_SHOW_HIDE_OUTPUT);
+	} else if (key.Compare("show_toolbar") == 0) {
+		_ShowView(fToolBar, bool(gCFG["show_toolbar"]), MSG_TOGGLE_TOOLBAR);
+	} else if (key.Compare("show_statusbar") == 0) {
+		_ShowView(fStatusView, bool(gCFG["show_statusbar"]), MSG_TOGGLE_STATUSBAR);
 	}
 
 	 _CollapseOrExpandProjects();

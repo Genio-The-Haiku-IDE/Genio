@@ -11,7 +11,6 @@
 #include <LayoutBuilder.h>
 #include <LayoutUtils.h>
 #include <Message.h>
-#include <StatusBar.h>
 #include <StringView.h>
 #include <Window.h>
 

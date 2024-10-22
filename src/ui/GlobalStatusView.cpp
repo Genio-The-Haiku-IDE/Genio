@@ -11,6 +11,7 @@
 #include <LayoutBuilder.h>
 #include <LayoutUtils.h>
 #include <Message.h>
+#include <MessageRunner.h>
 #include <StringView.h>
 #include <Window.h>
 
@@ -23,10 +24,11 @@
 
 const bigtime_t kTextAutohideTimeout = 5000000ULL;
 
+const uint32 kHideText = 'HIDE';
 
 GlobalStatusView::GlobalStatusView()
 	:
-	BView("global_status_view", B_WILL_DRAW|B_PULSE_NEEDED),
+	BView("global_status_view", B_WILL_DRAW),
 	fBarberPole(nullptr),
 	fStringView(nullptr),
 	fLastStatusChange(system_time()),
@@ -88,6 +90,9 @@ void
 GlobalStatusView::MessageReceived(BMessage *message)
 {
 	switch (message->what) {
+		case kHideText:
+			fStringView->SetText("");
+			break;
 		case B_OBSERVER_NOTICE_CHANGE:
 		{
 			int32 what;
@@ -95,11 +100,10 @@ GlobalStatusView::MessageReceived(BMessage *message)
 			switch (what) {
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
-					// TODO: Instead of doing this here, in the caller put the string
-					// into the message and just retrieve it and display it here
+					// TODO: Instead of doing this here, put the string into the message
+					// from the caller and just retrieve it and display it here
 					bool building = message->GetBool("building", false);
 					BString projectName = message->GetString("project_name");
-					// TODO: use this ("build" / "clean")
 					BString cmdType = message->GetString("cmd_type");
 					BString text;
 					if (building) {
@@ -116,6 +120,9 @@ GlobalStatusView::MessageReceived(BMessage *message)
 							text = B_TRANSLATE("Finished cleaning '\"%project%\"'");
 						fDontHideText = false;
 						fBarberPole->Stop();
+						BMessenger messenger(this);
+						BMessageRunner::StartSending(messenger, new BMessage(kHideText),
+									kTextAutohideTimeout, 1);
 					}
 					text.ReplaceFirst("\"%project%\"", projectName);
 					fStringView->SetText(text.String());
@@ -132,16 +139,6 @@ GlobalStatusView::MessageReceived(BMessage *message)
 		default:
 			BView::MessageReceived(message);
 			break;
-	}
-}
-
-
-void
-GlobalStatusView::Pulse()
-{
-	BView::Pulse();
-	if (!fDontHideText && system_time() >= fLastStatusChange + kTextAutohideTimeout) {
-		fStringView->SetText("");
 	}
 }
 

@@ -16,7 +16,6 @@ public:
 	virtual void DetachedFromWindow();
 	virtual void Draw(BRect updateRect);
 	virtual void MessageReceived(BMessage *message);
-	virtual void Pulse();
 
 	virtual BSize MinSize();
 	virtual BSize MaxSize();

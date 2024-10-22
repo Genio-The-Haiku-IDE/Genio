@@ -59,7 +59,7 @@ public:
 	virtual void	AttachedToWindow();
 	virtual void	DetachedFromWindow();
 	virtual void	MessageReceived(BMessage* message);
-
+	virtual void	KeyDown(const char* bytes, int32 numBytes);
 	virtual void	SelectionChanged();
 
 	ProjectItem*	ProjectItemAt(int32 index) const;
@@ -971,6 +971,23 @@ void
 ProjectOutlineListView::MessageReceived(BMessage* message)
 {
 	BOutlineListView::MessageReceived(message);
+}
+
+
+/* virtual */
+void
+ProjectOutlineListView::KeyDown(const char* bytes, int32 numBytes)
+{
+	if (bytes[0] == B_DELETE) {
+		BMessage deleteFile(MSG_PROJECT_MENU_DELETE_FILE);
+		ProjectItem* selected = GetSelectedProjectItem();
+		if (selected != nullptr) {
+			const entry_ref* ref = selected->GetSourceItem()->EntryRef();
+			deleteFile.AddRef("ref", ref);
+			Window()->PostMessage(&deleteFile);
+		}
+	}
+	BOutlineListView::KeyDown(bytes, numBytes);
 }
 
 

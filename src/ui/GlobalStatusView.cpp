@@ -95,18 +95,25 @@ GlobalStatusView::MessageReceived(BMessage *message)
 			switch (what) {
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
+					// TODO: Instead of doing this here, in the caller put the string
+					// into the message and just retrieve it and display it here
 					bool building = message->GetBool("building", false);
 					BString projectName = message->GetString("project_name");
 					// TODO: use this ("build" / "clean")
 					BString cmdType = message->GetString("cmd_type");
-
 					BString text;
 					if (building) {
-						text = B_TRANSLATE("Building '\"%project%\"'" B_UTF8_ELLIPSIS);
+						if (cmdType.Compare("build") == 0)
+							text = B_TRANSLATE("Building '\"%project%\"'" B_UTF8_ELLIPSIS);
+						else if (cmdType.Compare("clean"))
+							text = B_TRANSLATE("Cleaning '\"%project%\"'" B_UTF8_ELLIPSIS);
 						fDontHideText = true;
 						fBarberPole->Start();
 					} else {
-						text = B_TRANSLATE("Finished building '\"%project%\"'");
+						if (cmdType.Compare("build") == 0)
+							text = B_TRANSLATE("Finished building '\"%project%\"'");
+						else
+							text = B_TRANSLATE("Finished cleaning '\"%project%\"'");
 						fDontHideText = false;
 						fBarberPole->Stop();
 					}

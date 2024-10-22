@@ -499,13 +499,13 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				BString newLocalName(selectedBranch);
 				newLocalName.RemoveAll("origin/");
 				git_branch_t branchType = static_cast<git_branch_t>(message->GetInt32("type", -1));
-				auto alert = new GTextAlert(B_TRANSLATE("Rename branch"),
-					B_TRANSLATE("Rename branch:"), selectedBranch);
+				auto alert = new GTextAlert(B_TRANSLATE("Create branch"),
+					B_TRANSLATE("New branch name:"), selectedBranch);
 				auto result = alert->Go();
 				if (result.Button == GAlertButtons::OkButton) {
 					auto repo = selectedProject->GetRepository();
 					repo->CreateBranch(selectedBranch, branchType, result.Result);
-					LogInfo("MsgRenameBranch: %s created from %s", selectedBranch.String(),
+					LogInfo("MsgNewBranch: %s created from %s", selectedBranch.String(),
 						result.Result.String());
 					GMessage switchMessage{
 						{"what", MsgSwitchBranch},

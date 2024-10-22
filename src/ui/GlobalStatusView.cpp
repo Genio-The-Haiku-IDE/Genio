@@ -5,7 +5,6 @@
 #include "GlobalStatusView.h"
 
 #include <BarberPole.h>
-#include <Box.h>
 #include <Catalog.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
@@ -42,17 +41,10 @@ GlobalStatusView::GlobalStatusView()
 	fStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
 	fStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
 
-	BBox* box = new BBox("box");
-	box->SetBorder(B_FANCY_BORDER);
-	BLayoutBuilder::Group<>(box, B_HORIZONTAL)
-		.SetInsets(8, 0, 0, 0)
-		.Add(fStringView)
-		.Add(fBarberPole);
-
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
 		.AddGlue()
-		.Add(box)
-		.End();
+		.Add(fStringView)
+		.Add(fBarberPole);
 }
 
 

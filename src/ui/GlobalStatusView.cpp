@@ -97,13 +97,16 @@ GlobalStatusView::MessageReceived(BMessage *message)
 				{
 					bool building = message->GetBool("building", false);
 					BString projectName = message->GetString("project_name");
+					// TODO: use this ("build" / "clean")
+					BString cmdType = message->GetString("cmd_type");
+
 					BString text;
 					if (building) {
-						text = B_TRANSLATE("Building \"%project%\"" B_UTF8_ELLIPSIS);
+						text = B_TRANSLATE("Building '\"%project%\"'" B_UTF8_ELLIPSIS);
 						fDontHideText = true;
 						fBarberPole->Start();
 					} else {
-						text = B_TRANSLATE("Finished building \"%project%\"");
+						text = B_TRANSLATE("Finished building '\"%project%\"'");
 						fDontHideText = false;
 						fBarberPole->Stop();
 					}

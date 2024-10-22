@@ -101,14 +101,14 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					if (building) {
 						if (cmdType.Compare("build") == 0)
 							text = B_TRANSLATE("Building '\"%project%\"'" B_UTF8_ELLIPSIS);
-						else if (cmdType.Compare("clean"))
+						else if (cmdType.Compare("clean") == 0)
 							text = B_TRANSLATE("Cleaning '\"%project%\"'" B_UTF8_ELLIPSIS);
 						fDontHideText = true;
 						fBarberPole->Start();
 					} else {
 						if (cmdType.Compare("build") == 0)
 							text = B_TRANSLATE("Finished building '\"%project%\"'");
-						else
+						else if (cmdType.Compare("clean") == 0)
 							text = B_TRANSLATE("Finished cleaning '\"%project%\"'");
 						fDontHideText = false;
 						fBarberPole->Stop();

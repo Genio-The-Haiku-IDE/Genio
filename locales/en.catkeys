@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	2224812046
+1	English	application/x-vnd.Genio	2716318925
 Close	RemoteProjectWindow		Close
 Finished building \"%project%\"	GlobalStatusView		Finished building \"%project%\"
 Copy	GenioWindow		Copy
@@ -230,6 +230,7 @@ Error creating folder	GenioWindow		Error creating folder
 Build command:	ProjectSettingsWindow		Build command:
 Replace and find next	GenioWindow		Replace and find next
 Delete	SourceControlPanel		Delete
+Create branch	SourceControlPanel		Create branch
 Target:	ProjectSettingsWindow		Target:
 Show/Hide projects pane	GenioWindow		Show/Hide projects pane
 Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Wrap around
@@ -301,6 +302,7 @@ Show/Hide output pane	GenioWindow		Show/Hide output pane
 Reload .editorconfig	GenioWindow		Reload .editorconfig
 No fix available	ProblemsPanel		No fix available
 Go to implementation	GenioWindow		Go to implementation
+New branch name:	SourceControlPanel		New branch name:
 Run target	GenioWindow		Run target
 Class	FunctionsOutlineView		Class
 New	ProjectsFolderBrowser		New

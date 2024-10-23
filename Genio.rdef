@@ -20,7 +20,8 @@ resource file_types message {
 	"types" = "text/plain",
 	"types" = "text/x-source-code",
 	"types" = "text/x-makefile",
-	"types" = "text/x-jamfile"
+	"types" = "text/x-jamfile",
+	"types" = "application/x-vnd.Be-directory"
 };
 
 

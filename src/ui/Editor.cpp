@@ -1773,10 +1773,13 @@ Editor::_LoadResources(BMessage *message)
 		if (startIndex != -1)
 			index = startIndex + count;
 		ResourceImport resource(ref, index);
-		SendMessage(SCI_APPENDTEXT, resource.GetArray().Length(), (sptr_t)resource.GetArray().String());
+		SendMessage(SCI_APPENDTEXT, resource.GetArray().Length(),
+			(sptr_t)resource.GetArray().String());
 	}
 
 	SendMessage(SCI_BEGINUNDOACTION, 0, 0);
+
+	GoToLine(CountLines());
 }
 
 
@@ -1917,7 +1920,8 @@ Editor::DuplicateCurrentLine()
 
 
 void
-Editor::DeleteSelectedLines() {
+Editor::DeleteSelectedLines()
+{
 	SendMessage(SCI_BEGINUNDOACTION, 0, UNSET);
 	int32 start = SendMessage(SCI_GETSELECTIONSTART, 0, UNSET);
 	int32 startLineNumber = SendMessage(SCI_LINEFROMPOSITION, start, UNSET);

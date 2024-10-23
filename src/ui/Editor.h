@@ -105,10 +105,10 @@ public:
 			void				GoToLine(int32 line);
 			void				GoToLSPPosition(int32 line, int character);
 			void				GrabFocus();
-			bool				IsFoldingAvailable() { return fFoldingAvailable; }
-			bool				IsModified() { return fModified; }
+			bool				IsFoldingAvailable() const { return fFoldingAvailable; }
+			bool				IsModified() const { return fModified; }
 
-			bool				IsParsingAvailable() { return fParsingAvailable; }
+			bool				IsParsingAvailable() const { return fParsingAvailable; }
 			void				NotificationReceived(SCNotification* n);
 			void				Paste();
 			void				Redo();
@@ -148,7 +148,7 @@ public:
 
 			LSPEditorWrapper*	GetLSPEditorWrapper() { return fLSPEditorWrapper; }
 			bool				HasLSPServer() const;
-			bool				HasLSPCapability(const LSPCapability cap);
+			bool				HasLSPCapability(const LSPCapability cap) const;
 
 			// Scripting methods
 			const 	BString		Selection();

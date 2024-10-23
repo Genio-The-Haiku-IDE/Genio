@@ -139,7 +139,7 @@ Editor::HasLSPServer() const
 
 
 bool
-Editor::HasLSPCapability(const LSPCapability cap)
+Editor::HasLSPCapability(const LSPCapability cap) const
 {
 	return (HasLSPServer() && fLSPEditorWrapper->HasLSPServerCapability(cap));
 }

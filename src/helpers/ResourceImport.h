@@ -18,7 +18,7 @@ public:
 				ResourceImport(entry_ref &ref, int32 index = -1);
 				~ResourceImport();
 
-				BString GetArray() { return fRdefArray; }
+				BString GetArray() const { return fRdefArray; }
 private:
 	status_t 	_Import(BDataIO* const source, size_t sourceSize, BPositionIO* stream,
 					BString name, BString type, int32 index) const;

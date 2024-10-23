@@ -32,39 +32,40 @@ SRCS += src/extensions/ExtensionManager.cpp
 SRCS += src/extensions/ToolsMenu.cpp
 SRCS += src/helpers/ActionManager.cpp
 SRCS += src/helpers/FSUtils.cpp
-SRCS += src/helpers/ResourceImport.cpp
-SRCS += src/helpers/GSettings.cpp
+SRCS += src/helpers/Languages.cpp
 SRCS += src/helpers/Logger.cpp
+SRCS += src/helpers/GSettings.cpp
+SRCS += src/helpers/GrepThread.cpp
+SRCS += src/helpers/PipeImage.cpp
+SRCS += src/helpers/ResourceImport.cpp
 SRCS += src/helpers/StatusView.cpp
+SRCS += src/helpers/Styler.cpp
 SRCS += src/helpers/TextUtils.cpp
 SRCS += src/helpers/Utils.cpp
-SRCS += src/helpers/GrepThread.cpp
 SRCS += src/helpers/console_io/ConsoleIOView.cpp
 SRCS += src/helpers/console_io/ConsoleIOThread.cpp
 SRCS += src/helpers/console_io/GenericThread.cpp
 SRCS += src/helpers/console_io/WordTextView.cpp
-SRCS += src/helpers/mterm/MTerm.cpp
 SRCS += src/helpers/mterm/KeyTextViewScintilla.cpp
+SRCS += src/helpers/mterm/MTerm.cpp
 SRCS += src/helpers/mterm/MTermView.cpp
+SRCS += src/helpers/tabview/CircleColorMenuItem.cpp
 SRCS += src/helpers/tabview/TabContainerView.cpp
 SRCS += src/helpers/tabview/TabManager.cpp
 SRCS += src/helpers/tabview/TabView.cpp
-SRCS += src/helpers/tabview/CircleColorMenuItem.cpp
-SRCS += src/helpers/Languages.cpp
-SRCS += src/helpers/Styler.cpp
+SRCS += src/lsp-client/CallTipContext.cpp
 SRCS += src/lsp-client/LSPEditorWrapper.cpp
 SRCS += src/lsp-client/LSPProjectWrapper.cpp
 SRCS += src/lsp-client/LSPPipeClient.cpp
-SRCS += src/lsp-client/Transport.cpp
 SRCS += src/lsp-client/LSPReaderThread.cpp
 SRCS += src/lsp-client/LSPServersManager.cpp
-SRCS += src/lsp-client/CallTipContext.cpp
+SRCS += src/lsp-client/Transport.cpp
 SRCS += src/project/ProjectFolder.cpp
 SRCS += src/project/ProjectItem.cpp
 SRCS += src/git/BranchItem.cpp
-SRCS += src/git/GitRepository.cpp
 SRCS += src/git/GitAlert.cpp
 SRCS += src/git/GitCredentialsWindow.cpp
+SRCS += src/git/GitRepository.cpp
 SRCS += src/git/RemoteProjectWindow.cpp
 SRCS += src/git/RepositoryView.cpp
 SRCS += src/git/SourceControlPanel.cpp
@@ -81,14 +82,13 @@ SRCS += src/ui/GoToLineWindow.cpp
 SRCS += src/ui/IconCache.cpp
 SRCS += src/ui/ProblemsPanel.cpp
 SRCS += src/ui/ProjectBrowser.cpp
+SRCS += src/ui/QuitAlert.cpp
 SRCS += src/ui/SearchResultPanel.cpp
 SRCS += src/ui/StyledItem.cpp
 SRCS += src/ui/ToolBar.cpp
-SRCS += src/ui/QuitAlert.cpp
 SRCS += src/templates/IconMenuItem.cpp
-SRCS += src/templates/TemplatesMenu.cpp
 SRCS += src/templates/TemplateManager.cpp
-SRCS += src/helpers/PipeImage.cpp
+SRCS += src/templates/TemplatesMenu.cpp
 
 RDEFS := Genio.rdef Spinner.rdef
 
@@ -157,4 +157,3 @@ txt2header :
 
 compiledb:
 	compiledb make -Bnwk
-

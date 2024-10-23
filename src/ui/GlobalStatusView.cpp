@@ -42,9 +42,13 @@ GlobalStatusView::GlobalStatusView()
 	fStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
 
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
+		.SetInsets(2, 0)
 		.AddGlue()
 		.Add(fStringView)
-		.Add(fBarberPole);
+		.AddGroup(B_VERTICAL)
+			.SetInsets(0, 4)
+			.Add(fBarberPole)
+		.End();
 }
 
 
@@ -100,16 +104,16 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					BString text;
 					if (building) {
 						if (cmdType.Compare("build") == 0)
-							text = B_TRANSLATE("Building '\"%project%\"'" B_UTF8_ELLIPSIS);
+							text = B_TRANSLATE("Building project '\"%project%\"'" B_UTF8_ELLIPSIS);
 						else if (cmdType.Compare("clean") == 0)
-							text = B_TRANSLATE("Cleaning '\"%project%\"'" B_UTF8_ELLIPSIS);
+							text = B_TRANSLATE("Cleaning project '\"%project%\"'" B_UTF8_ELLIPSIS);
 						fDontHideText = true;
 						fBarberPole->Start();
 					} else {
 						if (cmdType.Compare("build") == 0)
-							text = B_TRANSLATE("Finished building '\"%project%\"'");
+							text = B_TRANSLATE("Finished building project '\"%project%\"'");
 						else if (cmdType.Compare("clean") == 0)
-							text = B_TRANSLATE("Finished cleaning '\"%project%\"'");
+							text = B_TRANSLATE("Finished cleaning project '\"%project%\"'");
 						fDontHideText = false;
 						fBarberPole->Stop();
 						BMessenger messenger(this);

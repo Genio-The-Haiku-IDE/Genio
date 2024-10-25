@@ -2608,9 +2608,9 @@ GenioWindow::_InitCentralSplit()
 
 	fFindGroup = new ToolBar(this);
 	if (gCFG["use_small_icons"]) {
-		fFindGroup->ChangeIconSize(kDefaultIconSizeSmall);
+		fFindGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
 	} else {
-		fFindGroup->ChangeIconSize(kDefaultIconSize);
+		fFindGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
 	}
 	fFindGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 												.Add(fFindMenuField)
@@ -2642,9 +2642,9 @@ GenioWindow::_InitCentralSplit()
 
 	fReplaceGroup = new ToolBar(this);
 	if (gCFG["use_small_icons"]) {
-		fReplaceGroup->ChangeIconSize(kDefaultIconSizeSmall);
+		fReplaceGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
 	} else {
-		fReplaceGroup->ChangeIconSize(kDefaultIconSize);
+		fReplaceGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
 	}
 	fReplaceGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 												.Add(fReplaceMenuField)
@@ -3346,9 +3346,9 @@ GenioWindow::_InitToolbar()
 {
 	fToolBar = new ToolBar(this);
 	if (gCFG["use_small_icons"]) {
-		fToolBar->ChangeIconSize(kDefaultIconSizeSmall);
+		fToolBar->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
 	} else {
-		fToolBar->ChangeIconSize(kDefaultIconSize);
+		fToolBar->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
 	}
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, fToolBar);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE, fToolBar);
@@ -4573,13 +4573,13 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		_ShowView(fStatusView, bool(gCFG["show_statusbar"]), MSG_TOGGLE_STATUSBAR);
 	} else if (key.Compare("use_small_icons") == 0) {
 		if (gCFG["use_small_icons"]) {
-			fToolBar->ChangeIconSize(kDefaultIconSizeSmall);
-			fFindGroup->ChangeIconSize(kDefaultIconSizeSmall);
-			fReplaceGroup->ChangeIconSize(kDefaultIconSizeSmall);
+			fToolBar->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
+			fFindGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
+			fReplaceGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
 		} else {
-			fToolBar->ChangeIconSize(kDefaultIconSize);
-			fFindGroup->ChangeIconSize(kDefaultIconSize);
-			fReplaceGroup->ChangeIconSize(kDefaultIconSizeSmall);
+			fToolBar->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
+			fFindGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
+			fReplaceGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
 		}
 	}
 

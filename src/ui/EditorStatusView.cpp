@@ -57,7 +57,7 @@ StatusView::StatusView(Editor* editor)	:
 
 	memset(fCellWidth, 0, sizeof(fCellWidth));
 
-	SetFont(be_plain_font);
+	SetFont(be_fixed_font);
 	SetFontSize(12.);
 }
 

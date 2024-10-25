@@ -189,6 +189,8 @@ private:
 			BMenuItem*			fMakeCatkeysItem;
 			BMenuItem*			fMakeBindcatalogsItem;
 
+			BMenu*				fSetActiveProjectMenuItem;
+
 			BMenu*				fGitMenu;
 			BMenuItem*			fGitBranchItem;
 			BMenuItem*			fGitLogItem;

@@ -132,6 +132,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fDebugModeItem(nullptr)
 	, fMakeCatkeysItem(nullptr)
 	, fMakeBindcatalogsItem(nullptr)
+	, fSetActiveProjectMenuItem(nullptr)
 	, fGitMenu(nullptr)
 	, fGitBranchItem(nullptr)
 	, fGitLogItem(nullptr)
@@ -1263,6 +1264,16 @@ GenioWindow::MenusBeginning()
 			ActionManager::SetEnabled(B_COPY,  false);
 			ActionManager::SetEnabled(B_PASTE, false);
 	}
+
+	for (int32 p = 0; p < GetProjectBrowser()->CountProjects(); p++) {
+		ProjectFolder* project = GetProjectBrowser()->ProjectAt(p);
+		BMessage* setActiveMessage = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
+		setActiveMessage->AddPointer("project", project);
+		BMenuItem* item = new BMenuItem(project->Name(), setActiveMessage);
+		if (project->Active())
+			item->SetEnabled(false);
+		fSetActiveProjectMenuItem->AddItem(item);
+	}
 }
 
 
@@ -1271,6 +1282,7 @@ void
 GenioWindow::MenusEnded()
 {
 	BWindow::MenusEnded();
+	fSetActiveProjectMenuItem->RemoveItems(0, fSetActiveProjectMenuItem->CountItems(), true);
 }
 
 
@@ -3193,6 +3205,11 @@ GenioWindow::_InitMenu()
 			kRecentFilesNumber, false, GenioNames::kApplicationSignature), nullptr));
 
 	ActionManager::AddItem(MSG_PROJECT_CLOSE, projectMenu);
+
+	projectMenu->AddSeparatorItem();
+
+	fSetActiveProjectMenuItem = new BMenu(B_TRANSLATE("Set active"));
+	projectMenu->AddItem(fSetActiveProjectMenuItem);
 
 	projectMenu->AddSeparatorItem();
 

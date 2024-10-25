@@ -141,22 +141,23 @@ rgb_color GControl<BColorControl, rgb_color>::RetrieveValue()
 }
 
 
-ConfigWindow::ConfigWindow(ConfigManager &configManager)
+ConfigWindow::ConfigWindow(ConfigManager &configManager, bool showDefaultButton)
     :
 	BWindow(BRect(), B_TRANSLATE("Settings"), B_TITLED_WINDOW_LOOK, B_MODAL_APP_WINDOW_FEEL,
 		B_ASYNCHRONOUS_CONTROLS | B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
-    fConfigManager(configManager)
+    fConfigManager(configManager),
+	fDefaultsButton(nullptr)
 {
 	fShowHidden = modifiers() & B_COMMAND_KEY;
 
 	SetLayout(new BGroupLayout(B_HORIZONTAL));
-	AddChild(_Init());
+	AddChild(_Init(showDefaultButton));
 	CenterOnScreen();
 }
 
 
 BView*
-ConfigWindow::_Init()
+ConfigWindow::_Init(bool showDefaultButton)
 {
 	BView* theView = new BView("theView", B_WILL_DRAW);
 	// Add the list view
@@ -169,10 +170,11 @@ ConfigWindow::_Init()
 		fGroupList, B_WILL_DRAW | B_FRAME_EVENTS, false,
 		true, B_FANCY_BORDER);
 
-	fDefaultsButton = new BButton("defaults", B_TRANSLATE("Defaults"), new BMessage(kDefaultPressed));
-	fDefaultsButton->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-	fDefaultsButton->SetEnabled(true);
-
+	if (showDefaultButton) {
+		fDefaultsButton = new BButton("defaults", B_TRANSLATE("Defaults"), new BMessage(kDefaultPressed));
+		fDefaultsButton->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+		fDefaultsButton->SetEnabled(true);
+	}
 	// Box around the config and info panels
 	fCardView = new BCardView("Right_Side");
 	fCardView->SetExplicitAlignment(BAlignment(B_ALIGN_USE_FULL_WIDTH,
@@ -187,8 +189,10 @@ ConfigWindow::_Init()
 		.AddGroup(B_HORIZONTAL)
 			.Add(scrollView, 1)
 			.Add(fCardView, 3)
-		.End()
-		.Add(fDefaultsButton);
+		.End();
+
+	if (fDefaultsButton != nullptr)
+		theView->GetLayout()->AddView(fDefaultsButton);
 
 	fGroupList->MakeFocus();
 
@@ -196,7 +200,8 @@ ConfigWindow::_Init()
 
 	be_app->StartWatching(this, fConfigManager.UpdateMessageWhat());
 
-	fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
+	if (fDefaultsButton != nullptr)
+		fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 
 	return theView;
 }
@@ -255,7 +260,8 @@ ConfigWindow::MessageReceived(BMessage* message)
 						GMessage m(kSetValueNoUpdate);
 						m["key"] = key.String();
 						control->MessageReceived(&m);
-						fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
+						if (fDefaultsButton != nullptr)
+							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 					}
 				}
 			}

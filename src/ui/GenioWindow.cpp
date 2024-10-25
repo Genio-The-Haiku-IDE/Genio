@@ -1019,7 +1019,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", fActiveProject);
 			if (project != nullptr) {
-				ConfigWindow* window = new ConfigWindow(project->Settings());
+				ConfigWindow* window = new ConfigWindow(project->Settings(), false);
 				// TODO: Translate
 				BString windowTitle(B_TRANSLATE("Project:"));
 				windowTitle.Append(" ");

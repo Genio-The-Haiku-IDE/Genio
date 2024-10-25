@@ -17,20 +17,20 @@ class ConfigManager;
 
 class ConfigWindow : public BWindow {
 public:
-	ConfigWindow(ConfigManager& configManager);
+	ConfigWindow(ConfigManager& configManager, bool showDefaultButton = true);
 
-	void MessageReceived(BMessage* message);
+	virtual void MessageReceived(BMessage* message);
 
 	BView* MakeViewFor(const char* groupName, GMessage& config);
 	BView* MakeControlFor(GMessage& config);
 	BView* MakeNoteView(GMessage& config);
 
-	bool QuitRequested();
+	virtual bool QuitRequested();
 
 private:
 	ConfigManager&		fConfigManager;
 
-	BView*	_Init();
+	BView*	_Init(bool showDefaultButton);
 	void 	_PopulateListView();
 
 	template<typename T, typename POPUP>

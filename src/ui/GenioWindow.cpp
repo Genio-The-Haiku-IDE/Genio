@@ -2641,7 +2641,11 @@ GenioWindow::_InitCentralSplit()
 	fReplaceTextControl->SetExplicitMinSize(fFindTextControl->MinSize());
 
 	fReplaceGroup = new ToolBar(this);
-	fReplaceGroup->ChangeIconSize(kDefaultIconSize);
+	if (gCFG["use_small_icons"]) {
+		fReplaceGroup->ChangeIconSize(kDefaultIconSizeSmall);
+	} else {
+		fReplaceGroup->ChangeIconSize(kDefaultIconSize);
+	}
 	fReplaceGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 												.Add(fReplaceMenuField)
 												.Add(fReplaceTextControl).View());
@@ -4571,9 +4575,11 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		if (gCFG["use_small_icons"]) {
 			fToolBar->ChangeIconSize(kDefaultIconSizeSmall);
 			fFindGroup->ChangeIconSize(kDefaultIconSizeSmall);
+			fReplaceGroup->ChangeIconSize(kDefaultIconSizeSmall);
 		} else {
 			fToolBar->ChangeIconSize(kDefaultIconSize);
 			fFindGroup->ChangeIconSize(kDefaultIconSize);
+			fReplaceGroup->ChangeIconSize(kDefaultIconSizeSmall);
 		}
 	}
 

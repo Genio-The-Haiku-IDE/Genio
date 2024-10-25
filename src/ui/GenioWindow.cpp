@@ -94,6 +94,7 @@ static float kOutputWeight  = 0.4f;
 
 BRect dirtyFrameHack;
 
+static float kDefaultIconSizeSmall = 16.0;
 static float kDefaultIconSize = 32.0;
 
 using Genio::Task::Task;
@@ -2606,7 +2607,11 @@ GenioWindow::_InitCentralSplit()
 	fFindCaseSensitiveCheck->SetValue(gCFG["find_match_case"] ? B_CONTROL_ON : B_CONTROL_OFF);
 
 	fFindGroup = new ToolBar(this);
-	fFindGroup->ChangeIconSize(kDefaultIconSize);
+	if (gCFG["use_small_icons"]) {
+		fFindGroup->ChangeIconSize(kDefaultIconSizeSmall);
+	} else {
+		fFindGroup->ChangeIconSize(kDefaultIconSize);
+	}
 	fFindGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
 												.Add(fFindMenuField)
 												.Add(fFindTextControl).View());
@@ -3336,8 +3341,11 @@ void
 GenioWindow::_InitToolbar()
 {
 	fToolBar = new ToolBar(this);
-	fToolBar->ChangeIconSize(kDefaultIconSize);
-
+	if (gCFG["use_small_icons"]) {
+		fToolBar->ChangeIconSize(kDefaultIconSizeSmall);
+	} else {
+		fToolBar->ChangeIconSize(kDefaultIconSize);
+	}
 	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, fToolBar);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE, fToolBar);
 	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT, fToolBar);
@@ -4559,6 +4567,14 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		_ShowView(fToolBar, bool(gCFG["show_toolbar"]), MSG_TOGGLE_TOOLBAR);
 	} else if (key.Compare("show_statusbar") == 0) {
 		_ShowView(fStatusView, bool(gCFG["show_statusbar"]), MSG_TOGGLE_STATUSBAR);
+	} else if (key.Compare("use_small_icons") == 0) {
+		if (gCFG["use_small_icons"]) {
+			fToolBar->ChangeIconSize(kDefaultIconSizeSmall);
+			fFindGroup->ChangeIconSize(kDefaultIconSizeSmall);
+		} else {
+			fToolBar->ChangeIconSize(kDefaultIconSize);
+			fFindGroup->ChangeIconSize(kDefaultIconSize);
+		}
 	}
 
 	 _CollapseOrExpandProjects();

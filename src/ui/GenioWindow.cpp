@@ -94,7 +94,7 @@ static float kOutputWeight  = 0.4f;
 
 BRect dirtyFrameHack;
 
-static float kDefaultIconSizeSmall = 16.0;
+static float kDefaultIconSizeSmall = 20.0;
 static float kDefaultIconSize = 32.0;
 
 using Genio::Task::Task;

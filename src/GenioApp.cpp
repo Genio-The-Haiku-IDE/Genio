@@ -364,6 +364,7 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(generalAppearance.String(), "show_output", B_TRANSLATE("Show output pane"), true);
 	cfg.AddConfig(generalAppearance.String(), "show_toolbar", B_TRANSLATE("Show toolbar"), true);
 	cfg.AddConfig(generalAppearance.String(), "show_statusbar", B_TRANSLATE("Show statusbar"), true);
+	cfg.AddConfig(generalAppearance.String(), "use_small_icons", B_TRANSLATE("Use smaller icons in toolbar"), true);
 
 	GMessage sizes;
 	sizes = { {"mode","options"},

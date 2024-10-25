@@ -3370,6 +3370,7 @@ GenioWindow::_InitToolbar()
 	fToolBar->AddGlue();
 
 	ActionManager::AddItem(MSG_BUFFER_LOCK, fToolBar);
+#if 0
 	fToolBar->AddSeparator();
 
 	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, fToolBar);
@@ -3377,7 +3378,7 @@ GenioWindow::_InitToolbar()
 	ActionManager::AddItem(MSG_FILE_CLOSE, fToolBar);
 
 	fToolBar->AddAction(MSG_FILE_MENU_SHOW, B_TRANSLATE("Open files list"), "kIconFileList");
-
+#endif
 	ActionManager::SetEnabled(MSG_FIND_GROUP_TOGGLED, true);
 	ActionManager::SetEnabled(MSG_REPLACE_GROUP_TOGGLED, true);
 }

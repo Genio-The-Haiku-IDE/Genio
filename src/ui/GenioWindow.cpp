@@ -2895,8 +2895,8 @@ GenioWindow::_InitActions()
 									"kIconWinOutline");
 
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
-									B_TRANSLATE("Show output pane"),
-									B_TRANSLATE("Show/Hide output pane"),
+									B_TRANSLATE("Show info pane"),
+									B_TRANSLATE("Show/Hide info pane"),
 									"kIconWinStat");
 
 	ActionManager::RegisterAction(MSG_FULLSCREEN,

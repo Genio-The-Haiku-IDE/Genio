@@ -461,7 +461,8 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_SAVE_REQUESTED:
 			_FileSaveAs(fTabManager->SelectedTabIndex(), message);
 			break;
-		case B_UNDO: {
+		case B_UNDO:
+		{
 			Editor* editor = fTabManager->SelectedEditor();
 			if (editor) {
 				if (editor->CanUndo())
@@ -591,7 +592,6 @@ GenioWindow::MessageReceived(BMessage* message)
 					_UpdateSavepointChange(editor, "UpdateSavePoint");
 				}
 			}
-
 			break;
 		}
 		case MSG_BOOKMARK_CLEAR_ALL:
@@ -851,7 +851,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ForwardToSelectedEditor(message);
 			break;
 		case MSG_GOTO_LINE:
-			if(fGoToLineWindow == nullptr) {
+			if (fGoToLineWindow == nullptr) {
 				fGoToLineWindow = new GoToLineWindow(this);
 			}
 			fGoToLineWindow->ShowCentered(Frame());
@@ -891,7 +891,6 @@ GenioWindow::MessageReceived(BMessage* message)
 				return;
 
 			GetProjectBrowser()->SelectItemByRef(editor->GetProjectFolder(), *editor->FileRef());
-
 			break;
 		}
 		case MSG_MAKE_BINDCATALOGS:
@@ -979,13 +978,15 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_MENU_RENAME_FILE:
 			_ProjectRenameFile();
 			break;
-		case MSG_PROJECT_MENU_SET_ACTIVE: {
+		case MSG_PROJECT_MENU_SET_ACTIVE:
+		{
 			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
 			if (project != nullptr)
 				_ProjectFolderActivate(project);
 			break;
 		}
-		case MSG_PROJECT_MENU_SHOW_IN_TRACKER: {
+		case MSG_PROJECT_MENU_SHOW_IN_TRACKER:
+		{
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				_ShowItemInTracker(&ref);
@@ -993,7 +994,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_PROJECT_MENU_OPEN_TERMINAL:{
+		case MSG_PROJECT_MENU_OPEN_TERMINAL:
+		{
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				_OpenTerminalWorkingDirectory(&ref);
@@ -1020,7 +1022,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", fActiveProject);
 			if (project != nullptr) {
 				ConfigWindow* window = new ConfigWindow(project->Settings(), false);
-				// TODO: Translate
 				BString windowTitle(B_TRANSLATE("Project:"));
 				windowTitle.Append(" ");
 				windowTitle.Append(project->Name());
@@ -1239,7 +1240,7 @@ GenioWindow::MenusBeginning()
 	BWindow::MenusBeginning();
 
 	BView* view = CurrentFocus();
-	if (!view)
+	if (view == nullptr)
 		return;
 	Editor* editor = nullptr;
 	BTextView* textView = nullptr;
@@ -1377,7 +1378,7 @@ void
 GenioWindow::_ForwardToSelectedEditor(BMessage* msg)
 {
 	Editor* editor = fTabManager->SelectedEditor();
-	if (editor) {
+	if (editor != nullptr) {
 		PostMessage(msg, editor);
 	}
 }
@@ -1386,14 +1387,13 @@ GenioWindow::_ForwardToSelectedEditor(BMessage* msg)
 void
 GenioWindow::_CloseMultipleTabs(BMessage* msg)
 {
-	type_code	typeFound;
-	int32		countFound;
-	bool		fixedSize;
-
+	type_code typeFound;
+	int32 countFound;
+	bool fixedSize;
 	if (msg->GetInfo("index", &typeFound, &countFound, &fixedSize) == B_OK) {
 		int32 index;
 		std::vector<int32> unsavedIndex;
-		for (int32 i=0; i<countFound; i++) {
+		for (int32 i = 0; i < countFound; i++) {
 			if (msg->FindInt32("index", i, &index) == B_OK) {
 				Editor* editor = fTabManager->EditorAt(index);
 				if (editor && editor->IsModified()) {
@@ -1417,11 +1417,10 @@ GenioWindow::_CloseMultipleTabs(BMessage* msg)
 bool
 GenioWindow::_FileRequestSaveAllModified()
 {
-	std::vector<int32>		 unsavedIndex;
-
+	std::vector<int32> unsavedIndex;
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
 		Editor* editor = fTabManager->EditorAt(index);
-		if(editor->IsModified()) {
+		if (editor->IsModified()) {
 			unsavedIndex.push_back(index);
 		}
 	}
@@ -1437,7 +1436,7 @@ GenioWindow::_FileRequestClose(int32 index)
 		return true;
 
 	Editor* editor = fTabManager->EditorAt(index);
-	if (editor) {
+	if (editor != nullptr) {
 		if (editor->IsModified()) {
 			std::vector<int32> unsavedIndex { index };
 			if (!_FileRequestSaveList(unsavedIndex))
@@ -1545,7 +1544,6 @@ GenioWindow::QuitRequested()
 
 	// Projects to reopen
 	if (gCFG["reopen_projects"]) {
-
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
 
 		projects.MakeEmpty();
@@ -1713,7 +1711,8 @@ GenioWindow::_DebugProject()
 		return B_ERROR;
 
 	// Release mode enabled, should not happen
-	// TODO: why not ?
+	// TODO: why not ? One could want to debug a project
+	// regardless to which build profile he chose
 	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
@@ -1877,7 +1876,7 @@ status_t
 GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32 be_line, int32 lsp_char)
 {
 	if (!BEntry(ref).Exists())
-			return B_ERROR;
+		return B_ERROR;
 
 	if (!_FileIsSupported(ref)) {
 		if (openWithPreferred)
@@ -2016,7 +2015,7 @@ GenioWindow::_FileSave(int32 index)
 void
 GenioWindow::_FileSaveAll(ProjectFolder* onlyThisProject)
 {
-	int32 filesCount = fTabManager->CountTabs();
+	const int32 filesCount = fTabManager->CountTabs();
 	for (int32 index = 0; index < filesCount; index++) {
 		Editor* editor = fTabManager->EditorAt(index);
 		if (editor == nullptr) {
@@ -2429,7 +2428,6 @@ GenioWindow::_HandleExternalStatModification(int32 index)
 void
 GenioWindow::_HandleExternalStatModification(Editor* editor)
 {
-
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
 	text << (B_TRANSLATE("File \"%file%\" was apparently modified, reload it?"));
@@ -2512,6 +2510,7 @@ GenioWindow::_CheckEntryRemoved(BMessage *msg)
 void
 GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 {
+	// TODO: Move this away from here
 	int32 opcode;
 	status_t status;
 	if ((status = msg->FindInt32("opcode", &opcode)) != B_OK) {
@@ -2893,7 +2892,6 @@ GenioWindow::_InitActions()
 									B_TRANSLATE("Run console program"),
 									B_TRANSLATE("Run console program"),
 									"kIconTerminal");
-//add missing menus
 
 	// TODO: Should we call those  left/right panes ?
 	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,
@@ -3347,7 +3345,7 @@ GenioWindow::_CreateLanguagesMenu()
 {
 	fLanguageMenu = new BMenu(B_TRANSLATE("Language"));
 
-	for(size_t i = 0; i < Languages::GetCount(); ++i) {
+	for (size_t i = 0; i < Languages::GetCount(); ++i) {
 		std::string lang = Languages::GetLanguage(i);
 		std::string name = Languages::GetMenuItemName(lang);
 		fLanguageMenu->AddItem(new BMenuItem(name.c_str(), SMSG(MSG_SET_LANGUAGE, {"lang", lang.c_str()})));
@@ -3399,7 +3397,9 @@ GenioWindow::_InitToolbar()
 	fToolBar->AddGlue();
 
 	ActionManager::AddItem(MSG_BUFFER_LOCK, fToolBar);
+
 #if 0
+	// Useless icons here
 	fToolBar->AddSeparator();
 
 	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, fToolBar);
@@ -3605,7 +3605,7 @@ GenioWindow::_TryAssociateEditorWithProject(Editor* editor, ProjectFolder* proje
 	projectPath = projectPath.Append("/");
 	LogTrace("Open project [%s] vs editor project [%s]",
 		projectPath.String(), editor->FilePath().String());
-	if (editor->GetProjectFolder() == NULL) {
+	if (editor->GetProjectFolder() == nullptr) {
 		// TODO: This isn't perfect: if we open a subfolder of
 		// an existing project as new project, the two would clash
 		if (editor->FilePath().StartsWith(projectPath))
@@ -3793,7 +3793,7 @@ GenioWindow::_ShowDocumentation()
 			paths.Add(localDocsPath.Path());
 		}
 	}
-	for (int i = 0; i < paths.CountStrings(); ++i) {
+	for (int32 i = 0; i < paths.CountStrings(); ++i) {
 		BPath path;
 		if (error == B_OK && path.SetTo(paths.StringAt(i)) == B_OK
 			&& path.Append("ReadMe.html") == B_OK) {
@@ -4086,7 +4086,7 @@ GenioWindow::_ShowInTracker(const entry_ref& ref, const node_ref* nref)
 		BMessage message(B_REFS_RECEIVED);
 		message.AddRef("refs", &ref);
 
-		if (nref != NULL)
+		if (nref != nullptr)
 			message.AddData("nodeRefToSelect", B_RAW_TYPE, (void*)nref, sizeof(node_ref));
 
 		status = tracker.SendMessage(&message);
@@ -4098,7 +4098,7 @@ GenioWindow::_ShowInTracker(const entry_ref& ref, const node_ref* nref)
 void
 GenioWindow::_Replace(BMessage* message, int32 kind)
 {
-	if (_ReplaceAllow() == false)
+	if (!_ReplaceAllow())
 		return;
 
 	BString text(fFindTextControl->Text());
@@ -4134,7 +4134,7 @@ GenioWindow::_ReplaceGroupShow(bool show)
 {
 	bool findGroupOpen = !fFindGroup->IsHidden();
 
-	if (findGroupOpen == false)
+	if (!findGroupOpen)
 		_FindGroupShow(true);
 
 	_ShowView(fReplaceGroup, show, MSG_REPLACE_GROUP_TOGGLED);
@@ -4142,14 +4142,14 @@ GenioWindow::_ReplaceGroupShow(bool show)
 	if (!show) {
 		fReplaceTextControl->TextView()->Clear();
 		// If find group was not open focus and selection go there
-		if (findGroupOpen == false)
+		if (!findGroupOpen)
 			_GetFocusAndSelection(fFindTextControl);
 		else
 			_GetFocusAndSelection(fReplaceTextControl);
-	}
-	// Replace group was opened, get focus and selection
-	else
+	} else {
+		// Replace group was opened, get focus and selection
 		_GetFocusAndSelection(fReplaceTextControl);
+	}
 }
 
 
@@ -4198,7 +4198,7 @@ GenioWindow::_RunTarget()
 	BString args = fActiveProject->GetExecuteArgs();
 
 	// Differentiate terminal projects from window ones
-	if (fActiveProject->RunInTerminal() == true) {
+	if (fActiveProject->RunInTerminal()) {
 		// Don't do that in graphical mode
 		_UpdateProjectActivation(false);
 
@@ -4271,7 +4271,7 @@ status_t
 GenioWindow::_UpdateLabel(int32 index, bool isModified)
 {
 	if (index > -1 && index < fTabManager->CountTabs()) {
-		if (isModified == true) {
+		if (isModified) {
 				// Add '*' to file name
 				BString label(fTabManager->TabLabel(index));
 				label.Append("*");
@@ -4299,7 +4299,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	ActionManager::SetEnabled(MSG_BUILD_PROJECT, active);
 	fFileNewMenuItem->SetEnabled(true); // This menu should be always active!
 
-	if (active == true) {
+	if (active) {
 		// Is this a git project?
 		try {
 			if (fActiveProject->GetRepository()->IsInitialized())
@@ -4487,7 +4487,6 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	// Menu Items
 	ActionManager::SetEnabled(MSG_FILE_SAVE_AS, true);
 	ActionManager::SetEnabled(MSG_FILE_CLOSE_ALL, true);
-
 
 	ActionManager::SetEnabled(B_SELECT_ALL, true);
 

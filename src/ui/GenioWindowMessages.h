@@ -154,7 +154,9 @@ enum {
 													// status (int32)
 
 	MSG_NOTIFY_BUILDING_PHASE			= 'blph',	// building (bool)
-
+													// cmd_type (string)
+													// project_name (string)
+													// status (int32)
 	MSG_NOTIFY_PROJECT_LIST_CHANGED		= 'nplc',
 	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa'	// active_project (pointer)
 													// active_project_name (string)

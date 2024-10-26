@@ -486,6 +486,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				noticeMessage.AddBool("building", false);
 				noticeMessage.AddString("cmd_type", cmdType.String());
 				noticeMessage.AddString("project_name", fActiveProject->Name());
+				noticeMessage.AddInt32("status", message->GetInt32("status", B_OK));
 				SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
 				fActiveProject->SetBuildingState(false);

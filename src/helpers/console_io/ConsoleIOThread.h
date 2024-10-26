@@ -79,6 +79,7 @@ private:
 			char				fConsoleOutputBuffer[LINE_MAX];
 			BString 			fCmdType;
 			bool				fIsDone;
+			bool				fFailed;
 			BString				fLastOutputString;
 			BString				fLastErrorString;
 			BLocker				fProcessIDLock;

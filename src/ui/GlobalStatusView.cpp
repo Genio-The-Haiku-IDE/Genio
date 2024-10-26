@@ -101,6 +101,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					bool building = message->GetBool("building", false);
 					BString projectName = message->GetString("project_name");
 					BString cmdType = message->GetString("cmd_type");
+					status_t status = message->GetInt32("status", B_OK);
 					BString text;
 					if (building) {
 						if (cmdType.Compare("build") == 0)
@@ -110,10 +111,17 @@ GlobalStatusView::MessageReceived(BMessage *message)
 						fDontHideText = true;
 						fBarberPole->Start();
 					} else {
-						if (cmdType.Compare("build") == 0)
-							text = B_TRANSLATE("Finished building project '\"%project%\"'");
-						else if (cmdType.Compare("clean") == 0)
-							text = B_TRANSLATE("Finished cleaning project '\"%project%\"'");
+						if (cmdType.Compare("build") == 0) {
+							if (status == B_OK)
+								text = B_TRANSLATE("Finished building project '\"%project%\"'");
+							else
+								text = B_TRANSLATE("Failed building project '\"%project%\"'");
+						} else if (cmdType.Compare("clean") == 0) {
+							if (status == B_OK)
+								text = B_TRANSLATE("Finished cleaning project '\"%project%\"'");
+							else
+								text = B_TRANSLATE("Failed cleaning project '\"%project%\"'");
+						}
 						fDontHideText = false;
 						fBarberPole->Stop();
 						BMessenger messenger(this);

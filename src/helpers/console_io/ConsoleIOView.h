@@ -45,7 +45,7 @@ private:
 			void				_BannerMessage(BString status);
 			void				Pulse();
 			void				_StopThreads();
-			void				_StopCommand();
+			void				_StopCommand(status_t status);
 
 private:
 			BMessenger			fWindowTarget;

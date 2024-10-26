@@ -31,7 +31,8 @@ ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consol
 	fExternalProcessId(-1),
 	fConsoleOutput(nullptr),
 	fConsoleError(nullptr),
-	fIsDone(false)
+	fIsDone(false),
+	fFailed(false)
 {
 	SetDataStore(new BMessage(*cmd_message));
 }
@@ -146,6 +147,7 @@ ConsoleIOThread::ExecuteUnit()
 		}
 
 		if (!fLastErrorString.IsEmpty()) {
+			fFailed = true;
 			if (fLastErrorString.EndsWith("\n")) {
 				OnStdErrorLine(fLastErrorString);
 				fLastErrorString = "";
@@ -207,6 +209,7 @@ ConsoleIOThread::ThreadExitNotification()
 {
 	BMessage message(CONSOLEIOTHREAD_EXIT);
 	message.AddString("cmd_type", fCmdType);
+	message.AddInt32("status", fFailed ? B_ERROR : B_OK);
 	fTarget.SendMessage(&message);
 }
 

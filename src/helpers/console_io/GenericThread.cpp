@@ -25,7 +25,6 @@ GenericThread::GenericThread(const char* threadName, int32 priority,
 GenericThread::~GenericThread()
 {
 	kill_thread(fThreadId);
-
 	delete_sem(fExecuteUnit);
 }
 
@@ -33,9 +32,7 @@ GenericThread::~GenericThread()
 status_t
 GenericThread::ThreadFunction(void)
 {
-	status_t status = B_OK;
-
-	status = ThreadStartup();
+	status_t status = ThreadStartup();
 		// Subclass and override this function
 	if (status != B_OK) {
 		ThreadStartupFailed(status);

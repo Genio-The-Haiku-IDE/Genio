@@ -86,7 +86,7 @@ ConsoleIOView::Pulse()
 {
 	if (fConsoleIOThread &&
 		fConsoleIOThread->IsDone()) {
-			_StopCommand();
+			_StopCommand(B_OK);
 	}
 }
 
@@ -104,7 +104,7 @@ ConsoleIOView::_StopThreads()
 
 
 void
-ConsoleIOView::_StopCommand()
+ConsoleIOView::_StopCommand(status_t status)
 {
 	if (fConsoleIOThread) {
 		_StopThreads();
@@ -114,6 +114,7 @@ ConsoleIOView::_StopCommand()
 		fStopButton->SetEnabled(false);
 		BMessage message(CONSOLEIOTHREAD_EXIT);
 		message.AddString("cmd_type", fCmdType);
+		message.AddInt32("status", status);
 		Window()->PostMessage(&message);
 		fCmdType = "";
 		fBannerClaim = "";
@@ -195,7 +196,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 		case CONSOLEIOTHREAD_EXIT:
 		case MSG_STOP_PROCESS:
 		{
-			_StopCommand();
+			_StopCommand(message->GetInt32("status", B_OK));
 			break;
 		}
 		default:

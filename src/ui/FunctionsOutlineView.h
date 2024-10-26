@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, the Genio team
+ * Copyright 2023-2024, the Genio team
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #pragma once
@@ -39,5 +39,4 @@ private:
 	ToolBar*	fToolBar;
 	Symbol		fSelectedSymbol;
 	entry_ref	fCurrentRef;
-	bigtime_t	fSymbolsLastUpdateTime;
 };

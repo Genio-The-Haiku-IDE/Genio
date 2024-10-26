@@ -299,8 +299,7 @@ FunctionsOutlineView::FunctionsOutlineView()
 	:
 	BView(B_TRANSLATE("Outline"), B_WILL_DRAW),
 	fListView(nullptr),
-	fToolBar(nullptr),
-	fSymbolsLastUpdateTime(0)
+	fToolBar(nullptr)
 {
 	fListView = new SymbolOutlineListView("listview");
 	fScrollView = new BScrollView("scrollview", fListView,
@@ -499,7 +498,6 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 
 	fListView->MakeEmpty();
 	_RecursiveAddSymbols(nullptr, &msg);
-	fSymbolsLastUpdateTime = system_time();
 
 	// Collapse items
 	// TODO: Maybe to the opposite: have a list of collapsed items (which are less)

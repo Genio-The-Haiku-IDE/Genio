@@ -128,7 +128,7 @@ public:
 // ProjectBrowser
 ProjectBrowser::ProjectBrowser()
 	:
-	BView("ProjectBrowser", B_WILL_DRAW|B_FRAME_EVENTS),
+	BView("Project browser", B_WILL_DRAW|B_FRAME_EVENTS),
 	fIsBuilding(false)
 {
 	fOutlineListView = new ProjectOutlineListView();

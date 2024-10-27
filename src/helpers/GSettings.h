@@ -7,19 +7,12 @@
  * All rights reserved. Distributed under the terms of the Be Sample Code
  * license.
  *
- * TODO: This we'll replace TPreferences when work on workspace is finished
+ * TODO: Get rid of this if possible
  */
 
-#ifndef GSETTINGS_H
-#define GSETTINGS_H
-
-#include <memory>
+#pragma once
 
 #include <Path.h>
-#include <File.h>
-#include <FindDirectory.h>
-
-using namespace std;
 
 class GSettings : public BMessage {
 public:
@@ -34,7 +27,4 @@ public:
 private:
 	BPath				fPath;
 	status_t			fStatus;
-	bool				fSaved;
 };
-
-#endif // GSETTINGS_H

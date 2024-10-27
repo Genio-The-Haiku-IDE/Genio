@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nexus6 (nexus6.haiku@icloud.com)
+ * Copyright 2022-2024 Nexus6 (nexus6.haiku@icloud.com)
  * All rights reserved. Distributed under the terms of the MIT license.
  *
  * Parts are taken from
@@ -10,10 +10,11 @@
 #include "GSettings.h"
 
 #include <Directory.h>
+#include <File.h>
+#include <FindDirectory.h>
 #include <Message.h>
-#include <Messenger.h>
-#include <NodeInfo.h>
 #include <String.h>
+
 #include "GenioNamespace.h"
 
 
@@ -21,36 +22,36 @@ GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 
 	:
  	BMessage(command)
 {
-	BFile file;
-
 	fPath.SetTo(folderPath);
 	fPath.Append(fileName);
+	BFile file;
 	fStatus = file.SetTo(fPath.Path(), B_READ_ONLY);
 	if (fStatus == B_OK) {
 		fStatus = Unflatten(&file);
-		if (fStatus != B_OK)
-			fSaved = false;
+		if (fStatus != B_OK) {
+			// TODO: What to do here ?
+		}	
 	}
 }
+
 
 GSettings::GSettings(const BString& fileName, uint32 command)
 	:
  	BMessage(command)
 {
-	BFile file;
-
 	fStatus = find_directory(B_USER_SETTINGS_DIRECTORY, &fPath);
 	if (fStatus != B_OK) {
 		return;
 	}
 
-	BDirectory appFolder;
 	fPath.Append(GenioNames::kApplicationName);
 
-	fStatus = appFolder.CreateDirectory(fPath.Path(), NULL);
+	// fPath is absolute, so it doesn't matter that BDirectory isn't set
+	fStatus = BDirectory().CreateDirectory(fPath.Path(), nullptr);
 
 	fPath.Append(fileName);
 
+	BFile file;
 	fStatus = file.SetTo(fPath.Path(), B_READ_ONLY);
 	if (fStatus == B_OK) {
 		fStatus = Unflatten(&file);
@@ -62,6 +63,7 @@ GSettings::~GSettings()
 {
 }
 
+
 void
 GSettings::Save()
 {
@@ -69,7 +71,8 @@ GSettings::Save()
 	fStatus = file.SetTo(fPath.Path(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
 	if (fStatus == B_OK) {
 		fStatus = Flatten(&file);
-		if (fStatus == B_OK)
-			fSaved = true;
+		if (fStatus != B_OK) {
+			// TODO: What to do here ?
+		}
 	}
 }

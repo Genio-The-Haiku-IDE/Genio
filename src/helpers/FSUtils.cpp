@@ -1,17 +1,22 @@
+/*
+ * Copyright 2023-2024, The Genio team
+ * All rights reserved. Distributed under the terms of the MIT license.
+ * Author: Nexus6 <nexus6.haiku@icloud.com>
+ */
+ 
 #include "FSUtils.h"
 
 #include <Alert.h>
 #include <Directory.h>
 #include <Entry.h>
 #include <File.h>
-#include <fs_attr.h>
 #include <Path.h>
 #include <String.h>
 #include <Volume.h>
 
 #include <cstdio>
 #include <cstdlib>
-
+#include <fs_attr.h>
 
 #define COPY_BUFFER_SIZE 8192
 
@@ -126,7 +131,6 @@ FSCopyFile(BEntry *src, BEntry *dest, bool clobber)
 
 	char *buffer = new char[COPY_BUFFER_SIZE];
 	ssize_t bytes_read = 0;
-
 	do {
 		bytes_read = srcfile->Read((void*)buffer, COPY_BUFFER_SIZE);
 		destfile->Write(buffer, bytes_read);
@@ -139,25 +143,20 @@ FSCopyFile(BEntry *src, BEntry *dest, bool clobber)
 	// copy attributes
 	BNode srcnode(src);
 	BNode destnode(dest);
-
 	srcnode.RewindAttrs();
-
-	int8 *attr_buffer;
-	ssize_t attr_size;
-	attr_info attr_info;
 	char attr_name[B_ATTR_NAME_LENGTH];
-
 	while (srcnode.GetNextAttrName(attr_name) == B_OK) {
 		// first get the size & type of the attribute
+		attr_info attr_info;
 		if (srcnode.GetAttrInfo(attr_name, &attr_info) != B_OK)
 			continue;
 
 		// allocate memory to hold the attribute
-		attr_buffer = new int8[attr_info.size];
+		int8 *attr_buffer = new int8[attr_info.size];
 		if (attr_buffer == NULL)
 			continue;
 
-		attr_size = srcnode.ReadAttr(attr_name, attr_info.type, 0LL, attr_buffer, attr_info.size);
+		ssize_t attr_size = srcnode.ReadAttr(attr_name, attr_info.type, 0LL, attr_buffer, attr_info.size);
 
 		destnode.WriteAttr(attr_name, attr_info.type, 0LL, attr_buffer, attr_size);
 		destnode.Sync();

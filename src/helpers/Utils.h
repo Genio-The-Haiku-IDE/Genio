@@ -12,8 +12,6 @@
 
 #include <Alert.h>
 #include <MessageFilter.h>
-#include <MenuField.h>
-#include <MenuItem.h>
 #include <Notification.h>
 #include <ObjectList.h>
 

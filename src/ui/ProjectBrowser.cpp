@@ -794,8 +794,6 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 	}
 
 	BEntry entry(ref);
-	BEntry parent;
-	BPath parentPath;
 	if (entry.IsDirectory()) {
 		BDirectory dir(&entry);
 		entry_ref nextRef;

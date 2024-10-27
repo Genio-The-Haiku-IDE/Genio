@@ -24,9 +24,8 @@ const BBitmap*
 IconCache::GetIcon(const entry_ref *ref)
 {
 	BNode node(ref);
-	BNodeInfo nodeInfo(&node);
+	const BNodeInfo nodeInfo(&node);
 	char mimeType[B_MIME_TYPE_LENGTH];
-	mimeType[0] = '\0';
 	const char* mimeTypePtr = mimeType;
 	if (nodeInfo.GetType(mimeType) != B_OK) {
 		LogDebug("Invalid mimeType for file [%s]", ref->name);
@@ -44,11 +43,11 @@ IconCache::GetIcon(const entry_ref *ref)
 		return it->second;
 	} else {
 		LogTrace("IconCache: could not find an icon in cache for %s", mimeTypePtr);
-		BSize composedSize = be_control_look->ComposeIconSize(B_MINI_ICON);
-		BRect rect(0, 0, composedSize.IntegerWidth() - 1, composedSize.IntegerHeight() - 1);
+		const BSize composedSize = be_control_look->ComposeIconSize(B_MINI_ICON);
+		const icon_size iconSize = icon_size(composedSize.IntegerWidth() - 1);
+		const BRect rect(0, 0, iconSize, composedSize.IntegerHeight() - 1);
 		BBitmap *icon = new BBitmap(rect, B_RGBA32);
-		icon_size iconSize = (icon_size)(icon->Bounds().IntegerWidth() - 1);
-		status_t status = nodeInfo.GetTrackerIcon(icon, (icon_size)iconSize);
+		status_t status = nodeInfo.GetTrackerIcon(icon, iconSize);
 		sInstance.fCache.emplace(mimeTypePtr, icon);
 		LogTrace("IconCache: GetTrackerIcon returned - %s", ::strerror(status));
 		return icon;
@@ -60,7 +59,7 @@ IconCache::GetIcon(const entry_ref *ref)
 const BBitmap*
 IconCache::GetIcon(const BString& path)
 {
-	BEntry entry(path);
+	const BEntry entry(path);
 	entry_ref ref;
 	entry.GetRef(&ref);
 	return IconCache::GetIcon(&ref);

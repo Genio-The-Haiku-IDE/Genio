@@ -1,8 +1,7 @@
 /*
- * Copyright 2018-2024, Genio
+ * Copyright 2018-2024, the Genio team
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-
 
 #include "ConfigManager.h"
 
@@ -20,7 +19,7 @@ public:
 						PermanentStorageProvider() {};
 						virtual ~PermanentStorageProvider(){};
 
-	virtual status_t	Open(BPath destination, kPSPMode mode) = 0;
+	virtual status_t	Open(const BPath& destination, kPSPMode mode) = 0;
 	virtual status_t	Close() = 0;
 	virtual status_t	LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& parConfig) = 0;
 	virtual status_t	SaveKey(ConfigManager& manager, const char* key, GMessage& storage) = 0;
@@ -29,46 +28,51 @@ public:
 
 class BMessagePSP : public PermanentStorageProvider {
 public:
-		BMessagePSP() {}
-
-		status_t	Open(BPath dest, kPSPMode mode) {
-			uint32 fileMode =  mode == PermanentStorageProvider::kPSPReadMode ? B_READ_ONLY : (B_WRITE_ONLY | B_CREATE_FILE);
-			status_t status = file.SetTo(dest.Path(), fileMode);
-			if (status == B_OK && file.IsReadable()) {
-				status = fromFile.Unflatten(&file);
+		BMessagePSP()
+		{
+		}
+		virtual status_t Open(const BPath& dest, kPSPMode mode)
+		{
+			uint32 fileMode = mode == PermanentStorageProvider::kPSPReadMode ? B_READ_ONLY : (B_WRITE_ONLY | B_CREATE_FILE);
+			status_t status = fFile.SetTo(dest.Path(), fileMode);
+			if (status == B_OK && fFile.IsReadable()) {
+				// TODO: if file is not readable we would still return B_OK
+				status = fFromFile.Unflatten(&fFile);
 			}
 			return status;
 		}
-
-		status_t Close() {
-			status_t status = file.InitCheck();
-			if (status == B_OK && file.IsWritable()) {
-				status = fromFile.Flatten(&file);
+		virtual status_t Close()
+		{
+			status_t status = fFile.InitCheck();
+			if (status == B_OK && fFile.IsWritable()) {
+				// TODO: if file is not writable we would still return B_OK
+				status = fFromFile.Flatten(&fFile);
 				if (status == B_OK) {
-					status = file.Flush();
+					status = fFile.Flush();
 				}
-				file.Unset();
+				fFile.Unset();
 				return status;
 			}
 			return status;
 		}
-
-		status_t	LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& paramerConfig) {
-			if (fromFile.Has(key) && _SameTypeAndFixedSize(&fromFile, key, &storage, key)) {
-				manager[key] = fromFile[key];
+		virtual status_t LoadKey(ConfigManager& manager, const char* key,
+								GMessage& storage, GMessage& paramerConfig)
+		{
+			if (fFromFile.Has(key) && _SameTypeAndFixedSize(&fFromFile, key, &storage, key)) {
+				manager[key] = fFromFile[key];
 				return B_OK;
 			}
 			return B_NAME_NOT_FOUND;
 		}
-		status_t	SaveKey(ConfigManager& manager, const char* key, GMessage& storage) {
-				fromFile[key] = storage[key];
-				return B_OK;
+		virtual status_t SaveKey(ConfigManager& manager, const char* key, GMessage& storage)
+		{
+			fFromFile[key] = storage[key];
+			return B_OK;
 		}
 
 	private:
-		BFile file;
-		GMessage fromFile;
-
+		BFile fFile;
+		GMessage fFromFile;
 
 		bool _SameTypeAndFixedSize(
 			BMessage* msgL, const char* keyL, BMessage* msgR, const char* keyR) const
@@ -88,11 +92,19 @@ public:
 
 class AttributePSP : public PermanentStorageProvider {
 public:
-		AttributePSP(){}
-
-	status_t	Open(BPath attributeFilePath, kPSPMode mode) { return nodeAttr.SetTo(attributeFilePath.Path()); }
-	status_t 	Close() { return B_OK;}
-	status_t	LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& paramerConfig)
+	AttributePSP()
+	{
+	}
+	virtual status_t Open(const BPath& attributeFilePath, kPSPMode mode)
+	{
+		return fNodeAttr.SetTo(attributeFilePath.Path());
+	}
+	virtual status_t Close()
+	{
+		return B_OK;
+	}
+	virtual status_t LoadKey(ConfigManager& manager, const char* key,
+		GMessage& storage, GMessage& paramerConfig)
 	{
 		BString attrName("genio:");
 		attrName.Append(key);
@@ -100,9 +112,9 @@ public:
 		ssize_t numBytes = 0;
 		type_code type = paramerConfig.Type("default_value");
 		if (paramerConfig.FindData("default_value", type, &data, &numBytes) == B_OK) {
-			void* buffer = malloc(numBytes);
-			ssize_t readStatus = nodeAttr.ReadAttr(attrName.String(), type, 0, buffer, numBytes);
-			if (readStatus <=0)
+			void* buffer = ::malloc(numBytes);
+			ssize_t readStatus = fNodeAttr.ReadAttr(attrName.String(), type, 0, buffer, numBytes);
+			if (readStatus <= 0)
 				return B_NAME_NOT_FOUND;
 
 			storage.RemoveName(key);
@@ -114,39 +126,41 @@ public:
 				if (be_app != nullptr)
 					be_app->SendNotices(manager.UpdateMessageWhat(), &noticeMessage);
 			}
-			free(buffer);
+			::free(buffer);
 			return st;
 		}
 		return B_NAME_NOT_FOUND;
 	}
-	status_t	SaveKey(ConfigManager& manager, const char* key, GMessage& storage) {
-			// save as attribute:
-			BString attrName("genio:");
-			attrName.Append(key);
-			const void* data = nullptr;
-			ssize_t numBytes = 0;
-			type_code type = storage.Type(key);
-			if (storage.FindData(key, type, &data, &numBytes) == B_OK) {
-				if (nodeAttr.WriteAttr(attrName.String(), type, 0, data, numBytes) <= 0) {
-					return B_ERROR;
-				}
+	virtual status_t SaveKey(ConfigManager& manager, const char* key, GMessage& storage)
+	{
+		// save as attribute:
+		BString attrName("genio:");
+		attrName.Append(key);
+		const void* data = nullptr;
+		ssize_t numBytes = 0;
+		type_code type = storage.Type(key);
+		if (storage.FindData(key, type, &data, &numBytes) == B_OK) {
+			if (fNodeAttr.WriteAttr(attrName.String(), type, 0, data, numBytes) <= 0) {
+				return B_ERROR;
 			}
-			return B_OK;
+		}
+		return B_OK;
 	}
 private:
-	BNode	nodeAttr;
+	BNode fNodeAttr;
 };
 
 class NoStorePSP : public PermanentStorageProvider {
 public:
-						NoStorePSP(){}
+						NoStorePSP() {}
 
-	virtual status_t	Open(BPath destination, kPSPMode mode) { return B_OK; }
+	virtual status_t	Open(const BPath& destination, kPSPMode mode) { return B_OK; }
 	virtual status_t	Close() { return B_OK; }
 	virtual status_t	LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& parConfig) { return B_OK; }
 	virtual status_t	SaveKey(ConfigManager& manager, const char* key, GMessage& storage) { return B_OK; }
 
 };
+
 
 ConfigManager::ConfigManager(const int32 messageWhat)
 	:
@@ -154,17 +168,19 @@ ConfigManager::ConfigManager(const int32 messageWhat)
 {
 	fNoticeMessage.what = messageWhat;
 	assert(fLocker.InitCheck() == B_OK);
-	for (int32 i=0;i< kStorageTypeCountNb;i++)
+	for (int32 i = 0; i < kStorageTypeCountNb; i++)
 		fPSPList[i] = nullptr;
 }
+
+
 ConfigManager::~ConfigManager()
 {
-	for (int32 i=0;i< kStorageTypeCountNb;i++)
-		if (fPSPList[i] != nullptr) {
-			delete fPSPList[i];
-			fPSPList[i] = nullptr;
-		}
+	for (int32 i = 0; i< kStorageTypeCountNb; i++) {
+		delete fPSPList[i];
+		fPSPList[i] = nullptr;
+	}	
 }
+
 
 PermanentStorageProvider*
 ConfigManager::CreatePSPByType(StorageType type)
@@ -179,7 +195,7 @@ ConfigManager::CreatePSPByType(StorageType type)
 		default:
 			LogErrorF("Invalid StorageType! %d", type);
 			return nullptr;
-	};
+	}
 	return nullptr;
 }
 
@@ -203,7 +219,7 @@ status_t
 ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
 	status_t status = B_OK;
-	for (int32 i=0;i<kStorageTypeCountNb;i++) {
+	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr &&
 			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPReadMode) != B_OK)
 
@@ -220,25 +236,25 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 			return B_ERROR;
 		}
 		status_t status = provider->LoadKey(*this, key, fStorage, msg);
-
 		if (status == B_OK) {
 			LogInfo("Config file: loaded value for key [%s] (StorageType %d)", key, storageType);
 		} else {
 			LogError("Config file: unable to get valid key [%s] (%s) (StorageType %d)", key, strerror(status), storageType);
 		}
 	}
-	for (int32 i=0;i<kStorageTypeCountNb;i++) {
+	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr)
 			fPSPList[i]->Close();
 	}
 	return status;
 }
 
+
 status_t
 ConfigManager::SaveToFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
 	status_t status = B_OK;
-	for (int32 i=0;i<kStorageTypeCountNb;i++) {
+	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr &&
 			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPWriteMode) != B_OK)
 
@@ -261,7 +277,7 @@ ConfigManager::SaveToFile(std::array<BPath, kStorageTypeCountNb> paths)
 			LogError("Config file: unable to store valid key [%s] (%s) (StorageType %d)", key, strerror(status), storageType);
 		}
 	}
-	for (int32 i=0;i<kStorageTypeCountNb;i++) {
+	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr)
 			fPSPList[i]->Close();
 	}
@@ -274,7 +290,7 @@ ConfigManager::ResetToDefaults()
 {
 	// Will also send notifications for every setting change
 	GMessage msg;
-	int i = 0;
+	int32 i = 0;
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		fStorage[msg["key"]] = msg["default_value"]; //to force the key creation
 		(*this)[msg["key"]] = msg["default_value"]; //to force the update
@@ -286,7 +302,7 @@ bool
 ConfigManager::HasAllDefaultValues()
 {
 	GMessage msg;
-	int i = 0;
+	int32 i = 0;
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		if (fStorage[msg["key"]] != msg["default_value"]) {
 			LogDebug("Differs for key %s\n", (const char*)msg["key"]);

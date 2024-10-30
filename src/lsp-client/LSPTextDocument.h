@@ -3,10 +3,10 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-#ifndef LSPTextDocument_H
-#define LSPTextDocument_H
+#pragma once
 
 #include "MessageHandler.h"
+
 #include <Url.h>
 
 class LSPTextDocument : public MessageHandler {
@@ -18,20 +18,16 @@ public:
 		fFileType = fileType;
 	}
 
-    const BString	GetFilenameURI()  { return fFilenameURI.UrlString();}
-	const BString	GetFileStatus()	  { return fFileStatus; }
+    const BString	GetFilenameURI() const { return fFilenameURI.UrlString();}
+	const BString	GetFileStatus()	const { return fFileStatus; }
 
 			void	SetFileStatus(BString newStatus) { fFileStatus = newStatus; }
 			void	SetFileType(BString newType) { fFileType = newType; }
 
-	const BString& FileType() { return fFileType; }
+	const BString& FileType() const { return fFileType; }
 
 private:
-
 	BUrl 	fFilenameURI;
 	BString	fFileStatus;
 	BString fFileType;
 };
-
-
-#endif // LSPTextDocument_H

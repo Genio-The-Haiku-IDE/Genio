@@ -176,7 +176,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 		{
 			try {
 				TaskResult<BPath>* result = TaskResult<BPath>::Instantiate(msg);
-				BPath resultPath = result->GetResult();
+				const BPath resultPath = result->GetResult();
 				_OpenProject(resultPath.Path());
 				_SetProgress(100, "Finished!");
 				fButtonsLayout->SetVisibleItem(VIEW_INDEX_CLOSE_BUTTON);
@@ -202,8 +202,8 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 			fPathBox->SetEnabled(false);
 			fURL->SetEnabled(false);
 
-			auto callback = [](const git_transfer_progress *stats, void *payload) -> int {
-				int current_progress = stats->total_objects > 0 ?
+			auto progressCallback = [](const git_transfer_progress *stats, void *payload) -> int {
+				int currentProgress = stats->total_objects > 0 ?
 					(100 * stats->received_objects) /
 					stats->total_objects :
 					0;
@@ -217,7 +217,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 
 				BMessage msg(kProgress);
 				msg.AddString("progress_text", progressString);
-				msg.AddFloat("progress_value", current_progress);
+				msg.AddFloat("progress_value", currentProgress);
 				BMessenger(this_handler).SendMessage(&msg);
 				return 0;
 			};
@@ -235,7 +235,7 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 					&repo,
 					fURL->Text(),
 					fullPath,
-					callback,
+					progressCallback,
 					&GitCredentialsWindow::authentication_callback
 				)
 			);

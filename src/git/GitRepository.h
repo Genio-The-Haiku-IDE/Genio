@@ -76,7 +76,7 @@ namespace Genio::Git {
 										~GitRepository();
 
 		const BPath						Clone(const BString url, const BPath localPath,
-												git_indexer_progress_cb callback,
+												git_indexer_progress_cb progress_callback,
 												git_credential_acquire_cb authentication_callback);
 
 		static bool						IsValid(const BString path);

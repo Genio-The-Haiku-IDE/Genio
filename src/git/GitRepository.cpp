@@ -352,7 +352,7 @@ namespace Genio::Git {
 
 	const BPath
 	GitRepository::Clone(const BString url, const BPath localPath,
-							git_indexer_progress_cb callback,
+							git_indexer_progress_cb progress_callback,
 							git_credential_acquire_cb authentication_callback)
 	{
 		git_repository *repo = nullptr;
@@ -361,10 +361,9 @@ namespace Genio::Git {
 			git_libgit2_init();
 			git_clone_options clone_opts = GIT_CLONE_OPTIONS_INIT;
 			git_remote_callbacks callbacks = GIT_REMOTE_CALLBACKS_INIT;
-			callbacks.transfer_progress = callback;
+			callbacks.transfer_progress = progress_callback;
 			clone_opts.fetch_opts.callbacks = callbacks;
 			clone_opts.fetch_opts.callbacks.credentials = authentication_callback;
-
 			check(git_clone(&repo, url.String(), localPath.Path(), &clone_opts));
 			git_repository_free(repo);
 			return localPath;

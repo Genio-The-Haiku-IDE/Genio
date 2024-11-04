@@ -20,7 +20,7 @@
 
 namespace Genio::Git {
 
-	GitRepository::GitRepository(const BString& path)
+	GitRepository::GitRepository(const BString path)
 		:
 		fRepository(nullptr),
 		fRepositoryPath(path),
@@ -62,7 +62,7 @@ namespace Genio::Git {
 	}
 
 	bool
-	GitRepository::IsValid(const BString& path)
+	GitRepository::IsValid(const BString path)
 	{
 		if (path.IsEmpty())
 			return false;
@@ -147,7 +147,7 @@ namespace Genio::Git {
 	}
 
 	int
-	GitRepository::SwitchBranch(const BString& name)
+	GitRepository::SwitchBranch(const BString name)
 	{
 		git_object* tree = nullptr;
 		git_reference* ref = nullptr;
@@ -218,7 +218,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::DeleteBranch(const BString& branch, git_branch_t type)
+	GitRepository::DeleteBranch(const BString branch, git_branch_t type)
 	{
 		git_reference* ref = nullptr;
 		try {
@@ -233,7 +233,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::RenameBranch(const BString& old_name, const BString& new_name, git_branch_t type)
+	GitRepository::RenameBranch(const BString old_name, const BString new_name, git_branch_t type)
 	{
 		git_reference* ref = nullptr;
 		git_reference* out = nullptr;
@@ -255,8 +255,8 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::CreateBranch(const BString& existingBranchName, git_branch_t type,
-		const BString& newBranchName)
+	GitRepository::CreateBranch(const BString existingBranchName, git_branch_t type,
+		const BString newBranchName)
 	{
 		git_reference *existing_branch_ref = nullptr;
 		git_reference *new_branch_ref = nullptr;
@@ -350,8 +350,8 @@ namespace Genio::Git {
 		return fileStatuses;
 	}
 
-	const BPath&
-	GitRepository::Clone(const BString& url, const BPath& localPath,
+	const BPath
+	GitRepository::Clone(const BString url, const BPath localPath,
 							git_indexer_progress_cb callback,
 							git_credential_acquire_cb authentication_callback)
 	{
@@ -574,7 +574,7 @@ namespace Genio::Git {
 	}
 
 	void
-	GitRepository::StashSave(const BString& message)
+	GitRepository::StashSave(const BString message)
 	{
 		git_oid saved_stash;
 		git_signature *signature = nullptr;

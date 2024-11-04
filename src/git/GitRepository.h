@@ -72,37 +72,37 @@ namespace Genio::Git {
 		};
 
 
-										GitRepository(const BString& path);
+										GitRepository(const BString path);
 										~GitRepository();
 
-		const BPath&					Clone(const BString& url, const BPath& localPath,
+		const BPath						Clone(const BString url, const BPath localPath,
 												git_indexer_progress_cb callback,
 												git_credential_acquire_cb authentication_callback);
 
-		static bool						IsValid(const BString& path);
+		static bool						IsValid(const BString path);
 		bool							IsInitialized();
 		void							Init(bool createInitalCommit = true);
 
 		std::vector<BString>			GetTags() const;
 
 		std::vector<BString>			GetBranches(git_branch_t type = GIT_BRANCH_LOCAL) const;
-		int								SwitchBranch(const BString& branch);
+		int								SwitchBranch(const BString branch);
 		BString							GetCurrentBranch() const;
-		void							DeleteBranch(const BString& branch, git_branch_t type);
-		void							RenameBranch(const BString& oldName, const BString& newName,
+		void							DeleteBranch(const BString branch, git_branch_t type);
+		void							RenameBranch(const BString oldName, const BString newName,
 											git_branch_t type);
-		void							CreateBranch(const BString& existingBranchName,
-											git_branch_t type, const BString& newBranchName);
+		void							CreateBranch(const BString existingBranchName,
+											git_branch_t type, const BString newBranchName);
 
 		void							Fetch(bool prune = false);
-		void							Merge(const BString& source, const BString& dest);
-		PullResult						Pull(const BString& branchName);
+		void							Merge(const BString source, const BString dest);
+		PullResult						Pull(const BString branchName);
 		void 							PullRebase();
 		void 							Push();
 
 		git_signature*					_GetSignature() const;
 
-		void 							StashSave(const BString& message);
+		void 							StashSave(const BString message);
 		void 							StashPop();
 		void 							StashApply();
 

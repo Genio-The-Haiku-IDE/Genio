@@ -224,7 +224,6 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 
 			BPath fullPath(fPathBox->Text());
 			fullPath.Append(fDestDir->Text());
-			Genio::Git::GitRepository repo(fullPath.Path());
 			fCurrentTask = make_shared<Task<BPath>>
 			(
 				"GitClone",
@@ -232,7 +231,6 @@ RemoteProjectWindow::MessageReceived(BMessage* msg)
 				std::bind
 				(
 					&Genio::Git::GitRepository::Clone,
-					&repo,
 					fURL->Text(),
 					fullPath,
 					progressCallback,

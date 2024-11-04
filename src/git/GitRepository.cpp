@@ -350,7 +350,8 @@ namespace Genio::Git {
 		return fileStatuses;
 	}
 
-	const BPath
+	/* static */
+	BPath
 	GitRepository::Clone(const BString url, const BPath localPath,
 							git_indexer_progress_cb progress_callback,
 							git_credential_acquire_cb authentication_callback)
@@ -551,10 +552,11 @@ namespace Genio::Git {
 		check(git_config_set_string(cfg, key, value));
 	}
 
+	/* static */
 	int
 	GitRepository::check(const int status,
 		std::function<void(void)> execute_on_fail,
-		std::function<bool(const int)> checker) const
+		std::function<bool(const int)> checker)
 	{
 		if (checker != nullptr) {
 			if (checker(status)) {

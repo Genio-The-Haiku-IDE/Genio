@@ -55,7 +55,7 @@ private:
 	BTextControl*				fDestDir;
 	BFilePanel*					fFilePanel;
 
-	shared_ptr<Task<BPath>>		fCurrentTask;
+	shared_ptr<Task<BPath>> 	fCurrentTask;
 
 	void						_OpenProject(const BString& localPath);
 	void						_ResetControls();

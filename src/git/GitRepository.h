@@ -75,7 +75,7 @@ namespace Genio::Git {
 										GitRepository(const BString path);
 										~GitRepository();
 
-		const BPath						Clone(const BString url, const BPath localPath,
+		static BPath					Clone(const BString url, const BPath localPath,
 												git_indexer_progress_cb progress_callback,
 												git_credential_acquire_cb authentication_callback);
 
@@ -120,9 +120,9 @@ namespace Genio::Git {
 		void							_ConfigSet(git_config *cfg,
 											const char *key, const char* value);
 
-		int 							check(int status,
+		static int 						check(int status,
 											std::function<void(void)> execute_on_fail = nullptr,
-											std::function<bool(const int)> custom_checker = nullptr) const;
+											std::function<bool(const int)> custom_checker = nullptr);
 
 		int 							_FastForward(const git_oid *target_oid, int is_unborn);
 		int								_CreateCommit(git_index* index, const char* message);

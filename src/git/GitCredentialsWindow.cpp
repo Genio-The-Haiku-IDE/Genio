@@ -97,9 +97,16 @@ GitCredentialsWindow::authentication_callback(git_cred** out, const char* url,
 		if (allowed_types & GIT_CREDENTIAL_SSH_MEMORY)
 			printf("allowed_types: GIT_CREDENTIAL_SSH_MEMORY\n");
 	}
+
+	// TODO: this only works when using an ssh_agent.
+	// Allow user to specify the ssh key and eventually the ssh key passkey
+	if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
+		if (BString(username_from_url).Length() > 0)
+			return git_credential_ssh_key_from_agent(out, username_from_url);
+		// TODO: Ask for username
+	}
 	BString username;
 	BString password;
-	
 	GitCredentialsWindow* window = new GitCredentialsWindow(username, password);
 
 	thread_id thread = window->Thread();
@@ -108,11 +115,7 @@ GitCredentialsWindow::authentication_callback(git_cred** out, const char* url,
 
 	int error = 0;
 	if (!username.IsEmpty() && !password.IsEmpty()) {
-		if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
-			error = git_credential_ssh_key_from_agent(out, username);
-		} else {
-			error = git_cred_userpass_plaintext_new(out, username, password);
-		}
+		error = git_cred_userpass_plaintext_new(out, username, password);
 	}
 
 	/**

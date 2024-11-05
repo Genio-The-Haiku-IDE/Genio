@@ -24,10 +24,13 @@ class BTextControl;
  */
 class GitCredentialsWindow : public BWindow {
 public:
-							GitCredentialsWindow(BString &username,
-												BString &password);
+							GitCredentialsWindow(const char* title, bool username, bool password = false);
+
 	virtual void			MessageReceived(BMessage* message);
 
+	static thread_id		OpenCredentialsWindow(const char* title, BString& username);
+	static thread_id		OpenCredentialsWindow(const char* title, BString& username,
+													BString& password);
 	static int 				authentication_callback(git_cred** out, const char* url,
 													const char* username_from_url,
 													unsigned int allowed_types,

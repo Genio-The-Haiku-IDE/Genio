@@ -19,35 +19,51 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GitCredentialsWindow"
 
-GitCredentialsWindow::GitCredentialsWindow(BString &username, BString &password)
-	:
-	BWindow(BRect(0, 0, 300, 150), B_TRANSLATE("Git - User Credentials"),
-			B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE
-			| B_AUTO_UPDATE_SIZE_LIMITS | B_NOT_CLOSABLE)
-{
-	fUsernameString = &username;
-	fPasswordString = &password;
 
+GitCredentialsWindow::GitCredentialsWindow(const char* title, bool user, bool password)
+	:
+	BWindow(BRect(0, 0, 300, 150), title,
+			B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE
+			| B_AUTO_UPDATE_SIZE_LIMITS | B_NOT_CLOSABLE),
+	fUsername(nullptr),
+	fPassword(nullptr),
+	fUsernameString(nullptr),
+	fPasswordString(nullptr)
+{
 	fUsername = new BTextControl(B_TRANSLATE("Username:"), "", NULL);
-	fPassword = new BTextControl(B_TRANSLATE("Password:"), "", NULL);
-	fPassword->TextView()->HideTyping(true);
+	if (password) {
+		fPassword = new BTextControl(B_TRANSLATE("Password:"), "", NULL);
+		fPassword->TextView()->HideTyping(true);
+	}
 	BButton* fOK = new BButton("ok", B_TRANSLATE("OK"),
 			new BMessage(kCredOK));
 	BButton* fCancel = new BButton("cancel", B_TRANSLATE("Cancel"),
 			new BMessage(kCredCancel));
 
-	BLayoutBuilder::Group<>(this, B_VERTICAL)
-		.SetInsets(B_USE_WINDOW_INSETS)
-		.AddGrid()
-		.AddTextControl(fUsername, 0, 0)
-		.AddTextControl(fPassword, 0, 1)
-		.End()
-		.AddGroup(B_HORIZONTAL)
-			.AddGlue()
-			.Add(fCancel)
-			.Add(fOK)
+	if (password) {
+		BLayoutBuilder::Group<>(this, B_VERTICAL)
+			.SetInsets(B_USE_WINDOW_INSETS)
+			.AddGrid()
+				.AddTextControl(fUsername, 0, 0)
+				.AddTextControl(fPassword, 0, 1)
+			.End()
+			.AddGroup(B_HORIZONTAL)
+				.AddGlue()
+				.Add(fCancel)
+				.Add(fOK)
 			.End();
-
+	} else {
+		BLayoutBuilder::Group<>(this, B_VERTICAL)
+			.SetInsets(B_USE_WINDOW_INSETS)
+			.AddGrid()
+				.AddTextControl(fUsername, 0, 0)
+			.End()
+			.AddGroup(B_HORIZONTAL)
+				.AddGlue()
+				.Add(fCancel)
+				.Add(fOK)
+			.End();
+	}
 	CenterOnScreen();
 	Show();
 }
@@ -59,18 +75,43 @@ GitCredentialsWindow::MessageReceived(BMessage* msg)
 	switch (msg->what) {
 		case kCredOK:
 			fUsernameString->SetTo(fUsername->Text());
-			fPasswordString->SetTo(fPassword->Text());
+			if (fPassword != nullptr && fPasswordString != nullptr)
+				fPasswordString->SetTo(fPassword->Text());
 			Quit();
 			break;
 		case kCredCancel:
 			fUsernameString->SetTo("");
-			fPasswordString->SetTo("");
+			if (fPassword != nullptr && fPasswordString != nullptr)
+				fPasswordString->SetTo("");
 			Quit();
 			break;
 		// default:
 			// BWindow::MessageReceived(msg);
 	}
 }
+
+
+/* static */
+thread_id
+GitCredentialsWindow::OpenCredentialsWindow(const char* title, BString& username)
+{
+	GitCredentialsWindow* window = new GitCredentialsWindow(title, true);
+	window->fUsernameString = &username;
+	return window->Thread();
+}
+
+
+/* static */
+thread_id
+GitCredentialsWindow::OpenCredentialsWindow(const char* title, BString& username,
+													BString& password)
+{
+	GitCredentialsWindow* window = new GitCredentialsWindow(title, true, true);
+	window->fUsernameString = &username;
+	window->fPasswordString = &password;
+	return window->Thread();
+}
+
 
 int
 GitCredentialsWindow::authentication_callback(git_cred** out, const char* url,
@@ -79,9 +120,6 @@ GitCredentialsWindow::authentication_callback(git_cred** out, const char* url,
 									void* payload)
 {
 	if (Logger::IsDebugEnabled()) {
-		// TODO: allowed_types is an or'd field.
-		// we should check it BEFORE creating the credentials window,
-		// since libgit2 could just ask for an username instead of user/pass
 		if (allowed_types & GIT_CREDENTIAL_USERPASS_PLAINTEXT)
 			printf("allowed_types: GIT_CREDENTIAL_USERPASS_PLAINTEXT\n");
 		if (allowed_types & GIT_CREDENTIAL_SSH_KEY)
@@ -98,18 +136,27 @@ GitCredentialsWindow::authentication_callback(git_cred** out, const char* url,
 			printf("allowed_types: GIT_CREDENTIAL_SSH_MEMORY\n");
 	}
 
+	BString username;
+	if (allowed_types & GIT_CREDENTIAL_USERNAME) {
+		// Ask for username
+		thread_id thread = OpenCredentialsWindow(B_TRANSLATE("Git - Username"), username);
+		status_t winStatus = B_OK;
+		wait_for_thread(thread, &winStatus);
+		if (!username.IsEmpty())
+			return git_credential_username_new(out, username);
+		return Genio::Git::CANCEL_CREDENTIALS;;
+	}
 	// TODO: this only works when using an ssh_agent.
+	// TODO: if there's no key, this keeps looping
 	// Allow user to specify the ssh key and eventually the ssh key passkey
 	if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
-		if (BString(username_from_url).Length() > 0)
+		if (!BString(username_from_url).IsEmpty())
 			return git_credential_ssh_key_from_agent(out, username_from_url);
-		// TODO: Ask for username
 	}
-	BString username;
-	BString password;
-	GitCredentialsWindow* window = new GitCredentialsWindow(username, password);
 
-	thread_id thread = window->Thread();
+	BString password;
+	thread_id thread = OpenCredentialsWindow(B_TRANSLATE("Git - User Credentials"),
+											username, password);
 	status_t winStatus = B_OK;
 	wait_for_thread(thread, &winStatus);
 

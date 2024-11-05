@@ -78,17 +78,35 @@ GitCredentialsWindow::authentication_callback(git_cred** out, const char* url,
 									unsigned int allowed_types,
 									void* payload)
 {
-	BString username, password;
-	int error = 0;
-
-	// strcpy(username, username_from_url);
-
+	if (Logger::IsDebugEnabled()) {
+		// TODO: allowed_types is an or'd field.
+		// we should check it BEFORE creating the credentials window,
+		// since libgit2 could just ask for an username instead of user/pass
+		if (allowed_types & GIT_CREDENTIAL_USERPASS_PLAINTEXT)
+			printf("allowed_types: GIT_CREDENTIAL_USERPASS_PLAINTEXT\n");
+		if (allowed_types & GIT_CREDENTIAL_SSH_KEY)
+			printf("allowed_types: GIT_CREDENTIAL_SSH_KEY\n");
+		if (allowed_types & GIT_CREDENTIAL_SSH_CUSTOM)
+			printf("allowed_types: GIT_CREDENTIAL_SSH_CUSTOM\n");
+		if (allowed_types & GIT_CREDENTIAL_DEFAULT)
+			printf("allowed_types: GIT_CREDENTIAL_DEFAULT\n");
+		if (allowed_types & GIT_CREDENTIAL_SSH_INTERACTIVE)
+			printf("allowed_types: GIT_CREDENTIAL_SSH_INTERACTIVE\n");
+		if (allowed_types & GIT_CREDENTIAL_USERNAME)
+			printf("allowed_types: GIT_CREDENTIAL_USERNAME\n");
+		if (allowed_types & GIT_CREDENTIAL_SSH_MEMORY)
+			printf("allowed_types: GIT_CREDENTIAL_SSH_MEMORY\n");
+	}
+	BString username;
+	BString password;
+	
 	GitCredentialsWindow* window = new GitCredentialsWindow(username, password);
 
 	thread_id thread = window->Thread();
-	status_t win_status = B_OK;
-	wait_for_thread(thread, &win_status);
+	status_t winStatus = B_OK;
+	wait_for_thread(thread, &winStatus);
 
+	int error = 0;
 	if (!username.IsEmpty() && !password.IsEmpty()) {
 		if (allowed_types & GIT_CREDENTIAL_SSH_KEY) {
 			error = git_credential_ssh_key_from_agent(out, username);

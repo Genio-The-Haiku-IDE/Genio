@@ -2,6 +2,17 @@ v4.0 (development)
 	- Folders can now be dropped in the project browser to open them as a project.
 	- Added a status bar to show build status.
 	- Improved build indicator.
+	- Added option for smaller icons, and made icons scale with font size.
+	- Added menu to select the active project.
+	- Remove some useless toolbar icons.
+	- Improved handling of appearance settings.
+	- ProjectBrowser: added handling of DEL key to delete files.
+	- Improve confusing alert name when creating a new branch.
+	- Editor status bar: use a fixed font.
+	- Avoid converting end lines when opening files.
+	- Fixed build and missing resources when building Genio with Clang.
+	- Fixed possible memory corruption issues in git clone code path.
+	- Removed "Default" button in project settings.
 ---
 v3.1
 	- Fixed crash when hovering over Git Switch to branch menu without an active project.

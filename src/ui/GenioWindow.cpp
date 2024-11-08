@@ -3677,48 +3677,6 @@ GenioWindow::_ProjectRenameFile()
 
 
 void
-GenioWindow::_ProjectGuessBuildCommand(ProjectFolder* projectFolder)
-{
-	if (!projectFolder->GetBuildCommand().IsEmpty())
-		return;
-
-	// So we start the spinner and disable the settings menu
-	projectFolder->SetBuildingState(true);
-
-	// TODO: descend into subfolders ?
-	BEntry entry;
-	BDirectory dir(projectFolder->Path());
-	while (dir.GetNextEntry(&entry) == B_OK) {
-		// Check if there's a Jamfile or makefile in the root path
-		// of the project
-		if (!entry.IsFile())
-			continue;
-		// guess builder type
-		// TODO: move this away from here, into a specialized class
-		// and maybe into plugins
-		if (strcasecmp(entry.Name(), "makefile") == 0) {
-			// builder: make
-			projectFolder->SetBuildCommand("make", BuildMode::ReleaseMode);
-			projectFolder->SetCleanCommand("make clean", BuildMode::ReleaseMode);
-			projectFolder->SetBuildCommand("make DEBUGGER=1", BuildMode::DebugMode);
-			projectFolder->SetCleanCommand("make DEBUGGER=1 clean", BuildMode::DebugMode);
-			LogInfo("Guessed builder: make");
-			break;
-		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
-			// builder: jam
-			projectFolder->SetBuildCommand("jam", BuildMode::ReleaseMode);
-			projectFolder->SetCleanCommand("jam clean", BuildMode::ReleaseMode);
-			projectFolder->SetBuildCommand("jam", BuildMode::DebugMode);
-			projectFolder->SetCleanCommand("jam clean", BuildMode::DebugMode);
-			LogInfo("Guessed builder: jam");
-			break;
-		}
-	}
-	projectFolder->SetBuildingState(false);
-}
-
-
-void
 GenioWindow::_TemplateNewFile(BMessage* message)
 {
 	entry_ref source;
@@ -3966,8 +3924,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		BMessenger(this),
 		std::bind
 		(
-			&GenioWindow::_ProjectGuessBuildCommand,
-			this,
+			&ProjectFolder::GuessBuildCommand,
 			newProject
 		)
 	);

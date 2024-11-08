@@ -218,6 +218,48 @@ ProjectFolder::GetBuildMode() const
 
 
 void
+ProjectFolder::GuessBuildCommand()
+{
+	if (!GetBuildCommand().IsEmpty())
+		return;
+
+	// So we start the spinner and disable the settings menu
+	SetBuildingState(true);
+
+	// TODO: descend into subfolders ?
+	BEntry entry;
+	BDirectory dir(Path());
+	while (dir.GetNextEntry(&entry) == B_OK) {
+		// Check if there's a Jamfile or makefile in the root path
+		// of the project
+		if (!entry.IsFile())
+			continue;
+		// guess builder type
+		// TODO: move this away from here, into a specialized class
+		// and maybe into plugins
+		if (strcasecmp(entry.Name(), "makefile") == 0) {
+			// builder: make
+			SetBuildCommand("make", BuildMode::ReleaseMode);
+			SetCleanCommand("make clean", BuildMode::ReleaseMode);
+			SetBuildCommand("make DEBUGGER=1", BuildMode::DebugMode);
+			SetCleanCommand("make DEBUGGER=1 clean", BuildMode::DebugMode);
+			LogInfo("Guessed builder: make");
+			break;
+		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
+			// builder: jam
+			SetBuildCommand("jam", BuildMode::ReleaseMode);
+			SetCleanCommand("jam clean", BuildMode::ReleaseMode);
+			SetBuildCommand("jam", BuildMode::DebugMode);
+			SetCleanCommand("jam clean", BuildMode::DebugMode);
+			LogInfo("Guessed builder: jam");
+			break;
+		}
+	}
+	SetBuildingState(false);
+}
+
+
+void
 ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 {
 	if (mode == BuildMode::ReleaseMode)

@@ -80,6 +80,8 @@ public:
 	bool						IsBuilding() const { return fIsBuilding; }
 	void						SetBuildingState(bool isBuilding) { fIsBuilding = isBuilding; }
 
+	void						GuessBuildCommand();
+
 	void						SetCleanCommand(BString const& command, BuildMode mode);
 	BString const				GetCleanCommand() const;
 

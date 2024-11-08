@@ -36,7 +36,7 @@ jam:
     extensions: [ Jamfile, Jamrules, Jambase ]
 javascript:
     name: JavaScript
-    extensions: [ js, jsm, json ]
+    extensions: [ js, jsm, json, ts ]
 lua:
     name: Lua
     extensions: [ lua ]

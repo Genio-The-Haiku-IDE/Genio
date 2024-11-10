@@ -148,7 +148,7 @@ private:
 			void				_ReplaceGroupShow(bool show);
 			status_t			_RunInConsole(const BString& command);
 			void				_RunTarget();
-			void				_SetMakefileBuildMode();
+
 			void				_ShowLog(int32 index);
 			void				_UpdateFindMenuItems(const BString& text);
 			status_t			_UpdateLabel(int32 index, bool isModified);

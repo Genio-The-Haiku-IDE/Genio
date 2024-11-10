@@ -79,9 +79,9 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
 	StyledItem(sourceItem->Name()),
 	fSourceItem(sourceItem),
+	fTextControl(nullptr),
 	fNeedsSave(false),
-	fOpenedInEditor(false),
-	fTextControl(nullptr)
+	fOpenedInEditor(false)
 {
 }
 

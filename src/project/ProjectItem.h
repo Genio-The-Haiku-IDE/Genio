@@ -34,9 +34,9 @@ protected:
 
 private:
 	SourceItem		*fSourceItem;
+	BTextControl	*fTextControl;
 	bool			fNeedsSave;
 	bool			fOpenedInEditor;
-	BTextControl	*fTextControl;
 
 	void			_DestroyTextWidget();
 };

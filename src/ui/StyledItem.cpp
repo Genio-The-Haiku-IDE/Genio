@@ -22,10 +22,10 @@ StyledItem::StyledItem(const char* text,
 	:
 	BStringItem(text, outlineLevel, expanded),
 	fIconName(iconName),
+	fIconFollowsTheme(false),
 	fFontFace(B_REGULAR_FACE),
 	fExtraTextColor(nullptr),
-	fToolTipText(),
-	fIconFollowsTheme(false)
+	fToolTipText()
 {
 }
 

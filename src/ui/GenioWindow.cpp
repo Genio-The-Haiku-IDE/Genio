@@ -3911,10 +3911,10 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		return status;
 	}
 
-	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
+	fProjectsFolderBrowser->ProjectFolderPopulateThreaded(newProject);
 
 	// TODO: Move this elsewhere!
-	BString taskName;
+	/*BString taskName;
 	taskName << "Detect " << newProject->Name() << " build system";
 	Task<status_t> task
 	(
@@ -3929,14 +3929,14 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	task.Run();
 
-
+*/
 	// Notify subscribers that project list has changed
-	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+//	if (!fDisableProjectNotifications)
+//		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
-	_CollapseOrExpandProjects();
+	//_CollapseOrExpandProjects();
 
-	BString opened("Project open: ");
+/*	BString opened("Project open: ");
 	if (GetProjectBrowser()->CountProjects() == 1 || activate == true) {
 		_ProjectFolderActivate(newProject);
 		opened = "Active project open: ";
@@ -3959,7 +3959,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	// final touch, let's be sure the folder is added to the recent files.
 	be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
-
+*/
 	return B_OK;
 }
 

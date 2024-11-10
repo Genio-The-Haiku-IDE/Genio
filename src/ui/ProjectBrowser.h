@@ -59,6 +59,7 @@ public:
 	void			SelectItemByRef(ProjectFolder* project, const entry_ref& ref);
 
 	void			ProjectFolderPopulate(ProjectFolder* project);
+	void			ProjectFolderPopulateThreaded(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 
 	void			ExpandActiveProjects();

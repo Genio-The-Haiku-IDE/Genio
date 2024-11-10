@@ -14,6 +14,7 @@
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "SwitchBranchMenu.h"
+#include "Task.h"
 #include "TemplateManager.h"
 #include "TemplatesMenu.h"
 #include "Utils.h"
@@ -740,13 +741,17 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 void
 ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
+	LockLooper();
 	if (fOutlineListView->CountItems() == 0)
 		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(0));
-
+	UnlockLooper();
+	
 	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
 	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
+	
+	LockLooper();
 	fOutlineListView->SortItemsUnder(nullptr, false, ProjectOutlineListView::CompareProjectItems);
-
+	UnlockLooper();
 	const BString projectPath = project->Path();
 	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
 
@@ -755,11 +760,30 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	fProjectList.AddItem(project);
 	fProjectProjectItemList.AddItem(projectItem);
 
-	Invalidate();
+	//Invalidate();
 	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
 			B_WATCH_RECURSIVELY, BMessenger(this));
 	if (status != B_OK)
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
+}
+
+
+void
+ProjectBrowser::ProjectFolderPopulateThreaded(ProjectFolder* project)
+{
+	Genio::Task::Task<status_t> * task = new Genio::Task::Task<status_t>
+	(
+		"task populate project",
+		BMessenger(Window()),
+		std::bind
+		(
+			&ProjectBrowser::ProjectFolderPopulate,
+			this,
+			project
+		)
+	);
+	
+	task->Run();	
 }
 
 
@@ -780,6 +804,7 @@ ProjectBrowser::ExpandActiveProjects()
 ProjectItem*
 ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder)
 {
+	LockLooper();
 	ProjectItem *newItem;
 	if (item != nullptr) {
 		SourceItem *sourceItem = new SourceItem(*ref);
@@ -792,7 +817,7 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 		newItem = new ProjectTitleItem(projectFolder);
 		fOutlineListView->AddItem(newItem);
 	}
-
+	UnlockLooper();
 	BEntry entry(ref);
 	if (entry.IsDirectory()) {
 		BDirectory dir(&entry);

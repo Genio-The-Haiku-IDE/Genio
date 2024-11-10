@@ -3488,8 +3488,7 @@ GenioWindow::_InitWindow()
 
 	// Panels
 	const char* projectsDirectory = gCFG["projects_directory"];
-	BEntry entry(projectsDirectory, true);
-
+	const BEntry entry(projectsDirectory, true);
 	entry_ref ref;
 	entry.GetRef(&ref);
 
@@ -3639,7 +3638,6 @@ GenioWindow::_ProjectFileDelete()
 	alert->SetShortcut(0, B_ESCAPE);
 
 	int32 choice = alert->Go();
-
 	if (choice == 0)
 		return;
 	else if (choice == 1) {
@@ -3978,7 +3976,6 @@ GenioWindow::_OpenTerminalWorkingDirectory(const entry_ref* ref)
 		itemEntry.GetParent(&itemEntry);
 
 	BPath itemPath(&itemEntry);
-
 	const char* argv[] = {
 		"-w",
 		itemPath.Path(),
@@ -4038,7 +4035,6 @@ status_t
 GenioWindow::_ShowInTracker(const entry_ref& ref, const node_ref* nref)
 {
 	status_t status = B_ERROR;
-
 	BMessenger tracker("application/x-vnd.Be-TRAK");
 	if (tracker.IsValid()) {
 		BMessage message(B_REFS_RECEIVED);
@@ -4059,8 +4055,8 @@ GenioWindow::_Replace(BMessage* message, int32 kind)
 	if (!_ReplaceAllow())
 		return;
 
-	BString text(fFindTextControl->Text());
-	BString replace(fReplaceTextControl->Text());
+	const BString text(fFindTextControl->Text());
+	const BString replace(fReplaceTextControl->Text());
 
 	_AddSearchFlags(message);
 	message->SetString("text", text);
@@ -4076,8 +4072,8 @@ GenioWindow::_Replace(BMessage* message, int32 kind)
 bool
 GenioWindow::_ReplaceAllow() const
 {
-	BString selection(fFindTextControl->Text());
-	BString replacement(fReplaceTextControl->Text());
+	const BString selection(fFindTextControl->Text());
+	const BString replacement(fReplaceTextControl->Text());
 	if (selection.Length() < 1
 //			|| replacement.Length() < 1
 			|| selection == replacement)
@@ -4091,7 +4087,6 @@ void
 GenioWindow::_ReplaceGroupShow(bool show)
 {
 	bool findGroupOpen = !fFindGroup->IsHidden();
-
 	if (!findGroupOpen)
 		_FindGroupShow(true);
 
@@ -4192,12 +4187,6 @@ GenioWindow::_RunTarget()
 		entry.GetRef(&ref);
 		be_roster->Launch(&ref, parser.getArguments().size() , parser.argv());
 	}
-}
-
-
-void
-GenioWindow::_SetMakefileBuildMode()
-{
 }
 
 
@@ -4464,9 +4453,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fLanguageMenu->SetEnabled(true);
 	//Setting the right message type:
 	std::string languageName = Languages::GetMenuItemName(editor->FileType());
-	for (int32 i=0;i<fLanguageMenu->CountItems();i++) {
+	for (int32 i = 0; i < fLanguageMenu->CountItems(); i++) {
 		if (languageName.compare(fLanguageMenu->ItemAt(i)->Label()) == 0)  {
-			//fLanguageMenu->
 			fLanguageMenu->ItemAt(i)->SetMarked(true);
 		}
 	}

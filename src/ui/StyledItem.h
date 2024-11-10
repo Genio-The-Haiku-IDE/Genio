@@ -48,11 +48,11 @@ protected:
 						const char* extraText, const BPoint& textPoint);
 private:
 	BString			fIconName;
+	bool			fIconFollowsTheme;
 	uint16			fFontFace;
 	// TODO: Maybe allocate these dynamically since ExtraText
 	// is not always used
 	BString			fExtraText;
 	rgb_color* 		fExtraTextColor;
 	BString			fToolTipText;
-	bool			fIconFollowsTheme;
 };

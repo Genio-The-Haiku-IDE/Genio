@@ -34,9 +34,11 @@ protected:
 
 private:
 	SourceItem		*fSourceItem;
-	BTextControl	*fTextControl;
 	bool			fNeedsSave;
 	bool			fOpenedInEditor;
+	bool			fRenaming;
+
+	static BTextControl	*sTextControl;
 
 	void			_DestroyTextWidget();
 };

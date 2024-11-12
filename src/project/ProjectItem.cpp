@@ -75,13 +75,15 @@ public:
 };
 
 
+BTextControl* ProjectItem::sTextControl = nullptr;
+
 ProjectItem::ProjectItem(SourceItem *sourceItem)
 	:
 	StyledItem(sourceItem->Name()),
 	fSourceItem(sourceItem),
-	fTextControl(nullptr),
 	fNeedsSave(false),
-	fOpenedInEditor(false)
+	fOpenedInEditor(false),
+	fRenaming(false)
 {
 }
 
@@ -90,7 +92,6 @@ ProjectItem::ProjectItem(SourceItem *sourceItem)
 ProjectItem::~ProjectItem()
 {
 	delete fSourceItem;
-	delete fTextControl;
 }
 
 
@@ -109,12 +110,12 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		SetTextFontFace(B_REGULAR_FACE);
 
 	// There's a TextControl for renaming
-	if (fTextControl != nullptr) {
+	if (fRenaming && sTextControl != nullptr) {
 		// TODO: We do this hide/show to workaround a weird bug where if we rename the last
 		// visible list item, DrawItem() isn't called (probably because the item is hidden by the
 		// textbox, but weird it only happens when the item is the last visible one.
-		if (fTextControl->IsHidden())
-			fTextControl->Show();
+		if (sTextControl->IsHidden())
+			sTextControl->Show();
 		BRect textRect;
 		textRect.top = bounds.top - 0.5f;
 		textRect.left = iconRect.right + be_control_look->DefaultLabelSpacing();
@@ -123,7 +124,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		// TODO: We sould position the textbox on InitRename, but unfortunately
 		// BOutlineListView::ItemRect() doesn't give us the item indentation.
 		// It's only available here in DrawItem()
-		fTextControl->MoveTo(textRect.LeftTop());
+		sTextControl->MoveTo(textRect.LeftTop());
 	} else {
 		BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 						bounds.top + BaselineOffset());
@@ -166,26 +167,27 @@ ProjectItem::Update(BView* owner, const BFont* font)
 void
 ProjectItem::InitRename(BView* owner, BMessage* message)
 {
-	if (fTextControl == nullptr) {
+	if (sTextControl == nullptr) {
+		fRenaming = true;
 		BOutlineListView* listView = static_cast<BOutlineListView*>(owner);
 		const int32 index = listView->IndexOf(this);
 		BRect itemRect = listView->ItemFrame(index);
 
-		fTextControl = new TemporaryTextControl(itemRect, "RenameTextWidget",
+		sTextControl = new TemporaryTextControl(itemRect, "RenameTextWidget",
 											"", Text(), message, this,
 											B_FOLLOW_NONE);
 		if (owner->LockLooper()) {
-			owner->AddChild(fTextControl);
+			owner->AddChild(sTextControl);
 			// TODO: See the note in DrawItem()
-			fTextControl->Hide();
+			sTextControl->Hide();
 			owner->UnlockLooper();
 		}
-		fTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
-		fTextControl->SetDivider(0);
-		fTextControl->TextView()->SelectAll();
-		fTextControl->TextView()->ResizeBy(0, -3);
+		sTextControl->TextView()->SetAlignment(B_ALIGN_LEFT);
+		sTextControl->SetDivider(0);
+		sTextControl->TextView()->SelectAll();
+		sTextControl->TextView()->ResizeBy(0, -3);
 	}
-	fTextControl->MakeFocus();
+	sTextControl->MakeFocus();
 }
 
 
@@ -223,10 +225,11 @@ ProjectItem::DrawIcon(BView* owner, const BRect& itemBounds,
 void
 ProjectItem::_DestroyTextWidget()
 {
-	if (fTextControl != nullptr) {
-		fTextControl->RemoveSelf();
-		delete fTextControl;
-		fTextControl = nullptr;
+	if (sTextControl != nullptr) {
+		sTextControl->RemoveSelf();
+		delete sTextControl;
+		sTextControl = nullptr;
+		fRenaming = false;
 	}
 }
 

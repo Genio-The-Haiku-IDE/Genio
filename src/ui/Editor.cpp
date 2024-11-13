@@ -1192,14 +1192,19 @@ Editor::Reload()
 
 
 int
-Editor::ReplaceAndFindPrevious(const BString& selection,
-									const BString& replacement, int flags, bool wrap)
+Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
+															int flags, bool wrap)
 {
 	int retValue = REPLACE_NONE;
-	int position = Find(selection, flags, true, wrap);
-	if (position != -1) {
+	if (IsSearchSelected(selection, flags)) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
 		retValue = REPLACE_DONE;
+	} else {
+		int position = FindNext(selection, flags, wrap);
+		if (position != -1) {
+			SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
+			retValue = REPLACE_DONE;
+		}
 	}
 
 	return retValue;
@@ -1207,14 +1212,19 @@ Editor::ReplaceAndFindPrevious(const BString& selection,
 
 
 int
-Editor::ReplaceAndFindNext(const BString& selection, const BString& replacement,
-															int flags, bool wrap)
+Editor::ReplaceAndFindPrevious(const BString& selection,
+									const BString& replacement, int flags, bool wrap)
 {
 	int retValue = REPLACE_NONE;
-	int position = Find(selection, flags, false, wrap);
-	if (position != -1) {
+	if (IsSearchSelected(selection, flags)) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
 		retValue = REPLACE_DONE;
+	} else {
+		int position = FindPrevious(selection, flags, wrap);
+		if (position != -1) {
+			SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
+			retValue = REPLACE_DONE;
+		}
 	}
 
 	return retValue;

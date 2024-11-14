@@ -6,7 +6,9 @@
 
 #include "FunctionsOutlineView.h"
 
+#include <Bitmap.h>
 #include <Catalog.h>
+#include <ControlLook.h>
 #include <LayoutBuilder.h>
 #include <NaturalCompare.h>
 #include <OutlineListView.h>
@@ -22,6 +24,7 @@
 #include "protocol_objects.h"
 #include "StyledItem.h"
 #include "ToolBar.h"
+#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "FunctionsOutlineView"
@@ -40,16 +43,45 @@ public:
 		SymbolListItem(BMessage& details)
 			:
 			StyledItem(details.GetString("name")),
-			fDetails(details)
+			fDetails(details),
+			fIconName()
 		{
-			SetIconFollowsTheme(true);
 			SetIconAndTooltip();
 		}
 
+		BRect DrawIcon(BView* owner, const BRect& itemBounds,
+					const float &iconSize) override
+		{
+			BString iconPrefix;
+			const int32 kBrightnessBreakValue = 126;
+			const rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+			if (base.Brightness() >= kBrightnessBreakValue)
+				iconPrefix = "light-";
+			else
+				iconPrefix = "dark-";
+
+			BPoint iconStartingPoint(itemBounds.left + 4.0f,
+				itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
+
+			BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
+			BString iconFullName = iconPrefix.Append(fIconName);
+			if (GetVectorIcon(iconFullName.String(), icon) == B_OK) {
+				owner->SetDrawingMode(B_OP_ALPHA);
+				owner->DrawBitmap(icon, iconStartingPoint);
+			} else {
+				BString error(iconFullName);
+				error << ": icon not found!";
+				LogError(error.String());
+			}
+			delete icon;
+
+			return BRect(iconStartingPoint, BSize(iconSize, iconSize));
+		}
 		const BMessage& Details() const { return fDetails; }
 		void SetIconAndTooltip();
 private:
 		BMessage	fDetails;
+		BString		fIconName;
 };
 
 
@@ -171,7 +203,7 @@ SymbolListItem::SetIconAndTooltip()
 	}
 
 	if (!iconName.IsEmpty())
-		SetIcon(iconName.Prepend("symbol-"));
+		fIconName = iconName.Prepend("symbol-");
 
 	if (!toolTip.IsEmpty()) {
 		const BString detail  = Details().GetString("detail", "");

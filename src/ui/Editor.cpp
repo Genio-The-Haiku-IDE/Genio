@@ -1216,14 +1216,17 @@ Editor::ReplaceAndFindPrevious(const BString& selection,
 									const BString& replacement, int flags, bool wrap)
 {
 	int retValue = REPLACE_NONE;
-	if (IsSearchSelected(selection, flags)) {
+	if (IsSearchSelected(selection, flags) && Selection() != replacement) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
 		retValue = REPLACE_DONE;
+		int32 currentPosition = GetCurrentPosition();
+		SendMessage(SCI_SETSEL, currentPosition, currentPosition - replacement.Length());
 	} else {
 		int position = FindPrevious(selection, flags, wrap);
 		if (position != -1) {
 			SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
 			retValue = REPLACE_DONE;
+			SendMessage(SCI_SETSEL, position + replacement.Length(), position);
 		}
 	}
 

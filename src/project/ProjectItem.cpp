@@ -68,6 +68,7 @@ public:
 				BMessage message(*Message());
 				message.AddString("_value", Text());
 				BMessenger(Parent()).SendMessage(&message);
+				Parent()->MakeFocus();
 				fProjectItem->CommitRename();
 			}
 		}

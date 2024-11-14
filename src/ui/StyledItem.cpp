@@ -42,9 +42,7 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	DrawItemPrepare(owner, bounds, complete);
 
 	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-	BRect iconRect = bounds;
-	iconRect.right = iconRect.left + 4;
-	iconRect = DrawIcon(owner, bounds, iconSize);
+	BRect iconRect = DrawIcon(owner, bounds, iconSize);
 	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
 

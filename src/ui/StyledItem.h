@@ -34,9 +34,6 @@ public:
 	void			SetToolTipText(const char *text);
 	const char*		GetToolTipText() const;
 
-	void			SetIcon(const char *iconName);
-	void			SetIconFollowsTheme(bool follow);
-
 protected:
 	// called from DrawItem: sets up colors
 	// can be called by overridden DrawItem() to avoid duplication
@@ -47,8 +44,6 @@ protected:
 	virtual void	DrawText(BView* owner, const char* text,
 						const char* extraText, const BPoint& textPoint);
 private:
-	BString			fIconName;
-	bool			fIconFollowsTheme;
 	uint16			fFontFace;
 	// TODO: Maybe allocate these dynamically since ExtraText
 	// is not always used

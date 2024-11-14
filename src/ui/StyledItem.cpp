@@ -5,7 +5,7 @@
 
 #include "StyledItem.h"
 
-#include <Bitmap.h>
+
 #include <ControlLook.h>
 #include <Font.h>
 #include <NodeInfo.h>
@@ -21,8 +21,6 @@ StyledItem::StyledItem(const char* text,
 						const char *iconName)
 	:
 	BStringItem(text, outlineLevel, expanded),
-	fIconName(iconName),
-	fIconFollowsTheme(false),
 	fFontFace(B_REGULAR_FACE),
 	fExtraTextColor(nullptr),
 	fToolTipText()
@@ -43,13 +41,10 @@ StyledItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
 	DrawItemPrepare(owner, bounds, complete);
 
-	float iconSize = 0;
+	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BRect iconRect = bounds;
 	iconRect.right = iconRect.left + 4;
-	if (fIconName != nullptr) {
-		iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
-		iconRect = DrawIcon(owner, bounds, iconSize);
-	}
+	iconRect = DrawIcon(owner, bounds, iconSize);
 	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
 
@@ -140,20 +135,6 @@ StyledItem::GetToolTipText() const
 }
 
 
-void
-StyledItem::SetIcon(const char *iconName)
-{
-	fIconName = iconName;
-}
-
-
-void
-StyledItem::SetIconFollowsTheme(bool follow)
-{
-	fIconFollowsTheme = follow;
-}
-
-
 /* virtual */
 void
 StyledItem::DrawItemPrepare(BView* owner, BRect bounds, bool complete)
@@ -202,32 +183,9 @@ StyledItem::DrawText(BView* owner, const char* text,
 /* virtual */
 BRect
 StyledItem::DrawIcon(BView* owner, const BRect& itemBounds,
-					const float &iconSize)
+					const float & /*iconSize*/)
 {
-	BString iconPrefix;
-	if (fIconFollowsTheme) {
-		const int32 kBrightnessBreakValue = 126;
-		const rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
-		if (base.Brightness() >= kBrightnessBreakValue)
-			iconPrefix = "light-";
-		else
-			iconPrefix = "dark-";
-	}
-
-	BPoint iconStartingPoint(itemBounds.left + 4.0f,
-		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
-
-	BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
-	BString iconFullName = iconPrefix.Append(fIconName);
-	if (GetVectorIcon(iconFullName.String(), icon) == B_OK) {
-		owner->SetDrawingMode(B_OP_ALPHA);
-		owner->DrawBitmap(icon, iconStartingPoint);
-	} else {
-		BString error(iconFullName);
-		error << ": icon not found!";
-		LogError(error.String());
-	}
-	delete icon;
-
-	return BRect(iconStartingPoint, BSize(iconSize, iconSize));
+	BRect bounds = itemBounds;
+	bounds.right = bounds.left;
+	return bounds;
 }

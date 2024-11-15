@@ -10,6 +10,8 @@ v4.0 (development)
 	- Improve confusing alert name when creating a new branch.
 	- Editor status bar: use a fixed font.
 	- Avoid converting end lines when opening files.
+	- Fixed ReplaceFindPrevious/Next for real.
+	- Fixed ProjectBrowser losing focus after renaming a file. 
 	- Fixed build and missing resources when building Genio with Clang.
 	- Fixed possible memory corruption issues in git clone code path.
 	- Removed "Default" button in project settings.

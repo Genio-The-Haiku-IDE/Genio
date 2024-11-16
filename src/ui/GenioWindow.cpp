@@ -3581,8 +3581,6 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		_UpdateProjectActivation(true);
 	}
 
-	_CollapseOrExpandProjects();
-
 	if (!fDisableProjectNotifications) {
 		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		noticeMessage.AddPointer("active_project", fActiveProject);
@@ -3934,8 +3932,6 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	if (!fDisableProjectNotifications)
 		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
-	_CollapseOrExpandProjects();
-
 	BString opened("Project open: ");
 	if (GetProjectBrowser()->CountProjects() == 1 || activate == true) {
 		_ProjectFolderActivate(newProject);
@@ -4239,6 +4235,7 @@ GenioWindow::_UpdateLabel(int32 index, bool isModified)
 void
 GenioWindow::_UpdateProjectActivation(bool active)
 {
+	// TODO: Refactor here and _ProjectFolderActivate
 	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, active);
 	fBuildModeItem->SetEnabled(active);
 	fMakeCatkeysItem->SetEnabled(active);
@@ -4544,8 +4541,6 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		}
 	}
 
-	 _CollapseOrExpandProjects();
-
 	Editor* selected = fTabManager->SelectedEditor();
 	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr);
 }
@@ -4572,14 +4567,4 @@ GenioWindow::_UpdateWindowTitle(const char* filePath)
 	if (gCFG["fullpath_title"] && filePath != nullptr)
 		title << ": " << filePath;
 	SetTitle(title.String());
-}
-
-
-void
-GenioWindow::_CollapseOrExpandProjects()
-{
-	if (gCFG["auto_expand_collapse_projects"]) {
-		// Expand active project, collapse other
-		GetProjectBrowser()->ExpandActiveProjects();
-	}
 }

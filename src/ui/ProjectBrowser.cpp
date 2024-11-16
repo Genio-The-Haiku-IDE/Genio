@@ -7,6 +7,8 @@
 #include "ProjectBrowser.h"
 
 #include "ActionManager.h"
+#include "ConfigManager.h"
+#include "GenioApp.h"
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"
 #include "GenioWindow.h"
@@ -457,6 +459,10 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
 				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
+					if (gCFG["auto_expand_collapse_projects"]) {
+						// Expand active project, collapse other
+						ExpandActiveProjects();
+					}
 					fOutlineListView->Invalidate();
 					break;
 				case MSG_NOTIFY_EDITOR_FILE_OPENED:

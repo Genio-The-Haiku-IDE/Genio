@@ -4275,11 +4275,10 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 	}
 
-	fProjectsFolderBrowser->Invalidate();
-	// TODO: For some reason the above call doesn't trigger redraw of (some?) of
-	// the items of the child BOutlineListView
-	// Obviously this shouldn't be done
-	fProjectsFolderBrowser->FindView("ProjectBrowserOutline")->Invalidate();
+	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+	noticeMessage.AddPointer("active_project", fActiveProject);
+	noticeMessage.AddString("active_project_name", fActiveProject ? fActiveProject->Name() : "");
+	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 }
 
 

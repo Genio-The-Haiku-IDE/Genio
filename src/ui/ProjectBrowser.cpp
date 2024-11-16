@@ -456,6 +456,9 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
+				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
+					fOutlineListView->Invalidate();
+					break;
 				case MSG_NOTIFY_EDITOR_FILE_OPENED:
 				case MSG_NOTIFY_EDITOR_FILE_CLOSED:
 				{
@@ -679,6 +682,7 @@ ProjectBrowser::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_SELECTED);
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
+		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		Window()->UnlockLooper();
 	}
 
@@ -708,6 +712,7 @@ ProjectBrowser::DetachedFromWindow()
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_SELECTED);
 		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
+		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		Window()->UnlockLooper();
 	}
 }

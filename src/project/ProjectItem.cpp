@@ -102,7 +102,7 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
 	DrawItemPrepare(owner, bounds, complete);
 
-	const float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	const float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).IntegerHeight() - 1;
 	BRect iconRect = DrawIcon(owner, bounds, iconSize);
 
 	if (fOpenedInEditor)

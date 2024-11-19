@@ -23,6 +23,7 @@ IconCache::IconCache()
 const BBitmap*
 IconCache::GetIcon(const entry_ref *ref)
 {
+	// TODO: Rework GetIcon() to include icon size as a parameter
 	BNode node(ref);
 	const BNodeInfo nodeInfo(&node);
 	char mimeType[B_MIME_TYPE_LENGTH];
@@ -43,9 +44,11 @@ IconCache::GetIcon(const entry_ref *ref)
 		return it->second;
 	} else {
 		LogTrace("IconCache: could not find an icon in cache for %s", mimeTypePtr);
+		// TODO: we calculate icon size here, but we should pass it as a parameter
+		// to GetIcon(), because it's done in StyledItem::DrawIcon, too
 		const BSize composedSize = be_control_look->ComposeIconSize(B_MINI_ICON);
-		const icon_size iconSize = icon_size(composedSize.IntegerWidth() - 1);
-		const BRect rect(0, 0, iconSize, composedSize.IntegerHeight() - 1);
+		const icon_size iconSize = icon_size(composedSize.IntegerHeight());
+		const BRect rect(0, 0, iconSize - 1, iconSize - 1);
 		BBitmap *icon = new BBitmap(rect, B_RGBA32);
 		status_t status = nodeInfo.GetTrackerIcon(icon, iconSize);
 		sInstance.fCache.emplace(mimeTypePtr, icon);

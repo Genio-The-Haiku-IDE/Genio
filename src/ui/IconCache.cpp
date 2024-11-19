@@ -21,9 +21,8 @@ IconCache::IconCache()
 
 
 const BBitmap*
-IconCache::GetIcon(const entry_ref *ref)
+IconCache::GetIcon(const entry_ref *ref, const float iconSize)
 {
-	// TODO: Rework GetIcon() to include icon size as a parameter
 	BNode node(ref);
 	const BNodeInfo nodeInfo(&node);
 	char mimeType[B_MIME_TYPE_LENGTH];
@@ -38,20 +37,21 @@ IconCache::GetIcon(const entry_ref *ref)
 
 	LogTrace("IconCache: [%s] - [%s]", mimeTypePtr, ref->name);
 
-	auto it = sInstance.fCache.find(mimeTypePtr);
-	if (it != sInstance.fCache.end()) {
+	auto cache = sInstance.fCaches.find(iconSize);
+	if (cache == sInstance.fCaches.end()) {
+		sInstance.fCaches[iconSize] = new bitmap_cache;
+		cache = sInstance.fCaches.find(iconSize);
+	}
+	auto it = cache->second->find(mimeTypePtr);
+	if (it != cache->second->end()) {
 		LogTrace("IconCache: return icon from cache for %s", mimeTypePtr);
 		return it->second;
 	} else {
 		LogTrace("IconCache: could not find an icon in cache for %s", mimeTypePtr);
-		// TODO: we calculate icon size here, but we should pass it as a parameter
-		// to GetIcon(), because it's done in StyledItem::DrawIcon, too
-		const BSize composedSize = be_control_look->ComposeIconSize(B_MINI_ICON);
-		const icon_size iconSize = icon_size(composedSize.IntegerHeight());
 		const BRect rect(0, 0, iconSize - 1, iconSize - 1);
 		BBitmap *icon = new BBitmap(rect, B_RGBA32);
-		status_t status = nodeInfo.GetTrackerIcon(icon, iconSize);
-		sInstance.fCache.emplace(mimeTypePtr, icon);
+		status_t status = nodeInfo.GetTrackerIcon(icon, icon_size(iconSize));
+		cache->second->emplace(mimeTypePtr, icon);
 		LogTrace("IconCache: GetTrackerIcon returned - %s", ::strerror(status));
 		return icon;
 	}
@@ -60,21 +60,23 @@ IconCache::GetIcon(const entry_ref *ref)
 
 
 const BBitmap*
-IconCache::GetIcon(const BString& path)
+IconCache::GetIcon(const BString& path, const float iconSize)
 {
 	const BEntry entry(path);
 	entry_ref ref;
 	entry.GetRef(&ref);
-	return IconCache::GetIcon(&ref);
+	return IconCache::GetIcon(&ref, iconSize);
 }
 
 
 void
 IconCache::PrintToStream()
 {
+#if 0
 	printf("IconCache %p: cache content\n", &sInstance);
 	for (auto const& x : sInstance.fCache) {
 		printf("IconCache: %s\n", x.first.c_str());
 	}
 	printf("----------------------------\n");
+#endif
 }

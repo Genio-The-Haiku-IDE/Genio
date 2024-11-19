@@ -213,7 +213,7 @@ ProjectItem::DrawIcon(BView* owner, const BRect& itemBounds,
 {
 	BPoint iconStartingPoint(itemBounds.left + 4.0f,
 		itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
-	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->EntryRef());
+	const BBitmap* icon = IconCache::GetIcon(GetSourceItem()->EntryRef(), iconSize);
 	if (icon != nullptr) {
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->DrawBitmapAsync(icon, iconStartingPoint);

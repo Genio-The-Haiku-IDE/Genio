@@ -17,14 +17,15 @@ public:
 	IconCache(IconCache const&) = delete;
 	void operator=(IconCache const&) = delete;
 
-	static const BBitmap* GetIcon(const entry_ref *ref);
-	static const BBitmap* GetIcon(const BString& path);
+	static const BBitmap* GetIcon(const entry_ref *ref, const float iconSize);
+	static const BBitmap* GetIcon(const BString& path, const float iconSize);
 	static void 	PrintToStream();
 
 private:
 	IconCache();
 
-	std::unordered_map<std::string, BBitmap*> fCache;
+	typedef std::unordered_map<std::string, BBitmap*> bitmap_cache;
+	std::unordered_map<float, bitmap_cache*> fCaches;
 
 	static IconCache sInstance;
 };

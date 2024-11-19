@@ -41,7 +41,7 @@ public:
 					i++;
 				}
 			}
-			const char* Value() {
+			const char* Value() const {
 				int i = BOptionPopUp::Value();
 				return fValueList[i].c_str();
 			}

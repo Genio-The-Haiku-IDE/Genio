@@ -67,7 +67,7 @@ public:
 			C::MessageReceived(msg);
 	}
 
-	T RetrieveValue() {
+	T RetrieveValue() const {
 		return (T)C::Value();
 	}
 
@@ -80,7 +80,7 @@ private:
 
 
 template<>
-const char* GControl<BTextControl, const char*>::RetrieveValue()
+const char* GControl<BTextControl, const char*>::RetrieveValue() const
 {
 	return BTextControl::Text();
 }
@@ -94,7 +94,7 @@ void GControl<BTextControl, const char*>::LoadValue(const char* value)
 
 
 template<>
-const char* GControl<BOptionPopUp, const char*>::RetrieveValue()
+const char* GControl<BOptionPopUp, const char*>::RetrieveValue() const
 {
 	const char* label = nullptr;
 	BOptionPopUp::SelectedOption(&label, nullptr);
@@ -135,9 +135,10 @@ GControl<BColorControl, rgb_color>::GControl(GMessage& msg, rgb_color value, Con
 
 
 template<>
-rgb_color GControl<BColorControl, rgb_color>::RetrieveValue()
+rgb_color GControl<BColorControl, rgb_color>::RetrieveValue() const
 {
-       return BColorControl::ValueAsColor();
+	// TODO: Why isn't BColorControl::ValueAsColor() const ?
+	return const_cast<GControl*>(this)->BColorControl::ValueAsColor();
 }
 
 

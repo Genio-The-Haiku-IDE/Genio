@@ -51,8 +51,11 @@ IconCache::GetIcon(const entry_ref *ref)
 		const BRect rect(0, 0, iconSize - 1, iconSize - 1);
 		BBitmap *icon = new BBitmap(rect, B_RGBA32);
 		status_t status = nodeInfo.GetTrackerIcon(icon, iconSize);
-		sInstance.fCache.emplace(mimeTypePtr, icon);
-		LogTrace("IconCache: GetTrackerIcon returned - %s", ::strerror(status));
+		if (status == B_OK)
+			sInstance.fCache.emplace(mimeTypePtr, icon);
+		else
+			LogTrace("IconCache: GetTrackerIcon returned - %s", ::strerror(status));
+
 		return icon;
 	}
 	return nullptr;

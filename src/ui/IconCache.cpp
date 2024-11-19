@@ -51,11 +51,15 @@ IconCache::GetIcon(const entry_ref *ref)
 		const BRect rect(0, 0, iconSize - 1, iconSize - 1);
 		BBitmap *icon = new BBitmap(rect, B_RGBA32);
 		status_t status = nodeInfo.GetTrackerIcon(icon, iconSize);
-		if (status == B_OK)
-			sInstance.fCache.emplace(mimeTypePtr, icon);
-		else
+		if (status != B_OK) {
 			LogError("IconCache: GetTrackerIcon returned - %s", ::strerror(status));
-
+			// Fall back to the generic icon
+			// TODO: this happens with the locale "Translation Catalog" type which has
+			// no icon. Should GetTrackerIcon() return the generic icon itself ?
+			BMimeType type(B_FILE_MIME_TYPE);
+			type.GetIcon(icon, iconSize);
+		}
+		sInstance.fCache.emplace(mimeTypePtr, icon);
 		return icon;
 	}
 	return nullptr;

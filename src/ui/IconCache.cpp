@@ -54,7 +54,7 @@ IconCache::GetIcon(const entry_ref *ref)
 		if (status == B_OK)
 			sInstance.fCache.emplace(mimeTypePtr, icon);
 		else
-			LogTrace("IconCache: GetTrackerIcon returned - %s", ::strerror(status));
+			LogError("IconCache: GetTrackerIcon returned - %s", ::strerror(status));
 
 		return icon;
 	}

@@ -338,39 +338,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case B_OBSERVER_NOTICE_CHANGE:
 		{
 			int32 code;
-			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
+				break;
 			if (code == gCFG.UpdateMessageWhat()) {
 				_HandleConfigurationChanged(message);
 			} else if (code == kMsgProjectSettingsUpdated) {
-				const ProjectFolder* project
-					= reinterpret_cast<const ProjectFolder*>(message->GetPointer("project_folder", nullptr));
-				if (project == nullptr) {
-					LogError("Update project configuration message without a project folder pointer!");
-					return;
-				}
-				BString key(message->GetString("key", ""));
-				if (key.IsEmpty())
-					break;
-
-				if (project == fActiveProject || fActiveProject == nullptr) {
-					// Update debug/release
-					_UpdateProjectActivation(fActiveProject != nullptr);
-				} else {
-					fProjectsFolderBrowser->Invalidate();
-				}
-
-				// TODO: refactor
-				if (key == "color") {
-					for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-						Editor* editor = fTabManager->EditorAt(index);
-						ProjectFolder* project = editor->GetProjectFolder();
-						if (project != nullptr) {
-							fTabManager->SetTabColor(editor, project->Color());
-						}
-					}
-				}
-				// Save project settings
-				const_cast<ProjectFolder*>(project)->SaveSettings();
+				_HandleProjectConfigurationChanged(message);
 			}
 			break;
 		}
@@ -4543,6 +4516,41 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 
 	Editor* selected = fTabManager->SelectedEditor();
 	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr);
+}
+
+
+void
+GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
+{
+	const ProjectFolder* project
+		= reinterpret_cast<const ProjectFolder*>(message->GetPointer("project_folder", nullptr));
+	if (project == nullptr) {
+		LogError("Update project configuration message without a project folder pointer!");
+		return;
+	}
+	BString key(message->GetString("key", ""));
+	if (key.IsEmpty())
+		return;
+
+	if (project == fActiveProject || fActiveProject == nullptr) {
+		// Update debug/release
+		_UpdateProjectActivation(fActiveProject != nullptr);
+	} else {
+		fProjectsFolderBrowser->Invalidate();
+	}
+
+	// TODO: refactor
+	if (key == "color") {
+		for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+			Editor* editor = fTabManager->EditorAt(index);
+			ProjectFolder* project = editor->GetProjectFolder();
+			if (project != nullptr) {
+				fTabManager->SetTabColor(editor, project->Color());
+			}
+		}
+	}
+	// Save project settings
+	const_cast<ProjectFolder*>(project)->SaveSettings();
 }
 
 

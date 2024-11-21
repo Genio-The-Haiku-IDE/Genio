@@ -161,6 +161,7 @@ private:
 			status_t			_AlertInvalidBuildConfig(BString text);
 			void				_CloseMultipleTabs(BMessage* msg);
 			void				_HandleConfigurationChanged(BMessage* msg);
+			void				_HandleProjectConfigurationChanged(BMessage* message);
 			BMenu*				_CreateLanguagesMenu();
 			void				_ToogleScreenMode(int32 action);
 			void				_ForwardToSelectedEditor(BMessage* msg);

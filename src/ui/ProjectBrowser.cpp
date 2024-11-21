@@ -461,7 +461,8 @@ ProjectBrowser::MessageReceived(BMessage* message)
 				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					if (gCFG["auto_expand_collapse_projects"]) {
 						// Expand active project, collapse other
-						ExpandActiveProjects();
+						BString activeProject = message->GetString("active_project_name", nullptr);
+						ExpandProjectCollapseOther(activeProject);
 					}
 					fOutlineListView->Invalidate();
 					break;
@@ -506,6 +507,26 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					bool building = false;
 					message->FindBool("building", &building);
 					fIsBuilding = building;
+					fOutlineListView->Invalidate();
+					break;
+				}
+				case kMsgProjectSettingsUpdated:
+				{
+					const ProjectFolder* project
+						= reinterpret_cast<const ProjectFolder*>(message->GetPointer("project_folder", nullptr));
+					if (project == nullptr) {
+						LogError("Update project configuration message without a project folder pointer!");
+						break;
+					}
+					// Save project settings
+					const_cast<ProjectFolder*>(project)->SaveSettings();
+
+					BString key(message->GetString("key", ""));
+					if (key.IsEmpty())
+						break;
+					if (key == "color") {
+						fOutlineListView->Invalidate();
+					}
 					break;
 				}
 				default:
@@ -689,6 +710,7 @@ ProjectBrowser::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		Window()->UnlockLooper();
 	}
 
@@ -719,6 +741,7 @@ ProjectBrowser::DetachedFromWindow()
 		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		be_app->StopWatching(this, kMsgProjectSettingsUpdated);
 		Window()->UnlockLooper();
 	}
 }
@@ -775,12 +798,12 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 
 
 void
-ProjectBrowser::ExpandActiveProjects()
+ProjectBrowser::ExpandProjectCollapseOther(const BString& project)
 {
 	for (int32 i = 0; i < CountProjects(); i++) {
 		ProjectFolder* prj = ProjectAt(i);
 		ProjectItem* item = GetProjectItemForProject(prj);
-		if (prj->Active())
+		if (prj->Name() == project)
 			fOutlineListView->Expand(item);
 		else
 			fOutlineListView->Collapse(item);

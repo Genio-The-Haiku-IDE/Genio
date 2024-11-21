@@ -4244,11 +4244,6 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, false);
 		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 	}
-
-	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-	noticeMessage.AddPointer("active_project", fActiveProject);
-	noticeMessage.AddString("active_project_name", fActiveProject ? fActiveProject->Name() : "");
-	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 }
 
 
@@ -4522,6 +4517,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 void
 GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 {
+	// TODO: This could go into ProjectBrowser in part or entirely
 	const ProjectFolder* project
 		= reinterpret_cast<const ProjectFolder*>(message->GetPointer("project_folder", nullptr));
 	if (project == nullptr) {
@@ -4535,8 +4531,6 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 	if (project == fActiveProject || fActiveProject == nullptr) {
 		// Update debug/release
 		_UpdateProjectActivation(fActiveProject != nullptr);
-	} else {
-		fProjectsFolderBrowser->Invalidate();
 	}
 
 	// TODO: refactor
@@ -4549,8 +4543,6 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 			}
 		}
 	}
-	// Save project settings
-	const_cast<ProjectFolder*>(project)->SaveSettings();
 }
 
 

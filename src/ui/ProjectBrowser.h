@@ -61,7 +61,7 @@ public:
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 
-	void			ExpandActiveProjects();
+	void			ExpandProjectCollapseOther(const BString& projectName);
 
 	void			InitRename(ProjectItem *item);
 private:

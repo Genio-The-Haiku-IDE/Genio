@@ -207,7 +207,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW,
 		B_CONTROL_KEY));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
-	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
+	AddCommonFilter(new KeyDownMessageFilter(MSG_TOOLBAR_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorKeyDownMessageFilter());
 	AddCommonFilter(new EditorMouseWheelMessageFilter());
 
@@ -762,7 +762,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_FIND_INVOKED:
+		case MSG_TOOLBAR_INVOKED:
 		{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 				const BString& text(fFindTextControl->Text());
@@ -772,6 +772,8 @@ GenioWindow::MessageReceived(BMessage* message)
 					PostMessage(MSG_FIND_IN_FILES);
 
 				fFindTextControl->MakeFocus(true);
+			} else if (CurrentFocus() == fRunConsoleProgramText->TextView()) {
+				PostMessage(MSG_RUN_CONSOLE_PROGRAM);
 			}
 			break;
 		}
@@ -2579,7 +2581,7 @@ GenioWindow::_InitCommandRunToolbar()
 	fRunMenuField->SetExplicitMaxSize(BSize(kFindReplaceOPSize, B_SIZE_UNSET));
 	fRunMenuField->SetExplicitMinSize(BSize(kFindReplaceOPSize, B_SIZE_UNSET));
 
-	fRunConsoleProgramText = new BTextControl("RunTextControl", "" , "", new BMessage(MSG_RUN_CONSOLE_PROGRAM));
+	fRunConsoleProgramText = new BTextControl("RunTextControl", "" , "", nullptr);
 	fRunConsoleProgramText->TextView()->SetMaxBytes(kFindReplaceMaxBytes*2);
 	float charWidth = fRunConsoleProgramText->StringWidth("0", 1);
 	fRunConsoleProgramText->SetExplicitMinSize(

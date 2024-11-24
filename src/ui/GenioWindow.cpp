@@ -161,9 +161,9 @@ GenioWindow::GenioWindow(BRect frame)
 	, fFindCaseSensitiveCheck(nullptr)
 	, fFindWholeWordCheck(nullptr)
 	, fFindWrapCheck(nullptr)
-	, fRunConsoleProgramGroup(nullptr)
+	, fRunGroup(nullptr)
 	, fRunConsoleProgramText(nullptr)
-	, fRunConsoleProgramButton(nullptr)
+	, fRunMenuField(nullptr)
 	, fConsoleStdinLine("")
 	, fOpenPanel(nullptr)
 	, fSavePanel(nullptr)
@@ -207,7 +207,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW,
 		B_CONTROL_KEY));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
-	AddCommonFilter(new KeyDownMessageFilter(MSG_FIND_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
+	AddCommonFilter(new KeyDownMessageFilter(MSG_TOOLBAR_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorKeyDownMessageFilter());
 	AddCommonFilter(new EditorMouseWheelMessageFilter());
 
@@ -355,7 +355,8 @@ GenioWindow::MessageReceived(BMessage* message)
 				_ReplaceGroupShow(false);
 				fFindTextControl->MakeFocus(true);
 			} else if (CurrentFocus() == fRunConsoleProgramText->TextView()) {
-				fRunConsoleProgramGroup->SetVisible(false);
+				_ShowView(fRunGroup, false);
+//				fRunConsoleProgramGroup->SetVisible(false);
 				fRunConsoleProgramText->MakeFocus(false);
 				ActionManager::SetPressed(MSG_RUN_CONSOLE_PROGRAM_SHOW, false);
 			}
@@ -761,7 +762,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_FIND_INVOKED:
+		case MSG_TOOLBAR_INVOKED:
 		{
 			if (CurrentFocus() == fFindTextControl->TextView()) {
 				const BString& text(fFindTextControl->Text());
@@ -771,6 +772,8 @@ GenioWindow::MessageReceived(BMessage* message)
 					PostMessage(MSG_FIND_IN_FILES);
 
 				fFindTextControl->MakeFocus(true);
+			} else if (CurrentFocus() == fRunConsoleProgramText->TextView()) {
+				PostMessage(MSG_RUN_CONSOLE_PROGRAM);
 			}
 			break;
 		}
@@ -1036,22 +1039,25 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_RUN_CONSOLE_PROGRAM_SHOW:
 		{
-			if (fRunConsoleProgramGroup->IsVisible()) {
+			_ShowView(fRunGroup, fRunGroup->IsHidden());
+			fRunConsoleProgramText->MakeFocus(!fRunGroup->IsHidden());
+			/*if (fRunConsoleProgramGroup->IsVisible()) {
 				fRunConsoleProgramGroup->SetVisible(false);
 				fRunConsoleProgramText->MakeFocus(false);
 			} else {
 				fRunConsoleProgramGroup->SetVisible(true);
 				fRunConsoleProgramText->MakeFocus(true);
-			}
-			ActionManager::SetPressed(MSG_RUN_CONSOLE_PROGRAM_SHOW, fRunConsoleProgramGroup->IsVisible());
+			}*/
+			ActionManager::SetPressed(MSG_RUN_CONSOLE_PROGRAM_SHOW, !fRunGroup->IsHidden());
 			break;
 		}
 		case MSG_RUN_CONSOLE_PROGRAM:
 		{
-			const BString& command(fRunConsoleProgramText->Text());
+			BString command = message->GetString("command", fRunConsoleProgramText->Text());
 			if (!command.IsEmpty())
 				_RunInConsole(command);
-			fRunConsoleProgramText->SetText("");
+			if (!message->HasString("command"))
+				fRunConsoleProgramText->SetText("");
 			break;
 		}
 		case MSG_RUN_TARGET:
@@ -2561,6 +2567,41 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 	}
 }
 
+void
+GenioWindow::_InitCommandRunToolbar()
+{
+	fRunGroup = new ToolBar(this);
+	if (gCFG["use_small_icons"]) {
+		fRunGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
+	} else {
+		fRunGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
+	}
+
+	fRunMenuField = new BMenuField("RecentMenuField", NULL, new BMenu(B_TRANSLATE("Recents")));
+	fRunMenuField->SetExplicitMaxSize(BSize(kFindReplaceOPSize, B_SIZE_UNSET));
+	fRunMenuField->SetExplicitMinSize(BSize(kFindReplaceOPSize, B_SIZE_UNSET));
+
+	fRunConsoleProgramText = new BTextControl("RunTextControl", "" , "", nullptr);
+	fRunConsoleProgramText->TextView()->SetMaxBytes(kFindReplaceMaxBytes*2);
+	float charWidth = fRunConsoleProgramText->StringWidth("0", 1);
+	fRunConsoleProgramText->SetExplicitMinSize(
+						BSize(charWidth * kFindReplaceMinBytes + 10.0f,
+						B_SIZE_UNSET));
+	BSize doubleSize = fRunConsoleProgramText->MinSize();
+	doubleSize.width *= 2;
+	fRunConsoleProgramText->SetExplicitMaxSize(doubleSize);
+
+	fRunGroup->AddView(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_HALF_ITEM_SPACING)
+												.Add(fRunMenuField)
+												.Add(fRunConsoleProgramText).View());
+
+	fRunGroup->AddAction(MSG_RUN_CONSOLE_PROGRAM, "", "kIconRun",  false);
+	fRunGroup->FindButton(MSG_RUN_CONSOLE_PROGRAM)->SetLabel(B_TRANSLATE("Run"));
+	fRunGroup->AddGlue();
+	fRunGroup->Hide();
+
+}
+
 
 void
 GenioWindow::_InitCentralSplit()
@@ -2641,25 +2682,7 @@ GenioWindow::_InitCentralSplit()
 	fReplaceGroup->AddGlue();
 	fReplaceGroup->Hide();
 
-	// Run group
-	fRunConsoleProgramText = new BTextControl("ReplaceTextControl", "", "",
-		new BMessage(MSG_RUN_CONSOLE_PROGRAM));
-	fRunConsoleProgramButton = new BButton("RunConsoleProgramButton",
-		B_TRANSLATE("Run"), new BMessage(MSG_RUN_CONSOLE_PROGRAM));
-
-	BString tooltip("cwd: ");
-	tooltip << (const char*)gCFG["projects_directory"];
-	fRunConsoleProgramText->SetToolTip(tooltip);
-
-	fRunConsoleProgramGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
-		.Add(BLayoutBuilder::Group<>(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
-			.Add(fRunConsoleProgramText)
-			.Add(fRunConsoleProgramButton)
-			.AddGlue()
-		)
-		.Add(new BSeparatorView(B_HORIZONTAL, B_PLAIN_BORDER))
-	;
-	fRunConsoleProgramGroup->SetVisible(false);
+	_InitCommandRunToolbar();
 
 	// Editor tab & view
 
@@ -2671,7 +2694,7 @@ GenioWindow::_InitCentralSplit()
 	dirtyFrameHack = fTabManager->TabGroup()->Frame();
 
 	fEditorTabsGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
-		.Add(fRunConsoleProgramGroup)
+		.Add(fRunGroup)
 		.Add(fFindGroup)
 		.Add(fReplaceGroup)
 		.Add(fTabManager->TabGroup())
@@ -3562,9 +3585,9 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	}
 
 	// Update run command working directory tooltip too
-	BString tooltip;
+	/*BString tooltip;
 	tooltip << "cwd: " << fActiveProject->Path();
-	fRunConsoleProgramText->SetToolTip(tooltip);
+	fRunConsoleProgramText->SetToolTip(tooltip);*/
 }
 
 
@@ -4086,6 +4109,8 @@ GenioWindow::_RunInConsole(const BString& command)
 
 	_ShowLog(kOutputLog);
 
+	_UpdateRecentCommands(command);
+
 	BMessage message;
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", command);
@@ -4180,6 +4205,22 @@ GenioWindow::_UpdateFindMenuItems(const BString& text)
 	}
 	if (count == kFindReplaceMenuItems)
 		fFindMenuField->Menu()->RemoveItem(count);
+}
+
+void
+GenioWindow::_UpdateRecentCommands(const BString& text)
+{
+	int32 count = fRunMenuField->Menu()->CountItems();
+	// Add item if not already present
+	if (fRunMenuField->Menu()->FindItem(text) == nullptr) {
+		BMessage*	command = new BMessage(MSG_RUN_CONSOLE_PROGRAM);
+		command->AddString("command", text);
+		BMenuItem* item = new BMenuItem(text, command);
+		fRunMenuField->Menu()->AddItem(item, 0);
+	}
+	//remove last one.
+	if (count == kFindReplaceMenuItems)
+		fRunMenuField->Menu()->RemoveItem(count);
 }
 
 

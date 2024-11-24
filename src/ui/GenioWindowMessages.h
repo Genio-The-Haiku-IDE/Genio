@@ -69,7 +69,7 @@ enum {
 	MSG_FIND_PREVIOUS			= 'fipr',
 	MSG_FIND_MARK_ALL			= 'fmal',
 	MSG_FIND_NEXT				= 'fite',
-	MSG_FIND_INVOKED			= 'finv',
+	MSG_TOOLBAR_INVOKED			= 'tinv',
 	MSG_REPLACE_GROUP_SHOW		= 'regs',
 	MSG_REPLACE_MENU_SELECTED 	= 'rmse',
 	MSG_REPLACE_ONE				= 'reon',

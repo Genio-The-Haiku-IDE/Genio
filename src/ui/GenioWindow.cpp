@@ -4548,10 +4548,12 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 			fToolBar->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
 			fFindGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
 			fReplaceGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
+			fRunGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
 		} else {
 			fToolBar->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
 			fFindGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
 			fReplaceGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
+			fRunGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
 		}
 	}
 

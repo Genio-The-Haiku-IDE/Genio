@@ -113,6 +113,7 @@ private:
 			void				_HandleNodeMonitorMsg(BMessage* msg);
 			void				_CheckEntryRemoved(BMessage* msg);
 			void				_InitCentralSplit();
+			void				_InitCommandRunToolbar();
 			void				_InitMenu();
 			void				_InitOutputSplit();
 			void				_InitLeftSplit();
@@ -151,6 +152,7 @@ private:
 
 			void				_ShowLog(int32 index);
 			void				_UpdateFindMenuItems(const BString& text);
+			void				_UpdateRecentCommands(const BString& text);
 			status_t			_UpdateLabel(int32 index, bool isModified);
 			void				_UpdateProjectActivation(bool active);
 			void				_UpdateReplaceMenuItems(const BString& text);
@@ -235,9 +237,9 @@ private:
 			BCheckBox*			fFindCaseSensitiveCheck;
 			BCheckBox*			fFindWholeWordCheck;
 			BCheckBox*			fFindWrapCheck;
-			BGroupLayout*		fRunConsoleProgramGroup;
+			ToolBar*			fRunGroup;
 			BTextControl*		fRunConsoleProgramText;
-			BButton*			fRunConsoleProgramButton;
+			BMenuField* 		fRunMenuField;
 			BString				fConsoleStdinLine;
 
 			BFilePanel*			fOpenPanel;
@@ -262,6 +264,7 @@ private:
 #ifdef GDEBUG
 			BString				fTitlePrefix;
 #endif
+
 };
 
 extern GenioWindow *gMainWindow;

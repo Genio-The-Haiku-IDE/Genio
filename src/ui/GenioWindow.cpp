@@ -2600,6 +2600,11 @@ GenioWindow::_InitCommandRunToolbar()
 	fRunGroup->AddGlue();
 	fRunGroup->Hide();
 
+	// Update run command working directory tooltip too
+	BString tooltip("cwd: ");
+	tooltip << (const char*)gCFG["projects_directory"];
+	fRunConsoleProgramText->SetToolTip(tooltip);
+
 }
 
 
@@ -3585,9 +3590,9 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	}
 
 	// Update run command working directory tooltip too
-	/*BString tooltip;
+	BString tooltip;
 	tooltip << "cwd: " << fActiveProject->Path();
-	fRunConsoleProgramText->SetToolTip(tooltip);*/
+	fRunConsoleProgramText->SetToolTip(tooltip);
 }
 
 

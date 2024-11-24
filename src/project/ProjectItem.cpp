@@ -35,7 +35,8 @@ public:
 	ProjectItem *fProjectItem;
 
 	TemporaryTextControl(BRect frame, const char* name, const char* label, const char* text,
-							BMessage* message, ProjectItem *item, uint32 resizingMode = B_FOLLOW_LEFT|B_FOLLOW_TOP,
+							BMessage* message, ProjectItem *item,
+							uint32 resizingMode = B_FOLLOW_LEFT|B_FOLLOW_TOP,
 							uint32 flags = B_WILL_DRAW|B_NAVIGABLE)
 		:
 		BTextControl(frame, name, label, text, message, resizingMode, flags),
@@ -105,11 +106,6 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	const float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).IntegerHeight() - 1;
 	BRect iconRect = DrawIcon(owner, bounds, iconSize);
 
-	if (fOpenedInEditor)
-		SetTextFontFace(B_ITALIC_FACE);
-	else
-		SetTextFontFace(B_REGULAR_FACE);
-
 	// There's a TextControl for renaming
 	if (fRenaming && sTextControl != nullptr) {
 		// TODO: We do this hide/show to workaround a weird bug where if we rename the last
@@ -130,7 +126,13 @@ ProjectItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 						bounds.top + BaselineOffset());
 
-		// TODO: Apply any style change here (i.e. bold, italic)
+		// TODO: some fonts don't have the italic face
+		// what to do in that case ?
+		if (fOpenedInEditor)
+			SetTextFontFace(B_ITALIC_FACE);
+		else
+			SetTextFontFace(B_REGULAR_FACE);
+
 		if (fNeedsSave)
 			SetExtraText("*");
 		else
@@ -260,7 +262,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 {
 	DrawItemPrepare(owner, bounds, complete);
 
-	float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
+	const float iconSize = be_control_look->ComposeIconSize(B_MINI_ICON).Height();
 	BRect iconRect = DrawIcon(owner, bounds, iconSize);
 
 	ProjectFolder *projectFolder = static_cast<ProjectFolder*>(GetSourceItem());
@@ -272,7 +274,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	BPoint textPoint(iconRect.right + be_control_look->DefaultLabelSpacing(),
 					bounds.top + BaselineOffset());
 
-	// Set the font face here, otherwise StringWidth() won't return
+	// Set the font face here, otherwise StringWidth() later won't return
 	// the correct width
 	BFont font;
 	font.SetFace(TextFontFace());
@@ -293,8 +295,6 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	// TODO: this part is quite computationally intensive
 	// and shoud be moved away from the DrawItem.
-	const BString projectName = Text();
-	const BString projectPath = projectFolder->Path();
 	BString branchName;
 	try {
 		if (projectFolder->GetRepository()) {
@@ -313,6 +313,9 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	}
 	owner->Sync();
 
+	// Tooltip
+	const BString projectName = Text();
+	const BString projectPath = projectFolder->Path();
 	BString toolTipText;
 	toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
 								B_TRANSLATE("Project"), projectName.String(),

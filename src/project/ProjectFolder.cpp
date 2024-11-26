@@ -260,6 +260,20 @@ ProjectFolder::GuessBuildCommand()
 
 
 void
+ProjectFolder::SetBuildFilePath(BString const& path)
+{
+	(*fSettings)["build_file_path"] = path;
+}
+
+
+BString const
+ProjectFolder::GetBuildFilePath() const
+{
+	return (*fSettings)["build_file_path"];
+}
+
+
+void
 ProjectFolder::SetBuildCommand(BString const& command, BuildMode mode)
 {
 	if (mode == BuildMode::ReleaseMode)
@@ -397,6 +411,8 @@ ProjectFolder::_PrepareSettings()
 	BString build(B_TRANSLATE("Build"));
 	fSettings->AddConfig(build, "build_mode",
 		B_TRANSLATE("Build mode:"), int32(BuildMode::ReleaseMode), &buildModes);
+	fSettings->AddConfig(build, "build_file_path",
+		B_TRANSLATE("Build file path:"), "");
 
 	BString release(B_TRANSLATE("Release"));
 	BString buildRelease(build);

@@ -63,7 +63,7 @@
 #include "ProjectItem.h"
 #include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
-#include "SearchResultPanel.h"
+#include "SearchResultTab.h"
 #include "SourceControlPanel.h"
 #include "SwitchBranchMenu.h"
 #include "Task.h"
@@ -175,7 +175,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fBuildLogView(nullptr)
 	, fMTermView(nullptr)
 	, fGoToLineWindow(nullptr)
-	, fSearchResultPanel(nullptr)
+	, fSearchResultTab(nullptr)
 	, fScreenMode(kDefault)
 	, fDisableProjectNotifications(false)
 {
@@ -2216,7 +2216,7 @@ GenioWindow::_FindInFiles()
 	grepCommand += EscapeQuotesWrap(fActiveProject->Path());
 
 	LogInfo("Find in file, executing: [%s]", grepCommand.String());
-	fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
+	fSearchResultTab->StartSearch(grepCommand, fActiveProject->Path());
 
 	_ShowLog(kSearchResult);
 	_UpdateFindMenuItems(fFindTextControl->Text());
@@ -3427,12 +3427,12 @@ GenioWindow::_InitOutputSplit()
 
 	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
-	fSearchResultPanel = new SearchResultPanel(fOutputTabView);
+	fSearchResultTab = new SearchResultTab(fOutputTabView);
 
 	fOutputTabView->AddTab(fProblemsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
 	fOutputTabView->AddTab(fMTermView);
-	fOutputTabView->AddTab(fSearchResultPanel);
+	fOutputTabView->AddTab(fSearchResultTab);
 }
 
 

@@ -6,19 +6,31 @@
 
 #include "GMessage.h"
 
-void GMessage::_HandleVariantList(variant_list& list) {
+void
+GMessage::_HandleVariantList(variant_list& list)
+{
 	MakeEmpty();
-    for (auto &[k, v]: list)
-    {
-		std::visit([&] (const auto& z) {
-			(*this)[k.c_str()] = z;
-		}, *v);
+    for (auto &[k, v]: list) {
+		std::visit([&] (const auto& z) { (*this)[k.c_str()] = z; }, *v);
     }
 }
 
-auto GMessage::operator[](const char* key) -> GMessageReturn { return GMessageReturn(this, key); }
+
+auto
+GMessage::operator[](const char* key) -> GMessageReturn
+{
+	return GMessageReturn(this, key);
+}
+
 
 template<>
 bool
-GMessageReturn::is_what<int32>(int32 w) { if (strcmp(fKey, "what") == 0) {fMsg->what = w; return true;} return false; }
+GMessageReturn::is_what<int32>(int32 w)
+{
+	if (::strcmp(fKey, "what") == 0) {
+		fMsg->what = w;
+		return true;
+	}
+	return false;
+}
 

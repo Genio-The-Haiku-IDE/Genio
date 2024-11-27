@@ -80,6 +80,9 @@ public:
 	bool						IsBuilding() const { return fIsBuilding; }
 	void						SetBuildingState(bool isBuilding) { fIsBuilding = isBuilding; }
 
+	void						SetBuildFilePath(BString const& path);
+	BString const				GetBuildFilePath() const;
+
 	void						GuessBuildCommand();
 
 	void						SetCleanCommand(BString const& command, BuildMode mode);

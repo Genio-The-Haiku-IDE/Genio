@@ -1626,6 +1626,9 @@ GenioWindow::_BuildProject()
 
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
+	auto buildPath = fActiveProject->GetBuildFilePath();
+	if (!buildPath.IsEmpty())
+		chdir(buildPath);
 
 	return fBuildLogView->RunCommand(&message);
 }
@@ -1678,6 +1681,9 @@ GenioWindow::_CleanProject()
 
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
+	auto buildPath = fActiveProject->GetBuildFilePath();
+	if (!buildPath.IsEmpty())
+		chdir(buildPath);
 
 	return fBuildLogView->RunCommand(&message);
 }
@@ -3531,6 +3537,9 @@ GenioWindow::_MakeBindcatalogs()
 
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
+	auto buildPath = fActiveProject->GetBuildFilePath();
+	if (!buildPath.IsEmpty())
+		chdir(buildPath);
 
 	fBuildLogView->RunCommand(&message);
 }
@@ -3552,6 +3561,9 @@ GenioWindow::_MakeCatkeys()
 
 	// Go to appropriate directory
 	chdir(fActiveProject->Path());
+	auto buildPath = fActiveProject->GetBuildFilePath();
+	if (!buildPath.IsEmpty())
+		chdir(buildPath);
 
 	fBuildLogView->RunCommand(&message);
 }

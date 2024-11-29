@@ -2188,7 +2188,7 @@ GenioWindow::_FindInFiles()
 	BString text(fFindTextControl->Text());
 	if (text.IsEmpty())
 		return;
-
+/*
 	// convert checkboxes to grep parameters..
 	BString extraParameters;
 	if ((bool)fFindWholeWordCheck->Value())
@@ -2214,10 +2214,12 @@ GenioWindow::_FindInFiles()
 	grepCommand += EscapeQuotesWrap(text);
 	grepCommand += " ";
 	grepCommand += EscapeQuotesWrap(fActiveProject->Path());
+*/
 
-	LogInfo("Find in file, executing: [%s]", grepCommand.String());
-	fSearchResultTab->StartSearch(grepCommand, fActiveProject->Path());
-
+	//fSearchResultTab->StartSearch(grepCommand, fActiveProject->Path());
+	fSearchResultTab->SetAndStartSearch(text, (bool)fFindWholeWordCheck->Value(),
+											  (bool)fFindCaseSensitiveCheck->Value(),
+											  fActiveProject);
 	_ShowLog(kSearchResult);
 	_UpdateFindMenuItems(fFindTextControl->Text());
 }
@@ -4569,7 +4571,7 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 	const ProjectFolder* project
 		= reinterpret_cast<const ProjectFolder*>(message->GetPointer("project_folder", nullptr));
 	if (project == nullptr) {
-		LogError("Update project configuration message without a project folder pointer!");
+		LogError("GenioWindow: Update project configuration message without a project folder pointer!");
 		return;
 	}
 	BString key(message->GetString("key", ""));

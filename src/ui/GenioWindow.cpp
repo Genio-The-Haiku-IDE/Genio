@@ -2188,35 +2188,7 @@ GenioWindow::_FindInFiles()
 	BString text(fFindTextControl->Text());
 	if (text.IsEmpty())
 		return;
-/*
-	// convert checkboxes to grep parameters..
-	BString extraParameters;
-	if ((bool)fFindWholeWordCheck->Value())
-		extraParameters += "w";
 
-	if ((bool)fFindCaseSensitiveCheck->Value() == false)
-		extraParameters += "i";
-
-	text.CharacterEscape("\\\n\"", '\\');
-
-	BString grepCommand("grep");
-	BString excludeDir(gCFG["find_exclude_directory"]);
-	if (!excludeDir.IsEmpty()) {
-		if (excludeDir.FindFirst(",") >= 0)
-			grepCommand << " --exclude-dir={" << excludeDir << "}";
-		else
-			grepCommand << " --exclude-dir=" << excludeDir << "";
-	}
-
-	grepCommand += " -IFHrn";
-	grepCommand += extraParameters;
-	grepCommand += " -- ";
-	grepCommand += EscapeQuotesWrap(text);
-	grepCommand += " ";
-	grepCommand += EscapeQuotesWrap(fActiveProject->Path());
-*/
-
-	//fSearchResultTab->StartSearch(grepCommand, fActiveProject->Path());
 	fSearchResultTab->SetAndStartSearch(text, (bool)fFindWholeWordCheck->Value(),
 											  (bool)fFindCaseSensitiveCheck->Value(),
 											  fActiveProject);

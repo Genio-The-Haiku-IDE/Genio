@@ -8,11 +8,15 @@
 #include "SearchResultPanel.h"
 #include <LayoutBuilder.h>
 #include <Catalog.h>
+#include <Button.h>
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "ProjectBrowser.h"
 #include "TextUtils.h"
 #include "ConfigManager.h"
+#include "ToolBar.h"
+#include "ActionManager.h"
+
 
 extern ConfigManager gCFG;
 
@@ -22,6 +26,8 @@ extern ConfigManager gCFG;
 
 static constexpr auto kFindReplaceMaxBytes = 50;
 static constexpr auto kFindReplaceMinBytes = 32;
+
+static constexpr uint32 kSelectProject ='PRJX';
 
 
 SearchResultTab::SearchResultTab(BTabView* tabView)
@@ -34,7 +40,9 @@ SearchResultTab::SearchResultTab(BTabView* tabView)
 		B_TRANSLATE("Project:"),
 		B_TRANSLATE("Choose project" B_UTF8_ELLIPSIS));
 
-	fSearchButton = new BButton(B_TRANSLATE("Find in project"), new BMessage('SERC'));
+	fFindGroup = new ToolBar(this);
+	ActionManager::AddItem(MSG_FIND_IN_FILES, fFindGroup);
+	fFindGroup->FindButton(MSG_FIND_IN_FILES)->SetLabel(B_TRANSLATE("Find in project"));
 
 	fFindTextControl = new BTextControl("FindTextControl", "" , "", nullptr);
 	fFindTextControl->TextView()->SetMaxBytes(kFindReplaceMaxBytes);
@@ -56,38 +64,30 @@ SearchResultTab::SearchResultTab(BTabView* tabView)
 			.SetInsets(B_USE_SMALL_SPACING)
 			.Add(fProjectMenu)
 			.AddGlue()
-			//.AddGroup(B_HORIZONTAL, 0.0f)
-				.Add(fFindWholeWordCheck)
-				.Add(fFindCaseSensitiveCheck)
-			//	.End()
+			.Add(fFindWholeWordCheck)
+			.Add(fFindCaseSensitiveCheck)
 			.AddGlue()
-			.Add(fFindTextControl)/*
-			.Add(fWrapEnabled)
-			.Add(fBannerEnabled)*/
+			.Add(fFindTextControl)
 			.AddGlue()
-			.Add(fSearchButton)
-			/*.Add(fStopButton)*/
+			.Add(fFindGroup)
 		.End()
 	.End();
-
-
 }
-
 
 
 void
 SearchResultTab::MessageReceived(BMessage *message)
 {
 		switch (message->what) {
-			case 'PRJX': {
-			fSelectedProject = const_cast<ProjectFolder*>(
-				reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
+			case kSelectProject: {
+				fSelectedProject = const_cast<ProjectFolder*>(
+					reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
 			}
 			break;
-			case 'SERC': {
-				//StartSearch();
+			case MSG_FIND_IN_FILES:
+				_StartSearch(fFindTextControl->Text(), (bool) fFindWholeWordCheck->Value(),
+					(bool) fFindCaseSensitiveCheck->Value(), fSelectedProject);
 				break;
-			}
 			case B_OBSERVER_NOTICE_CHANGE: {
 				int32 code;
 				message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
@@ -106,8 +106,8 @@ SearchResultTab::MessageReceived(BMessage *message)
 				BGroupView::MessageReceived(message);
 			break;
 	}
-
 }
+
 
 void
 SearchResultTab::AttachedToWindow()
@@ -119,8 +119,12 @@ SearchResultTab::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		Window()->UnlockLooper();
 	}
-	fSearchButton->SetTarget(this);
+
+	fFindGroup->SetTarget(this);
+	fFindTextControl->SetMessage(new BMessage(MSG_FIND_IN_FILES));
+	fFindTextControl->SetTarget(this);
 }
+
 
 void
 SearchResultTab::_UpdateProjectList(const BObjectList<ProjectFolder>* list)
@@ -131,15 +135,7 @@ SearchResultTab::_UpdateProjectList(const BObjectList<ProjectFolder>* list)
 	}
 
 	//Is the current selected project still in the new list?
-	bool found = false;
-	auto count = list->CountItems();
-	for (int index = 0; index < count; index++) {
-		ProjectFolder* element = list->ItemAt(index);
-		if (element == fSelectedProject) {
-			found = true;
-			break;
-		}
-	}
+	bool found = _IsProjectInList(list, fSelectedProject);
 
 	fProjectMenu->MakeEmpty();
 	if (!found)
@@ -150,7 +146,7 @@ SearchResultTab::_UpdateProjectList(const BObjectList<ProjectFolder>* list)
 
 
 	fProjectMenu->AddList(list,
-		'PRJX', //FIX ME: add constant
+		kSelectProject,
 		[&active = activeProject](auto item)
 		{
 			BString projectName = item ? item->Name() : "";
@@ -169,10 +165,12 @@ SearchResultTab::_UpdateProjectList(const BObjectList<ProjectFolder>* list)
 	);
 }
 
+
 SearchResultTab::~SearchResultTab()
 {
 	delete fProjectMenu;
 }
+
 
 void
 SearchResultTab::SetAndStartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project)
@@ -183,7 +181,40 @@ SearchResultTab::SetAndStartSearch(BString text, bool wholeWord, bool caseSensit
 	if (text.IsEmpty())
 		return;
 
-	// convert checkboxes to grep parameters..
+	BMenu* menu = fProjectMenu->Menu();
+
+	if (!menu)
+		return;
+
+	if (project != fSelectedProject) {
+		for (int32 i=0;i<menu->CountItems();i++) {
+			BMessage* msg = menu->ItemAt(i)->Message();
+			if (msg && msg->GetPointer("value", nullptr) == project) {
+				fSelectedProject = project;
+				menu->ItemAt(i)->SetMarked(true);
+				break;
+			}
+		}
+	}
+	if (project != fSelectedProject)
+		return;
+
+	fFindCaseSensitiveCheck->SetValue((bool)caseSensitive);
+	fFindWholeWordCheck->SetValue((bool)wholeWord);
+	fFindTextControl->SetText(text.String());
+
+	_StartSearch(text, wholeWord, caseSensitive, project);
+}
+
+void
+SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project)
+{
+	if (!project)
+		return;
+
+	if (text.IsEmpty())
+		return;
+
 	BString extraParameters;
 	if (wholeWord)
 		extraParameters += "w";
@@ -213,3 +244,16 @@ SearchResultTab::SetAndStartSearch(BString text, bool wholeWord, bool caseSensit
 	fSearchResultPanel->StartSearch(grepCommand, project->Path());
 }
 
+bool
+SearchResultTab::_IsProjectInList(const BObjectList<ProjectFolder>* list, ProjectFolder* proj)
+{
+	//Is the current selected project still in the new list?
+	auto count = list->CountItems();
+	for (int index = 0; index < count; index++) {
+		ProjectFolder* element = list->ItemAt(index);
+		if (element == proj) {
+			return true;
+		}
+	}
+	return false;
+}

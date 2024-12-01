@@ -43,7 +43,7 @@ class GoToLineWindow;
 class ProblemsPanel;
 class ProjectFolder;
 class ProjectBrowser;
-class SearchResultPanel;
+class SearchResultTab;
 class SourceControlPanel;
 class TemplatesMenu;
 class ToolBar;
@@ -255,7 +255,7 @@ private:
 			ConsoleIOView*		fBuildLogView;
 			MTermView*			fMTermView;
 			GoToLineWindow*		fGoToLineWindow;
-			SearchResultPanel*	fSearchResultPanel;
+			SearchResultTab*	fSearchResultTab;
 
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;

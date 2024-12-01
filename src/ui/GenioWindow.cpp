@@ -63,7 +63,7 @@
 #include "ProjectItem.h"
 #include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
-#include "SearchResultPanel.h"
+#include "SearchResultTab.h"
 #include "SourceControlPanel.h"
 #include "SwitchBranchMenu.h"
 #include "Task.h"
@@ -175,7 +175,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fBuildLogView(nullptr)
 	, fMTermView(nullptr)
 	, fGoToLineWindow(nullptr)
-	, fSearchResultPanel(nullptr)
+	, fSearchResultTab(nullptr)
 	, fScreenMode(kDefault)
 	, fDisableProjectNotifications(false)
 {
@@ -2195,35 +2195,9 @@ GenioWindow::_FindInFiles()
 	if (text.IsEmpty())
 		return;
 
-	// convert checkboxes to grep parameters..
-	BString extraParameters;
-	if ((bool)fFindWholeWordCheck->Value())
-		extraParameters += "w";
-
-	if ((bool)fFindCaseSensitiveCheck->Value() == false)
-		extraParameters += "i";
-
-	text.CharacterEscape("\\\n\"", '\\');
-
-	BString grepCommand("grep");
-	BString excludeDir(gCFG["find_exclude_directory"]);
-	if (!excludeDir.IsEmpty()) {
-		if (excludeDir.FindFirst(",") >= 0)
-			grepCommand << " --exclude-dir={" << excludeDir << "}";
-		else
-			grepCommand << " --exclude-dir=" << excludeDir << "";
-	}
-
-	grepCommand += " -IFHrn";
-	grepCommand += extraParameters;
-	grepCommand += " -- ";
-	grepCommand += EscapeQuotesWrap(text);
-	grepCommand += " ";
-	grepCommand += EscapeQuotesWrap(fActiveProject->Path());
-
-	LogInfo("Find in file, executing: [%s]", grepCommand.String());
-	fSearchResultPanel->StartSearch(grepCommand, fActiveProject->Path());
-
+	fSearchResultTab->SetAndStartSearch(text, (bool)fFindWholeWordCheck->Value(),
+											  (bool)fFindCaseSensitiveCheck->Value(),
+											  fActiveProject);
 	_ShowLog(kSearchResult);
 	_UpdateFindMenuItems(fFindTextControl->Text());
 }
@@ -3433,12 +3407,12 @@ GenioWindow::_InitOutputSplit()
 
 	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
-	fSearchResultPanel = new SearchResultPanel(fOutputTabView);
+	fSearchResultTab = new SearchResultTab(fOutputTabView);
 
 	fOutputTabView->AddTab(fProblemsPanel);
 	fOutputTabView->AddTab(fBuildLogView);
 	fOutputTabView->AddTab(fMTermView);
-	fOutputTabView->AddTab(fSearchResultPanel);
+	fOutputTabView->AddTab(fSearchResultTab);
 }
 
 
@@ -4581,7 +4555,7 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 	const ProjectFolder* project
 		= reinterpret_cast<const ProjectFolder*>(message->GetPointer("project_folder", nullptr));
 	if (project == nullptr) {
-		LogError("Update project configuration message without a project folder pointer!");
+		LogError("GenioWindow: Update project configuration message without a project folder pointer!");
 		return;
 	}
 	BString key(message->GetString("key", ""));

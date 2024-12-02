@@ -5,17 +5,19 @@
 
 
 #include "SearchResultTab.h"
-#include "SearchResultPanel.h"
-#include <LayoutBuilder.h>
+
 #include <Catalog.h>
 #include <Button.h>
+#include <LayoutBuilder.h>
+
+#include "ActionManager.h"
+#include "ConfigManager.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "ProjectBrowser.h"
+#include "SearchResultPanel.h"
 #include "TextUtils.h"
-#include "ConfigManager.h"
 #include "ToolBar.h"
-#include "ActionManager.h"
 
 
 extern ConfigManager gCFG;
@@ -31,10 +33,11 @@ static constexpr uint32 kSelectProject ='PRJX';
 
 
 SearchResultTab::SearchResultTab(BTabView* tabView)
-	: BGroupView(B_VERTICAL, 0.0f)
-	, fSearchResultPanel(nullptr)
-	, fTabView(tabView)
-	, fSelectedProject(nullptr)
+	:
+	BGroupView(B_VERTICAL, 0.0f),
+	fSearchResultPanel(nullptr),
+	fTabView(tabView),
+	fSelectedProject(nullptr)
 {
 	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
 		B_TRANSLATE("Project:"),
@@ -78,32 +81,35 @@ SearchResultTab::SearchResultTab(BTabView* tabView)
 void
 SearchResultTab::MessageReceived(BMessage *message)
 {
-		switch (message->what) {
-			case kSelectProject: {
-				fSelectedProject = const_cast<ProjectFolder*>(
-					reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
-			}
+	switch (message->what) {
+		case kSelectProject:
+		{
+			fSelectedProject = const_cast<ProjectFolder*>(
+				reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
 			break;
-			case MSG_FIND_IN_FILES:
-				_StartSearch(fFindTextControl->Text(), (bool) fFindWholeWordCheck->Value(),
-					(bool) fFindCaseSensitiveCheck->Value(), fSelectedProject);
+		}
+		case MSG_FIND_IN_FILES:
+			_StartSearch(fFindTextControl->Text(), (bool)fFindWholeWordCheck->Value(),
+				(bool)fFindCaseSensitiveCheck->Value(), fSelectedProject);
+			break;
+		case B_OBSERVER_NOTICE_CHANGE:
+		{
+			int32 code;
+			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
 				break;
-			case B_OBSERVER_NOTICE_CHANGE: {
-				int32 code;
-				message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
-				switch (code) {
-					case MSG_NOTIFY_PROJECT_LIST_CHANGED:
-					{
-						_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());
-						break;
-					}
-					default:
+			switch (code) {
+				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
+				{
+					_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());
 					break;
 				}
+				default:
+					break;
 			}
 			break;
-			default:
-				BGroupView::MessageReceived(message);
+		}
+		default:
+			BGroupView::MessageReceived(message);
 			break;
 	}
 }
@@ -144,7 +150,6 @@ SearchResultTab::_UpdateProjectList(const BObjectList<ProjectFolder>* list)
 	ProjectFolder* activeProject = gMainWindow->GetActiveProject();
 	ProjectFolder* selectedProject = fSelectedProject;
 
-
 	fProjectMenu->AddList(list,
 		kSelectProject,
 		[&active = activeProject](auto item)
@@ -175,21 +180,20 @@ SearchResultTab::~SearchResultTab()
 void
 SearchResultTab::SetAndStartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project)
 {
-	if (!project)
+	if (project == nullptr)
 		return;
 
 	if (text.IsEmpty())
 		return;
 
 	BMenu* menu = fProjectMenu->Menu();
-
-	if (!menu)
+	if (menu == nullptr)
 		return;
 
 	if (project != fSelectedProject) {
-		for (int32 i=0;i<menu->CountItems();i++) {
+		for (int32 i = 0; i < menu->CountItems(); i++) {
 			BMessage* msg = menu->ItemAt(i)->Message();
-			if (msg && msg->GetPointer("value", nullptr) == project) {
+			if (msg != nullptr && msg->GetPointer("value", nullptr) == project) {
 				fSelectedProject = project;
 				menu->ItemAt(i)->SetMarked(true);
 				break;
@@ -206,10 +210,11 @@ SearchResultTab::SetAndStartSearch(BString text, bool wholeWord, bool caseSensit
 	_StartSearch(text, wholeWord, caseSensitive, project);
 }
 
+
 void
 SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project)
 {
-	if (!project)
+	if (project == nullptr)
 		return;
 
 	if (text.IsEmpty())
@@ -219,7 +224,7 @@ SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, 
 	if (wholeWord)
 		extraParameters += "w";
 
-	if (caseSensitive == false)
+	if (!caseSensitive)
 		extraParameters += "i";
 
 	text.CharacterEscape("\\\n\"", '\\');
@@ -244,10 +249,11 @@ SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, 
 	fSearchResultPanel->StartSearch(grepCommand, project->Path());
 }
 
+
 bool
 SearchResultTab::_IsProjectInList(const BObjectList<ProjectFolder>* list, ProjectFolder* proj)
 {
-	//Is the current selected project still in the new list?
+	// Is the current selected project still in the new list?
 	auto count = list->CountItems();
 	for (int index = 0; index < count; index++) {
 		ProjectFolder* element = list->ItemAt(index);

@@ -4,15 +4,14 @@
  */
 #pragma once
 
-#include <SupportDefs.h>
+#include <CheckBox.h>
 #include <GroupView.h>
 #include <TabView.h>
 #include <TextControl.h>
-#include <CheckBox.h>
 
-#include "SearchResultPanel.h"
 #include "OptionList.h"
 #include "ProjectFolder.h"
+#include "SearchResultPanel.h"
 
 class ToolBar;
 
@@ -40,5 +39,3 @@ private:
 	BCheckBox* fFindCaseSensitiveCheck;
 	BCheckBox* fFindWholeWordCheck;
 };
-
-

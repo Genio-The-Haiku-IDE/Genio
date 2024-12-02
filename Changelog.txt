@@ -1,7 +1,9 @@
 v4.0 (development)
 	- Folders can now be dropped in the project browser to open them as a project.
-	- Added a status bar to show build status.
+	- Improved search panel. Now you can also search in non-active projects.
+	- Improved run toolbar.
 	- Improved build indicator.
+	- Added a status bar to show build status.	
 	- Added option for smaller icons, and made icons scale with font size.
 	- Added menu to select the active project.
 	- Remove some useless toolbar icons.

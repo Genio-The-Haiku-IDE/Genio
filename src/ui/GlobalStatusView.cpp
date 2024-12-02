@@ -131,6 +131,13 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					text.ReplaceFirst("\"%project%\"", projectName);
 					fStringView->SetText(text.String());
 
+					if (status != B_OK) {
+						// Red text on fail
+						fStringView->SetHighColor(240, 0, 0);
+						// beep();
+					} else
+						fStringView->SetHighColor(ui_color(B_CONTROL_TEXT_COLOR));
+
 					fLastStatusChange = system_time();
 				}
 				default:

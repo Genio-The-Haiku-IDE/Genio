@@ -96,6 +96,14 @@ static float kOutputWeight  = 0.4f;
 static float kDefaultIconSizeSmall = 20.0;
 static float kDefaultIconSize = 32.0;
 
+enum {
+	kTabProblems 		= 'Tprb',
+	kTabBuildLog 		= 'Tbld',
+	kTabOutputLog 		= 'Tter',
+	kTabSearchResult	= 'Tsea'
+
+};
+
 using Genio::Task::Task;
 
 static bool
@@ -1609,7 +1617,7 @@ GenioWindow::_BuildProject()
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
-	_ShowLog(kBuildLog);
+	_ShowTab(kTabBuildLog);
 
 	LogInfoF("Build started: [%s]", fActiveProject->Name().String());
 
@@ -1656,7 +1664,7 @@ GenioWindow::_CleanProject()
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
-	_ShowLog(kBuildLog);
+	_ShowTab(kTabBuildLog);
 
 	LogInfoF("Clean started: [%s]", fActiveProject->Name().String());
 
@@ -2197,7 +2205,7 @@ GenioWindow::_FindInFiles()
 	fSearchResultTab->SetAndStartSearch(text, (bool)fFindWholeWordCheck->Value(),
 											  (bool)fFindCaseSensitiveCheck->Value(),
 											  fActiveProject);
-	_ShowLog(kSearchResult);
+	_ShowTab(kTabSearchResult);
 	_UpdateFindMenuItems(fFindTextControl->Text());
 }
 
@@ -2250,7 +2258,7 @@ GenioWindow::_Git(const BString& git_command)
 	_UpdateProjectActivation(false);
 
 	//fConsoleIOView->Clear();
-	_ShowLog(kOutputLog);
+	_ShowTab(kTabOutputLog);
 
 	BString command;
 	command	<< "git " << git_command;
@@ -3408,15 +3416,11 @@ GenioWindow::_InitOutputSplit()
 
 	fSearchResultTab = new SearchResultTab(fOutputTabView);
 
-	fOutputTabView->AddTab(fProblemsPanel, fProblemsPanel->Name(), fOutputTabView->CountTabs());
-	fOutputTabView->AddTab(fBuildLogView, fBuildLogView->Name(), fOutputTabView->CountTabs());
-	fOutputTabView->AddTab(fMTermView, fMTermView->Name(), fOutputTabView->CountTabs());
-	fOutputTabView->AddTab(fSearchResultTab, fSearchResultTab->Name(), fOutputTabView->CountTabs());
+	fOutputTabView->AddTab(kTabProblems, fProblemsPanel);
+	fOutputTabView->AddTab(kTabBuildLog, fBuildLogView);
+	fOutputTabView->AddTab(kTabOutputLog, fMTermView);
+	fOutputTabView->AddTab(kTabSearchResult, fSearchResultTab);
 
-	fOutputTabView->SelectTab(3);
-	fOutputTabView->SelectTab(2);
-	fOutputTabView->SelectTab(1);
-	fOutputTabView->SelectTab(0);
 }
 
 
@@ -3503,7 +3507,7 @@ GenioWindow::_MakeBindcatalogs()
 		return;
 
 	fBuildLogView->Clear();
-	_ShowLog(kBuildLog);
+	_ShowTab(kTabBuildLog);
 
 	// TODO: this only works for makefile_engine based projects
 	BMessage message;
@@ -3531,7 +3535,7 @@ GenioWindow::_MakeCatkeys()
 		return;
 
 	fBuildLogView->Clear();
-	_ShowLog(kBuildLog);
+	_ShowTab(kTabBuildLog);
 
 	BMessage message;
 	message.AddString("cmd", "make catkeys");
@@ -4102,7 +4106,7 @@ GenioWindow::_RunInConsole(const BString& command)
 	else
 		chdir(fActiveProject->Path());
 
-	_ShowLog(kOutputLog);
+	_ShowTab(kTabOutputLog);
 
 	_UpdateRecentCommands(command);
 
@@ -4144,7 +4148,7 @@ GenioWindow::_RunTarget()
 		// Don't do that in graphical mode
 		_UpdateProjectActivation(false);
 
-		_ShowLog(kOutputLog);
+		_ShowTab(kTabOutputLog);
 
 		BString command;
 		command << fActiveProject->GetTarget();
@@ -4180,12 +4184,12 @@ GenioWindow::_RunTarget()
 
 
 void
-GenioWindow::_ShowLog(int32 index)
+GenioWindow::_ShowTab(uint32 tabId)
 {
 	if (fOutputTabView->IsHidden())
 		fOutputTabView ->Show();
 
-	fOutputTabView->SelectTab(index);
+	fOutputTabView->SelectTab(tabId);
 }
 
 

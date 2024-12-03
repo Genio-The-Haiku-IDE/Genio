@@ -13,12 +13,6 @@
 #include "GMessage.h"
 
 
-enum {
-	kProblems = 0,
-	kBuildLog,
-	kOutputLog,
-	kSearchResult
-};
 
 enum scree_mode {
 	kDefault = 0,
@@ -152,7 +146,7 @@ private:
 			status_t			_RunInConsole(const BString& command);
 			void				_RunTarget();
 
-			void				_ShowLog(int32 index);
+			void				_ShowTab(uint32 tabId);
 			void				_UpdateFindMenuItems(const BString& text);
 			void				_UpdateRecentCommands(const BString& text);
 			status_t			_UpdateLabel(int32 index, bool isModified);

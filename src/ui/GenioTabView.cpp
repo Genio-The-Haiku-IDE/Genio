@@ -55,9 +55,42 @@ GenioTabView::MessageReceived(BMessage* message)
 		}
 		break;
 		case TABMANAGER_TAB_NEW_OPENED:
+
 		break;
 		default:
 			BGroupView::MessageReceived(message);
 		break;
 	};
+}
+
+
+void
+GenioTabView::AddTab(tab_key id, BView* view)
+{
+	fTabMap[id] = view;
+	TabManager::AddTab(view, view->Name(), CountTabs());
+	TabManager::SelectTab(0); //workaround..
+}
+
+
+void
+GenioTabView::SetTabLabel(BView* view, const char* label)
+{
+	int32 index = TabForView(view);
+	if (index >= 0)
+		TabManager::SetTabLabel(index, label);
+}
+
+
+void
+GenioTabView::SelectTab(tab_key id)
+{
+	if (fTabMap.contains(id)) {
+		BView* view = fTabMap[id];
+		if (view->Parent() == nullptr)
+			return;
+		int32 index = TabForView(view);
+		if (index >= 0)
+			TabManager::SelectTab(index);
+	}
 }

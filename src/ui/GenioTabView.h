@@ -7,14 +7,26 @@
 
 #include <SupportDefs.h>
 #include <GroupView.h>
+#include <map>
 #include "TabManager.h"
 
-class GenioTabView : public BGroupView, public TabManager {
+typedef uint32 tab_key;
+
+class GenioTabView : public BGroupView, private TabManager {
 public:
-		GenioTabView(BHandler* handler);
-		void MessageReceived(BMessage* message);
+				GenioTabView(BHandler* handler);
+		void 	MessageReceived(BMessage* message);
 		void	AttachedToWindow();
+
+		void	AddTab(tab_key id, BView* view);
+
+		void	SetTabLabel(BView* view, const char* label);
+
+		void	SelectTab(tab_key id);
+
 private:
+
+	std::map<tab_key, BView*>	fTabMap;
 
 };
 

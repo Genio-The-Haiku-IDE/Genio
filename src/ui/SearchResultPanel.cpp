@@ -86,12 +86,7 @@ SearchResultPanel::SetTabLabel(BString label)
 	if (!fTabView)
 		return;
 
-	for (int32 i = 0; i < fTabView->CountTabs(); i++) {
-		if (fTabView->ViewForTab(i) == this->Parent()) {
-			fTabView->SetTabLabel(i, label.String());
-			break;
-		}
-	}
+	fTabView->SetTabLabel(this->Parent(), label.String());
 }
 
 

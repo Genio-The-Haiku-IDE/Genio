@@ -51,7 +51,7 @@ BSize
 TabView::MinSize()
 {
 	BSize size(MaxSize());
-	size.width = 150.0f;
+	size.width = 200.0f;
 	return size;
 }
 

@@ -30,6 +30,7 @@
 #include "Utils.h"
 #include "CircleColorMenuItem.h"
 
+#include <cassert>
 #include <stdexcept>
 
 #undef B_TRANSLATION_CONTEXT
@@ -854,7 +855,6 @@ TabManager::HasView(const BView* containedView) const
 // Temporary hack to fix scintilla spoiling split
 // scintilla + BTabView has the same behaviour
 // BTextView + tabview is ok
-extern BRect dirtyFrameHack;
 #define DIRTY_HACK
 
 /*
@@ -887,7 +887,7 @@ void
 TabManager::DisplayTab(int32 tabIndex)
 {
 #if defined DIRTY_HACK
-	fCardLayout->SetFrame(dirtyFrameHack);
+	fCardLayout->SetFrame(fDirtyFrameHack);
 #endif
 
 	fCardLayout->SetVisibleItem(tabIndex);
@@ -933,7 +933,7 @@ TabManager::AddTab(BView* view, const char* label, int32 index, BMessage* addInf
 {
 	fTabContainerView->AddTab(label, index);
 #if defined DIRTY_HACK
-	fCardLayout->SetFrame(dirtyFrameHack);
+	fCardLayout->SetFrame(fDirtyFrameHack);
 #endif
 	fCardLayout->AddView(index, view);
 
@@ -957,7 +957,7 @@ TabManager::MoveTabs(int32 from, int32 to)
 
 	fTabContainerView->AddTab(fromLabel.String(), to);
 #if defined DIRTY_HACK
-	fCardLayout->SetFrame(dirtyFrameHack);
+	fCardLayout->SetFrame(fDirtyFrameHack);
 #endif
 	fCardLayout->AddView(to, view);
 
@@ -986,8 +986,8 @@ TabManager::RemoveTab(int32 index)
 	delete tab;
 
 	BView* view = item->View();
-	delete item;
-
+	if (dynamic_cast<BLayout*>(item) == nullptr)
+		delete item;
 	return view;
 }
 

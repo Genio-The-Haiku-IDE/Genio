@@ -31,6 +31,7 @@
 #include <Screen.h>
 #include <StringFormat.h>
 #include <StringItem.h>
+#include <TabView.h>
 
 #include "ActionManager.h"
 #include "argv_split.h"
@@ -69,7 +70,6 @@
 #include "Task.h"
 #include "TemplateManager.h"
 #include "TemplatesMenu.h"
-#include "TextUtils.h"
 #include "ToolsMenu.h"
 #include "Utils.h"
 
@@ -92,7 +92,6 @@ static float kProjectsWeight  = 1.0f;
 static float kEditorWeight  = 3.14f;
 static float kOutputWeight  = 0.4f;
 
-BRect dirtyFrameHack;
 
 static float kDefaultIconSizeSmall = 20.0;
 static float kDefaultIconSize = 32.0;
@@ -2676,7 +2675,7 @@ GenioWindow::_InitCentralSplit()
 	fTabManager->GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, fProjectsTabView->TabHeight()));
 	fTabManager->GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, fProjectsTabView->TabHeight()));
 
-	dirtyFrameHack = fTabManager->TabGroup()->Frame();
+	fTabManager->SetDirtyFrameHack(fTabManager->TabGroup()->Frame());
 
 	fEditorTabsGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
 		.Add(fRunGroup)
@@ -3399,7 +3398,7 @@ void
 GenioWindow::_InitOutputSplit()
 {
 	// Output
-	fOutputTabView = new BTabView("OutputTabview");
+	fOutputTabView = new GenioTabView(this);
 
 	fProblemsPanel = new ProblemsPanel(fOutputTabView);
 
@@ -3409,10 +3408,15 @@ GenioWindow::_InitOutputSplit()
 
 	fSearchResultTab = new SearchResultTab(fOutputTabView);
 
-	fOutputTabView->AddTab(fProblemsPanel);
-	fOutputTabView->AddTab(fBuildLogView);
-	fOutputTabView->AddTab(fMTermView);
-	fOutputTabView->AddTab(fSearchResultTab);
+	fOutputTabView->AddTab(fProblemsPanel, fProblemsPanel->Name(), fOutputTabView->CountTabs());
+	fOutputTabView->AddTab(fBuildLogView, fBuildLogView->Name(), fOutputTabView->CountTabs());
+	fOutputTabView->AddTab(fMTermView, fMTermView->Name(), fOutputTabView->CountTabs());
+	fOutputTabView->AddTab(fSearchResultTab, fSearchResultTab->Name(), fOutputTabView->CountTabs());
+
+	fOutputTabView->SelectTab(3);
+	fOutputTabView->SelectTab(2);
+	fOutputTabView->SelectTab(1);
+	fOutputTabView->SelectTab(0);
 }
 
 
@@ -4181,7 +4185,7 @@ GenioWindow::_ShowLog(int32 index)
 	if (fOutputTabView->IsHidden())
 		fOutputTabView ->Show();
 
-	fOutputTabView->Select(index);
+	fOutputTabView->SelectTab(index);
 }
 
 

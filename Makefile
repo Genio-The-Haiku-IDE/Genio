@@ -87,6 +87,7 @@ SRCS += src/ui/SearchResultPanel.cpp
 SRCS += src/ui/SearchResultTab.cpp
 SRCS += src/ui/StyledItem.cpp
 SRCS += src/ui/ToolBar.cpp
+SRCS += src/ui/GenioTabView.cpp
 SRCS += src/templates/IconMenuItem.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/templates/TemplatesMenu.cpp

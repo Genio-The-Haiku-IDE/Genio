@@ -70,6 +70,10 @@ TabContainerView::OnDrop(BMessage* msg)
 	int32 dragIndex = msg->GetInt32("index", -1);
 	if (dragIndex < 0)
 		return;
+
+	if (msg->GetPointer("container", nullptr) != this)
+		return;
+
 	BPoint drop_point;
 	if (msg->FindPoint("_drop_point_", &drop_point) != B_OK)
 		return;
@@ -81,8 +85,8 @@ TabContainerView::OnDrop(BMessage* msg)
 	if (toIndex < 0)
 		return;
 
-	//Move
-	fController->MoveTabs(dragIndex, toIndex);
+	if (toIndex != dragIndex)
+		fController->MoveTabs(dragIndex, toIndex);
 
 	Invalidate();
 }
@@ -284,7 +288,9 @@ void
 TabContainerView::MouseMoved(BPoint where, uint32 transit,
 	const BMessage* dragMessage)
 {
-	if (dragMessage && dragMessage->what == TAB_DRAG) {
+	if (dragMessage &&
+	    dragMessage->what == TAB_DRAG &&
+		dragMessage->GetPointer("container", nullptr) == this) {
 		switch (transit) {
 			case B_ENTERED_VIEW:
 			case B_INSIDE_VIEW:

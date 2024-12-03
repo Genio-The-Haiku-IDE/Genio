@@ -15,7 +15,7 @@
 #include <ColumnTypes.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
-#include <TabView.h>
+#include "GenioTabView.h"
 #include <Window.h>
 
 #include <string>
@@ -46,7 +46,7 @@ class RangeRow : public BRow {
 
 #define ProblemLabel B_TRANSLATE("Problems")
 
-ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
+ProblemsPanel::ProblemsPanel(GenioTabView* tabView): BColumnListView(ProblemLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)
 									, fTabView(tabView)
 
@@ -200,7 +200,7 @@ ProblemsPanel::_UpdateTabLabel()
 
 	for (int32 i = 0; i < fTabView->CountTabs(); i++) {
 		if (fTabView->ViewForTab(i) == this) {
-			fTabView->TabAt(i)->SetLabel(label.String());
+			fTabView->SetTabLabel(i, label.String());
 			break;
 		}
 	}

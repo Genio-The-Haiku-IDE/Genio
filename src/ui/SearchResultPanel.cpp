@@ -13,6 +13,7 @@
 
 #include "ActionManager.h"
 #include "GenioWindowMessages.h"
+#include "GenioTabView.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SearchResultPanel"
@@ -67,7 +68,7 @@ public:
 
 #define SearchResultPanelLabel B_TRANSLATE("Search results")
 
-SearchResultPanel::SearchResultPanel(BTabView* tabView)
+SearchResultPanel::SearchResultPanel(GenioTabView* tabView)
 	:
 	BColumnListView(SearchResultPanelLabel, B_NAVIGABLE, B_FANCY_BORDER, true),
 	fGrepThread(nullptr),
@@ -87,7 +88,7 @@ SearchResultPanel::SetTabLabel(BString label)
 
 	for (int32 i = 0; i < fTabView->CountTabs(); i++) {
 		if (fTabView->ViewForTab(i) == this->Parent()) {
-			fTabView->TabAt(i)->SetLabel(label.String());
+			fTabView->SetTabLabel(i, label.String());
 			break;
 		}
 	}

@@ -8,11 +8,11 @@
 
 class BPopUpMenu;
 class BMenuItem;
-class BTabView;
+class GenioTabView;
 class Editor;
 class ProblemsPanel : public BColumnListView {
 public:
-		ProblemsPanel(BTabView*);
+		ProblemsPanel(GenioTabView*);
 		virtual ~ProblemsPanel();
 
 		void UpdateProblems(Editor* editor);
@@ -24,7 +24,7 @@ public:
 
 private:
 		void	_UpdateTabLabel();
-		BTabView* fTabView;
+		GenioTabView* fTabView;
 		BPopUpMenu* fPopUpMenu;
 		BMenuItem*  fQuickFixItem;
 };

@@ -16,6 +16,7 @@
 #include "ConfigManager.h"
 #include "ToolBar.h"
 #include "ActionManager.h"
+#include "GenioTabView.h"
 
 
 extern ConfigManager gCFG;
@@ -30,7 +31,7 @@ static constexpr auto kFindReplaceMinBytes = 32;
 static constexpr uint32 kSelectProject ='PRJX';
 
 
-SearchResultTab::SearchResultTab(BTabView* tabView)
+SearchResultTab::SearchResultTab(GenioTabView* tabView)
 	: BGroupView(B_VERTICAL, 0.0f)
 	, fSearchResultPanel(nullptr)
 	, fTabView(tabView)

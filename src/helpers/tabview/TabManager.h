@@ -37,6 +37,8 @@ public:
 			void				SetTarget(const BMessenger& target);
 			const BMessenger&	Target() const;
 
+			void				SetDirtyFrameHack(BRect dirtyFrameHack) { fDirtyFrameHack = dirtyFrameHack; }
+
 #if INTEGRATE_MENU_INTO_TAB_BAR
 			BMenu*				Menu() const;
 #endif
@@ -86,6 +88,7 @@ private:
 			TabManagerController* fController;
 
 			BMessenger			fTarget;
+			BRect				fDirtyFrameHack;
 };
 
 #endif // TAB_MANAGER_H

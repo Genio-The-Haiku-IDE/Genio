@@ -6,7 +6,6 @@
 
 #include <SupportDefs.h>
 #include <GroupView.h>
-#include <TabView.h>
 #include <TextControl.h>
 #include <CheckBox.h>
 
@@ -15,12 +14,13 @@
 #include "ProjectFolder.h"
 
 class ToolBar;
+class GenioTabView;
 
 using Genio::UI::OptionList;
 
 class SearchResultTab : public BGroupView {
 public:
-					SearchResultTab(BTabView*);
+					SearchResultTab(GenioTabView*);
 				   ~SearchResultTab();
 			void 	SetAndStartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project);
 			void	AttachedToWindow();
@@ -33,7 +33,7 @@ private:
 
 	Genio::UI::OptionList<ProjectFolder*>* fProjectMenu;
 	SearchResultPanel* fSearchResultPanel;
-	BTabView* fTabView;
+	GenioTabView* fTabView;
 	ProjectFolder* fSelectedProject;
 	ToolBar* fFindGroup;
 	BTextControl* fFindTextControl;

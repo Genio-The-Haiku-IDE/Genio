@@ -49,6 +49,8 @@ class TemplatesMenu;
 class ToolBar;
 class MTermView;
 
+#include "GenioTabView.h"
+
 class GenioWindow : public BWindow {
 public:
 								GenioWindow(BRect frame);
@@ -250,7 +252,7 @@ private:
 			BFilePanel*			fImportResourcePanel;
 
 			// Bottom panels
-			BTabView*			fOutputTabView;
+			GenioTabView*		fOutputTabView;
 			ProblemsPanel*		fProblemsPanel;
 			ConsoleIOView*		fBuildLogView;
 			MTermView*			fMTermView;

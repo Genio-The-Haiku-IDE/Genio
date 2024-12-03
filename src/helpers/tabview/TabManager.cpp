@@ -477,7 +477,9 @@ WebTabView::MaxSize()
 	if (fIcon)
 		size.width += kIconSize + kIconInset * 2;
 	// Account for close button.
-	size.width += size.height;
+	if (fController->CloseButtonsAvailable()) {
+		size.width += size.height;
+	}
 	return size;
 }
 

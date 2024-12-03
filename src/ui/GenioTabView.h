@@ -12,7 +12,7 @@
 
 typedef uint32 tab_key;
 
-class GenioTabView : public BGroupView, private TabManager {
+class GenioTabView : public BGroupView, public TabManager {
 public:
 				GenioTabView(BHandler* handler);
 		void 	MessageReceived(BMessage* message);
@@ -23,6 +23,9 @@ public:
 		void	SetTabLabel(BView* view, const char* label);
 
 		void	SelectTab(tab_key id);
+
+		//temporary:
+		float				TabHeight() const;
 
 private:
 

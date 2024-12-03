@@ -206,7 +206,7 @@ private:
 
 
 			// Left panels
-			BTabView*	  		fProjectsTabView;
+			GenioTabView*	  		fProjectsTabView;
 
 			ProjectBrowser*	fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;

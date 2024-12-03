@@ -100,7 +100,10 @@ enum {
 	kTabProblems 		= 'Tprb',
 	kTabBuildLog 		= 'Tbld',
 	kTabOutputLog 		= 'Tter',
-	kTabSearchResult	= 'Tsea'
+	kTabSearchResult	= 'Tsea',
+
+	kTabProjectBrowser  = 'Tprj',
+	kTabSourceControl   = 'Tsrc'
 
 };
 
@@ -3428,14 +3431,18 @@ void
 GenioWindow::_InitLeftSplit()
 {
 	// Projects View
-	fProjectsTabView = new BTabView("ProjectsTabview");
+	fProjectsTabView = new GenioTabView(nullptr);
+	fProjectsTabView->SetCloseButtonsAvailable(false);
 
 	fProjectsFolderBrowser = new ProjectBrowser();
-	fProjectsTabView->AddTab(fProjectsFolderBrowser);
+	fProjectsTabView->AddTab(kTabProjectBrowser, fProjectsFolderBrowser);
 
 	// Source Control
 	fSourceControlPanel = new SourceControlPanel();
-	fProjectsTabView->AddTab(fSourceControlPanel);
+	fProjectsTabView->AddTab(kTabSourceControl, fSourceControlPanel);
+
+
+
 }
 
 

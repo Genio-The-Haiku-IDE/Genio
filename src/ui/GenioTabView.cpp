@@ -6,22 +6,34 @@
 
 #include "GenioTabView.h"
 #include <LayoutBuilder.h>
+#include <ControlLook.h>
 
 GenioTabView::GenioTabView(BHandler* handler) : TabManager(BMessenger(this))
 {
-	font_height fh;
-	GetFontHeight(&fh);
-	float tabHeight = ceilf(fh.ascent + fh.descent + fh.leading + 8.0f);
-	GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, tabHeight));
-	GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, tabHeight));
+	GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, TabHeight()));
+	GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, TabHeight()));
 	SetDirtyFrameHack(TabGroup()->Frame());
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.Add(TabGroup())
 		.Add(ContainerView())
 	.End();
+
+	// BSize minSize = GetTabContainerView()->PreferredSize();
+	// minSize.height = 500;
+	// SetExplicitMinSize(minSize);
 }
 
+
+float
+GenioTabView::TabHeight() const
+{
+	font_height fh;
+	GetFontHeight(&fh);
+	return ceilf(fh.ascent + fh.descent + fh.leading +
+		(be_control_look->DefaultLabelSpacing() * 1.3f));
+
+}
 
 void
 GenioTabView::AttachedToWindow()

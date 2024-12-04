@@ -2557,7 +2557,7 @@ GenioWindow::_InitCommandRunToolbar()
 		fRunGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
 	}
 
-	fRunMenuField = new BMenuField("RecentMenuField", NULL, new BMenu(B_TRANSLATE("Recents")));
+	fRunMenuField = new BMenuField("RecentMenuField", NULL, new BMenu(B_TRANSLATE("Run:")));
 	fRunMenuField->SetExplicitMaxSize(BSize(kFindReplaceOPSize, B_SIZE_UNSET));
 	fRunMenuField->SetExplicitMinSize(BSize(kFindReplaceOPSize, B_SIZE_UNSET));
 

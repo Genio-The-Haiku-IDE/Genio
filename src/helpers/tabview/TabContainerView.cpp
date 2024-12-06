@@ -32,7 +32,7 @@
 static const float kLeftTabInset = 4;
 
 
-TabContainerView::TabContainerView(Controller* controller)
+TabContainerView::TabContainerView(Controller* controller, tab_drag_affinity affinity)
 	:
 	BGroupView(B_HORIZONTAL, 0.0),
 	fLastMouseEventTab(NULL),
@@ -40,7 +40,8 @@ TabContainerView::TabContainerView(Controller* controller)
 	fClickCount(0),
 	fSelectedTab(NULL),
 	fController(controller),
-	fFirstVisibleTabIndex(0)
+	fFirstVisibleTabIndex(0),
+	fTabAffinity(affinity)
 {
 	SetFlags(Flags() | B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE);
 	SetViewColor(B_TRANSPARENT_COLOR);
@@ -63,6 +64,17 @@ TabContainerView::MinSize()
 	return size;
 }
 
+bool
+TabContainerView::_ValidDragAndDrop(const BMessage* msg)
+{
+	if (fTabAffinity == 0 && msg->GetPointer("container", nullptr) != this)
+		return false;
+
+	if (msg->GetUInt32("tab_drag_affinity", 0) != fTabAffinity)
+		return false;
+
+	return true;
+}
 
 void
 TabContainerView::OnDrop(BMessage* msg)
@@ -71,7 +83,7 @@ TabContainerView::OnDrop(BMessage* msg)
 	if (dragIndex < 0)
 		return;
 
-	if (msg->GetPointer("container", nullptr) != this)
+	if (!_ValidDragAndDrop(msg))
 		return;
 
 	BPoint drop_point;
@@ -85,8 +97,8 @@ TabContainerView::OnDrop(BMessage* msg)
 	if (toIndex < 0)
 		return;
 
-	if (toIndex != dragIndex)
-		fController->MoveTabs(dragIndex, toIndex);
+	const void* sourceTCV = msg->GetPointer("container", nullptr);
+	fController->MoveTabs(dragIndex, toIndex, sourceTCV == this ? nullptr : msg);
 
 	Invalidate();
 }
@@ -238,7 +250,9 @@ TabContainerView::InitiateDrag(BPoint where)
 	TabView* tab = _TabAt(where);
 	if (tab != nullptr) {
 		BMessage message(TAB_DRAG);
+		fController->GetDragInfo(&message);
 		message.AddPointer("container", this);
+		message.AddUInt32("tab_drag_affinity", fTabAffinity);
 		message.AddInt32("index", IndexOf(tab));
 
 		BRect updateRect = tab->Frame().OffsetToCopy(BPoint(0,0));
@@ -290,7 +304,7 @@ TabContainerView::MouseMoved(BPoint where, uint32 transit,
 {
 	if (dragMessage &&
 	    dragMessage->what == TAB_DRAG &&
-		dragMessage->GetPointer("container", nullptr) == this) {
+		_ValidDragAndDrop(dragMessage)) {
 		switch (transit) {
 			case B_ENTERED_VIEW:
 			case B_INSIDE_VIEW:

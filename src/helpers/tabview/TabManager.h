@@ -28,9 +28,11 @@ class TabContainerGroup;
 class TabContainerView;
 class TabManagerController;
 
+
+
 class TabManager {
 public:
-    							TabManager(const BMessenger& target);
+    							TabManager(const BMessenger& target, tab_drag_affinity affinity = 0);
 //    								, BMessage* newTabMessage);
 	virtual						~TabManager();
 
@@ -63,7 +65,7 @@ public:
 			BView*				RemoveTab(int32 index);
 			int32				CountTabs() const;
 
-			void				MoveTabs(int32 from, int32 to);
+			void				MoveTabs(int32 from, int32 to, BMessage* sourceInfo = nullptr);
 
 			void				SetTabLabel(int32 tabIndex, const char* label);
 	const	BString&			TabLabel(int32);
@@ -89,6 +91,7 @@ private:
 
 			BMessenger			fTarget;
 			BRect				fDirtyFrameHack;
+			tab_drag_affinity	fTabAffinity;
 };
 
 #endif // TAB_MANAGER_H

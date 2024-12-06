@@ -13,6 +13,8 @@
 #include "TabView.h"
 
 
+
+
 class TabContainerView : public BGroupView, public Draggable {
 public:
 	class Controller {
@@ -26,12 +28,14 @@ public:
 									bool canScrollRight) = 0;
 		virtual	void			SetToolTip(int32 selected) = 0;
 
-		virtual	void			MoveTabs(int32 fromIndex, int32 toIndex) = 0;
+		virtual	void			MoveTabs(int32 fromIndex, int32 toIndex, BMessage* sourceInfo = nullptr) = 0;
+
+		virtual void			GetDragInfo(BMessage* dragMessage) = 0;
 
 	};
 
 public:
-								TabContainerView(Controller* controller);
+								TabContainerView(Controller* controller, tab_drag_affinity affinity);
 	virtual						~TabContainerView();
 
 	virtual	BSize				MinSize();
@@ -70,6 +74,7 @@ public:
 private:
 			bool				InitiateDrag(BPoint where);
 			void				OnDrop(BMessage* msg);
+			bool				_ValidDragAndDrop(const BMessage* msg);
 			TabView*			_TabAt(const BPoint& where, int32* index = nullptr) const;
 			void				_MouseMoved(BPoint where, uint32 transit,
 									const BMessage* dragMessage);
@@ -87,6 +92,7 @@ private:
 			Controller*			fController;
 			int32				fFirstVisibleTabIndex;
 			BRect				fDropTargetHighlightFrame;
+			tab_drag_affinity	fTabAffinity;
 };
 
 #endif // TAB_CONTAINER_VIEW_H

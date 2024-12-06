@@ -16,6 +16,7 @@ class BView;
 class TabContainerView;
 class TabLayoutItem;
 
+typedef uint32	tab_drag_affinity;
 
 class TabView {
 public:

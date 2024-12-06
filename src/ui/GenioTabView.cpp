@@ -8,7 +8,7 @@
 #include <LayoutBuilder.h>
 #include <ControlLook.h>
 
-GenioTabView::GenioTabView(BHandler* handler) : TabManager(BMessenger(this))
+GenioTabView::GenioTabView(BHandler* handler) : TabManager(BMessenger(this), 'TABG')
 {
 	GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, TabHeight()));
 	GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, TabHeight()));

@@ -430,10 +430,16 @@ public:
 		fTabContainerGroup = tabContainerGroup;
 	}
 
-	void MoveTabs(int32 fromIndex, int32 toIndex)
+	void MoveTabs(int32 fromIndex, int32 toIndex, BMessage* sourceInfo = nullptr)
 	{
-		fManager->MoveTabs(fromIndex, toIndex);
+		fManager->MoveTabs(fromIndex, toIndex, sourceInfo);
 	}
+
+	void GetDragInfo(BMessage* dragMessage)
+	{
+		dragMessage->AddPointer("tab_manager", fManager);
+	}
+
 
 private:
 	TabManager*			fManager;
@@ -739,16 +745,17 @@ TabManagerController::CloseTab(int32 index)
 // #pragma mark - TabManager
 
 
-TabManager::TabManager(const BMessenger& target)
+TabManager::TabManager(const BMessenger& target, tab_drag_affinity affinity)
     :
     fController(new TabManagerController(this)),
-    fTarget(target)
+    fTarget(target),
+	fTabAffinity(affinity)
 {
 	fContainerView = new BView("web view container", 0);
 	fCardLayout = new BCardLayout();
 	fContainerView->SetLayout(fCardLayout);
 
-	fTabContainerView = new TabContainerView(fController);
+	fTabContainerView = new TabContainerView(fController, affinity);
 	fTabContainerGroup = new TabContainerGroup(fTabContainerView);
 
 	fTabContainerGroup->GroupLayout()->SetInsets(0.0f, 0.0f, 0.0f, 0.0f);
@@ -950,24 +957,48 @@ TabManager::AddTab(BView* view, const char* label, int32 index, BMessage* addInf
 }
 
 void
-TabManager::MoveTabs(int32 from, int32 to)
+TabManager::MoveTabs(int32 from, int32 to, BMessage* sourceInfo)
 {
-	WebTabView* oldTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(from));
-	const rgb_color color = oldTab != nullptr ? oldTab->Color() : ui_color(B_PANEL_BACKGROUND_COLOR);
-	BString fromLabel = TabLabel(from);
-	BView* view = RemoveTab(from);
+	if (sourceInfo == nullptr) {
+		WebTabView* oldTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(from));
+		const rgb_color color = oldTab != nullptr ? oldTab->Color() : ui_color(B_PANEL_BACKGROUND_COLOR);
+		BString fromLabel = TabLabel(from);
+		BView* view = RemoveTab(from);
 
-	fTabContainerView->AddTab(fromLabel.String(), to);
-#if defined DIRTY_HACK
-	fCardLayout->SetFrame(fDirtyFrameHack);
-#endif
-	fCardLayout->AddView(to, view);
+		fTabContainerView->AddTab(fromLabel.String(), to);
+	#if defined DIRTY_HACK
+		fCardLayout->SetFrame(fDirtyFrameHack);
+	#endif
+		fCardLayout->AddView(to, view);
 
-	WebTabView* newTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(to));
-	if (newTab != nullptr)
-		newTab->SetColor(color);
+		WebTabView* newTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(to));
+		if (newTab != nullptr)
+			newTab->SetColor(color);
 
-	SelectTab(to);
+		SelectTab(to);
+	} else {
+		LogError("from %d to %d", from, to);
+		sourceInfo->PrintToStream();
+		TabManager* sourceTM = (TabManager*)(sourceInfo->GetPointer("tab_manager", nullptr));
+		if (sourceTM == nullptr)
+			return;
+
+		BString fromLabel = sourceTM->TabLabel(from);
+		BView* view = sourceTM->RemoveTab(from);
+
+		fTabContainerView->AddTab(fromLabel.String(), to);
+	#if defined DIRTY_HACK
+		fCardLayout->SetFrame(fDirtyFrameHack);
+	#endif
+		fCardLayout->AddView(to, view);
+
+/*
+		WebTabView* newTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(to));
+		if (newTab != nullptr)
+			newTab->SetColor(color); */
+
+		SelectTab(to);
+	}
 }
 
 

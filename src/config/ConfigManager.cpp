@@ -218,15 +218,16 @@ ConfigManager::HasKey(const char* key) const
 status_t
 ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
-	status_t status = B_OK;
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr &&
 			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPReadMode) != B_OK)
 
 			return B_ERROR;
 	}
+
+	status_t status = B_OK;
 	GMessage msg;
-	int i = 0;
+	int32 i = 0;
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		const char* key = msg["key"];
 		StorageType storageType = (StorageType)((int32)msg["storage_type"]);
@@ -235,7 +236,7 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 			LogErrorF("Invalid  PermanentStorageProvider (%d)", storageType);
 			return B_ERROR;
 		}
-		status_t status = provider->LoadKey(*this, key, fStorage, msg);
+		status = provider->LoadKey(*this, key, fStorage, msg);
 		if (status == B_OK) {
 			LogInfo("Config file: loaded value for key [%s] (StorageType %d)", key, storageType);
 		} else {
@@ -253,15 +254,16 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 status_t
 ConfigManager::SaveToFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
-	status_t status = B_OK;
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr &&
 			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPWriteMode) != B_OK)
 
 			return B_ERROR;
 	}
+
+	status_t status = B_OK;
 	GMessage msg;
-	int i = 0;
+	int32 i = 0;
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		const char* key = msg["key"];
 		StorageType storageType = (StorageType)((int32)msg["storage_type"]);
@@ -270,7 +272,7 @@ ConfigManager::SaveToFile(std::array<BPath, kStorageTypeCountNb> paths)
 			LogErrorF("Invalid PermanentStorageProvider (%d)", storageType);
 			return B_ERROR;
 		}
-		status_t status = provider->SaveKey(*this, key, fStorage);
+		status = provider->SaveKey(*this, key, fStorage);
 		if (status == B_OK) {
 			LogInfo("Config file: saved value for key [%s] (StorageType %d)", key, storageType);
 		} else {

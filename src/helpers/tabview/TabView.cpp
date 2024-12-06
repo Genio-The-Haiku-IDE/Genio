@@ -235,6 +235,20 @@ TabView::Frame() const
 	return fLayoutItem->Frame();
 }
 
+status_t
+TabView::ArchiveProperties(BMessage *archive) const {
+	archive->AddString("label", fLabel);
+	return B_OK;
+}
+
+status_t
+TabView::UnarchiveProperties(BMessage* archive) {
+	if (archive->HasString("label")) {
+		SetLabel(archive->GetString("label", fLabel));
+	}
+	return B_OK;
+}
+
 
 float
 TabView::_LabelHeight() const

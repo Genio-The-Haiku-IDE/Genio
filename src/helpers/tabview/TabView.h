@@ -56,6 +56,9 @@ public:
 
 			BRect				Frame() const;
 
+			virtual status_t ArchiveProperties(BMessage *archive) const;
+			virtual status_t UnarchiveProperties(BMessage* archive);
+
 private:
 			float				_LabelHeight() const;
 

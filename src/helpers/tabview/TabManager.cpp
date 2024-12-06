@@ -211,6 +211,9 @@ public:
 	void SetColor(const rgb_color& color);
 	const rgb_color Color() const;
 
+	virtual status_t ArchiveProperties(BMessage *archive) const;
+	virtual status_t UnarchiveProperties(BMessage* archive);
+
 private:
 	void _DrawCloseButton(BView* owner, BRect& frame, const BRect& updateRect,
 		bool isFirst, bool isLast, bool isFront);
@@ -643,6 +646,26 @@ WebTabView::Color() const
 }
 
 
+status_t
+WebTabView::ArchiveProperties(BMessage *archive) const
+{
+	TabView::ArchiveProperties(archive);
+	archive->AddColor("color", fColor);
+	return B_OK;
+}
+
+
+status_t
+WebTabView::UnarchiveProperties(BMessage* archive)
+{
+	TabView::UnarchiveProperties(archive);
+	if (archive->HasColor("color")) {
+		SetColor(archive->GetColor("color", fColor));
+	}
+	return B_OK;
+}
+
+
 BRect
 WebTabView::_CloseRectFrame(BRect frame) const
 {
@@ -959,46 +982,28 @@ TabManager::AddTab(BView* view, const char* label, int32 index, BMessage* addInf
 void
 TabManager::MoveTabs(int32 from, int32 to, BMessage* sourceInfo)
 {
-	if (sourceInfo == nullptr) {
-		WebTabView* oldTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(from));
-		const rgb_color color = oldTab != nullptr ? oldTab->Color() : ui_color(B_PANEL_BACKGROUND_COLOR);
-		BString fromLabel = TabLabel(from);
-		BView* view = RemoveTab(from);
-
-		fTabContainerView->AddTab(fromLabel.String(), to);
-	#if defined DIRTY_HACK
-		fCardLayout->SetFrame(fDirtyFrameHack);
-	#endif
-		fCardLayout->AddView(to, view);
-
-		WebTabView* newTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(to));
-		if (newTab != nullptr)
-			newTab->SetColor(color);
-
-		SelectTab(to);
-	} else {
-		LogError("from %d to %d", from, to);
-		sourceInfo->PrintToStream();
-		TabManager* sourceTM = (TabManager*)(sourceInfo->GetPointer("tab_manager", nullptr));
+	TabManager* sourceTM = this;
+	if (sourceInfo != nullptr) {
+		sourceTM = (TabManager*)(sourceInfo->GetPointer("tab_manager", nullptr));
 		if (sourceTM == nullptr)
 			return;
-
-		BString fromLabel = sourceTM->TabLabel(from);
-		BView* view = sourceTM->RemoveTab(from);
-
-		fTabContainerView->AddTab(fromLabel.String(), to);
-	#if defined DIRTY_HACK
-		fCardLayout->SetFrame(fDirtyFrameHack);
-	#endif
-		fCardLayout->AddView(to, view);
-
-/*
-		WebTabView* newTab = dynamic_cast<WebTabView*>(fTabContainerView->TabAt(to));
-		if (newTab != nullptr)
-			newTab->SetColor(color); */
-
-		SelectTab(to);
 	}
+
+	TabView* oldTab = ((TabContainerView*)sourceTM->fTabContainerView)->TabAt(from);
+	BMessage oldProps;
+	oldTab->ArchiveProperties(&oldProps);
+
+	BView* view = sourceTM->RemoveTab(from);
+
+	fTabContainerView->AddTab("", to);
+#if defined DIRTY_HACK
+	fCardLayout->SetFrame(fDirtyFrameHack);
+#endif
+	fCardLayout->AddView(to, view);
+
+	TabView* newTab = fTabContainerView->TabAt(to);
+	newTab->UnarchiveProperties(&oldProps);
+	SelectTab(to);
 }
 
 

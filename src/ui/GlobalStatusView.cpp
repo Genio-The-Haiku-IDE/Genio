@@ -132,8 +132,8 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					fStringView->SetText(text.String());
 
 					if (status != B_OK) {
-						// Red text on fail
-						fStringView->SetHighColor(240, 0, 0);
+						// On fail
+						fStringView->SetHighColor(ui_color(B_FAILURE_COLOR));
 						// beep();
 					} else
 						fStringView->SetHighColor(ui_color(B_CONTROL_TEXT_COLOR));

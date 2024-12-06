@@ -4530,17 +4530,16 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	} else if (key.Compare("show_statusbar") == 0) {
 		_ShowView(fStatusView, bool(gCFG["show_statusbar"]), MSG_TOGGLE_STATUSBAR);
 	} else if (key.Compare("use_small_icons") == 0) {
-		if (gCFG["use_small_icons"]) {
-			fToolBar->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
-			fFindGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
-			fReplaceGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
-			fRunGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width());
-		} else {
-			fToolBar->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
-			fFindGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
-			fReplaceGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
-			fRunGroup->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
-		}
+		float iconSize = 0;
+		if (message->GetBool("value", false))
+			iconSize = be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width();
+		else
+			iconSize = be_control_look->ComposeIconSize(kDefaultIconSize).Width();
+
+		fToolBar->ChangeIconSize(iconSize);
+		fFindGroup->ChangeIconSize(iconSize);
+		fReplaceGroup->ChangeIconSize(iconSize);
+		fRunGroup->ChangeIconSize(iconSize);
 	}
 
 	Editor* selected = fTabManager->SelectedEditor();

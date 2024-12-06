@@ -31,7 +31,13 @@ Logger::SetDestination(int destination)
 void
 Logger::LogFormat(const char* fmtString, ...)
 {
-	const int32 logArraySize = (int32)gCFG["log_size"];
+	int32 logArraySize = (int32)gCFG["log_size"];
+	// Sanitize
+	if (logArraySize < 1024)
+		logArraySize = 1024;
+	else if (logArraySize > 4096)
+		logArraySize = 4096;
+
 #if __clang__
 	char* logString = new char[logArraySize];
 #else
@@ -52,7 +58,12 @@ Logger::LogFormat(const char* fmtString, ...)
 void
 Logger::LogFormat(log_level level, const char* fmtString, ...)
 {
-	const int32 logArraySize = (int32)gCFG["log_size"];
+	int32 logArraySize = (int32)gCFG["log_size"];
+	// Sanitize
+	if (logArraySize < 1024)
+		logArraySize = 1024;
+	else if (logArraySize > 4096)
+		logArraySize = 4096;
 
 	// Prepend the log level
 #if __clang__

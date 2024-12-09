@@ -14,6 +14,10 @@
 #include <ScrollView.h>
 #include <String.h>
 #include "KeyTextViewScintilla.h"
+#include "Styler.h"
+#include "ConfigManager.h"
+
+extern ConfigManager gCFG;
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TermView"
@@ -50,11 +54,47 @@ MTermView::RunCommand(BMessage* cmd_message)
 	return BMessenger(this).SendMessage(cmd_message);
 }
 
+void
+MTermView::ApplyStyle()
+{
+	BFont font = be_fixed_font;
+	BString fontFamily = gCFG["edit_fontfamily"];
+	if (!fontFamily.IsEmpty()){
+		font.SetFamilyAndStyle(fontFamily, nullptr);
+	}
+	int32 fontSize = gCFG["edit_fontsize"];
+	if (fontSize > 0)
+		font.SetSize(fontSize);
+	BString style = gCFG["console_style"];
+	if (style.Compare("(follow system)") == 0) {
+		Styler::ApplySystemStyle(fKeyTextView);
+	} else {
+		if (style.Compare("(follow editor)") == 0)
+			style = (BString)gCFG["editor_style"];
+
+		Styler::ApplyBasicStyle(fKeyTextView, style, &font);
+
+	}
+}
 
 void
 MTermView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+
+		case B_OBSERVER_NOTICE_CHANGE:
+		{
+			int32 code;
+			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
+				break;
+			if (code == gCFG.UpdateMessageWhat()) {
+				BString key = message->GetString("key", "");
+				if (key.Compare("console_style") == 0) {
+					ApplyStyle();
+				}
+			}
+			break;
+		}
 
 		case kTermViewClear: {
 			TextView()->ClearAll();
@@ -151,6 +191,9 @@ MTermView::AttachedToWindow()
 	fClearButton->SetTarget(this);
 	fStopButton->SetTarget(this);
 	fStopButton->SetEnabled(false);
+
+	ApplyStyle();
+	be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 }
 
 

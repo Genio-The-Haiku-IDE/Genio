@@ -234,7 +234,8 @@ ConfigWindow::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case kItemSelected:
 		{
-			int32 index = message->GetInt32("index", 0);
+			int32 index = fGroupList->FullListCurrentSelection();
+
 			if (index >= 0) {
 				BStringItem* item = dynamic_cast<BStringItem*>(fGroupList->FullListItemAt(index));
 				if (item == nullptr)

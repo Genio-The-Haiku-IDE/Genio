@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "GMessage.h"
-
+#include "GenioTabView.h"
 
 enum {
 	kProblems = 0,
@@ -210,9 +210,9 @@ private:
 
 
 			// Left panels
-			BTabView*	  		fProjectsTabView;
+			GenioTabView*	  		fProjectsTabView;
 
-			ProjectBrowser*	fProjectsFolderBrowser;
+			ProjectBrowser*		fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
 			SourceControlPanel*	fSourceControlPanel;
@@ -221,7 +221,7 @@ private:
 			ProjectFolder		*fActiveProject;
 
 			// Right panels
-			BTabView*	  		fRightTabView;
+			GenioTabView*		  fRightTabView;
 			FunctionsOutlineView* fFunctionsOutlineView;
 
 			// Editor group
@@ -250,7 +250,7 @@ private:
 			BFilePanel*			fImportResourcePanel;
 
 			// Bottom panels
-			BTabView*			fOutputTabView;
+			GenioTabView*		fOutputTabView;
 			ProblemsPanel*		fProblemsPanel;
 			ConsoleIOView*		fBuildLogView;
 			MTermView*			fMTermView;

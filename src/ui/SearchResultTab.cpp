@@ -32,7 +32,7 @@ static constexpr auto kFindReplaceMinBytes = 32;
 static constexpr uint32 kSelectProject ='PRJX';
 
 
-SearchResultTab::SearchResultTab(BTabView* tabView)
+SearchResultTab::SearchResultTab(GenioTabView* tabView)
 	:
 	BGroupView(B_VERTICAL, 0.0f),
 	fSearchResultPanel(nullptr),

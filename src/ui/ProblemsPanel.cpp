@@ -46,7 +46,7 @@ class RangeRow : public BRow {
 
 #define ProblemLabel B_TRANSLATE("Problems")
 
-ProblemsPanel::ProblemsPanel(BTabView* tabView): BColumnListView(ProblemLabel,
+ProblemsPanel::ProblemsPanel(GenioTabView* tabView): BColumnListView(ProblemLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)
 									, fTabView(tabView)
 
@@ -198,10 +198,7 @@ ProblemsPanel::_UpdateTabLabel()
 		label.Append(")");
 	}
 
-	for (int32 i = 0; i < fTabView->CountTabs(); i++) {
-		if (fTabView->ViewForTab(i) == this) {
-			fTabView->TabAt(i)->SetLabel(label.String());
-			break;
-		}
-	}
+	BTab* tab = fTabView->TabFromView(this);
+	if (tab)
+		tab->SetLabel(label.String());
 }

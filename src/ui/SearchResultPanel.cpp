@@ -67,7 +67,7 @@ public:
 
 #define SearchResultPanelLabel B_TRANSLATE("Search results")
 
-SearchResultPanel::SearchResultPanel(BTabView* tabView)
+SearchResultPanel::SearchResultPanel(GenioTabView* tabView)
 	:
 	BColumnListView(SearchResultPanelLabel, B_NAVIGABLE, B_FANCY_BORDER, true),
 	fGrepThread(nullptr),
@@ -85,12 +85,9 @@ SearchResultPanel::SetTabLabel(BString label)
 	if (!fTabView)
 		return;
 
-	for (int32 i = 0; i < fTabView->CountTabs(); i++) {
-		if (fTabView->ViewForTab(i) == this->Parent()) {
-			fTabView->TabAt(i)->SetLabel(label.String());
-			break;
-		}
-	}
+	BTab* tab = fTabView->TabFromView(this->Parent());
+	if (tab)
+		tab->SetLabel(label.String());
 }
 
 

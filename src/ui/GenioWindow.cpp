@@ -273,7 +273,7 @@ GenioWindow::Show()
 	BWindow::Show();
 
 	if (LockLooper()) {
-		_ShowView(fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
+		_ShowView((BView*)fProjectsTabView, gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
 		_ShowView(fRightTabView, gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
 		_ShowView(fOutputTabView, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
@@ -3399,7 +3399,7 @@ void
 GenioWindow::_InitOutputSplit()
 {
 	// Output
-	fOutputTabView = new BTabView("OutputTabview");
+	fOutputTabView = new GenioTabView("OutputTabview", 'GTAB');
 
 	fProblemsPanel = new ProblemsPanel(fOutputTabView);
 
@@ -3420,7 +3420,7 @@ void
 GenioWindow::_InitLeftSplit()
 {
 	// Projects View
-	fProjectsTabView = new BTabView("ProjectsTabview");
+	fProjectsTabView = new GenioTabView("ProjectsTabview", 'GTAB');
 
 	fProjectsFolderBrowser = new ProjectBrowser();
 	fProjectsTabView->AddTab(fProjectsFolderBrowser);
@@ -3435,7 +3435,7 @@ void
 GenioWindow::_InitRightSplit()
 {
 	// Outline view
-	fRightTabView = new BTabView("OutlineTabview");
+	fRightTabView = new GenioTabView("OutlineTabview", 'GTAB');
 	fFunctionsOutlineView = new FunctionsOutlineView();
 	fRightTabView->AddTab(fFunctionsOutlineView);
 }
@@ -4159,7 +4159,7 @@ GenioWindow::_RunTarget()
 							{"cmd_type", "build"},
 							{"banner_claim", claim }};
 
-		fMTermView->MakeFocus(true);
+		((BView*)fMTermView)->MakeFocus(true);
 
 		fMTermView->RunCommand(&message);
 

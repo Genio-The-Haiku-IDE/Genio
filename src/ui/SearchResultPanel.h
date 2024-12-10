@@ -7,7 +7,7 @@
 
 #include <ColumnListView.h>
 #include <SupportDefs.h>
-#include <TabView.h>
+#include "GenioTabView.h"
 #include "GrepThread.h"
 
 // For now this is specific to manage only the FindInFiles results
@@ -15,7 +15,7 @@
 
 class SearchResultPanel : public BColumnListView {
 public:
-		SearchResultPanel(BTabView*);
+		SearchResultPanel(GenioTabView*);
 
 		void StartSearch(BString command, BString projectPath);
 
@@ -31,7 +31,7 @@ private:
 		void 	UpdateSearch(BMessage* msg);
 		GrepThread*	fGrepThread;
 		BString 	fProjectPath;
-		BTabView*	fTabView;
+		GenioTabView*	fTabView;
 		int32		fCountResults;
 };
 

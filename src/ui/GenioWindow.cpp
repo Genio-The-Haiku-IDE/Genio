@@ -3420,7 +3420,7 @@ void
 GenioWindow::_InitLeftSplit()
 {
 	// Projects View
-	fProjectsTabView = new GenioTabView("ProjectsTabview", 'GTAB');
+	fProjectsTabView = new GenioTabView("ProjectsTabview", 'GTAB', B_VERTICAL);
 
 	fProjectsFolderBrowser = new ProjectBrowser();
 	fProjectsTabView->AddTab(fProjectsFolderBrowser);
@@ -3435,7 +3435,7 @@ void
 GenioWindow::_InitRightSplit()
 {
 	// Outline view
-	fRightTabView = new GenioTabView("OutlineTabview", 'GTAB');
+	fRightTabView = new GenioTabView("OutlineTabview", 'GTAB', B_VERTICAL);
 	fFunctionsOutlineView = new FunctionsOutlineView();
 	fRightTabView->AddTab(fFunctionsOutlineView);
 }

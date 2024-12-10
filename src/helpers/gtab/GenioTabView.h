@@ -16,7 +16,7 @@ typedef uint32	tab_drag_affinity;
 
 class GenioTabView :  public BTabView, private Draggable {
 public:
-					GenioTabView(const char* name, tab_drag_affinity affinity);
+					GenioTabView(const char* name, tab_drag_affinity affinity, orientation orientation = B_HORIZONTAL);
 
 	virtual	void	MouseDown(BPoint where);
 	virtual	void	MouseUp(BPoint where);
@@ -43,9 +43,11 @@ private:
 		void	_DrawTabIndicator();
 		bool	_ValidDragAndDrop(const BMessage* msg, bool* sameTabView = nullptr);
 
+		void	_ChangeGroupViewDirection(GTab* tab);
 
 		BRect				fDropTargetHighlightFrame;
 		tab_drag_affinity	fTabAffinity;
+		orientation			fOrientation;
 
 };
 

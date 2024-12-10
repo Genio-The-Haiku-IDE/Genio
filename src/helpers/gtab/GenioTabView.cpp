@@ -9,6 +9,7 @@
 #include <TabViewPrivate.h>
 #include <Layout.h>
 #include <CardLayout.h>
+#include <GroupView.h>
 
 class IndexGTab : public GTab  {
 public:
@@ -97,9 +98,10 @@ GenioTabView::InitiateDrag(BPoint where)
 }
 
 
-GenioTabView::GenioTabView(const char* name, tab_drag_affinity affinity):
+GenioTabView::GenioTabView(const char* name, tab_drag_affinity affinity, orientation orientation):
 	BTabView(name),
-	fTabAffinity(affinity)
+	fTabAffinity(affinity),
+	fOrientation(orientation)
 {
 }
 
@@ -270,10 +272,36 @@ GenioTabView::TabFromView(BView* view) const
 	return nullptr;
 }
 
+#include <GroupLayout.h>
+void
+GenioTabView::_ChangeGroupViewDirection(GTab* tab)
+{
+	GTabContainer* fromContainer = dynamic_cast<GTabContainer*>(tab->View());
+	if (!fromContainer)
+		return;
+	printf("fromContainer\n");
+	BGroupView* groupView = dynamic_cast<BGroupView*>(fromContainer->ContentView());
+	if (!groupView)
+		return;
+	printf("groupView %s\n", groupView->Name());
+	if(!groupView->GroupLayout())
+		return;
+	printf("layout\n");
+	if (groupView->GroupLayout()->Orientation() != fOrientation)
+	{
+		groupView->GroupLayout()->SetOrientation(fOrientation);
+	}
+
+	printf("same %d vs %d\n", groupView->GroupLayout()->Orientation(), fOrientation);
+}
+
+
 
 void
 GenioTabView::AddTab(GTab* tab)
 {
+	//experimental: let's try to improve the GroupView.
+	_ChangeGroupViewDirection(tab);
 	BTabView::AddTab(tab->View(), tab);
 }
 

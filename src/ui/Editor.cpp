@@ -891,9 +891,8 @@ Editor::LoadEditorConfig()
 				} else if (!strcmp(name, "insert_final_newline"))
 					fEditorConfig.InsertFinalNewline = !strcmp(value, "true") ? true : false;
 			}
-
-			editorconfig_handle_destroy(handle);
 		}
+		editorconfig_handle_destroy(handle);
 	}
 }
 

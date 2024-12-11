@@ -840,60 +840,63 @@ Editor::LoadEditorConfig()
 	fEditorConfig.TrimTrailingWhitespace = (bool)gCFG["trim_trailing_whitespace"];
 	fHasEditorConfig = false;
 
-	if (!(bool)gCFG["ignore_editorconfig"]) {
-		// start parsing
-		// Ignore full path error, whose error code is EDITORCONFIG_PARSE_NOT_FULL_PATH
-		editorconfig_handle handle = editorconfig_handle_init();
-		int errNum;
-		if ((errNum = editorconfig_parse(FilePath().String(), handle)) != 0 &&
-				errNum != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
-			editorconfig_handle_destroy(handle);
-			LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(errNum));
-		} else {
-			int32 nameValueCount = editorconfig_handle_get_name_value_count(handle);
-			if (nameValueCount != 0)
-				fHasEditorConfig = true;
+	if ((bool)gCFG["ignore_editorconfig"])
+		return;
 
-			/* get settings */
-			// Defaults. TODO: This avoids the compiler error
-			// but maybe the code should be refactored
-			int32 tabWidth = 4;
-			for (int32 i = 0; i < nameValueCount; ++i) {
-				const char* name;
-				const char* value;
-				editorconfig_handle_get_name_value(handle, i, &name, &value);
+	// start parsing
+	// Ignore full path error, whose error code is EDITORCONFIG_PARSE_NOT_FULL_PATH
+	editorconfig_handle handle = editorconfig_handle_init();
+	if (handle == nullptr)
+		return;
 
-				if (!strcmp(name, "indent_style")) {
-					fEditorConfig.IndentStyle = !strcmp(value, "space") ? IndentStyle::Space : IndentStyle::Tab;
-				} else if (!strcmp(name, "tab_width")) {
-					if (strcmp(value, "undefine"))
-						tabWidth = atoi(value);
-				} else if (!strcmp(name, "indent_size")) {
-					if (strcmp(value, "undefine")) {
-						int valueInt = atoi(value);
-						if (!strcmp(value, "tab"))
-							fEditorConfig.IndentSize = tabWidth;
-						else if (valueInt > 0)
-							fEditorConfig.IndentSize = valueInt;
-					}
-				} else if (!strcmp(name, "end_of_line")) {
-					if (strcmp(value, "undefine")) {
-						if (!strcmp(value, "lf"))
-							fEditorConfig.EndOfLine = SC_EOL_LF;
-						else if (!strcmp(value, "cr"))
-							fEditorConfig.EndOfLine = SC_EOL_CR;
-						else if (!strcmp(value, "crlf"))
-							fEditorConfig.EndOfLine = SC_EOL_CRLF;
-					}
-				} else if (!strcmp(name, "trim_trailing_whitespace")) {
-					if (strcmp(value, "undefine"))
-						fEditorConfig.TrimTrailingWhitespace = !strcmp(value, "true") ? true : false;
-				} else if (!strcmp(name, "insert_final_newline"))
-					fEditorConfig.InsertFinalNewline = !strcmp(value, "true") ? true : false;
-			}
+	int errNum;
+	if ((errNum = editorconfig_parse(FilePath().String(), handle)) != 0 &&
+			errNum != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
+		LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(errNum));
+	} else {
+		int32 nameValueCount = editorconfig_handle_get_name_value_count(handle);
+		if (nameValueCount != 0)
+			fHasEditorConfig = true;
+
+		/* get settings */
+		// Defaults. TODO: This avoids the compiler error
+		// but maybe the code should be refactored
+		int32 tabWidth = 4;
+		for (int32 i = 0; i < nameValueCount; ++i) {
+			const char* name;
+			const char* value;
+			editorconfig_handle_get_name_value(handle, i, &name, &value);
+
+			if (!strcmp(name, "indent_style")) {
+				fEditorConfig.IndentStyle = !strcmp(value, "space") ? IndentStyle::Space : IndentStyle::Tab;
+			} else if (!strcmp(name, "tab_width")) {
+				if (strcmp(value, "undefine"))
+					tabWidth = atoi(value);
+			} else if (!strcmp(name, "indent_size")) {
+				if (strcmp(value, "undefine")) {
+					int valueInt = atoi(value);
+					if (!strcmp(value, "tab"))
+						fEditorConfig.IndentSize = tabWidth;
+					else if (valueInt > 0)
+						fEditorConfig.IndentSize = valueInt;
+				}
+			} else if (!strcmp(name, "end_of_line")) {
+				if (strcmp(value, "undefine")) {
+					if (!strcmp(value, "lf"))
+						fEditorConfig.EndOfLine = SC_EOL_LF;
+					else if (!strcmp(value, "cr"))
+						fEditorConfig.EndOfLine = SC_EOL_CR;
+					else if (!strcmp(value, "crlf"))
+						fEditorConfig.EndOfLine = SC_EOL_CRLF;
+				}
+			} else if (!strcmp(name, "trim_trailing_whitespace")) {
+				if (strcmp(value, "undefine"))
+					fEditorConfig.TrimTrailingWhitespace = !strcmp(value, "true") ? true : false;
+			} else if (!strcmp(name, "insert_final_newline"))
+				fEditorConfig.InsertFinalNewline = !strcmp(value, "true") ? true : false;
 		}
-		editorconfig_handle_destroy(handle);
 	}
+	editorconfig_handle_destroy(handle);
 }
 
 

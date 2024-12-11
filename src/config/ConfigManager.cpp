@@ -114,9 +114,10 @@ public:
 		if (paramerConfig.FindData("default_value", type, &data, &numBytes) == B_OK) {
 			void* buffer = ::malloc(numBytes);
 			ssize_t readStatus = fNodeAttr.ReadAttr(attrName.String(), type, 0, buffer, numBytes);
-			if (readStatus <= 0)
+			if (readStatus <= 0) {
+				::free(buffer);
 				return B_NAME_NOT_FOUND;
-
+			}
 			storage.RemoveName(key);
 			status_t st = storage.AddData(key, type, buffer, numBytes);
 			if (st == B_OK) {
@@ -220,9 +221,9 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr &&
-			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPReadMode) != B_OK)
-
+			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPReadMode) != B_OK) {
 			return B_ERROR;
+		}
 	}
 
 	status_t status = B_OK;
@@ -256,9 +257,9 @@ ConfigManager::SaveToFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr &&
-			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPWriteMode) != B_OK)
-
+			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPWriteMode) != B_OK) {
 			return B_ERROR;
+		}
 	}
 
 	status_t status = B_OK;

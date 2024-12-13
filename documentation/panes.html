@@ -31,18 +31,18 @@
 	<a href="#projects-pane">The Projects pane</a><br />
 	<a href="#projects-projects">┣━ Projects</a><br />
 	<a href="#projects-source-control">┗━ Source control</a><br />
-	<a href="#output-pane">The Output pane</a><br />
-	<a href="#output-problems">┣━ Problems</a><br />
-	<a href="#output-build-log">┣━ Build log</a><br />
-	<a href="#output-console-io">┣━ Console I/O</a><br />
-	<a href="#output-search-results">┗━ Search results</a><br />
+	<a href="#info-pane">The Info pane</a><br />
+	<a href="#info-problems">┣━ Problems</a><br />
+	<a href="#info-build-log">┣━ Build log</a><br />
+	<a href="#info-console-io">┣━ Console I/O</a><br />
+	<a href="#info-search-results">┗━ Search results</a><br />
 	<a href="#outline-pane">The Outline pane</a>
 </td></tr>
 </tbody></table>
 
 <h1>The Panes</h1>
 
-<p>Genio's main window contains three panes besides the toolbar and the editor view: The Projects pane on the left, the Outline pane on the right, and the Output pane at the bottom. They can be toggled on and off with the first three icons in the toolbar, or from the menu <span class="menu">Window|Appearance</span>.</p>
+<p>Genio's main window contains three panes besides the toolbar and the editor view: The Projects pane on the left, the Outline pane on the right, and the Info pane at the bottom. They can be toggled on and off with the first three icons in the toolbar, or from the menu <span class="menu">Window|Appearance</span>.</p>
 
 
 <h2>
@@ -67,6 +67,8 @@ Commands like <span class="menu">Project|Build project</span> or a search in the
 <p>A right-click on files or folders inside the project allows you to rename, delete or open a file with its preferred application, etc.</p>
 
 <p>Double-clicking a file opens it in the editor view, if it's a text file. Filetypes unsupported by Genio get opened in their preferred application. For example, a Bookmark file opens in WebPositive and an icon in Icon-O-Matic.</p>
+
+<p>You can drop a folder from a Tracker window onto the pane to add it as another project.</p>
 <p style="clear:left"></p>
 
 
@@ -90,16 +92,16 @@ Commands like <span class="menu">Project|Build project</span> or a search in the
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="output-pane" name="output-pane">The Output pane</a></h2>
+<a id="info-pane" name="info-pane">The Info pane</a></h2>
 
-<p>The Output pane consists of four tabs: <span class="menu">Problems</span>, the <span class="menu">Build log</span>, the <span class="menu">Console I/O</span> and <span class="menu">Search results</span>.</p>
+<p>The Info pane consists of four tabs: <span class="menu">Problems</span>, the <span class="menu">Build log</span>, the <span class="menu">Console I/O</span> and <span class="menu">Search results</span>.</p>
 
 
 <h3>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="output-problems" name="output-problems">Problems</a></h3>
+<a id="info-problems" name="info-problems">Problems</a></h3>
 
-<p style="text-align:center"><img src="./images/panes-output_problems.png" style="border:none" alt="Problems" /></p>
+<p style="text-align:center"><img src="./images/panes-info_problems.png" style="border:none" alt="Problems" /></p>
 
 <p>Clang is continuously analyzing the current file in the editor view and reports any problems it thinks it has found. Sometimes those are false positives and can be ignored. Often it's very helpful, however, to spot typos or missing commas etc.<br />
 A right-click on a row offers to fix the issue, if possible.</p>
@@ -107,9 +109,9 @@ A right-click on a row offers to fix the issue, if possible.</p>
 
 <h3>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="output-build-log" name="output-build-log">Build log</a></h3>
+<a id="info-build-log" name="info-build-log">Build log</a></h3>
 
-<p style="text-align:center"><img src="./images/panes-output_build_log.png" style="border:none" alt="Build log" /></p>
+<p style="text-align:center"><img src="./images/panes-info_build_log.png" style="border:none" alt="Build log" /></p>
 
 <p>When you're building your project, the "Build log" tab pops up, showing the build process.<br />
 Warnings and errors are printed in red, showing in which file, on what line and column the error was encountered. Click on it, and you're transported right to it.</p>
@@ -120,9 +122,9 @@ The checkboxes above them de/activate <span class="menu">stdout</span> and <span
 
 <h3>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="output-console-io" name="output-console-io">Console I/O</a></h3>
+<a id="info-console-io" name="info-console-io">Console I/O</a></h3>
 
-<p style="text-align:center"><img src="./images/panes-output_console_io.png" style="border:none" alt="Console I/O" /></p>
+<p style="text-align:center"><img src="./images/panes-info_console_io.png" style="border:none" alt="Console I/O" /></p>
 
 <p>If you execute a command from the <span class="menu">Git</span> menu, like <span class="cli">git status</span>, or choose to <span class="menu">Run console program</span> or <span class="menu">Run target</span> from the <a href="toolbar.html">Toolbar</a>, its output will appear in the "Console I/O" tab.</p>
 
@@ -131,11 +133,13 @@ The checkboxes above them de/activate <span class="menu">stdout</span> and <span
 
 <h3>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="output-search-results" name="output-search-results">Search results</a></h3>
+<a id="info-search-results" name="info-search-results">Search results</a></h3>
 
-<p style="text-align:center"><img src="./images/panes-output_search_results.png" style="border:none" alt="Search results" /></p>
+<p style="text-align:center"><img src="./images/panes-info_search_results.png" style="border:none" alt="Search results" /></p>
 
 <p>If you click the icon <span class="menu">Find in project</span> in the <a href="toolbar.html">Find bar</a>, this tab will show all the hits from all files of the currently active project. Double-click to jump to the search result.</p>
+
+<p>To the right is a search panel that is similar to the 'Find bar'. It is in fact synced with the 'Find bar' whenever you do a <span class="menu">Find in project</span> there. The additional <span class="menu">Project</span> menu let's you select another but the currently active project as a search target.</p>
 
 
 <h2>
@@ -148,7 +152,7 @@ The checkboxes above them de/activate <span class="menu">stdout</span> and <span
 
 <p>Double-clicking an entry jumps to it in the file currently open in the editor.</p>
 
-<p>Right-clicking an entry, you can choose <span class="menu">Rename symbol…</span> from the context menu to change the name of that symbol in the whole project.</p>
+<p>Right-clicking an entry opens a context menu where <span class="menu">Go to symbol</span> does the same as a double-click and <span class="menu">Rename symbol…</span> changes the name of that symbol in the whole project.</p>
 <p>For this to work correctly in all situations, you need to create a compile database file (<tt>compile_commands.json</tt>). See <a href="./settings-lsp.html">Configuring Clangd / LSP</a> on how that can be done very easily.</p>
 
 <p style="clear:left"></p>

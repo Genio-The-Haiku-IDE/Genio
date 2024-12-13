@@ -13,12 +13,6 @@
 #include "GMessage.h"
 #include "GenioTabView.h"
 
-enum {
-	kProblems = 0,
-	kBuildLog,
-	kOutputLog,
-	kSearchResult
-};
 
 enum scree_mode {
 	kDefault = 0,
@@ -150,7 +144,9 @@ private:
 			status_t			_RunInConsole(const BString& command);
 			void				_RunTarget();
 
-			void				_ShowLog(int32 index);
+			void				_ShowOutputTab(tab_id id);
+			bool				_ShowTab(tab_id id, GenioTabView* tabView);
+
 			void				_UpdateFindMenuItems(const BString& text);
 			void				_UpdateRecentCommands(const BString& text);
 			status_t			_UpdateLabel(int32 index, bool isModified);

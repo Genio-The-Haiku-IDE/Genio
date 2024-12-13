@@ -10,10 +10,13 @@
 #include <Layout.h>
 #include <CardLayout.h>
 #include <GroupView.h>
+#include <cassert>
+
+#include "GTab.h"
 
 class IndexGTab : public GTab  {
 public:
-	IndexGTab(BView* view, int32 index):GTab(view), fIndex(index){}
+	IndexGTab(BView* view, int32 index, tab_id id):GTab(view, id), fIndex(index){}
 	int32	fIndex;
 };
 
@@ -190,6 +193,10 @@ GenioTabView::MouseMoved(BPoint where, uint32 transit, const BMessage* dragMessa
 void
 GenioTabView::MoveTabs(uint32 from, uint32 to, GenioTabView* fromTabView)
 {
+	GTab*	fromTab = dynamic_cast<GTab*>(fromTabView->TabAt(from));
+	if (!fromTab)
+		return;
+
 	GTabContainer* fromContainer = dynamic_cast<GTabContainer*>(fromTabView->BTabView::ViewForTab(from));
 	if (fromContainer == nullptr)
 		return;
@@ -200,12 +207,11 @@ GenioTabView::MoveTabs(uint32 from, uint32 to, GenioTabView* fromTabView)
 
 	fromView->RemoveSelf();
 
-	BTab* fromTab = fromTabView->TabAt(from);
 	BString label = fromTab->Label(); //TODO copy all the props
 	fromTabView->RemoveTab(from);
-	GTab* indexTab = new IndexGTab(fromView, to);
+	GTab* indexTab = new IndexGTab(fromView, to, fromTab->Id());
 	indexTab->SetLabel(label.String());
-	AddTab(indexTab);
+	_AddTab(indexTab);
 }
 
 void
@@ -254,9 +260,12 @@ BTabView::AddTab(BView* target, BTab* tab)
 }
 
 void
-GenioTabView::AddTab(BView* target)
+GenioTabView::AddTab(BView* target, tab_id id)
 {
-	AddTab(new GTab(target));
+	assert(fTabIdMap.contains(id) == false);
+	GTab* newTab = new GTab(target, id);
+	_AddTab(newTab);
+
 }
 
 
@@ -272,6 +281,30 @@ GenioTabView::TabFromView(BView* view) const
 	return nullptr;
 }
 
+
+void
+GenioTabView::SelectTab(tab_id id)
+{
+	/** DEBUG *
+
+	for(const auto& [k, v] : fTabIdMap) {
+		printf("TabList: '%.4s' -> %p\n", (char *)&k, v);
+	}*/
+
+	if (fTabIdMap.contains(id)) {
+		BTab* tab = fTabIdMap[id];
+		BTabView::Select(BTabView::IndexOf(tab));
+	}
+}
+
+
+bool
+GenioTabView::HasTab(tab_id id)
+{
+	return fTabIdMap.contains(id);
+}
+
+
 #include <GroupLayout.h>
 void
 GenioTabView::_ChangeGroupViewDirection(GTab* tab)
@@ -280,29 +313,53 @@ GenioTabView::_ChangeGroupViewDirection(GTab* tab)
 	if (!fromContainer)
 		return;
 	printf("fromContainer\n");
-	BGroupView* groupView = dynamic_cast<BGroupView*>(fromContainer->ContentView());
-	if (!groupView)
+
+	BView* view = fromContainer->ContentView();
+	if (!view)
 		return;
-	printf("groupView %s\n", groupView->Name());
-	if(!groupView->GroupLayout())
+	printf("View\n");
+	BLayout* layout = view->GetLayout();
+	if (!layout)
 		return;
-	printf("layout\n");
-	if (groupView->GroupLayout()->Orientation() != fOrientation)
+	printf("Layout\n");
+	BGroupLayout* grpLayout = dynamic_cast<BGroupLayout*>(layout);
+	if (!grpLayout) {
+		return;
+	}
+	printf("g layout\n");
+	if (grpLayout->Orientation() != fOrientation)
 	{
-		groupView->GroupLayout()->SetOrientation(fOrientation);
+		grpLayout->SetOrientation(fOrientation);
 	}
 
-	printf("same %d vs %d\n", groupView->GroupLayout()->Orientation(), fOrientation);
+	printf("same %d vs %d\n", grpLayout->Orientation(), fOrientation);
+}
+
+
+BTab*
+GenioTabView::RemoveTab(int32 tabIndex)
+{
+	BTab* tab = BTabView::RemoveTab(tabIndex);
+	for(const auto& [k, v] : fTabIdMap) {
+		if (v == tab) {
+			fTabIdMap.erase(k);
+			break;
+		}
+	}
+	return tab;
 }
 
 
 
 void
-GenioTabView::AddTab(GTab* tab)
+GenioTabView::_AddTab(GTab* tab)
 {
 	//experimental: let's try to improve the GroupView.
 	_ChangeGroupViewDirection(tab);
+	fTabIdMap[tab->Id()] = tab;
 	BTabView::AddTab(tab->View(), tab);
+
+	_PrintMap();
 }
 
 
@@ -393,4 +450,13 @@ GenioTabView::_ValidDragAndDrop(const BMessage* msg, bool* sameTabView)
 		return false;
 
 	return true;
+}
+
+
+void
+GenioTabView::_PrintMap()
+{
+	for(const auto& [k, v] : fTabIdMap) {
+		printf("TabList: '%.4s' -> %p\n", (char *)&k, v);
+	}
 }

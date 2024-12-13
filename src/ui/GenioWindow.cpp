@@ -99,6 +99,20 @@ static float kDefaultIconSize = 32.0;
 
 using Genio::Task::Task;
 
+enum {
+	kTabProblems 		= 'Tprb',
+	kTabBuildLog 		= 'Tbld',
+	kTabOutputLog 		= 'Tter',
+	kTabSearchResult	= 'Tsea',
+
+	kTabProjectBrowser  = 'Tprj',
+	kTabSourceControl   = 'Tsrc',
+
+	kTabOutlineView		= 'Touv'
+
+};
+
+
 static bool
 AcceptsCopyPaste(BView* view)
 {
@@ -1610,7 +1624,7 @@ GenioWindow::_BuildProject()
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
-	_ShowLog(kBuildLog);
+	_ShowOutputTab(kTabBuildLog);
 
 	LogInfoF("Build started: [%s]", fActiveProject->Name().String());
 
@@ -1657,7 +1671,7 @@ GenioWindow::_CleanProject()
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
-	_ShowLog(kBuildLog);
+	_ShowOutputTab(kTabBuildLog);
 
 	LogInfoF("Clean started: [%s]", fActiveProject->Name().String());
 
@@ -2198,7 +2212,7 @@ GenioWindow::_FindInFiles()
 	fSearchResultTab->SetAndStartSearch(text, (bool)fFindWholeWordCheck->Value(),
 											  (bool)fFindCaseSensitiveCheck->Value(),
 											  fActiveProject);
-	_ShowLog(kSearchResult);
+	_ShowOutputTab(kTabSearchResult);
 	_UpdateFindMenuItems(fFindTextControl->Text());
 }
 
@@ -2251,7 +2265,7 @@ GenioWindow::_Git(const BString& git_command)
 	_UpdateProjectActivation(false);
 
 	//fConsoleIOView->Clear();
-	_ShowLog(kOutputLog);
+	_ShowOutputTab(kTabOutputLog);
 
 	BString command;
 	command	<< "git " << git_command;
@@ -3409,10 +3423,10 @@ GenioWindow::_InitOutputSplit()
 
 	fSearchResultTab = new SearchResultTab(fOutputTabView);
 
-	fOutputTabView->AddTab(fProblemsPanel);
-	fOutputTabView->AddTab(fBuildLogView);
-	fOutputTabView->AddTab(fMTermView);
-	fOutputTabView->AddTab(fSearchResultTab);
+	fOutputTabView->AddTab(fProblemsPanel, kTabProblems);
+	fOutputTabView->AddTab(fBuildLogView, kTabBuildLog);
+	fOutputTabView->AddTab(fMTermView, kTabOutputLog);
+	fOutputTabView->AddTab(fSearchResultTab, kTabSearchResult);
 }
 
 
@@ -3423,11 +3437,11 @@ GenioWindow::_InitLeftSplit()
 	fProjectsTabView = new GenioTabView("ProjectsTabview", 'GTAB', B_VERTICAL);
 
 	fProjectsFolderBrowser = new ProjectBrowser();
-	fProjectsTabView->AddTab(fProjectsFolderBrowser);
+	fProjectsTabView->AddTab(fProjectsFolderBrowser, kTabProjectBrowser);
 
 	// Source Control
 	fSourceControlPanel = new SourceControlPanel();
-	fProjectsTabView->AddTab(fSourceControlPanel);
+	fProjectsTabView->AddTab(fSourceControlPanel, kTabSourceControl);
 }
 
 
@@ -3437,7 +3451,7 @@ GenioWindow::_InitRightSplit()
 	// Outline view
 	fRightTabView = new GenioTabView("OutlineTabview", 'GTAB', B_VERTICAL);
 	fFunctionsOutlineView = new FunctionsOutlineView();
-	fRightTabView->AddTab(fFunctionsOutlineView);
+	fRightTabView->AddTab(fFunctionsOutlineView, kTabOutlineView);
 }
 
 
@@ -3499,7 +3513,7 @@ GenioWindow::_MakeBindcatalogs()
 		return;
 
 	fBuildLogView->Clear();
-	_ShowLog(kBuildLog);
+	_ShowOutputTab(kTabBuildLog);
 
 	// TODO: this only works for makefile_engine based projects
 	BMessage message;
@@ -3527,7 +3541,7 @@ GenioWindow::_MakeCatkeys()
 		return;
 
 	fBuildLogView->Clear();
-	_ShowLog(kBuildLog);
+	_ShowOutputTab(kTabBuildLog);
 
 	BMessage message;
 	message.AddString("cmd", "make catkeys");
@@ -4098,7 +4112,7 @@ GenioWindow::_RunInConsole(const BString& command)
 	else
 		chdir(fActiveProject->Path());
 
-	_ShowLog(kOutputLog);
+	_ShowOutputTab(kTabOutputLog);
 
 	_UpdateRecentCommands(command);
 
@@ -4140,7 +4154,7 @@ GenioWindow::_RunTarget()
 		// Don't do that in graphical mode
 		_UpdateProjectActivation(false);
 
-		_ShowLog(kOutputLog);
+		_ShowOutputTab(kTabOutputLog);
 
 		BString command;
 		command << fActiveProject->GetTarget();
@@ -4176,14 +4190,27 @@ GenioWindow::_RunTarget()
 
 
 void
-GenioWindow::_ShowLog(int32 index)
+GenioWindow::_ShowOutputTab(tab_id id)
 {
-	if (fOutputTabView->IsHidden())
-		fOutputTabView ->Show();
-
-	fOutputTabView->Select(index);
+	if (!_ShowTab (id, fOutputTabView)){
+		if(!_ShowTab (id, fProjectsTabView)) {
+			_ShowTab (id, fRightTabView);
+		}
+	}
 }
 
+bool
+GenioWindow::_ShowTab(tab_id id, GenioTabView* tabView)
+{
+	if (tabView->HasTab(id)) {
+		if (tabView->IsHidden())
+			tabView ->Show();
+
+		tabView->SelectTab(id);
+		return true;
+	}
+	return false;
+}
 
 void
 GenioWindow::_UpdateFindMenuItems(const BString& text)

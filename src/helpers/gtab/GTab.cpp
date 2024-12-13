@@ -19,7 +19,8 @@ GTabContainer::GTabContainer(BView* view):BBox(view->Name()),fView(view)
 }
 
 
-GTab::GTab(BView* view):BTab(),fGTabContainer(nullptr)
+
+GTab::GTab(BView* view, tab_id id):BTab(),fGTabContainer(nullptr),fTabId(id)
 {
 	fGTabContainer = new GTabContainer(view);
 	SetView(fGTabContainer);

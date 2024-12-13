@@ -8,11 +8,16 @@
 #include <SupportDefs.h>
 #include <TabView.h>
 #include <cstdio>
-#include "GTab.h"
+#include <map>
 
 #include "Draggable.h"
 
+class GTab;
+
 typedef uint32	tab_drag_affinity;
+typedef uint32  tab_id;
+
+typedef std::map<uint32, BTab*> IdMap;
 
 class GenioTabView :  public BTabView, private Draggable {
 public:
@@ -24,16 +29,28 @@ public:
 									const BMessage* dragMessage);
 	virtual void	MessageReceived(BMessage* msg);
 
-			void	AddTab(BView* target);
+			void	AddTab(BView* target, tab_id id);
 
 			BTab*	TabFromView(BView* view) const;
 
-private:
+			void	SelectTab(tab_id id);
 
+			bool	HasTab(tab_id id);
+
+
+private:
+			using BTabView::TabAt;
+			using BTabView::Select;
+
+			BTab*	RemoveTab(int32 tabIndex);
+			BView*	ContainerView() const = delete;
 			BView*	ViewForTab(int32 tabIndex) const = delete;
-				void	AddTab(GTab* tab);
+
+				void	_AddTab(GTab* tab);
+
 		virtual	void	AddTab(BView* target, BTab* tab);
 		virtual	BRect	DrawTabs();
+
 		void	MoveTabs(uint32 from, uint32 to, GenioTabView* fromTabView);
 		bool	InitiateDrag(BPoint where);
 		void	_OnDrop(BMessage* msg);
@@ -45,9 +62,12 @@ private:
 
 		void	_ChangeGroupViewDirection(GTab* tab);
 
+		void	_PrintMap();
+
 		BRect				fDropTargetHighlightFrame;
 		tab_drag_affinity	fTabAffinity;
 		orientation			fOrientation;
+		IdMap				fTabIdMap;
 
 };
 

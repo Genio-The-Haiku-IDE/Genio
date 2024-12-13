@@ -178,7 +178,7 @@ ConfigManager::~ConfigManager()
 	for (int32 i = 0; i< kStorageTypeCountNb; i++) {
 		delete fPSPList[i];
 		fPSPList[i] = nullptr;
-	}	
+	}
 }
 
 

@@ -9,11 +9,11 @@
 #include <TabView.h>
 #include <Box.h>
 
-class GenioTabView;
+#include "GenioTabView.h"
 
 class GTabContainer : public BBox {
 public:
-	GTabContainer(BView* view);
+	GTabContainer(BView* view);;
 	BView*	ContentView() { return fView;}
 private:
 	BView* fView;
@@ -22,9 +22,11 @@ private:
 class GTab : public BTab {
 protected:
 friend GenioTabView;
-		GTab(BView* view);
+		GTab(BView* view, tab_id id);
+		tab_id	Id() { return fTabId;}
 private:
 		GTabContainer*	fGTabContainer;
+		tab_id			fTabId;
 };
 
 

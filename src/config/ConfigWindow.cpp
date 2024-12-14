@@ -255,6 +255,11 @@ ConfigWindow::MessageReceived(BMessage* message)
 			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
 				break;
 			if (code == fConfigManager.UpdateMessageWhat()) {
+				bool resetDefaultsButton = true;
+				BString context = message->GetString("context", "");
+				if (context.IsEmpty() == false || context.Compare("reset_to_defaults_end") != 0)
+					resetDefaultsButton = false;
+
 				BString key;
 				if (message->FindString("key", &key) == B_OK) {
 					BView* control = FindView(key.String());
@@ -262,7 +267,7 @@ ConfigWindow::MessageReceived(BMessage* message)
 						GMessage m(kSetValueNoUpdate);
 						m["key"] = key.String();
 						control->MessageReceived(&m);
-						if (fDefaultsButton != nullptr)
+						if (fDefaultsButton != nullptr && resetDefaultsButton)
 							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 					}
 				}
@@ -282,7 +287,7 @@ ConfigWindow::_PopulateListView()
 	std::vector<GMessage> dividedByGroup;
 	GMessage msg;
 	int i = 0;
-	while (fConfigManager.Configuration().FindMessage("config", i++, &msg) == B_OK)  {
+	while (fConfigManager.FindConfigMessage("config", i++, &msg) == B_OK)  {
 		std::vector<GMessage>::iterator i = dividedByGroup.begin();
 		while (i != dividedByGroup.end()) {
 			if (strcmp((*i)["group"], (const char*)msg["group"]) == 0) {

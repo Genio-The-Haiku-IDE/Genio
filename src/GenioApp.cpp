@@ -185,8 +185,14 @@ GenioApp::MessageReceived(BMessage* message)
 					else if (::strcmp(key, "log_level") == 0)
 						Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 				}
-				gCFG.SaveToFile({fConfigurationPath});
-				LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
+				BString context = message->GetString("context", "");
+				if (context.IsEmpty() || context.Compare("reset_to_defaults_end") == 0) {
+					gCFG.SaveToFile({fConfigurationPath});
+					LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
+				} else {
+					LogInfo("Configuration updated! (updating %s)", message->GetString("key", "ERROR!"));
+				}
+
 			}
 			break;
 		}

@@ -179,7 +179,16 @@ ConfigManager::~ConfigManager()
 	for (int32 i = 0; i< kStorageTypeCountNb; i++) {
 		delete fPSPList[i];
 		fPSPList[i] = nullptr;
-	}	
+	}
+}
+
+
+status_t
+ConfigManager::FindConfigMessage(const char* name, int32 index,
+									BMessage* message)
+{
+	BAutolock lock(fLocker);
+	return fConfiguration.FindMessage(name, index, message);
 }
 
 
@@ -298,10 +307,25 @@ ConfigManager::ResetToDefaults()
 	// Will also send notifications for every setting change
 	GMessage msg;
 	int32 i = 0;
+	type_code typeFound;
+	int32 countFound = 0;
+	if (fConfiguration.GetInfo ("config", &typeFound, &countFound) != B_OK) {
+		LogError("ResetToDefaults: no config configured!");
+		return;
+	}
+
+	fNoticeContextInfo = "reset_to_defaults";
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
+
+		if (countFound == i)
+			fNoticeContextInfo = "reset_to_defaults_end";
+
 		fStorage[msg["key"]] = msg["default_value"]; //to force the key creation
 		(*this)[msg["key"]] = msg["default_value"]; //to force the update
+
 	}
+
+	fNoticeContextInfo = "";
 }
 
 
@@ -324,6 +348,7 @@ ConfigManager::HasAllDefaultValues()
 void
 ConfigManager::PrintAll()
 {
+	BAutolock lock(fLocker);
 	PrintValues();
 	fConfiguration.PrintToStream();
 }
@@ -341,7 +366,7 @@ bool
 ConfigManager::_CheckKeyIsValid(const char* key) const
 {
 	assert(fLocker.IsLocked());
-	
+
 	type_code type;
 	if (fStorage.GetInfo(key, &type) != B_OK) {
 		BString detail("No config key: ");

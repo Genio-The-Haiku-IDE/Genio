@@ -209,8 +209,9 @@ ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 
 
 bool
-ConfigManager::HasKey(const char* key) const
+ConfigManager::HasKey(const char* key)
 {
+	BAutolock lock(fLocker);
 	type_code type;
 	return fStorage.GetInfo(key, &type) == B_OK;
 }
@@ -219,6 +220,7 @@ ConfigManager::HasKey(const char* key) const
 status_t
 ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
+	BAutolock lock(fLocker);
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr &&
 			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPReadMode) != B_OK) {
@@ -255,6 +257,7 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 status_t
 ConfigManager::SaveToFile(std::array<BPath, kStorageTypeCountNb> paths)
 {
+	BAutolock lock(fLocker);
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr &&
 			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPWriteMode) != B_OK) {
@@ -291,6 +294,7 @@ ConfigManager::SaveToFile(std::array<BPath, kStorageTypeCountNb> paths)
 void
 ConfigManager::ResetToDefaults()
 {
+	BAutolock lock(fLocker);
 	// Will also send notifications for every setting change
 	GMessage msg;
 	int32 i = 0;
@@ -304,6 +308,7 @@ ConfigManager::ResetToDefaults()
 bool
 ConfigManager::HasAllDefaultValues()
 {
+	BAutolock lock(fLocker);
 	GMessage msg;
 	int32 i = 0;
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
@@ -317,7 +322,7 @@ ConfigManager::HasAllDefaultValues()
 
 
 void
-ConfigManager::PrintAll() const
+ConfigManager::PrintAll()
 {
 	PrintValues();
 	fConfiguration.PrintToStream();
@@ -325,8 +330,9 @@ ConfigManager::PrintAll() const
 
 
 void
-ConfigManager::PrintValues() const
+ConfigManager::PrintValues()
 {
+	BAutolock lock(fLocker);
 	fStorage.PrintToStream();
 }
 
@@ -334,6 +340,8 @@ ConfigManager::PrintValues() const
 bool
 ConfigManager::_CheckKeyIsValid(const char* key) const
 {
+	assert(fLocker.IsLocked());
+	
 	type_code type;
 	if (fStorage.GetInfo(key, &type) != B_OK) {
 		BString detail("No config key: ");

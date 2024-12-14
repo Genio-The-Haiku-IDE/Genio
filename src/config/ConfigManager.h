@@ -75,12 +75,12 @@ public:
 		void ResetToDefaults();
 		bool HasAllDefaultValues();
 
-		void PrintAll() const;
-		void PrintValues() const;
+		void PrintAll();
+		void PrintValues();
 
 		auto operator[](const char* key) -> ConfigManagerReturn;
 
-		bool HasKey(const char* key) const;
+		bool HasKey(const char* key);
 
 		GMessage& Configuration() { return fConfiguration; }
 

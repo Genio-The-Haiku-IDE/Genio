@@ -314,18 +314,19 @@ ConfigManager::ResetToDefaults()
 		return;
 	}
 
-	fNoticeContextInfo = "reset_to_defaults";
+	fNoticeMessage.RemoveData("context");
+	fNoticeMessage.AddString("context", "reset_to_defaults");
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 
 		if (countFound == i)
-			fNoticeContextInfo = "reset_to_defaults_end";
+			fNoticeMessage.ReplaceString("context", "reset_to_defaults_end");
 
 		fStorage[msg["key"]] = msg["default_value"]; //to force the key creation
 		(*this)[msg["key"]] = msg["default_value"]; //to force the update
 
 	}
 
-	fNoticeContextInfo = "";
+	fNoticeMessage.RemoveData("context");
 }
 
 

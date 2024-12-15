@@ -109,8 +109,6 @@ friend ConfigManagerReturn;
 			GMessage noticeMessage = fNoticeMessage;
 			noticeMessage["key"]  	= key;
 			noticeMessage["value"]  = fStorage[key];
-			if (fNoticeContextInfo.IsEmpty() == false)
-				noticeMessage["context"] = fNoticeContextInfo;
 
 			if (be_app != nullptr)
 				be_app->SendNotices(noticeMessage.what, &noticeMessage);
@@ -121,7 +119,6 @@ private:
 		GMessage	fConfiguration;	//access must be protected by fLocker
 		BLocker		fLocker;
 		GMessage	fNoticeMessage;
-		BString		fNoticeContextInfo;
 		PermanentStorageProvider*	fPSPList[kStorageTypeCountNb];
 
     bool	_CheckKeyIsValid(const char* key) const;

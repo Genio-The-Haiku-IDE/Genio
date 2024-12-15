@@ -255,11 +255,6 @@ ConfigWindow::MessageReceived(BMessage* message)
 			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
 				break;
 			if (code == fConfigManager.UpdateMessageWhat()) {
-				bool resetDefaultsButton = true;
-				BString context = message->GetString("context", "");
-				if (context.IsEmpty() == false || context.Compare("reset_to_defaults_end") != 0)
-					resetDefaultsButton = false;
-
 				BString key;
 				if (message->FindString("key", &key) == B_OK) {
 					BView* control = FindView(key.String());
@@ -267,9 +262,13 @@ ConfigWindow::MessageReceived(BMessage* message)
 						GMessage m(kSetValueNoUpdate);
 						m["key"] = key.String();
 						control->MessageReceived(&m);
-						if (fDefaultsButton != nullptr && resetDefaultsButton)
-							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 					}
+				}
+
+				BString context = message->GetString("context", "");
+				if (context.IsEmpty() || context.Compare("reset_to_defaults_end") == 0) {
+						if (fDefaultsButton != nullptr)
+							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 				}
 			}
 			break;

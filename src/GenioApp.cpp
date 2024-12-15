@@ -442,8 +442,8 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(editorVisual.String(), "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
 	GMessage console_styles = { {"mode", "options"} };
-	console_styles["option_1"] = { {"value", 0}, {"label", "(follow system)" } };
-	console_styles["option_2"] = { {"value", 1}, {"label", "(follow editor)" } };
+	console_styles["option_1"] = { {"value", 0}, {"label", B_TRANSLATE("(follow system style)") } };
+	console_styles["option_2"] = { {"value", 1}, {"label", B_TRANSLATE("(follow editor style)") } };
 	style_index = 3;
 	for (auto style : allStyles) {
 		BString opt("option_");
@@ -452,7 +452,7 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 		console_styles[opt.String()] = { {"value", style_index - 1}, {"label", style.c_str() } };
 		style_index++;
 	}
-	cfg.AddConfig("Console", "console_style", B_TRANSLATE("Console style:"), "(follow system)", &console_styles);
+	cfg.AddConfig("Console", "console_style", B_TRANSLATE("Console style:"), B_TRANSLATE("(follow system style)"), &console_styles);
 
 
 	BString build(B_TRANSLATE("Build"));

@@ -66,10 +66,10 @@ MTermView::ApplyStyle()
 	if (fontSize > 0)
 		font.SetSize(fontSize);
 	BString style = gCFG["console_style"];
-	if (style.Compare("(follow system)") == 0) {
+	if (style.Compare(B_TRANSLATE("(follow system style)")) == 0) {
 		Styler::ApplySystemStyle(fKeyTextView);
 	} else {
-		if (style.Compare("(follow editor)") == 0)
+		if (style.Compare(B_TRANSLATE("(follow editor style)")) == 0)
 			style = (BString)gCFG["editor_style"];
 
 		Styler::ApplyBasicStyle(fKeyTextView, style, &font);

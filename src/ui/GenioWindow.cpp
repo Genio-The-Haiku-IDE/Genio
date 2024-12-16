@@ -4499,10 +4499,13 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		return;
 
 	// TODO: apply other settings
-	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		editor->LoadEditorConfig();
-		editor->ApplySettings();
+	BString context = message->GetString("context", "");
+	if (context.IsEmpty() || context.Compare("reset_to_defaults_end") == 0) {
+		for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
+			Editor* editor = fTabManager->EditorAt(index);
+			editor->LoadEditorConfig();
+			editor->ApplySettings();
+		}
 	}
 
 	if (key.StartsWith("find_")) {

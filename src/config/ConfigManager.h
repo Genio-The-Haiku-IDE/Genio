@@ -75,12 +75,12 @@ public:
 		void ResetToDefaults();
 		bool HasAllDefaultValues();
 
-		void PrintAll();
-		void PrintValues();
+		void PrintAll() const;
+		void PrintValues() const;
 
 		auto operator[](const char* key) -> ConfigManagerReturn;
 
-		bool HasKey(const char* key);
+		bool HasKey(const char* key) const;
 
 		int32 UpdateMessageWhat() const { return fNoticeMessage.what; }
 
@@ -115,11 +115,11 @@ friend ConfigManagerReturn;
 		}
 
 private:
-		GMessage	fStorage;		//access must be protected by fLocker
-		GMessage	fConfiguration;	//access must be protected by fLocker
-		BLocker		fLocker;
-		GMessage	fNoticeMessage;
-		PermanentStorageProvider*	fPSPList[kStorageTypeCountNb];
+					GMessage	fStorage;		//access must be protected by fLocker
+					GMessage	fConfiguration;	//access must be protected by fLocker
+		mutable		BLocker		fLocker;
+					GMessage	fNoticeMessage;
+					PermanentStorageProvider*	fPSPList[kStorageTypeCountNb];
 
     bool	_CheckKeyIsValid(const char* key) const;
 	PermanentStorageProvider*	CreatePSPByType(StorageType type);

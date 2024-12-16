@@ -6,22 +6,21 @@
 
 #include "Styler.h"
 
-#include <unordered_map>
 #include <vector>
 
 #include <yaml-cpp/yaml.h>
 
 #include <Alert.h>
+#include <Catalog.h>
 #include <Directory.h>
 #include <FindDirectory.h>
 #include <Font.h>
 #include <Path.h>
 #include <String.h>
 
-#include "ScintillaView.h"
-#include <Catalog.h>
-#include "Utils.h"
 #include "Editor.h"
+#include "ScintillaView.h"
+#include "Utils.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -54,25 +53,25 @@ struct convert<Styler::Style> {
 	}
 
 	static bool decode(const Node& node, Styler::Style& rhs) {
-		if(!node.IsMap()) {
+		if (!node.IsMap()) {
 			return false;
 		}
 
-		if(node["foreground"]) {
+		if (node["foreground"]) {
 			rhs.fgColor = CSSToInt(node["foreground"].as<std::string>());
 		}
-		if(node["background"]) {
+		if (node["background"]) {
 			rhs.bgColor = CSSToInt(node["background"].as<std::string>());
 		}
-		if(node["style"] && node["style"].IsSequence()) {
+		if (node["style"] && node["style"].IsSequence()) {
 			rhs.style = 0;
 			const auto styles = node["style"].as<std::vector<std::string>>();
-			for(const auto& style : styles) {
-				if(style == "bold")
+			for (const auto& style : styles) {
+				if (style == "bold")
 					rhs.style |= 1;
-				else if(style == "italic")
+				else if (style == "italic")
 					rhs.style |= 2;
-				else if(style == "underline")
+				else if (style == "underline")
 					rhs.style |= 4;
 			}
 		}
@@ -107,7 +106,7 @@ Styler::_ApplyGlobal(BScintillaView* editor, const char* style, const BPath &pat
 	BString fullpath = _FullStylePath(style, path);
 	const YAML::Node styles = YAML::LoadFile(fullpath.String());
 	YAML::Node global;
-	if(styles["Global"]) {
+	if (styles["Global"]) {
 		global = styles["Global"];
 	}
 
@@ -119,18 +118,18 @@ Styler::_ApplyGlobal(BScintillaView* editor, const char* style, const BPath &pat
 	for(const auto &node : global) {
 		std::string name = node.first.as<std::string>();
 		_GetAttributesFromNode(node.second, id, s);
-		if(id != -1) {
+		if (id != -1) {
 			_ApplyAttributes(editor, id, s);
 			sStylesMapping.emplace(id, s);
 		} else {
-			if(name == "Fold") {
-				if(s.fgColor != -1) {
+			if (name == "Fold") {
+				if (s.fgColor != -1) {
 					editor->SendMessage(SCI_SETFOLDMARGINHICOLOUR, true, s.fgColor);
 				}
-				if(s.bgColor != -1) {
+				if (s.bgColor != -1) {
 					editor->SendMessage(SCI_SETFOLDMARGINCOLOUR, true, s.bgColor);
 				}
-			} else if(name == "Fold marker") {
+			} else if (name == "Fold marker") {
 				std::array<int32, 7> markers = {
 					SC_MARKNUM_FOLDER,
 					SC_MARKNUM_FOLDEROPEN,
@@ -140,26 +139,26 @@ Styler::_ApplyGlobal(BScintillaView* editor, const char* style, const BPath &pat
 					SC_MARKNUM_FOLDEROPENMID,
 					SC_MARKNUM_FOLDERMIDTAIL
 				};
-				for(auto marker : markers) {
-					if(s.fgColor != -1) {
+				for (auto marker : markers) {
+					if (s.fgColor != -1) {
 						editor->SendMessage(SCI_MARKERSETFORE, marker, s.fgColor);
 					}
-					if(s.bgColor != -1) {
+					if (s.bgColor != -1) {
 						editor->SendMessage(SCI_MARKERSETBACK, marker, s.bgColor);
 					}
 				}
-			} else if(name == "Bookmark marker") {
-				if(s.fgColor != -1) {
+			} else if (name == "Bookmark marker") {
+				if (s.fgColor != -1) {
 					editor->SendMessage(SCI_MARKERSETFORE, sci_BOOKMARK, s.fgColor);
 				}
-				if(s.bgColor != -1) {
+				if (s.bgColor != -1) {
 					editor->SendMessage(SCI_MARKERSETBACK, sci_BOOKMARK, s.bgColor);
 				}
 			}
 		}
 	}
-	for(const auto& style : styles) {
-		if(style.first.as<std::string>() == "Global")
+	for (const auto& style : styles) {
+		if (style.first.as<std::string>() == "Global")
 			continue;
 		_GetAttributesFromNode(style.second, id, s);
 		sStylesMapping.emplace(id, s);
@@ -190,11 +189,9 @@ Styler::ApplySystemStyle(BScintillaView* editor)
 	editor->SendMessage(SCI_SETWHITESPACEFORE, true, s.fgColor);
 	editor->SendMessage(SCI_SETWHITESPACEBACK, true, s.bgColor);
 
-
 	//"Selected text"
 	editor->SendMessage(SCI_SETSELFORE, true, s.bgColor);
 	editor->SendMessage(SCI_SETSELBACK, true, s.fgColor);
-
 
 	//"Caret"
 	editor->SendMessage(SCI_SETCARETFORE, s.fgColor, 0);
@@ -217,13 +214,15 @@ Styler::ApplyBasicStyle(BScintillaView* editor, const char* style, const BFont* 
 	}
 }
 
-/* static */ void
+
+/* static */
+void
 Styler::_ApplyBasicStyle(BScintillaView* editor, const char* style, const BPath &path, const BFont* font)
 {
 	BString fullpath = _FullStylePath(style, path);
 	const YAML::Node styles = YAML::LoadFile(fullpath.String());
 	YAML::Node global;
-	if(styles["Global"]) {
+	if (styles["Global"]) {
 		global = styles["Global"];
 	}
 
@@ -231,39 +230,37 @@ Styler::_ApplyBasicStyle(BScintillaView* editor, const char* style, const BPath 
 	_ApplyBasicStyle(editor, global);
 
 }
+
+
 void
 Styler::_ApplyBasicStyle(BScintillaView* editor, YAML::Node& global)
 {
 	int id;
 	Style s;
-	for(const auto &node : global) {
+	for (const auto &node : global) {
 		std::string name = node.first.as<std::string>();
 		_GetAttributesFromNode(node.second, id, s);
 
-		if(name == "Current line") {
+		if (name == "Current line") {
 			editor->SendMessage(SCI_SETCARETLINEBACK, s.bgColor, 0);
 			//editor->SendMessage(SCI_SETCARETLINEBACKALPHA, 128, 0);
-		}
-		else if(name == "Whitespace") {
-			if(s.fgColor != -1) {
+		} else if (name == "Whitespace") {
+			if (s.fgColor != -1) {
 				editor->SendMessage(SCI_SETWHITESPACEFORE, true, s.fgColor);
 			}
-			if(s.bgColor != -1) {
+			if (s.bgColor != -1) {
 				editor->SendMessage(SCI_SETWHITESPACEBACK, true, s.bgColor);
 			}
-		}
-		else if(name == "Selected text") {
-			if(s.fgColor != -1) {
+		} else if (name == "Selected text") {
+			if (s.fgColor != -1) {
 				editor->SendMessage(SCI_SETSELFORE, true, s.fgColor);
 			}
-			if(s.bgColor != -1) {
+			if (s.bgColor != -1) {
 				editor->SendMessage(SCI_SETSELBACK, true, s.bgColor);
 			}
-		}
-		else if(name == "Caret") {
+		} else if (name == "Caret") {
 			editor->SendMessage(SCI_SETCARETFORE, s.fgColor, 0);
-		}
-		else if(name == "Edge") {
+		} else if (name == "Edge") {
 			editor->SendMessage(SCI_SETEDGECOLOUR, s.fgColor, 0);
 		}
 	}
@@ -273,13 +270,13 @@ Styler::_ApplyBasicStyle(BScintillaView* editor, YAML::Node& global)
 void
 Styler::_ApplyDefaultStyle(BScintillaView* editor, YAML::Node& global,  const BFont* font)
 {
-	if(!global["Default"])
+	if (!global["Default"])
 		return;
 
 	int id;
 	Style s;
 	_GetAttributesFromNode(global["Default"], id, s);
-	if(font == nullptr)
+	if (font == nullptr)
 		font = be_fixed_font;
 	font_family fontName;
 	font->GetFamilyAndStyle(&fontName, nullptr);
@@ -302,14 +299,16 @@ Styler::_ApplyDefaultStyle(BScintillaView* editor, YAML::Node& global,  const BF
 	editor->SendMessage(SCI_INDICSETFORE, INDIC_IME+1, 0x0000FF);
 }
 
-/* static */ void
+
+/* static */
+void
 Styler::ApplyLanguage(BScintillaView* editor, const std::map<int, int>& styleMapping)
 {
-	for(const auto& mapping : styleMapping) {
+	for (const auto& mapping : styleMapping) {
 		int scintillaId = mapping.first;
 		int styleId = mapping.second;
 		const auto it = sStylesMapping.find(styleId);
-		if(it != sStylesMapping.end()) {
+		if (it != sStylesMapping.end()) {
 			Style s = it->second;
 			_ApplyAttributes(editor, scintillaId, s);
 		}
@@ -317,7 +316,8 @@ Styler::ApplyLanguage(BScintillaView* editor, const std::map<int, int>& styleMap
 }
 
 
-/* static */ void
+/* static */
+void
 Styler::GetAvailableStyles(std::set<std::string> &styles)
 {
 	_GetAvailableStyles(styles, GetDataDirectory());
@@ -325,7 +325,8 @@ Styler::GetAvailableStyles(std::set<std::string> &styles)
 }
 
 
-/* static */ void
+/* static */
+void
 Styler::_GetAvailableStyles(std::set<std::string> &styles, const BPath &path)
 {
 	BPath p(path);
@@ -333,11 +334,11 @@ Styler::_GetAvailableStyles(std::set<std::string> &styles, const BPath &path)
 	BDirectory directory(p.Path());
 	BEntry entry;
 	char name[B_FILE_NAME_LENGTH];
-	while(directory.GetNextEntry(&entry) == B_OK) {
-		if(entry.IsDirectory())
+	while (directory.GetNextEntry(&entry) == B_OK) {
+		if (entry.IsDirectory())
 			continue;
 		entry.GetName(name);
-		if(GetFileExtension(name) == "yaml") {
+		if (GetFileExtension(name) == "yaml") {
 			styles.insert(GetFileName(name));
 		}
 	}
@@ -355,24 +356,24 @@ Styler::_GetAttributesFromNode(const YAML::Node &node, int& styleId, Styler::Sty
 void
 Styler::_ApplyAttributes(BScintillaView* editor, int styleId, Styler::Style style)
 {
-	if(styleId < 0) {
+	if (styleId < 0) {
 		// FIXME: What happened here?
 		return;
 	}
-	if(style.fgColor != -1) {
+	if (style.fgColor != -1) {
 		editor->SendMessage(SCI_STYLESETFORE, styleId, style.fgColor);
 	}
-	if(style.bgColor != -1) {
+	if (style.bgColor != -1) {
 		editor->SendMessage(SCI_STYLESETBACK, styleId, style.bgColor);
 	}
-	if(style.style != -1) {
-		if(style.style & 1) {
+	if (style.style != -1) {
+		if (style.style & 1) {
 			editor->SendMessage(SCI_STYLESETBOLD, styleId, true);
 		}
-		if(style.style & 2) {
+		if (style.style & 2) {
 			editor->SendMessage(SCI_STYLESETITALIC, styleId, true);
 		}
-		if(style.style & 4) {
+		if (style.style & 4) {
 			editor->SendMessage(SCI_STYLESETUNDERLINE, styleId, true);
 		}
 	}
@@ -391,6 +392,7 @@ Styler::_FullStylePath(const char* style, const BPath &path)
 		// TODO: Workaround for a bug in Haiku x86_32: exceptions
 		// thrown inside yaml_cpp aren't catchable. We throw this exception
 		// inside Genio and that works.
+		// Should be fixed in beta5, though
 		throw YAML::BadFile(fileName.String());
 	}
 	return BString(p.Path()).Append(".yaml");

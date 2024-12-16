@@ -17,7 +17,7 @@ public:
 	enum kPSPMode { kPSPReadMode, kPSPWriteMode };
 
 						PermanentStorageProvider() {};
-						virtual ~PermanentStorageProvider(){};
+						virtual ~PermanentStorageProvider() {};
 
 	virtual status_t	Open(const BPath& destination, kPSPMode mode) = 0;
 	virtual status_t	Close() = 0;
@@ -163,6 +163,7 @@ public:
 };
 
 
+// ConfigManager
 ConfigManager::ConfigManager(const int32 messageWhat)
 	:
 	fLocker("ConfigManager lock")
@@ -252,7 +253,8 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 		if (status == B_OK) {
 			LogInfo("Config file: loaded value for key [%s] (StorageType %d)", key, storageType);
 		} else {
-			LogError("Config file: unable to get valid key [%s] (%s) (StorageType %d)", key, strerror(status), storageType);
+			LogError("Config file: unable to get valid key [%s] (%s) (StorageType %d)",
+				key, ::strerror(status), storageType);
 		}
 	}
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
@@ -289,7 +291,8 @@ ConfigManager::SaveToFile(std::array<BPath, kStorageTypeCountNb> paths)
 		if (status == B_OK) {
 			LogInfo("Config file: saved value for key [%s] (StorageType %d)", key, storageType);
 		} else {
-			LogError("Config file: unable to store valid key [%s] (%s) (StorageType %d)", key, strerror(status), storageType);
+			LogError("Config file: unable to store valid key [%s] (%s) (StorageType %d)",
+				key, ::strerror(status), storageType);
 		}
 	}
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
@@ -309,7 +312,7 @@ ConfigManager::ResetToDefaults()
 	int32 i = 0;
 	type_code typeFound;
 	int32 countFound = 0;
-	if (fConfiguration.GetInfo ("config", &typeFound, &countFound) != B_OK) {
+	if (fConfiguration.GetInfo("config", &typeFound, &countFound) != B_OK) {
 		LogError("ResetToDefaults: no config configured!");
 		return;
 	}
@@ -317,13 +320,11 @@ ConfigManager::ResetToDefaults()
 	fNoticeMessage.RemoveData("context");
 	fNoticeMessage.AddString("context", "reset_to_defaults");
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
-
 		if (countFound == i)
 			fNoticeMessage.ReplaceString("context", "reset_to_defaults_end");
 
 		fStorage[msg["key"]] = msg["default_value"]; //to force the key creation
 		(*this)[msg["key"]] = msg["default_value"]; //to force the update
-
 	}
 
 	fNoticeMessage.RemoveData("context");

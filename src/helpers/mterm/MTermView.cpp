@@ -5,7 +5,6 @@
 
 
 #include "MTermView.h"
-#include "MTerm.h"
 
 #include <Button.h>
 #include <Catalog.h>
@@ -13,9 +12,11 @@
 #include <LayoutBuilder.h>
 #include <ScrollView.h>
 #include <String.h>
-#include "KeyTextViewScintilla.h"
-#include "Styler.h"
+
 #include "ConfigManager.h"
+#include "KeyTextViewScintilla.h"
+#include "MTerm.h"
+#include "Styler.h"
 
 extern ConfigManager gCFG;
 
@@ -73,15 +74,14 @@ MTermView::ApplyStyle()
 			style = (BString)gCFG["editor_style"];
 
 		Styler::ApplyBasicStyle(fKeyTextView, style, &font);
-
 	}
 }
+
 
 void
 MTermView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-
 		case B_OBSERVER_NOTICE_CHANGE:
 		{
 			int32 code;
@@ -95,18 +95,20 @@ MTermView::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-
-		case kTermViewClear: {
+		case kTermViewClear:
+		{
 			TextView()->ClearAll();
 			TextView()->ClearBuffer();
 			break;
 		}
-		case kMTOutputText: {
+		case kMTOutputText:
+		{
 			BString info = message->GetString("text","");
 			_HandleOutput(info);
 			break;
 		}
-		case kKTVInputBuffer: {
+		case kKTVInputBuffer:
+		{
 			BString data = message->GetString("buffer", "");
 			if (fMTerm != nullptr && data.Length() > 0)
 				fMTerm->Write(data.String(), data.Length());
@@ -136,7 +138,6 @@ MTermView::MessageReceived(BMessage* message)
 			fMTerm->Run(1, argv);
 			delete[] argv;
 			_BannerMessage("started   ");
-
 			break;
 		}
 		case Genio::Task::TASK_RESULT_MESSAGE:
@@ -154,7 +155,7 @@ MTermView::MessageReceived(BMessage* message)
 void
 MTermView::_EnsureStopped()
 {
-	if (fMTerm) {
+	if (fMTerm != nullptr) {
 		fMTerm->Kill();
 		delete fMTerm;
 		fMTerm = nullptr;

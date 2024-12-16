@@ -218,7 +218,7 @@ ConfigManager::operator[](const char* key) -> ConfigManagerReturn
 
 
 bool
-ConfigManager::HasKey(const char* key)
+ConfigManager::HasKey(const char* key) const
 {
 	BAutolock lock(fLocker);
 	type_code type;
@@ -347,7 +347,7 @@ ConfigManager::HasAllDefaultValues()
 
 
 void
-ConfigManager::PrintAll()
+ConfigManager::PrintAll() const
 {
 	BAutolock lock(fLocker);
 	PrintValues();
@@ -356,7 +356,7 @@ ConfigManager::PrintAll()
 
 
 void
-ConfigManager::PrintValues()
+ConfigManager::PrintValues() const
 {
 	BAutolock lock(fLocker);
 	fStorage.PrintToStream();

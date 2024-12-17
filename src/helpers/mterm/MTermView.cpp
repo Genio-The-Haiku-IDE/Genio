@@ -115,7 +115,6 @@ void
 MTermView::_EnsureStopped()
 {
 	if (fMTerm) {
-		fMTerm->Kill();
 		delete fMTerm;
 		fMTerm = nullptr;
 		fKeyTextView->EnableInput(false);

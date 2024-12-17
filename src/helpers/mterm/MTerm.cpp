@@ -41,6 +41,7 @@
 #include <OS.h>
 #include <SupportDefs.h>
 #include "GMessage.h"
+#include <syslog.h>
 
 /* handshake interface */
 typedef struct
@@ -161,6 +162,8 @@ MTerm::MTerm(const BMessenger& msgr) : fExecProcessID(-1), fFd(-1), fMessenger(m
 MTerm::~MTerm()
 {
 	Kill();
+	syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "S) Genio: ~MTerm() called (fMessenger.IsValid() = %d)",fMessenger.IsValid());
+	fMessenger = BMessenger();
 }
 
 void
@@ -178,6 +181,7 @@ MTerm::Run(int argc, const char* const* argv)
 void
 MTerm::Kill()
 {
+	syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "S) Genio: MTerm::Kill called (fExecProcessID %d fReadTask %p fFd %d)", fExecProcessID, fReadTask, fFd);
 	if(fExecProcessID > -1) {
 		kill_thread(fExecProcessID);
 		fExecProcessID = -1;
@@ -190,6 +194,7 @@ MTerm::Kill()
 		close(fFd);
 		fFd = -1;
 	}
+	syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "E) Genio: MTerm::Kill called (fExecProcessID %d fReadTask %p fFd %d)", fExecProcessID, fReadTask, fFd);
 }
 
 
@@ -291,7 +296,7 @@ MTerm::_Spawn(int argc, const char* const* argv)
 		/*
 		 * set terminal interface.
 		 */
-		 tio.c_lflag &= ~ECHO;
+		tio.c_lflag &= ~ECHO;
 		if (tcsetattr(0, TCSANOW, &tio) == -1) {
 			handshake.status = PTY_NG;
 			snprintf(handshake.msg, sizeof(handshake.msg),

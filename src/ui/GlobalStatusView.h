@@ -24,5 +24,4 @@ private:
 	BarberPole*		fBarberPole;
 	BStringView*	fStringView;
 	bigtime_t		fLastStatusChange;
-	bool			fDontHideText;
 };

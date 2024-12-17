@@ -72,6 +72,7 @@ GenioApp::GenioApp()
 	fExtensionManager = new ExtensionManager();
 
 	fGenioWindow = new GenioWindow(BRect(gCFG["ui_bounds"]));
+	fGenioWindow->MoveOnScreen();
 }
 
 

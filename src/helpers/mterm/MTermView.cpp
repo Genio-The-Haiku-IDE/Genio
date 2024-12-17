@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Andrea Anzani 
+ * Copyright 2023-2024, Andrea Anzani 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -12,7 +12,6 @@
 #include <LayoutBuilder.h>
 #include <ScrollView.h>
 #include <String.h>
-#include <CheckBox.h>
 
 #include "ConfigManager.h"
 #include "KeyTextViewScintilla.h"
@@ -61,11 +60,12 @@ MTermView::RunCommand(BMessage* cmd_message)
 	return BMessenger(this).SendMessage(cmd_message);
 }
 
+
 void
 MTermView::ApplyStyle()
 {
 	BFont font = be_fixed_font;
-	BString fontFamily = gCFG["edit_fontfamily"];
+	const BString fontFamily = gCFG["edit_fontfamily"];
 	if (!fontFamily.IsEmpty()){
 		font.SetFamilyAndStyle(fontFamily, nullptr);
 	}
@@ -77,7 +77,7 @@ MTermView::ApplyStyle()
 		Styler::ApplySystemStyle(fKeyTextView);
 	} else {
 		if (style.Compare(B_TRANSLATE("(follow editor style)")) == 0)
-			style = (BString)gCFG["editor_style"];
+			style = BString(gCFG["editor_style"]);
 
 		Styler::ApplyBasicStyle(fKeyTextView, style, &font);
 	}
@@ -136,9 +136,9 @@ MTermView::MessageReceived(BMessage* message)
 
 			int32 argc = 3;
 			const char** argv = new const char * [argc + 1];
-			argv[0] = strdup("/bin/sh");
-			argv[1] = strdup("-c");
-			argv[2] = strdup(cmd.String());
+			argv[0] = ::strdup("/bin/sh");
+			argv[1] = ::strdup("-c");
+			argv[2] = ::strdup(cmd.String());
 			argv[argc] = nullptr;
 
 			fMTerm->Run(1, argv);
@@ -154,7 +154,7 @@ MTermView::MessageReceived(BMessage* message)
 		}
 		case kTermViewWrap:
 		{
-			if(fWrapEnabled->Value() == B_CONTROL_ON) {
+			if (fWrapEnabled->Value() == B_CONTROL_ON) {
 				fKeyTextView->SendMessage(SCI_SETWRAPMODE, SC_WRAP_WORD, 0);
 			} else {
 				fKeyTextView->SendMessage(SCI_SETWRAPMODE, SC_WRAP_NONE, 0);
@@ -170,6 +170,7 @@ MTermView::MessageReceived(BMessage* message)
 			break;
 	}
 }
+
 
 void
 MTermView::_EnsureStopped()
@@ -217,7 +218,6 @@ MTermView::AttachedToWindow()
 
 	fBannerEnabled->SetTarget(this);
 	fWrapEnabled->SetTarget(this);
-
 
 	ApplyStyle();
 	be_app->StartWatching(this, gCFG.UpdateMessageWhat());

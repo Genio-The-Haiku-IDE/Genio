@@ -31,6 +31,8 @@ public:
 
 			status_t			RunCommand(BMessage* cmd_message);
 
+			void	ApplyStyle();
+
 
 private:
 			void				EnableStopButton(bool doIt);

@@ -13,11 +13,11 @@
 #include <unordered_map>
 
 #include <yaml-cpp/yaml.h>
-
+#include <String.h>
 
 class BFont;
 class BPath;
-class Editor;
+class BScintillaView;
 
 
 class Styler {
@@ -29,16 +29,25 @@ public:
 		int bgColor;
 		int style;
 	};
-	static	void	ApplyGlobal(Editor* editor, const char* style, const BFont* font = nullptr);
-	static	void	ApplyLanguage(Editor* editor, const std::map<int, int>& styleMapping);
+	static	void	ApplyGlobal(BScintillaView* editor, const char* style, const BFont* font = nullptr);
+	static	void	ApplyLanguage(BScintillaView* editor, const std::map<int, int>& styleMapping);
 
 	static	void	GetAvailableStyles(std::set<std::string> &styles);
 
+
+	static	void	ApplyBasicStyle(BScintillaView* editor, const char* style, const BFont* font = nullptr);
+	static	void	ApplySystemStyle(BScintillaView* editor);
+
 private:
-	static	void	_ApplyGlobal(Editor* editor, const char* style, const BPath &path, const BFont* font = nullptr);
+	static	void	_ApplyGlobal(BScintillaView* editor, const char* style, const BPath &path, const BFont* font = nullptr);
 	static	void	_GetAvailableStyles(std::set<std::string> &styles, const BPath &path);
 	static	void	_GetAttributesFromNode(const YAML::Node &node, int& styleId, Style& style);
-	static	void	_ApplyAttributes(Editor* editor, int styleId, Style style);
+	static	void	_ApplyAttributes(BScintillaView* editor, int styleId, Style style);
+	static	void	_ApplyBasicStyle(BScintillaView* editor, const char* style, const BPath &path, const BFont* font = nullptr);
+	static  void	_ApplyDefaultStyle(BScintillaView* editor, YAML::Node& node, const BFont* font);
+	static	void	_ApplyBasicStyle(BScintillaView* editor, YAML::Node& global);
+	static  BString _FullStylePath(const char* style, const BPath &path);
+
 	static	std::unordered_map<int, Style>	sStylesMapping;
 };
 

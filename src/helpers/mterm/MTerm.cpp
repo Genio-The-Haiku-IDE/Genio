@@ -182,16 +182,17 @@ void
 MTerm::Kill()
 {
 	syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "S) Genio: MTerm::Kill called (fExecProcessID %d fReadTask %p fFd %d)", fExecProcessID, fReadTask, fFd);
-	if(fExecProcessID > -1) {
-		kill_thread(fExecProcessID);
-		fExecProcessID = -1;
-	}
+
 	if (fReadTask) {
 		fReadTask->Stop();
 		fReadTask = nullptr;
 	}
-	if (fFd > -1) {
+	if (fFd >= 0) {
 		close(fFd);
+		kill(-fExecProcessID, SIGHUP);
+		fExecProcessID = -1;
+		int status;
+		wait(&status);
 		fFd = -1;
 	}
 	syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "E) Genio: MTerm::Kill called (fExecProcessID %d fReadTask %p fFd %d)", fExecProcessID, fReadTask, fFd);

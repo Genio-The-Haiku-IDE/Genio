@@ -185,8 +185,14 @@ GenioApp::MessageReceived(BMessage* message)
 					else if (::strcmp(key, "log_level") == 0)
 						Logger::SetLevel(log_level(int32(gCFG["log_level"])));
 				}
-				gCFG.SaveToFile({fConfigurationPath});
-				LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
+				BString context = message->GetString("context", "");
+				if (context.IsEmpty() || context.Compare("reset_to_defaults_end") == 0) {
+					gCFG.SaveToFile({fConfigurationPath});
+					LogInfo("Configuration file saved! (updating %s)", message->GetString("key", "ERROR!"));
+				} else {
+					LogInfo("Configuration updated! (updating %s)", message->GetString("key", "ERROR!"));
+				}
+
 			}
 			break;
 		}
@@ -440,6 +446,20 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(editorVisual.String(), "ruler_column", B_TRANSLATE("Set ruler to column:"), 100, &limits);
 	GMessage zooms = { {"min", -9}, {"max", 19} };
 	cfg.AddConfig(editorVisual.String(), "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
+
+	GMessage console_styles = { {"mode", "options"} };
+	console_styles["option_1"] = { {"value", 0}, {"label", B_TRANSLATE("(follow system style)") } };
+	console_styles["option_2"] = { {"value", 1}, {"label", B_TRANSLATE("(follow editor style)") } };
+	style_index = 3;
+	for (auto style : allStyles) {
+		BString opt("option_");
+		opt << style_index;
+
+		console_styles[opt.String()] = { {"value", style_index - 1}, {"label", style.c_str() } };
+		style_index++;
+	}
+	cfg.AddConfig("Console", "console_style", B_TRANSLATE("Console style:"), B_TRANSLATE("(follow system style)"), &console_styles);
+
 
 	BString build(B_TRANSLATE("Build"));
 	cfg.AddConfig(build.String(), "wrap_console", B_TRANSLATE("Wrap lines in console"), false);

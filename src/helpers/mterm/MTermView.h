@@ -47,4 +47,6 @@ private:
 			BButton*					fStopButton;
 			BString						fBannerClaim;
 			MTerm* 						fMTerm;
+			BCheckBox*					fWrapEnabled;
+			BCheckBox*					fBannerEnabled;
 };

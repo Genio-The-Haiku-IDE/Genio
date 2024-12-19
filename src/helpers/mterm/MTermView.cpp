@@ -15,6 +15,7 @@
 
 #include "ConfigManager.h"
 #include "KeyTextViewScintilla.h"
+#include "Log.h"
 #include "MTerm.h"
 #include "Styler.h"
 
@@ -147,6 +148,25 @@ MTermView::MessageReceived(BMessage* message)
 			break;
 		}
 		case Genio::Task::TASK_RESULT_MESSAGE:
+		{
+			// The task is ending. Let's avoid calling _EnsureStopped() (which terminates the task)
+			// before it has fully completed, to prevent potentially entering an inconsistent
+			// kernel lock state.
+
+			thread_id taskId = (thread_id)message->GetInt32("TaskResult::TaskID", -1);
+			if (taskId > -1) {
+				status_t threadStatus = B_OK;
+				status_t waitStatus = wait_for_thread(taskId, &threadStatus);
+				LogInfo("TASK_RESULT_MESSAGE for thread %d: threadStatus (%s) waitStatus (%s)",
+						taskId,
+						strerror(threadStatus),
+						strerror(waitStatus));
+				_EnsureStopped();
+			}
+
+
+			break;
+		}
 		case kTermViewStop:
 		{
 			_EnsureStopped();
@@ -176,7 +196,6 @@ void
 MTermView::_EnsureStopped()
 {
 	if (fMTerm != nullptr) {
-		fMTerm->Kill();
 		delete fMTerm;
 		fMTerm = nullptr;
 		fKeyTextView->EnableInput(false);

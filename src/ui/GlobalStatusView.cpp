@@ -30,8 +30,7 @@ GlobalStatusView::GlobalStatusView()
 	BView("global_status_view", B_WILL_DRAW),
 	fBarberPole(nullptr),
 	fStringView(nullptr),
-	fLastStatusChange(system_time()),
-	fDontHideText(false)
+	fLastStatusChange(system_time())
 {
 	fBarberPole = new BarberPole("barber pole");
 	//fBarberPole->SetExplicitMinSize(BSize(100, B_SIZE_UNLIMITED));
@@ -40,6 +39,8 @@ GlobalStatusView::GlobalStatusView()
 	fStringView = new BStringView("text", "");
 	fStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
 	fStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+
+	fBarberPole->Hide();
 
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
 		.SetInsets(2, 0)
@@ -88,6 +89,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 	switch (message->what) {
 		case kHideText:
 			fStringView->SetText("");
+			fBarberPole->Hide();
 			break;
 		case B_OBSERVER_NOTICE_CHANGE:
 		{
@@ -96,6 +98,9 @@ GlobalStatusView::MessageReceived(BMessage *message)
 			switch (what) {
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
+					if (fBarberPole->IsHidden())
+						fBarberPole->Show();
+
 					// TODO: Instead of doing this here, put the string into the message
 					// from the caller and just retrieve it and display it here
 					bool building = message->GetBool("building", false);
@@ -108,7 +113,6 @@ GlobalStatusView::MessageReceived(BMessage *message)
 							text = B_TRANSLATE("Building project '\"%project%\"'" B_UTF8_ELLIPSIS);
 						else if (cmdType.Compare("clean") == 0)
 							text = B_TRANSLATE("Cleaning project '\"%project%\"'" B_UTF8_ELLIPSIS);
-						fDontHideText = true;
 						fBarberPole->Start();
 					} else {
 						if (cmdType.Compare("build") == 0) {
@@ -122,7 +126,6 @@ GlobalStatusView::MessageReceived(BMessage *message)
 							else
 								text = B_TRANSLATE("Failed cleaning project '\"%project%\"'");
 						}
-						fDontHideText = false;
 						fBarberPole->Stop();
 						BMessenger messenger(this);
 						BMessageRunner::StartSending(messenger, new BMessage(kHideText),

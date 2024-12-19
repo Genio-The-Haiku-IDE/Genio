@@ -262,9 +262,13 @@ ConfigWindow::MessageReceived(BMessage* message)
 						GMessage m(kSetValueNoUpdate);
 						m["key"] = key.String();
 						control->MessageReceived(&m);
+					}
+				}
+
+				BString context = message->GetString("context", "");
+				if (context.IsEmpty() || context.Compare("reset_to_defaults_end") == 0) {
 						if (fDefaultsButton != nullptr)
 							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
-					}
 				}
 			}
 			break;
@@ -282,7 +286,7 @@ ConfigWindow::_PopulateListView()
 	std::vector<GMessage> dividedByGroup;
 	GMessage msg;
 	int i = 0;
-	while (fConfigManager.Configuration().FindMessage("config", i++, &msg) == B_OK)  {
+	while (fConfigManager.FindConfigMessage("config", i++, &msg) == B_OK)  {
 		std::vector<GMessage>::iterator i = dividedByGroup.begin();
 		while (i != dividedByGroup.end()) {
 			if (strcmp((*i)["group"], (const char*)msg["group"]) == 0) {

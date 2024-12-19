@@ -41,7 +41,6 @@
 #include <OS.h>
 #include <SupportDefs.h>
 #include "GMessage.h"
-#include <syslog.h>
 
 /* handshake interface */
 typedef struct
@@ -162,8 +161,6 @@ MTerm::MTerm(const BMessenger& msgr) : fExecProcessID(-1), fFd(-1), fMessenger(m
 MTerm::~MTerm()
 {
 	Kill();
-	syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "S) Genio: ~MTerm() called (fMessenger.IsValid() = %d)",fMessenger.IsValid());
-	fMessenger = BMessenger();
 }
 
 void
@@ -181,8 +178,6 @@ MTerm::Run(int argc, const char* const* argv)
 void
 MTerm::Kill()
 {
-	syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "S) Genio: MTerm::Kill called (fExecProcessID %d fReadTask %p fFd %d)", fExecProcessID, fReadTask, fFd);
-
 	if (fReadTask) {
 		fReadTask->Stop();
 		fReadTask = nullptr;
@@ -195,7 +190,6 @@ MTerm::Kill()
 		wait(&status);
 		fFd = -1;
 	}
-	syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "E) Genio: MTerm::Kill called (fExecProcessID %d fReadTask %p fFd %d)", fExecProcessID, fReadTask, fFd);
 }
 
 

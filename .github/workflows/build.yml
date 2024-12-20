@@ -9,6 +9,7 @@ on:
     paths:
       - '**.cpp'
       - '**.h'
+      - '**.rdef'
 jobs:  
   build:
     name: 'build on Haiku'

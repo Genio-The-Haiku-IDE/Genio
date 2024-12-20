@@ -15,6 +15,7 @@ v4.0 (development)
 	- Editor status bar: use a fixed font.
 	- Avoid converting end lines when opening files.
 	- Fixed concurrency issue which could cause settings corruption.
+	- Fixed random hang when running/debugging applications from Genio.
 	- Fixed selecting collapsed items in Config window.
 	- Fixed ReplaceFindPrevious/Next for real.
 	- Fixed ProjectBrowser losing focus after renaming a file. 

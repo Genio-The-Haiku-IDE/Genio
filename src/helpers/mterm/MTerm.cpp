@@ -178,16 +178,16 @@ MTerm::Run(int argc, const char* const* argv)
 void
 MTerm::Kill()
 {
-	if(fExecProcessID > -1) {
-		kill_thread(fExecProcessID);
-		fExecProcessID = -1;
-	}
 	if (fReadTask) {
 		fReadTask->Stop();
 		fReadTask = nullptr;
 	}
-	if (fFd > -1) {
+	if (fFd >= 0) {
 		close(fFd);
+		kill(-fExecProcessID, SIGHUP);
+		fExecProcessID = -1;
+		int status;
+		wait(&status);
 		fFd = -1;
 	}
 }
@@ -291,7 +291,7 @@ MTerm::_Spawn(int argc, const char* const* argv)
 		/*
 		 * set terminal interface.
 		 */
-		 tio.c_lflag &= ~ECHO;
+		tio.c_lflag &= ~ECHO;
 		if (tcsetattr(0, TCSANOW, &tio) == -1) {
 			handshake.status = PTY_NG;
 			snprintf(handshake.msg, sizeof(handshake.msg),

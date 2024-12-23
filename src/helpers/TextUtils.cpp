@@ -5,7 +5,9 @@
 
 
 #include "TextUtils.h"
+
 #include <algorithm>
+
 
 const std::string kWordCharacters ("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 const std::string kWhiteSpaces (" \n\t\r");
@@ -27,8 +29,18 @@ const BString EscapeQuotesWrap(const BString& path) {
 
 // trim from start (in place)
 void LeftTrim(std::string &s) {
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-            return !std::isspace(ch);
-          }));
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+		return !std::isspace(ch);
+	}));
 }
 
+void RightTrim(std::string& s) {
+	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+		return !std::isspace(ch);
+	}).base(), s.end());
+}
+
+void Trim(std::string& s) {
+	LeftTrim(s);
+	RightTrim(s);
+}

@@ -20,6 +20,8 @@ const BString EscapeQuotesWrap(const BString& string);
 
 // trim from start (in place)
 void LeftTrim(std::string &s);
+void RightTrim(std::string &s);
+void Trim(std::string &s);
 
 
 #endif // TextUtils_H

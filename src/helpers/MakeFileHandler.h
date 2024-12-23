@@ -15,8 +15,15 @@ public:
 	
 	status_t SetTo(const char* path);
 	
-	void GetTargetName(BString &docText) const;
-	void SetTargetName(const BString& docText);
+	void GetTargetName(BString &name) const;
+	void SetTargetName(const BString& name);
+
+	void GetTargetDirectory(BString& dir) const;
+	void SetTargetDirectory(const BString& dir);
+
+	void GetFullTargetName(BString& fullName) const;
+
 private:
 	BString fTargetName;
+	BString fTargetDir;
 };

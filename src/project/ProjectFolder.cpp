@@ -251,7 +251,7 @@ ProjectFolder::GuessBuildCommand()
 			if (entry.GetPath(&makeFilePath) == B_OK) {
 				MakeFileHandler handler(makeFilePath.Path());
 				BString targetName;
-				handler.GetTargetName(targetName);
+				handler.GetFullTargetName(targetName);
 				SetTarget(targetName, BuildMode::ReleaseMode);
 				SetTarget(targetName, BuildMode::DebugMode);
 			}

@@ -15,8 +15,11 @@
 #include "ConfigManager.h"
 #include "LSPProjectWrapper.h"
 #include "LSPServersManager.h"
+#include "MakeFileHandler.h"
 #include "GenioNamespace.h"
 #include "GSettings.h"
+
+#include <iostream>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"
@@ -237,15 +240,23 @@ ProjectFolder::GuessBuildCommand()
 		// guess builder type
 		// TODO: move this away from here, into a specialized class
 		// and maybe into plugins
-		if (strcasecmp(entry.Name(), "makefile") == 0) {
+		if (::strcasecmp(entry.Name(), "makefile") == 0) {
 			// builder: make
 			SetBuildCommand("make", BuildMode::ReleaseMode);
 			SetCleanCommand("make clean", BuildMode::ReleaseMode);
 			SetBuildCommand("make DEBUGGER=1", BuildMode::DebugMode);
 			SetCleanCommand("make DEBUGGER=1 clean", BuildMode::DebugMode);
 			LogInfo("Guessed builder: make");
+			BPath makeFilePath;
+			if (entry.GetPath(&makeFilePath) == B_OK) {
+				MakeFileHandler handler(makeFilePath.Path());
+				BString targetName;
+				handler.GetFullTargetName(targetName);
+				SetTarget(targetName, BuildMode::ReleaseMode);
+				SetTarget(targetName, BuildMode::DebugMode);
+			}
 			break;
-		} else if (strcasecmp(entry.Name(), "jamfile") == 0) {
+		} else if (::strcasecmp(entry.Name(), "jamfile") == 0) {
 			// builder: jam
 			SetBuildCommand("jam", BuildMode::ReleaseMode);
 			SetCleanCommand("jam clean", BuildMode::ReleaseMode);

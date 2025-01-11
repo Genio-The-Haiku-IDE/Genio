@@ -82,11 +82,12 @@ public:
 
 		bool HasKey(const char* key) const;
 
-		GMessage& Configuration() { return fConfiguration; }
-
 		int32 UpdateMessageWhat() const { return fNoticeMessage.what; }
 
 		BMessage*	NoticeMessage() { return &fNoticeMessage; }
+
+		status_t	FindConfigMessage(const char* name, int32 index,
+									BMessage* message);
 
 private:
 friend ConfigManagerReturn;
@@ -108,16 +109,17 @@ friend ConfigManagerReturn;
 			GMessage noticeMessage = fNoticeMessage;
 			noticeMessage["key"]  	= key;
 			noticeMessage["value"]  = fStorage[key];
+
 			if (be_app != nullptr)
 				be_app->SendNotices(noticeMessage.what, &noticeMessage);
 		}
 
 private:
-		GMessage fStorage;
-		GMessage fConfiguration;
-		BLocker	 fLocker;
-		GMessage fNoticeMessage;
-		PermanentStorageProvider*	fPSPList[kStorageTypeCountNb];
+					GMessage	fStorage;		//access must be protected by fLocker
+					GMessage	fConfiguration;	//access must be protected by fLocker
+		mutable		BLocker		fLocker;
+					GMessage	fNoticeMessage;
+					PermanentStorageProvider*	fPSPList[kStorageTypeCountNb];
 
     bool	_CheckKeyIsValid(const char* key) const;
 	PermanentStorageProvider*	CreatePSPByType(StorageType type);

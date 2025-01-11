@@ -59,6 +59,8 @@
 <p>Here you chose to build either in <span class="menu">release</span> or <span class="menu">debug</span> mode when invoking <span class="menu">Project|Build project</span> (<span class="key">ALT</span>&nbsp;<span class="key">B</span>) or via the toolbar icon.<br />
 There's also the <span class="menu">Project|Build mode</span> menu to quickly switch between the two modes.</p>
 
+<p>You can set a <span class="menu">Build file path</span> if, for example, your Makefile isn't in the project's top folder but in a "source" subfolder.</p>
+
 <h3>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
 <a id="project-build_release" name="project-build_release">Build / Release</a></h3>
@@ -84,6 +86,7 @@ There's also the <span class="menu">Project|Build mode</span> menu to quickly sw
 
 <p>If you haven't configured your build commands correctly, the corresponding icon in the toolbar will be inactive.</p>
 
+<div class="box-info">If you're on 32bit Haiku and need to compile with a modern compiler instead of the default <tt>gcc 2.95</tt>, you can prepend <tt>setarch x86</tt> to the build commands so they say for example: <tt>setarch x86 make -j$(nproc)</tt>.</div>
 
 <h3>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>

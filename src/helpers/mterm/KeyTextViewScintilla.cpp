@@ -37,6 +37,8 @@ KeyTextViewScintilla::KeyTextViewScintilla(const char *name, const BMessenger &m
 	SendMessage(SCI_STYLESETFONT, 32, (sptr_t) fontName);
 	SendMessage(SCI_STYLESETSIZE, 32, (sptr_t) be_fixed_font->Size());
 	SendMessage(SCI_USEPOPUP, SC_POPUP_NEVER);
+	SendMessage(SCI_SETMARGINS, 0, 0);
+
 	EnableInput(false);
 }
 

@@ -3,19 +3,25 @@ v4.0 (development)
 	- Improved search panel. Now you can also search in non-active projects.
 	- Improved run toolbar.
 	- Improved build indicator.
+	- Updated documentation (Humdinger).
 	- Added a status bar to show build status.	
 	- Added option for smaller icons, and made icons scale with font size.
 	- Added menu to select the active project.
+	- Added new stylable Console I/O.
 	- Remove some useless toolbar icons.
 	- Improved handling of appearance settings.
 	- ProjectBrowser: added handling of DEL key to delete files.
 	- Improve confusing alert name when creating a new branch.
 	- Editor status bar: use a fixed font.
 	- Avoid converting end lines when opening files.
+	- Fixed concurrency issue which could cause settings corruption.
+	- Fixed random hang when running/debugging applications from Genio.
+	- Fixed selecting collapsed items in Config window.
 	- Fixed ReplaceFindPrevious/Next for real.
 	- Fixed ProjectBrowser losing focus after renaming a file. 
 	- Fixed build and missing resources when building Genio with Clang.
 	- Fixed possible memory corruption issues in git clone code path.
+	- Fixed some small memory leaks.
 	- Removed "Default" button in project settings.
 ---
 v3.1

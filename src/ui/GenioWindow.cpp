@@ -113,6 +113,9 @@ enum {
 
 };
 
+static constexpr const char* kTabViewLeft   = "left_panels";
+static constexpr const char* kTabViewRight  = "right_panels";
+static constexpr const char* kTabViewBottom = "bottom_panels";
 
 static bool
 AcceptsCopyPaste(BView* view)
@@ -289,9 +292,9 @@ GenioWindow::Show()
 	BWindow::Show();
 
 	if (LockLooper()) {
-		_ShowPanelTabView("left_panels",   gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
-		_ShowPanelTabView("right_panels",  gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
-		_ShowPanelTabView("bottom_panels", gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
+		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
+		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 
 
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
@@ -1322,10 +1325,10 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		fScreenModeSettings.MakeEmpty();
 		fScreenModeSettings["saved_frame"] = Frame();
 		fScreenModeSettings["saved_look"] = (int32)Look();
-		fScreenModeSettings["show_projects"] = fPanelTabManager->IsPanelTabViewVisible("left_panels");//!fProjectsTabView->IsHidden();
-		fScreenModeSettings["show_output"]   = fPanelTabManager->IsPanelTabViewVisible("bottom_panels");//!fOutputTabView->IsHidden();
+		fScreenModeSettings["show_projects"] = fPanelTabManager->IsPanelTabViewVisible(kTabViewLeft);//!fProjectsTabView->IsHidden();
+		fScreenModeSettings["show_output"]   = fPanelTabManager->IsPanelTabViewVisible(kTabViewBottom);//!fOutputTabView->IsHidden();
 		fScreenModeSettings["show_toolbar"]  = !fToolBar->IsHidden();
-		fScreenModeSettings["show_outline"]  = fPanelTabManager->IsPanelTabViewVisible("right_panels"); //!fRightTabView->IsHidden();
+		fScreenModeSettings["show_outline"]  = fPanelTabManager->IsPanelTabViewVisible(kTabViewRight); //!fRightTabView->IsHidden();
 
 		BScreen screen(this);
 		fMenuBar->Hide();
@@ -1343,9 +1346,9 @@ GenioWindow::_ToogleScreenMode(int32 action)
 			fScreenMode = kFullscreen;
 		} else if (action == MSG_FOCUS_MODE) {
 			_ShowView(fToolBar,         false, MSG_TOGGLE_TOOLBAR);
-			_ShowPanelTabView("left_panels",   false, MSG_SHOW_HIDE_PROJECTS);
-			_ShowPanelTabView("right_panels",  false, MSG_SHOW_HIDE_OUTLINE);
-			_ShowPanelTabView("bottom_panels", false, MSG_SHOW_HIDE_OUTPUT);
+			_ShowPanelTabView(kTabViewLeft,   false, MSG_SHOW_HIDE_PROJECTS);
+			_ShowPanelTabView(kTabViewRight,  false, MSG_SHOW_HIDE_OUTLINE);
+			_ShowPanelTabView(kTabViewBottom, false, MSG_SHOW_HIDE_OUTPUT);
 			fScreenMode = kFocus;
 		}
 	} else { // exit fullscreen
@@ -1365,9 +1368,9 @@ GenioWindow::_ToogleScreenMode(int32 action)
 
 		_ShowView(fToolBar,         fScreenModeSettings["show_toolbar"], MSG_TOGGLE_TOOLBAR);
 
-		_ShowPanelTabView("left_panels",   fScreenModeSettings["show_projects"], MSG_SHOW_HIDE_PROJECTS);
-		_ShowPanelTabView("right_panels",  fScreenModeSettings["show_outline"], MSG_SHOW_HIDE_OUTLINE);
-		_ShowPanelTabView("bottom_panels", fScreenModeSettings["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowPanelTabView(kTabViewLeft,   fScreenModeSettings["show_projects"], MSG_SHOW_HIDE_PROJECTS);
+		_ShowPanelTabView(kTabViewRight,  fScreenModeSettings["show_outline"], MSG_SHOW_HIDE_OUTLINE);
+		_ShowPanelTabView(kTabViewBottom, fScreenModeSettings["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 
 		fScreenMode = kDefault;
 	}
@@ -1513,8 +1516,8 @@ GenioWindow::QuitRequested()
 	if (fScreenMode != kDefault)
 		_ToogleScreenMode(-1);
 
-	gCFG["show_projects"] = fPanelTabManager->IsPanelTabViewVisible("left_panels");
-	gCFG["show_output"]   = fPanelTabManager->IsPanelTabViewVisible("bottom_panels");
+	gCFG["show_projects"] = fPanelTabManager->IsPanelTabViewVisible(kTabViewLeft);
+	gCFG["show_output"]   = fPanelTabManager->IsPanelTabViewVisible(kTabViewBottom);
 	gCFG["show_toolbar"]  = !fToolBar->IsHidden();
 
 	// Files to reopen
@@ -3427,7 +3430,7 @@ BView*
 GenioWindow::_InitOutputSplit()
 {
 	// Output
-	BView* out = fPanelTabManager->CreatePanelTabView("bottom_panels", B_HORIZONTAL);
+	BView* out = fPanelTabManager->CreatePanelTabView(kTabViewBottom, B_HORIZONTAL);
 
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
 
@@ -3437,10 +3440,10 @@ GenioWindow::_InitOutputSplit()
 
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
 
-	fPanelTabManager->AddPanel("bottom_panels", fProblemsPanel, kTabProblems);
-	fPanelTabManager->AddPanel("bottom_panels", fBuildLogView, kTabBuildLog);
-	fPanelTabManager->AddPanel("bottom_panels", fMTermView, kTabOutputLog);
-	fPanelTabManager->AddPanel("bottom_panels", fSearchResultTab, kTabSearchResult);
+	fPanelTabManager->AddPanel(kTabViewBottom, fProblemsPanel, kTabProblems);
+	fPanelTabManager->AddPanel(kTabViewBottom, fBuildLogView, kTabBuildLog);
+	fPanelTabManager->AddPanel(kTabViewBottom, fMTermView, kTabOutputLog);
+	fPanelTabManager->AddPanel(kTabViewBottom, fSearchResultTab, kTabSearchResult);
 
 	return out;
 }
@@ -3450,12 +3453,12 @@ BView*
 GenioWindow::_InitLeftSplit()
 {
 	// Projects View
-	BView* out = fPanelTabManager->CreatePanelTabView("left_panels", B_VERTICAL);
+	BView* out = fPanelTabManager->CreatePanelTabView(kTabViewLeft, B_VERTICAL);
 
 	fProjectsFolderBrowser = new ProjectBrowser();
 	fSourceControlPanel = new SourceControlPanel();
-	fPanelTabManager->AddPanel("left_panels", fProjectsFolderBrowser, kTabProjectBrowser);
-	fPanelTabManager->AddPanel("left_panels", fSourceControlPanel, kTabSourceControl);
+	fPanelTabManager->AddPanel(kTabViewLeft, fProjectsFolderBrowser, kTabProjectBrowser);
+	fPanelTabManager->AddPanel(kTabViewLeft, fSourceControlPanel, kTabSourceControl);
 
 	return out;
 }
@@ -3465,10 +3468,10 @@ BView*
 GenioWindow::_InitRightSplit()
 {
 	// Outline view
-	BView* out = fPanelTabManager->CreatePanelTabView("right_panels", B_VERTICAL);
+	BView* out = fPanelTabManager->CreatePanelTabView(kTabViewRight, B_VERTICAL);
 
 	fFunctionsOutlineView = new FunctionsOutlineView();
-	fPanelTabManager->AddPanel("right_panels", fFunctionsOutlineView, kTabOutlineView);
+	fPanelTabManager->AddPanel(kTabViewRight, fFunctionsOutlineView, kTabOutlineView);
 
 	return out;
 }
@@ -4554,11 +4557,11 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
 		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 	} else if (key.Compare("show_projects") == 0) {
-		_ShowPanelTabView("left_panels",   gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
+		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
 	} else if (key.Compare("show_outline") == 0) {
-		_ShowPanelTabView("right_panels",  gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
+		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
 	} else if (key.Compare("show_output") == 0) {
-		_ShowPanelTabView("bottom_panels", gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
 	} else if (key.Compare("show_toolbar") == 0) {
 		_ShowView(fToolBar, bool(gCFG["show_toolbar"]), MSG_TOGGLE_TOOLBAR);
 	} else if (key.Compare("show_statusbar") == 0) {

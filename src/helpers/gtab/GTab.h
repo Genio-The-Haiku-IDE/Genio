@@ -262,7 +262,6 @@ public:
 	}
 
 private:
-	bool			fTabDragging;
 	BMessageRunner*	fRunner;
 };
 

@@ -111,7 +111,7 @@ public:
 			BString				Label() { return fLabel; };
 				void			SetLabel(const char* label) { fLabel.SetTo(label); }
 
-	virtual void 				OnDropMessage(BMessage* message);
+	virtual void 				OnDropMessage(BMessage* message) override;
 
 protected:
 			BLayoutItem*		fLayoutItem;
@@ -166,7 +166,7 @@ class Filler : public BView, public GTabDropZone
 		void 	MouseMoved(BPoint where, uint32 transit,
 							const BMessage* dragMessage) override;
 		void	MessageReceived(BMessage* message) override;
-									
+
 		void	OnDropMessage(BMessage* message) override;
 
 		void	OnDropObject();

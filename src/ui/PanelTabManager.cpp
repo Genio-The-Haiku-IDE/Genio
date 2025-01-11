@@ -13,11 +13,12 @@
 
 class GTabID : public GTab {
 	public:
+
 		GTabID(tab_id id, const char* label, TabsContainer* container):
-			GTab(label, container), fId(id)
-		{
-		}
+			GTab(label, container), fId(id){ }
+
 		tab_id	GetID() { return fId; }
+
 	private:
 		tab_id	fId;
 };

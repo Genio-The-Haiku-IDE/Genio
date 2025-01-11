@@ -4,18 +4,14 @@
  */
 #pragma once
 
-
 #include <SupportDefs.h>
 #include <InterfaceDefs.h>
-#include <ObjectList.h>
 #include <map>
 
-class GTabID;
 class BView;
 class PanelTabView;
 
 typedef uint32  tab_id;
-
 typedef std::map<const char*, PanelTabView*> TabViewList;
 
 

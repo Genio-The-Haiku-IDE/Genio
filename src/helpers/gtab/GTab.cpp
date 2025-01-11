@@ -5,19 +5,21 @@
 
 
 #include "GTab.h"
-#include <ControlLook.h>
-#include "TabsContainer.h"
+
 #include <Bitmap.h>
+#include <ControlLook.h>
+
+#include "TabsContainer.h"
+
 
 #define TAB_DRAG	'DRAG'
 #define ALPHA		200
 
 
-
 bool
 GTabDropZone::_ValidDragAndDrop(const BMessage* message)
 {
-	GTab*		fromTab = (GTab*)message->GetPointer("tab", nullptr);
+	GTab* fromTab = (GTab*)message->GetPointer("tab", nullptr);
 	TabsContainer*	fromContainer = fromTab->Container();
 
 	if (fromTab == nullptr || fromContainer == nullptr)
@@ -49,13 +51,11 @@ GTabDropZone::DropZoneMouseMoved(BView* view,
 				StartDragging(view);
 				return true;
 			}
-			break;
 			default:
 				StopDragging(view);
-			break;
-		};
+				break;
+		}
 	} else {
-
 		OnMouseMoved(where);
 		StopDragging(view);
 	}
@@ -76,9 +76,13 @@ GTabDropZone::DropZoneMessageReceived(BMessage* message)
 
 
 
+// GTab
 GTab::GTab(const char* label, TabsContainer* container)
-	: BView("_tabView_", B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
-	GTabDropZone(container), fIsFront(false), fLabel(label)/*, fTabDragging(false)*/
+	:
+	BView("_tabView_", B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
+	GTabDropZone(container),
+	fIsFront(false),
+	fLabel(label)/*, fTabDragging(false)*/
 {
 }
 
@@ -96,6 +100,7 @@ GTab::MinSize()
 	return size;
 }
 
+
 BSize
 GTab::MaxSize()
 {
@@ -110,6 +115,7 @@ GTab::Draw(BRect updateRect)
 	DrawTab(this, updateRect);
 	DropZoneDraw(this, Bounds());
 }
+
 
 void
 GTab::DrawTab(BView* owner, BRect updateRect)
@@ -131,6 +137,7 @@ GTab::DrawTab(BView* owner, BRect updateRect)
 	frame.InsetBy(spacing, spacing / 2);
 	DrawContents(owner, frame, updateRect, fIsFront);
 }
+
 
 void
 GTab::DrawBackground(BView* owner, BRect frame, const BRect& updateRect, bool isFront)
@@ -161,8 +168,9 @@ void
 GTab::MouseDown(BPoint where)
 {
 	BMessage* msg = Window()->CurrentMessage();
-	if (!msg)
+	if (msg == nullptr)
 		return;
+
 	const int32 buttons = msg->GetInt32("buttons", 0);
 
  	if (Container())
@@ -198,7 +206,6 @@ GTab::MessageReceived(BMessage* message)
 }
 
 
-
 bool
 GTab::InitiateDrag(BPoint where)
 {
@@ -230,10 +237,10 @@ GTab::InitiateDrag(BPoint where)
 			dragBitmap->Unlock();
 		} else {
 			delete dragBitmap;
-			dragBitmap = NULL;
+			dragBitmap = nullptr;
 		}
 		const BRect& frame = updateRect;
-		if (dragBitmap != NULL) {
+		if (dragBitmap != nullptr) {
 			DragMessage(&message, dragBitmap, B_OP_ALPHA,
 				BPoint(where.x - frame.left, where.y - frame.top));
 		} else {
@@ -256,11 +263,13 @@ GTab::SetIsFront(bool isFront)
 	Invalidate();
 }
 
+
 bool
 GTab::IsFront() const
 {
 	return fIsFront;
 }
+
 
 void
 GTab::OnDropMessage(BMessage* message)
@@ -283,6 +292,7 @@ IncreaseContrastBy(float& tint, const float& value, const int& brightness)
 }
 
 
+// GTabCloseButton
 GTabCloseButton::GTabCloseButton(const char* label,
 										TabsContainer* controller,
 										const BHandler* handler):
@@ -291,15 +301,16 @@ GTabCloseButton::GTabCloseButton(const char* label,
 										fClicked(false),
 										fHandler(handler)
 {
-
 }
 
-//FIX: we should better understand how to extend the default sizes.
+
+// TODO: we should better understand how to extend the default sizes.
 BSize
 GTabCloseButton::MinSize()
 {
 	return GTab::MinSize();
 }
+
 
 BSize
 GTabCloseButton::MaxSize()
@@ -319,7 +330,6 @@ GTabCloseButton::DrawContents(BView* owner, BRect frame,
 	GTab::DrawContents(owner, labelFrame, updateRect, isFront);
 	frame.left = labelFrame.right;
 	DrawCloseButton(owner, frame, updateRect, isFront);
-	return;
 }
 
 
@@ -327,10 +337,11 @@ void
 GTabCloseButton::MouseDown(BPoint where)
 {
 	BMessage* msg = Window()->CurrentMessage();
-	if (!msg)
+	if (msg == nullptr)
 		return;
+
 	const int32 buttons = msg->GetInt32("buttons", 0);
-	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
+	if (buttons & B_PRIMARY_MOUSE_BUTTON) {
 		BRect closeRect = RectCloseButton();
 		bool inside = closeRect.Contains(where);
 		if (inside != fClicked) {
@@ -341,6 +352,7 @@ GTabCloseButton::MouseDown(BPoint where)
 	}
 	GTab::MouseDown(where);
 }
+
 
 void
 GTabCloseButton::MouseUp(BPoint where)
@@ -356,7 +368,6 @@ GTabCloseButton::MouseUp(BPoint where)
 	}
 	GTab::MouseUp(where);
 }
-
 
 
 void
@@ -439,14 +450,15 @@ GTabCloseButton::DrawCloseButton(BView* owner, BRect buttonRect, const BRect& up
 	owner->SetPenSize(1);
 }
 
-///////////////////////////////////////////////////////////////////////////////
 
+// Filler
 Filler::Filler(TabsContainer* tabsContainer)
-		: BView("_filler_", B_WILL_DRAW),
-			  GTabDropZone(tabsContainer)
+	:
+	BView("_filler_", B_WILL_DRAW),
+	GTabDropZone(tabsContainer)
 {
-
 }
+
 
 void
 Filler::Draw(BRect rect)
@@ -471,6 +483,7 @@ Filler::MessageReceived(BMessage* message)
 		BView::MessageReceived(message);
 }
 
+
 void
 Filler::MouseMoved(BPoint where, uint32 transit, const BMessage* dragMessage)
 {
@@ -483,5 +496,3 @@ Filler::OnDropMessage(BMessage* message)
 {
 	Container()->OnDropTab(nullptr, message);
 }
-
-

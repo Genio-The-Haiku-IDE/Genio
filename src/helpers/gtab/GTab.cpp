@@ -153,7 +153,7 @@ GTab::DrawContents(BView* owner, BRect frame, const BRect& updateRect, bool isFr
 {
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 	be_control_look->DrawLabel(owner, fLabel.String(), frame, updateRect,
-		base, 0, BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+		base, 0, BAlignment(B_ALIGN_CENTER, B_ALIGN_MIDDLE));
 }
 
 

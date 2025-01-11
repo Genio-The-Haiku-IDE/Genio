@@ -46,9 +46,9 @@ class RangeRow : public BRow {
 
 #define ProblemLabel B_TRANSLATE("Problems")
 
-ProblemsPanel::ProblemsPanel(GenioTabView* tabView): BColumnListView(ProblemLabel,
+ProblemsPanel::ProblemsPanel(PanelTabManager* panelTabManager, tab_id id): BColumnListView(ProblemLabel,
 									B_NAVIGABLE, B_FANCY_BORDER, true)
-									, fTabView(tabView)
+									, fPanelTabManager(panelTabManager), fTabId(id)
 
 {
 	AddColumn(new BStringColumn( B_TRANSLATE("Category"),
@@ -188,7 +188,7 @@ ProblemsPanel::ClearProblems()
 void
 ProblemsPanel::_UpdateTabLabel()
 {
-	if (!fTabView)
+	if (!fPanelTabManager)
 		return;
 
 	BString label = ProblemLabel;
@@ -198,7 +198,5 @@ ProblemsPanel::_UpdateTabLabel()
 		label.Append(")");
 	}
 
-	BTab* tab = fTabView->TabFromView(this);
-	if (tab)
-		tab->SetLabel(label.String());
+	fPanelTabManager->SetLabelForTab(fTabId, label.String());
 }

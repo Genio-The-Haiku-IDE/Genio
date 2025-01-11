@@ -32,11 +32,10 @@ static constexpr auto kFindReplaceMinBytes = 32;
 static constexpr uint32 kSelectProject ='PRJX';
 
 
-SearchResultTab::SearchResultTab(GenioTabView* tabView)
+SearchResultTab::SearchResultTab(PanelTabManager* panelTabManager, tab_id id)
 	:
 	BGroupView(B_VERTICAL, 0.0f),
 	fSearchResultPanel(nullptr),
-	fTabView(tabView),
 	fSelectedProject(nullptr)
 {
 	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
@@ -60,7 +59,7 @@ SearchResultTab::SearchResultTab(GenioTabView* tabView)
 	fFindWholeWordCheck = new BCheckBox(B_TRANSLATE_COMMENT("Whole word", "Short as possible."),
 		nullptr);
 
-	fSearchResultPanel = new SearchResultPanel(fTabView);
+	fSearchResultPanel = new SearchResultPanel(panelTabManager, id);
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL, 0.0f)
 		.Add(fSearchResultPanel, 3.0f)
 		.AddGroup(B_VERTICAL, 0.0f)

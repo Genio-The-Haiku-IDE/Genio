@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "GMessage.h"
-#include "GenioTabView.h"
+#include "PanelTabManager.h"
 
 
 enum scree_mode {
@@ -42,6 +42,7 @@ class SourceControlPanel;
 class TemplatesMenu;
 class ToolBar;
 class MTermView;
+class PanelTabManager;
 
 class GenioWindow : public BWindow {
 public:
@@ -109,9 +110,9 @@ private:
 			void				_InitCentralSplit();
 			void				_InitCommandRunToolbar();
 			void				_InitMenu();
-			void				_InitOutputSplit();
-			void				_InitLeftSplit();
-			void				_InitRightSplit();
+			BView*				_InitOutputSplit();
+			BView*				_InitLeftSplit();
+			BView*				_InitRightSplit();
 			void				_InitToolbar();
 			void				_InitWindow();
 
@@ -145,7 +146,6 @@ private:
 			void				_RunTarget();
 
 			void				_ShowOutputTab(tab_id id);
-			bool				_ShowTab(tab_id id, GenioTabView* tabView);
 
 			void				_UpdateFindMenuItems(const BString& text);
 			void				_UpdateRecentCommands(const BString& text);
@@ -156,6 +156,7 @@ private:
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
+			void				_ShowPanelTabView(const char* name, bool show, int32 msgWhat = -1);
 			status_t			_AlertInvalidBuildConfig(BString text);
 			void				_CloseMultipleTabs(BMessage* msg);
 			void				_HandleConfigurationChanged(BMessage* msg);
@@ -205,9 +206,6 @@ private:
 			BGroupLayout*		fEditorTabsGroup;
 
 
-			// Left panels
-			GenioTabView*	  		fProjectsTabView;
-
 			ProjectBrowser*		fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
@@ -217,7 +215,6 @@ private:
 			ProjectFolder		*fActiveProject;
 
 			// Right panels
-			GenioTabView*		  fRightTabView;
 			FunctionsOutlineView* fFunctionsOutlineView;
 
 			// Editor group
@@ -246,7 +243,6 @@ private:
 			BFilePanel*			fImportResourcePanel;
 
 			// Bottom panels
-			GenioTabView*		fOutputTabView;
 			ProblemsPanel*		fProblemsPanel;
 			ConsoleIOView*		fBuildLogView;
 			MTermView*			fMTermView;
@@ -260,6 +256,7 @@ private:
 #ifdef GDEBUG
 			BString				fTitlePrefix;
 #endif
+			PanelTabManager*	fPanelTabManager;
 
 };
 

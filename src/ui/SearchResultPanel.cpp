@@ -67,12 +67,13 @@ public:
 
 #define SearchResultPanelLabel B_TRANSLATE("Search results")
 
-SearchResultPanel::SearchResultPanel(GenioTabView* tabView)
+SearchResultPanel::SearchResultPanel(PanelTabManager* panelTabManager, tab_id id)
 	:
 	BColumnListView(SearchResultPanelLabel, B_NAVIGABLE, B_FANCY_BORDER, true),
 	fGrepThread(nullptr),
-	fTabView(tabView),
-	fCountResults(0)
+	fPanelTabManager(panelTabManager),
+	fCountResults(0),
+	fTabId(id)
 {
 	AddColumn(new BFontStringColumn(B_TRANSLATE("Location"),
 								1000.0, 20.0, 2000.0, 0), kLocationColumn);
@@ -82,12 +83,10 @@ SearchResultPanel::SearchResultPanel(GenioTabView* tabView)
 void
 SearchResultPanel::SetTabLabel(BString label)
 {
-	if (!fTabView)
+	if (!fPanelTabManager)
 		return;
 
-	BTab* tab = fTabView->TabFromView(this->Parent());
-	if (tab)
-		tab->SetLabel(label.String());
+	fPanelTabManager->SetLabelForTab(fTabId, label);
 }
 
 

@@ -174,7 +174,7 @@ GTab::MouseDown(BPoint where)
 	const int32 buttons = msg->GetInt32("buttons", 0);
 
  	if (Container())
-		Container()->MouseDown(this, where, buttons);
+		Container()->MouseDownOnTab(this, where, buttons);
 
 	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
 		DropZoneMouseDown(where);

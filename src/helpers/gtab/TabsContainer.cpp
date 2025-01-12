@@ -178,7 +178,7 @@ TabsContainer::ShiftTabs(int32 delta)
 
 
 void
-TabsContainer::MouseDown(GTab* tab, BPoint where, const int32 buttons)
+TabsContainer::MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons)
 {
 	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
 		SelectTab(tab);

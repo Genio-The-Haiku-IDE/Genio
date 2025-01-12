@@ -34,7 +34,7 @@ public:
 
 	void	ShiftTabs(int32 delta); // 0 to refresh the current state
 
-	void MouseDown(GTab* tab, BPoint where, const int32 buttons);
+	void MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons);
 
 	void FrameResized(float w, float h) override;
 

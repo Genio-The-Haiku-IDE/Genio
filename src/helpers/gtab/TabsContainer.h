@@ -16,8 +16,6 @@ class GTab;
 class TabsContainer : public BGroupView, public BInvoker {
 public:
 
-			enum { kTVCloseTab = 'TVCt' };
-
 			TabsContainer(GTabView* tabView,
 						  tab_affinity	affinity = 0,
 						  BMessage* message = nullptr);

@@ -137,7 +137,7 @@ GTabView::MessageReceived(BMessage* message)
 				fCardView->CardLayout()->SetVisibleItem(index);
 		}
 		break;
-		case TabsContainer::kTVCloseTab:
+		case GTabCloseButton::kTVCloseTab:
 		{
 			if (fCloseButton == false)
 				return;
@@ -298,8 +298,8 @@ GTabView::SelectTab(GTab* tab)
 GTab*
 GTabView::CreateTabView(const char* label)
 {
-	return fCloseButton ? new GTabCloseButton(label, fTabsContainer, this)
-						: new GTab(label, fTabsContainer);
+	return fCloseButton ? new GTabCloseButton(label, this)
+						: new GTab(label);
 }
 
 GTab*

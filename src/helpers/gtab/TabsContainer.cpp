@@ -38,6 +38,8 @@ TabsContainer::AddTab(GTab* tab, int32 index)
 	BLayoutItem* item = GroupLayout()->AddView(index, tab);
 	tab->SetLayoutItem (item);
 
+	tab->SetContainer(this);
+
 	if (CountTabs() == 1) {
 		SelectTab(tab);
 	}
@@ -183,11 +185,7 @@ TabsContainer::MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons)
 	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
 		SelectTab(tab);
 	} else if (buttons & B_TERTIARY_MOUSE_BUTTON) {
-		if (Target()) {
-			BMessage msg(kTVCloseTab);
-			msg.AddPointer("tab", tab);
-			Invoke(&msg);
-		}
+
 	}
 }
 

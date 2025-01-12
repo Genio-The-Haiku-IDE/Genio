@@ -77,12 +77,11 @@ GTabDropZone::DropZoneMessageReceived(BMessage* message)
 
 
 // GTab
-GTab::GTab(const char* label, TabsContainer* container)
+GTab::GTab(const char* label)
 	:
 	BView("_tabView_", B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
-	GTabDropZone(container),
 	fIsFront(false),
-	fLabel(label)/*, fTabDragging(false)*/
+	fLabel(label)
 {
 }
 
@@ -178,8 +177,6 @@ GTab::MouseDown(BPoint where)
 
 	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
 		DropZoneMouseDown(where);
-	} else if (buttons & B_TERTIARY_MOUSE_BUTTON) {
-
 	}
 }
 
@@ -294,9 +291,8 @@ IncreaseContrastBy(float& tint, const float& value, const int& brightness)
 
 // GTabCloseButton
 GTabCloseButton::GTabCloseButton(const char* label,
-										TabsContainer* controller,
 										const BHandler* handler):
-										GTab(label, controller),
+										GTab(label),
 										fOverCloseRect(false),
 										fClicked(false),
 										fHandler(handler)
@@ -349,6 +345,8 @@ GTabCloseButton::MouseDown(BPoint where)
 			Invalidate(closeRect);
 			return;
 		}
+	} else if (buttons & B_TERTIARY_MOUSE_BUTTON) {
+		CloseButtonClicked();
 	}
 	GTab::MouseDown(where);
 }
@@ -403,7 +401,7 @@ GTabCloseButton::RectCloseButton()
 void
 GTabCloseButton::CloseButtonClicked()
 {
-	BMessage msg(TabsContainer::kTVCloseTab);
+	BMessage msg(kTVCloseTab);
 	msg.AddPointer("tab", this);
 	BMessenger(fHandler).SendMessage(&msg);
 }
@@ -453,10 +451,9 @@ GTabCloseButton::DrawCloseButton(BView* owner, BRect buttonRect, const BRect& up
 
 // Filler
 Filler::Filler(TabsContainer* tabsContainer)
-	:
-	BView("_filler_", B_WILL_DRAW),
-	GTabDropZone(tabsContainer)
+	: BView("_filler_", B_WILL_DRAW)
 {
+	SetContainer(tabsContainer);
 }
 
 

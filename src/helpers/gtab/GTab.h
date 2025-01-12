@@ -24,7 +24,7 @@
 class GTab;
 class GTabDropZone : Draggable {
 	public:
-		 GTabDropZone(TabsContainer* container) : fTabsContainer(container)
+		 GTabDropZone() : fTabsContainer(nullptr)
 		 {
 		 }
 
@@ -56,6 +56,8 @@ class GTabDropZone : Draggable {
 
 		TabsContainer* Container() { return fTabsContainer; }
 
+		void	SetContainer(TabsContainer* container) { fTabsContainer = container; }
+
 		virtual void StopDragging(BView* view)
 		{
 			if (fTabDragging) {
@@ -79,7 +81,7 @@ class GTabDropZone : Draggable {
 
 class GTab : public BView , public GTabDropZone {
 public:
-								GTab(const char* label, TabsContainer* container);
+								GTab(const char* label);
 	virtual						~GTab();
 
 			BSize				MinSize() override;
@@ -122,10 +124,9 @@ protected:
 
 class GTabCloseButton : public GTab {
 public:
+				enum { kTVCloseTab = 'TVCt' };
 
-							GTabCloseButton(const char* label,
-												TabsContainer* controller,
-												const BHandler* handler);
+							GTabCloseButton(const char* label, const BHandler* handler);
 
 				BSize		MinSize() override;
 				BSize		MaxSize() override;
@@ -181,8 +182,9 @@ class TabButtonDropZone : public GTabButton, public GTabDropZone {
 
 public:
 	TabButtonDropZone(BMessage* message, TabsContainer* container)
-		: GTabButton(" ", message), GTabDropZone(container), fRunner(nullptr)
+		: GTabButton(" ", message), fRunner(nullptr)
 	{
+		SetContainer(container);
 	}
 
 	void Draw(BRect updateRect) override

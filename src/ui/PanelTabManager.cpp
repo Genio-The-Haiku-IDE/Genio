@@ -14,8 +14,8 @@
 class GTabID : public GTab {
 	public:
 
-		GTabID(tab_id id, const char* label, TabsContainer* container):
-			GTab(label, container), fId(id){ }
+		GTabID(tab_id id, const char* label):
+			GTab(label), fId(id){ }
 
 		tab_id	GetID() { return fId; }
 
@@ -39,7 +39,7 @@ public:
 
 	void AddTab(BView* panel, tab_id id)
 	{
-		GTabID* tab = new GTabID(id, panel->Name(), Container());
+		GTabID* tab = new GTabID(id, panel->Name());
 		GTabView::AddTab(tab, panel);
 	}
 
@@ -64,28 +64,12 @@ protected:
 	virtual void OnTabRemoved(GTab* _tab) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
-/*
-		if (fIdMap.contains(tab->GetID()) == false)
-		{
-			for(const auto& info:fIdMap) {
-				printf("R %s: %d [%s] (vs %d)\n", Name(), info.first, info.second.view->Name(), tab->GetID());
-			}
-		}
-*/
 		assert(tab != nullptr && fIdMap.contains(tab->GetID()) == true);
 		fIdMap.erase(tab->GetID());
 	}
 	virtual void OnTabAdded(GTab* _tab, BView* panel) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
-/*
-		if (fIdMap.contains(tab->GetID()) == true)
-		{
-			for(const auto& info:fIdMap) {
-				printf("A %s: %d [%s] (vs %d)\n", Name(), info.first, info.second.view->Name(), tab->GetID());
-			}
-		}
-*/
 		assert(tab != nullptr && fIdMap.contains(tab->GetID()) == false);
 		fIdMap[tab->GetID()] = { tab, panel };
 	}
@@ -93,7 +77,7 @@ protected:
 	GTab*	CreateTabView(GTab* clone) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(clone);
-		return new GTabID(tab->GetID(), tab->Label().String(), Container());;
+		return new GTabID(tab->GetID(), tab->Label().String());;
 	}
 
 private:

@@ -8,9 +8,8 @@
 #pragma once
 
 
-#include <ControlLook.h>
-#include <SupportDefs.h>
 #include <Button.h>
+#include <ControlLook.h>
 #include <Window.h>
 
 
@@ -42,6 +41,7 @@ class TabViewTools {
 			uint32 borders = BControlLook::B_TOP_BORDER | BControlLook::B_BOTTOM_BORDER;
 			be_control_look->DrawInactiveTab(view, bounds, updateRect, base, 0, borders);
 		}
+
 		static void DrawDroppingZone(BView* view, BRect rect)
 		{
 			rgb_color color = ui_color(B_CONTROL_HIGHLIGHT_COLOR);
@@ -51,6 +51,7 @@ class TabViewTools {
 			view->FillRect(rect);
 		}
 };
+
 
 class GTabButton : public BButton {
 public:
@@ -101,14 +102,15 @@ public:
 		const rgb_color& base)
 	{
 	}
-
 };
+
 
 class GTabMenuTabButton : public GTabButton {
 public:
 	GTabMenuTabButton(BMessage* message)
-		: GTabButton(" ", message)
-		, fCloseTime(0)
+		:
+		GTabButton(" ", message),
+		fCloseTime(0)
 	{
 	}
 
@@ -151,6 +153,3 @@ public:
 private:
 	bigtime_t fCloseTime;
 };
-
-
-

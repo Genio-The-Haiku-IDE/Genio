@@ -15,10 +15,14 @@
 class GTabID : public GTab {
 	public:
 
-		GTabID(tab_id id, const char* label):
-			GTab(label), fId(id){ }
+		GTabID(tab_id id, const char* label)
+			:
+			GTab(label),
+			fId(id)
+		{
+		}
 
-		tab_id	GetID() { return fId; }
+		tab_id GetID() const { return fId; }
 
 	private:
 		tab_id	fId;
@@ -34,7 +38,8 @@ typedef std::map<tab_id, tab_info> TabIdMap;
 
 class PanelTabView : public GTabView {
 public:
-	PanelTabView(PanelTabManager* manager, const char* name, tab_affinity affinity, orientation orientation)
+	PanelTabView(PanelTabManager* manager, const char* name,
+			tab_affinity affinity, orientation orientation)
 		:
 		GTabView(name, affinity, orientation)
 	{
@@ -64,7 +69,7 @@ public:
 		fIdMap[id].tab->Invalidate();
 	}
 
-	void	SaveTabsConfiguration(BMessage& config)
+	void SaveTabsConfiguration(BMessage& config)
 	{
 		//To maintain the right order, let's use
 		// the index interface (usually discouraged)
@@ -89,6 +94,7 @@ protected:
 		assert(tab != nullptr && fIdMap.contains(tab->GetID()) == true);
 		fIdMap.erase(tab->GetID());
 	}
+
 	void OnTabAdded(GTab* _tab, BView* panel) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
@@ -158,9 +164,8 @@ void
 PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 {
 	BMessage tab;
-	int i = 0;
-	while(fConfig.FindMessage("tab", i++, &tab) == B_OK)
-	{
+	int32 i = 0;
+	while(fConfig.FindMessage("tab", i++, &tab) == B_OK) {
 		tab_id tabid = tab.GetInt32("id", 0);
 		if (tabid == id) {
 			const char* panelName = tab.GetString("panel_group", "");
@@ -180,7 +185,6 @@ PanelTabManager::_AddPanel(const char* tabview_name, BView* panel, tab_id id, in
 	assert (tabview != nullptr);
 
 	tabview->AddTab(panel, id, index);
-
 }
 
 

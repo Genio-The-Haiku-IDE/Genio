@@ -7,12 +7,11 @@
 
 #include <GroupView.h>
 #include <Invoker.h>
-#include <SupportDefs.h>
+
 #include "Draggable.h"
 #include "GTabView.h"
 
 class GTab;
-
 class TabsContainer : public BGroupView, public BInvoker {
 public:
 
@@ -22,29 +21,29 @@ public:
 
 	void	AddTab(GTab* tab, int32 index = -1);
 
-	int32 	CountTabs();
+	int32 	CountTabs() const;
 
-	GTab* TabAt(int32 index);
+	GTab*	TabAt(int32 index);
 
-	GTab* RemoveTab(GTab* tab); //just remove, not delete.
+	GTab*	RemoveTab(GTab* tab); //just remove, not delete.
 
 	int32	IndexOfTab(GTab* tab);
 
 	void	ShiftTabs(int32 delta); // 0 to refresh the current state
 
-	void MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons);
+	void	MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons);
 
-	void FrameResized(float w, float h) override;
+	void	FrameResized(float w, float h) override;
 
-	void OnDropTab(GTab* toTab, BMessage* message);
+	void	OnDropTab(GTab* toTab, BMessage* message);
 
-	GTab*	SelectedTab();
+	GTab*	SelectedTab() const;
 
 	void	SelectTab(GTab* tab, bool invoke = true);
 
-	GTabView*	GetGTabView() { return fGTabView; }
+	GTabView*	GetGTabView() const { return fGTabView; }
 
-	tab_affinity	GetAffinity() { return fAffinity; }
+	tab_affinity	GetAffinity() const { return fAffinity; }
 
 private:
 	void	_PrintToStream();

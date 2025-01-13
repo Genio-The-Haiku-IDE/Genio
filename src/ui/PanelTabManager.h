@@ -4,10 +4,10 @@
  */
 #pragma once
 
-#include <SupportDefs.h>
 #include <InterfaceDefs.h>
-#include <map>
 #include <Message.h>
+
+#include <map>
 #include <string>
 
 class BView;

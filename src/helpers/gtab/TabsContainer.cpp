@@ -5,15 +5,18 @@
 
 
 #include "TabsContainer.h"
+
+#include <cassert>
+
 #include "GTab.h"
 #include "GTabView.h"
-#include <cassert>
 
 #define FILLER_WEIGHT 0.2
 
 TabsContainer::TabsContainer(GTabView* tabView,
 							 tab_affinity affinity,
-							 BMessage* message):
+							 BMessage* message)
+	:
 	BGroupView(B_HORIZONTAL, 0.0f),
 	BInvoker(message, nullptr, nullptr),
 	fSelectedTab(nullptr),
@@ -47,11 +50,13 @@ TabsContainer::AddTab(GTab* tab, int32 index)
 	ShiftTabs(0);
 }
 
+
 int32
-TabsContainer::CountTabs()
+TabsContainer::CountTabs() const
 {
 	return GroupLayout()->CountItems() - 1; //exclude the Filler.
 }
+
 
 GTab*
 TabsContainer::TabAt(int32 index)
@@ -68,6 +73,7 @@ TabsContainer::IndexOfTab(GTab* tab)
 {
 	if (fSelectedTab == nullptr)
 		return -1;
+
 	return GroupLayout()->IndexOfItem(tab->LayoutItem());
 }
 
@@ -93,7 +99,7 @@ TabsContainer::RemoveTab(GTab* tab)
 	//fix tab visibility
 	// TODO: this could be further improved by shifting according to the free
 	// available space.
-	int shift = 0;
+	int32 shift = 0;
 	if (fTabShift > 0 && fTabShift >= CountTabs()) {
 		shift -= 1;
 	}
@@ -104,7 +110,7 @@ TabsContainer::RemoveTab(GTab* tab)
 
 
 GTab*
-TabsContainer::SelectedTab()
+TabsContainer::SelectedTab() const
 {
 	return fSelectedTab;
 }
@@ -138,7 +144,7 @@ TabsContainer::SelectTab(GTab* tab, bool invoke)
 			float middle = fSelectedTab->Frame().right - (fSelectedTab->Frame().Width()/2.0f);
 			if (middle > Bounds().right) {
 				int32 shift = 0;
-				for (int32 i = fTabShift; i< CountTabs();i++) {
+				for (int32 i = fTabShift; i < CountTabs();i++) {
 					GTab* nextTab = TabAt(i);
 					middle -= nextTab->Bounds().Width();
 					shift++;
@@ -162,8 +168,7 @@ TabsContainer::ShiftTabs(int32 delta)
 		newShift = 0;
 
 	int32 max = std::max(newShift, fTabShift);
-
-	for (int32 i=0;i<max;i++) {
+	for (int32 i = 0; i < max; i++) {
 		GTab* tab = TabAt(i);
 		if (i < newShift) {
 			if (tab->IsHidden() == false)
@@ -176,7 +181,6 @@ TabsContainer::ShiftTabs(int32 delta)
 	fTabShift = newShift;
 	_UpdateScrolls();
 }
-
 
 
 void
@@ -199,7 +203,7 @@ TabsContainer::FrameResized(float w, float h)
 		int32 tox = 0;
 		GTab* last = TabAt(CountTabs()-1);
 		float right =  last->Frame().right;
-		for (int32 i=fTabShift - 1;i>=0;i--){
+		for (int32 i = fTabShift - 1; i >= 0; i--){
 			GTab* tab = TabAt(i);
 			right =  right + tab->Frame().Width();
 			if (right < w)
@@ -215,12 +219,12 @@ TabsContainer::FrameResized(float w, float h)
 	BGroupView::FrameResized(w,h);
 }
 
+
 void
 TabsContainer::OnDropTab(GTab* toTab, BMessage* message)
 {
-	GTab*		fromTab = (GTab*)message->GetPointer("tab", nullptr);
+	GTab* fromTab = (GTab*)message->GetPointer("tab", nullptr);
 	TabsContainer*	fromContainer = fromTab->Container();
-
 	if (fromTab == nullptr || fromContainer == nullptr || toTab == fromTab)
 		return;
 
@@ -237,17 +241,15 @@ TabsContainer::_PrintToStream()
 }
 
 
-
 void
 TabsContainer::_UpdateScrolls()
 {
 	if (CountTabs() > 0) {
 		GroupLayout()->Relayout(true);
 		GTab* last = TabAt(CountTabs() - 1);
-		if(fGTabView != nullptr && last != nullptr)
+		if (fGTabView != nullptr && last != nullptr)
 			fGTabView->UpdateScrollButtons(fTabShift != 0, last->Frame().right > Bounds().right);
 	} else {
 			fGTabView->UpdateScrollButtons(false, false);
 	}
 }
-

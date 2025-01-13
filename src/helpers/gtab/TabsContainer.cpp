@@ -39,7 +39,7 @@ TabsContainer::AddTab(GTab* tab, int32 index)
 		index = CountTabs();
 
 	BLayoutItem* item = GroupLayout()->AddView(index, tab);
-	tab->SetLayoutItem (item);
+	tab->SetLayoutItem(item);
 
 	tab->SetContainer(this);
 
@@ -59,7 +59,7 @@ TabsContainer::CountTabs() const
 
 
 GTab*
-TabsContainer::TabAt(int32 index)
+TabsContainer::TabAt(int32 index) const
 {
 	if (index < 0 || index >= CountTabs())
 		return nullptr;
@@ -69,7 +69,7 @@ TabsContainer::TabAt(int32 index)
 
 
 int32
-TabsContainer::IndexOfTab(GTab* tab)
+TabsContainer::IndexOfTab(GTab* tab) const
 {
 	if (fSelectedTab == nullptr)
 		return -1;
@@ -96,7 +96,7 @@ TabsContainer::RemoveTab(GTab* tab)
 	delete tab->LayoutItem();
 	tab->SetLayoutItem(nullptr);
 
-	//fix tab visibility
+	// fix tab visibility
 	// TODO: this could be further improved by shifting according to the free
 	// available space.
 	int32 shift = 0;
@@ -129,7 +129,7 @@ TabsContainer::SelectTab(GTab* tab, bool invoke)
 			fSelectedTab->SetIsFront(true);
 
 		int32 index = IndexOfTab(fSelectedTab);
-		if (invoke && Message() && Target()) {
+		if (invoke && Message() != nullptr && Target() != nullptr) {
 			BMessage msg = *Message();
 			msg.AddPointer("tab", fSelectedTab);
 			msg.AddInt32("index", IndexOfTab(fSelectedTab));
@@ -141,10 +141,10 @@ TabsContainer::SelectTab(GTab* tab, bool invoke)
 		} else {
 			// let's ensure at least the tab's "middle point"
 			// is visible.
-			float middle = fSelectedTab->Frame().right - (fSelectedTab->Frame().Width()/2.0f);
+			float middle = fSelectedTab->Frame().right - (fSelectedTab->Frame().Width() / 2.0f);
 			if (middle > Bounds().right) {
 				int32 shift = 0;
-				for (int32 i = fTabShift; i < CountTabs();i++) {
+				for (int32 i = fTabShift; i < CountTabs(); i++) {
 					GTab* nextTab = TabAt(i);
 					middle -= nextTab->Bounds().Width();
 					shift++;
@@ -189,7 +189,7 @@ TabsContainer::MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons)
 	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
 		SelectTab(tab);
 	} else if (buttons & B_TERTIARY_MOUSE_BUTTON) {
-
+		// Nothing
 	}
 }
 
@@ -198,7 +198,7 @@ TabsContainer::MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons)
 void
 TabsContainer::FrameResized(float w, float h)
 {
-	//Auto-scroll:
+	// Auto-scroll:
 	if (fTabShift > 0) {
 		int32 tox = 0;
 		GTab* last = TabAt(CountTabs()-1);
@@ -214,7 +214,7 @@ TabsContainer::FrameResized(float w, float h)
 		if (tox != 0)
 			ShiftTabs(tox);
 	}
-	//end
+	// end
 	_UpdateScrolls();
 	BGroupView::FrameResized(w,h);
 }
@@ -235,7 +235,7 @@ TabsContainer::OnDropTab(GTab* toTab, BMessage* message)
 void
 TabsContainer::_PrintToStream()
 {
-	for (int32 i=0;i<GroupLayout()->CountItems();i++) {
+	for (int32 i = 0; i < GroupLayout()->CountItems(); i++) {
 		printf("%d) %s\n", i, GroupLayout()->ItemAt(i)->View()->Name());
 	}
 }

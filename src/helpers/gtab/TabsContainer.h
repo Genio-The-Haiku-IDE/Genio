@@ -20,14 +20,11 @@ public:
 						  BMessage* message = nullptr);
 
 	void	AddTab(GTab* tab, int32 index = -1);
-
+	GTab*	RemoveTab(GTab* tab); //just remove, not delete.
 	int32 	CountTabs() const;
 
-	GTab*	TabAt(int32 index);
-
-	GTab*	RemoveTab(GTab* tab); //just remove, not delete.
-
-	int32	IndexOfTab(GTab* tab);
+	GTab*	TabAt(int32 index) const;
+	int32	IndexOfTab(GTab* tab) const;
 
 	void	ShiftTabs(int32 delta); // 0 to refresh the current state
 
@@ -38,7 +35,6 @@ public:
 	void	OnDropTab(GTab* toTab, BMessage* message);
 
 	GTab*	SelectedTab() const;
-
 	void	SelectTab(GTab* tab, bool invoke = true);
 
 	GTabView*	GetGTabView() const { return fGTabView; }

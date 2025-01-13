@@ -9,9 +9,7 @@
 #include <GridLayout.h>
 #include <LayoutBuilder.h>
 #include <MessageRunner.h>
-#include <Rect.h>
 #include <Size.h>
-#include <View.h>
 
 #include <cstdio>
 #include <typeinfo>
@@ -49,14 +47,13 @@ class GTabDropZone : Draggable {
 		virtual bool DropZoneMouseMoved(BView* view, BPoint where, uint32 transit,
 									const BMessage* dragMessage);
 
-
 		virtual bool DropZoneMessageReceived(BMessage* message);
 
 		virtual void OnDropMessage(BMessage* message) = 0;
 
-		TabsContainer* Container() { return fTabsContainer; }
+		TabsContainer* Container() const { return fTabsContainer; }
 
-		void	SetContainer(TabsContainer* container) { fTabsContainer = container; }
+		void SetContainer(TabsContainer* container) { fTabsContainer = container; }
 
 		virtual void StopDragging(BView* view)
 		{
@@ -79,7 +76,8 @@ class GTabDropZone : Draggable {
 
 };
 
-class GTab : public BView , public GTabDropZone {
+
+class GTab : public BView, public GTabDropZone {
 public:
 								GTab(const char* label);
 	virtual						~GTab();
@@ -110,7 +108,7 @@ public:
 			BLayoutItem*		LayoutItem() const { return fLayoutItem; }
 			void				SetLayoutItem(BLayoutItem* layItem) { fLayoutItem = layItem; }
 
-			BString				Label() { return fLabel; };
+			BString				Label() const { return fLabel; };
 			void				SetLabel(const char* label) { fLabel.SetTo(label); }
 
 			void 				OnDropMessage(BMessage* message) override;
@@ -124,30 +122,29 @@ protected:
 
 class GTabCloseButton : public GTab {
 public:
-				enum { kTVCloseTab = 'TVCt' };
+			enum { kTVCloseTab = 'TVCt' };
 
-							GTabCloseButton(const char* label, const BHandler* handler);
+						GTabCloseButton(const char* label, const BHandler* handler);
 
-				BSize		MinSize() override;
-				BSize		MaxSize() override;
-				void		DrawContents(BView* owner, BRect frame,
-										const BRect& updateRect, bool isFront) override;
-				void		MouseDown(BPoint where) override;
-				void		MouseUp(BPoint where) override;
-				void		MouseMoved(BPoint where, uint32 transit,
-										const BMessage* dragMessage) override;
+			BSize		MinSize() override;
+			BSize		MaxSize() override;
+			void		DrawContents(BView* owner, BRect frame,
+									const BRect& updateRect, bool isFront) override;
+			void		MouseDown(BPoint where) override;
+			void		MouseUp(BPoint where) override;
+			void		MouseMoved(BPoint where, uint32 transit,
+									const BMessage* dragMessage) override;
 private:
-				void		DrawCloseButton(BView* owner, BRect butFrame, const BRect& updateRect,
-											bool isFront);
+			void		DrawCloseButton(BView* owner, BRect butFrame, const BRect& updateRect,
+										bool isFront);
 
-				BRect		RectCloseButton();
+			BRect		RectCloseButton();
 
-				void		CloseButtonClicked();
+			void		CloseButtonClicked();
 private:
-
-				bool fOverCloseRect;
-				bool fClicked;
-				const BHandler* fHandler;
+			bool fOverCloseRect;
+			bool fClicked;
+			const BHandler* fHandler;
 };
 
 
@@ -181,7 +178,9 @@ class TabButtonDropZone : public GTabButton, public GTabDropZone {
 
 public:
 	TabButtonDropZone(BMessage* message, TabsContainer* container)
-		: GTabButton(" ", message), fRunner(nullptr)
+		:
+		GTabButton(" ", message),
+		fRunner(nullptr)
 	{
 		SetContainer(container);
 	}
@@ -201,18 +200,17 @@ public:
 
 	void MouseMoved(BPoint where, uint32 transit, const BMessage* dragMessage) override
 	{
-		if (DropZoneMouseMoved(this, where, transit, dragMessage) == false)
+		if (!DropZoneMouseMoved(this, where, transit, dragMessage))
 			GTabButton::MouseMoved(where, transit, dragMessage);
 	}
 
 	void OnDropMessage(BMessage* message) override
 	{
-		return;
 	}
 
 	void MessageReceived(BMessage* message) override
 	{
-		switch(message->what) {
+		switch (message->what) {
 			case kRunnerTick:
 				if (fRunner != nullptr && IsEnabled()) {
 						Invoke();

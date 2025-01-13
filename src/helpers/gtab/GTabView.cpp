@@ -56,18 +56,6 @@ GTabView::AddTab(GTab* tab, BView* view, int32 index)
 	_AddViewToCard(view, index);
 	_FixContentOrientation(view);
 	OnTabAdded(tab, view);
-#if 0
-	//debug code:
-	printf("-------- debug size for %s \n", Name());
-	BSize containerSize = fTabsContainer->Bounds().Size();
-	printf(" containerSize %f,%f\n", containerSize.Width(), containerSize.Height());
-	float accu = 0.0f;
-	for(int32 i=0;i<fTabsContainer->CountTabs();i++){
-		GTab* tab = fTabsContainer->TabAt(i);
-		accu +=  tab->Bounds().Width();
-		printf("%s w %f accu %f left %f\n", tab->Label().String(), tab->Bounds().Width(), accu, containerSize.Width() - accu);
-	}
-#endif
 }
 
 

@@ -51,7 +51,7 @@ public:
 		GTabView::AddTab(tab, panel, index);
 	}
 
-	bool HasTab(tab_id id)
+	bool HasTab(tab_id id) const
 	{
 		return fIdMap.contains(id);
 	}
@@ -71,11 +71,11 @@ public:
 
 	void SaveTabsConfiguration(BMessage& config)
 	{
-		//To maintain the right order, let's use
+		// To maintain the right order, let's use
 		// the index interface (usually discouraged)
-		for (int32 i=0;i<Container()->CountTabs();i++) {
+		for (int32 i = 0;i < Container()->CountTabs(); i++) {
 			GTabID* tabid = dynamic_cast<GTabID*>(Container()->TabAt(i));
-			if (tabid) {
+			if (tabid != nullptr) {
 				BMessage tab('TAB ');
 				tab.AddInt32("id", tabid->GetID());
 				tab.AddString("panel_group", Name());
@@ -109,7 +109,7 @@ protected:
 	}
 
 private:
-	TabIdMap			fIdMap;
+	TabIdMap fIdMap;
 };
 
 
@@ -141,7 +141,7 @@ PanelTabManager::CreatePanelTabView(const char* tabview_name, orientation orient
 {
 	assert(fTVList.contains(tabview_name) == false);
 
-	PanelTabView*	tabView = new PanelTabView(this, tabview_name, 'GPAF', orientation);
+	PanelTabView* tabView = new PanelTabView(this, tabview_name, 'GPAF', orientation);
 	fTVList[tabview_name] = tabView;
 
 	//for (const auto& info:fTVList) {
@@ -165,7 +165,7 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 {
 	BMessage tab;
 	int32 i = 0;
-	while(fConfig.FindMessage("tab", i++, &tab) == B_OK) {
+	while (fConfig.FindMessage("tab", i++, &tab) == B_OK) {
 		tab_id tabid = tab.GetInt32("id", 0);
 		if (tabid == id) {
 			const char* panelName = tab.GetString("panel_group", "");
@@ -231,9 +231,9 @@ PanelTabManager::ShowPanelTabView(const char* tabview_name, bool show)
 {
 	PanelTabView* tabview = _GetPanelTabView(tabview_name);
 
-	if (show == true &&  tabview->IsHidden())
+	if (show && tabview->IsHidden())
 		tabview->Show();
-	if (show == false && !tabview->IsHidden())
+	if (!show && !tabview->IsHidden())
 		tabview->Hide();
 }
 

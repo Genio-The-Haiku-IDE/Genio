@@ -275,7 +275,6 @@ GTabView::MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer)
 
 	fromLayout->RemoveSelf();
 
-	BString label = fromTab->Label(); //TODO copy all the props
 	GTab* removedTab = fromContainer->RemoveTab(fromTab);
 
 	fromContainer->GetGTabView()->OnTabRemoved(fromTab);

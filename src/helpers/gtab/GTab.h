@@ -111,9 +111,9 @@ public:
 			void				SetLayoutItem(BLayoutItem* layItem) { fLayoutItem = layItem; }
 
 			BString				Label() { return fLabel; };
-				void			SetLabel(const char* label) { fLabel.SetTo(label); }
+			void				SetLabel(const char* label) { fLabel.SetTo(label); }
 
-	virtual void 				OnDropMessage(BMessage* message) override;
+			void 				OnDropMessage(BMessage* message) override;
 
 protected:
 			BLayoutItem*		fLayoutItem;
@@ -151,8 +151,7 @@ private:
 };
 
 
-class Filler : public BView, public GTabDropZone
-{
+class Filler : public BView, public GTabDropZone {
 	public:
 				Filler(TabsContainer* tabsContainer);
 

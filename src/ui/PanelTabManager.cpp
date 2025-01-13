@@ -5,10 +5,11 @@
 
 
 #include "PanelTabManager.h"
-#include "GTabView.h"
-#include "GTab.h"
+
 #include <cassert>
 
+#include "GTab.h"
+#include "GTabView.h"
 
 
 class GTabID : public GTab {
@@ -27,12 +28,14 @@ struct tab_info {
 	GTabID* tab;
 	BView* view;
 };
+
 typedef std::map<tab_id, tab_info> TabIdMap;
 
 
 class PanelTabView : public GTabView {
 public:
-	PanelTabView(PanelTabManager* manager, const char* name, tab_affinity affinity, orientation orientation):
+	PanelTabView(PanelTabManager* manager, const char* name, tab_affinity affinity, orientation orientation)
+		:
 		GTabView(name, affinity, orientation)
 	{
 	}
@@ -43,38 +46,39 @@ public:
 		GTabView::AddTab(tab, panel);
 	}
 
-	bool HasTab(tab_id id) {
+	bool HasTab(tab_id id)
+	{
 		return fIdMap.contains(id);
 	}
 
-	void SelectTab(tab_id id) {
+	void SelectTab(tab_id id)
+	{
 		assert(fIdMap.contains(id) == true);
 		GTabView::SelectTab(fIdMap[id].tab);
 	}
 
-	void	SetLabelForTab(tab_id id, const char* label) {
+	void SetLabelForTab(tab_id id, const char* label)
+	{
 		assert(fIdMap.contains(id) == true);
 		fIdMap[id].tab->SetLabel(label);
 		fIdMap[id].tab->Invalidate();
 	}
 
-
-
 protected:
-	virtual void OnTabRemoved(GTab* _tab) override
+	void OnTabRemoved(GTab* _tab) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
 		assert(tab != nullptr && fIdMap.contains(tab->GetID()) == true);
 		fIdMap.erase(tab->GetID());
 	}
-	virtual void OnTabAdded(GTab* _tab, BView* panel) override
+	void OnTabAdded(GTab* _tab, BView* panel) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
 		assert(tab != nullptr && fIdMap.contains(tab->GetID()) == false);
 		fIdMap[tab->GetID()] = { tab, panel };
 	}
 
-	GTab*	CreateTabView(GTab* clone) override
+	GTab* CreateTabView(GTab* clone) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(clone);
 		return new GTabID(tab->GetID(), tab->Label().String());;
@@ -84,9 +88,12 @@ private:
 	TabIdMap			fIdMap;
 };
 
+
+// PanelTabManager
 PanelTabManager::PanelTabManager()
 {
 }
+
 
 BView*
 PanelTabManager::CreatePanelTabView(const char* tabview_name, orientation orientation)

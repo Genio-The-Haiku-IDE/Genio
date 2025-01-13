@@ -50,7 +50,7 @@ void
 GTabView::AddTab(GTab* tab, BView* view, int32 index)
 {
 	fTabsContainer->AddTab(tab, index);
-	fCardView->CardLayout()->AddView(index, view);
+	_AddViewToCard(view, index);
 	_FixContentOrientation(view);
 	OnTabAdded(tab, view);
 #if 0
@@ -248,6 +248,14 @@ GTabView::_FixContentOrientation(BView* view)
 	{
 		grpLayout->SetOrientation(fContentOrientation);
 	}
+}
+
+
+void
+GTabView::_AddViewToCard(BView* view, int32 index)
+{
+	view->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNLIMITED));
+	fCardView->CardLayout()->AddView(index, view);
 }
 
 

@@ -68,6 +68,7 @@ protected:
 
 		void	_Init(tab_affinity affinity);
 		void	_FixContentOrientation(BView* view);
+		void	_AddViewToCard(BView* view, int32 index);
 
 
 		GTabScrollLeftButton*	fScrollLeftTabButton;

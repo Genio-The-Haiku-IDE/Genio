@@ -100,22 +100,6 @@ static float kDefaultIconSize = 32.0;
 
 using Genio::Task::Task;
 
-enum {
-	kTabProblems 		= 'Tprb',
-	kTabBuildLog 		= 'Tbld',
-	kTabOutputLog 		= 'Tter',
-	kTabSearchResult	= 'Tsea',
-
-	kTabProjectBrowser  = 'Tprj',
-	kTabSourceControl   = 'Tsrc',
-
-	kTabOutlineView		= 'Touv'
-
-};
-
-static constexpr const char* kTabViewLeft   = "left_panels";
-static constexpr const char* kTabViewRight  = "right_panels";
-static constexpr const char* kTabViewBottom = "bottom_panels";
 
 static bool
 AcceptsCopyPaste(BView* view)
@@ -1519,6 +1503,10 @@ GenioWindow::QuitRequested()
 	gCFG["show_projects"] = fPanelTabManager->IsPanelTabViewVisible(kTabViewLeft);
 	gCFG["show_output"]   = fPanelTabManager->IsPanelTabViewVisible(kTabViewBottom);
 	gCFG["show_toolbar"]  = !fToolBar->IsHidden();
+
+	BMessage tabview_config;
+	fPanelTabManager->SaveConfiguration(tabview_config);
+	gCFG["tabviews"] = tabview_config;
 
 	// Files to reopen
 	if (gCFG["reopen_files"]) {
@@ -3426,65 +3414,48 @@ GenioWindow::_InitToolbar()
 }
 
 
-BView*
-GenioWindow::_InitOutputSplit()
+void
+GenioWindow::_InitTabViews()
 {
-	// Output
-	BView* out = fPanelTabManager->CreatePanelTabView(kTabViewBottom, B_HORIZONTAL);
+	BMessage cfg = gCFG["tabviews"];
+	fPanelTabManager->LoadConfiguration(cfg);
+	fPanelTabManager->CreatePanelTabView(kTabViewBottom, 	B_HORIZONTAL);
+	fPanelTabManager->CreatePanelTabView(kTabViewLeft,		B_VERTICAL);
+	fPanelTabManager->CreatePanelTabView(kTabViewRight, 	B_VERTICAL);
 
+	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
-
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
-
 	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
-
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
 
-	fPanelTabManager->AddPanel(kTabViewBottom, fProblemsPanel, kTabProblems);
-	fPanelTabManager->AddPanel(kTabViewBottom, fBuildLogView, kTabBuildLog);
-	fPanelTabManager->AddPanel(kTabViewBottom, fMTermView, kTabOutputLog);
-	fPanelTabManager->AddPanel(kTabViewBottom, fSearchResultTab, kTabSearchResult);
-
-	return out;
-}
+	fPanelTabManager->AddPanelByConfig(fProblemsPanel, kTabProblems);
+	fPanelTabManager->AddPanelByConfig(fBuildLogView, kTabBuildLog);
+	fPanelTabManager->AddPanelByConfig(fMTermView, kTabOutputLog);
+	fPanelTabManager->AddPanelByConfig(fSearchResultTab, kTabSearchResult);
 
 
-BView*
-GenioWindow::_InitLeftSplit()
-{
-	// Projects View
-	BView* out = fPanelTabManager->CreatePanelTabView(kTabViewLeft, B_VERTICAL);
-
+	//LEFT
 	fProjectsFolderBrowser = new ProjectBrowser();
 	fSourceControlPanel = new SourceControlPanel();
-	fPanelTabManager->AddPanel(kTabViewLeft, fProjectsFolderBrowser, kTabProjectBrowser);
-	fPanelTabManager->AddPanel(kTabViewLeft, fSourceControlPanel, kTabSourceControl);
-
-	return out;
-}
+	fPanelTabManager->AddPanelByConfig(fProjectsFolderBrowser, kTabProjectBrowser);
+	fPanelTabManager->AddPanelByConfig(fSourceControlPanel, kTabSourceControl);
 
 
-BView*
-GenioWindow::_InitRightSplit()
-{
-	// Outline view
-	BView* out = fPanelTabManager->CreatePanelTabView(kTabViewRight, B_VERTICAL);
-
+	//RIGHT
 	fFunctionsOutlineView = new FunctionsOutlineView();
-	fPanelTabManager->AddPanel(kTabViewRight, fFunctionsOutlineView, kTabOutlineView);
-
-	return out;
+	fPanelTabManager->AddPanelByConfig(fFunctionsOutlineView, kTabOutlineView);
 }
+
+
 
 
 void
 GenioWindow::_InitWindow()
 {
 	_InitToolbar();
-	BView* projectsTabView = _InitLeftSplit();
+	_InitTabViews();
 	_InitCentralSplit();
-	BView* rightTabView  = _InitRightSplit();
-	BView* outputTabView = _InitOutputSplit();
 
 	// Layout
 	fRootLayout = BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
@@ -3494,11 +3465,11 @@ GenioWindow::_InitWindow()
 		.AddSplit(B_VERTICAL, 0.0f) // output split
 		.SetInsets(-2.0f, 0.0f, -2.0f, -2.0f)
 			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
-				.Add(projectsTabView, kProjectsWeight)
+				.Add(fPanelTabManager->GetPanelTabView(kTabViewLeft), kProjectsWeight)
 				.Add(fEditorTabsGroup, kEditorWeight)  // Editor
-				.Add(rightTabView, 1)
+				.Add(fPanelTabManager->GetPanelTabView(kTabViewRight), 1)
 			.End() // sidebar split
-			.Add(outputTabView, kOutputWeight)
+			.Add(fPanelTabManager->GetPanelTabView(kTabViewBottom), kOutputWeight)
 		.End() //  output split
 		.Add(fStatusView = new GlobalStatusView())
 	;

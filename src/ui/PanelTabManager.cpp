@@ -64,6 +64,23 @@ public:
 		fIdMap[id].tab->Invalidate();
 	}
 
+	void	SaveTabsConfiguration(BMessage& config)
+	{
+		//To maintain the right order, let's use
+		// the index interface (usually discouraged)
+		for (int32 i=0;i<Container()->CountTabs();i++) {
+			GTabID* tabid = dynamic_cast<GTabID*>(Container()->TabAt(i));
+			if (tabid) {
+				BMessage tab('TAB ');
+				tab.AddInt32("id", tabid->GetID());
+				tab.AddString("panel_group", Name());
+				config.AddMessage("tab", &tab);
+				//tab_id id = tabid->GetID();
+				//printf("%s -> %d ('%.4s')\n", Name(), id, ((char*)&id));
+			}
+		}
+	}
+
 protected:
 	void OnTabRemoved(GTab* _tab) override
 	{
@@ -95,24 +112,70 @@ PanelTabManager::PanelTabManager()
 }
 
 
+void
+PanelTabManager::LoadConfiguration(const BMessage& config)
+{
+	fConfig = config;
+}
+
+
+void
+PanelTabManager::SaveConfiguration(BMessage& config)
+{
+	for (const auto& info:fTVList) {
+		PanelTabView* tabview = info.second;
+		tabview->SaveTabsConfiguration(config);
+	}
+}
+
+
 BView*
 PanelTabManager::CreatePanelTabView(const char* tabview_name, orientation orientation)
 {
+	assert(fTVList.contains(tabview_name) == false);
+
 	PanelTabView*	tabView = new PanelTabView(this, tabview_name, 'GPAF', orientation);
-	fTVList[tabview_name] = { tabView };
-/*
-	for (const auto& info:fTVList) {
-		printf("CreatePanel %s %p\n", info.second->Name(), tabView );
-	}
-*/
+	fTVList[tabview_name] = tabView;
+
+	//for (const auto& info:fTVList) {
+		//printf("CreatePanel %s %p\n", tabview_name, tabView );
+	//}
+
 	return tabView;
+}
+
+
+BView*
+PanelTabManager::GetPanelTabView(const char* name)
+{
+	return _GetPanelTabView(name);
+}
+
+
+
+void
+PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
+{
+	BMessage tab;
+	int i = 0;
+	while(fConfig.FindMessage("tab", i++, &tab) == B_OK)
+	{
+		tab_id tabid = tab.GetInt32("id", 0);
+		if (tabid == id) {
+			const char* panelName = tab.GetString("panel_group", "");
+			AddPanel(panelName, panel, id);
+			return;
+		}
+	}
+
+	debugger("Cant! add a panel tab!");
 }
 
 
 void
 PanelTabManager::AddPanel(const char* tabview_name, BView* panel, tab_id id)
 {
-	PanelTabView* tabview = GetPanelTabView(tabview_name);
+	PanelTabView* tabview = _GetPanelTabView(tabview_name);
 	assert (tabview != nullptr);
 
 	tabview->AddTab(panel, id);
@@ -123,7 +186,7 @@ PanelTabManager::AddPanel(const char* tabview_name, BView* panel, tab_id id)
 void
 PanelTabManager::SelectTab(tab_id id)
 {
-	for (const auto panel:fTVList) {
+	for (const auto& panel:fTVList) {
 		if (panel.second->HasTab(id)) {
 			panel.second->SelectTab(id);
 			return;
@@ -135,7 +198,7 @@ PanelTabManager::SelectTab(tab_id id)
 void
 PanelTabManager::ShowTab(tab_id id)
 {
-	for (const auto panel:fTVList) {
+	for (const auto& panel:fTVList) {
 		if (panel.second->HasTab(id)) {
 			if (panel.second->IsHidden())
 				panel.second->Show();
@@ -149,7 +212,7 @@ PanelTabManager::ShowTab(tab_id id)
 void
 PanelTabManager::SetLabelForTab(tab_id id, const char* label)
 {
-	for (const auto panel:fTVList) {
+	for (const auto& panel:fTVList) {
 		if (panel.second->HasTab(id)) {
 			panel.second->SetLabelForTab(id, label);
 			return;
@@ -161,7 +224,7 @@ PanelTabManager::SetLabelForTab(tab_id id, const char* label)
 void
 PanelTabManager::ShowPanelTabView(const char* tabview_name, bool show)
 {
-	PanelTabView* tabview = GetPanelTabView(tabview_name);
+	PanelTabView* tabview = _GetPanelTabView(tabview_name);
 
 	if (show == true &&  tabview->IsHidden())
 		tabview->Show();
@@ -174,13 +237,13 @@ PanelTabManager::ShowPanelTabView(const char* tabview_name, bool show)
 bool
 PanelTabManager::IsPanelTabViewVisible(const char* tabview_name)
 {
-	return !GetPanelTabView(tabview_name)->IsHidden();
+	return !_GetPanelTabView(tabview_name)->IsHidden();
 }
 
 
 
 PanelTabView*
-PanelTabManager::GetPanelTabView(const char* sname)
+PanelTabManager::_GetPanelTabView(const char* sname)
 {
 	assert(fTVList.contains(sname) == true);
 	return fTVList[sname];

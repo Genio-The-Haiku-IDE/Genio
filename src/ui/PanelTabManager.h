@@ -7,20 +7,45 @@
 #include <SupportDefs.h>
 #include <InterfaceDefs.h>
 #include <map>
+#include <Message.h>
+#include <string>
 
 class BView;
 class PanelTabView;
 
+
+#define kTabViewLeft 	"left_panels"
+#define kTabViewRight	"right_panels"
+#define kTabViewBottom	"bottom_panels"
+
+enum {
+	kTabProblems 		= 'Tprb',
+	kTabBuildLog 		= 'Tbld',
+	kTabOutputLog 		= 'Tter',
+	kTabSearchResult	= 'Tsea',
+
+	kTabProjectBrowser  = 'Tprj',
+	kTabSourceControl   = 'Tsrc',
+
+	kTabOutlineView		= 'Touv'
+
+};
+
 typedef uint32  tab_id;
-typedef std::map<const char*, PanelTabView*> TabViewList;
+typedef std::map<std::string, PanelTabView*> TabViewList;
 
 
 class PanelTabManager {
 public:
 		PanelTabManager();
 
-		BView*	CreatePanelTabView(const char* tabview_name, orientation orientation);
+		void	LoadConfiguration(const BMessage& config);
+		void	SaveConfiguration(BMessage& config);
 
+		BView*	CreatePanelTabView(const char* tabview_name, orientation orientation);
+		BView*  GetPanelTabView(const char* name);
+
+		void	AddPanelByConfig(BView* panel, tab_id id);
 		void	AddPanel(const char* tabview_name, BView* panel, tab_id id);
 
 		void	SelectTab(tab_id id);
@@ -33,8 +58,9 @@ public:
 
 
 private:
-		PanelTabView*	GetPanelTabView(const char* name);
+		PanelTabView*	_GetPanelTabView(const char* name);
 		TabViewList		fTVList;
+		BMessage 		fConfig;
 };
 
 

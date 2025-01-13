@@ -23,36 +23,33 @@ typedef uint32 tab_affinity;
 class GTabView : public BGroupView
 {
 	public:
-				GTabView(const char* name,
-						 tab_affinity affinity,
-						 orientation orientation = B_HORIZONTAL,
-						 bool closeButton = false,
-						 bool menuButton = false);
+					GTabView(const char* name,
+							 tab_affinity affinity,
+							 orientation orientation = B_HORIZONTAL,
+							 bool closeButton = false,
+							 bool menuButton = false);
 
-		GTab*	AddTab(const char* label, BView* view, int32 index = -1);
+			GTab*	AddTab(const char* label, BView* view, int32 index = -1);
 
-		int32	CountTabs();
+			void	UpdateScrollButtons(bool left, bool right);
 
-		void	UpdateScrollButtons(bool left, bool right);
+			void	AttachedToWindow();
 
-		void	AttachedToWindow();
+			void	MessageReceived(BMessage* message);
 
-		void	MessageReceived(BMessage* message);
+			void	MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer);
 
-		void	MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer);
+			void	SelectTab(GTab* tab);
 
-		void	SelectTab(GTab* tab);
+	virtual void OnMenuTabButton();
 
-		virtual void OnMenuTabButton();
+	protected:
 
-protected:
 			void AddTab(GTab* tab, BView* view, int32 index = -1);
 	virtual void OnTabRemoved(GTab* tab) {};
 	virtual void OnTabAdded(GTab* tab, BView* view) {};
 
 	TabsContainer*			Container() { return fTabsContainer; }
-
-
 
 	private:
 

@@ -110,9 +110,7 @@ private:
 			void				_InitCentralSplit();
 			void				_InitCommandRunToolbar();
 			void				_InitMenu();
-			BView*				_InitOutputSplit();
-			BView*				_InitLeftSplit();
-			BView*				_InitRightSplit();
+			void				_InitTabViews();
 			void				_InitToolbar();
 			void				_InitWindow();
 

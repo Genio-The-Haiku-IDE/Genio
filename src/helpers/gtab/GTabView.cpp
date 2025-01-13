@@ -68,14 +68,6 @@ GTabView::AddTab(GTab* tab, BView* view, int32 index)
 }
 
 
-
-int32
-GTabView::CountTabs()
-{
-	return fTabsContainer->CountTabs();
-}
-
-
 void
 GTabView::DestroyTabAndView(GTab* tab)
 {

@@ -5,10 +5,12 @@
 
 
 #include "GTabView.h"
-#include "TabButtons.h"
-#include "GTab.h"
-#include "TabsContainer.h"
+
 #include <PopUpMenu.h>
+
+#include "GTab.h"
+#include "TabButtons.h"
+#include "TabsContainer.h"
 
 enum {
 
@@ -23,20 +25,21 @@ GTabView::GTabView(const char* name,
 				   tab_affinity affinity,
 				   orientation content_orientation,
 				   bool closeButton,
-				   bool menuButton) :
-
-		BGroupView(name, B_VERTICAL, 0.0f),
-		fScrollLeftTabButton(nullptr),
-		fTabsContainer(nullptr),
-		fScrollRightTabButton(nullptr),
-		fTabMenuTabButton(nullptr),
-		fCardView(nullptr),
-		fCloseButton(closeButton),
-		fContentOrientation(content_orientation),
-		fMenuButton(menuButton)
+				   bool menuButton)
+	:
+	BGroupView(name, B_VERTICAL, 0.0f),
+	fScrollLeftTabButton(nullptr),
+	fTabsContainer(nullptr),
+	fScrollRightTabButton(nullptr),
+	fTabMenuTabButton(nullptr),
+	fCardView(nullptr),
+	fCloseButton(closeButton),
+	fContentOrientation(content_orientation),
+	fMenuButton(menuButton)
 {
 	_Init(affinity);
 }
+
 
 GTab*
 GTabView::AddTab(const char* label, BView* view, int32 index)
@@ -45,6 +48,7 @@ GTabView::AddTab(const char* label, BView* view, int32 index)
 	AddTab(tab, view, index);
 	return tab;
 }
+
 
 void
 GTabView::AddTab(GTab* tab, BView* view, int32 index)
@@ -62,11 +66,11 @@ GTabView::AddTab(GTab* tab, BView* view, int32 index)
 void
 GTabView::DestroyTabAndView(GTab* tab)
 {
-	//Remove the View from CardView
+	// Remove the View from CardView
 	int32 fromIndex = fTabsContainer->IndexOfTab(tab);
 	BLayoutItem* fromLayout = fCardView->CardLayout()->ItemAt(fromIndex);
-	BView*	fromView = fromLayout->View();
-	if (!fromView)
+	BView* fromView = fromLayout->View();
+	if (fromView == nullptr)
 		return;
 
 	fromView->RemoveSelf();
@@ -77,7 +81,7 @@ GTabView::DestroyTabAndView(GTab* tab)
 
 	OnTabRemoved(rtab);
 
-	if (rtab)
+	if (rtab != nullptr)
 		delete rtab;
 
 	delete fromView;
@@ -109,28 +113,28 @@ GTabView::MessageReceived(BMessage* message)
 	switch(message->what) {
 		case kLeftTabButton:
 			fTabsContainer->ShiftTabs(-1);
-		break;
+			break;
 		case kRightTabButton:
 			fTabsContainer->ShiftTabs(+1);
-		break;
+			break;
 		case kSelectedTabButton:
 		{
 			int32 index = message->GetInt32("index", 0);
 			if (index > -1)
 				fCardView->CardLayout()->SetVisibleItem(index);
+			break;
 		}
-		break;
 		case GTabCloseButton::kTVCloseTab:
 		{
-			if (fCloseButton == false)
+			if (!fCloseButton)
 				return;
 
 			GTab* tab = (GTab*)message->GetPointer("tab", nullptr);
 			if (tab != nullptr) {
 				DestroyTabAndView(tab);
 			}
+			break;
 		}
-		break;
 		case kMenuTabButton:
 		{
 			OnMenuTabButton();
@@ -138,7 +142,8 @@ GTabView::MessageReceived(BMessage* message)
 		}
 		default:
 			BGroupView::MessageReceived(message);
-	};
+			break;
+	}
 }
 
 
@@ -146,11 +151,10 @@ void
 GTabView::OnMenuTabButton()
 {
 	BPopUpMenu* tabMenu = new BPopUpMenu("tab menu", true, false);
-	int tabCount = fTabsContainer->CountTabs();
-	for (int i = 0; i < tabCount; i++) {
+	int32 tabCount = fTabsContainer->CountTabs();
+	for (int32 i = 0; i < tabCount; i++) {
 		GTab* tab = fTabsContainer->TabAt(i);
-
-		if (tab) {
+		if (tab != nullptr) {
 			BMenuItem* item = new BMenuItem(tab->Label(), nullptr);
 			tabMenu->AddItem(item);
 			if (tab->IsFront())
@@ -171,7 +175,7 @@ GTabView::OnMenuTabButton()
 
 	BMenuItem *selected = tabMenu->Go(openPoint, false, false,
 		ConvertToScreen(buttonFrame));
-	if (selected) {
+	if (selected != nullptr) {
 		selected->SetMarked(true);
 		int32 index = tabMenu->IndexOf(selected);
 		if (index != B_ERROR)
@@ -179,7 +183,6 @@ GTabView::OnMenuTabButton()
 	}
 	fTabMenuTabButton->MenuClosed();
 	delete tabMenu;
-
 }
 
 
@@ -190,7 +193,6 @@ GTabView::_Init(tab_affinity affinity)
 
 	fScrollLeftTabButton  = new GTabScrollLeftButton(new BMessage(kLeftTabButton), fTabsContainer);
 	fScrollRightTabButton = new GTabScrollRightButton(new BMessage(kRightTabButton), fTabsContainer);
-
 
 	fTabMenuTabButton = new GTabMenuTabButton(new BMessage(kMenuTabButton));
 
@@ -221,14 +223,15 @@ void
 GTabView::_FixContentOrientation(BView* view)
 {
 	BLayout* layout = view->GetLayout();
-	if (!layout)
+	if (layout == nullptr)
 		return;
+
 	BGroupLayout* grpLayout = dynamic_cast<BGroupLayout*>(layout);
-	if (!grpLayout) {
+	if (grpLayout == nullptr) {
 		return;
 	}
-	if (grpLayout->Orientation() != fContentOrientation)
-	{
+
+	if (grpLayout->Orientation() != fContentOrientation) {
 		grpLayout->SetOrientation(fContentOrientation);
 	}
 }
@@ -245,7 +248,7 @@ GTabView::_AddViewToCard(BView* view, int32 index)
 void
 GTabView::MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer)
 {
-	//Remove the View from CardView
+	// Remove the View from CardView
 	int32 fromIndex = fromContainer->IndexOfTab(fromTab);
 	int32 toIndex = -1 ;
 
@@ -259,7 +262,7 @@ GTabView::MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer)
 
 	BLayoutItem* fromLayout = fromContainer->GetGTabView()->CardView()->CardLayout()->ItemAt(fromIndex);
 	BView*	fromView = fromLayout->View();
-	if (!fromView)
+	if (fromView == nullptr)
 		return;
 
 	fromView->RemoveSelf();
@@ -277,6 +280,7 @@ GTabView::MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer)
 
 	delete removedTab;
 }
+
 
 void
 GTabView::SelectTab(GTab* tab)
@@ -297,9 +301,3 @@ GTabView::CreateTabView(GTab* clone)
 {
 	return CreateTabView(clone->Label());
 }
-
-
-
-
-
-

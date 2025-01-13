@@ -5,11 +5,11 @@
 #pragma once
 
 
+#include <CardView.h>
 #include <GroupView.h>
 #include <LayoutBuilder.h>
 #include <StringView.h>
-#include <SupportDefs.h>
-#include <CardView.h>
+
 
 class GTabScrollLeftButton;
 class TabsContainer;
@@ -20,8 +20,7 @@ class GTab;
 
 typedef uint32 tab_affinity;
 
-class GTabView : public BGroupView
-{
+class GTabView : public BGroupView {
 	public:
 					GTabView(const char* name,
 							 tab_affinity affinity,
@@ -41,25 +40,23 @@ class GTabView : public BGroupView
 
 			void	SelectTab(GTab* tab);
 
-	virtual void OnMenuTabButton();
+	virtual void	OnMenuTabButton();
 
 	protected:
 
-			void AddTab(GTab* tab, BView* view, int32 index = -1);
-	virtual void OnTabRemoved(GTab* tab) {};
-	virtual void OnTabAdded(GTab* tab, BView* view) {};
+			void	AddTab(GTab* tab, BView* view, int32 index = -1);
+	virtual void	OnTabRemoved(GTab* tab) {};
+	virtual void	OnTabAdded(GTab* tab, BView* view) {};
 
-	TabsContainer*			Container() { return fTabsContainer; }
+	TabsContainer*	Container() const { return fTabsContainer; }
 
 	private:
 
-		virtual GTab*		CreateTabView(const char* label);
-		virtual GTab*		CreateTabView(GTab* clone);
+		virtual GTab*	CreateTabView(const char* label);
+		virtual GTab*	CreateTabView(GTab* clone);
 
-				BCardView*	CardView() { return fCardView;}
-				void		DestroyTabAndView(GTab* tab); //Remove and delete a tab and the view.
-
-
+			BCardView*	CardView() const { return fCardView;}
+			void		DestroyTabAndView(GTab* tab); //Remove and delete a tab and the view.
 
 	private:
 
@@ -77,4 +74,3 @@ class GTabView : public BGroupView
 		orientation				fContentOrientation;
 		bool					fMenuButton;
 };
-

@@ -32,7 +32,7 @@ TabsContainer::TabsContainer(GTabView* tabView,
 void
 TabsContainer::AddTab(GTab* tab, int32 index)
 {
-	if (index == -1)
+	if (index == -1 && index > CountTabs())
 		index = CountTabs();
 
 	BLayoutItem* item = GroupLayout()->AddView(index, tab);

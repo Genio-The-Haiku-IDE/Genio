@@ -46,7 +46,6 @@ public:
 		BView*  GetPanelTabView(const char* name);
 
 		void	AddPanelByConfig(BView* panel, tab_id id);
-		void	AddPanel(const char* tabview_name, BView* panel, tab_id id);
 
 		void	SelectTab(tab_id id);
 		void	ShowTab(tab_id id);
@@ -58,6 +57,7 @@ public:
 
 
 private:
+		void			_AddPanel(const char* tabview_name, BView* panel, tab_id id, int32 index=-1);
 		PanelTabView*	_GetPanelTabView(const char* name);
 		TabViewList		fTVList;
 		BMessage 		fConfig;

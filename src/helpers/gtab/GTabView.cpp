@@ -49,6 +49,9 @@ GTabView::AddTab(const char* label, BView* view, int32 index)
 void
 GTabView::AddTab(GTab* tab, BView* view, int32 index)
 {
+	if (index > Container()->CountTabs())
+		index = Container()->CountTabs();
+
 	fTabsContainer->AddTab(tab, index);
 	_AddViewToCard(view, index);
 	_FixContentOrientation(view);

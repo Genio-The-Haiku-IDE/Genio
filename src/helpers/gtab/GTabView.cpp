@@ -49,7 +49,7 @@ GTabView::AddTab(const char* label, BView* view, int32 index)
 void
 GTabView::AddTab(GTab* tab, BView* view, int32 index)
 {
-	if (index > Container()->CountTabs())
+	if (index == -1 || index > Container()->CountTabs())
 		index = Container()->CountTabs();
 
 	fTabsContainer->AddTab(tab, index);

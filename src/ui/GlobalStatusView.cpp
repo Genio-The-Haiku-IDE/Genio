@@ -30,7 +30,8 @@ GlobalStatusView::GlobalStatusView()
 	BView("global_status_view", B_WILL_DRAW),
 	fBarberPole(nullptr),
 	fStringView(nullptr),
-	fLastStatusChange(system_time())
+	fLastStatusChange(system_time()),
+	fRunner(nullptr)
 {
 	fBarberPole = new BarberPole("barber pole");
 	//fBarberPole->SetExplicitMinSize(BSize(100, B_SIZE_UNLIMITED));
@@ -88,6 +89,10 @@ GlobalStatusView::MessageReceived(BMessage *message)
 {
 	switch (message->what) {
 		case kHideText:
+			if (fRunner != nullptr) {
+				delete fRunner;
+				fRunner = nullptr;
+			}
 			fStringView->SetText("");
 			fBarberPole->Hide();
 			break;
@@ -98,6 +103,11 @@ GlobalStatusView::MessageReceived(BMessage *message)
 			switch (what) {
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
+					if (fRunner != nullptr) {
+						delete fRunner;
+						fRunner = nullptr;
+					}
+
 					if (fBarberPole->IsHidden())
 						fBarberPole->Show();
 
@@ -128,7 +138,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 						}
 						fBarberPole->Stop();
 						BMessenger messenger(this);
-						BMessageRunner::StartSending(messenger, new BMessage(kHideText),
+						fRunner = new BMessageRunner(messenger, new BMessage(kHideText),
 									kTextAutohideTimeout, 1);
 					}
 					text.ReplaceFirst("\"%project%\"", projectName);

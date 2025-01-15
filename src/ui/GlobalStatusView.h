@@ -8,6 +8,8 @@
 
 class BarberPole;
 class BStringView;
+class BMessageRunner;
+
 class GlobalStatusView : public BView {
 public:
 	GlobalStatusView();
@@ -24,4 +26,5 @@ private:
 	BarberPole*		fBarberPole;
 	BStringView*	fStringView;
 	bigtime_t		fLastStatusChange;
+	BMessageRunner* fRunner;
 };

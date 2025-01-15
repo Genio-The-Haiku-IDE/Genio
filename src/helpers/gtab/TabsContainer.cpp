@@ -236,7 +236,7 @@ void
 TabsContainer::_PrintToStream()
 {
 	for (int32 i = 0; i < GroupLayout()->CountItems(); i++) {
-		printf("%d) %s\n", i, GroupLayout()->ItemAt(i)->View()->Name());
+		printf("%" B_PRIi32 ") %s\n", i, GroupLayout()->ItemAt(i)->View()->Name());
 	}
 }
 

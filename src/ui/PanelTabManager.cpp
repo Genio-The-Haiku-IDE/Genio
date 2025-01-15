@@ -49,8 +49,9 @@ public:
 	{
 		GTabID* tab = new GTabID(id, panel->Name());
 		GTabView::AddTab(tab, panel, index);
-		if (select)
+		if (select) {
 			GTabView::SelectTab(tab);
+		}
 	}
 
 	bool HasTab(tab_id id) const

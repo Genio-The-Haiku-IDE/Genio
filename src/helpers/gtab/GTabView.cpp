@@ -285,7 +285,11 @@ GTabView::MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer)
 void
 GTabView::SelectTab(GTab* tab)
 {
-	fTabsContainer->SelectTab(tab);
+	int32 index = fTabsContainer->IndexOfTab(tab);
+	if (index > -1) {
+		fTabsContainer->SelectTab(tab);
+		fCardView->CardLayout()->SetVisibleItem(index);
+	}
 }
 
 

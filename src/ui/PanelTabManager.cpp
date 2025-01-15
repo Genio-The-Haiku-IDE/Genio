@@ -45,10 +45,12 @@ public:
 	{
 	}
 
-	void AddTab(BView* panel, tab_id id, int32 index=-1)
+	void AddTab(BView* panel, tab_id id, int32 index=-1, bool select = false)
 	{
 		GTabID* tab = new GTabID(id, panel->Name());
 		GTabView::AddTab(tab, panel, index);
+		if (select)
+			GTabView::SelectTab(tab);
 	}
 
 	bool HasTab(tab_id id) const
@@ -80,9 +82,8 @@ public:
 				tab.AddInt32("id", tabid->GetID());
 				tab.AddString("panel_group", Name());
 				tab.AddInt32("index", i);
+				tab.AddBool("selected", tabid->IsFront());
 				config.AddMessage("tab", &tab);
-				//tab_id id = tabid->GetID();
-				//printf("%s -> %d ('%.4s')\n", Name(), id, ((char*)&id));
 			}
 		}
 	}
@@ -169,7 +170,7 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 		tab_id tabid = tab.GetInt32("id", 0);
 		if (tabid == id) {
 			const char* panelName = tab.GetString("panel_group", "");
-			_AddPanel(panelName, panel, id, tab.GetInt32("index", -1));
+			_AddPanel(panelName, panel, id, tab.GetInt32("index", -1), tab.GetBool("selected", false));
 			return;
 		}
 	}
@@ -179,12 +180,12 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 
 
 void
-PanelTabManager::_AddPanel(const char* tabview_name, BView* panel, tab_id id, int32 index)
+PanelTabManager::_AddPanel(const char* tabview_name, BView* panel, tab_id id, int32 index, bool select)
 {
 	PanelTabView* tabview = _GetPanelTabView(tabview_name);
 	assert (tabview != nullptr);
 
-	tabview->AddTab(panel, id, index);
+	tabview->AddTab(panel, id, index, select);
 }
 
 

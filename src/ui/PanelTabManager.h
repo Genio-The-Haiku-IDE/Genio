@@ -57,7 +57,12 @@ public:
 
 
 private:
-		void			_AddPanel(const char* tabview_name, BView* panel, tab_id id, int32 index=-1);
+		void			_AddPanel(const char* tabview_name,
+								  BView* panel,
+								  tab_id id,
+								  int32 index=-1,
+								  bool select = false);
+
 		PanelTabView*	_GetPanelTabView(const char* name);
 		TabViewList		fTVList;
 		BMessage 		fConfig;

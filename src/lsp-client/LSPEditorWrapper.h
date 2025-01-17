@@ -77,6 +77,8 @@ public:
 		void	NextCallTip();
 		void	PrevCallTip();
 
+		void	MouseMoved(BMessage*);
+
 public:
 	//still experimental
 	//std::string		fID;
@@ -95,6 +97,8 @@ public:
 	BString				fFileStatus;
 	CallTipContext		fCallTip;
 	bool				fInitialized;
+	Sci_Position		fLastWordStartPosition;
+	Sci_Position		fLastWordEndPosition;
 
 private:
 	bool	IsInitialized();
@@ -139,6 +143,7 @@ private:
 	std::string 	GetCurrentLine();
 	bool			IsStatusValid();
 	std::vector<TextDocumentContentChangeEvent> fChanges;
+
 
 };
 

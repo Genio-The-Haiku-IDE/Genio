@@ -28,6 +28,7 @@
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 #define IND_DIAG INDICATOR_CONTAINER + 1 //Style for Problems
 #define IND_LINK INDICATOR_CONTAINER + 2 //Style for Links
+#define IND_OVER INDICATOR_CONTAINER + 3 //Style for mouse hover
 
 LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	:
@@ -36,7 +37,9 @@ LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	fToolTip(nullptr),
 	fLSPProjectWrapper(nullptr),
 	fCallTip(editor),
-	fInitialized(false)
+	fInitialized(false),
+	fLastWordStartPosition(-1),
+	fLastWordEndPosition(-1)
 {
 	assert(fEditor);
 }
@@ -50,6 +53,9 @@ LSPEditorWrapper::ApplySettings()
 
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
+
+	fEditor->SendMessage(SCI_INDICSETFORE,  IND_OVER, 0xff0000);
+	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_OVER, INDIC_PLAIN);
 
 	fEditor->SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 
@@ -320,7 +326,19 @@ LSPEditorWrapper::StartHover(Sci_Position sci_position)
 	if (!IsInitialized() || sci_position < 0 || !IsStatusValid()) {
 		return;
 	}
+/*
+	fEditor->SendMessage(SCI_SETINDICATORCURRENT, IND_OVER);
 
+	if (fLastWordEndPosition > -1 && fLastWordStartPosition > -1) {
+		fEditor->SendMessage(SCI_INDICATORCLEARRANGE, fLastWordStartPosition, fLastWordEndPosition - fLastWordStartPosition);
+		fLastWordEndPosition = fLastWordStartPosition = -1;
+	}
+
+	fLastWordStartPosition = fEditor->SendMessage(SCI_WORDSTARTPOSITION, sci_position, true);
+	fLastWordEndPosition   = fEditor->SendMessage(SCI_WORDENDPOSITION,   sci_position, true);
+
+	fEditor->SendMessage(SCI_INDICATORFILLRANGE, fLastWordStartPosition, fLastWordEndPosition - fLastWordStartPosition);
+*/
 	LSPDiagnostic dia;
 	if (DiagnosticFromPosition(sci_position, dia) > -1) {
 		_ShowToolTip(dia.range.info.c_str());
@@ -331,6 +349,36 @@ LSPEditorWrapper::StartHover(Sci_Position sci_position)
 	FromSciPositionToLSPPosition(sci_position, &position);
 	fLSPProjectWrapper->Hover(this, position);
 }
+
+
+void
+LSPEditorWrapper::MouseMoved(BMessage* message)
+{
+	if (!IsInitialized() || !IsStatusValid()) {
+		return;
+	}
+
+	if (fLastWordEndPosition > -1 && fLastWordStartPosition > -1) {
+		fEditor->SendMessage(SCI_SETINDICATORCURRENT, IND_OVER);
+		fEditor->SendMessage(SCI_INDICATORCLEARRANGE, fLastWordStartPosition, fLastWordEndPosition - fLastWordStartPosition);
+		fLastWordEndPosition = fLastWordStartPosition = -1;
+	}
+
+	if (message->GetInt32("buttons", 0) != 0 || !(modifiers() & B_COMMAND_KEY)) {
+		return;
+	}
+
+	if (message->GetInt32("be:transit", 0) == 1) {
+		BPoint point = message->GetPoint("be:view_where", BPoint(0,0));
+		Sci_Position sci_position = fEditor->SendMessage(SCI_POSITIONFROMPOINTCLOSE, point.x, point.y);
+		fLastWordStartPosition = fEditor->SendMessage(SCI_WORDSTARTPOSITION, sci_position, true);
+		fLastWordEndPosition   = fEditor->SendMessage(SCI_WORDENDPOSITION,   sci_position, true);
+		fEditor->SendMessage(SCI_SETINDICATORCURRENT, IND_OVER);
+		fEditor->SendMessage(SCI_INDICATORFILLRANGE, fLastWordStartPosition, fLastWordEndPosition - fLastWordStartPosition);
+	}
+}
+
+
 
 
 int32
@@ -370,6 +418,7 @@ LSPEditorWrapper::EndHover()
 {
 	if (!IsInitialized())
 		return;
+
 	BAutolock l(fEditor->Looper());
 	if (l.IsLocked()) {
 		fEditor->HideToolTip();
@@ -546,6 +595,12 @@ LSPEditorWrapper::IndicatorClick(Sci_Position sci_position)
 	Sci_Position s_end = fEditor->SendMessage(SCI_GETSELECTIONEND, 0, 0);
 	if (s_start != s_end)
 		return;
+
+	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_OVER, sci_position) == 1) {
+		Position position;
+		FromSciPositionToLSPPosition(sci_position, &position);
+		fLSPProjectWrapper->GoToDefinition(this, position);
+	}
 
 	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_LINK, sci_position) == 1) {
 		for (auto& ir : fLastDocumentLinks) {

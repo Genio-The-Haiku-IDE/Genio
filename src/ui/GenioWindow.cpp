@@ -37,7 +37,7 @@
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "ConsoleIOView.h"
-#include "EditorKeyDownMessageFilter.h"
+#include "EditorMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
 #include "EditorTabManager.h"
@@ -208,8 +208,9 @@ GenioWindow::GenioWindow(BRect frame)
 		B_CONTROL_KEY));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_TOOLBAR_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
-	AddCommonFilter(new EditorKeyDownMessageFilter());
+	AddCommonFilter(new EditorMessageFilter(B_KEY_DOWN, &Editor::BeforeKeyDown));
 	AddCommonFilter(new EditorMouseWheelMessageFilter());
+	AddCommonFilter(new EditorMessageFilter(B_MOUSE_MOVED, &Editor::BeforeMouseMoved));
 
 	// Load workspace - reopen projects
 	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate

@@ -1098,6 +1098,14 @@ Editor::BeforeKeyDown(BMessage* message)
 
 
 filter_result
+Editor::BeforeMouseMoved(BMessage* message)
+{
+	//fLSPEditorWrapper->MouseMoved(message);
+	return B_DISPATCH_MESSAGE;
+}
+
+
+filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {

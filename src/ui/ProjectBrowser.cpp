@@ -348,6 +348,8 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 										item->GetSourceItem()->UpdateEntryRef(newRef);
 										fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
 											true, ProjectOutlineListView::CompareProjectItems);
+										if (item->IsSelected())
+											fOutlineListView->ScrollToSelection();
 									} else {
 										LogError("Can't find ref for newPath[%s]", newPath.String());
 										return;
@@ -695,8 +697,9 @@ ProjectBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 	ProjectItem *item = GetSelectedProjectItem();
 	if (item != nullptr) {
 		BEntry entry(item->GetSourceItem()->EntryRef());
-		if (entry.Exists())
+		if (entry.Exists()) {
 			status = entry.Rename(new_name, false);
+		}
 	}
 	return status;
 }

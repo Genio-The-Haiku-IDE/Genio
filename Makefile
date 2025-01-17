@@ -54,6 +54,7 @@ SRCS += src/helpers/tabview/CircleColorMenuItem.cpp
 SRCS += src/helpers/tabview/TabContainerView.cpp
 SRCS += src/helpers/tabview/TabManager.cpp
 SRCS += src/helpers/tabview/TabView.cpp
+SRCS += src/helpers/JumpNavigator.cpp
 SRCS += src/lsp-client/CallTipContext.cpp
 SRCS += src/lsp-client/LSPEditorWrapper.cpp
 SRCS += src/lsp-client/LSPProjectWrapper.cpp

@@ -21,6 +21,7 @@
 #include "LSPProjectWrapper.h"
 #include "protocol.h"
 #include "TextUtils.h"
+#include "EditorStatusView.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -936,6 +937,10 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 	auto state = params["state"].get<std::string>();
 	LogInfo("FileStatus [%s] -> [%s]", GetFileStatus().String(), state.c_str());
 	SetFileStatus(state.c_str());
+	if (fEditor) {
+		BMessage msg(editor::StatusView::UPDATE_STATUS);
+		BMessenger(fEditor).SendMessage(&msg);
+	}
 }
 
 

@@ -203,12 +203,11 @@ StatusView::MouseDown(BPoint where)
 		_ShowDirMenu();
 		return;
 	}
-
-	if (where.x < fNavigationButtonWidth + fCellWidth[kPositionCell] && where.x > fNavigationButtonWidth) {
+	where.y = 0;
+	if (_GetCellRect(kPositionCell).Contains(where)) {
 		BMessenger msgr(Window());
 		msgr.SendMessage(MSG_GOTO_LINE);
-	} else if (where.x < fNavigationButtonWidth + fCellWidth[kPositionCell] + fCellWidth[kOverwriteMode] &&
-	           where.x > fNavigationButtonWidth + fCellWidth[kPositionCell]) {
+	} else if (_GetCellRect(kOverwriteMode).Contains(where)) {
 
 		BMessenger msgr(Window());
 		msgr.SendMessage(MSG_TEXT_OVERWRITE);

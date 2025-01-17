@@ -17,6 +17,8 @@
 #include "LSPCapabilities.h"
 #include "CallTipContext.h"
 
+//#define DOCUMENT_LINK
+
 struct InfoRange {
 	Sci_Position	from;
 	Sci_Position	to;
@@ -108,7 +110,6 @@ private:
 	void				_ShowToolTip(const char* text);
 	void				_RemoveAllDiagnostics();
 	void				_RemoveAllDocumentLinks();
-
 
 
 private:

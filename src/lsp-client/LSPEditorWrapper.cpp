@@ -26,6 +26,7 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
 
+
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 #define IND_DIAG INDICATOR_CONTAINER + 1 //Style for Problems
 #define IND_LINK INDICATOR_CONTAINER + 2 //Style for Links
@@ -52,8 +53,10 @@ LSPEditorWrapper::ApplySettings()
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, (255 | (0 << 8) | (0 << 16)));
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_DIAG, INDIC_SQUIGGLE);
 
+#ifdef DOCUMENT_LINK
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
+#endif
 
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_OVER, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_OVER, INDIC_PLAIN);
@@ -602,7 +605,7 @@ LSPEditorWrapper::IndicatorClick(Sci_Position sci_position)
 		FromSciPositionToLSPPosition(sci_position, &position);
 		fLSPProjectWrapper->GoToDefinition(this, position);
 	}
-
+#ifdef IND_LINK
 	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_LINK, sci_position) == 1) {
 		for (auto& ir : fLastDocumentLinks) {
 			if (sci_position > ir.from && sci_position <= ir.to) {
@@ -612,6 +615,7 @@ LSPEditorWrapper::IndicatorClick(Sci_Position sci_position)
 			}
 		}
 	}
+#endif
 }
 
 
@@ -804,7 +808,9 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 	}
 
 	if (fLSPProjectWrapper) {
+#ifdef DOCUMENT_LINK
 		fLSPProjectWrapper->DocumentLink(this);
+#endif
 		fLSPProjectWrapper->DocumentSymbol(this);
 	}
 }
@@ -896,7 +902,6 @@ LSPEditorWrapper::_RemoveAllDocumentLinks()
 	fLastDocumentLinks.clear();
 }
 
-
 void
 LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
 {
@@ -943,7 +948,6 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 	}
 }
 
-
 void
 LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 {
@@ -960,7 +964,6 @@ LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 	if (fEditor != nullptr)
 		fEditor->SetDocumentSymbols(&msg, Editor::STATUS_HAS_SYMBOLS);
 }
-
 
 void
 LSPEditorWrapper::_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& vect, BMessage& msg)

@@ -27,6 +27,8 @@ public:
 		void	ClearAll();
 		void	Append(const BString& text);
 
+		BSize MinSize() { return BSize(0, 0); }
+
 
 		filter_result	BeforeMessageReceived(BMessage* msg, BView* scintillaView);
 private:

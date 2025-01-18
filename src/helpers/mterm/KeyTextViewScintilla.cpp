@@ -42,12 +42,15 @@ KeyTextViewScintilla::KeyTextViewScintilla(const char *name, const BMessenger &m
 	EnableInput(false);
 }
 
+
 void
 KeyTextViewScintilla::AttachedToWindow()
 {
 	if (FindView("ScintillaHaikuView"))
 		FindView("ScintillaHaikuView")->AddFilter(new ScintillaHaikuAllMessageFilter());
 }
+
+
 void
 KeyTextViewScintilla::ClearAll()
 {
@@ -56,6 +59,7 @@ KeyTextViewScintilla::ClearAll()
 	SendMessage(SCI_CLEARALL);
 	if (isRO) SendMessage(SCI_SETREADONLY, true);
 }
+
 
 void
 KeyTextViewScintilla::EnableInput(bool enable)
@@ -67,6 +71,7 @@ KeyTextViewScintilla::EnableInput(bool enable)
 		SendMessage(SCI_GRABFOCUS);
 }
 
+
 void
 KeyTextViewScintilla::Append(const BString& text)
 {
@@ -77,6 +82,7 @@ KeyTextViewScintilla::Append(const BString& text)
 	fCaretPosition = SendMessage(SCI_GETCURRENTPOS);
 	if (isRO) SendMessage(SCI_SETREADONLY, true);
 }
+
 
 filter_result
 KeyTextViewScintilla::BeforeMessageReceived(BMessage* msg, BView* scintillaView)
@@ -93,6 +99,7 @@ KeyTextViewScintilla::BeforeMessageReceived(BMessage* msg, BView* scintillaView)
 			return B_DISPATCH_MESSAGE;
 	};
 }
+
 
 filter_result
 KeyTextViewScintilla::BeforeKeyDown(BMessage* msg, BView* scintillaView)

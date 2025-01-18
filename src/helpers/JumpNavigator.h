@@ -33,8 +33,8 @@ public:
 	bool HasNext();
 	bool HasPrev();
 
-	JumpPosition GetNext();
-	JumpPosition GetPrev();
+	void JumpToNext();
+	void JumpToPrev();
 
 private:
 							JumpNavigator(){ fCurrentPosition.device = -1; }

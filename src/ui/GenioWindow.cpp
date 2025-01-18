@@ -318,12 +318,12 @@ GenioWindow::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case JumpNavigator::kJumpPrev:
 		{
-			JumpNavigator::getInstance()->GetPrev();
+			JumpNavigator::getInstance()->JumpToPrev();
 			break;
 		}
 		case JumpNavigator::kJumpNext:
 		{
-			JumpNavigator::getInstance()->GetNext();
+			JumpNavigator::getInstance()->JumpToNext();
 			break;
 		}
 		case MSG_INVOKE_EXTENSION:

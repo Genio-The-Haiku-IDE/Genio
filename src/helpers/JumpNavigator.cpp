@@ -50,31 +50,27 @@ JumpNavigator::HasPrev()
 }
 
 
-JumpPosition
-JumpNavigator::GetNext()
+void
+JumpNavigator::JumpToNext()
 {
 	if(HasNext()) {
 		history.push(fCurrentPosition);
 		fCurrentPosition = forwardStack.top();
 		forwardStack.pop();
 		_GoToCurrentPosition();
-		return fCurrentPosition;
 	}
-	return JumpPosition();
 }
 
 
-JumpPosition
-JumpNavigator::GetPrev()
+void
+JumpNavigator::JumpToPrev()
 {
 	if (HasPrev()) {
 		forwardStack.push(fCurrentPosition);
 		fCurrentPosition = history.top();
 		history.pop();
 		_GoToCurrentPosition();
-		return fCurrentPosition;
 	}
-	return JumpPosition();
 }
 
 

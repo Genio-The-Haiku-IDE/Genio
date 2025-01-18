@@ -27,8 +27,8 @@ public:
         return &instance;
     }
 
-	void	JumpToFile(BMessage* message, JumpPosition& currentPosition);
-	void	Jumped(JumpPosition& position);
+	void	JumpToFile(BMessage* message, JumpPosition* currentPosition);
+	void	JumpingTo(JumpPosition& newPosition, JumpPosition& fromPosition);
 
 	bool HasNext();
 	bool HasPrev();

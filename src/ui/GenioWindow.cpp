@@ -1832,8 +1832,11 @@ GenioWindow::_FileOpen(BMessage* msg)
 		if (firstAdded == -1)
 			firstAdded = index;
 
-		if (refsCount == 1 && msg->GetBool("jump", false) == true) {
-			JumpNavigator::getInstance()->Jumped(ref);
+		if (refsCount == 1){
+			entry_ref fromRef;
+			if (msg->FindRef("jumpFrom", 0, &fromRef) == B_OK) {
+				JumpNavigator::getInstance()->JumpingTo(ref, fromRef);
+			}
 		}
 	}
 

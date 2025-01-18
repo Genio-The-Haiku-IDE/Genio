@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, Andrea Anzani <andrea.anzani@gmail.com>
+ * Copyright 2025, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -7,21 +7,15 @@
 #include <Message.h>
 #include <Application.h>
 #include <cstdio>
-
+#include "Log.h"
 
 void
-JumpNavigator::JumpToFile(BMessage* message, JumpPosition& currentPosition) //TODO: store current position!!!
+JumpNavigator::JumpToFile(BMessage* message, JumpPosition* currentPosition)
 {
 	entry_ref	ref;
 	if(message->FindRef("refs", 0, &ref) == B_OK)
 	{
-		if (currentPosition != fCurrentPosition) {
-			history.push(currentPosition);
-			forwardStack = {};
-			fCurrentPosition = currentPosition;
-		}
-
-		message->AddBool("jump", true);
+		message->AddRef("jumpFrom", currentPosition);
 		message->what = B_REFS_RECEIVED;
 		be_app->PostMessage(message);
 	}
@@ -29,17 +23,15 @@ JumpNavigator::JumpToFile(BMessage* message, JumpPosition& currentPosition) //TO
 
 
 void
-JumpNavigator::Jumped(JumpPosition& position)
+JumpNavigator::JumpingTo(JumpPosition& newPosition, JumpPosition& fromPosition)
 {
-	printf("Jumped to %s\n", position.name);
-	if (position == fCurrentPosition)
+	LogDebugF("from %s to %s\n", fromPosition.name, newPosition.name);
+	if (newPosition == fromPosition || newPosition == fCurrentPosition)
 		return;
 
-	/*if (fCurrentPosition.device != -1)
-		history.push(fCurrentPosition);*/
-
+	history.push(fromPosition);
 	forwardStack = {};
-	fCurrentPosition = position;
+	fCurrentPosition = newPosition;
 }
 
 
@@ -68,7 +60,6 @@ JumpNavigator::GetNext()
 		_GoToCurrentPosition();
 		return fCurrentPosition;
 	}
-	printf("NO NEXT\n");
 	return JumpPosition();
 }
 
@@ -83,7 +74,6 @@ JumpNavigator::GetPrev()
 		_GoToCurrentPosition();
 		return fCurrentPosition;
 	}
-	printf("NO PREV\n");
 	return JumpPosition();
 }
 
@@ -91,7 +81,7 @@ JumpNavigator::GetPrev()
 void
 JumpNavigator::_GoToCurrentPosition()
 {
-	printf("Going to %s\n", fCurrentPosition.name);
+	LogDebugF("%s\n", fCurrentPosition.name);
 	BMessage ref(B_REFS_RECEIVED);
 	ref.AddRef("refs", &fCurrentPosition);
 	be_app->PostMessage(&ref);

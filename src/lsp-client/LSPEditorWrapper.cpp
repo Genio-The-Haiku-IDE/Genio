@@ -1142,7 +1142,7 @@ LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character, BStr
 				if (!edits.IsEmpty())
 					refs.AddString("edit", edits);
 
-				JumpNavigator::getInstance()->JumpToFile(&refs, *fEditor->FileRef());
+				JumpNavigator::getInstance()->JumpToFile(&refs, fEditor->FileRef());
 			}
 		}
 	}

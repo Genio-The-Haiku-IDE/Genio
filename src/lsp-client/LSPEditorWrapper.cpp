@@ -1122,7 +1122,7 @@ LSPEditorWrapper::ApplyTextEdit(TextEdit &textEdit)
 	return s_pos + replaced;
 }
 
-
+#include "JumpNavigator.h"
 void
 LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character, BString edits)
 {
@@ -1141,7 +1141,8 @@ LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character, BStr
 				}
 				if (!edits.IsEmpty())
 					refs.AddString("edit", edits);
-				be_app->PostMessage(&refs);
+
+				JumpNavigator::getInstance()->JumpToFile(&refs, *fEditor->FileRef());
 			}
 		}
 	}

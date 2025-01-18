@@ -5,27 +5,44 @@
 #pragma once
 
 #include <SupportDefs.h>
-#include <string>
+#include <Entry.h>
 #include <stack>
 
+class BMessage;
 // Once per project or a single one?
 
-typedef std::string Position;
+typedef entry_ref JumpPosition;
 
 class JumpNavigator {
 public:
-	void AddJump(const char* filename);
+	enum {
+		kJumpPrev	=	'jmpp',
+		kJumpNext	=	'jmpn'
+	};
+
+
+
+    static JumpNavigator* getInstance() {
+		static JumpNavigator	instance;
+        return &instance;
+    }
+
+	void	JumpToFile(BMessage* message, JumpPosition& currentPosition);
+	void	Jumped(JumpPosition& position);
 
 	bool HasNext();
 	bool HasPrev();
 
-	const char* GetNext();
-	const char* GetPrev();
+	JumpPosition GetNext();
+	JumpPosition GetPrev();
 
 private:
-	std::stack<Position>	history;
-	std::stack<Position>	forwardStack;
-	Position				fCurrentPosition;
+							JumpNavigator(){ fCurrentPosition.device = -1; }
+					void	_GoToCurrentPosition();
+
+	std::stack<JumpPosition>	history;
+	std::stack<JumpPosition>	forwardStack;
+	JumpPosition				fCurrentPosition;
 };
 
 

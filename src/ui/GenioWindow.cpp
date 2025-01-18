@@ -72,6 +72,7 @@
 #include "TextUtils.h"
 #include "ToolsMenu.h"
 #include "Utils.h"
+#include "JumpNavigator.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -212,6 +213,12 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorMouseWheelMessageFilter());
 	AddCommonFilter(new EditorMessageFilter(B_MOUSE_MOVED, &Editor::BeforeMouseMoved));
 
+	//JumpNavigator (this should be Action with icon and menu items..)
+	AddCommonFilter(new KeyDownMessageFilter(JumpNavigator::kJumpPrev, B_LEFT_ARROW,
+		B_SHIFT_KEY|B_COMMAND_KEY));
+	AddCommonFilter(new KeyDownMessageFilter(JumpNavigator::kJumpNext, B_RIGHT_ARROW,
+		B_SHIFT_KEY|B_COMMAND_KEY));
+
 	// Load workspace - reopen projects
 	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
 	// the workspace
@@ -309,6 +316,16 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case JumpNavigator::kJumpPrev:
+		{
+			JumpNavigator::getInstance()->GetPrev();
+			break;
+		}
+		case JumpNavigator::kJumpNext:
+		{
+			JumpNavigator::getInstance()->GetNext();
+			break;
+		}
 		case MSG_INVOKE_EXTENSION:
 		{
 			entry_ref ref;
@@ -1814,6 +1831,10 @@ GenioWindow::_FileOpen(BMessage* msg)
 		_ApplyEditsToSelectedEditor(msg);
 		if (firstAdded == -1)
 			firstAdded = index;
+
+		if (refsCount == 1 && msg->GetBool("jump", false) == true) {
+			JumpNavigator::getInstance()->Jumped(ref);
+		}
 	}
 
 	if (firstAdded > -1 && fTabManager->CountTabs() > firstAdded) {

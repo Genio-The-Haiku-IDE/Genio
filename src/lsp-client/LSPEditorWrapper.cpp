@@ -17,11 +17,12 @@
 #include <unistd.h>
 
 #include "Editor.h"
+#include "EditorStatusView.h"
 #include "Log.h"
 #include "LSPProjectWrapper.h"
+#include "JumpNavigator.h"
 #include "protocol.h"
 #include "TextUtils.h"
-#include "EditorStatusView.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
@@ -76,7 +77,7 @@ LSPEditorWrapper::ApplySettings()
 void
 LSPEditorWrapper::UnsetLSPServer()
 {
-	if (!fLSPProjectWrapper)
+	if (fLSPProjectWrapper == nullptr)
 		return;
 
 	didClose();
@@ -89,14 +90,14 @@ LSPEditorWrapper::UnsetLSPServer()
 bool
 LSPEditorWrapper::HasLSPServer()
 {
-	return (fLSPProjectWrapper != nullptr);
+	return fLSPProjectWrapper != nullptr;
 }
 
 
 bool
 LSPEditorWrapper::HasLSPServerCapability(const LSPCapability cap)
 {
-	return (HasLSPServer() && fLSPProjectWrapper->HasCapability(cap));
+	return HasLSPServer() && fLSPProjectWrapper->HasCapability(cap);
 }
 
 
@@ -161,7 +162,7 @@ LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 bool
 LSPEditorWrapper::IsInitialized()
 {
-	return (fInitialized && fLSPProjectWrapper != nullptr);
+	return fInitialized && fLSPProjectWrapper != nullptr;
 }
 
 
@@ -184,7 +185,7 @@ LSPEditorWrapper::didClose()
 	if (!IsInitialized())
 		return;
 
-	if (fEditor) {
+	if (fEditor != nullptr) {
 		_RemoveAllDiagnostics();
 		_RemoveAllDocumentLinks();
 	}
@@ -208,7 +209,7 @@ void
 LSPEditorWrapper::didChange(
 	const char* text, long len, Sci_Position start_pos, Sci_Position poslength)
 {
-	if (!IsInitialized() || !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
 	Sci_Position end_pos = fEditor->SendMessage(SCI_POSITIONRELATIVE, start_pos, poslength);
@@ -272,7 +273,7 @@ LSPEditorWrapper::_DoRename(json& params)
 void
 LSPEditorWrapper::Format()
 {
-	if (!IsInitialized() || !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
 	// format a range or format the whole doc?
@@ -292,7 +293,7 @@ LSPEditorWrapper::Format()
 void
 LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 {
-	if (!IsInitialized()|| !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
 	flushChanges();
@@ -317,7 +318,7 @@ LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 void
 LSPEditorWrapper::Rename(std::string newName)
 {
-	if (!IsInitialized()|| !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
 	flushChanges();
@@ -439,7 +440,7 @@ LSPEditorWrapper::SwitchSourceHeader()
 void
 LSPEditorWrapper::SelectedCompletion(const char* text)
 {
-	if (!IsInitialized() || !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
 	if (fCurrentCompletion.items.size() > 0) {
@@ -502,7 +503,7 @@ LSPEditorWrapper::SelectedCompletion(const char* text)
 void
 LSPEditorWrapper::StartCompletion()
 {
-	if (!IsInitialized() || !fEditor ) {
+	if (!IsInitialized() || fEditor == nullptr) {
 		return;
 	}
 
@@ -556,10 +557,10 @@ void
 LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 {
 	// printf("on char %c\n", ch);
-	if (!IsInitialized() || !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
-	if(ch != 0) {
+	if (ch != 0) {
 		if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
 			!Contains(kWordCharacters, ch)) {
 			fEditor->SendMessage(SCI_AUTOCCANCEL);
@@ -622,7 +623,7 @@ LSPEditorWrapper::IndicatorClick(Sci_Position sci_position)
 void
 LSPEditorWrapper::_ShowToolTip(const char* text)
 {
-	if (!fToolTip)
+	if (fToolTip == nullptr)
 		fToolTip = new BTextToolTip(text);
 
 	fToolTip->SetText(text);
@@ -636,7 +637,7 @@ LSPEditorWrapper::_ShowToolTip(const char* text)
 void
 LSPEditorWrapper::_DoHover(nlohmann::json& result)
 {
-	if (fEditor == nullptr || fEditor->Window()->IsActive() == false)
+	if (fEditor == nullptr || !fEditor->Window()->IsActive())
 		return;
 
 	if (result == nlohmann::detail::value_t::null &&
@@ -942,7 +943,7 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 	auto state = params["state"].get<std::string>();
 	LogInfo("FileStatus [%s] -> [%s]", GetFileStatus().String(), state.c_str());
 	SetFileStatus(state.c_str());
-	if (fEditor) {
+	if (fEditor != nullptr) {
 		BMessage msg(editor::StatusView::UPDATE_STATUS);
 		BMessenger(fEditor).SendMessage(&msg);
 	}
@@ -1111,7 +1112,7 @@ LSPEditorWrapper::ApplyTextEdit(TextEdit &textEdit)
 	return s_pos + replaced;
 }
 
-#include "JumpNavigator.h"
+
 void
 LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character, BString edits)
 {

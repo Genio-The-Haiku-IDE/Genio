@@ -15,12 +15,6 @@ typedef entry_ref JumpPosition;
 
 class JumpNavigator {
 public:
-	enum {
-		kJumpPrev	=	'jmpp',
-		kJumpNext	=	'jmpn'
-	};
-
-
 
     static JumpNavigator* getInstance() {
 		static JumpNavigator	instance;

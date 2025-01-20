@@ -282,8 +282,10 @@ LSPEditorWrapper::Format()
 void
 LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 {
-	if (!IsInitialized()|| !fEditor || !IsStatusValid())
+	if (!IsInitialized()|| !fEditor)
 		return;
+
+	flushChanges();
 
 	Position position;
 	GetCurrentLSPPosition(&position);
@@ -305,8 +307,10 @@ LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 void
 LSPEditorWrapper::Rename(std::string newName)
 {
-	if (!IsInitialized()|| !fEditor || !IsStatusValid())
+	if (!IsInitialized()|| !fEditor)
 		return;
+
+	flushChanges();
 
 	Position position;
 	GetCurrentLSPPosition(&position);
@@ -317,9 +321,11 @@ LSPEditorWrapper::Rename(std::string newName)
 void
 LSPEditorWrapper::StartHover(Sci_Position sci_position)
 {
-	if (!IsInitialized() || sci_position < 0 || !IsStatusValid()) {
+	if (!IsInitialized() || sci_position < 0) {
 		return;
 	}
+
+	flushChanges();
 
 	LSPDiagnostic dia;
 	if (DiagnosticFromPosition(sci_position, dia) > -1) {
@@ -380,8 +386,11 @@ LSPEditorWrapper::EndHover()
 void
 LSPEditorWrapper::SwitchSourceHeader()
 {
-	if (!IsInitialized() || !IsStatusValid())
+	if (!IsInitialized())
 		return;
+
+	flushChanges();
+
 	fLSPProjectWrapper->SwitchSourceHeader(this);
 }
 
@@ -452,8 +461,11 @@ LSPEditorWrapper::SelectedCompletion(const char* text)
 void
 LSPEditorWrapper::StartCompletion()
 {
-	if (!IsInitialized() || !fEditor || !IsStatusValid())
+	if (!IsInitialized() || !fEditor ) {
 		return;
+	}
+
+	flushChanges();
 
 	// let's check if a completion is ongoing
 	if (fCurrentCompletion.items.size() > 0) {
@@ -937,17 +949,6 @@ LSPEditorWrapper::_DoLinearSymbolInformation(std::vector<SymbolInformation>& vec
 		symbol.AddInt32("start:character", symbolRange.start.character);
 		msg.AddMessage("symbol", &symbol);
 	}
-}
-
-bool
-LSPEditorWrapper::IsStatusValid()
-{
-	BString status = GetFileStatus();
-	bool value = status.IsEmpty() || (status.Compare("idle") == 0);
-	if (!value)
-		LogDebugF("Invalid status (%d) for [%s] (%s)", value, GetFilenameURI().String(),
-			GetFileStatus().String());
-	return value;
 }
 
 

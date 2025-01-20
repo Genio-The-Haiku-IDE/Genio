@@ -352,7 +352,7 @@ LSPEditorWrapper::StartHover(Sci_Position sci_position)
 void
 LSPEditorWrapper::MouseMoved(BMessage* message)
 {
-	if (!IsInitialized() || !IsStatusValid()) {
+	if (!IsInitialized()) {
 		return;
 	}
 

@@ -36,6 +36,10 @@ enum {
 	kTermFlushBuffer = 'flux'
 };
 
+static const bigtime_t  kFlushInterval = 1000000; //1sec
+static const int32 		kFlushSize = 1024; //1sec
+
+
 
 MTermView::MTermView(const BString& name, const BMessenger& target)
 	:
@@ -301,17 +305,16 @@ MTermView::_Init()
 void
 MTermView::_HandleOutput(const BString& info)
 {
-	if (fBufferFlusher != nullptr) {
-		delete fBufferFlusher;
-		fBufferFlusher = nullptr;
-	}
-
 	fOutputBuffer.Append(info);
-	if (fOutputBuffer.Length() > 1024) {
+	if (fOutputBuffer.Length() > kFlushSize) {
 		_FlushOutput();
 	} else {
 		static BMessage flush(kTermFlushBuffer);
-		fBufferFlusher = new BMessageRunner(BMessenger(this), &flush, 1000, 1);
+		if (fBufferFlusher == nullptr || fBufferFlusher->SetInterval(kFlushInterval) != B_OK) {
+			if (fBufferFlusher != nullptr)
+				delete fBufferFlusher;
+			fBufferFlusher = new BMessageRunner(BMessenger(this), &flush, kFlushInterval, 1);
+		}
 	}
 }
 

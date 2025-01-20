@@ -69,11 +69,11 @@
 #include "Task.h"
 #include "TemplateManager.h"
 #include "TemplatesMenu.h"
-#include "TextUtils.h"
 #include "ToolsMenu.h"
 #include "Utils.h"
 #include "TabButtons.h"
 #include "PanelTabManager.h"
+#include "EditorTabView.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -179,6 +179,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fScreenMode(kDefault)
 	, fDisableProjectNotifications(false)
 	, fPanelTabManager(nullptr)
+	, fEditorTabView(nullptr)
 {
 	gMainWindow = this;
 
@@ -1172,6 +1173,23 @@ GenioWindow::MessageReceived(BMessage* message)
 		case TABMANAGER_TAB_CLOSE_MULTI:
 			_CloseMultipleTabs(message);
 			break;
+		case EditorTabView::kETBNewTab:
+		{
+			//message->PrintToStream();
+			bool set_caret = message->GetBool("caret_position", false);
+			entry_ref ref;
+			if (set_caret && message->FindRef("ref", &ref) == B_OK) {
+				Editor* editor = fEditorTabView->EditorBy(&ref);
+				if (editor != nullptr) {
+					editor->SetSavedCaretPosition();
+					ProjectFolder* project = editor->GetProjectFolder();
+					if (project != nullptr) {
+						fEditorTabView->SetTabColor(&ref, project->Color());
+					}
+				}
+			}
+		}
+		break;
 		case TABMANAGER_TAB_NEW_OPENED:
 		{
 			int32 index =  message->GetInt32("index", -1);
@@ -1566,6 +1584,8 @@ GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
 {
 	Editor* editor = new Editor(ref, BMessenger(this));
 	fTabManager->AddTab(editor, ref->name, index, addInfo);
+
+	fEditorTabView->AddEditor(ref->name, editor, addInfo, index);
 
 	return editor;
 }
@@ -3457,6 +3477,8 @@ GenioWindow::_InitWindow()
 	_InitTabViews();
 	_InitCentralSplit();
 
+	fEditorTabView = new EditorTabView(BMessenger(this));
+
 	// Layout
 	fRootLayout = BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.Add(fMenuBar)
@@ -3466,7 +3488,8 @@ GenioWindow::_InitWindow()
 		.SetInsets(-2.0f, 0.0f, -2.0f, -2.0f)
 			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
 				.Add(fPanelTabManager->GetPanelTabView(kTabViewLeft), kProjectsWeight)
-				.Add(fEditorTabsGroup, kEditorWeight)  // Editor
+				.Add(fEditorTabView, kEditorWeight/2.0)  // Editor
+				.Add(fEditorTabsGroup, kEditorWeight/2.0)  // Editor
 				.Add(fPanelTabManager->GetPanelTabView(kTabViewRight), 1)
 			.End() // sidebar split
 			.Add(fPanelTabManager->GetPanelTabView(kTabViewBottom), kOutputWeight)

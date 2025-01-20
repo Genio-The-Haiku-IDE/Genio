@@ -43,6 +43,7 @@ class TemplatesMenu;
 class ToolBar;
 class MTermView;
 class PanelTabManager;
+class EditorTabView;
 
 class GenioWindow : public BWindow {
 public:
@@ -255,6 +256,7 @@ private:
 			BString				fTitlePrefix;
 #endif
 			PanelTabManager*	fPanelTabManager;
+			EditorTabView*		fEditorTabView;
 
 };
 

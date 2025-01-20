@@ -92,6 +92,7 @@ SRCS += src/ui/SearchResultTab.cpp
 SRCS += src/ui/StyledItem.cpp
 SRCS += src/ui/ToolBar.cpp
 SRCS += src/ui/PanelTabManager.cpp
+SRCS += src/ui/EditorTabView.cpp
 SRCS += src/templates/IconMenuItem.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/templates/TemplatesMenu.cpp

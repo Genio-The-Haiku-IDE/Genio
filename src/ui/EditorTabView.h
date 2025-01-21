@@ -68,6 +68,8 @@ protected:
 
 	GTab* CreateTabView(GTab* clone) override;
 
+	void	OnTabSelected(GTab* tab) override;
+
 private:
 			Editor*		_GetEditor(const entry_ref* ref);
 			GTabEditor*	_GetTab(const entry_ref* ref);

@@ -211,6 +211,19 @@ EditorTabView::CreateTabView(GTab* clone)
 }
 
 
+
+void
+EditorTabView::OnTabSelected(GTab* tab)
+{
+	GTabEditor* gtab = dynamic_cast<GTabEditor*>(tab);
+	if (gtab == nullptr)
+		return;
+	BMessage message(kETVSelectedTab);
+	message.AddRef("ref", gtab->GetEditor()->FileRef());
+	fTarget.SendMessage(&message);
+}
+
+
 void
 EditorTabView::RemoveEditor(Editor* editor)
 {

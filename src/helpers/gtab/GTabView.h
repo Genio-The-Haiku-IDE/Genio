@@ -47,6 +47,7 @@ class GTabView : public BGroupView {
 			void	AddTab(GTab* tab, BView* view, int32 index = -1);
 	virtual void	OnTabRemoved(GTab* tab) {};
 	virtual void	OnTabAdded(GTab* tab, BView* view) {};
+	virtual void	OnTabSelected(GTab* tab){};
 
 	TabsContainer*	Container() const { return fTabsContainer; }
 			void	DestroyTabAndView(GTab* tab); //Remove and delete a tab and the view.

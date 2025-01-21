@@ -1115,12 +1115,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case TABMANAGER_TAB_SELECTED:
+		case EditorTabView::kETVSelectedTab:
 		{
-			int32 index;
-			if (message->FindInt32("index", &index) == B_OK) {
-				Editor* editor = fTabManager->EditorAt(index);
-				// TODO notify and check index too
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK) {
+				Editor* editor = fTabManager->EditorBy(&ref);
 				if (editor == nullptr) {
 					LogError("Selecting editor but it's null! (index %d)", index);
 					break;
@@ -1135,7 +1134,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				}
 
 				editor->GrabFocus();
-				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
+				_UpdateTabChange(editor, "EditorTabView::kETVSelectedTab");
 
 				BMessage tabSelectedNotice(MSG_NOTIFY_EDITOR_FILE_SELECTED);
 				tabSelectedNotice.AddPointer("project", editor->GetProjectFolder());
@@ -1187,22 +1186,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 		}
 		break;
-		case TABMANAGER_TAB_NEW_OPENED:
-		{
-			int32 index =  message->GetInt32("index", -1);
-			bool set_caret = message->GetBool("caret_position", false);
-			if (set_caret && index >= 0) {
-				Editor* editor = fTabManager->EditorAt(index);
-				if (editor != nullptr) {
-					editor->SetSavedCaretPosition();
-					ProjectFolder* project = editor->GetProjectFolder();
-					if (project != nullptr) {
-						fTabManager->SetTabColor(editor->FileRef(), project->Color());
-					}
-				}
-			}
-			break;
-		}
 		case MSG_FIND_WRAP:
 			gCFG["find_wrap"] = (bool)fFindWrapCheck->Value();
 			break;

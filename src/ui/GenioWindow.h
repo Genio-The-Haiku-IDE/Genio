@@ -31,7 +31,6 @@ class BTabView;
 class BTextControl;
 class ConsoleIOView;
 class Editor;
-class EditorTabManager;
 class FunctionsOutlineView;
 class GoToLineWindow;
 class ProblemsPanel;
@@ -61,7 +60,7 @@ public:
 	void						SetActiveProject(ProjectFolder *project);
 	ProjectBrowser*		GetProjectBrowser() const;
 
-	EditorTabManager*			TabManager() const;
+	EditorTabView*			TabManager() const;
 
 private:
 			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
@@ -217,7 +216,7 @@ private:
 			FunctionsOutlineView* fFunctionsOutlineView;
 
 			// Editor group
-			EditorTabManager*	fTabManager;
+			EditorTabView*	fTabManager;
 
 			ToolBar*			fFindGroup;
 			ToolBar*			fReplaceGroup;
@@ -256,7 +255,6 @@ private:
 			BString				fTitlePrefix;
 #endif
 			PanelTabManager*	fPanelTabManager;
-			EditorTabView*		fEditorTabView;
 
 };
 

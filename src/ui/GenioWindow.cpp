@@ -71,7 +71,6 @@
 #include "TemplatesMenu.h"
 #include "ToolsMenu.h"
 #include "Utils.h"
-#include "TabButtons.h"
 #include "PanelTabManager.h"
 #include "EditorTabView.h"
 
@@ -179,7 +178,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fScreenMode(kDefault)
 	, fDisableProjectNotifications(false)
 	, fPanelTabManager(nullptr)
-	, fEditorTabView(nullptr)
 {
 	gMainWindow = this;
 
@@ -301,7 +299,6 @@ GenioWindow::Show()
 
 GenioWindow::~GenioWindow()
 {
-	delete fTabManager;
 	delete fOpenPanel;
 	delete fSavePanel;
 	delete fOpenProjectFolderPanel;
@@ -1173,18 +1170,18 @@ GenioWindow::MessageReceived(BMessage* message)
 		case TABMANAGER_TAB_CLOSE_MULTI:
 			_CloseMultipleTabs(message);
 			break;
-		case EditorTabView::kETBNewTab:
+		case EditorTabView::kETVNewTab:
 		{
 			//message->PrintToStream();
 			bool set_caret = message->GetBool("caret_position", false);
 			entry_ref ref;
 			if (set_caret && message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fEditorTabView->EditorBy(&ref);
+				Editor* editor = fTabManager->EditorBy(&ref);
 				if (editor != nullptr) {
 					editor->SetSavedCaretPosition();
 					ProjectFolder* project = editor->GetProjectFolder();
 					if (project != nullptr) {
-						fEditorTabView->SetTabColor(&ref, project->Color());
+						fTabManager->SetTabColor(&ref, project->Color());
 					}
 				}
 			}
@@ -1200,7 +1197,7 @@ GenioWindow::MessageReceived(BMessage* message)
 					editor->SetSavedCaretPosition();
 					ProjectFolder* project = editor->GetProjectFolder();
 					if (project != nullptr) {
-						fTabManager->SetTabColor(editor, project->Color());
+						fTabManager->SetTabColor(editor->FileRef(), project->Color());
 					}
 				}
 			}
@@ -1312,7 +1309,7 @@ GenioWindow::GetProjectBrowser() const
 }
 
 
-EditorTabManager*
+EditorTabView*
 GenioWindow::TabManager() const
 {
 	return fTabManager;
@@ -1583,9 +1580,7 @@ Editor*
 GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
 {
 	Editor* editor = new Editor(ref, BMessenger(this));
-	fTabManager->AddTab(editor, ref->name, index, addInfo);
-
-	fEditorTabView->AddEditor(ref->name, editor, addInfo, index);
+	fTabManager->AddEditor(ref->name, editor, addInfo, index);
 
 	return editor;
 }
@@ -1924,8 +1919,7 @@ GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32
 	be_roster->AddToRecentDocuments(ref, GenioNames::kApplicationSignature);
 
 	// Select the newly added tab
-	int32 newIndex = fTabManager->TabForView(editor);
-	fTabManager->SelectTab(newIndex, &selectTabInfo);
+	fTabManager->SelectTab(editor->FileRef(), &selectTabInfo);
 
 	// TODO: Move some other stuff into _PostFileLoad()
 	_PostFileLoad(editor);
@@ -2237,22 +2231,14 @@ GenioWindow::_FindInFiles()
 int32
 GenioWindow::_GetEditorIndex(const entry_ref* ref) const
 {
-	Editor* editor = fTabManager->EditorBy(ref);
-	if (editor == nullptr)
-		return -1;
-
-	return fTabManager->TabForView(editor);
+	return fTabManager->IndexBy(ref);
 }
 
 
 int32
 GenioWindow::_GetEditorIndex(node_ref* nodeRef) const
 {
-	Editor* editor = fTabManager->EditorBy(nodeRef);
-	if (editor == nullptr)
-		return -1;
-
-	return fTabManager->TabForView(editor);
+	return fTabManager->IndexBy(nodeRef);
 }
 
 
@@ -2702,19 +2688,17 @@ GenioWindow::_InitCentralSplit()
 
 	// Editor tab & view
 
-	fTabManager = new EditorTabManager(BMessenger(this));
-	fTabManager->SetColorIndicatorAvailable(true);
-	fTabManager->GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, TabViewTools::DefaultTabHeigh()));
-	fTabManager->GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, TabViewTools::DefaultTabHeigh()));
+	fTabManager = new EditorTabView(BMessenger(this));
+	// fTabManager->SetColorIndicatorAvailable(true);
+	// fTabManager->GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, TabViewTools::DefaultTabHeigh()));
+	// fTabManager->GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, TabViewTools::DefaultTabHeigh()));
 
-	dirtyFrameHack = fTabManager->TabGroup()->Frame();
+	// dirtyFrameHack = fTabManager->TabGroup()->Frame();
 
 	fEditorTabsGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
 		.Add(fRunGroup)
 		.Add(fFindGroup)
-		.Add(fReplaceGroup)
-		.Add(fTabManager->TabGroup())
-		.Add(fTabManager->ContainerView())
+		.Add(fTabManager)
 	;
 
 	fFindWrapCheck->SetTarget(this);
@@ -3477,8 +3461,6 @@ GenioWindow::_InitWindow()
 	_InitTabViews();
 	_InitCentralSplit();
 
-	fEditorTabView = new EditorTabView(BMessenger(this));
-
 	// Layout
 	fRootLayout = BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.Add(fMenuBar)
@@ -3488,8 +3470,7 @@ GenioWindow::_InitWindow()
 		.SetInsets(-2.0f, 0.0f, -2.0f, -2.0f)
 			.AddSplit(B_HORIZONTAL, 0.0f) // sidebar split
 				.Add(fPanelTabManager->GetPanelTabView(kTabViewLeft), kProjectsWeight)
-				.Add(fEditorTabView, kEditorWeight/2.0)  // Editor
-				.Add(fEditorTabsGroup, kEditorWeight/2.0)  // Editor
+				.Add(fEditorTabsGroup, kEditorWeight)  // Editor
 				.Add(fPanelTabManager->GetPanelTabView(kTabViewRight), 1)
 			.End() // sidebar split
 			.Add(fPanelTabManager->GetPanelTabView(kTabViewBottom), kOutputWeight)
@@ -4603,7 +4584,7 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 			Editor* editor = fTabManager->EditorAt(index);
 			ProjectFolder* project = editor->GetProjectFolder();
 			if (project != nullptr) {
-				fTabManager->SetTabColor(editor, project->Color());
+				fTabManager->SetTabColor(editor->FileRef(), project->Color());
 			}
 		}
 	}

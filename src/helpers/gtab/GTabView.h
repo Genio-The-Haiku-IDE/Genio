@@ -38,7 +38,7 @@ class GTabView : public BGroupView {
 
 			void	MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer);
 
-			void	SelectTab(GTab* tab);
+			void	SelectTab(GTab* tab, bool invoke = true);
 
 	virtual void	OnMenuTabButton();
 
@@ -49,6 +49,7 @@ class GTabView : public BGroupView {
 	virtual void	OnTabAdded(GTab* tab, BView* view) {};
 
 	TabsContainer*	Container() const { return fTabsContainer; }
+			void	DestroyTabAndView(GTab* tab); //Remove and delete a tab and the view.
 
 	private:
 
@@ -56,7 +57,7 @@ class GTabView : public BGroupView {
 		virtual GTab*	CreateTabView(GTab* clone);
 
 			BCardView*	CardView() const { return fCardView;}
-			void		DestroyTabAndView(GTab* tab); //Remove and delete a tab and the view.
+
 
 	private:
 

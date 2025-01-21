@@ -11,7 +11,7 @@
 #include <PropertyInfo.h>
 
 #include "Editor.h"
-#include "EditorTabManager.h"
+#include "EditorTabView.h"
 #include "GenioNamespace.h"
 #include "GenioWindow.h"
 

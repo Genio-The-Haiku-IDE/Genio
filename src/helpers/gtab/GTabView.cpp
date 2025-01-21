@@ -283,11 +283,12 @@ GTabView::MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer)
 
 
 void
-GTabView::SelectTab(GTab* tab)
+GTabView::SelectTab(GTab* tab, bool invoke)
 {
 	int32 index = fTabsContainer->IndexOfTab(tab);
 	if (index > -1) {
-		fTabsContainer->SelectTab(tab);
+		fTabsContainer->SelectTab(tab, invoke);
+//		if (invoke == false)
 		fCardView->CardLayout()->SetVisibleItem(index);
 	}
 }

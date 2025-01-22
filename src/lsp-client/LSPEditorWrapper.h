@@ -137,6 +137,7 @@ private:
 	void			OpenFileURI(std::string uri, int32 line = -1, int32 character = -1,
 						BString edits = "");
 	std::string 	GetCurrentLine();
+	bool			IsStatusValid();
 	std::vector<TextDocumentContentChangeEvent> fChanges;
 
 };

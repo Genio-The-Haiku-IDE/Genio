@@ -20,7 +20,8 @@ public:
 
 	enum {
 		kETVNewTab = 'etnt',
-		kETVSelectedTab = 'etst'
+		kETVSelectedTab = 'etst',
+		kETVCloseTab = 'etct'
 	};
 
 	EditorTabView(BMessenger target);

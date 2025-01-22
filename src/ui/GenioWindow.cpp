@@ -40,7 +40,6 @@
 #include "EditorKeyDownMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
-#include "EditorTabManager.h"
 #include "ExtensionManager.h"
 #include "FSUtils.h"
 #include "FunctionsOutlineView.h"
@@ -1166,7 +1165,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			_CloseMultipleTabs(&others);
 			break;
 		}
-		case TABMANAGER_TAB_CLOSE_MULTI:
+		//case TABMANAGER_TAB_CLOSE_MULTI:
+		case EditorTabView::kETVCloseTab:
 			_CloseMultipleTabs(message);
 			break;
 		case EditorTabView::kETVNewTab:

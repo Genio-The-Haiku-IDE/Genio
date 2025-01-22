@@ -276,9 +276,9 @@ GenioWindow::Show()
 	BWindow::Show();
 
 	if (LockLooper()) {
-		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
-		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
-		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_LEFT_PANE);
+		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_RIGHT_PANE);
+		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_BOTTOM_PANE);
 
 
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
@@ -1080,13 +1080,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_SHOW_HIDE_PROJECTS:
+		case MSG_SHOW_HIDE_LEFT_PANE:
 			gCFG["show_projects"] = !bool(gCFG["show_projects"]);
 			break;
-		case MSG_SHOW_HIDE_OUTLINE:
+		case MSG_SHOW_HIDE_RIGHT_PANE:
 			gCFG["show_outline"] = !bool(gCFG["show_outline"]);
 			break;
-		case MSG_SHOW_HIDE_OUTPUT:
+		case MSG_SHOW_HIDE_BOTTOM_PANE:
 			gCFG["show_output"] = !bool(gCFG["show_output"]);
 			break;
 		case MSG_TOGGLE_TOOLBAR:
@@ -1322,17 +1322,17 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		SetFlags(Flags() | (B_NOT_RESIZABLE | B_NOT_MOVABLE));
 
 		ActionManager::SetEnabled(MSG_TOGGLE_TOOLBAR, false);
-		ActionManager::SetEnabled(MSG_SHOW_HIDE_PROJECTS, false);
-		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTLINE, false);
-		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTPUT, false);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_LEFT_PANE, false);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_RIGHT_PANE, false);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_BOTTOM_PANE, false);
 
 		if (action == MSG_FULLSCREEN) {
 			fScreenMode = kFullscreen;
 		} else if (action == MSG_FOCUS_MODE) {
 			_ShowView(fToolBar,         false, MSG_TOGGLE_TOOLBAR);
-			_ShowPanelTabView(kTabViewLeft,   false, MSG_SHOW_HIDE_PROJECTS);
-			_ShowPanelTabView(kTabViewRight,  false, MSG_SHOW_HIDE_OUTLINE);
-			_ShowPanelTabView(kTabViewBottom, false, MSG_SHOW_HIDE_OUTPUT);
+			_ShowPanelTabView(kTabViewLeft,   false, MSG_SHOW_HIDE_LEFT_PANE);
+			_ShowPanelTabView(kTabViewRight,  false, MSG_SHOW_HIDE_RIGHT_PANE);
+			_ShowPanelTabView(kTabViewBottom, false, MSG_SHOW_HIDE_BOTTOM_PANE);
 			fScreenMode = kFocus;
 		}
 	} else { // exit fullscreen
@@ -1346,15 +1346,15 @@ GenioWindow::_ToogleScreenMode(int32 action)
 		SetFlags(Flags() & ~(B_NOT_RESIZABLE | B_NOT_MOVABLE));
 
 		ActionManager::SetEnabled(MSG_TOGGLE_TOOLBAR, true);
-		ActionManager::SetEnabled(MSG_SHOW_HIDE_PROJECTS, true);
-		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTLINE, true);
-		ActionManager::SetEnabled(MSG_SHOW_HIDE_OUTPUT, true);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_LEFT_PANE, true);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_RIGHT_PANE, true);
+		ActionManager::SetEnabled(MSG_SHOW_HIDE_BOTTOM_PANE, true);
 
 		_ShowView(fToolBar,         fScreenModeSettings["show_toolbar"], MSG_TOGGLE_TOOLBAR);
 
-		_ShowPanelTabView(kTabViewLeft,   fScreenModeSettings["show_projects"], MSG_SHOW_HIDE_PROJECTS);
-		_ShowPanelTabView(kTabViewRight,  fScreenModeSettings["show_outline"], MSG_SHOW_HIDE_OUTLINE);
-		_ShowPanelTabView(kTabViewBottom, fScreenModeSettings["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowPanelTabView(kTabViewLeft,   fScreenModeSettings["show_projects"], MSG_SHOW_HIDE_LEFT_PANE);
+		_ShowPanelTabView(kTabViewRight,  fScreenModeSettings["show_outline"], MSG_SHOW_HIDE_RIGHT_PANE);
+		_ShowPanelTabView(kTabViewBottom, fScreenModeSettings["show_output"],	MSG_SHOW_HIDE_BOTTOM_PANE);
 
 		fScreenMode = kDefault;
 	}
@@ -2895,19 +2895,19 @@ GenioWindow::_InitActions()
 									"kIconTerminal");
 
 	// TODO: Should we call those  left/right panes ?
-	ActionManager::RegisterAction(MSG_SHOW_HIDE_PROJECTS,
-									B_TRANSLATE("Show projects pane"),
-									B_TRANSLATE("Show/Hide projects pane"),
+	ActionManager::RegisterAction(MSG_SHOW_HIDE_LEFT_PANE,
+									B_TRANSLATE("Show left pane"),
+									B_TRANSLATE("Show/Hide left pane"),
 									"kIconWinNav");
 
-	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTLINE,
-									B_TRANSLATE("Show outline pane"),
-									B_TRANSLATE("Show/Hide outline pane"),
+	ActionManager::RegisterAction(MSG_SHOW_HIDE_RIGHT_PANE,
+									B_TRANSLATE("Show right pane"),
+									B_TRANSLATE("Show/Hide right pane"),
 									"kIconWinOutline");
 
-	ActionManager::RegisterAction(MSG_SHOW_HIDE_OUTPUT,
-									B_TRANSLATE("Show info pane"),
-									B_TRANSLATE("Show/Hide info pane"),
+	ActionManager::RegisterAction(MSG_SHOW_HIDE_BOTTOM_PANE,
+									B_TRANSLATE("Show bottom pane"),
+									B_TRANSLATE("Show/Hide bottom pane"),
 									"kIconWinStat");
 
 	ActionManager::RegisterAction(MSG_FULLSCREEN,
@@ -3322,9 +3322,9 @@ GenioWindow::_InitMenu()
 	BMenu* windowMenu = new BMenu(B_TRANSLATE("Window"));
 
 	BMenu* submenu = new BMenu(B_TRANSLATE("Appearance"));
-	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, submenu);
-	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE, submenu);
-	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT, submenu);
+	ActionManager::AddItem(MSG_SHOW_HIDE_LEFT_PANE, submenu);
+	ActionManager::AddItem(MSG_SHOW_HIDE_RIGHT_PANE, submenu);
+	ActionManager::AddItem(MSG_SHOW_HIDE_BOTTOM_PANE, submenu);
 	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
 	ActionManager::AddItem(MSG_TOGGLE_STATUSBAR, submenu);
 	windowMenu->AddItem(submenu);
@@ -3366,9 +3366,9 @@ GenioWindow::_InitToolbar()
 	} else {
 		fToolBar->ChangeIconSize(be_control_look->ComposeIconSize(kDefaultIconSize).Width());
 	}
-	ActionManager::AddItem(MSG_SHOW_HIDE_PROJECTS, fToolBar);
-	ActionManager::AddItem(MSG_SHOW_HIDE_OUTLINE, fToolBar);
-	ActionManager::AddItem(MSG_SHOW_HIDE_OUTPUT, fToolBar);
+	ActionManager::AddItem(MSG_SHOW_HIDE_LEFT_PANE, fToolBar);
+	ActionManager::AddItem(MSG_SHOW_HIDE_RIGHT_PANE, fToolBar);
+	ActionManager::AddItem(MSG_SHOW_HIDE_BOTTOM_PANE, fToolBar);
 	fToolBar->AddSeparator();
 
 	ActionManager::AddItem(MSG_FILE_FOLD_TOGGLE, fToolBar);
@@ -4528,11 +4528,11 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
 		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 	} else if (key.Compare("show_projects") == 0) {
-		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
+		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_LEFT_PANE);
 	} else if (key.Compare("show_outline") == 0) {
-		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
+		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_RIGHT_PANE);
 	} else if (key.Compare("show_output") == 0) {
-		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_BOTTOM_PANE);
 	} else if (key.Compare("show_toolbar") == 0) {
 		_ShowView(fToolBar, bool(gCFG["show_toolbar"]), MSG_TOGGLE_TOOLBAR);
 	} else if (key.Compare("show_statusbar") == 0) {

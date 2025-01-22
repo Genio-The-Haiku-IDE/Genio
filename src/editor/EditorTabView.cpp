@@ -9,19 +9,8 @@
 #include <cassert>
 #include "Editor.h"
 #include "TabsContainer.h"
-#include "GTab.h"
+#include "GTabEditor.h"
 
-class GTabEditor : public GTabCloseButton {
-public:
-	GTabEditor(const char* label, const BHandler* handler, Editor* editor):
-		GTabCloseButton(label, handler), fEditor(editor) {}
-
-	Editor*	GetEditor() { return fEditor; }
-	void	SetColor(const rgb_color& color) { fColor = color; }
-private:
-	Editor*	fEditor;
-	rgb_color	fColor;
-};
 
 EditorTabView::EditorTabView(BMessenger target):GTabView("_editor_tabview_",
 										'EDTV',

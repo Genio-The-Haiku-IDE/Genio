@@ -50,7 +50,7 @@
 namespace Sci = Scintilla;
 using namespace Sci::Properties;
 
-const int kIdleTimeout = 500000; //1/2sec
+const int kIdleTimeout = 250000; //1/4sec
 
 // Differentiate unset parameters from 0 ones
 // in scintilla messages

@@ -174,6 +174,8 @@ LSPEditorWrapper::didClose()
 	if (!IsInitialized())
 		return;
 
+	flushChanges();
+
 	if (fEditor) {
 		_RemoveAllDiagnostics();
 		_RemoveAllDocumentLinks();
@@ -265,6 +267,8 @@ LSPEditorWrapper::Format()
 	if (!IsInitialized() || !fEditor)
 		return;
 
+	flushChanges();
+
 	// format a range or format the whole doc?
 	Sci_Position s_start = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
 	Sci_Position s_end = fEditor->SendMessage(SCI_GETSELECTIONEND, 0, 0);
@@ -284,6 +288,8 @@ LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 {
 	if (!IsInitialized()|| !fEditor || !IsStatusValid())
 		return;
+
+	flushChanges();
 
 	Position position;
 	GetCurrentLSPPosition(&position);
@@ -307,6 +313,8 @@ LSPEditorWrapper::Rename(std::string newName)
 {
 	if (!IsInitialized()|| !fEditor || !IsStatusValid())
 		return;
+
+	flushChanges();
 
 	Position position;
 	GetCurrentLSPPosition(&position);
@@ -392,6 +400,8 @@ LSPEditorWrapper::SelectedCompletion(const char* text)
 	if (!IsInitialized() || !fEditor)
 		return;
 
+	flushChanges();
+
 	if (fCurrentCompletion.items.size() > 0) {
 		for (auto& item : fCurrentCompletion.items) {
 			if (item.label.compare(std::string(text)) == 0) {
@@ -454,6 +464,8 @@ LSPEditorWrapper::StartCompletion()
 {
 	if (!IsInitialized() || !fEditor || !IsStatusValid())
 		return;
+
+	flushChanges();
 
 	// let's check if a completion is ongoing
 	if (fCurrentCompletion.items.size() > 0) {

@@ -15,6 +15,9 @@ public:
 	GTabEditor(const char* label, const BHandler* handler, Editor* editor):
 		GTabCloseButton(label, handler), fEditor(editor) {}
 
+	BSize	MinSize();
+	BSize	MaxSize();
+
 	Editor*	GetEditor() { return fEditor; }
 	void	SetColor(const rgb_color& color) { fColor = color; }
 private:

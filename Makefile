@@ -74,6 +74,7 @@ SRCS += src/git/RemoteProjectWindow.cpp
 SRCS += src/git/RepositoryView.cpp
 SRCS += src/git/SourceControlPanel.cpp
 SRCS += src/git/SwitchBranchMenu.cpp
+SRCS += src/editor/GTabEditor.cpp
 SRCS += src/ui/EditorStatusView.cpp
 SRCS += src/ui/Editor.cpp
 SRCS += src/ui/EditorContextMenu.cpp

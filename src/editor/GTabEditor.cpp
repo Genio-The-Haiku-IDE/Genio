@@ -39,3 +39,23 @@ GTabEditor::CloseButtonClicked()
 		BMessenger(Handler()).SendMessage(&msg);
 	}
 }
+
+
+void
+GTabEditor::MouseDown(BPoint where)
+{
+	BMessage* msg = Window()->CurrentMessage();
+	if (msg == nullptr)
+		return;
+
+	const int32 buttons = msg->GetInt32("buttons", 0);
+	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
+		EditorTabView* tabView = dynamic_cast<EditorTabView*>(Container()->GetGTabView());
+		if (tabView) {
+			ConvertToScreen(&where);
+			tabView->ShowTabMenu(this, where);
+		}
+		return;
+	}
+	GTabCloseButton::MouseDown(where);
+}

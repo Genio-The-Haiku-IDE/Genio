@@ -7,6 +7,7 @@
 
 #include <SupportDefs.h>
 #include <Messenger.h>
+#include <PopUpMenu.h>
 #include <functional>
 #include "GTabView.h"
 
@@ -24,7 +25,8 @@ public:
 		kETVCloseTab = 'etct'
 	};
 
-	EditorTabView(BMessenger target);
+			 EditorTabView(BMessenger target);
+			~EditorTabView();
 
 	void	AddEditor(const char* label, Editor* editor, BMessage* info = nullptr, int32 index = -1);
 
@@ -61,6 +63,7 @@ public:
 	void ReverseForEachEditor(const std::function<bool(Editor*)>& op);
 
 protected:
+friend GTabEditor;
 
 	void OnTabRemoved(GTab* _tab) override;
 
@@ -70,12 +73,15 @@ protected:
 
 	void	OnTabSelected(GTab* tab) override;
 
+	void	ShowTabMenu(GTabEditor* editor, BPoint where);
+
 private:
 			Editor*		_GetEditor(const entry_ref* ref);
 			GTabEditor*	_GetTab(const entry_ref* ref);
 			GTabEditor* _GetTab(Editor* editor);
 
-	BMessenger	fTarget;
+			BMessenger	fTarget;
+			BPopUpMenu* fPopUpMenu;
 };
 
 

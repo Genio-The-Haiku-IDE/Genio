@@ -10,7 +10,10 @@
 #include "Editor.h"
 #include "TabsContainer.h"
 #include "GTabEditor.h"
-
+#include "ActionManager.h"
+#include "GenioWindowMessages.h"
+#include "ProjectBrowser.h"
+#include "ProjectFolder.h"
 
 EditorTabView::EditorTabView(BMessenger target):GTabView("_editor_tabview_",
 										'EDTV',
@@ -19,8 +22,25 @@ EditorTabView::EditorTabView(BMessenger target):GTabView("_editor_tabview_",
 										true), fTarget(target)
 {
 
+	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
+	ActionManager::AddItem(MSG_FILE_CLOSE, 	fPopUpMenu);
+	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fPopUpMenu);
+	ActionManager::AddItem(MSG_FILE_CLOSE_OTHER, fPopUpMenu);
+
+	fPopUpMenu->AddSeparatorItem();
+
+	ActionManager::AddItem(MSG_FIND_IN_BROWSER, fPopUpMenu);
+	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, fPopUpMenu);
+	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, fPopUpMenu);
+
+	fPopUpMenu->SetTargetForItems(target);
+
 }
 
+EditorTabView::~EditorTabView()
+{
+	delete fPopUpMenu;
+}
 
 void
 EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int32 index)
@@ -212,6 +232,32 @@ EditorTabView::OnTabSelected(GTab* tab)
 	fTarget.SendMessage(&message);
 }
 
+
+void
+EditorTabView::ShowTabMenu(GTabEditor* tab, BPoint where)
+{
+	Editor*	editor = tab->GetEditor();
+	for (int32 i=0;i<fPopUpMenu->CountItems();i++) {
+		BMessage* msg = fPopUpMenu->ItemAt(i)->Message();
+		if (msg != nullptr) {
+			msg->SetInt32("tab_index", Container()->IndexOfTab(tab));
+			if (editor != nullptr) {
+				if (msg->HasRef("ref"))
+					msg->ReplaceRef("ref", editor->FileRef());
+				else
+					msg->AddRef("ref", editor->FileRef());
+			}
+		}
+	}
+
+
+	bool isFindInBrowserEnable = ActionManager::IsEnabled(MSG_FIND_IN_BROWSER);
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, (editor != nullptr && editor->GetProjectFolder() != nullptr));
+
+	fPopUpMenu->Go(where, true);
+
+	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, isFindInBrowserEnable);
+}
 
 void
 EditorTabView::RemoveEditor(Editor* editor)

@@ -50,7 +50,6 @@ public:
 	deprecated_ BString TabLabel(int32 index);
 	deprecated_ void	SelectTab(int32 index, BMessage* selInfo = nullptr);
 	deprecated_ Editor* EditorAt(int32 index);
-	deprecated_ void	RemoveTab(int32 index);
 	deprecated_ void	SetTabLabel(int32 index, const char* label);
 	deprecated_ Editor* EditorBy(const node_ref* nodeRef);
 	deprecated_ int32	IndexBy(const node_ref* nodeRef) const;

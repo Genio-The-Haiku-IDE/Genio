@@ -5,7 +5,8 @@
 
 
 #include "GTabEditor.h"
-
+#include "EditorTabView.h"
+#include <Message.h>
 
 BSize
 GTabEditor::MinSize()
@@ -25,4 +26,16 @@ GTabEditor::MaxSize()
 	float labelWidth = 300.0f;
 	size.width = labelWidth + extra;
 	return size;
+}
+
+
+void
+GTabEditor::CloseButtonClicked()
+{
+	EditorTabView* tabView = dynamic_cast<EditorTabView*>(Container()->GetGTabView());
+	if (tabView) {
+		BMessage msg(EditorTabView::kETVCloseTab);
+		msg.AddInt32("index", Container()->IndexOfTab(this));
+		BMessenger(Handler()).SendMessage(&msg);
+	}
 }

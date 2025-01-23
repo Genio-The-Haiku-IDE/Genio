@@ -134,13 +134,19 @@ public:
 			void		MouseUp(BPoint where) override;
 			void		MouseMoved(BPoint where, uint32 transit,
 									const BMessage* dragMessage) override;
+
+protected:
+
+virtual		void		CloseButtonClicked();
+			const BHandler* 	Handler() { return fHandler; }
+
 private:
 			void		DrawCloseButton(BView* owner, BRect butFrame, const BRect& updateRect,
 										bool isFront);
 
 			BRect		RectCloseButton();
 
-			void		CloseButtonClicked();
+
 private:
 			bool fOverCloseRect;
 			bool fClicked;

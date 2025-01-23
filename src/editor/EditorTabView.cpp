@@ -311,15 +311,6 @@ EditorTabView::EditorAt(int32 index)
 
 
 void
-EditorTabView::RemoveTab(int32 index)
-{
-	GTab* tab = Container()->TabAt(index);
-	if (tab)
-		DestroyTabAndView(tab);
-}
-
-
-void
 EditorTabView::SetTabLabel(int32 index, const char* label)
 {
 	Editor* editor = EditorAt(index);

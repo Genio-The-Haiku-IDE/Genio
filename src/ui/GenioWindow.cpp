@@ -1730,7 +1730,7 @@ GenioWindow::_RemoveTab(int32 index)
 	if (!editor)
 		return B_ERROR;
 
-	fTabManager->RemoveTab(index);
+
 
 	// notify listeners: file could have been modified, but user
 	// chose not to save
@@ -1744,7 +1744,8 @@ GenioWindow::_RemoveTab(int32 index)
 	noticeCloseMessage.AddString("file_name", editor->FilePath());
 	SendNotices(MSG_NOTIFY_EDITOR_FILE_CLOSED, &noticeCloseMessage);
 
-	delete editor;
+	fTabManager->RemoveEditor(editor);
+	editor = nullptr;
 
 	// Was it the last one?
 	if (fTabManager->CountTabs() == 0)

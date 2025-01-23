@@ -20,6 +20,11 @@ public:
 
 	Editor*	GetEditor() { return fEditor; }
 	void	SetColor(const rgb_color& color) { fColor = color; }
+
+protected:
+
+	void		CloseButtonClicked();
+
 private:
 	Editor*	fEditor;
 	rgb_color	fColor;

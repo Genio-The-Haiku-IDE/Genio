@@ -16,7 +16,8 @@ class TabsContainer : public BGroupView, public BInvoker {
 public:
 
 			TabsContainer(GTabView* tabView,
-						  tab_affinity	affinity = 0,
+						  tab_affinity affinity = 0,
+						  button_width width = B_WIDTH_AS_USUAL,
 						  BMessage* message = nullptr);
 
 	void	AddTab(GTab* tab, int32 index = -1);

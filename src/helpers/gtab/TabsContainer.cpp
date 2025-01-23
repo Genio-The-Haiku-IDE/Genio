@@ -15,6 +15,7 @@
 
 TabsContainer::TabsContainer(GTabView* tabView,
 							 tab_affinity affinity,
+							 button_width width,
 							 BMessage* message)
 	:
 	BGroupView(B_HORIZONTAL, 0.0f),
@@ -192,7 +193,6 @@ TabsContainer::MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons)
 		// Nothing
 	}
 }
-
 
 
 void

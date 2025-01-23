@@ -6,9 +6,9 @@
 
 
 #include <Button.h>
-#include <GridLayout.h>
 #include <LayoutBuilder.h>
 #include <MessageRunner.h>
+#include <GridLayout.h>
 #include <Size.h>
 
 #include <cstdio>

@@ -24,6 +24,7 @@ enum {
 GTabView::GTabView(const char* name,
 				   tab_affinity affinity,
 				   orientation content_orientation,
+				   button_width width,
 				   bool closeButton,
 				   bool menuButton)
 	:
@@ -33,6 +34,7 @@ GTabView::GTabView(const char* name,
 	fScrollRightTabButton(nullptr),
 	fTabMenuTabButton(nullptr),
 	fCardView(nullptr),
+	fWidth(width),
 	fCloseButton(closeButton),
 	fContentOrientation(content_orientation),
 	fMenuButton(menuButton)
@@ -189,7 +191,7 @@ GTabView::OnMenuTabButton()
 void
 GTabView::_Init(tab_affinity affinity)
 {
-	fTabsContainer = new TabsContainer(this, affinity, new BMessage(kSelectedTabButton));
+	fTabsContainer = new TabsContainer(this, affinity, fWidth, new BMessage(kSelectedTabButton));
 
 	fScrollLeftTabButton  = new GTabScrollLeftButton(new BMessage(kLeftTabButton), fTabsContainer);
 	fScrollRightTabButton = new GTabScrollRightButton(new BMessage(kRightTabButton), fTabsContainer);
@@ -299,6 +301,7 @@ GTabView::CreateTabView(const char* label)
 	return fCloseButton ? new GTabCloseButton(label, this)
 						: new GTab(label);
 }
+
 
 GTab*
 GTabView::CreateTabView(GTab* clone)

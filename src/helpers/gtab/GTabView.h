@@ -25,6 +25,7 @@ class GTabView : public BGroupView {
 					GTabView(const char* name,
 							 tab_affinity affinity,
 							 orientation orientation = B_HORIZONTAL,
+							 button_width width = B_WIDTH_AS_USUAL,
 							 bool closeButton = false,
 							 bool menuButton = false);
 
@@ -70,6 +71,7 @@ class GTabView : public BGroupView {
 		GTabScrollRightButton*	fScrollRightTabButton;
 		GTabMenuTabButton*		fTabMenuTabButton;
 		BCardView*				fCardView;
+		button_width			fWidth;
 		bool					fCloseButton;
 		orientation				fContentOrientation;
 		bool					fMenuButton;

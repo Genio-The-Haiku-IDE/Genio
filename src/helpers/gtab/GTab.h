@@ -85,6 +85,8 @@ public:
 			BSize				MinSize() override;
 			BSize				MaxSize() override;
 
+			void				SetMaxTabWidth(float width);
+
 			void 				Draw(BRect updateRect) override;
 
 	virtual void				DrawTab(BView* owener, BRect updateRect);
@@ -117,6 +119,7 @@ protected:
 			BLayoutItem*		fLayoutItem;
 			bool				fIsFront;
 			BString				fLabel;
+			float				fMaxTabWidth;
 };
 
 

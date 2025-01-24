@@ -43,6 +43,8 @@ class GTabView : public BGroupView {
 
 	virtual void	OnMenuTabButton();
 
+	button_width	TabWidth() const { return fWidth; };
+
 	protected:
 
 			void	AddTab(GTab* tab, BView* view, int32 index = -1);

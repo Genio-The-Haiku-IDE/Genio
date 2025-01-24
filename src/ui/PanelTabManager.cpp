@@ -41,7 +41,7 @@ public:
 	PanelTabView(PanelTabManager* manager, const char* name,
 			tab_affinity affinity, orientation orientation)
 		:
-		GTabView(name, affinity, orientation)
+		GTabView(name, affinity, orientation, B_WIDTH_FROM_LABEL)
 	{
 	}
 

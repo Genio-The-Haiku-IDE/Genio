@@ -81,7 +81,8 @@ GTab::GTab(const char* label)
 	:
 	BView("_tabView_", B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
 	fIsFront(false),
-	fLabel(label)
+	fLabel(label),
+	fMaxTabWidth(150)
 {
 }
 
@@ -103,8 +104,14 @@ GTab::MinSize()
 BSize
 GTab::MaxSize()
 {
-	float labelWidth = 150.0f;
-	return BSize(labelWidth, TabViewTools::DefaultTabHeigh());
+	return BSize(fMaxTabWidth + be_control_look->DefaultLabelSpacing(), TabViewTools::DefaultTabHeigh());
+}
+
+
+void
+GTab::SetMaxTabWidth(float width)
+{
+	fMaxTabWidth = width;
 }
 
 

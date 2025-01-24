@@ -191,7 +191,7 @@ GTabView::OnMenuTabButton()
 void
 GTabView::_Init(tab_affinity affinity)
 {
-	fTabsContainer = new TabsContainer(this, affinity, fWidth, new BMessage(kSelectedTabButton));
+	fTabsContainer = new TabsContainer(this, affinity, new BMessage(kSelectedTabButton));
 
 	fScrollLeftTabButton  = new GTabScrollLeftButton(new BMessage(kLeftTabButton), fTabsContainer);
 	fScrollRightTabButton = new GTabScrollRightButton(new BMessage(kRightTabButton), fTabsContainer);

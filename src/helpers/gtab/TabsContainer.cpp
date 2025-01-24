@@ -7,15 +7,17 @@
 #include "TabsContainer.h"
 
 #include <cassert>
+#include <iostream>
+#include <ostream>
 
 #include "GTab.h"
 #include "GTabView.h"
+
 
 #define FILLER_WEIGHT 0.2
 
 TabsContainer::TabsContainer(GTabView* tabView,
 							 tab_affinity affinity,
-							 button_width width,
 							 BMessage* message)
 	:
 	BGroupView(B_HORIZONTAL, 0.0f),
@@ -41,7 +43,6 @@ TabsContainer::AddTab(GTab* tab, int32 index)
 
 	BLayoutItem* item = GroupLayout()->AddView(index, tab);
 	tab->SetLayoutItem(item);
-
 	tab->SetContainer(this);
 
 	if (CountTabs() == 1) {
@@ -49,6 +50,8 @@ TabsContainer::AddTab(GTab* tab, int32 index)
 	}
 
 	ShiftTabs(0);
+
+	_UpdateTabWidth();
 }
 
 
@@ -105,6 +108,8 @@ TabsContainer::RemoveTab(GTab* tab)
 		shift -= 1;
 	}
 	ShiftTabs(shift);
+
+	_UpdateTabWidth();
 
 	return tab;
 }
@@ -251,5 +256,34 @@ TabsContainer::_UpdateScrolls()
 			fGTabView->UpdateScrollButtons(fTabShift != 0, last->Frame().right > Bounds().right);
 	} else {
 			fGTabView->UpdateScrollButtons(false, false);
+	}
+}
+
+
+void
+TabsContainer::_UpdateTabWidth()
+{
+	const float fixedTabWidth = 150.0f;
+	if (fGTabView->TabWidth() == B_WIDTH_AS_USUAL) {
+		for (int32 t = 0; t < CountTabs(); t++) {
+			TabAt(t)->SetMaxTabWidth(fixedTabWidth);
+		}
+	} else if (fGTabView->TabWidth() == B_WIDTH_FROM_WIDEST) {
+		float maxWidth = 0;
+		for (int32 t = 0; t < CountTabs(); t++) {
+			float tabWidth = StringWidth(TabAt(t)->Label());
+			if (tabWidth > maxWidth)
+				maxWidth = tabWidth;
+		}
+		
+		for (int32 t = 0; t < CountTabs(); t++) {
+			TabAt(t)->SetMaxTabWidth(maxWidth);
+		}
+	} else if (fGTabView->TabWidth() == B_WIDTH_FROM_LABEL) {
+		for (int32 t = 0; t < CountTabs(); t++) {
+			float tabWidth = fGTabView->StringWidth(TabAt(t)->Label());
+			TabAt(t)->SetMaxTabWidth(tabWidth);
+			std::cout << "width:" << tabWidth << std::endl;
+		}
 	}
 }

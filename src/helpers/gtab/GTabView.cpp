@@ -17,7 +17,6 @@ enum {
 	kLeftTabButton	= 'GTlb',
 	kRightTabButton = 'GTrb',
 	kMenuTabButton  = 'GTmb',
-	kSelectedTabButton = 'GTse'
 
 };
 
@@ -85,6 +84,8 @@ GTabView::DestroyTabAndView(GTab* tab)
 		delete rtab;
 
 	delete fromView;
+
+	SelectTab(Container()->SelectedTab());
 }
 
 
@@ -117,19 +118,6 @@ GTabView::MessageReceived(BMessage* message)
 		case kRightTabButton:
 			fTabsContainer->ShiftTabs(+1);
 			break;
-		case kSelectedTabButton:
-		{
-			int32 index = message->GetInt32("index", 0);
-			if (index > -1 && index < Container()->CountTabs())
-			{
-				fCardView->CardLayout()->SetVisibleItem(index);
-				GTab* tab = Container()->TabAt(index);
-				if (tab != nullptr) {
-					OnTabSelected(tab);
-				}
-			}
-			break;
-		}
 		case GTabCloseButton::kTVCloseTab:
 		{
 			if (!fCloseButton)
@@ -208,7 +196,7 @@ GTabView::CreateMenuItem(GTab* tab)
 void
 GTabView::_Init(tab_affinity affinity)
 {
-	fTabsContainer = new TabsContainer(this, affinity, new BMessage(kSelectedTabButton));
+	fTabsContainer = new TabsContainer(this, affinity, new BMessage());
 
 	fScrollLeftTabButton  = new GTabScrollLeftButton(new BMessage(kLeftTabButton), fTabsContainer);
 	fScrollRightTabButton = new GTabScrollRightButton(new BMessage(kRightTabButton), fTabsContainer);
@@ -302,12 +290,12 @@ GTabView::MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer)
 
 
 void
-GTabView::SelectTab(GTab* tab, bool invoke)
+GTabView::SelectTab(GTab* tab)
 {
+	printf("||| select tab %s\n", tab->Label().String());
 	int32 index = fTabsContainer->IndexOfTab(tab);
 	if (index > -1) {
-		fTabsContainer->SelectTab(tab, invoke);
-//		if (invoke == false)
+		fTabsContainer->SelectTab(tab);
 		fCardView->CardLayout()->SetVisibleItem(index);
 	}
 }

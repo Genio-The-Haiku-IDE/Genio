@@ -35,6 +35,7 @@ public:
 	void	OnDropTab(GTab* toTab, BMessage* message);
 
 	GTab*	SelectedTab() const;
+
 	void	SelectTab(GTab* tab, bool invoke = true);
 
 	GTabView*	GetGTabView() const { return fGTabView; }

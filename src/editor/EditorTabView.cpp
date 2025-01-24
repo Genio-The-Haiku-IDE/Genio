@@ -132,7 +132,7 @@ EditorTabView::SelectTab(const entry_ref* ref, BMessage* selInfo)
 {
 	GTab* tab = _GetTab(ref);
 	if (tab) {
-		GTabView::SelectTab(tab, false);
+		GTabView::SelectTab(tab);
 
 		BMessage message;
 		if (selInfo) {
@@ -365,7 +365,7 @@ EditorTabView::SelectTab(int32 index, BMessage* selInfo)
 {
 	GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(index));
 	if (tab) {
-		GTabView::SelectTab(tab, false);
+		GTabView::SelectTab(tab);
 
 		BMessage message;
 		if (selInfo) {

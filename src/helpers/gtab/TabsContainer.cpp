@@ -129,11 +129,6 @@ TabsContainer::SelectTab(GTab* tab, bool invoke)
 			fSelectedTab->SetIsFront(true);
 
 		int32 index = IndexOfTab(fSelectedTab);
-		if (invoke && Message() != nullptr && Target() != nullptr) {
-			BMessage msg = *Message();
-			msg.AddInt32("index", IndexOfTab(fSelectedTab));
-			Invoke(&msg);
-		}
 
 		if (fTabShift >= index) {
 			ShiftTabs(index - fTabShift);
@@ -186,9 +181,7 @@ void
 TabsContainer::MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons)
 {
 	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
-		SelectTab(tab);
-	} else if (buttons & B_TERTIARY_MOUSE_BUTTON) {
-		// Nothing
+		fGTabView->SelectTab(tab);
 	}
 }
 

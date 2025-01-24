@@ -38,7 +38,7 @@ class GTabView : public BGroupView {
 
 			void	MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer);
 
-			void	SelectTab(GTab* tab, bool invoke = true);
+			void	SelectTab(GTab* tab);
 
 	virtual void	OnMenuTabButton();
 

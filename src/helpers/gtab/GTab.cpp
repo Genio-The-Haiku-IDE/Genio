@@ -103,6 +103,7 @@ GTab::MinSize()
 BSize
 GTab::MaxSize()
 {
+	// TODO: might not work well for big font sizes
 	float labelWidth = 150.0f;
 	return BSize(labelWidth, TabViewTools::DefaultTabHeigh());
 }
@@ -222,9 +223,9 @@ GTab::InitiateDrag(BPoint where)
 			dragBitmap->Lock();
 			tab->DrawTab(view, updateRect);
 			view->Sync();
-			uint8* bits = (uint8*)dragBitmap->Bits();
-			int32 height = (int32)dragBitmap->Bounds().Height() + 1;
-			int32 width = (int32)dragBitmap->Bounds().Width() + 1;
+			uint8* bits = reinterpret_cast<uint8*>(dragBitmap->Bits());
+			int32 height = dragBitmap->Bounds().IntegerHeight() + 1;
+			int32 width = dragBitmap->Bounds().IntegerWidth() + 1;
 			int32 bpr = dragBitmap->BytesPerRow();
 			for (int32 y = 0; y < height; y++, bits += bpr) {
 				uint8* line = bits + 3;

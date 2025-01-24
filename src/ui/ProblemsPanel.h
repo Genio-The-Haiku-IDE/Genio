@@ -5,6 +5,7 @@
 #pragma once
 
 #include <ColumnListView.h>
+#include "PanelTabManager.h"
 
 class BPopUpMenu;
 class BMenuItem;
@@ -12,7 +13,7 @@ class BTabView;
 class Editor;
 class ProblemsPanel : public BColumnListView {
 public:
-		ProblemsPanel(BTabView*);
+		ProblemsPanel(PanelTabManager*, tab_id id);
 		virtual ~ProblemsPanel();
 
 		void UpdateProblems(Editor* editor);
@@ -24,7 +25,8 @@ public:
 
 private:
 		void	_UpdateTabLabel();
-		BTabView* fTabView;
+		PanelTabManager* fPanelTabManager;
 		BPopUpMenu* fPopUpMenu;
 		BMenuItem*  fQuickFixItem;
+		tab_id		fTabId;
 };

@@ -343,10 +343,12 @@ FunctionsOutlineView::FunctionsOutlineView()
 	fToolBar->SetExplicitMinSize(BSize(250, B_SIZE_UNSET));
 	fToolBar->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
-		.Add(fToolBar)
 		.AddGroup(B_VERTICAL, 0)
-			.SetInsets(-2, -2, -2, -2)
-			.Add(fScrollView)
+			.Add(fToolBar)
+			.AddGroup(B_VERTICAL, 0)
+				.SetInsets(-2, -2, -2, -2)
+				.Add(fScrollView)
+				.End()
 		.End();
 }
 

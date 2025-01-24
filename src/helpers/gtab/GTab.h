@@ -92,6 +92,8 @@ public:
 									const BRect& updateRect, bool isFront);
 	virtual	void				DrawContents(BView* owner, BRect frame,
 									const BRect& updateRect, bool isFront);
+	virtual	void				DrawLabel(BView* owner, BRect frame,
+									const BRect& updateRect, bool isFront);
 
 			void				MouseDown(BPoint where) override;
 			void				MouseUp(BPoint where) override;

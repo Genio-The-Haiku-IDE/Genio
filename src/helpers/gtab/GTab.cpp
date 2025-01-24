@@ -157,11 +157,17 @@ GTab::DrawBackground(BView* owner, BRect frame, const BRect& updateRect, bool is
 void
 GTab::DrawContents(BView* owner, BRect frame, const BRect& updateRect, bool isFront)
 {
+	DrawLabel(owner, frame, updateRect, isFront);
+}
+
+
+void
+GTab::DrawLabel(BView* owner, BRect frame, const BRect& updateRect, bool isFront)
+{
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 	be_control_look->DrawLabel(owner, fLabel.String(), frame, updateRect,
 		base, 0, BAlignment(B_ALIGN_CENTER, B_ALIGN_MIDDLE));
 }
-
 
 void
 GTab::MouseDown(BPoint where)
@@ -323,7 +329,7 @@ GTabCloseButton::DrawContents(BView* owner, BRect frame,
 {
 	BRect labelFrame = frame;
 	labelFrame.right -= kCloseButtonWidth;
-	GTab::DrawContents(owner, labelFrame, updateRect, isFront);
+	DrawLabel(owner, labelFrame, updateRect, isFront);
 	frame.left = labelFrame.right;
 	DrawCloseButton(owner, frame, updateRect, isFront);
 }

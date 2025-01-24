@@ -19,6 +19,7 @@ public:
 	BSize	MaxSize() override;
 	void	MouseDown(BPoint where) override;
 	void	MouseMoved(BPoint where, uint32 transit, const BMessage* dragMessage) override;
+	void	DrawLabel(BView* owner, BRect frame, const BRect& updateRect, bool isFront) override;
 
 	Editor*	GetEditor() { return fEditor; }
 	void	SetColor(const rgb_color& color);
@@ -27,8 +28,9 @@ public:
 
 protected:
 
-	void		CloseButtonClicked() override;
+	void	CloseButtonClicked() override;
 	void	UpdateToolTip();
+	void	DrawCircle(BView* owner, BRect& frame);
 
 
 private:

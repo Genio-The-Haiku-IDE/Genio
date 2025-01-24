@@ -72,10 +72,37 @@ GTabEditor::MouseMoved(BPoint where, uint32 transit,
 	}
 }
 
+
+void
+GTabEditor::DrawLabel(BView* owner, BRect frame, const BRect& updateRect, bool isFront)
+{
+	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+	DrawCircle(owner, frame);
+	be_control_look->DrawLabel(owner, fLabel.String(), frame, updateRect,
+		base, 0, BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+}
+
+
+void
+GTabEditor::DrawCircle(BView* owner, BRect& frame)
+{
+	BRect circleFrame(frame);
+	circleFrame.OffsetBy(0, 1);
+	circleFrame.right = circleFrame.left + circleFrame.Height();
+	circleFrame.InsetBy(4, 4);
+	owner->SetHighColor(fColor);
+	owner->FillEllipse(circleFrame);
+	owner->SetHighColor(tint_color(fColor, B_DARKEN_1_TINT));
+	owner->StrokeEllipse(circleFrame);
+	frame.left = circleFrame.right + be_control_look->DefaultLabelSpacing();
+}
+
+
 void
 GTabEditor::SetColor(const rgb_color& color)
 {
 	fColor = color;
+	Invalidate();
 	UpdateToolTip();
 }
 
@@ -84,6 +111,7 @@ void
 GTabEditor::SetLabel(const char* label)
 {
 	GTabCloseButton::SetLabel(label);
+	Invalidate();
 	UpdateToolTip();
 }
 

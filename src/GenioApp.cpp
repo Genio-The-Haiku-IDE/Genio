@@ -366,9 +366,9 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 
 	BString generalAppearance = general;
 	generalAppearance.Append("/").Append(B_TRANSLATE("Appearance"));
-	cfg.AddConfig(generalAppearance.String(), "show_projects", B_TRANSLATE("Show projects pane"), true);
-	cfg.AddConfig(generalAppearance.String(), "show_outline", B_TRANSLATE("Show outline pane"), true);
-	cfg.AddConfig(generalAppearance.String(), "show_output", B_TRANSLATE("Show info pane"), true);
+	cfg.AddConfig(generalAppearance.String(), "show_projects", B_TRANSLATE("Show left pane"), true);
+	cfg.AddConfig(generalAppearance.String(), "show_outline", B_TRANSLATE("Show right pane"), true);
+	cfg.AddConfig(generalAppearance.String(), "show_output", B_TRANSLATE("Show bottom pane"), true);
 	cfg.AddConfig(generalAppearance.String(), "show_toolbar", B_TRANSLATE("Show toolbar"), true);
 	cfg.AddConfig(generalAppearance.String(), "show_statusbar", B_TRANSLATE("Show statusbar"), true);
 	cfg.AddConfig(generalAppearance.String(), "use_small_icons", B_TRANSLATE("Use smaller icons in toolbar"), false);
@@ -503,6 +503,39 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Hidden", "run_without_buffering", "run_without_buffering", true);
 	GMessage log_limits = { {"min", 1024}, {"max", 4096} };
 	cfg.AddConfig("Hidden", "log_size", B_TRANSLATE("Log size:"), 1024, &log_limits);
+
+
+	BMessage tabConfig;
+	GMessage tab('TAB ');
+	tab.AddInt32("id", kTabProblems);
+	tab.AddString("panel_group", "bottom_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabBuildLog);
+	tab.ReplaceString("panel_group", "bottom_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabOutputLog);
+	tab.ReplaceString("panel_group", "bottom_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabSearchResult);
+	tab.ReplaceString("panel_group", "bottom_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabProjectBrowser);
+	tab.ReplaceString("panel_group", "left_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabSourceControl);
+	tab.ReplaceString("panel_group", "left_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabOutlineView);
+	tab.ReplaceString("panel_group", "right_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	cfg.AddConfig("Hidden", "tabviews", "tabviews", tabConfig);
 }
 
 

@@ -7,15 +7,15 @@
 
 #include <ColumnListView.h>
 #include <SupportDefs.h>
-#include <TabView.h>
 #include "GrepThread.h"
+#include "PanelTabManager.h"
 
 // For now this is specific to manage only the FindInFiles results
 // Can be extended to handle more generic 'search' results (find references)
 
 class SearchResultPanel : public BColumnListView {
 public:
-		SearchResultPanel(BTabView*);
+		SearchResultPanel(PanelTabManager*, tab_id id);
 
 		void StartSearch(BString command, BString projectPath);
 
@@ -31,8 +31,9 @@ private:
 		void 	UpdateSearch(BMessage* msg);
 		GrepThread*	fGrepThread;
 		BString 	fProjectPath;
-		BTabView*	fTabView;
+		PanelTabManager*	fPanelTabManager;
 		int32		fCountResults;
+		tab_id		fTabId;
 };
 
 

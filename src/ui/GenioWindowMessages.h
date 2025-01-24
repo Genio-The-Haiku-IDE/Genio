@@ -114,9 +114,9 @@ enum {
 	MSG_RUN_CONSOLE_PROGRAM			= 'rcpr',
 
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
-	MSG_SHOW_HIDE_PROJECTS			= 'shpr',
-	MSG_SHOW_HIDE_OUTLINE			= 'shol',
-	MSG_SHOW_HIDE_OUTPUT			= 'shou',
+	MSG_SHOW_HIDE_LEFT_PANE			= 'shpr',
+	MSG_SHOW_HIDE_RIGHT_PANE			= 'shol',
+	MSG_SHOW_HIDE_BOTTOM_PANE			= 'shou',
 	MSG_FULLSCREEN					= 'fscr',
 	MSG_FOCUS_MODE					= 'focu',
 	MSG_SELECT_TAB					= 'seta',

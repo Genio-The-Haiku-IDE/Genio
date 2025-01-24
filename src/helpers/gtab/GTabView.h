@@ -57,6 +57,7 @@ class GTabView : public BGroupView {
 
 			BCardView*	CardView() const { return fCardView;}
 
+		virtual BMenuItem* CreateMenuItem(GTab*);
 
 	private:
 

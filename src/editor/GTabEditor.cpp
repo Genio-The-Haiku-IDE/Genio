@@ -122,3 +122,6 @@ GTabEditor::UpdateToolTip()
 		SetToolTip(tabView->GetToolTipText(this).String());
 	}
 }
+
+
+

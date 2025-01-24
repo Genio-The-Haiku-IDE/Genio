@@ -35,7 +35,6 @@ protected:
 	void	UpdateToolTip();
 	void	DrawCircle(BView* owner, BRect& frame);
 
-
 private:
 	Editor*	fEditor;
 	rgb_color	fColor;

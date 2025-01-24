@@ -165,10 +165,12 @@ GTabView::OnMenuTabButton()
 	for (int32 i = 0; i < tabCount; i++) {
 		GTab* tab = fTabsContainer->TabAt(i);
 		if (tab != nullptr) {
-			BMenuItem* item = new BMenuItem(tab->Label(), nullptr);
-			tabMenu->AddItem(item);
-			if (tab->IsFront())
-				item->SetMarked(true);
+			BMenuItem* item = CreateMenuItem(tab);
+			if (item) {
+				tabMenu->AddItem(item);
+				if (tab->IsFront())
+					item->SetMarked(true);
+			}
 		}
 	}
 
@@ -193,6 +195,13 @@ GTabView::OnMenuTabButton()
 	}
 	fTabMenuTabButton->MenuClosed();
 	delete tabMenu;
+}
+
+
+BMenuItem*
+GTabView::CreateMenuItem(GTab* tab)
+{
+	return  new BMenuItem(tab->Label(), nullptr);
 }
 
 

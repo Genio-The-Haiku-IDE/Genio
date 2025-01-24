@@ -78,6 +78,7 @@ friend GTabEditor;
 
 private:
 			GTab*	CreateTabView(const char* label) override;
+			BMenuItem* CreateMenuItem(GTab* tab) override;
 
 			Editor*		_GetEditor(const entry_ref* ref);
 			GTabEditor*	_GetTab(const entry_ref* ref);

@@ -15,7 +15,7 @@
 #include "GenioWindowMessages.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
-
+#include "CircleColorMenuItem.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EditorTabManager"
@@ -425,6 +425,14 @@ EditorTabView::IndexBy(const entry_ref* ref) const
 		}
 	}
 	return -1;
+}
+
+
+BMenuItem*
+EditorTabView::CreateMenuItem(GTab* tab)
+{
+	GTabEditor* gtab = dynamic_cast<GTabEditor*>(tab);
+	return  gtab ? new CircleColorMenuItem(tab->Label(), gtab->Color(), nullptr) : nullptr;
 }
 
 

@@ -12,7 +12,6 @@
 #include <Size.h>
 
 #include <cstdio>
-#include <typeinfo>
 
 #include "Draggable.h"
 #include "TabButtons.h"

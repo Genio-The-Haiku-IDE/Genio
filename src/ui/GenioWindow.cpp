@@ -2673,15 +2673,11 @@ GenioWindow::_InitCentralSplit()
 	// Editor tab & view
 
 	fTabManager = new EditorTabView(BMessenger(this));
-	// fTabManager->SetColorIndicatorAvailable(true);
-	// fTabManager->GetTabContainerView()->SetExplicitMaxSize(BSize(B_SIZE_UNSET, TabViewTools::DefaultTabHeigh()));
-	// fTabManager->GetTabContainerView()->SetExplicitMinSize(BSize(B_SIZE_UNSET, TabViewTools::DefaultTabHeigh()));
-
-	// dirtyFrameHack = fTabManager->TabGroup()->Frame();
 
 	fEditorTabsGroup = BLayoutBuilder::Group<>(B_VERTICAL, 0.0f)
 		.Add(fRunGroup)
 		.Add(fFindGroup)
+		.Add(fReplaceGroup)
 		.Add(fTabManager)
 	;
 

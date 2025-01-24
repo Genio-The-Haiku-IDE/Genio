@@ -109,7 +109,7 @@ public:
 			void				SetLayoutItem(BLayoutItem* layItem) { fLayoutItem = layItem; }
 
 			BString				Label() const { return fLabel; };
-			void				SetLabel(const char* label) { fLabel.SetTo(label); }
+	virtual void				SetLabel(const char* label) { fLabel.SetTo(label); }
 
 			void 				OnDropMessage(BMessage* message) override;
 

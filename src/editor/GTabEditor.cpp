@@ -8,6 +8,7 @@
 #include "EditorTabView.h"
 #include <Message.h>
 
+
 BSize
 GTabEditor::MinSize()
 {
@@ -58,4 +59,40 @@ GTabEditor::MouseDown(BPoint where)
 		return;
 	}
 	GTabCloseButton::MouseDown(where);
+}
+
+
+void
+GTabEditor::MouseMoved(BPoint where, uint32 transit,
+										const BMessage* dragMessage)
+{
+	GTabCloseButton::MouseMoved(where, transit, dragMessage);
+	if (transit == B_ENTERED_VIEW) {
+		UpdateToolTip();
+	}
+}
+
+void
+GTabEditor::SetColor(const rgb_color& color)
+{
+	fColor = color;
+	UpdateToolTip();
+}
+
+
+void
+GTabEditor::SetLabel(const char* label)
+{
+	GTabCloseButton::SetLabel(label);
+	UpdateToolTip();
+}
+
+
+void
+GTabEditor::UpdateToolTip()
+{
+	EditorTabView* tabView = dynamic_cast<EditorTabView*>(Container()->GetGTabView());
+	if (tabView) {
+		SetToolTip(tabView->GetToolTipText(this).String());
+	}
 }

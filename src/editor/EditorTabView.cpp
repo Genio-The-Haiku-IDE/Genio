@@ -6,6 +6,7 @@
 
 #include "EditorTabView.h"
 #include <Box.h>
+#include <Catalog.h>
 #include <cassert>
 #include "Editor.h"
 #include "TabsContainer.h"
@@ -14,6 +15,12 @@
 #include "GenioWindowMessages.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "EditorTabManager"
+
+
 
 EditorTabView::EditorTabView(BMessenger target):GTabView("_editor_tabview_",
 										'EDTV',
@@ -257,6 +264,27 @@ EditorTabView::ShowTabMenu(GTabEditor* tab, BPoint where)
 	fPopUpMenu->Go(where, true);
 
 	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, isFindInBrowserEnable);
+}
+
+
+BString
+EditorTabView::GetToolTipText(GTabEditor* tab)
+{
+	BString label("");
+	Editor* editor = tab->GetEditor();
+	if (editor) {
+		label << editor->FilePath();
+		ProjectFolder* project = editor->GetProjectFolder();
+		if (project) {
+			if (label.StartsWith(project->Path()))
+				label.Remove(0, project->Path().Length() + 1);
+					// Length + 1 to also remove the path separator
+			label << "\n" << B_TRANSLATE("Project") << ": " << project->Name();
+			if (project->Active())
+				label << " (" << B_TRANSLATE("Active") << ")";
+		}
+	}
+	return label;
 }
 
 void

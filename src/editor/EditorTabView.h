@@ -73,7 +73,8 @@ friend GTabEditor;
 
 	void	OnTabSelected(GTab* tab) override;
 
-	void	ShowTabMenu(GTabEditor* editor, BPoint where);
+	void	ShowTabMenu(GTabEditor* tab, BPoint where);
+	BString	GetToolTipText(GTabEditor* tab);
 
 private:
 			Editor*		_GetEditor(const entry_ref* ref);

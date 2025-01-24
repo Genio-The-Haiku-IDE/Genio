@@ -18,13 +18,18 @@ public:
 	BSize	MinSize() override;
 	BSize	MaxSize() override;
 	void	MouseDown(BPoint where) override;
+	void	MouseMoved(BPoint where, uint32 transit, const BMessage* dragMessage) override;
 
 	Editor*	GetEditor() { return fEditor; }
-	void	SetColor(const rgb_color& color) { fColor = color; }
+	void	SetColor(const rgb_color& color);
+	void	SetLabel(const char* label) override;
+
 
 protected:
 
 	void		CloseButtonClicked() override;
+	void	UpdateToolTip();
+
 
 private:
 	Editor*	fEditor;

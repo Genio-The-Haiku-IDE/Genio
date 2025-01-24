@@ -131,7 +131,6 @@ TabsContainer::SelectTab(GTab* tab, bool invoke)
 		int32 index = IndexOfTab(fSelectedTab);
 		if (invoke && Message() != nullptr && Target() != nullptr) {
 			BMessage msg = *Message();
-			msg.AddPointer("tab", fSelectedTab);
 			msg.AddInt32("index", IndexOfTab(fSelectedTab));
 			Invoke(&msg);
 		}

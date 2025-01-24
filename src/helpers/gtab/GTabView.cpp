@@ -120,9 +120,10 @@ GTabView::MessageReceived(BMessage* message)
 		case kSelectedTabButton:
 		{
 			int32 index = message->GetInt32("index", 0);
-			if (index > -1) {
+			if (index > -1 && index < Container()->CountTabs())
+			{
 				fCardView->CardLayout()->SetVisibleItem(index);
-				GTab* tab = (GTab*)message->GetPointer("tab", nullptr);
+				GTab* tab = Container()->TabAt(index);
 				if (tab != nullptr) {
 					OnTabSelected(tab);
 				}
@@ -134,9 +135,13 @@ GTabView::MessageReceived(BMessage* message)
 			if (!fCloseButton)
 				return;
 
-			GTab* tab = (GTab*)message->GetPointer("tab", nullptr);
-			if (tab != nullptr) {
-				DestroyTabAndView(tab);
+			int32	fromIndex = message->GetInt32("index", -1);
+			if (fromIndex > -1 && fromIndex < Container()->CountTabs())
+			{
+				GTab* tab = Container()->TabAt(fromIndex);
+				if (tab != nullptr) {
+					DestroyTabAndView(tab);
+				}
 			}
 			break;
 		}

@@ -13,7 +13,9 @@ class Editor;
 class GTabEditor : public GTabCloseButton {
 public:
 	GTabEditor(const char* label, const BHandler* handler, Editor* editor):
-		GTabCloseButton(label, handler), fEditor(editor) {}
+		GTabCloseButton(label, handler),
+		fEditor(editor),
+		fColor(ui_color(B_PANEL_BACKGROUND_COLOR)){}
 
 	BSize	MinSize() override;
 	BSize	MaxSize() override;
@@ -25,6 +27,7 @@ public:
 	void	SetColor(const rgb_color& color);
 	void	SetLabel(const char* label) override;
 
+	rgb_color	Color() { return fColor; }
 
 protected:
 

@@ -103,7 +103,6 @@ GTabEditor::SetColor(const rgb_color& color)
 {
 	fColor = color;
 	Invalidate();
-	UpdateToolTip();
 }
 
 
@@ -112,7 +111,6 @@ GTabEditor::SetLabel(const char* label)
 {
 	GTabCloseButton::SetLabel(label);
 	Invalidate();
-	UpdateToolTip();
 }
 
 

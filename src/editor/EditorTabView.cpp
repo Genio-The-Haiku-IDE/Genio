@@ -223,7 +223,9 @@ EditorTabView::CreateTabView(GTab* clone)
 {
 	GTabEditor* tab = dynamic_cast<GTabEditor*>(clone);
 	assert(tab != nullptr);
-	return new GTabEditor(tab->Label().String(), this, tab->GetEditor());
+	GTabEditor* newTab = new GTabEditor(tab->Label().String(), this, tab->GetEditor());
+	newTab->SetColor(tab->Color());
+	return newTab;
 }
 
 
@@ -423,4 +425,12 @@ EditorTabView::IndexBy(const entry_ref* ref) const
 		}
 	}
 	return -1;
+}
+
+
+GTab*
+EditorTabView::CreateTabView(const char* label)
+{
+	debugger("Unsupported");
+	return nullptr;
 }

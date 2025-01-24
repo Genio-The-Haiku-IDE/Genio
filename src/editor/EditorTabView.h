@@ -77,6 +77,8 @@ friend GTabEditor;
 	BString	GetToolTipText(GTabEditor* tab);
 
 private:
+			GTab*	CreateTabView(const char* label) override;
+
 			Editor*		_GetEditor(const entry_ref* ref);
 			GTabEditor*	_GetTab(const entry_ref* ref);
 			GTabEditor* _GetTab(Editor* editor);

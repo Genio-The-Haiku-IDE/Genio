@@ -52,8 +52,6 @@ class GTabView : public BGroupView {
 	TabsContainer*	Container() const { return fTabsContainer; }
 			void	DestroyTabAndView(GTab* tab); //Remove and delete a tab and the view.
 
-	private:
-
 		virtual GTab*	CreateTabView(const char* label);
 		virtual GTab*	CreateTabView(GTab* clone);
 

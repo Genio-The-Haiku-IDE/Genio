@@ -407,8 +407,11 @@ GTabCloseButton::RectCloseButton()
 void
 GTabCloseButton::CloseButtonClicked()
 {
+	// In async messages better to use index or id
+	// to avoid concurrency problem
+	// (in this case: a process is removing tabs while I'm pressing close)
 	BMessage msg(kTVCloseTab);
-	msg.AddPointer("tab", this);
+	msg.AddInt32("index", Container()->IndexOfTab(this));
 	BMessenger(fHandler).SendMessage(&msg);
 }
 

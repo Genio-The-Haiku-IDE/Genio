@@ -71,7 +71,7 @@ TabsContainer::TabAt(int32 index) const
 int32
 TabsContainer::IndexOfTab(GTab* tab) const
 {
-	if (fSelectedTab == nullptr)
+	if (tab == nullptr)
 		return -1;
 
 	return GroupLayout()->IndexOfItem(tab->LayoutItem());

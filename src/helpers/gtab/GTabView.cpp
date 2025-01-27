@@ -104,6 +104,7 @@ GTabView::AttachedToWindow()
 	fScrollRightTabButton->SetTarget(this);
 	fTabsContainer->SetTarget(this);
 	fTabMenuTabButton->SetTarget(this);
+	BGroupView::AttachedToWindow();
 }
 
 
@@ -112,10 +113,10 @@ GTabView::MessageReceived(BMessage* message)
 {
 	switch(message->what) {
 		case kLeftTabButton:
-			fTabsContainer->ShiftTabs(-1);
+			fTabsContainer->ShiftTabs(-1, "shift left");
 			break;
 		case kRightTabButton:
-			fTabsContainer->ShiftTabs(+1);
+			fTabsContainer->ShiftTabs(+1, "shift right");
 			break;
 		case kSelectedTabButton:
 		{

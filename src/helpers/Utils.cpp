@@ -21,6 +21,7 @@
 #include <Resources.h>
 #include <Roster.h>
 #include <SystemCatalog.h>
+#include <WindowScreen.h>
 
 #include <algorithm>
 #include <string>
@@ -32,6 +33,24 @@ using BPrivate::gSystemCatalog;
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Utilities"
+
+
+void
+FakeMouseMovement(BView* view)
+{
+	// This is mostly due to a limition of the app_server:
+	// the wheel mouse message is always target to the view with the last mouse movement.
+	// in case a view appear under the mouse without any movement (ALT+TAB on a .cpp to open the .h)
+	// the wheel is moving the wrong scrollbars (no matter of the focus).
+	// the workaround is to fake a mouse movement to update the view under the cursor when an
+	// Editor is selected.
+	//
+	BPoint location;
+	uint32 buttons = 0;
+	view->GetMouse(&location, &buttons);
+	view->ConvertToScreen(&location);
+	set_mouse_position(location.x, location.y);
+}
 
 
 std::string
@@ -64,8 +83,8 @@ GetVectorIcon(const std::string icon, BBitmap* bitmap)
 
 	BResources* resources = BApplication::AppResources();
 	size_t size;
-	const uint8* rawIcon;
-	rawIcon = (const uint8*)resources->LoadResource(B_VECTOR_ICON_TYPE, icon.c_str(), &size);
+	const uint8* rawIcon = reinterpret_cast<const uint8*>(
+		resources->LoadResource(B_VECTOR_ICON_TYPE, icon.c_str(), &size));
 	if (rawIcon == nullptr)
 		return B_ERROR;
 
@@ -206,7 +225,8 @@ KeyDownMessageFilter::Filter(BMessage* message, BHandler** target)
 
 template<>
 entry_ref
-find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
+find_value<B_REF_TYPE>(BMessage* message, std::string name, int index)
+{
 	entry_ref ref;
 	status_t status = message->FindRef(name.c_str(), index, &ref);
 	if(status == B_OK) {

@@ -304,8 +304,9 @@ GTabView::SelectTab(GTab* tab)
 {
 	int32 index = fTabsContainer->IndexOfTab(tab);
 	if (index > -1) {
-		fTabsContainer->SelectTab(tab);
+		fTabsContainer->SetFrontTab(tab);
 		fCardView->CardLayout()->SetVisibleItem(index);
+		OnTabSelected(tab);
 	}
 }
 

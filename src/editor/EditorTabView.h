@@ -65,10 +65,6 @@ public:
 protected:
 friend GTabEditor;
 
-	void OnTabRemoved(GTab* _tab) override;
-
-	void OnTabAdded(GTab* _tab, BView* panel) override;
-
 	GTab* CreateTabView(GTab* clone) override;
 
 	void	OnTabSelected(GTab* tab) override;
@@ -86,6 +82,7 @@ private:
 
 			BMessenger	fTarget;
 			BPopUpMenu* fPopUpMenu;
+			BMessage 	fLastSelectedInfo;
 };
 
 

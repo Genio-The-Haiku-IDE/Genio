@@ -45,7 +45,7 @@ TabsContainer::AddTab(GTab* tab, int32 index)
 	tab->SetContainer(this);
 
 	if (CountTabs() == 1) {
-		SelectTab(tab);
+		_SelectTabOnTabView(tab);
 	}
 
 	ShiftTabs(0, "add tab");
@@ -87,11 +87,11 @@ TabsContainer::RemoveTab(GTab* tab)
 	tab->RemoveSelf();
 
 	if (CountTabs() == 0) {
-		SelectTab(nullptr);
+		_SelectTabOnTabView(nullptr);
 	} else  if (selectedIndex >= CountTabs()) {
-		SelectTab(TabAt(CountTabs() - 1));
+		_SelectTabOnTabView(TabAt(CountTabs() - 1));
 	} else {
-		SelectTab(TabAt(selectedIndex));
+		_SelectTabOnTabView(TabAt(selectedIndex));
 	}
 
 	delete tab->LayoutItem();
@@ -118,7 +118,7 @@ TabsContainer::SelectedTab() const
 
 
 void
-TabsContainer::SelectTab(GTab* tab, bool invoke)
+TabsContainer::SetFrontTab(GTab* tab)
 {
 	if (tab != fSelectedTab) {
 		if (fSelectedTab)
@@ -187,7 +187,7 @@ void
 TabsContainer::MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons)
 {
 	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
-		fGTabView->SelectTab(tab);
+		_SelectTabOnTabView(tab);
 	} else if (buttons & B_TERTIARY_MOUSE_BUTTON) {
 		// Nothing
 	}
@@ -233,6 +233,13 @@ TabsContainer::OnDropTab(GTab* toTab, BMessage* message)
 
 
 void
+TabsContainer::_SelectTabOnTabView(GTab* tab)
+{
+	fGTabView->SelectTab(tab);
+}
+
+
+void
 TabsContainer::_PrintToStream()
 {
 	for (int32 i = 0; i < GroupLayout()->CountItems(); i++) {
@@ -262,7 +269,7 @@ TabsContainer::DoLayout()
 	if (fFirstLayout == true && Bounds().IsValid()) {
 		GTab* selected = fSelectedTab;
 		fSelectedTab = nullptr;
-		SelectTab(selected);
+		_SelectTabOnTabView(selected);
 		fFirstLayout = false;
 	}
 

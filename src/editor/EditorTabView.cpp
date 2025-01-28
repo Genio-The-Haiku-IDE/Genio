@@ -133,14 +133,9 @@ EditorTabView::SelectTab(const entry_ref* ref, BMessage* selInfo)
 	GTab* tab = _GetTab(ref);
 	if (tab) {
 		GTabView::SelectTab(tab);
-
-		BMessage message;
 		if (selInfo) {
-			message = *selInfo;
+			fLastSelectedInfo = *selInfo;
 		}
-		message.what = kETVSelectedTab;
-		message.AddRef("ref", ref);
-		fTarget.SendMessage(&message);
 	}
 }
 
@@ -206,18 +201,6 @@ EditorTabView::_GetTab(Editor* editor)
 }
 
 
-void
-EditorTabView::OnTabRemoved(GTab* _tab)
-{
-}
-
-
-void
-EditorTabView::OnTabAdded(GTab* _tab, BView* panel)
-{
-}
-
-
 GTab*
 EditorTabView::CreateTabView(GTab* clone)
 {
@@ -236,7 +219,11 @@ EditorTabView::OnTabSelected(GTab* tab)
 	GTabEditor* gtab = dynamic_cast<GTabEditor*>(tab);
 	if (gtab == nullptr)
 		return;
-	BMessage message(kETVSelectedTab);
+	BMessage message;
+	if (fLastSelectedInfo.IsEmpty() == false) {
+		message = fLastSelectedInfo;
+	}
+	message.what = kETVSelectedTab;
 	message.AddRef("ref", gtab->GetEditor()->FileRef());
 	fTarget.SendMessage(&message);
 }
@@ -310,7 +297,7 @@ EditorTabView::SelectNext()
 	if (index < 0 || index > Container()->CountTabs() - 1)
 		return;
 
-	Container()->SelectTab(Container()->TabAt(index+1));
+	GTabView::SelectTab(Container()->TabAt(index+1));
 
 }
 
@@ -326,7 +313,7 @@ EditorTabView::SelectPrev()
 	if (index < 1 || index > Container()->CountTabs())
 		return;
 
-	Container()->SelectTab(Container()->TabAt(index - 1));
+	GTabView::SelectTab(Container()->TabAt(index - 1));
 }
 
 

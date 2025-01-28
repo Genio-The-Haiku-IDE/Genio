@@ -24,6 +24,7 @@ class BRadioButton;
 
 struct entry_ref;
 
+void	FakeMouseMovement(BView* view);
 
 std::string GetFileName(const std::string filename);
 std::string GetFileExtension(const std::string filename);

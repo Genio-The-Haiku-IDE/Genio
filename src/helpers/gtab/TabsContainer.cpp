@@ -132,7 +132,7 @@ TabsContainer::SelectTab(GTab* tab, bool invoke)
 		int32 index = IndexOfTab(fSelectedTab);
 
 		if (fTabShift >= index) {
-			ShiftTabs(index - fTabShift);
+			ShiftTabs(index - fTabShift, "select tab");
 
 		} else {
 			// let's ensure at least the tab's "middle point"

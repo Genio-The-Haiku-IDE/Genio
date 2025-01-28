@@ -274,9 +274,9 @@ GenioWindow::Show()
 	BWindow::Show();
 
 	if (LockLooper()) {
-		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_PROJECTS);
-		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_OUTLINE);
-		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_OUTPUT);
+		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_LEFT_PANE);
+		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_RIGHT_PANE);
+		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_BOTTOM_PANE);
 
 
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
@@ -3032,7 +3032,7 @@ GenioWindow::_InitMenu()
 			B_TRANSLATE("Open recent" B_UTF8_ELLIPSIS), nullptr, nullptr, this,
 			kRecentFilesNumber, true, nullptr, GenioNames::kApplicationSignature), nullptr));
 	ActionManager::AddItem(MSG_IMPORT_RESOURCE, fileMenu);
-
+
 	fileMenu->AddSeparatorItem();
 
 	ActionManager::AddItem(MSG_FILE_SAVE,     fileMenu);
@@ -3070,7 +3070,7 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(B_PASTE, editMenu);
 
 	editMenu->AddSeparatorItem();
-
+
 	ActionManager::AddItem(B_SELECT_ALL, editMenu);
 
 	editMenu->AddSeparatorItem();

@@ -121,13 +121,13 @@ GTabView::MessageReceived(BMessage* message)
 		case kRightTabButton:
 			fTabsContainer->ShiftTabs(+1, "shift right");
 			break;
-		case kSelectedTabButton:
+/*		case kSelectedTabButton:
 		{
 			int32 index = message->GetInt32("index", 0);
 			if (index > -1)
 				fCardView->CardLayout()->SetVisibleItem(index);
 			break;
-		}
+		}*/
 		case GTabCloseButton::kTVCloseTab:
 		{
 			if (!fCloseButton)

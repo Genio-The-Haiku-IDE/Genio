@@ -3,10 +3,11 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-
 #include "GTabEditor.h"
-#include "EditorTabView.h"
+
 #include <Message.h>
+
+#include "EditorTabView.h"
 
 
 BSize
@@ -16,7 +17,6 @@ GTabEditor::MinSize()
 	size.width = 200.0f;
 	return size;
 }
-
 
 
 BSize
@@ -122,6 +122,3 @@ GTabEditor::UpdateToolTip()
 		SetToolTip(tabView->GetToolTipText(this).String());
 	}
 }
-
-
-

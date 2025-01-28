@@ -5,7 +5,6 @@
 #pragma once
 
 
-#include <SupportDefs.h>
 #include "GTab.h"
 
 class Editor;

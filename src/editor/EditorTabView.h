@@ -4,11 +4,11 @@
  */
 #pragma once
 
+#include <functional>
 
-#include <SupportDefs.h>
 #include <Messenger.h>
 #include <PopUpMenu.h>
-#include <functional>
+
 #include "GTabView.h"
 
 class Editor;

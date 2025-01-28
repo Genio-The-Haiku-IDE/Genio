@@ -5,17 +5,20 @@
 
 
 #include "EditorTabView.h"
+
+#include <cassert>
+
 #include <Box.h>
 #include <Catalog.h>
-#include <cassert>
-#include "Editor.h"
-#include "TabsContainer.h"
-#include "GTabEditor.h"
+
 #include "ActionManager.h"
+#include "CircleColorMenuItem.h"
+#include "Editor.h"
 #include "GenioWindowMessages.h"
+#include "GTabEditor.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
-#include "CircleColorMenuItem.h"
+#include "TabsContainer.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EditorTabManager"
@@ -44,10 +47,12 @@ EditorTabView::EditorTabView(BMessenger target):GTabView("_editor_tabview_",
 
 }
 
+
 EditorTabView::~EditorTabView()
 {
 	delete fPopUpMenu;
 }
+
 
 void
 EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int32 index)
@@ -56,7 +61,7 @@ EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int3
 	AddTab (tab, editor, index);
 
 	BMessage message;
-	if (info)
+	if (info != nullptr)
 		message = *info;
 	message.what = kETVNewTab;
 	message.AddRef("ref", editor->FileRef());
@@ -64,7 +69,6 @@ EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int3
 
 	fTarget.SendMessage(&message);
 }
-
 
 
 Editor*
@@ -90,7 +94,6 @@ EditorTabView::EditorBy(const node_ref* nodeRef)
 }
 
 
-
 Editor*
 EditorTabView::SelectedEditor()
 {
@@ -99,12 +102,11 @@ EditorTabView::SelectedEditor()
 }
 
 
-
 void
 EditorTabView::SetTabColor(const entry_ref* ref, const rgb_color& color)
 {
 	GTabEditor* tab = _GetTab(ref);
-	if (tab) {
+	if (tab != nullptr) {
 		tab->SetColor(color);
 	}
 }
@@ -114,7 +116,7 @@ void
 EditorTabView::SetTabLabel(Editor* editor, const char* label)
 {
 	GTabEditor* tab = _GetTab(editor);
-	if (tab)
+	if (tab != nullptr)
 		tab->SetLabel(label);
 }
 
@@ -131,9 +133,9 @@ void
 EditorTabView::SelectTab(const entry_ref* ref, BMessage* selInfo)
 {
 	GTab* tab = _GetTab(ref);
-	if (tab) {
+	if (tab != nullptr) {
 		GTabView::SelectTab(tab);
-		if (selInfo) {
+		if (selInfo != nullptr) {
 			fLastSelectedInfo = *selInfo;
 		}
 	}
@@ -141,12 +143,13 @@ EditorTabView::SelectTab(const entry_ref* ref, BMessage* selInfo)
 
 
 void
-EditorTabView::ForEachEditor(const std::function<bool(Editor*)>& op) {
-	for (int32 i=0;i<Container()->CountTabs();i++) {
+EditorTabView::ForEachEditor(const std::function<bool(Editor*)>& op)
+{
+	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
-		if (tab) {
+		if (tab != nullptr) {
 			bool next = op(tab->GetEditor());
-			if (next == false)
+			if (!next)
 				return;
 		}
 	}
@@ -154,12 +157,13 @@ EditorTabView::ForEachEditor(const std::function<bool(Editor*)>& op) {
 
 
 void
-EditorTabView::ReverseForEachEditor(const std::function<bool(Editor*)>& op) {
-	for (int32 i = Container()->CountTabs() - 1; i >=0; i--) {
+EditorTabView::ReverseForEachEditor(const std::function<bool(Editor*)>& op)
+{
+	for (int32 i = Container()->CountTabs() - 1; i >= 0; i--) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
-		if (tab) {
+		if (tab != nullptr) {
 			bool next = op(tab->GetEditor());
-			if (next == false)
+			if (!next)
 				return;
 		}
 	}
@@ -178,7 +182,7 @@ GTabEditor*
 EditorTabView::_GetTab(const entry_ref* ref)
 {
 	BEntry entry(ref, true);
-	for (int32 i=0;i<Container()->CountTabs();i++) {
+	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
 		if (tab != nullptr && BEntry(tab->GetEditor()->FileRef(), true) == entry) {
 				return tab;
@@ -191,7 +195,7 @@ EditorTabView::_GetTab(const entry_ref* ref)
 GTabEditor*
 EditorTabView::_GetTab(Editor* editor)
 {
-	for (int32 i=0;i<Container()->CountTabs();i++) {
+	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
 		if (tab != nullptr && editor == tab->GetEditor()) {
 				return tab;
@@ -212,13 +216,13 @@ EditorTabView::CreateTabView(GTab* clone)
 }
 
 
-
 void
 EditorTabView::OnTabSelected(GTab* tab)
 {
 	GTabEditor* gtab = dynamic_cast<GTabEditor*>(tab);
 	if (gtab == nullptr)
 		return;
+
 	BMessage message;
 	if (fLastSelectedInfo.IsEmpty() == false) {
 		message = fLastSelectedInfo;
@@ -233,7 +237,7 @@ void
 EditorTabView::ShowTabMenu(GTabEditor* tab, BPoint where)
 {
 	Editor*	editor = tab->GetEditor();
-	for (int32 i=0;i<fPopUpMenu->CountItems();i++) {
+	for (int32 i = 0; i < fPopUpMenu->CountItems(); i++) {
 		BMessage* msg = fPopUpMenu->ItemAt(i)->Message();
 		if (msg != nullptr) {
 			msg->SetInt32("tab_index", Container()->IndexOfTab(tab));
@@ -245,7 +249,6 @@ EditorTabView::ShowTabMenu(GTabEditor* tab, BPoint where)
 			}
 		}
 	}
-
 
 	bool isFindInBrowserEnable = ActionManager::IsEnabled(MSG_FIND_IN_BROWSER);
 	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, (editor != nullptr && editor->GetProjectFolder() != nullptr));
@@ -261,10 +264,10 @@ EditorTabView::GetToolTipText(GTabEditor* tab)
 {
 	BString label("");
 	Editor* editor = tab->GetEditor();
-	if (editor) {
+	if (editor != nullptr) {
 		label << editor->FilePath();
 		ProjectFolder* project = editor->GetProjectFolder();
-		if (project) {
+		if (project != nullptr) {
 			if (label.StartsWith(project->Path()))
 				label.Remove(0, project->Path().Length() + 1);
 					// Length + 1 to also remove the path separator
@@ -276,11 +279,12 @@ EditorTabView::GetToolTipText(GTabEditor* tab)
 	return label;
 }
 
+
 void
 EditorTabView::RemoveEditor(Editor* editor)
 {
 	GTabEditor* tab = _GetTab(editor);
-	if (tab) {
+	if (tab != nullptr) {
 		DestroyTabAndView(tab);
 	}
 }
@@ -298,7 +302,6 @@ EditorTabView::SelectNext()
 		return;
 
 	GTabView::SelectTab(Container()->TabAt(index+1));
-
 }
 
 
@@ -377,7 +380,7 @@ void
 EditorTabView::SetTabLabel(int32 index, const char* label)
 {
 	Editor* editor = EditorAt(index);
-	if (editor) {
+	if (editor != nullptr) {
 		SetTabLabel(editor, label);
 	}
 }
@@ -386,10 +389,10 @@ EditorTabView::SetTabLabel(int32 index, const char* label)
 int32
 EditorTabView::IndexBy(const node_ref* nodeRef) const
 {
-	for (int32 i=0;i<Container()->CountTabs();i++) {
+	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
-		if (tab) {
-			if ( tab->GetEditor()->NodeRef() != nullptr &&
+		if (tab != nullptr) {
+			if (tab->GetEditor()->NodeRef() != nullptr &&
 				*tab->GetEditor()->NodeRef() == *nodeRef) {
 				return i;
 			}
@@ -403,10 +406,10 @@ int32
 EditorTabView::IndexBy(const entry_ref* ref) const
 {
 	BEntry entry(ref, true);
-	for (int32 i=0;i<Container()->CountTabs();i++) {
+	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
-		if (tab) {
-			if ( entry == BEntry(tab->GetEditor()->FileRef(), true)) {
+		if (tab != nullptr) {
+			if (entry == BEntry(tab->GetEditor()->FileRef(), true)) {
 				return i;
 			}
 		}
@@ -419,7 +422,7 @@ BMenuItem*
 EditorTabView::CreateMenuItem(GTab* tab)
 {
 	GTabEditor* gtab = dynamic_cast<GTabEditor*>(tab);
-	return  gtab ? new CircleColorMenuItem(tab->Label(), gtab->Color(), nullptr) : nullptr;
+	return gtab ? new CircleColorMenuItem(tab->Label(), gtab->Color(), nullptr) : nullptr;
 }
 
 

@@ -44,6 +44,7 @@ class MTermView;
 class PanelTabManager;
 class EditorTabView;
 
+
 class GenioWindow : public BWindow {
 public:
 								GenioWindow(BRect frame);

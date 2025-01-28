@@ -13,6 +13,7 @@ class BCheckBox;
 class BTextView;
 class MTerm;
 class KeyTextViewScintilla;
+class BMessageRunner;
 
 #define kTermViewDone	'tvdo'
 
@@ -38,6 +39,7 @@ private:
 			void				EnableStopButton(bool doIt);
 			void				_Init();
 			void				_HandleOutput(const BString& info);
+			void				_FlushOutput();
 			void				_BannerMessage(BString status);
 			void				_EnsureStopped();
 
@@ -49,4 +51,6 @@ private:
 			MTerm* 						fMTerm;
 			BCheckBox*					fWrapEnabled;
 			BCheckBox*					fBannerEnabled;
+			BString						fOutputBuffer;
+			BMessageRunner*				fBufferFlusher;
 };

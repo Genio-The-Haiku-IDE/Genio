@@ -112,6 +112,7 @@ public:
 			BString				Label() const { return fLabel; };
 	virtual void				SetLabel(const char* label) { fLabel.SetTo(label); }
 
+
 			void 				OnDropMessage(BMessage* message) override;
 
 protected:
@@ -140,6 +141,7 @@ protected:
 
 virtual		void		CloseButtonClicked();
 			const BHandler* 	Handler() { return fHandler; }
+
 
 private:
 			void		DrawCloseButton(BView* owner, BRect butFrame, const BRect& updateRect,

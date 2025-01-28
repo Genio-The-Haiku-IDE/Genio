@@ -26,7 +26,7 @@ public:
 	GTab*	TabAt(int32 index) const;
 	int32	IndexOfTab(GTab* tab) const;
 
-	void	ShiftTabs(int32 delta); // 0 to refresh the current state
+	void	ShiftTabs(int32 delta, const char* src); // 0 to refresh the current state
 
 	void	MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons);
 
@@ -42,6 +42,8 @@ public:
 
 	tab_affinity	GetAffinity() const { return fAffinity; }
 
+	void	DoLayout() override;
+
 private:
 	void	_PrintToStream();
 	void	_UpdateScrolls();
@@ -50,4 +52,5 @@ private:
 	GTabView*	fGTabView;
 	int32		fTabShift;
 	tab_affinity	fAffinity;
+	bool	fFirstLayout;
 };

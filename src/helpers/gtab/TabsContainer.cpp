@@ -22,7 +22,8 @@ TabsContainer::TabsContainer(GTabView* tabView,
 	fSelectedTab(nullptr),
 	fGTabView(tabView),
 	fTabShift(0),
-	fAffinity(affinity)
+	fAffinity(affinity),
+	fFirstLayout(true)
 {
 	SetFlags(Flags()|B_FRAME_EVENTS);
 	GroupLayout()->AddView(0, new Filler(this));
@@ -47,7 +48,7 @@ TabsContainer::AddTab(GTab* tab, int32 index)
 		SelectTab(tab);
 	}
 
-	ShiftTabs(0);
+	ShiftTabs(0, "add tab");
 }
 
 
@@ -71,7 +72,7 @@ TabsContainer::TabAt(int32 index) const
 int32
 TabsContainer::IndexOfTab(GTab* tab) const
 {
-	if (fSelectedTab == nullptr)
+	if (tab == nullptr)
 		return -1;
 
 	return GroupLayout()->IndexOfItem(tab->LayoutItem());
@@ -103,7 +104,7 @@ TabsContainer::RemoveTab(GTab* tab)
 	if (fTabShift > 0 && fTabShift >= CountTabs()) {
 		shift -= 1;
 	}
-	ShiftTabs(shift);
+	ShiftTabs(shift, "remove tab");
 
 	return tab;
 }
@@ -132,6 +133,7 @@ TabsContainer::SelectTab(GTab* tab, bool invoke)
 
 		if (fTabShift >= index) {
 			ShiftTabs(index - fTabShift);
+
 		} else {
 			// let's ensure at least the tab's "middle point"
 			// is visible.
@@ -146,7 +148,7 @@ TabsContainer::SelectTab(GTab* tab, bool invoke)
 						break;
 					}
 				}
-				ShiftTabs(shift);
+				ShiftTabs(shift, "select tab_2");
 			}
 		}
 	}
@@ -155,8 +157,11 @@ TabsContainer::SelectTab(GTab* tab, bool invoke)
 
 
 void
-TabsContainer::ShiftTabs(int32 delta)
+TabsContainer::ShiftTabs(int32 delta, const char* src)
 {
+	if (Bounds().IsValid() == false)
+		return;
+
 	int32 newShift = fTabShift + delta;
 	if (newShift < 0)
 		newShift = 0;
@@ -172,6 +177,7 @@ TabsContainer::ShiftTabs(int32 delta)
 				tab->Show();
 		}
 	}
+	//DEBUG printf(".. updating from %d to %d (%s)\n", fTabShift, newShift,src);
 	fTabShift = newShift;
 	_UpdateScrolls();
 }
@@ -182,6 +188,8 @@ TabsContainer::MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons)
 {
 	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
 		fGTabView->SelectTab(tab);
+	} else if (buttons & B_TERTIARY_MOUSE_BUTTON) {
+		// Nothing
 	}
 }
 
@@ -204,7 +212,7 @@ TabsContainer::FrameResized(float w, float h)
 				break;
 		}
 		if (tox != 0)
-			ShiftTabs(tox);
+			ShiftTabs(tox, "select tab_1");
 	}
 	// end
 	_UpdateScrolls();
@@ -244,4 +252,18 @@ TabsContainer::_UpdateScrolls()
 	} else {
 			fGTabView->UpdateScrollButtons(false, false);
 	}
+}
+
+
+void
+TabsContainer::DoLayout()
+{
+	BGroupView::DoLayout();
+	if (fFirstLayout == true && Bounds().IsValid()) {
+		GTab* selected = fSelectedTab;
+		fSelectedTab = nullptr;
+		SelectTab(selected);
+		fFirstLayout = false;
+	}
+
 }

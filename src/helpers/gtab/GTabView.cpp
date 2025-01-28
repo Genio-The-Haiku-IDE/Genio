@@ -86,6 +86,7 @@ GTabView::DestroyTabAndView(GTab* tab)
 	delete fromView;
 
 	SelectTab(Container()->SelectedTab());
+
 }
 
 
@@ -105,6 +106,8 @@ GTabView::AttachedToWindow()
 	fScrollRightTabButton->SetTarget(this);
 	fTabsContainer->SetTarget(this);
 	fTabMenuTabButton->SetTarget(this);
+
+	BGroupView::AttachedToWindow();
 }
 
 
@@ -113,11 +116,18 @@ GTabView::MessageReceived(BMessage* message)
 {
 	switch(message->what) {
 		case kLeftTabButton:
-			fTabsContainer->ShiftTabs(-1);
+			fTabsContainer->ShiftTabs(-1, "shift left");
 			break;
 		case kRightTabButton:
-			fTabsContainer->ShiftTabs(+1);
+			fTabsContainer->ShiftTabs(+1, "shift right");
 			break;
+		case kSelectedTabButton:
+		{
+			int32 index = message->GetInt32("index", 0);
+			if (index > -1)
+				fCardView->CardLayout()->SetVisibleItem(index);
+			break;
+		}
 		case GTabCloseButton::kTVCloseTab:
 		{
 			if (!fCloseButton)
@@ -292,7 +302,6 @@ GTabView::MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer)
 void
 GTabView::SelectTab(GTab* tab)
 {
-	printf("||| select tab %s\n", tab->Label().String());
 	int32 index = fTabsContainer->IndexOfTab(tab);
 	if (index > -1) {
 		fTabsContainer->SelectTab(tab);

@@ -56,8 +56,8 @@ class GTabView : public BGroupView {
 		virtual GTab*	CreateTabView(GTab* clone);
 
 			BCardView*	CardView() const { return fCardView;}
-
 		virtual BMenuItem* CreateMenuItem(GTab*);
+
 
 	private:
 

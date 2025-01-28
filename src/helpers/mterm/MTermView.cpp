@@ -12,6 +12,7 @@
 #include <LayoutBuilder.h>
 #include <ScrollView.h>
 #include <String.h>
+#include <MessageRunner.h>
 
 #include "ConfigManager.h"
 #include "KeyTextViewScintilla.h"
@@ -30,8 +31,14 @@ enum {
 	kTermViewStop	= 'tvst',
 
 	kTermViewWrap	= 'tvwr',
-	kTermViewBanner	= 'tvba'
+	kTermViewBanner	= 'tvba',
+
+	kTermFlushBuffer = 'flux'
 };
+
+static const bigtime_t  kFlushInterval = 1000000; //1sec
+static const int32 		kFlushSize = 1024; //1sec
+
 
 
 MTermView::MTermView(const BString& name, const BMessenger& target)
@@ -42,6 +49,7 @@ MTermView::MTermView(const BString& name, const BMessenger& target)
 	, fMTerm(nullptr)
 	, fWrapEnabled(nullptr)
 	, fBannerEnabled(nullptr)
+	, fBufferFlusher(nullptr)
 {
 	SetName(name);
 	_Init();
@@ -185,6 +193,9 @@ MTermView::MessageReceived(BMessage* message)
 		{
 			break;
 		}
+		case kTermFlushBuffer:
+			_FlushOutput();
+		break;
 		default:
 			BGroupView::MessageReceived(message);
 			break;
@@ -294,9 +305,25 @@ MTermView::_Init()
 void
 MTermView::_HandleOutput(const BString& info)
 {
-	fKeyTextView->Append(info);
+	fOutputBuffer.Append(info);
+	if (fOutputBuffer.Length() > kFlushSize) {
+		_FlushOutput();
+	} else {
+		static BMessage flush(kTermFlushBuffer);
+		if (fBufferFlusher == nullptr || fBufferFlusher->SetInterval(kFlushInterval) != B_OK) {
+			if (fBufferFlusher != nullptr)
+				delete fBufferFlusher;
+			fBufferFlusher = new BMessageRunner(BMessenger(this), &flush, kFlushInterval, 1);
+		}
+	}
 }
 
+void
+MTermView::_FlushOutput()
+{
+	fKeyTextView->Append(fOutputBuffer);
+	fOutputBuffer = "";
+}
 
 KeyTextViewScintilla*
 MTermView::TextView()

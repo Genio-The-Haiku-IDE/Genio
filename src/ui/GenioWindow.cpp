@@ -1137,6 +1137,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				}
 
 				editor->GrabFocus();
+				FakeMouseMovement(editor);
 				_UpdateTabChange(editor, "TABMANAGER_TAB_SELECTED");
 
 				BMessage tabSelectedNotice(MSG_NOTIFY_EDITOR_FILE_SELECTED);

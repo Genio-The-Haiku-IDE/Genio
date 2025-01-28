@@ -41,7 +41,7 @@ public:
 
 	tab_affinity	GetAffinity() const { return fAffinity; }
 
-	void	DoLayout();
+	void	DoLayout() override;
 
 private:
 	void	_PrintToStream();

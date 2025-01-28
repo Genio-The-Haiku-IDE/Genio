@@ -50,9 +50,7 @@ FakeMouseMovement(BView* view)
 	view->GetMouse(&location, &buttons);
 	view->ConvertToScreen(&location);
 	set_mouse_position(location.x, location.y);
-
 }
-
 
 
 std::string
@@ -85,8 +83,8 @@ GetVectorIcon(const std::string icon, BBitmap* bitmap)
 
 	BResources* resources = BApplication::AppResources();
 	size_t size;
-	const uint8* rawIcon;
-	rawIcon = (const uint8*)resources->LoadResource(B_VECTOR_ICON_TYPE, icon.c_str(), &size);
+	const uint8* rawIcon = reinterpret_cast<const uint8*>(
+		resources->LoadResource(B_VECTOR_ICON_TYPE, icon.c_str(), &size));
 	if (rawIcon == nullptr)
 		return B_ERROR;
 
@@ -227,7 +225,8 @@ KeyDownMessageFilter::Filter(BMessage* message, BHandler** target)
 
 template<>
 entry_ref
-find_value<B_REF_TYPE>(BMessage* message, std::string name, int index) {
+find_value<B_REF_TYPE>(BMessage* message, std::string name, int index)
+{
 	entry_ref ref;
 	status_t status = message->FindRef(name.c_str(), index, &ref);
 	if(status == B_OK) {

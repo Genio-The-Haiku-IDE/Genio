@@ -17,17 +17,21 @@
 #include <unistd.h>
 
 #include "Editor.h"
+#include "EditorStatusView.h"
 #include "Log.h"
 #include "LSPProjectWrapper.h"
+#include "JumpNavigator.h"
 #include "protocol.h"
 #include "TextUtils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Editor"
 
+
 #define IF_ID(METHOD_NAME, METHOD) if (id.compare(METHOD_NAME) == 0) { METHOD(result); return; }
 #define IND_DIAG INDICATOR_CONTAINER + 1 //Style for Problems
 #define IND_LINK INDICATOR_CONTAINER + 2 //Style for Links
+#define IND_OVER INDICATOR_CONTAINER + 3 //Style for mouse hover
 
 LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	:
@@ -36,7 +40,9 @@ LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 	fToolTip(nullptr),
 	fLSPProjectWrapper(nullptr),
 	fCallTip(editor),
-	fInitialized(false)
+	fInitialized(false),
+	fLastWordStartPosition(-1),
+	fLastWordEndPosition(-1)
 {
 	assert(fEditor);
 }
@@ -48,8 +54,13 @@ LSPEditorWrapper::ApplySettings()
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, (255 | (0 << 8) | (0 << 16)));
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_DIAG, INDIC_SQUIGGLE);
 
+#ifdef DOCUMENT_LINK
 	fEditor->SendMessage(SCI_INDICSETFORE,  IND_LINK, 0xff0000);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_LINK, INDIC_PLAIN);
+#endif
+
+	fEditor->SendMessage(SCI_INDICSETFORE,  IND_OVER, 0xff0000);
+	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_OVER, INDIC_PLAIN);
 
 	fEditor->SendMessage(SCI_SETMOUSEDWELLTIME, 1000);
 
@@ -66,7 +77,7 @@ LSPEditorWrapper::ApplySettings()
 void
 LSPEditorWrapper::UnsetLSPServer()
 {
-	if (!fLSPProjectWrapper)
+	if (fLSPProjectWrapper == nullptr)
 		return;
 
 	didClose();
@@ -79,14 +90,14 @@ LSPEditorWrapper::UnsetLSPServer()
 bool
 LSPEditorWrapper::HasLSPServer()
 {
-	return (fLSPProjectWrapper != nullptr);
+	return fLSPProjectWrapper != nullptr;
 }
 
 
 bool
 LSPEditorWrapper::HasLSPServerCapability(const LSPCapability cap)
 {
-	return (HasLSPServer() && fLSPProjectWrapper->HasCapability(cap));
+	return HasLSPServer() && fLSPProjectWrapper->HasCapability(cap);
 }
 
 
@@ -151,7 +162,7 @@ LSPEditorWrapper::SetLSPServer(LSPProjectWrapper* cW) {
 bool
 LSPEditorWrapper::IsInitialized()
 {
-	return (fInitialized && fLSPProjectWrapper != nullptr);
+	return fInitialized && fLSPProjectWrapper != nullptr;
 }
 
 
@@ -200,7 +211,7 @@ void
 LSPEditorWrapper::didChange(
 	const char* text, long len, Sci_Position start_pos, Sci_Position poslength)
 {
-	if (!IsInitialized() || !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
 	Sci_Position end_pos = fEditor->SendMessage(SCI_POSITIONRELATIVE, start_pos, poslength);
@@ -264,7 +275,7 @@ LSPEditorWrapper::_DoRename(json& params)
 void
 LSPEditorWrapper::Format()
 {
-	if (!IsInitialized() || !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
 	flushChanges();
@@ -341,6 +352,36 @@ LSPEditorWrapper::StartHover(Sci_Position sci_position)
 }
 
 
+void
+LSPEditorWrapper::MouseMoved(BMessage* message)
+{
+	if (!IsInitialized()) {
+		return;
+	}
+
+	if (fLastWordEndPosition > -1 && fLastWordStartPosition > -1) {
+		fEditor->SendMessage(SCI_SETINDICATORCURRENT, IND_OVER);
+		fEditor->SendMessage(SCI_INDICATORCLEARRANGE, fLastWordStartPosition, fLastWordEndPosition - fLastWordStartPosition);
+		fLastWordEndPosition = fLastWordStartPosition = -1;
+	}
+
+	if (message->GetInt32("buttons", 0) != 0 || !(modifiers() & B_COMMAND_KEY)) {
+		return;
+	}
+
+	if (message->GetInt32("be:transit", 0) == 1) {
+		BPoint point = message->GetPoint("be:view_where", BPoint(0,0));
+		Sci_Position sci_position = fEditor->SendMessage(SCI_POSITIONFROMPOINTCLOSE, point.x, point.y);
+		fLastWordStartPosition = fEditor->SendMessage(SCI_WORDSTARTPOSITION, sci_position, true);
+		fLastWordEndPosition   = fEditor->SendMessage(SCI_WORDENDPOSITION,   sci_position, true);
+		fEditor->SendMessage(SCI_SETINDICATORCURRENT, IND_OVER);
+		fEditor->SendMessage(SCI_INDICATORFILLRANGE, fLastWordStartPosition, fLastWordEndPosition - fLastWordStartPosition);
+	}
+}
+
+
+
+
 int32
 LSPEditorWrapper::DiagnosticFromPosition(Sci_Position sci_position, LSPDiagnostic& dia)
 {
@@ -378,6 +419,7 @@ LSPEditorWrapper::EndHover()
 {
 	if (!IsInitialized())
 		return;
+
 	BAutolock l(fEditor->Looper());
 	if (l.IsLocked()) {
 		fEditor->HideToolTip();
@@ -397,7 +439,7 @@ LSPEditorWrapper::SwitchSourceHeader()
 void
 LSPEditorWrapper::SelectedCompletion(const char* text)
 {
-	if (!IsInitialized() || !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
 	flushChanges();
@@ -462,6 +504,7 @@ LSPEditorWrapper::SelectedCompletion(const char* text)
 void
 LSPEditorWrapper::StartCompletion()
 {
+
 	if (!IsInitialized() || !fEditor || !IsStatusValid())
 		return;
 
@@ -515,10 +558,10 @@ void
 LSPEditorWrapper::CharAdded(const char ch /*utf-8?*/)
 {
 	// printf("on char %c\n", ch);
-	if (!IsInitialized() || !fEditor)
+	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
-	if(ch != 0) {
+	if (ch != 0) {
 		if (fEditor->SendMessage(SCI_AUTOCACTIVE) &&
 			!Contains(kWordCharacters, ch)) {
 			fEditor->SendMessage(SCI_AUTOCCANCEL);
@@ -559,6 +602,12 @@ LSPEditorWrapper::IndicatorClick(Sci_Position sci_position)
 	if (s_start != s_end)
 		return;
 
+	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_OVER, sci_position) == 1) {
+		Position position;
+		FromSciPositionToLSPPosition(sci_position, &position);
+		fLSPProjectWrapper->GoToDefinition(this, position);
+	}
+#ifdef IND_LINK
 	if (fEditor->SendMessage(SCI_INDICATORVALUEAT, IND_LINK, sci_position) == 1) {
 		for (auto& ir : fLastDocumentLinks) {
 			if (sci_position > ir.from && sci_position <= ir.to) {
@@ -568,13 +617,14 @@ LSPEditorWrapper::IndicatorClick(Sci_Position sci_position)
 			}
 		}
 	}
+#endif
 }
 
 
 void
 LSPEditorWrapper::_ShowToolTip(const char* text)
 {
-	if (!fToolTip)
+	if (fToolTip == nullptr)
 		fToolTip = new BTextToolTip(text);
 
 	fToolTip->SetText(text);
@@ -588,7 +638,7 @@ LSPEditorWrapper::_ShowToolTip(const char* text)
 void
 LSPEditorWrapper::_DoHover(nlohmann::json& result)
 {
-	if (fEditor == nullptr || fEditor->Window()->IsActive() == false)
+	if (fEditor == nullptr || !fEditor->Window()->IsActive())
 		return;
 
 	if (result == nlohmann::detail::value_t::null &&
@@ -760,7 +810,9 @@ LSPEditorWrapper::_DoDiagnostics(nlohmann::json& params)
 	}
 
 	if (fLSPProjectWrapper) {
+#ifdef DOCUMENT_LINK
 		fLSPProjectWrapper->DocumentLink(this);
+#endif
 		fLSPProjectWrapper->DocumentSymbol(this);
 	}
 }
@@ -852,7 +904,6 @@ LSPEditorWrapper::_RemoveAllDocumentLinks()
 	fLastDocumentLinks.clear();
 }
 
-
 void
 LSPEditorWrapper::_DoInitialize(nlohmann::json& params)
 {
@@ -893,8 +944,11 @@ LSPEditorWrapper::_DoFileStatus(nlohmann::json& params)
 	auto state = params["state"].get<std::string>();
 	LogInfo("FileStatus [%s] -> [%s]", GetFileStatus().String(), state.c_str());
 	SetFileStatus(state.c_str());
+	if (fEditor != nullptr) {
+		BMessage msg(editor::StatusView::UPDATE_STATUS);
+		BMessenger(fEditor).SendMessage(&msg);
+	}
 }
-
 
 void
 LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
@@ -912,7 +966,6 @@ LSPEditorWrapper::_DoDocumentSymbol(nlohmann::json& params)
 	if (fEditor != nullptr)
 		fEditor->SetDocumentSymbols(&msg, Editor::STATUS_HAS_SYMBOLS);
 }
-
 
 void
 LSPEditorWrapper::_DoRecursiveDocumentSymbol(std::vector<DocumentSymbol>& vect, BMessage& msg)
@@ -1090,7 +1143,8 @@ LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character, BStr
 				}
 				if (!edits.IsEmpty())
 					refs.AddString("edit", edits);
-				be_app->PostMessage(&refs);
+
+				JumpNavigator::getInstance()->JumpToFile(&refs, fEditor->FileRef());
 			}
 		}
 	}

@@ -112,6 +112,8 @@ enum {
 	MSG_FIND_IN_FILES				= 'fifi',
 	MSG_RUN_CONSOLE_PROGRAM_SHOW	= 'rcps',
 	MSG_RUN_CONSOLE_PROGRAM			= 'rcpr',
+	MSG_JUMP_GO_FORWARD				= 'jpfw',
+	MSG_JUMP_GO_BACK				= 'jpba',
 
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_LEFT_PANE			= 'shpr',

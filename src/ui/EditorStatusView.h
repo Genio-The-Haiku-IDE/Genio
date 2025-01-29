@@ -54,11 +54,12 @@ private:
 			void			_DrawNavigationButton(BRect rect);
 			static void		_CreateMenu(BWindow*);
 			BRect			_GetCellRect(int32 cell);
-
+			BString			_FromStatusToIcon(BString status);
 
 private:
 	enum {
 		kPositionCell,
+		kStatus,
 		kOverwriteMode,
 		kLineFeed,
 		kFileStateCell,
@@ -73,6 +74,8 @@ private:
 			float			fNavigationButtonWidth;
 
 			static BPopUpMenu*		sMenu;
+
+			BString			fStatusDescription;
 };
 
 } // namespace editor

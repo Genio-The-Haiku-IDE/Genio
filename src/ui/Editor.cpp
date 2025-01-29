@@ -169,6 +169,9 @@ void
 Editor::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case editor::StatusView::UPDATE_STATUS:
+			UpdateStatusBar();
+		break;
 		case kIdle:
 			fLSPEditorWrapper->flushChanges();
 			break;
@@ -1098,6 +1101,14 @@ Editor::BeforeKeyDown(BMessage* message)
 
 
 filter_result
+Editor::BeforeMouseMoved(BMessage* message)
+{
+	fLSPEditorWrapper->MouseMoved(message);
+	return B_DISPATCH_MESSAGE;
+}
+
+
+filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
@@ -1462,6 +1473,8 @@ Editor::UpdateStatusBar()
 	int line = SendMessage(SCI_LINEFROMPOSITION, pos, 0);
 	int column = SendMessage(SCI_GETCOLUMN, pos, 0);
 	BMessage update(editor::StatusView::UPDATE_STATUS);
+	if (fLSPEditorWrapper)
+		update.AddString("status", fLSPEditorWrapper->GetFileStatus());
 	update.AddInt32("line", line + 1);
 	update.AddInt32("column", column + 1);
 	update.AddString("overwrite", IsOverwriteString());//EndOfLineString());

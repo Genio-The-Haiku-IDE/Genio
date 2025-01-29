@@ -17,7 +17,6 @@ enum {
 	kLeftTabButton	= 'GTlb',
 	kRightTabButton = 'GTrb',
 	kMenuTabButton  = 'GTmb',
-	kSelectedTabButton = 'GTse'
 
 };
 
@@ -85,6 +84,9 @@ GTabView::DestroyTabAndView(GTab* tab)
 		delete rtab;
 
 	delete fromView;
+
+	SelectTab(Container()->SelectedTab());
+
 }
 
 
@@ -104,6 +106,7 @@ GTabView::AttachedToWindow()
 	fScrollRightTabButton->SetTarget(this);
 	fTabsContainer->SetTarget(this);
 	fTabMenuTabButton->SetTarget(this);
+
 	BGroupView::AttachedToWindow();
 }
 
@@ -118,21 +121,25 @@ GTabView::MessageReceived(BMessage* message)
 		case kRightTabButton:
 			fTabsContainer->ShiftTabs(+1, "shift right");
 			break;
-		case kSelectedTabButton:
+/*		case kSelectedTabButton:
 		{
 			int32 index = message->GetInt32("index", 0);
 			if (index > -1)
 				fCardView->CardLayout()->SetVisibleItem(index);
 			break;
-		}
+		}*/
 		case GTabCloseButton::kTVCloseTab:
 		{
 			if (!fCloseButton)
 				return;
 
-			GTab* tab = (GTab*)message->GetPointer("tab", nullptr);
-			if (tab != nullptr) {
-				DestroyTabAndView(tab);
+			int32	fromIndex = message->GetInt32("index", -1);
+			if (fromIndex > -1 && fromIndex < Container()->CountTabs())
+			{
+				GTab* tab = Container()->TabAt(fromIndex);
+				if (tab != nullptr) {
+					DestroyTabAndView(tab);
+				}
 			}
 			break;
 		}
@@ -156,10 +163,12 @@ GTabView::OnMenuTabButton()
 	for (int32 i = 0; i < tabCount; i++) {
 		GTab* tab = fTabsContainer->TabAt(i);
 		if (tab != nullptr) {
-			BMenuItem* item = new BMenuItem(tab->Label(), nullptr);
-			tabMenu->AddItem(item);
-			if (tab->IsFront())
-				item->SetMarked(true);
+			BMenuItem* item = CreateMenuItem(tab);
+			if (item) {
+				tabMenu->AddItem(item);
+				if (tab->IsFront())
+					item->SetMarked(true);
+			}
 		}
 	}
 
@@ -187,10 +196,17 @@ GTabView::OnMenuTabButton()
 }
 
 
+BMenuItem*
+GTabView::CreateMenuItem(GTab* tab)
+{
+	return  new BMenuItem(tab->Label(), nullptr);
+}
+
+
 void
 GTabView::_Init(tab_affinity affinity)
 {
-	fTabsContainer = new TabsContainer(this, affinity, new BMessage(kSelectedTabButton));
+	fTabsContainer = new TabsContainer(this, affinity, new BMessage());
 
 	fScrollLeftTabButton  = new GTabScrollLeftButton(new BMessage(kLeftTabButton), fTabsContainer);
 	fScrollRightTabButton = new GTabScrollRightButton(new BMessage(kRightTabButton), fTabsContainer);
@@ -288,8 +304,9 @@ GTabView::SelectTab(GTab* tab)
 {
 	int32 index = fTabsContainer->IndexOfTab(tab);
 	if (index > -1) {
-		fTabsContainer->SelectTab(tab);
+		fTabsContainer->SetFrontTab(tab);
 		fCardView->CardLayout()->SetVisibleItem(index);
+		OnTabSelected(tab);
 	}
 }
 

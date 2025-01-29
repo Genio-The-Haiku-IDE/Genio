@@ -15,9 +15,10 @@
 #include <ScrollView.h>
 #include <StringView.h>
 #include <Window.h>
+#include <PopUpMenu.h>
 
 #include "Editor.h"
-#include "EditorTabManager.h"
+#include "EditorTabView.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "Log.h"

@@ -42,6 +42,9 @@ using namespace BPrivate;
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EditorStatusView"
 
+#define CHECKMARK_ICON "\xE2\x9C\x94"
+#define ESCLAMATIONMARK_ICON "\xE2\x9D\x97"
+
 namespace editor {
 
 BPopUpMenu* StatusView::sMenu = nullptr;
@@ -144,12 +147,17 @@ void
 StatusView::MouseMoved(BPoint where, uint32 transit, const BMessage* message)
 {
 	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
-		BRect cellRect = _GetCellRect(kEditorConfig);
-		if (where.x < cellRect.right &&	where.x > cellRect.left) {
+		where.y = 0;
+		if (_GetCellRect(kEditorConfig).Contains(where)) {
 			if (fCellText[kEditorConfig] == BString(EDITORCONFIG_YES_GLYPH))
 				SetToolTip(B_TRANSLATE("Settings in .editorconfig applied"));
 			else
 				SetToolTip(B_TRANSLATE("Global settings applied"));
+		} else if (_GetCellRect(kStatus).Contains(where)){
+			if (fStatusDescription.IsEmpty())
+				SetToolTip(B_TRANSLATE("No LSP file status information"));
+			else
+				SetToolTip(fStatusDescription.String()); //FIX: translation??
 		} else {
 			SetToolTip("");
 		}
@@ -160,9 +168,8 @@ StatusView::MouseMoved(BPoint where, uint32 transit, const BMessage* message)
 BRect
 StatusView::_GetCellRect(int32 cell)
 {
-	BRect rect;
-	rect.bottom = Frame().bottom;
-	rect.top = Frame().top;
+	BRect rect(Bounds());
+	rect.left = 0;
 
 	for (int32 i = 0; i < cell; i++) {
 		rect.left += fCellWidth[i];
@@ -174,6 +181,19 @@ StatusView::_GetCellRect(int32 cell)
 }
 
 
+BString
+StatusView::_FromStatusToIcon(BString status)
+{
+	if (status.IsEmpty())
+		return " "; //TODO: better symbol?
+	if (status == "idle") //clangd specific.. (TODO: how to make it generic without a standard?)
+		return CHECKMARK_ICON;
+
+	return ESCLAMATIONMARK_ICON;
+}
+
+
+
 void
 StatusView::MouseDown(BPoint where)
 {
@@ -183,12 +203,11 @@ StatusView::MouseDown(BPoint where)
 		_ShowDirMenu();
 		return;
 	}
-
-	if (where.x < fNavigationButtonWidth + fCellWidth[kPositionCell] && where.x > fNavigationButtonWidth) {
+	where.y = 0;
+	if (_GetCellRect(kPositionCell).Contains(where)) {
 		BMessenger msgr(Window());
 		msgr.SendMessage(MSG_GOTO_LINE);
-	} else if (where.x < fNavigationButtonWidth + fCellWidth[kPositionCell] + fCellWidth[kOverwriteMode] &&
-	           where.x > fNavigationButtonWidth + fCellWidth[kPositionCell]) {
+	} else if (_GetCellRect(kOverwriteMode).Contains(where)) {
 
 		BMessenger msgr(Window());
 		msgr.SendMessage(MSG_TEXT_OVERWRITE);
@@ -225,6 +244,8 @@ StatusView::SetStatus(BMessage* message)
 		fCellText[kPositionCell].SetToFormat("%" B_PRIi32 ":%" B_PRIi32, line, column);
 	}
 
+	fStatusDescription = message->GetString("status", "");
+	fCellText[kStatus] = _FromStatusToIcon(fStatusDescription);
 	fCellText[kOverwriteMode] 	= message->GetString("overwrite", "");
 	fCellText[kLineFeed] 	  	= message->GetString("eol", "");
 	fCellText[kFileStateCell] 	= message->GetString("readOnly", "");

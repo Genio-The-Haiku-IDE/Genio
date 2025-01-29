@@ -139,6 +139,7 @@ public:
 			void				GetDocumentSymbols(BMessage* symbols) const;
 
 			filter_result		BeforeKeyDown(BMessage*);
+			filter_result		BeforeMouseMoved(BMessage* message);
 
 			std::string			FileType() const { return fFileType; }
 			void				SetFileType(std::string fileType) { fFileType = fileType; }
@@ -274,6 +275,9 @@ private:
 			EditorConfig		fEditorConfig;
 
 			BMessageRunner*		fIdleHandler;
+
+			Sci_Position		fLastWordStartPosition = -1;
+			Sci_Position		fLastWordEndPosition = -1;
 };
 
 #endif // EDITOR_H

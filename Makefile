@@ -50,6 +50,7 @@ SRCS += src/helpers/console_io/WordTextView.cpp
 SRCS += src/helpers/mterm/KeyTextViewScintilla.cpp
 SRCS += src/helpers/mterm/MTerm.cpp
 SRCS += src/helpers/mterm/MTermView.cpp
+SRCS += src/helpers/JumpNavigator.cpp
 SRCS += src/helpers/CircleColorMenuItem.cpp
 SRCS += src/helpers/gtab/GTabView.cpp
 SRCS += src/helpers/gtab/TabsContainer.cpp

@@ -17,6 +17,8 @@
 #include "LSPCapabilities.h"
 #include "CallTipContext.h"
 
+//#define DOCUMENT_LINK
+
 struct InfoRange {
 	Sci_Position	from;
 	Sci_Position	to;
@@ -77,6 +79,8 @@ public:
 		void	NextCallTip();
 		void	PrevCallTip();
 
+		void	MouseMoved(BMessage*);
+
 public:
 	//still experimental
 	//std::string		fID;
@@ -95,6 +99,8 @@ public:
 	BString				fFileStatus;
 	CallTipContext		fCallTip;
 	bool				fInitialized;
+	Sci_Position		fLastWordStartPosition;
+	Sci_Position		fLastWordEndPosition;
 
 private:
 	bool	IsInitialized();
@@ -104,7 +110,6 @@ private:
 	void				_ShowToolTip(const char* text);
 	void				_RemoveAllDiagnostics();
 	void				_RemoveAllDocumentLinks();
-
 
 
 private:
@@ -139,6 +144,7 @@ private:
 	std::string 	GetCurrentLine();
 	bool			IsStatusValid();
 	std::vector<TextDocumentContentChangeEvent> fChanges;
+
 
 };
 

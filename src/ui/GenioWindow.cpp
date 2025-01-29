@@ -37,7 +37,7 @@
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "ConsoleIOView.h"
-#include "EditorKeyDownMessageFilter.h"
+#include "EditorMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
 #include "ExtensionManager.h"
@@ -70,6 +70,7 @@
 #include "TemplatesMenu.h"
 #include "ToolsMenu.h"
 #include "Utils.h"
+#include "JumpNavigator.h"
 #include "PanelTabManager.h"
 #include "EditorTabView.h"
 
@@ -209,8 +210,9 @@ GenioWindow::GenioWindow(BRect frame)
 		B_CONTROL_KEY));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_TOOLBAR_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
-	AddCommonFilter(new EditorKeyDownMessageFilter());
+	AddCommonFilter(new EditorMessageFilter(B_KEY_DOWN, &Editor::BeforeKeyDown));
 	AddCommonFilter(new EditorMouseWheelMessageFilter());
+	AddCommonFilter(new EditorMessageFilter(B_MOUSE_MOVED, &Editor::BeforeMouseMoved));
 
 	// Load workspace - reopen projects
 	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
@@ -289,6 +291,9 @@ GenioWindow::Show()
 		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);
 		ActionManager::SetPressed(MSG_TOGGLE_SPACES_ENDINGS, same);
 
+		ActionManager::SetEnabled(MSG_JUMP_GO_BACK, false);
+		ActionManager::SetEnabled(MSG_JUMP_GO_FORWARD, false);
+
 		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		UnlockLooper();
@@ -311,6 +316,7 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+
 		case MSG_INVOKE_EXTENSION:
 		{
 			entry_ref ref;
@@ -1211,6 +1217,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case kMsgCapabilitiesUpdated:
 			_UpdateTabChange(fTabManager->SelectedEditor(), "kMsgCapabilitiesUpdated");
 			break;
+		case MSG_JUMP_GO_BACK:
+			JumpNavigator::getInstance()->JumpToPrev();
+			break;
+		case MSG_JUMP_GO_FORWARD:
+			JumpNavigator::getInstance()->JumpToNext();
+			break;
 		default:
 			BWindow::MessageReceived(message);
 			break;
@@ -1824,7 +1836,18 @@ GenioWindow::_FileOpen(BMessage* msg)
 		_ApplyEditsToSelectedEditor(msg);
 		if (firstAdded == -1)
 			firstAdded = index;
+
+		if (refsCount == 1){
+			entry_ref fromRef;
+			if (msg->FindRef("jumpFrom", 0, &fromRef) == B_OK) {
+				JumpNavigator::getInstance()->JumpingTo(ref, fromRef);
+			}
+		}
 	}
+
+	ActionManager::SetEnabled(MSG_JUMP_GO_BACK, JumpNavigator::getInstance()->HasPrev());
+	ActionManager::SetEnabled(MSG_JUMP_GO_FORWARD, JumpNavigator::getInstance()->HasNext());
+
 
 	if (firstAdded > -1 && fTabManager->CountTabs() > firstAdded) {
 		fTabManager->SelectTab(firstAdded);
@@ -2982,6 +3005,15 @@ GenioWindow::_InitActions()
 									B_TRANSLATE("Open in Terminal"),
 									B_TRANSLATE("Open in Terminal"));
 
+
+	ActionManager::RegisterAction(MSG_JUMP_GO_FORWARD, B_TRANSLATE("Go Forward"),
+									B_TRANSLATE("Go Forward"), "kIconForward_2", B_RIGHT_ARROW,
+									B_SHIFT_KEY|B_COMMAND_KEY);
+
+	ActionManager::RegisterAction(MSG_JUMP_GO_BACK, B_TRANSLATE("Go Back"),
+									B_TRANSLATE("Go Back"), "kIconBack_1", B_LEFT_ARROW,
+									B_SHIFT_KEY|B_COMMAND_KEY);
+
 }
 
 
@@ -3171,6 +3203,11 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_GOTODEFINITION, searchMenu);
 	ActionManager::AddItem(MSG_GOTODECLARATION, searchMenu);
 	ActionManager::AddItem(MSG_GOTOIMPLEMENTATION, searchMenu);
+
+	searchMenu->AddSeparatorItem();
+
+	ActionManager::AddItem(MSG_JUMP_GO_BACK, searchMenu);
+	ActionManager::AddItem(MSG_JUMP_GO_FORWARD, searchMenu);
 
 	ActionManager::SetEnabled(MSG_GOTODEFINITION, false);
 	ActionManager::SetEnabled(MSG_GOTODECLARATION, false);
@@ -3380,6 +3417,10 @@ GenioWindow::_InitToolbar()
 	fToolBar->AddSeparator();
 
 	ActionManager::AddItem(MSG_RUN_CONSOLE_PROGRAM_SHOW, fToolBar);
+	ActionManager::AddItem(MSG_JUMP_GO_BACK, fToolBar);
+	ActionManager::AddItem(MSG_JUMP_GO_FORWARD, fToolBar);
+
+
 	fToolBar->AddGlue();
 
 	ActionManager::AddItem(MSG_BUFFER_LOCK, fToolBar);

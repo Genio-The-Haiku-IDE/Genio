@@ -6,7 +6,9 @@ v4.0 (development)
 	- Improved build indicator.
 	- Improved auto completion responsiveness.
 	- Updated documentation (Humdinger).
-	- Added a status bar to show build status.	
+	- Improved symbol navigation (ALT + mouse move highlights symbols, click jumps on definition).
+	- Added symbol jump history.
+	- Added a status bar to show build status.
 	- Added option for smaller icons, and made icons scale with font size.
 	- Added menu to select the active project.
 	- Added new stylable Console I/O.
@@ -21,7 +23,8 @@ v4.0 (development)
 	- Fixed random hang when running/debugging applications from Genio.
 	- Fixed selecting collapsed items in Config window.
 	- Fixed ReplaceFindPrevious/Next for real.
-	- Fixed ProjectBrowser losing focus after renaming a file. 
+	- Fixed ProjectBrowser losing focus after renaming a file.
+	- Fixed wheel events not targetting the correct editor in certain cases.
 	- Fixed build and missing resources when building Genio with Clang.
 	- Fixed possible memory corruption issues in git clone code path.
 	- Fixed some small memory leaks.

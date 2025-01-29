@@ -11,14 +11,8 @@
 #include <vector>
 
 #include "GMessage.h"
+#include "PanelTabManager.h"
 
-
-enum {
-	kProblems = 0,
-	kBuildLog,
-	kOutputLog,
-	kSearchResult
-};
 
 enum scree_mode {
 	kDefault = 0,
@@ -37,7 +31,6 @@ class BTabView;
 class BTextControl;
 class ConsoleIOView;
 class Editor;
-class EditorTabManager;
 class FunctionsOutlineView;
 class GoToLineWindow;
 class ProblemsPanel;
@@ -48,6 +41,9 @@ class SourceControlPanel;
 class TemplatesMenu;
 class ToolBar;
 class MTermView;
+class PanelTabManager;
+class EditorTabView;
+
 
 class GenioWindow : public BWindow {
 public:
@@ -65,7 +61,7 @@ public:
 	void						SetActiveProject(ProjectFolder *project);
 	ProjectBrowser*		GetProjectBrowser() const;
 
-	EditorTabManager*			TabManager() const;
+	EditorTabView*			TabManager() const;
 
 private:
 			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
@@ -115,9 +111,7 @@ private:
 			void				_InitCentralSplit();
 			void				_InitCommandRunToolbar();
 			void				_InitMenu();
-			void				_InitOutputSplit();
-			void				_InitLeftSplit();
-			void				_InitRightSplit();
+			void				_InitTabViews();
 			void				_InitToolbar();
 			void				_InitWindow();
 
@@ -150,7 +144,8 @@ private:
 			status_t			_RunInConsole(const BString& command);
 			void				_RunTarget();
 
-			void				_ShowLog(int32 index);
+			void				_ShowOutputTab(tab_id id);
+
 			void				_UpdateFindMenuItems(const BString& text);
 			void				_UpdateRecentCommands(const BString& text);
 			status_t			_UpdateLabel(int32 index, bool isModified);
@@ -160,6 +155,7 @@ private:
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
 			void				_InitActions();
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
+			void				_ShowPanelTabView(const char* name, bool show, int32 msgWhat = -1);
 			status_t			_AlertInvalidBuildConfig(BString text);
 			void				_CloseMultipleTabs(BMessage* msg);
 			void				_HandleConfigurationChanged(BMessage* msg);
@@ -209,10 +205,7 @@ private:
 			BGroupLayout*		fEditorTabsGroup;
 
 
-			// Left panels
-			BTabView*	  		fProjectsTabView;
-
-			ProjectBrowser*	fProjectsFolderBrowser;
+			ProjectBrowser*		fProjectsFolderBrowser;
 			BScrollView*		fProjectsFolderScroll;
 
 			SourceControlPanel*	fSourceControlPanel;
@@ -221,11 +214,10 @@ private:
 			ProjectFolder		*fActiveProject;
 
 			// Right panels
-			BTabView*	  		fRightTabView;
 			FunctionsOutlineView* fFunctionsOutlineView;
 
 			// Editor group
-			EditorTabManager*	fTabManager;
+			EditorTabView*	fTabManager;
 
 			ToolBar*			fFindGroup;
 			ToolBar*			fReplaceGroup;
@@ -250,7 +242,6 @@ private:
 			BFilePanel*			fImportResourcePanel;
 
 			// Bottom panels
-			BTabView*			fOutputTabView;
 			ProblemsPanel*		fProblemsPanel;
 			ConsoleIOView*		fBuildLogView;
 			MTermView*			fMTermView;
@@ -264,6 +255,7 @@ private:
 #ifdef GDEBUG
 			BString				fTitlePrefix;
 #endif
+			PanelTabManager*	fPanelTabManager;
 
 };
 

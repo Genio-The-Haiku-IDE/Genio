@@ -185,7 +185,9 @@ LSPEditorWrapper::didClose()
 	if (!IsInitialized())
 		return;
 
-	if (fEditor != nullptr) {
+	flushChanges();
+
+	if (fEditor) {
 		_RemoveAllDiagnostics();
 		_RemoveAllDocumentLinks();
 	}
@@ -276,6 +278,8 @@ LSPEditorWrapper::Format()
 	if (!IsInitialized() || fEditor == nullptr)
 		return;
 
+	flushChanges();
+
 	// format a range or format the whole doc?
 	Sci_Position s_start = fEditor->SendMessage(SCI_GETSELECTIONSTART, 0, 0);
 	Sci_Position s_end = fEditor->SendMessage(SCI_GETSELECTIONEND, 0, 0);
@@ -293,7 +297,7 @@ LSPEditorWrapper::Format()
 void
 LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 {
-	if (!IsInitialized() || fEditor == nullptr)
+	if (!IsInitialized()|| !fEditor || !IsStatusValid())
 		return;
 
 	flushChanges();
@@ -318,7 +322,7 @@ LSPEditorWrapper::GoTo(LSPEditorWrapper::GoToType type)
 void
 LSPEditorWrapper::Rename(std::string newName)
 {
-	if (!IsInitialized() || fEditor == nullptr)
+	if (!IsInitialized()|| !fEditor || !IsStatusValid())
 		return;
 
 	flushChanges();
@@ -332,11 +336,9 @@ LSPEditorWrapper::Rename(std::string newName)
 void
 LSPEditorWrapper::StartHover(Sci_Position sci_position)
 {
-	if (!IsInitialized() || sci_position < 0) {
+	if (!IsInitialized() || sci_position < 0 || !IsStatusValid()) {
 		return;
 	}
-
-	flushChanges();
 
 	LSPDiagnostic dia;
 	if (DiagnosticFromPosition(sci_position, dia) > -1) {
@@ -428,11 +430,8 @@ LSPEditorWrapper::EndHover()
 void
 LSPEditorWrapper::SwitchSourceHeader()
 {
-	if (!IsInitialized())
+	if (!IsInitialized() || !IsStatusValid())
 		return;
-
-	flushChanges();
-
 	fLSPProjectWrapper->SwitchSourceHeader(this);
 }
 
@@ -442,6 +441,8 @@ LSPEditorWrapper::SelectedCompletion(const char* text)
 {
 	if (!IsInitialized() || fEditor == nullptr)
 		return;
+
+	flushChanges();
 
 	if (fCurrentCompletion.items.size() > 0) {
 		for (auto& item : fCurrentCompletion.items) {
@@ -503,9 +504,9 @@ LSPEditorWrapper::SelectedCompletion(const char* text)
 void
 LSPEditorWrapper::StartCompletion()
 {
-	if (!IsInitialized() || fEditor == nullptr) {
+
+	if (!IsInitialized() || !fEditor || !IsStatusValid())
 		return;
-	}
 
 	flushChanges();
 
@@ -1001,6 +1002,17 @@ LSPEditorWrapper::_DoLinearSymbolInformation(std::vector<SymbolInformation>& vec
 		symbol.AddInt32("start:character", symbolRange.start.character);
 		msg.AddMessage("symbol", &symbol);
 	}
+}
+
+bool
+LSPEditorWrapper::IsStatusValid()
+{
+	BString status = GetFileStatus();
+	bool value = status.IsEmpty() || (status.Compare("idle") == 0);
+	if (!value)
+		LogDebugF("Invalid status (%d) for [%s] (%s)", value, GetFilenameURI().String(),
+			GetFileStatus().String());
+	return value;
 }
 
 

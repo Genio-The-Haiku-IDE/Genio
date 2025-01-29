@@ -29,7 +29,8 @@ CaseFolder.o: ../src/CaseFolder.cxx ../src/CharacterType.h \
 CellBuffer.o: ../src/CellBuffer.cxx ../include/ScintillaTypes.h \
  ../src/Debugging.h ../src/Position.h ../src/SplitVector.h \
  ../src/Partitioning.h ../src/RunStyles.h ../src/SparseVector.h \
- ../src/ChangeHistory.h ../src/CellBuffer.h ../src/UniConversion.h
+ ../src/ChangeHistory.h ../src/CellBuffer.h ../src/UndoHistory.h \
+ ../src/UniConversion.h
 ChangeHistory.o: ../src/ChangeHistory.cxx ../include/ScintillaTypes.h \
  ../src/Debugging.h ../src/Position.h ../src/SplitVector.h \
  ../src/Partitioning.h ../src/RunStyles.h ../src/SparseVector.h \
@@ -126,8 +127,8 @@ PositionCache.o: ../src/PositionCache.cxx ../include/ScintillaTypes.h \
  ../src/ContractionState.h ../src/CellBuffer.h ../src/KeyMap.h \
  ../src/Indicator.h ../src/LineMarker.h ../src/Style.h ../src/ViewStyle.h \
  ../src/CharClassify.h ../src/Decoration.h ../src/CaseFolder.h \
- ../src/Document.h ../src/UniConversion.h ../src/Selection.h \
- ../src/PositionCache.h
+ ../src/Document.h ../src/UniConversion.h ../src/DBCS.h \
+ ../src/Selection.h ../src/PositionCache.h
 RESearch.o: ../src/RESearch.cxx ../src/Position.h ../src/CharClassify.h \
  ../src/RESearch.h
 RunStyles.o: ../src/RunStyles.cxx ../src/Debugging.h ../src/Position.h \
@@ -149,6 +150,10 @@ Selection.o: ../src/Selection.cxx ../src/Debugging.h ../src/Position.h \
  ../src/Selection.h
 Style.o: ../src/Style.cxx ../include/ScintillaTypes.h ../src/Debugging.h \
  ../src/Geometry.h ../src/Platform.h ../src/Style.h
+UndoHistory.o: ../src/UndoHistory.cxx ../include/ScintillaTypes.h \
+ ../src/Debugging.h ../src/Position.h ../src/SplitVector.h \
+ ../src/Partitioning.h ../src/RunStyles.h ../src/SparseVector.h \
+ ../src/ChangeHistory.h ../src/CellBuffer.h ../src/UndoHistory.h
 UniConversion.o: ../src/UniConversion.cxx ../src/UniConversion.h
 UniqueString.o: ../src/UniqueString.cxx ../src/UniqueString.h
 ViewStyle.o: ../src/ViewStyle.cxx ../include/ScintillaTypes.h \

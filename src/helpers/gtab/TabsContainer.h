@@ -35,7 +35,8 @@ public:
 	void	OnDropTab(GTab* toTab, BMessage* message);
 
 	GTab*	SelectedTab() const;
-	void	SelectTab(GTab* tab, bool invoke = true);
+
+	void	SetFrontTab(GTab* tab);
 
 	GTabView*	GetGTabView() const { return fGTabView; }
 
@@ -44,6 +45,7 @@ public:
 	void	DoLayout() override;
 
 private:
+	void	_SelectTabOnTabView(GTab* tab);
 	void	_PrintToStream();
 	void	_UpdateScrolls();
 

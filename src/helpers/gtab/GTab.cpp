@@ -103,7 +103,6 @@ GTab::MinSize()
 BSize
 GTab::MaxSize()
 {
-	// TODO: might not work well for big font sizes
 	float labelWidth = 150.0f;
 	return BSize(labelWidth, TabViewTools::DefaultTabHeigh());
 }
@@ -158,11 +157,17 @@ GTab::DrawBackground(BView* owner, BRect frame, const BRect& updateRect, bool is
 void
 GTab::DrawContents(BView* owner, BRect frame, const BRect& updateRect, bool isFront)
 {
+	DrawLabel(owner, frame, updateRect, isFront);
+}
+
+
+void
+GTab::DrawLabel(BView* owner, BRect frame, const BRect& updateRect, bool isFront)
+{
 	rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 	be_control_look->DrawLabel(owner, fLabel.String(), frame, updateRect,
 		base, 0, BAlignment(B_ALIGN_CENTER, B_ALIGN_MIDDLE));
 }
-
 
 void
 GTab::MouseDown(BPoint where)
@@ -324,7 +329,7 @@ GTabCloseButton::DrawContents(BView* owner, BRect frame,
 {
 	BRect labelFrame = frame;
 	labelFrame.right -= kCloseButtonWidth;
-	GTab::DrawContents(owner, labelFrame, updateRect, isFront);
+	DrawLabel(owner, labelFrame, updateRect, isFront);
 	frame.left = labelFrame.right;
 	DrawCloseButton(owner, frame, updateRect, isFront);
 }
@@ -402,8 +407,11 @@ GTabCloseButton::RectCloseButton()
 void
 GTabCloseButton::CloseButtonClicked()
 {
+	// In async messages better to use index or id
+	// to avoid concurrency problem
+	// (in this case: a process is removing tabs while I'm pressing close)
 	BMessage msg(kTVCloseTab);
-	msg.AddPointer("tab", this);
+	msg.AddInt32("index", Container()->IndexOfTab(this));
 	BMessenger(fHandler).SendMessage(&msg);
 }
 

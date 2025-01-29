@@ -12,7 +12,6 @@
 #include <Size.h>
 
 #include <cstdio>
-#include <typeinfo>
 
 #include "Draggable.h"
 #include "TabButtons.h"
@@ -92,6 +91,8 @@ public:
 									const BRect& updateRect, bool isFront);
 	virtual	void				DrawContents(BView* owner, BRect frame,
 									const BRect& updateRect, bool isFront);
+	virtual	void				DrawLabel(BView* owner, BRect frame,
+									const BRect& updateRect, bool isFront);
 
 			void				MouseDown(BPoint where) override;
 			void				MouseUp(BPoint where) override;
@@ -109,7 +110,8 @@ public:
 			void				SetLayoutItem(BLayoutItem* layItem) { fLayoutItem = layItem; }
 
 			BString				Label() const { return fLabel; };
-			void				SetLabel(const char* label) { fLabel.SetTo(label); }
+	virtual void				SetLabel(const char* label) { fLabel.SetTo(label); }
+
 
 			void 				OnDropMessage(BMessage* message) override;
 
@@ -134,13 +136,20 @@ public:
 			void		MouseUp(BPoint where) override;
 			void		MouseMoved(BPoint where, uint32 transit,
 									const BMessage* dragMessage) override;
+
+protected:
+
+virtual		void		CloseButtonClicked();
+			const BHandler* 	Handler() { return fHandler; }
+
+
 private:
 			void		DrawCloseButton(BView* owner, BRect butFrame, const BRect& updateRect,
 										bool isFront);
 
 			BRect		RectCloseButton();
 
-			void		CloseButtonClicked();
+
 private:
 			bool fOverCloseRect;
 			bool fClicked;

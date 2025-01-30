@@ -226,6 +226,7 @@ EditorTabView::OnTabSelected(GTab* tab)
 	BMessage message;
 	if (fLastSelectedInfo.IsEmpty() == false) {
 		message = fLastSelectedInfo;
+		fLastSelectedInfo.MakeEmpty();
 	}
 	message.what = kETVSelectedTab;
 	message.AddRef("ref", gtab->GetEditor()->FileRef());

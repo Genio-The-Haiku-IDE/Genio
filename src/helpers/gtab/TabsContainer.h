@@ -44,6 +44,8 @@ public:
 
 	void	DoLayout() override;
 
+	void	MessageReceived(BMessage*) override;
+
 private:
 	void	_SelectTabOnTabView(GTab* tab);
 	void	_PrintToStream();

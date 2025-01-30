@@ -272,5 +272,45 @@ TabsContainer::DoLayout()
 		_SelectTabOnTabView(selected);
 		fFirstLayout = false;
 	}
+}
 
+
+void
+TabsContainer::MessageReceived(BMessage* message)
+{
+	switch(message->what){
+		case B_MOUSE_WHEEL_CHANGED:
+		{
+			// No tabs, exit
+			if (fSelectedTab == nullptr)
+				break;
+
+			float deltaX = 0.0f;
+			float deltaY = 0.0f;
+			message->FindFloat("be:wheel_delta_x", &deltaX);
+			message->FindFloat("be:wheel_delta_y", &deltaY);
+
+			if (deltaX == 0.0f && deltaY == 0.0f)
+				return;
+
+			if (deltaY == 0.0f)
+				deltaY = deltaX;
+
+			int32 selection = IndexOfTab(fSelectedTab);
+			int32 numTabs = CountTabs();
+
+			if (deltaY > 0  && selection < numTabs - 1) {
+				// move to the right tab.
+				_SelectTabOnTabView(TabAt(selection + 1));
+
+			} else if (deltaY < 0 && selection > 0 && numTabs > 1) {
+				// move to the left tab.
+				_SelectTabOnTabView(TabAt(selection - 1));
+
+			}
+			break;
+		}
+	default:
+		BGroupView::MessageReceived(message);
+	};
 }

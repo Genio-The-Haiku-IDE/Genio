@@ -78,6 +78,7 @@ public:
 
 		void	NextCallTip();
 		void	PrevCallTip();
+		void	HideCallTip();
 
 		void	MouseMoved(BMessage*);
 

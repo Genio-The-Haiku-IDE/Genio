@@ -1058,6 +1058,12 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_UPDATEUI: {
+			if (notification->updated &
+				(SC_UPDATE_H_SCROLL | SC_UPDATE_V_SCROLL | SC_UPDATE_SELECTION)) {
+
+				SendMessage(SCI_AUTOCCANCEL, 0, 0);
+				fLSPEditorWrapper->HideCallTip();
+			}
 			_BraceHighlight();
 			// Selection/Position has changed
 			if (notification->updated & SC_UPDATE_SELECTION) {

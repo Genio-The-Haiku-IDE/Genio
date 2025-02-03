@@ -545,6 +545,13 @@ LSPEditorWrapper::PrevCallTip()
 
 
 void
+LSPEditorWrapper::HideCallTip()
+{
+	fCallTip.HideCallTip();
+}
+
+
+void
 LSPEditorWrapper::RequestDocumentSymbols()
 {
 	if (fLSPProjectWrapper == nullptr || fEditor == nullptr)

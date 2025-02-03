@@ -901,9 +901,16 @@ ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 void
 ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref)
 {
+
 	// Let's select the new created file.
 	// just send a message to the ProjectBrowser with the new ref
 	// .. after some milliseconds..
+
+	// the selected item initiating this is not a folder or project but a file.
+	if (parent->GetSourceItem()->Type() == FileItem) {
+		parent = (ProjectItem*)fOutlineListView->Superitem(parent);
+	}
+
 	BMessage selectMessage(MSG_BROWSER_SELECT_ITEM);
 	selectMessage.AddPointer("parent_item", parent);
 	selectMessage.AddRef("ref", &ref);

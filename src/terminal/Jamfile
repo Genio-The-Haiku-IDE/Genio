@@ -1,0 +1,68 @@
+SubDir HAIKU_TOP src apps terminal ;
+
+UseHeaders [ FDirName $(HAIKU_TOP) src kits tracker ] ;
+
+UsePrivateHeaders libroot kernel shared system ;
+UsePrivateHeaders textencoding ;
+
+Application Terminal :
+	ActiveProcessInfo.cpp
+	AppearPrefView.cpp
+	Arguments.cpp
+	BasicTerminalBuffer.cpp
+	Colors.cpp
+	FindWindow.cpp
+	Globals.cpp
+	HistoryBuffer.cpp
+	HyperLink.cpp
+	InlineInput.cpp
+	PatternEvaluator.cpp
+	PrefHandler.cpp
+	PrefWindow.cpp
+	SetTitleDialog.cpp
+	Shell.cpp
+	ShellInfo.cpp
+	ShellParameters.cpp
+	SmartTabView.cpp
+	TermApp.cpp
+	TerminalBuffer.cpp
+	TerminalCharClassifier.cpp
+	TerminalRoster.cpp
+	TermConst.cpp
+	TermParse.cpp
+	TermScrollView.cpp
+	TermView.cpp
+	TermViewHighlight.cpp
+	TermViewStates.cpp
+	TermWindow.cpp
+	ThemeView.cpp
+	ThemeWindow.cpp
+	TitlePlaceholderMapper.cpp
+	VTKeyTbl.c
+	VTPrsTbl.c
+	: be localestub shared tracker translation textencoding
+	[ TargetLibsupc++ ] [ TargetLibstdc++ ]
+	: Terminal.rdef XColors.rdef
+;
+
+DoCatalogs Terminal :
+	x-vnd.Haiku-Terminal
+	:
+	AppearPrefView.cpp
+	Arguments.cpp
+	Colors.cpp
+	FindWindow.cpp
+	PrefHandler.cpp
+	PrefWindow.cpp
+	SetTitleDialog.cpp
+	Shell.cpp
+	SmartTabView.cpp
+	TermApp.cpp
+	TermConst.cpp
+	TermView.cpp
+	TermViewStates.cpp
+	TermWindow.cpp
+	ThemeView.cpp
+	ThemeWindow.cpp
+	: en.catalog
+;

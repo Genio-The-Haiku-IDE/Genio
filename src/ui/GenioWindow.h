@@ -43,7 +43,7 @@ class ToolBar;
 class MTermView;
 class PanelTabManager;
 class EditorTabView;
-
+class TerminalTab;
 
 class GenioWindow : public BWindow {
 public:
@@ -247,6 +247,7 @@ private:
 			MTermView*			fMTermView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultTab*	fSearchResultTab;
+			TerminalTab*		fTerminalTab;
 
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;

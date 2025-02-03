@@ -23,6 +23,7 @@ enum {
 	kTabBuildLog 		= 'Tbld',
 	kTabOutputLog 		= 'Tter',
 	kTabSearchResult	= 'Tsea',
+	kTabTerminal		= 'Tshe',
 
 	kTabProjectBrowser  = 'Tprj',
 	kTabSourceControl   = 'Tsrc',
@@ -37,7 +38,8 @@ typedef std::map<std::string, PanelTabView*> TabViewList;
 
 class PanelTabManager {
 public:
-		PanelTabManager();
+		 PanelTabManager();
+		//~PanelTabManager(){};
 
 		void	LoadConfiguration(const BMessage& config);
 		void	SaveConfiguration(BMessage& config);
@@ -54,6 +56,8 @@ public:
 
 		void	ShowPanelTabView(const char* tabview_name, bool visible);
 		bool	IsPanelTabViewVisible(const char* tabview_name);
+
+		static BMessage	DefaultConfig();
 
 
 private:

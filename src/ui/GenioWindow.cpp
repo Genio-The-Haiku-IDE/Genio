@@ -73,6 +73,7 @@
 #include "JumpNavigator.h"
 #include "PanelTabManager.h"
 #include "EditorTabView.h"
+#include "TerminalTab.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -3454,11 +3455,14 @@ GenioWindow::_InitTabViews()
 	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
 	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
+	fTerminalTab	= new TerminalTab();
 
 	fPanelTabManager->AddPanelByConfig(fProblemsPanel, kTabProblems);
 	fPanelTabManager->AddPanelByConfig(fBuildLogView, kTabBuildLog);
 	fPanelTabManager->AddPanelByConfig(fMTermView, kTabOutputLog);
 	fPanelTabManager->AddPanelByConfig(fSearchResultTab, kTabSearchResult);
+	fPanelTabManager->AddPanelByConfig(fTerminalTab, kTabTerminal);
+
 
   //LEFT
 	fProjectsFolderBrowser = new ProjectBrowser();

@@ -142,6 +142,7 @@ $(OBJ_DIR)/%.rsrc : %.RDEF
 
 deps:
 	$(MAKE) -C src/scintilla/haiku
+	$(MAKE) -C src/terminal -f Makefile.addon DEBUGGER=$(DEBUGGER)
 
 .PHONY: clean deps
 

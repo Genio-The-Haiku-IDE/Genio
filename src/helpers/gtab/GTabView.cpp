@@ -20,6 +20,36 @@ enum {
 
 };
 
+class CardViewDropZone : public BCardView, public GTabDropZone {
+public:
+  CardViewDropZone(TabsContainer *tabsContainer) : BCardView("_cardview_") {
+    SetContainer(tabsContainer);
+	SetFlags(Flags() | B_WILL_DRAW);
+  }
+  void Draw(BRect rect) override {
+    BCardView::Draw(rect);
+    DropZoneDraw(this, rect);
+  }
+
+  void MouseUp(BPoint where) override {
+	DropZoneMouseUp(this, where);
+  }
+
+  void MessageReceived(BMessage *message) override {
+    if (DropZoneMessageReceived(message) == false)
+		BCardView::MessageReceived(message);
+  }
+
+  void MouseMoved(BPoint where, uint32 transit,
+                  const BMessage *dragMessage) override {
+		DropZoneMouseMoved(this, where, transit, dragMessage);
+  }
+
+  void OnDropMessage(BMessage *message) override {
+    Container()->OnDropTab(nullptr, message);
+  }
+};
+
 GTabView::GTabView(const char* name,
 				   tab_affinity affinity,
 				   orientation content_orientation,
@@ -55,9 +85,11 @@ GTabView::AddTab(GTab* tab, BView* view, int32 index)
 	if (index == -1 || index > Container()->CountTabs())
 		index = Container()->CountTabs();
 
-	fTabsContainer->AddTab(tab, index);
 	_AddViewToCard(view, index);
 	_FixContentOrientation(view);
+
+	fTabsContainer->AddTab(tab, index);
+
 	OnTabAdded(tab, view);
 }
 
@@ -213,7 +245,7 @@ GTabView::_Init(tab_affinity affinity)
 
 	fTabMenuTabButton = new GTabMenuTabButton(new BMessage(kMenuTabButton));
 
-	fCardView = new BCardView("_cardview_");
+	fCardView = new CardViewDropZone(fTabsContainer);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.AddGroup(B_HORIZONTAL, 0.0f)
@@ -303,11 +335,12 @@ void
 GTabView::SelectTab(GTab* tab)
 {
 	int32 index = fTabsContainer->IndexOfTab(tab);
-	if (index > -1) {
-		fTabsContainer->SetFrontTab(tab);
+	if (index > -1 && index < fTabsContainer->CountTabs()) {
 		fCardView->CardLayout()->SetVisibleItem(index);
-		OnTabSelected(tab);
 	}
+
+	fTabsContainer->SetFrontTab(tab);
+	OnTabSelected(tab);
 }
 
 
@@ -323,3 +356,5 @@ GTabView::CreateTabView(GTab* clone)
 {
 	return CreateTabView(clone->Label());
 }
+
+

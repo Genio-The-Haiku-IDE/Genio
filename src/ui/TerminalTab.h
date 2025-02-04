@@ -7,12 +7,12 @@
 
 #include <GroupView.h>
 #include <SupportDefs.h>
+#include <View.h>
 
-
-class TerminalTab : public BGroupView {
+class TerminalTab : public BView {
 public:
 				TerminalTab();
-		void	AttachedToWindow();
+		void	FrameResized(float w, float h) override;
 private:
 	BView*	fTermView;
 

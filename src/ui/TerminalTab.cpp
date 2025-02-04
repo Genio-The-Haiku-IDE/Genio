@@ -7,16 +7,19 @@
 #include "TerminalTab.h"
 #include "TerminalManager.h"
 
-TerminalTab::TerminalTab():BGroupView()
+TerminalTab::TerminalTab():BView("Terminal", B_FRAME_EVENTS)
 {
-	fTermView = TerminalManager::CreateNewTerminal(Bounds());
-	//FIXME:
-	SetName("Terminal");
+	SetExplicitMinSize(BSize(100,100));
+	SetResizingMode(B_FOLLOW_ALL);
+	fTermView = TerminalManager::CreateNewTerminal(BRect(100,100));
+	fTermView->SetResizingMode(B_FOLLOW_NONE);
 	AddChild(fTermView);
 }
 
+
 void
-TerminalTab::AttachedToWindow()
+TerminalTab::FrameResized(float w, float h)
 {
-	//fTermView->ResizeTo(Bounds().Width(), Bounds().Height());
+	fTermView->ResizeTo(w, h);
+	BView::FrameResized(w, h);
 }

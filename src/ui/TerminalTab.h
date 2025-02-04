@@ -13,6 +13,8 @@ class TerminalTab : public BView {
 public:
 				TerminalTab();
 		void	FrameResized(float w, float h) override;
+		void	MessageReceived(BMessage* msg) override;
+		void	AttachedToWindow() override;
 private:
 	BView*	fTermView;
 

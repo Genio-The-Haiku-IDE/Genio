@@ -25,7 +25,7 @@ TerminalManager::TerminalManager():fId(-1)
 
 /*static */
 BView*
-TerminalManager::CreateNewTerminal(BRect frame)
+TerminalManager::CreateNewTerminal(BRect frame, BMessenger listener)
 {
 	static TerminalManager	manager;
 	BView* view = nullptr;
@@ -36,7 +36,7 @@ TerminalManager::CreateNewTerminal(BRect frame)
 		//message.AddString("argv", "echo");
 		//message.AddString("argv", "ready.");
 		//message.AddInt32("argc", 2);
-		//message.AddMessenger("listener", BMessenger(this));
+		message.AddMessenger("listener", listener);
 		message.AddRect("_frame", frame);
 		view  = dynamic_cast<BView *>(instantiate_object(&message, &manager.fId));
 	}

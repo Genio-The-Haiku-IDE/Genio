@@ -213,6 +213,7 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorMessageFilter(B_KEY_DOWN, &Editor::BeforeKeyDown));
 	AddCommonFilter(new EditorMouseWheelMessageFilter());
 	AddCommonFilter(new EditorMessageFilter(B_MOUSE_MOVED, &Editor::BeforeMouseMoved));
+	AddCommonFilter(new EditorMessageFilter(B_MODIFIERS_CHANGED, &Editor::BeforeModifiersChanged));
 
 	// Load workspace - reopen projects
 	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate

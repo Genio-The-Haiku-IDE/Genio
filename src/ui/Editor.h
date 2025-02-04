@@ -140,6 +140,7 @@ public:
 
 			filter_result		BeforeKeyDown(BMessage*);
 			filter_result		BeforeMouseMoved(BMessage* message);
+			filter_result		BeforeModifiersChanged(BMessage* message);
 
 			std::string			FileType() const { return fFileType; }
 			void				SetFileType(std::string fileType) { fFileType = fileType; }

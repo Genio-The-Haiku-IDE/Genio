@@ -1115,6 +1115,22 @@ Editor::BeforeMouseMoved(BMessage* message)
 
 
 filter_result
+Editor::BeforeModifiersChanged(BMessage* message)
+{
+	// In case we press the COMMAND_KEY we should update the jump
+	// indicators under current mouse position. The easier step is to
+	// invoke a fake mouse movement.
+
+	int32 old_modifiers = message->FindInt32("be:old_modifiers", 0);
+	int32 new_modifiers = message->FindInt32("modifiers", 0);
+	if (( (new_modifiers & B_COMMAND_KEY) && !(old_modifiers & B_COMMAND_KEY)) ||
+		(!(new_modifiers & B_COMMAND_KEY) &&  (old_modifiers & B_COMMAND_KEY)) )
+		FakeMouseMovement(this);
+	return B_DISPATCH_MESSAGE;
+}
+
+
+filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {

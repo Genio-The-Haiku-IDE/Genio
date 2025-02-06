@@ -1121,10 +1121,10 @@ Editor::BeforeModifiersChanged(BMessage* message)
 	// indicators under current mouse position. The easier step is to
 	// invoke a fake mouse movement.
 
-	int32 old_modifiers = message->FindInt32("be:old_modifiers", 0);
-	int32 new_modifiers = message->FindInt32("modifiers", 0);
-	if (( (new_modifiers & B_COMMAND_KEY) && !(old_modifiers & B_COMMAND_KEY)) ||
-		(!(new_modifiers & B_COMMAND_KEY) &&  (old_modifiers & B_COMMAND_KEY)) )
+	int32 oldModifiers = message->GetInt32("be:old_modifiers", 0);
+	int32 newModifiers = message->GetInt32("modifiers", 0);
+	if (( (newModifiers & B_COMMAND_KEY) && !(oldModifiers & B_COMMAND_KEY)) ||
+		(!(newModifiers & B_COMMAND_KEY) &&  (oldModifiers & B_COMMAND_KEY)) )
 		FakeMouseMovement(this);
 	return B_DISPATCH_MESSAGE;
 }

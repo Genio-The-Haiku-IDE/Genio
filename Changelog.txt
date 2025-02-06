@@ -12,6 +12,7 @@ v4.0 (development)
 	- Added option for smaller icons, and made icons scale with font size.
 	- Added menu to select the active project.
 	- Added new stylable Console I/O.
+	- Added indicator to show LSP status.
 	- Remove some useless toolbar icons.
 	- Improved handling of appearance settings.
 	- ProjectBrowser: added handling of DEL key to delete files.

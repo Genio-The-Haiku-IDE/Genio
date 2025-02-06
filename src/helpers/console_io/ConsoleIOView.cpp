@@ -144,8 +144,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			fPendingOutput->MakeEmpty();
 
 			// Used to reload settings too
-			fWrapEnabled->SetValue(gCFG["wrap_console"] ? B_CONTROL_ON : B_CONTROL_OFF);
-			fConsoleIOText->SetWordWrap(fWrapEnabled->Value());
+			SetWordWrap(gCFG["wrap_console"]);
 			fBannerEnabled->SetValue(gCFG["console_banner"]);
 
 			break;
@@ -234,8 +233,8 @@ ConsoleIOView::AttachedToWindow()
 	fWrapEnabled->SetEnabled(false);
 	fBannerEnabled->SetEnabled(false);
 
-	fWrapEnabled->SetValue(gCFG["wrap_console"]);
-	fConsoleIOText->SetWordWrap(fWrapEnabled->Value());
+	SetWordWrap(gCFG["wrap_console"]);
+
 	fBannerEnabled->SetValue(gCFG["console_banner"]);
 
 	fClearButton->SetTarget(this);
@@ -276,6 +275,21 @@ void
 ConsoleIOView::EnableStopButton(bool doIt)
 {
 	fStopButton->SetEnabled(doIt);
+}
+
+
+void
+ConsoleIOView::SetWordWrap(bool wrap)
+{
+	fConsoleIOText->SetWordWrap(wrap);
+	fWrapEnabled->SetValue(wrap ? B_CONTROL_ON : B_CONTROL_OFF);
+}
+
+
+BTextView*
+ConsoleIOView::TextView()
+{
+	return fConsoleIOText;
 }
 
 
@@ -350,11 +364,4 @@ ConsoleIOView::_HandleConsoleOutput(OutputInfo* info)
 		scroller->GetRange(&min, &max);
 		fConsoleIOText->ScrollTo(0.0, max);
 	}
-}
-
-
-BTextView*
-ConsoleIOView::TextView()
-{
-	return fConsoleIOText;
 }

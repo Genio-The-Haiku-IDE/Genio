@@ -5,9 +5,9 @@
 
 
 #include "GenioTermView.h"
+#include "ShellInfo.h"
 #include "TermView.h"
 #include <ControlLook.h>
-#include <cstdio>
 #include <Messenger.h>
 
 const static int32 kTermViewOffset = 3;
@@ -49,6 +49,10 @@ public:
     BMessage msg('NOTM');
 	msg.AddInt32("reason", reason);
 	msg.AddPointer("term_view", view);
+	ShellInfo sinfo;
+	if (view->GetShellInfo(sinfo)) {
+		msg.AddInt32("pid", sinfo.ProcessID());
+	}
 	fMessenger.SendMessage(&msg);
 	TermView::Listener::NotifyTermViewQuit(view, reason);
   }

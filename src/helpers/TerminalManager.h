@@ -11,7 +11,7 @@
 
 class TerminalManager {
 public:
-	static BView*	CreateNewTerminal(BRect frame, BMessenger listener);
+	static BView*	CreateNewTerminal(BRect frame, BMessenger listener, BString command = "");
 private:
 				TerminalManager();
 		bool	IsValid() { return fId > -1; }

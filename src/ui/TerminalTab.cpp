@@ -7,6 +7,8 @@
 #include "TerminalTab.h"
 #include "TerminalManager.h"
 #include <Messenger.h>
+#include <cstdio>
+#include <sys/wait.h>
 
 TerminalTab::TerminalTab():BView("Terminal", B_FRAME_EVENTS)
 {
@@ -38,6 +40,20 @@ TerminalTab::MessageReceived(BMessage* msg)
 {
 	if (msg->what == 'NOTM') {
 		msg->PrintToStream();
+		int status = -1;
+		pid_t pid = msg->GetInt32("pid", -1);
+
+		 if (waitpid(pid, &status, 0) > 0) {
+			if (WIFEXITED(status) && !WEXITSTATUS(status)) {
+			  printf("/* the program terminated normally and executed successfully */\n");
+			} else if (WIFEXITED(status) && WEXITSTATUS(status)) {
+			  printf("/* the program terminated normally, but returned a non-zero status */\n");
+			} else {
+			  printf("/* the program didn't terminate normally */\n");
+			}
+		  } else {
+			printf("/* waitpid() failed */\n");
+		  }
 		return;
 	}
 	BView::MessageReceived(msg);

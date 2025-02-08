@@ -309,6 +309,7 @@ TermView::_InitObject(const ShellParameters& shellParameters)
 	fTextBackColor = kWhiteColor;
 	fSelectForeColor = kWhiteColor;
 	fSelectBackColor = kBlackColor;
+	fCursorBackColor = fTextForeColor;
 	fScrollOffset = 0;
 	fLastSyncTime = 0;
 	fScrolledSinceLastSync = 0;
@@ -885,10 +886,10 @@ TermView::SwitchCursorBlinking(bool blinkingOn)
 	} else {
 		// make sure the cursor becomes visible
 		fCursorState = 0;
-		_InvalidateTextRect(fCursor.x, fCursor.y, fCursor.x, fCursor.y);
 		delete fCursorBlinkRunner;
 		fCursorBlinkRunner = NULL;
 	}
+	_InvalidateTextRect(fCursor.x, fCursor.y, fCursor.x, fCursor.y);
 }
 
 
@@ -1230,7 +1231,11 @@ TermView::_DrawCursor()
 		if (attr.IsWidth() && fCursorStyle != IBEAM_CURSOR)
 			rect.right += fFontWidth;
 
-		FillRect(rect);
+		if(IsFocus()) {
+			FillRect(rect);
+		} else {
+			StrokeRect(rect);
+		}
 	}
 }
 

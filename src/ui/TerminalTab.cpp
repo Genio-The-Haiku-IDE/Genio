@@ -12,7 +12,6 @@
 
 TerminalTab::TerminalTab():BView("Terminal", B_FRAME_EVENTS)
 {
-	SetExplicitMinSize(BSize(100,100));
 	SetResizingMode(B_FOLLOW_ALL);
 }
 
@@ -20,8 +19,9 @@ TerminalTab::TerminalTab():BView("Terminal", B_FRAME_EVENTS)
 void
 TerminalTab::FrameResized(float w, float h)
 {
-	if (fTermView)
+	if (fTermView) {
 		fTermView->ResizeTo(w, h);
+	}
 	BView::FrameResized(w, h);
 }
 
@@ -32,6 +32,9 @@ TerminalTab::AttachedToWindow()
 	BView::AttachedToWindow();
 	fTermView = TerminalManager::CreateNewTerminal(BRect(100,100), BMessenger(this));
 	fTermView->SetResizingMode(B_FOLLOW_NONE);
+	fTermView->SetExplicitMinSize(BSize(100,100));
+	fTermView->SetExplicitPreferredSize(BSize(100,100));
+	fTermView->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNLIMITED));
 	AddChild(fTermView);
 }
 

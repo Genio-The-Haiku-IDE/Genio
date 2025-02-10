@@ -1,4 +1,4 @@
-name: Build
+name: "haiku-ci"
 
 on:
   schedule:
@@ -10,21 +10,31 @@ on:
       - '**.cpp'
       - '**.h'
       - '**.rdef'
-jobs:  
-  build:
-    name: 'build on Haiku'
-    runs-on: 'ubuntu-latest'
-    container: 'docker.io/hectorm/qemu-haiku:latest'
+
+jobs:
+  build-haiku:
+    timeout-minutes: 60
+    runs-on: ${{ matrix.config.runner }}
+    name: build-${{ matrix.config.os }}-${{ matrix.config.version }}-${{ matrix.config.architecture }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # The OS versions supported are specific to the version of the action
+          # https://github.com/cross-platform-actions/action/blob/master/changelog.md
+          - { os: haiku, version: 'r1beta5', runner: 'ubuntu-latest', architecture: 'x86-64' }
+          - { os: haiku, version: 'r1beta5',  runner: 'ubuntu-latest', architecture: 'x86' }
+
     steps:
-    - name: 'Wait until the VM is ready'
-      run: 'container-init & timeout 600 vmshell exit 0'
-    - name: 'Install packages'
-      run: 'vmshell pkgman install -y gcc gcc_syslibs haiku_devel make makefile_engine libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel'
-    - name: 'Reboot VM'
-      run: 'vmshell sync; sv force-restart qemu ||:; timeout 600 vmshell exit 0'
-    - name: 'Checkout project'
-      uses: actions/checkout@v4
-    - name: 'Copy project to VM'
-      run: 'vmshell mkdir ./src/; tar -cf - ./ | vmshell tar -xf - -C ./src/'
-    - name: 'Build project'
-      run: 'vmshell make BUILDHOME=\`finddir B_SYSTEM_DEVELOP_DIRECTORY\` -C ./src/'
+      - uses: actions/checkout@v4
+
+      - uses: korli/action@v0.25.0-haiku1
+        with:
+          operating_system: ${{ matrix.config.os }}
+          version: ${{ matrix.config.version }}
+          architecture: ${{ matrix.config.architecture }}
+          run: |
+            ssh user@localhost "pkgman update -y haiku_devel cmd:gcc gcc_syslibs_devel multimarkdown libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel" &&
+            make BUILDHOME=\`finddir B_SYSTEM_DEVELOP_DIRECTORY\` -C ./src/
+            

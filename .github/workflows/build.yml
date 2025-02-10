@@ -36,5 +36,5 @@ jobs:
           architecture: ${{ matrix.config.architecture }}
           run: |
             ssh user@localhost "pkgman update -y haiku_devel cmd:gcc gcc_syslibs_devel multimarkdown libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel" &&
-            make -C ./src/
+            make
             

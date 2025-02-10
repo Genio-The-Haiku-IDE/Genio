@@ -15,8 +15,12 @@ public:
 		void	FrameResized(float w, float h) override;
 		void	MessageReceived(BMessage* msg) override;
 		void	AttachedToWindow() override;
-private:
+
+		void	SetInitialCommand(const char* command);
+
+protected:
 	BView*	fTermView;
+	BString fCommand;
 
 };
 

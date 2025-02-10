@@ -29,7 +29,7 @@ class BMenu;
 class BMenuField;
 class BTabView;
 class BTextControl;
-class ConsoleIOView;
+class ConsoleIOTab;
 class Editor;
 class FunctionsOutlineView;
 class GoToLineWindow;
@@ -243,7 +243,7 @@ private:
 
 			// Bottom panels
 			ProblemsPanel*		fProblemsPanel;
-			ConsoleIOView*		fBuildLogView;
+			ConsoleIOTab*		fBuildLogView;
 			MTermView*			fMTermView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultTab*	fSearchResultTab;

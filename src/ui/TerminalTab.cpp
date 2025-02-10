@@ -10,7 +10,7 @@
 #include <cstdio>
 #include <sys/wait.h>
 
-TerminalTab::TerminalTab():BView("Terminal", B_FRAME_EVENTS)
+TerminalTab::TerminalTab():BView("Terminal", B_FRAME_EVENTS), fCommand("")
 {
 	SetResizingMode(B_FOLLOW_ALL);
 }
@@ -30,7 +30,7 @@ void
 TerminalTab::AttachedToWindow()
 {
 	BView::AttachedToWindow();
-	fTermView = TerminalManager::CreateNewTerminal(BRect(100,100), BMessenger(this));
+	fTermView = TerminalManager::CreateNewTerminal(BRect(100,100), BMessenger(this), fCommand);
 	fTermView->SetResizingMode(B_FOLLOW_NONE);
 	fTermView->SetExplicitMinSize(BSize(100,100));
 	fTermView->SetExplicitPreferredSize(BSize(100,100));
@@ -60,4 +60,11 @@ TerminalTab::MessageReceived(BMessage* msg)
 		return;
 	}
 	BView::MessageReceived(msg);
+}
+
+
+void
+TerminalTab::SetInitialCommand(const char* command)
+{
+	fCommand = command;
 }

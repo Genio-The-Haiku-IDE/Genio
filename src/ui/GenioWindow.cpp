@@ -36,7 +36,7 @@
 #include "argv_split.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
-#include "ConsoleIOView.h"
+#include "ConsoleIOTab.h"
 #include "EditorMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
@@ -3452,7 +3452,7 @@ GenioWindow::_InitTabViews()
 
 	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
-	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
+	fBuildLogView = new ConsoleIOTab(B_TRANSLATE("Build log"));
 	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
 	fTerminalTab	= new TerminalTab();

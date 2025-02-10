@@ -1765,6 +1765,8 @@ TermView::MessageReceived(BMessage *message)
 				_DetachShell();
 				delete shell;
 
+				printf("SHELL ID %d\n", shell->FD());
+
 				fShell = new (std::nothrow) Shell();
 				if (fShell == NULL)
 					break;

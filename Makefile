@@ -130,6 +130,8 @@ endif
 LOCALES := ca de en_AU en_GB en es_419 es fr fur it nb tr
 
 ## Include the Makefile-Engine
+BUILDHOME := \
+	$(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)
 include $(BUILDHOME)/etc/makefile-engine
 
 # Rules to compile the resource definition files.

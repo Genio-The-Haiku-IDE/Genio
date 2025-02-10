@@ -30,13 +30,14 @@ void
 TerminalTab::AttachedToWindow()
 {
 	BView::AttachedToWindow();
-	fTermView = TerminalManager::CreateNewTerminal(BRect(100,100), BMessenger(this));
+	fTermView = TerminalManager::CreateNewTerminal(BRect(0, 0, 100,100), BMessenger(this));
 	fTermView->SetResizingMode(B_FOLLOW_NONE);
 	fTermView->SetExplicitMinSize(BSize(100,100));
 	fTermView->SetExplicitPreferredSize(BSize(100,100));
 	fTermView->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNLIMITED));
 	AddChild(fTermView);
 }
+
 
 void
 TerminalTab::MessageReceived(BMessage* msg)

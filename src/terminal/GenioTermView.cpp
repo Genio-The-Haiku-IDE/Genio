@@ -60,12 +60,27 @@ public:
   BMessenger fMessenger;
 };
 
+class WrapTermView : public TermView
+{
+public:
+	WrapTermView(BMessage* data): TermView(data)
+	{
+	}
+
+	void	FrameResized(float width, float height)
+	{
+		DisableResizeView(100);
+		TermView::FrameResized(width, height);
+	}
+
+};
+
 /*static*/
 BArchivable*
 GenioTermView::Instantiate(BMessage* data)
 {
 	if (validate_instantiation(data, "GenioTermView")) {
-		TermView *view = new (std::nothrow) TermView(data);
+		TermView *view = new (std::nothrow) WrapTermView(data);
 		BMessenger messenger;
 		if (data->FindMessenger("listener", &messenger) == B_OK) {
 			view->SetListener(new GenioListener(messenger));

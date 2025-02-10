@@ -69,7 +69,7 @@ public:
 
 	void	FrameResized(float width, float height)
 	{
-		DisableResizeView(100);
+		DisableResizeView();
 		TermView::FrameResized(width, height);
 	}
 

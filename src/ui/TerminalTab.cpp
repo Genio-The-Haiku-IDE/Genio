@@ -47,19 +47,26 @@ TerminalTab::MessageReceived(BMessage* msg)
 		pid_t pid = msg->GetInt32("pid", -1);
 
 		 if (waitpid(pid, &status, WNOHANG) > 0) {
-			if (WIFEXITED(status) && !WEXITSTATUS(status)) {
-			  printf("/* the program terminated normally and executed successfully */\n");
-			} else if (WIFEXITED(status) && WEXITSTATUS(status)) {
-			  printf("/* the program terminated normally, but returned a non-zero status */\n");
-			} else {
-			  printf("/* the program didn't terminate normally */\n");
-			}
+			NotifyCommandQuit(WIFEXITED(status), WEXITSTATUS(status));
 		  } else {
 			printf("/* waitpid() failed */\n");
 		  }
 		return;
 	}
 	BView::MessageReceived(msg);
+}
+
+
+void
+TerminalTab::NotifyCommandQuit(bool exitNormal, int exitStatus)
+{
+	if (exitNormal && exitStatus == 0) {
+	  printf("/* the program terminated normally and executed successfully */\n");
+	} else if (exitNormal && exitStatus != 0) {
+	  printf("/* the program terminated normally, but returned a non-zero status */\n");
+	} else {
+	  printf("/* the program didn't terminate normally */\n");
+	}
 }
 
 

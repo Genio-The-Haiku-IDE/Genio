@@ -18,6 +18,8 @@ public:
 
 		void	SetInitialCommand(const char* command);
 
+virtual	void 	NotifyCommandQuit(bool exitNormal, int exitStatus);
+
 protected:
 	BView*	fTermView;
 	BString fCommand;

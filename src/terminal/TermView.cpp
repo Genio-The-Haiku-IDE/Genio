@@ -18,15 +18,12 @@
 
 #include "TermView.h"
 
-#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
 
 #include <algorithm>
 #include <new>
-#include <vector>
-
 #include <Alert.h>
 #include <Application.h>
 #include <Beep.h>
@@ -1759,7 +1756,6 @@ TermView::MessageReceived(BMessage *message)
 		case B_EXECUTE_PROPERTY:
 		{
 			int32 i;
-			int32 encodingID;
 			BMessage specifier;
 			if (message->GetCurrentSpecifier(&i, &specifier) == B_OK
 				&& strcmp("command",

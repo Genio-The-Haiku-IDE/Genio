@@ -866,37 +866,38 @@ Editor::LoadEditorConfig()
 		// but maybe the code should be refactored
 		int32 tabWidth = 4;
 		for (int32 i = 0; i < nameValueCount; ++i) {
-			const char* name;
-			const char* value;
+			const char* name = nullptr;
+			const char* value = nullptr;
 			editorconfig_handle_get_name_value(handle, i, &name, &value);
 
-			if (!strcmp(name, "indent_style")) {
-				fEditorConfig.IndentStyle = !strcmp(value, "space") ? IndentStyle::Space : IndentStyle::Tab;
-			} else if (!strcmp(name, "tab_width")) {
-				if (strcmp(value, "undefine"))
-					tabWidth = atoi(value);
-			} else if (!strcmp(name, "indent_size")) {
+			if (::strcmp(name, "indent_style")) {
+				fEditorConfig.IndentStyle = !::strcmp(value, "space") ?
+					IndentStyle::Space : IndentStyle::Tab;
+			} else if (!::strcmp(name, "tab_width")) {
+				if (::strcmp(value, "undefine"))
+					tabWidth = ::strtol(value, nullptr, 0);
+			} else if (!::strcmp(name, "indent_size")) {
 				if (strcmp(value, "undefine")) {
-					int valueInt = atoi(value);
-					if (!strcmp(value, "tab"))
+					int valueInt = ::strtol(value, nullptr, 0);
+					if (!::strcmp(value, "tab"))
 						fEditorConfig.IndentSize = tabWidth;
 					else if (valueInt > 0)
 						fEditorConfig.IndentSize = valueInt;
 				}
-			} else if (!strcmp(name, "end_of_line")) {
-				if (strcmp(value, "undefine")) {
-					if (!strcmp(value, "lf"))
+			} else if (!::strcmp(name, "end_of_line")) {
+				if (::strcmp(value, "undefine")) {
+					if (!::strcmp(value, "lf"))
 						fEditorConfig.EndOfLine = SC_EOL_LF;
-					else if (!strcmp(value, "cr"))
+					else if (!::strcmp(value, "cr"))
 						fEditorConfig.EndOfLine = SC_EOL_CR;
-					else if (!strcmp(value, "crlf"))
+					else if (!::strcmp(value, "crlf"))
 						fEditorConfig.EndOfLine = SC_EOL_CRLF;
 				}
-			} else if (!strcmp(name, "trim_trailing_whitespace")) {
-				if (strcmp(value, "undefine"))
-					fEditorConfig.TrimTrailingWhitespace = !strcmp(value, "true") ? true : false;
-			} else if (!strcmp(name, "insert_final_newline"))
-				fEditorConfig.InsertFinalNewline = !strcmp(value, "true") ? true : false;
+			} else if (!::strcmp(name, "trim_trailing_whitespace")) {
+				if (::strcmp(value, "undefine"))
+					fEditorConfig.TrimTrailingWhitespace = !::strcmp(value, "true") ? true : false;
+			} else if (!::strcmp(name, "insert_final_newline"))
+				fEditorConfig.InsertFinalNewline = !::strcmp(value, "true") ? true : false;
 		}
 	}
 	editorconfig_handle_destroy(handle);

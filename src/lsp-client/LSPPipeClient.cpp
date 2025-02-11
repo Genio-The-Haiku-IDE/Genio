@@ -62,7 +62,7 @@ LSPPipeClient::ReadMessageHeader()
 	int len = 0;
 	while (ReadHeaderLine(szReadBuffer, 255)) {
 		if (::strncmp(szReadBuffer, "Content-Length: ", 16) == 0) {
-			len = ::atoi(szReadBuffer + 16);
+			len = ::strtol(szReadBuffer + 16, nullptr, 0);
 		} else if (::strncmp(szReadBuffer, "\r\n", 2) == 0) {
 			break;
 		} else {

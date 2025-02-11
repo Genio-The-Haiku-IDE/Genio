@@ -46,7 +46,7 @@ TerminalTab::MessageReceived(BMessage* msg)
 		int status = -1;
 		pid_t pid = msg->GetInt32("pid", -1);
 
-		 if (waitpid(pid, &status, 0) > 0) {
+		 if (waitpid(pid, &status, WNOHANG) > 0) {
 			if (WIFEXITED(status) && !WEXITSTATUS(status)) {
 			  printf("/* the program terminated normally and executed successfully */\n");
 			} else if (WIFEXITED(status) && WEXITSTATUS(status)) {

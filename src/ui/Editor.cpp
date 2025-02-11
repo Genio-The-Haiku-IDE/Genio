@@ -875,10 +875,10 @@ Editor::LoadEditorConfig()
 					IndentStyle::Space : IndentStyle::Tab;
 			} else if (!::strcmp(name, "tab_width")) {
 				if (::strcmp(value, "undefine"))
-					tabWidth = ::strtol(value, nullptr, 0);
+					tabWidth = ::strtol(value, nullptr, 10);
 			} else if (!::strcmp(name, "indent_size")) {
 				if (strcmp(value, "undefine")) {
-					int valueInt = ::strtol(value, nullptr, 0);
+					int valueInt = ::strtol(value, nullptr, 10);
 					if (!::strcmp(value, "tab"))
 						fEditorConfig.IndentSize = tabWidth;
 					else if (valueInt > 0)

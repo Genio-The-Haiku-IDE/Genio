@@ -42,7 +42,6 @@ void
 TerminalTab::MessageReceived(BMessage* msg)
 {
 	if (msg->what == 'NOTM') {
-		msg->PrintToStream();
 		int status = -1;
 		pid_t pid = msg->GetInt32("pid", -1);
 

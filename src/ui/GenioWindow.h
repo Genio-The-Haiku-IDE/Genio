@@ -217,7 +217,7 @@ private:
 			FunctionsOutlineView* fFunctionsOutlineView;
 
 			// Editor group
-			EditorTabView*	fTabManager;
+			EditorTabView*		fTabManager;
 
 			ToolBar*			fFindGroup;
 			ToolBar*			fReplaceGroup;
@@ -244,7 +244,7 @@ private:
 			// Bottom panels
 			ProblemsPanel*		fProblemsPanel;
 			ConsoleIOTab*		fBuildLogView;
-			MTermView*			fMTermView;
+			ConsoleIOTab*		fMTermView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultTab*	fSearchResultTab;
 			TerminalTab*		fTerminalTab;

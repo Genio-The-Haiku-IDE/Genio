@@ -39,11 +39,7 @@ TerminalManager::CreateNewTerminal(BRect frame,  BMessenger listener, BString co
 			for (int32 i=0;i<argc;i++) {
 				message.AddString("argv", parser.argv()[i]);
 			}
-			message.AddInt32("argc", argc);
 		}
-		//message.AddString("argv", "echo");
-		//message.AddString("argv", "ready.");
-		//message.AddInt32("argc", 2);
 		message.AddMessenger("listener", listener);
 		message.AddRect("_frame", frame);
 		view  = dynamic_cast<BView *>(instantiate_object(&message, &manager.fId));

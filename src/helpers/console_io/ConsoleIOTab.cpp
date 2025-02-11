@@ -49,7 +49,7 @@ ConsoleIOTab::NotifyCommandQuit(bool exitNormal, int exitStatus)
 	status_t status = exitNormal ? ( exitStatus == 0 ? B_OK : B_ERROR) : B_ERROR;
 
 	if(fContextMessage.IsEmpty() == false) {
-		printf("NotifyCommandQuit: "); fContextMessage.PrintToStream();
+		// printf("NotifyCommandQuit: "); fContextMessage.PrintToStream();
 		fContextMessage.what = CONSOLEIOTHREAD_EXIT;
 		fContextMessage.AddInt32("status", status);
 		fMessenger.SendMessage(&fContextMessage);

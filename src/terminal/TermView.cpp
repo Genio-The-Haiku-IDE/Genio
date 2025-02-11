@@ -248,17 +248,21 @@ TermView::TermView(BMessage* archive)
 	if (archive->FindInt32("rows", (int32*)&fRows) < B_OK)
 		fRows = ROWS_DEFAULT;
 
-	int32 argc = 0;
-	if (archive->HasInt32("argc"))
-		archive->FindInt32("argc", &argc);
+	type_code type;
+	int32 countFound = 0;
+	const char **argv = nullptr;
 
-	const char **argv = new const char*[argc];
-	for (int32 i = 0; i < argc; i++) {
-		archive->FindString("argv", i, (const char**)&argv[i]);
+	if (archive->GetInfo("argv", &type, &countFound) == B_OK) {
+		argv = new const char*[countFound+1];
+		int i=0;
+		while(archive->FindString("argv", i, &argv[i]) == B_OK){
+			i++;
+		}
+		argv[i] = nullptr;
 	}
 
 	// TODO: Retrieve colors, history size, etc. from archive
-	status_t status = _InitObject(ShellParameters(argc, argv));
+	status_t status = _InitObject(ShellParameters(countFound, argv));
 	delete[] argv;
 
 	if (status != B_OK)
@@ -1765,8 +1769,6 @@ TermView::MessageReceived(BMessage *message)
 				_DetachShell();
 				delete shell;
 
-				printf("SHELL ID %d\n", shell->FD());
-
 				fShell = new (std::nothrow) Shell();
 				if (fShell == NULL)
 					break;
@@ -1777,11 +1779,12 @@ TermView::MessageReceived(BMessage *message)
 
 
 				if (message->GetInfo("argv", &type, &countFound) == B_OK) {
-					argv = new const char*[countFound];
+					argv = new const char*[countFound + 1];
 					int i=0;
 					while(message->FindString("argv", i, &argv[i]) == B_OK){
 						i++;
 					}
+					argv[i] = nullptr;
 				}
 
 				if (message->GetBool("clear", false) == true) {

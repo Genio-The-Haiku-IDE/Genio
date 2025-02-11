@@ -3453,7 +3453,7 @@ GenioWindow::_InitTabViews()
 	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
 	fBuildLogView = new ConsoleIOTab(B_TRANSLATE("Build log"), BMessenger(this));
-	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
+	fMTermView =  new ConsoleIOTab(B_TRANSLATE("Console I/O"), BMessenger(this));
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
 	fTerminalTab	= new TerminalTab();
 

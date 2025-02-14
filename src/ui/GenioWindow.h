@@ -44,6 +44,7 @@ class MTermView;
 class PanelTabManager;
 class EditorTabView;
 class TerminalTab;
+class ConsoleIOTabView;
 
 class GenioWindow : public BWindow {
 public:
@@ -243,8 +244,8 @@ private:
 
 			// Bottom panels
 			ProblemsPanel*		fProblemsPanel;
-			ConsoleIOTab*		fBuildLogView;
-			ConsoleIOTab*		fMTermView;
+			ConsoleIOTabView*	fBuildLogView;
+			ConsoleIOTabView*	fMTermView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultTab*	fSearchResultTab;
 			TerminalTab*		fTerminalTab;

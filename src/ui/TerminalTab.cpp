@@ -48,7 +48,7 @@ TerminalTab::MessageReceived(BMessage* msg)
 		 if (waitpid(pid, &status, WNOHANG) > 0) {
 			NotifyCommandQuit(WIFEXITED(status), WEXITSTATUS(status));
 		  } else {
-			printf("/* waitpid() failed */\n");
+			NotifyCommandQuit(false, 255);
 		  }
 		return;
 	}

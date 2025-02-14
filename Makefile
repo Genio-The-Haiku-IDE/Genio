@@ -48,6 +48,7 @@ SRCS += src/helpers/console_io/ConsoleIOThread.cpp
 SRCS += src/helpers/console_io/GenericThread.cpp
 SRCS += src/helpers/console_io/WordTextView.cpp
 SRCS += src/heplers/console_io/ConsoleIOTab.cpp
+SRCS += src/heplers/console_io/ConsoleIOTabView.cpp
 SRCS += src/helpers/mterm/KeyTextViewScintilla.cpp
 SRCS += src/helpers/mterm/MTerm.cpp
 SRCS += src/helpers/mterm/MTermView.cpp

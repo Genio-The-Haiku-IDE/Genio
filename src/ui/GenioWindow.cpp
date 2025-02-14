@@ -74,6 +74,7 @@
 #include "PanelTabManager.h"
 #include "EditorTabView.h"
 #include "TerminalTab.h"
+#include "ConsoleIOTabView.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -3452,8 +3453,8 @@ GenioWindow::_InitTabViews()
 
 	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
-	fBuildLogView = new ConsoleIOTab(B_TRANSLATE("Build log"), BMessenger(this));
-	fMTermView =  new ConsoleIOTab(B_TRANSLATE("Console I/O"), BMessenger(this));
+	fBuildLogView = new ConsoleIOTabView(B_TRANSLATE("Build log"), BMessenger(this));
+	fMTermView 	  = new ConsoleIOTabView(B_TRANSLATE("Console I/O"), BMessenger(this));
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
 	fTerminalTab	= new TerminalTab();
 

@@ -15,6 +15,8 @@ public:
 
 	void 		Clear();
 	status_t	RunCommand(BMessage*);
+	status_t	Stop();
+	void		SetMessenger(BMessenger messenger) { fMessenger = messenger; }
 
 	void 	NotifyCommandQuit(bool exitNormal, int exitStatus) override;
 private:

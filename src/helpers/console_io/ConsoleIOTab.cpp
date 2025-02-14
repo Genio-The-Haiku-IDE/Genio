@@ -24,7 +24,25 @@ ConsoleIOTab::ConsoleIOTab(const char* name, BMessenger messenger):
 void
 ConsoleIOTab::Clear()
 {
+	//TODO!
 };
+
+
+status_t
+ConsoleIOTab::Stop()
+{
+	//temporary big hack!
+
+	BMessage exec(B_EXECUTE_PROPERTY);
+	exec.AddSpecifier("command");
+	exec.AddString("argv", "/bin/sh");
+	exec.AddString("argv", "-c");
+	exec.AddString("argv", ":");
+	exec.AddBool("clear", true);
+	fContextMessage.MakeEmpty();
+	return Looper()->PostMessage(&exec, fTermView->ChildAt(0)->ChildAt(0));
+};
+
 
 status_t
 ConsoleIOTab::RunCommand(BMessage* message)
@@ -38,8 +56,7 @@ ConsoleIOTab::RunCommand(BMessage* message)
 	exec.AddString("argv", message->GetString("cmd", "echo error"));
 	exec.AddBool("clear", true);
 	fContextMessage = *message;
-	Looper()->PostMessage(&exec, fTermView->ChildAt(0)->ChildAt(0));
-	return B_OK;
+	return Looper()->PostMessage(&exec, fTermView->ChildAt(0)->ChildAt(0));
 }
 
 
@@ -48,8 +65,9 @@ ConsoleIOTab::NotifyCommandQuit(bool exitNormal, int exitStatus)
 {
 	status_t status = exitNormal ? ( exitStatus == 0 ? B_OK : B_ERROR) : B_ERROR;
 
+	printf("NotifyCommandQuit: "); fContextMessage.PrintToStream();
+
 	if(fContextMessage.IsEmpty() == false) {
-		// printf("NotifyCommandQuit: "); fContextMessage.PrintToStream();
 		fContextMessage.what = CONSOLEIOTHREAD_EXIT;
 		fContextMessage.AddInt32("status", status);
 		fMessenger.SendMessage(&fContextMessage);

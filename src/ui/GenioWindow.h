@@ -85,6 +85,7 @@ private:
 			bool				_FileIsSupported(const entry_ref* ref);
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
 			status_t			_FileSave(int32	index);
+			status_t			_FileSave(Editor* editor);
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
 			int32				_FilesNeedSave();

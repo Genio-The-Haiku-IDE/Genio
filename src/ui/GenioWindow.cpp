@@ -691,7 +691,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_FILE_SAVE:
-			_FileSave(fTabManager->SelectedTabIndex());
+			_FileSave(fTabManager->SelectedEditor());
 			break;
 		case MSG_FILE_SAVE_AS:
 		{
@@ -1179,7 +1179,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case EditorTabView::kETVNewTab:
 		{
-			message->PrintToStream();
 			editor_id id = message->GetUInt64(kEditorId, 0);
 			if (id != 0) {
 				Editor* editor = fTabManager->EditorById(id);
@@ -2000,7 +1999,13 @@ GenioWindow::_FileSave(int32 index)
 		return B_ERROR;
 	}
 
-	Editor* editor = fTabManager->EditorAt(index);
+	return _FileSave(fTabManager->EditorAt(index));
+}
+
+
+status_t
+GenioWindow::_FileSave(Editor* editor)
+{
 	if (editor == nullptr) {
 		LogErrorF("NULL editor pointer (%d)", index);
 		return B_ERROR;
@@ -2052,7 +2057,7 @@ GenioWindow::_FileSaveAll(ProjectFolder* onlyThisProject)
 			continue;
 
 		if (editor->IsModified())
-			_FileSave(index);
+			_FileSave(editor);
 	}
 }
 
@@ -2094,7 +2099,7 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 	 */
 	//_UpdateLabel(selection, editor->IsModified());
 
-	_FileSave(selection);
+	_FileSave(editor);
 
 	return B_OK;
 }
@@ -2389,7 +2394,7 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 	 	// If not modified save it or it will be lost, if modified let
 	 	// the user decide
 	 	if (editor->IsModified() == false)
-			_FileSave(index);
+			_FileSave(editor);
 		return;
 	} else if (choice == 1) {
 		_RemoveTab(index);

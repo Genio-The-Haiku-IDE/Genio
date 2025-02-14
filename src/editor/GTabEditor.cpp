@@ -7,6 +7,7 @@
 
 #include <Message.h>
 
+#include "Editor.h"
 #include "EditorTabView.h"
 
 
@@ -36,7 +37,7 @@ GTabEditor::CloseButtonClicked()
 	EditorTabView* tabView = dynamic_cast<EditorTabView*>(Container()->GetGTabView());
 	if (tabView) {
 		BMessage msg(EditorTabView::kETVCloseTab);
-		msg.AddInt32("index", Container()->IndexOfTab(this));
+		msg.AddUInt64(kEditorId, fEditor->Id());
 		BMessenger(Handler()).SendMessage(&msg);
 	}
 }
@@ -95,6 +96,10 @@ GTabEditor::DrawCircle(BView* owner, BRect& frame)
 	owner->SetHighColor(tint_color(fColor, B_DARKEN_1_TINT));
 	owner->StrokeEllipse(circleFrame);
 	frame.left = circleFrame.right + be_control_look->DefaultLabelSpacing();
+	//FIXME:
+	owner->SetHighColor(tint_color(fColor, B_DARKEN_4_TINT));
+	circleFrame.InsetBy(4,4);
+	owner->FillEllipse(circleFrame);
 }
 
 

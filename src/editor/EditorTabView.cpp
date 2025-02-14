@@ -119,6 +119,8 @@ EditorTabView::SetTabLabel(Editor* editor, const char* label)
 		tab->SetLabel(label);
 }
 
+	BString TabLabel(Editor*);
+
 
 BString
 EditorTabView::TabLabel(Editor* editor)
@@ -271,12 +273,17 @@ EditorTabView::ShowTabMenu(GTabEditor* tab, BPoint where)
 	for (int32 i = 0; i < fPopUpMenu->CountItems(); i++) {
 		BMessage* msg = fPopUpMenu->ItemAt(i)->Message();
 		if (msg != nullptr) {
-			msg->SetInt32("tab_index", Container()->IndexOfTab(tab));
 			if (editor != nullptr) {
 				if (msg->HasRef("ref"))
 					msg->ReplaceRef("ref", editor->FileRef());
 				else
 					msg->AddRef("ref", editor->FileRef());
+
+				if (msg->HasUInt64(kEditorId)) {
+					msg->ReplaceUInt64(kEditorId, editor->Id());
+				} else {
+					msg->AddUInt64(kEditorId, editor->Id());
+				}
 			}
 		}
 	}

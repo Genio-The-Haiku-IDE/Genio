@@ -1444,26 +1444,6 @@ GenioWindow::_FileRequestClose(Editor* editor)
 	return true;
 }
 
-/*
-GenioWindow::_FileRequestClose(int32 index)
-{
-	if (index < 0)
-		return true;
-
-	Editor* editor = fTabManager->EditorAt(index);
-	if (editor != nullptr) {
-		if (editor->IsModified()) {
-			std::vector<int32> unsavedIndex { index };
-			if (!_FileRequestSaveList(unsavedIndex))
-				return false;
-
-		}
-		_RemoveTab(index);
-	}
-
-	return true;
-}
-*/
 
 bool
 GenioWindow::_FileRequestSaveList(std::vector<Editor*>& unsavedEditor)
@@ -1751,17 +1731,6 @@ GenioWindow::_DebugProject()
 
 
 status_t
-GenioWindow::_RemoveTab(int32 index)
-{
-	if (index < 0 || index > fTabManager->CountTabs()) {
-		LogErrorF("No file selected %d", index);
-		return B_ERROR;
-	}
-
-	return _RemoveTab(fTabManager->EditorAt(index));
-}
-
-status_t
 GenioWindow::_RemoveTab(Editor* editor)
 {
 	if (!editor)
@@ -1795,16 +1764,12 @@ GenioWindow::_FileCloseAll()
 	if (!_FileRequestSaveAllModified())
 		return;
 
-	int32 tabsCount = fTabManager->CountTabs();
-	// If there is something to close
-	if (tabsCount > 0) {
-		// Don't lose time in changing selection on removal
-		fTabManager->SelectTab(int32(0));
+	fTabManager->ReverseForEachEditor([&](Editor* editor){
+		if (editor->IsModified())
+			_RemoveTab(editor);
 
-		for (int32 index = tabsCount - 1; index >= 0; index--) {
-			_RemoveTab(index);
-		}
-	}
+		return true;
+	});
 }
 
 
@@ -2009,18 +1974,6 @@ GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 	return be_roster->Launch(ref);
 }
 
-
-status_t
-GenioWindow::_FileSave(int32 index)
-{
-	// Should not happen
-	if (index < 0) {
-		LogErrorF("No file selected (%d)", index);
-		return B_ERROR;
-	}
-
-	return _FileSave(fTabManager->EditorAt(index));
-}
 
 
 status_t
@@ -2384,13 +2337,12 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 
 
 void
-GenioWindow::_HandleExternalRemoveModification(int32 index)
+GenioWindow::_HandleExternalRemoveModification(Editor* editor)
 {
-	if (index < 0) {
+	if (editor == nullptr) {
 		return; //TODO notify
 	}
 
-	Editor* editor = fTabManager->EditorAt(index);
 	BString fileName(editor->Name());
 
 	BString text;
@@ -2416,23 +2368,12 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 			_FileSave(editor);
 		return;
 	} else if (choice == 1) {
-		_RemoveTab(index);
+		_RemoveTab(editor);
 
 		BString notification;
 		notification << "File info: " << fileName << " removed externally";
 		LogInfo(notification.String());
 	}
-}
-
-
-void
-GenioWindow::_HandleExternalStatModification(int32 index)
-{
-	if (index < 0)
-		return;
-
-	Editor* editor = fTabManager->EditorAt(index);
-	_HandleExternalStatModification(editor);
 }
 
 
@@ -2514,7 +2455,7 @@ GenioWindow::_CheckEntryRemoved(BMessage *msg)
 	}
 
 	// the file is gone for sure!
-	_HandleExternalRemoveModification(_GetEditorIndex(&nref));
+	_HandleExternalRemoveModification(fTabManager->EditorBy(&nref));
 }
 
 
@@ -2587,8 +2528,7 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 			if (((fields & B_STAT_MODIFICATION_TIME)  != 0)
 			// Do not reload if the file just got touched
 				&& ((fields & B_STAT_ACCESS_TIME)  == 0)) {
-//				BNode node(&nref);
-				_HandleExternalStatModification(_GetEditorIndex(&nref));
+				_HandleExternalStatModification(fTabManager->EditorBy(&nref));
 			}
 
 			break;
@@ -3686,9 +3626,7 @@ GenioWindow::_ProjectFileDelete()
 	else if (choice == 1) {
 		// Close the file if open
 		if (entry.IsFile()) {
-			int32 openedIndex;
-			if ((openedIndex = _GetEditorIndex(ref)) != -1)
-				_RemoveTab(openedIndex);
+			_RemoveTab(fTabManager->EditorBy(ref));
 		}
 		// Remove the entry
 		if (entry.Exists()) {

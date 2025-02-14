@@ -71,8 +71,6 @@ private:
 
 			status_t			_DebugProject();
 			bool				_FileRequestClose(Editor* editor);
-			//bool				_FileRequestClose(int32 index); /* DEPRE */
-			status_t			_RemoveTab(int32 index); /*DEPRE*/
 			status_t			_RemoveTab(Editor* editor);
 			void				_FileCloseAll();
 			bool				_FileRequestSaveList(std::vector<Editor*>& unsavedEditor);
@@ -86,7 +84,6 @@ private:
 
 			bool				_FileIsSupported(const entry_ref* ref);
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
-/*DEPRECATED*/			status_t			_FileSave(int32	index);
 			status_t			_FileSave(Editor* editor);
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
 			status_t			_FileSaveAs(int32 selection, BMessage* message);
@@ -106,8 +103,7 @@ private:
 			void				_GetFocusAndSelection(BTextControl* control) const;
 			status_t			_Git(const BString& git_command);
 			void				_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef);
-			void				_HandleExternalRemoveModification(int32 index);
-			void				_HandleExternalStatModification(int32 index);
+			void				_HandleExternalRemoveModification(Editor* editor);
 			void				_HandleExternalStatModification(Editor* editor);
 			void				_HandleNodeMonitorMsg(BMessage* msg);
 			void				_CheckEntryRemoved(BMessage* msg);

@@ -274,6 +274,7 @@ EditorTabView::ShowTabMenu(GTabEditor* tab, BPoint where)
 		BMessage* msg = fPopUpMenu->ItemAt(i)->Message();
 		if (msg != nullptr) {
 			if (editor != nullptr) {
+				//TODO: remove "ref"
 				if (msg->HasRef("ref"))
 					msg->ReplaceRef("ref", editor->FileRef());
 				else

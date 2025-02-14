@@ -374,9 +374,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_UPDATE_DIAGNOSTICS:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor != nullptr && editor == fTabManager->SelectedEditor()) {
 					fProblemsPanel->UpdateProblems(editor);
 				}
@@ -385,13 +385,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_UPDATE_SYMBOLS:
 		{
-			entry_ref editorRef;
-			if (message->FindRef("ref", &editorRef) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&editorRef);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				// add the ref also to the external message
 				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				notifyMessage.AddMessage("symbols", message);
-				notifyMessage.AddRef("ref", &editorRef);
+				notifyMessage.AddRef("ref", editor->FileRef()); //TODO use editor_id!
 				if (editor != nullptr)
 					notifyMessage.AddInt32("caret_line", editor->GetCurrentLineNumber());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
@@ -480,9 +480,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_FIND_SET_MARK:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor == fTabManager->SelectedEditor()) {
 					int32 line;
 					if (message->FindInt32("line", &line) == B_OK) {
@@ -530,9 +530,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_REPLACE_ONE:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor == fTabManager->SelectedEditor()) {
 					int32 line, column;
 					BString sel, repl;
@@ -552,9 +552,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_POSITION_CHANGED:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor == fTabManager->SelectedEditor()) {
 					// Enable Cut,Copy,Paste shortcuts
 					_UpdateSavepointChange(editor, "EDITOR_POSITION_CHANGED");
@@ -566,12 +566,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_UPDATE_SAVEPOINT:
 		{
-			entry_ref ref;
+			editor_id id;
 			bool modified = false;
-			if (message->FindRef("ref", &ref) == B_OK &&
+			if (message->FindUInt64(kEditorId, &id) == B_OK &&
 			    message->FindBool("modified", &modified) == B_OK) {
 
-				Editor* editor = fTabManager->EditorBy(&ref);
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor) {
 					_UpdateLabel(editor, modified);
 					_UpdateSavepointChange(editor, "UpdateSavePoint");

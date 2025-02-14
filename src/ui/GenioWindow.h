@@ -64,7 +64,7 @@ public:
 	EditorTabView*			TabManager() const;
 
 private:
-			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
+			Editor*				_AddEditorTab(entry_ref* ref, BMessage* addInfo);
 
 			status_t			_BuildProject();
 			status_t			_CleanProject();
@@ -79,7 +79,7 @@ private:
 			status_t			_FileOpen(BMessage* msg);
 			status_t			_FileOpenAtStartup(BMessage* msg);
 			status_t			_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred,  int32 be_line, int32 lsp_char);
-			status_t			_SelectEditorToPosition(int32 index, int32 be_line, int32 lsp_char);
+			status_t			_SelectEditorToPosition(Editor* editor, int32 be_line, int32 lsp_char);
 			void				_ApplyEditsToSelectedEditor(BMessage* msg);
 
 			bool				_FileIsSupported(const entry_ref* ref);

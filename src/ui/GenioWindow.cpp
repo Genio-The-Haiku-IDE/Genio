@@ -636,64 +636,18 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_COLLAPSE_SYMBOL_NODE:
 			_ForwardToSelectedEditor(message);
 			break;
-		case MSG_FILE_MENU_SHOW:
-		{
-			/* Adapted from tabview */
-			BPopUpMenu* tabMenu = new BPopUpMenu("filetabmenu", true, false);
-			int tabCount = fTabManager->CountTabs();
-			for (int index = 0; index < tabCount; index++) {
-				BString label;
-				label << index + 1 << ". " << fTabManager->TabLabel(index);
-				BMenuItem* item = new BMenuItem(label.String(), nullptr);
-				tabMenu->AddItem(item);
-				if (index == fTabManager->SelectedTabIndex())
-					item->SetMarked(true);
-			}
-
-			// Force layout to get the final menu size. InvalidateLayout()
-			// did not seem to work here.
-			tabMenu->AttachedToWindow();
-			BRect buttonFrame = fToolBar->FindButton(MSG_FILE_MENU_SHOW)->Frame();
-			BRect menuFrame = tabMenu->Frame();
-			BPoint openPoint = ConvertToScreen(buttonFrame.LeftBottom());
-			// Open with the right side of the menu aligned with the right
-			// side of the button and a little below.
-			openPoint.x -= menuFrame.Width() - buttonFrame.Width() + 2;
-			openPoint.y += 20;
-
-			BMenuItem *selected = tabMenu->Go(openPoint, false, false,
-			ConvertToScreen(buttonFrame));
-			if (selected) {
-				selected->SetMarked(true);
-				int32 index = tabMenu->IndexOf(selected);
-				if (index != B_ERROR)
-					fTabManager->SelectTab(index);
-			}
-			delete tabMenu;
-			break;
-		}
 		case MSG_FILE_NEXT_SELECTED:
-		{
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index < fTabManager->CountTabs() - 1)
-				fTabManager->SelectTab(index + 1);
+			fTabManager->SelectNext();
 			break;
-		}
 		case MSG_FILE_OPEN:
 			fOpenPanel->Show();
 			break;
 		case MSG_IMPORT_RESOURCE:
-		{
 			fImportResourcePanel->Show();
 			break;
-		}
 		case MSG_FILE_PREVIOUS_SELECTED:
-		{
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index > 0 && index < fTabManager->CountTabs())
-				fTabManager->SelectTab(index - 1);
+			fTabManager->SelectPrev();
 			break;
-		}
 		case MSG_FILE_SAVE:
 			_FileSave(fTabManager->SelectedEditor());
 			break;
@@ -1571,8 +1525,10 @@ GenioWindow::QuitRequested()
 
 
 Editor*
-GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
+GenioWindow::_AddEditorTab(entry_ref* ref, BMessage* addInfo)
 {
+	int32 index = fTabManager->SelectedTabIndex() + 1;
+
 	Editor* editor = new Editor(ref, BMessenger(this));
 	fTabManager->AddEditor(ref->name, editor, addInfo, index);
 
@@ -1797,7 +1753,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		return _FileOpenAtStartup(msg);
 	}
 
-	int32 firstAdded = -1;
+	entry_ref firstAdded = {0, 0, 0};
 	entry_ref ref;
 	int32 refsCount = 0;
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
@@ -1810,18 +1766,18 @@ GenioWindow::_FileOpen(BMessage* msg)
 		const int32 lsp_char  = msg->GetInt32("start:character", -1);
 		const bool openWithPreferred = msg->GetBool("openWithPreferred", false);
 
-		int32 index = _GetEditorIndex(&ref);
-		if (index != -1) {
-			_SelectEditorToPosition(index, be_line, lsp_char);
+		Editor* editor = fTabManager->EditorBy(&ref);
+		if (editor != nullptr) {
+			_SelectEditorToPosition(editor, be_line, lsp_char);
 		} else {
 			if(_FileOpenWithPosition(&ref , openWithPreferred, be_line, lsp_char) != B_OK)
 				continue;
-			index = _GetEditorIndex(&ref);
+//			index = _GetEditorIndex(&ref);
 		}
 
 		_ApplyEditsToSelectedEditor(msg);
-		if (firstAdded == -1)
-			firstAdded = index;
+		if (firstAdded.directory == 0)
+			firstAdded = ref;
 
 		if (refsCount == 1){
 			entry_ref fromRef;
@@ -1835,13 +1791,13 @@ GenioWindow::_FileOpen(BMessage* msg)
 	ActionManager::SetEnabled(MSG_JUMP_GO_FORWARD, JumpNavigator::getInstance()->HasNext());
 
 
-	if (firstAdded > -1 && fTabManager->CountTabs() > firstAdded) {
-		fTabManager->SelectTab(firstAdded);
+	if (firstAdded.directory != 0) {
+		fTabManager->SelectTab(&firstAdded);
 	}
 
 	// reply to Editor create scripting
 	BMessage reply(B_REPLY);
-	reply.AddInt32("result", firstAdded);
+	reply.AddRef("result", &firstAdded);
 	msg->SendReply(&reply);
 
 	return B_OK;
@@ -1859,14 +1815,14 @@ GenioWindow::_ApplyEditsToSelectedEditor(BMessage* msg)
 
 
 status_t
-GenioWindow::_SelectEditorToPosition(int32 index, int32 be_line, int32 lsp_char)
+GenioWindow::_SelectEditorToPosition(Editor* editor, int32 be_line, int32 lsp_char)
 {
 	GMessage selectTabInfo = {{"start:line", be_line},{"start:character", lsp_char}};
+	Editor* selected = fTabManager->SelectedEditor();
 
-	if (index != fTabManager->SelectedTabIndex()) {
-		fTabManager->SelectTab(index, &selectTabInfo);
+	if (editor != selected) {
+		fTabManager->SelectTab(editor->FileRef(), &selectTabInfo);
 	} else {
-		Editor* selected = fTabManager->SelectedEditor();
 		if (lsp_char >= 0 && be_line > -1) {
 			selected->GoToLSPPosition(be_line - 1, lsp_char);
 		} else if (be_line > -1) {
@@ -1893,12 +1849,11 @@ GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32
 	//this will force getting the caret position from file attributes when loaded.
 	GMessage selectTabInfo = {{ "caret_position", true }, {"start:line", be_line},{"start:character", lsp_char}};
 
-	int32 index = fTabManager->SelectedTabIndex() + 1;
-	Editor* editor = _AddEditorTab(ref, index, &selectTabInfo);
+	Editor* editor = _AddEditorTab(ref, &selectTabInfo);
 
 	LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
 
-	if (index < 0 || editor == nullptr) {
+	if (editor == nullptr) {
 		LogError("Failed adding editor");
 		return B_ERROR;
 	}
@@ -1918,7 +1873,7 @@ GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32
 	// TODO: Move some other stuff into _PostFileLoad()
 	_PostFileLoad(editor);
 
-	LogInfo("File open: %s [%d]", editor->Name().String(), index);
+	LogInfo("File open: %s", editor->Name().String());
 	return B_OK;
 }
 

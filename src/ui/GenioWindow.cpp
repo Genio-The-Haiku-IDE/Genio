@@ -1179,16 +1179,17 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case EditorTabView::kETVNewTab:
 		{
-			//message->PrintToStream();
-			bool set_caret = message->GetBool("caret_position", false);
-			entry_ref ref;
-			if (set_caret && message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			message->PrintToStream();
+			editor_id id = message->GetUInt64(kEditorId, 0);
+			if (id != 0) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor != nullptr) {
-					editor->SetSavedCaretPosition();
+					if (message->GetBool("caret_position", false) == true) {
+						editor->SetSavedCaretPosition();
+					}
 					ProjectFolder* project = editor->GetProjectFolder();
 					if (project != nullptr) {
-						fTabManager->SetTabColor(&ref, project->Color());
+						fTabManager->SetTabColor(editor, project->Color());
 					}
 				}
 			}
@@ -4608,7 +4609,7 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 			Editor* editor = fTabManager->EditorAt(index);
 			ProjectFolder* project = editor->GetProjectFolder();
 			if (project != nullptr) {
-				fTabManager->SetTabColor(editor->FileRef(), project->Color());
+				fTabManager->SetTabColor(editor, project->Color());
 			}
 		}
 	}

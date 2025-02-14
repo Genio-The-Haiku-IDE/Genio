@@ -17,7 +17,7 @@
 #include <utility>
 
 #include "LSPCapabilities.h"
-
+#include "EditorId.h"
 
 class LSPEditorWrapper;
 class ProjectFolder;
@@ -74,7 +74,7 @@ struct EditorConfig {
 	bool				InsertFinalNewline; // Not implemented
 };
 
-typedef uint64	editor_id;
+
 
 class Editor : public BScintillaView {
 public:
@@ -87,7 +87,7 @@ public:
 
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
-			editor_id			Id();
+			editor_id			Id() { return fId; }
 	virtual	void 				MessageReceived(BMessage* message);
 			void				LoadEditorConfig();
 			void				ApplySettings();

@@ -64,8 +64,7 @@ EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int3
 	if (info != nullptr)
 		message = *info;
 	message.what = kETVNewTab;
-	message.AddRef("ref", editor->FileRef());
-	message.AddPointer("editor", editor);
+	message.AddUInt64(kEditorId, editor->Id());
 
 	fTarget.SendMessage(&message);
 }
@@ -103,9 +102,9 @@ EditorTabView::SelectedEditor()
 
 
 void
-EditorTabView::SetTabColor(const entry_ref* ref, const rgb_color& color)
+EditorTabView::SetTabColor(Editor* editor, const rgb_color& color)
 {
-	GTabEditor* tab = _GetTab(ref);
+	GTabEditor* tab = _GetTab(editor);
 	if (tab != nullptr) {
 		tab->SetColor(color);
 	}
@@ -140,6 +139,24 @@ EditorTabView::SelectTab(const entry_ref* ref, BMessage* selInfo)
 		}
 	}
 }
+
+
+Editor*
+EditorTabView::EditorById(editor_id id)
+{
+	Editor* found = nullptr;
+	ForEachEditor([&](Editor* editor){
+		printf("%ld vs %ld\n", editor->Id() , id);
+		if (editor->Id() == id) {
+			found = editor;
+			return false;
+		}
+		return true;
+	});
+	printf("FOUND %p\n", found);
+	return found;
+}
+
 
 
 void
@@ -203,6 +220,20 @@ EditorTabView::_GetTab(Editor* editor)
 	}
 	return nullptr;
 }
+
+
+GTabEditor*
+EditorTabView::_GetTab(editor_id id)
+{
+	for (int32 i = 0; i < Container()->CountTabs(); i++) {
+		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
+		if (tab != nullptr && tab->GetEditor()->Id() == id) {
+				return tab;
+		}
+	}
+	return nullptr;
+}
+
 
 
 GTab*

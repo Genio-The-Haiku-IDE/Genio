@@ -146,14 +146,12 @@ EditorTabView::EditorById(editor_id id)
 {
 	Editor* found = nullptr;
 	ForEachEditor([&](Editor* editor){
-		printf("%ld vs %ld\n", editor->Id() , id);
 		if (editor->Id() == id) {
 			found = editor;
 			return false;
 		}
 		return true;
 	});
-	printf("FOUND %p\n", found);
 	return found;
 }
 
@@ -260,7 +258,8 @@ EditorTabView::OnTabSelected(GTab* tab)
 		fLastSelectedInfo.MakeEmpty();
 	}
 	message.what = kETVSelectedTab;
-	message.AddRef("ref", gtab->GetEditor()->FileRef());
+	message.AddUInt64(kEditorId, gtab->GetEditor()->Id());
+
 	fTarget.SendMessage(&message);
 }
 
@@ -394,7 +393,7 @@ EditorTabView::SelectTab(int32 index, BMessage* selInfo)
 			message = *selInfo;
 		}
 		message.what = kETVSelectedTab;
-		message.AddRef("ref", tab->GetEditor()->FileRef());
+		message.AddUInt64(kEditorId, tab->GetEditor()->Id());
 		fTarget.SendMessage(&message);
 	}
 }

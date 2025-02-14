@@ -1123,9 +1123,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EditorTabView::kETVSelectedTab:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor == nullptr) {
 					LogError("Selecting editor but it's null! (index %d)", index);
 					break;

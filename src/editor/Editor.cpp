@@ -57,10 +57,14 @@ const int kIdleTimeout = 250000; //1/4sec
 #define UNSET 0
 #define UNUSED 0
 
+editor_id get_unique_id() {
+	static editor_id g_id = 0;
+	return ++g_id;
+}
 
 Editor::Editor(entry_ref* ref, const BMessenger& target)
-	:
-	BScintillaView(ref->name, 0, true, true)
+	: BScintillaView(ref->name, 0, true, true)
+	, fId(get_unique_id())
 	, fFileRef(*ref)
 	, fModified(false)
 	, fBracingAvailable(false)

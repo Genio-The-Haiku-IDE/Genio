@@ -193,13 +193,6 @@ GenioWindow::GenioWindow(BRect frame)
 
 	_UpdateTabChange(nullptr, "GenioWindow");
 
-	// Shortcuts
-	for (int32 index = 1; index < 10; index++) {
-		constexpr auto kAsciiPos {48};
-		BMessage* selectTab = new BMessage(MSG_SELECT_TAB);
-		selectTab->AddInt32("index", index - 1);
-		AddShortcut(index + kAsciiPos, B_COMMAND_KEY, selectTab);
-	}
 
 	// TODO: we use ALT+N (where N is 1-9) to switch tab (like Web+), and CTRL+LEFT/RIGHT to switch
 	// to previous/next. Too bad ALT+LEFT/RIGHT are already taken. Maybe we should change to
@@ -1031,17 +1024,6 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_RUN_TARGET:
 			_RunTarget();
 			break;
-		case MSG_SELECT_TAB:
-		{
-			int32 index;
-			// Shortcut selection, be careful
-			if (message->FindInt32("index", &index) == B_OK) {
-				if (index < fTabManager->CountTabs()
-					&& index != fTabManager->SelectedTabIndex())
-					fTabManager->SelectTab(index);
-			}
-			break;
-		}
 		case MSG_SHOW_HIDE_LEFT_PANE:
 			gCFG["show_projects"] = !bool(gCFG["show_projects"]);
 			break;
@@ -1527,11 +1509,8 @@ GenioWindow::QuitRequested()
 Editor*
 GenioWindow::_AddEditorTab(entry_ref* ref, BMessage* addInfo)
 {
-	int32 index = fTabManager->SelectedTabIndex() + 1;
-
 	Editor* editor = new Editor(ref, BMessenger(this));
-	fTabManager->AddEditor(ref->name, editor, addInfo, index);
-
+	fTabManager->AddEditor(ref->name, editor, addInfo);
 	return editor;
 }
 

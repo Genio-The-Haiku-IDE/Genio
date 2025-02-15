@@ -23,6 +23,8 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EditorTabManager"
 
+#define	kSelectByKey 'seta'
+
 
 
 EditorTabView::EditorTabView(BMessenger target):GTabView("_editor_tabview_",
@@ -55,8 +57,11 @@ EditorTabView::~EditorTabView()
 
 
 void
-EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int32 index)
+EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info)
 {
+	//by default the new editor is placed next to the selected one.
+
+	int32 index = SelectedTabIndex() + 1;
 	GTabEditor*	tab = new GTabEditor(label, this, editor);
 	AddTab (tab, editor, index);
 
@@ -184,6 +189,37 @@ EditorTabView::ReverseForEachEditor(const std::function<bool(Editor*)>& op)
 				return;
 		}
 	}
+}
+
+void
+EditorTabView::AttachedToWindow()
+{
+	// Shortcuts
+	for (int32 index = 1; index < 10; index++) {
+		constexpr auto kAsciiPos {48};
+		BMessage* selectTab = new BMessage(kSelectByKey);
+		selectTab->AddInt32("index", index - 1);
+		Window()->AddShortcut(index + kAsciiPos, B_COMMAND_KEY, selectTab, this);
+	}
+}
+
+
+void
+EditorTabView::MessageReceived(BMessage* message)
+{
+	switch(message->what) {
+		case kSelectByKey:
+			int32 index;
+			// Shortcut selection, be careful
+			if (message->FindInt32("index", &index) == B_OK) {
+				if (index < Container()->CountTabs())
+					SelectTab(index);
+			}
+			break;
+		default:
+			GTabView::MessageReceived(message);
+			break;
+	};
 }
 
 

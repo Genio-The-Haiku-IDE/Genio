@@ -28,7 +28,7 @@ public:
 			 EditorTabView(BMessenger target);
 			~EditorTabView();
 
-	void	AddEditor(const char* label, Editor* editor, BMessage* info = nullptr, int32 index = -1);
+	void	AddEditor(const char* label, Editor* editor, BMessage* info = nullptr);
 
 	Editor* SelectedEditor();
 
@@ -58,6 +58,9 @@ public:
 
 	void ForEachEditor(const std::function<bool(Editor*)>& op);
 	void ReverseForEachEditor(const std::function<bool(Editor*)>& op);
+
+	void	AttachedToWindow() override;
+	void	MessageReceived(BMessage*) override;
 
 protected:
 friend GTabEditor;

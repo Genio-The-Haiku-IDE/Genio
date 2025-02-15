@@ -105,7 +105,7 @@ AcceptsCopyPaste(BView* view)
 {
 	if (view == nullptr)
 		return false;
-	if ((view->Parent() != nullptr && dynamic_cast<Editor*>(view->Parent()) != nullptr)
+	if ((view->Parent() != nullptr && dynamic_cast<BScintillaView*>(view->Parent()) != nullptr)
 		|| dynamic_cast<BTextView*>(view) != nullptr) {
 		return true;
 	}
@@ -1240,14 +1240,13 @@ GenioWindow::MenusBeginning()
 	BView* view = CurrentFocus();
 	if (view == nullptr)
 		return;
-	Editor* editor = nullptr;
+	BScintillaView* scintilla = nullptr;
 	BTextView* textView = nullptr;
-
 	if (view->Parent() != nullptr &&
-		(editor = dynamic_cast<Editor*>(view->Parent())) != nullptr) {
-			ActionManager::SetEnabled(B_CUT,   editor->CanCut());
-			ActionManager::SetEnabled(B_COPY,  editor->CanCopy());
-			ActionManager::SetEnabled(B_PASTE, editor->CanPaste());
+		(scintilla = dynamic_cast<BScintillaView*>(view->Parent())) != nullptr) {
+			ActionManager::SetEnabled(B_CUT,   CanScintillaViewCut(scintilla));
+			ActionManager::SetEnabled(B_COPY,  CanScintillaViewCopy(scintilla));
+			ActionManager::SetEnabled(B_PASTE, CanScintillaViewPaste(scintilla));
 	} else if ((textView = (dynamic_cast<BTextView*>(view))) != nullptr) {
 			int32 start;
 			int32 finish;

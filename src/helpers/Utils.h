@@ -21,6 +21,7 @@
 class BBitmap;
 class BCheckBox;
 class BRadioButton;
+class BScintillaView;
 
 struct entry_ref;
 
@@ -171,5 +172,10 @@ bool	IsXMasPeriod();
 BString	ReadFileContent(const char* filename, off_t maxSize);
 
 BString	GetVersion();
+
+bool	CanScintillaViewCut(BScintillaView* scintilla);
+bool	CanScintillaViewCopy(BScintillaView* scintilla);
+bool	CanScintillaViewPaste(BScintillaView* scintilla);
+bool	IsScintillaViewReadOnly(BScintillaView* scintilla);
 
 #endif // UTILS_H

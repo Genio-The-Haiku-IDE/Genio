@@ -195,7 +195,15 @@ ConsoleIOView::MessageReceived(BMessage* message)
 		case CONSOLEIOTHREAD_EXIT:
 		case MSG_STOP_PROCESS:
 		{
-			_StopCommand(message->GetInt32("status", B_OK));
+			status_t status = message->GetInt32("status", B_OK);
+			thread_id pid = message->GetInt32("pid", -1);
+			if (pid > 0) {
+			 if (waitpid(pid, &status, WNOHANG) > 0) {
+				status_t status = WIFEXITED(status) ?
+								( WEXITSTATUS(status) == 0 ? B_OK : B_ERROR) : B_ERROR;
+			  }
+			}
+			_StopCommand(status);
 			break;
 		}
 		default:

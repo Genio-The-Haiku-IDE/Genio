@@ -443,7 +443,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Activate();
 			break;
 		case B_SAVE_REQUESTED:
-			_FileSaveAs(fTabManager->SelectedTabIndex(), message);
+			_FileSaveAs(fTabManager->SelectedEditor(), message);
 			break;
 		case B_UNDO:
 		{
@@ -1772,7 +1772,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 		} else {
 			if(_FileOpenWithPosition(&ref , openWithPreferred, be_line, lsp_char) != B_OK)
 				continue;
-//			index = _GetEditorIndex(&ref);
 		}
 
 		_ApplyEditsToSelectedEditor(msg);
@@ -1850,8 +1849,6 @@ GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32
 	GMessage selectTabInfo = {{ "caret_position", true }, {"start:line", be_line},{"start:character", lsp_char}};
 
 	Editor* editor = _AddEditorTab(ref, &selectTabInfo);
-
-	LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
 
 	if (editor == nullptr) {
 		LogError("Failed adding editor");
@@ -1991,8 +1988,13 @@ GenioWindow::_FileSaveAll(ProjectFolder* onlyThisProject)
 
 
 status_t
-GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
+GenioWindow::_FileSaveAs(Editor* editor, BMessage* message)
 {
+	if (editor == nullptr) {
+		LogError("_FileSaveAs: NULL editor pointer" );
+		return B_ERROR;
+	}
+
 	entry_ref ref;
 	status_t status;
 	if ((status = message->FindRef("directory", &ref)) != B_OK)
@@ -2008,17 +2010,8 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 	if ((status = entry.GetRef(&newRef)) != B_OK)
 		return status;
 
-	Editor* editor = fTabManager->EditorAt(selection);
-	if (editor == nullptr) {
-		BString notification;
-		notification
-			<< "Index " << selection << ": NULL editor pointer";
-		LogInfo(notification.String());
-		return B_ERROR;
-	}
-
 	editor->SetFileRef(&newRef);
-	fTabManager->SetTabLabel(selection, editor->Name().String());
+	fTabManager->SetTabLabel(editor, editor->Name().String());
 
 	/* Modified files 'Saved as' get saved to an unmodified state.
 	 * It should be cool to take the modified state to the new file and let
@@ -2168,20 +2161,6 @@ GenioWindow::_FindInFiles()
 											  fActiveProject);
 	_ShowOutputTab(kTabSearchResult);
 	_UpdateFindMenuItems(fFindTextControl->Text());
-}
-
-
-int32
-GenioWindow::_GetEditorIndex(const entry_ref* ref) const
-{
-	return fTabManager->IndexBy(ref);
-}
-
-
-int32
-GenioWindow::_GetEditorIndex(node_ref* nodeRef) const
-{
-	return fTabManager->IndexBy(nodeRef);
 }
 
 
@@ -4292,6 +4271,7 @@ void
 GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 {
 	// All files are closed
+	printf("UpdateTabChange %p %s\n", editor, caller.String());
 	if (editor == nullptr) {
 		// ToolBar Items
 		//_FindGroupShow(false);

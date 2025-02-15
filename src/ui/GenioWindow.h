@@ -86,7 +86,7 @@ private:
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
 			status_t			_FileSave(Editor* editor);
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
-			status_t			_FileSaveAs(int32 selection, BMessage* message);
+			status_t			_FileSaveAs(Editor* , BMessage* message);
 			int32				_FilesNeedSave();
 			void				_PreFileLoad(Editor* editor);
 			void				_PostFileLoad(Editor* editor);
@@ -98,8 +98,6 @@ private:
 			void				_FindInFiles();
 			void				_AddSearchFlags(BMessage* msg);
 
-			int32				_GetEditorIndex(const entry_ref* ref) const;
-			int32				_GetEditorIndex(node_ref* nref) const;
 			void				_GetFocusAndSelection(BTextControl* control) const;
 			status_t			_Git(const BString& git_command);
 			void				_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef);

@@ -73,7 +73,7 @@ EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int3
 Editor*
 EditorTabView::EditorBy(const entry_ref* ref)
 {
-	return _GetEditor(ref);
+	return _GetEditor_(ref);
 }
 
 
@@ -133,7 +133,7 @@ EditorTabView::TabLabel(Editor* editor)
 void
 EditorTabView::SelectTab(const entry_ref* ref, BMessage* selInfo)
 {
-	GTab* tab = _GetTab(ref);
+	GTab* tab = _GetTab_(ref);
 	if (tab != nullptr) {
 		GTabView::SelectTab(tab);
 		if (selInfo != nullptr) {
@@ -188,15 +188,15 @@ EditorTabView::ReverseForEachEditor(const std::function<bool(Editor*)>& op)
 
 
 Editor*
-EditorTabView::_GetEditor(const entry_ref* ref)
+EditorTabView::_GetEditor_(const entry_ref* ref)
 {
-	GTabEditor* tab = _GetTab(ref);
+	GTabEditor* tab = _GetTab_(ref);
 	return tab ? tab->GetEditor() : nullptr;
 }
 
 
 GTabEditor*
-EditorTabView::_GetTab(const entry_ref* ref)
+EditorTabView::_GetTab_(const entry_ref* ref)
 {
 	BEntry entry(ref, true);
 	for (int32 i = 0; i < Container()->CountTabs(); i++) {
@@ -381,14 +381,6 @@ EditorTabView::CountTabs()
 }
 
 
-BString
-EditorTabView::TabLabel(int32 index)
-{
-	GTab* tab = Container()->TabAt(index);
-	return tab ? tab->Label() : "";
-}
-
-
 void
 EditorTabView::SelectTab(int32 index, BMessage* selInfo)
 {
@@ -412,48 +404,6 @@ EditorTabView::EditorAt(int32 index)
 {
 	GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(index));
 	return tab ? tab->GetEditor() : nullptr;
-}
-
-
-void
-EditorTabView::SetTabLabel(int32 index, const char* label)
-{
-	Editor* editor = EditorAt(index);
-	if (editor != nullptr) {
-		SetTabLabel(editor, label);
-	}
-}
-
-
-int32
-EditorTabView::IndexBy(const node_ref* nodeRef) const
-{
-	for (int32 i = 0; i < Container()->CountTabs(); i++) {
-		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
-		if (tab != nullptr) {
-			if (tab->GetEditor()->NodeRef() != nullptr &&
-				*tab->GetEditor()->NodeRef() == *nodeRef) {
-				return i;
-			}
-		}
-	}
-	return -1;
-}
-
-
-int32
-EditorTabView::IndexBy(const entry_ref* ref) const
-{
-	BEntry entry(ref, true);
-	for (int32 i = 0; i < Container()->CountTabs(); i++) {
-		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
-		if (tab != nullptr) {
-			if (entry == BEntry(tab->GetEditor()->FileRef(), true)) {
-				return i;
-			}
-		}
-	}
-	return -1;
 }
 
 

@@ -82,7 +82,6 @@ EditorTabView::EditorBy(const entry_ref* ref)
 }
 
 
-
 Editor*
 EditorTabView::EditorBy(const node_ref* nodeRef)
 {

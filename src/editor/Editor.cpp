@@ -57,10 +57,14 @@ const int kIdleTimeout = 250000; //1/4sec
 #define UNSET 0
 #define UNUSED 0
 
+editor_id get_unique_id() {
+	static editor_id g_id = 0;
+	return ++g_id;
+}
 
 Editor::Editor(entry_ref* ref, const BMessenger& target)
-	:
-	BScintillaView(ref->name, 0, true, true)
+	: BScintillaView(ref->name, 0, true, true)
+	, fId(get_unique_id())
 	, fFileRef(*ref)
 	, fModified(false)
 	, fBracingAvailable(false)
@@ -697,9 +701,10 @@ Editor::FindMarkAll(const BString& text, int flags)
 			count++;
 
 			// Found occurrence, message window
-			BMessage message(EDITOR_FIND_SET_MARK);
-			message.AddRef("ref", &fFileRef);
 			int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
+
+			BMessage message(EDITOR_FIND_SET_MARK);
+			message.AddUInt64(kEditorId, fId);
 			message.AddInt32("line", line);
 			fTarget.SendMessage(&message);
 		}
@@ -1151,7 +1156,7 @@ Editor::_UpdateSavePoint(bool modified)
 {
 	fModified = modified;
 	BMessage message(EDITOR_UPDATE_SAVEPOINT);
-	message.AddRef("ref", &fFileRef);
+	message.AddUInt64(kEditorId, fId);
 	message.AddBool("modified", fModified);
 	fTarget.SendMessage(&message);
 }
@@ -1312,10 +1317,10 @@ Editor::ReplaceMessage(int position, const BString& selection,
 							const BString& replacement)
 {
 	BMessage message(EDITOR_REPLACE_ONE);
-	message.AddRef("ref", &fFileRef);
 	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
 	int column = SendMessage(SCI_GETCOLUMN, position, UNSET) + 1;
 	column -= selection.Length();
+	message.AddUInt64(kEditorId, fId);
 	message.AddInt32("line", line);
 	message.AddInt32("column", column);
 	message.AddString("selection", selection);
@@ -1482,7 +1487,7 @@ Editor::SendPositionChanges()
 	fCurrentColumn = column;
 
 	BMessage message(EDITOR_POSITION_CHANGED);
-	message.AddRef("ref", &fFileRef);
+	message.AddUInt64(kEditorId, fId);
 	message.AddInt32("line", fCurrentLine);
 	message.AddInt32("column", fCurrentColumn);
 	fTarget.SendMessage(&message);
@@ -2091,7 +2096,7 @@ Editor::SetProblems()
 		debugger("The looper must be locked !");
 	}
 	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
-	fProblems.AddRef("ref", &fFileRef);
+	fProblems.AddUInt64(kEditorId, Id());
 	Window()->PostMessage(&fProblems);
 }
 
@@ -2106,7 +2111,7 @@ Editor::SetDocumentSymbols(const BMessage* symbols, Editor::symbols_status statu
 
 	fDocumentSymbols = *symbols;
 	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
-	fDocumentSymbols.AddRef("ref", &fFileRef);
+	fDocumentSymbols.AddUInt64(kEditorId, Id());
 	fDocumentSymbols.AddInt32("status", status);
 
 	std::set<std::pair<std::string, int32> >::const_iterator iterator;
@@ -2128,9 +2133,9 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 
 	*symbols = fDocumentSymbols;
 
-	if (!symbols->HasRef("ref")) {
-		// Always add ref so we can identify the file (in FunctionsOutlineView)
-		symbols->AddRef("ref", &fFileRef);
+	if (!symbols->HasUInt64(kEditorId)) {
+		// Always add Id so we can identify the file (in FunctionsOutlineView)
+		symbols->AddUInt64(kEditorId, fId);
 	}
 
 	if (!symbols->HasInt32("status"))

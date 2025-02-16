@@ -7,6 +7,7 @@
 
 #include <Message.h>
 
+#include "Editor.h"
 #include "EditorTabView.h"
 
 
@@ -36,7 +37,7 @@ GTabEditor::CloseButtonClicked()
 	EditorTabView* tabView = dynamic_cast<EditorTabView*>(Container()->GetGTabView());
 	if (tabView) {
 		BMessage msg(EditorTabView::kETVCloseTab);
-		msg.AddInt32("index", Container()->IndexOfTab(this));
+		msg.AddUInt64(kEditorId, fEditor->Id());
 		BMessenger(Handler()).SendMessage(&msg);
 	}
 }

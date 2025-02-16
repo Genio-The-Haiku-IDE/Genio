@@ -1,4 +1,5 @@
 /*
+ * Copyright 2025 Andrea Anzani 
  * Copyright 2017 A. Mosca 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
@@ -16,7 +17,7 @@
 #include <utility>
 
 #include "LSPCapabilities.h"
-
+#include "EditorId.h"
 
 class LSPEditorWrapper;
 class ProjectFolder;
@@ -73,6 +74,8 @@ struct EditorConfig {
 	bool				InsertFinalNewline; // Not implemented
 };
 
+
+
 class Editor : public BScintillaView {
 public:
 	enum symbols_status {
@@ -84,6 +87,7 @@ public:
 
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
+			editor_id			Id() { return fId; }
 	virtual	void 				MessageReceived(BMessage* message);
 			void				LoadEditorConfig();
 			void				ApplySettings();
@@ -244,7 +248,7 @@ private:
 			void	EvaluateIdleTime();
 
 private:
-
+			editor_id			fId;
 			entry_ref			fFileRef;
 			bool				fModified;
 			BString				fFileName;

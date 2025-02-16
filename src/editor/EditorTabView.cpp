@@ -23,6 +23,8 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EditorTabManager"
 
+#define	kSelectByKey 'seta'
+
 
 
 EditorTabView::EditorTabView(BMessenger target):GTabView("_editor_tabview_",
@@ -55,8 +57,11 @@ EditorTabView::~EditorTabView()
 
 
 void
-EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int32 index)
+EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info)
 {
+	//by default the new editor is placed next to the selected one.
+
+	int32 index = SelectedTabIndex() + 1;
 	GTabEditor*	tab = new GTabEditor(label, this, editor);
 	AddTab (tab, editor, index);
 
@@ -64,8 +69,7 @@ EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int3
 	if (info != nullptr)
 		message = *info;
 	message.what = kETVNewTab;
-	message.AddRef("ref", editor->FileRef());
-	message.AddPointer("editor", editor);
+	message.AddUInt64(kEditorId, editor->Id());
 
 	fTarget.SendMessage(&message);
 }
@@ -74,7 +78,7 @@ EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info, int3
 Editor*
 EditorTabView::EditorBy(const entry_ref* ref)
 {
-	return _GetEditor(ref);
+	return _GetEditor_(ref);
 }
 
 
@@ -83,7 +87,7 @@ Editor*
 EditorTabView::EditorBy(const node_ref* nodeRef)
 {
 	Editor* found = nullptr;
-	ForEachEditor([&](Editor* editor){
+	ForEachEditor([&](Editor* editor) {
 		if (editor->NodeRef() != nullptr && *editor->NodeRef() == *nodeRef) {
 			found = editor;
 			return false;
@@ -103,9 +107,9 @@ EditorTabView::SelectedEditor()
 
 
 void
-EditorTabView::SetTabColor(const entry_ref* ref, const rgb_color& color)
+EditorTabView::SetTabColor(Editor* editor, const rgb_color& color)
 {
-	GTabEditor* tab = _GetTab(ref);
+	GTabEditor* tab = _GetTab(editor);
 	if (tab != nullptr) {
 		tab->SetColor(color);
 	}
@@ -121,6 +125,7 @@ EditorTabView::SetTabLabel(Editor* editor, const char* label)
 }
 
 
+
 BString
 EditorTabView::TabLabel(Editor* editor)
 {
@@ -132,7 +137,7 @@ EditorTabView::TabLabel(Editor* editor)
 void
 EditorTabView::SelectTab(const entry_ref* ref, BMessage* selInfo)
 {
-	GTab* tab = _GetTab(ref);
+	GTab* tab = _GetTab_(ref);
 	if (tab != nullptr) {
 		GTabView::SelectTab(tab);
 		if (selInfo != nullptr) {
@@ -140,6 +145,22 @@ EditorTabView::SelectTab(const entry_ref* ref, BMessage* selInfo)
 		}
 	}
 }
+
+
+Editor*
+EditorTabView::EditorById(editor_id id)
+{
+	Editor* found = nullptr;
+	ForEachEditor([&](Editor* editor) {
+		if (editor->Id() == id) {
+			found = editor;
+			return false;
+		}
+		return true;
+	});
+	return found;
+}
+
 
 
 void
@@ -170,16 +191,48 @@ EditorTabView::ReverseForEachEditor(const std::function<bool(Editor*)>& op)
 }
 
 
-Editor*
-EditorTabView::_GetEditor(const entry_ref* ref)
+void
+EditorTabView::AttachedToWindow()
 {
-	GTabEditor* tab = _GetTab(ref);
+	// Shortcuts
+	for (int32 index = 1; index < 10; index++) {
+		constexpr auto kAsciiPos {48};
+		BMessage* selectTab = new BMessage(kSelectByKey);
+		selectTab->AddInt32("index", index - 1);
+		Window()->AddShortcut(index + kAsciiPos, B_COMMAND_KEY, selectTab, this);
+	}
+}
+
+
+void
+EditorTabView::MessageReceived(BMessage* message)
+{
+	switch (message->what) {
+		case kSelectByKey:
+			int32 index;
+			// Shortcut selection, be careful
+			if (message->FindInt32("index", &index) == B_OK) {
+				if (index < Container()->CountTabs())
+					SelectTab(index);
+			}
+			break;
+		default:
+			GTabView::MessageReceived(message);
+			break;
+	}
+}
+
+
+Editor*
+EditorTabView::_GetEditor_(const entry_ref* ref)
+{
+	GTabEditor* tab = _GetTab_(ref);
 	return tab ? tab->GetEditor() : nullptr;
 }
 
 
 GTabEditor*
-EditorTabView::_GetTab(const entry_ref* ref)
+EditorTabView::_GetTab_(const entry_ref* ref)
 {
 	BEntry entry(ref, true);
 	for (int32 i = 0; i < Container()->CountTabs(); i++) {
@@ -203,6 +256,20 @@ EditorTabView::_GetTab(Editor* editor)
 	}
 	return nullptr;
 }
+
+
+GTabEditor*
+EditorTabView::_GetTab(editor_id id)
+{
+	for (int32 i = 0; i < Container()->CountTabs(); i++) {
+		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
+		if (tab != nullptr && tab->GetEditor()->Id() == id) {
+				return tab;
+		}
+	}
+	return nullptr;
+}
+
 
 
 GTab*
@@ -229,7 +296,8 @@ EditorTabView::OnTabSelected(GTab* tab)
 		fLastSelectedInfo.MakeEmpty();
 	}
 	message.what = kETVSelectedTab;
-	message.AddRef("ref", gtab->GetEditor()->FileRef());
+	message.AddUInt64(kEditorId, gtab->GetEditor()->Id());
+
 	fTarget.SendMessage(&message);
 }
 
@@ -241,12 +309,18 @@ EditorTabView::ShowTabMenu(GTabEditor* tab, BPoint where)
 	for (int32 i = 0; i < fPopUpMenu->CountItems(); i++) {
 		BMessage* msg = fPopUpMenu->ItemAt(i)->Message();
 		if (msg != nullptr) {
-			msg->SetInt32("tab_index", Container()->IndexOfTab(tab));
 			if (editor != nullptr) {
+				//TODO: remove "ref"
 				if (msg->HasRef("ref"))
 					msg->ReplaceRef("ref", editor->FileRef());
 				else
 					msg->AddRef("ref", editor->FileRef());
+
+				if (msg->HasUInt64(kEditorId)) {
+					msg->ReplaceUInt64(kEditorId, editor->Id());
+				} else {
+					msg->AddUInt64(kEditorId, editor->Id());
+				}
 			}
 		}
 	}
@@ -343,14 +417,6 @@ EditorTabView::CountTabs()
 }
 
 
-BString
-EditorTabView::TabLabel(int32 index)
-{
-	GTab* tab = Container()->TabAt(index);
-	return tab ? tab->Label() : "";
-}
-
-
 void
 EditorTabView::SelectTab(int32 index, BMessage* selInfo)
 {
@@ -363,7 +429,7 @@ EditorTabView::SelectTab(int32 index, BMessage* selInfo)
 			message = *selInfo;
 		}
 		message.what = kETVSelectedTab;
-		message.AddRef("ref", tab->GetEditor()->FileRef());
+		message.AddUInt64(kEditorId, tab->GetEditor()->Id());
 		fTarget.SendMessage(&message);
 	}
 }
@@ -374,48 +440,6 @@ EditorTabView::EditorAt(int32 index)
 {
 	GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(index));
 	return tab ? tab->GetEditor() : nullptr;
-}
-
-
-void
-EditorTabView::SetTabLabel(int32 index, const char* label)
-{
-	Editor* editor = EditorAt(index);
-	if (editor != nullptr) {
-		SetTabLabel(editor, label);
-	}
-}
-
-
-int32
-EditorTabView::IndexBy(const node_ref* nodeRef) const
-{
-	for (int32 i = 0; i < Container()->CountTabs(); i++) {
-		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
-		if (tab != nullptr) {
-			if (tab->GetEditor()->NodeRef() != nullptr &&
-				*tab->GetEditor()->NodeRef() == *nodeRef) {
-				return i;
-			}
-		}
-	}
-	return -1;
-}
-
-
-int32
-EditorTabView::IndexBy(const entry_ref* ref) const
-{
-	BEntry entry(ref, true);
-	for (int32 i = 0; i < Container()->CountTabs(); i++) {
-		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
-		if (tab != nullptr) {
-			if (entry == BEntry(tab->GetEditor()->FileRef(), true)) {
-				return i;
-			}
-		}
-	}
-	return -1;
 }
 
 

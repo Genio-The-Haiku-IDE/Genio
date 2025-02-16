@@ -193,13 +193,6 @@ GenioWindow::GenioWindow(BRect frame)
 
 	_UpdateTabChange(nullptr, "GenioWindow");
 
-	// Shortcuts
-	for (int32 index = 1; index < 10; index++) {
-		constexpr auto kAsciiPos {48};
-		BMessage* selectTab = new BMessage(MSG_SELECT_TAB);
-		selectTab->AddInt32("index", index - 1);
-		AddShortcut(index + kAsciiPos, B_COMMAND_KEY, selectTab);
-	}
 
 	// TODO: we use ALT+N (where N is 1-9) to switch tab (like Web+), and CTRL+LEFT/RIGHT to switch
 	// to previous/next. Too bad ALT+LEFT/RIGHT are already taken. Maybe we should change to
@@ -374,9 +367,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_UPDATE_DIAGNOSTICS:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor != nullptr && editor == fTabManager->SelectedEditor()) {
 					fProblemsPanel->UpdateProblems(editor);
 				}
@@ -385,13 +378,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_UPDATE_SYMBOLS:
 		{
-			entry_ref editorRef;
-			if (message->FindRef("ref", &editorRef) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&editorRef);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				// add the ref also to the external message
 				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				notifyMessage.AddMessage("symbols", message);
-				notifyMessage.AddRef("ref", &editorRef);
+				notifyMessage.AddRef("ref", editor->FileRef()); //TODO use editor_id!
 				if (editor != nullptr)
 					notifyMessage.AddInt32("caret_line", editor->GetCurrentLineNumber());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
@@ -443,7 +436,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			Activate();
 			break;
 		case B_SAVE_REQUESTED:
-			_FileSaveAs(fTabManager->SelectedTabIndex(), message);
+			_FileSaveAs(fTabManager->SelectedEditor(), message);
 			break;
 		case B_UNDO:
 		{
@@ -480,9 +473,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_FIND_SET_MARK:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor == fTabManager->SelectedEditor()) {
 					int32 line;
 					if (message->FindInt32("line", &line) == B_OK) {
@@ -530,9 +523,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_REPLACE_ONE:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor == fTabManager->SelectedEditor()) {
 					int32 line, column;
 					BString sel, repl;
@@ -552,9 +545,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_POSITION_CHANGED:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor == fTabManager->SelectedEditor()) {
 					// Enable Cut,Copy,Paste shortcuts
 					_UpdateSavepointChange(editor, "EDITOR_POSITION_CHANGED");
@@ -566,14 +559,14 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EDITOR_UPDATE_SAVEPOINT:
 		{
-			entry_ref ref;
+			editor_id id;
 			bool modified = false;
-			if (message->FindRef("ref", &ref) == B_OK &&
+			if (message->FindUInt64(kEditorId, &id) == B_OK &&
 			    message->FindBool("modified", &modified) == B_OK) {
 
-				Editor* editor = fTabManager->EditorBy(&ref);
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor) {
-					_UpdateLabel(_GetEditorIndex(&ref), modified);
+					_UpdateLabel(editor, modified);
 					_UpdateSavepointChange(editor, "UpdateSavePoint");
 				}
 			}
@@ -621,8 +614,12 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ForwardToSelectedEditor(message);
 			break;
 		case MSG_FILE_CLOSE:
-			_FileRequestClose(message->GetInt32("tab_index", fTabManager->SelectedTabIndex()));
+		{
+			editor_id id = message->GetUInt64(kEditorId, 0);
+			Editor* editor = fTabManager->EditorById(id);
+			_FileRequestClose(editor);
 			break;
+		}
 		case MSG_FILE_CLOSE_ALL:
 			_FileCloseAll();
 			break;
@@ -632,66 +629,20 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_COLLAPSE_SYMBOL_NODE:
 			_ForwardToSelectedEditor(message);
 			break;
-		case MSG_FILE_MENU_SHOW:
-		{
-			/* Adapted from tabview */
-			BPopUpMenu* tabMenu = new BPopUpMenu("filetabmenu", true, false);
-			int tabCount = fTabManager->CountTabs();
-			for (int index = 0; index < tabCount; index++) {
-				BString label;
-				label << index + 1 << ". " << fTabManager->TabLabel(index);
-				BMenuItem* item = new BMenuItem(label.String(), nullptr);
-				tabMenu->AddItem(item);
-				if (index == fTabManager->SelectedTabIndex())
-					item->SetMarked(true);
-			}
-
-			// Force layout to get the final menu size. InvalidateLayout()
-			// did not seem to work here.
-			tabMenu->AttachedToWindow();
-			BRect buttonFrame = fToolBar->FindButton(MSG_FILE_MENU_SHOW)->Frame();
-			BRect menuFrame = tabMenu->Frame();
-			BPoint openPoint = ConvertToScreen(buttonFrame.LeftBottom());
-			// Open with the right side of the menu aligned with the right
-			// side of the button and a little below.
-			openPoint.x -= menuFrame.Width() - buttonFrame.Width() + 2;
-			openPoint.y += 20;
-
-			BMenuItem *selected = tabMenu->Go(openPoint, false, false,
-			ConvertToScreen(buttonFrame));
-			if (selected) {
-				selected->SetMarked(true);
-				int32 index = tabMenu->IndexOf(selected);
-				if (index != B_ERROR)
-					fTabManager->SelectTab(index);
-			}
-			delete tabMenu;
-			break;
-		}
 		case MSG_FILE_NEXT_SELECTED:
-		{
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index < fTabManager->CountTabs() - 1)
-				fTabManager->SelectTab(index + 1);
+			fTabManager->SelectNext();
 			break;
-		}
 		case MSG_FILE_OPEN:
 			fOpenPanel->Show();
 			break;
 		case MSG_IMPORT_RESOURCE:
-		{
 			fImportResourcePanel->Show();
 			break;
-		}
 		case MSG_FILE_PREVIOUS_SELECTED:
-		{
-			int32 index = fTabManager->SelectedTabIndex();
-			if (index > 0 && index < fTabManager->CountTabs())
-				fTabManager->SelectTab(index - 1);
+			fTabManager->SelectPrev();
 			break;
-		}
 		case MSG_FILE_SAVE:
-			_FileSave(fTabManager->SelectedTabIndex());
+			_FileSave(fTabManager->SelectedEditor());
 			break;
 		case MSG_FILE_SAVE_AS:
 		{
@@ -872,8 +823,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_FIND_IN_BROWSER:
 		{
-			int32 index = message->GetInt32("tab_index", fTabManager->SelectedTabIndex());
-			Editor*	editor = fTabManager->EditorAt(index);
+			editor_id id = message->GetUInt64(kEditorId, 0);
+			Editor*	editor = fTabManager->EditorById(id);
 			if (editor == nullptr || editor->GetProjectFolder() == nullptr)
 				return;
 
@@ -1073,17 +1024,6 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_RUN_TARGET:
 			_RunTarget();
 			break;
-		case MSG_SELECT_TAB:
-		{
-			int32 index;
-			// Shortcut selection, be careful
-			if (message->FindInt32("index", &index) == B_OK) {
-				if (index < fTabManager->CountTabs()
-					&& index != fTabManager->SelectedTabIndex())
-					fTabManager->SelectTab(index);
-			}
-			break;
-		}
 		case MSG_SHOW_HIDE_LEFT_PANE:
 			gCFG["show_projects"] = !bool(gCFG["show_projects"]);
 			break;
@@ -1123,9 +1063,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EditorTabView::kETVSelectedTab:
 		{
-			entry_ref ref;
-			if (message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id;
+			if (message->FindUInt64(kEditorId, &id) == B_OK) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor == nullptr) {
 					LogError("Selecting editor but it's null! (index %d)", index);
 					break;
@@ -1163,32 +1103,41 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_FILE_CLOSE_OTHER:
 		{
-			int32 index = message->GetInt32("tab_index", fTabManager->SelectedTabIndex());
-			int32 count = fTabManager->CountTabs();
-			BMessage others;
-			for (auto i = count - 1; i >= 0; i--) {
-				if (i != index)
-					others.AddInt32("index", i);
-			}
-			_CloseMultipleTabs(&others);
+			std::vector<Editor*> editors;
+			editor_id	id = message->GetUInt64(kEditorId, 0);
+			fTabManager->ForEachEditor([&](Editor* editor){
+
+					if (editor->Id() != id) {
+						editors.push_back(editor);
+					}
+					return true;
+			});
+
+			_CloseMultipleTabs(editors);
 			break;
 		}
-		//case TABMANAGER_TAB_CLOSE_MULTI:
 		case EditorTabView::kETVCloseTab:
-			_CloseMultipleTabs(message);
-			break;
+		{
+			editor_id	id = message->GetUInt64(kEditorId, 0);
+			Editor*	editor = fTabManager->EditorById(id);
+			if (!editor)
+				return;
+			std::vector<Editor*> editors = { editor };
+			_CloseMultipleTabs(editors);
+		}
+		break;
 		case EditorTabView::kETVNewTab:
 		{
-			//message->PrintToStream();
-			bool set_caret = message->GetBool("caret_position", false);
-			entry_ref ref;
-			if (set_caret && message->FindRef("ref", &ref) == B_OK) {
-				Editor* editor = fTabManager->EditorBy(&ref);
+			editor_id id = message->GetUInt64(kEditorId, 0);
+			if (id != 0) {
+				Editor* editor = fTabManager->EditorById(id);
 				if (editor != nullptr) {
-					editor->SetSavedCaretPosition();
+					if (message->GetBool("caret_position", false) == true) {
+						editor->SetSavedCaretPosition();
+					}
 					ProjectFolder* project = editor->GetProjectFolder();
 					if (project != nullptr) {
-						fTabManager->SetTabColor(&ref, project->Color());
+						fTabManager->SetTabColor(editor, project->Color());
 					}
 				}
 			}
@@ -1383,31 +1332,19 @@ GenioWindow::_ForwardToSelectedEditor(BMessage* msg)
 
 
 void
-GenioWindow::_CloseMultipleTabs(BMessage* msg)
+GenioWindow::_CloseMultipleTabs(std::vector<Editor*>& editors)
 {
-	type_code typeFound;
-	int32 countFound;
-	bool fixedSize;
-	if (msg->GetInfo("index", &typeFound, &countFound, &fixedSize) == B_OK) {
-		int32 index;
-		std::vector<int32> unsavedIndex;
-		for (int32 i = 0; i < countFound; i++) {
-			if (msg->FindInt32("index", i, &index) == B_OK) {
-				Editor* editor = fTabManager->EditorAt(index);
-				if (editor && editor->IsModified()) {
-					unsavedIndex.push_back(index);
-				}
-			}
-		}
+	std::vector<Editor*> unsavedEditor;
+	for(Editor* editor:editors) {
+		if (editor->IsModified())
+			unsavedEditor.push_back(editor);
+	}
 
-		if (!_FileRequestSaveList(unsavedIndex))
-			return;
+	if (!_FileRequestSaveList(unsavedEditor))
+		return;
 
-		for (int32 i=0; i<countFound; i++) {
-			if (msg->FindInt32("index", i, &index) == B_OK) {
-				_RemoveTab(index);
-			}
-		}
+	for(Editor* editor:editors) {
+		_RemoveTab(editor);
 	}
 }
 
@@ -1415,33 +1352,28 @@ GenioWindow::_CloseMultipleTabs(BMessage* msg)
 bool
 GenioWindow::_FileRequestSaveAllModified()
 {
-	std::vector<int32> unsavedIndex;
-	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
-		Editor* editor = fTabManager->EditorAt(index);
-		if (editor->IsModified()) {
-			unsavedIndex.push_back(index);
-		}
-	}
+	std::vector<Editor*> unsavedEditor;
+	fTabManager->ForEachEditor([&](Editor* editor){
+		if (editor->IsModified())
+			unsavedEditor.push_back(editor);
 
-	return _FileRequestSaveList(unsavedIndex);
+		return true;
+	});
+	return _FileRequestSaveList(unsavedEditor);
 }
 
 
 bool
-GenioWindow::_FileRequestClose(int32 index)
+GenioWindow::_FileRequestClose(Editor* editor)
 {
-	if (index < 0)
-		return true;
-
-	Editor* editor = fTabManager->EditorAt(index);
 	if (editor != nullptr) {
 		if (editor->IsModified()) {
-			std::vector<int32> unsavedIndex { index };
-			if (!_FileRequestSaveList(unsavedIndex))
+			std::vector<Editor*> unsavedEditor { editor };
+			if (!_FileRequestSaveList(unsavedEditor))
 				return false;
 
 		}
-		_RemoveTab(index);
+		_RemoveTab(editor);
 	}
 
 	return true;
@@ -1449,20 +1381,15 @@ GenioWindow::_FileRequestClose(int32 index)
 
 
 bool
-GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
+GenioWindow::_FileRequestSaveList(std::vector<Editor*>& unsavedEditor)
 {
-	if (unsavedIndex.empty())
+	if (unsavedEditor.empty())
 		return true;
 
-	std::vector<std::string> unsavedPaths;
-	for (int i:unsavedIndex) {
-		Editor* editor = fTabManager->EditorAt(i);
-		unsavedPaths.push_back(std::string(editor->FilePath().String()));
-	}
-
-	if (unsavedIndex.size() == 1) {
+	if (unsavedEditor.size() == 1) {
+		Editor* editor = unsavedEditor[0];
 		BString text(B_TRANSLATE("Save changes to file \"%file%\""));
-		text.ReplaceAll("%file%", unsavedPaths[0].c_str());
+		text.ReplaceAll("%file%", editor->FilePath().String());
 
 		BAlert* alert = new BAlert("CloseAndSaveDialog", text,
  			B_TRANSLATE("Cancel"), B_TRANSLATE("Don't save"), B_TRANSLATE("Save"),
@@ -1472,7 +1399,7 @@ GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
 
 		switch (alert->Go()) {
 			case 2: // Save and close.
-				_FileSave(unsavedIndex[0]);
+				_FileSave(editor);
 			case 1: // Don't save (close)
 				return true;
 			case 0: // Cancel
@@ -1480,6 +1407,12 @@ GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
 				return false;
 		};
 	}
+
+	std::vector<std::string> unsavedPaths;
+	for (Editor* editor:unsavedEditor) {
+		unsavedPaths.push_back(std::string(editor->FilePath().String()));
+	}
+
 	//Let's use Koder QuitAlert!
 
 	QuitAlert* quitAlert = new QuitAlert(unsavedPaths);
@@ -1489,8 +1422,8 @@ GenioWindow::_FileRequestSaveList(std::vector<int32>& unsavedIndex)
 		return false;
 
 	auto bter = filesToSave.begin();
-	auto iter = unsavedIndex.begin();
-	while (iter != unsavedIndex.end()) {
+	auto iter = unsavedEditor.begin();
+	while (iter != unsavedEditor.end()) {
 		if ((*bter)) {
 			_FileSave(*iter);
 		}
@@ -1573,11 +1506,10 @@ GenioWindow::QuitRequested()
 
 
 Editor*
-GenioWindow::_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo)
+GenioWindow::_AddEditorTab(entry_ref* ref, BMessage* addInfo)
 {
 	Editor* editor = new Editor(ref, BMessenger(this));
-	fTabManager->AddEditor(ref->name, editor, addInfo, index);
-
+	fTabManager->AddEditor(ref->name, editor, addInfo);
 	return editor;
 }
 
@@ -1733,18 +1665,10 @@ GenioWindow::_DebugProject()
 
 
 status_t
-GenioWindow::_RemoveTab(int32 index)
+GenioWindow::_RemoveTab(Editor* editor)
 {
-	if (index < 0 || index > fTabManager->CountTabs()) {
-		LogErrorF("No file selected %d", index);
-		return B_ERROR;
-	}
-	Editor* editor = fTabManager->EditorAt(index);
 	if (!editor)
 		return B_ERROR;
-
-
-
 	// notify listeners: file could have been modified, but user
 	// chose not to save
 	BMessage noticeMessage(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
@@ -1774,16 +1698,12 @@ GenioWindow::_FileCloseAll()
 	if (!_FileRequestSaveAllModified())
 		return;
 
-	int32 tabsCount = fTabManager->CountTabs();
-	// If there is something to close
-	if (tabsCount > 0) {
-		// Don't lose time in changing selection on removal
-		fTabManager->SelectTab(int32(0));
+	fTabManager->ReverseForEachEditor([&](Editor* editor){
+		if (editor->IsModified())
+			_RemoveTab(editor);
 
-		for (int32 index = tabsCount - 1; index >= 0; index--) {
-			_RemoveTab(index);
-		}
-	}
+		return true;
+	});
 }
 
 
@@ -1811,7 +1731,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		return _FileOpenAtStartup(msg);
 	}
 
-	int32 firstAdded = -1;
+	entry_ref firstAdded = {0, 0, 0};
 	entry_ref ref;
 	int32 refsCount = 0;
 	while (msg->FindRef("refs", refsCount++, &ref) == B_OK) {
@@ -1824,18 +1744,17 @@ GenioWindow::_FileOpen(BMessage* msg)
 		const int32 lsp_char  = msg->GetInt32("start:character", -1);
 		const bool openWithPreferred = msg->GetBool("openWithPreferred", false);
 
-		int32 index = _GetEditorIndex(&ref);
-		if (index != -1) {
-			_SelectEditorToPosition(index, be_line, lsp_char);
+		Editor* editor = fTabManager->EditorBy(&ref);
+		if (editor != nullptr) {
+			_SelectEditorToPosition(editor, be_line, lsp_char);
 		} else {
 			if(_FileOpenWithPosition(&ref , openWithPreferred, be_line, lsp_char) != B_OK)
 				continue;
-			index = _GetEditorIndex(&ref);
 		}
 
 		_ApplyEditsToSelectedEditor(msg);
-		if (firstAdded == -1)
-			firstAdded = index;
+		if (firstAdded.directory == 0)
+			firstAdded = ref;
 
 		if (refsCount == 1){
 			entry_ref fromRef;
@@ -1849,13 +1768,13 @@ GenioWindow::_FileOpen(BMessage* msg)
 	ActionManager::SetEnabled(MSG_JUMP_GO_FORWARD, JumpNavigator::getInstance()->HasNext());
 
 
-	if (firstAdded > -1 && fTabManager->CountTabs() > firstAdded) {
-		fTabManager->SelectTab(firstAdded);
+	if (firstAdded.directory != 0) {
+		fTabManager->SelectTab(&firstAdded);
 	}
 
 	// reply to Editor create scripting
 	BMessage reply(B_REPLY);
-	reply.AddInt32("result", firstAdded);
+	reply.AddRef("result", &firstAdded);
 	msg->SendReply(&reply);
 
 	return B_OK;
@@ -1873,14 +1792,14 @@ GenioWindow::_ApplyEditsToSelectedEditor(BMessage* msg)
 
 
 status_t
-GenioWindow::_SelectEditorToPosition(int32 index, int32 be_line, int32 lsp_char)
+GenioWindow::_SelectEditorToPosition(Editor* editor, int32 be_line, int32 lsp_char)
 {
 	GMessage selectTabInfo = {{"start:line", be_line},{"start:character", lsp_char}};
+	Editor* selected = fTabManager->SelectedEditor();
 
-	if (index != fTabManager->SelectedTabIndex()) {
-		fTabManager->SelectTab(index, &selectTabInfo);
+	if (editor != selected) {
+		fTabManager->SelectTab(editor->FileRef(), &selectTabInfo);
 	} else {
-		Editor* selected = fTabManager->SelectedEditor();
 		if (lsp_char >= 0 && be_line > -1) {
 			selected->GoToLSPPosition(be_line - 1, lsp_char);
 		} else if (be_line > -1) {
@@ -1907,12 +1826,9 @@ GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32
 	//this will force getting the caret position from file attributes when loaded.
 	GMessage selectTabInfo = {{ "caret_position", true }, {"start:line", be_line},{"start:character", lsp_char}};
 
-	int32 index = fTabManager->SelectedTabIndex() + 1;
-	Editor* editor = _AddEditorTab(ref, index, &selectTabInfo);
+	Editor* editor = _AddEditorTab(ref, &selectTabInfo);
 
-	LogTrace("New index: %d, selected index: %d", index, fTabManager->SelectedTabIndex());
-
-	if (index < 0 || editor == nullptr) {
+	if (editor == nullptr) {
 		LogError("Failed adding editor");
 		return B_ERROR;
 	}
@@ -1932,7 +1848,7 @@ GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32
 	// TODO: Move some other stuff into _PostFileLoad()
 	_PostFileLoad(editor);
 
-	LogInfo("File open: %s [%d]", editor->Name().String(), index);
+	LogInfo("File open: %s", editor->Name().String());
 	return B_OK;
 }
 
@@ -1989,16 +1905,10 @@ GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 }
 
 
-status_t
-GenioWindow::_FileSave(int32 index)
-{
-	// Should not happen
-	if (index < 0) {
-		LogErrorF("No file selected (%d)", index);
-		return B_ERROR;
-	}
 
-	Editor* editor = fTabManager->EditorAt(index);
+status_t
+GenioWindow::_FileSave(Editor* editor)
+{
 	if (editor == nullptr) {
 		LogErrorF("NULL editor pointer (%d)", index);
 		return B_ERROR;
@@ -2050,14 +1960,19 @@ GenioWindow::_FileSaveAll(ProjectFolder* onlyThisProject)
 			continue;
 
 		if (editor->IsModified())
-			_FileSave(index);
+			_FileSave(editor);
 	}
 }
 
 
 status_t
-GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
+GenioWindow::_FileSaveAs(Editor* editor, BMessage* message)
 {
+	if (editor == nullptr) {
+		LogError("_FileSaveAs: NULL editor pointer" );
+		return B_ERROR;
+	}
+
 	entry_ref ref;
 	status_t status;
 	if ((status = message->FindRef("directory", &ref)) != B_OK)
@@ -2073,17 +1988,8 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 	if ((status = entry.GetRef(&newRef)) != B_OK)
 		return status;
 
-	Editor* editor = fTabManager->EditorAt(selection);
-	if (editor == nullptr) {
-		BString notification;
-		notification
-			<< "Index " << selection << ": NULL editor pointer";
-		LogInfo(notification.String());
-		return B_ERROR;
-	}
-
 	editor->SetFileRef(&newRef);
-	fTabManager->SetTabLabel(selection, editor->Name().String());
+	fTabManager->SetTabLabel(editor, editor->Name().String());
 
 	/* Modified files 'Saved as' get saved to an unmodified state.
 	 * It should be cool to take the modified state to the new file and let
@@ -2092,7 +1998,7 @@ GenioWindow::_FileSaveAs(int32 selection, BMessage* message)
 	 */
 	//_UpdateLabel(selection, editor->IsModified());
 
-	_FileSave(selection);
+	_FileSave(editor);
 
 	return B_OK;
 }
@@ -2236,20 +2142,6 @@ GenioWindow::_FindInFiles()
 }
 
 
-int32
-GenioWindow::_GetEditorIndex(const entry_ref* ref) const
-{
-	return fTabManager->IndexBy(ref);
-}
-
-
-int32
-GenioWindow::_GetEditorIndex(node_ref* nodeRef) const
-{
-	return fTabManager->IndexBy(nodeRef);
-}
-
-
 void
 GenioWindow::_GetFocusAndSelection(BTextControl* control) const
 {
@@ -2295,8 +2187,8 @@ GenioWindow::_Git(const BString& git_command)
 void
 GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef)
 {
-	int32 index = _GetEditorIndex(oldRef);
-	if (index < 0) {
+	Editor* editor = fTabManager->EditorBy(oldRef);
+	if (editor == nullptr) {
 		LogError("_HandleExternalMoveModification: Invalid move file: oldRef doesn't exist");
 		return;
 	}
@@ -2324,12 +2216,11 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 	if (choice == 0)
 		return;
 	else if (choice == 1) {
-		_FileRequestClose(index);
+		_FileRequestClose(editor);
 	} else if (choice == 2) {
-		Editor *editor = fTabManager->EditorAt(index);
 		editor->SetFileRef(newRef);
-		fTabManager->SetTabLabel(index, editor->Name().String());
-		_UpdateLabel(index, editor->IsModified());
+		fTabManager->SetTabLabel(editor, editor->Name().String());
+		_UpdateLabel(editor, editor->IsModified());
 
 		// if the file is moved outside of the project folder it should be
 		// detached from it as well
@@ -2358,13 +2249,12 @@ GenioWindow::_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRe
 
 
 void
-GenioWindow::_HandleExternalRemoveModification(int32 index)
+GenioWindow::_HandleExternalRemoveModification(Editor* editor)
 {
-	if (index < 0) {
+	if (editor == nullptr) {
 		return; //TODO notify
 	}
 
-	Editor* editor = fTabManager->EditorAt(index);
 	BString fileName(editor->Name());
 
 	BString text;
@@ -2387,26 +2277,15 @@ GenioWindow::_HandleExternalRemoveModification(int32 index)
 	 	// If not modified save it or it will be lost, if modified let
 	 	// the user decide
 	 	if (editor->IsModified() == false)
-			_FileSave(index);
+			_FileSave(editor);
 		return;
 	} else if (choice == 1) {
-		_RemoveTab(index);
+		_RemoveTab(editor);
 
 		BString notification;
 		notification << "File info: " << fileName << " removed externally";
 		LogInfo(notification.String());
 	}
-}
-
-
-void
-GenioWindow::_HandleExternalStatModification(int32 index)
-{
-	if (index < 0)
-		return;
-
-	Editor* editor = fTabManager->EditorAt(index);
-	_HandleExternalStatModification(editor);
 }
 
 
@@ -2488,7 +2367,7 @@ GenioWindow::_CheckEntryRemoved(BMessage *msg)
 	}
 
 	// the file is gone for sure!
-	_HandleExternalRemoveModification(_GetEditorIndex(&nref));
+	_HandleExternalRemoveModification(fTabManager->EditorBy(&nref));
 }
 
 
@@ -2561,8 +2440,7 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 			if (((fields & B_STAT_MODIFICATION_TIME)  != 0)
 			// Do not reload if the file just got touched
 				&& ((fields & B_STAT_ACCESS_TIME)  == 0)) {
-//				BNode node(&nref);
-				_HandleExternalStatModification(_GetEditorIndex(&nref));
+				_HandleExternalStatModification(fTabManager->EditorBy(&nref));
 			}
 
 			break;
@@ -3660,9 +3538,7 @@ GenioWindow::_ProjectFileDelete()
 	else if (choice == 1) {
 		// Close the file if open
 		if (entry.IsFile()) {
-			int32 openedIndex;
-			if ((openedIndex = _GetEditorIndex(ref)) != -1)
-				_RemoveTab(openedIndex);
+			_RemoveTab(fTabManager->EditorBy(ref));
 		}
 		// Remove the entry
 		if (entry.Exists()) {
@@ -3790,14 +3666,15 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	if (project == nullptr)
 		return;
 
-	std::vector<int32> unsavedFiles;
-	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {
-		Editor* editor = fTabManager->EditorAt(index);
+	std::vector<Editor*> unsavedEditor;
+	fTabManager->ForEachEditor([&](Editor* editor){
 		if (editor->IsModified() && editor->GetProjectFolder() == project)
-			unsavedFiles.push_back(index);
-	}
+			unsavedEditor.push_back(editor);
 
-	if (!_FileRequestSaveList(unsavedFiles))
+		return true;
+	});
+
+	if (!_FileRequestSaveList(unsavedEditor))
 		return;
 
 	BString closed("Project close:");
@@ -3816,16 +3693,16 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		fRunConsoleProgramText->SetToolTip(tooltip);
 	}
 
-	BString projectPath = project->Path();
-	projectPath = projectPath.Append("/");
+	/*BString projectPath = project->Path();
+	projectPath = projectPath.Append("/");*/
 
-	for (int32 index = fTabManager->CountTabs() - 1 ; index > -1; index--) {
-		Editor* editor = fTabManager->EditorAt(index);
+	fTabManager->ReverseForEachEditor([&](Editor* editor){
 		if (editor->GetProjectFolder() == project) {
 			editor->SetProjectFolder(NULL);
-			_RemoveTab(index);
+			_RemoveTab(editor);
 		}
-	}
+		return true;
+	});
 
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
 
@@ -4246,19 +4123,19 @@ GenioWindow::_UpdateRecentCommands(const BString& text)
 
 
 status_t
-GenioWindow::_UpdateLabel(int32 index, bool isModified)
+GenioWindow::_UpdateLabel(Editor* editor, bool isModified)
 {
-	if (index > -1 && index < fTabManager->CountTabs()) {
+	if (editor != nullptr) {
 		if (isModified) {
 				// Add '*' to file name
-				BString label(fTabManager->TabLabel(index));
+				BString label(fTabManager->TabLabel(editor));
 				label.Append("*");
-				fTabManager->SetTabLabel(index, label.String());
+				fTabManager->SetTabLabel(editor, label.String());
 		} else {
 				// Remove '*' from file name
-				BString label(fTabManager->TabLabel(index));
+				BString label(fTabManager->TabLabel(editor));
 				label.RemoveLast("*");
-				fTabManager->SetTabLabel(index, label.String());
+				fTabManager->SetTabLabel(editor, label.String());
 		}
 		return B_OK;
 	}
@@ -4372,6 +4249,7 @@ void
 GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 {
 	// All files are closed
+	printf("UpdateTabChange %p %s\n", editor, caller.String());
 	if (editor == nullptr) {
 		// ToolBar Items
 		//_FindGroupShow(false);
@@ -4607,7 +4485,7 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 			Editor* editor = fTabManager->EditorAt(index);
 			ProjectFolder* project = editor->GetProjectFolder();
 			if (project != nullptr) {
-				fTabManager->SetTabColor(editor->FileRef(), project->Color());
+				fTabManager->SetTabColor(editor, project->Color());
 			}
 		}
 	}

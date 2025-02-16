@@ -121,7 +121,6 @@ enum {
 	MSG_SHOW_HIDE_BOTTOM_PANE			= 'shou',
 	MSG_FULLSCREEN					= 'fscr',
 	MSG_FOCUS_MODE					= 'focu',
-	MSG_SELECT_TAB					= 'seta',
 
 	MSG_ESCAPE_KEY					= 'escp',
 

@@ -1124,8 +1124,8 @@ GenioWindow::MessageReceived(BMessage* message)
 				return;
 			std::vector<Editor*> editors = { editor };
 			_CloseMultipleTabs(editors);
+			break;
 		}
-		break;
 		case EditorTabView::kETVNewTab:
 		{
 			editor_id id = message->GetUInt64(kEditorId, 0);
@@ -1141,8 +1141,8 @@ GenioWindow::MessageReceived(BMessage* message)
 					}
 				}
 			}
+			break;
 		}
-		break;
 		case MSG_FIND_WRAP:
 			gCFG["find_wrap"] = (bool)fFindWrapCheck->Value();
 			break;
@@ -1186,9 +1186,21 @@ GenioWindow::MenusBeginning()
 {
 	BWindow::MenusBeginning();
 
+	// Build "Set active" menu
+	for (int32 p = 0; p < GetProjectBrowser()->CountProjects(); p++) {
+		ProjectFolder* project = GetProjectBrowser()->ProjectAt(p);
+		BMessage* setActiveMessage = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
+		setActiveMessage->AddPointer("project", project);
+		BMenuItem* item = new BMenuItem(project->Name(), setActiveMessage);
+		if (project->Active())
+			item->SetEnabled(false);
+		fSetActiveProjectMenuItem->AddItem(item);
+	}
+
 	BView* view = CurrentFocus();
 	if (view == nullptr)
 		return;
+
 	BScintillaView* scintilla = nullptr;
 	BTextView* textView = nullptr;
 	if (view->Parent() != nullptr &&
@@ -1210,16 +1222,6 @@ GenioWindow::MenusBeginning()
 			ActionManager::SetEnabled(B_CUT,   false);
 			ActionManager::SetEnabled(B_COPY,  false);
 			ActionManager::SetEnabled(B_PASTE, false);
-	}
-
-	for (int32 p = 0; p < GetProjectBrowser()->CountProjects(); p++) {
-		ProjectFolder* project = GetProjectBrowser()->ProjectAt(p);
-		BMessage* setActiveMessage = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
-		setActiveMessage->AddPointer("project", project);
-		BMenuItem* item = new BMenuItem(project->Name(), setActiveMessage);
-		if (project->Active())
-			item->SetEnabled(false);
-		fSetActiveProjectMenuItem->AddItem(item);
 	}
 }
 

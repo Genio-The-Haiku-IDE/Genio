@@ -22,33 +22,36 @@ enum {
 
 class CardViewDropZone : public BCardView, public GTabDropZone {
 public:
-  CardViewDropZone(TabsContainer *tabsContainer) : BCardView("_cardview_") {
-    SetContainer(tabsContainer);
-	SetFlags(Flags() | B_WILL_DRAW);
-  }
-  void Draw(BRect rect) override {
-    BCardView::Draw(rect);
-    DropZoneDraw(this, rect);
-  }
+	CardViewDropZone(TabsContainer *tabsContainer)
+	:
+	BCardView("_cardview_") {
+		SetContainer(tabsContainer);
+		SetFlags(Flags() | B_WILL_DRAW);
+	}
+	void Draw(BRect rect) override {
+		BCardView::Draw(rect);
+		DropZoneDraw(this, rect);
+	}
+	
+	void MouseUp(BPoint where) override {
+		DropZoneMouseUp(this, where);
+	}
 
-  void MouseUp(BPoint where) override {
-	DropZoneMouseUp(this, where);
-  }
+	void MessageReceived(BMessage *message) override {
+		if (!DropZoneMessageReceived(message))
+			BCardView::MessageReceived(message);
+	}
 
-  void MessageReceived(BMessage *message) override {
-    if (DropZoneMessageReceived(message) == false)
-		BCardView::MessageReceived(message);
-  }
-
-  void MouseMoved(BPoint where, uint32 transit,
+	void MouseMoved(BPoint where, uint32 transit,
                   const BMessage *dragMessage) override {
 		DropZoneMouseMoved(this, where, transit, dragMessage);
-  }
+	}
 
-  void OnDropMessage(BMessage *message) override {
-    Container()->OnDropTab(nullptr, message);
-  }
+	void OnDropMessage(BMessage *message) override {
+		Container()->OnDropTab(nullptr, message);
+	}
 };
+
 
 GTabView::GTabView(const char* name,
 				   tab_affinity affinity,
@@ -118,7 +121,6 @@ GTabView::DestroyTabAndView(GTab* tab)
 	delete fromView;
 
 	SelectTab(Container()->SelectedTab());
-
 }
 
 
@@ -166,8 +168,7 @@ GTabView::MessageReceived(BMessage* message)
 				return;
 
 			int32	fromIndex = message->GetInt32("index", -1);
-			if (fromIndex > -1 && fromIndex < Container()->CountTabs())
-			{
+			if (fromIndex > -1 && fromIndex < Container()->CountTabs()) {
 				GTab* tab = Container()->TabAt(fromIndex);
 				if (tab != nullptr) {
 					DestroyTabAndView(tab);
@@ -231,7 +232,7 @@ GTabView::OnMenuTabButton()
 BMenuItem*
 GTabView::CreateMenuItem(GTab* tab)
 {
-	return  new BMenuItem(tab->Label(), nullptr);
+	return new BMenuItem(tab->Label(), nullptr);
 }
 
 
@@ -356,5 +357,3 @@ GTabView::CreateTabView(GTab* clone)
 {
 	return CreateTabView(clone->Label());
 }
-
-

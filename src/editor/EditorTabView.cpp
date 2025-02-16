@@ -87,7 +87,7 @@ Editor*
 EditorTabView::EditorBy(const node_ref* nodeRef)
 {
 	Editor* found = nullptr;
-	ForEachEditor([&](Editor* editor){
+	ForEachEditor([&](Editor* editor) {
 		if (editor->NodeRef() != nullptr && *editor->NodeRef() == *nodeRef) {
 			found = editor;
 			return false;
@@ -124,7 +124,6 @@ EditorTabView::SetTabLabel(Editor* editor, const char* label)
 		tab->SetLabel(label);
 }
 
-	BString TabLabel(Editor*);
 
 
 BString
@@ -152,7 +151,7 @@ Editor*
 EditorTabView::EditorById(editor_id id)
 {
 	Editor* found = nullptr;
-	ForEachEditor([&](Editor* editor){
+	ForEachEditor([&](Editor* editor) {
 		if (editor->Id() == id) {
 			found = editor;
 			return false;
@@ -191,6 +190,7 @@ EditorTabView::ReverseForEachEditor(const std::function<bool(Editor*)>& op)
 	}
 }
 
+
 void
 EditorTabView::AttachedToWindow()
 {
@@ -207,7 +207,7 @@ EditorTabView::AttachedToWindow()
 void
 EditorTabView::MessageReceived(BMessage* message)
 {
-	switch(message->what) {
+	switch (message->what) {
 		case kSelectByKey:
 			int32 index;
 			// Shortcut selection, be careful
@@ -219,7 +219,7 @@ EditorTabView::MessageReceived(BMessage* message)
 		default:
 			GTabView::MessageReceived(message);
 			break;
-	};
+	}
 }
 
 

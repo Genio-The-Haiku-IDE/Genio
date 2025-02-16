@@ -8,6 +8,7 @@
 
 #include <Messenger.h>
 #include <PopUpMenu.h>
+
 #include "EditorId.h"
 #include "GTabView.h"
 
@@ -85,5 +86,3 @@ private:
 			BPopUpMenu* fPopUpMenu;
 			BMessage 	fLastSelectedInfo;
 };
-
-

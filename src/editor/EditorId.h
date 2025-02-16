@@ -5,6 +5,7 @@
 #pragma once
 
 
+#include <SupportDefs.h>
+
 typedef uint64	editor_id;
 #define kEditorId "editor:id"
-

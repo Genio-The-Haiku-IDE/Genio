@@ -198,10 +198,10 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			status_t status = message->GetInt32("status", B_OK);
 			thread_id pid = message->GetInt32("pid", -1);
 			if (pid > 0) {
-			 if (waitpid(pid, &status, WNOHANG) > 0) {
-				status_t status = WIFEXITED(status) ?
-								( WEXITSTATUS(status) == 0 ? B_OK : B_ERROR) : B_ERROR;
-			  }
+				if (waitpid(pid, &status, WNOHANG) > 0) {
+					status = WIFEXITED(status) ?
+						( WEXITSTATUS(status) == 0 ? B_OK : B_ERROR) : B_ERROR;
+				}
 			}
 			_StopCommand(status);
 			break;

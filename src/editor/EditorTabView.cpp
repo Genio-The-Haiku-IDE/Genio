@@ -193,6 +193,8 @@ EditorTabView::ReverseForEachEditor(const std::function<bool(Editor*)>& op)
 void
 EditorTabView::AttachedToWindow()
 {
+	GTabView::AttachedToWindow();
+
 	// Shortcuts
 	for (int32 index = 1; index < 10; index++) {
 		constexpr auto kAsciiPos {48};

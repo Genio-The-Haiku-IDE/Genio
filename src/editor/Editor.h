@@ -3,21 +3,20 @@
  * Copyright 2017 A. Mosca 
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef EDITOR_H
-#define EDITOR_H
-
-#include <string>
+#pragma once
 
 #include <Locker.h>
 #include <MessageFilter.h>
 #include <Messenger.h>
-#include "ScintillaView.h"
 #include <MessageRunner.h>
+
 #include <set>
+#include <string>
 #include <utility>
 
-#include "LSPCapabilities.h"
 #include "EditorId.h"
+#include "LSPCapabilities.h"
+#include "ScintillaView.h"
 
 class LSPEditorWrapper;
 class ProjectFolder;
@@ -284,5 +283,3 @@ private:
 			Sci_Position		fLastWordStartPosition = -1;
 			Sci_Position		fLastWordEndPosition = -1;
 };
-
-#endif // EDITOR_H

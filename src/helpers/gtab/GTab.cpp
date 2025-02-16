@@ -169,6 +169,7 @@ GTab::DrawLabel(BView* owner, BRect frame, const BRect& updateRect, bool isFront
 		base, 0, BAlignment(B_ALIGN_CENTER, B_ALIGN_MIDDLE));
 }
 
+
 void
 GTab::MouseDown(BPoint where)
 {
@@ -181,7 +182,7 @@ GTab::MouseDown(BPoint where)
  	if (Container())
 		Container()->MouseDownOnTab(this, where, buttons);
 
-	if(buttons & B_PRIMARY_MOUSE_BUTTON) {
+	if (buttons & B_PRIMARY_MOUSE_BUTTON) {
 		DropZoneMouseDown(where);
 	}
 }

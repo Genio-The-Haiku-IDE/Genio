@@ -96,10 +96,6 @@ GTabEditor::DrawCircle(BView* owner, BRect& frame)
 	owner->SetHighColor(tint_color(fColor, B_DARKEN_1_TINT));
 	owner->StrokeEllipse(circleFrame);
 	frame.left = circleFrame.right + be_control_look->DefaultLabelSpacing();
-	//FIXME:
-	owner->SetHighColor(tint_color(fColor, B_DARKEN_4_TINT));
-	circleFrame.InsetBy(4,4);
-	owner->FillEllipse(circleFrame);
 }
 
 

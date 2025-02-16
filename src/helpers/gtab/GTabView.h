@@ -32,9 +32,9 @@ class GTabView : public BGroupView {
 
 			void	UpdateScrollButtons(bool left, bool right);
 
-			void	AttachedToWindow();
+			void	AttachedToWindow() override;
 
-			void	MessageReceived(BMessage* message);
+			void	MessageReceived(BMessage* message) override;
 
 			void	MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer);
 

@@ -1212,5 +1212,5 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 	BPoint menuPoint = ConvertToScreen(where);
 	menuPoint.x += 1;
 	menuPoint.y += 1;
-	projectMenu->Go(menuPoint, true);
+	projectMenu->Go(menuPoint, true, false, true);
 }

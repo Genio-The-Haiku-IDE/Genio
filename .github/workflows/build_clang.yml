@@ -1,15 +1,23 @@
 name: "haiku-ci-clang"
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - '**.rdef'
+      - 'Makefile'
   pull_request:
     branches: [ main ]
     paths:
       - '**.cpp'
       - '**.h'
       - '**.rdef'
+      - 'Makefile'
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build-haiku:

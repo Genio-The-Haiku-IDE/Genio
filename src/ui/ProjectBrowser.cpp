@@ -1164,9 +1164,9 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 			new BMessage(MSG_CLEAN_PROJECT));
 		projectMenu->AddItem(buildMenuItem);
 		projectMenu->AddItem(cleanMenuItem);
+
 		setActiveProjectMenuItem->SetEnabled(!project->Active());
-		if (!project->Active())
-			setActiveProjectMenuItem->SetEnabled(true);
+
 		if (project->IsBuilding() || !project->Active()) {
 			buildMenuItem->SetEnabled(false);
 			cleanMenuItem->SetEnabled(false);

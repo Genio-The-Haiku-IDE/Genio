@@ -27,11 +27,11 @@
 
 
 
-EditorTabView::EditorTabView(BMessenger target):GTabView("_editor_tabview_",
-										'EDTV',
-										B_HORIZONTAL,
-										true,
-										true), fTarget(target)
+EditorTabView::EditorTabView(BMessenger target)
+	:
+	GTabView("_editor_tabview_", 'EDTV', B_HORIZONTAL, true, true),
+	fTarget(target),
+	fPopUpMenu(nullptr)
 {
 
 	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
@@ -46,7 +46,6 @@ EditorTabView::EditorTabView(BMessenger target):GTabView("_editor_tabview_",
 	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, fPopUpMenu);
 
 	fPopUpMenu->SetTargetForItems(target);
-
 }
 
 
@@ -124,7 +123,6 @@ EditorTabView::SetTabLabel(Editor* editor, const char* label)
 }
 
 
-
 BString
 EditorTabView::TabLabel(Editor* editor)
 {
@@ -159,7 +157,6 @@ EditorTabView::EditorById(editor_id id)
 	});
 	return found;
 }
-
 
 
 void

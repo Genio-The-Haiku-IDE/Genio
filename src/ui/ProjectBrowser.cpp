@@ -27,7 +27,6 @@
 #include <File.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
-#include <Looper.h>
 #include <MenuItem.h>
 #include <MessageRunner.h>
 #include <Mime.h>
@@ -584,6 +583,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					Window()->PostMessage(&openProjectMessage);
 				}
 			}
+			// TODO: is falling-through correct ?
 		}
 		default:
 			BView::MessageReceived(message);
@@ -913,7 +913,6 @@ ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 void
 ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref)
 {
-
 	// Let's select the new created file.
 	// just send a message to the ProjectBrowser with the new ref
 	// .. after some milliseconds..
@@ -1097,32 +1096,31 @@ ProjectOutlineListView::CompareProjectItems(const BListItem* a, const BListItem*
 
 	const ProjectItem* A = dynamic_cast<const ProjectItem*>(a);
 	const ProjectItem* B = dynamic_cast<const ProjectItem*>(b);
-	const char* nameA = A->Text();
-	SourceItem *itemA = A->GetSourceItem();
-	const char* nameB = B->Text();
-	SourceItem *itemB = B->GetSourceItem();
 
-	if (itemA->Type() == SourceItemType::FolderItem && itemB->Type() == SourceItemType::FileItem) {
+	const char* nameA = A->Text();
+	const auto itemAType = A->GetSourceItem()->Type();
+
+	const char* nameB = B->Text();
+	const auto itemBType = B->GetSourceItem()->Type();
+
+	if (itemAType == SourceItemType::FolderItem && itemBType == SourceItemType::FileItem) {
 		return -1;
 	}
 
-	if (itemA->Type() == SourceItemType::FileItem && itemB->Type() == SourceItemType::FolderItem) {
+	if (itemAType == SourceItemType::FileItem && itemBType == SourceItemType::FolderItem) {
 		return 1;
 	}
 
-	if (nameA == NULL) {
+	if (nameA == nullptr) {
 		return 1;
 	}
 
-	if (nameB == NULL) {
+	if (nameB == nullptr) {
 		return -1;
 	}
 
 	// Natural order sort
-	if (nameA != NULL && nameB != NULL)
-		return BPrivate::NaturalCompare(nameA, nameB);
-
-	return 0;
+	return BPrivate::NaturalCompare(nameA, nameB);
 }
 
 

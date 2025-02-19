@@ -373,9 +373,10 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 	int32 opCode;
 	if (message->FindInt32("opcode", &opCode) != B_OK)
 		return;
-	BString watchedPath;
-	if (message->FindString("watched_path", &watchedPath) != B_OK)
+
+	if (!message->HasString("watched_path"))
 		return;
+
 	switch (opCode) {
 		case B_ENTRY_CREATED:
 		{

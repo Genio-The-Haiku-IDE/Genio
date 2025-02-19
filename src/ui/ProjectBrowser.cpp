@@ -195,6 +195,179 @@ ProjectBrowser::_CreatePath(BPath pathToCreate)
 
 
 void
+ProjectBrowser::_RemovePath(BString spath)
+{
+	LogDebug("path %s", spath.String());
+	ProjectItem *item = GetProjectItemByPath(spath);
+	if (!item) {
+		LogError("Can't find an item to remove [%s]", spath.String());
+		return;
+	}
+	if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+		if (LockLooper()) {
+			fOutlineListView->Select(fOutlineListView->IndexOf(item));
+			BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
+			closePrj.AddPointer("project", item->GetSourceItem());
+			Window()->PostMessage(&closePrj);
+
+			// It seems not possible to track the project folder to the new
+			// location outside of the watched path. So we close the project
+			// and warn the user
+			auto alert = new BAlert("ProjectFolderChanged", B_TRANSLATE(
+				"The project folder has been deleted or moved to another location "
+				"and it will be closed and unloaded from the workspace."),
+				B_TRANSLATE("OK"), NULL, NULL,
+				B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+				alert->Go();
+
+			UnlockLooper();
+		}
+	} else {
+		fOutlineListView->RemoveItem(item);
+		fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
+			true, ProjectOutlineListView::CompareProjectItems);
+	}
+}
+
+
+void
+ProjectBrowser::_HandleEntryMoved(BMessage* message)
+{
+	BString spath;
+	// An item moved outside of the project folder
+	if (message->GetBool("removed", false)) {
+		if (message->FindString("from path", &spath) == B_OK) {
+			LogDebug("from path %s",  spath.String());
+			ProjectItem *item = GetProjectItemByPath(spath);
+			if (!item) {
+				LogError("Can't find an item to move [%s]", spath.String());
+				return;
+			}
+			// the project folder is being renamed
+			if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
+				if (LockLooper()) {
+					fOutlineListView->Select(fOutlineListView->IndexOf(item));
+					BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
+					closePrj.AddPointer("project", item->GetSourceItem());
+					Window()->PostMessage(&closePrj);
+
+					auto alert = new BAlert("ProjectFolderChanged",
+						B_TRANSLATE("The project folder has been renamed. It will be closed and reopened automatically."),
+						B_TRANSLATE("OK"), NULL, NULL,
+						B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+					alert->Go();
+
+					// reopen project under the new name or location
+					entry_ref ref;
+					if (message->FindInt64("to directory", &ref.directory) == B_OK) {
+						const char *name;
+						message->FindInt32("device", &ref.device);
+						message->FindString("name", &name);
+						ref.set_name(name);
+						BMessage msg(MSG_PROJECT_FOLDER_OPEN);
+						msg.AddRef("refs", &ref);
+						Window()->PostMessage(&msg);
+					}
+					UnlockLooper();
+				}
+			} else {
+				fOutlineListView->RemoveItem(item);
+				fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
+					true, ProjectOutlineListView::CompareProjectItems);
+			}
+		}
+	} else {
+		BString oldName, newName;
+		BString oldPath, newPath;
+		if (message->GetBool("added")) {
+			if (message->FindString("path", &newPath) == B_OK) {
+				if (message->FindString("name", &newName) == B_OK) {
+					const BPath destination(newPath);
+					BEntry newPathEntry(newPath);
+					if (newPathEntry.IsDirectory()) {
+						// a new folder moved inside the project.
+						//ensure we have a parent
+						BPath parent;
+						destination.GetParent(&parent);
+						ProjectItem *parentItem = _CreatePath(parent);
+						// recursive parsing!
+						entry_ref entryRef;
+						newPathEntry.GetRef(&entryRef);
+						_ProjectFolderScan(parentItem, &entryRef, parentItem->GetSourceItem()->GetProjectFolder());
+						fOutlineListView->SortItemsUnder(parentItem, false,
+								ProjectOutlineListView::CompareProjectItems);
+					} else {
+						//Plain file
+						_CreatePath(destination);
+					}
+				}
+			}
+		} else if (message->FindString("from name", &oldName) == B_OK) {
+			if (message->FindString("name", &newName) == B_OK) {
+				if (message->FindString("from path", &oldPath) == B_OK) {
+					if (message->FindString("path", &newPath) == B_OK) {
+						const BPath bp_oldPath(oldPath.String());
+						BPath bp_oldParent;
+						bp_oldPath.GetParent(&bp_oldParent);
+						const BPath bp_newPath(newPath.String());
+						BPath bp_newParent;
+						bp_newPath.GetParent(&bp_newParent);
+
+						// If the path remains the same except the leaf
+						// then the item is being RENAMED
+						// if the path changes then the item is being MOVED
+						if (bp_oldParent == bp_newParent) {
+							ProjectItem *item = GetProjectItemByPath(oldPath);
+							if (!item) {
+								LogError("Can't find an item to move oldPath[%s] -> newPath[%s]", oldPath.String(), newPath.String());
+								return;
+							}
+							entry_ref newRef;
+							if (get_ref_for_path(newPath, &newRef) == B_OK) {
+								item->SetText(newName);
+								item->GetSourceItem()->UpdateEntryRef(newRef);
+								fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
+									true, ProjectOutlineListView::CompareProjectItems);
+								if (item->IsSelected())
+									fOutlineListView->ScrollToSelection();
+							} else {
+								LogError("Can't find ref for newPath[%s]", newPath.String());
+								return;
+							}
+						} else {
+							ProjectItem *item = GetProjectItemByPath(oldPath);
+							if (!item) {
+								LogError("Can't find an item to move oldPath [%s]", oldPath.String());
+								return;
+							}
+							ProjectItem *destinationItem = GetProjectItemByPath(bp_newParent.Path());
+							if (!item) {
+								LogError("Can't find an item to move newParent [%s]", bp_newParent.Path());
+								return;
+							}
+							bool status = fOutlineListView->RemoveItem(item);
+							if (status) {
+								fOutlineListView->SortItemsUnder(
+									fOutlineListView->Superitem(item), true,
+										ProjectOutlineListView::CompareProjectItems);
+
+								ProjectItem *newItem = _CreateNewProjectItem(item, bp_newPath);
+								status = fOutlineListView->AddUnder(newItem, destinationItem);
+								if (status) {
+									fOutlineListView->SortItemsUnder(destinationItem, true,
+										ProjectOutlineListView::CompareProjectItems);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
+void
 ProjectBrowser::_UpdateNode(BMessage* message)
 {
 	int32 opCode;
@@ -216,176 +389,14 @@ ProjectBrowser::_UpdateNode(BMessage* message)
 		case B_ENTRY_REMOVED:
 		{
 			BString spath;
-			if (message->FindString("path", &spath) != B_OK)
-				break;
-
-			LogDebug("path %s", spath.String());
-			ProjectItem *item = GetProjectItemByPath(spath);
-			if (!item) {
-				LogError("Can't find an item to remove [%s]", spath.String());
-				return;
-			}
-			if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-				if (LockLooper()) {
-					fOutlineListView->Select(fOutlineListView->IndexOf(item));
-					BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
-					closePrj.AddPointer("project", item->GetSourceItem());
-					Window()->PostMessage(&closePrj);
-
-					// It seems not possible to track the project folder to the new
-					// location outside of the watched path. So we close the project
-					// and warn the user
-					auto alert = new BAlert("ProjectFolderChanged", B_TRANSLATE(
-						"The project folder has been deleted or moved to another location "
-						"and it will be closed and unloaded from the workspace."),
-						B_TRANSLATE("OK"), NULL, NULL,
-						B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
-						alert->Go();
-
-					UnlockLooper();
-				}
-			} else {
-				fOutlineListView->RemoveItem(item);
-				fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
-					true, ProjectOutlineListView::CompareProjectItems);
+			if (message->FindString("path", &spath) == B_OK) {
+				_RemovePath(spath);
 			}
 			break;
 		}
 		case B_ENTRY_MOVED:
-		{
-			BString spath;
-			// An item moved outside of the project folder
-			if (message->GetBool("removed", false)) {
-				if (message->FindString("from path", &spath) == B_OK) {
-					LogDebug("from path %s",  spath.String());
-					ProjectItem *item = GetProjectItemByPath(spath);
-					if (!item) {
-						LogError("Can't find an item to move [%s]", spath.String());
-						return;
-					}
-					// the project folder is being renamed
-					if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-						if (LockLooper()) {
-							fOutlineListView->Select(fOutlineListView->IndexOf(item));
-							BMessage closePrj(MSG_PROJECT_MENU_CLOSE);
-							closePrj.AddPointer("project", item->GetSourceItem());
-							Window()->PostMessage(&closePrj);
-
-							auto alert = new BAlert("ProjectFolderChanged",
-							B_TRANSLATE("The project folder has been renamed. It will be closed and reopened automatically."),
-								B_TRANSLATE("OK"), NULL, NULL,
-								B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
-							alert->Go();
-
-							// reopen project under the new name or location
-							entry_ref ref;
-							if (message->FindInt64("to directory", &ref.directory) == B_OK) {
-								const char *name;
-								message->FindInt32("device", &ref.device);
-								message->FindString("name", &name);
-								ref.set_name(name);
-								BMessage msg(MSG_PROJECT_FOLDER_OPEN);
-								msg.AddRef("refs", &ref);
-								Window()->PostMessage(&msg);
-							}
-							UnlockLooper();
-						}
-					} else {
-						fOutlineListView->RemoveItem(item);
-						fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
-							true, ProjectOutlineListView::CompareProjectItems);
-					}
-				}
-			} else {
-				BString oldName, newName;
-				BString oldPath, newPath;
-				if (message->GetBool("added")) {
-					if (message->FindString("path", &newPath) == B_OK) {
-						if (message->FindString("name", &newName) == B_OK) {
-							const BPath destination(newPath);
-							BEntry newPathEntry(newPath);
-							if (newPathEntry.IsDirectory()) {
-								// a new folder moved inside the project.
-								//ensure we have a parent
-								BPath parent;
-								destination.GetParent(&parent);
-								ProjectItem *parentItem = _CreatePath(parent);
-								// recursive parsing!
-								entry_ref entryRef;
-								newPathEntry.GetRef(&entryRef);
-								_ProjectFolderScan(parentItem, &entryRef, parentItem->GetSourceItem()->GetProjectFolder());
-								fOutlineListView->SortItemsUnder(parentItem, false,
-										ProjectOutlineListView::CompareProjectItems);
-							} else {
-								//Plain file
-								_CreatePath(destination);
-							}
-						}
-					}
-				} else 	if (message->FindString("from name", &oldName) == B_OK) {
-					if (message->FindString("name", &newName) == B_OK) {
-						if (message->FindString("from path", &oldPath) == B_OK) {
-							if (message->FindString("path", &newPath) == B_OK) {
-								const BPath bp_oldPath(oldPath.String());
-								BPath bp_oldParent;
-								bp_oldPath.GetParent(&bp_oldParent);
-								const BPath bp_newPath(newPath.String());
-								BPath bp_newParent;
-								bp_newPath.GetParent(&bp_newParent);
-
-								// If the path remains the same except the leaf
-								// then the item is being RENAMED
-								// if the path changes then the item is being MOVED
-								if (bp_oldParent == bp_newParent) {
-									ProjectItem *item = GetProjectItemByPath(oldPath);
-									if (!item) {
-										LogError("Can't find an item to move oldPath[%s] -> newPath[%s]", oldPath.String(), newPath.String());
-										return;
-									}
-									entry_ref newRef;
-									if (get_ref_for_path(newPath, &newRef) == B_OK) {
-										item->SetText(newName);
-										item->GetSourceItem()->UpdateEntryRef(newRef);
-										fOutlineListView->SortItemsUnder(fOutlineListView->Superitem(item),
-											true, ProjectOutlineListView::CompareProjectItems);
-										if (item->IsSelected())
-											fOutlineListView->ScrollToSelection();
-									} else {
-										LogError("Can't find ref for newPath[%s]", newPath.String());
-										return;
-									}
-								} else {
-									ProjectItem *item = GetProjectItemByPath(oldPath);
-									if (!item) {
-										LogError("Can't find an item to move oldPath [%s]", oldPath.String());
-										return;
-									}
-									ProjectItem *destinationItem = GetProjectItemByPath(bp_newParent.Path());
-									if (!item) {
-										LogError("Can't find an item to move newParent [%s]", bp_newParent.Path());
-										return;
-									}
-									bool status = fOutlineListView->RemoveItem(item);
-									if (status) {
-										fOutlineListView->SortItemsUnder(
-											fOutlineListView->Superitem(item), true,
-												ProjectOutlineListView::CompareProjectItems);
-
-										ProjectItem *newItem = _CreateNewProjectItem(item, bp_newPath);
-										status = fOutlineListView->AddUnder(newItem, destinationItem);
-										if (status) {
-											fOutlineListView->SortItemsUnder(destinationItem, true,
-												ProjectOutlineListView::CompareProjectItems);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			_HandleEntryMoved(message);
 			break;
-		}
 		default:
 			break;
 	}

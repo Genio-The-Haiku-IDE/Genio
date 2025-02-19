@@ -68,12 +68,13 @@ private:
 
 	ProjectItem*	GetProjectItemByPath(const BString& path) const;
 
-	ProjectItem*	_CreatePath(BPath pathToCreate);
-
 	ProjectItem*	_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
 
+	ProjectItem*	_CreatePath(BPath pathToCreate);
+	void			_RemovePath(BString pathToRemove);
+	void			_HandleEntryMoved(BMessage* message);
 	void			_UpdateNode(BMessage *message);
 
 	status_t		_RenameCurrentSelectedFile(const BString& newName);

@@ -381,10 +381,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			editor_id id;
 			if (message->FindUInt64(kEditorId, &id) == B_OK) {
 				Editor* editor = fTabManager->EditorById(id);
+				if (editor == nullptr)
+					return;
 				// add the ref also to the external message
 				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				notifyMessage.AddMessage("symbols", message);
-				notifyMessage.AddRef("ref", editor->FileRef()); //TODO use editor_id!
+				notifyMessage.AddUInt64(kEditorId, id);
+				notifyMessage.AddRef("ref", editor->FileRef());
 				if (editor != nullptr)
 					notifyMessage.AddInt32("caret_line", editor->GetCurrentLineNumber());
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
@@ -1094,6 +1097,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				BMessage symbolsChanged(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				BMessage symbols;
 				editor->GetDocumentSymbols(&symbols);
+				symbolsChanged.AddUInt64(kEditorId, id);
 				symbolsChanged.AddRef("ref", editor->FileRef());
 				symbolsChanged.AddMessage("symbols", &symbols);
 				symbolsChanged.AddInt32("caret_line", editor->GetCurrentLineNumber());
@@ -4251,7 +4255,6 @@ void
 GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 {
 	// All files are closed
-	printf("UpdateTabChange %p %s\n", editor, caller.String());
 	if (editor == nullptr) {
 		// ToolBar Items
 		//_FindGroupShow(false);

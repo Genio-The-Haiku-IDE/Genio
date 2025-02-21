@@ -383,13 +383,16 @@ GenioWindow::MessageReceived(BMessage* message)
 				Editor* editor = fTabManager->EditorById(id);
 				if (editor == nullptr)
 					return;
+
 				// add the ref also to the external message
 				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				notifyMessage.AddMessage("symbols", message);
 				notifyMessage.AddUInt64(kEditorId, id);
-				notifyMessage.AddRef("ref", editor->FileRef());
-				if (editor != nullptr)
+				if (editor != nullptr) {
+					// TODO: Should we call debugger if editor is nullptr here ?
+					notifyMessage.AddRef("ref", editor->FileRef());
 					notifyMessage.AddInt32("caret_line", editor->GetCurrentLineNumber());
+				}
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
 			}
 			break;
@@ -1108,13 +1111,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_FILE_CLOSE_OTHER:
 		{
 			std::vector<Editor*> editors;
-			editor_id	id = message->GetUInt64(kEditorId, 0);
-			fTabManager->ForEachEditor([&](Editor* editor){
-
-					if (editor->Id() != id) {
-						editors.push_back(editor);
-					}
-					return true;
+			editor_id id = message->GetUInt64(kEditorId, 0);
+			fTabManager->ForEachEditor([&](Editor* editor) {
+				if (editor->Id() != id) {
+					editors.push_back(editor);
+				}
+				return true;
 			});
 
 			_CloseMultipleTabs(editors);
@@ -1122,9 +1124,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case EditorTabView::kETVCloseTab:
 		{
-			editor_id	id = message->GetUInt64(kEditorId, 0);
+			editor_id id = message->GetUInt64(kEditorId, 0);
 			Editor*	editor = fTabManager->EditorById(id);
-			if (!editor)
+			if (editor == nullptr)
 				return;
 			std::vector<Editor*> editors = { editor };
 			_CloseMultipleTabs(editors);

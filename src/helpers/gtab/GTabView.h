@@ -33,11 +33,9 @@ class GTabView : public BGroupView {
 			void	UpdateScrollButtons(bool left, bool right);
 
 			void	AttachedToWindow() override;
-
 			void	MessageReceived(BMessage* message) override;
 
 			void	MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer);
-
 			void	SelectTab(GTab* tab);
 
 	virtual void	OnMenuTabButton();
@@ -45,9 +43,10 @@ class GTabView : public BGroupView {
 	protected:
 
 			void	AddTab(GTab* tab, BView* view, int32 index = -1);
+
 	virtual void	OnTabRemoved(GTab* tab) {};
 	virtual void	OnTabAdded(GTab* tab, BView* view) {};
-	virtual void	OnTabSelected(GTab* tab){};
+	virtual void	OnTabSelected(GTab* tab) {};
 
 	TabsContainer*	Container() const { return fTabsContainer; }
 			void	DestroyTabAndView(GTab* tab); //Remove and delete a tab and the view.
@@ -60,11 +59,9 @@ class GTabView : public BGroupView {
 
 
 	private:
-
 		void	_Init(tab_affinity affinity);
 		void	_FixContentOrientation(BView* view);
 		void	_AddViewToCard(BView* view, int32 index);
-
 
 		GTabScrollLeftButton*	fScrollLeftTabButton;
 		TabsContainer*			fTabsContainer;

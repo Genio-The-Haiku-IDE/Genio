@@ -1790,11 +1790,11 @@ TermView::MessageReceived(BMessage *message)
 				ShellParameters shellParameters(countFound, argv);
 				shellParameters.SetEncoding(fEncoding);
 
+				status_t error = fShell->Open(fRows, fColumns, shellParameters);
 				if (argv != nullptr) {
 					delete[] argv;
 				}
 
-				status_t error = fShell->Open(fRows, fColumns, shellParameters);
 				if (error < B_OK)
 					break;
 

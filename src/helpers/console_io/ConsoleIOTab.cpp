@@ -31,24 +31,14 @@ ConsoleIOTab::Clear()
 status_t
 ConsoleIOTab::Stop()
 {
-	//temporary big hack!
-	BView*	target = _FindTarget();
-	if (target == nullptr)
-		return B_ERROR;
-
-	BMessage exec(B_EXECUTE_PROPERTY);
-	exec.AddSpecifier("command");
-	exec.AddString("argv", "/bin/sh");
-	exec.AddString("argv", "-c");
-	exec.AddString("argv", ":");
-	exec.AddBool("clear", true);
-	fContextMessage.MakeEmpty();
-	return Looper()->PostMessage(&exec, target);
+	BMessage stop;
+	stop.AddString("cmd", ":");
+	return RunCommand(&stop, true, false);
 };
 
 
 status_t
-ConsoleIOTab::RunCommand(BMessage* message)
+ConsoleIOTab::RunCommand(BMessage* message, bool clean, bool notifyMessage)
 {
 	//temporary big hack!
 	BView*	target = _FindTarget();
@@ -60,24 +50,53 @@ ConsoleIOTab::RunCommand(BMessage* message)
 	exec.AddString("argv", "/bin/sh");
 	exec.AddString("argv", "-c");
 	exec.AddString("argv", message->GetString("cmd", "echo error"));
-	exec.AddBool("clear", true);
-	fContextMessage = *message;
+	exec.AddBool("clear", clean);
+	if (notifyMessage)
+		fContextMessage = *message;
+	else
+		fContextMessage.MakeEmpty();
 	return Looper()->PostMessage(&exec, target);
 }
 
+BString
+ConsoleIOTab::_BannerMessage(BString claim, BString status)
+{
+//	if (!gCFG["console_banner"])
+//		return;
+
+	BString banner;
+	banner  << "--------------------------------"
+			<< "   "
+			<< claim
+			<< " "
+			<< status
+			<< "--------------------------------";
+
+	return banner;
+}
 
 void
 ConsoleIOTab::NotifyCommandQuit(bool exitNormal, int exitStatus)
 {
 	status_t status = exitNormal ? ( exitStatus == 0 ? B_OK : B_ERROR) : B_ERROR;
 
-	printf("NotifyCommandQuit: "); fContextMessage.PrintToStream();
-
 	if(fContextMessage.IsEmpty() == false) {
-		fContextMessage.what = CONSOLEIOTHREAD_EXIT;
-		fContextMessage.AddInt32("status", status);
-		fMessenger.SendMessage(&fContextMessage);
+		BMessage notification = fContextMessage;
 		fContextMessage.MakeEmpty();
+
+		notification.what = CONSOLEIOTHREAD_EXIT;
+		notification.AddInt32("status", status);
+
+		BMessage banner;
+		BString claim("echo '");
+		claim << _BannerMessage(notification.GetString("banner_claim", "command"), "ended  ");
+		claim << "'";
+		banner.AddString("cmd", claim.String());
+		RunCommand(&banner, false, false);
+
+		notification.what = CONSOLEIOTHREAD_EXIT;
+		notification.AddInt32("status", status);
+		fMessenger.SendMessage(&notification);
 	}
 }
 

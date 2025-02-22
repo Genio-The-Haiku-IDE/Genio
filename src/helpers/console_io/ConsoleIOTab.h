@@ -14,7 +14,7 @@ public:
 	ConsoleIOTab(const char* name, BMessenger messenger);
 
 	void 		Clear();
-	status_t	RunCommand(BMessage*);
+	status_t	RunCommand(BMessage* , bool clean = true, bool notifyMessage = true);
 	status_t	Stop();
 	void		SetMessenger(BMessenger messenger) { fMessenger = messenger; }
 
@@ -22,6 +22,7 @@ public:
 private:
 
 	BView*		_FindTarget();
+	BString		_BannerMessage(BString claim, BString status);
 	BMessage	fContextMessage;
 	BMessenger  fMessenger;
 

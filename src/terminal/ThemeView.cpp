@@ -10,8 +10,8 @@
 
 #include <Alert.h>
 #include <Catalog.h>
-#include "ColorItem.h"
-#include "ColorListView.h"
+#include <ColorItem.h>
+#include <ColorListView.h>
 #include <ControlLook.h>
 #include <Directory.h>
 #include <Entry.h>

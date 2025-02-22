@@ -282,7 +282,7 @@ ConsoleIOView::EnableStopButton(bool doIt)
 void
 ConsoleIOView::_Init()
 {
-	fPendingOutput = new OutputInfoList(1, true);
+	fPendingOutput = new OutputInfoList(1);
 
 	fConsoleIOText = new WordTextView("console_io");
 	fConsoleIOText->SetStylable(true);

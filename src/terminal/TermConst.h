@@ -207,5 +207,24 @@ enum {
 #define A_CHAR 0x01
 #define IN_STRING 0xFF
 
+// TermBuffer extended attribute
+#define A_WIDTH			0x8000
+#define BOLD			0x4000
+#define UNDERLINE		0x2000
+#define INVERSE			0x1000
+#define MOUSE			0x0800
+#define FORESET			0x0400
+#define BACKSET			0x0200
+#define FONT			0x0100
+#define RESERVE			0x0080
+#define DUMPCR			0x0040
+#define UNDERSET		0x0020
+#define FORECOLOR		0xFF0000
+#define BACKCOLOR		0xFF000000
+#define CHAR_ATTRIBUTES	0xFFFF7720
+
+#define FORECOLORED(x) ((x) << 16)
+#define BACKCOLORED(x) ((x) << 24)
+
 
 #endif	// TERMCONST_H_INCLUDED

@@ -39,9 +39,6 @@ SRCS = \
 	 Arguments.cpp  \
 	 BasicTerminalBuffer.cpp  \
 	 Colors.cpp  \
-	 ColorItem.cpp \
-	 ColorListView.cpp \
-	 ColorPreview.cpp \
 	 FindWindow.cpp  \
 	 Globals.cpp  \
 	 HistoryBuffer.cpp  \

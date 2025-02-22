@@ -4435,7 +4435,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	} else if (key.Compare("wrap_lines") == 0) {
 		ActionManager::SetPressed(MSG_WRAP_LINES, gCFG["wrap_lines"]);
 	} else if (key.Compare("wrap_console") == 0) {
-		fBuildLogView->SetWordWrap(gCFG["wrap_console"]);
+//		fBuildLogView->SetWordWrap(gCFG["wrap_console"]);
 	} else if (key.Compare("show_white_space") == 0) {
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);

@@ -7,6 +7,7 @@
 #include "TabsContainer.h"
 
 #include <cassert>
+#include <cstdio>
 
 #include "GTab.h"
 #include "GTabView.h"

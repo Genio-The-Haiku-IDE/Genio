@@ -35,7 +35,7 @@ void
 GTabEditor::CloseButtonClicked()
 {
 	EditorTabView* tabView = dynamic_cast<EditorTabView*>(Container()->GetGTabView());
-	if (tabView) {
+	if (tabView != nullptr) {
 		BMessage msg(EditorTabView::kETVCloseTab);
 		msg.AddUInt64(kEditorId, fEditor->Id());
 		BMessenger(Handler()).SendMessage(&msg);
@@ -119,7 +119,7 @@ void
 GTabEditor::UpdateToolTip()
 {
 	EditorTabView* tabView = dynamic_cast<EditorTabView*>(Container()->GetGTabView());
-	if (tabView) {
+	if (tabView != nullptr) {
 		SetToolTip(tabView->GetToolTipText(this).String());
 	}
 }

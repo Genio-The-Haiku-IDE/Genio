@@ -6,16 +6,17 @@
 
 #include <Entry.h>
 #include <Messenger.h>
-#include <ObjectList.h>
 #include <String.h>
 
 #include <vector>
 
-#include "GitRepository.h"
+
+namespace Genio::Git {
+	class GitRepository;
+}
 
 using namespace Genio::Git;
 
-class BMessenger;
 class ConfigManager;
 class LSPProjectWrapper;
 class LSPTextDocument;

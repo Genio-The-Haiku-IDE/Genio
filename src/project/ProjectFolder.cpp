@@ -5,6 +5,8 @@
 
 #include "ProjectFolder.h"
 
+#include <iostream>
+
 #include <Catalog.h>
 #include <Directory.h>
 #include <Debug.h>
@@ -14,12 +16,11 @@
 
 #include "ConfigManager.h"
 #include "LSPProjectWrapper.h"
-#include "LSPServersManager.h"
 #include "MakeFileHandler.h"
 #include "GenioNamespace.h"
+#include "GitRepository.h"
 #include "GSettings.h"
 
-#include <iostream>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"

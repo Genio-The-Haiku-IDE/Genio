@@ -165,6 +165,7 @@ public:
 bool		GetGenioDirectory(BPath& destPath);
 BPath		GetDataDirectory();
 BPath		GetUserSettingsDirectory();
+BPath		GetNearbyDataDirectory();
 
 bool	IsXMasPeriod();
 

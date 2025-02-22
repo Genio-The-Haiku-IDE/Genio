@@ -10,16 +10,17 @@
 #include <StringView.h>
 #include "Utils.h"
 #include "argv_split.h"
+#include "Log.h"
 
 TerminalManager::TerminalManager():fId(-1)
 {
-	BPath genioDir;
-	GetGenioDirectory(genioDir);
-	genioDir.Append("../data/genio_terminal_addon");
+	BPath genioPath = GetNearbyDataDirectory();
+	if (genioPath.Append("genio_terminal_addon") == B_OK) {
+		fId = load_add_on(genioPath.Path());
+		LogError("Can't load genio_terminal_addon (%s)\n", genioPath.Path());
+	}
 
-	fId = load_add_on(genioDir.Path());
-
-	printf("TerminalManager, loading addon at [%s] -> %d\n", genioDir.Path(), fId);
+	LogInfo("TerminalManager, loading addon at [%s] -> %d\n", genioPath.Path(), fId);
 }
 
 /*static */

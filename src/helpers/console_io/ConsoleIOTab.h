@@ -21,6 +21,7 @@ public:
 	void 	NotifyCommandQuit(bool exitNormal, int exitStatus) override;
 private:
 
+	BView*		_FindTarget();
 	BMessage	fContextMessage;
 	BMessenger  fMessenger;
 

@@ -32,6 +32,9 @@ status_t
 ConsoleIOTab::Stop()
 {
 	//temporary big hack!
+	BView*	target = _FindTarget();
+	if (target == nullptr)
+		return B_ERROR;
 
 	BMessage exec(B_EXECUTE_PROPERTY);
 	exec.AddSpecifier("command");
@@ -40,7 +43,7 @@ ConsoleIOTab::Stop()
 	exec.AddString("argv", ":");
 	exec.AddBool("clear", true);
 	fContextMessage.MakeEmpty();
-	return Looper()->PostMessage(&exec, fTermView->ChildAt(0)->ChildAt(0));
+	return Looper()->PostMessage(&exec, target);
 };
 
 
@@ -48,6 +51,9 @@ status_t
 ConsoleIOTab::RunCommand(BMessage* message)
 {
 	//temporary big hack!
+	BView*	target = _FindTarget();
+	if (target == nullptr)
+		return B_ERROR;
 
 	BMessage exec(B_EXECUTE_PROPERTY);
 	exec.AddSpecifier("command");
@@ -56,7 +62,7 @@ ConsoleIOTab::RunCommand(BMessage* message)
 	exec.AddString("argv", message->GetString("cmd", "echo error"));
 	exec.AddBool("clear", true);
 	fContextMessage = *message;
-	return Looper()->PostMessage(&exec, fTermView->ChildAt(0)->ChildAt(0));
+	return Looper()->PostMessage(&exec, target);
 }
 
 
@@ -73,4 +79,14 @@ ConsoleIOTab::NotifyCommandQuit(bool exitNormal, int exitStatus)
 		fMessenger.SendMessage(&fContextMessage);
 		fContextMessage.MakeEmpty();
 	}
+}
+
+BView*
+ConsoleIOTab::_FindTarget()
+{
+	//We need a more deterministic way to find the view!
+	if (fTermView && fTermView->ChildAt(0) && fTermView->ChildAt(0)->ChildAt(0))
+		return fTermView->ChildAt(0)->ChildAt(0);
+
+	return nullptr;
 }

@@ -4,17 +4,18 @@
  */
 
 #include "JumpNavigator.h"
-#include <Message.h>
+
 #include <Application.h>
-#include <cstdio>
+#include <Message.h>
+
+
 #include "Log.h"
 
 void
 JumpNavigator::JumpToFile(BMessage* message, JumpPosition* currentPosition)
 {
-	entry_ref	ref;
-	if(message->FindRef("refs", 0, &ref) == B_OK)
-	{
+	entry_ref ref;
+	if (message->FindRef("refs", 0, &ref) == B_OK) {
 		message->AddRef("jumpFrom", currentPosition);
 		message->what = B_REFS_RECEIVED;
 		be_app->PostMessage(message);
@@ -35,25 +36,24 @@ JumpNavigator::JumpingTo(JumpPosition& newPosition, JumpPosition& fromPosition)
 }
 
 
-
 bool
-JumpNavigator::HasNext()
+JumpNavigator::HasNext() const
 {
-	return (!forwardStack.empty());
+	return !forwardStack.empty();
 }
 
 
 bool
-JumpNavigator::HasPrev()
+JumpNavigator::HasPrev() const
 {
-	return (!history.empty());
+	return !history.empty();
 }
 
 
 void
 JumpNavigator::JumpToNext()
 {
-	if(HasNext()) {
+	if (HasNext()) {
 		history.push(fCurrentPosition);
 		fCurrentPosition = forwardStack.top();
 		forwardStack.pop();

@@ -65,29 +65,29 @@ public:
 	EditorTabView*			TabManager() const;
 
 private:
-			Editor*				_AddEditorTab(entry_ref* ref, int32 index, BMessage* addInfo);
+			Editor*				_AddEditorTab(entry_ref* ref, BMessage* addInfo);
 
 			status_t			_BuildProject();
 			status_t			_CleanProject();
 
 			status_t			_DebugProject();
-			bool				_FileRequestClose(int32 index);
-			status_t			_RemoveTab(int32 index);
+			bool				_FileRequestClose(Editor* editor);
+			status_t			_RemoveTab(Editor* editor);
 			void				_FileCloseAll();
-			bool				_FileRequestSaveList(std::vector<int32>& unsavedIndex);
+			bool				_FileRequestSaveList(std::vector<Editor*>& unsavedEditor);
 			bool				_FileRequestSaveAllModified();
 
 			status_t			_FileOpen(BMessage* msg);
 			status_t			_FileOpenAtStartup(BMessage* msg);
 			status_t			_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred,  int32 be_line, int32 lsp_char);
-			status_t			_SelectEditorToPosition(int32 index, int32 be_line, int32 lsp_char);
+			status_t			_SelectEditorToPosition(Editor* editor, int32 be_line, int32 lsp_char);
 			void				_ApplyEditsToSelectedEditor(BMessage* msg);
 
 			bool				_FileIsSupported(const entry_ref* ref);
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
-			status_t			_FileSave(int32	index);
+			status_t			_FileSave(Editor* editor);
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
-			status_t			_FileSaveAs(int32 selection, BMessage* message);
+			status_t			_FileSaveAs(Editor* , BMessage* message);
 			int32				_FilesNeedSave();
 			void				_PreFileLoad(Editor* editor);
 			void				_PostFileLoad(Editor* editor);
@@ -99,13 +99,10 @@ private:
 			void				_FindInFiles();
 			void				_AddSearchFlags(BMessage* msg);
 
-			int32				_GetEditorIndex(const entry_ref* ref) const;
-			int32				_GetEditorIndex(node_ref* nref) const;
 			void				_GetFocusAndSelection(BTextControl* control) const;
 			status_t			_Git(const BString& git_command);
 			void				_HandleExternalMoveModification(entry_ref* oldRef, entry_ref* newRef);
-			void				_HandleExternalRemoveModification(int32 index);
-			void				_HandleExternalStatModification(int32 index);
+			void				_HandleExternalRemoveModification(Editor* editor);
 			void				_HandleExternalStatModification(Editor* editor);
 			void				_HandleNodeMonitorMsg(BMessage* msg);
 			void				_CheckEntryRemoved(BMessage* msg);
@@ -149,7 +146,7 @@ private:
 
 			void				_UpdateFindMenuItems(const BString& text);
 			void				_UpdateRecentCommands(const BString& text);
-			status_t			_UpdateLabel(int32 index, bool isModified);
+			status_t			_UpdateLabel(Editor* editor, bool isModified);
 			void				_UpdateProjectActivation(bool active);
 			void				_UpdateReplaceMenuItems(const BString& text);
 			void				_UpdateSavepointChange(Editor*, const BString& caller = "");
@@ -158,7 +155,7 @@ private:
 			void				_ShowView(BView*, bool show, int32 msgWhat = -1);
 			void				_ShowPanelTabView(const char* name, bool show, int32 msgWhat = -1);
 			status_t			_AlertInvalidBuildConfig(BString text);
-			void				_CloseMultipleTabs(BMessage* msg);
+			void				_CloseMultipleTabs(std::vector<Editor*>& editors);
 			void				_HandleConfigurationChanged(BMessage* msg);
 			void				_HandleProjectConfigurationChanged(BMessage* message);
 			BMenu*				_CreateLanguagesMenu();

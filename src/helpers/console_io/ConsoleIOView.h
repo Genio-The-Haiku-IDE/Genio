@@ -31,6 +31,8 @@ public:
 									int32 fd, const BString& output);
 			void				EnableStopButton(bool doIt);
 
+			void				SetWordWrap(bool wrap);
+
 			BTextView*			TextView();
 
 			status_t			RunCommand(BMessage* cmd_message);

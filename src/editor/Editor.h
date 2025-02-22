@@ -1,22 +1,22 @@
 /*
+ * Copyright 2025 Andrea Anzani <andrea.anzani@gmail.com>
  * Copyright 2017 A. Mosca <amoscaster@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef EDITOR_H
-#define EDITOR_H
-
-#include <string>
+#pragma once
 
 #include <Locker.h>
 #include <MessageFilter.h>
 #include <Messenger.h>
-#include "ScintillaView.h"
 #include <MessageRunner.h>
+
 #include <set>
+#include <string>
 #include <utility>
 
+#include "EditorId.h"
 #include "LSPCapabilities.h"
-
+#include "ScintillaView.h"
 
 class LSPEditorWrapper;
 class ProjectFolder;
@@ -73,6 +73,8 @@ struct EditorConfig {
 	bool				InsertFinalNewline; // Not implemented
 };
 
+
+
 class Editor : public BScintillaView {
 public:
 	enum symbols_status {
@@ -84,6 +86,7 @@ public:
 
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
+			editor_id			Id() { return fId; }
 	virtual	void 				MessageReceived(BMessage* message);
 			void				LoadEditorConfig();
 			void				ApplySettings();
@@ -140,6 +143,7 @@ public:
 
 			filter_result		BeforeKeyDown(BMessage*);
 			filter_result		BeforeMouseMoved(BMessage* message);
+			filter_result		BeforeModifiersChanged(BMessage* message);
 
 			std::string			FileType() const { return fFileType; }
 			void				SetFileType(std::string fileType) { fFileType = fileType; }
@@ -243,7 +247,7 @@ private:
 			void	EvaluateIdleTime();
 
 private:
-
+			editor_id			fId;
 			entry_ref			fFileRef;
 			bool				fModified;
 			BString				fFileName;
@@ -279,5 +283,3 @@ private:
 			Sci_Position		fLastWordStartPosition = -1;
 			Sci_Position		fLastWordEndPosition = -1;
 };
-
-#endif // EDITOR_H

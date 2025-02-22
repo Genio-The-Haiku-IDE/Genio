@@ -76,9 +76,9 @@ SRCS += src/git/RepositoryView.cpp
 SRCS += src/git/SourceControlPanel.cpp
 SRCS += src/git/SwitchBranchMenu.cpp
 SRCS += src/editor/GTabEditor.cpp
-SRCS += src/ui/EditorStatusView.cpp
-SRCS += src/ui/Editor.cpp
-SRCS += src/ui/EditorContextMenu.cpp
+SRCS += src/editor/EditorStatusView.cpp
+SRCS += src/editor/Editor.cpp
+SRCS += src/editor/EditorContextMenu.cpp
 SRCS += src/ui/FunctionsOutlineView.cpp
 SRCS += src/ui/GenioWindow.cpp
 SRCS += src/ui/GenioSecondaryWindow.cpp
@@ -134,6 +134,8 @@ endif
 LOCALES := ca de en_AU en_GB en es_419 es fr fur it nb tr
 
 ## Include the Makefile-Engine
+BUILDHOME := \
+	$(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)
 include $(BUILDHOME)/etc/makefile-engine
 
 # Rules to compile the resource definition files.

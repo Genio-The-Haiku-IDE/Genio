@@ -210,6 +210,7 @@ ConsoleIOThread::ThreadExitNotification()
 	BMessage message(CONSOLEIOTHREAD_EXIT);
 	message.AddString("cmd_type", fCmdType);
 	message.AddInt32("status", fFailed ? B_ERROR : B_OK);
+	message.AddInt32("pid", fExternalProcessId);
 	fTarget.SendMessage(&message);
 }
 

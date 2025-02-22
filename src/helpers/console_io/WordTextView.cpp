@@ -9,6 +9,7 @@
 
 #include "WordTextView.h"
 
+#include <ScrollBar.h>
 #include <string>
 
 #include <Array.h>
@@ -57,10 +58,14 @@ WordTextView::_SetStyle(bool underline)
 
 	if (tra->count > 0) {
 		tra->runs[0].font.SetFace( underline ? B_UNDERSCORE_FACE : B_REGULAR_FACE);
+		int32 hvalue = ScrollBar (B_HORIZONTAL)->Value();
+		ScrollBar (B_HORIZONTAL)->SetValue(0);
 		SetRunArray(fStartPosition, fStopPosition + 1, tra);
+		ScrollBar (B_HORIZONTAL)->SetValue(hvalue);
 	}
 
 	BTextView::FreeRunArray(tra);
+	Invalidate();
 }
 
 

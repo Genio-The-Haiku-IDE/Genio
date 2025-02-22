@@ -57,10 +57,14 @@ const int kIdleTimeout = 250000; //1/4sec
 #define UNSET 0
 #define UNUSED 0
 
+editor_id get_unique_id() {
+	static editor_id g_id = 0;
+	return ++g_id;
+}
 
 Editor::Editor(entry_ref* ref, const BMessenger& target)
-	:
-	BScintillaView(ref->name, 0, true, true)
+	: BScintillaView(ref->name, 0, true, true)
+	, fId(get_unique_id())
 	, fFileRef(*ref)
 	, fModified(false)
 	, fBracingAvailable(false)
@@ -697,9 +701,10 @@ Editor::FindMarkAll(const BString& text, int flags)
 			count++;
 
 			// Found occurrence, message window
-			BMessage message(EDITOR_FIND_SET_MARK);
-			message.AddRef("ref", &fFileRef);
 			int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
+
+			BMessage message(EDITOR_FIND_SET_MARK);
+			message.AddUInt64(kEditorId, fId);
 			message.AddInt32("line", line);
 			fTarget.SendMessage(&message);
 		}
@@ -866,37 +871,38 @@ Editor::LoadEditorConfig()
 		// but maybe the code should be refactored
 		int32 tabWidth = 4;
 		for (int32 i = 0; i < nameValueCount; ++i) {
-			const char* name;
-			const char* value;
+			const char* name = nullptr;
+			const char* value = nullptr;
 			editorconfig_handle_get_name_value(handle, i, &name, &value);
 
-			if (!strcmp(name, "indent_style")) {
-				fEditorConfig.IndentStyle = !strcmp(value, "space") ? IndentStyle::Space : IndentStyle::Tab;
-			} else if (!strcmp(name, "tab_width")) {
-				if (strcmp(value, "undefine"))
-					tabWidth = atoi(value);
-			} else if (!strcmp(name, "indent_size")) {
+			if (::strcmp(name, "indent_style")) {
+				fEditorConfig.IndentStyle = !::strcmp(value, "space") ?
+					IndentStyle::Space : IndentStyle::Tab;
+			} else if (!::strcmp(name, "tab_width")) {
+				if (::strcmp(value, "undefine"))
+					tabWidth = ::strtol(value, nullptr, 10);
+			} else if (!::strcmp(name, "indent_size")) {
 				if (strcmp(value, "undefine")) {
-					int valueInt = atoi(value);
-					if (!strcmp(value, "tab"))
+					int valueInt = ::strtol(value, nullptr, 10);
+					if (!::strcmp(value, "tab"))
 						fEditorConfig.IndentSize = tabWidth;
 					else if (valueInt > 0)
 						fEditorConfig.IndentSize = valueInt;
 				}
-			} else if (!strcmp(name, "end_of_line")) {
-				if (strcmp(value, "undefine")) {
-					if (!strcmp(value, "lf"))
+			} else if (!::strcmp(name, "end_of_line")) {
+				if (::strcmp(value, "undefine")) {
+					if (!::strcmp(value, "lf"))
 						fEditorConfig.EndOfLine = SC_EOL_LF;
-					else if (!strcmp(value, "cr"))
+					else if (!::strcmp(value, "cr"))
 						fEditorConfig.EndOfLine = SC_EOL_CR;
-					else if (!strcmp(value, "crlf"))
+					else if (!::strcmp(value, "crlf"))
 						fEditorConfig.EndOfLine = SC_EOL_CRLF;
 				}
-			} else if (!strcmp(name, "trim_trailing_whitespace")) {
-				if (strcmp(value, "undefine"))
-					fEditorConfig.TrimTrailingWhitespace = !strcmp(value, "true") ? true : false;
-			} else if (!strcmp(name, "insert_final_newline"))
-				fEditorConfig.InsertFinalNewline = !strcmp(value, "true") ? true : false;
+			} else if (!::strcmp(name, "trim_trailing_whitespace")) {
+				if (::strcmp(value, "undefine"))
+					fEditorConfig.TrimTrailingWhitespace = !::strcmp(value, "true") ? true : false;
+			} else if (!::strcmp(name, "insert_final_newline"))
+				fEditorConfig.InsertFinalNewline = !::strcmp(value, "true") ? true : false;
 		}
 	}
 	editorconfig_handle_destroy(handle);
@@ -1058,6 +1064,12 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 		}
 		case SCN_UPDATEUI: {
+			if (notification->updated &
+				(SC_UPDATE_H_SCROLL | SC_UPDATE_V_SCROLL | SC_UPDATE_SELECTION)) {
+
+				SendMessage(SCI_AUTOCCANCEL, 0, 0);
+				fLSPEditorWrapper->HideCallTip();
+			}
 			_BraceHighlight();
 			// Selection/Position has changed
 			if (notification->updated & SC_UPDATE_SELECTION) {
@@ -1109,6 +1121,22 @@ Editor::BeforeMouseMoved(BMessage* message)
 
 
 filter_result
+Editor::BeforeModifiersChanged(BMessage* message)
+{
+	// In case we press the COMMAND_KEY we should update the jump
+	// indicators under current mouse position. The easier step is to
+	// invoke a fake mouse movement.
+
+	int32 oldModifiers = message->GetInt32("be:old_modifiers", 0);
+	int32 newModifiers = message->GetInt32("modifiers", 0);
+	if (( (newModifiers & B_COMMAND_KEY) && !(oldModifiers & B_COMMAND_KEY)) ||
+		(!(newModifiers & B_COMMAND_KEY) &&  (oldModifiers & B_COMMAND_KEY)) )
+		FakeMouseMovement(this);
+	return B_DISPATCH_MESSAGE;
+}
+
+
+filter_result
 Editor::OnArrowKey(int8 key)
 {
 	if (SendMessage(SCI_CALLTIPACTIVE, 0, 0)) {
@@ -1128,7 +1156,7 @@ Editor::_UpdateSavePoint(bool modified)
 {
 	fModified = modified;
 	BMessage message(EDITOR_UPDATE_SAVEPOINT);
-	message.AddRef("ref", &fFileRef);
+	message.AddUInt64(kEditorId, fId);
 	message.AddBool("modified", fModified);
 	fTarget.SendMessage(&message);
 }
@@ -1289,10 +1317,10 @@ Editor::ReplaceMessage(int position, const BString& selection,
 							const BString& replacement)
 {
 	BMessage message(EDITOR_REPLACE_ONE);
-	message.AddRef("ref", &fFileRef);
 	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
 	int column = SendMessage(SCI_GETCOLUMN, position, UNSET) + 1;
 	column -= selection.Length();
+	message.AddUInt64(kEditorId, fId);
 	message.AddInt32("line", line);
 	message.AddInt32("column", column);
 	message.AddString("selection", selection);
@@ -1459,7 +1487,7 @@ Editor::SendPositionChanges()
 	fCurrentColumn = column;
 
 	BMessage message(EDITOR_POSITION_CHANGED);
-	message.AddRef("ref", &fFileRef);
+	message.AddUInt64(kEditorId, fId);
 	message.AddInt32("line", fCurrentLine);
 	message.AddInt32("column", fCurrentColumn);
 	fTarget.SendMessage(&message);
@@ -2068,7 +2096,7 @@ Editor::SetProblems()
 		debugger("The looper must be locked !");
 	}
 	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
-	fProblems.AddRef("ref", &fFileRef);
+	fProblems.AddUInt64(kEditorId, Id());
 	Window()->PostMessage(&fProblems);
 }
 
@@ -2083,7 +2111,7 @@ Editor::SetDocumentSymbols(const BMessage* symbols, Editor::symbols_status statu
 
 	fDocumentSymbols = *symbols;
 	fDocumentSymbols.what = EDITOR_UPDATE_SYMBOLS;
-	fDocumentSymbols.AddRef("ref", &fFileRef);
+	fDocumentSymbols.AddUInt64(kEditorId, Id());
 	fDocumentSymbols.AddInt32("status", status);
 
 	std::set<std::pair<std::string, int32> >::const_iterator iterator;
@@ -2105,9 +2133,9 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 
 	*symbols = fDocumentSymbols;
 
-	if (!symbols->HasRef("ref")) {
-		// Always add ref so we can identify the file (in FunctionsOutlineView)
-		symbols->AddRef("ref", &fFileRef);
+	if (!symbols->HasUInt64(kEditorId)) {
+		// Always add Id so we can identify the file (in FunctionsOutlineView)
+		symbols->AddUInt64(kEditorId, fId);
 	}
 
 	if (!symbols->HasInt32("status"))

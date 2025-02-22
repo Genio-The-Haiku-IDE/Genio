@@ -9,6 +9,7 @@
 #include <Messenger.h>
 #include <PopUpMenu.h>
 
+#include "EditorId.h"
 #include "GTabView.h"
 
 class Editor;
@@ -28,12 +29,11 @@ public:
 			 EditorTabView(BMessenger target);
 			~EditorTabView();
 
-	void	AddEditor(const char* label, Editor* editor, BMessage* info = nullptr, int32 index = -1);
+	void	AddEditor(const char* label, Editor* editor, BMessage* info = nullptr);
 
-	Editor*	EditorBy(const entry_ref* ref);
 	Editor* SelectedEditor();
 
-	void	SetTabColor(const entry_ref* ref, const rgb_color& color);
+	void	SetTabColor(Editor*, const rgb_color& color);
 	void	SetTabLabel(Editor*, const char* label);
 	BString	TabLabel(Editor* editor);
 
@@ -49,18 +49,19 @@ public:
 	deprecated_ int32	SelectedTabIndex();
 
 	deprecated_ int32	CountTabs();
-	deprecated_ BString TabLabel(int32 index);
+
 	deprecated_ void	SelectTab(int32 index, BMessage* selInfo = nullptr);
 	deprecated_ Editor* EditorAt(int32 index);
-	deprecated_ void	SetTabLabel(int32 index, const char* label);
-	deprecated_ Editor* EditorBy(const node_ref* nodeRef);
-	deprecated_ int32	IndexBy(const node_ref* nodeRef) const;
-	deprecated_ int32	IndexBy(const entry_ref* ref) const;
 
-/////////
+				Editor* EditorBy(const node_ref* nodeRef);
+				Editor*	EditorBy(const entry_ref* ref);
+				Editor*	EditorById(editor_id id);
 
 	void ForEachEditor(const std::function<bool(Editor*)>& op);
 	void ReverseForEachEditor(const std::function<bool(Editor*)>& op);
+
+	void	AttachedToWindow() override;
+	void	MessageReceived(BMessage*) override;
 
 protected:
 friend GTabEditor;
@@ -76,13 +77,12 @@ private:
 			GTab*	CreateTabView(const char* label) override;
 			BMenuItem* CreateMenuItem(GTab* tab) override;
 
-			Editor*		_GetEditor(const entry_ref* ref);
-			GTabEditor*	_GetTab(const entry_ref* ref);
+			Editor*		_GetEditor_(const entry_ref* ref);
+			deprecated_ GTabEditor*	_GetTab_(const entry_ref* ref);
 			GTabEditor* _GetTab(Editor* editor);
+			GTabEditor* _GetTab(editor_id id);
 
 			BMessenger	fTarget;
 			BPopUpMenu* fPopUpMenu;
 			BMessage 	fLastSelectedInfo;
 };
-
-

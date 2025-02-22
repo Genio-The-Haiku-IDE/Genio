@@ -271,7 +271,7 @@ MTermView::EnableStopButton(bool doIt)
 void
 MTermView::_Init()
 {
-	fKeyTextView = new KeyTextViewScintilla("console_io", BMessenger(this));
+	fKeyTextView = new KeyTextViewScintilla("KeyTextViewScintilla", BMessenger(this));
 
 	fWrapEnabled = new BCheckBox(B_TRANSLATE_COMMENT("Wrap", "As in wrapping long lines. Short as possible."),
 					new BMessage(kTermViewWrap));

@@ -9,12 +9,14 @@
 #include "TermView.h"
 #include <ControlLook.h>
 #include <Messenger.h>
+#include "PrefHandler.h"
+#include "Colors.h"
 
 const static int32 kTermViewOffset = 3;
 
 class GenioTermViewContainerView : public BView {
 public:
-	GenioTermViewContainerView(BView* termView)
+	GenioTermViewContainerView(TermView* termView)
 		:
 		BView(BRect(), "term view container", B_FOLLOW_ALL, 0),
 		fTermView(termView)
@@ -34,8 +36,48 @@ public:
 		*_height = height + 2 * kTermViewOffset;
 	}
 
+	TermView*	GetTermView() { return fTermView; }
+
+	void DefaultColors()
+	{
+		PrefHandler* handler = PrefHandler::Default();
+		rgb_color background = handler->getRGB(PREF_TEXT_BACK_COLOR);
+
+		SetViewColor(background);
+
+		TermView *termView = GetTermView();
+		termView->SetTextColor(handler->getRGB(PREF_TEXT_FORE_COLOR), background);
+
+		termView->SetCursorColor(handler->getRGB(PREF_CURSOR_FORE_COLOR),
+			handler->getRGB(PREF_CURSOR_BACK_COLOR));
+		termView->SetSelectColor(handler->getRGB(PREF_SELECT_FORE_COLOR),
+			handler->getRGB(PREF_SELECT_BACK_COLOR));
+
+		// taken from TermApp::_InitDefaultPalette()
+		const char * keys[kANSIColorCount] = {
+			PREF_ANSI_BLACK_COLOR,
+			PREF_ANSI_RED_COLOR,
+			PREF_ANSI_GREEN_COLOR,
+			PREF_ANSI_YELLOW_COLOR,
+			PREF_ANSI_BLUE_COLOR,
+			PREF_ANSI_MAGENTA_COLOR,
+			PREF_ANSI_CYAN_COLOR,
+			PREF_ANSI_WHITE_COLOR,
+			PREF_ANSI_BLACK_HCOLOR,
+			PREF_ANSI_RED_HCOLOR,
+			PREF_ANSI_GREEN_HCOLOR,
+			PREF_ANSI_YELLOW_HCOLOR,
+			PREF_ANSI_BLUE_HCOLOR,
+			PREF_ANSI_MAGENTA_HCOLOR,
+			PREF_ANSI_CYAN_HCOLOR,
+			PREF_ANSI_WHITE_HCOLOR
+		};
+
+		for (uint i = 0; i < kANSIColorCount; i++)
+			termView->SetTermColor(i, handler->getRGB(keys[i]), false);
+	}
 private:
-	BView*	fTermView;
+	TermView*	fTermView;
 };
 
 class GenioListener : public TermView::Listener {
@@ -86,14 +128,20 @@ GenioTermView::Instantiate(BMessage* data)
 			view->SetListener(new GenioListener(messenger));
 		}
 		GenioTermViewContainerView* containerView = new (std::nothrow) GenioTermViewContainerView(view);
-		BScrollView* scrollView = new (std::nothrow) TermScrollView("scrollView",
+		TermScrollView* scrollView = new (std::nothrow) TermScrollView("scrollView",
 			containerView, view, true);
 
 		scrollView->ScrollBar(B_VERTICAL)
 				->ResizeBy(0, -(be_control_look->GetScrollBarWidth(B_VERTICAL) - 1));
+
+
+		containerView->DefaultColors();
 
 		return scrollView;
 	}
 
 	return NULL;
 }
+
+
+

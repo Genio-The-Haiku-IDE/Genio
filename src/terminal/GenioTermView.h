@@ -8,6 +8,7 @@
 #include <SupportDefs.h>
 #include "TermScrollView.h"
 
+
 class GenioTermView : public TermScrollView {
 public:
 

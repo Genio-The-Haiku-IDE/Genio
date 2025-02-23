@@ -56,7 +56,6 @@ ConsoleIOTabView::MessageReceived(BMessage* message)
 	switch (message->what) {
 
 		case CONSOLEIOTHREAD_EXIT:
-			printf("CONSOLEIOTHREAD_EXIT "); message->PrintToStream();
 			fStopButton->SetEnabled(false);
 
 			if (message->GetBool("internalStop", false) == false) {
@@ -65,11 +64,7 @@ ConsoleIOTabView::MessageReceived(BMessage* message)
 		break;
 		case MSG_STOP_PROCESS:
 		{
-			BMessage internalStop;
-			internalStop.AddString("cmd", "echo stopped.");
-			internalStop.AddBool("internalStop", true);
-
-			fConsoleIOTab->RunCommand(&internalStop);
+			fConsoleIOTab->Stop();
 		}
 		break;
 		case MSG_CLEAR_OUTPUT:

@@ -22,7 +22,7 @@ public:
 private:
 
 	BView*		_FindTarget();
-	BString		_BannerMessage(BString claim, BString status);
+	BString		_BannerCommand(BString claim, BString status);
 	BMessage	fContextMessage;
 	BMessenger  fMessenger;
 

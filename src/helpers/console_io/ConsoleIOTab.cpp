@@ -32,8 +32,11 @@ status_t
 ConsoleIOTab::Stop()
 {
 	BMessage stop;
-	stop.AddString("cmd", ":");
-	return RunCommand(&stop, true, false);
+	BString cmd(":");
+	cmd << "\n" << _BannerCommand(fContextMessage.GetString("banner_claim", "command"), "STOPPED   ");
+	stop.AddString("cmd", cmd);
+	stop.AddBool("internalStop", true);
+	return RunCommand(&stop, false, false);
 };
 
 
@@ -45,33 +48,40 @@ ConsoleIOTab::RunCommand(BMessage* message, bool clean, bool notifyMessage)
 	if (target == nullptr)
 		return B_ERROR;
 
+	BString cmd;
+	if (notifyMessage) {
+		cmd << _BannerCommand(message->GetString("banner_claim", "command"), "started   ") << "\n";
+	}
+	cmd << message->GetString("cmd", "echo error");
+	if (notifyMessage) {
+		cmd << "\n" << _BannerCommand(message->GetString("banner_claim", "command"), "ended     ");
+	}
 	BMessage exec(B_EXECUTE_PROPERTY);
 	exec.AddSpecifier("command");
 	exec.AddString("argv", "/bin/sh");
 	exec.AddString("argv", "-c");
-	exec.AddString("argv", message->GetString("cmd", "echo error"));
+	exec.AddString("argv", cmd);
 	exec.AddBool("clear", clean);
 	if (notifyMessage)
 		fContextMessage = *message;
-	else
-		fContextMessage.MakeEmpty();
+
 	return Looper()->PostMessage(&exec, target);
 }
 
 BString
-ConsoleIOTab::_BannerMessage(BString claim, BString status)
+ConsoleIOTab::_BannerCommand(BString claim, BString status)
 {
 //	if (!gCFG["console_banner"])
 //		return;
 
-	BString banner;
+	BString banner("echo '");
 	banner  << "--------------------------------"
 			<< "   "
 			<< claim
 			<< " "
 			<< status
 			<< "--------------------------------";
-
+	banner << "'";
 	return banner;
 }
 
@@ -86,14 +96,6 @@ ConsoleIOTab::NotifyCommandQuit(bool exitNormal, int exitStatus)
 
 		notification.what = CONSOLEIOTHREAD_EXIT;
 		notification.AddInt32("status", status);
-
-		BMessage banner;
-		BString claim("echo '");
-		claim << _BannerMessage(notification.GetString("banner_claim", "command"), "ended  ");
-		claim << "'";
-		banner.AddString("cmd", claim.String());
-		RunCommand(&banner, false, false);
-
 		notification.what = CONSOLEIOTHREAD_EXIT;
 		notification.AddInt32("status", status);
 		fMessenger.SendMessage(&notification);

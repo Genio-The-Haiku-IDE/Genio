@@ -39,8 +39,11 @@ public:
 
 private:
 			struct OutputInfo;
+#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
+			typedef BObjectList<OutputInfo, true> OutputInfoList;
+#else
 			typedef BObjectList<OutputInfo> OutputInfoList;
-
+#endif
 private:
 			void				_Init();
 			void				_HandleConsoleOutput(OutputInfo* info);

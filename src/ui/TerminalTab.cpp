@@ -15,6 +15,7 @@ TerminalTab::TerminalTab():BView("Terminal", B_FRAME_EVENTS),
 			fTermView(nullptr),
 			fCommand("")
 {
+	SetInitialCommand("/bin/sh -c \"while :; /bin/clear; do /bin/sh -l ;  done\"");
 	SetResizingMode(B_FOLLOW_ALL);
 }
 

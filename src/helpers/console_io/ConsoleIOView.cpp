@@ -305,7 +305,11 @@ ConsoleIOView::TextView()
 void
 ConsoleIOView::_Init()
 {
+#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
 	fPendingOutput = new OutputInfoList(1);
+#else
+	fPendingOutput = new OutputInfoList(1, true);
+#endif
 
 	fConsoleIOText = new WordTextView("console_io");
 	fConsoleIOText->SetStylable(true);

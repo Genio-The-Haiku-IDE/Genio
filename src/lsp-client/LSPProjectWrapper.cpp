@@ -7,16 +7,17 @@
 #include "Log.h"
 #include "LSPPipeClient.h"
 #include "LSPReaderThread.h"
+#include "LSPServersManager.h"
 #include "LSPTextDocument.h"
 #include "protocol.h"
-#include "LSPServersManager.h"
-
 
 
 const int32 kLSPMessage = 'LSP!';
 
 LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, const BMessenger& msgr,
-	const LSPServerConfigInterface& serverConfig) : BHandler(rootPath.Path()),
+		const LSPServerConfigInterface& serverConfig)
+	:
+	BHandler(rootPath.Path()),
 	fLSPPipeClient(nullptr),
 	fUrl(rootPath),
 	fMessenger(msgr),
@@ -26,6 +27,7 @@ LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, const BMessenger& msgr,
 	fUrl.SetAuthority("");
 	fInitialized.store(false);
 }
+
 
 void
 LSPProjectWrapper::MessageReceived(BMessage* msg)
@@ -56,7 +58,6 @@ LSPProjectWrapper::MessageReceived(BMessage* msg)
 			}
 		}
 	}
-	return;
 }
 
 
@@ -337,11 +338,13 @@ LSPProjectWrapper::_CheckAndSetCapability(json& capas, const char* str, const LS
 	return false;
 }
 
+
 bool
 LSPProjectWrapper::HasCapability(const LSPCapability flag)
 {
 	return fServerCapabilities & flag;
 }
+
 
 void
 LSPProjectWrapper::Initialized(json& result)
@@ -508,6 +511,7 @@ LSPProjectWrapper::CodeActionResolve(LSPTextDocument* textDocument, struct CodeA
 {
 	return SendRequest(X(textDocument), "codeAction/resolve", data);
 }
+
 
 RequestID
 LSPProjectWrapper::CodeActionResolve(LSPTextDocument* textDocument, nlohmann::json& data)

@@ -11,6 +11,7 @@
 #include <atomic>
 #include <MessageFilter.h>
 #include <Messenger.h>
+#include <Url.h>
 
 #include "LSPServersManager.h"
 #include "MessageHandler.h"
@@ -119,7 +120,7 @@ private:
 	std::string fAllCommitCharacters;
 	std::string fTriggerCharacters;
 
-	std::string fRootURI;
+	BUrl fUrl;
 	BMessenger fMessenger;
 	const LSPServerConfigInterface& fServerConfig;
 	uint32	fServerCapabilities;

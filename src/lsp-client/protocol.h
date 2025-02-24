@@ -306,6 +306,9 @@ struct ClientCapabilities {
     /// The content format that should be used for Hover requests.
     std::vector<MarkupKind> HoverContentFormat = {MarkupKind::PlainText};
 
+	bool WorkDoneProgress = true;
+	bool ImplicitWorkDoneProgressCreate = true;
+
     bool ApplyEdit = false;
     bool DocumentChanges = false;
     ClientCapabilities() {
@@ -351,6 +354,9 @@ JSON_SERIALIZE(ClientCapabilities,MAP_JSON(
                     MAP_TO("applyEdit", ApplyEdit),
                     MAP_KV("workspaceEdit", // WorkspaceEditClientCapabilities
                             MAP_TO("documentChanges", DocumentChanges))),
+			MAP_KV("window",
+					MAP_TO("workDoneProgress", WorkDoneProgress),
+					MAP_TO("implicitWorkDoneProgressCreate", ImplicitWorkDoneProgressCreate)),
             MAP_TO("offsetEncoding", offsetEncoding)), {});
 
 struct ServerCapabilities {

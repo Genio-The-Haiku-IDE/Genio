@@ -7,28 +7,27 @@
 #include "Log.h"
 #include "LSPPipeClient.h"
 #include "LSPReaderThread.h"
+#include "LSPServersManager.h"
 #include "LSPTextDocument.h"
 #include "protocol.h"
-#include "LSPServersManager.h"
 
-#include <Url.h>
 
 const int32 kLSPMessage = 'LSP!';
 
 LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, const BMessenger& msgr,
-	const LSPServerConfigInterface& serverConfig) : BHandler(rootPath.Path())
-	, fServerConfig(serverConfig)
-	, fServerCapabilities(0U)
+		const LSPServerConfigInterface& serverConfig)
+	:
+	BHandler(rootPath.Path()),
+	fLSPPipeClient(nullptr),
+	fUrl(rootPath),
+	fMessenger(msgr),
+	fServerConfig(serverConfig),
+	fServerCapabilities(0U)
 {
-	BUrl url(rootPath);
-	url.SetAuthority("");
-
-	fRootURI = url.UrlString();
-	fLSPPipeClient = nullptr;
+	fUrl.SetAuthority("");
 	fInitialized.store(false);
-
-	fMessenger = msgr;
 }
+
 
 void
 LSPProjectWrapper::MessageReceived(BMessage* msg)
@@ -59,7 +58,6 @@ LSPProjectWrapper::MessageReceived(BMessage* msg)
 			}
 		}
 	}
-	return;
 }
 
 
@@ -118,7 +116,7 @@ LSPProjectWrapper::_Create()
 		return false;
 	}
 
-	Initialize(string_ref(fRootURI));
+	Initialize(string_ref(fUrl.UrlString().String()));
 
 	return true;
 }
@@ -184,6 +182,51 @@ LSPProjectWrapper::onNotify(std::string method, value& params)
 			LogError(
 				"Can't deliver a notify from LSP to %s\n%s\n", uri.c_str(), params.dump().c_str());
 		}
+		return;
+	} else if (method.compare("$/progress") == 0) {
+/*
+ {"token":"backgroundIndexProgress","value":{"kind":"begin","percentage":0,"title":"indexing"}}
+ {"token":"backgroundIndexProgress","value":{"kind":"report","message":"0/1","percentage":0}}
+ {"token":"backgroundIndexProgress","value":{"kind":"report","message":"0/1","percentage":0}}
+ {"token":"backgroundIndexProgress","value":{"kind":"report","message":"0/1","percentage":0}}
+ {"token":"backgroundIndexProgress","value":{"kind":"end"}}
+*/
+		auto value = params["value"];
+		auto kind  = value["kind"].get<std::string>();
+		if (kind.compare("begin") == 0) {
+			fWorkDone.MakeEmpty();
+			fWorkDone.what = kLSPWorkProgress;
+			fWorkDone.AddString("project", fUrl.Path().String());
+			fWorkDone.AddString("kind", kind.c_str());
+			fWorkDone.AddString("title", value["title"].get<std::string>().c_str());
+			if (value["percentage"].is_null() == false)
+				fWorkDone.AddInt32("percentage", value["percentage"].get<int>());
+			if (value["message"].is_null() == false)
+				fWorkDone.AddString("message", value["message"].get<std::string>().c_str());
+			else
+				fWorkDone.AddString("message", "");
+
+		} else if (kind.compare("report") == 0 && fWorkDone.IsEmpty() == false) {
+			fWorkDone.ReplaceString("kind", kind.c_str());
+			if (value["percentage"].is_null() == false) {
+			if(fWorkDone.HasInt32("percentage"))
+				fWorkDone.ReplaceInt32("percentage", value["percentage"].get<int>());
+			else
+				fWorkDone.AddInt32("percentage", value["percentage"].get<int>());
+			}
+			if (value["message"].is_null() == false)
+				fWorkDone.ReplaceString("message", value["message"].get<std::string>().c_str());
+
+		} else if (kind.compare("end") == 0 && fWorkDone.IsEmpty() == false) {
+			fWorkDone.ReplaceString("kind", kind.c_str());
+			if (value["message"].is_null() == false)
+				fWorkDone.ReplaceString("message", value["message"].get<std::string>().c_str());
+		}
+
+		if(fWorkDone.IsEmpty() == false) {
+			fMessenger.SendMessage(&fWorkDone);
+		}
+
 		return;
 	}
 	LogError("LSPProjectWrapper::onNotify not implemented! [%s]", method.c_str());
@@ -295,11 +338,13 @@ LSPProjectWrapper::_CheckAndSetCapability(json& capas, const char* str, const LS
 	return false;
 }
 
+
 bool
 LSPProjectWrapper::HasCapability(const LSPCapability flag)
 {
 	return fServerCapabilities & flag;
 }
+
 
 void
 LSPProjectWrapper::Initialized(json& result)
@@ -466,6 +511,7 @@ LSPProjectWrapper::CodeActionResolve(LSPTextDocument* textDocument, struct CodeA
 {
 	return SendRequest(X(textDocument), "codeAction/resolve", data);
 }
+
 
 RequestID
 LSPProjectWrapper::CodeActionResolve(LSPTextDocument* textDocument, nlohmann::json& data)

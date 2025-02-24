@@ -11,6 +11,7 @@
 #include <atomic>
 #include <MessageFilter.h>
 #include <Messenger.h>
+#include <Url.h>
 
 #include "LSPServersManager.h"
 #include "MessageHandler.h"
@@ -35,6 +36,7 @@ class LSPServerConfigInterface;
 
 using json = nlohmann::json;
 
+const int32 kLSPWorkProgress = 'lswp';
 
 class LSPProjectWrapper : public BHandler {
 
@@ -118,10 +120,11 @@ private:
 	std::string fAllCommitCharacters;
 	std::string fTriggerCharacters;
 
-	std::string fRootURI;
+	BUrl fUrl;
 	BMessenger fMessenger;
 	const LSPServerConfigInterface& fServerConfig;
 	uint32	fServerCapabilities;
+	BMessage	fWorkDone;
 };
 
 #endif // _H_LSPProjectWrapper

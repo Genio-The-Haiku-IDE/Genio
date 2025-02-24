@@ -311,6 +311,14 @@ GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 
+		case kLSPWorkProgress:
+		{
+			ProjectFolder* active = GetActiveProject();
+			if (active != nullptr && active->Path().Compare(message->GetString("project","")) == 0) {
+				SendNotices(MSG_NOTIFY_LSP_INDEXING, message);
+			}
+			break;
+		}
 		case MSG_INVOKE_EXTENSION:
 		{
 			entry_ref ref;

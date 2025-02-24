@@ -19,7 +19,6 @@
 #include "GenioNamespace.h"
 #include "GSettings.h"
 
-#include <iostream>
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"

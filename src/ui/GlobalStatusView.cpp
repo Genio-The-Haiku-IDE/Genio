@@ -29,7 +29,8 @@ GlobalStatusView::GlobalStatusView()
 	:
 	BView("global_status_view", B_WILL_DRAW),
 	fBarberPole(nullptr),
-	fStringView(nullptr),
+	fBuildStringView(nullptr),
+	fLSPStringView(nullptr),
 	fLastStatusChange(system_time()),
 	fRunner(nullptr)
 {
@@ -37,16 +38,21 @@ GlobalStatusView::GlobalStatusView()
 	//fBarberPole->SetExplicitMinSize(BSize(100, B_SIZE_UNLIMITED));
 	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNLIMITED));
 	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-	fStringView = new BStringView("text", "");
-	fStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
-	fStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+	fBuildStringView = new BStringView("text", "dd");
+	fBuildStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
+	fBuildStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+
+	fLSPStringView = new BStringView("text", "");
+	fLSPStringView->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
+	fLSPStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
 
 	fBarberPole->Hide();
 
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
 		.SetInsets(2, 0)
+		.Add(fLSPStringView)
 		.AddGlue()
-		.Add(fStringView)
+		.Add(fBuildStringView)
 		.AddGroup(B_VERTICAL)
 			.SetInsets(0, 4)
 			.Add(fBarberPole)
@@ -60,6 +66,7 @@ GlobalStatusView::AttachedToWindow()
 	BView::AttachedToWindow();
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
+		Window()->StartWatching(this, MSG_NOTIFY_LSP_INDEXING);
 		Window()->UnlockLooper();
 	}
 }
@@ -72,6 +79,7 @@ GlobalStatusView::DetachedFromWindow()
 	BView::DetachedFromWindow();
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
+		Window()->StopWatching(this, MSG_NOTIFY_LSP_INDEXING);
 		Window()->UnlockLooper();
 	}
 }
@@ -93,7 +101,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 				delete fRunner;
 				fRunner = nullptr;
 			}
-			fStringView->SetText("");
+			fBuildStringView->SetText("");
 			fBarberPole->Hide();
 			break;
 		case B_OBSERVER_NOTICE_CHANGE:
@@ -142,17 +150,42 @@ GlobalStatusView::MessageReceived(BMessage *message)
 									kTextAutohideTimeout, 1);
 					}
 					text.ReplaceFirst("\"%project%\"", projectName);
-					fStringView->SetText(text.String());
+					fBuildStringView->SetText(text.String());
 
 					if (status != B_OK) {
 						// On fail
-						fStringView->SetHighColor(ui_color(B_FAILURE_COLOR));
+						fBuildStringView->SetHighColor(ui_color(B_FAILURE_COLOR));
 						// beep();
 					} else
-						fStringView->SetHighColor(ui_color(B_CONTROL_TEXT_COLOR));
+						fBuildStringView->SetHighColor(ui_color(B_CONTROL_TEXT_COLOR));
 
 					fLastStatusChange = system_time();
+					break;
 				}
+				case MSG_NOTIFY_LSP_INDEXING:
+				{
+					BString kind = message->GetString("kind", "end");
+					if (kind.Compare("end") == 0) {
+						fLSPStringView->SetText("");
+						return;
+					}
+					BString text;
+					const char* str = nullptr;
+					if (message->FindString("title", &str) == B_OK) {
+						text << str << " ";
+					}
+					if (message->FindString("message", &str) == B_OK) {
+						text << str << " ";
+					}
+					int32 percentage = 0;
+					if (message->FindInt32("percentage", &percentage) == B_OK) {
+						text << "(" << percentage << "%)";
+					}
+					fLSPStringView->SetText(text.String());
+
+					message->PrintToStream();
+				}
+				break;
 				default:
 					BView::MessageReceived(message);
 					break;

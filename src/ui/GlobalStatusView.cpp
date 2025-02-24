@@ -169,6 +169,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 						fLSPStringView->SetText("");
 						return;
 					}
+					// TODO: translate ?
 					BString text;
 					const char* str = nullptr;
 					if (message->FindString("title", &str) == B_OK) {
@@ -183,9 +184,8 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					}
 					fLSPStringView->SetText(text.String());
 
-					message->PrintToStream();
+					break;
 				}
-				break;
 				default:
 					BView::MessageReceived(message);
 					break;

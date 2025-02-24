@@ -11,23 +11,20 @@
 #include "protocol.h"
 #include "LSPServersManager.h"
 
-#include <Url.h>
+
 
 const int32 kLSPMessage = 'LSP!';
 
 LSPProjectWrapper::LSPProjectWrapper(BPath rootPath, const BMessenger& msgr,
-	const LSPServerConfigInterface& serverConfig) : BHandler(rootPath.Path())
-	, fServerConfig(serverConfig)
-	, fServerCapabilities(0U)
+	const LSPServerConfigInterface& serverConfig) : BHandler(rootPath.Path()),
+	fLSPPipeClient(nullptr),
+	fUrl(rootPath),
+	fMessenger(msgr),
+	fServerConfig(serverConfig),
+	fServerCapabilities(0U)
 {
-	BUrl url(rootPath);
-	url.SetAuthority("");
-
-	fRootURI = url.UrlString();
-	fLSPPipeClient = nullptr;
+	fUrl.SetAuthority("");
 	fInitialized.store(false);
-
-	fMessenger = msgr;
 }
 
 void
@@ -118,7 +115,7 @@ LSPProjectWrapper::_Create()
 		return false;
 	}
 
-	Initialize(string_ref(fRootURI));
+	Initialize(string_ref(fUrl.UrlString().String()));
 
 	return true;
 }
@@ -198,7 +195,7 @@ LSPProjectWrapper::onNotify(std::string method, value& params)
 		if (kind.compare("begin") == 0) {
 			fWorkDone.MakeEmpty();
 			fWorkDone.what = kLSPWorkProgress;
-			fWorkDone.AddString("project", fRootURI.c_str());
+			fWorkDone.AddString("project", fUrl.Path().String());
 			fWorkDone.AddString("kind", kind.c_str());
 			fWorkDone.AddString("title", value["title"].get<std::string>().c_str());
 			if (value["percentage"].is_null() == false)

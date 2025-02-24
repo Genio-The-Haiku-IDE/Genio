@@ -55,7 +55,6 @@
 #include "Languages.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
-#include "MTermView.h"
 #include "ProblemsPanel.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
@@ -456,9 +455,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case kTermViewDone:
-			_UpdateProjectActivation(fActiveProject != nullptr);
-			break;
 		case CONSOLEIOTHREAD_EXIT:
 		{
 			BString cmdType = message->GetString("cmd_type", "");

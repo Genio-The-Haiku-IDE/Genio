@@ -207,8 +207,12 @@ LSPProjectWrapper::onNotify(std::string method, value& params)
 
 		} else if (kind.compare("report") == 0 && fWorkDone.IsEmpty() == false) {
 			fWorkDone.ReplaceString("kind", kind.c_str());
-			if (value["percentage"].is_null() == false)
+			if (value["percentage"].is_null() == false) {
+			if(fWorkDone.HasInt32("percentage"))
 				fWorkDone.ReplaceInt32("percentage", value["percentage"].get<int>());
+			else
+				fWorkDone.AddInt32("percentage", value["percentage"].get<int>());
+			}
 			if (value["message"].is_null() == false)
 				fWorkDone.ReplaceString("message", value["message"].get<std::string>().c_str());
 

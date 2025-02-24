@@ -35,6 +35,7 @@ class LSPServerConfigInterface;
 
 using json = nlohmann::json;
 
+const int32 kLSPWorkProgress = 'lswp';
 
 class LSPProjectWrapper : public BHandler {
 
@@ -122,6 +123,7 @@ private:
 	BMessenger fMessenger;
 	const LSPServerConfigInterface& fServerConfig;
 	uint32	fServerCapabilities;
+	BMessage	fWorkDone;
 };
 
 #endif // _H_LSPProjectWrapper

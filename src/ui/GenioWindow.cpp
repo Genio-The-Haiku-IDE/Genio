@@ -311,6 +311,9 @@ GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 
+		case kLSPWorkProgress:
+			SendNotices(MSG_NOTIFY_LSP_INDEXING, message);
+		break;
 		case MSG_INVOKE_EXTENSION:
 		{
 			entry_ref ref;

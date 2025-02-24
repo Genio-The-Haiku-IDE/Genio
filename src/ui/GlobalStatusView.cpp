@@ -38,7 +38,7 @@ GlobalStatusView::GlobalStatusView()
 	//fBarberPole->SetExplicitMinSize(BSize(100, B_SIZE_UNLIMITED));
 	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNLIMITED));
 	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-	fBuildStringView = new BStringView("text", "dd");
+	fBuildStringView = new BStringView("text", "");
 	fBuildStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
 	fBuildStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
 

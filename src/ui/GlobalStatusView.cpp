@@ -11,6 +11,7 @@
 #include <LayoutUtils.h>
 #include <Message.h>
 #include <MessageRunner.h>
+#include <StatusBar.h>
 #include <StringView.h>
 #include <Window.h>
 
@@ -31,11 +32,11 @@ GlobalStatusView::GlobalStatusView()
 	fBarberPole(nullptr),
 	fBuildStringView(nullptr),
 	fLSPStringView(nullptr),
+	fLSPStatusBar(nullptr),
 	fLastStatusChange(system_time()),
 	fRunner(nullptr)
 {
 	fBarberPole = new BarberPole("barber pole");
-	//fBarberPole->SetExplicitMinSize(BSize(100, B_SIZE_UNLIMITED));
 	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNLIMITED));
 	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
 	fBuildStringView = new BStringView("text", "");
@@ -46,11 +47,19 @@ GlobalStatusView::GlobalStatusView()
 	fLSPStringView->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
 	fLSPStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
 
+	fLSPStatusBar = new BStatusBar("");
+	font_height fontHeight;
+	be_plain_font->GetHeight(&fontHeight);
+	fLSPStatusBar->SetExplicitMaxSize(BSize(150, fontHeight.ascent + fontHeight.descent));
+	fLSPStatusBar->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+
 	fBarberPole->Hide();
+	fLSPStatusBar->Hide();
 
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
 		.SetInsets(2, 0)
 		.Add(fLSPStringView)
+		.Add(fLSPStatusBar)
 		.AddGlue()
 		.Add(fBuildStringView)
 		.AddGroup(B_VERTICAL)
@@ -167,8 +176,11 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					BString kind = message->GetString("kind", "end");
 					if (kind.Compare("end") == 0) {
 						fLSPStringView->SetText("");
+						if (!fLSPStatusBar->IsHidden())
+							fLSPStatusBar->Hide();
 						return;
 					}
+
 					// TODO: translate ?
 					BString text;
 					const char* str = nullptr;
@@ -181,9 +193,13 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					int32 percentage = 0;
 					if (message->FindInt32("percentage", &percentage) == B_OK) {
 						text << "(" << percentage << "%)";
-					}
-					fLSPStringView->SetText(text.String());
+						if (fLSPStatusBar->IsHidden())
+							fLSPStatusBar->Show();
 
+						fLSPStatusBar->Update(percentage - fLSPStatusBar->CurrentValue());
+					}
+
+					fLSPStringView->SetText(text.String());
 					break;
 				}
 				default:
@@ -203,7 +219,11 @@ GlobalStatusView::MessageReceived(BMessage *message)
 BSize
 GlobalStatusView::MinSize()
 {
-	return BView::MinSize();
+	font_height fontHeight;
+	GetFontHeight(&fontHeight);
+
+	return BLayoutUtils::ComposeSize(BView::MinSize(),
+		BSize(B_SIZE_UNSET, fontHeight.ascent + fontHeight.descent));
 }
 
 

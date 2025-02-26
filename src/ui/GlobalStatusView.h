@@ -7,9 +7,9 @@
 #include <View.h>
 
 class BarberPole;
-class BStringView;
 class BMessageRunner;
-
+class BStatusBar;
+class BStringView;
 class GlobalStatusView : public BView {
 public:
 	GlobalStatusView();
@@ -19,7 +19,6 @@ public:
 	virtual void Draw(BRect updateRect);
 	virtual void MessageReceived(BMessage *message);
 
-
 	virtual BSize MinSize();
 	virtual BSize MaxSize();
 
@@ -27,6 +26,7 @@ private:
 	BarberPole*		fBarberPole;
 	BStringView*	fBuildStringView;
 	BStringView*	fLSPStringView;
+	BStatusBar*		fLSPStatusBar;
 	bigtime_t		fLastStatusChange;
 	BMessageRunner* fRunner;
 };

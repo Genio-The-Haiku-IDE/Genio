@@ -11,10 +11,13 @@ class Editor;
 
 class GTabEditor : public GTabCloseButton {
 public:
-	GTabEditor(const char* label, const BHandler* handler, Editor* editor):
+	GTabEditor(const char* label, const BHandler* handler, Editor* editor)
+		:
 		GTabCloseButton(label, handler),
 		fEditor(editor),
-		fColor(ui_color(B_PANEL_BACKGROUND_COLOR)){}
+		fColor(ui_color(B_PANEL_BACKGROUND_COLOR))
+	{
+	}
 
 	BSize	MinSize() override;
 	BSize	MaxSize() override;
@@ -22,14 +25,13 @@ public:
 	void	MouseMoved(BPoint where, uint32 transit, const BMessage* dragMessage) override;
 	void	DrawLabel(BView* owner, BRect frame, const BRect& updateRect, bool isFront) override;
 
-	Editor*	GetEditor() { return fEditor; }
+	Editor*	GetEditor() const { return fEditor; }
 	void	SetColor(const rgb_color& color);
 	void	SetLabel(const char* label) override;
 
-	rgb_color	Color() { return fColor; }
+	rgb_color	Color() const { return fColor; }
 
 protected:
-
 	void	CloseButtonClicked() override;
 	void	UpdateToolTip();
 	void	DrawCircle(BView* owner, BRect& frame);
@@ -38,5 +40,3 @@ private:
 	Editor*	fEditor;
 	rgb_color	fColor;
 };
-
-

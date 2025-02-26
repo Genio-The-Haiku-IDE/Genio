@@ -31,7 +31,7 @@ public:
 
 	void	AddEditor(const char* label, Editor* editor, BMessage* info = nullptr);
 
-	Editor* SelectedEditor();
+	Editor* SelectedEditor() const;
 
 	void	SetTabColor(Editor*, const rgb_color& color);
 	void	SetTabLabel(Editor*, const char* label);
@@ -46,9 +46,9 @@ public:
 
 //deprecated :
 
-	deprecated_ int32	SelectedTabIndex();
+	deprecated_ int32	SelectedTabIndex() const;
 
-	deprecated_ int32	CountTabs();
+	deprecated_ int32	CountTabs() const;
 
 	deprecated_ void	SelectTab(int32 index, BMessage* selInfo = nullptr);
 	deprecated_ Editor* EditorAt(int32 index);
@@ -57,8 +57,8 @@ public:
 				Editor*	EditorBy(const entry_ref* ref);
 				Editor*	EditorById(editor_id id);
 
-	void ForEachEditor(const std::function<bool(Editor*)>& op);
-	void ReverseForEachEditor(const std::function<bool(Editor*)>& op);
+	void	ForEachEditor(const std::function<bool(Editor*)>& op);
+	void 	ReverseForEachEditor(const std::function<bool(Editor*)>& op);
 
 	void	AttachedToWindow() override;
 	void	MessageReceived(BMessage*) override;
@@ -66,7 +66,7 @@ public:
 protected:
 friend GTabEditor;
 
-	GTab* CreateTabView(GTab* clone) override;
+	GTab*	CreateTabView(GTab* clone) override;
 
 	void	OnTabSelected(GTab* tab) override;
 

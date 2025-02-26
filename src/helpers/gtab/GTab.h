@@ -11,8 +11,6 @@
 #include <MessageRunner.h>
 #include <Size.h>
 
-#include <cstdio>
-
 #include "Draggable.h"
 #include "TabButtons.h"
 #include "TabsContainer.h"
@@ -112,7 +110,6 @@ public:
 			BString				Label() const { return fLabel; };
 	virtual void				SetLabel(const char* label) { fLabel.SetTo(label); }
 
-
 			void 				OnDropMessage(BMessage* message) override;
 
 protected:
@@ -149,7 +146,6 @@ private:
 
 			BRect		RectCloseButton();
 
-
 private:
 			bool fOverCloseRect;
 			bool fClicked;
@@ -174,7 +170,6 @@ class Filler : public BView, public GTabDropZone {
 		void	MessageReceived(BMessage* message) override;
 
 		void	OnDropMessage(BMessage* message) override;
-
 		void	OnDropObject();
 };
 

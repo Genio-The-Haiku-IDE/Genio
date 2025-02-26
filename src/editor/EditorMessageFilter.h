@@ -7,6 +7,7 @@
 
 #include <MessageFilter.h>
 #include <View.h>
+
 #include "Editor.h"
 
 typedef filter_result (Editor::*funcPtrHandler)(BMessage*);
@@ -17,11 +18,15 @@ typedef filter_result (Editor::*funcPtrHandler)(BMessage*);
 
 class EditorMessageFilter : public BMessageFilter {
 public:
-	EditorMessageFilter(system_message_code what, funcPtrHandler func):
+	EditorMessageFilter(system_message_code what, funcPtrHandler func)
+		:
 		BMessageFilter(what),
 		fFunc(func)
-		{};
-	filter_result		Filter(BMessage* message, BHandler** _target) {
+	{
+	}
+
+	filter_result Filter(BMessage* message, BHandler** _target)
+	{
 		if (_target && *_target) {
 			BView* scintillaView = dynamic_cast<BView*>(*_target);
 			if (scintillaView) {
@@ -34,6 +39,6 @@ public:
 		return B_DISPATCH_MESSAGE;
 	}
 
+private:
 	funcPtrHandler	fFunc;
 };
-

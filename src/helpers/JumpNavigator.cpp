@@ -8,7 +8,6 @@
 #include <Application.h>
 #include <Message.h>
 
-
 #include "Log.h"
 
 void

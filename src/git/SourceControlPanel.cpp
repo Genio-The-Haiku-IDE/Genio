@@ -27,6 +27,7 @@
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
+#include "GitRepository.h"
 #include "GTextAlert.h"
 #include "Log.h"
 #include "ProjectBrowser.h"

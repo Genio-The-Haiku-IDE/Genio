@@ -6,6 +6,21 @@
 
 #include "ProjectBrowser.h"
 
+#include <cassert>
+#include <cstdio>
+
+#include <Catalog.h>
+#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
+#include <MessageRunner.h>
+#include <Mime.h>
+#include <NaturalCompare.h>
+#include <OutlineListView.h>
+#include <PopUpMenu.h>
+#include <ScrollView.h>
+#include <StringList.h>
+#include <StringView.h>
+
 #include "ActionManager.h"
 #include "ConfigManager.h"
 #include "GenioApp.h"
@@ -19,28 +34,6 @@
 #include "TemplateManager.h"
 #include "TemplatesMenu.h"
 #include "Utils.h"
-
-#include <Alert.h>
-#include <Catalog.h>
-#include <Directory.h>
-#include <Entry.h>
-#include <File.h>
-#include <GroupLayoutBuilder.h>
-#include <LayoutBuilder.h>
-#include <MenuItem.h>
-#include <MessageRunner.h>
-#include <Mime.h>
-#include <NaturalCompare.h>
-#include <OutlineListView.h>
-#include <Path.h>
-#include <PopUpMenu.h>
-#include <ScrollView.h>
-#include <StringList.h>
-#include <StringView.h>
-#include <Window.h>
-
-#include <cassert>
-#include <cstdio>
 
 
 #undef B_TRANSLATION_CONTEXT

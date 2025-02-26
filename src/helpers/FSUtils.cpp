@@ -218,9 +218,6 @@ FSMoveFile(BEntry *src, BEntry *dest, bool clobber)
 }
 
 
-namespace fs = std::filesystem;
-
-
 status_t
 FSMakeWritable(const fs::path& path, bool recurse)
 {

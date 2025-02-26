@@ -352,6 +352,7 @@ GTabView::CreateTabView(const char* label)
 						: new GTab(label);
 }
 
+
 GTab*
 GTabView::CreateTabView(GTab* clone)
 {

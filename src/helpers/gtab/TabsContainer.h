@@ -26,24 +26,21 @@ public:
 	GTab*	TabAt(int32 index) const;
 	int32	IndexOfTab(GTab* tab) const;
 
-	void	ShiftTabs(int32 delta, const char* src); // 0 to refresh the current state
-
-	void	MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons);
-
-	void	FrameResized(float w, float h) override;
-
-	void	OnDropTab(GTab* toTab, BMessage* message);
-
 	GTab*	SelectedTab() const;
 
+	void	ShiftTabs(int32 delta, const char* src); // 0 to refresh the current state
 	void	SetFrontTab(GTab* tab);
 
 	GTabView*	GetGTabView() const { return fGTabView; }
 
 	tab_affinity	GetAffinity() const { return fAffinity; }
 
-	void	DoLayout() override;
+	void	OnDropTab(GTab* toTab, BMessage* message);
+	void	MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons);
 
+	// BView hooks
+	void	FrameResized(float w, float h) override;
+	void	DoLayout() override;
 	void	MessageReceived(BMessage*) override;
 
 private:

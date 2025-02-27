@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include <File.h>
 #include <Locker.h>
 #include <MessageFilter.h>
 #include <Messenger.h>
@@ -238,6 +239,23 @@ private:
 			void				_RedrawNumberMargin(bool forced = false);
 			void				_SetFoldMargin(bool enabled);
 			void				_UpdateSavePoint(bool modified);
+			
+			// Editor config helper methods
+			void				_LoadDefaultEditorConfig();
+			bool				_ParseEditorConfigFile(const char* filePath);
+			void				_ApplyConfigParameter(const char* name, const char* value);
+			
+			// File handling methods
+			status_t			_CheckFilePermissions(BFile& file, bool& editable);
+			status_t			_ReadFileContent(BFile& file);
+			void				_SetupEditorAfterLoad(bool editable);
+			void				_DetermineFileType();
+			
+			// Notification handling methods
+			void				_HandleCharAddedNotification(SCNotification* notification);
+			void				_HandleMarginClickNotification(SCNotification* notification);
+			void				_HandleModificationNotification(SCNotification* notification);
+			void				_HandleUpdateUINotification(SCNotification* notification);
 
 			template<typename T>
 			typename T::type	Get() { return T::Get(this); }

@@ -840,72 +840,90 @@ Editor::IsTextSelected()
 
 
 void
-Editor::LoadEditorConfig()
+Editor::_LoadDefaultEditorConfig()
 {
 	fEditorConfig.EndOfLine = EndOfLine();
 	fEditorConfig.IndentStyle = (bool)gCFG["tab_to_space"] ? IndentStyle::Space : IndentStyle::Tab;
 	fEditorConfig.IndentSize = (int)gCFG["tab_width"];
 	fEditorConfig.TrimTrailingWhitespace = (bool)gCFG["trim_trailing_whitespace"];
 	fHasEditorConfig = false;
+}
 
-	if ((bool)gCFG["ignore_editorconfig"])
-		return;
+void
+Editor::_ApplyConfigParameter(const char* name, const char* value)
+{
+	static int32 tabWidth = 4;  // Local static to persist tab width between parameters
+	
+	if (::strcmp(name, "indent_style")) {
+		fEditorConfig.IndentStyle = !::strcmp(value, "space") ?
+			IndentStyle::Space : IndentStyle::Tab;
+	} else if (!::strcmp(name, "tab_width")) {
+		if (::strcmp(value, "undefine"))
+			tabWidth = ::strtol(value, nullptr, 10);
+	} else if (!::strcmp(name, "indent_size")) {
+		if (strcmp(value, "undefine")) {
+			int valueInt = ::strtol(value, nullptr, 10);
+			if (!::strcmp(value, "tab"))
+				fEditorConfig.IndentSize = tabWidth;
+			else if (valueInt > 0)
+				fEditorConfig.IndentSize = valueInt;
+		}
+	} else if (!::strcmp(name, "end_of_line")) {
+		if (::strcmp(value, "undefine")) {
+			if (!::strcmp(value, "lf"))
+				fEditorConfig.EndOfLine = SC_EOL_LF;
+			else if (!::strcmp(value, "cr"))
+				fEditorConfig.EndOfLine = SC_EOL_CR;
+			else if (!::strcmp(value, "crlf"))
+				fEditorConfig.EndOfLine = SC_EOL_CRLF;
+		}
+	} else if (!::strcmp(name, "trim_trailing_whitespace")) {
+		if (::strcmp(value, "undefine"))
+			fEditorConfig.TrimTrailingWhitespace = !::strcmp(value, "true") ? true : false;
+	} else if (!::strcmp(name, "insert_final_newline"))
+		fEditorConfig.InsertFinalNewline = !::strcmp(value, "true") ? true : false;
+}
 
-	// start parsing
+bool
+Editor::_ParseEditorConfigFile(const char* filePath)
+{
 	// Ignore full path error, whose error code is EDITORCONFIG_PARSE_NOT_FULL_PATH
 	editorconfig_handle handle = editorconfig_handle_init();
 	if (handle == nullptr)
-		return;
-
+		return false;
+		
 	int errNum;
-	if ((errNum = editorconfig_parse(FilePath().String(), handle)) != 0 &&
+	if ((errNum = editorconfig_parse(filePath, handle)) != 0 &&
 			errNum != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
 		LogError("Can't load .editorconfig with error %d", editorconfig_get_error_msg(errNum));
-	} else {
-		int32 nameValueCount = editorconfig_handle_get_name_value_count(handle);
-		if (nameValueCount != 0)
-			fHasEditorConfig = true;
-
-		/* get settings */
-		// Defaults. TODO: This avoids the compiler error
-		// but maybe the code should be refactored
-		int32 tabWidth = 4;
-		for (int32 i = 0; i < nameValueCount; ++i) {
-			const char* name = nullptr;
-			const char* value = nullptr;
-			editorconfig_handle_get_name_value(handle, i, &name, &value);
-
-			if (::strcmp(name, "indent_style")) {
-				fEditorConfig.IndentStyle = !::strcmp(value, "space") ?
-					IndentStyle::Space : IndentStyle::Tab;
-			} else if (!::strcmp(name, "tab_width")) {
-				if (::strcmp(value, "undefine"))
-					tabWidth = ::strtol(value, nullptr, 10);
-			} else if (!::strcmp(name, "indent_size")) {
-				if (strcmp(value, "undefine")) {
-					int valueInt = ::strtol(value, nullptr, 10);
-					if (!::strcmp(value, "tab"))
-						fEditorConfig.IndentSize = tabWidth;
-					else if (valueInt > 0)
-						fEditorConfig.IndentSize = valueInt;
-				}
-			} else if (!::strcmp(name, "end_of_line")) {
-				if (::strcmp(value, "undefine")) {
-					if (!::strcmp(value, "lf"))
-						fEditorConfig.EndOfLine = SC_EOL_LF;
-					else if (!::strcmp(value, "cr"))
-						fEditorConfig.EndOfLine = SC_EOL_CR;
-					else if (!::strcmp(value, "crlf"))
-						fEditorConfig.EndOfLine = SC_EOL_CRLF;
-				}
-			} else if (!::strcmp(name, "trim_trailing_whitespace")) {
-				if (::strcmp(value, "undefine"))
-					fEditorConfig.TrimTrailingWhitespace = !::strcmp(value, "true") ? true : false;
-			} else if (!::strcmp(name, "insert_final_newline"))
-				fEditorConfig.InsertFinalNewline = !::strcmp(value, "true") ? true : false;
-		}
+		editorconfig_handle_destroy(handle);
+		return false;
 	}
+	
+	int32 nameValueCount = editorconfig_handle_get_name_value_count(handle);
+	if (nameValueCount != 0)
+		fHasEditorConfig = true;
+		
+	for (int32 i = 0; i < nameValueCount; ++i) {
+		const char* name = nullptr;
+		const char* value = nullptr;
+		editorconfig_handle_get_name_value(handle, i, &name, &value);
+		_ApplyConfigParameter(name, value);
+	}
+	
 	editorconfig_handle_destroy(handle);
+	return true;
+}
+
+void
+Editor::LoadEditorConfig()
+{
+	_LoadDefaultEditorConfig();
+	
+	if ((bool)gCFG["ignore_editorconfig"])
+		return;
+		
+	_ParseEditorConfigFile(FilePath().String());
 }
 
 
@@ -913,26 +931,26 @@ Editor::LoadEditorConfig()
  * Code (editable) taken from stylededit
  */
 status_t
-Editor::LoadFromFile()
+Editor::_CheckFilePermissions(BFile& file, bool& editable)
 {
 	status_t status;
-	BFile file;
-	if ((status = file.SetTo(&fFileRef, B_READ_ONLY)) != B_OK)
-		return status;
-	if ((status = file.InitCheck()) != B_OK)
-		return status;
-	if ((status = file.Lock()) != B_OK)
-		return status;
 	struct stat st;
 	if ((status = file.GetStat(&st)) != B_OK)
 		return status;
 
-	bool editable = (getuid() == st.st_uid && S_IWUSR & st.st_mode)
-					|| (getgid() == st.st_gid && S_IWGRP & st.st_mode)
-					|| (S_IWOTH & st.st_mode);
+	editable = (getuid() == st.st_uid && S_IWUSR & st.st_mode)
+			|| (getgid() == st.st_gid && S_IWGRP & st.st_mode)
+			|| (S_IWOTH & st.st_mode);
+	
 	BVolume volume(fFileRef.device);
 	editable = editable && !volume.IsReadOnly();
+	
+	return B_OK;
+}
 
+status_t
+Editor::_ReadFileContent(BFile& file)
+{
 	off_t size;
 	file.GetSize(&size);
 
@@ -950,12 +968,12 @@ Editor::LoadFromFile()
 	delete[] lineBuffer;
 	delete[] buffer;
 
-	if (len != size)
-		return B_ERROR;
+	return (len == size) ? B_OK : B_ERROR;
+}
 
-	if ((status = file.Unlock()) != B_OK)
-		return status;
-
+void
+Editor::_SetupEditorAfterLoad(bool editable)
+{
 	SendMessage(SCI_EMPTYUNDOBUFFER, UNSET, UNSET);
 	SendMessage(SCI_SETSAVEPOINT, UNSET, UNSET);
 
@@ -965,6 +983,15 @@ Editor::LoadFromFile()
 	// Monitor node
 	StartMonitoring();
 
+	// Determine file type
+	_DetermineFileType();
+	
+	UpdateStatusBar();
+}
+
+void
+Editor::_DetermineFileType()
+{
 	fFileType = "";
 	if (!Languages::GetLanguageForExtension(GetFileExtension(fFileName.String()), fFileType)) {
 		BPath path(fFileName.String());
@@ -972,8 +999,42 @@ Editor::LoadFromFile()
 			Languages::GetLanguageForExtension(path.Leaf(), fFileType);
 		}
 	}
+}
 
-	UpdateStatusBar();
+status_t
+Editor::LoadFromFile()
+{
+	status_t status;
+	BFile file;
+	
+	// Open and lock the file
+	if ((status = file.SetTo(&fFileRef, B_READ_ONLY)) != B_OK)
+		return status;
+	if ((status = file.InitCheck()) != B_OK)
+		return status;
+	if ((status = file.Lock()) != B_OK)
+		return status;
+	
+	// Check permissions
+	bool editable = true;
+	if ((status = _CheckFilePermissions(file, editable)) != B_OK) {
+		file.Unlock();
+		return status;
+	}
+	
+	// Read file content
+	if ((status = _ReadFileContent(file)) != B_OK) {
+		file.Unlock();
+		return status;
+	}
+	
+	// Unlock the file
+	if ((status = file.Unlock()) != B_OK)
+		return status;
+	
+	// Set up editor state after loading
+	_SetupEditorAfterLoad(editable);
+	
 	return B_OK;
 }
 
@@ -988,110 +1049,135 @@ Editor::ModeString()
 
 
 void
+Editor::_HandleCharAddedNotification(SCNotification* notification)
+{
+	char ch = static_cast<char>(notification->ch);
+	if (ch == '\n' || ch == '\r')
+		_MaintainIndentation(ch);
+	if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT)
+		fLSPEditorWrapper->CharAdded(notification->ch);
+}
+
+void
+Editor::_HandleMarginClickNotification(SCNotification* notification)
+{
+	if (notification->margin == sci_BOOKMARK_MARGIN)
+		// Bookmark toggle
+		BookmarkToggle(notification->position);
+	else if (notification->margin == sci_COMMENT_MARGIN)
+		// Line commenter/decommenter
+		_CommentLine(notification->position);
+}
+
+void
+Editor::_HandleModificationNotification(SCNotification* notification)
+{
+	if (notification->modificationType & SC_MOD_INSERTTEXT) {
+		fLSPEditorWrapper->didChange(notification->text, notification->length, notification->position, 0);
+		EvaluateIdleTime();
+	}
+	if (notification->modificationType & SC_MOD_BEFOREDELETE) {
+		fLSPEditorWrapper->didChange("", 0, notification->position, notification->length);
+	}
+	if (notification->modificationType & SC_MOD_DELETETEXT) {
+		fLSPEditorWrapper->CharAdded(0);
+		EvaluateIdleTime();
+	}
+	if (notification->linesAdded != 0)
+		if (gCFG["show_linenumber"])
+			_RedrawNumberMargin(false);
+}
+
+void
+Editor::_HandleUpdateUINotification(SCNotification* notification)
+{
+	if (notification->updated &
+		(SC_UPDATE_H_SCROLL | SC_UPDATE_V_SCROLL | SC_UPDATE_SELECTION)) {
+
+		SendMessage(SCI_AUTOCCANCEL, 0, 0);
+		fLSPEditorWrapper->HideCallTip();
+	}
+	
+	_BraceHighlight();
+	
+	// Selection/Position has changed
+	if (notification->updated & SC_UPDATE_SELECTION) {
+		// Ugly hack to enable mouse selection scrolling
+		// in both directions
+		int32 position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
+		int32 anchor = SendMessage(SCI_GETANCHOR, UNSET, UNSET);
+		if (anchor != position) {
+			int32 line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
+			if (line == SendMessage(SCI_GETFIRSTVISIBLELINE, UNSET, UNSET))
+				SendMessage(SCI_SETFIRSTVISIBLELINE, line - 1, UNSET);
+			else
+				SendMessage(SCI_SCROLLCARET, UNSET, UNSET);
+		}
+
+		// Send position to main window so it can update the menus.
+		SendPositionChanges();
+		// Update status bar
+		UpdateStatusBar();
+	}
+}
+
+void
 Editor::NotificationReceived(SCNotification* notification)
 {
 	Sci_NotifyHeader* pNmhdr = &notification->nmhdr;
 
 	switch (pNmhdr->code) {
-		// Auto-indent
-		case SCN_CHARADDED: {
-			char ch = static_cast<char>(notification->ch);
-			if (ch == '\n' || ch == '\r')
-				_MaintainIndentation(ch);
-			if (notification->characterSource == SC_CHARACTERSOURCE_DIRECT_INPUT)
-				fLSPEditorWrapper->CharAdded(notification->ch);
+		case SCN_CHARADDED:
+			_HandleCharAddedNotification(notification);
 			break;
-
-		}
-		case SCN_MARGINCLICK: {
-			if (notification->margin == sci_BOOKMARK_MARGIN)
-				// Bookmark toggle
-				BookmarkToggle(notification->position);
-			else if (notification->margin == sci_COMMENT_MARGIN)
-				// Line commenter/decommenter
-				_CommentLine(notification->position);
+			
+		case SCN_MARGINCLICK:
+			_HandleMarginClickNotification(notification);
 			break;
-		}
+			
 		case SCN_AUTOCCOMPLETED:
 		case SCN_AUTOCCANCELLED:
 			fLSPEditorWrapper->CharAdded(0);
 			break;
-		case SCN_AUTOCSELECTION: {
+			
+		case SCN_AUTOCSELECTION:
 			fLSPEditorWrapper->SelectedCompletion(notification->text);
 			break;
-		}
-		case SCN_MODIFIED: {
-			if (notification->modificationType & SC_MOD_INSERTTEXT) {
-				fLSPEditorWrapper->didChange(notification->text, notification->length, notification->position, 0);
-				EvaluateIdleTime();
-			}
-			if (notification->modificationType & SC_MOD_BEFOREDELETE) {
-				fLSPEditorWrapper->didChange("", 0, notification->position, notification->length);
-			}
-			if (notification->modificationType & SC_MOD_DELETETEXT) {
-					fLSPEditorWrapper->CharAdded(0);
-					EvaluateIdleTime();
-			}
-			if (notification->linesAdded != 0)
-				if (gCFG["show_linenumber"])
-					_RedrawNumberMargin(false);
+			
+		case SCN_MODIFIED:
+			_HandleModificationNotification(notification);
 			break;
-		}
+			
 		case SCN_CALLTIPCLICK: {
 			GMessage click = {{"what",kCallTipClick},{"position", (int32)notification->position}};
 			Looper()->PostMessage(&click, this);
 			break;
 		}
-		case SCN_DWELLSTART: {
+		
+		case SCN_DWELLSTART:
 			if (Window()->IsActive())
 				fLSPEditorWrapper->StartHover(notification->position);
 			break;
-		}
-		case SCN_DWELLEND: {
+			
+		case SCN_DWELLEND:
 			fLSPEditorWrapper->EndHover();
 			break;
-		}
-		case SCN_INDICATORRELEASE: {
+			
+		case SCN_INDICATORRELEASE:
 			fLSPEditorWrapper->IndicatorClick(notification->position);
 			break;
-		}
-		case SCN_SAVEPOINTLEFT: {
+			
+		case SCN_SAVEPOINTLEFT:
 			_UpdateSavePoint(true);
 			break;
-		}
-		case SCN_SAVEPOINTREACHED: {
+			
+		case SCN_SAVEPOINTREACHED:
 			_UpdateSavePoint(false);
 			break;
-		}
-		case SCN_UPDATEUI: {
-			if (notification->updated &
-				(SC_UPDATE_H_SCROLL | SC_UPDATE_V_SCROLL | SC_UPDATE_SELECTION)) {
-
-				SendMessage(SCI_AUTOCCANCEL, 0, 0);
-				fLSPEditorWrapper->HideCallTip();
-			}
-			_BraceHighlight();
-			// Selection/Position has changed
-			if (notification->updated & SC_UPDATE_SELECTION) {
-				// Ugly hack to enable mouse selection scrolling
-				// in both directions
-				int32 position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
-				int32 anchor = SendMessage(SCI_GETANCHOR, UNSET, UNSET);
-				if (anchor != position) {
-					int32 line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET);
-					if (line == SendMessage(SCI_GETFIRSTVISIBLELINE, UNSET, UNSET))
-						SendMessage(SCI_SETFIRSTVISIBLELINE, line - 1, UNSET);
-					else
-						SendMessage(SCI_SCROLLCARET, UNSET, UNSET);
-				}
-
-				// Send position to main window so it can update the menus.
-				SendPositionChanges();
-				// Update status bar
-				UpdateStatusBar();
-			}
+			
+		case SCN_UPDATEUI:
+			_HandleUpdateUINotification(notification);
 			break;
-		}
 	}
 }
 

@@ -2308,6 +2308,9 @@ GenioWindow::_HandleExternalRemoveModification(Editor* editor)
 void
 GenioWindow::_HandleExternalStatModification(Editor* editor)
 {
+	if (editor == nullptr)
+		return;
+
 	BString text;
 	text << GenioNames::kApplicationName << ":\n";
 	text << (B_TRANSLATE("File \"%file%\" was apparently modified, reload it?"));

@@ -36,28 +36,24 @@ GlobalStatusView::GlobalStatusView()
 	fLastStatusChange(system_time()),
 	fRunner(nullptr)
 {
-	fBarberPole = new BarberPole("barber pole");
-	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNLIMITED));
-	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-	fBuildStringView = new BStringView("text", "");
-	fBuildStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
-	fBuildStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-
-	fLSPStringView = new BStringView("text", "");
-	fLSPStringView->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
-	fLSPStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
-
-	fLSPStatusBar = new BStatusBar("");
 	font_height fontHeight;
 	be_plain_font->GetHeight(&fontHeight);
-	fLSPStatusBar->SetExplicitMaxSize(BSize(150, fontHeight.ascent + fontHeight.descent));
-	fLSPStatusBar->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+	float height = ::ceilf(fontHeight.ascent + fontHeight.descent + 6);
+
+	fBarberPole = new BarberPole("barber pole");
+	fBuildStringView = new BStringView("text", "");
+	fLSPStringView = new BStringView("text", "");
+	fLSPStatusBar = new BStatusBar("");
 
 	fBarberPole->Hide();
 	fLSPStatusBar->Hide();
 
+	// TODO: Maybe this is wrong but it works
+	SetExplicitMaxSize(BSize(B_SIZE_UNSET, height));
+	SetExplicitMinSize(BSize(B_SIZE_UNSET, height));
+
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
-		.SetInsets(2, 0)
+		.SetInsets(2, -1)
 		.Add(fLSPStringView)
 		.Add(fLSPStatusBar)
 		.AddGlue()
@@ -65,7 +61,20 @@ GlobalStatusView::GlobalStatusView()
 		.AddGroup(B_VERTICAL)
 			.SetInsets(0, 4)
 			.Add(fBarberPole)
-		.End();
+		.End()
+		;
+
+	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNSET));
+	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_CENTER));
+
+	fBuildStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
+	fBuildStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+
+	fLSPStringView->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
+	fLSPStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+
+	fLSPStatusBar->SetExplicitMaxSize(BSize(150, B_SIZE_UNSET));
+	fLSPStatusBar->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_CENTER));
 }
 
 
@@ -213,22 +222,4 @@ GlobalStatusView::MessageReceived(BMessage *message)
 			BView::MessageReceived(message);
 			break;
 	}
-}
-
-
-BSize
-GlobalStatusView::MinSize()
-{
-	font_height fontHeight;
-	GetFontHeight(&fontHeight);
-
-	return BLayoutUtils::ComposeSize(BView::MinSize(),
-		BSize(B_SIZE_UNSET, fontHeight.ascent + fontHeight.descent));
-}
-
-
-BSize
-GlobalStatusView::MaxSize()
-{
-	return BView::MaxSize();
 }

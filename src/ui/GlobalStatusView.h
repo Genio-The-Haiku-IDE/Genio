@@ -19,9 +19,6 @@ public:
 	virtual void Draw(BRect updateRect);
 	virtual void MessageReceived(BMessage *message);
 
-	virtual BSize MinSize();
-	virtual BSize MaxSize();
-
 private:
 	BarberPole*		fBarberPole;
 	BStringView*	fBuildStringView;

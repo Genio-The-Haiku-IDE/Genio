@@ -134,6 +134,32 @@ public:
 				}
 				msg->SendReply('teme');
 			break;*/
+/*
+	PrefHandler* pref = PrefHandler::Default();
+
+	pref->setRGB(PREF_TEXT_FORE_COLOR, scheme->text_fore_color);
+	pref->setRGB(PREF_TEXT_BACK_COLOR, scheme->text_back_color);
+	pref->setRGB(PREF_SELECT_FORE_COLOR, scheme->select_fore_color);
+	pref->setRGB(PREF_SELECT_BACK_COLOR, scheme->select_back_color);
+	pref->setRGB(PREF_CURSOR_FORE_COLOR, scheme->cursor_fore_color);
+	pref->setRGB(PREF_CURSOR_BACK_COLOR, scheme->cursor_back_color);
+	pref->setRGB(PREF_ANSI_BLACK_COLOR, scheme->ansi_colors.black);
+	pref->setRGB(PREF_ANSI_RED_COLOR, scheme->ansi_colors.red);
+	pref->setRGB(PREF_ANSI_GREEN_COLOR, scheme->ansi_colors.green);
+	pref->setRGB(PREF_ANSI_YELLOW_COLOR, scheme->ansi_colors.yellow);
+	pref->setRGB(PREF_ANSI_BLUE_COLOR, scheme->ansi_colors.blue);
+	pref->setRGB(PREF_ANSI_MAGENTA_COLOR, scheme->ansi_colors.magenta);
+	pref->setRGB(PREF_ANSI_CYAN_COLOR, scheme->ansi_colors.cyan);
+	pref->setRGB(PREF_ANSI_WHITE_COLOR, scheme->ansi_colors.white);
+	pref->setRGB(PREF_ANSI_BLACK_HCOLOR, scheme->ansi_colors_h.black);
+	pref->setRGB(PREF_ANSI_RED_HCOLOR, scheme->ansi_colors_h.red);
+	pref->setRGB(PREF_ANSI_GREEN_HCOLOR, scheme->ansi_colors_h.green);
+	pref->setRGB(PREF_ANSI_YELLOW_HCOLOR, scheme->ansi_colors_h.yellow);
+	pref->setRGB(PREF_ANSI_BLUE_HCOLOR, scheme->ansi_colors_h.blue);
+	pref->setRGB(PREF_ANSI_MAGENTA_HCOLOR, scheme->ansi_colors_h.magenta);
+	pref->setRGB(PREF_ANSI_CYAN_HCOLOR, scheme->ansi_colors_h.cyan);
+	pref->setRGB(PREF_ANSI_WHITE_HCOLOR, scheme->ansi_colors_h.white);
+*/
 			default:
 				TermView::MessageReceived(msg);
 		};

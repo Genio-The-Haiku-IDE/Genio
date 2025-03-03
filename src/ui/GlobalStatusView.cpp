@@ -6,6 +6,7 @@
 
 #include <BarberPole.h>
 #include <Catalog.h>
+#include <ControlLook.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
 #include <LayoutUtils.h>
@@ -68,7 +69,7 @@ GlobalStatusView::GlobalStatusView()
 	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_CENTER));
 
 	fBuildStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
-	fBuildStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
+	fBuildStringView->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_VERTICAL_UNSET));
 
 	fLSPStringView->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
 	fLSPStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
@@ -106,6 +107,10 @@ GlobalStatusView::DetachedFromWindow()
 void
 GlobalStatusView::Draw(BRect updateRect)
 {
+	rgb_color baseColor = LowColor();
+	BRect bounds = Bounds();
+	be_control_look->DrawBorder(this, bounds, updateRect, baseColor, B_FANCY_BORDER,
+		0, BControlLook::B_TOP_BORDER);
 	BView::Draw(updateRect);
 }
 

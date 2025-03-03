@@ -95,7 +95,7 @@ ConsoleIOTabView::AttachedToWindow()
 void
 ConsoleIOTabView::Clear()
 {
-
+	fConsoleIOTab->Clear();
 }
 
 

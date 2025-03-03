@@ -19,6 +19,15 @@ public:
 	void		SetMessenger(BMessenger messenger) { fMessenger = messenger; }
 
 	void 	NotifyCommandQuit(bool exitNormal, int exitStatus) override;
+
+	/*void	MessageReceived(BMessage* msg) override {
+		switch(msg->what) {
+			case 'teme':
+				debugger("RETe");
+			default:
+				TerminalTab::MessageReceived(msg);
+		};
+	}*/
 private:
 
 	BView*		_FindTarget();

@@ -9,10 +9,13 @@
 #include "TermView.h"
 #include <ControlLook.h>
 #include <Messenger.h>
+#include <cstdio>
 #include "PrefHandler.h"
 #include "Colors.h"
 
 const static int32 kTermViewOffset = 3;
+extern BObjectList<const color_scheme, true> *gColorSchemes;
+
 
 class GenioTermViewContainerView : public BView {
 public:
@@ -113,6 +116,27 @@ public:
 	{
 		DisableResizeView();
 		TermView::FrameResized(width, height);
+	}
+
+	void	MessageReceived(BMessage* msg)
+	{
+		switch(msg->what) {
+			case 'clea':
+				TermView::Clear();
+			break;
+/*			case 'teme':
+				if (gColorSchemes == nullptr ||
+					gColorSchemes->CountItems() == 0)
+					return;
+
+				for (int32 i=0;i<gColorSchemes->CountItems();i++) {
+					printf("%d %s\n", i , gColorSchemes->ItemAt(i)->name);
+				}
+				msg->SendReply('teme');
+			break;*/
+			default:
+				TermView::MessageReceived(msg);
+		};
 	}
 
 };

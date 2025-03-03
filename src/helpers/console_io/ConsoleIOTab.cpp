@@ -24,7 +24,11 @@ ConsoleIOTab::ConsoleIOTab(const char* name, BMessenger messenger):
 void
 ConsoleIOTab::Clear()
 {
-	//TODO!
+	BView*	target = _FindTarget();
+	if (target == nullptr)
+		return;
+	BMessage msg('clea');
+	Looper()->PostMessage(&msg, target, this);
 };
 
 

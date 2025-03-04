@@ -116,7 +116,8 @@ AcceptsCopyPaste(BView* view)
 GenioWindow::GenioWindow(BRect frame)
 	:
 	BWindow(frame, "Genio", B_TITLED_WINDOW, B_ASYNCHRONOUS_CONTROLS |
-												B_QUIT_ON_WINDOW_CLOSE)
+												B_QUIT_ON_WINDOW_CLOSE |
+												B_AUTO_UPDATE_SIZE_LIMITS)
 	, fMenuBar(nullptr)
 	, fLineEndingsMenu(nullptr)
 	, fLineEndingCRLF(nullptr)

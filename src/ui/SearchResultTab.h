@@ -22,8 +22,8 @@ public:
 					SearchResultTab(PanelTabManager* panelTabManager, tab_id id);
 				   ~SearchResultTab();
 			void 	SetAndStartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project);
-			void	AttachedToWindow();
-			void	MessageReceived(BMessage *message);
+			void	AttachedToWindow() override;
+			void	MessageReceived(BMessage *message) override;
 
 private:
 	void 	_StartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project);

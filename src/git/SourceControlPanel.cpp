@@ -211,6 +211,8 @@ SourceControlPanel::_InitRepositoryNotInitializedView()
 void
 SourceControlPanel::AttachedToWindow()
 {
+	BView::AttachedToWindow();
+
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
@@ -252,6 +254,8 @@ SourceControlPanel::DetachedFromWindow()
 		be_app->StopWatching(this, gCFG.UpdateMessageWhat());
 		Window()->UnlockLooper();
 	}
+
+	BView::DetachedFromWindow();
 }
 
 

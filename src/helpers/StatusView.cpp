@@ -55,6 +55,8 @@ StatusView::~StatusView()
 void
 StatusView::AttachedToWindow()
 {
+	BView::AttachedToWindow();
+
 	BScrollBar* scrollBar = fScrollView->ScrollBar(B_HORIZONTAL);
 	MoveTo(0., scrollBar->Frame().top);
 

@@ -714,6 +714,8 @@ ProjectBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 void
 ProjectBrowser::AttachedToWindow()
 {
+	BView::AttachedToWindow();
+
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
@@ -755,6 +757,7 @@ ProjectBrowser::DetachedFromWindow()
 		be_app->StopWatching(this, kMsgProjectSettingsUpdated);
 		Window()->UnlockLooper();
 	}
+	BView::DetachedFromWindow();
 }
 
 

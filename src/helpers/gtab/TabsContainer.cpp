@@ -29,7 +29,7 @@ TabsContainer::TabsContainer(GTabView* tabView,
 	SetFlags(Flags()|B_FRAME_EVENTS);
 	GroupLayout()->AddView(0, new Filler(this));
 	GroupLayout()->SetItemWeight(0, FILLER_WEIGHT);
-	SetExplicitMinSize(BSize(50, TabViewTools::DefaultTabHeigh()));
+	SetExplicitMinSize(BSize(50, TabViewTools::DefaultTabHeight()));
 	SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_CENTER));
 }
 

@@ -32,7 +32,6 @@ EditorTabView::EditorTabView(BMessenger target)
 	fTarget(target),
 	fPopUpMenu(nullptr)
 {
-
 	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
 	ActionManager::AddItem(MSG_FILE_CLOSE, 	fPopUpMenu);
 	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fPopUpMenu);
@@ -61,7 +60,7 @@ EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info)
 
 	int32 index = SelectedTabIndex() + 1;
 	GTabEditor*	tab = new GTabEditor(label, this, editor);
-	AddTab (tab, editor, index);
+	AddTab(tab, editor, index);
 
 	BMessage message;
 	if (info != nullptr)

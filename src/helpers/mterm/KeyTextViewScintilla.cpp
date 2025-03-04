@@ -46,6 +46,8 @@ KeyTextViewScintilla::KeyTextViewScintilla(const char *name, const BMessenger &m
 void
 KeyTextViewScintilla::AttachedToWindow()
 {
+	BScintillaView::AttachedToWindow();
+
 	if (FindView("ScintillaHaikuView"))
 		FindView("ScintillaHaikuView")->AddFilter(new ScintillaHaikuAllMessageFilter());
 }

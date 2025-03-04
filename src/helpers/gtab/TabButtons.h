@@ -15,13 +15,13 @@
 
 class TabViewTools {
 	public:
-		static float DefaultTabHeigh() {
+		static float DefaultTabHeight() {
 			static float _heigh = -1.0;
 			if (_heigh == -1) {
 				font_height fh;
 				be_plain_font->GetHeight(&fh);
 				_heigh = ceilf(fh.ascent + fh.descent + fh.leading +
-				(be_control_look->DefaultLabelSpacing() * 1.3f));
+					(be_control_look->DefaultLabelSpacing() * 1.3f));
 			}
 			return _heigh;
 		}
@@ -66,7 +66,7 @@ public:
 
 	virtual BSize MinSize()
 	{
-		return BSize(20, TabViewTools::DefaultTabHeigh());
+		return BSize(20, TabViewTools::DefaultTabHeight());
 	}
 
 	virtual BSize MaxSize()

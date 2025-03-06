@@ -270,8 +270,11 @@ SortByName(const color_scheme *lhs, const color_scheme *rhs)
 void
 PrefHandler::LoadThemes()
 {
+#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
 	gColorSchemes = new BObjectList<const color_scheme, true>(10);
-
+#else
+	gColorSchemes = new BObjectList<const color_scheme>(10);
+#endif
 	BStringList paths;
 
 	if (BPathFinder::FindPaths(B_FIND_PATH_DATA_DIRECTORY,

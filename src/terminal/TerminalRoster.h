@@ -76,8 +76,11 @@ private:
 	virtual	void				MessageReceived(BMessage* message);
 
 private:
+#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
 			typedef BObjectList<Info, true> InfoList;
-
+#else
+			typedef BObjectList<Info> InfoList;
+#endif
 private:
 			status_t			_UpdateInfos(bool checkApps);
 			status_t			_UpdateClipboard();

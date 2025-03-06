@@ -14,7 +14,11 @@
 #include "Colors.h"
 
 const static int32 kTermViewOffset = 3;
+#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
 extern BObjectList<const color_scheme, true> *gColorSchemes;
+#else
+extern BObjectList<const color_scheme> *gColorSchemes;
+#endif
 
 
 class GenioTermViewContainerView : public BView {

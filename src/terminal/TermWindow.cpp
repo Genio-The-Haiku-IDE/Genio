@@ -29,7 +29,7 @@
 #include <CharacterSet.h>
 #include <CharacterSetRoster.h>
 #include <Clipboard.h>
-#include <ColorListView.h>
+#include "ColorListView.h"
 #include <ControlLook.h>
 #include <Dragger.h>
 #include <File.h>
@@ -51,6 +51,7 @@
 #include <ScrollBar.h>
 #include <ScrollView.h>
 #include <String.h>
+#include <StringList.h>
 #include <UTF8.h>
 #include <UnicodeChar.h>
 
@@ -561,9 +562,9 @@ TermWindow::_SetupMenu()
 
 	BKeymap keymap;
 	keymap.SetToCurrent();
+#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5 
 	BStringList unmodified(3);
-	if (keymap.GetModifiedCharacters("+", B_SHIFT_KEY, 0, unmodified)
-			== B_OK) {
+	if (keymap.GetModifiedCharacters("+", B_SHIFT_KEY, 0, unmodified) == B_OK) {
 		int32 count = unmodified.CountStrings();
 		for (int32 i = 0; i < count; i++) {
 			uint32 key = BUnicodeChar::FromUTF8(unmodified.StringAt(i));
@@ -574,6 +575,20 @@ TermWindow::_SetupMenu()
 			}
 		}
 	}
+#else
+	BObjectList<const char> unmodified;
+	if (keymap.GetModifiedCharacters("+", B_SHIFT_KEY, 0, &unmodified) == B_OK) {
+		int32 count = unmodified.CountItems();
+		for (int32 i = 0; i < count; i++) {
+			uint32 key = BUnicodeChar::FromUTF8(unmodified.ItemAt(i));
+			if (!HasShortcut(key, 0)) {
+				// Add semantic + shortcut, bug #7428
+				AddShortcut(key, B_COMMAND_KEY,
+					new BMessage(kIncreaseFontSize));
+			}
+		}
+	}
+#endif
 	unmodified.MakeEmpty();
 }
 

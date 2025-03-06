@@ -27,9 +27,11 @@ struct color_scheme gCustomColorScheme = {
 	B_TRANSLATE("Custom")
 };
 
-
+#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
 BObjectList<const color_scheme, true>* gColorSchemes = NULL;
-
+#else
+BObjectList<const color_scheme>* gColorSchemes = NULL;
+#endif
 
 bool
 ansi_color_scheme::operator==(const ansi_color_scheme& scheme)

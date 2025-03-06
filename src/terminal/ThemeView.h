@@ -8,7 +8,7 @@
 
 #include <Button.h>
 #include <ColorControl.h>
-#include <ColorPreview.h>
+#include "ColorPreview.h"
 #include <GroupView.h>
 #include <ListItem.h>
 #include <ListView.h>

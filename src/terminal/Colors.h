@@ -56,7 +56,12 @@ struct FindColorSchemeByName : public UnaryPredicate<const color_scheme> {
 };
 
 extern color_scheme gCustomColorScheme;
+
+#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
 extern BObjectList<const color_scheme, true> *gColorSchemes;
+#else
+extern BObjectList<const color_scheme> *gColorSchemes;
+#endif
 
 const uint kANSIColorCount = 16;
 const uint kTermColorCount = 256;

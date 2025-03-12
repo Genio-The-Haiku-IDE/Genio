@@ -14,7 +14,7 @@
 
 #include "BeDC.h"
 
-log_level Logger::sLevel = LOG_LEVEL_INFO;
+log_level Logger::sLevel = LOG_LEVEL_ERROR;
 int Logger::sDestination = LOGGER_DEST_STDOUT;
 
 static BeDC sBeDC("Genio");
@@ -25,7 +25,6 @@ Logger::SetDestination(int destination)
 {
 	sDestination = destination;
 }
-
 
 /*static*/
 void

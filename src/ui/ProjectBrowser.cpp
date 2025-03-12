@@ -522,7 +522,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 						= reinterpret_cast<const ProjectFolder*>(message->GetPointer("project_folder", nullptr));
 					if (project == nullptr) {
 						LogError("ProjectBrowser: Update project configuration message without a project folder pointer!");
-						if (Logger::IsErrorEnabled()) {
+						if (Logger::IsDebugEnabled()) {
 							message->PrintToStream();
 						}
 						break;

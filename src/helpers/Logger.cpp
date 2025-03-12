@@ -26,6 +26,7 @@ Logger::SetDestination(int destination)
 	sDestination = destination;
 }
 
+
 /*static*/
 void
 Logger::LogFormat(const char* fmtString, ...)
@@ -85,7 +86,7 @@ Logger::LogFormat(log_level level, const char* fmtString, ...)
 }
 
 
-/*static*/
+/* static */
 log_level
 Logger::Level()
 {
@@ -93,12 +94,17 @@ Logger::Level()
 }
 
 
-/*static*/
+/* static */
 void
 Logger::SetLevel(log_level value)
 {
 	sLevel = value;
-	printf("Log level set to [%s] (%d)\n", Logger::NameForLevel(sLevel), sLevel);
+	if (Logger::IsDebugEnabled()) {
+		char logString[256];
+		snprintf(logString, sizeof(logString),"Log level set to [%s] (%d)\n",
+			Logger::NameForLevel(sLevel), sLevel);
+		_DoLog(sLevel, logString);
+	}
 }
 
 

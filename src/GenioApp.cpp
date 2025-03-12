@@ -461,7 +461,6 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	}
 	cfg.AddConfig("Console", "console_style", B_TRANSLATE("Console style:"), B_TRANSLATE("(follow system style)"), &console_styles);
 
-
 	BString build(B_TRANSLATE("Build"));
 	cfg.AddConfig(build.String(), "wrap_console", B_TRANSLATE("Wrap lines in console"), false);
 	cfg.AddConfig(build.String(), "console_banner", B_TRANSLATE_COMMENT("Console banner",

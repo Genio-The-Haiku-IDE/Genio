@@ -594,6 +594,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				// break;
 			// }
 			default:
+				BView::MessageReceived(message);
 				break;
 		}
 	} catch (const GitConflictException &ex) {

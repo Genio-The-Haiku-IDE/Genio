@@ -93,59 +93,6 @@ GetVectorIcon(const std::string icon, BBitmap* bitmap)
 }
 
 
-/**
- * Splits command line argument in format a/b/file:10:92 into filename, line
- * and column. If column or line are missing -1 is returned in their place.
- */
-std::string
-ParseFileArgument(const std::string argument, int32* line, int32* column)
-{
-	auto is_all_digits = [](const std::string &str) {
-		return str.find_first_not_of("-0123456789") == std::string::npos;
-	};
-	bool wrongFormat = false;
-	std::string filename = argument;
-	if(line != nullptr)
-		*line = -1;
-	if(column != nullptr)
-		*column = -1;
-	// first :
-	int32 first = argument.find(':');
-	if(first != (int32)std::string::npos) {
-		filename = argument.substr(0, first);
-		// second :
-		int32 second = argument.find(':', first + 1);
-		if(line != nullptr) {
-			const int32 length = second != (int32)std::string::npos ?
-				second - (first + 1) : second;
-			const std::string line_str = argument.substr(first + 1, length);
-			if(!line_str.empty()) {
-				if(!is_all_digits(line_str) || line_str == "-") {
-					wrongFormat = true;
-				} else {
-					*line = std::stoi(line_str);
-				}
-			}
-		}
-		if(column != nullptr && second != (int32)std::string::npos && !wrongFormat) {
-			const std::string column_str = argument.substr(second + 1);
-			if(!column_str.empty()) {
-				if(!is_all_digits(column_str) || column_str == "-") {
-					wrongFormat = true;
-				} else {
-					*column = std::stoi(column_str);
-				}
-			}
-		}
-	}
-
-	if(wrongFormat) {
-		return argument;
-	}
-	return filename;
-}
-
-
 template<typename T>
 bool IsChecked(T* control)
 {

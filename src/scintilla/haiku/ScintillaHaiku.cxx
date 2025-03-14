@@ -156,49 +156,49 @@ public:
 	ScintillaHaiku(BRect rect);
 
 	// functions from Scintilla:
-	void Initialise();
-	void Finalise();
-	void SetVerticalScrollPos();
-	void SetHorizontalScrollPos();
-	bool ModifyScrollBars(Sci::Line, Sci::Line);
-	void Copy();
-	void Paste();
-	void ClaimSelection();
-	void NotifyChange();
-	void NotifyParent(NotificationData);
-	void CopyToClipboard(const SelectionText& selectedText);
-	bool FineTickerRunning(TickReason reason);
-	void FineTickerStart(TickReason reason, int millis, int tolerance);
-	void FineTickerCancel(TickReason reason);
-	void SetMouseCapture(bool);
-	bool HaveMouseCapture();
-	sptr_t WndProc(Message, uptr_t, sptr_t);
-	sptr_t DefWndProc(Message, uptr_t, sptr_t);
-	void CreateCallTipWindow(PRectangle rect);
-	void AddToPopUp(const char *label, int cmd, bool enabled);
-	void StartDrag();
+	void Initialise() override ;
+	void Finalise() override ;
+	void SetVerticalScrollPos() override ;
+	void SetHorizontalScrollPos() override ;
+	bool ModifyScrollBars(Sci::Line, Sci::Line) override ;
+	void Copy() override ;
+	void Paste() override ;
+	void ClaimSelection() override ;
+	void NotifyChange() override ;
+	void NotifyParent(NotificationData) override ;
+	void CopyToClipboard(const SelectionText& selectedText) override ;
+	bool FineTickerRunning(TickReason reason) override ;
+	void FineTickerStart(TickReason reason, int millis, int tolerance) override ;
+	void FineTickerCancel(TickReason reason) override ;
+	void SetMouseCapture(bool) override ;
+	bool HaveMouseCapture() override ;
+	sptr_t WndProc(Message, uptr_t, sptr_t) override ;
+	sptr_t DefWndProc(Message, uptr_t, sptr_t) override ;
+	void CreateCallTipWindow(PRectangle rect) override ;
+	void AddToPopUp(const char *label, int cmd, bool enabled) override ;
+	void StartDrag() override ;
 	PRectangle GetClientRectangle() const override;
 	std::string UTF8FromEncoded(std::string_view encoded) const override;
 	std::string EncodedFromUTF8(std::string_view utf8) const override;
 
 	bool Drop(BMessage* message, const BPoint& point, const BPoint& offset, bool move);
 
-	void Draw(BRect rect);
-	void KeyDown(const char* bytes, int32 len);
-	void AttachedToWindow();
-	void MakeFocus(bool focus = true);
-	void MouseDown(BPoint point);
-	void MouseUp(BPoint point);
-	void MouseMoved(BPoint point, uint32 transit, const BMessage* message);
-	void FrameResized(float width, float height);
-	void WindowActivated(bool focus);
-	void TargetedByScrollView(BScrollView* scroller);
+	void Draw(BRect rect) override ;
+	void KeyDown(const char* bytes, int32 len) override ;
+	void AttachedToWindow() override ;
+	void MakeFocus(bool focus = true) override ;
+	void MouseDown(BPoint point) override ;
+	void MouseUp(BPoint point) override ;
+	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override ;
+	void FrameResized(float width, float height) override ;
+	void WindowActivated(bool focus) override ;
+	void TargetedByScrollView(BScrollView* scroller) override ;
 
-	void MessageReceived(BMessage *msg);
-	void ScrollTo(BPoint p);
+	void MessageReceived(BMessage *msg) override ;
+	void ScrollTo(BPoint p) override ;
 
 	// to avoid layout trouble, let's unset the preferred size.
-	void GetPreferredSize(float* w, float* h) { *w = *h = B_SIZE_UNSET;}
+	void GetPreferredSize(float* w, float* h) override { *w = *h = B_SIZE_UNSET;}
 
 private:
 	bool capturedMouse;

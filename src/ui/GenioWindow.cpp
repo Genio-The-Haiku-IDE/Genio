@@ -632,6 +632,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			editor_id id = message->GetUInt64(kEditorId, 0);
 			Editor* editor = fTabManager->EditorById(id);
+			if (!editor)
+				editor = fTabManager->SelectedEditor();
+
 			_FileRequestClose(editor);
 			break;
 		}
@@ -840,6 +843,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			editor_id id = message->GetUInt64(kEditorId, 0);
 			Editor*	editor = fTabManager->EditorById(id);
+			if (editor == nullptr)
+				editor = fTabManager->SelectedEditor();
+
 			if (editor == nullptr || editor->GetProjectFolder() == nullptr)
 				return;
 

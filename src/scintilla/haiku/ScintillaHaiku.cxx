@@ -197,6 +197,9 @@ public:
 	void MessageReceived(BMessage *msg);
 	void ScrollTo(BPoint p);
 
+	// to avoid layout trouble, let's unset the preferred size.
+	void GetPreferredSize(float* w, float* h) { *w = *h = B_SIZE_UNSET;}
+
 private:
 	bool capturedMouse;
 	BMessageRunner* timers[static_cast<size_t>(TickReason::dwell) + 1];

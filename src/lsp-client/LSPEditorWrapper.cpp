@@ -118,9 +118,8 @@ LSPEditorWrapper::ApplyFix(BMessage* info)
 			fLastDiagnostics.at(diaIndex).diagnostic.codeActions.value()[actIndex].edit.value().changes.value();
 		for (auto& ed : map){
 			if (GetFilenameURI().ICompare(ed.first.c_str()) == 0) {
-				for (TextEdit& te : ed.second) {
-					ApplyTextEdit(te);
-				}
+				json edits = ed.second;
+				_DoFormat(edits);
 			}
 		}
 	}
@@ -133,13 +132,8 @@ LSPEditorWrapper::ApplyEdit(std::string info)
 	if (!HasLSPServer())
 		return;
 
-	auto items = nlohmann::json::parse(info);
-	fEditor->SendMessage(SCI_BEGINUNDOACTION, 0, 0);
-
-	for (nlohmann::json::reverse_iterator it = items.rbegin(); it != items.rend(); ++it) {
-		ApplyTextEdit((*it));
-	}
-	fEditor->SendMessage(SCI_ENDUNDOACTION, 0, 0);
+	json items = nlohmann::json::parse(info);
+	_DoFormat(items);
 }
 
 

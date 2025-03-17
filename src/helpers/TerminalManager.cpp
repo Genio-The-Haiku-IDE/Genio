@@ -8,6 +8,7 @@
 #include <Box.h>
 #include <Path.h>
 #include <StringView.h>
+#include <Messenger.h>
 #include "Utils.h"
 #include "argv_split.h"
 #include "Log.h"

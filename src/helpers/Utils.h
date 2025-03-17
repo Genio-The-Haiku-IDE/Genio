@@ -24,6 +24,8 @@ struct entry_ref;
 bool	GetGenioDirectory(BPath& destPath);
 BPath	GetDataDirectory();
 BPath	GetUserSettingsDirectory();
+BPath	GetNearbyDataDirectory();
+
 BString	GetVersion();
 bool	IsXMasPeriod();
 

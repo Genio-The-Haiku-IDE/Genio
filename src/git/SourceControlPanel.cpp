@@ -27,6 +27,7 @@
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
+#include "GitRepository.h"
 #include "GTextAlert.h"
 #include "Log.h"
 #include "ProjectBrowser.h"
@@ -210,6 +211,8 @@ SourceControlPanel::_InitRepositoryNotInitializedView()
 void
 SourceControlPanel::AttachedToWindow()
 {
+	BView::AttachedToWindow();
+
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
@@ -251,6 +254,8 @@ SourceControlPanel::DetachedFromWindow()
 		be_app->StopWatching(this, gCFG.UpdateMessageWhat());
 		Window()->UnlockLooper();
 	}
+
+	BView::DetachedFromWindow();
 }
 
 
@@ -589,6 +594,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				// break;
 			// }
 			default:
+				BView::MessageReceived(message);
 				break;
 		}
 	} catch (const GitConflictException &ex) {

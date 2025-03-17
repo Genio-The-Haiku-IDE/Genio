@@ -7,6 +7,7 @@
 #include "TabsContainer.h"
 
 #include <cassert>
+#include <cstdio>
 
 #include "GTab.h"
 #include "GTabView.h"
@@ -28,7 +29,7 @@ TabsContainer::TabsContainer(GTabView* tabView,
 	SetFlags(Flags()|B_FRAME_EVENTS);
 	GroupLayout()->AddView(0, new Filler(this));
 	GroupLayout()->SetItemWeight(0, FILLER_WEIGHT);
-	SetExplicitMinSize(BSize(50, TabViewTools::DefaultTabHeigh()));
+	SetExplicitMinSize(BSize(50, TabViewTools::DefaultTabHeight()));
 	SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_CENTER));
 }
 
@@ -155,7 +156,6 @@ TabsContainer::SetFrontTab(GTab* tab)
 }
 
 
-
 void
 TabsContainer::ShiftTabs(int32 delta, const char* src)
 {
@@ -277,7 +277,7 @@ TabsContainer::DoLayout()
 void
 TabsContainer::MessageReceived(BMessage* message)
 {
-	switch(message->what){
+	switch(message->what) {
 		case B_MOUSE_WHEEL_CHANGED:
 		{
 			// No tabs, exit
@@ -309,7 +309,8 @@ TabsContainer::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-	default:
-		BGroupView::MessageReceived(message);
+		default:
+			BGroupView::MessageReceived(message);
+			break;
 	};
 }

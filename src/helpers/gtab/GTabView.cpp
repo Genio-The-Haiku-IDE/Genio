@@ -148,7 +148,7 @@ GTabView::AttachedToWindow()
 void
 GTabView::MessageReceived(BMessage* message)
 {
-	switch(message->what) {
+	switch (message->what) {
 		case kLeftTabButton:
 			fTabsContainer->ShiftTabs(-1, "shift left");
 			break;
@@ -167,7 +167,7 @@ GTabView::MessageReceived(BMessage* message)
 			if (!fCloseButton)
 				return;
 
-			int32	fromIndex = message->GetInt32("index", -1);
+			int32 fromIndex = message->GetInt32("index", -1);
 			if (fromIndex > -1 && fromIndex < Container()->CountTabs()) {
 				GTab* tab = Container()->TabAt(fromIndex);
 				if (tab != nullptr) {
@@ -256,9 +256,9 @@ GTabView::_Init(tab_affinity affinity)
 				.Add(fScrollRightTabButton)
 				.Add(fTabMenuTabButton)
 				.SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_VERTICAL_CENTER))
-				.End()
-			.SetExplicitAlignment(BAlignment(B_ALIGN_USE_FULL_WIDTH, B_ALIGN_VERTICAL_UNSET))
 			.End()
+			.SetExplicitAlignment(BAlignment(B_ALIGN_USE_FULL_WIDTH, B_ALIGN_VERTICAL_UNSET))
+		.End()
 		.Add(fCardView)
 		.AddGlue(0);
 
@@ -351,6 +351,7 @@ GTabView::CreateTabView(const char* label)
 	return fCloseButton ? new GTabCloseButton(label, this)
 						: new GTab(label);
 }
+
 
 GTab*
 GTabView::CreateTabView(GTab* clone)

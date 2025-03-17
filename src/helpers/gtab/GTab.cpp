@@ -104,7 +104,7 @@ BSize
 GTab::MaxSize()
 {
 	float labelWidth = 150.0f;
-	return BSize(labelWidth, TabViewTools::DefaultTabHeigh());
+	return BSize(labelWidth, TabViewTools::DefaultTabHeight());
 }
 
 
@@ -280,7 +280,6 @@ GTab::OnDropMessage(BMessage* message)
 {
 	Container()->OnDropTab(this, message);
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////

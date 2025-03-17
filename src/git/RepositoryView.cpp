@@ -15,6 +15,7 @@
 #include "BranchItem.h"
 #include "ConfigManager.h"
 #include "GenioApp.h"
+#include "GitRepository.h"
 #include "GMessage.h"
 #include "ProjectFolder.h"
 #include "SourceControlPanel.h"

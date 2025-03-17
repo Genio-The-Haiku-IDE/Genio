@@ -117,6 +117,8 @@ SearchResultTab::MessageReceived(BMessage *message)
 void
 SearchResultTab::AttachedToWindow()
 {
+	BGroupView::AttachedToWindow();
+
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender("SearchResultTab");
 	_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());

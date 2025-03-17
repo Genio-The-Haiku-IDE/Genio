@@ -35,7 +35,7 @@ class GTabID : public GTab {
 			float w = StringWidth(Label().String());
 			float spacing = be_control_look->DefaultLabelSpacing();
 			min.width = w + spacing * 4;
-			min.height = TabViewTools::DefaultTabHeigh();
+			min.height = TabViewTools::DefaultTabHeight();
 			return min;
 		}
 

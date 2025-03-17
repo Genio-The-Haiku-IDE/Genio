@@ -26,14 +26,12 @@
 #define	kSelectByKey 'seta'
 
 
-
 EditorTabView::EditorTabView(BMessenger target)
 	:
 	GTabView("_editor_tabview_", 'EDTV', B_HORIZONTAL, true, true),
 	fTarget(target),
 	fPopUpMenu(nullptr)
 {
-
 	fPopUpMenu = new BPopUpMenu("tabmenu", false, false, B_ITEMS_IN_COLUMN);
 	ActionManager::AddItem(MSG_FILE_CLOSE, 	fPopUpMenu);
 	ActionManager::AddItem(MSG_FILE_CLOSE_ALL, fPopUpMenu);
@@ -62,7 +60,7 @@ EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info)
 
 	int32 index = SelectedTabIndex() + 1;
 	GTabEditor*	tab = new GTabEditor(label, this, editor);
-	AddTab (tab, editor, index);
+	AddTab(tab, editor, index);
 
 	BMessage message;
 	if (info != nullptr)
@@ -97,7 +95,7 @@ EditorTabView::EditorBy(const node_ref* nodeRef)
 
 
 Editor*
-EditorTabView::SelectedEditor()
+EditorTabView::SelectedEditor() const
 {
 	GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->SelectedTab());
 	return tab ? tab->GetEditor() :nullptr;
@@ -269,7 +267,6 @@ EditorTabView::_GetTab(editor_id id)
 }
 
 
-
 GTab*
 EditorTabView::CreateTabView(GTab* clone)
 {
@@ -394,7 +391,7 @@ EditorTabView::SelectPrev()
 
 
 deprecated_ int32
-EditorTabView::SelectedTabIndex()
+EditorTabView::SelectedTabIndex() const
 {
 	GTab* selected = Container()->SelectedTab();
 	if (selected == nullptr)
@@ -409,7 +406,7 @@ EditorTabView::SelectedTabIndex()
 
 
 int32
-EditorTabView::CountTabs()
+EditorTabView::CountTabs() const
 {
 	return Container()->CountTabs();
 }

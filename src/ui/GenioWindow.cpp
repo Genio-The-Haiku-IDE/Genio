@@ -117,7 +117,8 @@ AcceptsCopyPaste(BView* view)
 GenioWindow::GenioWindow(BRect frame)
 	:
 	BWindow(frame, "Genio", B_TITLED_WINDOW, B_ASYNCHRONOUS_CONTROLS |
-												B_QUIT_ON_WINDOW_CLOSE)
+												B_QUIT_ON_WINDOW_CLOSE |
+												B_AUTO_UPDATE_SIZE_LIMITS)
 	, fMenuBar(nullptr)
 	, fLineEndingsMenu(nullptr)
 	, fLineEndingCRLF(nullptr)
@@ -312,6 +313,14 @@ GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 
+		case kLSPWorkProgress:
+		{
+			ProjectFolder* active = GetActiveProject();
+			if (active != nullptr && active->Path().Compare(message->GetString("project","")) == 0) {
+				SendNotices(MSG_NOTIFY_LSP_INDEXING, message);
+			}
+			break;
+		}
 		case MSG_INVOKE_EXTENSION:
 		{
 			entry_ref ref;
@@ -621,6 +630,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			editor_id id = message->GetUInt64(kEditorId, 0);
 			Editor* editor = fTabManager->EditorById(id);
+			if (!editor)
+				editor = fTabManager->SelectedEditor();
+
 			_FileRequestClose(editor);
 			break;
 		}
@@ -829,6 +841,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		{
 			editor_id id = message->GetUInt64(kEditorId, 0);
 			Editor*	editor = fTabManager->EditorById(id);
+			if (editor == nullptr)
+				editor = fTabManager->SelectedEditor();
+
 			if (editor == nullptr || editor->GetProjectFolder() == nullptr)
 				return;
 

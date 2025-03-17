@@ -6,6 +6,21 @@
 
 #include "ProjectBrowser.h"
 
+#include <cassert>
+#include <cstdio>
+
+#include <Catalog.h>
+#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
+#include <MessageRunner.h>
+#include <Mime.h>
+#include <NaturalCompare.h>
+#include <OutlineListView.h>
+#include <PopUpMenu.h>
+#include <ScrollView.h>
+#include <StringList.h>
+#include <StringView.h>
+
 #include "ActionManager.h"
 #include "ConfigManager.h"
 #include "GenioApp.h"
@@ -19,28 +34,6 @@
 #include "TemplateManager.h"
 #include "TemplatesMenu.h"
 #include "Utils.h"
-
-#include <Alert.h>
-#include <Catalog.h>
-#include <Directory.h>
-#include <Entry.h>
-#include <File.h>
-#include <GroupLayoutBuilder.h>
-#include <LayoutBuilder.h>
-#include <MenuItem.h>
-#include <MessageRunner.h>
-#include <Mime.h>
-#include <NaturalCompare.h>
-#include <OutlineListView.h>
-#include <Path.h>
-#include <PopUpMenu.h>
-#include <ScrollView.h>
-#include <StringList.h>
-#include <StringView.h>
-#include <Window.h>
-
-#include <cassert>
-#include <cstdio>
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -529,7 +522,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 						= reinterpret_cast<const ProjectFolder*>(message->GetPointer("project_folder", nullptr));
 					if (project == nullptr) {
 						LogError("ProjectBrowser: Update project configuration message without a project folder pointer!");
-						if (Logger::IsErrorEnabled()) {
+						if (Logger::IsDebugEnabled()) {
 							message->PrintToStream();
 						}
 						break;
@@ -721,6 +714,8 @@ ProjectBrowser::_RenameCurrentSelectedFile(const BString& new_name)
 void
 ProjectBrowser::AttachedToWindow()
 {
+	BView::AttachedToWindow();
+
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);
 		Window()->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
@@ -762,6 +757,7 @@ ProjectBrowser::DetachedFromWindow()
 		be_app->StopWatching(this, kMsgProjectSettingsUpdated);
 		Window()->UnlockLooper();
 	}
+	BView::DetachedFromWindow();
 }
 
 

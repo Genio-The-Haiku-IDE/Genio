@@ -229,15 +229,15 @@ GenioWindow::GenioWindow(BRect frame)
 				}
 			}
 		}
-		if (fActiveProject != nullptr)
-			GetProjectBrowser()->SelectProjectAndScroll(fActiveProject);
+		if (GetActiveProject() != nullptr)
+			GetProjectBrowser()->SelectProjectAndScroll(GetActiveProject());
 
 		fDisableProjectNotifications = false;
 		if (status == B_OK) {
 			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-			noticeMessage.AddPointer("active_project", fActiveProject);
-			noticeMessage.AddString("active_project_name", fActiveProject ? fActiveProject->Name() : "");
+			noticeMessage.AddPointer("active_project", GetActiveProject());
+			noticeMessage.AddString("active_project_name", GetActiveProject() ? GetActiveProject()->Name() : "");
 			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 		}
 
@@ -464,7 +464,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case kTermViewDone:
-			_UpdateProjectActivation(fActiveProject != nullptr);
+			_UpdateProjectActivation(GetActiveProject() != nullptr);
 			break;
 		case CONSOLEIOTHREAD_EXIT:
 		{
@@ -482,13 +482,13 @@ GenioWindow::MessageReceived(BMessage* message)
 				// TODO: this is not correct: if we start building a project, then 
 				// change the active project while building, the notification will go to 
 				// the wrong project (the currently active one)
-				noticeMessage.AddString("project_name", fActiveProject->Name());
+				noticeMessage.AddString("project_name", GetActiveProject()->Name());
 				noticeMessage.AddInt32("status", message->GetInt32("status", B_OK));
 				SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-				fActiveProject->SetBuildingState(false);
+				GetActiveProject()->SetBuildingState(false);
 			}
-			_UpdateProjectActivation(fActiveProject != nullptr);
+			_UpdateProjectActivation(GetActiveProject() != nullptr);
 			break;
 		}
 		case EDITOR_FIND_SET_MARK:
@@ -609,14 +609,14 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_BUILD_MODE_DEBUG:
 		{
-			fActiveProject->SetBuildMode(BuildMode::DebugMode);
-			_UpdateProjectActivation(fActiveProject != nullptr);
+			GetActiveProject()->SetBuildMode(BuildMode::DebugMode);
+			_UpdateProjectActivation(GetActiveProject() != nullptr);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE:
 		{
-			fActiveProject->SetBuildMode(BuildMode::ReleaseMode);
-			_UpdateProjectActivation(fActiveProject != nullptr);
+			GetActiveProject()->SetBuildMode(BuildMode::ReleaseMode);
+			_UpdateProjectActivation(GetActiveProject() != nullptr);
 			break;
 		}
 		case MSG_BUILD_PROJECT:
@@ -784,7 +784,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_GIT_SWITCH_BRANCH:
 		{
 			try {
-				BString project_path = message->GetString("project_path", fActiveProject->Path().String());
+				BString project_path = message->GetString("project_path", GetActiveProject()->Path().String());
 				Genio::Git::GitRepository repo(project_path.String());
 				BString new_branch = message->GetString("branch", nullptr);
 				if (new_branch != nullptr)
@@ -864,7 +864,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			_MakeCatkeys();
 			break;
 		case MSG_PROJECT_CLOSE:
-			_ProjectFolderClose(fActiveProject);
+			_ProjectFolderClose(GetActiveProject());
 			break;
 		case MSG_SHOW_TEMPLATE_USER_FOLDER:
 		{
@@ -983,7 +983,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_SETTINGS:
 		{
-			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", fActiveProject);
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", GetActiveProject());
 			if (project != nullptr) {
 				ConfigWindow* window = new ConfigWindow(project->Settings(), false);
 				BString windowTitle(B_TRANSLATE("Project:"));
@@ -1561,14 +1561,14 @@ status_t
 GenioWindow::_BuildProject()
 {
 	// Should not happen
-	if (fActiveProject == nullptr)
+	if (GetActiveProject() == nullptr)
 		return B_ERROR;
 
 	BString command;
-	command	<< fActiveProject->GetBuildCommand();
+	command	<< GetActiveProject()->GetBuildCommand();
 
 	if (command.IsEmpty()) {
-		LogInfoF("Empty build command for project [%s]", fActiveProject->Name().String());
+		LogInfoF("Empty build command for project [%s]", GetActiveProject()->Name().String());
 
 		BString message;
 		message << "No build command found!\n"
@@ -1579,7 +1579,7 @@ GenioWindow::_BuildProject()
 
 	// TODO: Should ask if the user wants to save
 	if (gCFG["save_on_build"])
-		_FileSaveAll(fActiveProject);
+		_FileSaveAll(GetActiveProject());
 
 	// TODO: Disable the Set Active item while building, at least for now.
 	// various parts of the code refer to fActiveProject to send build state notifications
@@ -1589,22 +1589,22 @@ GenioWindow::_BuildProject()
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 	noticeMessage.AddBool("building", true);
 	noticeMessage.AddString("cmd_type", "build");
-	noticeMessage.AddString("project_name", fActiveProject->Name());
+	noticeMessage.AddString("project_name", GetActiveProject()->Name());
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-	fActiveProject->SetBuildingState(true);
+	GetActiveProject()->SetBuildingState(true);
 
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
 	_ShowOutputTab(kTabBuildLog);
 
-	LogInfoF("Build started: [%s]", fActiveProject->Name().String());
+	LogInfoF("Build started: [%s]", GetActiveProject()->Name().String());
 
 	BString claim("Build ");
-	claim << fActiveProject->Name();
+	claim << GetActiveProject()->Name();
 	claim << " (";
-	claim << (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
+	claim << (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
 	claim << ")";
 
 	GMessage message = {{"cmd", command},
@@ -1612,8 +1612,8 @@ GenioWindow::_BuildProject()
 						{"banner_claim", claim }};
 
 	// Go to appropriate directory
-	chdir(fActiveProject->Path());
-	auto buildPath = fActiveProject->GetBuildFilePath();
+	chdir(GetActiveProject()->Path());
+	auto buildPath = GetActiveProject()->GetBuildFilePath();
 	if (!buildPath.IsEmpty())
 		chdir(buildPath);
 
@@ -1625,14 +1625,14 @@ status_t
 GenioWindow::_CleanProject()
 {
 	// Should not happen
-	if (fActiveProject == nullptr)
+	if (GetActiveProject() == nullptr)
 		return B_ERROR;
 
 	BString command;
-	command	<< fActiveProject->GetCleanCommand();
+	command	<< GetActiveProject()->GetCleanCommand();
 
 	if (command.IsEmpty()) {
-		LogInfoF("Empty clean command for project [%s]", fActiveProject->Name().String());
+		LogInfoF("Empty clean command for project [%s]", GetActiveProject()->Name().String());
 
 		BString message;
 		message << "No clean command found!\n"
@@ -1646,22 +1646,22 @@ GenioWindow::_CleanProject()
 	fBuildLogView->Clear();
 	_ShowOutputTab(kTabBuildLog);
 
-	LogInfoF("Clean started: [%s]", fActiveProject->Name().String());
+	LogInfoF("Clean started: [%s]", GetActiveProject()->Name().String());
 
 	fSetActiveProjectMenuItem->SetEnabled(false);
 
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 	noticeMessage.AddBool("building", true);
 	noticeMessage.AddString("cmd_type", "clean");
-	noticeMessage.AddString("project_name", fActiveProject->Name());
+	noticeMessage.AddString("project_name", GetActiveProject()->Name());
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
-	fActiveProject->SetBuildingState(true);
+	GetActiveProject()->SetBuildingState(true);
 
 	BString claim("Build ");
-	claim << fActiveProject->Name();
+	claim << GetActiveProject()->Name();
 	claim << " (";
-	claim << (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
+	claim << (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
 	claim << ")";
 
 	GMessage message = {{"cmd", command},
@@ -1669,8 +1669,8 @@ GenioWindow::_CleanProject()
 						{"banner_claim", claim }};
 
 	// Go to appropriate directory
-	chdir(fActiveProject->Path());
-	auto buildPath = fActiveProject->GetBuildFilePath();
+	chdir(GetActiveProject()->Path());
+	auto buildPath = GetActiveProject()->GetBuildFilePath();
 	if (!buildPath.IsEmpty())
 		chdir(buildPath);
 
@@ -1682,17 +1682,17 @@ status_t
 GenioWindow::_DebugProject()
 {
 	// Should not happen
-	if (fActiveProject == nullptr)
+	if (GetActiveProject() == nullptr)
 		return B_ERROR;
 
 	// Release mode enabled, should not happen
 	// TODO: why not ? One could want to debug a project
 	// regardless to which build profile he chose
-	if (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode)
+	if (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode)
 		return B_ERROR;
 
-	argv_split parser(fActiveProject->GetTarget().String());
-	parser.parse(fActiveProject->GetExecuteArgs().String());
+	argv_split parser(GetActiveProject()->GetTarget().String());
+	parser.parse(GetActiveProject()->GetExecuteArgs().String());
 
 	return be_roster->Launch("application/x-vnd.Haiku-debugger",
 		parser.getArguments().size() , parser.argv());
@@ -2094,7 +2094,7 @@ GenioWindow::_PostFileSave(Editor* editor)
 	// TODO: Also handle cases where the file is saved from outside Genio ?
 	ProjectFolder* project = editor->GetProjectFolder();
 	if (gCFG["build_on_save"] &&
-		project != nullptr && project == fActiveProject) {
+		project != nullptr && project == GetActiveProject()) {
 		// TODO: if we are already building we should stop / relaunch build here.
 		// at the moment we have an hack in place in ConsoleIOView::MessageReceived()
 		// in the MSG_RUN_PROCESS case to handle this situation
@@ -2162,7 +2162,7 @@ GenioWindow::_FindNext(BMessage* message, bool backwards)
 void
 GenioWindow::_FindInFiles()
 {
-	if (!fActiveProject)
+	if (!GetActiveProject())
 		return;
 
 	BString text(fFindTextControl->Text());
@@ -2171,7 +2171,7 @@ GenioWindow::_FindInFiles()
 
 	fSearchResultTab->SetAndStartSearch(text, (bool)fFindWholeWordCheck->Value(),
 											  (bool)fFindCaseSensitiveCheck->Value(),
-											  fActiveProject);
+											  GetActiveProject());
 	_ShowOutputTab(kTabSearchResult);
 	_UpdateFindMenuItems(fFindTextControl->Text());
 }
@@ -2196,7 +2196,7 @@ status_t
 GenioWindow::_Git(const BString& git_command)
 {
 	// Should not happen
-	if (fActiveProject == nullptr)
+	if (GetActiveProject() == nullptr)
 		return B_ERROR;
 
 	// Pretend building or running
@@ -2213,7 +2213,7 @@ GenioWindow::_Git(const BString& git_command)
 	message.AddString("cmd_type", command);
 
 	// Go to appropriate directory
-	chdir(fActiveProject->Path());
+	chdir(GetActiveProject()->Path());
 
 	return fMTermView->RunCommand(&message);
 }
@@ -3443,7 +3443,7 @@ void
 GenioWindow::_MakeBindcatalogs()
 {
 	// Should not happen
-	if (fActiveProject == nullptr)
+	if (GetActiveProject() == nullptr)
 		return;
 
 	fBuildLogView->Clear();
@@ -3451,15 +3451,15 @@ GenioWindow::_MakeBindcatalogs()
 
 	// TODO: this only works for makefile_engine based projects
 	BMessage message;
-	if (fActiveProject->GetBuildMode() == BuildMode::DebugMode)
+	if (GetActiveProject()->GetBuildMode() == BuildMode::DebugMode)
 		message.AddString("cmd", "DEBUGGER=TRUE make bindcatalogs");
 	else
 		message.AddString("cmd", "make bindcatalogs");
 	message.AddString("cmd_type", "bindcatalogs");
 
 	// Go to appropriate directory
-	chdir(fActiveProject->Path());
-	auto buildPath = fActiveProject->GetBuildFilePath();
+	chdir(GetActiveProject()->Path());
+	auto buildPath = GetActiveProject()->GetBuildFilePath();
 	if (!buildPath.IsEmpty())
 		chdir(buildPath);
 
@@ -3471,7 +3471,7 @@ void
 GenioWindow::_MakeCatkeys()
 {
 	// Should not happen
-	if (fActiveProject == nullptr)
+	if (GetActiveProject() == nullptr)
 		return;
 
 	fBuildLogView->Clear();
@@ -3482,8 +3482,8 @@ GenioWindow::_MakeCatkeys()
 	message.AddString("cmd_type", "catkeys");
 
 	// Go to appropriate directory
-	chdir(fActiveProject->Path());
-	auto buildPath = fActiveProject->GetBuildFilePath();
+	chdir(GetActiveProject()->Path());
+	auto buildPath = GetActiveProject()->GetBuildFilePath();
 	if (!buildPath.IsEmpty())
 		chdir(buildPath);
 
@@ -3504,28 +3504,28 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		return;
 
 	// There is no active project
-	if (fActiveProject == nullptr) {
-		fActiveProject = project;
+	if (GetActiveProject() == nullptr) {
+		SetActiveProject(project);
 		project->SetActive(true);
 		_UpdateProjectActivation(true);
 	} else {
 		// There was an active project already
-		fActiveProject->SetActive(false);
-		fActiveProject = project;
+		GetActiveProject()->SetActive(false);
+		SetActiveProject(project);
 		project->SetActive(true);
 		_UpdateProjectActivation(true);
 	}
 
 	if (!fDisableProjectNotifications) {
 		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		noticeMessage.AddPointer("active_project", fActiveProject);
-		noticeMessage.AddString("active_project_name", fActiveProject->Name());
+		noticeMessage.AddPointer("active_project", GetActiveProject());
+		noticeMessage.AddString("active_project_name", GetActiveProject()->Name());
 		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 	}
 
 	// Update run command working directory tooltip too
 	BString tooltip;
-	tooltip << "cwd: " << fActiveProject->Path();
+	tooltip << "cwd: " << GetActiveProject()->Path();
 	fRunConsoleProgramText->SetToolTip(tooltip);
 }
 
@@ -3720,9 +3720,9 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	bool wasActive = false;
 	// Active project closed
-	if (project == fActiveProject) {
+	if (project == GetActiveProject()) {
 		wasActive = true;
-		fActiveProject = nullptr;
+		SetActiveProject(nullptr);
 		closed = "Active project close:";
 		_UpdateProjectActivation(false);
 		// Update run command working directory tooltip too
@@ -4040,10 +4040,10 @@ status_t
 GenioWindow::_RunInConsole(const BString& command)
 {
 	// If no active project go to projects directory
-	if (fActiveProject == nullptr)
+	if (GetActiveProject() == nullptr)
 		chdir(gCFG["projects_directory"]);
 	else
-		chdir(fActiveProject->Path());
+		chdir(GetActiveProject()->Path());
 
 	_ShowOutputTab(kTabOutputLog);
 
@@ -4061,15 +4061,15 @@ void
 GenioWindow::_RunTarget()
 {
 	// Should not happen
-	if (fActiveProject == nullptr)
+	if (GetActiveProject() == nullptr)
 		return;
 
-	chdir(fActiveProject->Path());
+	chdir(GetActiveProject()->Path());
 
 	// If there's no app just return
-	BEntry entry(fActiveProject->GetTarget());
-	if (fActiveProject->GetTarget().IsEmpty() || !entry.Exists()) {
-		LogInfoF("Target for project [%s] doesn't exist.", fActiveProject->Name().String());
+	BEntry entry(GetActiveProject()->GetTarget());
+	if (GetActiveProject()->GetTarget().IsEmpty() || !entry.Exists()) {
+		LogInfoF("Target for project [%s] doesn't exist.", GetActiveProject()->Name().String());
 
 		BString message;
 		message << "Invalid run command!\n"
@@ -4080,26 +4080,26 @@ GenioWindow::_RunTarget()
 	}
 
 	// Check if run args present
-	BString args = fActiveProject->GetExecuteArgs();
+	BString args = GetActiveProject()->GetExecuteArgs();
 
 	// Differentiate terminal projects from window ones
-	if (fActiveProject->RunInTerminal()) {
+	if (GetActiveProject()->RunInTerminal()) {
 		// Don't do that in graphical mode
 		_UpdateProjectActivation(false);
 
 		_ShowOutputTab(kTabOutputLog);
 
 		BString command;
-		command << fActiveProject->GetTarget();
+		command << GetActiveProject()->GetTarget();
 		if (!args.IsEmpty())
 			command << " " << args;
 		// TODO: Go to appropriate directory
 		// chdir(...);
 
 		BString claim("Run ");
-		claim << fActiveProject->Name();
+		claim << GetActiveProject()->Name();
 		claim << " (";
-		claim << (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
+		claim << (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
 		claim << ")";
 
 		GMessage message = {{"cmd", command},
@@ -4111,11 +4111,11 @@ GenioWindow::_RunTarget()
 		fMTermView->RunCommand(&message);
 
 	} else {
-		argv_split parser(fActiveProject->GetTarget().String());
-		parser.parse(fActiveProject->GetExecuteArgs().String());
+		argv_split parser(GetActiveProject()->GetTarget().String());
+		parser.parse(GetActiveProject()->GetExecuteArgs().String());
 
 		entry_ref ref;
-		entry.SetTo(fActiveProject->GetTarget());
+		entry.SetTo(GetActiveProject()->GetTarget());
 		entry.GetRef(&ref);
 		be_roster->Launch(&ref, parser.getArguments().size() , parser.argv());
 	}
@@ -4196,7 +4196,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 	if (active) {
 		// Is this a git project?
 		try {
-			if (fActiveProject->GetRepository()->IsInitialized())
+			if (GetActiveProject()->GetRepository()->IsInitialized())
 				fGitMenu->SetEnabled(true);
 			else
 				fGitMenu->SetEnabled(false);
@@ -4204,7 +4204,7 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		}
 
 		// Build mode
-		bool releaseMode = (fActiveProject->GetBuildMode() == BuildMode::ReleaseMode);
+		bool releaseMode = (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode);
 
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
@@ -4511,9 +4511,9 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 	if (key.IsEmpty())
 		return;
 
-	if (project == fActiveProject || fActiveProject == nullptr) {
+	if (project == GetActiveProject() || GetActiveProject() == nullptr) {
 		// Update debug/release
-		_UpdateProjectActivation(fActiveProject != nullptr);
+		_UpdateProjectActivation(GetActiveProject() != nullptr);
 	}
 
 	// TODO: refactor

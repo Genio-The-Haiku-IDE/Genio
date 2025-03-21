@@ -39,12 +39,13 @@ GlobalStatusView::GlobalStatusView()
 {
 	font_height fontHeight;
 	be_plain_font->GetHeight(&fontHeight);
-	float height = ::ceilf(fontHeight.ascent + fontHeight.descent + 6);
+	float height = ::ceilf(fontHeight.ascent + fontHeight.descent
+		+ fontHeight.leading + be_control_look->DefaultItemSpacing());
 
-	fBarberPole = new BarberPole("barber pole");
-	fBuildStringView = new BStringView("text", "");
-	fLSPStringView = new BStringView("text", "");
-	fLSPStatusBar = new BStatusBar("");
+	fBarberPole = new BarberPole("build_barberpole");
+	fBuildStringView = new BStringView("build_text", "");
+	fLSPStringView = new BStringView("LSP_text", "");
+	fLSPStatusBar = new BStatusBar("LSP_progressbar");
 
 	fBarberPole->Hide();
 	fLSPStatusBar->Hide();
@@ -54,22 +55,24 @@ GlobalStatusView::GlobalStatusView()
 	SetExplicitMinSize(BSize(B_SIZE_UNSET, height));
 
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
-		.SetInsets(2, -1)
-		.Add(fLSPStringView)
-		.Add(fLSPStatusBar)
+		.AddGroup(B_HORIZONTAL)
+			.SetInsets(2, 0)
+			.Add(fLSPStringView)
+			.Add(fLSPStatusBar)
+		.End()
 		.AddGlue()
-		.Add(fBuildStringView)
-		.AddGroup(B_VERTICAL)
-			.SetInsets(0, 4)
+		.AddGroup(B_HORIZONTAL)
+			.SetInsets(2, 4)
+			.Add(fBuildStringView)
 			.Add(fBarberPole)
 		.End()
 		;
 
-	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNSET));
-	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_CENTER));
-
 	fBuildStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
 	fBuildStringView->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_VERTICAL_UNSET));
+
+	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNSET));
+	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_CENTER));
 
 	fLSPStringView->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
 	fLSPStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));

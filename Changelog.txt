@@ -20,12 +20,18 @@ v4.0 (development)
 	- Editor status bar: use a fixed font.
 	- Read and use build target name when using Haiku standard makefile.
 	- Avoid converting end lines when opening files.
+	- Fixed crash in some edge cases.
+	- Fixed layout issues caused by Scintilla view.
 	- Fixed concurrency issue which could cause settings corruption.
+	- Fixed race-condition between applying an edit and the list of quickfixes and links.
+	- fixed quickfix codeActions for multiple lines.
 	- Fixed random hang when running/debugging applications from Genio.
 	- Fixed selecting collapsed items in Config window.
 	- Fixed ReplaceFindPrevious/Next for real.
 	- Fixed ProjectBrowser losing focus after renaming a file.
 	- Fixed wheel events not targetting the correct editor in certain cases.
+	- Fixed glitches if switching active projects while building (by disabling switching project while building).
+	- Fixed wrap_console setting not applying live.
 	- Fixed build and missing resources when building Genio with Clang.
 	- Fixed possible memory corruption issues in git clone code path.
 	- Fixed some small memory leaks.

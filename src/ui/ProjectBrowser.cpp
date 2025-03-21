@@ -1170,7 +1170,8 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		projectMenu->AddItem(buildMenuItem);
 		projectMenu->AddItem(cleanMenuItem);
 
-		setActiveProjectMenuItem->SetEnabled(!project->Active());
+		ProjectFolder* activeProject = dynamic_cast<GenioWindow*>(Window())->GetActiveProject();
+		setActiveProjectMenuItem->SetEnabled(!project->Active() && !activeProject->IsBuilding());
 
 		if (project->IsBuilding() || !project->Active()) {
 			buildMenuItem->SetEnabled(false);

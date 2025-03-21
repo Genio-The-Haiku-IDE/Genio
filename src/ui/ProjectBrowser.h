@@ -83,7 +83,6 @@ private:
 
 private:
 	ProjectOutlineListView*	fOutlineListView;
-	bool					fIsBuilding;
 	GenioWatchingFilter*	fGenioWatchingFilter;
 
 	//TODO: remove this and use a std::vector<std::pair or similar.

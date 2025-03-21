@@ -122,8 +122,7 @@ public:
 // ProjectBrowser
 ProjectBrowser::ProjectBrowser()
 	:
-	BView("Project browser", B_WILL_DRAW|B_FRAME_EVENTS),
-	fIsBuilding(false)
+	BView("Project browser", B_WILL_DRAW|B_FRAME_EVENTS)
 {
 	fOutlineListView = new ProjectOutlineListView();
 	ProjectDropView* projectDropView = new ProjectDropView();
@@ -449,11 +448,11 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		}
 		case kTick:
 		{
-			if (fIsBuilding) {
-				// TODO: Only invalidate the active project item ?
-				ProjectTitleItem::TickAnimation();
-				for (int32 i = 0; i != fProjectProjectItemList.CountItems(); i++) {
-					int32 itemIndex = fOutlineListView->IndexOf(fProjectProjectItemList.ItemAt(i));
+			ProjectTitleItem::TickAnimation();
+			for (int32 i = 0; i != fProjectProjectItemList.CountItems(); i++) {
+				ProjectItem* titleItem = fProjectProjectItemList.ItemAt(i);
+				if (titleItem->GetSourceItem()->GetProjectFolder()->IsBuilding()) {
+					int32 itemIndex = fOutlineListView->IndexOf(titleItem);
 					fOutlineListView->InvalidateItem(itemIndex);
 				}
 			}
@@ -510,9 +509,9 @@ ProjectBrowser::MessageReceived(BMessage* message)
 				}
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
+					// TODO: no longer needed
 					bool building = false;
 					message->FindBool("building", &building);
-					fIsBuilding = building;
 					fOutlineListView->Invalidate();
 					break;
 				}

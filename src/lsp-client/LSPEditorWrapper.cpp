@@ -113,7 +113,6 @@ LSPEditorWrapper::ApplyFix(BMessage* info)
 	int32 diaIndex = info->GetInt32("index", -1);
 	int32 actIndex = info->GetInt32("action", -1);
 	if (diaIndex >= 0 && fLastDiagnostics.size() > (size_t)diaIndex) {
-		//how are we sure the fix list is syncronized? (TODO: how?)
 		std::map<std::string, std::vector<TextEdit>> map =
 			fLastDiagnostics.at(diaIndex).diagnostic.codeActions.value()[actIndex].edit.value().changes.value();
 		for (auto& ed : map){
@@ -241,6 +240,12 @@ LSPEditorWrapper::_DoFormat(json& params)
 		ApplyTextEdit((*it));
 	}
 	fEditor->SendMessage(SCI_ENDUNDOACTION, 0, 0);
+
+	// Invalidate the current diagnostics and links to avoid any race-condition
+	// between the list of fixes and the updated document.
+	// a new list will arrive from LSP in few instants!
+	_RemoveAllDiagnostics();
+	_RemoveAllDocumentLinks();
 }
 
 

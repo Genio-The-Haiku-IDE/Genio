@@ -474,6 +474,8 @@ GenioWindow::MessageReceived(BMessage* message)
 				cmdType == "bindcatalogs" ||
 				cmdType == "catkeys") {
 
+				fSetActiveProjectMenuItem->SetEnabled(true);
+
 				BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 				noticeMessage.AddBool("building", false);
 				noticeMessage.AddString("cmd_type", cmdType.String());
@@ -1579,6 +1581,11 @@ GenioWindow::_BuildProject()
 	if (gCFG["save_on_build"])
 		_FileSaveAll(fActiveProject);
 
+	// TODO: Disable the Set Active item while building, at least for now.
+	// various parts of the code refer to fActiveProject to send build state notifications
+	// and it's wrong if we allow switching active project while building
+	fSetActiveProjectMenuItem->SetEnabled(false);
+
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 	noticeMessage.AddBool("building", true);
 	noticeMessage.AddString("cmd_type", "build");
@@ -1640,6 +1647,8 @@ GenioWindow::_CleanProject()
 	_ShowOutputTab(kTabBuildLog);
 
 	LogInfoF("Clean started: [%s]", fActiveProject->Name().String());
+
+	fSetActiveProjectMenuItem->SetEnabled(false);
 
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 	noticeMessage.AddBool("building", true);

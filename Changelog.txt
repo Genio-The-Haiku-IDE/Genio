@@ -24,7 +24,7 @@ v4.0 (development)
 	- Fixed layout issues caused by Scintilla view.
 	- Fixed concurrency issue which could cause settings corruption.
 	- Fixed race-condition between applying an edit and the list of quickfixes and links.
-	- fixed quickfix codeActions for multiple lines.
+	- Fixed quickfix codeActions for multiple lines.
 	- Fixed random hang when running/debugging applications from Genio.
 	- Fixed selecting collapsed items in Config window.
 	- Fixed ReplaceFindPrevious/Next for real.

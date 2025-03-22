@@ -37,7 +37,7 @@ ConsoleIOTab::Stop()
 {
 	BMessage stop;
 	BString cmd(":");
-	cmd << "\n" << _BannerCommand(fContextMessage.GetString("banner_claim", "command"), "STOPPED   ");
+	cmd << "\n" << _BannerCommand(fContextMessage.GetString("banner_claim", "command"), "STOPPED   ", true);
 	stop.AddString("cmd", cmd);
 	stop.AddBool("internalStop", true);
 	return RunCommand(&stop, false, false);
@@ -54,11 +54,11 @@ ConsoleIOTab::RunCommand(BMessage* message, bool clean, bool notifyMessage)
 
 	BString cmd;
 	if (notifyMessage) {
-		cmd << _BannerCommand(message->GetString("banner_claim", "command"), "started   ") << "\n";
+		cmd << _BannerCommand(message->GetString("banner_claim", "command"), "started   ", false) << "\n";
 	}
 	cmd << message->GetString("cmd", "echo error");
 	if (notifyMessage) {
-		cmd << "\n" << _BannerCommand(message->GetString("banner_claim", "command"), "ended     ");
+		cmd << "\n" << _BannerCommand(message->GetString("banner_claim", "command"), "ended     ", true);
 	}
 	BMessage exec(B_EXECUTE_PROPERTY);
 	exec.AddSpecifier("command");
@@ -73,19 +73,21 @@ ConsoleIOTab::RunCommand(BMessage* message, bool clean, bool notifyMessage)
 }
 
 BString
-ConsoleIOTab::_BannerCommand(BString claim, BString status)
+ConsoleIOTab::_BannerCommand(BString claim, BString status, bool ending)
 {
 /*	if (!gCFG["console_banner"])
 		return "";*/
 
-	BString banner("echo '");
+	BString banner("PRET=$?; echo '");
 	banner  << "--------------------------------"
 			<< "   "
 			<< claim
 			<< " "
 			<< status
-			<< "--------------------------------";
-	banner << "'";
+			<< "--------------------------------"
+			<< "'";
+	if (ending)
+		banner << "; exit $PRET";
 	return banner;
 }
 

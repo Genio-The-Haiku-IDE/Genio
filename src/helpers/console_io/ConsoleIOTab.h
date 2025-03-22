@@ -31,7 +31,7 @@ public:
 private:
 
 	BView*		_FindTarget();
-	BString		_BannerCommand(BString claim, BString status);
+	BString		_BannerCommand(BString claim, BString status, bool ending);
 	BMessage	fContextMessage;
 	BMessenger  fMessenger;
 

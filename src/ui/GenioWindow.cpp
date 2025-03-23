@@ -936,6 +936,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			_ProjectFolderClose(project);
 			break;
 		}
+		case MSG_PROJECT_MENU_OPEN_FILE:
+		{
+			_FileOpen(message);
+			break;
+		}
 		case MSG_PROJECT_MENU_DELETE_FILE:
 			_ProjectFileDelete();
 			break;

@@ -408,32 +408,6 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			SendNotices(B_PATH_MONITOR, message);
 			break;
 		}
-		case MSG_PROJECT_MENU_OPEN_FILE:
-		{
-			int32 index = -1;
-			if (message->FindInt32("index", &index) != B_OK) {
-				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find index!");
-				return;
-			}
-			ProjectItem* item = fOutlineListView->ProjectItemAt(index);
-			if (item == nullptr) {
-				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find item at index %d", index);
-				return;
-			}
-			if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-				if (item->IsExpanded())
-					fOutlineListView->Collapse(item);
-				else
-					fOutlineListView->Expand(item);
-				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) Expand/Collapse(%s)", item->GetSourceItem()->Name().String());
-				return;
-			}
-			BMessage msg(B_REFS_RECEIVED);
-			msg.AddRef("refs", item->GetSourceItem()->EntryRef());
-			msg.AddBool("openWithPreferred", true);
-			Window()->PostMessage(&msg);
-			break;
-		}
 		case MSG_PROJECT_MENU_DO_RENAME_FILE:
 		{
 			BString newName;
@@ -955,7 +929,6 @@ ProjectOutlineListView::ProjectOutlineListView()
 	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST),
 	fFileNewProjectMenuItem(nullptr)
 {
-	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 }
 
 
@@ -1005,7 +978,7 @@ void
 ProjectOutlineListView::AttachedToWindow()
 {
 	BOutlineListView::AttachedToWindow();
-	BOutlineListView::SetTarget((BHandler*)this, Window());
+	BOutlineListView::SetTarget(Window());
 }
 
 
@@ -1052,13 +1025,21 @@ ProjectOutlineListView::SelectionChanged()
 		GenioWindow *window = gMainWindow;
 		BEntry entry(selected->GetSourceItem()->EntryRef());
 		if (entry.IsFile()) {
+			entry_ref fileRef;
+			entry.GetRef(&fileRef);
+			BMessage* invocationMessage = new BMessage(MSG_PROJECT_MENU_OPEN_FILE);
+			invocationMessage->AddRef("refs", &fileRef);
+			invocationMessage->AddBool("openWithPreferred", true);
+			SetInvocationMessage(invocationMessage);
+
 			// If this is a file, get the parent directory
 			entry.GetParent(&entry);
-		}
+		} else
+			SetInvocationMessage(nullptr);
+
 		entry_ref newRef;
 		entry.GetRef(&newRef);
 		window->UpdateMenu(selected, &newRef);
-
 		if (fFileNewProjectMenuItem != nullptr)
 			fFileNewProjectMenuItem->SetSender(selected, &newRef);
 	}
@@ -1193,6 +1174,9 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 			new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
 		BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
 			new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+		openFileProjectMenuItem->Message()->AddRef("refs", projectItem->GetSourceItem()->EntryRef());
+		openFileProjectMenuItem->Message()->AddBool("openWithPreferred", true);
+
 		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
 			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));

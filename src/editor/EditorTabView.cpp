@@ -56,8 +56,7 @@ EditorTabView::~EditorTabView()
 void
 EditorTabView::AddEditor(const char* label, Editor* editor, BMessage* info)
 {
-	//by default the new editor is placed next to the selected one.
-
+	// by default the new editor is placed next to the selected one.
 	int32 index = SelectedTabIndex() + 1;
 	GTabEditor*	tab = new GTabEditor(label, this, editor);
 	AddTab(tab, editor, index);
@@ -368,10 +367,10 @@ EditorTabView::SelectNext()
 		return;
 
 	int32 index = Container()->IndexOfTab(selected);
-	if (index < 0 || index > Container()->CountTabs() - 1)
+	if (index < 0 || index >= Container()->CountTabs() - 1)
 		return;
 
-	GTabView::SelectTab(Container()->TabAt(index+1));
+	GTabView::SelectTab(Container()->TabAt(index + 1));
 }
 
 

@@ -1168,6 +1168,7 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),
 			new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
+		deleteFileProjectMenuItem->Message()->AddPointer("project", project);
 		deleteFileProjectMenuItem->Message()->AddRef("ref", itemRef);
 
 		BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
@@ -1178,6 +1179,7 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
 			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
+		renameFileProjectMenuItem->Message()->AddPointer("project", project);
 		renameFileProjectMenuItem->Message()->AddRef("ref", itemRef);
 
 		projectMenu->AddItem(openFileProjectMenuItem);

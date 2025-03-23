@@ -3609,10 +3609,11 @@ GenioWindow::_ProjectRenameFile(BMessage* message)
 {
 	entry_ref ref;
 	if (message->FindRef("ref", &ref) == B_OK) {
-		// TODO: There is a small chance this is wrong
-		ProjectFolder* project = GetProjectBrowser()->GetProjectFromSelectedItem();
-		ProjectItem *item = GetProjectBrowser()->GetItemByRef(project, ref);
-		GetProjectBrowser()->InitRename(item);
+		const ProjectFolder* project = reinterpret_cast<const ProjectFolder*>(message->GetPointer("project", nullptr));
+		if (project != nullptr) {
+			ProjectItem *item = GetProjectBrowser()->GetItemByRef(const_cast<ProjectFolder*>(project), ref);
+			GetProjectBrowser()->InitRename(item);
+		}
 	}
 }
 

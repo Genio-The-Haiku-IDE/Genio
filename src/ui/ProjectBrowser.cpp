@@ -465,7 +465,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 						break;
 					const ProjectFolder* project =
 						reinterpret_cast<const ProjectFolder*>(message->GetPointer("project", nullptr));
-					SelectItemByRef(const_cast<ProjectFolder*>(project), ref);
+					SelectItemByRef(project, ref);
 					break;
 				}
 				case MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED:
@@ -590,7 +590,7 @@ ProjectBrowser::GetSelectedProjectItem() const
 
 
 ProjectItem*
-ProjectBrowser::GetProjectItemForProject(ProjectFolder* folder) const
+ProjectBrowser::GetProjectItemForProject(const ProjectFolder* folder) const
 {
 	assert(fProjectProjectItemList.CountItems() == CountProjects());
 
@@ -635,7 +635,7 @@ ProjectBrowser::GetSelectedProjectFileRef() const
 
 
 ProjectItem*
-ProjectBrowser::GetItemByRef(ProjectFolder* project, const entry_ref& ref) const
+ProjectBrowser::GetItemByRef(const ProjectFolder* project, const entry_ref& ref) const
 {
 	ProjectItem* projectItem = GetProjectItemForProject(project);
 	if (projectItem == nullptr)
@@ -904,7 +904,7 @@ ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_r
 	The basic implementaion parses all the items.. (could be useful in PathMonitor procedures)
 */
 void
-ProjectBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
+ProjectBrowser::SelectItemByRef(const ProjectFolder* project, const entry_ref& ref)
 {
 	ProjectItem* projectItem = GetItemByRef(project, ref);
 

@@ -40,9 +40,9 @@ public:
 	ProjectItem*	GetSelectedProjectItem() const;
 	const entry_ref* GetSelectedProjectFileRef() const;
 
-	ProjectItem*	GetItemByRef(ProjectFolder* project, const entry_ref& ref) const;
+	ProjectItem*	GetItemByRef(const ProjectFolder* project, const entry_ref& ref) const;
 
-	ProjectItem*	GetProjectItemForProject(ProjectFolder*) const;
+	ProjectItem*	GetProjectItemForProject(const ProjectFolder*) const;
 
 	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
 	ProjectFolder*	GetProjectFromSelectedItem() const;
@@ -56,7 +56,7 @@ public:
 	void			SelectProjectAndScroll(ProjectFolder*);
 
 	void			SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref); //ugly name..
-	void			SelectItemByRef(ProjectFolder* project, const entry_ref& ref);
+	void			SelectItemByRef(const ProjectFolder* project, const entry_ref& ref);
 
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);

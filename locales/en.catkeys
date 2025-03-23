@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	1612662701
+1	English	application/x-vnd.Genio	1946150509
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
 Enable brace matching	SettingsWindow		Enable brace matching
 Clear	ConsoleIOView		Clear
@@ -71,6 +71,8 @@ Show right pane	SettingsWindow		Show right pane
 Wrap	TermView	As in wrapping long lines. Short as possible.	Wrap
 Color:	ProjectSettingsWindow		Color:
 Release	ProjectSettingsWindow		Release
+Go forward	GenioWindow		Go forward
+Go back	GenioWindow		Go back
 Find	GenioWindow		Find
 CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
 Discard	GenioWindow		Discard
@@ -259,7 +261,6 @@ Module	FunctionsOutlineView		Module
 Save	Editor		Save
 Cleaning project '\"%project%\"'…	GlobalStatusView		Cleaning project '\"%project%\"'…
 File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
-Go Forward	GenioWindow		Go Forward
 Rename branch:	SourceControlPanel		Rename branch:
 Import as RDEF array…	GenioWindow		Import as RDEF array…
 New file	GenioWindow		New file
@@ -414,6 +415,5 @@ Paste	GenioWindow		Paste
 Cancel	GTextAlert		Cancel
 Source control	SettingsWindow		Source control
 Stash pop changes	SourceControlPanel		Stash pop changes
-Go Back	GenioWindow		Go Back
 An unknown error occurred.	SourceControlPanel		An unknown error occurred.
 Save caret position	SettingsWindow		Save caret position

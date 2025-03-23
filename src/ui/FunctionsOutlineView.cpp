@@ -554,7 +554,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 		i++;
 	}
 	if (sSorted)
-		fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
+		fListView->FullListSortItems(&CompareItemsText);
 
 	// same document, don't reset the vertical scrolling value
 	if (*newRef == fCurrentRef) {

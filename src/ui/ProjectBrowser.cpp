@@ -1105,12 +1105,7 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 {
 	// TODO: This duplicates some code in ProjectBrowser
 	ProjectItem* projectItem = GetSelectedProjectItem();
-	ProjectFolder *project;
-	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		project = static_cast<ProjectFolder*>(projectItem->GetSourceItem());
-	} else {
-		project = static_cast<ProjectFolder*>(projectItem->GetSourceItem()->GetProjectFolder());
-	}
+	ProjectFolder* project = static_cast<ProjectFolder*>(projectItem->GetSourceItem()->GetProjectFolder());
 
 	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
 
@@ -1168,22 +1163,22 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 
 	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
 	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
+	const entry_ref* itemRef = projectItem->GetSourceItem()->EntryRef();
 	if (isFolder || isFile) {
-		const entry_ref* fileRef = projectItem->GetSourceItem()->EntryRef();
 		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),
 			new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
-		deleteFileProjectMenuItem->Message()->AddRef("ref", fileRef);
+		deleteFileProjectMenuItem->Message()->AddRef("ref", itemRef);
 
 		BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
 			new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
-		openFileProjectMenuItem->Message()->AddRef("refs", fileRef);
+		openFileProjectMenuItem->Message()->AddRef("refs", itemRef);
 		openFileProjectMenuItem->Message()->AddBool("openWithPreferred", true);
 
 		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
 			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
-		renameFileProjectMenuItem->Message()->AddRef("ref", fileRef);
+		renameFileProjectMenuItem->Message()->AddRef("ref", itemRef);
 
 		projectMenu->AddItem(openFileProjectMenuItem);
 		projectMenu->AddItem(deleteFileProjectMenuItem);
@@ -1194,7 +1189,7 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 	}
 
 	BMessage* refMessage = new BMessage();
-	refMessage->AddRef("ref", projectItem->GetSourceItem()->EntryRef());
+	refMessage->AddRef("ref", itemRef);
 	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, projectMenu, refMessage);
 
 	BMessage* refMessage2 = new BMessage(*refMessage);

@@ -3609,9 +3609,10 @@ GenioWindow::_ProjectRenameFile(BMessage* message)
 {
 	entry_ref ref;
 	if (message->FindRef("ref", &ref) == B_OK) {
-		// TODO: What is it's not the active project ?
-		ProjectItem *item = fProjectsFolderBrowser->GetItemByRef(GetActiveProject(), ref);
-		fProjectsFolderBrowser->InitRename(item);
+		// TODO: There is a small chance this is wrong
+		ProjectFolder* project = GetProjectBrowser()->GetProjectFromSelectedItem();
+		ProjectItem *item = GetProjectBrowser()->GetItemByRef(project, ref);
+		GetProjectBrowser()->InitRename(item);
 	}
 }
 

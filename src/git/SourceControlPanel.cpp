@@ -618,8 +618,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 void
 SourceControlPanel::_ChangeProject(BMessage *message)
 {
-	ProjectFolder* selectedProject = const_cast<ProjectFolder*>(
-		reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
+	const ProjectFolder* selectedProject =
+		reinterpret_cast<const ProjectFolder*>(message->GetPointer("value"));
 
 	fSelectedProjectPath = "";
 	const BString sender = message->GetString("sender");

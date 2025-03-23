@@ -942,10 +942,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_MENU_DELETE_FILE:
-			_ProjectFileDelete();
+			_ProjectFileDelete(message);
 			break;
 		case MSG_PROJECT_MENU_RENAME_FILE:
-			_ProjectRenameFile();
+			_ProjectRenameFile(message);
 			break;
 		case MSG_PROJECT_MENU_SET_ACTIVE:
 		{
@@ -3553,10 +3553,12 @@ GenioWindow::_TryAssociateEditorWithProject(Editor* editor, ProjectFolder* proje
 
 
 void
-GenioWindow::_ProjectFileDelete()
+GenioWindow::_ProjectFileDelete(BMessage* message)
 {
-	const entry_ref* ref = fProjectsFolderBrowser->GetSelectedProjectFileRef();
-	BEntry entry(ref);
+	entry_ref ref;
+	if (message->FindRef("ref", &ref) != B_OK)
+		return;
+	BEntry entry(&ref);
 	if (!entry.Exists())
 		return;
 
@@ -3581,7 +3583,7 @@ GenioWindow::_ProjectFileDelete()
 	else if (choice == 1) {
 		// Close the file if open
 		if (entry.IsFile()) {
-			_RemoveTab(fTabManager->EditorBy(ref));
+			_RemoveTab(fTabManager->EditorBy(&ref));
 		}
 		// Remove the entry
 		if (entry.Exists()) {
@@ -3603,10 +3605,14 @@ GenioWindow::_ProjectFileDelete()
 
 
 void
-GenioWindow::_ProjectRenameFile()
+GenioWindow::_ProjectRenameFile(BMessage* message)
 {
-	ProjectItem *item = fProjectsFolderBrowser->GetSelectedProjectItem();
-	fProjectsFolderBrowser->InitRename(item);
+	entry_ref ref;
+	if (message->FindRef("ref", &ref) == B_OK) {
+		// TODO: What is it's not the active project ?
+		ProjectItem *item = fProjectsFolderBrowser->GetItemByRef(GetActiveProject(), ref);
+		fProjectsFolderBrowser->InitRename(item);
+	}
 }
 
 

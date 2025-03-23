@@ -2922,12 +2922,12 @@ GenioWindow::_InitActions()
 									B_TRANSLATE("Open in Terminal"));
 
 
-	ActionManager::RegisterAction(MSG_JUMP_GO_FORWARD, B_TRANSLATE("Go Forward"),
-									B_TRANSLATE("Go Forward"), "kIconForward_2", B_RIGHT_ARROW,
+	ActionManager::RegisterAction(MSG_JUMP_GO_FORWARD, B_TRANSLATE("Go forward"),
+									B_TRANSLATE("Go forward"), "kIconForward_2", B_RIGHT_ARROW,
 									B_SHIFT_KEY|B_COMMAND_KEY);
 
-	ActionManager::RegisterAction(MSG_JUMP_GO_BACK, B_TRANSLATE("Go Back"),
-									B_TRANSLATE("Go Back"), "kIconBack_1", B_LEFT_ARROW,
+	ActionManager::RegisterAction(MSG_JUMP_GO_BACK, B_TRANSLATE("Go back"),
+									B_TRANSLATE("Go back"), "kIconBack_1", B_LEFT_ARROW,
 									B_SHIFT_KEY|B_COMMAND_KEY);
 
 }

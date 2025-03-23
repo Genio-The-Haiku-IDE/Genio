@@ -1169,17 +1169,21 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
 	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
 	if (isFolder || isFile) {
+		const entry_ref* fileRef = projectItem->GetSourceItem()->EntryRef();
 		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),
 			new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
+		deleteFileProjectMenuItem->Message()->AddRef("ref", fileRef);
+
 		BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
 			new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
-		openFileProjectMenuItem->Message()->AddRef("refs", projectItem->GetSourceItem()->EntryRef());
+		openFileProjectMenuItem->Message()->AddRef("refs", fileRef);
 		openFileProjectMenuItem->Message()->AddBool("openWithPreferred", true);
 
 		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
 			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
+		renameFileProjectMenuItem->Message()->AddRef("ref", fileRef);
 
 		projectMenu->AddItem(openFileProjectMenuItem);
 		projectMenu->AddItem(deleteFileProjectMenuItem);

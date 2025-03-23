@@ -44,7 +44,7 @@ public:
 
 	ProjectItem*	GetProjectItemForProject(const ProjectFolder*) const;
 
-	ProjectFolder*	GetProjectFromItem(ProjectItem*) const;
+	ProjectFolder*	GetProjectFromItem(const ProjectItem*) const;
 	ProjectFolder*	GetProjectFromSelectedItem() const;
 
 	int32			CountProjects() const;
@@ -53,10 +53,10 @@ public:
 
 	const 			BObjectList<ProjectFolder>* GetProjectList() const;
 
-	void			SelectProjectAndScroll(ProjectFolder*);
+	void			SelectProjectAndScroll(const ProjectFolder*);
 
-	void			SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref); //ugly name..
 	void			SelectItemByRef(const ProjectFolder* project, const entry_ref& ref);
+	void			SelectNewItemAndScrollDelayed(const ProjectItem* parent, const entry_ref ref); //ugly name..
 
 	void			ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);

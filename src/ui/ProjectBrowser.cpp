@@ -610,7 +610,7 @@ ProjectBrowser::GetProjectFromSelectedItem() const
 
 
 ProjectFolder*
-ProjectBrowser::GetProjectFromItem(ProjectItem* item) const
+ProjectBrowser::GetProjectFromItem(const ProjectItem* item) const
 {
 	if (item == nullptr)
 		return nullptr;
@@ -869,7 +869,7 @@ ProjectBrowser::ProjectByPath(const BString& fullPath) const
 
 
 void
-ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
+ProjectBrowser::SelectProjectAndScroll(const ProjectFolder* projectFolder)
 {
 	ProjectItem* item = GetProjectItemForProject(projectFolder);
 	if (item != nullptr) {
@@ -880,7 +880,7 @@ ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 
 
 void
-ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref)
+ProjectBrowser::SelectNewItemAndScrollDelayed(const ProjectItem* parent, const entry_ref ref)
 {
 	// Let's select the new created file.
 	// just send a message to the ProjectBrowser with the new ref

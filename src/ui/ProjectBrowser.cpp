@@ -1145,14 +1145,16 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		buildModeItem->SetRadioMode(true);
 		BMenuItem* release = new BMenuItem(B_TRANSLATE("Release"), new BMessage(MSG_BUILD_MODE_RELEASE));
 		BMenuItem* debug   = new BMenuItem(B_TRANSLATE("Debug"), new BMessage(MSG_BUILD_MODE_DEBUG));
+
 		buildModeItem->AddItem(release);
 		buildModeItem->AddItem(debug);
 
-		const bool releaseMode = project->GetBuildMode();
+		projectMenu->AddItem(buildModeItem);
+
+		const bool releaseMode = project->GetBuildMode() == BuildMode::ReleaseMode;
 		release->SetMarked(releaseMode);
 		debug->SetMarked(!releaseMode);
 
-		projectMenu->AddItem(buildModeItem);
 		projectMenu->AddSeparatorItem();
 
 		ProjectFolder* activeProject = dynamic_cast<GenioWindow*>(Window())->GetActiveProject();

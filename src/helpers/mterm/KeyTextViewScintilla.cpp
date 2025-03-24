@@ -92,8 +92,12 @@ KeyTextViewScintilla::BeforeMessageReceived(BMessage* msg, BView* scintillaView)
 	switch(msg->what) {
 		case B_KEY_DOWN:
 			return BeforeKeyDown(msg, scintillaView);
+		case B_PASTE: {
+				BScintillaView::MessageReceived(msg);
+				fCaretPosition = SendMessage(SCI_GETCURRENTPOS);
+			}
+			return B_SKIP_MESSAGE;
 		case B_CUT:
-		case B_PASTE:
 		case B_UNDO:
 		case B_REDO:
 			return B_SKIP_MESSAGE;

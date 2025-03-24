@@ -1146,12 +1146,31 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		projectMenu->AddItem(buildMenuItem);
 		projectMenu->AddItem(cleanMenuItem);
 
+		BMenu* buildModeItem = new BMenu(B_TRANSLATE("Build mode"));
+		buildModeItem->SetRadioMode(true);
+		BMenuItem* release = new BMenuItem(B_TRANSLATE("Release"), new BMessage(MSG_BUILD_MODE_RELEASE));
+		BMenuItem* debug   = new BMenuItem(B_TRANSLATE("Debug"), new BMessage(MSG_BUILD_MODE_DEBUG));
+		buildModeItem->AddItem(release);
+		buildModeItem->AddItem(debug);
+
+		if (project->GetBuildMode() == ReleaseMode) {
+			release->SetMarked(true);
+			debug->SetMarked(false);
+		} else {
+			release->SetMarked(false);
+			debug->SetMarked(true);
+		}
+
+		projectMenu->AddItem(buildModeItem);
+		projectMenu->AddSeparatorItem();
+
 		ProjectFolder* activeProject = dynamic_cast<GenioWindow*>(Window())->GetActiveProject();
 		setActiveProjectMenuItem->SetEnabled(!project->Active() && !activeProject->IsBuilding());
 
 		if (project->IsBuilding() || !project->Active()) {
 			buildMenuItem->SetEnabled(false);
 			cleanMenuItem->SetEnabled(false);
+			buildModeItem->SetEnabled(false);
 		}
 	}
 

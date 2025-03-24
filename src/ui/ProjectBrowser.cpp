@@ -63,8 +63,6 @@ public:
 
 private:
 	void			_ShowProjectItemPopupMenu(BPoint where);
-
-	TemplatesMenu*	fFileNewProjectMenuItem;
 };
 
 
@@ -926,8 +924,7 @@ ProjectBrowser::GetProjectList() const
 // ProjectOutlineListView
 ProjectOutlineListView::ProjectOutlineListView()
 	:
-	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST),
-	fFileNewProjectMenuItem(nullptr)
+	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST)
 {
 }
 
@@ -1040,8 +1037,6 @@ ProjectOutlineListView::SelectionChanged()
 		entry_ref newRef;
 		entry.GetRef(&newRef);
 		window->UpdateMenu(selected, &newRef);
-		if (fFileNewProjectMenuItem != nullptr)
-			fFileNewProjectMenuItem->SetSender(selected, &newRef);
 	}
 }
 
@@ -1109,13 +1104,13 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 
 	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
 
-	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
+	TemplatesMenu* fileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
 		new BMessage(MSG_PROJECT_MENU_NEW_FILE), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
 		TemplateManager::GetDefaultTemplateDirectory(),
 		TemplateManager::GetUserTemplateDirectory(),
 		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
 
-	fFileNewProjectMenuItem->SetEnabled(true);
+	fileNewProjectMenuItem->SetEnabled(true);
 
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
@@ -1153,13 +1148,9 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		buildModeItem->AddItem(release);
 		buildModeItem->AddItem(debug);
 
-		if (project->GetBuildMode() == ReleaseMode) {
-			release->SetMarked(true);
-			debug->SetMarked(false);
-		} else {
-			release->SetMarked(false);
-			debug->SetMarked(true);
-		}
+		const bool releaseMode = project->GetBuildMode();
+		release->SetMarked(releaseMode);
+		debug->SetMarked(!releaseMode);
 
 		projectMenu->AddItem(buildModeItem);
 		projectMenu->AddSeparatorItem();
@@ -1174,15 +1165,18 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		}
 	}
 
-	projectMenu->AddItem(fFileNewProjectMenuItem);
-	fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
-	projectMenu->AddSeparatorItem();
-
 	SelectionChanged();
+
+	const entry_ref* itemRef = projectItem->GetSourceItem()->EntryRef();
+
+	projectMenu->AddItem(fileNewProjectMenuItem);
+	fileNewProjectMenuItem->SetSender(projectItem, itemRef);
+	fileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
+	projectMenu->AddSeparatorItem();
 
 	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
 	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
-	const entry_ref* itemRef = projectItem->GetSourceItem()->EntryRef();
+
 	if (isFolder || isFile) {
 		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),
@@ -1217,6 +1211,7 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, projectMenu, refMessage2);
 
 	projectMenu->SetTargetForItems(Window());
+	projectMenu->SetAsyncAutoDestruct(true);
 
 	// Open menu slightly off wrt the click, so it doesn't open right under the mouse
 	BPoint menuPoint = ConvertToScreen(where);

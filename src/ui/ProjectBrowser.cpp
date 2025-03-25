@@ -1141,6 +1141,8 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		projectMenu->AddItem(buildMenuItem);
 		projectMenu->AddItem(cleanMenuItem);
 
+		projectMenu->AddSeparatorItem();
+
 		BMenu* buildModeItem = new BMenu(B_TRANSLATE("Build mode"));
 		buildModeItem->SetRadioMode(true);
 		BMenuItem* release = new BMenuItem(B_TRANSLATE("Release"), new BMessage(MSG_BUILD_MODE_RELEASE));

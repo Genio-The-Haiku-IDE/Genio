@@ -1176,7 +1176,16 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 	const entry_ref* itemRef = projectItem->GetSourceItem()->EntryRef();
 
 	projectMenu->AddItem(fileNewProjectMenuItem);
-	fileNewProjectMenuItem->SetSender(projectItem, itemRef);
+
+	BEntry entry(itemRef);
+	if (entry.IsFile()) {
+		entry.GetParent(&entry);
+		entry_ref ref;
+		entry.GetRef(&ref);
+		fileNewProjectMenuItem->SetSender(projectItem, &ref);
+	} else
+		fileNewProjectMenuItem->SetSender(projectItem, itemRef);
+
 	fileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 	projectMenu->AddSeparatorItem();
 

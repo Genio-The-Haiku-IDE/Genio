@@ -1148,10 +1148,9 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 
 		buildModeItem->AddItem(release);
 		buildModeItem->AddItem(debug);
-		// TODO: Later we use SetTargetForItems() on the parent menu,
-		// but apparently it doesn't work in beta5 ???
-		release->SetTarget(gMainWindow);
-		debug->SetTarget(gMainWindow);
+
+		buildModeItem->SetTargetForItems(Window());
+
 		projectMenu->AddItem(buildModeItem);
 
 		const bool releaseMode = project->GetBuildMode() == BuildMode::ReleaseMode;

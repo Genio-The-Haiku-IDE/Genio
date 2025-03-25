@@ -1217,6 +1217,8 @@ GenioWindow::MenusBeginning()
 {
 	BWindow::MenusBeginning();
 
+	// TODO: Only build specific menus if they are open, if possible
+
 	// Build "Set active" menu
 	for (int32 p = 0; p < GetProjectBrowser()->CountProjects(); p++) {
 		ProjectFolder* project = GetProjectBrowser()->ProjectAt(p);
@@ -1227,6 +1229,16 @@ GenioWindow::MenusBeginning()
 			item->SetEnabled(false);
 		fSetActiveProjectMenuItem->AddItem(item);
 	}
+
+	// Build "Open files" menu
+	fTabManager->ForEachEditor([&](Editor* editor) {
+		BMessage* refsMessage = new BMessage(B_REFS_RECEIVED);
+		refsMessage->AddRef("refs", editor->FileRef());
+		BMenuItem* item = new BMenuItem(editor->Name(), refsMessage);
+		fOpenFilesMenu->AddItem(item);
+
+		return true;
+	});
 
 	BView* view = CurrentFocus();
 	if (view == nullptr)
@@ -1263,6 +1275,7 @@ GenioWindow::MenusEnded()
 {
 	BWindow::MenusEnded();
 	fSetActiveProjectMenuItem->RemoveItems(0, fSetActiveProjectMenuItem->CountItems(), true);
+	fOpenFilesMenu->RemoveItems(0, fOpenFilesMenu->CountItems(), true);
 }
 
 
@@ -3271,7 +3284,14 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
 	ActionManager::AddItem(MSG_TOGGLE_STATUSBAR, submenu);
 	windowMenu->AddItem(submenu);
+
 	windowMenu->AddSeparatorItem();
+
+	fOpenFilesMenu = new BMenu(B_TRANSLATE("Open files"));
+	windowMenu->AddItem(fOpenFilesMenu);
+
+	windowMenu->AddSeparatorItem();
+
 	ActionManager::AddItem(MSG_FULLSCREEN, windowMenu);
 	ActionManager::AddItem(MSG_FOCUS_MODE, windowMenu);
 	fMenuBar->AddItem(windowMenu);

@@ -331,7 +331,7 @@ ProjectBrowser::_HandleEntryMoved(BMessage* message)
 								return;
 							}
 							ProjectItem *destinationItem = GetProjectItemByPath(bp_newParent.Path());
-							if (!item) {
+							if (!destinationItem) {
 								LogError("Can't find an item to move newParent [%s]", bp_newParent.Path());
 								return;
 							}

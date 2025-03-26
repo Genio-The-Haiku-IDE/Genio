@@ -45,24 +45,24 @@ static BMessageRunner* sAnimationTickRunner;
 
 class ProjectOutlineListView : public BOutlineListView {
 public:
-					ProjectOutlineListView();
-	virtual 		~ProjectOutlineListView();
+			ProjectOutlineListView();
+	virtual ~ProjectOutlineListView();
 
-	virtual void	MouseDown(BPoint where);
-	virtual void	MouseMoved(BPoint point, uint32 transit, const BMessage* message);
-	virtual void	AttachedToWindow();
-	virtual void	DetachedFromWindow();
-	virtual void	MessageReceived(BMessage* message);
-	virtual void	KeyDown(const char* bytes, int32 numBytes);
-	virtual void	SelectionChanged();
+	void MouseDown(BPoint where) override;
+	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override;
+	void AttachedToWindow() override;
+	void DetachedFromWindow() override;
+	void MessageReceived(BMessage* message) override;
+	void KeyDown(const char* bytes, int32 numBytes) override;
+	void SelectionChanged() override;
 
-	ProjectItem*	ProjectItemAt(int32 index) const;
-	ProjectItem*	GetSelectedProjectItem() const;
+	ProjectItem* ProjectItemAt(int32 index) const;
+	ProjectItem* GetSelectedProjectItem() const;
 
-	static int 		CompareProjectItems(const BListItem* a, const BListItem* b);
+	static int CompareProjectItems(const BListItem* a, const BListItem* b);
 
 private:
-	void			_ShowProjectItemPopupMenu(BPoint where);
+	void _ShowProjectItemPopupMenu(BPoint where);
 };
 
 
@@ -98,7 +98,8 @@ public:
 		SetExplicitMinSize(BSize(0, B_SIZE_UNSET));
 		SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
 	}
-	virtual void Draw(BRect updateRect)
+
+	void Draw(BRect updateRect) override
 	{
 		SetDrawingMode(B_OP_ALPHA);
 		SetLowColor(0, 0, 0);
@@ -613,14 +614,7 @@ ProjectBrowser::GetProjectFromItem(const ProjectItem* item) const
 	if (item == nullptr)
 		return nullptr;
 
-	ProjectFolder *project;
-	if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		project = static_cast<ProjectFolder*>(item->GetSourceItem());
-	} else {
-		project = static_cast<ProjectFolder*>(item->GetSourceItem()->GetProjectFolder());
-	}
-
-	return project;
+	return item->GetSourceItem()->GetProjectFolder();
 }
 
 
@@ -628,6 +622,9 @@ const entry_ref*
 ProjectBrowser::GetSelectedProjectFileRef() const
 {
 	ProjectItem* selectedProjectItem = GetSelectedProjectItem();
+	if (selectedProjectItem == nullptr)
+		return nullptr;
+
 	return selectedProjectItem->GetSourceItem()->EntryRef();
 }
 
@@ -667,14 +664,14 @@ ProjectBrowser::GetItemByRef(const ProjectFolder* project, const entry_ref& ref)
 
 
 status_t
-ProjectBrowser::_RenameCurrentSelectedFile(const BString& new_name)
+ProjectBrowser::_RenameCurrentSelectedFile(const BString& newName)
 {
 	status_t status = B_NOT_INITIALIZED;
 	ProjectItem *item = GetSelectedProjectItem();
 	if (item != nullptr) {
 		BEntry entry(item->GetSourceItem()->EntryRef());
 		if (entry.Exists()) {
-			status = entry.Rename(new_name, false);
+			status = entry.Rename(newName, false);
 		}
 	}
 	return status;
@@ -886,7 +883,7 @@ ProjectBrowser::SelectNewItemAndScrollDelayed(const ProjectItem* parent, const e
 
 	// the selected item initiating this is not a folder or project but a file.
 	if (parent->GetSourceItem()->Type() == FileItem) {
-		parent = (ProjectItem*)fOutlineListView->Superitem(parent);
+		parent = static_cast<ProjectItem*>(fOutlineListView->Superitem(parent));
 	}
 
 	BMessage selectMessage(MSG_BROWSER_SELECT_ITEM);
@@ -945,7 +942,7 @@ ProjectOutlineListView::MouseDown(BPoint where)
 		message->FindInt32("buttons", &buttons);
 
 	BOutlineListView::MouseDown(where);
-	if ( buttons == B_MOUSE_BUTTON(2))
+	if (buttons == B_MOUSE_BUTTON(2))
 		_ShowProjectItemPopupMenu(where);
 }
 
@@ -1065,8 +1062,8 @@ ProjectOutlineListView::CompareProjectItems(const BListItem* a, const BListItem*
 	if (a == b)
 		return 0;
 
-	const ProjectItem* A = dynamic_cast<const ProjectItem*>(a);
-	const ProjectItem* B = dynamic_cast<const ProjectItem*>(b);
+	const ProjectItem* A = static_cast<const ProjectItem*>(a);
+	const ProjectItem* B = static_cast<const ProjectItem*>(b);
 
 	const char* nameA = A->Text();
 	const auto itemAType = A->GetSourceItem()->Type();
@@ -1098,9 +1095,10 @@ ProjectOutlineListView::CompareProjectItems(const BListItem* a, const BListItem*
 void
 ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 {
-	// TODO: This duplicates some code in ProjectBrowser
+	// TODO: This duplicates some code in ProjectBrowser and in GenioWindow.
+	// Refactor!
 	ProjectItem* projectItem = GetSelectedProjectItem();
-	ProjectFolder* project = static_cast<ProjectFolder*>(projectItem->GetSourceItem()->GetProjectFolder());
+	ProjectFolder* project = projectItem->GetSourceItem()->GetProjectFolder();
 
 	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
 
@@ -1114,15 +1112,15 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
-		closePrj->AddPointer("project", (void*)project);
+		closePrj->AddPointer("project", project);
 		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"), closePrj);
 
 		BMessage* setActive = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
-		setActive->AddPointer("project", (void*)project);
+		setActive->AddPointer("project", project);
 		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"), setActive);
 
 		BMessage* projSettings = new BMessage(MSG_PROJECT_SETTINGS);
-		projSettings->AddPointer("project", (void*)project);
+		projSettings->AddPointer("project", project);
 		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
 			projSettings);
 

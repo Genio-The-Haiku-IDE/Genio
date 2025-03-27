@@ -92,120 +92,119 @@ SymbolListItem::_SetIconAndTooltip()
 {
 	SymbolKind symbolKind;
 	Details().FindInt32("kind", reinterpret_cast<int32*>(&symbolKind));
-	BString iconName;
 	BString toolTip;
 	switch (symbolKind) {
 		case SymbolKind::File:
-			iconName = "file";
+			fIconName = "file";
 			toolTip = B_TRANSLATE("File");
 			break;
 		case SymbolKind::Module:
-			iconName = "namespace";
+			fIconName = "namespace";
 			toolTip = B_TRANSLATE("Module");
 			break;
 		case SymbolKind::Namespace:
-			iconName = "namespace";
+			fIconName = "namespace";
 			toolTip = B_TRANSLATE("Namespace");
 			break;
 		case SymbolKind::Package:
-			iconName = "namespace";
+			fIconName = "namespace";
 			toolTip = B_TRANSLATE("Package");
 			break;
 		case SymbolKind::Class:
-			iconName = "class";
+			fIconName = "class";
 			toolTip = B_TRANSLATE("Class");
 			break;
 		case SymbolKind::Method:
-			iconName = "method";
+			fIconName = "method";
 			toolTip = B_TRANSLATE("Method");
 			break;
 		case SymbolKind::Property:
-			iconName = "property";
+			fIconName = "property";
 			toolTip = B_TRANSLATE("Property");
 			break;
 		case SymbolKind::Field:
-			iconName = "field";
+			fIconName = "field";
 			toolTip = B_TRANSLATE("Field");
 			break;
 		case SymbolKind::Constructor:
-			iconName = "method";
+			fIconName = "method";
 			toolTip = B_TRANSLATE("Constructor");
 			break;
 		case SymbolKind::Enum:
-			iconName = "enum";
+			fIconName = "enum";
 			toolTip = B_TRANSLATE("Enum");
 			break;
 		case SymbolKind::Interface:
-			iconName = "interface";
+			fIconName = "interface";
 			toolTip = B_TRANSLATE("Interface");
 			break;
 		case SymbolKind::Function:
-			iconName = "method";
+			fIconName = "method";
 			toolTip = B_TRANSLATE("Function");
 			break;
 		case SymbolKind::Variable:
-			iconName = "variable";
+			fIconName = "variable";
 			toolTip = B_TRANSLATE("Variable");
 			break;
 		case SymbolKind::Constant:
-			iconName = "constant";
+			fIconName = "constant";
 			toolTip = B_TRANSLATE("Constant");
 			break;
 		case SymbolKind::String:
-			iconName = "string";
+			fIconName = "string";
 			toolTip = B_TRANSLATE("String");
 			break;
 		case SymbolKind::Number:
-			iconName = "numeric";
+			fIconName = "numeric";
 			// TODO: is this correct ?
 			toolTip = "";
 			break;
 		case SymbolKind::Boolean:
-			iconName = "boolean";
+			fIconName = "boolean";
 			toolTip = B_TRANSLATE("Boolean");
 			break;
 		case SymbolKind::Array:
-			iconName = "array";
+			fIconName = "array";
 			toolTip = B_TRANSLATE("Array");
 			break;
 		case SymbolKind::Object:
-			iconName = "namespace";
+			fIconName = "namespace";
 			toolTip = B_TRANSLATE("Object");
 			break;
 		case SymbolKind::Key:
-			iconName = "key";
+			fIconName = "key";
 			toolTip = B_TRANSLATE("Key");
 			break;
 		case SymbolKind::Null: // icon unavailable
-			iconName = "misc";
+			fIconName = "misc";
 			toolTip = B_TRANSLATE("Null");
 			break;
 		case SymbolKind::EnumMember:
-			iconName = "enum-member";
+			fIconName = "enum-member";
 			toolTip = B_TRANSLATE("Enum member");
 			break;
 		case SymbolKind::Struct:
-			iconName = "structure";
+			fIconName = "structure";
 			toolTip = B_TRANSLATE("Structure");
 			break;
 		case SymbolKind::Event:
-			iconName = "event";
+			fIconName = "event";
 			toolTip = B_TRANSLATE("Event");
 			break;
 		case SymbolKind::Operator:
-			iconName = "operator";
+			fIconName = "operator";
 			toolTip = B_TRANSLATE("Operator");
 			break;
 		case SymbolKind::TypeParameter:
-			iconName = "parameter";
+			fIconName = "parameter";
 			toolTip = B_TRANSLATE("Type parameter");
 			break;
 		default:
 			break;
 	}
 
-	if (!iconName.IsEmpty())
-		fIconName = iconName.Prepend("symbol-");
+	if (!fIconName.IsEmpty())
+		fIconName = fIconName.Prepend("symbol-");
 
 	if (!toolTip.IsEmpty()) {
 		const BString detail  = Details().GetString("detail", "");
@@ -241,6 +240,7 @@ CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 }
 
 
+// SymbolOutlineListView
 class SymbolOutlineListView: public BOutlineListView {
 public:
 	SymbolOutlineListView(const char* name)

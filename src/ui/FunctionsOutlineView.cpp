@@ -12,10 +12,10 @@
 #include <LayoutBuilder.h>
 #include <NaturalCompare.h>
 #include <OutlineListView.h>
+#include <PopUpMenu.h>
 #include <ScrollView.h>
 #include <StringView.h>
 #include <Window.h>
-#include <PopUpMenu.h>
 
 #include "Editor.h"
 #include "EditorTabView.h"
@@ -47,7 +47,7 @@ public:
 			fDetails(details),
 			fIconName()
 		{
-			SetIconAndTooltip();
+			_SetIconAndTooltip();
 		}
 
 		BRect DrawIcon(BView* owner, const BRect& itemBounds,
@@ -61,7 +61,7 @@ public:
 			else
 				iconPrefix = "dark-";
 
-			BPoint iconStartingPoint(itemBounds.left + 4.0f,
+			const BPoint iconStartingPoint(itemBounds.left + 4.0f,
 				itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
 
 			BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
@@ -79,15 +79,16 @@ public:
 			return BRect(iconStartingPoint, BSize(iconSize, iconSize));
 		}
 		const BMessage& Details() const { return fDetails; }
-		void SetIconAndTooltip();
 private:
 		BMessage	fDetails;
 		BString		fIconName;
+
+		void _SetIconAndTooltip();
 };
 
 
 void
-SymbolListItem::SetIconAndTooltip()
+SymbolListItem::_SetIconAndTooltip()
 {
 	SymbolKind symbolKind;
 	Details().FindInt32("kind", reinterpret_cast<int32*>(&symbolKind));
@@ -223,8 +224,8 @@ CompareItems(const BListItem* itemA, const BListItem* itemB)
 	const SymbolListItem* A = static_cast<const SymbolListItem*>(itemA);
 	const SymbolListItem* B = static_cast<const SymbolListItem*>(itemB);
 
-	int32 lineA = A->Details().GetInt32("start:line", 0);
-	int32 lineB = B->Details().GetInt32("start:line", 0);
+	const int32 lineA = A->Details().GetInt32("start:line", 0);
+	const int32 lineB = B->Details().GetInt32("start:line", 0);
 
 	return lineA - lineB;
 }
@@ -248,7 +249,7 @@ public:
 	{
 	}
 
-	virtual void MouseMoved(BPoint point, uint32 transit, const BMessage* message)
+	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override
 	{
 		BOutlineListView::MouseMoved(point, transit, message);
 		if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
@@ -266,10 +267,10 @@ public:
 		}
 	}
 
-	virtual void MouseDown(BPoint where)
+	void MouseDown(BPoint where) override
 	{
 		int32 buttons = -1;
-		BMessage* message = Looper()->CurrentMessage();
+		const BMessage* message = Looper()->CurrentMessage();
 		if (message != NULL)
 			message->FindInt32("buttons", &buttons);
 
@@ -279,7 +280,7 @@ public:
 	}
 
 protected:
-	virtual void ExpandOrCollapse(BListItem* superItem, bool expand)
+	void ExpandOrCollapse(BListItem* superItem, bool expand) override
 	{
 		BOutlineListView::ExpandOrCollapse(superItem, expand);
 		SymbolListItem* item = dynamic_cast<SymbolListItem*>(superItem);
@@ -301,11 +302,12 @@ private:
 				return;
 
 			const BMessage symbol = item->Details();
-			Position position;
-			position.character = symbol.GetInt32("start:character", -1);
-			position.line = symbol.GetInt32("start:line", -1);
+			const Position position = {
+				symbol.GetInt32("start:character", -1),
+				symbol.GetInt32("start:line", -1)
+			};
 
-			auto optionsMenu = new BPopUpMenu("Options", false, false);
+			auto optionsMenu = new BPopUpMenu("Outline menu", false, false);
 			optionsMenu->AddItem(
 				new BMenuItem(B_TRANSLATE("Go to symbol"),
 					new GMessage{
@@ -328,10 +330,12 @@ private:
 };
 
 
+// FunctionsOutlineView
 FunctionsOutlineView::FunctionsOutlineView()
 	:
 	BView(B_TRANSLATE("Outline"), B_WILL_DRAW),
 	fListView(nullptr),
+	fScrollView(nullptr),
 	fToolBar(nullptr)
 {
 	fListView = new SymbolOutlineListView("listview");
@@ -500,7 +504,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
 
-	int32 status = msg.GetInt32("status", Editor::STATUS_UNKNOWN);
+	const int32 status = msg.GetInt32("status", Editor::STATUS_UNKNOWN);
 	switch (status) {
 		case Editor::STATUS_UNKNOWN:
 			fListView->MakeEmpty();
@@ -527,7 +531,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 	}
 	// Save the vertical scrolling value
 	BScrollBar* vertScrollBar = fScrollView->ScrollBar(B_VERTICAL);
-	float scrolledValue = vertScrollBar->Value();
+	const float scrolledValue = vertScrollBar->Value();
 
 	Window()->DisableUpdates();
 
@@ -599,7 +603,7 @@ status_t
 FunctionsOutlineView::_GoToSymbol(BMessage *msg)
 {
 	status_t status = B_ERROR;
-	int32 index = msg->GetInt32("index", -1);
+	const int32 index = msg->GetInt32("index", -1);
 	if (index > -1) {
 		SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemAt(index));
 		if (sym != nullptr) {

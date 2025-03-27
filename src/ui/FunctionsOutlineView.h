@@ -18,18 +18,17 @@ public:
 		BString name;
 		int32 kind;
 	};
-				FunctionsOutlineView();
+			FunctionsOutlineView();
 
-	virtual		void	AttachedToWindow();
-	virtual		void	DetachedFromWindow();
-	virtual		void	MessageReceived(BMessage* msg);
+	void	AttachedToWindow() override;
+	void	DetachedFromWindow() override;
+	void	MessageReceived(BMessage* msg) override;
 
 	void	SelectSymbolByCaretPosition(int32 position);
 
 private:
 	BListItem*  _RecursiveSymbolByCaretPosition(int32 position, BListItem* parent);
-	void        _UpdateDocumentSymbols(const BMessage& msg,
-									const entry_ref* ref);
+	void        _UpdateDocumentSymbols(const BMessage& msg, const entry_ref* ref);
 	void	    _RecursiveAddSymbols(BListItem* parent, const BMessage* msg);
     status_t    _GoToSymbol(BMessage *msg);
 	void        _RenameSymbol(BMessage *msg);

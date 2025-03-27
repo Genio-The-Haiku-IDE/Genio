@@ -194,14 +194,6 @@ GenioWindow::GenioWindow(BRect frame)
 
 	_UpdateTabChange(nullptr, "GenioWindow");
 
-
-	// TODO: we use ALT+N (where N is 1-9) to switch tab (like Web+), and CTRL+LEFT/RIGHT to switch
-	// to previous/next. Too bad ALT+LEFT/RIGHT are already taken. Maybe we should change to
-	// CTRL+N (but should be changed in Web+, too)
-	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_PREVIOUS_SELECTED, B_LEFT_ARROW,
-		B_CONTROL_KEY));
-	AddCommonFilter(new KeyDownMessageFilter(MSG_FILE_NEXT_SELECTED, B_RIGHT_ARROW,
-		B_CONTROL_KEY));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_ESCAPE_KEY, B_ESCAPE, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new KeyDownMessageFilter(MSG_TOOLBAR_INVOKED, B_ENTER, 0, B_DISPATCH_MESSAGE));
 	AddCommonFilter(new EditorMessageFilter(B_KEY_DOWN, &Editor::BeforeKeyDown));
@@ -2889,11 +2881,16 @@ GenioWindow::_InitActions()
 									B_TRANSLATE("Read-only"),
 									B_TRANSLATE("Make file read-only"), "kIconLocked");
 
-	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, "",
-									B_TRANSLATE("Switch to previous file"), "kIconBack_1");
+	// TODO: we use ALT+N (where N is 1-9) to switch tab (like Web+), and CTRL+LEFT/RIGHT to switch
+	// to previous/next. Too bad ALT+LEFT/RIGHT are already taken. Maybe we should change to
+	// CTRL+N (but should be changed in Web+, too)
+	ActionManager::RegisterAction(MSG_FILE_PREVIOUS_SELECTED, B_TRANSLATE("Go to previous tab"),
+									B_TRANSLATE("Go to previous tab"), "",
+									B_LEFT_ARROW, B_CONTROL_KEY);
 
-	ActionManager::RegisterAction(MSG_FILE_NEXT_SELECTED, "",
-									B_TRANSLATE("Switch to next file"), "kIconForward_2");
+	ActionManager::RegisterAction(MSG_FILE_NEXT_SELECTED, B_TRANSLATE("Go to next tab"),
+									B_TRANSLATE("Go to next tab"), "",
+									B_RIGHT_ARROW, B_CONTROL_KEY);
 
 	// Find Panel
 	ActionManager::RegisterAction(MSG_FIND_NEXT,
@@ -3271,7 +3268,14 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
 	ActionManager::AddItem(MSG_TOGGLE_STATUSBAR, submenu);
 	windowMenu->AddItem(submenu);
+
 	windowMenu->AddSeparatorItem();
+
+	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, windowMenu);
+	ActionManager::AddItem(MSG_FILE_NEXT_SELECTED, windowMenu);
+
+	windowMenu->AddSeparatorItem();
+
 	ActionManager::AddItem(MSG_FULLSCREEN, windowMenu);
 	ActionManager::AddItem(MSG_FOCUS_MODE, windowMenu);
 	fMenuBar->AddItem(windowMenu);

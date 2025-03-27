@@ -184,6 +184,7 @@ private:
 			BMenuItem*			fMakeBindcatalogsItem;
 
 			BMenu*				fSetActiveProjectMenuItem;
+			BMenu*				fOpenFilesMenu;
 
 			BMenu*				fGitMenu;
 			BMenuItem*			fGitBranchItem;

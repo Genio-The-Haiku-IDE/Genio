@@ -291,7 +291,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	circleRect.right = circleRect.left + owner->StringWidth(Text()) + 5;
 	owner->FillRoundRect(circleRect, 9, 10);
 
-	owner->SetHighColor(oldColor);
+	//
 
 	// TODO: this part is quite computationally intensive
 	// and shoud be moved away from the DrawItem.
@@ -306,7 +306,10 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	} catch (const Genio::Git::GitException &ex) {
 	}
 
+	owner->SetHighColor(GetTextColorByBackgroundLuminance(projectFolder->Color()));
 	DrawText(owner, Text(), ExtraText(), textPoint);
+
+	owner->SetHighColor(oldColor);
 
 	if (projectFolder->IsBuilding()) {
 		_DrawBuildIndicator(owner, bounds);

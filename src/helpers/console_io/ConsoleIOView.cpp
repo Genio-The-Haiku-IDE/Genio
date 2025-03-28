@@ -70,7 +70,10 @@ ConsoleIOView::ConsoleIOView(const BString& name, const BMessenger& target)
 ConsoleIOView::~ConsoleIOView()
 {
 	_StopThreads();
-	delete fPendingOutput;
+	if (fPendingOutput) {
+		fPendingOutput->clear();
+		delete fPendingOutput;
+	}
 }
 
 status_t
@@ -301,11 +304,7 @@ ConsoleIOView::TextView()
 void
 ConsoleIOView::_Init()
 {
-#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
-	fPendingOutput = new OutputInfoList(1);
-#else
-	fPendingOutput = new OutputInfoList(1, true);
-#endif
+	fPendingOutput = new OutputInfoList();
 
 	fConsoleIOText = new WordTextView("console_io");
 	fConsoleIOText->SetStylable(true);

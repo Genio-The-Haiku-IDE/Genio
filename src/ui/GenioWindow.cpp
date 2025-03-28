@@ -475,8 +475,8 @@ GenioWindow::MessageReceived(BMessage* message)
 				BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 				noticeMessage.AddBool("building", false);
 				noticeMessage.AddString("cmd_type", cmdType.String());
-				// TODO: this is not correct: if we start building a project, then 
-				// change the active project while building, the notification will go to 
+				// TODO: this is not correct: if we start building a project, then
+				// change the active project while building, the notification will go to
 				// the wrong project (the currently active one)
 				noticeMessage.AddString("project_name", GetActiveProject()->Name());
 				noticeMessage.AddInt32("status", message->GetInt32("status", B_OK));
@@ -1598,7 +1598,8 @@ GenioWindow::_BuildProject()
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
-	_ShowOutputTab(kTabBuildLog);
+	if (gCFG["show_build_panel"])
+		_ShowOutputTab(kTabBuildLog);
 
 	LogInfoF("Build started: [%s]", GetActiveProject()->Name().String());
 

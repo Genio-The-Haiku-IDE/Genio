@@ -467,6 +467,7 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 		"A separating line inserted at the start and end of a command output in the console. Short as possible."), true);
 	cfg.AddConfig(build.String(), "build_on_save", B_TRANSLATE("Auto-Build on resource save"), false);
 	cfg.AddConfig(build.String(), "save_on_build", B_TRANSLATE("Auto-Save changed files when building"), false);
+	cfg.AddConfig(build.String(), "show_build_panel", B_TRANSLATE("Force showing Build log panel when building"), true);
 
 	BString editorFind = editor;
 	editorFind.Append("/").Append(B_TRANSLATE("Find"));

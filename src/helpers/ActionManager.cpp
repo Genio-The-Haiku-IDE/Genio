@@ -7,6 +7,7 @@
 #include "ActionManager.h"
 
 #include <Button.h>
+#include <vector>
 
 #include "ObjectList.h"
 #include "ToolBar.h"
@@ -23,8 +24,8 @@ public:
 	bool	enabled;
 	bool	pressed;
 
-	BObjectList<BMenuItem>	menuItemList;
-	BObjectList<ToolBar>	toolBarList;
+	std::vector<BMenuItem*>	menuItemList;
+	std::vector<ToolBar*>	toolBarList;
 };
 
 
@@ -74,7 +75,7 @@ ActionManager::AddItem(int32 msgWhat, BMenu* menu, BMessage* extraFields)
 	menu->AddItem(item);
 	item->SetEnabled(action->enabled);
 	item->SetMarked(action->pressed);
-	action->menuItemList.AddItem(item);
+	action->menuItemList.push_back(item);
 	return B_OK;
 }
 
@@ -93,7 +94,7 @@ ActionManager::AddItem(int32 msgWhat, ToolBar* bar, BMessage* extraFields)
 	bar->AddAction(extraFields, action->toolTip, action->iconResourceName, true);
 	bar->SetActionEnabled(msgWhat, action->enabled);
 	bar->SetActionPressed(msgWhat, action->pressed);
-	action->toolBarList.AddItem(bar);
+	action->toolBarList.push_back(bar);
 	return B_OK;
 }
 
@@ -107,10 +108,10 @@ ActionManager::SetEnabled(int32 msgWhat, bool enabled)
 	Action* action = sInstance.fActionMap[msgWhat];
 	action->enabled = enabled;
 
-	for (int32 i = 0; i < action->menuItemList.CountItems(); i++)
-		action->menuItemList.ItemAt(i)->SetEnabled(enabled);
-	for (int32 i = 0; i < action->toolBarList.CountItems(); i++)
-		action->toolBarList.ItemAt(i)->SetActionEnabled(msgWhat, enabled);
+	for (auto menuItem : action->menuItemList)
+		menuItem->SetEnabled(enabled);
+	for (auto toolBar : action->toolBarList)
+		toolBar->SetActionEnabled(msgWhat, enabled);
 
 	return B_OK;
 }
@@ -125,11 +126,10 @@ ActionManager::SetPressed(int32 msgWhat, bool pressed)
 	Action* action = sInstance.fActionMap[msgWhat];
 	action->pressed = pressed;
 
-	for (int32 i = 0; i < action->menuItemList.CountItems(); i++)
-		action->menuItemList.ItemAt(i)->SetMarked(pressed);
-
-	for (int32 i = 0; i < action->toolBarList.CountItems(); i++)
-		action->toolBarList.ItemAt(i)->SetActionPressed(msgWhat, pressed);
+	for (auto menuItem : action->menuItemList)
+		menuItem->SetMarked(pressed);
+	for (auto toolBar : action->toolBarList)
+		toolBar->SetActionPressed(msgWhat, pressed);
 
 	return B_OK;
 
@@ -145,8 +145,8 @@ ActionManager::SetToolTip(int32 msgWhat, const char* tooltip)
 	Action* action = sInstance.fActionMap[msgWhat];
 	action->toolTip = tooltip;
 
-	for (int32 i = 0; i < action->toolBarList.CountItems(); i++) {
-		BButton* button = action->toolBarList.ItemAt(i)->FindButton(msgWhat);
+	for (auto toolBar : action->toolBarList) {
+		BButton* button = toolBar->FindButton(msgWhat);
 		if (button)
 			button->SetToolTip(action->toolTip);
 	}
@@ -185,9 +185,9 @@ ActionManager::GetMessage(int32 msgWhat, BMenu* menu)
 		return nullptr;
 
 	Action* action = sInstance.fActionMap[msgWhat];
-	for (int32 i = 0; i < action->menuItemList.CountItems(); i++)
-		if (action->menuItemList.ItemAt(i)->Menu() == menu)
-			return action->menuItemList.ItemAt(i)->Message();
+	for (auto menuItem : action->menuItemList)
+		if (menuItem->Menu() == menu)
+			return menuItem->Message();
 
 	return nullptr;
 }

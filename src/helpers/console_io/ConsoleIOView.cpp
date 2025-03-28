@@ -141,7 +141,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 		case MSG_CLEAR_OUTPUT:
 		{
 			fConsoleIOText->SetText("");
-			fPendingOutput->MakeEmpty();
+			fPendingOutput->clear();
 
 			// Used to reload settings too
 			SetWordWrap(gCFG["wrap_console"]);
@@ -151,12 +151,15 @@ ConsoleIOView::MessageReceived(BMessage* message)
 		}
 		case MSG_POST_OUTPUT:
 		{
-			OutputInfo* info = fPendingOutput->RemoveItemAt(0);
-			if (info == nullptr)
+			auto it = fPendingOutput->begin();
+
+			if (it == fPendingOutput->end())
 				break;
 
-			ObjectDeleter<OutputInfo> infoDeleter(info);
-			_HandleConsoleOutput(info);
+			_HandleConsoleOutput((*it).get());
+
+			fPendingOutput->erase(it);
+
 			break;
 		}
 		case MSG_RUN_PROCESS:
@@ -267,14 +270,7 @@ ConsoleIOView::ConsoleOutputReceived(int32 fd, const BString& output)
 	else if (fd == 2 && fStderrEnabled->Value() != B_CONTROL_ON)
 		return;
 
-	OutputInfo* info = new(std::nothrow) OutputInfo(fd, output);
-	if (info == nullptr)
-		return;
-
-	ObjectDeleter<OutputInfo> infoDeleter(info);
-	if (fPendingOutput->AddItem(info)) {
-		infoDeleter.Detach();
-	}
+	fPendingOutput->push_back(std::make_unique<OutputInfo>(fd, output));
 
 	BMessenger(this).SendMessage(MSG_POST_OUTPUT);
 }

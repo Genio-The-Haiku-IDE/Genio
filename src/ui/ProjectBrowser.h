@@ -5,9 +5,8 @@
 #pragma once
 
 #include <View.h>
-
-#include <ObjectList.h>
-
+#include "ProjectItem.h"
+#include "ProjectFolder.h"
 
 enum {
 	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
@@ -24,8 +23,6 @@ enum {
 };
 
 class ProjectOutlineListView;
-class ProjectFolder;
-class ProjectItem;
 class GenioWatchingFilter;
 
 class ProjectBrowser : public BView {
@@ -51,7 +48,7 @@ public:
 	ProjectFolder*	ProjectAt(int32 index) const;
 	ProjectFolder*	ProjectByPath(const BString& fullPath) const;
 
-	const 			BObjectList<ProjectFolder>* GetProjectList() const;
+	const 			ProjectFolderList* GetProjectList() const;
 
 	void			SelectProjectAndScroll(const ProjectFolder*);
 
@@ -85,7 +82,6 @@ private:
 	ProjectOutlineListView*	fOutlineListView;
 	GenioWatchingFilter*	fGenioWatchingFilter;
 
-	//TODO: remove this and use a std::vector<std::pair or similar.
-	BObjectList<ProjectFolder>	fProjectList;
-	BObjectList<ProjectItem>	fProjectProjectItemList;
+	ProjectFolderList	fProjectList;
+	ProjectItemList		fProjectProjectItemList;
 };

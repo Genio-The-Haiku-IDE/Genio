@@ -12,6 +12,8 @@
 #include <GroupView.h>
 #include <Messenger.h>
 #include <ObjectList.h>
+#include <memory>
+#include <vector>
 
 class BButton;
 class BCheckBox;
@@ -39,11 +41,9 @@ public:
 
 private:
 			struct OutputInfo;
-#if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
-			typedef BObjectList<OutputInfo, true> OutputInfoList;
-#else
-			typedef BObjectList<OutputInfo> OutputInfoList;
-#endif
+
+			typedef std::vector<std::unique_ptr<OutputInfo>> OutputInfoList;
+
 private:
 			void				_Init();
 			void				_HandleConsoleOutput(OutputInfo* info);

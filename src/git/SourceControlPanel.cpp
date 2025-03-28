@@ -271,7 +271,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					BString key;
 					if (message->FindString("key", &key) == B_OK
 						&& key == "repository_outline") {
-						if (!fProjectList->IsEmpty()) {
+						if (!fProjectList->empty()) {
 							_UpdateBranchList(false);
 							_UpdateRepositoryView();
 						}
@@ -283,7 +283,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
 						fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
-						if (fProjectList->IsEmpty()) {
+						if (fProjectList->empty()) {
 							fProjectMenu->MakeEmpty();
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
@@ -298,13 +298,13 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
 						ProjectFolder* project = gMainWindow->GetActiveProject();
 						fSelectedProjectPath = project ? project->Path() : "";
-						if (!fProjectList->IsEmpty())
+						if (!fProjectList->empty())
 							_UpdateProjectList();
 						break;
 					}
 					case B_PATH_MONITOR:
 					{
-						if (fProjectList->IsEmpty())
+						if (fProjectList->empty())
 							break;
 
 						ProjectFolder* selected = _GetSelectedProject();

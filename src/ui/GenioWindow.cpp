@@ -33,6 +33,7 @@
 #include <StringItem.h>
 
 #include "ActionManager.h"
+#include "CircleColorMenuItem.h"
 #include "argv_split.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
@@ -480,8 +481,8 @@ GenioWindow::MessageReceived(BMessage* message)
 				BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 				noticeMessage.AddBool("building", false);
 				noticeMessage.AddString("cmd_type", cmdType.String());
-				// TODO: this is not correct: if we start building a project, then 
-				// change the active project while building, the notification will go to 
+				// TODO: this is not correct: if we start building a project, then
+				// change the active project while building, the notification will go to
 				// the wrong project (the currently active one)
 				noticeMessage.AddString("project_name", GetActiveProject()->Name());
 				noticeMessage.AddInt32("status", message->GetInt32("status", B_OK));
@@ -1232,12 +1233,20 @@ GenioWindow::MenusBeginning()
 	}
 
 	// Build "Open files" menu
+	int count = 1;
 	fTabManager->ForEachEditor([&](Editor* editor) {
 		BMessage* refsMessage = new BMessage(B_REFS_RECEIVED);
 		refsMessage->AddRef("refs", editor->FileRef());
-		BMenuItem* item = new BMenuItem(editor->Name(), refsMessage);
-		fOpenFilesMenu->AddItem(item);
 
+		rgb_color color = ui_color(B_PANEL_BACKGROUND_COLOR);
+		if (editor->GetProjectFolder())
+			color = editor->GetProjectFolder()->Color();
+
+		BMenuItem* item = new CircleColorMenuItem(editor->Name(), color, refsMessage);
+		if (count < 10)
+			item->SetShortcut('0' + count, B_COMMAND_KEY);
+		fOpenFilesMenu->AddItem(item);
+		count++;
 		return true;
 	});
 

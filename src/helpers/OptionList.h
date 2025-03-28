@@ -113,9 +113,7 @@ namespace Genio::UI {
 							const auto& set_mark_lambda = nullptr)
 		{
 			LogInfo("AddList command:%d", command);
-			auto count = list->CountItems();
-			for (int index = 0; index < count; index++) {
-				T element = list->ItemAt(index);
+			for (T element : *list) {
 				auto name = get_name_lambda(element);
 				if constexpr (std::is_same<BString, T>::value) {
 					LogInfo("AddList name:%s value:%s", name.String(), ((BString)element).String());
@@ -124,6 +122,11 @@ namespace Genio::UI {
 				}
 				AddItem(name, element, command, invokeItemMessage, set_mark_lambda(element));
 			}
+			/*auto count = list->size();
+			for (int index = 0; index < count; index++) {
+				T element = list->ItemAt(index);
+
+			}*/
 		}
 
 		void SetTarget(BHandler *handler)

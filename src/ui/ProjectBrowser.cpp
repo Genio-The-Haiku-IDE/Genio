@@ -8,7 +8,7 @@
 
 #include <cassert>
 #include <cstdio>
-
+#include <algorithm>
 #include <Catalog.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
@@ -422,8 +422,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		case kTick:
 		{
 			ProjectTitleItem::TickAnimation();
-			for (int32 i = 0; i != fProjectProjectItemList.CountItems(); i++) {
-				ProjectItem* titleItem = fProjectProjectItemList.ItemAt(i);
+			for(ProjectItem* titleItem: fProjectProjectItemList) {
 				if (titleItem->GetSourceItem()->GetProjectFolder()->IsBuilding()) {
 					int32 itemIndex = fOutlineListView->IndexOf(titleItem);
 					fOutlineListView->InvalidateItem(itemIndex);
@@ -591,11 +590,11 @@ ProjectBrowser::GetSelectedProjectItem() const
 ProjectItem*
 ProjectBrowser::GetProjectItemForProject(const ProjectFolder* folder) const
 {
-	assert(fProjectProjectItemList.CountItems() == CountProjects());
+	assert(fProjectProjectItemList.size() == (size_t)CountProjects());
 
 	for (int32 i = 0; i < CountProjects(); i++) {
 		if (ProjectAt(i) == folder)
-			return fProjectProjectItemList.ItemAt(i);
+			return fProjectProjectItemList[i];
 	}
 	return nullptr;
 }
@@ -743,8 +742,15 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	else
 		LogErrorF("Can't find ProjectItem for path [%s]", projectPath.String());
 
-	fProjectProjectItemList.RemoveItem(listItem);
-	fProjectList.RemoveItem(project);
+	auto it = std::find(fProjectProjectItemList.begin(), fProjectProjectItemList.end(), listItem);
+	if (it != fProjectProjectItemList.end()) {
+		fProjectProjectItemList.erase(it);
+	}
+
+	auto it2 = std::find(fProjectList.begin(), fProjectList.end(), project);
+	if (it2 != fProjectList.end()) {
+		fProjectList.erase(it2);
+	}
 
 	if (fOutlineListView->CountItems() == 0)
 		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(1));
@@ -768,8 +774,8 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 
 	assert(projectItem && project);
 
-	fProjectList.AddItem(project);
-	fProjectProjectItemList.AddItem(projectItem);
+	fProjectList.push_back(project);
+	fProjectProjectItemList.push_back(projectItem);
 
 	Invalidate();
 	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
@@ -840,14 +846,14 @@ ProjectBrowser::InitRename(ProjectItem *item)
 int32
 ProjectBrowser::CountProjects() const
 {
-	return fProjectList.CountItems();
+	return fProjectList.size();
 }
 
 
 ProjectFolder*
 ProjectBrowser::ProjectAt(int32 index) const
 {
-	return fProjectList.ItemAt(index);
+	return fProjectList[index];
 }
 
 
@@ -911,7 +917,7 @@ ProjectBrowser::SelectItemByRef(const ProjectFolder* project, const entry_ref& r
 }
 
 
-const BObjectList<ProjectFolder>*
+const ProjectFolderList*
 ProjectBrowser::GetProjectList() const
 {
 	return &fProjectList;

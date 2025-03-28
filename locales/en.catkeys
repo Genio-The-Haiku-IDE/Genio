@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	1303585266
+1	English	application/x-vnd.Genio	1946150509
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
 Enable brace matching	SettingsWindow		Enable brace matching
 Clear	ConsoleIOView		Clear
@@ -10,7 +10,6 @@ Show toolbar	GenioWindow		Show toolbar
 Project settings…	ProjectsFolderBrowser		Project settings…
 development	Utilities		development
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
-Show outline pane	GenioWindow		Show outline pane
 Replace selection	GenioWindow		Replace selection
 Focus mode	GenioWindow		Focus mode
 URL:	RemoteProjectWindow		URL:
@@ -38,6 +37,7 @@ Show/Hide find bar	GenioWindow		Show/Hide find bar
 Status	GenioWindow	The git command	Status
 Choose project…	SearchResultTab		Choose project…
 Build log	GenioWindow		Build log
+Show left pane	SettingsWindow		Show left pane
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
 Editor style:	SettingsWindow		Editor style:
 beta	Utilities		beta
@@ -67,10 +67,12 @@ Read-only	GenioWindow		Read-only
 Delete file	ProjectsFolderBrowser		Delete file
 Help…	GenioWindow		Help…
 Fetch	SourceControlPanel		Fetch
+Show right pane	SettingsWindow		Show right pane
 Wrap	TermView	As in wrapping long lines. Short as possible.	Wrap
 Color:	ProjectSettingsWindow		Color:
 Release	ProjectSettingsWindow		Release
-Show info pane	SettingsWindow		Show info pane
+Go forward	GenioWindow		Go forward
+Go back	GenioWindow		Go back
 Find	GenioWindow		Find
 CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
 Discard	GenioWindow		Discard
@@ -93,8 +95,10 @@ Rename branch	SourceControlPanel		Rename branch
 Operator	FunctionsOutlineView		Operator
 OK	GTextAlert		OK
 Open remote Git project	RemoteProjectWindow		Open remote Git project
+Show/Hide bottom pane	GenioWindow		Show/Hide bottom pane
 General	SettingsWindow		General
 Browse…	RemoteProjectWindow		Browse…
+Show right pane	GenioWindow		Show right pane
 Delete	GenioWindow		Delete
 Message	ProblemsPanel		Message
 Rename \"%selected_branch%\"	SourceControlPanel		Rename \"%selected_branch%\"
@@ -106,7 +110,6 @@ Constructor	FunctionsOutlineView		Constructor
 Enum	FunctionsOutlineView		Enum
 Run	ProjectSettingsWindow		Run
 Switch to next file	GenioWindow		Switch to next file
-Show projects pane	GenioWindow		Show projects pane
 Log destination:	SettingsWindow		Log destination:
 Reload projects	SettingsWindow		Reload projects
 Package	FunctionsOutlineView		Package
@@ -119,12 +122,12 @@ Stash apply changes	SourceControlPanel		Stash apply changes
 Version	Utilities		Version
 Finished building project '\"%project%\"'	GlobalStatusView		Finished building project '\"%project%\"'
 Open remote project…	GenioWindow		Open remote project…
+Show left pane	GenioWindow		Show left pane
 Search	GenioWindow		Search
 Creating outline	FunctionsOutlineView		Creating outline
 Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
-Show info pane	GenioWindow		Show info pane
-Show/Hide projects pane	GenioWindow		Show/Hide projects pane
 Reset zoom	GenioWindow		Reset zoom
+Show bottom pane	SettingsWindow		Show bottom pane
 Stop	ConsoleIOView		Stop
 Variable	FunctionsOutlineView		Variable
 Show line endings	SettingsWindow		Show line endings
@@ -141,8 +144,8 @@ Auto-Build on resource save	SettingsWindow		Auto-Build on resource save
 Visuals	SettingsWindow		Visuals
 Cancel	Editor		Cancel
 Init repository	SourceControlPanel		Init repository
-Close other	GenioWindow		Close other
 Rename folder	ProjectsFolderBrowser		Rename folder
+Close other	GenioWindow		Close other
 Delete current line	GenioWindow		Delete current line
 Tools	GenioWindow		Tools
 Do you want to set a starting index?	Editor		Do you want to set a starting index?
@@ -189,6 +192,7 @@ File \"%file%\" was apparently removed.\nDo you want to keep the file or discard
 Delete dialog	GenioWindow		Delete dialog
 Convert tabs to spaces	SettingsWindow		Convert tabs to spaces
 Project:	SourceControlPanel		Project:
+Show bottom pane	GenioWindow		Show bottom pane
 About…	GenioWindow		About…
 Create initial commit	SourceControlPanel		Create initial commit
 Close	GenioWindow		Close
@@ -225,17 +229,17 @@ Switch to branch	GenioWindow		Switch to branch
 Problems	ProblemsPanel		Problems
 Tab width:	SettingsWindow		Tab width:
 Line endings	GenioWindow		Line endings
+Show/Hide left pane	GenioWindow		Show/Hide left pane
 Building project '\"%project%\"'…	GlobalStatusView		Building project '\"%project%\"'…
 Editor zoom:	SettingsWindow		Editor zoom:
 OK	GoToLineWindow		OK
-Show/Hide info pane	GenioWindow		Show/Hide info pane
 New folder	TemplateManager		New folder
+Show/Hide right pane	GenioWindow		Show/Hide right pane
 Continue	RemoteProjectWindow		Continue
 Startup	SettingsWindow		Startup
 Close file	GenioWindow		Close file
 Namespace	FunctionsOutlineView		Namespace
 Find previous	GenioWindow		Find previous
-Show projects pane	SettingsWindow		Show projects pane
 Active	EditorTabManager		Active
 Failed building project '\"%project%\"'	GlobalStatusView		Failed building project '\"%project%\"'
 Console I/O	GenioWindow		Console I/O
@@ -352,7 +356,6 @@ Cancel	GoToLineWindow		Cancel
 Appearance	GenioWindow		Appearance
 Array	FunctionsOutlineView		Array
 Show in projects browser	GenioWindow		Show in projects browser
-Show/Hide outline pane	GenioWindow		Show/Hide outline pane
 Switch to branch	ProjectsFolderBrowser		Switch to branch
 File	GenioWindow		File
 Show folding margin	SettingsWindow		Show folding margin
@@ -375,7 +378,6 @@ Close project	ProjectsFolderBrowser		Close project
 Format	GenioWindow		Format
 Default font	SettingsWindow		Default font
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
-Show outline pane	SettingsWindow		Show outline pane
 Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
 Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
 New	GenioWindow		New
@@ -405,6 +407,7 @@ File deleted from index	GitRepository		File deleted from index
 Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Console banner
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Find next	GenioWindow		Find next
+No LSP file status information	EditorStatusView		No LSP file status information
 The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
 OK	Utilities		OK
 Location	SearchResultPanel		Location

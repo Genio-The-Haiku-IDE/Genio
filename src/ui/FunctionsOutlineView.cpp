@@ -12,10 +12,10 @@
 #include <LayoutBuilder.h>
 #include <NaturalCompare.h>
 #include <OutlineListView.h>
+#include <PopUpMenu.h>
 #include <ScrollView.h>
 #include <StringView.h>
 #include <Window.h>
-#include <PopUpMenu.h>
 
 #include "Editor.h"
 #include "EditorTabView.h"
@@ -47,7 +47,7 @@ public:
 			fDetails(details),
 			fIconName()
 		{
-			SetIconAndTooltip();
+			_SetIconAndTooltip();
 		}
 
 		BRect DrawIcon(BView* owner, const BRect& itemBounds,
@@ -61,7 +61,7 @@ public:
 			else
 				iconPrefix = "dark-";
 
-			BPoint iconStartingPoint(itemBounds.left + 4.0f,
+			const BPoint iconStartingPoint(itemBounds.left + 4.0f,
 				itemBounds.top + (itemBounds.Height() - iconSize) / 2.0f);
 
 			BBitmap* icon = new BBitmap(BRect(iconSize - 1.0f), 0, B_RGBA32);
@@ -79,132 +79,132 @@ public:
 			return BRect(iconStartingPoint, BSize(iconSize, iconSize));
 		}
 		const BMessage& Details() const { return fDetails; }
-		void SetIconAndTooltip();
 private:
 		BMessage	fDetails;
 		BString		fIconName;
+
+		void _SetIconAndTooltip();
 };
 
 
 void
-SymbolListItem::SetIconAndTooltip()
+SymbolListItem::_SetIconAndTooltip()
 {
 	SymbolKind symbolKind;
 	Details().FindInt32("kind", reinterpret_cast<int32*>(&symbolKind));
-	BString iconName;
 	BString toolTip;
 	switch (symbolKind) {
 		case SymbolKind::File:
-			iconName = "file";
+			fIconName = "file";
 			toolTip = B_TRANSLATE("File");
 			break;
 		case SymbolKind::Module:
-			iconName = "namespace";
+			fIconName = "namespace";
 			toolTip = B_TRANSLATE("Module");
 			break;
 		case SymbolKind::Namespace:
-			iconName = "namespace";
+			fIconName = "namespace";
 			toolTip = B_TRANSLATE("Namespace");
 			break;
 		case SymbolKind::Package:
-			iconName = "namespace";
+			fIconName = "namespace";
 			toolTip = B_TRANSLATE("Package");
 			break;
 		case SymbolKind::Class:
-			iconName = "class";
+			fIconName = "class";
 			toolTip = B_TRANSLATE("Class");
 			break;
 		case SymbolKind::Method:
-			iconName = "method";
+			fIconName = "method";
 			toolTip = B_TRANSLATE("Method");
 			break;
 		case SymbolKind::Property:
-			iconName = "property";
+			fIconName = "property";
 			toolTip = B_TRANSLATE("Property");
 			break;
 		case SymbolKind::Field:
-			iconName = "field";
+			fIconName = "field";
 			toolTip = B_TRANSLATE("Field");
 			break;
 		case SymbolKind::Constructor:
-			iconName = "method";
+			fIconName = "method";
 			toolTip = B_TRANSLATE("Constructor");
 			break;
 		case SymbolKind::Enum:
-			iconName = "enum";
+			fIconName = "enum";
 			toolTip = B_TRANSLATE("Enum");
 			break;
 		case SymbolKind::Interface:
-			iconName = "interface";
+			fIconName = "interface";
 			toolTip = B_TRANSLATE("Interface");
 			break;
 		case SymbolKind::Function:
-			iconName = "method";
+			fIconName = "method";
 			toolTip = B_TRANSLATE("Function");
 			break;
 		case SymbolKind::Variable:
-			iconName = "variable";
+			fIconName = "variable";
 			toolTip = B_TRANSLATE("Variable");
 			break;
 		case SymbolKind::Constant:
-			iconName = "constant";
+			fIconName = "constant";
 			toolTip = B_TRANSLATE("Constant");
 			break;
 		case SymbolKind::String:
-			iconName = "string";
+			fIconName = "string";
 			toolTip = B_TRANSLATE("String");
 			break;
 		case SymbolKind::Number:
-			iconName = "numeric";
+			fIconName = "numeric";
 			// TODO: is this correct ?
 			toolTip = "";
 			break;
 		case SymbolKind::Boolean:
-			iconName = "boolean";
+			fIconName = "boolean";
 			toolTip = B_TRANSLATE("Boolean");
 			break;
 		case SymbolKind::Array:
-			iconName = "array";
+			fIconName = "array";
 			toolTip = B_TRANSLATE("Array");
 			break;
 		case SymbolKind::Object:
-			iconName = "namespace";
+			fIconName = "namespace";
 			toolTip = B_TRANSLATE("Object");
 			break;
 		case SymbolKind::Key:
-			iconName = "key";
+			fIconName = "key";
 			toolTip = B_TRANSLATE("Key");
 			break;
 		case SymbolKind::Null: // icon unavailable
-			iconName = "misc";
+			fIconName = "misc";
 			toolTip = B_TRANSLATE("Null");
 			break;
 		case SymbolKind::EnumMember:
-			iconName = "enum-member";
+			fIconName = "enum-member";
 			toolTip = B_TRANSLATE("Enum member");
 			break;
 		case SymbolKind::Struct:
-			iconName = "structure";
+			fIconName = "structure";
 			toolTip = B_TRANSLATE("Structure");
 			break;
 		case SymbolKind::Event:
-			iconName = "event";
+			fIconName = "event";
 			toolTip = B_TRANSLATE("Event");
 			break;
 		case SymbolKind::Operator:
-			iconName = "operator";
+			fIconName = "operator";
 			toolTip = B_TRANSLATE("Operator");
 			break;
 		case SymbolKind::TypeParameter:
-			iconName = "parameter";
+			fIconName = "parameter";
 			toolTip = B_TRANSLATE("Type parameter");
 			break;
 		default:
 			break;
 	}
 
-	if (!iconName.IsEmpty())
-		fIconName = iconName.Prepend("symbol-");
+	if (!fIconName.IsEmpty())
+		fIconName = fIconName.Prepend("symbol-");
 
 	if (!toolTip.IsEmpty()) {
 		const BString detail  = Details().GetString("detail", "");
@@ -223,8 +223,8 @@ CompareItems(const BListItem* itemA, const BListItem* itemB)
 	const SymbolListItem* A = static_cast<const SymbolListItem*>(itemA);
 	const SymbolListItem* B = static_cast<const SymbolListItem*>(itemB);
 
-	int32 lineA = A->Details().GetInt32("start:line", 0);
-	int32 lineB = B->Details().GetInt32("start:line", 0);
+	const int32 lineA = A->Details().GetInt32("start:line", 0);
+	const int32 lineB = B->Details().GetInt32("start:line", 0);
 
 	return lineA - lineB;
 }
@@ -240,6 +240,7 @@ CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 }
 
 
+// SymbolOutlineListView
 class SymbolOutlineListView: public BOutlineListView {
 public:
 	SymbolOutlineListView(const char* name)
@@ -248,7 +249,7 @@ public:
 	{
 	}
 
-	virtual void MouseMoved(BPoint point, uint32 transit, const BMessage* message)
+	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override
 	{
 		BOutlineListView::MouseMoved(point, transit, message);
 		if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
@@ -266,10 +267,10 @@ public:
 		}
 	}
 
-	virtual void MouseDown(BPoint where)
+	void MouseDown(BPoint where) override
 	{
 		int32 buttons = -1;
-		BMessage* message = Looper()->CurrentMessage();
+		const BMessage* message = Looper()->CurrentMessage();
 		if (message != NULL)
 			message->FindInt32("buttons", &buttons);
 
@@ -279,7 +280,7 @@ public:
 	}
 
 protected:
-	virtual void ExpandOrCollapse(BListItem* superItem, bool expand)
+	void ExpandOrCollapse(BListItem* superItem, bool expand) override
 	{
 		BOutlineListView::ExpandOrCollapse(superItem, expand);
 		SymbolListItem* item = dynamic_cast<SymbolListItem*>(superItem);
@@ -301,11 +302,12 @@ private:
 				return;
 
 			const BMessage symbol = item->Details();
-			Position position;
-			position.character = symbol.GetInt32("start:character", -1);
-			position.line = symbol.GetInt32("start:line", -1);
+			const Position position = {
+				symbol.GetInt32("start:character", -1),
+				symbol.GetInt32("start:line", -1)
+			};
 
-			auto optionsMenu = new BPopUpMenu("Options", false, false);
+			auto optionsMenu = new BPopUpMenu("Outline menu", false, false);
 			optionsMenu->AddItem(
 				new BMenuItem(B_TRANSLATE("Go to symbol"),
 					new GMessage{
@@ -328,10 +330,12 @@ private:
 };
 
 
+// FunctionsOutlineView
 FunctionsOutlineView::FunctionsOutlineView()
 	:
 	BView(B_TRANSLATE("Outline"), B_WILL_DRAW),
 	fListView(nullptr),
+	fScrollView(nullptr),
 	fToolBar(nullptr)
 {
 	fListView = new SymbolOutlineListView("listview");
@@ -500,7 +504,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
 
-	int32 status = msg.GetInt32("status", Editor::STATUS_UNKNOWN);
+	const int32 status = msg.GetInt32("status", Editor::STATUS_UNKNOWN);
 	switch (status) {
 		case Editor::STATUS_UNKNOWN:
 			fListView->MakeEmpty();
@@ -527,7 +531,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 	}
 	// Save the vertical scrolling value
 	BScrollBar* vertScrollBar = fScrollView->ScrollBar(B_VERTICAL);
-	float scrolledValue = vertScrollBar->Value();
+	const float scrolledValue = vertScrollBar->Value();
 
 	Window()->DisableUpdates();
 
@@ -554,7 +558,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 		i++;
 	}
 	if (sSorted)
-		fListView->SortItemsUnder(nullptr, true, &CompareItemsText);
+		fListView->FullListSortItems(&CompareItemsText);
 
 	// same document, don't reset the vertical scrolling value
 	if (*newRef == fCurrentRef) {
@@ -599,7 +603,7 @@ status_t
 FunctionsOutlineView::_GoToSymbol(BMessage *msg)
 {
 	status_t status = B_ERROR;
-	int32 index = msg->GetInt32("index", -1);
+	const int32 index = msg->GetInt32("index", -1);
 	if (index > -1) {
 		SymbolListItem* sym = dynamic_cast<SymbolListItem*>(fListView->ItemAt(index));
 		if (sym != nullptr) {

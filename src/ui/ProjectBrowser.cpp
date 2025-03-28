@@ -45,26 +45,24 @@ static BMessageRunner* sAnimationTickRunner;
 
 class ProjectOutlineListView : public BOutlineListView {
 public:
-					ProjectOutlineListView();
-	virtual 		~ProjectOutlineListView();
+			ProjectOutlineListView();
+	virtual ~ProjectOutlineListView();
 
-	virtual void	MouseDown(BPoint where);
-	virtual void	MouseMoved(BPoint point, uint32 transit, const BMessage* message);
-	virtual void	AttachedToWindow();
-	virtual void	DetachedFromWindow();
-	virtual void	MessageReceived(BMessage* message);
-	virtual void	KeyDown(const char* bytes, int32 numBytes);
-	virtual void	SelectionChanged();
+	void MouseDown(BPoint where) override;
+	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override;
+	void AttachedToWindow() override;
+	void DetachedFromWindow() override;
+	void MessageReceived(BMessage* message) override;
+	void KeyDown(const char* bytes, int32 numBytes) override;
+	void SelectionChanged() override;
 
-	ProjectItem*	ProjectItemAt(int32 index) const;
-	ProjectItem*	GetSelectedProjectItem() const;
+	ProjectItem* ProjectItemAt(int32 index) const;
+	ProjectItem* GetSelectedProjectItem() const;
 
-	static int 		CompareProjectItems(const BListItem* a, const BListItem* b);
+	static int CompareProjectItems(const BListItem* a, const BListItem* b);
 
 private:
-	void			_ShowProjectItemPopupMenu(BPoint where);
-
-	TemplatesMenu*	fFileNewProjectMenuItem;
+	void _ShowProjectItemPopupMenu(BPoint where);
 };
 
 
@@ -100,7 +98,8 @@ public:
 		SetExplicitMinSize(BSize(0, B_SIZE_UNSET));
 		SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
 	}
-	virtual void Draw(BRect updateRect)
+
+	void Draw(BRect updateRect) override
 	{
 		SetDrawingMode(B_OP_ALPHA);
 		SetLowColor(0, 0, 0);
@@ -122,8 +121,7 @@ public:
 // ProjectBrowser
 ProjectBrowser::ProjectBrowser()
 	:
-	BView("Project browser", B_WILL_DRAW|B_FRAME_EVENTS),
-	fIsBuilding(false)
+	BView("Project browser", B_WILL_DRAW|B_FRAME_EVENTS)
 {
 	fOutlineListView = new ProjectOutlineListView();
 	ProjectDropView* projectDropView = new ProjectDropView();
@@ -333,7 +331,7 @@ ProjectBrowser::_HandleEntryMoved(BMessage* message)
 								return;
 							}
 							ProjectItem *destinationItem = GetProjectItemByPath(bp_newParent.Path());
-							if (!item) {
+							if (!destinationItem) {
 								LogError("Can't find an item to move newParent [%s]", bp_newParent.Path());
 								return;
 							}
@@ -409,32 +407,6 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			SendNotices(B_PATH_MONITOR, message);
 			break;
 		}
-		case MSG_PROJECT_MENU_OPEN_FILE:
-		{
-			int32 index = -1;
-			if (message->FindInt32("index", &index) != B_OK) {
-				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find index!");
-				return;
-			}
-			ProjectItem* item = fOutlineListView->ProjectItemAt(index);
-			if (item == nullptr) {
-				LogError("(MSG_PROJECT_MENU_OPEN_FILE) Can't find item at index %d", index);
-				return;
-			}
-			if (item->GetSourceItem()->Type() != SourceItemType::FileItem) {
-				if (item->IsExpanded())
-					fOutlineListView->Collapse(item);
-				else
-					fOutlineListView->Expand(item);
-				LogDebug("(MSG_PROJECT_MENU_OPEN_FILE) Expand/Collapse(%s)", item->GetSourceItem()->Name().String());
-				return;
-			}
-			BMessage msg(B_REFS_RECEIVED);
-			msg.AddRef("refs", item->GetSourceItem()->EntryRef());
-			msg.AddBool("openWithPreferred", true);
-			Window()->PostMessage(&msg);
-			break;
-		}
 		case MSG_PROJECT_MENU_DO_RENAME_FILE:
 		{
 			BString newName;
@@ -449,11 +421,11 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		}
 		case kTick:
 		{
-			if (fIsBuilding) {
-				// TODO: Only invalidate the active project item ?
-				ProjectTitleItem::TickAnimation();
-				for (int32 i = 0; i != fProjectProjectItemList.CountItems(); i++) {
-					int32 itemIndex = fOutlineListView->IndexOf(fProjectProjectItemList.ItemAt(i));
+			ProjectTitleItem::TickAnimation();
+			for (int32 i = 0; i != fProjectProjectItemList.CountItems(); i++) {
+				ProjectItem* titleItem = fProjectProjectItemList.ItemAt(i);
+				if (titleItem->GetSourceItem()->GetProjectFolder()->IsBuilding()) {
+					int32 itemIndex = fOutlineListView->IndexOf(titleItem);
 					fOutlineListView->InvalidateItem(itemIndex);
 				}
 			}
@@ -492,7 +464,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 						break;
 					const ProjectFolder* project =
 						reinterpret_cast<const ProjectFolder*>(message->GetPointer("project", nullptr));
-					SelectItemByRef(const_cast<ProjectFolder*>(project), ref);
+					SelectItemByRef(project, ref);
 					break;
 				}
 				case MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED:
@@ -510,9 +482,9 @@ ProjectBrowser::MessageReceived(BMessage* message)
 				}
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
+					// TODO: no longer needed
 					bool building = false;
 					message->FindBool("building", &building);
-					fIsBuilding = building;
 					fOutlineListView->Invalidate();
 					break;
 				}
@@ -617,7 +589,7 @@ ProjectBrowser::GetSelectedProjectItem() const
 
 
 ProjectItem*
-ProjectBrowser::GetProjectItemForProject(ProjectFolder* folder) const
+ProjectBrowser::GetProjectItemForProject(const ProjectFolder* folder) const
 {
 	assert(fProjectProjectItemList.CountItems() == CountProjects());
 
@@ -637,19 +609,12 @@ ProjectBrowser::GetProjectFromSelectedItem() const
 
 
 ProjectFolder*
-ProjectBrowser::GetProjectFromItem(ProjectItem* item) const
+ProjectBrowser::GetProjectFromItem(const ProjectItem* item) const
 {
 	if (item == nullptr)
 		return nullptr;
 
-	ProjectFolder *project;
-	if (item->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		project = static_cast<ProjectFolder*>(item->GetSourceItem());
-	} else {
-		project = static_cast<ProjectFolder*>(item->GetSourceItem()->GetProjectFolder());
-	}
-
-	return project;
+	return item->GetSourceItem()->GetProjectFolder();
 }
 
 
@@ -657,12 +622,15 @@ const entry_ref*
 ProjectBrowser::GetSelectedProjectFileRef() const
 {
 	ProjectItem* selectedProjectItem = GetSelectedProjectItem();
+	if (selectedProjectItem == nullptr)
+		return nullptr;
+
 	return selectedProjectItem->GetSourceItem()->EntryRef();
 }
 
 
 ProjectItem*
-ProjectBrowser::GetItemByRef(ProjectFolder* project, const entry_ref& ref) const
+ProjectBrowser::GetItemByRef(const ProjectFolder* project, const entry_ref& ref) const
 {
 	ProjectItem* projectItem = GetProjectItemForProject(project);
 	if (projectItem == nullptr)
@@ -696,14 +664,14 @@ ProjectBrowser::GetItemByRef(ProjectFolder* project, const entry_ref& ref) const
 
 
 status_t
-ProjectBrowser::_RenameCurrentSelectedFile(const BString& new_name)
+ProjectBrowser::_RenameCurrentSelectedFile(const BString& newName)
 {
 	status_t status = B_NOT_INITIALIZED;
 	ProjectItem *item = GetSelectedProjectItem();
 	if (item != nullptr) {
 		BEntry entry(item->GetSourceItem()->EntryRef());
 		if (entry.Exists()) {
-			status = entry.Rename(new_name, false);
+			status = entry.Rename(newName, false);
 		}
 	}
 	return status;
@@ -896,7 +864,7 @@ ProjectBrowser::ProjectByPath(const BString& fullPath) const
 
 
 void
-ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
+ProjectBrowser::SelectProjectAndScroll(const ProjectFolder* projectFolder)
 {
 	ProjectItem* item = GetProjectItemForProject(projectFolder);
 	if (item != nullptr) {
@@ -907,7 +875,7 @@ ProjectBrowser::SelectProjectAndScroll(ProjectFolder* projectFolder)
 
 
 void
-ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_ref ref)
+ProjectBrowser::SelectNewItemAndScrollDelayed(const ProjectItem* parent, const entry_ref ref)
 {
 	// Let's select the new created file.
 	// just send a message to the ProjectBrowser with the new ref
@@ -915,7 +883,7 @@ ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_r
 
 	// the selected item initiating this is not a folder or project but a file.
 	if (parent->GetSourceItem()->Type() == FileItem) {
-		parent = (ProjectItem*)fOutlineListView->Superitem(parent);
+		parent = static_cast<ProjectItem*>(fOutlineListView->Superitem(parent));
 	}
 
 	BMessage selectMessage(MSG_BROWSER_SELECT_ITEM);
@@ -931,7 +899,7 @@ ProjectBrowser::SelectNewItemAndScrollDelayed(ProjectItem* parent, const entry_r
 	The basic implementaion parses all the items.. (could be useful in PathMonitor procedures)
 */
 void
-ProjectBrowser::SelectItemByRef(ProjectFolder* project, const entry_ref& ref)
+ProjectBrowser::SelectItemByRef(const ProjectFolder* project, const entry_ref& ref)
 {
 	ProjectItem* projectItem = GetItemByRef(project, ref);
 
@@ -953,10 +921,8 @@ ProjectBrowser::GetProjectList() const
 // ProjectOutlineListView
 ProjectOutlineListView::ProjectOutlineListView()
 	:
-	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST),
-	fFileNewProjectMenuItem(nullptr)
+	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST)
 {
-	SetInvocationMessage(new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
 }
 
 
@@ -976,7 +942,7 @@ ProjectOutlineListView::MouseDown(BPoint where)
 		message->FindInt32("buttons", &buttons);
 
 	BOutlineListView::MouseDown(where);
-	if ( buttons == B_MOUSE_BUTTON(2))
+	if (buttons == B_MOUSE_BUTTON(2))
 		_ShowProjectItemPopupMenu(where);
 }
 
@@ -1006,7 +972,7 @@ void
 ProjectOutlineListView::AttachedToWindow()
 {
 	BOutlineListView::AttachedToWindow();
-	BOutlineListView::SetTarget((BHandler*)this, Window());
+	BOutlineListView::SetTarget(Window());
 }
 
 
@@ -1053,15 +1019,21 @@ ProjectOutlineListView::SelectionChanged()
 		GenioWindow *window = gMainWindow;
 		BEntry entry(selected->GetSourceItem()->EntryRef());
 		if (entry.IsFile()) {
+			entry_ref fileRef;
+			entry.GetRef(&fileRef);
+			BMessage* invocationMessage = new BMessage(MSG_PROJECT_MENU_OPEN_FILE);
+			invocationMessage->AddRef("refs", &fileRef);
+			invocationMessage->AddBool("openWithPreferred", true);
+			SetInvocationMessage(invocationMessage);
+
 			// If this is a file, get the parent directory
 			entry.GetParent(&entry);
-		}
+		} else
+			SetInvocationMessage(nullptr);
+
 		entry_ref newRef;
 		entry.GetRef(&newRef);
 		window->UpdateMenu(selected, &newRef);
-
-		if (fFileNewProjectMenuItem != nullptr)
-			fFileNewProjectMenuItem->SetSender(selected, &newRef);
 	}
 }
 
@@ -1090,8 +1062,8 @@ ProjectOutlineListView::CompareProjectItems(const BListItem* a, const BListItem*
 	if (a == b)
 		return 0;
 
-	const ProjectItem* A = dynamic_cast<const ProjectItem*>(a);
-	const ProjectItem* B = dynamic_cast<const ProjectItem*>(b);
+	const ProjectItem* A = static_cast<const ProjectItem*>(a);
+	const ProjectItem* B = static_cast<const ProjectItem*>(b);
 
 	const char* nameA = A->Text();
 	const auto itemAType = A->GetSourceItem()->Type();
@@ -1123,36 +1095,32 @@ ProjectOutlineListView::CompareProjectItems(const BListItem* a, const BListItem*
 void
 ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 {
-	// TODO: This duplicates some code in ProjectBrowser
+	// TODO: This duplicates some code in ProjectBrowser and in GenioWindow.
+	// Refactor!
 	ProjectItem* projectItem = GetSelectedProjectItem();
-	ProjectFolder *project;
-	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		project = static_cast<ProjectFolder*>(projectItem->GetSourceItem());
-	} else {
-		project = static_cast<ProjectFolder*>(projectItem->GetSourceItem()->GetProjectFolder());
-	}
+	ProjectFolder* project = projectItem->GetSourceItem()->GetProjectFolder();
 
 	BPopUpMenu* projectMenu = new BPopUpMenu("ProjectMenu", false, false);
 
-	fFileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
+	TemplatesMenu* fileNewProjectMenuItem = new TemplatesMenu(this, B_TRANSLATE("New"),
 		new BMessage(MSG_PROJECT_MENU_NEW_FILE), new BMessage(MSG_SHOW_TEMPLATE_USER_FOLDER),
 		TemplateManager::GetDefaultTemplateDirectory(),
 		TemplateManager::GetUserTemplateDirectory(),
 		TemplatesMenu::SHOW_ALL_VIEW_MODE,	true);
 
-	fFileNewProjectMenuItem->SetEnabled(true);
+	fileNewProjectMenuItem->SetEnabled(true);
 
 	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
 		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
-		closePrj->AddPointer("project", (void*)project);
+		closePrj->AddPointer("project", project);
 		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"), closePrj);
 
 		BMessage* setActive = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
-		setActive->AddPointer("project", (void*)project);
+		setActive->AddPointer("project", project);
 		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"), setActive);
 
 		BMessage* projSettings = new BMessage(MSG_PROJECT_SETTINGS);
-		projSettings->AddPointer("project", (void*)project);
+		projSettings->AddPointer("project", project);
 		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
 			projSettings);
 
@@ -1171,31 +1139,74 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		projectMenu->AddItem(buildMenuItem);
 		projectMenu->AddItem(cleanMenuItem);
 
-		setActiveProjectMenuItem->SetEnabled(!project->Active());
+		projectMenu->AddSeparatorItem();
+
+		BMenu* buildModeItem = new BMenu(B_TRANSLATE("Build mode"));
+		buildModeItem->SetRadioMode(true);
+		BMenuItem* release = new BMenuItem(B_TRANSLATE("Release"), new BMessage(MSG_BUILD_MODE_RELEASE));
+		BMenuItem* debug   = new BMenuItem(B_TRANSLATE("Debug"), new BMessage(MSG_BUILD_MODE_DEBUG));
+
+		buildModeItem->AddItem(release);
+		buildModeItem->AddItem(debug);
+
+		buildModeItem->SetTargetForItems(Window());
+
+		projectMenu->AddItem(buildModeItem);
+
+		const bool releaseMode = project->GetBuildMode() == BuildMode::ReleaseMode;
+		release->SetMarked(releaseMode);
+		debug->SetMarked(!releaseMode);
+
+		projectMenu->AddSeparatorItem();
+
+		ProjectFolder* activeProject = dynamic_cast<GenioWindow*>(Window())->GetActiveProject();
+		setActiveProjectMenuItem->SetEnabled(!project->Active() && !activeProject->IsBuilding());
 
 		if (project->IsBuilding() || !project->Active()) {
 			buildMenuItem->SetEnabled(false);
 			cleanMenuItem->SetEnabled(false);
+			buildModeItem->SetEnabled(false);
 		}
 	}
 
-	projectMenu->AddItem(fFileNewProjectMenuItem);
-	fFileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
-	projectMenu->AddSeparatorItem();
-
 	SelectionChanged();
+
+	const entry_ref* itemRef = projectItem->GetSourceItem()->EntryRef();
+
+	projectMenu->AddItem(fileNewProjectMenuItem);
+
+	BEntry entry(itemRef);
+	if (entry.IsFile()) {
+		entry.GetParent(&entry);
+		entry_ref ref;
+		entry.GetRef(&ref);
+		fileNewProjectMenuItem->SetSender(projectItem, &ref);
+	} else
+		fileNewProjectMenuItem->SetSender(projectItem, itemRef);
+
+	fileNewProjectMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
+	projectMenu->AddSeparatorItem();
 
 	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
 	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
+
 	if (isFolder || isFile) {
 		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),
 			new BMessage(MSG_PROJECT_MENU_DELETE_FILE));
+		deleteFileProjectMenuItem->Message()->AddPointer("project", project);
+		deleteFileProjectMenuItem->Message()->AddRef("ref", itemRef);
+
 		BMenuItem* openFileProjectMenuItem = new BMenuItem(B_TRANSLATE("Open file"),
 			new BMessage(MSG_PROJECT_MENU_OPEN_FILE));
+		openFileProjectMenuItem->Message()->AddRef("refs", itemRef);
+		openFileProjectMenuItem->Message()->AddBool("openWithPreferred", true);
+
 		BMenuItem* renameFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Rename file") : B_TRANSLATE("Rename folder"),
 			new BMessage(MSG_PROJECT_MENU_RENAME_FILE));
+		renameFileProjectMenuItem->Message()->AddPointer("project", project);
+		renameFileProjectMenuItem->Message()->AddRef("ref", itemRef);
 
 		projectMenu->AddItem(openFileProjectMenuItem);
 		projectMenu->AddItem(deleteFileProjectMenuItem);
@@ -1206,13 +1217,15 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 	}
 
 	BMessage* refMessage = new BMessage();
-	refMessage->AddRef("ref", projectItem->GetSourceItem()->EntryRef());
+	refMessage->AddRef("ref", itemRef);
 	ActionManager::AddItem(MSG_PROJECT_MENU_SHOW_IN_TRACKER, projectMenu, refMessage);
 
 	BMessage* refMessage2 = new BMessage(*refMessage);
 	ActionManager::AddItem(MSG_PROJECT_MENU_OPEN_TERMINAL, projectMenu, refMessage2);
 
 	projectMenu->SetTargetForItems(Window());
+
+	projectMenu->SetAsyncAutoDestruct(true);
 
 	// Open menu slightly off wrt the click, so it doesn't open right under the mouse
 	BPoint menuPoint = ConvertToScreen(where);

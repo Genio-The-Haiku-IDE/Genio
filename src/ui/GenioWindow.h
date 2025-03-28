@@ -116,8 +116,8 @@ private:
 			void				_MakeBindcatalogs();
 			void				_MakeCatkeys();
 
-			void				_ProjectFileDelete();
-			void				_ProjectRenameFile();
+			void				_ProjectFileDelete(BMessage* message);
+			void				_ProjectRenameFile(BMessage* message);
 
 			void				_TemplateNewFolder(BMessage* message);
 			void				_TemplateNewProject(BMessage* message);

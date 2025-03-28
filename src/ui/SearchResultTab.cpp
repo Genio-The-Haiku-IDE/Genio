@@ -254,16 +254,11 @@ SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, 
 bool
 SearchResultTab::_IsProjectInList(const ProjectFolderList* list, ProjectFolder* proj)
 {
+	// Is the current selected project still in the new list?
 	for (ProjectFolder* element : *list) {
 		if (element == proj) {
 			return true;
 		}
 	}
-	// Is the current selected project still in the new list?
-	/*auto count = list->CountItems();
-	for (int index = 0; index < count; index++) {
-		ProjectFolder* element = list->ItemAt(index);
-
-	}*/
 	return false;
 }

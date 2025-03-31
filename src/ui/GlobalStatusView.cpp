@@ -224,10 +224,10 @@ GlobalStatusView::MessageReceived(BMessage *message)
 				case MSG_NOTIFY_FIND_STATUS:
 				{
 					_ResetRunner(&fRunnerFind);
-					fLastFindStatus->SetText(message->GetString("status",""));
+					fLastFindStatus->SetText(message->GetString("status", ""));
 					_StartRunner(&fRunnerFind, kHideFindText);
+					break;
 				}
-				break;
 				default:
 					BView::MessageReceived(message);
 					break;

@@ -705,9 +705,9 @@ Editor::FindMarkAll(const BString& text, int flags)
 	}
 
 	SendMessage(SCI_GOTOPOS, firstMark, UNSET);
-	BString message("%COUNT% elements found");
+	BString message(B_TRANSLATE("%COUNT% elements found"));
 	message.ReplaceAll("%COUNT%", std::to_string(count).c_str());
-	_NotifyFindStatus(B_TRANSLATE(message.String()));
+	_NotifyFindStatus(message.String());
 
 	return count;
 }
@@ -732,7 +732,7 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 {
 	int position = Find(search, flags, true, false);
 	if (position == -1 && wrap == false) {
-		_NotifyFindStatus("Find previous not found");
+		_NotifyFindStatus(B_TRANSLATE("Find previous not found"));
 	} else if (position == -1 && wrap == true) {
 		position = Find(search, flags, true, true);
 	}
@@ -1161,6 +1161,7 @@ Editor::_NotifyFindStatus(const char* status)
 	Window()->SendNotices(MSG_NOTIFY_FIND_STATUS, &noticeMessage);
 }
 
+
 void
 Editor::OverwriteToggle()
 {
@@ -1302,12 +1303,12 @@ Editor::ReplaceAll(const BString& selection, const BString& replacement, int fla
 
 	BString message;
 	if (count > 1)
-		message = "%COUNT% elements replaced";
+		message = B_TRANSLATE("%COUNT% elements replaced");
 	else
-		message = "%COUNT% element replaced";
+		message = B_TRANSLATE("%COUNT% element replaced");
 
 	message.ReplaceAll("%COUNT%", std::to_string(count).c_str());
-	_NotifyFindStatus(B_TRANSLATE(message.String()));
+	_NotifyFindStatus(message.String());
 
 	return count;
 }
@@ -1318,9 +1319,9 @@ Editor::ReplaceOne(const BString& selection, const BString& replacement)
 {
 	if (selection == Selection()) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
-		BString message("%COUNT% element replaced");
+		BString message(B_TRANSLATE("%COUNT% element replaced"));
 		message.ReplaceAll("%COUNT%", "1");
-		_NotifyFindStatus(B_TRANSLATE(message.String()));
+		_NotifyFindStatus(message.String());
 
 		return REPLACE_DONE;
 	}

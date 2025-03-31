@@ -25,7 +25,8 @@
 
 const bigtime_t kTextAutohideTimeout = 5000000ULL;
 
-const uint32 kHideText = 'HIDE';
+const uint32 kHideBuildingText = 'HIDE';
+const uint32 kHideFindText = 'HIFE';
 
 GlobalStatusView::GlobalStatusView()
 	:
@@ -35,7 +36,8 @@ GlobalStatusView::GlobalStatusView()
 	fLSPStringView(nullptr),
 	fLSPStatusBar(nullptr),
 	fLastStatusChange(system_time()),
-	fRunner(nullptr)
+	fRunnerBuild(nullptr),
+	fRunnerFind(nullptr)
 {
 	font_height fontHeight;
 	be_plain_font->GetHeight(&fontHeight);
@@ -46,6 +48,7 @@ GlobalStatusView::GlobalStatusView()
 	fBuildStringView = new BStringView("build_text", "");
 	fLSPStringView = new BStringView("LSP_text", "");
 	fLSPStatusBar = new BStatusBar("LSP_progressbar");
+	fLastFindStatus = new BStringView("find_status", "");
 
 	fBarberPole->Hide();
 	fLSPStatusBar->Hide();
@@ -59,6 +62,7 @@ GlobalStatusView::GlobalStatusView()
 			.SetInsets(2, 0)
 			.Add(fLSPStringView)
 			.Add(fLSPStatusBar)
+			.Add(fLastFindStatus)
 		.End()
 		.AddGlue()
 		.AddGroup(B_HORIZONTAL)
@@ -89,6 +93,7 @@ GlobalStatusView::AttachedToWindow()
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_LSP_INDEXING);
+		Window()->StartWatching(this, MSG_NOTIFY_FIND_STATUS);
 		Window()->UnlockLooper();
 	}
 }
@@ -102,6 +107,7 @@ GlobalStatusView::DetachedFromWindow()
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StopWatching(this, MSG_NOTIFY_LSP_INDEXING);
+		Window()->StopWatching(this, MSG_NOTIFY_FIND_STATUS);
 		Window()->UnlockLooper();
 	}
 }
@@ -122,13 +128,14 @@ void
 GlobalStatusView::MessageReceived(BMessage *message)
 {
 	switch (message->what) {
-		case kHideText:
-			if (fRunner != nullptr) {
-				delete fRunner;
-				fRunner = nullptr;
-			}
+		case kHideBuildingText:
+			_ResetRunner(&fRunnerBuild);
 			fBuildStringView->SetText("");
 			fBarberPole->Hide();
+			break;
+		case kHideFindText:
+			_ResetRunner(&fRunnerFind);
+			fLastFindStatus->SetText("");
 			break;
 		case B_OBSERVER_NOTICE_CHANGE:
 		{
@@ -137,10 +144,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 			switch (what) {
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
-					if (fRunner != nullptr) {
-						delete fRunner;
-						fRunner = nullptr;
-					}
+					_ResetRunner(&fRunnerBuild);
 
 					if (fBarberPole->IsHidden())
 						fBarberPole->Show();
@@ -171,9 +175,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 								text = B_TRANSLATE("Failed cleaning project '\"%project%\"'");
 						}
 						fBarberPole->Stop();
-						BMessenger messenger(this);
-						fRunner = new BMessageRunner(messenger, new BMessage(kHideText),
-									kTextAutohideTimeout, 1);
+						_StartRunner(&fRunnerBuild, kHideBuildingText);
 					}
 					text.ReplaceFirst("\"%project%\"", projectName);
 					fBuildStringView->SetText(text.String());
@@ -219,6 +221,13 @@ GlobalStatusView::MessageReceived(BMessage *message)
 					fLSPStringView->SetText(text.String());
 					break;
 				}
+				case MSG_NOTIFY_FIND_STATUS:
+				{
+					_ResetRunner(&fRunnerFind);
+					fLastFindStatus->SetText(message->GetString("status",""));
+					_StartRunner(&fRunnerFind, kHideFindText);
+				}
+				break;
 				default:
 					BView::MessageReceived(message);
 					break;
@@ -230,4 +239,23 @@ GlobalStatusView::MessageReceived(BMessage *message)
 			BView::MessageReceived(message);
 			break;
 	}
+}
+
+
+void
+GlobalStatusView::_ResetRunner(BMessageRunner** runner)
+{
+	if (*runner != nullptr) {
+		delete *runner;
+		*runner = nullptr;
+	}
+}
+
+
+void
+GlobalStatusView::_StartRunner(BMessageRunner** runner, uint32 what)
+{
+	BMessenger messenger(this);
+	*runner = new BMessageRunner(messenger, new BMessage(what),
+				kTextAutohideTimeout, 1);
 }

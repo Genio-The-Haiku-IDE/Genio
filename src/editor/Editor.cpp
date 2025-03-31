@@ -185,6 +185,7 @@ Editor::MessageReceived(BMessage* message)
 			BString text = message->GetString("text", "");
 			BString replace = message->GetString("replace", "");
 
+			_NotifyFindStatus("");
 			GrabFocus();
 			bool matchCase = message->GetBool("match_case", false);
 			bool wholeWord = message->GetBool("whole_word", false);
@@ -224,6 +225,8 @@ Editor::MessageReceived(BMessage* message)
 			BString text = message->GetString("text", "");
 			if (text.IsEmpty())
 				return;
+
+			_NotifyFindStatus("");
 			GrabFocus();
 			bool matchCase = message->GetBool("match_case", false);
 			bool wholeWord = message->GetBool("whole_word", false);
@@ -238,9 +241,11 @@ Editor::MessageReceived(BMessage* message)
 		case MSG_FIND_PREVIOUS:
 		{
 			BString text = message->GetString("text", "");
-			if (text.IsEmpty())
+			if (text.IsEmpty()) {
+				_NotifyFindStatus("Empty string");
 				return;
-
+			}
+			_NotifyFindStatus("");
 			GrabFocus();
 			bool matchCase = message->GetBool("match_case", false);
 			bool wholeWord = message->GetBool("whole_word", false);
@@ -697,22 +702,13 @@ Editor::FindMarkAll(const BString& text, int flags)
 			SendMessage(SCI_MARKERADD, line, sci_BOOKMARK);
 			SendMessage(SCI_CHARRIGHT, UNSET, UNSET);
 			count++;
-
-			// Found occurrence, message window
-			int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
-
-			BMessage message(EDITOR_FIND_SET_MARK);
-			message.AddUInt64(kEditorId, fId);
-			message.AddInt32("line", line);
-			fTarget.SendMessage(&message);
 		}
 	}
 
 	SendMessage(SCI_GOTOPOS, firstMark, UNSET);
-	BMessage message(EDITOR_FIND_COUNT);
-	message.AddString("text_to_find", text);
-	message.AddInt32("count", count);
-	fTarget.SendMessage(&message);
+	BString message("%COUNT% elements found");
+	message.ReplaceAll("%COUNT%", std::to_string(count).c_str());
+	_NotifyFindStatus(message.String());
 
 	return count;
 }
@@ -724,8 +720,7 @@ Editor::FindNext(const BString& search, int flags, bool wrap)
 	int position = Find(search, flags, false, false);
 
 	if (position == -1 && wrap == false) {
-		BMessage message(EDITOR_FIND_NEXT_MISS);
-		fTarget.SendMessage(&message);
+		_NotifyFindStatus("Find next not found");
 	} else if (position == -1 && wrap == true) {
 		position = Find(search, flags, false, true);
 	}
@@ -738,8 +733,7 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 {
 	int position = Find(search, flags, true, false);
 	if (position == -1 && wrap == false) {
-		BMessage message(EDITOR_FIND_PREV_MISS);
-		fTarget.SendMessage(&message);
+		_NotifyFindStatus("Find previous not found");
 	} else if (position == -1 && wrap == true) {
 		position = Find(search, flags, true, true);
 	}
@@ -1161,6 +1155,14 @@ Editor::_UpdateSavePoint(bool modified)
 
 
 void
+Editor::_NotifyFindStatus(const char* status)
+{
+	BMessage noticeMessage(MSG_NOTIFY_FIND_STATUS);
+	noticeMessage.AddString("status", status);
+	Window()->SendNotices(MSG_NOTIFY_FIND_STATUS, &noticeMessage);
+}
+
+void
 Editor::OverwriteToggle()
 {
 	SendMessage(SCI_SETOVERTYPE, !IsOverwrite(), UNSET);
@@ -1293,37 +1295,22 @@ Editor::ReplaceAll(const BString& selection, const BString& replacement, int fla
 			SendMessage(SCI_REPLACETARGET, -1, (sptr_t) replacement.String());
 			count++;
 
-			// Found occurrence, message window
-			ReplaceMessage(position, selection, replacement);
-
 			SendMessage(SCI_SETTARGETRANGE, position + replacement.Length(), endPosition);
 		}
 	} while (position != -1);
 
 	SendMessage(SCI_ENDUNDOACTION, 0, 0);
 
-	BMessage message(EDITOR_REPLACE_ALL_COUNT);
-	message.AddInt32("count", count);
-	fTarget.SendMessage(&message);
+	BString message;
+	if (count > 1)
+		message = "%COUNT% elements replaced";
+	else
+		message = "%COUNT% element replaced";
+
+	message.ReplaceAll("%COUNT%", std::to_string(count).c_str());
+	_NotifyFindStatus(message.String());
 
 	return count;
-}
-
-
-void
-Editor::ReplaceMessage(int position, const BString& selection,
-							const BString& replacement)
-{
-	BMessage message(EDITOR_REPLACE_ONE);
-	int line = SendMessage(SCI_LINEFROMPOSITION, position, UNSET) + 1;
-	int column = SendMessage(SCI_GETCOLUMN, position, UNSET) + 1;
-	column -= selection.Length();
-	message.AddUInt64(kEditorId, fId);
-	message.AddInt32("line", line);
-	message.AddInt32("column", column);
-	message.AddString("selection", selection);
-	message.AddString("replacement", replacement);
-	fTarget.SendMessage(&message);
 }
 
 
@@ -1332,9 +1319,9 @@ Editor::ReplaceOne(const BString& selection, const BString& replacement)
 {
 	if (selection == Selection()) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
-		int position = SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
-		// Found occurrence, message window
-		ReplaceMessage(position, selection, replacement);
+		BString message("%COUNT% element replaced");
+		message.ReplaceAll("%COUNT%", "1");
+		_NotifyFindStatus(message.String());
 
 		return REPLACE_DONE;
 	}

@@ -87,65 +87,66 @@ public:
 								Editor(entry_ref* ref, const BMessenger& target);
 								~Editor();
 			editor_id			Id() { return fId; }
-	virtual	void 				MessageReceived(BMessage* message);
+			BString				Name() const { return fFileName; }
+			void				SetProjectFolder(ProjectFolder*);
+			ProjectFolder*		GetProjectFolder() const { return fProjectFolder; }
+			filter_result		BeforeKeyDown(BMessage*);
+			filter_result		BeforeMouseMoved(BMessage* message);
+			filter_result		BeforeModifiersChanged(BMessage* message);
+			void				GrabFocus();
+
+
+			// Cut, Copy and Paste interface
+			bool				CanCopy();
+			void				Copy();
+			bool				CanCut();
+			void				Cut();
+			bool				CanPaste();
+			void				Paste();
+
+			// Undo and Redo interface
+			bool				CanRedo();
+			void				Redo();
+			bool				CanUndo();
+			void				Undo();
+
+			// File interface
+		const BString			FilePath() const;
+			entry_ref *const	FileRef() { return &fFileRef; }
+			status_t			SetFileRef(entry_ref* ref);
+			node_ref *const		NodeRef() { return &fNodeRef; }
+			status_t			LoadFromFile();
+			status_t			SaveToFile();
+			status_t			Reload();
+			status_t			StartMonitoring();
+			status_t			StopMonitoring();
+			std::string			FileType() const { return fFileType; }
+			void				SetFileType(std::string fileType) { fFileType = fileType; }
+			status_t			SetSavedCaretPosition();
+
+			//
 			void				LoadEditorConfig();
 			void				ApplySettings();
 			void				ApplyEdit(std::string info);
 			void				TrimTrailingWhitespace();
-			bool				CanCopy();
-			bool				CanCut();
-			bool				CanPaste();
-			bool				CanRedo();
-			bool				CanUndo();
-			void				Copy();
-			void				Cut();
-			int32				EndOfLine();
-		const BString			FilePath() const;
-			entry_ref *const	FileRef() { return &fFileRef; }
-
-
 
 			void				GoToLine(int32 line);
 			void				GoToLSPPosition(int32 line, int character);
-			void				GrabFocus();
+
 			bool				IsFoldingAvailable() const { return fFoldingAvailable; }
 			bool				IsModified() const { return fModified; }
-
-			void				NotificationReceived(SCNotification* n);
-			void				Paste();
-			void				Redo();
-			status_t			Reload();
-
-			bool				IsReadOnly();
 			bool				IsTextSelected();
-			status_t			LoadFromFile();
-			BString				Name() const { return fFileName; }
-			node_ref *const		NodeRef() { return &fNodeRef; }
 			bool				IsOverwrite();
-
-			status_t			SaveToFile();
-			status_t			SetFileRef(entry_ref* ref);
+			bool				IsReadOnly();
 			void				SetReadOnly(bool readOnly = true);
-			status_t			SetSavedCaretPosition();
-			void				SetTarget(const BMessenger& target);
-			status_t			StartMonitoring();
-			status_t			StopMonitoring();
+			int32				EndOfLine();
 
-			void				SetProjectFolder(ProjectFolder*);
-			ProjectFolder*		GetProjectFolder() const { return fProjectFolder; }
-			void				Undo();
+
 
 			void				SetProblems();
 
 			void				SetDocumentSymbols(const BMessage* symbols, Editor::symbols_status status);
 			void				GetDocumentSymbols(BMessage* symbols) const;
-
-			filter_result		BeforeKeyDown(BMessage*);
-			filter_result		BeforeMouseMoved(BMessage* message);
-			filter_result		BeforeModifiersChanged(BMessage* message);
-
-			std::string			FileType() const { return fFileType; }
-			void				SetFileType(std::string fileType) { fFileType = fileType; }
 
 			void				SetCommentLineToken(std::string commenter){ fCommenter = commenter; }
 			void				SetCommentBlockTokens(std::string startBlock, std::string endBlock){ /*TODO! */}
@@ -164,6 +165,11 @@ public:
 			void				InsertLine(BString text, int32 lineNumber);
 			int32				CountLines();
 			int32				GetCurrentLineNumber();
+
+protected:
+			virtual	void 		MessageReceived(BMessage* message);
+			void				SetTarget(const BMessenger& target);
+			void				NotificationReceived(SCNotification* n);
 
 private:
 

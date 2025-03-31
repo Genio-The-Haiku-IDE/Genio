@@ -111,7 +111,6 @@ public:
 			bool				IsFoldingAvailable() const { return fFoldingAvailable; }
 			bool				IsModified() const { return fModified; }
 
-			bool				IsParsingAvailable() const { return fParsingAvailable; }
 			void				NotificationReceived(SCNotification* n);
 			void				Paste();
 			void				Redo();
@@ -257,8 +256,6 @@ private:
 			bool				fBracingAvailable;
 			std::string			fFileType;
 			bool				fFoldingAvailable;
-			bool				fSyntaxAvailable;
-			bool				fParsingAvailable;
 			std::string			fCommenter;
 			int					fLinesLog10;
 

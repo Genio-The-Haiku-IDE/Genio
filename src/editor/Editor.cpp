@@ -718,10 +718,11 @@ Editor::FindNext(const BString& search, int flags, bool wrap)
 {
 	int position = Find(search, flags, false, false);
 
-	if (position == -1 && wrap == false) {
-		_NotifyFindStatus(B_TRANSLATE("Find next not found"));
-	} else if (position == -1 && wrap == true) {
+	if (position == -1 && wrap == true) {
 		position = Find(search, flags, false, true);
+	}
+	if (position == -1) {
+		_NotifyFindStatus(B_TRANSLATE("Find next not found"));
 	}
 	return position;
 }
@@ -731,10 +732,12 @@ int
 Editor::FindPrevious(const BString& search, int flags, bool wrap)
 {
 	int position = Find(search, flags, true, false);
-	if (position == -1 && wrap == false) {
-		_NotifyFindStatus(B_TRANSLATE("Find previous not found"));
-	} else if (position == -1 && wrap == true) {
+
+	if (position == -1 && wrap == true) {
 		position = Find(search, flags, true, true);
+	}
+	if (position == -1) {
+		_NotifyFindStatus(B_TRANSLATE("Find previous not found"));
 	}
 	return position;
 }

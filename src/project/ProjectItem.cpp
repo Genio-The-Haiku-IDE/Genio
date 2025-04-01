@@ -306,7 +306,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	} catch (const Genio::Git::GitException &ex) {
 	}
 
-	owner->SetHighColor(GetTextColorByBackgroundLuminance(projectFolder->Color()));
+	owner->SetHighColor(TextColorByLuminance(projectFolder->Color()));
 	DrawText(owner, Text(), ExtraText(), textPoint);
 
 	owner->SetHighColor(oldColor);

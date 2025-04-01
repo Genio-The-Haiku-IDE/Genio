@@ -21,7 +21,7 @@ class BScintillaView;
 
 struct entry_ref;
 
-rgb_color	GetTextColorByBackgroundLuminance(rgb_color background);
+rgb_color	TextColorByLuminance(rgb_color background);
 
 bool	GetGenioDirectory(BPath& destPath);
 BPath	GetDataDirectory();

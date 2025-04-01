@@ -37,7 +37,7 @@ using BPrivate::gSystemCatalog;
 
 
 rgb_color
-GetTextColorByBackgroundLuminance(rgb_color background)
+TextColorByLuminance(rgb_color background)
 {
 	double luminance = 0.299 * background.red + 0.587 * background.green + 0.114 * background.blue;
 	return (luminance > 128.0) ? rgb_color({0, 0, 0}) : rgb_color({255,255,255});

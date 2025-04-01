@@ -1,5 +1,5 @@
 ## Genio - The Haiku IDE Makefile ##############################################
-COMPILER_FLAGS = -Werror -std=c++20 -gdwarf-3
+COMPILER_FLAGS = -Werror -std=c++20
 WARNINGS = ALL
 
 TARGET_DIR := app
@@ -10,6 +10,7 @@ APP_MIME_SIG := "application/x-vnd.Genio"
 debug ?= 0
 ifneq ($(debug), 0)
 	DEBUGGER := TRUE
+	COMPILER_FLAGS += -gdwarf-3
 endif
 
 ifeq ($(strip $(DEBUGGER)), TRUE)

@@ -120,3 +120,6 @@ private:
 	bool						fIsBuilding;
 	BString						fFullPath;
 };
+
+typedef std::vector<ProjectFolder*> ProjectFolderList;
+

@@ -27,8 +27,8 @@ public:
 
 private:
 	void 	_StartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project);
-	void	_UpdateProjectList(const BObjectList<ProjectFolder>* list);
-	bool	_IsProjectInList(const BObjectList<ProjectFolder>* list, ProjectFolder* proj);
+	void	_UpdateProjectList(const ProjectFolderList* list);
+	bool	_IsProjectInList(const ProjectFolderList* list, ProjectFolder* proj);
 
 	Genio::UI::OptionList<ProjectFolder*>* fProjectMenu;
 	SearchResultPanel* fSearchResultPanel;

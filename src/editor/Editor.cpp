@@ -69,8 +69,6 @@ Editor::Editor(entry_ref* ref, const BMessenger& target)
 	, fModified(false)
 	, fBracingAvailable(false)
 	, fFoldingAvailable(false)
-	, fSyntaxAvailable(false)
-	, fParsingAvailable(false)
 	, fCommenter("")
 	, fCurrentLine(-1)
 	, fCurrentColumn(-1)
@@ -1798,9 +1796,7 @@ Editor::_ApplyExtensionSettings()
 	Styler::ApplyGlobal(this, gCFG["editor_style"], &font);
 
 	if (gCFG["syntax_highlight"] && fFileType != "") {
-		fSyntaxAvailable = true;
 		fFoldingAvailable = true;
-		fParsingAvailable = true;
 		fCommenter = "";
 
 		auto styles = Languages::ApplyLanguage(this, fFileType.c_str());

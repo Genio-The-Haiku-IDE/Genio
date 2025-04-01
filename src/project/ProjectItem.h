@@ -64,3 +64,6 @@ private:
 
 	void			_DrawBuildIndicator(BView* owner, BRect bounds);
 };
+
+typedef std::vector<ProjectItem*> ProjectItemList;
+

@@ -1596,7 +1596,8 @@ GenioWindow::_BuildProject()
 	_UpdateProjectActivation(false);
 
 	fBuildLogView->Clear();
-	_ShowOutputTab(kTabBuildLog);
+	if (gCFG["show_build_panel"])
+		_ShowOutputTab(kTabBuildLog);
 
 	LogInfoF("Build started: [%s]", GetActiveProject()->Name().String());
 

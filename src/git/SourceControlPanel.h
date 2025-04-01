@@ -10,6 +10,7 @@
 #include <ObjectList.h>
 
 #include "OptionList.h"
+#include "ProjectFolder.h"
 #include "ToolBar.h"
 
 
@@ -69,7 +70,7 @@ private:
 	BView*					fChangesView;
 	BView*					fLogView;
 	BView*					fRepositoryNotInitializedView;
-	const BObjectList<ProjectFolder>* fProjectList;
+	const ProjectFolderList* 		fProjectList;
 	BString					fSelectedProjectPath;
 	BString					fCurrentBranch;
 	BButton*				fInitializeButton;

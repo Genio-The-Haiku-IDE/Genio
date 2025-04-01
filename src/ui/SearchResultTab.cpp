@@ -134,7 +134,7 @@ SearchResultTab::AttachedToWindow()
 
 
 void
-SearchResultTab::_UpdateProjectList(const BObjectList<ProjectFolder>* list)
+SearchResultTab::_UpdateProjectList(const ProjectFolderList* list)
 {
 	if (list == nullptr) {
 		fProjectMenu->MakeEmpty();
@@ -252,12 +252,10 @@ SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, 
 
 
 bool
-SearchResultTab::_IsProjectInList(const BObjectList<ProjectFolder>* list, ProjectFolder* proj)
+SearchResultTab::_IsProjectInList(const ProjectFolderList* list, ProjectFolder* proj)
 {
 	// Is the current selected project still in the new list?
-	auto count = list->CountItems();
-	for (int index = 0; index < count; index++) {
-		ProjectFolder* element = list->ItemAt(index);
+	for (ProjectFolder* element : *list) {
 		if (element == proj) {
 			return true;
 		}

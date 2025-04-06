@@ -3808,6 +3808,8 @@ GenioWindow::_ProjectFolderOpen(BMessage *message)
 status_t
 GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 {
+	// Preliminary checks
+
 	BEntry dirEntry(&ref, true);
 	if (!dirEntry.Exists())
 		return B_NAME_NOT_FOUND;
@@ -3847,20 +3849,21 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 			return B_ERROR;
 	}
 
-	BMessenger msgr(this);
-
 	// if the original entry_ref was a symlink we need to resolve the path and pass it
 	// ProjectFolder
 	entry_ref resolved_ref;
 	if (dirEntry.GetRef(&resolved_ref) == B_ERROR)
 		return B_ERROR;
 
+	// Now open the project for real
+	BMessenger msgr(this);
 	ProjectFolder* newProject = new ProjectFolder(resolved_ref, msgr);
+
+	_ProjectFolderOpenInitiated(newProject, resolved_ref, activate);
+
 	status = newProject->Open();
 	if (status != B_OK) {
-		BString notification;
-		notification << "Project open fail: " << newProject->Name();
-		LogInfo(notification.String());
+		_ProjectFolderOpenAborted(newProject, ref, activate);
 		delete newProject;
 		return status;
 	}
@@ -3883,6 +3886,28 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	task.Run();
 
+	_ProjectFolderOpenCompleted(newProject, ref, activate);
+
+	return B_OK;
+}
+
+
+void
+GenioWindow::_ProjectFolderOpenInitiated(ProjectFolder* project,
+	const entry_ref& ref, bool activate)
+{
+	// TODO:
+}
+
+
+void
+GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
+	const entry_ref& ref, bool activate)
+{
+	// ensure it's selected:
+	GetProjectBrowser()->SelectProjectAndScroll(project);
+
+	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 
 	// Notify subscribers that project list has changed
 	if (!fDisableProjectNotifications)
@@ -3890,29 +3915,32 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	BString opened("Project open: ");
 	if (GetProjectBrowser()->CountProjects() == 1 || activate == true) {
-		_ProjectFolderActivate(newProject);
+		_ProjectFolderActivate(project);
 		opened = "Active project open: ";
 	}
 
-	//ensure it's selected:
-	GetProjectBrowser()->SelectProjectAndScroll(newProject);
-
-	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
-
-	BString projectPath = newProject->Path();
+	BString projectPath = project->Path();
 	BString notification;
-	notification << opened << newProject->Name() << " at " << projectPath;
+	notification << opened << project->Name() << " at " << projectPath;
 	LogInfo(notification.String());
 
 	for (int32 i = 0; i < fTabManager->CountTabs(); i++) {
 		Editor* editor = fTabManager->EditorAt(i);
-		_TryAssociateEditorWithProject(editor, newProject);
+		_TryAssociateEditorWithProject(editor, project);
 	}
 
 	// final touch, let's be sure the folder is added to the recent files.
 	be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
+}
 
-	return B_OK;
+
+void
+GenioWindow::_ProjectFolderOpenAborted(ProjectFolder* project,
+	const entry_ref& ref, bool activate)
+{
+	BString notification;
+	notification << "Project open fail: " << project->Name();
+	LogInfo(notification.String());
 }
 
 

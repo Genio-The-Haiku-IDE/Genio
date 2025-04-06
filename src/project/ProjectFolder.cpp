@@ -85,7 +85,7 @@ SourceItem::UpdateEntryRef(const entry_ref& ref)
 
 
 // ProjectFolder
-ProjectFolder::ProjectFolder(const entry_ref& ref, BMessenger& msgr)
+ProjectFolder::ProjectFolder(const entry_ref& ref, const BMessenger& msgr)
 	:
 	SourceItem(ref),
 	fActive(false),

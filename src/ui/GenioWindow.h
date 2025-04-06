@@ -124,10 +124,18 @@ private:
 
 			void				_ShowDocumentation();
 
-			// Project Folders
+			// Project Folders (TODO: Rename to Project*, without "Folder")
 			void				_ProjectFolderClose(ProjectFolder *project);
 			status_t			_ProjectFolderOpen(BMessage *message);
 			status_t			_ProjectFolderOpen(const entry_ref& ref, bool activate = false);
+
+			void				_ProjectFolderOpenInitiated(ProjectFolder* project,
+															const entry_ref& ref, bool activate);
+			void				_ProjectFolderOpenCompleted(ProjectFolder* project,
+															const entry_ref& ref, bool activate);
+			void				_ProjectFolderOpenAborted(ProjectFolder* project,
+															const entry_ref& ref, bool activate);
+
 			void				_ProjectFolderActivate(ProjectFolder* project);
 			void				_TryAssociateEditorWithProject(Editor* editor, ProjectFolder* project);
 

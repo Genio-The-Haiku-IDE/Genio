@@ -73,7 +73,7 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 			.Add(fCancel)
 		.End();
 
-	fProgressLayout->SetVisibleItem(0);
+	fProgressLayout->SetVisibleItem(int32(0));
 
 	SetDefaultButton(fCancel);
 	CenterOnScreen();

@@ -17,6 +17,11 @@ enum {
 	MSG_PROJECT_SET_ACTIVE		= 'psac',	// TODO
 	MSG_PROJECT_SETTINGS		= 'prse',
 	MSG_PROJECT_FOLDER_OPEN		= 'pfop',
+	
+	MSG_PROJECT_OPEN_INITIATED	= 'pfoi',
+	MSG_PROJECT_OPEN_ABORTED	= 'pfoa',
+	MSG_PROJECT_OPEN_COMPLETED	= 'pfoc',
+	
 	MSG_RELOAD_EDITORCONFIG		= 'reec',
 
 	// File menu

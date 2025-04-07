@@ -60,6 +60,7 @@
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "ProjectOpenerWindow.h"
 #include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
 #include "SearchResultTab.h"
@@ -998,6 +999,33 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_FOLDER_OPEN:
 			_ProjectFolderOpen(message);
 			break;
+		case MSG_PROJECT_OPEN_INITIATED:
+		{
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			bool activate = message->GetBool("activate", false);
+			entry_ref ref;
+			message->FindRef("ref", &ref);
+			_ProjectFolderOpenInitiated(project, ref, activate);
+			break;
+		}
+		case MSG_PROJECT_OPEN_ABORTED:
+		{
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			bool activate = message->GetBool("activate", false);
+			entry_ref ref;
+			message->FindRef("ref", &ref);
+			_ProjectFolderOpenAborted(project, ref, activate);
+			break;
+		}
+		case MSG_PROJECT_OPEN_COMPLETED:
+		{
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			bool activate = message->GetBool("activate", false);
+			entry_ref ref;
+			message->FindRef("ref", &ref);
+			_ProjectFolderOpenCompleted(project, ref, activate);
+			break;
+		}
 		case MSG_REPLACE_GROUP_SHOW:
 			_ReplaceGroupShow(true);
 			break;
@@ -3857,21 +3885,12 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	// Now open the project for real
 	BMessenger msgr(this);
-	ProjectFolder* newProject = new ProjectFolder(resolved_ref, msgr);
-
-	_ProjectFolderOpenInitiated(newProject, resolved_ref, activate);
-
-	status = newProject->Open();
-	if (status != B_OK) {
-		_ProjectFolderOpenAborted(newProject, ref, activate);
-		delete newProject;
-		return status;
-	}
-
-	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
-
+	
+	// TODO:
+	new ProjectOpenerWindow(&resolved_ref, msgr, activate);
+	
 	// TODO: Move this elsewhere!
-	BString taskName;
+/*	BString taskName;
 	taskName << "Detect " << newProject->Name() << " build system";
 	Task<status_t> task
 	(
@@ -3885,8 +3904,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	);
 
 	task.Run();
-
-	_ProjectFolderOpenCompleted(newProject, ref, activate);
+*/
 
 	return B_OK;
 }

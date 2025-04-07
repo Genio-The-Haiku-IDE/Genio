@@ -73,6 +73,8 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 			.Add(fCancel)
 		.End();
 
+	fProgressLayout->SetVisibleItem(0);
+
 	SetDefaultButton(fCancel);
 	CenterOnScreen();
 	Show();
@@ -94,15 +96,23 @@ ProjectOpenerWindow::_OpenProject(const entry_ref* ref, bool activate)
 	fTarget.SendMessage(&message);
 	
 	status_t status = newProject->Open();
-	
 	if (status != B_OK) {
+		fBarberPole->Stop();
 		message.what = MSG_PROJECT_OPEN_ABORTED;
 		fTarget.SendMessage(&message);
 		return;
 	}
 
+	Lock();
+	fBarberPole->Start();
+	Unlock();
+
 	// TODO: Locking ?
 	gMainWindow->GetProjectBrowser()->ProjectFolderPopulate(newProject);
+
+	Lock();
+	fBarberPole->Stop();
+	Unlock();
 
 	message.what = MSG_PROJECT_OPEN_COMPLETED;
 	fTarget.SendMessage(&message);

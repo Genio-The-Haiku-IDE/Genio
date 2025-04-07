@@ -87,7 +87,13 @@ void
 ProjectOpenerWindow::_OpenProject(const entry_ref* ref, bool activate)
 {
 	ProjectFolder* newProject = new ProjectFolder(*ref, fTarget);
-	
+
+	BString text(B_TRANSLATE("Opening project '%project_name%'"));
+	text.ReplaceFirst("%project_name%", newProject->Name());
+	Lock();
+	fStatusText->SetText(text);
+	Unlock();
+
 	BMessage message(MSG_PROJECT_OPEN_INITIATED);
 	message.AddPointer("project", newProject);
 	message.AddRef("ref", ref);

@@ -3886,26 +3886,9 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	// Now open the project for real
 	BMessenger msgr(this);
 	
-	// TODO:
+	// TODO: This shows a modal window
 	new ProjectOpenerWindow(&resolved_ref, msgr, activate);
 	
-	// TODO: Move this elsewhere!
-/*	BString taskName;
-	taskName << "Detect " << newProject->Name() << " build system";
-	Task<status_t> task
-	(
-		taskName,
-		BMessenger(this),
-		std::bind
-		(
-			&ProjectFolder::GuessBuildCommand,
-			newProject
-		)
-	);
-
-	task.Run();
-*/
-
 	return B_OK;
 }
 
@@ -3947,6 +3930,22 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 		_TryAssociateEditorWithProject(editor, project);
 	}
 
+	// TODO: Move this elsewhere!
+	BString taskName;
+	taskName << "Detect " << project->Name() << " build system";
+	Task<status_t> task
+	(
+		taskName,
+		BMessenger(this),
+		std::bind
+		(
+			&ProjectFolder::GuessBuildCommand,
+			project
+		)
+	);
+
+	task.Run();
+
 	// final touch, let's be sure the folder is added to the recent files.
 	be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
 }
@@ -3959,6 +3958,8 @@ GenioWindow::_ProjectFolderOpenAborted(ProjectFolder* project,
 	BString notification;
 	notification << "Project open fail: " << project->Name();
 	LogInfo(notification.String());
+
+	delete project;
 }
 
 

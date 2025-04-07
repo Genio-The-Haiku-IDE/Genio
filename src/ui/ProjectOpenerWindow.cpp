@@ -107,7 +107,5 @@ ProjectOpenerWindow::_OpenProject(const entry_ref* ref, bool activate)
 	message.what = MSG_PROJECT_OPEN_COMPLETED;
 	fTarget.SendMessage(&message);
 	
-	//PostMessage(new BMessage(B_WINDOW_CLOSE));
+	PostMessage(new BMessage(B_QUIT_REQUESTED));
 }
-
-

@@ -34,8 +34,7 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 			B_NOT_ZOOMABLE |
 			B_NOT_RESIZABLE |
 			B_AVOID_FRONT |
-			B_AUTO_UPDATE_SIZE_LIMITS |
-			B_CLOSE_ON_ESCAPE),
+			B_AUTO_UPDATE_SIZE_LIMITS),
 	fTarget(messenger)
 {
 	fCancel = new BButton("cancel button", B_TRANSLATE("Cancel"),

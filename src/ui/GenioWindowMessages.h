@@ -10,6 +10,8 @@
 // External enum names begin with MODULENAME_ and values are Capitalized
 
 enum {
+	MSG_PREPARE_WORKSPACE		= 'pwsk',
+
 	// Project menu
 	MSG_PROJECT_CLOSE			= 'prcl',
 	MSG_PROJECT_OPEN			= 'prop',

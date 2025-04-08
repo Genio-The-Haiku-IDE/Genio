@@ -206,59 +206,8 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorMessageFilter(B_MOUSE_MOVED, &Editor::BeforeMouseMoved));
 	AddCommonFilter(new EditorMessageFilter(B_MODIFIERS_CHANGED, &Editor::BeforeModifiersChanged));
 
-	// Load workspace - reopen projects
-	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
-	// the workspace
-	// TODO: improve how projects are loaded and notices are sent over
-	if (gCFG["reopen_projects"]) {
-		fDisableProjectNotifications = true;
-		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
-		status_t status = B_OK;
-		if (!projects.IsEmpty()) {
-			BString projectName;
-			BString activeProject = projects.GetString("active_project");
-			for (auto count = 0; projects.FindString("project_to_reopen",
-										count, &projectName) == B_OK; count++) {
-				entry_ref ref;
-				status = get_ref_for_path(projectName, &ref);
-				if (status == B_OK) {
-					status = _ProjectFolderOpen(ref, projectName == activeProject);
-				}
-			}
-		}
-		if (GetActiveProject() != nullptr)
-			GetProjectBrowser()->SelectProjectAndScroll(GetActiveProject());
-
-		fDisableProjectNotifications = false;
-		if (status == B_OK) {
-			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-			noticeMessage.AddPointer("active_project", GetActiveProject());
-			noticeMessage.AddString("active_project_name", GetActiveProject() ? GetActiveProject()->Name() : "");
-			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
-		}
-
-	}
-
-	// Reopen files
-	if (gCFG["reopen_files"]) {
-		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
-		if (!files.IsEmpty()) {
-			entry_ref ref;
-			int32 index = -1, count;
-			BMessage message(B_REFS_RECEIVED);
-
-			if (files.FindInt32("opened_index", &index) == B_OK) {
-				message.AddInt32("opened_index", index);
-
-				for (count = 0; files.FindRef("file_to_reopen", count, &ref) == B_OK; count++)
-					message.AddRef("refs", &ref);
-				// Found an index and found some files, post message
-				if (index > -1 && count > 0)
-					PostMessage(&message);
-			}
-		}
-	}
+	BMessage message(MSG_PREPARE_WORKSPACE);
+	BMessageRunner::StartSending(this, &message, 30000, 1);
 }
 
 
@@ -308,7 +257,9 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-
+		case MSG_PREPARE_WORKSPACE:
+			_PrepareWorkspace();
+			break;
 		case kLSPWorkProgress:
 		{
 			ProjectFolder* active = GetActiveProject();
@@ -1315,6 +1266,65 @@ EditorTabView*
 GenioWindow::TabManager() const
 {
 	return fTabManager;
+}
+
+
+void
+GenioWindow::_PrepareWorkspace()
+{
+	// Load workspace - reopen projects
+	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
+	// the workspace
+	// TODO: improve how projects are loaded and notices are sent over
+	if (gCFG["reopen_projects"]) {
+		fDisableProjectNotifications = true;
+		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
+		status_t status = B_OK;
+		if (!projects.IsEmpty()) {
+			BString projectName;
+			BString activeProject = projects.GetString("active_project");
+			for (auto count = 0; projects.FindString("project_to_reopen",
+										count, &projectName) == B_OK; count++) {
+				entry_ref ref;
+				status = get_ref_for_path(projectName, &ref);
+				if (status == B_OK) {
+					status = _ProjectFolderOpen(ref, projectName == activeProject);
+				}
+			}
+		}
+		if (GetActiveProject() != nullptr)
+			GetProjectBrowser()->SelectProjectAndScroll(GetActiveProject());
+
+		fDisableProjectNotifications = false;
+		if (status == B_OK) {
+			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+			noticeMessage.AddPointer("active_project", GetActiveProject());
+			noticeMessage.AddString("active_project_name", GetActiveProject() ? GetActiveProject()->Name() : "");
+			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+		}
+
+	}
+
+	// Reopen files
+	if (gCFG["reopen_files"]) {
+		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
+		if (!files.IsEmpty()) {
+			entry_ref ref;
+			int32 index = -1, count;
+			BMessage message(B_REFS_RECEIVED);
+
+			if (files.FindInt32("opened_index", &index) == B_OK) {
+				message.AddInt32("opened_index", index);
+
+				for (count = 0; files.FindRef("file_to_reopen", count, &ref) == B_OK; count++)
+					message.AddRef("refs", &ref);
+				// Found an index and found some files, post message
+				if (index > -1 && count > 0)
+					PostMessage(&message);
+			}
+		}
+	}
 }
 
 

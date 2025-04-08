@@ -19,6 +19,7 @@ class ProjectOpenerWindow : public BWindow {
 public:
 	ProjectOpenerWindow(const entry_ref*, const BMessenger& messenger, bool activate);
 	
+	void MessageReceived(BMessage* message) override;
 private:
 	void	_OpenProject(const entry_ref* ref, bool activate);
 

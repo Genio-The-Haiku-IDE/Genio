@@ -9,8 +9,6 @@
 #include <BarberPole.h>
 #include <Button.h>
 #include <Catalog.h>
-#include <ControlLook.h>
-#include <FilePanel.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
 #include <StatusBar.h>
@@ -24,10 +22,12 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectOpenerWindow"
 
+const uint32 kCancel = 'canc';
+
 ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 	const BMessenger& messenger, bool activate)
 	:
-	BWindow(BRect(0, 0, 600, 200), B_TRANSLATE("Opening project"),
+	BWindow(BRect(0, 0, 400, 200), B_TRANSLATE("Opening project"),
 			B_TITLED_WINDOW,
 			B_ASYNCHRONOUS_CONTROLS |
 			B_NOT_ZOOMABLE |
@@ -37,21 +37,14 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 			B_CLOSE_ON_ESCAPE),
 	fTarget(messenger)
 {
-	/*fURL = new BTextControl(B_TRANSLATE("URL:"), "", NULL);
-	fPathBox = new BTextControl(B_TRANSLATE("Base path:"), dirPath.String(), nullptr);
 	fCancel = new BButton("cancel button", B_TRANSLATE("Cancel"),
 			new BMessage(kCancel));
-*/
-	fCancel = new BButton("cancel button", B_TRANSLATE("Cancel"),
-			new BMessage('9999'));
 
 	fBarberPole = new BarberPole("barber pole");
 	fProgressBar = new BStatusBar("progress bar");
 	fProgressLayout = new BCardLayout();
 	fProgressView = new BView("progress view", 0);
 	fStatusText = new BStringView("status text", nullptr);
-	//fButtonsView = new BView("buttons view", 0);
-	//fButtonsLayout = new BCardLayout();
 
 	fProgressView->SetLayout(fProgressLayout);
 	fProgressLayout->AddView(0, fBarberPole);
@@ -65,7 +58,6 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 	// TODO: We should use a Grid instead, to align the controls more nicely
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 		.SetInsets(10)
-		.AddGlue()
 		.Add(fProgressLayout)
 		.AddGroup(B_HORIZONTAL)
 			.Add(fStatusText)
@@ -75,11 +67,34 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 
 	fProgressLayout->SetVisibleItem(int32(0));
 
+	// TODO: Doesn't work yet
+	fCancel->SetEnabled(false);
+
 	SetDefaultButton(fCancel);
 	CenterOnScreen();
 	Show();
 	
 	_OpenProject(ref, activate);
+}
+
+
+/* virtual */
+void
+ProjectOpenerWindow::MessageReceived(BMessage* message)
+{
+	switch (message->what) {
+		case kCancel:
+			fBarberPole->Stop();
+
+			// TODO: Interrupt loading:
+			// TODO: Send the MSG_PROJECT_OPEN_ABORTED message
+
+			PostMessage(new BMessage(B_QUIT_REQUESTED));
+			break;
+		default:
+			BWindow::MessageReceived(message);
+			break;
+	}
 }
 
 
@@ -103,7 +118,11 @@ ProjectOpenerWindow::_OpenProject(const entry_ref* ref, bool activate)
 	
 	status_t status = newProject->Open();
 	if (status != B_OK) {
+		Lock();
 		fBarberPole->Stop();
+		Unlock();
+
+		// GenioWindow will delete the allocated project
 		message.what = MSG_PROJECT_OPEN_ABORTED;
 		fTarget.SendMessage(&message);
 		return;

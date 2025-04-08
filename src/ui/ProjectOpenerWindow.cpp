@@ -30,6 +30,7 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 	BWindow(BRect(0, 0, 400, 200), B_TRANSLATE("Opening project"),
 			B_TITLED_WINDOW,
 			B_ASYNCHRONOUS_CONTROLS |
+			B_NOT_CLOSABLE |
 			B_NOT_ZOOMABLE |
 			B_NOT_RESIZABLE |
 			B_AVOID_FRONT |

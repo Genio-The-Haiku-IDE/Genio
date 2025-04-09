@@ -1272,6 +1272,10 @@ void
 GenioWindow::_PrepareWorkspace()
 {
 	// Load workspace - reopen projects
+
+	BMessage started(MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED);
+	SendNotices(MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED, &started);
+
 	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
 	// the workspace
 	// TODO: improve how projects are loaded and notices are sent over
@@ -1302,7 +1306,6 @@ GenioWindow::_PrepareWorkspace()
 			noticeMessage.AddString("active_project_name", GetActiveProject() ? GetActiveProject()->Name() : "");
 			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 		}
-
 	}
 
 	// Reopen files
@@ -1310,12 +1313,12 @@ GenioWindow::_PrepareWorkspace()
 		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
 		if (!files.IsEmpty()) {
 			entry_ref ref;
-			int32 index = -1, count;
+			int32 index = -1;
 			BMessage message(B_REFS_RECEIVED);
 
 			if (files.FindInt32("opened_index", &index) == B_OK) {
 				message.AddInt32("opened_index", index);
-
+				int32 count;
 				for (count = 0; files.FindRef("file_to_reopen", count, &ref) == B_OK; count++)
 					message.AddRef("refs", &ref);
 				// Found an index and found some files, post message
@@ -1324,6 +1327,9 @@ GenioWindow::_PrepareWorkspace()
 			}
 		}
 	}
+
+	BMessage completed(MSG_NOTIFY_WORKSPACE_PREPARATION_COMPLETED);
+	SendNotices(MSG_NOTIFY_WORKSPACE_PREPARATION_COMPLETED, &completed);
 }
 
 

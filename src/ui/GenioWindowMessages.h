@@ -167,8 +167,11 @@ enum {
 													// status (int32)
 	MSG_NOTIFY_LSP_INDEXING				= 'lsid',
 	MSG_NOTIFY_PROJECT_LIST_CHANGED		= 'nplc',
-	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa'	// active_project (pointer)
+	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa',	// active_project (pointer)
 													// active_project_name (string)
+
+	MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED = 'wkps',
+	MSG_NOTIFY_WORKSPACE_PREPARATION_COMPLETED = 'wkpc'
 };
 
 #endif // GenioWindowMessages_H

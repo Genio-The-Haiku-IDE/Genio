@@ -61,7 +61,7 @@ protected:
 
 class ProjectFolder : public SourceItem {
 public:
-								ProjectFolder(const entry_ref& ref, BMessenger& msgr);
+								ProjectFolder(const entry_ref& ref, const BMessenger& msgr);
 								~ProjectFolder();
 
 	status_t					Open();

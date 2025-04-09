@@ -3809,20 +3809,21 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
 
-	// Notify subscribers that the project list has changed
-	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-
-	project->Close();
-
-	delete project;
-
 	// Select a new active project
 	if (wasActive) {
 		ProjectFolder* project = fProjectsFolderBrowser->ProjectAt(0);
 		if (project != nullptr)
 			_ProjectFolderActivate(project);
 	}
+
+	// Notify subscribers that the project list has changed
+	// Done here so the new active project is already set and subscribers
+	// know (SourceControlPanel for example)
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+
+	project->Close();
+	delete project;
 
 	// Disable "Close project" action if no project
 	if (GetProjectBrowser()->CountProjects() == 0)
@@ -3925,15 +3926,16 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 
 	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 
-	// Notify subscribers that project list has changed
-	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-
 	BString opened("Project open: ");
 	if (GetProjectBrowser()->CountProjects() == 1 || activate == true) {
 		_ProjectFolderActivate(project);
 		opened = "Active project open: ";
 	}
+
+	// Notify subscribers that project list has changed
+	// Done here so the active project is already set
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	BString projectPath = project->Path();
 	BString notification;

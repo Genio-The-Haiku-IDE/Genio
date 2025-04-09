@@ -308,7 +308,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						if (fProjectList->empty())
 							break;
 
-						ProjectFolder* selected = _GetSelectedProject();
+						const ProjectFolder* selected = _SelectedProject();
 						if (selected == nullptr || selected->IsBuilding())
 							break;
 
@@ -392,7 +392,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgFetch: {
 				LogInfo("MsgFetch");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				selectedProject->GetRepository()->Fetch();
@@ -402,7 +402,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgFetchPrune: {
 				LogInfo("MsgFetchPrune");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				selectedProject->GetRepository()->Fetch(true);
@@ -412,7 +412,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgStashSave: {
 				LogInfo("MsgStashSave");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				BString stashMessage;
@@ -429,7 +429,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgStashPop: {
 				LogInfo("MsgStashPop");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				selectedProject->GetRepository()->StashPop();
@@ -438,7 +438,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgStashApply: {
 				LogInfo("MsgStashApply");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				selectedProject->GetRepository()->StashApply();
@@ -454,7 +454,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgRenameBranch: {
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				BString selectedBranch = message->GetString("value");
@@ -472,7 +472,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgDeleteBranch: {
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				const BString selectedBranch = message->GetString("value");
@@ -498,7 +498,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgNewBranch: {
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				const BString selectedBranch = message->GetString("value");
@@ -523,7 +523,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgInitializeRepository: {
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				auto repo = selectedProject->GetRepository();
@@ -653,8 +653,8 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 }
 
 
-ProjectFolder*
-SourceControlPanel::_GetSelectedProject() const
+const ProjectFolder*
+SourceControlPanel::_SelectedProject() const
 {
 	GenioWindow* window = static_cast<GenioWindow*>(Window());
 	if (window == nullptr)
@@ -670,7 +670,7 @@ SourceControlPanel::_GetSelectedProject() const
 void
 SourceControlPanel::_UpdateRepositoryView()
 {
-	ProjectFolder* project = _GetSelectedProject();
+	const ProjectFolder* project = _SelectedProject();
 	fRepositoryView->UpdateRepository(project, fCurrentBranch);
 }
 
@@ -678,7 +678,7 @@ SourceControlPanel::_UpdateRepositoryView()
 void
 SourceControlPanel::_SwitchBranch(BMessage *message)
 {
-	ProjectFolder* project = _GetSelectedProject();
+	const ProjectFolder* project = _SelectedProject();
 	if (project->IsBuilding()) {
 		OKAlert("Source control panel",
 			B_TRANSLATE("The project is building, changing branch not allowed."),
@@ -717,7 +717,7 @@ SourceControlPanel::_UpdateProjectList()
 
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
-	ProjectFolder* selectedProject = _GetSelectedProject();
+	const ProjectFolder* selectedProject = _SelectedProject();
 	fProjectMenu->MakeEmpty();
 	fSelectedProjectPath = "";
 	ProjectFolder* activeProject = gMainWindow->GetActiveProject();
@@ -741,7 +741,7 @@ SourceControlPanel::_UpdateProjectList()
 		}
 	);
 
-	const ProjectFolder* project = _GetSelectedProject();
+	const ProjectFolder* project = _SelectedProject();
 	if (project != nullptr)
 		_CheckProjectGitRepo(project);
 }
@@ -769,7 +769,7 @@ void
 SourceControlPanel::_UpdateBranchListMenu(bool invokeItemMessage)
 {
 	try {
-		ProjectFolder* selectedProject = _GetSelectedProject();
+		const ProjectFolder* selectedProject = _SelectedProject();
 		if (selectedProject != nullptr) {
 			auto repo = selectedProject->GetRepository();
 			if (repo->IsInitialized()) {
@@ -834,7 +834,7 @@ SourceControlPanel::_ShowOptionsMenu(BPoint where)
 void
 SourceControlPanel::_ShowGitNotification(const BString &text)
 {
-	ProjectFolder* project = _GetSelectedProject();
+	const ProjectFolder* project = _SelectedProject();
 	if (project == nullptr)
 		return;
 	ShowNotification("Genio", project->Path().String(),

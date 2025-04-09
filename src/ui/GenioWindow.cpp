@@ -1302,7 +1302,11 @@ GenioWindow::_PrepareWorkspace()
 		if (status == B_OK) {
 			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-			noticeMessage.AddString("active_project_name", GetActiveProject() ? GetActiveProject()->Name() : "");
+			const ProjectFolder* activeProject = GetActiveProject();
+			if (activeProject != nullptr) {
+				noticeMessage.AddString("active_project_name", activeProject->Name());
+				noticeMessage.AddString("active_project_path", activeProject->Path());
+			}
 			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 		}
 	}
@@ -3575,8 +3579,11 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 
 	if (!fDisableProjectNotifications) {
 		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		noticeMessage.AddString("active_project_name",
-			GetActiveProject() ? GetActiveProject()->Name() : "");
+		const ProjectFolder* activeProject = GetActiveProject();
+		if (activeProject != nullptr) {
+			noticeMessage.AddString("active_project_name", activeProject->Name());
+			noticeMessage.AddString("active_project_path", activeProject->Path());
+		}
 		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 	}
 

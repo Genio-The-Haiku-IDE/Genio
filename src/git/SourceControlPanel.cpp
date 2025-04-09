@@ -298,8 +298,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-						ProjectFolder* project = gMainWindow->GetActiveProject();
-						fSelectedProjectPath = project ? project->Path() : "";
+						fSelectedProjectPath = message->GetString("active_project_path");
 						if (!fProjectList->empty())
 							_UpdateProjectList();
 						break;

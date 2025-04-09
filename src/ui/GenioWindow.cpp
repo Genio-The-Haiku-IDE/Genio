@@ -60,6 +60,7 @@
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "ProjectOpenerWindow.h"
 #include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
 #include "SearchResultTab.h"
@@ -204,60 +205,6 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorMouseWheelMessageFilter());
 	AddCommonFilter(new EditorMessageFilter(B_MOUSE_MOVED, &Editor::BeforeMouseMoved));
 	AddCommonFilter(new EditorMessageFilter(B_MODIFIERS_CHANGED, &Editor::BeforeModifiersChanged));
-
-	// Load workspace - reopen projects
-	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
-	// the workspace
-	// TODO: improve how projects are loaded and notices are sent over
-	if (gCFG["reopen_projects"]) {
-		fDisableProjectNotifications = true;
-		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
-		status_t status = B_OK;
-		if (!projects.IsEmpty()) {
-			BString projectName;
-			BString activeProject = projects.GetString("active_project");
-			for (auto count = 0; projects.FindString("project_to_reopen",
-										count, &projectName) == B_OK; count++) {
-				entry_ref ref;
-				status = get_ref_for_path(projectName, &ref);
-				if (status == B_OK) {
-					status = _ProjectFolderOpen(ref, projectName == activeProject);
-				}
-			}
-		}
-		if (GetActiveProject() != nullptr)
-			GetProjectBrowser()->SelectProjectAndScroll(GetActiveProject());
-
-		fDisableProjectNotifications = false;
-		if (status == B_OK) {
-			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-			noticeMessage.AddPointer("active_project", GetActiveProject());
-			noticeMessage.AddString("active_project_name", GetActiveProject() ? GetActiveProject()->Name() : "");
-			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
-		}
-
-	}
-
-	// Reopen files
-	if (gCFG["reopen_files"]) {
-		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
-		if (!files.IsEmpty()) {
-			entry_ref ref;
-			int32 index = -1, count;
-			BMessage message(B_REFS_RECEIVED);
-
-			if (files.FindInt32("opened_index", &index) == B_OK) {
-				message.AddInt32("opened_index", index);
-
-				for (count = 0; files.FindRef("file_to_reopen", count, &ref) == B_OK; count++)
-					message.AddRef("refs", &ref);
-				// Found an index and found some files, post message
-				if (index > -1 && count > 0)
-					PostMessage(&message);
-			}
-		}
-	}
 }
 
 
@@ -270,7 +217,6 @@ GenioWindow::Show()
 		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_LEFT_PANE);
 		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_RIGHT_PANE);
 		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_BOTTOM_PANE);
-
 
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 		_ShowView(fStatusView, gCFG["show_statusbar"],	MSG_TOGGLE_STATUSBAR);
@@ -289,6 +235,9 @@ GenioWindow::Show()
 		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		UnlockLooper();
 	}
+
+	BMessage message(MSG_PREPARE_WORKSPACE);
+	BMessageRunner::StartSending(this, &message, 30000, 1);
 }
 
 
@@ -307,7 +256,9 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-
+		case MSG_PREPARE_WORKSPACE:
+			_PrepareWorkspace();
+			break;
 		case kLSPWorkProgress:
 		{
 			ProjectFolder* active = GetActiveProject();
@@ -998,6 +949,33 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_PROJECT_FOLDER_OPEN:
 			_ProjectFolderOpen(message);
 			break;
+		case MSG_PROJECT_OPEN_INITIATED:
+		{
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			bool activate = message->GetBool("activate", false);
+			entry_ref ref;
+			message->FindRef("ref", &ref);
+			_ProjectFolderOpenInitiated(project, ref, activate);
+			break;
+		}
+		case MSG_PROJECT_OPEN_ABORTED:
+		{
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			bool activate = message->GetBool("activate", false);
+			entry_ref ref;
+			message->FindRef("ref", &ref);
+			_ProjectFolderOpenAborted(project, ref, activate);
+			break;
+		}
+		case MSG_PROJECT_OPEN_COMPLETED:
+		{
+			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			bool activate = message->GetBool("activate", false);
+			entry_ref ref;
+			message->FindRef("ref", &ref);
+			_ProjectFolderOpenCompleted(project, ref, activate);
+			break;
+		}
 		case MSG_REPLACE_GROUP_SHOW:
 			_ReplaceGroupShow(true);
 			break;
@@ -1287,6 +1265,71 @@ EditorTabView*
 GenioWindow::TabManager() const
 {
 	return fTabManager;
+}
+
+
+void
+GenioWindow::_PrepareWorkspace()
+{
+	// Load workspace - reopen projects
+
+	BMessage started(MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED);
+	SendNotices(MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED, &started);
+
+	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
+	// the workspace
+	// TODO: improve how projects are loaded and notices are sent over
+	if (gCFG["reopen_projects"]) {
+		fDisableProjectNotifications = true;
+		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
+		status_t status = B_OK;
+		if (!projects.IsEmpty()) {
+			BString projectName;
+			BString activeProject = projects.GetString("active_project");
+			for (auto count = 0; projects.FindString("project_to_reopen",
+										count, &projectName) == B_OK; count++) {
+				entry_ref ref;
+				status = get_ref_for_path(projectName, &ref);
+				if (status == B_OK) {
+					status = _ProjectFolderOpen(ref, projectName == activeProject);
+				}
+			}
+		}
+		if (GetActiveProject() != nullptr)
+			GetProjectBrowser()->SelectProjectAndScroll(GetActiveProject());
+
+		fDisableProjectNotifications = false;
+		if (status == B_OK) {
+			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+			noticeMessage.AddPointer("active_project", GetActiveProject());
+			noticeMessage.AddString("active_project_name", GetActiveProject() ? GetActiveProject()->Name() : "");
+			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+		}
+	}
+
+	// Reopen files
+	if (gCFG["reopen_files"]) {
+		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
+		if (!files.IsEmpty()) {
+			entry_ref ref;
+			int32 index = -1;
+			BMessage message(B_REFS_RECEIVED);
+
+			if (files.FindInt32("opened_index", &index) == B_OK) {
+				message.AddInt32("opened_index", index);
+				int32 count;
+				for (count = 0; files.FindRef("file_to_reopen", count, &ref) == B_OK; count++)
+					message.AddRef("refs", &ref);
+				// Found an index and found some files, post message
+				if (index > -1 && count > 0)
+					PostMessage(&message);
+			}
+		}
+	}
+
+	BMessage completed(MSG_NOTIFY_WORKSPACE_PREPARATION_COMPLETED);
+	SendNotices(MSG_NOTIFY_WORKSPACE_PREPARATION_COMPLETED, &completed);
 }
 
 
@@ -3514,20 +3557,21 @@ GenioWindow::_MakeCatkeys()
 void
 GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 {
-	if (project == nullptr)
-		return;
-
 	// There is no active project
 	if (GetActiveProject() == nullptr) {
-		SetActiveProject(project);
-		project->SetActive(true);
-		_UpdateProjectActivation(true);
+		if (project != nullptr) {
+			SetActiveProject(project);
+			project->SetActive(true);
+			_UpdateProjectActivation(true);
+		}
 	} else {
 		// There was an active project already
 		GetActiveProject()->SetActive(false);
-		SetActiveProject(project);
-		project->SetActive(true);
-		_UpdateProjectActivation(true);
+		if (project != nullptr) {
+			SetActiveProject(project);
+			project->SetActive(true);
+			_UpdateProjectActivation(true);
+		}
 	}
 
 	if (!fDisableProjectNotifications) {
@@ -3766,20 +3810,21 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	fProjectsFolderBrowser->ProjectFolderDepopulate(project);
 
-	// Notify subscribers that the project list has changed
-	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-
-	project->Close();
-
-	delete project;
-
 	// Select a new active project
 	if (wasActive) {
 		ProjectFolder* project = fProjectsFolderBrowser->ProjectAt(0);
 		if (project != nullptr)
 			_ProjectFolderActivate(project);
 	}
+
+	// Notify subscribers that the project list has changed
+	// Done here so the new active project is already set and subscribers
+	// know (SourceControlPanel for example)
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+
+	project->Close();
+	delete project;
 
 	// Disable "Close project" action if no project
 	if (GetProjectBrowser()->CountProjects() == 0)
@@ -3857,37 +3902,10 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	// Now open the project for real
 	BMessenger msgr(this);
-	ProjectFolder* newProject = new ProjectFolder(resolved_ref, msgr);
-
-	_ProjectFolderOpenInitiated(newProject, resolved_ref, activate);
-
-	status = newProject->Open();
-	if (status != B_OK) {
-		_ProjectFolderOpenAborted(newProject, ref, activate);
-		delete newProject;
-		return status;
-	}
-
-	fProjectsFolderBrowser->ProjectFolderPopulate(newProject);
-
-	// TODO: Move this elsewhere!
-	BString taskName;
-	taskName << "Detect " << newProject->Name() << " build system";
-	Task<status_t> task
-	(
-		taskName,
-		BMessenger(this),
-		std::bind
-		(
-			&ProjectFolder::GuessBuildCommand,
-			newProject
-		)
-	);
-
-	task.Run();
-
-	_ProjectFolderOpenCompleted(newProject, ref, activate);
-
+	
+	// TODO: This shows a modal window
+	new ProjectOpenerWindow(&resolved_ref, msgr, activate);
+	
 	return B_OK;
 }
 
@@ -3909,15 +3927,16 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 
 	ActionManager::SetEnabled(MSG_PROJECT_CLOSE, true);
 
-	// Notify subscribers that project list has changed
-	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-
 	BString opened("Project open: ");
 	if (GetProjectBrowser()->CountProjects() == 1 || activate == true) {
 		_ProjectFolderActivate(project);
 		opened = "Active project open: ";
 	}
+
+	// Notify subscribers that project list has changed
+	// Done here so the active project is already set
+	if (!fDisableProjectNotifications)
+		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	BString projectPath = project->Path();
 	BString notification;
@@ -3928,6 +3947,22 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 		Editor* editor = fTabManager->EditorAt(i);
 		_TryAssociateEditorWithProject(editor, project);
 	}
+
+	// TODO: Move this elsewhere!
+	BString taskName;
+	taskName << "Detect " << project->Name() << " build system";
+	Task<status_t> task
+	(
+		taskName,
+		BMessenger(this),
+		std::bind
+		(
+			&ProjectFolder::GuessBuildCommand,
+			project
+		)
+	);
+
+	task.Run();
 
 	// final touch, let's be sure the folder is added to the recent files.
 	be_roster->AddToRecentFolders(&ref, GenioNames::kApplicationSignature);
@@ -3941,6 +3976,8 @@ GenioWindow::_ProjectFolderOpenAborted(ProjectFolder* project,
 	BString notification;
 	notification << "Project open fail: " << project->Name();
 	LogInfo(notification.String());
+
+	delete project;
 }
 
 

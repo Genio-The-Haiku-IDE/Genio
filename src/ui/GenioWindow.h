@@ -64,6 +64,8 @@ public:
 	EditorTabView*			TabManager() const;
 
 private:
+			void				_PrepareWorkspace();
+
 			Editor*				_AddEditorTab(entry_ref* ref, BMessage* addInfo);
 
 			status_t			_BuildProject();

@@ -289,6 +289,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							fRepositoryView->MakeEmpty();
 							fSelectedProjectPath = "";
 						} else {
+							ProjectFolder* project = gMainWindow->GetActiveProject();
+							fSelectedProjectPath = project ? project->Path() : "";
 							_UpdateProjectList();
 						}
 						break;
@@ -710,6 +712,10 @@ SourceControlPanel::_UpdateProjectList()
 		return;
 	}
 
+	// The logic here: save the currently selected project, empty the list
+	// then rebuild the list and try to reselect the previously selected project.
+	// otherwise select the active project.
+
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
 	ProjectFolder* selectedProject = _GetSelectedProject();
@@ -735,21 +741,27 @@ SourceControlPanel::_UpdateProjectList()
 			return (item->Path() == selected->Path());
 		}
 	);
-	// Check if the selected project is a valid git repository
 
-	ProjectFolder* project = _GetSelectedProject();
-	if (project != nullptr) {
-		try {
-			GitRepository* repo = project->GetRepository();
-			if (repo->IsInitialized()) {
-				_UpdateBranchList();
-			} else {
-				fMainLayout->SetVisibleItem(kMainIndexInitialize);
-			}
-		} catch (const GitException &ex) {
-			// other fatal errors
-			throw;
+	const ProjectFolder* project = _GetSelectedProject();
+	if (project != nullptr)
+		_CheckProjectGitRepo(project);
+}
+
+
+void
+SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
+{
+	// Check if the selected project is a valid git repository
+	try {
+		GitRepository* repo = project->GetRepository();
+		if (repo->IsInitialized()) {
+			_UpdateBranchList();
+		} else {
+			fMainLayout->SetVisibleItem(kMainIndexInitialize);
 		}
+	} catch (const GitException &ex) {
+		// other fatal errors
+		throw;
 	}
 }
 

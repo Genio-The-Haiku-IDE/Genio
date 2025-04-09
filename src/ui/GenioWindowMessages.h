@@ -10,6 +10,8 @@
 // External enum names begin with MODULENAME_ and values are Capitalized
 
 enum {
+	MSG_PREPARE_WORKSPACE		= 'pwsk',
+
 	// Project menu
 	MSG_PROJECT_CLOSE			= 'prcl',
 	MSG_PROJECT_OPEN			= 'prop',
@@ -17,6 +19,11 @@ enum {
 	MSG_PROJECT_SET_ACTIVE		= 'psac',	// TODO
 	MSG_PROJECT_SETTINGS		= 'prse',
 	MSG_PROJECT_FOLDER_OPEN		= 'pfop',
+	
+	MSG_PROJECT_OPEN_INITIATED	= 'pfoi',
+	MSG_PROJECT_OPEN_ABORTED	= 'pfoa',
+	MSG_PROJECT_OPEN_COMPLETED	= 'pfoc',
+	
 	MSG_RELOAD_EDITORCONFIG		= 'reec',
 
 	// File menu
@@ -162,7 +169,10 @@ enum {
 	MSG_NOTIFY_PROJECT_LIST_CHANGED		= 'nplc',
 	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa',	// active_project (pointer)
 													// active_project_name (string)
-	MSG_NOTIFY_FIND_STATUS				= 'fist'
+	MSG_NOTIFY_FIND_STATUS				= 'fist',
+
+	MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED = 'wkps',
+	MSG_NOTIFY_WORKSPACE_PREPARATION_COMPLETED = 'wkpc'
 };
 
 #endif // GenioWindowMessages_H

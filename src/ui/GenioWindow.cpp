@@ -205,9 +205,6 @@ GenioWindow::GenioWindow(BRect frame)
 	AddCommonFilter(new EditorMouseWheelMessageFilter());
 	AddCommonFilter(new EditorMessageFilter(B_MOUSE_MOVED, &Editor::BeforeMouseMoved));
 	AddCommonFilter(new EditorMessageFilter(B_MODIFIERS_CHANGED, &Editor::BeforeModifiersChanged));
-
-	BMessage message(MSG_PREPARE_WORKSPACE);
-	BMessageRunner::StartSending(this, &message, 30000, 1);
 }
 
 
@@ -220,7 +217,6 @@ GenioWindow::Show()
 		_ShowPanelTabView(kTabViewLeft,   gCFG["show_projects"], MSG_SHOW_HIDE_LEFT_PANE);
 		_ShowPanelTabView(kTabViewRight,  gCFG["show_outline"], MSG_SHOW_HIDE_RIGHT_PANE);
 		_ShowPanelTabView(kTabViewBottom, gCFG["show_output"],	MSG_SHOW_HIDE_BOTTOM_PANE);
-
 
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 		_ShowView(fStatusView, gCFG["show_statusbar"],	MSG_TOGGLE_STATUSBAR);
@@ -239,6 +235,9 @@ GenioWindow::Show()
 		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		UnlockLooper();
 	}
+
+	BMessage message(MSG_PREPARE_WORKSPACE);
+	BMessageRunner::StartSending(this, &message, 30000, 1);
 }
 
 

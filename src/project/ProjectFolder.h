@@ -7,7 +7,7 @@
 #include <Entry.h>
 #include <Messenger.h>
 #include <String.h>
-
+#include "BMessageBlob.h"
 #include <vector>
 
 
@@ -59,10 +59,20 @@ protected:
 };
 
 
-class ProjectFolder : public SourceItem {
+class ProjectFolder : public SourceItem , public BMessageBlob {
 public:
 								ProjectFolder(const entry_ref& ref, const BMessenger& msgr);
-								~ProjectFolder();
+						virtual	~ProjectFolder();
+
+	status_t	Serialize(BMessage* msg) const {
+		msg->AddString("name", Name());
+		msg->AddString("path", Path());
+		msg->AddBool("active", Active());
+		return B_OK;
+	}
+	status_t	Deserialize(const BMessage* msg) {
+		return B_OK;
+	}
 
 	status_t					Open();
 	status_t					Close();
@@ -121,5 +131,4 @@ private:
 	BString						fFullPath;
 };
 
-typedef std::vector<ProjectFolder*> ProjectFolderList;
-
+typedef BlobVector<ProjectFolder*> ProjectFolderList;

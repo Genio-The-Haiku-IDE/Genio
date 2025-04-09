@@ -4602,6 +4602,8 @@ GenioWindow::_NotifyProjectListChanged()
 {
 	BMessage notice(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 	const ProjectFolderList* list = fProjectsFolderBrowser->GetProjectList();
+	BMessage store;
+	list->Serialize(&store);
 	for (const ProjectFolder* project : *list) {
 		BMessage prj;
 		prj.AddString("name", project->Name());

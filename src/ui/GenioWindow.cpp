@@ -230,11 +230,8 @@ GenioWindow::GenioWindow(BRect frame)
 
 		fDisableProjectNotifications = false;
 		if (status == B_OK) {
-			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-			noticeMessage.AddPointer("active_project", GetActiveProject());
-			noticeMessage.AddString("active_project_name", GetActiveProject() ? GetActiveProject()->Name() : "");
-			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+			_NotifyProjectListChanged();
+			_NotifyProjectSetActive();
 		}
 
 	}
@@ -3531,10 +3528,7 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	}
 
 	if (!fDisableProjectNotifications) {
-		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		noticeMessage.AddPointer("active_project", GetActiveProject());
-		noticeMessage.AddString("active_project_name", GetActiveProject()->Name());
-		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+		_NotifyProjectSetActive();
 	}
 
 	// Update run command working directory tooltip too
@@ -3768,7 +3762,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	// Notify subscribers that the project list has changed
 	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		_NotifyProjectListChanged();
 
 	project->Close();
 
@@ -3911,7 +3905,7 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 
 	// Notify subscribers that project list has changed
 	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		_NotifyProjectListChanged();
 
 	BString opened("Project open: ");
 	if (GetProjectBrowser()->CountProjects() == 1 || activate == true) {
@@ -4600,4 +4594,21 @@ GenioWindow::_UpdateWindowTitle(const char* filePath)
 	if (gCFG["fullpath_title"] && filePath != nullptr)
 		title << ": " << filePath;
 	SetTitle(title.String());
+}
+
+
+void
+GenioWindow::_NotifyProjectListChanged()
+{
+	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+}
+
+
+void
+GenioWindow::_NotifyProjectSetActive()
+{
+	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+	noticeMessage.AddPointer("active_project", GetActiveProject());
+	noticeMessage.AddString("active_project_name", GetActiveProject()->Name());
+	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 }

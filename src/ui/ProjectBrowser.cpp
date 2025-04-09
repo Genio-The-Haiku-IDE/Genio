@@ -436,13 +436,18 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
 				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
+				{
+					BMessage project;
+					if (message->FindMessage("project", &project) != B_OK)
+						return;
 					if (gCFG["auto_expand_collapse_projects"]) {
 						// Expand active project, collapse other
-						BString activeProject = message->GetString("active_project_name", nullptr);
+						BString activeProject = project.GetString("name", "");
 						ExpandProjectCollapseOther(activeProject);
 					}
 					fOutlineListView->Invalidate();
 					break;
+				}
 				case MSG_NOTIFY_EDITOR_FILE_OPENED:
 				case MSG_NOTIFY_EDITOR_FILE_CLOSED:
 				{

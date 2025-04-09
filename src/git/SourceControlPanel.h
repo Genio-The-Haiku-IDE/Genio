@@ -79,7 +79,7 @@ private:
 
 	ProjectFolder*			_GetSelectedProject() const;
 	void					_UpdateProjectList();
-	void					_UpdateBranchList(bool invokeItemMessage = true);
+	void					_UpdateBranchListMenu(bool invokeItemMessage = true);
 	void					_CheckProjectGitRepo(const ProjectFolder* project);
 
 	void					_InitToolBar();

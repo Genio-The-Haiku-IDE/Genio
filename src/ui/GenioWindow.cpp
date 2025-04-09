@@ -3557,20 +3557,21 @@ GenioWindow::_MakeCatkeys()
 void
 GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 {
-	if (project == nullptr)
-		return;
-
 	// There is no active project
 	if (GetActiveProject() == nullptr) {
-		SetActiveProject(project);
-		project->SetActive(true);
-		_UpdateProjectActivation(true);
+		if (project != nullptr) {
+			SetActiveProject(project);
+			project->SetActive(true);
+			_UpdateProjectActivation(true);
+		}
 	} else {
 		// There was an active project already
 		GetActiveProject()->SetActive(false);
-		SetActiveProject(project);
-		project->SetActive(true);
-		_UpdateProjectActivation(true);
+		if (project != nullptr) {
+			SetActiveProject(project);
+			project->SetActive(true);
+			_UpdateProjectActivation(true);
+		}
 	}
 
 	if (!fDisableProjectNotifications) {

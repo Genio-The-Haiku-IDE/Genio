@@ -12,7 +12,6 @@
 #include <Application.h>
 #include <Catalog.h>
 #include <Path.h>
-#include <cstdio>
 
 #include "GitCredentialsWindow.h"
 

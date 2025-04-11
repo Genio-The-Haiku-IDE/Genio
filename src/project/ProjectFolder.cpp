@@ -389,7 +389,7 @@ ProjectFolder::GetRepository() const
 
 
 void
-ProjectFolder::InitRepository(bool createInitialCommit)
+ProjectFolder::InitRepository(bool createInitialCommit) const
 {
 	fGitRepository->Init(createInitialCommit);
 }

@@ -12,6 +12,7 @@
 #include <Application.h>
 #include <Catalog.h>
 #include <Path.h>
+#include <cstdio>
 
 #include "GitCredentialsWindow.h"
 
@@ -83,7 +84,7 @@ namespace Genio::Git {
 	}
 
 	std::vector<BString>
-	GitRepository::GetBranches(git_branch_t branchType) const
+	GitRepository::GetBranches(git_branch_t branchType, size_t maxBranches) const
 	{
 		git_branch_iterator *it = nullptr;
 		git_reference *ref = nullptr;
@@ -97,8 +98,11 @@ namespace Genio::Git {
 				const char *branchName;
 				check(git_branch_name(&branchName, ref));
 				BString bBranchName(branchName);
-				if (bBranchName.FindFirst("HEAD") == B_ERROR)
+				if (bBranchName.FindFirst("HEAD") == B_ERROR) {
 					branches.push_back(branchName);
+					if (branches.size() >= maxBranches)
+						break;
+				}
 			}
 
 			git_reference_free(ref);
@@ -610,22 +614,29 @@ namespace Genio::Git {
 
 
 	std::vector<BString>
-	GitRepository::GetTags() const
+	GitRepository::GetTags( size_t maxTags)
 	{
 		std::vector<BString> tags;
 
 		auto lambda = [](git_reference *ref, void *payload) -> int
 		{
-			auto tags = reinterpret_cast<std::vector<BString>*>(payload);
+			auto* data = reinterpret_cast<std::pair<std::vector<BString>&, size_t>*>(payload);
+			auto& tags = data->first;
+			size_t maxTags = data->second;
+
 			BString ref_name(git_reference_name(ref));
 			if (!ref_name.IFindFirst("refs/tags/")) {
 				ref_name.RemoveAll("refs/tags/");
-				tags->push_back(ref_name);
-				// return 1;
+				tags.push_back(ref_name);
+				if (tags.size() >= maxTags) {
+					return 1;
+				}
 			}
 			return 0;
 		};
-		check(git_reference_foreach(fRepository, lambda, &tags));
+
+		std::pair<std::vector<BString>&, size_t> data = {tags, maxTags};
+		check(git_reference_foreach(fRepository, lambda, &data));
 
 		return tags;
 	}

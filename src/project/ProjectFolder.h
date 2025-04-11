@@ -62,15 +62,22 @@ protected:
 class ProjectFolder : public SourceItem , public BMessageBlob {
 public:
 								ProjectFolder(const entry_ref& ref, const BMessenger& msgr);
+								ProjectFolder(const BMessage* msg) : SourceItem("/") {
+									Deserialize(msg);
+								}
 						virtual	~ProjectFolder();
 
 	status_t	Serialize(BMessage* msg) const {
-		msg->AddString("name", Name());
-		msg->AddString("path", Path());
+		msg->AddRef("ref", EntryRef());
 		msg->AddBool("active", Active());
 		return B_OK;
 	}
 	status_t	Deserialize(const BMessage* msg) {
+		entry_ref ref;
+		if (msg->FindRef("ref", &ref) == B_OK) {
+			UpdateEntryRef(ref);
+			SetActive(msg->GetBool("active", false));
+		}
 		return B_OK;
 	}
 

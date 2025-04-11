@@ -4602,15 +4602,14 @@ GenioWindow::_NotifyProjectListChanged()
 {
 	BMessage notice(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 	const ProjectFolderList* list = fProjectsFolderBrowser->GetProjectList();
-	BMessage store;
-	list->Serialize(&store);
-	for (const ProjectFolder* project : *list) {
+	list->Serialize(&notice);
+	/*for (const ProjectFolder* project : *list) {
 		BMessage prj;
 		prj.AddString("name", project->Name());
 		prj.AddString("path", project->Path());
 		prj.AddBool("active", project == GetActiveProject());
 		notice.AddMessage("project", &prj);
-	}
+	}*/
 	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED, &notice);
 }
 
@@ -4620,6 +4619,7 @@ GenioWindow::_NotifyProjectSetActive()
 {
 	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 	BMessage prj;
+	GetActiveProject()->Serialize(&prj);
 	prj.AddString("name", GetActiveProject()->Name());
 	prj.AddString("path", GetActiveProject()->Path());
 	noticeMessage.AddMessage("project", &prj);

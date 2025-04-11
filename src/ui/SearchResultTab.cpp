@@ -99,6 +99,7 @@ SearchResultTab::MessageReceived(BMessage *message)
 			switch (code) {
 				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 				{
+					message->PrintToStream();
 					_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());
 					break;
 				}

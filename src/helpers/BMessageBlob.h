@@ -51,8 +51,6 @@ public:
 			}
 			msg->AddMessage(type, &xyx);
         }
-		msg->PrintToStream();
-		debugger("DONE");
 		return B_OK;
 	}
 	status_t	Deserialize(const BMessage* msg) override {

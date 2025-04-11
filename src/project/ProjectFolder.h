@@ -102,7 +102,7 @@ public:
 	bool						RunInTerminal() const;
 
 	GitRepository*				GetRepository() const;
-	void						InitRepository(bool createInitialCommit = true);
+	void						InitRepository(bool createInitialCommit = true) const;
 
 	const rgb_color				Color() const;
 

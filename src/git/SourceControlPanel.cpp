@@ -272,7 +272,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					if (message->FindString("key", &key) == B_OK
 						&& key == "repository_outline") {
 						if (!fProjectList->empty()) {
-							_UpdateBranchList(false);
+							_UpdateBranchListMenu(false);
 							_UpdateRepositoryView();
 						}
 					}
@@ -298,8 +298,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-						ProjectFolder* project = gMainWindow->GetActiveProject();
-						fSelectedProjectPath = project ? project->Path() : "";
+						fSelectedProjectPath = message->GetString("active_project_path");
 						if (!fProjectList->empty())
 							_UpdateProjectList();
 						break;
@@ -309,7 +308,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						if (fProjectList->empty())
 							break;
 
-						ProjectFolder* selected = _GetSelectedProject();
+						const ProjectFolder* selected = _SelectedProject();
 						if (selected == nullptr || selected->IsBuilding())
 							break;
 
@@ -393,27 +392,27 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgFetch: {
 				LogInfo("MsgFetch");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				selectedProject->GetRepository()->Fetch();
 				_ShowGitNotification(B_TRANSLATE("Fetch completed."));
-				_UpdateBranchList();
+				_UpdateBranchListMenu();
 				break;
 			}
 			case MsgFetchPrune: {
 				LogInfo("MsgFetchPrune");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				selectedProject->GetRepository()->Fetch(true);
 				_ShowGitNotification(B_TRANSLATE("Fetch prune completed."));
-				_UpdateBranchList();
+				_UpdateBranchListMenu();
 				break;
 			}
 			case MsgStashSave: {
 				LogInfo("MsgStashSave");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				BString stashMessage;
@@ -430,7 +429,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgStashPop: {
 				LogInfo("MsgStashPop");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				selectedProject->GetRepository()->StashPop();
@@ -439,7 +438,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			}
 			case MsgStashApply: {
 				LogInfo("MsgStashApply");
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				selectedProject->GetRepository()->StashApply();
@@ -455,7 +454,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgRenameBranch: {
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				BString selectedBranch = message->GetString("value");
@@ -466,14 +465,14 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				if (result.Button == GAlertButtons::OkButton) {
 					auto repo = selectedProject->GetRepository();
 					repo->RenameBranch(selectedBranch, result.Result, branchType);
-					_UpdateBranchList();
+					_UpdateBranchListMenu();
 					LogInfo("MsgRenameBranch: %s renamed to %s", selectedBranch.String(),
 						result.Result.String());
 				}
 				break;
 			}
 			case MsgDeleteBranch: {
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				const BString selectedBranch = message->GetString("value");
@@ -493,13 +492,13 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					git_branch_t branchType = static_cast<git_branch_t>(message->GetInt32("type",-1));
 					auto repo = selectedProject->GetRepository();
 					repo->DeleteBranch(selectedBranch, branchType);
-					_UpdateBranchList();
+					_UpdateBranchListMenu();
 					LogInfo("MsgDeleteBranch: %s", selectedBranch.String());
 				}
 				break;
 			}
 			case MsgNewBranch: {
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				const BString selectedBranch = message->GetString("value");
@@ -524,7 +523,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 			}
 			case MsgInitializeRepository: {
-				ProjectFolder* selectedProject = _GetSelectedProject();
+				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
 				auto repo = selectedProject->GetRepository();
@@ -605,7 +604,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 		alert->Go();
 		// in case of conflicts the branch will not change but the item in the OptionList will so
 		// we ask the OptionList to redraw
-		_UpdateBranchList(false);
+		_UpdateBranchListMenu(false);
 	} catch (const GitException &ex) {
 		OKAlert("SourceControlPanel", ex.Message().String(), B_STOP_ALERT);
 		_UpdateProjectList();
@@ -637,7 +636,7 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 				sender == kSenderProjectOptionList ||
 				sender == kSenderExternalEvent) {
 				try {
-					_UpdateBranchList(false);
+					_UpdateBranchListMenu(false);
 					_UpdateRepositoryView();
 				} catch(const GitException &ex) {
 					LogInfo(" %s repository has no valid info", selectedProject->Name().String());
@@ -654,8 +653,8 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 }
 
 
-ProjectFolder*
-SourceControlPanel::_GetSelectedProject() const
+const ProjectFolder*
+SourceControlPanel::_SelectedProject() const
 {
 	GenioWindow* window = static_cast<GenioWindow*>(Window());
 	if (window == nullptr)
@@ -671,7 +670,7 @@ SourceControlPanel::_GetSelectedProject() const
 void
 SourceControlPanel::_UpdateRepositoryView()
 {
-	ProjectFolder* project = _GetSelectedProject();
+	const ProjectFolder* project = _SelectedProject();
 	fRepositoryView->UpdateRepository(project, fCurrentBranch);
 }
 
@@ -679,7 +678,7 @@ SourceControlPanel::_UpdateRepositoryView()
 void
 SourceControlPanel::_SwitchBranch(BMessage *message)
 {
-	ProjectFolder* project = _GetSelectedProject();
+	const ProjectFolder* project = _SelectedProject();
 	if (project->IsBuilding()) {
 		OKAlert("Source control panel",
 			B_TRANSLATE("The project is building, changing branch not allowed."),
@@ -697,7 +696,7 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 			_UpdateRepositoryView();
 		} else if (sender == kSenderRepositoryPopupMenu || sender == kSenderExternalEvent) {
 			// we update the repository view and the branch option list
-			_UpdateBranchList(false);
+			_UpdateBranchListMenu(false);
 			_UpdateRepositoryView();
 		}
 	}
@@ -718,7 +717,7 @@ SourceControlPanel::_UpdateProjectList()
 
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
-	ProjectFolder* selectedProject = _GetSelectedProject();
+	const ProjectFolder* selectedProject = _SelectedProject();
 	fProjectMenu->MakeEmpty();
 	fSelectedProjectPath = "";
 	ProjectFolder* activeProject = gMainWindow->GetActiveProject();
@@ -742,7 +741,7 @@ SourceControlPanel::_UpdateProjectList()
 		}
 	);
 
-	const ProjectFolder* project = _GetSelectedProject();
+	const ProjectFolder* project = _SelectedProject();
 	if (project != nullptr)
 		_CheckProjectGitRepo(project);
 }
@@ -755,7 +754,7 @@ SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
 	try {
 		GitRepository* repo = project->GetRepository();
 		if (repo->IsInitialized()) {
-			_UpdateBranchList();
+			_UpdateBranchListMenu();
 		} else {
 			fMainLayout->SetVisibleItem(kMainIndexInitialize);
 		}
@@ -767,10 +766,10 @@ SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
 
 
 void
-SourceControlPanel::_UpdateBranchList(bool invokeItemMessage)
+SourceControlPanel::_UpdateBranchListMenu(bool invokeItemMessage)
 {
 	try {
-		ProjectFolder* selectedProject = _GetSelectedProject();
+		const ProjectFolder* selectedProject = _SelectedProject();
 		if (selectedProject != nullptr) {
 			auto repo = selectedProject->GetRepository();
 			if (repo->IsInitialized()) {
@@ -784,7 +783,7 @@ SourceControlPanel::_UpdateBranchList(bool invokeItemMessage)
 					MsgSwitchBranch,
 					[](auto &item) { return item; },
 					invokeItemMessage,
-					[&currentBranch=this->fCurrentBranch](auto &item) { return (item == currentBranch);}
+					[&currentBranch = fCurrentBranch](auto &item) { return (item == currentBranch);}
 				);
 			}
 		}
@@ -835,7 +834,7 @@ SourceControlPanel::_ShowOptionsMenu(BPoint where)
 void
 SourceControlPanel::_ShowGitNotification(const BString &text)
 {
-	ProjectFolder* project = _GetSelectedProject();
+	const ProjectFolder* project = _SelectedProject();
 	if (project == nullptr)
 		return;
 	ShowNotification("Genio", project->Path().String(),

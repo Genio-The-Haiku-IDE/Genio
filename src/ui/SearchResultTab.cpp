@@ -98,6 +98,7 @@ SearchResultTab::MessageReceived(BMessage *message)
 				break;
 			switch (code) {
 				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
+				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 				{
 					_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());
 					break;
@@ -124,6 +125,7 @@ SearchResultTab::AttachedToWindow()
 	_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
+		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		Window()->UnlockLooper();
 	}
 

@@ -109,17 +109,20 @@ ConsoleIOView::_StopThreads()
 void
 ConsoleIOView::_StopCommand(status_t status)
 {
-	if (fConsoleIOThread) {
+	if (fConsoleIOThread != nullptr) {
+		const BMessage* dataStore = fConsoleIOThread->GetDataStore();
+		BString cmdType = dataStore->GetString("cmd_type");
+		BString projectName = dataStore->GetString("project_name");
 		_StopThreads();
 
 		_BannerMessage("ended   --");
 
 		fStopButton->SetEnabled(false);
 		BMessage message(CONSOLEIOTHREAD_EXIT);
-		message.AddString("cmd_type", fCmdType);
+		message.AddString("cmd_type", cmdType);
+		message.AddString("project_name", projectName);
 		message.AddInt32("status", status);
 		Window()->PostMessage(&message);
-		fCmdType = "";
 		fBannerClaim = "";
 	}
 }
@@ -149,13 +152,11 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			// Used to reload settings too
 			SetWordWrap(gCFG["wrap_console"]);
 			fBannerEnabled->SetValue(gCFG["console_banner"]);
-
 			break;
 		}
 		case MSG_POST_OUTPUT:
 		{
 			auto it = fPendingOutput->begin();
-
 			if (it == fPendingOutput->end())
 				break;
 
@@ -170,9 +171,10 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			if (fConsoleIOThread != nullptr && !fConsoleIOThread->IsDone()) {
 				// TODO: Horrible hack to be able to stop and relaunch build.
 				// should be done differently
-				BString cmdType = NULL;
+				BString runningCmdType = fConsoleIOThread->GetDataStore()->GetString("cmd_type");
+				BString cmdType;
 				if (message->FindString("cmd_type", &cmdType) == B_OK
-						&& cmdType.Compare("build") == 0 && fCmdType == "build") {
+						&& cmdType.Compare("build") == 0 && runningCmdType == "build") {
 					_StopThreads();
 
 					BString msg = "\n *** ";
@@ -192,8 +194,7 @@ ConsoleIOView::MessageReceived(BMessage* message)
 			fStopButton->SetEnabled(true);
 			fConsoleIOThread = new ConsoleIOThread(message, BMessenger(this));
 			fConsoleIOThread->Start();
-			fCmdType = message->GetString("cmd_type", "");
-			fBannerClaim = message->GetString("banner_claim", fCmdType);
+			fBannerClaim = message->GetString("banner_claim");
 			_BannerMessage("started   ");
 
 			break;

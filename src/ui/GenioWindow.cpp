@@ -426,13 +426,15 @@ GenioWindow::MessageReceived(BMessage* message)
 				BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 				noticeMessage.AddBool("building", false);
 				noticeMessage.AddString("cmd_type", cmdType.String());
-				// TODO: this is not correct: if we start building a project, then
-				// change the active project while building, the notification will go to
-				// the wrong project (the currently active one)
-				noticeMessage.AddString("project_name", GetActiveProject()->Name());
+				noticeMessage.AddString("project_name", message->GetString("project_name"));
 				noticeMessage.AddInt32("status", message->GetInt32("status", B_OK));
 				SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
+				// TODO: this is not correct: if we start building a project, then
+				// change the active project while building, the notification will go to
+				// the wrong project (the currently active one)
+				// Since we have the project_name here, send the notification
+				// to the correct project
 				GetActiveProject()->SetBuildingState(false);
 			}
 			_UpdateProjectActivation(GetActiveProject() != nullptr);
@@ -1539,11 +1541,11 @@ GenioWindow::_BuildProject()
 	if (GetActiveProject() == nullptr)
 		return B_ERROR;
 
+	const BString projectName = GetActiveProject()->Name();
 	BString command;
 	command	<< GetActiveProject()->GetBuildCommand();
-
 	if (command.IsEmpty()) {
-		LogInfoF("Empty build command for project [%s]", GetActiveProject()->Name().String());
+		LogInfoF("Empty build command for project [%s]", projectName.String());
 
 		BString message;
 		message << "No build command found!\n"
@@ -1564,7 +1566,7 @@ GenioWindow::_BuildProject()
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 	noticeMessage.AddBool("building", true);
 	noticeMessage.AddString("cmd_type", "build");
-	noticeMessage.AddString("project_name", GetActiveProject()->Name());
+	noticeMessage.AddString("project_name", projectName);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
 	GetActiveProject()->SetBuildingState(true);
@@ -1575,16 +1577,17 @@ GenioWindow::_BuildProject()
 	if (gCFG["show_build_panel"])
 		_ShowOutputTab(kTabBuildLog);
 
-	LogInfoF("Build started: [%s]", GetActiveProject()->Name().String());
+	LogInfoF("Build started: [%s]", projectName.String());
 
 	BString claim("Build ");
-	claim << GetActiveProject()->Name();
+	claim << projectName;
 	claim << " (";
 	claim << (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
 	claim << ")";
 
 	GMessage message = {{"cmd", command},
 						{"cmd_type", "build"},
+						{"project_name", projectName},
 						{"banner_claim", claim }};
 
 	// Go to appropriate directory
@@ -1604,11 +1607,12 @@ GenioWindow::_CleanProject()
 	if (GetActiveProject() == nullptr)
 		return B_ERROR;
 
+	const BString projectName = GetActiveProject()->Name();
 	BString command;
 	command	<< GetActiveProject()->GetCleanCommand();
 
 	if (command.IsEmpty()) {
-		LogInfoF("Empty clean command for project [%s]", GetActiveProject()->Name().String());
+		LogInfoF("Empty clean command for project [%s]", projectName.String());
 
 		BString message;
 		message << "No clean command found!\n"
@@ -1622,14 +1626,14 @@ GenioWindow::_CleanProject()
 	fBuildLogView->Clear();
 	_ShowOutputTab(kTabBuildLog);
 
-	LogInfoF("Clean started: [%s]", GetActiveProject()->Name().String());
+	LogInfoF("Clean started: [%s]", projectName.String());
 
 	fSetActiveProjectMenuItem->SetEnabled(false);
 
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 	noticeMessage.AddBool("building", true);
 	noticeMessage.AddString("cmd_type", "clean");
-	noticeMessage.AddString("project_name", GetActiveProject()->Name());
+	noticeMessage.AddString("project_name", projectName);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
 	GetActiveProject()->SetBuildingState(true);
@@ -1642,6 +1646,7 @@ GenioWindow::_CleanProject()
 
 	GMessage message = {{"cmd", command},
 						{"cmd_type", "build"},
+						{"project_name", projectName},
 						{"banner_claim", claim }};
 
 	// Go to appropriate directory
@@ -2187,6 +2192,7 @@ GenioWindow::_Git(const BString& git_command)
 	BMessage message;
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", command);
+	message.AddString("project_name", GetActiveProject()->Name());
 
 	// Go to appropriate directory
 	chdir(GetActiveProject()->Path());
@@ -3444,6 +3450,7 @@ GenioWindow::_MakeBindcatalogs()
 	else
 		message.AddString("cmd", "make bindcatalogs");
 	message.AddString("cmd_type", "bindcatalogs");
+	message.AddString("project_name", GetActiveProject()->Name());
 
 	// Go to appropriate directory
 	chdir(GetActiveProject()->Path());
@@ -3468,6 +3475,7 @@ GenioWindow::_MakeCatkeys()
 	BMessage message;
 	message.AddString("cmd", "make catkeys");
 	message.AddString("cmd_type", "catkeys");
+	message.AddString("project_name", GetActiveProject()->Name());
 
 	// Go to appropriate directory
 	chdir(GetActiveProject()->Path());
@@ -4061,10 +4069,11 @@ status_t
 GenioWindow::_RunInConsole(const BString& command)
 {
 	// If no active project go to projects directory
-	if (GetActiveProject() == nullptr)
+	ProjectFolder* activeProject = GetActiveProject();
+	if (activeProject == nullptr)
 		chdir(gCFG["projects_directory"]);
 	else
-		chdir(GetActiveProject()->Path());
+		chdir(activeProject->Path());
 
 	_ShowOutputTab(kTabOutputLog);
 
@@ -4073,6 +4082,7 @@ GenioWindow::_RunInConsole(const BString& command)
 	BMessage message;
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", command);
+	message.AddString("project_name", activeProject ? activeProject->Name() : "");
 
 	return fMTermView->RunCommand(&message);
 }
@@ -4117,20 +4127,20 @@ GenioWindow::_RunTarget()
 		// TODO: Go to appropriate directory
 		// chdir(...);
 
+		const BString projectName = GetActiveProject()->Name();
 		BString claim("Run ");
-		claim << GetActiveProject()->Name();
+		claim << projectName;
 		claim << " (";
 		claim << (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
 		claim << ")";
 
 		GMessage message = {{"cmd", command},
 							{"cmd_type", "build"},
+							{"project_name", projectName},
 							{"banner_claim", claim }};
 
-		((BView*)fMTermView)->MakeFocus(true);
-
+		fMTermView->MakeFocus(true);
 		fMTermView->RunCommand(&message);
-
 	} else {
 		argv_split parser(GetActiveProject()->GetTarget().String());
 		parser.parse(GetActiveProject()->GetExecuteArgs().String());

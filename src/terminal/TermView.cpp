@@ -245,21 +245,12 @@ TermView::TermView(BMessage* archive)
 	if (archive->FindInt32("rows", (int32*)&fRows) < B_OK)
 		fRows = ROWS_DEFAULT;
 
-	type_code type;
-	int32 countFound = 0;
-	const char **argv = nullptr;
-
-	if (archive->GetInfo("argv", &type, &countFound) == B_OK) {
-		argv = new const char*[countFound+1];
-		int i=0;
-		while(archive->FindString("argv", i, &argv[i]) == B_OK){
-			i++;
-		}
-		argv[i] = nullptr;
-	}
+	int32 argc = 0;
+	const char** argv = NULL;
+	_GetArgumentsFromMessage(archive, argv, argc);
 
 	// TODO: Retrieve colors, history size, etc. from archive
-	status_t status = _InitObject(ShellParameters(countFound, argv));
+	status_t status = _InitObject(ShellParameters(argc, argv));
 	delete[] argv;
 
 	if (status != B_OK)
@@ -370,12 +361,7 @@ TermView::_InitObject(const ShellParameters& shellParameters)
 	ShellParameters modifiedShellParameters(shellParameters);
 	modifiedShellParameters.SetEncoding(fEncoding);
 
-	error = fShell->Open(fRows, fColumns, modifiedShellParameters);
-
-	if (error < B_OK)
-		return error;
-
-	error = _AttachShell(fShell);
+	error = _AttachShell(fShell, modifiedShellParameters);
 	if (error < B_OK)
 		return error;
 
@@ -997,11 +983,29 @@ TermView::_InvalidateTextRange(TermPos start, TermPos end)
 }
 
 
+void
+TermView::_GetArgumentsFromMessage(const BMessage* message, const char**& argv, int32& argc)
+{
+	type_code type;
+	if (message->GetInfo("argv", &type, &argc) == B_OK) {
+		argv = new const char*[argc + 1];
+		int32 i = 0;
+		while (message->FindString("argv", i, &argv[i]) == B_OK)
+			i++;
+		argv[i] = NULL;
+	}
+}
+
+
 status_t
-TermView::_AttachShell(Shell *shell)
+TermView::_AttachShell(Shell *shell, const ShellParameters& shellParameters)
 {
 	if (shell == NULL)
 		return B_BAD_VALUE;
+
+	status_t status = shell->Open(fRows, fColumns, shellParameters);
+	if (status != B_OK)
+		return status;
 
 	fShell = shell;
 
@@ -1232,7 +1236,7 @@ TermView::_DrawCursor()
 		if (attr.IsWidth() && fCursorStyle != IBEAM_CURSOR)
 			rect.right += fFontWidth;
 
-		if(IsFocus()) {
+		if (IsFocus()) {
 			FillRect(rect);
 		} else {
 			StrokeRect(rect);
@@ -1599,7 +1603,7 @@ TermView::FrameResized(float width, float height)
 	}
 
 	BString text;
-	text << columns << " x " << rows;
+	text.SetToFormat("%" B_PRId32 " × %" B_PRId32, columns, rows);
 	fResizeView->SetText(text.String());
 	fResizeView->GetPreferredSize(&width, &height);
 	fResizeView->ResizeTo(width * 1.5, height * 1.5);
@@ -1753,6 +1757,7 @@ TermView::MessageReceived(BMessage *message)
 				BView::MessageReceived(message);
 			break;
 		}
+
 		case B_EXECUTE_PROPERTY:
 		{
 			int32 i;
@@ -1761,49 +1766,29 @@ TermView::MessageReceived(BMessage *message)
 				&& strcmp("command",
 					specifier.FindString("property", i)) == 0) {
 
-				Shell* shell = fShell;
-				_DetachShell();
-				delete shell;
+				Shell* shell = _DetachShell();
+				shell->Close();
 
-				fShell = new (std::nothrow) Shell();
-				if (fShell == NULL)
-					break;
+				int32 argc = 0;
+				const char** argv = NULL;
+				_GetArgumentsFromMessage(message, argv, argc);
 
-				type_code type;
-				int32 countFound = 0;
-				const char **argv = nullptr;
-
-
-				if (message->GetInfo("argv", &type, &countFound) == B_OK) {
-					argv = new const char*[countFound + 1];
-					int i=0;
-					while(message->FindString("argv", i, &argv[i]) == B_OK){
-						i++;
-					}
-					argv[i] = nullptr;
-				}
-
-				if (message->GetBool("clear", false) == true) {
+				if (message->GetBool("clear", false))
 					Clear();
-				}
 
-				ShellParameters shellParameters(countFound, argv);
+				ShellParameters shellParameters(argc, argv);
 				shellParameters.SetEncoding(fEncoding);
+				_AttachShell(shell, shellParameters);
 
-				status_t error = fShell->Open(fRows, fColumns, shellParameters);
-				if (argv != nullptr) {
-					delete[] argv;
-				}
+				delete[] argv;
 
-				if (error < B_OK)
-					break;
-
-				_AttachShell(fShell);
 				message->SendReply(B_REPLY);
 			} else {
 				BView::MessageReceived(message);
 			}
+			break;
 		}
+
 		case B_MODIFIERS_CHANGED:
 		{
 			_UpdateModifiers();

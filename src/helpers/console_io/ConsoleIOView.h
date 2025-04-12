@@ -62,7 +62,6 @@ private:
 			WordTextView*		fConsoleIOText;
 			BButton*			fClearButton;
 			BButton*			fStopButton;
-			BString				fCmdType;
 			BString				fBannerClaim;
 			OutputInfoList*		fPendingOutput;
 			ConsoleIOThread*	fConsoleIOThread;

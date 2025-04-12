@@ -215,6 +215,7 @@ ConsoleIOThread::ThreadExitNotification()
 }
 
 
+
 status_t
 ConsoleIOThread::ThreadShutdown()
 {

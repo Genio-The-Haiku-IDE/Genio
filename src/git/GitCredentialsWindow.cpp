@@ -85,8 +85,9 @@ GitCredentialsWindow::MessageReceived(BMessage* msg)
 				fPasswordString->SetTo("");
 			Quit();
 			break;
-		// default:
-			// BWindow::MessageReceived(msg);
+		default:
+			BWindow::MessageReceived(msg);
+			break;
 	}
 }
 

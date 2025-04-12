@@ -3,8 +3,7 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
-#ifndef _CREDENTIALS_WINDOW_H_
-#define _CREDENTIALS_WINDOW_H_
+#pragma once
 
 #include <sys/time.h>
 
@@ -26,7 +25,7 @@ class GitCredentialsWindow : public BWindow {
 public:
 							GitCredentialsWindow(const char* title, bool username, bool password = false);
 
-	virtual void			MessageReceived(BMessage* message);
+	void					MessageReceived(BMessage* message) override;
 
 	static thread_id		OpenCredentialsWindow(const char* title, BString& username);
 	static thread_id		OpenCredentialsWindow(const char* title, BString& username,
@@ -47,7 +46,4 @@ private:
 
 	BString*				fUsernameString;
 	BString*				fPasswordString;
-
 };
-
-#endif

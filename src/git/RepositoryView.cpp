@@ -169,7 +169,7 @@ RepositoryView::SelectionChanged()
 
 
 BListItem*
-RepositoryView::GetSelectedItem()
+RepositoryView::SelectedItem() const
 {
 	BListItem *item = nullptr;
 	const int32 selection = CurrentSelection();

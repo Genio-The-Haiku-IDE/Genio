@@ -37,7 +37,7 @@ public:
 	virtual void	SelectionChanged();
 
 	// TODO: Consider returning BranchItem* directly
-	BListItem*		GetSelectedItem();
+	BListItem*		SelectedItem() const;
 
 	void			UpdateRepository(const ProjectFolder *project, const BString &currentBranch);
 private:

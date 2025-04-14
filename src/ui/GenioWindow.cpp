@@ -3382,8 +3382,6 @@ GenioWindow::_InitTabViews()
 }
 
 
-
-
 void
 GenioWindow::_InitWindow()
 {

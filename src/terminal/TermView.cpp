@@ -1236,7 +1236,7 @@ TermView::_DrawCursor()
 		if (attr.IsWidth() && fCursorStyle != IBEAM_CURSOR)
 			rect.right += fFontWidth;
 
-		if (IsFocus()) {
+		if (IsFocus() && Window()->IsActive()) {
 			FillRect(rect);
 		} else {
 			StrokeRect(rect);

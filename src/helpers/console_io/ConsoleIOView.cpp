@@ -47,10 +47,9 @@ struct ConsoleIOView::OutputInfo {
 };
 
 
-ConsoleIOView::ConsoleIOView(const BString& name, const BMessenger& target)
+ConsoleIOView::ConsoleIOView(const BString& name)
 	:
 	BGroupView(B_VERTICAL, 0.0f)
-	, fWindowTarget(target)
 	, fConsoleIOText(nullptr)
 	, fPendingOutput(nullptr)
 	, fConsoleIOThread(nullptr)

@@ -21,6 +21,7 @@ v4.0 (development)
 	- Improve confusing alert name when creating a new branch.
 	- Editor status bar: use a fixed font.
 	- Read and use build target name when using Haiku standard makefile.
+	- Avoid loading more than 1000 git tags since it's very slow and impractical.
 	- Avoid converting end lines when opening files.
 	- Fixed crash in some edge cases.
 	- Fixed layout issues caused by Scintilla view.

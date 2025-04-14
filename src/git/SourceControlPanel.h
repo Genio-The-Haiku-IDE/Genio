@@ -77,9 +77,10 @@ private:
 	BCheckBox*				fDoNotCreateInitialCommitCheckBox;
 	BMessageRunner*			fBurstHandler;
 
-	ProjectFolder*			_GetSelectedProject() const;
+	const ProjectFolder*	_SelectedProject() const;
+
 	void					_UpdateProjectList();
-	void					_UpdateBranchList(bool invokeItemMessage = true);
+	void					_UpdateBranchListMenu(bool invokeItemMessage = true);
 	void					_CheckProjectGitRepo(const ProjectFolder* project);
 
 	void					_InitToolBar();

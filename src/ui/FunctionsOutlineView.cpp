@@ -468,6 +468,10 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 void
 FunctionsOutlineView::SelectSymbolByCaretPosition(int32 position)
 {
+	// TODO: There is probably some mishaps between Scintilla position
+	// and editor position in this codepath.
+	// Doing +1 fixes it.
+	position += 1;
 	BListItem* sym = _RecursiveSymbolByCaretPosition(position, nullptr);
 	if (sym != nullptr && !sym->IsSelected()) {
 		fListView->Select(fListView->IndexOf(sym));

@@ -37,9 +37,9 @@ public:
 	virtual void	SelectionChanged();
 
 	// TODO: Consider returning BranchItem* directly
-	BListItem*		GetSelectedItem();
+	BListItem*		SelectedItem() const;
 
-	void			UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch);
+	void			UpdateRepository(const ProjectFolder *project, const BString &currentBranch);
 private:
 
 	BranchItem*		_InitEmptySuperItem(const BString &label);

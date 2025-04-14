@@ -169,7 +169,7 @@ RepositoryView::SelectionChanged()
 
 
 BListItem*
-RepositoryView::GetSelectedItem()
+RepositoryView::SelectedItem() const
 {
 	BListItem *item = nullptr;
 	const int32 selection = CurrentSelection();
@@ -180,14 +180,14 @@ RepositoryView::GetSelectedItem()
 
 
 void
-RepositoryView::UpdateRepository(ProjectFolder *selectedProject, const BString &currentBranch)
+RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &currentBranch)
 {
 	fCurrentBranch = currentBranch;
 
 	auto const NullLambda = [](const auto& val){ return false; };
 
 	try {
-		auto repo = selectedProject->GetRepository();
+		auto repo = project->GetRepository();
 		auto current_branch = repo->GetCurrentBranch();
 
 		MakeEmpty();

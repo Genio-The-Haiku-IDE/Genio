@@ -1639,7 +1639,7 @@ GenioWindow::_CleanProject()
 	GetActiveProject()->SetBuildingState(true);
 
 	BString claim("Build ");
-	claim << GetActiveProject()->Name();
+	claim << projectName;
 	claim << " (";
 	claim << (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
 	claim << ")";
@@ -3361,7 +3361,7 @@ GenioWindow::_InitTabViews()
 
 	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
-	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"), BMessenger(this));
+	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"));
 	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
 
@@ -3370,12 +3370,11 @@ GenioWindow::_InitTabViews()
 	fPanelTabManager->AddPanelByConfig(fMTermView, kTabOutputLog);
 	fPanelTabManager->AddPanelByConfig(fSearchResultTab, kTabSearchResult);
 
-  //LEFT
+	//LEFT
 	fProjectsFolderBrowser = new ProjectBrowser();
 	fSourceControlPanel = new SourceControlPanel();
 	fPanelTabManager->AddPanelByConfig(fProjectsFolderBrowser, kTabProjectBrowser);
 	fPanelTabManager->AddPanelByConfig(fSourceControlPanel, kTabSourceControl);
-
 
 	//RIGHT
 	fFunctionsOutlineView = new FunctionsOutlineView();

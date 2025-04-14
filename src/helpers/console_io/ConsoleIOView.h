@@ -22,7 +22,7 @@ class ConsoleIOThread;
 class WordTextView;
 class ConsoleIOView : public BGroupView {
 public:
-								ConsoleIOView(const BString& name, const BMessenger& target);
+								ConsoleIOView(const BString& name);
 								~ConsoleIOView();
 
 	virtual	void				MessageReceived(BMessage* message);
@@ -53,8 +53,6 @@ private:
 			void				_StopCommand(status_t status);
 
 private:
-			BMessenger			fWindowTarget;
-
 			BCheckBox*			fStdoutEnabled;
 			BCheckBox*			fStderrEnabled;
 			BCheckBox*			fWrapEnabled;

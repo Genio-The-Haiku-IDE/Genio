@@ -27,8 +27,8 @@ const uint32 kCancel = 'canc';
 ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 	const BMessenger& messenger, bool activate)
 	:
-	BWindow(BRect(0, 0, 400, 200), B_TRANSLATE("Opening project"),
-			B_TITLED_WINDOW,
+	BWindow(BRect(0, 0, 400, 200), B_TRANSLATE("Loading project"),
+			B_MODAL_WINDOW,
 			B_ASYNCHRONOUS_CONTROLS |
 			B_NOT_CLOSABLE |
 			B_NOT_ZOOMABLE |
@@ -103,7 +103,7 @@ ProjectOpenerWindow::_OpenProject(const entry_ref* ref, bool activate)
 {
 	ProjectFolder* newProject = new ProjectFolder(*ref, fTarget);
 
-	BString text(B_TRANSLATE("Opening project '%project_name%'"));
+	BString text(B_TRANSLATE("Loading project '%project_name%'"));
 	text.ReplaceFirst("%project_name%", newProject->Name());
 	Lock();
 	fStatusText->SetText(text);

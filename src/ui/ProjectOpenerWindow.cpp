@@ -37,9 +37,6 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 			B_AUTO_UPDATE_SIZE_LIMITS),
 	fTarget(messenger)
 {
-	fCancel = new BButton("cancel button", B_TRANSLATE("Cancel"),
-			new BMessage(kCancel));
-
 	fBarberPole = new BarberPole("barber pole");
 	fProgressBar = new BStatusBar("progress bar");
 	fProgressLayout = new BCardLayout();
@@ -58,19 +55,14 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 	// TODO: We should use a Grid instead, to align the controls more nicely
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 		.SetInsets(10)
-		.Add(fProgressLayout)
 		.AddGroup(B_HORIZONTAL)
 			.Add(fStatusText)
-			.AddGlue()
-			.Add(fCancel)
-		.End();
+			.Add(fProgressLayout)
+		.End()
+	.End();
 
 	fProgressLayout->SetVisibleItem(int32(0));
 
-	// TODO: Doesn't work yet
-	fCancel->SetEnabled(false);
-
-	SetDefaultButton(fCancel);
 	CenterOnScreen();
 	Show();
 	

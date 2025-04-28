@@ -31,7 +31,7 @@ const uint32 kHideFindText = 'HIFE';
 GlobalStatusView::GlobalStatusView()
 	:
 	BView("global_status_view", B_WILL_DRAW),
-	fBarberPole(nullptr),
+	fBuildBarberPole(nullptr),
 	fBuildStringView(nullptr),
 	fLSPStringView(nullptr),
 	fLSPStatusBar(nullptr),
@@ -44,13 +44,14 @@ GlobalStatusView::GlobalStatusView()
 	float height = ::ceilf(fontHeight.ascent + fontHeight.descent
 		+ fontHeight.leading + be_control_look->DefaultItemSpacing());
 
-	fBarberPole = new BarberPole("build_barberpole");
+	fBuildBarberPole = new BarberPole("build_barberpole");
 	fBuildStringView = new BStringView("build_text", "");
 	fLSPStringView = new BStringView("LSP_text", "");
 	fLSPStatusBar = new BStatusBar("LSP_progressbar");
 	fLastFindStatus = new BStringView("find_status", "");
 
-	fBarberPole->Hide();
+	fBuildBarberPole->Hide();
+
 	fLSPStatusBar->Hide();
 
 	// TODO: Maybe this is wrong but it works
@@ -68,15 +69,15 @@ GlobalStatusView::GlobalStatusView()
 		.AddGroup(B_HORIZONTAL)
 			.SetInsets(2, 4)
 			.Add(fBuildStringView)
-			.Add(fBarberPole)
+			.Add(fBuildBarberPole)
 		.End()
 		;
 
 	fBuildStringView->SetExplicitMinSize(BSize(200, B_SIZE_UNSET));
 	fBuildStringView->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_VERTICAL_UNSET));
 
-	fBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNSET));
-	fBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_CENTER));
+	fBuildBarberPole->SetExplicitMaxSize(BSize(250, B_SIZE_UNSET));
+	fBuildBarberPole->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_CENTER));
 
 	fLSPStringView->SetExplicitMinSize(BSize(100, B_SIZE_UNSET));
 	fLSPStringView->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_VERTICAL_UNSET));
@@ -131,7 +132,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 		case kHideBuildingText:
 			_ResetRunner(&fRunnerBuild);
 			fBuildStringView->SetText("");
-			fBarberPole->Hide();
+			fBuildBarberPole->Hide();
 			break;
 		case kHideFindText:
 			_ResetRunner(&fRunnerFind);
@@ -146,8 +147,8 @@ GlobalStatusView::MessageReceived(BMessage *message)
 				{
 					_ResetRunner(&fRunnerBuild);
 
-					if (fBarberPole->IsHidden())
-						fBarberPole->Show();
+					if (fBuildBarberPole->IsHidden())
+						fBuildBarberPole->Show();
 
 					// TODO: Instead of doing this here, put the string into the message
 					// from the caller and just retrieve it and display it here
@@ -161,7 +162,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 							text = B_TRANSLATE("Building project '\"%project%\"'" B_UTF8_ELLIPSIS);
 						else if (cmdType.Compare("clean") == 0)
 							text = B_TRANSLATE("Cleaning project '\"%project%\"'" B_UTF8_ELLIPSIS);
-						fBarberPole->Start();
+						fBuildBarberPole->Start();
 					} else {
 						if (cmdType.Compare("build") == 0) {
 							if (status == B_OK)
@@ -174,7 +175,7 @@ GlobalStatusView::MessageReceived(BMessage *message)
 							else
 								text = B_TRANSLATE("Failed cleaning project '\"%project%\"'");
 						}
-						fBarberPole->Stop();
+						fBuildBarberPole->Stop();
 						_StartRunner(&fRunnerBuild, kHideBuildingText);
 					}
 					text.ReplaceFirst("\"%project%\"", projectName);

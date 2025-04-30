@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	2961773858
+1	English	application/x-vnd.Genio	625900225
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
 Enable brace matching	SettingsWindow		Enable brace matching
 Clear	ConsoleIOView		Clear
@@ -255,7 +255,6 @@ Banner	ConsoleIOView	A separating line inserted at the start and end of a comman
 Stash changes	SourceControlPanel		Stash changes
 Genio	System name		Genio
 OK	ProjectsFolderBrowser		OK
-Cancel	ProjectOpenerWindow		Cancel
 (follow editor style)	TermView		(follow editor style)
 Release	GenioWindow		Release
 Unsaved files	QuitAlert		Unsaved files

@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	2961773858
+1	English	application/x-vnd.Genio	1700478785
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
 Enable brace matching	SettingsWindow		Enable brace matching
 Clear	ConsoleIOView		Clear
@@ -47,7 +47,6 @@ Find	SettingsWindow		Find
 Reload	GenioWindow		Reload
 Project	GenioWindow		Project
 Replace	GenioWindow		Replace
-%COUNT% elements found	Editor		%COUNT% elements found
 Stashed changes applied.	SourceControlPanel		Stashed changes applied.
 Cancel	GenioWindow		Cancel
 Log level:	SettingsWindow		Log level:
@@ -129,6 +128,7 @@ Show left pane	GenioWindow		Show left pane
 Search	GenioWindow		Search
 Creating outline	FunctionsOutlineView		Creating outline
 Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
 Reset zoom	GenioWindow		Reset zoom
 Show bottom pane	SettingsWindow		Show bottom pane
 Stop	ConsoleIOView		Stop
@@ -208,7 +208,6 @@ Choose project…	SourceControlPanel		Choose project…
 Copy name	SourceControlPanel		Copy name
 An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
 Edit	GenioWindow		Edit
-%COUNT% element replaced	Editor		%COUNT% element replaced
 Find:	GenioWindow		Find:
 Git	GenioWindow		Git
 Enter a message for this stash	SourceControlPanel		Enter a message for this stash
@@ -226,6 +225,7 @@ Comment selected lines	GenioWindow		Comment selected lines
 Switch source/header	GenioWindow		Switch source/header
 Global settings applied	EditorStatusView		Global settings applied
 Make file read-only	GenioWindow		Make file read-only
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
 Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
 Font:	SettingsWindow		Font:
@@ -255,7 +255,6 @@ Banner	ConsoleIOView	A separating line inserted at the start and end of a comman
 Stash changes	SourceControlPanel		Stash changes
 Genio	System name		Genio
 OK	ProjectsFolderBrowser		OK
-Cancel	ProjectOpenerWindow		Cancel
 (follow editor style)	TermView		(follow editor style)
 Release	GenioWindow		Release
 Unsaved files	QuitAlert		Unsaved files
@@ -289,6 +288,7 @@ Banner	TermView	A separating line inserted at the start and end of a command out
 Genio project…	GenioWindow		Genio project…
 Outline	FunctionsOutlineView		Outline
 Go to line:	GoToLineWindow		Go to line:
+1 element replaced	Editor		1 element replaced
 Conflicts	GenioWindow		Conflicts
 Ignore	GenioWindow		Ignore
 Tag	GenioWindow	The git command	Tag
@@ -356,7 +356,6 @@ Build project	GenioWindow		Build project
 View	GenioWindow		View
 Don't save	Editor		Don't save
 Show statusbar	SettingsWindow		Show statusbar
-%COUNT% elements replaced	Editor		%COUNT% elements replaced
 Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Wrap around
 Show toolbar	SettingsWindow		Show toolbar
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?

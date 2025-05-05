@@ -726,7 +726,7 @@ Editor::FindNext(const BString& search, int flags, bool wrap)
 		position = Find(search, flags, false, true);
 	}
 	if (position == -1) {
-		_NotifyFindStatus(B_TRANSLATE("Find next not found"));
+		_NotifyFindStatus(B_TRANSLATE("No matches found."));
 	}
 	return position;
 }
@@ -741,7 +741,7 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 		position = Find(search, flags, true, true);
 	}
 	if (position == -1) {
-		_NotifyFindStatus(B_TRANSLATE("Find previous not found"));
+		_NotifyFindStatus(B_TRANSLATE("No matches found."));
 	}
 	return position;
 }

@@ -23,6 +23,7 @@
 #include <NodeMonitor.h>
 #include <Path.h>
 #include <SciLexer.h>
+#include <StringFormat.h>
 #include <Url.h>
 #include <Volume.h>
 
@@ -705,8 +706,11 @@ Editor::FindMarkAll(const BString& text, int flags)
 	}
 
 	SendMessage(SCI_GOTOPOS, firstMark, UNSET);
-	BString message(B_TRANSLATE("%COUNT% elements found"));
-	message.ReplaceAll("%COUNT%", std::to_string(count).c_str());
+	BString message;
+	static BStringFormat format(B_TRANSLATE("{0, plural,"
+		"one{# element found}"
+		"other{# elements found}}"));
+	format.Format(message, count);
 	_NotifyFindStatus(message.String());
 
 	return count;
@@ -1305,12 +1309,10 @@ Editor::ReplaceAll(const BString& selection, const BString& replacement, int fla
 	SendMessage(SCI_ENDUNDOACTION, 0, 0);
 
 	BString message;
-	if (count > 1)
-		message = B_TRANSLATE("%COUNT% elements replaced");
-	else
-		message = B_TRANSLATE("%COUNT% element replaced");
-
-	message.ReplaceAll("%COUNT%", std::to_string(count).c_str());
+	static BStringFormat format(B_TRANSLATE("{0, plural,"
+		"one{# element replaced}"
+		"other{# elements replaced}}"));
+	format.Format(message, count);
 	_NotifyFindStatus(message.String());
 
 	return count;
@@ -1322,9 +1324,7 @@ Editor::ReplaceOne(const BString& selection, const BString& replacement)
 {
 	if (selection == Selection()) {
 		SendMessage(SCI_REPLACESEL, UNUSED, (sptr_t)replacement.String());
-		BString message(B_TRANSLATE("%COUNT% element replaced"));
-		message.ReplaceAll("%COUNT%", "1");
-		_NotifyFindStatus(message.String());
+		_NotifyFindStatus(B_TRANSLATE("1 element replaced"));
 
 		return REPLACE_DONE;
 	}

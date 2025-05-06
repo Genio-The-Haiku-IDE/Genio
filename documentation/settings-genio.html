@@ -34,6 +34,7 @@
 	<a href="#editor">Editor</a><br />
 	<a href="#editor_visual">┣━ Visual</a><br />
 	<a href="#editor_find"> ┗━ Find</a><br />
+	<a href="#console">Console</a><br />
 	<a href="#build">Build</a><br />
 	<a href="#lsp">LSP</a><br />
 	<a href="#source_control">Source control</a>
@@ -124,9 +125,9 @@
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
-<a id="editor_visuals" name="editor_visual">Editor / Visual</a></h2>
+<a id="editor_visuals" name="editor_visual">Editor / Visuals</a></h2>
 
-<p style="text-align:center"><img src="./images/genio-settings-editor_visual.png" style="border:none;padding:15px" alt="Genio settings: Editor / Visual" /></p>
+<p style="text-align:center"><img src="./images/genio-settings-editor_visuals.png" style="border:none;padding:15px" alt="Genio settings: Editor / Visuals" /></p>
 
 <table summary="layout">
 <tr><td class="onelinetop"><span class="menu">Editor style</span></td>
@@ -180,6 +181,16 @@
 
 <h2>
 <a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="console" name="console">Console</a></h2>
+
+<p style="text-align:center"><img src="./images/genio-settings-console.png" style="border:none;padding:15px" alt="Genio settings: Console" /></p>
+
+<p>You can choose the style of the Console tab of the bottom pane. You can <span class="menu">follow system style</span> to get the same as Haiku's standard Terminal, or <span class="menu">follow editor style</span> to use the same as your editor settings.</p>
+<p>Alternatively, you can pick a fixed theme from the set of styles that are also available in the <a href="#editor_visuals">Editor / Visuals</a> settings described above.</p>
+
+
+<h2>
+<a href="#"><img src="./images/up.png" style="border:none;float:right" alt="index" /></a>
 <a id="build" name="build">Build</a></h2>
 
 <p style="text-align:center"><img src="./images/genio-settings-build.png" style="border:none;padding:15px" alt="Genio settings: Build" /></p>
@@ -196,6 +207,9 @@
 
 <tr><td class="onelinetop"><span class="menu">Auto-Save changed files when building</span></td>
 <td>Saves all changed files automatically when a build was started.</td></tr>
+
+<tr><td class="onelinetop"><span class="menu">Force showing Build log panel when building</span></td>
+<td>If you've hidden the bottom pane, it will automatically pop up with the <a href="panes.html#console">Console I/O</a> tab when you start building the project.</td></tr>
 </table>
 
 

@@ -103,17 +103,15 @@ Locked files are marked with a little lock symbol in the tab.</p>
 
 <p><img src="./images/editor-status.png" style="border:none" alt="Editor status display" /></p>
 
+<p>From left to right:</p>
 <ul>
+<li>The row and column of the current cursor position, mentioned above.</li>
+<li>The status of the <a href="./settings-lsp.html">LSP</a> backend. Shows "<b>!</b>" while parsing and "✔" when idle.</li>
 <li>The current writing mode (INS = insert, OVR = overwrite). Clicking it toggles the mode, which is normally done with <span class="key">INS</span> on the keyboard.</li>
-
 <li>The line endings of the current file (LF = Linefeed, CR = Carriage Return).</li>
-
 <li>The file's write permissions (RW = read/write, RO = read-only).</li>
-
-<li>Shows if the file is being configured by an <tt>.editconfig</tt> file (text icon) or by the global Genio settings (globe icon). See <a href="settings-genio.html#editor">Editor settings</a>.</li>
-
+<li>Shows if the file is being configured by an <tt>.editconfig</tt> file (text icon: 📄) or by the global Genio settings (globe icon: 🌐). See <a href="settings-genio.html#editor">Editor settings</a>.</li>
 <li>Shows if trailing whitespaces get trimmed when saving.</li>
-
 <li>Shows the tab width (spaces per tab).</li>
 </ul>
 
@@ -152,7 +150,7 @@ Locked files are marked with a little lock symbol in the tab.</p>
 
 <p style="text-align:center"><img src="./images/editor-linked_info.png" style="border:none" alt="Links and info on headers" /></p>
 
-<p>Included headers are underlined to mark them as link. Simply click on one to open the header file.<br />
+<p>You can hold <span class="key">ALT</span> and click on an included header to open its file.<br />
 Hover your mouse over it and a tooltip shows the header's location on disk and which functions etc. it provides and are used from it.</p>
 
 
@@ -161,6 +159,8 @@ Hover your mouse over it and a tooltip shows the header's location on disk and w
 <a id="jumpdef" name="jumpdef">Jump to definition/declaration</a></h3>
 
 <p>You can jump between the definition and declaration of a member variable, function or class etc. and vice-versa. Either right-click on it and choose <span class="menu">Go to definition/declaration</span> or hit <span class="key">ALT</span>&nbsp;<span class="key">G</span> after placing the cursor on it.</p>
+
+<p>Often even easier: Just hold <span class="key">ALT</span> and symbols become underlined when the mouse pointer hovers over them. Then it's a simple left-click to jump to the definition/declaration.</p>
 
 
 <h3>

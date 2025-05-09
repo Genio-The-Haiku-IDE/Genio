@@ -888,7 +888,7 @@ ProjectBrowser::SelectNewItemAndScrollDelayed(const ProjectItem* parent, const e
 	// .. after some milliseconds..
 
 	// the selected item initiating this is not a folder or project but a file.
-	if (parent->GetSourceItem()->Type() == FileItem) {
+	if (parent && parent->GetSourceItem() && parent->GetSourceItem()->Type() == FileItem) {
 		parent = static_cast<ProjectItem*>(fOutlineListView->Superitem(parent));
 	}
 

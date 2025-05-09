@@ -3650,8 +3650,9 @@ GenioWindow::_TemplateNewFolder(BMessage* message)
 	entry_ref refNew;
 	status_t status = TemplateManager::CreateNewFolder(&ref, &refNew);
 	if (status != B_OK) {
-		OKAlert(B_TRANSLATE("New folder"),
-			B_TRANSLATE("Error creating folder"), B_WARNING_ALERT);
+		BString error = B_TRANSLATE("Error creating folder");
+		error << "\n" << strerror(status);
+		OKAlert(B_TRANSLATE("New folder"), error, B_WARNING_ALERT);
 		LogError("Invalid destination directory [%s]", ref.name);
 	} else {
 		ProjectItem* item = nullptr;
@@ -3847,10 +3848,10 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	// Now open the project for real
 	BMessenger msgr(this);
-	
+
 	// TODO: This shows a modal window
 	new ProjectOpenerWindow(&resolved_ref, msgr, activate);
-	
+
 	return B_OK;
 }
 

@@ -331,6 +331,7 @@ GTabCloseButton::DrawContents(BView* owner, BRect frame,
 	labelFrame.right -= kCloseButtonWidth;
 	DrawLabel(owner, labelFrame, updateRect, isFront);
 	frame.left = labelFrame.right;
+	//FillRect(frame);
 	DrawCloseButton(owner, frame, updateRect, isFront);
 }
 
@@ -398,8 +399,8 @@ GTabCloseButton::RectCloseButton()
 	BRect frame  = Bounds();
 	frame.right -= be_control_look->DefaultLabelSpacing();
 	frame.left = frame.right - kCloseButtonWidth + 3;
-	frame.bottom -= be_control_look->DefaultLabelSpacing()/2 + TabViewTools::DefaultFontDescent() - 2;
-	frame.top = frame.bottom - frame.Width();
+	frame.top += (frame.Height()/2.0f) - kCloseButtonWidth/2.0 + TabViewTools::DefaultFontDescent();
+	frame.bottom = frame.top + frame.Width();
 	return frame;
 }
 

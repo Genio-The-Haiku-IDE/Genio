@@ -10,10 +10,9 @@ BranchItem::BranchItem(const char* branchName,
 						const char* text,
 						uint32 branchType,
 						uint32 outlineLevel,
-						bool expanded,
-						const char *iconName)
+						bool expanded)
 	:
-	StyledItem(text, outlineLevel, expanded, iconName),
+	StyledItem(text, outlineLevel, expanded),
 	fBranchType(branchType),
 	fBranchName(branchName)
 {

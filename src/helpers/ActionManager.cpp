@@ -31,7 +31,6 @@ public:
 
 ActionManager::~ActionManager()
 {
-	printf("sizeof action: %ld\n", sizeof(Action));
 	ActionMap::reverse_iterator it;
 	for (it = sInstance.fActionMap.rbegin(); it != sInstance.fActionMap.rend(); it++) {
 		delete it->second;

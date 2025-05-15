@@ -23,7 +23,7 @@ private:
 			void	_ResetRunner(BMessageRunner**  runner);
 			void	_StartRunner(BMessageRunner** runner, uint32 what);
 
-	BarberPole*		fBarberPole;
+	BarberPole*		fBuildBarberPole;
 	BStringView*	fBuildStringView;
 	BStringView*	fLSPStringView;
 	BStatusBar*		fLSPStatusBar;

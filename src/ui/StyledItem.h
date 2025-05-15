@@ -14,8 +14,7 @@ public:
 
 					StyledItem(const char* text,
 								uint32 outlineLevel = 0,
-								bool expanded = true,
-								const char *iconName = nullptr);
+								bool expanded = true);
 					virtual ~StyledItem();
 
 	virtual void 	DrawItem(BView* owner, BRect bounds, bool complete);

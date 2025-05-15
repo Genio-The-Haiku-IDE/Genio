@@ -99,9 +99,14 @@ TemplateManager::CreateNewFolder(const entry_ref* destination, entry_ref* newFol
 {
 	BDirectory dir(destination);
 	BDirectory newDir;
-	status_t status = dir.CreateDirectory(B_TRANSLATE("New folder"), &newDir);
+	status_t status = dir.InitCheck();
 	if (status != B_OK) {
-		LogError("Invalid destination directory [%s]", destination->name);
+		LogError("Invalid destination directory [%s] (%s)", destination->name, strerror(status));
+		return status;
+	}
+	status = dir.CreateDirectory(B_TRANSLATE("New folder"), &newDir);
+	if (status != B_OK) {
+		LogError("Invalid destination directory [%s] (%s)", destination->name, strerror(status));
 	} else if (newFolderRef != nullptr && newDir.InitCheck() == B_OK) {
 		BEntry entry;
 		newDir.GetEntry(&entry);

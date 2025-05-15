@@ -17,8 +17,7 @@
 
 StyledItem::StyledItem(const char* text,
 						uint32 outlineLevel,
-						bool expanded,
-						const char *iconName)
+						bool expanded)
 	:
 	BStringItem(text, outlineLevel, expanded),
 	fFontFace(B_REGULAR_FACE),

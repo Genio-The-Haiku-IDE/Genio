@@ -13,8 +13,7 @@ public:
 				const char* text,
 				uint32 branchType = -1,
 				uint32 outlineLevel = 0,
-				bool expanded = true,
-				const char *iconName = nullptr);
+				bool expanded = true);
 	virtual 	~BranchItem();
 	uint32 		BranchType() const;
 	const char*	BranchName() const;

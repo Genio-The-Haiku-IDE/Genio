@@ -257,7 +257,7 @@ GenioApp::_SplitChangeLog(const char* changeLog)
 {
 	BStringList list;
 	char* stringStart = const_cast<char*>(changeLog);
-	int i = 0;
+	int32 i = 0;
 	char c;
 	while ((c = stringStart[i]) != '\0') {
 		if (c == '-'  && i > 2 && stringStart[i - 1] == '-' && stringStart[i - 2] == '-') {

@@ -3618,9 +3618,13 @@ GenioWindow::_TemplateNewFile(BMessage* message)
 {
 	entry_ref source;
 	entry_ref dest;
-	message->FindRef("sender_ref", &dest);
+	if (message->FindRef("sender_ref", &dest) != B_OK) {
+		LogError("Can't find sender_ref in message!");
+		return;
+	}
+
 	if (message->FindRef("refs", &source) != B_OK) {
-		LogError("Can't find ref in message!");
+		LogError("Can't find refs in message!");
 		return;
 	}
 	entry_ref refNew;
@@ -3632,8 +3636,8 @@ GenioWindow::_TemplateNewFile(BMessage* message)
 		LogError("Invalid destination directory [%s]", dest.name);
 	} else {
 		ProjectItem* item = nullptr;
-		message->FindPointer("sender", (void**)&item);
-		GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
+		if (message->FindPointer("sender", (void**)&item) == B_OK)
+			GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
 	}
 }
 
@@ -3642,18 +3646,21 @@ void
 GenioWindow::_TemplateNewFolder(BMessage* message)
 {
 	entry_ref ref;
-	message->FindRef("sender_ref", &ref);
+	if (message->FindRef("sender_ref", &ref) != B_OK) {
+		LogError("Can't find sender_ref in message!");
+		return;
+	}
 	entry_ref refNew;
 	status_t status = TemplateManager::CreateNewFolder(&ref, &refNew);
 	if (status != B_OK) {
-		OKAlert(B_TRANSLATE("New folder"),
-			B_TRANSLATE("Error creating folder"),
-				B_WARNING_ALERT);
+		BString error = B_TRANSLATE("Error creating folder");
+		error << "\n" << strerror(status);
+		OKAlert(B_TRANSLATE("New folder"), error, B_WARNING_ALERT);
 		LogError("Invalid destination directory [%s]", ref.name);
 	} else {
 		ProjectItem* item = nullptr;
-		message->FindPointer("sender", (void**)&item);
-		GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
+		if (message->FindPointer("sender", (void**)&item) == B_OK)
+			GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
 	}
 }
 
@@ -3844,10 +3851,10 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	// Now open the project for real
 	BMessenger msgr(this);
-	
+
 	// TODO: This shows a modal window
 	new ProjectOpenerWindow(&resolved_ref, msgr, activate);
-	
+
 	return B_OK;
 }
 

@@ -105,11 +105,11 @@ const char* GControl<BOptionPopUp, const char*>::RetrieveValue() const
 template<>
 void GControl<BOptionPopUp, const char*>::LoadValue(const char* value)
 {
-	const char* label = nullptr;
 	int32 intValue = 0;
 	for (int32 i = 0; i < CountOptions(); i++) {
+		const char* label = nullptr;
 		if (GetOptionAt(i, &label, &intValue)) {
-			if (strcmp(label, value) == 0)
+			if (::strcmp(label, value) == 0)
 				break;
 		}
 	}
@@ -235,7 +235,6 @@ ConfigWindow::MessageReceived(BMessage* message)
 		case kItemSelected:
 		{
 			int32 index = fGroupList->FullListCurrentSelection();
-
 			if (index >= 0) {
 				BStringItem* item = dynamic_cast<BStringItem*>(fGroupList->FullListItemAt(index));
 				if (item == nullptr)
@@ -267,8 +266,8 @@ ConfigWindow::MessageReceived(BMessage* message)
 
 				BString context = message->GetString("context", "");
 				if (context.IsEmpty() || context.Compare("reset_to_defaults_end") == 0) {
-						if (fDefaultsButton != nullptr)
-							fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
+					if (fDefaultsButton != nullptr)
+						fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
 				}
 			}
 			break;
@@ -285,8 +284,8 @@ ConfigWindow::_PopulateListView()
 {
 	std::vector<GMessage> dividedByGroup;
 	GMessage msg;
-	int i = 0;
-	while (fConfigManager.FindConfigMessage("config", i++, &msg) == B_OK)  {
+	int32 index = 0;
+	while (fConfigManager.FindConfigMessage("config", index++, &msg) == B_OK)  {
 		std::vector<GMessage>::iterator i = dividedByGroup.begin();
 		while (i != dividedByGroup.end()) {
 			if (strcmp((*i)["group"], (const char*)msg["group"]) == 0) {
@@ -315,9 +314,9 @@ ConfigWindow::_PopulateListView()
 			int32 position = groupName.FindFirstChars("/", 0);
 			if (position > 0) {
 				BString leaf;
-				groupName.CopyCharsInto(leaf,0,position);
+				groupName.CopyCharsInto(leaf, 0, position);
 				groupName.Remove(0, position + 1);
-				for (int y = 0;y < fGroupList->FullListCountItems(); y++) {
+				for (int32 y = 0;y < fGroupList->FullListCountItems(); y++) {
 					BStringItem* item = static_cast<BStringItem*>(fGroupList->FullListItemAt(y));
 					if (leaf.Compare(item->Text()) == 0) {
 						int32 count = fGroupList->CountItemsUnder(item, false);
@@ -351,7 +350,7 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	settingLayout->SetInsets(B_USE_HALF_ITEM_INSETS);
 
 	GMessage msg;
-	int i = 0;
+	int32 i = 0;
 	while (list.FindMessage("config", i++, &msg) == B_OK)  {
 		BView *parameterView = MakeControlFor(msg);
 		if (parameterView == NULL)
@@ -438,7 +437,7 @@ ConfigWindow::MakeControlFor(GMessage& config)
 			BView* view = new BStringView(config["key"], config["label"]);
 			BSeparatorView* separator = new BSeparatorView(view);
 			BSize size = view->MinSize();
-			size.width  += size.width/3.0;
+			size.width += size.width / 3.0;
 			size.height *= 2.0;
 			separator->SetExplicitMinSize(size);
 			return separator;
@@ -449,7 +448,6 @@ ConfigWindow::MakeControlFor(GMessage& config)
 			label.SetToFormat("Can't create control for setting [%s]\n", (const char*)config["key"]);
 			return new BStringView("view", label.String());
 		}
-		break;
 	}
 	return NULL;
 }

@@ -19,8 +19,8 @@ public:
 	BString	label;
 	BString iconResourceName;
 	BString toolTip;
-	char	shortcut;
 	uint32  modifiers;
+	char	shortcut;
 	bool	enabled;
 	bool	pressed;
 

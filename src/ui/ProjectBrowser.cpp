@@ -1135,8 +1135,10 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		projectMenu->AddItem(projectSettingsMenuItem);
 		closeProjectMenuItem->SetEnabled(true);
 		projectMenu->AddSeparatorItem();
-		projectMenu->AddItem(new SwitchBranchMenu(Window(), B_TRANSLATE("Switch to branch"),
-													new BMessage(MSG_GIT_SWITCH_BRANCH), project->Path()));
+		BMenu* switchBranchMenu = new SwitchBranchMenu(Window(), B_TRANSLATE("Switch to branch"),
+												new BMessage(MSG_GIT_SWITCH_BRANCH),
+												project->Path());
+		projectMenu->AddItem(switchBranchMenu);
 		projectMenu->AddSeparatorItem();
 		BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),
 			new BMessage(MSG_BUILD_PROJECT));
@@ -1168,6 +1170,9 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 		ProjectFolder* activeProject = dynamic_cast<GenioWindow*>(Window())->GetActiveProject();
 		setActiveProjectMenuItem->SetEnabled(!project->Active() && !activeProject->IsBuilding());
 
+		if (project->IsBuilding())
+			switchBranchMenu->SetEnabled(false);
+
 		if (project->IsBuilding() || !project->Active()) {
 			buildMenuItem->SetEnabled(false);
 			cleanMenuItem->SetEnabled(false);
@@ -1195,7 +1200,6 @@ ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
 
 	bool isFolder = projectItem->GetSourceItem()->Type() == SourceItemType::FolderItem;
 	bool isFile = projectItem->GetSourceItem()->Type() == SourceItemType::FileItem;
-
 	if (isFolder || isFile) {
 		BMenuItem* deleteFileProjectMenuItem = new BMenuItem(
 			isFile ? B_TRANSLATE("Delete file") : B_TRANSLATE("Delete folder"),

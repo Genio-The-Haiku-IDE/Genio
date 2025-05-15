@@ -36,26 +36,12 @@
 
 
 SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label,
-									BMessage *message)
-	:
-	BMenu(label),
-	fTarget(target),
-	fMessage(message),
-	fActiveProjectPath(nullptr),
-	fDetectActiveProject(true)
-{
-	SetRadioMode(true);
-}
-
-
-SwitchBranchMenu::SwitchBranchMenu(BHandler *target, const char* label,
 									BMessage *message, const char *projectPath)
 	:
 	BMenu(label),
 	fTarget(target),
 	fMessage(message),
-	fActiveProjectPath(projectPath),
-	fDetectActiveProject(false)
+	fProjectPath(projectPath)
 {
 	SetRadioMode(true);
 }
@@ -69,16 +55,15 @@ SwitchBranchMenu::~SwitchBranchMenu()
 void
 SwitchBranchMenu::AttachedToWindow()
 {
-	if (fDetectActiveProject) {
+	BString projectPath = fProjectPath;
+	if (projectPath.IsEmpty()) {
 		auto activeProject = gMainWindow->GetActiveProject();
 		// GenioWindow *window = reinterpret_cast<GenioWindow *>(fTarget);
 		// fActiveProjectPath = window->GetActiveProject()->Path().String();
 		if (activeProject != nullptr)
-			fActiveProjectPath = activeProject->Path().String();
-		else
-			fActiveProjectPath = "";
+			projectPath = activeProject->Path().String();
 	}
-	_BuildMenu();
+	_BuildMenu(projectPath);
 
 	// This has to be done AFTER _BuildMenu, since
 	// it layouts the menu and resizes the window.
@@ -110,30 +95,23 @@ SwitchBranchMenu::SetTargetForItems(BHandler* target)
 }
 
 
-void
-SwitchBranchMenu::UpdateMenuState()
-{
-	_BuildMenu();
-}
-
-
 bool
-SwitchBranchMenu::_BuildMenu()
+SwitchBranchMenu::_BuildMenu(const BString& projectPath)
 {
 	// clear everything...
 	int32 count = CountItems();
 	RemoveItems(0, count, true);
 
-	if (fActiveProjectPath) {
+	if (!projectPath.IsEmpty()) {
 		Genio::Git::GitRepository* repo = nullptr;
 		try {
-			repo = new Genio::Git::GitRepository(fActiveProjectPath);
+			repo = new Genio::Git::GitRepository(projectPath);
 			auto branches = repo->GetBranches();
 			auto current_branch = repo->GetCurrentBranch();
 			for(auto &branch : branches) {
 				BMessage *message = new BMessage(fMessage->what);
 				message->AddString("branch", branch);
-				message->AddString("project_path", fActiveProjectPath);
+				message->AddString("project_path", projectPath);
 				auto item = new BMenuItem(branch, message);
 				AddItem(item);
 				if (branch == current_branch)

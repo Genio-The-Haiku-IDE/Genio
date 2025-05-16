@@ -37,9 +37,11 @@
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
 #include "ConsoleIOTab.h"
+#include "ConsoleIOTabView.h"
 #include "EditorMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
+#include "EditorTabView.h"
 #include "ExtensionManager.h"
 #include "FSUtils.h"
 #include "FunctionsOutlineView.h"
@@ -52,9 +54,11 @@
 #include "GoToLineWindow.h"
 #include "GSettings.h"
 #include "IconMenuItem.h"
+#include "JumpNavigator.h"
 #include "Languages.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
+#include "PanelTabManager.h"
 #include "ProblemsPanel.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
@@ -68,13 +72,10 @@
 #include "Task.h"
 #include "TemplateManager.h"
 #include "TemplatesMenu.h"
+#include "TerminalTab.h"
 #include "ToolsMenu.h"
 #include "Utils.h"
-#include "JumpNavigator.h"
-#include "PanelTabManager.h"
-#include "EditorTabView.h"
-#include "TerminalTab.h"
-#include "ConsoleIOTabView.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioWindow"
@@ -3746,9 +3747,6 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		fRunConsoleProgramText->SetToolTip(tooltip);
 	}
 
-	/*BString projectPath = project->Path();
-	projectPath = projectPath.Append("/");*/
-
 	fTabManager->ReverseForEachEditor([&](Editor* editor){
 		if (editor->GetProjectFolder() == project) {
 			editor->SetProjectFolder(NULL);
@@ -4167,7 +4165,6 @@ GenioWindow::_ShowOutputTab(tab_id id)
 }
 
 
-
 void
 GenioWindow::_UpdateFindMenuItems(const BString& text)
 {
@@ -4180,6 +4177,7 @@ GenioWindow::_UpdateFindMenuItems(const BString& text)
 	if (count == kFindReplaceMenuItems)
 		fFindMenuField->Menu()->RemoveItem(count);
 }
+
 
 void
 GenioWindow::_UpdateRecentCommands(const BString& text)
@@ -4201,17 +4199,18 @@ GenioWindow::_UpdateRecentCommands(const BString& text)
 status_t
 GenioWindow::_UpdateLabel(Editor* editor, bool isModified)
 {
+	// TODO: Would be nice to move this to GTabEditor 
 	if (editor != nullptr) {
 		if (isModified) {
-				// Add '*' to file name
-				BString label(fTabManager->TabLabel(editor));
-				label.Append("*");
-				fTabManager->SetTabLabel(editor, label.String());
+			// Add '*' to file name
+			BString label(fTabManager->TabLabel(editor));
+			label.Append("*");
+			fTabManager->SetTabLabel(editor, label.String());
 		} else {
-				// Remove '*' from file name
-				BString label(fTabManager->TabLabel(editor));
-				label.RemoveLast("*");
-				fTabManager->SetTabLabel(editor, label.String());
+			// Remove '*' from file name
+			BString label(fTabManager->TabLabel(editor));
+			label.RemoveLast("*");
+			fTabManager->SetTabLabel(editor, label.String());
 		}
 		return B_OK;
 	}

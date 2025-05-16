@@ -12,11 +12,9 @@
 
 class SwitchBranchMenu : public BMenu {
 public:
-
 							SwitchBranchMenu(BHandler *target, const char* label,
-												BMessage *message);
-							SwitchBranchMenu(BHandler *target, const char* label,
-												BMessage *message, const char *projectPath);
+												BMessage *message,
+												const char *projectPath = nullptr);
 	virtual 				~SwitchBranchMenu();
 
 	virtual void 			AttachedToWindow();
@@ -25,13 +23,10 @@ public:
 
 	virtual status_t 		SetTargetForItems(BHandler* target);
 
-	void 					UpdateMenuState();
-
 private:
-	bool 					_BuildMenu();
+	bool 					_BuildMenu(const BString& projectPath);
 
 	BHandler* 				fTarget;
 	BMessage*				fMessage;
-	BString					fActiveProjectPath;
-	bool					fDetectActiveProject;
+	BString					fProjectPath;
 };

@@ -42,7 +42,6 @@ TabsContainer::AddTab(GTab* tab, int32 index)
 
 	BLayoutItem* item = GroupLayout()->AddView(index, tab);
 	tab->SetLayoutItem(item);
-
 	tab->SetContainer(this);
 
 	if (CountTabs() == 1) {
@@ -131,10 +130,8 @@ TabsContainer::SetFrontTab(GTab* tab)
 			fSelectedTab->SetIsFront(true);
 
 		int32 index = IndexOfTab(fSelectedTab);
-
 		if (fTabShift >= index) {
 			ShiftTabs(index - fTabShift, "select tab");
-
 		} else {
 			// let's ensure at least the tab's "middle point"
 			// is visible.
@@ -177,7 +174,7 @@ TabsContainer::ShiftTabs(int32 delta, const char* src)
 				tab->Show();
 		}
 	}
-	//DEBUG printf(".. updating from %d to %d (%s)\n", fTabShift, newShift,src);
+
 	fTabShift = newShift;
 	_UpdateScrolls();
 }
@@ -256,7 +253,7 @@ TabsContainer::_UpdateScrolls()
 		if (fGTabView != nullptr && last != nullptr)
 			fGTabView->UpdateScrollButtons(fTabShift != 0, last->Frame().right > Bounds().right);
 	} else {
-			fGTabView->UpdateScrollButtons(false, false);
+		fGTabView->UpdateScrollButtons(false, false);
 	}
 }
 
@@ -297,7 +294,6 @@ TabsContainer::MessageReceived(BMessage* message)
 
 			int32 selection = IndexOfTab(fSelectedTab);
 			int32 numTabs = CountTabs();
-
 			if (deltaY > 0  && selection < numTabs - 1) {
 				// move to the right tab.
 				_SelectTabOnTabView(TabAt(selection + 1));
@@ -312,5 +308,5 @@ TabsContainer::MessageReceived(BMessage* message)
 		default:
 			BGroupView::MessageReceived(message);
 			break;
-	};
+	}
 }

@@ -8,28 +8,13 @@
 
 #include "SwitchBranchMenu.h"
 
-#include <Application.h>
-#include <Catalog.h>
-#include <ControlLook.h>
-#include <Directory.h>
-#include <FindDirectory.h>
-#include <GroupLayout.h>
-#include <Locale.h>
-#include <Menu.h>
 #include <MenuItem.h>
-#include <Message.h>
-#include <Mime.h>
-#include <MimeType.h>
-#include <NodeInfo.h>
-#include <Path.h>
-#include <Query.h>
-#include <Roster.h>
-
 
 #include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GitRepository.h"
 #include "ProjectFolder.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SwitchBranchMenu"

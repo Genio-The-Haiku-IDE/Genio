@@ -5,15 +5,19 @@
 
 
 #include "TerminalManager.h"
+
 #include <Box.h>
 #include <Path.h>
 #include <StringView.h>
-#include <Messenger.h>
-#include "Utils.h"
+
 #include "argv_split.h"
 #include "Log.h"
+#include "Utils.h"
 
-TerminalManager::TerminalManager():fId(-1)
+
+TerminalManager::TerminalManager()
+	:
+	fId(-1)
 {
 	BPath genioPath = GetNearbyDataDirectory();
 	if (genioPath.Append("genio_terminal_addon") == B_OK) {
@@ -24,21 +28,22 @@ TerminalManager::TerminalManager():fId(-1)
 	LogInfo("TerminalManager, loading addon at [%s] -> %d\n", genioPath.Path(), fId);
 }
 
-/*static */
+
+/* static */
 BView*
-TerminalManager::CreateNewTerminal(BRect frame,  BMessenger listener, BString command)
+TerminalManager::CreateNewTerminal(BRect frame, BMessenger listener, BString command)
 {
-	static TerminalManager	manager;
+	static TerminalManager manager;
 	BView* view = nullptr;
 	if (manager.IsValid()) {
 		BMessage message;
 		message.AddString("class", "GenioTermView");
 		message.AddBool("use_rect", true);
-		if (command.IsEmpty() == false) {
+		if (!command.IsEmpty()) {
 			argv_split parser;
 			parser.parse(command.String());
 			int32 argc = parser.getArguments().size();
-			for (int32 i=0;i<argc;i++) {
+			for (int32 i = 0; i < argc; i++) {
 				message.AddString("argv", parser.argv()[i]);
 			}
 		}
@@ -46,8 +51,8 @@ TerminalManager::CreateNewTerminal(BRect frame,  BMessenger listener, BString co
 		message.AddRect("_frame", frame);
 		view  = dynamic_cast<BView *>(instantiate_object(&message, &manager.fId));
 	}
-	if (view == nullptr)
-	{
+
+	if (view == nullptr) {
 		view = new BStringView("info", " Can't load terminal! ");
 	}
 	return view;

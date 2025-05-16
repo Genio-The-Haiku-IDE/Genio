@@ -5,17 +5,17 @@
 #pragma once
 
 
-#include <SupportDefs.h>
-#include <Archivable.h>
-#include <View.h>
+#include <Messenger.h>
+#include <String.h>
 
+#include <image.h>
+
+class BView;
 class TerminalManager {
 public:
-	static BView*	CreateNewTerminal(BRect frame, BMessenger listener, BString command = "");
+	static BView* CreateNewTerminal(BRect frame, BMessenger listener, BString command = "");
 private:
-				TerminalManager();
-		bool	IsValid() { return fId > -1; }
-	image_id	fId;
+			TerminalManager();
+	bool	IsValid() const { return fId > -1; }
+	image_id fId;
 };
-
-

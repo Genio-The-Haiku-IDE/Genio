@@ -6,8 +6,7 @@
 
 
 #include <GroupView.h>
-#include <SupportDefs.h>
-#include <View.h>
+
 
 class TerminalTab : public BView {
 public:
@@ -23,7 +22,4 @@ virtual	void 	NotifyCommandQuit(bool exitNormal, int exitStatus);
 protected:
 	BView*	fTermView;
 	BString fCommand;
-
 };
-
-

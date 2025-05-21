@@ -1,4 +1,82 @@
-1	Italian	application/x-vnd.Genio	3363721737
+1	Italian	application/x-vnd.Genio	1940528103
+(follow editor style)	TermView		(segui stile dell'editor)
+(follow system style)	TermView		(segui stile di sistema)
+Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
+Clear	TermView		Pulisci
+Stop	TermView		Interrompi
+Wrap	TermView	As in wrapping long lines. Short as possible.	A capo
+(follow editor style)	SettingsWindow		(segui stile dell'editor)
+(follow system style)	SettingsWindow		(segui stile di sistema)
+Appearance	SettingsWindow		Aspetto
+Auto collapse/expand projects	SettingsWindow		Comprimi/espandi automaticamente i progetti
+Auto-Build on resource save	SettingsWindow		Compila automaticamente al salvataggio
+Auto-Save changed files when building	SettingsWindow		Salva automaticamente alla compilazione
+Build	SettingsWindow		Compila
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner della console
+Console style:	SettingsWindow		Stile della console:
+Convert tabs to spaces	SettingsWindow		Converti tab in spazi
+Default font	SettingsWindow		Carattere predefinito
+Default size	SettingsWindow		Dimensione predefinita
+Editor	SettingsWindow		Editor
+Editor style:	SettingsWindow		Stile dell'editor:
+Editor zoom:	SettingsWindow		Zoom dell'editor:
+Enable brace matching	SettingsWindow		Abilita corrispondenza graffe
+Enable syntax highlighting	SettingsWindow		Abilita evidenziazione sintattica
+Exclude folders:	SettingsWindow		Escludi cartelle:
+Find	SettingsWindow		Trova
+Font size:	SettingsWindow		Dimensione carattere:
+Font:	SettingsWindow		Carattere:
+Force showing Build log panel when building	SettingsWindow		Mostra pannello Build log durante la compilazione
+General	SettingsWindow		Generale
+Ignore .editorconfig	SettingsWindow		Ignora .editorconfig
+Log destination:	SettingsWindow		Destinazione dei log:
+Log level:	SettingsWindow		Livello dei log:
+Log size:	SettingsWindow		Dimensione log:
+Mark caret line	SettingsWindow		Evidenzia linea del cursore
+Match case	SettingsWindow	Short as possible.	Corrispondenza pattern
+Projects folder:	SettingsWindow		Cartella dei progetti:
+Reload files	SettingsWindow		Ricarica i file
+Reload projects	SettingsWindow		Ricarica progetti
+Save caret position	SettingsWindow		Salva posizione cursore
+Set ruler to column:	SettingsWindow		Posiziona righello alla colonna:
+Show bottom pane	SettingsWindow		Mostra area inferiore
+Show comment margin	SettingsWindow		Mostra margine dei commenti
+Show folding margin	SettingsWindow		Mostra margine folding
+Show full path in window title	SettingsWindow		Mostra percorso completo nel titolo della finestra
+Show left pane	SettingsWindow		Mostra area sinistra
+Show line endings	SettingsWindow		Mostra fine riga
+Show line numbers	SettingsWindow		Mostra numeri di linea
+Show repository outline	SettingsWindow		Raggruppa elementi del repository
+Show right pane	SettingsWindow		Mostra area destra
+Show statusbar	SettingsWindow		Mostra barra di stato
+Show toolbar	SettingsWindow		Mostra toolbar
+Show vertical ruler	SettingsWindow		Mostra righello verticale
+Show whitespace	SettingsWindow		Mostra spazi
+Source control	SettingsWindow		Controllo sorgente
+Startup	SettingsWindow		Avvio
+Tab width:	SettingsWindow		Tabulazioni: 
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Queste impostazioni vengono applicate solo se non viene utilizzato alcun file .editorconfig:
+This setting will be updated on restart.	SettingsWindow		Questa impostazione sarà aggiornata dopo il riavvio.
+Trim trailing whitespace on save	SettingsWindow		Rimuovi spazi al salvataggio
+Use smaller icons in toolbar	SettingsWindow		Usa icone piccole nella barra degli strumenti
+Visuals	SettingsWindow		Elementi visivi
+Whole word	SettingsWindow	Short as possible.	Parola intera
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Ricomincia dall'inizio
+Wrap lines	SettingsWindow		Vai a capo
+Wrap lines in console	SettingsWindow		Vai a capo nella console
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# corrispondenze}other{# corrispondenze}}
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# elementi sostituiti}other{# elementi sostituiti}}
+1 element replaced	Editor		1 elemento sostituito
+Cancel	Editor		Annulla
+Do you want to set a starting index?	Editor		Vuoi impostare un indice iniziale?
+Don't save	Editor		Non salvare
+Index	Editor		Indice
+No matches found.	Editor		Nessuna corrispondenza.
+Rename	Editor		Rinomina
+Rename symbol '%symbol_name%':	Editor		Rinomina il simbolo '%symbol_name%':
+Save	Editor		Salva
+Save changes to file \"%filename%\"?	Editor		Salvare le modifiche al file \"%filename%\"?
+Save dialog	Editor		Finestra di salvataggio
 About…	GenioWindow		A proposito di…
 An error occurred while switching branch:	GenioWindow		C'è stato un errore durante il passaggio di branch:
 Appearance	GenioWindow		Aspetto
@@ -53,10 +131,14 @@ Format	GenioWindow		Formatta
 Fullscreen	GenioWindow		Schermo intero
 Genio project…	GenioWindow		Progetto Genio…
 Git	GenioWindow		Git
+Go back	GenioWindow		Indietro
+Go forward	GenioWindow		Avanti
 Go to declaration	GenioWindow		Vai alla dichiarazione
 Go to definition	GenioWindow		Vai alla definizione
 Go to implementation	GenioWindow		Vai all'implementazione
 Go to line…	GenioWindow		Vai alla riga…
+Go to next tab	GenioWindow		Tab successiva
+Go to previous tab	GenioWindow		Tab precedente
 Help…	GenioWindow		Aiuto…
 Ignore	GenioWindow		Ignora
 Import as RDEF array…	GenioWindow		Importa come array RDEF...
@@ -75,10 +157,9 @@ New	GenioWindow		Nuovo
 New file	GenioWindow		Nuovo file
 New folder	GenioWindow		Nuova cartella
 Next	GenioWindow	Bookmark menu	Successivo
-Open files list	GenioWindow		Apri lista file
 Open in Terminal	GenioWindow		Apri nel Terminale
 Open project…	GenioWindow		Apri progetto…
-Open recent…	GenioWindow		File recenti…
+Open recent…	GenioWindow		Apri recenti…
 Open remote project…	GenioWindow		Apri progetto remoto…
 Open…	GenioWindow		Apri…
 Overwrite	GenioWindow		Sovrascrivi
@@ -87,7 +168,6 @@ Previous	GenioWindow	Bookmark menu	Precedente
 Project	GenioWindow		Progetto
 Project settings…	GenioWindow		Impostazioni di progetto…
 Project:	GenioWindow		Progetto:
-Projects	GenioWindow		Progetti
 Pull	GenioWindow	The git command	Pull
 Pull (rebase)	GenioWindow	The git command	Pull (rebase)
 Quit	GenioWindow		Esci
@@ -107,6 +187,7 @@ Reset zoom	GenioWindow		Resetta zoom
 Run	GenioWindow		Avvia
 Run console program	GenioWindow		Avvia applicazione a riga di comando
 Run target	GenioWindow		Esegui target
+Run:	GenioWindow		Esegui:
 Save	GenioWindow		Salva
 Save all	GenioWindow		Salva tutti
 Save all files	GenioWindow		Salva tutti i file
@@ -115,28 +196,28 @@ Save changes to file \"%file%\"	GenioWindow		Salva cambiamenti al file \"%file%\
 Save current file	GenioWindow		Salva file corrente
 Search	GenioWindow		Cerca
 Select all	GenioWindow		Seleziona tutto
+Set active	GenioWindow		Rendi attivo
 Settings…	GenioWindow		Impostazioni…
+Show bottom pane	GenioWindow		Mostra area inferiore
 Show config	GenioWindow	The git command	Mostra configurazione
 Show in projects browser	GenioWindow		Mostra nel browser dei progetti
 Show in Tracker	GenioWindow		Mostra nel Tracker
+Show left pane	GenioWindow		Mostra area sinistra
 Show line endings	GenioWindow		Mostra fine riga
-Show outline pane	GenioWindow		Mostra area outline
-Show output pane	GenioWindow		Mostra area output
-Show projects pane	GenioWindow		Mostra area progetti
+Show right pane	GenioWindow		Mostra area destra
+Show statusbar	GenioWindow		Mostra statusbar
 Show toolbar	GenioWindow		Mostra barra strumenti
 Show whitespace	GenioWindow		Mostra spazi
 Show whitespace and line endings	GenioWindow		Mostra spazi e fine riga
+Show/Hide bottom pane	GenioWindow		Mostra/Nascondi area inferiore
 Show/Hide find bar	GenioWindow		Mostra/Nascondi barra ricerca
-Show/Hide outline pane	GenioWindow		Mostra/Nascondi area outline
-Show/Hide output pane	GenioWindow		Mostra/Nascondi area di output
-Show/Hide projects pane	GenioWindow		Mostra/Nascondi area progetti
+Show/Hide left pane	GenioWindow		Mostra/Nascondi area sinistra
 Show/Hide replace bar	GenioWindow		Mostra/Nascondi barra di sostituzione
+Show/Hide right pane	GenioWindow		Mostra/Nascondi area destra
 Status	GenioWindow	The git command	Stato
 Status (short)	GenioWindow	The git command	Stato (breve)
 Switch source/header	GenioWindow		Passa a sorgente/header
 Switch to branch	GenioWindow		Passa al branch
-Switch to next file	GenioWindow		Passa al file successivo
-Switch to previous file	GenioWindow		Passa al file precedente
 Tag	GenioWindow	The git command	Tag
 Toggle	GenioWindow	Bookmark menu	Attiva/Disattiva
 Tools	GenioWindow		Strumenti
@@ -157,6 +238,7 @@ Choose branch…	SourceControlPanel		Scegli branch…
 Choose project…	SourceControlPanel		Scegli progetto…
 Conflicts	SourceControlPanel		Conflitti
 Copy name	SourceControlPanel		Copia nome
+Create branch	SourceControlPanel		Crea branch
 Create initial commit	SourceControlPanel		Crea commit iniziale
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Crea nuova branch da \"%selected_branch%\"
 Current branch:	SourceControlPanel		Branch corrente:
@@ -173,6 +255,7 @@ Fetch prune	SourceControlPanel		Fetch prune
 Fetch prune completed.	SourceControlPanel		Fetch prune completato.
 Init repository	SourceControlPanel		Inizializza il repository
 Local branches	SourceControlPanel		Branch locali
+New branch name:	SourceControlPanel		Nome del nuovo branch:
 OK	SourceControlPanel		OK
 Project:	SourceControlPanel		Progetto:
 Remote branches	SourceControlPanel		Branch remoti
@@ -201,18 +284,22 @@ gold master	Utilities		gold master
 OK	Utilities		OK
 Version	Utilities		Versione
 An error occurred attempting to rename file 	ProjectsFolderBrowser		Errore durante il tentativo di rinominare il file
+Build mode	ProjectsFolderBrowser		Profilo di build
 Build project	ProjectsFolderBrowser		Compila il progetto
 Clean project	ProjectsFolderBrowser		Pulisci il progetto
 Close project	ProjectsFolderBrowser		Chiudi progetto
 Current branch	ProjectsFolderBrowser		Branch corrente
+Debug	ProjectsFolderBrowser		Debug
 Delete file	ProjectsFolderBrowser		Cancella file
 Delete folder	ProjectsFolderBrowser		Cancella cartella
+Drop folder here	ProjectsFolderBrowser		Trascina qui una cartella
 New	ProjectsFolderBrowser		Nuovo
 OK	ProjectsFolderBrowser		OK
 Open file	ProjectsFolderBrowser		Apri file
 Path	ProjectsFolderBrowser		Percorso
 Project	ProjectsFolderBrowser		Progetto
 Project settings…	ProjectsFolderBrowser		Impostazioni di progetto…
+Release	ProjectsFolderBrowser		Release
 Rename file	ProjectsFolderBrowser		Rinomina file
 Rename folder	ProjectsFolderBrowser		Rinomina cartella
 Set active	ProjectsFolderBrowser		Rendi attivo
@@ -226,90 +313,38 @@ Restarting build…	ConsoleIOView		Ricomincia compilazione…
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
 Stop	ConsoleIOView		Interrompi
-Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Vai a capo
-Array	OutlineTooltips		Array
-Boolean	OutlineTooltips		Boolean
-Class	OutlineTooltips		Classe
-Constant	OutlineTooltips		Costante
-Constructor	OutlineTooltips		Costruttore
-Creating outline	OutlineTooltips		Creazione outline
-Enum	OutlineTooltips		Enumerazione
-Enum member	OutlineTooltips		Membro enumerazione
-Event	OutlineTooltips		Evento
-Field	OutlineTooltips		Campo
-File	OutlineTooltips		File
-Function	OutlineTooltips		Funzione
-Go to symbol	OutlineTooltips		Vai al simbolo
-Interface	OutlineTooltips		Interfaccia
-Key	OutlineTooltips		Chiave
-Method	OutlineTooltips		Metodo
-Module	OutlineTooltips		Modulo
-Namespace	OutlineTooltips		Namespace
-No outline available	OutlineTooltips		Outline non disponibile
-Null	OutlineTooltips		Null
-Object	OutlineTooltips		Oggetto
-Operator	OutlineTooltips		Operatore
-Outline	OutlineTooltips		Outline
-Package	OutlineTooltips		Pacchetto
-Property	OutlineTooltips		Proprietà
-Rename symbol…	OutlineTooltips		Rinomina simbolo…
-Sort	OutlineTooltips		Ordina
-String	OutlineTooltips		Stringa
-Structure	OutlineTooltips		Struttura
-Type parameter	OutlineTooltips		Parametro di tipo
-Variable	OutlineTooltips		Variabile
-Auto collapse/expand projects	SettingsWindow		Comprimi/espandi automaticamente i progetti
-Auto-Build on resource save	SettingsWindow		Compila automaticamente al salvataggio
-Auto-Save changed files when building	SettingsWindow		Salva automaticamente alla compilazione
-Build	SettingsWindow		Compila
-Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner della console
-Convert tabs to spaces	SettingsWindow		Converti tab in spazi
-Default font	SettingsWindow		Carattere predefinito
-Default size	SettingsWindow		Dimensione predefinita
-Editor	SettingsWindow		Editor
-Editor style:	SettingsWindow		Stile dell'editor:
-Editor zoom:	SettingsWindow		Zoom dell'editor:
-Enable brace matching	SettingsWindow		Abilita corrispondenza graffe
-Enable syntax highlighting	SettingsWindow		Abilita evidenziazione sintattica
-Exclude folders:	SettingsWindow		Escludi cartelle:
-Find	SettingsWindow		Trova
-Font size:	SettingsWindow		Dimensione Font:
-Font:	SettingsWindow		Carattere:
-General	SettingsWindow		Generale
-Ignore .editorconfig	SettingsWindow		Ignora .editorconfig
-Log destination:	SettingsWindow		Destinazione dei log:
-Log level:	SettingsWindow		Livello dei log:
-Log size:	SettingsWindow		Dimensione log:
-Mark caret line	SettingsWindow		Evidenzia linea del cursore
-Match case	SettingsWindow	Short as possible.	Corrispondenza pattern
-Projects folder:	SettingsWindow		Cartella dei progetti:
-Reload files	SettingsWindow		Ricarica i file
-Reload projects	SettingsWindow		Ricarica progetti
-Save caret position	SettingsWindow		Salva posizione cursore
-Set ruler to column:	SettingsWindow		Posiziona righello alla colonna:
-Show comment margin	SettingsWindow		Mostra margine dei commenti
-Show folding margin	SettingsWindow		Mostra margine folding
-Show full path in window title	SettingsWindow		Mostra percorso completo nel titolo della finestra
-Show line endings	SettingsWindow		Mostra fine riga
-Show line numbers	SettingsWindow		Mostra numeri di linea
-Show outline pane	SettingsWindow		Mostra area outline
-Show output pane	SettingsWindow		Mostra area di output
-Show projects pane	SettingsWindow		Mostra area dei progetti
-Show repository outline	SettingsWindow		Raggruppa elementi del repository
-Show toolbar	SettingsWindow		Mostra toolbar
-Show vertical ruler	SettingsWindow		Mostra righello verticale
-Show whitespace	SettingsWindow		Mostra spazi
-Source control	SettingsWindow		Controllo sorgente
-Startup	SettingsWindow		Avvio
-Tab width:	SettingsWindow		Tabulazioni: 
-These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Queste impostazioni vengono applicate solo se non viene utilizzato alcun file .editorconfig:
-This setting will be updated on restart.	SettingsWindow		Questa impostazione sarà aggiornata dopo il riavvio.
-Trim trailing whitespace on save	SettingsWindow		Rimuovi spazi al salvataggio
-Visuals	SettingsWindow		Elementi visivi
-Whole word	SettingsWindow	Short as possible.	Parola intera
-Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Ricomincia dall'inizio
-Wrap lines	SettingsWindow		Vai a capo
-Wrap lines in console	SettingsWindow		Vai a capo nella console
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	A capo
+Array	FunctionsOutlineView		Array
+Boolean	FunctionsOutlineView		Booleano
+Class	FunctionsOutlineView		Classe
+Constant	FunctionsOutlineView		Costante
+Constructor	FunctionsOutlineView		Costruttore
+Creating outline	FunctionsOutlineView		Creando la outline
+Enum	FunctionsOutlineView		Enum
+Enum member	FunctionsOutlineView		Enum member
+Event	FunctionsOutlineView		Evento
+Field	FunctionsOutlineView		Campo
+File	FunctionsOutlineView		File
+Function	FunctionsOutlineView		Funzione
+Go to symbol	FunctionsOutlineView		Vai al simbolo
+Interface	FunctionsOutlineView		Interfaccia
+Key	FunctionsOutlineView		Chiave
+Method	FunctionsOutlineView		Metodo
+Module	FunctionsOutlineView		Modulo
+Namespace	FunctionsOutlineView		Namespace
+No outline available	FunctionsOutlineView		Outline non disponibile
+Null	FunctionsOutlineView		Null
+Object	FunctionsOutlineView		Oggetto
+Operator	FunctionsOutlineView		Operatore
+Outline	FunctionsOutlineView		Outline
+Package	FunctionsOutlineView		Package
+Property	FunctionsOutlineView		Proprietà
+Rename symbol…	FunctionsOutlineView		Rinomina simbolo…
+Sort	FunctionsOutlineView		Ordina
+String	FunctionsOutlineView		Stringa
+Structure	FunctionsOutlineView		Struttura
+Type parameter	FunctionsOutlineView		Type parameter
+Variable	FunctionsOutlineView		Variabile
 Base path:	RemoteProjectWindow		Percorso base:
 Browse…	RemoteProjectWindow		Sfoglia…
 Cancel	RemoteProjectWindow		Annulla
@@ -324,6 +359,7 @@ The local path is not valid or does not exist	RemoteProjectWindow		Il percorso l
 URL:	RemoteProjectWindow		URL:
 Build	ProjectSettingsWindow		Compila
 Build command:	ProjectSettingsWindow		Comandi di compilazione:
+Build file path:	ProjectSettingsWindow		Percorso file di build:
 Build mode:	ProjectSettingsWindow		Modalità build:
 Clean command:	ProjectSettingsWindow		Comando di pulizia:
 Color:	ProjectSettingsWindow		Colore:
@@ -332,19 +368,16 @@ Release	ProjectSettingsWindow		Rilascio
 Run	ProjectSettingsWindow		Avvia
 Run in terminal	ProjectSettingsWindow		Avvia nel Terminale
 Target:	ProjectSettingsWindow		Esegui target:
+Building project '\"%project%\"'…	GlobalStatusView		Compilando il progetto '\"%project%\"'…
+Cleaning project '\"%project%\"'…	GlobalStatusView		Pulendo il progetto '\"%project%\"'…
+Failed building project '\"%project%\"'	GlobalStatusView		Compilazione del progetto '\"%project%\"' fallita
+Failed cleaning project '\"%project%\"'	GlobalStatusView		Pulizia del progetto '\"%project%\"' fallita
+Finished building project '\"%project%\"'	GlobalStatusView		Compilazione del progetto '\"%project%\"' completata
+Finished cleaning project '\"%project%\"'	GlobalStatusView		Pulizia del progetto '\"%project%\"' completata
 Cancel	GoToLineWindow		Annulla
 Go to line	GoToLineWindow		Vai alla linea
 Go to line:	GoToLineWindow		Vai alla linea:
 OK	GoToLineWindow		OK
-Cancel	Editor		Annulla
-Do you want to set a starting index?	Editor		Vuoi impostare un indice di partenza?
-Don't save	Editor		Non salvare
-Index	Editor		Indice
-Rename	Editor		Rinomina
-Rename symbol '%symbol_name%':	Editor		Rinomina il simbolo '%symbol_name%':
-Save	Editor		Salva
-Save changes to file \"%filename%\"?	Editor		Salvare le modifiche al file \"%filename%\"?
-Save dialog	Editor		Salva dialog
 Cancel	QuitAlert		Annulla
 Don't save	QuitAlert		Non salvare
 Save all	QuitAlert		Salva tutti
@@ -353,6 +386,7 @@ There are unsaved changes.\nSelect the files to save.	QuitAlert		Ci sono modific
 Unsaved files	QuitAlert		File non salvati
 Cancel	GitCredentialsWindow		Annulla
 Git - User Credentials	GitCredentialsWindow		Git - Credenziali utente
+Git - Username	GitCredentialsWindow		Git - Username
 OK	GitCredentialsWindow		OK
 Password:	GitCredentialsWindow		Password:
 Username:	GitCredentialsWindow		Nome utente:
@@ -364,7 +398,12 @@ Message	ProblemsPanel		Messaggio
 No fix available	ProblemsPanel		Nessuna fix disponibile
 Problems	ProblemsPanel		Problemi
 Source	ProblemsPanel		Origine
-Contributors:	GenioApp		Collaboratori:
+Choose project…	SearchResultTab		Scegli progetto…
+Find in project	SearchResultTab		Trova nel progetto
+Match case	SearchResultTab	Short as possible.	Corrispondenza maiusc./minusc.
+Project:	SearchResultTab		Progetto:
+Whole word	SearchResultTab	Short as possible.	Parola intera
+Contributors:	GenioApp		Contributori:
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio è un fork di Ideam ed è disponibile sotto licenza MIT.
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio usa:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla per Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
 Made with love in Italy	GenioApp		Fatto con amore in Italia
@@ -380,7 +419,10 @@ New file	GitRepository		Nuovo file
 New file staged	GitRepository		Nuovo file pronto per il commit
 Genio	System name		Genio
 Global settings applied	EditorStatusView		Applicate configurazioni globali
+No LSP file status information	EditorStatusView		Informazioni di stato LSP per il file non disponibili
 Settings in .editorconfig applied	EditorStatusView		Applicate configurazioni da .editorconfig
+Loading project	ProjectOpenerWindow		Caricando il progetto
+Loading project '%project_name%'	ProjectOpenerWindow		Caricando il progetto '%project_name%'
 Location	SearchResultPanel		Posizione
 Search results	SearchResultPanel		Risultati di ricerca
 New folder	TemplateManager		Nuova cartella

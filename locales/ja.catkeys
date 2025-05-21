@@ -1,4 +1,4 @@
-1	English (Australian)	application/x-vnd.Genio	1940528103
+1	Japanese	application/x-vnd.Genio	1940528103
 (follow editor style)	TermView		(follow editor style)
 (follow system style)	TermView		(follow system style)
 Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
@@ -54,7 +54,7 @@ Show vertical ruler	SettingsWindow		Show vertical ruler
 Show whitespace	SettingsWindow		Show whitespace
 Source control	SettingsWindow		Source control
 Startup	SettingsWindow		Startup
-Tab width:	SettingsWindow		Tab width:  
+Tab width:	SettingsWindow		Tab width:
 These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	These are only applied if no .editorconfig is used:
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
 Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
@@ -67,69 +67,69 @@ Wrap lines in console	SettingsWindow		Wrap lines in console
 {0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
 {0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
 1 element replaced	Editor		1 element replaced
-Cancel	Editor		Cancel
+Cancel	Editor		キャンセル
 Do you want to set a starting index?	Editor		Do you want to set a starting index?
-Don't save	Editor		Don't save
+Don't save	Editor		保存しない
 Index	Editor		Index
 No matches found.	Editor		No matches found.
 Rename	Editor		Rename
 Rename symbol '%symbol_name%':	Editor		Rename symbol '%symbol_name%':
-Save	Editor		Save
-Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
-Save dialog	Editor		Save dialog
-About…	GenioWindow		About…
-An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
-Appearance	GenioWindow		Appearance
-Autocomplete	GenioWindow		Autocomplete
-Bookmark	GenioWindow		Bookmark
-Bookmark all	GenioWindow		Bookmark all
+Save	Editor		保存
+Save changes to file \"%filename%\"?	Editor		変更をファイル \"%filename%\" に保存しますか？
+Save dialog	Editor		保存ダイアログ
+About…	GenioWindow		Genio について…
+An error occurred while switching branch:	GenioWindow		ブランチを切り替える際、エラーが発生しました:
+Appearance	GenioWindow		外観
+Autocomplete	GenioWindow		オートコンプリート
+Bookmark	GenioWindow		ブックマーク
+Bookmark all	GenioWindow		全タブをブックマーク
 Branch	GenioWindow	The git command	Branch
-Build log	GenioWindow		Build log
-Build mode	GenioWindow		Build mode
-Build project	GenioWindow		Build project
-Cancel	GenioWindow		Cancel
-Clean project	GenioWindow		Clean project
-Clear all	GenioWindow	Bookmark menu	Clear all
-Close	GenioWindow		Close
+Build log	GenioWindow		ビルド ログ
+Build mode	GenioWindow		ビルド モード
+Build project	GenioWindow		プロジェクトをビルド
+Cancel	GenioWindow		キャンセル
+Clean project	GenioWindow		新規プロジェクト
+Clear all	GenioWindow	Bookmark menu	すべてをクリアー
+Close	GenioWindow		閉じる
 Close active project	GenioWindow		Close active project
-Close all	GenioWindow		Close all
-Close file	GenioWindow		Close file
+Close all	GenioWindow		すべて閉じる
+Close file	GenioWindow		ファイルを閉じる
 Close other	GenioWindow		Close other
 Comment selected lines	GenioWindow		Comment selected lines
-Configure	GenioWindow		Configure
-Conflicts	GenioWindow		Conflicts
-Console I/O	GenioWindow		Console I/O
-Copy	GenioWindow		Copy
-Could not create a new file	GenioWindow		Could not create a new file
-Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
+Configure	GenioWindow		環境設定
+Conflicts	GenioWindow		競合
+Console I/O	GenioWindow		コンソール入出力
+Copy	GenioWindow		コピー
+Could not create a new file	GenioWindow		新規ファイルを作成できませんでした
+Could not delete \"%name%\".\n\n	GenioWindow		\"%name%\" を削除できませんでした。\n\n
 CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
 CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
-Cut	GenioWindow		Cut
-Debug	GenioWindow		Debug
-Debug project	GenioWindow		Debug project
-Delete	GenioWindow		Delete
-Delete current line	GenioWindow		Delete current line
-Delete dialog	GenioWindow		Delete dialogue
+Cut	GenioWindow		切り取り
+Debug	GenioWindow		デバッグ
+Debug project	GenioWindow		プロジェクトをデバッグ
+Delete	GenioWindow		削除
+Delete current line	GenioWindow		現在の行を削除
+Delete dialog	GenioWindow		削除ダイアログ
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
-Discard	GenioWindow		Discard
-Don't save	GenioWindow		Don't save
+Discard	GenioWindow		破棄
+Don't save	GenioWindow		保存しない
 Duplicate current line	GenioWindow		Duplicate current line
-Edit	GenioWindow		Edit
-Error creating folder	GenioWindow		Error creating folder
-File	GenioWindow		File
-File \"%file%\" was apparently modified, reload it?	GenioWindow		File \"%file%\" was apparently modified, reload it?
-File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
-File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
+Edit	GenioWindow		編集
+Error creating folder	GenioWindow		フォルダー作成中エラー発生
+File	GenioWindow		ファイル
+File \"%file%\" was apparently modified, reload it?	GenioWindow		ファイル \"%file%\" が変更されたようです。再ロードしますか？
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		ファイル \"%file%\" は移動されたようです。\n無視、閉じる、またはリロードしますか？
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		ファイル \"%file%\" は削除されたようです。\nファイルをキープしますか、それとも破棄しますか？\nキープする際、保存しておかないとファイルがなくなります。
 Find	GenioWindow		Find
-Find in project	GenioWindow		Find in project
-Find next	GenioWindow		Find next
+Find in project	GenioWindow		プロジェクト内検索
+Find next	GenioWindow		次を検索
 Find previous	GenioWindow		Find previous
-Find:	GenioWindow		Find:
-Focus mode	GenioWindow		Focus mode
+Find:	GenioWindow		検索：
+Focus mode	GenioWindow		フォーカス モード
 Fold/Unfold all	GenioWindow		Fold/Unfold all
-Format	GenioWindow		Format
-Fullscreen	GenioWindow		Fullscreen
-Genio project…	GenioWindow		Genio project…
+Format	GenioWindow		フォーマット
+Fullscreen	GenioWindow		フルスクリーン
+Genio project…	GenioWindow		Genio プロジェクト…
 Git	GenioWindow		Git
 Go back	GenioWindow		Go back
 Go forward	GenioWindow		Go forward
@@ -247,7 +247,7 @@ Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
 Delete dialog	SourceControlPanel		Delete dialog
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
-Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialise a repository without creating an initial commit?
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
 Enter a message for this stash	SourceControlPanel		Enter a message for this stash
 Fetch	SourceControlPanel		Fetch
 Fetch completed.	SourceControlPanel		Fetch completed.
@@ -273,9 +273,9 @@ Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
 Tags	SourceControlPanel		Tags
 The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
-This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialise it.
-Active	EditorTabManager		Active
-Project	EditorTabManager		Project
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
+Active	EditorTabManager		アクティブ
+Project	EditorTabManager		プロジェクト
 alpha	Utilities		alpha
 beta	Utilities		beta
 development	Utilities		development
@@ -306,13 +306,13 @@ Set active	ProjectsFolderBrowser		Set active
 Switch to branch	ProjectsFolderBrowser		Switch to branch
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
-Another command is running.	ConsoleIOView		Another command is running.
+Another command is running.	ConsoleIOView		他のコマンドが実行中。
 Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
-Clear	ConsoleIOView		Clear
-Restarting build…	ConsoleIOView		Restarting build…
+Clear	ConsoleIOView		クリアー
+Restarting build…	ConsoleIOView		ビルドを再開中
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
-Stop	ConsoleIOView		Stop
+Stop	ConsoleIOView		停止
 Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
 Array	FunctionsOutlineView		Array
 Boolean	FunctionsOutlineView		Boolean
@@ -362,11 +362,11 @@ Build command:	ProjectSettingsWindow		Build command:
 Build file path:	ProjectSettingsWindow		Build file path:
 Build mode:	ProjectSettingsWindow		Build mode:
 Clean command:	ProjectSettingsWindow		Clean command:
-Color:	ProjectSettingsWindow		colour:
+Color:	ProjectSettingsWindow		Color:
 Execute args:	ProjectSettingsWindow		Execute args:
 Release	ProjectSettingsWindow		Release
 Run	ProjectSettingsWindow		Run
-Run in terminal	ProjectSettingsWindow		Run in Terminal
+Run in terminal	ProjectSettingsWindow		Run in terminal
 Target:	ProjectSettingsWindow		Target:
 Building project '\"%project%\"'…	GlobalStatusView		Building project '\"%project%\"'…
 Cleaning project '\"%project%\"'…	GlobalStatusView		Cleaning project '\"%project%\"'…
@@ -404,12 +404,12 @@ Match case	SearchResultTab	Short as possible.	Match case
 Project:	SearchResultTab		Project:
 Whole word	SearchResultTab	Short as possible.	Whole word
 Contributors:	GenioApp		Contributors:
-Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
-Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
-Made with love in Italy	GenioApp		Made with love in Italy
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio は Ideam のフォークで、MIT ライセンスで提供されています。
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio が使用するライブラリー：\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
+Made with love in Italy	GenioApp		愛をこめて Made in Italy
 See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
-Defaults	ConfigWindow		Defaults
-Settings	ConfigWindow		Settings
+Defaults	ConfigWindow		デフォルト
+Settings	ConfigWindow		設定
 Edit user templates…	TemplatesMenu		Edit user templates…
 File deleted	GitRepository		File deleted
 File deleted from index	GitRepository		File deleted from index

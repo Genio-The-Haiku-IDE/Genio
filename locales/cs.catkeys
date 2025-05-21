@@ -1,0 +1,429 @@
+1	Czech	application/x-vnd.Genio	1940528103
+(follow editor style)	TermView		(postupujte ve stylu editoru)\n
+(follow system style)	TermView		(postupujte ve stylu systému)\n
+Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
+Clear	TermView		Vyčistit
+Stop	TermView		Přestat
+Wrap	TermView	As in wrapping long lines. Short as possible.	Zabalit\n
+(follow editor style)	SettingsWindow		\n(postupujte ve stylu editoru)
+(follow system style)	SettingsWindow		\n(postupujte ve stylu systému)
+Appearance	SettingsWindow		Vzhled
+Auto collapse/expand projects	SettingsWindow		Automaticky sbalit/rozbalit projekty\n
+Auto-Build on resource save	SettingsWindow		Automatické sestavení při šetření zdrojů
+Auto-Save changed files when building	SettingsWindow		\nAutomatické ukládání změněných souborů při vytváření
+Build	SettingsWindow		Vytvořit
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Konzolový banner\n
+Console style:	SettingsWindow		Styl konzole:\n
+Convert tabs to spaces	SettingsWindow		Převést tabulátory na mezery\n
+Default font	SettingsWindow		Výchozí písmo\n
+Default size	SettingsWindow		Výchozí velikost\n
+Editor	SettingsWindow		Editor
+Editor style:	SettingsWindow		Styl editoru:\n
+Editor zoom:	SettingsWindow		Přiblížení editoru:\n
+Enable brace matching	SettingsWindow		Povolit párování složených závorek\n
+Enable syntax highlighting	SettingsWindow		Povolit zvýraznění syntaxe\n
+Exclude folders:	SettingsWindow		Vyloučit složky:\n
+Find	SettingsWindow		Nalézt\n
+Font size:	SettingsWindow		Velikost písma:\n
+Font:	SettingsWindow		Písmo:
+Force showing Build log panel when building	SettingsWindow		Vynutit zobrazení panelu protokolu sestavení při sestavení
+General	SettingsWindow		Obecná nastavení
+Ignore .editorconfig	SettingsWindow		Ignorujte .editorconfig\n
+Log destination:	SettingsWindow		Cíl protokolu:\n
+Log level:	SettingsWindow		Úroveň protokolu:\n
+Log size:	SettingsWindow		Velikost protokolu:\n
+Mark caret line	SettingsWindow		Označte stříšku\n
+Match case	SettingsWindow	Short as possible.	Shoda
+Projects folder:	SettingsWindow		Složka projektů:\n
+Reload files	SettingsWindow		\nZnovu načtěte soubory
+Reload projects	SettingsWindow		Znovu načíst projekty\n
+Save caret position	SettingsWindow		Uložit pozici stříšky\n
+Set ruler to column:	SettingsWindow		Nastavit pravítko na sloupec:\n
+Show bottom pane	SettingsWindow		Zobrazit dolní panel
+Show comment margin	SettingsWindow		Zobrazit okraj komentáře\n
+Show folding margin	SettingsWindow		Zobrazit skládací okraj\n
+Show full path in window title	SettingsWindow		Zobrazit celou cestu v názvu okna\n
+Show left pane	SettingsWindow		Zobrazit levý panel
+Show line endings	SettingsWindow		Zobrazit konce řádků\n
+Show line numbers	SettingsWindow		Zobrazit čísla řádků\n
+Show repository outline	SettingsWindow		Zobrazit obrys úložiště\n
+Show right pane	SettingsWindow		Zobrazit pravý panel
+Show statusbar	SettingsWindow		Zobrazit stavový řádek\n
+Show toolbar	SettingsWindow		Zobrazit panel nástrojů\n
+Show vertical ruler	SettingsWindow		Zobrazit svislé pravítko\n
+Show whitespace	SettingsWindow		Zobrazit mezery\n
+Source control	SettingsWindow		Ovládání zdroje\n
+Startup	SettingsWindow		Spuštění\n
+Tab width:	SettingsWindow		Šířka karty:\n
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Ty se použijí pouze v případě, že není použit žádný .editorconfig:\n
+This setting will be updated on restart.	SettingsWindow		Toto nastavení bude aktualizováno při restartu.\n
+Trim trailing whitespace on save	SettingsWindow		Při uložení ořízněte mezery na konci\n
+Use smaller icons in toolbar	SettingsWindow		Použijte menší ikony na panelu nástrojů\n
+Visuals	SettingsWindow		Vizuály
+Whole word	SettingsWindow	Short as possible.	Celé slovo
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Zabalit se\n
+Wrap lines	SettingsWindow		Zabalit čáry\n
+Wrap lines in console	SettingsWindow		Zabalit řádky do konzoly\n
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
+1 element replaced	Editor		1 element replaced
+Cancel	Editor		Zrušit
+Do you want to set a starting index?	Editor		Chcete nastavit počáteční index?
+Don't save	Editor		Neukládat
+Index	Editor		Index
+No matches found.	Editor		No matches found.
+Rename	Editor		Přejmenovat
+Rename symbol '%symbol_name%':	Editor		Přejmenovat symbol '%symbol_name%':
+Save	Editor		Uložit
+Save changes to file \"%filename%\"?	Editor		Uložit změny do souboru \"%filename%\"?
+Save dialog	Editor		Uložit dialog
+About…	GenioWindow		O Genio…
+An error occurred while switching branch:	GenioWindow		Při přepínání větve došlo k chybě:
+Appearance	GenioWindow		Vzhled
+Autocomplete	GenioWindow		Automatické dokončování
+Bookmark	GenioWindow		Záložka
+Bookmark all	GenioWindow		Záložka vše
+Branch	GenioWindow	The git command	Větev
+Build log	GenioWindow		Protokol o sestavení
+Build mode	GenioWindow		Režim sestavení
+Build project	GenioWindow		Sestavit projekt
+Cancel	GenioWindow		Zrušit
+Clean project	GenioWindow		Čistý projekt
+Clear all	GenioWindow	Bookmark menu	Vyčistit vše
+Close	GenioWindow		Zavřít
+Close active project	GenioWindow		Zavřít aktivní projekt
+Close all	GenioWindow		Zavřít vše
+Close file	GenioWindow		Zavřít soubor
+Close other	GenioWindow		Zavřít ostatní
+Comment selected lines	GenioWindow		Komentář k vybraným řádkům
+Configure	GenioWindow		Konfigurace
+Conflicts	GenioWindow		Konflikty
+Console I/O	GenioWindow		Konzolové I/O
+Copy	GenioWindow		Kopírovat
+Could not create a new file	GenioWindow		Nepodařilo se vytvořit nový soubor
+Could not delete \"%name%\".\n\n	GenioWindow		Nelze odstranit \„%name%\“.\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Klasický Mac OS)
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
+Cut	GenioWindow		Vyjmout
+Debug	GenioWindow		Ladění
+Debug project	GenioWindow		Ladění projektu
+Delete	GenioWindow		Odstranit
+Delete current line	GenioWindow		Odstranění aktuálního řádku
+Delete dialog	GenioWindow		Dialogové okno Odstranit
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Odstranění položky: \„%name%\“.\n\nPo smazání bude položka ztracena.\nChcete ji opravdu smazat?
+Discard	GenioWindow		Zahodit
+Don't save	GenioWindow		Neukládat
+Duplicate current line	GenioWindow		Duplikovat aktuální řádek
+Edit	GenioWindow		Upravit
+Error creating folder	GenioWindow		Chyba při vytváření složky
+File	GenioWindow		Soubor
+File \"%file%\" was apparently modified, reload it?	GenioWindow		Soubor \"%file%\" byl zřejmě změněn, načíst jej znovu?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		Soubor \"%file%\" byl zřejmě přesunut.\nChcete jej ignorovat, zavřít nebo znovu načíst?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		Soubor \"%file%\" byl zřejmě odstraněn.\nChcete si soubor ponechat nebo jej zahodit?\nPokud bude zachován a upraven, uložte jej, jinak bude ztracen.
+Find	GenioWindow		Najít
+Find in project	GenioWindow		Najít v projektu
+Find next	GenioWindow		Najít další
+Find previous	GenioWindow		Najít předchozí
+Find:	GenioWindow		Najít:
+Focus mode	GenioWindow		Režim soustředění
+Fold/Unfold all	GenioWindow		Složit/Rozložit vše\n
+Format	GenioWindow		Formát
+Fullscreen	GenioWindow		Celá obrazovka
+Genio project…	GenioWindow		Genio projekt…
+Git	GenioWindow		Git
+Go back	GenioWindow		Jít zpátky
+Go forward	GenioWindow		Jít dopředu
+Go to declaration	GenioWindow		Přejít na prohlášení
+Go to definition	GenioWindow		Přejít na definici
+Go to implementation	GenioWindow		Přejít na implementaci
+Go to line…	GenioWindow		Přejít na řádek...
+Go to next tab	GenioWindow		Jít na další tab
+Go to previous tab	GenioWindow		Jít na předchozí tab
+Help…	GenioWindow		Nápověda…
+Ignore	GenioWindow		Ignorovat
+Import as RDEF array…	GenioWindow		Import jako pole RDEF...
+Invalid project folder	GenioWindow		Nesprávná složka projektu
+Keep	GenioWindow		Udržujte
+Language	GenioWindow		Jazyk
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
+Line endings	GenioWindow		Koncovky řádků
+Log	GenioWindow	The git command	Záznam
+Log (oneline)	GenioWindow	The git command	Záznam (jednořádkový)
+Make bindcatalogs	GenioWindow		Vytvořit bind-katalogy
+Make catkeys	GenioWindow		Vytvořit catkeys
+Make file read-only	GenioWindow		Vytvořit soubor jen pro čtení
+Match case	GenioWindow	Short as possible.	Shoda
+New	GenioWindow		Nový
+New file	GenioWindow		Nový soubor
+New folder	GenioWindow		Nová složka
+Next	GenioWindow	Bookmark menu	Další
+Open in Terminal	GenioWindow		Otevřít terminál
+Open project…	GenioWindow		Otevřít projekt...
+Open recent…	GenioWindow		Otevřít nedávné…
+Open remote project…	GenioWindow		Otevřít vzdálený projekt…
+Open…	GenioWindow		Otevřít…
+Overwrite	GenioWindow		Přepsat
+Paste	GenioWindow		Vložit
+Previous	GenioWindow	Bookmark menu	Předchozí
+Project	GenioWindow		Projekt
+Project settings…	GenioWindow		Projektové nastavení…
+Project:	GenioWindow		Projekt
+Pull	GenioWindow	The git command	Pull
+Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Quit	GenioWindow		Ukončit
+Read-only	GenioWindow		Pouze ke čtení
+Redo	GenioWindow		Znovu
+Release	GenioWindow		Vydání
+Reload	GenioWindow		Znovu načíst
+Reload .editorconfig	GenioWindow		Znovu načíst .editorconfig
+Rename symbol…	GenioWindow		Přejmenování symbolu...
+Replace	GenioWindow		Nahradit
+Replace all	GenioWindow		Nahradit vše
+Replace and find next	GenioWindow		Nahradit a najít další
+Replace and find previous	GenioWindow		Nahradit a najít předchozí
+Replace selection	GenioWindow		Nahrazení výběru
+Replace:	GenioWindow		Nahradit:
+Reset zoom	GenioWindow		Obnovení zvětšení
+Run	GenioWindow		Spustit
+Run console program	GenioWindow		Spuštění konzolového programu
+Run target	GenioWindow		Spustit cíl
+Run:	GenioWindow		Spusťte:
+Save	GenioWindow		Uložit
+Save all	GenioWindow		Uložit vše
+Save all files	GenioWindow		Uložit všechny soubory
+Save as…	GenioWindow		Uložit jako...
+Save changes to file \"%file%\"	GenioWindow		Uložení změn do souboru \"%file%\“
+Save current file	GenioWindow		Uložit aktuální soubor
+Search	GenioWindow		Hledat
+Select all	GenioWindow		Vybrat vše
+Set active	GenioWindow		Nastavit aktivní
+Settings…	GenioWindow		Nastavení...
+Show bottom pane	GenioWindow		Zobrazit dolní panel
+Show config	GenioWindow	The git command	Zobrazit konfiguraci
+Show in projects browser	GenioWindow		Zobrazit v prohlížeči projektů
+Show in Tracker	GenioWindow		Zobrazit v nástroji Tracker
+Show left pane	GenioWindow		Zobrazit levý panel
+Show line endings	GenioWindow		Zobrazit konce řádků
+Show right pane	GenioWindow		Zobrazit pravý panel
+Show statusbar	GenioWindow		Zobrazit stavový řádek
+Show toolbar	GenioWindow		Zobrazit panel nástrojů
+Show whitespace	GenioWindow		Zobrazit bílé znaky
+Show whitespace and line endings	GenioWindow		Zobrazení bílých znaků a konců řádků
+Show/Hide bottom pane	GenioWindow		Zobrazit/Skrýt dolní panel
+Show/Hide find bar	GenioWindow		Zobrazení/skrytí panelu vyhledávání
+Show/Hide left pane	GenioWindow		Zobrazit/Skrýt levý panel
+Show/Hide replace bar	GenioWindow		Zobrazit/skrýt panel nahrazení
+Show/Hide right pane	GenioWindow		Zobrazit/Skrýt pravý panel
+Status	GenioWindow	The git command	Status
+Status (short)	GenioWindow	The git command	Status (krátký)
+Switch source/header	GenioWindow		Přepínač zdroj/záhlaví
+Switch to branch	GenioWindow		Přepnutí na pobočku
+Tag	GenioWindow	The git command	Tag
+Toggle	GenioWindow	Bookmark menu	Přepínač
+Tools	GenioWindow		Nástroje\n
+Trim trailing whitespace	GenioWindow		\nOřízněte mezery na konci
+Undo	GenioWindow		Vrátit zpět\n
+View	GenioWindow		Pohled
+Whole word	GenioWindow	Short as possible.	Celé slovo
+Window	GenioWindow		Okno\n
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Obalení
+Wrap lines	GenioWindow		Zabalit čáry
+Zoom in	GenioWindow		Přiblížit
+Zoom out	GenioWindow		Oddálit
+Actions	SourceControlPanel		Akce\n
+An unknown error occurred.	SourceControlPanel		Došlo k neznámé chybě.\n
+Cancel	SourceControlPanel		Zrušit
+Changes stashed.	SourceControlPanel		Změny byly uloženy.\n
+Choose branch…	SourceControlPanel		Vyberte pobočku…\n
+Choose project…	SourceControlPanel		Vyberte projekt…\n
+Conflicts	SourceControlPanel		Konflikty
+Copy name	SourceControlPanel		Zkopírovat jméno\n
+Create branch	SourceControlPanel		Vytvořit větev\n
+Create initial commit	SourceControlPanel		Vytvořte počáteční potvrzení\n
+Create new branch from \"%selected_branch%\"	SourceControlPanel		Vytvořit novou větev z \"%selected_branch%\"\n
+Current branch:	SourceControlPanel		Aktuální větev:\n
+Delete	SourceControlPanel		Odstranit
+Delete \"%selected_branch%\"	SourceControlPanel		Smazat \"%selected_branch%\"
+Delete dialog	SourceControlPanel		Dialogové okno Odstranit
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		\nMazání větve: \"%branch%\".\n\nPo smazání bude položka ztracena.\nOpravdu ji chcete smazat?
+Do not create the initial commit	SourceControlPanel		Nevytvářejte inicializační revizi
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Opravdu chcete inicializovat úložiště bez vytvoření počáteční revize?
+Enter a message for this stash	SourceControlPanel		Zadejte zprávu pro tuto úschovu\n
+Fetch	SourceControlPanel		Fetch
+Fetch completed.	SourceControlPanel		Fetch dokončen.
+Fetch prune	SourceControlPanel		Fetch prune
+Fetch prune completed.	SourceControlPanel		Fetch prune dokončen.
+Init repository	SourceControlPanel		Init repository
+Local branches	SourceControlPanel		Lokální větve
+New branch name:	SourceControlPanel		Nový název větve:\n
+OK	SourceControlPanel		OK
+Project:	SourceControlPanel		Projekt:
+Remote branches	SourceControlPanel		Vzdálené větvě\n
+Remotes	SourceControlPanel		Vzdálené
+Rename \"%selected_branch%\"	SourceControlPanel		Přejmenovat \"%selected_branch%\"\n
+Rename branch	SourceControlPanel		Přejmenovat větev\n
+Rename branch:	SourceControlPanel		Přejmenovat větev:\n
+Repository	SourceControlPanel		Repozitář
+Source control	SourceControlPanel		\nOvládání zdroje
+Stash apply changes	SourceControlPanel		Stash apply changes\n\n
+Stash changes	SourceControlPanel		Uložit v úschovně
+Stash pop changes	SourceControlPanel		Vybrat z úschovny
+Stashed changes applied.	SourceControlPanel		Uschované změny se použijí.
+Stashed changes popped.	SourceControlPanel		Uschované změny se vrátí.
+Switch to \"%selected_branch%\"	SourceControlPanel		\nPřepnout na \"%selected_branch%\"
+Tags	SourceControlPanel		Tagy
+The project is building, changing branch not allowed.	SourceControlPanel		Projekt se buduje, změna větve není povolena.
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Tento projekt nemá úložiště git.\nKliknutím níže jej inicializujete.
+Active	EditorTabManager		Aktivní
+Project	EditorTabManager		Projekt
+alpha	Utilities		alpha
+beta	Utilities		beta
+development	Utilities		development
+gamma	Utilities		gamma
+gold master	Utilities		gold master
+OK	Utilities		OK
+Version	Utilities		Verze
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Při pokusu o přejmenování souboru došlo k chybě
+Build mode	ProjectsFolderBrowser		Mód sestavení
+Build project	ProjectsFolderBrowser		Sestavit projekt\n
+Clean project	ProjectsFolderBrowser		Čistý projekt\n
+Close project	ProjectsFolderBrowser		Zavřít projekt\n
+Current branch	ProjectsFolderBrowser		Současná pobočka\n
+Debug	ProjectsFolderBrowser		Ladění
+Delete file	ProjectsFolderBrowser		Smazat soubor\n
+Delete folder	ProjectsFolderBrowser		Smazat složku\n
+Drop folder here	ProjectsFolderBrowser		Sem přetáhněte složku\n
+New	ProjectsFolderBrowser		Nový
+OK	ProjectsFolderBrowser		OK
+Open file	ProjectsFolderBrowser		Otevřít soubor\n
+Path	ProjectsFolderBrowser		Cesta\n
+Project	ProjectsFolderBrowser		Projekt
+Project settings…	ProjectsFolderBrowser		Nastavení projektu…\n
+Release	ProjectsFolderBrowser		Vydání
+Rename file	ProjectsFolderBrowser		Přejmenovat soubor
+Rename folder	ProjectsFolderBrowser		Přejmenovat složku\n
+Set active	ProjectsFolderBrowser		Nastavit jako aktivní\n
+Switch to branch	ProjectsFolderBrowser		Přepnout na pobočku\n
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Složka projektu byla odstraněna nebo přesunuta na jiné místo a bude uzavřena a uvolněna z pracovního prostoru.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Složka projektu byla přejmenována. Automaticky se zavře a znovu otevře.
+Another command is running.	ConsoleIOView		Probíhá další příkaz.
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Prapor
+Clear	ConsoleIOView		Vyčisti
+Restarting build…	ConsoleIOView		Restartování sestavení…
+stderr	ConsoleIOView		stderr
+stdout	ConsoleIOView		stdout
+Stop	ConsoleIOView		Stop
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Zabalit
+Array	FunctionsOutlineView		Pole
+Boolean	FunctionsOutlineView		Boolean
+Class	FunctionsOutlineView		Třída
+Constant	FunctionsOutlineView		Konstanta
+Constructor	FunctionsOutlineView		Konstruktor
+Creating outline	FunctionsOutlineView		Vytvoření osnovy
+Enum	FunctionsOutlineView		Enum
+Enum member	FunctionsOutlineView		Enum člen
+Event	FunctionsOutlineView		Událost
+Field	FunctionsOutlineView		Oblast
+File	FunctionsOutlineView		Soubor
+Function	FunctionsOutlineView		Funkce
+Go to symbol	FunctionsOutlineView		Přejít na symbol
+Interface	FunctionsOutlineView		Rozhraní
+Key	FunctionsOutlineView		Klíč
+Method	FunctionsOutlineView		Metoda
+Module	FunctionsOutlineView		Modul
+Namespace	FunctionsOutlineView		Jmenný prostor
+No outline available	FunctionsOutlineView		Není k dispozici žádná osnova
+Null	FunctionsOutlineView		Null
+Object	FunctionsOutlineView		Objekt
+Operator	FunctionsOutlineView		Operátor
+Outline	FunctionsOutlineView		Osnova
+Package	FunctionsOutlineView		Balíček
+Property	FunctionsOutlineView		Vlastnost
+Rename symbol…	FunctionsOutlineView		Přejmenování symbolu...
+Sort	FunctionsOutlineView		Třídit
+String	FunctionsOutlineView		String
+Structure	FunctionsOutlineView		Struktura
+Type parameter	FunctionsOutlineView		Parametr typu
+Variable	FunctionsOutlineView		Proměnná
+Base path:	RemoteProjectWindow		Základní cesta:\n
+Browse…	RemoteProjectWindow		Prohlížet…\n
+Cancel	RemoteProjectWindow		Zrušit
+Clone	RemoteProjectWindow		Klonovat\n
+Close	RemoteProjectWindow		Zavřít
+Continue	RemoteProjectWindow		Pokračovat
+Destination folder:	RemoteProjectWindow		Cílová složka:\n
+Do you want to stop cloning the repository?	RemoteProjectWindow		Chcete zastavit klonování úložiště?\n
+Open remote Git project	RemoteProjectWindow		Otevřete vzdálený projekt Git
+Stop	RemoteProjectWindow		Stop
+The local path is not valid or does not exist	RemoteProjectWindow		Místní cesta není platná nebo neexistuje
+URL:	RemoteProjectWindow		URL:\n
+Build	ProjectSettingsWindow		Vytvořit\n
+Build command:	ProjectSettingsWindow		Příkaz sestavení:
+Build file path:	ProjectSettingsWindow		Cesta k souboru sestavení:
+Build mode:	ProjectSettingsWindow		Režim sestavení:\n
+Clean command:	ProjectSettingsWindow		Příkaz k vyčištění:
+Color:	ProjectSettingsWindow		Barva:
+Execute args:	ProjectSettingsWindow		Provést argumenty:\n
+Release	ProjectSettingsWindow		Uvolnění\n
+Run	ProjectSettingsWindow		Spustit
+Run in terminal	ProjectSettingsWindow		Spustit v terminálu\n
+Target:	ProjectSettingsWindow		Cíl:\n
+Building project '\"%project%\"'…	GlobalStatusView		Vytváření projektu '\„%project%\“'...
+Cleaning project '\"%project%\"'…	GlobalStatusView		Čištění projektu '\„%project%\“'...
+Failed building project '\"%project%\"'	GlobalStatusView		Neúspěšné sestavení projektu '\„%project%\“'
+Failed cleaning project '\"%project%\"'	GlobalStatusView		Neúspěšné čištění projektu '\„%project%\“'
+Finished building project '\"%project%\"'	GlobalStatusView		Dokončený stavební projekt '\„%project%\“'
+Finished cleaning project '\"%project%\"'	GlobalStatusView		Dokončeno čištění projektu '\„%project%\“'
+Cancel	GoToLineWindow		Zrušit
+Go to line	GoToLineWindow		Přejít na řádek
+Go to line:	GoToLineWindow		Přejít na řádek:
+OK	GoToLineWindow		OK
+Cancel	QuitAlert		Zrušit\n
+Don't save	QuitAlert		Neukládat\n
+Save all	QuitAlert		Uložit vše\n
+Save selected	QuitAlert		Uložit vybrané\n
+There are unsaved changes.\nSelect the files to save.	QuitAlert		Existují neuložené změny.\nVyberte soubory, které chcete uložit.
+Unsaved files	QuitAlert		Neuložené soubory\n
+Cancel	GitCredentialsWindow		Zrušit
+Git - User Credentials	GitCredentialsWindow		Git - Pověření uživatele
+Git - Username	GitCredentialsWindow		Git - Uživatelské jméno
+OK	GitCredentialsWindow		OK
+Password:	GitCredentialsWindow		Heslo:
+Username:	GitCredentialsWindow		Uživatelské jméno:
+Cancel	GTextAlert		Zrušit
+OK	GTextAlert		OK
+Category	ProblemsPanel		Kategorie\n
+Line	ProblemsPanel		Řádek
+Message	ProblemsPanel		Zpráva\n
+No fix available	ProblemsPanel		Žádná oprava není k dispozici
+Problems	ProblemsPanel		Problémy\n
+Source	ProblemsPanel		Zdroj\n
+Choose project…	SearchResultTab		Vyberte projekt…\n
+Find in project	SearchResultTab		Najít v projektu\n
+Match case	SearchResultTab	Short as possible.	Shoda 
+Project:	SearchResultTab		Projekt:\n
+Whole word	SearchResultTab	Short as possible.	Celé slovo\n
+Contributors:	GenioApp		Přispěvatelé:
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio je odnož programu Ideam a je k dispozici pod licencí MIT.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio používá:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n
+Made with love in Italy	GenioApp		Vyrobeno s láskou v Itálii
+See credits for a complete list.\n\n	GenioApp		Kompletní seznam naleznete v záznamech.\n\n
+Defaults	ConfigWindow		Výchozí
+Settings	ConfigWindow		Nastavení
+Edit user templates…	TemplatesMenu		\nUpravit uživatelské šablony…
+File deleted	GitRepository		Smazaný soubor
+File deleted from index	GitRepository		Soubor odstraněn z indexu
+File modified	GitRepository		Upravený soubor
+File modified on index	GitRepository		Soubor upravený na indexu
+New file	GitRepository		Nový soubor
+New file staged	GitRepository		Byl vytvořen nový soubor
+Genio	System name		Genio
+Global settings applied	EditorStatusView		Použitá globální nastavení
+No LSP file status information	EditorStatusView		Žádné informace o stavu souboru LSP
+Settings in .editorconfig applied	EditorStatusView		Použitá nastavení v souboru .editorconfig
+Loading project	ProjectOpenerWindow		Načítání projektu
+Loading project '%project_name%'	ProjectOpenerWindow		Načítání projektu '%project_name%'
+Location	SearchResultPanel		Umístění
+Search results	SearchResultPanel		Výsledky vyhledávání\n
+New folder	TemplateManager		Nová složka
+OK	GitAlert		OK

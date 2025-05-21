@@ -1,4 +1,4 @@
-1	English (British)	application/x-vnd.Genio	1940528103
+1	Korean	application/x-vnd.Genio	1940528103
 (follow editor style)	TermView		(follow editor style)
 (follow system style)	TermView		(follow system style)
 Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
@@ -256,7 +256,7 @@ Fetch prune completed.	SourceControlPanel		Fetch prune completed.
 Init repository	SourceControlPanel		Init repository
 Local branches	SourceControlPanel		Local branches
 New branch name:	SourceControlPanel		New branch name:
-OK	SourceControlPanel		Alright
+OK	SourceControlPanel		OK
 Project:	SourceControlPanel		Project:
 Remote branches	SourceControlPanel		Remote branches
 Remotes	SourceControlPanel		Remotes
@@ -281,7 +281,7 @@ beta	Utilities		beta
 development	Utilities		development
 gamma	Utilities		gamma
 gold master	Utilities		gold master
-OK	Utilities		Alright
+OK	Utilities		OK
 Version	Utilities		Version
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
 Build mode	ProjectsFolderBrowser		Build mode
@@ -294,7 +294,7 @@ Delete file	ProjectsFolderBrowser		Delete file
 Delete folder	ProjectsFolderBrowser		Delete folder
 Drop folder here	ProjectsFolderBrowser		Drop folder here
 New	ProjectsFolderBrowser		New
-OK	ProjectsFolderBrowser		Alright
+OK	ProjectsFolderBrowser		OK
 Open file	ProjectsFolderBrowser		Open file
 Path	ProjectsFolderBrowser		Path
 Project	ProjectsFolderBrowser		Project
@@ -306,14 +306,14 @@ Set active	ProjectsFolderBrowser		Set active
 Switch to branch	ProjectsFolderBrowser		Switch to branch
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
-Another command is running.	ConsoleIOView		Another command is running.
-Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
-Clear	ConsoleIOView		Clear
-Restarting build…	ConsoleIOView		Restarting build…
+Another command is running.	ConsoleIOView		다른 명령이 실행 중입니다.
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	배너
+Clear	ConsoleIOView		지우기
+Restarting build…	ConsoleIOView		다시 작성 중…
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
-Stop	ConsoleIOView		Stop
-Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
+Stop	ConsoleIOView		정지
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	줄바꿈
 Array	FunctionsOutlineView		Array
 Boolean	FunctionsOutlineView		Boolean
 Class	FunctionsOutlineView		Class
@@ -362,7 +362,7 @@ Build command:	ProjectSettingsWindow		Build command:
 Build file path:	ProjectSettingsWindow		Build file path:
 Build mode:	ProjectSettingsWindow		Build mode:
 Clean command:	ProjectSettingsWindow		Clean command:
-Color:	ProjectSettingsWindow		colour:
+Color:	ProjectSettingsWindow		Color:
 Execute args:	ProjectSettingsWindow		Execute args:
 Release	ProjectSettingsWindow		Release
 Run	ProjectSettingsWindow		Run
@@ -377,7 +377,7 @@ Finished cleaning project '\"%project%\"'	GlobalStatusView		Finished cleaning pr
 Cancel	GoToLineWindow		Cancel
 Go to line	GoToLineWindow		Go to line
 Go to line:	GoToLineWindow		Go to line:
-OK	GoToLineWindow		Alright
+OK	GoToLineWindow		OK
 Cancel	QuitAlert		Cancel
 Don't save	QuitAlert		Don't save
 Save all	QuitAlert		Save all
@@ -387,11 +387,11 @@ Unsaved files	QuitAlert		Unsaved files
 Cancel	GitCredentialsWindow		Cancel
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
 Git - Username	GitCredentialsWindow		Git - Username
-OK	GitCredentialsWindow		Alright
+OK	GitCredentialsWindow		OK
 Password:	GitCredentialsWindow		Password:
 Username:	GitCredentialsWindow		Username:
 Cancel	GTextAlert		Cancel
-OK	GTextAlert		Alright
+OK	GTextAlert		OK
 Category	ProblemsPanel		Category
 Line	ProblemsPanel		Line
 Message	ProblemsPanel		Message
@@ -408,8 +408,8 @@ Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n
 Made with love in Italy	GenioApp		Made with love in Italy
 See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
-Defaults	ConfigWindow		Defaults
-Settings	ConfigWindow		Settings
+Defaults	ConfigWindow		기본값
+Settings	ConfigWindow		설정
 Edit user templates…	TemplatesMenu		Edit user templates…
 File deleted	GitRepository		File deleted
 File deleted from index	GitRepository		File deleted from index
@@ -426,4 +426,4 @@ Loading project '%project_name%'	ProjectOpenerWindow		Loading project '%project_
 Location	SearchResultPanel		Location
 Search results	SearchResultPanel		Search results
 New folder	TemplateManager		New folder
-OK	GitAlert		Alright
+OK	GitAlert		OK

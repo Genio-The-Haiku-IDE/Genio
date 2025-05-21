@@ -1,0 +1,429 @@
+1	Ukrainian	application/x-vnd.Genio	1940528103
+(follow editor style)	TermView		(дотримуйтесь стилю редактора)
+(follow system style)	TermView		(дотримуйтесь стилю системи)
+Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Банер
+Clear	TermView		Очистити
+Stop	TermView		Зупинити
+Wrap	TermView	As in wrapping long lines. Short as possible.	Обернути
+(follow editor style)	SettingsWindow		(дотримуйтесь стилю редактора)
+(follow system style)	SettingsWindow		(дотримуйтесь стилю системи)
+Appearance	SettingsWindow		Зовнішній вигляд
+Auto collapse/expand projects	SettingsWindow		Автоматичне згортання/розгортання проєктів
+Auto-Build on resource save	SettingsWindow		Автоматична збірка під час збереження ресурсів
+Auto-Save changed files when building	SettingsWindow		Автоматичне збереження змінених файлів під час збірки
+Build	SettingsWindow		Збірка
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Банер консолі
+Console style:	SettingsWindow		Стиль консолі:
+Convert tabs to spaces	SettingsWindow		Перетворити табуляцію на пробіли
+Default font	SettingsWindow		Шрифт по замовчуванню
+Default size	SettingsWindow		Розмір по замовчуванню
+Editor	SettingsWindow		Редактор
+Editor style:	SettingsWindow		Стиль редактора:
+Editor zoom:	SettingsWindow		Масштаб редактора:
+Enable brace matching	SettingsWindow		Увімкнути зіставлення дужок
+Enable syntax highlighting	SettingsWindow		Увімкнути підсвічування синтаксису
+Exclude folders:	SettingsWindow		Виключити папки:
+Find	SettingsWindow		Знайти
+Font size:	SettingsWindow		Розмір шрифту:
+Font:	SettingsWindow		Шрифт:
+Force showing Build log panel when building	SettingsWindow		Примусове відображення панелі журналу збірки при збірці
+General	SettingsWindow		Загальне
+Ignore .editorconfig	SettingsWindow		Ігнорувати .editorconfig
+Log destination:	SettingsWindow		Призначення журналу:
+Log level:	SettingsWindow		Рівень журналу:
+Log size:	SettingsWindow		Розмір журналу:
+Mark caret line	SettingsWindow		Позначте лінію каретки
+Match case	SettingsWindow	Short as possible.	Збіг регістру
+Projects folder:	SettingsWindow		Тека проєкту:
+Reload files	SettingsWindow		Перезавантажити файли
+Reload projects	SettingsWindow		Перезавантажити проєкти
+Save caret position	SettingsWindow		Зберегти положення каретки
+Set ruler to column:	SettingsWindow		Встановити лінійку на стовпець:
+Show bottom pane	SettingsWindow		Показати нижню панель
+Show comment margin	SettingsWindow		Показати поле коментаря
+Show folding margin	SettingsWindow		Показати поле згинання
+Show full path in window title	SettingsWindow		Показувати повний шлях у заголовку вікна
+Show left pane	SettingsWindow		Показувати ліву панель
+Show line endings	SettingsWindow		Показувати закінчення рядків
+Show line numbers	SettingsWindow		Показувати номер рядка
+Show repository outline	SettingsWindow		Показувати структуру репозиторію
+Show right pane	SettingsWindow		Показувати праву панель
+Show statusbar	SettingsWindow		Показати рядок стану
+Show toolbar	SettingsWindow		Показувати панель інструментів
+Show vertical ruler	SettingsWindow		Показати вертикальну лінійку
+Show whitespace	SettingsWindow		Показувати пробіли
+Source control	SettingsWindow		Контроль джерела
+Startup	SettingsWindow		Стартап
+Tab width:	SettingsWindow		Ширина вкладки:
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Вони застосовуються лише якщо не використовується .editorconfig:
+This setting will be updated on restart.	SettingsWindow		Цей параметр буде оновлено після перезавантаження.
+Trim trailing whitespace on save	SettingsWindow		Вирізати пробіли при збереженні
+Use smaller icons in toolbar	SettingsWindow		Використайте менші значки на панелі інструментів
+Visuals	SettingsWindow		Візуальні ефекти
+Whole word	SettingsWindow	Short as possible.	Ціле слово
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Обертати навколо
+Wrap lines	SettingsWindow		Обертати лінії
+Wrap lines in console	SettingsWindow		Обертати лінії в консолі
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# елемент знайдено}other{# елементи/ів знайдено}}
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# елемент замінено}other{# елементи/ів замінено}}
+1 element replaced	Editor		1 елемент замінено
+Cancel	Editor		Відміна
+Do you want to set a starting index?	Editor		Ви хочете встановити початковий індекс?
+Don't save	Editor		Не зберігати
+Index	Editor		Індекс
+No matches found.	Editor		Збігів не знайдено.
+Rename	Editor		Перейменувати
+Rename symbol '%symbol_name%':	Editor		Перейменувати символ '%symbol_name%':
+Save	Editor		Зберегти
+Save changes to file \"%filename%\"?	Editor		Зберегти зміни до файлу \"%filename%\"?
+Save dialog	Editor		Зберегти діалог
+About…	GenioWindow		Про…
+An error occurred while switching branch:	GenioWindow		Під час перемикання гілки сталася помилка:
+Appearance	GenioWindow		Зовнішній вигляд
+Autocomplete	GenioWindow		Автозаповнення
+Bookmark	GenioWindow		Закладка
+Bookmark all	GenioWindow		Закласти все
+Branch	GenioWindow	The git command	Гілка
+Build log	GenioWindow		Журнал збірки
+Build mode	GenioWindow		Режим збірки
+Build project	GenioWindow		Проєкт збірки
+Cancel	GenioWindow		Відміна
+Clean project	GenioWindow		Очистити проєкт
+Clear all	GenioWindow	Bookmark menu	Очистити все
+Close	GenioWindow		Закрити
+Close active project	GenioWindow		Закрити активний проєкт
+Close all	GenioWindow		Закрити все
+Close file	GenioWindow		Закрити файл
+Close other	GenioWindow		Закрити інше
+Comment selected lines	GenioWindow		Коментувати вибрані рядки
+Configure	GenioWindow		Зконфігурувати
+Conflicts	GenioWindow		Конфлікти
+Console I/O	GenioWindow		Консольний ввід/вивід
+Copy	GenioWindow		Копіювати
+Could not create a new file	GenioWindow		Не вдалося створити новий файл
+Could not delete \"%name%\".\n\n	GenioWindow		Не вдалося видалити \"%name%\".\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
+Cut	GenioWindow		Вирізати
+Debug	GenioWindow		Налагодження
+Debug project	GenioWindow		Налагодження проекту
+Delete	GenioWindow		Видалити
+Delete current line	GenioWindow		Видалити поточний рядок
+Delete dialog	GenioWindow		Видалити діалог
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Видалення елемента: \"%name%\".\n\nПісля видалення елемент буде втрачено.\nВи справді хочете це видалити??
+Discard	GenioWindow		Відмовитись
+Don't save	GenioWindow		Не зберігати
+Duplicate current line	GenioWindow		Дублювати поточний рядок
+Edit	GenioWindow		Редагувати
+Error creating folder	GenioWindow		Помилка при створенні теки
+File	GenioWindow		Файл
+File \"%file%\" was apparently modified, reload it?	GenioWindow		Файл \"%file%\" очевидно, було змінено, перезавантажте його?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		Файл \"%file%\" очевидно, був переміщений.\nВи хочете ігнорувати, закрити чи перезавантажити його?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		Файл \"%file%\" очевидноб був переміщений.\nВи хочете зберегти файл чи видалити його?\nЯкщо ви зберігали та змінювали його, збережіть, інакше він буде втрачено.
+Find	GenioWindow		Знайти
+Find in project	GenioWindow		Знайти в проєкті
+Find next	GenioWindow		Знайти наступне
+Find previous	GenioWindow		Знайти попереднє
+Find:	GenioWindow		Знайти:
+Focus mode	GenioWindow		Режим фокусування
+Fold/Unfold all	GenioWindow		Згорнути/Розгорнути все
+Format	GenioWindow		Формат
+Fullscreen	GenioWindow		На весь екран
+Genio project…	GenioWindow		Проєкт Genio…
+Git	GenioWindow		Git
+Go back	GenioWindow		Повернутися назад
+Go forward	GenioWindow		Йди вперед
+Go to declaration	GenioWindow		Перейти до декларації
+Go to definition	GenioWindow		Перейти до визначення
+Go to implementation	GenioWindow		Перейти до реалізації
+Go to line…	GenioWindow		Перейти до рядка…
+Go to next tab	GenioWindow		Перейти до наступної вкладки
+Go to previous tab	GenioWindow		Перейти до попередньої вкладки
+Help…	GenioWindow		Допомога…
+Ignore	GenioWindow		Ігнорувати
+Import as RDEF array…	GenioWindow		Імпортувати як масив RDEF…
+Invalid project folder	GenioWindow		Невірна тека проєкту
+Keep	GenioWindow		Зберегти
+Language	GenioWindow		Мова
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
+Line endings	GenioWindow		Закінчення рядків
+Log	GenioWindow	The git command	Журнал
+Log (oneline)	GenioWindow	The git command	Журнал (онлайн)
+Make bindcatalogs	GenioWindow		Зробити каталоги зв'язків
+Make catkeys	GenioWindow		Зробити catkeys
+Make file read-only	GenioWindow		Зробити файл доступним лише для читання
+Match case	GenioWindow	Short as possible.	Збіг регістру
+New	GenioWindow		Новий
+New file	GenioWindow		Новий файл
+New folder	GenioWindow		Нова тека
+Next	GenioWindow	Bookmark menu	Наступна
+Open in Terminal	GenioWindow		Відкрити в Terminal
+Open project…	GenioWindow		Відкрити проєкт…
+Open recent…	GenioWindow		Відкрити нещодавні…
+Open remote project…	GenioWindow		Відкрити віддалений проект…
+Open…	GenioWindow		Відкрити…
+Overwrite	GenioWindow		Перезаписати
+Paste	GenioWindow		Вставити
+Previous	GenioWindow	Bookmark menu	Попередній
+Project	GenioWindow		Проєкт
+Project settings…	GenioWindow		Налаштування проєкту…
+Project:	GenioWindow		Проєкт:
+Pull	GenioWindow	The git command	Pull
+Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Quit	GenioWindow		Вийти
+Read-only	GenioWindow		Тільки для читання
+Redo	GenioWindow		Переробити
+Release	GenioWindow		Випустити
+Reload	GenioWindow		Перезавантажити
+Reload .editorconfig	GenioWindow		Перезавантажити.editorconfig
+Rename symbol…	GenioWindow		Перейменувати символ…
+Replace	GenioWindow		Замінити
+Replace all	GenioWindow		Замінити все
+Replace and find next	GenioWindow		Замінити та знайти наступне
+Replace and find previous	GenioWindow		Замінити та знайти попереднє
+Replace selection	GenioWindow		Замінити вибране
+Replace:	GenioWindow		Замінити:
+Reset zoom	GenioWindow		Скинути масштаб
+Run	GenioWindow		Запустити
+Run console program	GenioWindow		Запустити консольну програму
+Run target	GenioWindow		Запустити ціль
+Run:	GenioWindow		Запустити:
+Save	GenioWindow		Зберегти
+Save all	GenioWindow		Зберегти все
+Save all files	GenioWindow		Зберегти всі файли
+Save as…	GenioWindow		Зберегти як...
+Save changes to file \"%file%\"	GenioWindow		Зберегти зміни у файл \"%file%\"
+Save current file	GenioWindow		Зберегти поточний файл
+Search	GenioWindow		Шукати
+Select all	GenioWindow		Вибрати все
+Set active	GenioWindow		Вибрати активне
+Settings…	GenioWindow		Налаштування…
+Show bottom pane	GenioWindow		Показати нижню панель
+Show config	GenioWindow	The git command	Показати конфігурацію
+Show in projects browser	GenioWindow		Показати в оглядачі проєктів
+Show in Tracker	GenioWindow		Показати в Tracker'і
+Show left pane	GenioWindow		Показати ліву панель
+Show line endings	GenioWindow		Показати закінчення рядків
+Show right pane	GenioWindow		Показати праву панель
+Show statusbar	GenioWindow		Показати рядок стану
+Show toolbar	GenioWindow		Показати панель інструментів
+Show whitespace	GenioWindow		Показати пробіли
+Show whitespace and line endings	GenioWindow		Показати пробіли та закінчення рядків
+Show/Hide bottom pane	GenioWindow		Показати/Приховати нижню панель
+Show/Hide find bar	GenioWindow		Показати/Приховати панель пошуку
+Show/Hide left pane	GenioWindow		Показати/Приховати ліву панель
+Show/Hide replace bar	GenioWindow		Показати/Приховати панель заміни
+Show/Hide right pane	GenioWindow		Показати/Приховати праву панель
+Status	GenioWindow	The git command	Status
+Status (short)	GenioWindow	The git command	Status (short)
+Switch source/header	GenioWindow		Перемикання джерела/заголовка
+Switch to branch	GenioWindow		Перемкнутися на гілку
+Tag	GenioWindow	The git command	Tag
+Toggle	GenioWindow	Bookmark menu	Переключити
+Tools	GenioWindow		Інструменти
+Trim trailing whitespace	GenioWindow		Обрізати пробіли в кінці
+Undo	GenioWindow		Відмінити
+View	GenioWindow		Переглянути
+Whole word	GenioWindow	Short as possible.	Ціле слово
+Window	GenioWindow		Вікно
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Оберніть навколо
+Wrap lines	GenioWindow		Обернути лінії
+Zoom in	GenioWindow		Збільшити масштаб
+Zoom out	GenioWindow		Зменшити масштаб
+Actions	SourceControlPanel		Дії
+An unknown error occurred.	SourceControlPanel		Сталася невідома помилка.
+Cancel	SourceControlPanel		Відміна
+Changes stashed.	SourceControlPanel		Зміни збережено.
+Choose branch…	SourceControlPanel		Вибрати гілку...
+Choose project…	SourceControlPanel		Вибрати проєкт...
+Conflicts	SourceControlPanel		Конфлікти
+Copy name	SourceControlPanel		Копіювати ім'я
+Create branch	SourceControlPanel		Створити гілку
+Create initial commit	SourceControlPanel		Створити початковий коміт
+Create new branch from \"%selected_branch%\"	SourceControlPanel		Створити нову гілку з \"%selected_branch%\"
+Current branch:	SourceControlPanel		Поточна гілка:
+Delete	SourceControlPanel		Видалити
+Delete \"%selected_branch%\"	SourceControlPanel		Видалити \"%selected_branch%\"
+Delete dialog	SourceControlPanel		Видалити діалог
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Видалити гілку: \"%branch%\".\n\nПісля видалення елемент буде втрачено.\nВи дійсно бажаєте видалити її?
+Do not create the initial commit	SourceControlPanel		Не створювати початковий коміт
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Ви справді хочете ініціалізувати репозиторій без створення початкового коміту?
+Enter a message for this stash	SourceControlPanel		Введіть повідомлення для цього сховища
+Fetch	SourceControlPanel		Отримати
+Fetch completed.	SourceControlPanel		Отримання завершено.
+Fetch prune	SourceControlPanel		Вкорочене отримання
+Fetch prune completed.	SourceControlPanel		Вкорочене отримання завершено
+Init repository	SourceControlPanel		Ініціалізація репозиторію
+Local branches	SourceControlPanel		Локальні гілки
+New branch name:	SourceControlPanel		Нове ім'я гілки: 
+OK	SourceControlPanel		OK
+Project:	SourceControlPanel		Проєкт:
+Remote branches	SourceControlPanel		Віддалені гілки
+Remotes	SourceControlPanel		Пульти дистанційного керування
+Rename \"%selected_branch%\"	SourceControlPanel		Перейменувати \"%selected_branch%\"
+Rename branch	SourceControlPanel		Перейменувати гілку 
+Rename branch:	SourceControlPanel		Перейменувати гілку :
+Repository	SourceControlPanel		Репозиторій
+Source control	SourceControlPanel		Курувати джерелом
+Stash apply changes	SourceControlPanel		Застосувати зміни до сховища
+Stash changes	SourceControlPanel		Зміни сховища
+Stash pop changes	SourceControlPanel		Зміни в сховищі
+Stashed changes applied.	SourceControlPanel		Застосувати зміни сховища
+Stashed changes popped.	SourceControlPanel		Відобразити збережені зміни.
+Switch to \"%selected_branch%\"	SourceControlPanel		Перемкнутись до \"%selected_branch%\"
+Tags	SourceControlPanel		Теги
+The project is building, changing branch not allowed.	SourceControlPanel		Проєкт збирається, зміна гілки заборонена.
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Цей проєкт не має репозиторію git.\nНатисніть нижче, щоб ініціалізувати його.
+Active	EditorTabManager		Активний
+Project	EditorTabManager		Проєкт
+alpha	Utilities		альфа
+beta	Utilities		бета
+development	Utilities		гамма
+gamma	Utilities		gamma
+gold master	Utilities		gold master
+OK	Utilities		OK
+Version	Utilities		Версія
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Сталася помилка при спробі перейменування файлу
+Build mode	ProjectsFolderBrowser		Режим збірки
+Build project	ProjectsFolderBrowser		Збірка проєкту
+Clean project	ProjectsFolderBrowser		Чистий проєкт
+Close project	ProjectsFolderBrowser		Закрити проєкт
+Current branch	ProjectsFolderBrowser		Поточна гілка
+Debug	ProjectsFolderBrowser		Відладка
+Delete file	ProjectsFolderBrowser		Видалити файл
+Delete folder	ProjectsFolderBrowser		Видалити теку
+Drop folder here	ProjectsFolderBrowser		Перетягніть папку сюди
+New	ProjectsFolderBrowser		Новий
+OK	ProjectsFolderBrowser		OK
+Open file	ProjectsFolderBrowser		Відкрити файл
+Path	ProjectsFolderBrowser		Шлях
+Project	ProjectsFolderBrowser		Проєкт
+Project settings…	ProjectsFolderBrowser		Налаштування проєкту...
+Release	ProjectsFolderBrowser		Реліз
+Rename file	ProjectsFolderBrowser		Перейменувати файл
+Rename folder	ProjectsFolderBrowser		Перейменувати теку
+Set active	ProjectsFolderBrowser		Встановити активним
+Switch to branch	ProjectsFolderBrowser		Переключити гілку
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Теку проєкту було видалено або переміщено в інше місце, і вона буде закрита та вивантажена з робочої області.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Теку проекту перейменовано. Вона буде автоматично закрита та знову відкрита.
+Another command is running.	ConsoleIOView		Виконується інша команда.
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Банер
+Clear	ConsoleIOView		Очистити
+Restarting build…	ConsoleIOView		Перезапуск збірки…
+stderr	ConsoleIOView		stderr
+stdout	ConsoleIOView		stdout
+Stop	ConsoleIOView		Зупинити
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Обернути
+Array	FunctionsOutlineView		Масив
+Boolean	FunctionsOutlineView		Булеве значення
+Class	FunctionsOutlineView		Клас
+Constant	FunctionsOutlineView		Постійна
+Constructor	FunctionsOutlineView		Конструктор
+Creating outline	FunctionsOutlineView		Створення шаблону
+Enum	FunctionsOutlineView		Перелічення
+Enum member	FunctionsOutlineView		Член перелічення
+Event	FunctionsOutlineView		Подія
+Field	FunctionsOutlineView		Поле
+File	FunctionsOutlineView		Файл
+Function	FunctionsOutlineView		Функція
+Go to symbol	FunctionsOutlineView		Перейти до символу
+Interface	FunctionsOutlineView		Інтерфейс
+Key	FunctionsOutlineView		Ключ
+Method	FunctionsOutlineView		Метод
+Module	FunctionsOutlineView		Модуль
+Namespace	FunctionsOutlineView		Простір імен
+No outline available	FunctionsOutlineView		Шаблон недоступний
+Null	FunctionsOutlineView		Null
+Object	FunctionsOutlineView		Об'єкт
+Operator	FunctionsOutlineView		Оператор
+Outline	FunctionsOutlineView		Контур
+Package	FunctionsOutlineView		Пакунок
+Property	FunctionsOutlineView		Властивість
+Rename symbol…	FunctionsOutlineView		Перейменувати символ
+Sort	FunctionsOutlineView		Сортувати
+String	FunctionsOutlineView		Рядок
+Structure	FunctionsOutlineView		Структура
+Type parameter	FunctionsOutlineView		Параметр типу
+Variable	FunctionsOutlineView		Змінна
+Base path:	RemoteProjectWindow		Базовий шлях:
+Browse…	RemoteProjectWindow		Переглянути…
+Cancel	RemoteProjectWindow		Відміна
+Clone	RemoteProjectWindow		Клон
+Close	RemoteProjectWindow		Закрити
+Continue	RemoteProjectWindow		Прдовжити
+Destination folder:	RemoteProjectWindow		Папка призначення:
+Do you want to stop cloning the repository?	RemoteProjectWindow		Ви хочете зупинити клонування репозиторію?
+Open remote Git project	RemoteProjectWindow		Відкрити віддалений проєкт Git
+Stop	RemoteProjectWindow		Зупинити
+The local path is not valid or does not exist	RemoteProjectWindow		Локальний шлях недійсний або не існує
+URL:	RemoteProjectWindow		URL:
+Build	ProjectSettingsWindow		Збірка
+Build command:	ProjectSettingsWindow		Команда збірки:
+Build file path:	ProjectSettingsWindow		Шлях до файлу збірки:
+Build mode:	ProjectSettingsWindow		Режим збірки:
+Clean command:	ProjectSettingsWindow		Очистити команду:
+Color:	ProjectSettingsWindow		Колір:
+Execute args:	ProjectSettingsWindow		Виконати аргументи:
+Release	ProjectSettingsWindow		Реліз
+Run	ProjectSettingsWindow		Запустити
+Run in terminal	ProjectSettingsWindow		Запустити у Terminal`і
+Target:	ProjectSettingsWindow		Ціль:
+Building project '\"%project%\"'…	GlobalStatusView		Збірка проєкту '\"%project%\"'…
+Cleaning project '\"%project%\"'…	GlobalStatusView		Очистка проєкту '\"%project%\"'…
+Failed building project '\"%project%\"'	GlobalStatusView		Призупинено збірку проєкту '\"%project%\"'
+Failed cleaning project '\"%project%\"'	GlobalStatusView		Призупинено очистку проєкту '\"%project%\"'
+Finished building project '\"%project%\"'	GlobalStatusView		Завершення збірки проєкту '\"%project%\"'
+Finished cleaning project '\"%project%\"'	GlobalStatusView		Завершення збірки проєкту '\"%project%\"'
+Cancel	GoToLineWindow		Відміна
+Go to line	GoToLineWindow		Йти до рядка
+Go to line:	GoToLineWindow		Йти до рядка:
+OK	GoToLineWindow		OK
+Cancel	QuitAlert		Відміна
+Don't save	QuitAlert		Не зберігати
+Save all	QuitAlert		Зберегти все
+Save selected	QuitAlert		Зберегти вибране
+There are unsaved changes.\nSelect the files to save.	QuitAlert		Є незбережені зміни.\nВиберіть файли для збереження.
+Unsaved files	QuitAlert		Незбережені файли
+Cancel	GitCredentialsWindow		Відміна
+Git - User Credentials	GitCredentialsWindow		Git - Облікові дані користувача
+Git - Username	GitCredentialsWindow		Git - Ім'я користувача
+OK	GitCredentialsWindow		OK
+Password:	GitCredentialsWindow		Гасло:
+Username:	GitCredentialsWindow		Git - Ім'я користувача:
+Cancel	GTextAlert		Відміна
+OK	GTextAlert		OK
+Category	ProblemsPanel		Категорія
+Line	ProblemsPanel		Рядок
+Message	ProblemsPanel		Повідомлення
+No fix available	ProblemsPanel		Виправлення недоступне
+Problems	ProblemsPanel		Проблеми
+Source	ProblemsPanel		Джерело
+Choose project…	SearchResultTab		Вибрати проєкт...
+Find in project	SearchResultTab		Знайти в проєкті
+Match case	SearchResultTab	Short as possible.	Збіг регістру
+Project:	SearchResultTab		Проєкт:
+Whole word	SearchResultTab	Short as possible.	Ціле слово
+Contributors:	GenioApp		Участники:
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio є форком Ideam та доступний за ліцензією MIT.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio використовує:\nScintilla lib\nАвторські права Ніла Ходжсона, 1998–2003р.\n\nScintilla для Haiku\nАвторські права Андреа Анзани, 2011р. \nАвторські права, 2014–2015р.,Kacper Kasper \n\n
+Made with love in Italy	GenioApp		Зроблено з любов'ю в Італії
+See credits for a complete list.\n\n	GenioApp		Повний список дивіться у кредитах.\n\n
+Defaults	ConfigWindow		По замовчуванню
+Settings	ConfigWindow		Налаштування
+Edit user templates…	TemplatesMenu		Редагувати шаблони користувачів…
+File deleted	GitRepository		Файл видалено
+File deleted from index	GitRepository		Файл видалено з індексу
+File modified	GitRepository		Файл змінено
+File modified on index	GitRepository		Файл змінено в індексі
+New file	GitRepository		Новий файл
+New file staged	GitRepository		Новий файл підготовано
+Genio	System name		Genio
+Global settings applied	EditorStatusView		Застосовано глобальні налаштування
+No LSP file status information	EditorStatusView		Немає інформації про стан LSP-файлу
+Settings in .editorconfig applied	EditorStatusView		Застосовано налаштування у .editorconfig
+Loading project	ProjectOpenerWindow		Завантаження проєкту
+Loading project '%project_name%'	ProjectOpenerWindow		Завантаження проєкту '%project_name%'
+Location	SearchResultPanel		Розташування
+Search results	SearchResultPanel		Результати пошуку
+New folder	TemplateManager		Нова тека
+OK	GitAlert		OK

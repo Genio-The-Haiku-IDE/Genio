@@ -1,4 +1,82 @@
-1	Sardinian	application/x-vnd.Genio	2467019101
+1	Sardinian	application/x-vnd.Genio	1940528103
+(follow editor style)	TermView		(follow editor style)
+(follow system style)	TermView		(follow system style)
+Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
+Clear	TermView		Clear
+Stop	TermView		Stop
+Wrap	TermView	As in wrapping long lines. Short as possible.	Wrap
+(follow editor style)	SettingsWindow		(follow editor style)
+(follow system style)	SettingsWindow		(follow system style)
+Appearance	SettingsWindow		Appearance
+Auto collapse/expand projects	SettingsWindow		Cumprimi o ispania is progetos de manera automàtica
+Auto-Build on resource save	SettingsWindow		Cumpila de manera automàtica cando allogas sa resursa
+Auto-Save changed files when building	SettingsWindow		Cumpilende alloga is ischedas mudadas de manera automàtica
+Build	SettingsWindow		Cumpila
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Bandera de sa consola
+Console style:	SettingsWindow		Console style:
+Convert tabs to spaces	SettingsWindow		Cunverti is tabulatziones in ispatzios
+Default font	SettingsWindow		Default font
+Default size	SettingsWindow		Mannaria pro difalta
+Editor	SettingsWindow		Editore
+Editor style:	SettingsWindow		Istile de s'editore:
+Editor zoom:	SettingsWindow		Zum de s'editore:
+Enable brace matching	SettingsWindow		Abìlita su cuncordu intra is gafas
+Enable syntax highlighting	SettingsWindow		Abìlita s'iscobiu de sa sintassi
+Exclude folders:	SettingsWindow		Esclue is foddes:
+Find	SettingsWindow		Agata
+Font size:	SettingsWindow		Mannaria de su caràtere tipogràficu:
+Font:	SettingsWindow		Font:
+Force showing Build log panel when building	SettingsWindow		Force showing Build log panel when building
+General	SettingsWindow		Generale
+Ignore .editorconfig	SettingsWindow		Ignore .editorconfig
+Log destination:	SettingsWindow		Destinatzione de su registru:
+Log level:	SettingsWindow		Livellu de su registru:
+Log size:	SettingsWindow		Log size:
+Mark caret line	SettingsWindow		Marca sa linia de su cursore
+Match case	SettingsWindow	Short as possible.	Match case
+Projects folder:	SettingsWindow		Fodde de su progetu:
+Reload files	SettingsWindow		Torra a carrigare is ischedas
+Reload projects	SettingsWindow		Torra a carrigare is progetos
+Save caret position	SettingsWindow		Alloga sa positzione de su cursore
+Set ruler to column:	SettingsWindow		Cuncorda sa règula a sa colunna:
+Show bottom pane	SettingsWindow		Show bottom pane
+Show comment margin	SettingsWindow		Mustra s'óru de su cummentu
+Show folding margin	SettingsWindow		Show folding margin
+Show full path in window title	SettingsWindow		Mustra su caminu intreu in su tìtulu de sa ventana
+Show left pane	SettingsWindow		Show left pane
+Show line endings	SettingsWindow		Mustra is finales de linia
+Show line numbers	SettingsWindow		Mustra su nùmeru de sa linia
+Show repository outline	SettingsWindow		Mustra s'ischema de su repositoriu
+Show right pane	SettingsWindow		Show right pane
+Show statusbar	SettingsWindow		Show statusbar
+Show toolbar	SettingsWindow		Mustra sa barra de is ainas
+Show vertical ruler	SettingsWindow		Mustra sa règula de manera verticale
+Show whitespace	SettingsWindow		Mustra s'ispatziadura
+Source control	SettingsWindow		Cumpuda sa fonte
+Startup	SettingsWindow		Cumentzu
+Tab width:	SettingsWindow		Largaria de sa tabulatzione:
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	These are only applied if no .editorconfig is used:
+This setting will be updated on restart.	SettingsWindow		Custu cuncordu at a èssere annoadu torrende a aviare.
+Trim trailing whitespace on save	SettingsWindow		Alloghende boga s'ispatziadura a s'agabbu
+Use smaller icons in toolbar	SettingsWindow		Use smaller icons in toolbar
+Visuals	SettingsWindow		Visuals
+Whole word	SettingsWindow	Short as possible.	Paràula intrea
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Wrap around
+Wrap lines	SettingsWindow		Imbòliga
+Wrap lines in console	SettingsWindow		Imbòliga sa consola
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
+1 element replaced	Editor		1 element replaced
+Cancel	Editor		Annudda
+Do you want to set a starting index?	Editor		Do you want to set a starting index?
+Don't save	Editor		No alloghes
+Index	Editor		Index
+No matches found.	Editor		No matches found.
+Rename	Editor		Rename
+Rename symbol '%symbol_name%':	Editor		Rename symbol '%symbol_name%':
+Save	Editor		Alloga
+Save changes to file \"%filename%\"?	Editor		Alloga is mudas a s'ischeda \"%filename%\"?
+Save dialog	Editor		Ventana de allogadura
 About…	GenioWindow		A subra de…
 An error occurred while switching branch:	GenioWindow		Est acontessida una faddina cuncambiende su ramu:
 Appearance	GenioWindow		Bisura
@@ -13,9 +91,10 @@ Cancel	GenioWindow		Annudda
 Clean project	GenioWindow		Limpia su progetu
 Clear all	GenioWindow	Bookmark menu	Limpia totu
 Close	GenioWindow		Serra
+Close active project	GenioWindow		Close active project
 Close all	GenioWindow		Serra totu
 Close file	GenioWindow		Serra s'ischeda
-Close project	GenioWindow		Serra su progetu
+Close other	GenioWindow		Close other
 Comment selected lines	GenioWindow		Cummenta is linias isseberadas
 Configure	GenioWindow		Cuncorda
 Conflicts	GenioWindow		Cunflitos
@@ -23,6 +102,8 @@ Console I/O	GenioWindow		Consola I/O
 Copy	GenioWindow		Copia
 Could not create a new file	GenioWindow		No si podet creare un'ischeda noa
 Could not delete \"%name%\".\n\n	GenioWindow		No si podet bogare \"%name%\".\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
 Cut	GenioWindow		Sega
 Debug	GenioWindow		Depura
 Debug project	GenioWindow		Depura su progetu
@@ -32,7 +113,6 @@ Delete dialog	GenioWindow		Ventana de bogadura
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Boghende s'elementu: \"%name%\".\n\nPustis sa bogadura, s'elementu at a èssere pèrdidu.\nA beru lu cheres bogare?
 Discard	GenioWindow		Iscarta
 Don't save	GenioWindow		No alloghes
-Dos	GenioWindow		Dos
 Duplicate current line	GenioWindow		Dùplica sa linia currente
 Edit	GenioWindow		Edita
 Error creating folder	GenioWindow		Est acontessida una faddina creende sa fodde
@@ -51,28 +131,33 @@ Format	GenioWindow		Formadu
 Fullscreen	GenioWindow		Ischermu intreu
 Genio project…	GenioWindow		Progetu de Genio…
 Git	GenioWindow		Git
+Go back	GenioWindow		Go back
+Go forward	GenioWindow		Go forward
 Go to declaration	GenioWindow		Bae a sa declaratzione
 Go to definition	GenioWindow		Bae a sa definitzione
 Go to implementation	GenioWindow		Bae a s'implementatzione
 Go to line…	GenioWindow		Bae a sa linia…
+Go to next tab	GenioWindow		Go to next tab
+Go to previous tab	GenioWindow		Go to previous tab
 Help…	GenioWindow		Agiudu…
 Ignore	GenioWindow		Inniora
+Import as RDEF array…	GenioWindow		Import as RDEF array…
 Invalid project folder	GenioWindow		Sa fodde de su progetu no est bàlida
 Keep	GenioWindow		Apodera
 Language	GenioWindow		Linguagiu
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
 Line endings	GenioWindow		Finales de linia
 Log	GenioWindow	The git command	Registru
 Log (oneline)	GenioWindow	The git command	Registru (una linia)
-Mac	GenioWindow		Mac
 Make bindcatalogs	GenioWindow		Crea is bindcatalogs
 Make catkeys	GenioWindow		Crea is catkeys
 Make file read-only	GenioWindow		Faghe s'ischeda a leghidura setzi
-Match case	GenioWindow		Distinghi intra is majùscolas e minùscolas
+Match case	GenioWindow	Short as possible.	Match case
 New	GenioWindow		Nou
 New file	GenioWindow		Ischeda noa
 New folder	GenioWindow		Fodde noa
 Next	GenioWindow	Bookmark menu	A fatu
-Open files list	GenioWindow		Aberi sa lista de is ischedas
+Open in Terminal	GenioWindow		Open in Terminal
 Open project…	GenioWindow		Aberi unu progetu…
 Open recent…	GenioWindow		Aberi unu recente…
 Open remote project…	GenioWindow		Aberi unu progetu a tesu…
@@ -82,7 +167,7 @@ Paste	GenioWindow		Incolla
 Previous	GenioWindow	Bookmark menu	In antis
 Project	GenioWindow		Progetu
 Project settings…	GenioWindow		Cuncordos de su progetu…
-Projects	GenioWindow		Progetos
+Project:	GenioWindow		Progetu:
 Pull	GenioWindow	The git command	Tira
 Pull (rebase)	GenioWindow	The git command	Tira (rebase)
 Quit	GenioWindow		Essi
@@ -90,6 +175,8 @@ Read-only	GenioWindow		Leghidura setzi
 Redo	GenioWindow		Torra a fàghere
 Release	GenioWindow		Relassa
 Reload	GenioWindow		Torra a carrigare
+Reload .editorconfig	GenioWindow		Reload .editorconfig
+Rename symbol…	GenioWindow		Rename symbol…
 Replace	GenioWindow		Remplatza
 Replace all	GenioWindow		Remplatza totu
 Replace and find next	GenioWindow		Remplatza e agata a fatu
@@ -100,6 +187,7 @@ Reset zoom	GenioWindow		Torra a prìstinu su zum
 Run	GenioWindow		Esecuta
 Run console program	GenioWindow		Esecuta su programma in sa consola
 Run target	GenioWindow		Esecuta s'obietivu
+Run:	GenioWindow		Run:
 Save	GenioWindow		Alloga
 Save all	GenioWindow		Alloga totu
 Save all files	GenioWindow		Alloga totu is ischedas
@@ -108,58 +196,41 @@ Save changes to file \"%file%\"	GenioWindow		Alloga is mudas de s'ischeda \"%fil
 Save current file	GenioWindow		Alloga s'ischeda currente
 Search	GenioWindow		Chirca
 Select all	GenioWindow		Issèbera totu
+Set active	GenioWindow		Set active
 Settings…	GenioWindow		Cuncordos…
+Show bottom pane	GenioWindow		Show bottom pane
 Show config	GenioWindow	The git command	Mustra su cuncordu
+Show in projects browser	GenioWindow		Show in projects browser
+Show in Tracker	GenioWindow		Show in Tracker
+Show left pane	GenioWindow		Show left pane
 Show line endings	GenioWindow		Mustra is finales de linia
-Show output pane	GenioWindow		Mustra s'àrea in essida
-Show projects pane	GenioWindow		Mustra s'àrea de is progetos
+Show right pane	GenioWindow		Show right pane
+Show statusbar	GenioWindow		Show statusbar
 Show toolbar	GenioWindow		Mustra sa barra de is ainas
-Show white spaces	GenioWindow		Mustra s'ispatziadura
+Show whitespace	GenioWindow		Mustra s'ispatziadura
+Show whitespace and line endings	GenioWindow		Show whitespace and line endings
+Show/Hide bottom pane	GenioWindow		Show/Hide bottom pane
 Show/Hide find bar	GenioWindow		Mustra o cua sa barra pro agatare
-Show/Hide output pane	GenioWindow		Mustra o cua s'àrea in essida
-Show/Hide projects pane	GenioWindow		Mustra o cua s'àrea de is progetos
+Show/Hide left pane	GenioWindow		Show/Hide left pane
 Show/Hide replace bar	GenioWindow		Mustra o cua sa barra pro remplatzare
+Show/Hide right pane	GenioWindow		Show/Hide right pane
 Status	GenioWindow	The git command	Istadu
 Status (short)	GenioWindow	The git command	Istadu (curtzu)
 Switch source/header	GenioWindow		Cuncambia intra sa fonte e sa cabitzera
 Switch to branch	GenioWindow		Cuncambia a su ramu
-Switch to next file	GenioWindow		Cuncambia a s'ischeda a fatu
-Switch to previous file	GenioWindow		Cuncambia a s'ischeda in antis
 Tag	GenioWindow	The git command	Eticheta
 Toggle	GenioWindow	Bookmark menu	Còmmuta
+Tools	GenioWindow		Tools
 Trim trailing whitespace	GenioWindow		Boga s'ispatziadura a s'agabbu
 Undo	GenioWindow		Isfa
-Unix	GenioWindow		Unix
 View	GenioWindow		Vista
-Whole word	GenioWindow		Paràula intrea
+Whole word	GenioWindow	Short as possible.	Paràula intrea
 Window	GenioWindow		Ventana
-Wrap	GenioWindow		Imbòliga
-You can't create a new folder here, please select a project or another folder	GenioWindow		No podes creare una fodde noa inoghe, issèbera·nde un'àtera o un'àteru progetu
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Wrap around
+Wrap lines	GenioWindow		Imbòliga
 Zoom in	GenioWindow		Zum a probi
 Zoom out	GenioWindow		Zum a largu
-Active	EditorTabManager		Ativu
-Project	EditorTabManager		Progetu
-An error occurred attempting to rename file 	ProjectsFolderBrowser		Est acontessida una faddina proende a mudare su nùmene a s'ischeda
-Build project	ProjectsFolderBrowser		Cumpila su progetu
-Clean project	ProjectsFolderBrowser		Limpia su progetu
-Close project	ProjectsFolderBrowser		Serra su progetu
-Current branch	ProjectsFolderBrowser		Ramu currente
-Delete file	ProjectsFolderBrowser		Boga s'ischeda
-Delete folder	ProjectsFolderBrowser		Boga sa fodde
-New	ProjectsFolderBrowser		Nou
-OK	ProjectsFolderBrowser		Ello
-Open file	ProjectsFolderBrowser		Aberi s'ischeda
-Open Terminal	ProjectsFolderBrowser		Aberi su Terminale
-Path	ProjectsFolderBrowser		Caminu
-Project	ProjectsFolderBrowser		Progetu
-Project settings…	ProjectsFolderBrowser		Cuncordos de su progetu…
-Rename file	ProjectsFolderBrowser		Muda su nùmene a s'ischeda
-Rename folder	ProjectsFolderBrowser		Muda su nùmene a sa fodde
-Set active	ProjectsFolderBrowser		Cuncorda che ativu
-Show in Tracker	ProjectsFolderBrowser		Mustra in su Rastadore
-Switch to branch	ProjectsFolderBrowser		Cuncambia a su ramu
-The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Sa fodde de su progetu est istada bogada o mòvida a àteru logu, at a èssere serrada e iscarrigada dae s'ispatziu de trabalgiu.\n\nThe project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
-The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Sa fodde de su progetu at mudadu su nùmene. At a èssere serrada e torrada a aberri de manera automàtica.
+Actions	SourceControlPanel		Actions
 An unknown error occurred.	SourceControlPanel		Est acontessida una faddina disconnota.
 Cancel	SourceControlPanel		Annudda
 Changes stashed.	SourceControlPanel		Mudas istugiadas.
@@ -167,6 +238,7 @@ Choose branch…	SourceControlPanel		Issèbera su ramu…
 Choose project…	SourceControlPanel		Issèbera su progetu…
 Conflicts	SourceControlPanel		Cunflitos
 Copy name	SourceControlPanel		Copia su nùmene
+Create branch	SourceControlPanel		Create branch
 Create initial commit	SourceControlPanel		Crea sa primu commissione
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Crea unu ramu nou dae \"%selected_branch%\"
 Current branch:	SourceControlPanel		Ramu currente:
@@ -183,8 +255,8 @@ Fetch prune	SourceControlPanel		Logra e puda
 Fetch prune completed.	SourceControlPanel		Logru e pudongiu cumpridos.
 Init repository	SourceControlPanel		Inchingia su repositoriu
 Local branches	SourceControlPanel		Ramos locales
+New branch name:	SourceControlPanel		New branch name:
 OK	SourceControlPanel		Ello
-Options	SourceControlPanel		Ischerias
 Project:	SourceControlPanel		Progetu:
 Remote branches	SourceControlPanel		Ramos a tesu
 Remotes	SourceControlPanel		A tesu
@@ -202,59 +274,77 @@ Switch to \"%selected_branch%\"	SourceControlPanel		Cuncambia a \"%selected_bran
 Tags	SourceControlPanel		Etichetas
 The project is building, changing branch not allowed.	SourceControlPanel		Su progetu est cumpilende, no si permitet mudare su ramu.
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Custu progetu no tenet unu repositoriu git.\nCarca a giosso pro lu inchingiare.
+Active	EditorTabManager		Ativu
+Project	EditorTabManager		Progetu
+alpha	Utilities		alpha
+beta	Utilities		beta
+development	Utilities		development
+gamma	Utilities		gamma
+gold master	Utilities		gold master
+OK	Utilities		Ello
+Version	Utilities		Version
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Est acontessida una faddina proende a mudare su nùmene a s'ischeda
+Build mode	ProjectsFolderBrowser		Build mode
+Build project	ProjectsFolderBrowser		Cumpila su progetu
+Clean project	ProjectsFolderBrowser		Limpia su progetu
+Close project	ProjectsFolderBrowser		Serra su progetu
+Current branch	ProjectsFolderBrowser		Ramu currente
+Debug	ProjectsFolderBrowser		Debug
+Delete file	ProjectsFolderBrowser		Boga s'ischeda
+Delete folder	ProjectsFolderBrowser		Boga sa fodde
+Drop folder here	ProjectsFolderBrowser		Drop folder here
+New	ProjectsFolderBrowser		Nou
+OK	ProjectsFolderBrowser		Ello
+Open file	ProjectsFolderBrowser		Aberi s'ischeda
+Path	ProjectsFolderBrowser		Caminu
+Project	ProjectsFolderBrowser		Progetu
+Project settings…	ProjectsFolderBrowser		Cuncordos de su progetu…
+Release	ProjectsFolderBrowser		Release
+Rename file	ProjectsFolderBrowser		Muda su nùmene a s'ischeda
+Rename folder	ProjectsFolderBrowser		Muda su nùmene a sa fodde
+Set active	ProjectsFolderBrowser		Cuncorda che ativu
+Switch to branch	ProjectsFolderBrowser		Cuncambia a su ramu
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Sa fodde de su progetu est istada bogada o mòvida a àteru logu, at a èssere serrada e iscarrigada dae s'ispatziu de trabalgiu.\n\nThe project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Sa fodde de su progetu at mudadu su nùmene. At a èssere serrada e torrada a aberri de manera automàtica.
 Another command is running.	ConsoleIOView		Esecutende un'àteru cumandu.
-Banner	ConsoleIOView		Bandera
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Bandera
 Clear	ConsoleIOView		Limpia
 Restarting build…	ConsoleIOView		Torra a aviare sa cumpilatzione…
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
 Stop	ConsoleIOView		Firma
-Wrap	ConsoleIOView		Imbòliga
-Auto collapse/expand projects	SettingsWindow		Cumprimi o ispania is progetos de manera automàtica
-Auto-Build on resource save	SettingsWindow		Cumpila de manera automàtica cando allogas sa resursa
-Auto-Save changed files when building	SettingsWindow		Cumpilende alloga is ischedas mudadas de manera automàtica
-Build	SettingsWindow		Cumpila
-Console banner	SettingsWindow		Bandera de sa consola
-Convert tabs to spaces	SettingsWindow		Cunverti is tabulatziones in ispatzios
-Default size	SettingsWindow		Mannaria pro difalta
-Editor	SettingsWindow		Editore
-Editor style:	SettingsWindow		Istile de s'editore:
-Editor zoom:	SettingsWindow		Zum de s'editore:
-Enable brace matching	SettingsWindow		Abìlita su cuncordu intra is gafas
-Enable folding	SettingsWindow		Abìlita sa pinnigadura
-Enable syntax highlighting	SettingsWindow		Abìlita s'iscobiu de sa sintassi
-Exclude folders:	SettingsWindow		Esclue is foddes:
-Find	SettingsWindow		Agata
-Font size:	SettingsWindow		Mannaria de su caràtere tipogràficu:
-General	SettingsWindow		Generale
-Log destination:	SettingsWindow		Destinatzione de su registru:
-Log level:	SettingsWindow		Livellu de su registru:
-Mark caret line	SettingsWindow		Marca sa linia de su cursore
-Match case	SettingsWindow		Distinghi intra is majùscolas e minùscolas
-Projects folder:	SettingsWindow		Fodde de su progetu:
-Reload files	SettingsWindow		Torra a carrigare is ischedas
-Reload projects	SettingsWindow		Torra a carrigare is progetos
-Save caret position	SettingsWindow		Alloga sa positzione de su cursore
-Set ruler to column:	SettingsWindow		Cuncorda sa règula a sa colunna:
-Show comment margin	SettingsWindow		Mustra s'óru de su cummentu
-Show full path in window title	SettingsWindow		Mustra su caminu intreu in su tìtulu de sa ventana
-Show line endings	SettingsWindow		Mustra is finales de linia
-Show line number	SettingsWindow		Mustra su nùmeru de sa linia
-Show output pane	SettingsWindow		Mustra s'àrea in essida
-Show projects pane	SettingsWindow		Mustra s'àrea de is progetos
-Show repository outline	SettingsWindow		Mustra s'ischema de su repositoriu
-Show toolbar	SettingsWindow		Mustra sa barra de is ainas
-Show vertical ruler	SettingsWindow		Mustra sa règula de manera verticale
-Show whitespace	SettingsWindow		Mustra s'ispatziadura
-Source control	SettingsWindow		Cumpuda sa fonte
-Startup	SettingsWindow		Cumentzu
-Tab width:	SettingsWindow		Largaria de sa tabulatzione:
-This setting will be updated on restart.	SettingsWindow		Custu cuncordu at a èssere annoadu torrende a aviare.
-Trim trailing whitespace on save	SettingsWindow		Alloghende boga s'ispatziadura a s'agabbu
-Visual	SettingsWindow		Visuale
-Whole word	SettingsWindow		Paràula intrea
-Wrap	SettingsWindow		Imbòliga
-Wrap console	SettingsWindow		Imbòliga sa consola
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Imbòliga
+Array	FunctionsOutlineView		Array
+Boolean	FunctionsOutlineView		Boolean
+Class	FunctionsOutlineView		Class
+Constant	FunctionsOutlineView		Constant
+Constructor	FunctionsOutlineView		Constructor
+Creating outline	FunctionsOutlineView		Creating outline
+Enum	FunctionsOutlineView		Enum
+Enum member	FunctionsOutlineView		Enum member
+Event	FunctionsOutlineView		Event
+Field	FunctionsOutlineView		Field
+File	FunctionsOutlineView		File
+Function	FunctionsOutlineView		Function
+Go to symbol	FunctionsOutlineView		Go to symbol
+Interface	FunctionsOutlineView		Interface
+Key	FunctionsOutlineView		Key
+Method	FunctionsOutlineView		Method
+Module	FunctionsOutlineView		Module
+Namespace	FunctionsOutlineView		Namespace
+No outline available	FunctionsOutlineView		No outline available
+Null	FunctionsOutlineView		Null
+Object	FunctionsOutlineView		Object
+Operator	FunctionsOutlineView		Operator
+Outline	FunctionsOutlineView		Outline
+Package	FunctionsOutlineView		Package
+Property	FunctionsOutlineView		Property
+Rename symbol…	FunctionsOutlineView		Rename symbol…
+Sort	FunctionsOutlineView		Sort
+String	FunctionsOutlineView		String
+Structure	FunctionsOutlineView		Structure
+Type parameter	FunctionsOutlineView		Type parameter
+Variable	FunctionsOutlineView		Variable
 Base path:	RemoteProjectWindow		Caminu de base:
 Browse…	RemoteProjectWindow		Iscartafolgia…
 Cancel	RemoteProjectWindow		Annudda
@@ -267,32 +357,27 @@ Open remote Git project	RemoteProjectWindow		Aberi su progetu Git a tesu
 Stop	RemoteProjectWindow		Firma
 The local path is not valid or does not exist	RemoteProjectWindow		Su caminu locale no est bàlidu o no esistet
 URL:	RemoteProjectWindow		URL:
-Build commands	ProjectSettingsWindow		Cumandos pro cumpilare
-Cancel	ProjectSettingsWindow		Annudda
-Debug build command:	ProjectSettingsWindow		Cumandu pro depurare sa cumpilatzione:
-Debug clean command:	ProjectSettingsWindow		Cumandu pro limpiare sa depuratzione:
-Debug execute arguments:	ProjectSettingsWindow		Argumentos pro esecutare sa depuratzione:
-Debug project target:	ProjectSettingsWindow		Obietivu pro depurare su progetu:
-Default	ProjectSettingsWindow		Balores pro difalta
-OK	ProjectSettingsWindow		Ello
-Project:	ProjectSettingsWindow		Progetu:
-Release build command:	ProjectSettingsWindow		Cumandu pro cumpilare su relassu:
-Release clean command:	ProjectSettingsWindow		Cumandu pro limpiare su relassu:
-Release execute arguments:	ProjectSettingsWindow		Argumentos pro esecutare su relassu:
-Release project target:	ProjectSettingsWindow		Obietivu pro relassare su progetu:
-Run in Terminal	ProjectSettingsWindow		Esecuta in su Terminale
-Target	ProjectSettingsWindow		Obietivu
+Build	ProjectSettingsWindow		Build
+Build command:	ProjectSettingsWindow		Cumandu pro cumpilare:
+Build file path:	ProjectSettingsWindow		Build file path:
+Build mode:	ProjectSettingsWindow		Modu de cumpilatzione:
+Clean command:	ProjectSettingsWindow		Cumandu pro limpiare:
+Color:	ProjectSettingsWindow		Color:
+Execute args:	ProjectSettingsWindow		Argumentos pro esecutare:
+Release	ProjectSettingsWindow		Release
+Run	ProjectSettingsWindow		Run
+Run in terminal	ProjectSettingsWindow		Esecuta in su Terminale
+Target:	ProjectSettingsWindow		Obietivu:
+Building project '\"%project%\"'…	GlobalStatusView		Building project '\"%project%\"'…
+Cleaning project '\"%project%\"'…	GlobalStatusView		Cleaning project '\"%project%\"'…
+Failed building project '\"%project%\"'	GlobalStatusView		Failed building project '\"%project%\"'
+Failed cleaning project '\"%project%\"'	GlobalStatusView		Failed cleaning project '\"%project%\"'
+Finished building project '\"%project%\"'	GlobalStatusView		Finished building project '\"%project%\"'
+Finished cleaning project '\"%project%\"'	GlobalStatusView		Finished cleaning project '\"%project%\"'
 Cancel	GoToLineWindow		Annudda
 Go to line	GoToLineWindow		Bae a sa linia
 Go to line:	GoToLineWindow		Bae a sa linia:
 OK	GoToLineWindow		Ello
-Cancel	Editor		Annudda
-Don't save	Editor		No alloghes
-Fix: %fix_desc%	Editor		Curretzione: %fix_desc%
-No fix available	Editor		Peruna curretzione disponìbile
-Save	Editor		Alloga
-Save changes to file \"%filename%\"?	Editor		Alloga is mudas a s'ischeda \"%filename%\"?
-Save dialog	Editor		Ventana de allogadura
 Cancel	QuitAlert		Annudda
 Don't save	QuitAlert		No alloghes
 Save all	QuitAlert		Alloga totu
@@ -301,15 +386,28 @@ There are unsaved changes.\nSelect the files to save.	QuitAlert		Bi sunt mudas n
 Unsaved files	QuitAlert		Ischedas no allogadas
 Cancel	GitCredentialsWindow		Annudda
 Git - User Credentials	GitCredentialsWindow		Git - credentziales de s'impleadore
+Git - Username	GitCredentialsWindow		Git - Username
 OK	GitCredentialsWindow		Ello
 Password:	GitCredentialsWindow		Clae de acessu:
 Username:	GitCredentialsWindow		Nùmene de acessu:
 Cancel	GTextAlert		Annudda
 OK	GTextAlert		Ello
 Category	ProblemsPanel		Categorìa
+Line	ProblemsPanel		Line
 Message	ProblemsPanel		Messagiu
+No fix available	ProblemsPanel		No fix available
 Problems	ProblemsPanel		Problemas
 Source	ProblemsPanel		Fonte
+Choose project…	SearchResultTab		Choose project…
+Find in project	SearchResultTab		Find in project
+Match case	SearchResultTab	Short as possible.	Match case
+Project:	SearchResultTab		Project:
+Whole word	SearchResultTab	Short as possible.	Whole word
+Contributors:	GenioApp		Contributors:
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio est una furca de Ideam e disponìbile a suta de sa licentzia MIT.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio impleat:\nScintilla lib\nDeretu de autore 1998-2003 de Neil Hodgson \n\nScintilla pro Haiku\nDeretu de autore 2011 de Andrea Anzani \nDeretu de autore 2014-2015 by Kacper Kasper \n\n
+Made with love in Italy	GenioApp		Fatu cun amore in Italia
+See credits for a complete list.\n\n	GenioApp		Mira is reconnoschentzias pro una lista cumprida.\n\n
 Defaults	ConfigWindow		Balores pro difalta
 Settings	ConfigWindow		Cuncordos
 Edit user templates…	TemplatesMenu		Edita is mollios de s'impleadore…
@@ -320,12 +418,12 @@ File modified on index	GitRepository		Ischeda mudada in s'ìndice
 New file	GitRepository		Ischeda noa
 New file staged	GitRepository		Ischeda noa ordingiada
 Genio	System name		Genio
-Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio est una furca de Ideam e disponìbile a suta de sa licentzia MIT.
-Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio impleat:\nScintilla lib\nDeretu de autore 1998-2003 de Neil Hodgson \n\nScintilla pro Haiku\nDeretu de autore 2011 de Andrea Anzani \nDeretu de autore 2014-2015 by Kacper Kasper \n\n
-Made with love in Italy	GenioApp		Fatu cun amore in Italia
-See credits for a complete list.\n\n	GenioApp		Mira is reconnoschentzias pro una lista cumprida.\n\n
+Global settings applied	EditorStatusView		Global settings applied
+No LSP file status information	EditorStatusView		No LSP file status information
+Settings in .editorconfig applied	EditorStatusView		Settings in .editorconfig applied
+Loading project	ProjectOpenerWindow		Loading project
+Loading project '%project_name%'	ProjectOpenerWindow		Loading project '%project_name%'
 Location	SearchResultPanel		Logu
 Search results	SearchResultPanel		Resultados de sa chirca
 New folder	TemplateManager		Fodde noa
-OK	Utilities		Ello
 OK	GitAlert		Ello

@@ -1,0 +1,429 @@
+1	Swedish	application/x-vnd.Genio	1940528103
+(follow editor style)	TermView		(följ redaktörens stil)
+(follow system style)	TermView		(följ systemstil)
+Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Baner
+Clear	TermView		Rensa
+Stop	TermView		Stopp
+Wrap	TermView	As in wrapping long lines. Short as possible.	Wrap
+(follow editor style)	SettingsWindow		(följ redaktörens stil)
+(follow system style)	SettingsWindow		(följ systemstil)
+Appearance	SettingsWindow		Utseende
+Auto collapse/expand projects	SettingsWindow		Autokollaps/expandera projekt
+Auto-Build on resource save	SettingsWindow		Autobygg på resursbesparing
+Auto-Save changed files when building	SettingsWindow		Spara ändrade filer automatiskt när du bygger
+Build	SettingsWindow		Bygga
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Konsol banner
+Console style:	SettingsWindow		Konsolstil:
+Convert tabs to spaces	SettingsWindow		Konvertera tabbar till blanksteg
+Default font	SettingsWindow		Standardteckensnitt
+Default size	SettingsWindow		Standardstorlek
+Editor	SettingsWindow		Redaktör
+Editor style:	SettingsWindow		Redaktörsstil:
+Editor zoom:	SettingsWindow		Redaktörszoom:
+Enable brace matching	SettingsWindow		Aktivera tandställningsmatchning
+Enable syntax highlighting	SettingsWindow		Aktivera syntaxmarkering
+Exclude folders:	SettingsWindow		Uteslut mappar:
+Find	SettingsWindow		Hitta
+Font size:	SettingsWindow		Fontstorlek:
+Font:	SettingsWindow		Font:
+Force showing Build log panel when building	SettingsWindow		Tvinga visning av byggloggpanel när du bygger
+General	SettingsWindow		Allmän
+Ignore .editorconfig	SettingsWindow		Ignorera .editorconfig
+Log destination:	SettingsWindow		Loggdestination:
+Log level:	SettingsWindow		Loggnivå:
+Log size:	SettingsWindow		Loggstorlek:
+Mark caret line	SettingsWindow		Markera caret-linjen
+Match case	SettingsWindow	Short as possible.	Matchfodral
+Projects folder:	SettingsWindow		Projektmapp:
+Reload files	SettingsWindow		Ladda om filer
+Reload projects	SettingsWindow		Ladda om projekt
+Save caret position	SettingsWindow		Spara vaktposition
+Set ruler to column:	SettingsWindow		Ställ in linjal till kolumn:
+Show bottom pane	SettingsWindow		Visa den nedre rutan
+Show comment margin	SettingsWindow		Visa kommentarsmarginal
+Show folding margin	SettingsWindow		Visa vikmarginal
+Show full path in window title	SettingsWindow		Visa hela sökvägen i fönstrets titel
+Show left pane	SettingsWindow		Visa vänster ruta
+Show line endings	SettingsWindow		Visa radslut
+Show line numbers	SettingsWindow		Visa radnummer
+Show repository outline	SettingsWindow		Visa förvarskontur
+Show right pane	SettingsWindow		Visa höger ruta
+Show statusbar	SettingsWindow		Visa statusfältet
+Show toolbar	SettingsWindow		Visa verktygsfält
+Show vertical ruler	SettingsWindow		Visa vertikal linjal
+Show whitespace	SettingsWindow		Visa blanksteg
+Source control	SettingsWindow		Källkontroll
+Startup	SettingsWindow		Uppstart
+Tab width:	SettingsWindow		Flikens bredd:
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Dessa tillämpas endast om ingen .editorconfig används:
+This setting will be updated on restart.	SettingsWindow		Den här inställningen kommer att uppdateras vid omstart.
+Trim trailing whitespace on save	SettingsWindow		Trimma efterföljande blanksteg vid spara
+Use smaller icons in toolbar	SettingsWindow		Använd mindre ikoner i verktygsfältet
+Visuals	SettingsWindow		Visuals
+Whole word	SettingsWindow	Short as possible.	Hela ordet
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Linda runt
+Wrap lines	SettingsWindow		Wrap linjer
+Wrap lines in console	SettingsWindow		Linda linjer i konsolen
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element hittades}other{# element hittades}}
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element ersätt}other{# elementer ersätta}}
+1 element replaced	Editor		1 element bytt
+Cancel	Editor		Avbryt
+Do you want to set a starting index?	Editor		Vill du ställa in ett startindex?
+Don't save	Editor		Spara inte
+Index	Editor		Index
+No matches found.	Editor		Inga matchningar hittades.
+Rename	Editor		Döpa om
+Rename symbol '%symbol_name%':	Editor		Byt namn på symbolen '%symbol_name%':
+Save	Editor		Spara
+Save changes to file \"%filename%\"?	Editor		Spara ändringar i filen \"%filename%\"?
+Save dialog	Editor		Spara dialogrutan
+About…	GenioWindow		Om…
+An error occurred while switching branch:	GenioWindow		Se krediter för en komplett lista.\n\n
+Appearance	GenioWindow		Utseende
+Autocomplete	GenioWindow		Autoslutförande
+Bookmark	GenioWindow		Bokmärke
+Bookmark all	GenioWindow		Bokmärk alla
+Branch	GenioWindow	The git command	Gren
+Build log	GenioWindow		Bygglogg
+Build mode	GenioWindow		Byggläge
+Build project	GenioWindow		Byggprojekt
+Cancel	GenioWindow		Avbryt
+Clean project	GenioWindow		Rent projekt
+Clear all	GenioWindow	Bookmark menu	Rensa alla
+Close	GenioWindow		Stäng
+Close active project	GenioWindow		Stäng aktivt projekt
+Close all	GenioWindow		Stäng alla
+Close file	GenioWindow		Stäng filen
+Close other	GenioWindow		Stäng andra
+Comment selected lines	GenioWindow		Kommentera valda rader
+Configure	GenioWindow		Konfigurera
+Conflicts	GenioWindow		Konflikter
+Console I/O	GenioWindow		Konsol I/O
+Copy	GenioWindow		Kopiera
+Could not create a new file	GenioWindow		Det gick inte att skapa en ny fil
+Could not delete \"%name%\".\n\n	GenioWindow		Kunde inte ta bort \"%name%\".\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Classic MacOS)
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
+Cut	GenioWindow		Skära
+Debug	GenioWindow		Felsök
+Debug project	GenioWindow		Felsökningsprojekt
+Delete	GenioWindow		Radera
+Delete current line	GenioWindow		Ta bort aktuell linje
+Delete dialog	GenioWindow		Ta bort dialogrutan
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Raderar objekt: \"%name%\".\n\nEfter raderingen kommer objektet att gå förlorat.\nVill du verkligen ta bort det?
+Discard	GenioWindow		Kassera
+Don't save	GenioWindow		Spara inte
+Duplicate current line	GenioWindow		Duplicera aktuell linje
+Edit	GenioWindow		Redigera
+Error creating folder	GenioWindow		Det gick inte att skapa mappen
+File	GenioWindow		Fil
+File \"%file%\" was apparently modified, reload it?	GenioWindow		Filen \"%file%\" har tydligen ändrats, ladda om den?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		Filen \"%file%\" har tydligen flyttats.\nVill du ignorera, stänga eller ladda om den?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		Filen \"%file%\" togs uppenbarligen bort.\nVill du behålla filen eller kassera den?\nOm den behålls och ändras, spara den annars går den förlorad.
+Find	GenioWindow		Hitta
+Find in project	GenioWindow		Hitta i projekt
+Find next	GenioWindow		Hitta nästa
+Find previous	GenioWindow		Hitta föregående
+Find:	GenioWindow		Hitta:
+Focus mode	GenioWindow		Fokusläge
+Fold/Unfold all	GenioWindow		Vik/vik ut allt
+Format	GenioWindow		Formatera
+Fullscreen	GenioWindow		Helskärm
+Genio project…	GenioWindow		Genialt projekt...
+Git	GenioWindow		Git
+Go back	GenioWindow		Gå tillbaka
+Go forward	GenioWindow		Gå framåt
+Go to declaration	GenioWindow		Gå till deklaration
+Go to definition	GenioWindow		Gå till definition
+Go to implementation	GenioWindow		Gå till implementering
+Go to line…	GenioWindow		Gå till raden...
+Go to next tab	GenioWindow		Gå till nästa flik
+Go to previous tab	GenioWindow		Gå till föregående flik
+Help…	GenioWindow		Hjälp…
+Ignore	GenioWindow		Ignorera
+Import as RDEF array…	GenioWindow		Importera som RDEF-matris...
+Invalid project folder	GenioWindow		Ogiltig projektmapp
+Keep	GenioWindow		Hålla
+Language	GenioWindow		Språk
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
+Line endings	GenioWindow		Radslut
+Log	GenioWindow	The git command	Log
+Log (oneline)	GenioWindow	The git command	Logg (en rad)
+Make bindcatalogs	GenioWindow		Gör bindkataloger
+Make catkeys	GenioWindow		Gör kattnycklar
+Make file read-only	GenioWindow		Gör filen skrivskyddad
+Match case	GenioWindow	Short as possible.	Matchfodral
+New	GenioWindow		Ny
+New file	GenioWindow		Ny fil
+New folder	GenioWindow		Ny mapp
+Next	GenioWindow	Bookmark menu	Nästa
+Open in Terminal	GenioWindow		Öppna i Terminal
+Open project…	GenioWindow		Öppna projekt...
+Open recent…	GenioWindow		Öppna senaste...
+Open remote project…	GenioWindow		Öppna fjärrprojekt...
+Open…	GenioWindow		Öppna…
+Overwrite	GenioWindow		Skriva över
+Paste	GenioWindow		Klistra
+Previous	GenioWindow	Bookmark menu	Tidigare
+Project	GenioWindow		Projekt
+Project settings…	GenioWindow		Projektinställningar...
+Project:	GenioWindow		Projekt:
+Pull	GenioWindow	The git command	Pull
+Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Quit	GenioWindow		Avsluta
+Read-only	GenioWindow		Skrivskyddad
+Redo	GenioWindow		Göra om
+Release	GenioWindow		Release
+Reload	GenioWindow		Ladda om
+Reload .editorconfig	GenioWindow		Ladda om .editorconfig
+Rename symbol…	GenioWindow		Byt namn på symbol...
+Replace	GenioWindow		Ersätta
+Replace all	GenioWindow		Byt ut alla
+Replace and find next	GenioWindow		Byt ut och hitta nästa
+Replace and find previous	GenioWindow		Byt ut och hitta föregående
+Replace selection	GenioWindow		Ersätt urval
+Replace:	GenioWindow		Ersätta:
+Reset zoom	GenioWindow		Återställ zoom
+Run	GenioWindow		Sikt
+Run console program	GenioWindow		Kör konsolprogrammet
+Run target	GenioWindow		Kör mål
+Run:	GenioWindow		Sikt:
+Save	GenioWindow		Spara
+Save all	GenioWindow		Spara alla
+Save all files	GenioWindow		Spara alla filer
+Save as…	GenioWindow		Spara som...
+Save changes to file \"%file%\"	GenioWindow		Spara ändringar i filen \"%file%\"
+Save current file	GenioWindow		Spara aktuell fil
+Search	GenioWindow		Söka
+Select all	GenioWindow		Välj alla
+Set active	GenioWindow		Ställ in aktiv
+Settings…	GenioWindow		Inställningar...
+Show bottom pane	GenioWindow		Visa den nedre rutan
+Show config	GenioWindow	The git command	Visa konfiguration
+Show in projects browser	GenioWindow		Visa i projektens webbläsare
+Show in Tracker	GenioWindow		Visa i Tracker
+Show left pane	GenioWindow		Visa vänster ruta
+Show line endings	GenioWindow		Visa radslut
+Show right pane	GenioWindow		Visa höger ruta
+Show statusbar	GenioWindow		Visa statusfältet
+Show toolbar	GenioWindow		Visa verktygsfält
+Show whitespace	GenioWindow		Visa blanksteg
+Show whitespace and line endings	GenioWindow		Visa blanksteg och radslut
+Show/Hide bottom pane	GenioWindow		Visa/dölj den nedre rutan
+Show/Hide find bar	GenioWindow		Visa/dölj sökfältet
+Show/Hide left pane	GenioWindow		Visa/dölj vänster ruta
+Show/Hide replace bar	GenioWindow		Visa/dölj projektpanelen
+Show/Hide right pane	GenioWindow		Visa/dölj höger ruta
+Status	GenioWindow	The git command	Status
+Status (short)	GenioWindow	The git command	Status (kort)
+Switch source/header	GenioWindow		Byt källa/huvud
+Switch to branch	GenioWindow		Byt till filial
+Tag	GenioWindow	The git command	Tag
+Toggle	GenioWindow	Bookmark menu	Växla
+Tools	GenioWindow		Verktyg
+Trim trailing whitespace	GenioWindow		Trimma efterföljande blanksteg
+Undo	GenioWindow		Ångra
+View	GenioWindow		Vy
+Whole word	GenioWindow	Short as possible.	Hela ordet
+Window	GenioWindow		Fönster
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Linda runt
+Wrap lines	GenioWindow		Wrap linjer
+Zoom in	GenioWindow		Zooma in
+Zoom out	GenioWindow		Zooma ut
+Actions	SourceControlPanel		Åtgärder
+An unknown error occurred.	SourceControlPanel		Ett okänt fel uppstod.
+Cancel	SourceControlPanel		Avbryt
+Changes stashed.	SourceControlPanel		Ändringar gömda.
+Choose branch…	SourceControlPanel		Välj filial...
+Choose project…	SourceControlPanel		Välj filial...
+Conflicts	SourceControlPanel		Konflikter
+Copy name	SourceControlPanel		Kopiera namn
+Create branch	SourceControlPanel		Skapa gren
+Create initial commit	SourceControlPanel		Skapa initial commit
+Create new branch from \"%selected_branch%\"	SourceControlPanel		Skapa ny gren från \"%selected_branch%\"
+Current branch:	SourceControlPanel		Nuvarande filial:
+Delete	SourceControlPanel		Radera
+Delete \"%selected_branch%\"	SourceControlPanel		Ta bort \"%selected_branch%\"
+Delete dialog	SourceControlPanel		Ta bort dialogrutan
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Raderar gren: \"%branch%\".\n\nEfter raderingen kommer objektet att gå förlorat.\nVill du verkligen ta bort det?
+Do not create the initial commit	SourceControlPanel		Skapa inte den initiala commit
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Vill du verkligen initiera ett arkiv utan att skapa en initial commit?
+Enter a message for this stash	SourceControlPanel		Ange ett meddelande för denna stash
+Fetch	SourceControlPanel		Hämta
+Fetch completed.	SourceControlPanel		Hämtning slutförd.
+Fetch prune	SourceControlPanel		Hämta beskärning
+Fetch prune completed.	SourceControlPanel		Hämta beskärning klar
+Init repository	SourceControlPanel		Init arkiv
+Local branches	SourceControlPanel		Lokala filialer
+New branch name:	SourceControlPanel		Nytt filialnamn:
+OK	SourceControlPanel		OK
+Project:	SourceControlPanel		Projekt:
+Remote branches	SourceControlPanel		Avlägsna grenar
+Remotes	SourceControlPanel		Fjärrkontroller
+Rename \"%selected_branch%\"	SourceControlPanel		Byt namn på \"%selected_branch%\"
+Rename branch	SourceControlPanel		Byt namn på \"%selected_branch%\"
+Rename branch:	SourceControlPanel		Byt namn på gren:
+Repository	SourceControlPanel		Förvar
+Source control	SourceControlPanel		Källkontroll
+Stash apply changes	SourceControlPanel		Stash tillämpa ändringar
+Stash changes	SourceControlPanel		Stash ändringar
+Stash pop changes	SourceControlPanel		Stash pop förändringar
+Stashed changes applied.	SourceControlPanel		Lagrade ändringar tillämpas.
+Stashed changes popped.	SourceControlPanel		Stängda ändringar dök upp.
+Switch to \"%selected_branch%\"	SourceControlPanel		Byt till \"%selected_branch%\"
+Tags	SourceControlPanel		Taggar
+The project is building, changing branch not allowed.	SourceControlPanel		Projektet håller på att byggas, byte av gren är inte tillåtet.
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Det här projektet har inget git-förråd.\nKlicka nedan för att initiera det.
+Active	EditorTabManager		Aktiv
+Project	EditorTabManager		Projekt
+alpha	Utilities		alpha
+beta	Utilities		beta
+development	Utilities		utveckling
+gamma	Utilities		gamma
+gold master	Utilities		guldmästare
+OK	Utilities		OK
+Version	Utilities		Version
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Ett fel uppstod vid försök att byta namn på filen
+Build mode	ProjectsFolderBrowser		Byggläge
+Build project	ProjectsFolderBrowser		Byggprojekt
+Clean project	ProjectsFolderBrowser		Rent projekt
+Close project	ProjectsFolderBrowser		Stäng projektet
+Current branch	ProjectsFolderBrowser		Nuvarande gren
+Debug	ProjectsFolderBrowser		Debug
+Delete file	ProjectsFolderBrowser		Ta bort fil
+Delete folder	ProjectsFolderBrowser		Ta bort mapp
+Drop folder here	ProjectsFolderBrowser		Släpp mappen här
+New	ProjectsFolderBrowser		Ny
+OK	ProjectsFolderBrowser		OK
+Open file	ProjectsFolderBrowser		Öppna filen
+Path	ProjectsFolderBrowser		Väg
+Project	ProjectsFolderBrowser		Projekt
+Project settings…	ProjectsFolderBrowser		Projektinställningar...
+Release	ProjectsFolderBrowser		Release
+Rename file	ProjectsFolderBrowser		Byt namn på filen
+Rename folder	ProjectsFolderBrowser		Byt namn på mapp
+Set active	ProjectsFolderBrowser		Ställ in aktiv
+Switch to branch	ProjectsFolderBrowser		Byt till filial
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Projektmappen har tagits bort eller flyttats till en annan plats och den kommer att stängas och laddas bort från arbetsytan.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Projektmappen har bytt namn. Den kommer att stängas och öppnas igen automatiskt.
+Another command is running.	ConsoleIOView		Ett annat kommando körs.
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Baner
+Clear	ConsoleIOView		Rensa
+Restarting build…	ConsoleIOView		Startar om bygget...
+stderr	ConsoleIOView		stderr
+stdout	ConsoleIOView		stdout
+Stop	ConsoleIOView		Stopp
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Radbrytning
+Array	FunctionsOutlineView		Array
+Boolean	FunctionsOutlineView		Boolean
+Class	FunctionsOutlineView		Klass
+Constant	FunctionsOutlineView		Konstant
+Constructor	FunctionsOutlineView		Konstruktor
+Creating outline	FunctionsOutlineView		Skapa disposition
+Enum	FunctionsOutlineView		Enum
+Enum member	FunctionsOutlineView		Enum medlem
+Event	FunctionsOutlineView		Händelse
+Field	FunctionsOutlineView		Fält
+File	FunctionsOutlineView		Fil
+Function	FunctionsOutlineView		Fungera
+Go to symbol	FunctionsOutlineView		Gå till symbol
+Interface	FunctionsOutlineView		Gränssnitt
+Key	FunctionsOutlineView		Nyckel
+Method	FunctionsOutlineView		Metod
+Module	FunctionsOutlineView		Modul
+Namespace	FunctionsOutlineView		Namnutrymme
+No outline available	FunctionsOutlineView		Ingen disposition tillgänglig
+Null	FunctionsOutlineView		Null
+Object	FunctionsOutlineView		Objekt
+Operator	FunctionsOutlineView		Operatör
+Outline	FunctionsOutlineView		Skissera
+Package	FunctionsOutlineView		Paket
+Property	FunctionsOutlineView		Egendom
+Rename symbol…	FunctionsOutlineView		Byt namn på symbol...
+Sort	FunctionsOutlineView		Sortera
+String	FunctionsOutlineView		Sträng
+Structure	FunctionsOutlineView		Strukturera
+Type parameter	FunctionsOutlineView		Typ parameter
+Variable	FunctionsOutlineView		Variabel
+Base path:	RemoteProjectWindow		Basväg:
+Browse…	RemoteProjectWindow		Bläddra…
+Cancel	RemoteProjectWindow		Avbryt
+Clone	RemoteProjectWindow		Klona
+Close	RemoteProjectWindow		Stäng
+Continue	RemoteProjectWindow		Fortsätta
+Destination folder:	RemoteProjectWindow		Destinationsmapp:
+Do you want to stop cloning the repository?	RemoteProjectWindow		Vill du sluta klona förvaret?
+Open remote Git project	RemoteProjectWindow		Öppna fjärr Git-projekt
+Stop	RemoteProjectWindow		Stopp
+The local path is not valid or does not exist	RemoteProjectWindow		Den lokala sökvägen är inte giltig eller finns inte
+URL:	RemoteProjectWindow		URL:
+Build	ProjectSettingsWindow		Bygga
+Build command:	ProjectSettingsWindow		Byggkommando:
+Build file path:	ProjectSettingsWindow		Build file path:
+Build mode:	ProjectSettingsWindow		Byggläge:
+Clean command:	ProjectSettingsWindow		Rengör kommando:
+Color:	ProjectSettingsWindow		Färg:
+Execute args:	ProjectSettingsWindow		Kör argument:
+Release	ProjectSettingsWindow		Släppa
+Run	ProjectSettingsWindow		Sikt
+Run in terminal	ProjectSettingsWindow		Kör i terminal
+Target:	ProjectSettingsWindow		Mål:
+Building project '\"%project%\"'…	GlobalStatusView		Byggprojekt '\"%project%\"'...
+Cleaning project '\"%project%\"'…	GlobalStatusView		Rengör projekt '\"%project%\"'...
+Failed building project '\"%project%\"'	GlobalStatusView		Misslyckat byggprojekt '\"%project%\"'
+Failed cleaning project '\"%project%\"'	GlobalStatusView		Misslyckades med rengöring av projektet '\"%project%\"'
+Finished building project '\"%project%\"'	GlobalStatusView		Färdigt byggprojekt '\"%project%\"'
+Finished cleaning project '\"%project%\"'	GlobalStatusView		Avslutat städprojekt '\"%project%\"'
+Cancel	GoToLineWindow		Avbryt
+Go to line	GoToLineWindow		Gå till raden
+Go to line:	GoToLineWindow		Gå till rad:
+OK	GoToLineWindow		OK
+Cancel	QuitAlert		Avbryt
+Don't save	QuitAlert		Spara inte
+Save all	QuitAlert		Spara alla
+Save selected	QuitAlert		Spara valda
+There are unsaved changes.\nSelect the files to save.	QuitAlert		Det finns ändringar som inte har sparats.\nVälj filerna som ska sparas.
+Unsaved files	QuitAlert		Osparade filer
+Cancel	GitCredentialsWindow		Avbryt
+Git - User Credentials	GitCredentialsWindow		Git - Användaruppgifter
+Git - Username	GitCredentialsWindow		Git - Användarnamn
+OK	GitCredentialsWindow		OK
+Password:	GitCredentialsWindow		Lösenord:
+Username:	GitCredentialsWindow		Användarnamn:
+Cancel	GTextAlert		Avbryt
+OK	GTextAlert		OK
+Category	ProblemsPanel		Kategori
+Line	ProblemsPanel		Linje
+Message	ProblemsPanel		Message
+No fix available	ProblemsPanel		Ingen fix tillgänglig
+Problems	ProblemsPanel		Problem
+Source	ProblemsPanel		Källa
+Choose project…	SearchResultTab		Välj projekt...
+Find in project	SearchResultTab		Hitta i projekt
+Match case	SearchResultTab	Short as possible.	Matchfodral
+Project:	SearchResultTab		Projekt:
+Whole word	SearchResultTab	Short as possible.	Hela ordet
+Contributors:	GenioApp		Bidragsgivare:
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio är en gaffel av Ideam och tillgänglig under MIT-licensen.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio använder:\nScintilla lib\nCopyright 1998-2003 av Neil Hodgson \n\nScintilla för Haiku\nCopyright 2011 av Andrea Anzani \nCopyright 20154 av Ka-c20154 \n\n
+Made with love in Italy	GenioApp		Tillverkad med kärlek i Italien
+See credits for a complete list.\n\n	GenioApp		Se krediter för en komplett lista.\n\n
+Defaults	ConfigWindow		Standardvärden
+Settings	ConfigWindow		Inställningar
+Edit user templates…	TemplatesMenu		Redigera användarmallar...
+File deleted	GitRepository		Filen raderad
+File deleted from index	GitRepository		Fil raderad från index
+File modified	GitRepository		Filen ändrad
+File modified on index	GitRepository		Filen ändrad på index
+New file	GitRepository		Ny fil
+New file staged	GitRepository		Ny fil iscensatt
+Genio	System name		Genio
+Global settings applied	EditorStatusView		Globala inställningar tillämpas
+No LSP file status information	EditorStatusView		Ingen LSP-filstatusinformation
+Settings in .editorconfig applied	EditorStatusView		Inställningar i .editorconfig tillämpas
+Loading project	ProjectOpenerWindow		Laddar projekt
+Loading project '%project_name%'	ProjectOpenerWindow		Laddar projektet '%project_name%'
+Location	SearchResultPanel		Plats
+Search results	SearchResultPanel		Sökresultat
+New folder	TemplateManager		Ny mapp
+OK	GitAlert		OK

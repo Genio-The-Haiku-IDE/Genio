@@ -1,4 +1,4 @@
-1	English (British)	application/x-vnd.Genio	1940528103
+1	Portuguese	application/x-vnd.Genio	1940528103
 (follow editor style)	TermView		(follow editor style)
 (follow system style)	TermView		(follow system style)
 Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
@@ -67,17 +67,17 @@ Wrap lines in console	SettingsWindow		Wrap lines in console
 {0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
 {0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
 1 element replaced	Editor		1 element replaced
-Cancel	Editor		Cancel
+Cancel	Editor		Cancelar
 Do you want to set a starting index?	Editor		Do you want to set a starting index?
-Don't save	Editor		Don't save
+Don't save	Editor		Não guardar
 Index	Editor		Index
 No matches found.	Editor		No matches found.
 Rename	Editor		Rename
 Rename symbol '%symbol_name%':	Editor		Rename symbol '%symbol_name%':
-Save	Editor		Save
+Save	Editor		Guardar
 Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
 Save dialog	Editor		Save dialog
-About…	GenioWindow		About…
+About…	GenioWindow		Acerca…
 An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
 Appearance	GenioWindow		Appearance
 Autocomplete	GenioWindow		Autocomplete
@@ -256,7 +256,7 @@ Fetch prune completed.	SourceControlPanel		Fetch prune completed.
 Init repository	SourceControlPanel		Init repository
 Local branches	SourceControlPanel		Local branches
 New branch name:	SourceControlPanel		New branch name:
-OK	SourceControlPanel		Alright
+OK	SourceControlPanel		OK
 Project:	SourceControlPanel		Project:
 Remote branches	SourceControlPanel		Remote branches
 Remotes	SourceControlPanel		Remotes
@@ -274,14 +274,14 @@ Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch
 Tags	SourceControlPanel		Tags
 The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
-Active	EditorTabManager		Active
-Project	EditorTabManager		Project
+Active	EditorTabManager		Ativo
+Project	EditorTabManager		Projeto
 alpha	Utilities		alpha
 beta	Utilities		beta
 development	Utilities		development
 gamma	Utilities		gamma
 gold master	Utilities		gold master
-OK	Utilities		Alright
+OK	Utilities		OK
 Version	Utilities		Version
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
 Build mode	ProjectsFolderBrowser		Build mode
@@ -294,7 +294,7 @@ Delete file	ProjectsFolderBrowser		Delete file
 Delete folder	ProjectsFolderBrowser		Delete folder
 Drop folder here	ProjectsFolderBrowser		Drop folder here
 New	ProjectsFolderBrowser		New
-OK	ProjectsFolderBrowser		Alright
+OK	ProjectsFolderBrowser		OK
 Open file	ProjectsFolderBrowser		Open file
 Path	ProjectsFolderBrowser		Path
 Project	ProjectsFolderBrowser		Project
@@ -308,11 +308,11 @@ The project folder has been deleted or moved to another location and it will be 
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
 Another command is running.	ConsoleIOView		Another command is running.
 Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
-Clear	ConsoleIOView		Clear
+Clear	ConsoleIOView		Limpar
 Restarting build…	ConsoleIOView		Restarting build…
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
-Stop	ConsoleIOView		Stop
+Stop	ConsoleIOView		Parar
 Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
 Array	FunctionsOutlineView		Array
 Boolean	FunctionsOutlineView		Boolean
@@ -362,7 +362,7 @@ Build command:	ProjectSettingsWindow		Build command:
 Build file path:	ProjectSettingsWindow		Build file path:
 Build mode:	ProjectSettingsWindow		Build mode:
 Clean command:	ProjectSettingsWindow		Clean command:
-Color:	ProjectSettingsWindow		colour:
+Color:	ProjectSettingsWindow		Color:
 Execute args:	ProjectSettingsWindow		Execute args:
 Release	ProjectSettingsWindow		Release
 Run	ProjectSettingsWindow		Run
@@ -377,7 +377,7 @@ Finished cleaning project '\"%project%\"'	GlobalStatusView		Finished cleaning pr
 Cancel	GoToLineWindow		Cancel
 Go to line	GoToLineWindow		Go to line
 Go to line:	GoToLineWindow		Go to line:
-OK	GoToLineWindow		Alright
+OK	GoToLineWindow		OK
 Cancel	QuitAlert		Cancel
 Don't save	QuitAlert		Don't save
 Save all	QuitAlert		Save all
@@ -387,11 +387,11 @@ Unsaved files	QuitAlert		Unsaved files
 Cancel	GitCredentialsWindow		Cancel
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
 Git - Username	GitCredentialsWindow		Git - Username
-OK	GitCredentialsWindow		Alright
+OK	GitCredentialsWindow		OK
 Password:	GitCredentialsWindow		Password:
 Username:	GitCredentialsWindow		Username:
 Cancel	GTextAlert		Cancel
-OK	GTextAlert		Alright
+OK	GTextAlert		OK
 Category	ProblemsPanel		Category
 Line	ProblemsPanel		Line
 Message	ProblemsPanel		Message
@@ -408,8 +408,8 @@ Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n
 Made with love in Italy	GenioApp		Made with love in Italy
 See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
-Defaults	ConfigWindow		Defaults
-Settings	ConfigWindow		Settings
+Defaults	ConfigWindow		Predefinições
+Settings	ConfigWindow		Definições
 Edit user templates…	TemplatesMenu		Edit user templates…
 File deleted	GitRepository		File deleted
 File deleted from index	GitRepository		File deleted from index
@@ -426,4 +426,4 @@ Loading project '%project_name%'	ProjectOpenerWindow		Loading project '%project_
 Location	SearchResultPanel		Location
 Search results	SearchResultPanel		Search results
 New folder	TemplateManager		New folder
-OK	GitAlert		Alright
+OK	GitAlert		OK

@@ -1,4 +1,82 @@
-1	Norwegian	application/x-vnd.Genio	3363721737
+1	Norwegian	application/x-vnd.Genio	1940528103
+(follow editor style)	TermView		(følg redigeringsprogrammets stil)
+(follow system style)	TermView		(følg systemets stil)
+Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
+Clear	TermView		Tøm
+Stop	TermView		Stopp
+Wrap	TermView	As in wrapping long lines. Short as possible.	Gå rundt
+(follow editor style)	SettingsWindow		(følg redigeringsprogrammets stil)
+(follow system style)	SettingsWindow		(følg systemets stil)
+Appearance	SettingsWindow		Utseende
+Auto collapse/expand projects	SettingsWindow		Skjul/utvid prosjekter automatisk
+Auto-Build on resource save	SettingsWindow		Bygg automatisk når ressurs lagres
+Auto-Save changed files when building	SettingsWindow		Lagre endrede filer automatisk når du bygger
+Build	SettingsWindow		Bygg
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Konsollbanner
+Console style:	SettingsWindow		Konsollstil:
+Convert tabs to spaces	SettingsWindow		Konverter tabulatorer til mellomrom
+Default font	SettingsWindow		Standard skrifttype
+Default size	SettingsWindow		Standardstørrelse
+Editor	SettingsWindow		Editor
+Editor style:	SettingsWindow		Editor-stil:
+Editor zoom:	SettingsWindow		Editor-zoom:
+Enable brace matching	SettingsWindow		Aktiver parentesmatching
+Enable syntax highlighting	SettingsWindow		Aktiver syntaksutheving
+Exclude folders:	SettingsWindow		Ekskluder mapper:
+Find	SettingsWindow		Finn
+Font size:	SettingsWindow		Skriftstørrelse:
+Font:	SettingsWindow		Skrifttype:
+Force showing Build log panel when building	SettingsWindow		Tving visning av byggelogg under bygging
+General	SettingsWindow		Generelt
+Ignore .editorconfig	SettingsWindow		Ignorer .editorconfig
+Log destination:	SettingsWindow		Loggdestinasjon:
+Log level:	SettingsWindow		Loggnivå:
+Log size:	SettingsWindow		Loggstørrelse:
+Mark caret line	SettingsWindow		Merk caret-linjen
+Match case	SettingsWindow	Short as possible.	Samsv. store/små bokstaver
+Projects folder:	SettingsWindow		Prosjektmappe:
+Reload files	SettingsWindow		Last filer på nytt
+Reload projects	SettingsWindow		Last prosjekt på nytt
+Save caret position	SettingsWindow		Lagre caret-posisjon
+Set ruler to column:	SettingsWindow		Sett linjal til kolonne:
+Show bottom pane	SettingsWindow		Vis bunn-panel
+Show comment margin	SettingsWindow		Vis kommentarmargin
+Show folding margin	SettingsWindow		Vis brette-marg
+Show full path in window title	SettingsWindow		Vis hele stien i vindustittelen
+Show left pane	SettingsWindow		Vis venstre panel
+Show line endings	SettingsWindow		Vis linjeendelser
+Show line numbers	SettingsWindow		Vis linjenummer
+Show repository outline	SettingsWindow		Vis omriss av kolleksjon
+Show right pane	SettingsWindow		Vis høyre panel
+Show statusbar	SettingsWindow		Vis statusbar
+Show toolbar	SettingsWindow		Vis verktøylinjen
+Show vertical ruler	SettingsWindow		Vis vertikal linjal
+Show whitespace	SettingsWindow		Vis mellomrom
+Source control	SettingsWindow		Kildekontroll
+Startup	SettingsWindow		Oppstart
+Tab width:	SettingsWindow		Tabbredde:
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Brukes bare hvis .editorconfig mangler:
+This setting will be updated on restart.	SettingsWindow		Denne innstillingen vil bli oppdatert ved omstart.
+Trim trailing whitespace on save	SettingsWindow		Trim etterfølgende mellomrom ved lagring
+Use smaller icons in toolbar	SettingsWindow		Bruk mindre ikoner i verktøylinjen
+Visuals	SettingsWindow		Visuelt
+Whole word	SettingsWindow	Short as possible.	Hele ord
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Gå rundt
+Wrap lines	SettingsWindow		Tekstbryting
+Wrap lines in console	SettingsWindow		Tekstbryting i konsoll
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element funnet}other{# elementer funnet}}
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element erstattet}other{# elementer erstattet}}
+1 element replaced	Editor		1 element erstattet
+Cancel	Editor		Avbryt
+Do you want to set a starting index?	Editor		Vil du sette en start-indeks?
+Don't save	Editor		Ikke lagre
+Index	Editor		Indeks
+No matches found.	Editor		Ingen treff.
+Rename	Editor		Gi nytt navn
+Rename symbol '%symbol_name%':	Editor		Endre symbolnavn for '%symbol_name%':
+Save	Editor		Lagre
+Save changes to file \"%filename%\"?	Editor		Lagre endringer i filen \"%filename%\"?
+Save dialog	Editor		Lagringsdialog
 About…	GenioWindow		Om…
 An error occurred while switching branch:	GenioWindow		Det oppstod en feil under bytte av gren:
 Appearance	GenioWindow		Utseende
@@ -53,10 +131,14 @@ Format	GenioWindow		Formater
 Fullscreen	GenioWindow		Fullskjerm
 Genio project…	GenioWindow		Genio-prosjektet…
 Git	GenioWindow		
+Go back	GenioWindow		Gå tilbake
+Go forward	GenioWindow		Gå fremover
 Go to declaration	GenioWindow		Gå til deklarasjonen
 Go to definition	GenioWindow		Gå til definisjonen
 Go to implementation	GenioWindow		Gå til implementasjonen
 Go to line…	GenioWindow		Gå til linje…
+Go to next tab	GenioWindow		Gå til neste fane
+Go to previous tab	GenioWindow		Gå til forrige fane
 Help…	GenioWindow		Hjelp…
 Ignore	GenioWindow		Ignorer
 Import as RDEF array…	GenioWindow		Importer som RDEF array…
@@ -75,7 +157,6 @@ New	GenioWindow		Ny
 New file	GenioWindow		Ny fil
 New folder	GenioWindow		Ny mappe
 Next	GenioWindow	Bookmark menu	Neste
-Open files list	GenioWindow		Åpne fillisten
 Open in Terminal	GenioWindow		Åpne i Terminal
 Open project…	GenioWindow		Åpne prosjekt…
 Open recent…	GenioWindow		Åpne nylig…
@@ -87,7 +168,6 @@ Previous	GenioWindow	Bookmark menu	Forrige
 Project	GenioWindow		Prosjekt
 Project settings…	GenioWindow		Prosjektinnstillinger…
 Project:	GenioWindow		Prosjekt:
-Projects	GenioWindow		Prosjekter
 Pull	GenioWindow	The git command	Pull
 Pull (rebase)	GenioWindow	The git command	Pull (rebase)
 Quit	GenioWindow		Avslutt
@@ -107,6 +187,7 @@ Reset zoom	GenioWindow		Tilbakestill zoom
 Run	GenioWindow		Kjør
 Run console program	GenioWindow		Kjør konsollprogram
 Run target	GenioWindow		Kjør mål
+Run:	GenioWindow		Kjør:
 Save	GenioWindow		Lagre
 Save all	GenioWindow		Lagre alle
 Save all files	GenioWindow		Lagre alle filer
@@ -115,28 +196,28 @@ Save changes to file \"%file%\"	GenioWindow		Lagre endringer i filen \"%file%\"
 Save current file	GenioWindow		Lagre gjeldende fil
 Search	GenioWindow		Søk
 Select all	GenioWindow		Velg alle
+Set active	GenioWindow		Set aktiv
 Settings…	GenioWindow		Innstillinger…
+Show bottom pane	GenioWindow		Vis bunn-panel
 Show config	GenioWindow	The git command	Vis konfigurasjon
 Show in projects browser	GenioWindow		Vis i prosjektnavigasjon
 Show in Tracker	GenioWindow		Vis i Tracker
+Show left pane	GenioWindow		Vis venstre panel
 Show line endings	GenioWindow		Vis linjeendinger
-Show outline pane	GenioWindow		Vis outline-panel
-Show output pane	GenioWindow		Vis utdatapanelet
-Show projects pane	GenioWindow		Vis prosjektpanelet
+Show right pane	GenioWindow		Vis høyre panel
+Show statusbar	GenioWindow		Vis statusbar
 Show toolbar	GenioWindow		Vis verktøylinjen
 Show whitespace	GenioWindow		Vis mellomrom
 Show whitespace and line endings	GenioWindow		Vis mellomrom og linjeendelser
+Show/Hide bottom pane	GenioWindow		Vis/skjul bunn-panel
 Show/Hide find bar	GenioWindow		Vis/skjul søkefeltet
-Show/Hide outline pane	GenioWindow		Vis/Skjul outline-panel
-Show/Hide output pane	GenioWindow		Vis/skjul utdatapanelet
-Show/Hide projects pane	GenioWindow		Vis/skjul prosjektpanelet
+Show/Hide left pane	GenioWindow		Vis/skjul venstre panel
 Show/Hide replace bar	GenioWindow		Vis/skjul erstatningslinjen
+Show/Hide right pane	GenioWindow		Vis/skjul høyre panel
 Status	GenioWindow	The git command	Status
 Status (short)	GenioWindow	The git command	Status (kort)
 Switch source/header	GenioWindow		Bytt mellom kilde/hodefil
 Switch to branch	GenioWindow		Bytt til gren
-Switch to next file	GenioWindow		Bytt til neste fil
-Switch to previous file	GenioWindow		Bytt til forrige fil
 Tag	GenioWindow	The git command	Tag
 Toggle	GenioWindow	Bookmark menu	Veksle
 Tools	GenioWindow		Verktøy
@@ -157,6 +238,7 @@ Choose branch…	SourceControlPanel		Velg gren…
 Choose project…	SourceControlPanel		Velg prosjekt…
 Conflicts	SourceControlPanel		Konflikter
 Copy name	SourceControlPanel		Kopier navn
+Create branch	SourceControlPanel		Opprett branch
 Create initial commit	SourceControlPanel		Opprett innledende commit
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Opprett ny gren fra \"%selected_branch%\"
 Current branch:	SourceControlPanel		Gjeldende gren:
@@ -173,6 +255,7 @@ Fetch prune	SourceControlPanel		Hent prune
 Fetch prune completed.	SourceControlPanel		Hent prune fullført.
 Init repository	SourceControlPanel		Opprett depot
 Local branches	SourceControlPanel		Lokale grener
+New branch name:	SourceControlPanel		Navn på ny branch:
 OK	SourceControlPanel		OK
 Project:	SourceControlPanel		Prosjekt:
 Remote branches	SourceControlPanel		Eksterne grener
@@ -201,18 +284,22 @@ gold master	Utilities		gold master
 OK	Utilities		OK
 Version	Utilities		Versjon
 An error occurred attempting to rename file 	ProjectsFolderBrowser		Det oppstod en feil ved forsøk på å gi nytt navn til filen
+Build mode	ProjectsFolderBrowser		Byggemodus
 Build project	ProjectsFolderBrowser		Bygg prosjekt
 Clean project	ProjectsFolderBrowser		Rens prosjekt
 Close project	ProjectsFolderBrowser		Lukk prosjekt
 Current branch	ProjectsFolderBrowser		Gjeldende gren
+Debug	ProjectsFolderBrowser		Debug
 Delete file	ProjectsFolderBrowser		Slett fil
 Delete folder	ProjectsFolderBrowser		Slett mappe
+Drop folder here	ProjectsFolderBrowser		Slipp mappe her
 New	ProjectsFolderBrowser		Ny
 OK	ProjectsFolderBrowser		OK
 Open file	ProjectsFolderBrowser		Åpne fil
 Path	ProjectsFolderBrowser		Sti
 Project	ProjectsFolderBrowser		Prosjekt
 Project settings…	ProjectsFolderBrowser		Prosjektinnstillinger…
+Release	ProjectsFolderBrowser		Release
 Rename file	ProjectsFolderBrowser		Endre filnavn
 Rename folder	ProjectsFolderBrowser		Endre mappenavn
 Set active	ProjectsFolderBrowser		Sett aktiv
@@ -227,89 +314,37 @@ stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
 Stop	ConsoleIOView		Stopp
 Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Tekstbryting
-Array	OutlineTooltips		Array
-Boolean	OutlineTooltips		Boolean
-Class	OutlineTooltips		Class
-Constant	OutlineTooltips		Constant
-Constructor	OutlineTooltips		Constructor
-Creating outline	OutlineTooltips		Oppretter omriss
-Enum	OutlineTooltips		Enum
-Enum member	OutlineTooltips		Enum-medlem
-Event	OutlineTooltips		Hendelse
-Field	OutlineTooltips		Felt
-File	OutlineTooltips		Fil
-Function	OutlineTooltips		Funksjon
-Go to symbol	OutlineTooltips		Gå til symbol
-Interface	OutlineTooltips		Grensesnitt
-Key	OutlineTooltips		Nøkkel
-Method	OutlineTooltips		Method
-Module	OutlineTooltips		Modul
-Namespace	OutlineTooltips		Namespace
-No outline available	OutlineTooltips		Outline ikke tilgjengelig
-Null	OutlineTooltips		Null
-Object	OutlineTooltips		Objekt
-Operator	OutlineTooltips		Operatør
-Outline	OutlineTooltips		Outline
-Package	OutlineTooltips		Pakke
-Property	OutlineTooltips		Egenskap
-Rename symbol…	OutlineTooltips		Endre symbolnavn…
-Sort	OutlineTooltips		Sorter
-String	OutlineTooltips		String
-Structure	OutlineTooltips		Structure
-Type parameter	OutlineTooltips		Type-parameter
-Variable	OutlineTooltips		Variabel
-Auto collapse/expand projects	SettingsWindow		Skjul/utvid prosjekter automatisk
-Auto-Build on resource save	SettingsWindow		Bygg automatisk når ressurs lagres
-Auto-Save changed files when building	SettingsWindow		Lagre endrede filer automatisk når du bygger
-Build	SettingsWindow		Bygg
-Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Konsollbanner
-Convert tabs to spaces	SettingsWindow		Konverter tabulatorer til mellomrom
-Default font	SettingsWindow		Standard skrifttype
-Default size	SettingsWindow		Standardstørrelse
-Editor	SettingsWindow		Editor
-Editor style:	SettingsWindow		Editor-stil:
-Editor zoom:	SettingsWindow		Editor-zoom:
-Enable brace matching	SettingsWindow		Aktiver parentesmatching
-Enable syntax highlighting	SettingsWindow		Aktiver syntaksutheving
-Exclude folders:	SettingsWindow		Ekskluder mapper:
-Find	SettingsWindow		Finn
-Font size:	SettingsWindow		Skriftstørrelse:
-Font:	SettingsWindow		Skrifttype:
-General	SettingsWindow		Generelt
-Ignore .editorconfig	SettingsWindow		Ignorer .editorconfig
-Log destination:	SettingsWindow		Loggdestinasjon:
-Log level:	SettingsWindow		Loggnivå:
-Log size:	SettingsWindow		Loggstørrelse:
-Mark caret line	SettingsWindow		Merk caret-linjen
-Match case	SettingsWindow	Short as possible.	Samsv. store/små bokstaver
-Projects folder:	SettingsWindow		Prosjektmappe:
-Reload files	SettingsWindow		Last filer på nytt
-Reload projects	SettingsWindow		Last prosjekt på nytt
-Save caret position	SettingsWindow		Lagre caret-posisjon
-Set ruler to column:	SettingsWindow		Sett linjal til kolonne:
-Show comment margin	SettingsWindow		Vis kommentarmargin
-Show folding margin	SettingsWindow		Vis brette-marg
-Show full path in window title	SettingsWindow		Vis hele stien i vindustittelen
-Show line endings	SettingsWindow		Vis linjeendelser
-Show line numbers	SettingsWindow		Vis linjenummer
-Show outline pane	SettingsWindow		Vis outline-panel
-Show output pane	SettingsWindow		Vis utdataruten
-Show projects pane	SettingsWindow		Vis prosjektsruten
-Show repository outline	SettingsWindow		Vis omriss av kolleksjon
-Show toolbar	SettingsWindow		Vis verktøylinjen
-Show vertical ruler	SettingsWindow		Vis vertikal linjal
-Show whitespace	SettingsWindow		Vis mellomrom
-Source control	SettingsWindow		Kildekontroll
-Startup	SettingsWindow		Oppstart
-Tab width:	SettingsWindow		Tabbredde:
-These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Brukes bare hvis .editorconfig mangler:
-This setting will be updated on restart.	SettingsWindow		Denne innstillingen vil bli oppdatert ved omstart.
-Trim trailing whitespace on save	SettingsWindow		Trim etterfølgende mellomrom ved lagring
-Visuals	SettingsWindow		Visuelt
-Whole word	SettingsWindow	Short as possible.	Hele ord
-Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Gå rundt
-Wrap lines	SettingsWindow		Tekstbryting
-Wrap lines in console	SettingsWindow		Tekstbryting i konsoll
+Array	FunctionsOutlineView		Array
+Boolean	FunctionsOutlineView		Boolean
+Class	FunctionsOutlineView		Class
+Constant	FunctionsOutlineView		Constant
+Constructor	FunctionsOutlineView		Konstruktør
+Creating outline	FunctionsOutlineView		Oppretter disposisjon
+Enum	FunctionsOutlineView		Enum
+Enum member	FunctionsOutlineView		Enum-medlem
+Event	FunctionsOutlineView		Hendelse
+Field	FunctionsOutlineView		Felt
+File	FunctionsOutlineView		Fil
+Function	FunctionsOutlineView		Funksjon
+Go to symbol	FunctionsOutlineView		Gå til symbol
+Interface	FunctionsOutlineView		Grensesnitt
+Key	FunctionsOutlineView		Nøkkel
+Method	FunctionsOutlineView		Metode
+Module	FunctionsOutlineView		Modul
+Namespace	FunctionsOutlineView		Navnområde
+No outline available	FunctionsOutlineView		Ingen disposisjon tilgjengelig
+Null	FunctionsOutlineView		Null
+Object	FunctionsOutlineView		Objekt
+Operator	FunctionsOutlineView		Operatør
+Outline	FunctionsOutlineView		Disposisjon
+Package	FunctionsOutlineView		Pakke
+Property	FunctionsOutlineView		Egenskap
+Rename symbol…	FunctionsOutlineView		Endre symbolnavn…
+Sort	FunctionsOutlineView		Sorter
+String	FunctionsOutlineView		Streng
+Structure	FunctionsOutlineView		Struktur
+Type parameter	FunctionsOutlineView		Type parameter
+Variable	FunctionsOutlineView		Variabel
 Base path:	RemoteProjectWindow		Grunnsti:
 Browse…	RemoteProjectWindow		Bla gjennom…
 Cancel	RemoteProjectWindow		Avbryt
@@ -324,6 +359,7 @@ The local path is not valid or does not exist	RemoteProjectWindow		Den lokale st
 URL:	RemoteProjectWindow		URL:
 Build	ProjectSettingsWindow		Bygg
 Build command:	ProjectSettingsWindow		Byggekommando:
+Build file path:	ProjectSettingsWindow		Byggefilsti:
 Build mode:	ProjectSettingsWindow		Byggetype:
 Clean command:	ProjectSettingsWindow		Ryddekommando:
 Color:	ProjectSettingsWindow		Farge:
@@ -332,19 +368,16 @@ Release	ProjectSettingsWindow		Release
 Run	ProjectSettingsWindow		Kjør
 Run in terminal	ProjectSettingsWindow		Kjør i Terminal
 Target:	ProjectSettingsWindow		Mål:
+Building project '\"%project%\"'…	GlobalStatusView		Bygger prosjekt '\"%project%\"'…
+Cleaning project '\"%project%\"'…	GlobalStatusView		Rengjør prosjekt '\"%project%\"'…
+Failed building project '\"%project%\"'	GlobalStatusView		Bygging av prosjekt '\"%project%\"' mislyktes
+Failed cleaning project '\"%project%\"'	GlobalStatusView		Rengjøring av prosjekt '\"%project%\"' mislyktes
+Finished building project '\"%project%\"'	GlobalStatusView		Bygging av prosjekt '\"%project%\"' fullført
+Finished cleaning project '\"%project%\"'	GlobalStatusView		Rengjøring av prosjekt '\"%project%\"' fullført
 Cancel	GoToLineWindow		Avbryt
 Go to line	GoToLineWindow		Gå til linje
 Go to line:	GoToLineWindow		Gå til linje:
 OK	GoToLineWindow		OK
-Cancel	Editor		Avbryt
-Do you want to set a starting index?	Editor		Vil du sette en start-indeks?
-Don't save	Editor		Ikke lagre
-Index	Editor		Indeks
-Rename	Editor		Gi nytt navn
-Rename symbol '%symbol_name%':	Editor		Endre symbolnavn for '%symbol_name%':
-Save	Editor		Lagre
-Save changes to file \"%filename%\"?	Editor		Lagre endringer i filen \"%filename%\"?
-Save dialog	Editor		Lagringsdialog
 Cancel	QuitAlert		Avbryt
 Don't save	QuitAlert		Ikke lagre
 Save all	QuitAlert		Lagre alle
@@ -353,6 +386,7 @@ There are unsaved changes.\nSelect the files to save.	QuitAlert		Det er endringe
 Unsaved files	QuitAlert		Ulagrede filer
 Cancel	GitCredentialsWindow		Avbryt
 Git - User Credentials	GitCredentialsWindow		Git - Brukerlegitimasjon
+Git - Username	GitCredentialsWindow		Git - Brukernavn
 OK	GitCredentialsWindow		OK
 Password:	GitCredentialsWindow		Passord:
 Username:	GitCredentialsWindow		Brukernavn:
@@ -364,6 +398,11 @@ Message	ProblemsPanel		Melding
 No fix available	ProblemsPanel		Ingen løsning tilgjengelig
 Problems	ProblemsPanel		Problemer
 Source	ProblemsPanel		Kilde
+Choose project…	SearchResultTab		Velg prosjekt…
+Find in project	SearchResultTab		Finn i prosjekt
+Match case	SearchResultTab	Short as possible.	Samsv. store/små bokstaver
+Project:	SearchResultTab		Prosjekt:
+Whole word	SearchResultTab	Short as possible.	Hele ord
 Contributors:	GenioApp		Bidragsytere:
 Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio er en forgrening av Ideam og tilgjengelig under MIT-lisensen.
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio bruker:\nScintilla lib\nOpphavsrett 1998-2003 av Neil Hodgson \n\nScintilla for Haiku\nOpphavsrett 2011 av Andrea Anzani \nOpphavsrett 2014-2015 by Kacper Kasper \n\n
@@ -380,7 +419,10 @@ New file	GitRepository		Ny fil
 New file staged	GitRepository		Ny fil satt opp
 Genio	System name		Genio
 Global settings applied	EditorStatusView		Globale innstillinger brukt
+No LSP file status information	EditorStatusView		Ingen LSP-filstatusinformasjon
 Settings in .editorconfig applied	EditorStatusView		Innstillinger fra .editorconfig brukt
+Loading project	ProjectOpenerWindow		Laster prosjekt
+Loading project '%project_name%'	ProjectOpenerWindow		Laster prosjekt '%project_name%'
 Location	SearchResultPanel		Plassering
 Search results	SearchResultPanel		Søkeresultater
 New folder	TemplateManager		Ny mappe

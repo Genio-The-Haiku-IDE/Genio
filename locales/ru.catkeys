@@ -1,9 +1,9 @@
-1	English (British)	application/x-vnd.Genio	1940528103
+1	Russian	application/x-vnd.Genio	1940528103
 (follow editor style)	TermView		(follow editor style)
 (follow system style)	TermView		(follow system style)
 Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
-Clear	TermView		Clear
-Stop	TermView		Stop
+Clear	TermView		Очистить
+Stop	TermView		Остановить
 Wrap	TermView	As in wrapping long lines. Short as possible.	Wrap
 (follow editor style)	SettingsWindow		(follow editor style)
 (follow system style)	SettingsWindow		(follow system style)
@@ -15,28 +15,28 @@ Build	SettingsWindow		Build
 Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Console banner
 Console style:	SettingsWindow		Console style:
 Convert tabs to spaces	SettingsWindow		Convert tabs to spaces
-Default font	SettingsWindow		Default font
-Default size	SettingsWindow		Default size
-Editor	SettingsWindow		Editor
-Editor style:	SettingsWindow		Editor style:
+Default font	SettingsWindow		Шрифт по умолчанию
+Default size	SettingsWindow		Размер по умолчанию
+Editor	SettingsWindow		Редактор
+Editor style:	SettingsWindow		Стиль редактора:
 Editor zoom:	SettingsWindow		Editor zoom:
 Enable brace matching	SettingsWindow		Enable brace matching
-Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
-Exclude folders:	SettingsWindow		Exclude folders:
-Find	SettingsWindow		Find
-Font size:	SettingsWindow		Font size:
-Font:	SettingsWindow		Font:
+Enable syntax highlighting	SettingsWindow		Включить подсветку синтаксиса
+Exclude folders:	SettingsWindow		Исключить папки:
+Find	SettingsWindow		Найти
+Font size:	SettingsWindow		Размер шрифта:
+Font:	SettingsWindow		Шрифт:
 Force showing Build log panel when building	SettingsWindow		Force showing Build log panel when building
-General	SettingsWindow		General
-Ignore .editorconfig	SettingsWindow		Ignore .editorconfig
+General	SettingsWindow		Общие
+Ignore .editorconfig	SettingsWindow		Игнорировать .editorconfig
 Log destination:	SettingsWindow		Log destination:
 Log level:	SettingsWindow		Log level:
 Log size:	SettingsWindow		Log size:
 Mark caret line	SettingsWindow		Mark caret line
-Match case	SettingsWindow	Short as possible.	Match case
+Match case	SettingsWindow	Short as possible.	С учетом регистра
 Projects folder:	SettingsWindow		Projects folder:
-Reload files	SettingsWindow		Reload files
-Reload projects	SettingsWindow		Reload projects
+Reload files	SettingsWindow		Перезагрузить файлы
+Reload projects	SettingsWindow		Перезагрузить проекты
 Save caret position	SettingsWindow		Save caret position
 Set ruler to column:	SettingsWindow		Set ruler to column:
 Show bottom pane	SettingsWindow		Show bottom pane
@@ -67,69 +67,69 @@ Wrap lines in console	SettingsWindow		Wrap lines in console
 {0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
 {0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
 1 element replaced	Editor		1 element replaced
-Cancel	Editor		Cancel
-Do you want to set a starting index?	Editor		Do you want to set a starting index?
-Don't save	Editor		Don't save
-Index	Editor		Index
+Cancel	Editor		Отмена
+Do you want to set a starting index?	Editor		Хотите установить стартовый индекс?
+Don't save	Editor		Не сохранять
+Index	Editor		Индекс
 No matches found.	Editor		No matches found.
-Rename	Editor		Rename
-Rename symbol '%symbol_name%':	Editor		Rename symbol '%symbol_name%':
-Save	Editor		Save
-Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
-Save dialog	Editor		Save dialog
-About…	GenioWindow		About…
-An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
-Appearance	GenioWindow		Appearance
-Autocomplete	GenioWindow		Autocomplete
-Bookmark	GenioWindow		Bookmark
-Bookmark all	GenioWindow		Bookmark all
-Branch	GenioWindow	The git command	Branch
-Build log	GenioWindow		Build log
-Build mode	GenioWindow		Build mode
-Build project	GenioWindow		Build project
-Cancel	GenioWindow		Cancel
-Clean project	GenioWindow		Clean project
-Clear all	GenioWindow	Bookmark menu	Clear all
-Close	GenioWindow		Close
-Close active project	GenioWindow		Close active project
-Close all	GenioWindow		Close all
-Close file	GenioWindow		Close file
-Close other	GenioWindow		Close other
-Comment selected lines	GenioWindow		Comment selected lines
-Configure	GenioWindow		Configure
-Conflicts	GenioWindow		Conflicts
+Rename	Editor		Переименовать
+Rename symbol '%symbol_name%':	Editor		Переименовать символ '%symbol_name%':
+Save	Editor		Сохранить
+Save changes to file \"%filename%\"?	Editor		Сохранить изменения в файл \"%filename%\"?
+Save dialog	Editor		Диалог сохранения
+About…	GenioWindow		О приложении…
+An error occurred while switching branch:	GenioWindow		Произошла ошибка при переключении ветки:
+Appearance	GenioWindow		Внешний вид
+Autocomplete	GenioWindow		Автозаполнение
+Bookmark	GenioWindow		Закладка
+Bookmark all	GenioWindow		Добавить все в закладки
+Branch	GenioWindow	The git command	Ветвь
+Build log	GenioWindow		Журнал сборки
+Build mode	GenioWindow		Режим сборки
+Build project	GenioWindow		Создать проект
+Cancel	GenioWindow		Отмена
+Clean project	GenioWindow		Очистить проект
+Clear all	GenioWindow	Bookmark menu	Очистить всё
+Close	GenioWindow		Закрыть
+Close active project	GenioWindow		Закрыть активный проект
+Close all	GenioWindow		Закрыть всё
+Close file	GenioWindow		Закрыть файл
+Close other	GenioWindow		Закрыть другое
+Comment selected lines	GenioWindow		Комментировать выбранные строки
+Configure	GenioWindow		Настроить
+Conflicts	GenioWindow		Конфликты
 Console I/O	GenioWindow		Console I/O
-Copy	GenioWindow		Copy
-Could not create a new file	GenioWindow		Could not create a new file
-Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
-CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
+Copy	GenioWindow		Копировать
+Could not create a new file	GenioWindow		Не удалось создать новый файл
+Could not delete \"%name%\".\n\n	GenioWindow		Не удалось удалить \"%name%\".\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Классическая Mac OS)
 CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
-Cut	GenioWindow		Cut
+Cut	GenioWindow		Вырезать
 Debug	GenioWindow		Debug
 Debug project	GenioWindow		Debug project
-Delete	GenioWindow		Delete
+Delete	GenioWindow		Удалить
 Delete current line	GenioWindow		Delete current line
 Delete dialog	GenioWindow		Delete dialog
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Discard	GenioWindow		Discard
-Don't save	GenioWindow		Don't save
+Don't save	GenioWindow		Не сохранять
 Duplicate current line	GenioWindow		Duplicate current line
-Edit	GenioWindow		Edit
-Error creating folder	GenioWindow		Error creating folder
-File	GenioWindow		File
+Edit	GenioWindow		Изменить
+Error creating folder	GenioWindow		Ошибка при создании папки
+File	GenioWindow		Файл
 File \"%file%\" was apparently modified, reload it?	GenioWindow		File \"%file%\" was apparently modified, reload it?
 File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
 File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
-Find	GenioWindow		Find
+Find	GenioWindow		Найти
 Find in project	GenioWindow		Find in project
-Find next	GenioWindow		Find next
+Find next	GenioWindow		Найти далее
 Find previous	GenioWindow		Find previous
-Find:	GenioWindow		Find:
+Find:	GenioWindow		Найти:
 Focus mode	GenioWindow		Focus mode
 Fold/Unfold all	GenioWindow		Fold/Unfold all
 Format	GenioWindow		Format
 Fullscreen	GenioWindow		Fullscreen
-Genio project…	GenioWindow		Genio project…
+Genio project…	GenioWindow		Проект Genio…
 Git	GenioWindow		Git
 Go back	GenioWindow		Go back
 Go forward	GenioWindow		Go forward
@@ -139,12 +139,12 @@ Go to implementation	GenioWindow		Go to implementation
 Go to line…	GenioWindow		Go to line…
 Go to next tab	GenioWindow		Go to next tab
 Go to previous tab	GenioWindow		Go to previous tab
-Help…	GenioWindow		Help…
+Help…	GenioWindow		Помощь…
 Ignore	GenioWindow		Ignore
 Import as RDEF array…	GenioWindow		Import as RDEF array…
 Invalid project folder	GenioWindow		Invalid project folder
 Keep	GenioWindow		Keep
-Language	GenioWindow		Language
+Language	GenioWindow		Язык
 LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
 Line endings	GenioWindow		Line endings
 Log	GenioWindow	The git command	Log
@@ -152,52 +152,52 @@ Log (oneline)	GenioWindow	The git command	Log (oneline)
 Make bindcatalogs	GenioWindow		Make bindcatalogs
 Make catkeys	GenioWindow		Make catkeys
 Make file read-only	GenioWindow		Make file read-only
-Match case	GenioWindow	Short as possible.	Match case
+Match case	GenioWindow	Short as possible.	С учетом регистра
 New	GenioWindow		New
-New file	GenioWindow		New file
-New folder	GenioWindow		New folder
+New file	GenioWindow		Новый файл
+New folder	GenioWindow		Новая папка
 Next	GenioWindow	Bookmark menu	Next
 Open in Terminal	GenioWindow		Open in Terminal
-Open project…	GenioWindow		Open project…
+Open project…	GenioWindow		Открыть проект…
 Open recent…	GenioWindow		Open recent…
 Open remote project…	GenioWindow		Open remote project…
-Open…	GenioWindow		Open…
-Overwrite	GenioWindow		Overwrite
-Paste	GenioWindow		Paste
-Previous	GenioWindow	Bookmark menu	Previous
-Project	GenioWindow		Project
+Open…	GenioWindow		Открыть…
+Overwrite	GenioWindow		Перезаписать
+Paste	GenioWindow		Вставить
+Previous	GenioWindow	Bookmark menu	Назад
+Project	GenioWindow		Проект
 Project settings…	GenioWindow		Project settings…
-Project:	GenioWindow		Project:
+Project:	GenioWindow		Проект:
 Pull	GenioWindow	The git command	Pull
 Pull (rebase)	GenioWindow	The git command	Pull (rebase)
-Quit	GenioWindow		Quit
+Quit	GenioWindow		Выход
 Read-only	GenioWindow		Read-only
 Redo	GenioWindow		Redo
 Release	GenioWindow		Release
 Reload	GenioWindow		Reload
 Reload .editorconfig	GenioWindow		Reload .editorconfig
 Rename symbol…	GenioWindow		Rename symbol…
-Replace	GenioWindow		Replace
+Replace	GenioWindow		Заменить
 Replace all	GenioWindow		Replace all
 Replace and find next	GenioWindow		Replace and find next
 Replace and find previous	GenioWindow		Replace and find previous
 Replace selection	GenioWindow		Replace selection
-Replace:	GenioWindow		Replace:
+Replace:	GenioWindow		Заменить:
 Reset zoom	GenioWindow		Reset zoom
-Run	GenioWindow		Run
+Run	GenioWindow		Запустить
 Run console program	GenioWindow		Run console program
 Run target	GenioWindow		Run target
-Run:	GenioWindow		Run:
-Save	GenioWindow		Save
+Run:	GenioWindow		Запустить:
+Save	GenioWindow		Сохранить
 Save all	GenioWindow		Save all
-Save all files	GenioWindow		Save all files
-Save as…	GenioWindow		Save as…
-Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
-Save current file	GenioWindow		Save current file
+Save all files	GenioWindow		Сохранить все файлы
+Save as…	GenioWindow		Сохранить как…
+Save changes to file \"%file%\"	GenioWindow		Сохранить изменения в файл \"%file%\"
+Save current file	GenioWindow		Сохранить текущий файл
 Search	GenioWindow		Search
 Select all	GenioWindow		Select all
 Set active	GenioWindow		Set active
-Settings…	GenioWindow		Settings…
+Settings…	GenioWindow		Настройки…
 Show bottom pane	GenioWindow		Show bottom pane
 Show config	GenioWindow	The git command	Show config
 Show in projects browser	GenioWindow		Show in projects browser
@@ -214,35 +214,35 @@ Show/Hide find bar	GenioWindow		Show/Hide find bar
 Show/Hide left pane	GenioWindow		Show/Hide left pane
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Show/Hide right pane	GenioWindow		Show/Hide right pane
-Status	GenioWindow	The git command	Status
+Status	GenioWindow	The git command	Сервер
 Status (short)	GenioWindow	The git command	Status (short)
 Switch source/header	GenioWindow		Switch source/header
 Switch to branch	GenioWindow		Switch to branch
-Tag	GenioWindow	The git command	Tag
+Tag	GenioWindow	The git command	Тег
 Toggle	GenioWindow	Bookmark menu	Toggle
-Tools	GenioWindow		Tools
+Tools	GenioWindow		Инструменты
 Trim trailing whitespace	GenioWindow		Trim trailing whitespace
-Undo	GenioWindow		Undo
+Undo	GenioWindow		Отменить
 View	GenioWindow		View
 Whole word	GenioWindow	Short as possible.	Whole word
-Window	GenioWindow		Window
+Window	GenioWindow		Окно
 Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Wrap around
 Wrap lines	GenioWindow		Wrap lines
 Zoom in	GenioWindow		Zoom in
 Zoom out	GenioWindow		Zoom out
-Actions	SourceControlPanel		Actions
-An unknown error occurred.	SourceControlPanel		An unknown error occurred.
-Cancel	SourceControlPanel		Cancel
+Actions	SourceControlPanel		Действия
+An unknown error occurred.	SourceControlPanel		Неизвестная ошибка.
+Cancel	SourceControlPanel		Отмена
 Changes stashed.	SourceControlPanel		Changes stashed.
 Choose branch…	SourceControlPanel		Choose branch…
-Choose project…	SourceControlPanel		Choose project…
+Choose project…	SourceControlPanel		Выбрать проект…
 Conflicts	SourceControlPanel		Conflicts
-Copy name	SourceControlPanel		Copy name
+Copy name	SourceControlPanel		Скопировать имя
 Create branch	SourceControlPanel		Create branch
 Create initial commit	SourceControlPanel		Create initial commit
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
 Current branch:	SourceControlPanel		Current branch:
-Delete	SourceControlPanel		Delete
+Delete	SourceControlPanel		Удалить
 Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
 Delete dialog	SourceControlPanel		Delete dialog
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
@@ -256,14 +256,14 @@ Fetch prune completed.	SourceControlPanel		Fetch prune completed.
 Init repository	SourceControlPanel		Init repository
 Local branches	SourceControlPanel		Local branches
 New branch name:	SourceControlPanel		New branch name:
-OK	SourceControlPanel		Alright
-Project:	SourceControlPanel		Project:
+OK	SourceControlPanel		OK
+Project:	SourceControlPanel		Проект:
 Remote branches	SourceControlPanel		Remote branches
 Remotes	SourceControlPanel		Remotes
 Rename \"%selected_branch%\"	SourceControlPanel		Rename \"%selected_branch%\"
 Rename branch	SourceControlPanel		Rename branch
 Rename branch:	SourceControlPanel		Rename branch:
-Repository	SourceControlPanel		Repository
+Repository	SourceControlPanel		Репозиторий
 Source control	SourceControlPanel		Source control
 Stash apply changes	SourceControlPanel		Stash apply changes
 Stash changes	SourceControlPanel		Stash changes
@@ -271,90 +271,90 @@ Stash pop changes	SourceControlPanel		Stash pop changes
 Stashed changes applied.	SourceControlPanel		Stashed changes applied.
 Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
-Tags	SourceControlPanel		Tags
+Tags	SourceControlPanel		Теги
 The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
 This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
-Active	EditorTabManager		Active
-Project	EditorTabManager		Project
+Active	EditorTabManager		Активный
+Project	EditorTabManager		Проект
 alpha	Utilities		alpha
 beta	Utilities		beta
 development	Utilities		development
 gamma	Utilities		gamma
 gold master	Utilities		gold master
-OK	Utilities		Alright
-Version	Utilities		Version
-An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
+OK	Utilities		OK
+Version	Utilities		Версия
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Ошибка при попытке переименовать файл
 Build mode	ProjectsFolderBrowser		Build mode
 Build project	ProjectsFolderBrowser		Build project
 Clean project	ProjectsFolderBrowser		Clean project
 Close project	ProjectsFolderBrowser		Close project
 Current branch	ProjectsFolderBrowser		Current branch
 Debug	ProjectsFolderBrowser		Debug
-Delete file	ProjectsFolderBrowser		Delete file
-Delete folder	ProjectsFolderBrowser		Delete folder
+Delete file	ProjectsFolderBrowser		Удалить файл
+Delete folder	ProjectsFolderBrowser		Удалить папку
 Drop folder here	ProjectsFolderBrowser		Drop folder here
 New	ProjectsFolderBrowser		New
-OK	ProjectsFolderBrowser		Alright
-Open file	ProjectsFolderBrowser		Open file
-Path	ProjectsFolderBrowser		Path
-Project	ProjectsFolderBrowser		Project
-Project settings…	ProjectsFolderBrowser		Project settings…
+OK	ProjectsFolderBrowser		OK
+Open file	ProjectsFolderBrowser		Открыть файл
+Path	ProjectsFolderBrowser		Путь
+Project	ProjectsFolderBrowser		Проект
+Project settings…	ProjectsFolderBrowser		Настройки проекта…
 Release	ProjectsFolderBrowser		Release
-Rename file	ProjectsFolderBrowser		Rename file
-Rename folder	ProjectsFolderBrowser		Rename folder
+Rename file	ProjectsFolderBrowser		Переименовать файл
+Rename folder	ProjectsFolderBrowser		Переименовать папку
 Set active	ProjectsFolderBrowser		Set active
 Switch to branch	ProjectsFolderBrowser		Switch to branch
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
-Another command is running.	ConsoleIOView		Another command is running.
+Another command is running.	ConsoleIOView		Выполняется другая команда.
 Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
-Clear	ConsoleIOView		Clear
-Restarting build…	ConsoleIOView		Restarting build…
+Clear	ConsoleIOView		Очистить
+Restarting build…	ConsoleIOView		Перезапуск сборки…
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
-Stop	ConsoleIOView		Stop
+Stop	ConsoleIOView		Стоп
 Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
 Array	FunctionsOutlineView		Array
-Boolean	FunctionsOutlineView		Boolean
-Class	FunctionsOutlineView		Class
-Constant	FunctionsOutlineView		Constant
+Boolean	FunctionsOutlineView		Логическое значение
+Class	FunctionsOutlineView		Класс
+Constant	FunctionsOutlineView		Постоянная
 Constructor	FunctionsOutlineView		Constructor
-Creating outline	FunctionsOutlineView		Creating outline
-Enum	FunctionsOutlineView		Enum
+Creating outline	FunctionsOutlineView		Создание контура
+Enum	FunctionsOutlineView		Перечисление
 Enum member	FunctionsOutlineView		Enum member
 Event	FunctionsOutlineView		Event
-Field	FunctionsOutlineView		Field
-File	FunctionsOutlineView		File
-Function	FunctionsOutlineView		Function
-Go to symbol	FunctionsOutlineView		Go to symbol
-Interface	FunctionsOutlineView		Interface
+Field	FunctionsOutlineView		Поле
+File	FunctionsOutlineView		Файл
+Function	FunctionsOutlineView		Функция
+Go to symbol	FunctionsOutlineView		Перейти к символу
+Interface	FunctionsOutlineView		Интерфейс
 Key	FunctionsOutlineView		Key
-Method	FunctionsOutlineView		Method
-Module	FunctionsOutlineView		Module
-Namespace	FunctionsOutlineView		Namespace
-No outline available	FunctionsOutlineView		No outline available
-Null	FunctionsOutlineView		Null
-Object	FunctionsOutlineView		Object
-Operator	FunctionsOutlineView		Operator
-Outline	FunctionsOutlineView		Outline
-Package	FunctionsOutlineView		Package
-Property	FunctionsOutlineView		Property
-Rename symbol…	FunctionsOutlineView		Rename symbol…
+Method	FunctionsOutlineView		Метод
+Module	FunctionsOutlineView		Модуль
+Namespace	FunctionsOutlineView		Пространство имен
+No outline available	FunctionsOutlineView		Нет доступных контуров
+Null	FunctionsOutlineView		Пусто
+Object	FunctionsOutlineView		Объект
+Operator	FunctionsOutlineView		Оператор
+Outline	FunctionsOutlineView		Контур
+Package	FunctionsOutlineView		Пакет
+Property	FunctionsOutlineView		Свойство
+Rename symbol…	FunctionsOutlineView		Переименовать символ…
 Sort	FunctionsOutlineView		Sort
 String	FunctionsOutlineView		String
 Structure	FunctionsOutlineView		Structure
 Type parameter	FunctionsOutlineView		Type parameter
-Variable	FunctionsOutlineView		Variable
+Variable	FunctionsOutlineView		Переменная
 Base path:	RemoteProjectWindow		Base path:
 Browse…	RemoteProjectWindow		Browse…
-Cancel	RemoteProjectWindow		Cancel
+Cancel	RemoteProjectWindow		Отмена
 Clone	RemoteProjectWindow		Clone
-Close	RemoteProjectWindow		Close
-Continue	RemoteProjectWindow		Continue
-Destination folder:	RemoteProjectWindow		Destination folder:
-Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
+Close	RemoteProjectWindow		Закрыть
+Continue	RemoteProjectWindow		Продолжить
+Destination folder:	RemoteProjectWindow		Папка назначения:
+Do you want to stop cloning the repository?	RemoteProjectWindow		Вы хотите остановить клонирование репозитория?
 Open remote Git project	RemoteProjectWindow		Open remote Git project
-Stop	RemoteProjectWindow		Stop
+Stop	RemoteProjectWindow		Остановить
 The local path is not valid or does not exist	RemoteProjectWindow		The local path is not valid or does not exist
 URL:	RemoteProjectWindow		URL:
 Build	ProjectSettingsWindow		Build
@@ -362,10 +362,10 @@ Build command:	ProjectSettingsWindow		Build command:
 Build file path:	ProjectSettingsWindow		Build file path:
 Build mode:	ProjectSettingsWindow		Build mode:
 Clean command:	ProjectSettingsWindow		Clean command:
-Color:	ProjectSettingsWindow		colour:
+Color:	ProjectSettingsWindow		Цвет:
 Execute args:	ProjectSettingsWindow		Execute args:
 Release	ProjectSettingsWindow		Release
-Run	ProjectSettingsWindow		Run
+Run	ProjectSettingsWindow		Запустить
 Run in terminal	ProjectSettingsWindow		Run in terminal
 Target:	ProjectSettingsWindow		Target:
 Building project '\"%project%\"'…	GlobalStatusView		Building project '\"%project%\"'…
@@ -374,56 +374,56 @@ Failed building project '\"%project%\"'	GlobalStatusView		Failed building projec
 Failed cleaning project '\"%project%\"'	GlobalStatusView		Failed cleaning project '\"%project%\"'
 Finished building project '\"%project%\"'	GlobalStatusView		Finished building project '\"%project%\"'
 Finished cleaning project '\"%project%\"'	GlobalStatusView		Finished cleaning project '\"%project%\"'
-Cancel	GoToLineWindow		Cancel
+Cancel	GoToLineWindow		Отмена
 Go to line	GoToLineWindow		Go to line
 Go to line:	GoToLineWindow		Go to line:
-OK	GoToLineWindow		Alright
-Cancel	QuitAlert		Cancel
-Don't save	QuitAlert		Don't save
-Save all	QuitAlert		Save all
+OK	GoToLineWindow		OK
+Cancel	QuitAlert		Отмена
+Don't save	QuitAlert		Не сохранять
+Save all	QuitAlert		Сохранить все
 Save selected	QuitAlert		Save selected
 There are unsaved changes.\nSelect the files to save.	QuitAlert		There are unsaved changes.\nSelect the files to save.
-Unsaved files	QuitAlert		Unsaved files
-Cancel	GitCredentialsWindow		Cancel
+Unsaved files	QuitAlert		Несохранённые файлы
+Cancel	GitCredentialsWindow		Отмена
 Git - User Credentials	GitCredentialsWindow		Git - User Credentials
 Git - Username	GitCredentialsWindow		Git - Username
-OK	GitCredentialsWindow		Alright
-Password:	GitCredentialsWindow		Password:
-Username:	GitCredentialsWindow		Username:
-Cancel	GTextAlert		Cancel
-OK	GTextAlert		Alright
-Category	ProblemsPanel		Category
+OK	GitCredentialsWindow		OK
+Password:	GitCredentialsWindow		Пароль:
+Username:	GitCredentialsWindow		Имя пользователя:
+Cancel	GTextAlert		Отмена
+OK	GTextAlert		OK
+Category	ProblemsPanel		Категория
 Line	ProblemsPanel		Line
-Message	ProblemsPanel		Message
+Message	ProblemsPanel		Сообщение
 No fix available	ProblemsPanel		No fix available
-Problems	ProblemsPanel		Problems
-Source	ProblemsPanel		Source
+Problems	ProblemsPanel		Проблемы
+Source	ProblemsPanel		Источник
 Choose project…	SearchResultTab		Choose project…
 Find in project	SearchResultTab		Find in project
-Match case	SearchResultTab	Short as possible.	Match case
-Project:	SearchResultTab		Project:
+Match case	SearchResultTab	Short as possible.	С учётом регистра
+Project:	SearchResultTab		Проект:
 Whole word	SearchResultTab	Short as possible.	Whole word
-Contributors:	GenioApp		Contributors:
-Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
+Contributors:	GenioApp		Авторы:
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio — это ответвление Ideam, доступное по лицензии MIT.
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson \n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani \nCopyright 2014-2015 by Kacper Kasper \n\n
-Made with love in Italy	GenioApp		Made with love in Italy
-See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
-Defaults	ConfigWindow		Defaults
-Settings	ConfigWindow		Settings
+Made with love in Italy	GenioApp		Сделано с любовью в Италии
+See credits for a complete list.\n\n	GenioApp		Полный список смотрите в файле credits.\n\n
+Defaults	ConfigWindow		По умолчанию
+Settings	ConfigWindow		Настройки
 Edit user templates…	TemplatesMenu		Edit user templates…
-File deleted	GitRepository		File deleted
+File deleted	GitRepository		Файл удален
 File deleted from index	GitRepository		File deleted from index
-File modified	GitRepository		File modified
+File modified	GitRepository		Файл изменен
 File modified on index	GitRepository		File modified on index
-New file	GitRepository		New file
+New file	GitRepository		Новый файл
 New file staged	GitRepository		New file staged
 Genio	System name		Genio
-Global settings applied	EditorStatusView		Global settings applied
+Global settings applied	EditorStatusView		Глобальные настройки применены
 No LSP file status information	EditorStatusView		No LSP file status information
-Settings in .editorconfig applied	EditorStatusView		Settings in .editorconfig applied
+Settings in .editorconfig applied	EditorStatusView		Настройки в .editorconfig применены
 Loading project	ProjectOpenerWindow		Loading project
 Loading project '%project_name%'	ProjectOpenerWindow		Loading project '%project_name%'
-Location	SearchResultPanel		Location
-Search results	SearchResultPanel		Search results
-New folder	TemplateManager		New folder
-OK	GitAlert		Alright
+Location	SearchResultPanel		Расположение
+Search results	SearchResultPanel		Результаты поиска
+New folder	TemplateManager		Новая папка
+OK	GitAlert		OK

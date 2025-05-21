@@ -129,7 +129,7 @@ ifeq ($(BUILD_WITH_CLANG), 1)
 endif
 
 
-LOCALES := ca de en_AU en_GB en es_419 es fr fur it nb tr
+LOCALES := ca cs de en_AU en_GB en es_419 es fr fur it nb nl sc sv tr uk
 
 ## Include the Makefile-Engine
 BUILDHOME := \

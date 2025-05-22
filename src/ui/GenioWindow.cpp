@@ -1538,26 +1538,47 @@ GenioWindow::_AlertInvalidBuildConfig(BString message)
 status_t
 GenioWindow::_BuildProject()
 {
+	return _DoBuildOrCleanProject("build");
+}
+
+
+status_t
+GenioWindow::_CleanProject()
+{
+	return _DoBuildOrCleanProject("clean");
+}
+
+
+status_t
+GenioWindow::_DoBuildOrCleanProject(const BString& cmd)
+{
 	// Should not happen
 	if (GetActiveProject() == nullptr)
 		return B_ERROR;
 
 	const BString projectName = GetActiveProject()->Name();
 	BString command;
-	command	<< GetActiveProject()->GetBuildCommand();
+	if (cmd == "build")
+		command	<< GetActiveProject()->GetBuildCommand();
+	else if (cmd == "clean")
+		command	<< GetActiveProject()->GetCleanCommand();
 	if (command.IsEmpty()) {
-		LogInfoF("Empty build command for project [%s]", projectName.String());
+		LogInfoF("Empty %s command for project [%s]", cmd.String(), projectName.String());
 
 		BString message;
-		message << "No build command found!\n"
+		message << "No " << cmd << " command found!\n"
 				   "Please configure the project to provide\n"
-				   "a valid build configuration.";
+				   "a valid " << cmd << " configuration.";
 		return _AlertInvalidBuildConfig(message);
 	}
 
-	// TODO: Should ask if the user wants to save
-	if (gCFG["save_on_build"])
-		_FileSaveAll(GetActiveProject());
+	_UpdateProjectActivation(false);
+
+	fBuildLogView->Clear();
+	if (gCFG["show_build_panel"])
+		_ShowOutputTab(kTabBuildLog);
+
+	LogInfoF("%s started: [%s]", cmd.String(), projectName.String());
 
 	// TODO: Disable the Set Active item while building, at least for now.
 	// various parts of the code refer to fActiveProject to send build state notifications
@@ -1566,87 +1587,21 @@ GenioWindow::_BuildProject()
 
 	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
 	noticeMessage.AddBool("building", true);
-	noticeMessage.AddString("cmd_type", "build");
+	noticeMessage.AddString("cmd_type", cmd.String());
 	noticeMessage.AddString("project_name", projectName);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
 
 	GetActiveProject()->SetBuildingState(true);
 
-	_UpdateProjectActivation(false);
-
-	fBuildLogView->Clear();
-	if (gCFG["show_build_panel"])
-		_ShowOutputTab(kTabBuildLog);
-
-	LogInfoF("Build started: [%s]", projectName.String());
-
-	BString claim("Build ");
+	BString claim;
+	claim << cmd << " ";
 	claim << projectName;
 	claim << " (";
 	claim << (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
 	claim << ")";
 
 	GMessage message = {{"cmd", command},
-						{"cmd_type", "build"},
-						{"project_name", projectName},
-						{"banner_claim", claim }};
-
-	// Go to appropriate directory
-	chdir(GetActiveProject()->Path());
-	auto buildPath = GetActiveProject()->GetBuildFilePath();
-	if (!buildPath.IsEmpty())
-		chdir(buildPath);
-
-	return fBuildLogView->RunCommand(&message);
-}
-
-
-status_t
-GenioWindow::_CleanProject()
-{
-	// Should not happen
-	if (GetActiveProject() == nullptr)
-		return B_ERROR;
-
-	const BString projectName = GetActiveProject()->Name();
-	BString command;
-	command	<< GetActiveProject()->GetCleanCommand();
-
-	if (command.IsEmpty()) {
-		LogInfoF("Empty clean command for project [%s]", projectName.String());
-
-		BString message;
-		message << "No clean command found!\n"
-				   "Please configure the project to provide\n"
-				   "a valid clean configuration.";
-		return _AlertInvalidBuildConfig(message);
-	}
-
-	_UpdateProjectActivation(false);
-
-	fBuildLogView->Clear();
-	_ShowOutputTab(kTabBuildLog);
-
-	LogInfoF("Clean started: [%s]", projectName.String());
-
-	fSetActiveProjectMenuItem->SetEnabled(false);
-
-	BMessage noticeMessage(MSG_NOTIFY_BUILDING_PHASE);
-	noticeMessage.AddBool("building", true);
-	noticeMessage.AddString("cmd_type", "clean");
-	noticeMessage.AddString("project_name", projectName);
-	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
-
-	GetActiveProject()->SetBuildingState(true);
-
-	BString claim("Build ");
-	claim << projectName;
-	claim << " (";
-	claim << (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode ? B_TRANSLATE("Release") : B_TRANSLATE("Debug"));
-	claim << ")";
-
-	GMessage message = {{"cmd", command},
-						{"cmd_type", "build"},
+						{"cmd_type", cmd.String()},
 						{"project_name", projectName},
 						{"banner_claim", claim }};
 

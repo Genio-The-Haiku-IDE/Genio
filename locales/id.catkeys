@@ -1,4 +1,4 @@
-1	English (Australian)	application/x-vnd.Genio	1940528103
+1	Indonesian	application/x-vnd.Genio	1940528103
 (follow editor style)	TermView		(follow editor style)
 (follow system style)	TermView		(follow system style)
 Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
@@ -54,7 +54,7 @@ Show vertical ruler	SettingsWindow		Show vertical ruler
 Show whitespace	SettingsWindow		Show whitespace
 Source control	SettingsWindow		Source control
 Startup	SettingsWindow		Startup
-Tab width:	SettingsWindow		Tab width:  
+Tab width:	SettingsWindow		Tab width:
 These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	These are only applied if no .editorconfig is used:
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
 Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
@@ -67,23 +67,23 @@ Wrap lines in console	SettingsWindow		Wrap lines in console
 {0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
 {0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
 1 element replaced	Editor		1 element replaced
-Cancel	Editor		Cancel
+Cancel	Editor		Batal
 Do you want to set a starting index?	Editor		Do you want to set a starting index?
-Don't save	Editor		Don't save
+Don't save	Editor		Jangan  disimpan
 Index	Editor		Index
 No matches found.	Editor		No matches found.
 Rename	Editor		Rename
 Rename symbol '%symbol_name%':	Editor		Rename symbol '%symbol_name%':
-Save	Editor		Save
-Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
-Save dialog	Editor		Save dialog
-About…	GenioWindow		About…
-An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
-Appearance	GenioWindow		Appearance
+Save	Editor		Simpan
+Save changes to file \"%filename%\"?	Editor		Simpan perubahan ke berkas \"%filename%\"?
+Save dialog	Editor		Dialog penyimpanan
+About…	GenioWindow		Tentang…
+An error occurred while switching branch:	GenioWindow		Galat muncul ketika berpindah cabang:
+Appearance	GenioWindow		Penampilan
 Autocomplete	GenioWindow		Autocomplete
 Bookmark	GenioWindow		Bookmark
-Bookmark all	GenioWindow		Bookmark all
-Branch	GenioWindow	The git command	Branch
+Bookmark all	GenioWindow		Bookmark semua
+Branch	GenioWindow	The git command	Cabang
 Build log	GenioWindow		Build log
 Build mode	GenioWindow		Build mode
 Build project	GenioWindow		Build project
@@ -109,7 +109,7 @@ Debug	GenioWindow		Debug
 Debug project	GenioWindow		Debug project
 Delete	GenioWindow		Delete
 Delete current line	GenioWindow		Delete current line
-Delete dialog	GenioWindow		Delete dialogue
+Delete dialog	GenioWindow		Delete dialog
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Discard	GenioWindow		Discard
 Don't save	GenioWindow		Don't save
@@ -247,7 +247,7 @@ Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
 Delete dialog	SourceControlPanel		Delete dialog
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
-Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialise a repository without creating an initial commit?
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
 Enter a message for this stash	SourceControlPanel		Enter a message for this stash
 Fetch	SourceControlPanel		Fetch
 Fetch completed.	SourceControlPanel		Fetch completed.
@@ -273,9 +273,9 @@ Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
 Tags	SourceControlPanel		Tags
 The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
-This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialise it.
-Active	EditorTabManager		Active
-Project	EditorTabManager		Project
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
+Active	EditorTabManager		Aktif
+Project	EditorTabManager		Proyek
 alpha	Utilities		alpha
 beta	Utilities		beta
 development	Utilities		development
@@ -306,13 +306,13 @@ Set active	ProjectsFolderBrowser		Set active
 Switch to branch	ProjectsFolderBrowser		Switch to branch
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
-Another command is running.	ConsoleIOView		Another command is running.
+Another command is running.	ConsoleIOView		Perintah lain sedang berjalan.
 Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
-Clear	ConsoleIOView		Clear
-Restarting build…	ConsoleIOView		Restarting build…
+Clear	ConsoleIOView		Bersihkan
+Restarting build…	ConsoleIOView		Mulai ulang membangun...
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
-Stop	ConsoleIOView		Stop
+Stop	ConsoleIOView		Berhenti
 Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
 Array	FunctionsOutlineView		Array
 Boolean	FunctionsOutlineView		Boolean
@@ -362,11 +362,11 @@ Build command:	ProjectSettingsWindow		Build command:
 Build file path:	ProjectSettingsWindow		Build file path:
 Build mode:	ProjectSettingsWindow		Build mode:
 Clean command:	ProjectSettingsWindow		Clean command:
-Color:	ProjectSettingsWindow		colour:
+Color:	ProjectSettingsWindow		Color:
 Execute args:	ProjectSettingsWindow		Execute args:
 Release	ProjectSettingsWindow		Release
 Run	ProjectSettingsWindow		Run
-Run in terminal	ProjectSettingsWindow		Run in Terminal
+Run in terminal	ProjectSettingsWindow		Run in terminal
 Target:	ProjectSettingsWindow		Target:
 Building project '\"%project%\"'…	GlobalStatusView		Building project '\"%project%\"'…
 Cleaning project '\"%project%\"'…	GlobalStatusView		Cleaning project '\"%project%\"'…
@@ -404,11 +404,11 @@ Match case	SearchResultTab	Short as possible.	Match case
 Project:	SearchResultTab		Project:
 Whole word	SearchResultTab	Short as possible.	Whole word
 Contributors:	GenioApp		Contributors:
-Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
-Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
-Made with love in Italy	GenioApp		Made with love in Italy
-See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
-Defaults	ConfigWindow		Defaults
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio adalah fork dari deam dan di bawah lisensi MIT.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio menggunakan:\nScintilla lib\nCopyright 1998-2003 oleh Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 oleh Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
+Made with love in Italy	GenioApp		Dibuat dengan cinta di itali
+See credits for a complete list.\n\n	GenioApp		Lihat di bagian credit untuk daftar komplit.\n\n
+Defaults	ConfigWindow		Default
 Settings	ConfigWindow		Settings
 Edit user templates…	TemplatesMenu		Edit user templates…
 File deleted	GitRepository		File deleted

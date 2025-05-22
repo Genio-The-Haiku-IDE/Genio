@@ -1,4 +1,4 @@
-1	English (Australian)	application/x-vnd.Genio	1940528103
+1	Korean	application/x-vnd.Genio	1940528103
 (follow editor style)	TermView		(follow editor style)
 (follow system style)	TermView		(follow system style)
 Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
@@ -54,7 +54,7 @@ Show vertical ruler	SettingsWindow		Show vertical ruler
 Show whitespace	SettingsWindow		Show whitespace
 Source control	SettingsWindow		Source control
 Startup	SettingsWindow		Startup
-Tab width:	SettingsWindow		Tab width:  
+Tab width:	SettingsWindow		Tab width:
 These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	These are only applied if no .editorconfig is used:
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
 Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
@@ -109,7 +109,7 @@ Debug	GenioWindow		Debug
 Debug project	GenioWindow		Debug project
 Delete	GenioWindow		Delete
 Delete current line	GenioWindow		Delete current line
-Delete dialog	GenioWindow		Delete dialogue
+Delete dialog	GenioWindow		Delete dialog
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Discard	GenioWindow		Discard
 Don't save	GenioWindow		Don't save
@@ -247,7 +247,7 @@ Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
 Delete dialog	SourceControlPanel		Delete dialog
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
-Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialise a repository without creating an initial commit?
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
 Enter a message for this stash	SourceControlPanel		Enter a message for this stash
 Fetch	SourceControlPanel		Fetch
 Fetch completed.	SourceControlPanel		Fetch completed.
@@ -273,7 +273,7 @@ Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
 Tags	SourceControlPanel		Tags
 The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
-This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialise it.
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
 Active	EditorTabManager		Active
 Project	EditorTabManager		Project
 alpha	Utilities		alpha
@@ -306,14 +306,14 @@ Set active	ProjectsFolderBrowser		Set active
 Switch to branch	ProjectsFolderBrowser		Switch to branch
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
-Another command is running.	ConsoleIOView		Another command is running.
-Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
-Clear	ConsoleIOView		Clear
-Restarting build…	ConsoleIOView		Restarting build…
+Another command is running.	ConsoleIOView		다른 명령이 실행 중입니다.
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	배너
+Clear	ConsoleIOView		지우기
+Restarting build…	ConsoleIOView		다시 작성 중…
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
-Stop	ConsoleIOView		Stop
-Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
+Stop	ConsoleIOView		정지
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	줄바꿈
 Array	FunctionsOutlineView		Array
 Boolean	FunctionsOutlineView		Boolean
 Class	FunctionsOutlineView		Class
@@ -362,11 +362,11 @@ Build command:	ProjectSettingsWindow		Build command:
 Build file path:	ProjectSettingsWindow		Build file path:
 Build mode:	ProjectSettingsWindow		Build mode:
 Clean command:	ProjectSettingsWindow		Clean command:
-Color:	ProjectSettingsWindow		colour:
+Color:	ProjectSettingsWindow		Color:
 Execute args:	ProjectSettingsWindow		Execute args:
 Release	ProjectSettingsWindow		Release
 Run	ProjectSettingsWindow		Run
-Run in terminal	ProjectSettingsWindow		Run in Terminal
+Run in terminal	ProjectSettingsWindow		Run in terminal
 Target:	ProjectSettingsWindow		Target:
 Building project '\"%project%\"'…	GlobalStatusView		Building project '\"%project%\"'…
 Cleaning project '\"%project%\"'…	GlobalStatusView		Cleaning project '\"%project%\"'…
@@ -408,8 +408,8 @@ Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is
 Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
 Made with love in Italy	GenioApp		Made with love in Italy
 See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
-Defaults	ConfigWindow		Defaults
-Settings	ConfigWindow		Settings
+Defaults	ConfigWindow		기본값
+Settings	ConfigWindow		설정
 Edit user templates…	TemplatesMenu		Edit user templates…
 File deleted	GitRepository		File deleted
 File deleted from index	GitRepository		File deleted from index

@@ -1,4 +1,4 @@
-1	English (Australian)	application/x-vnd.Genio	1940528103
+1	Romanian	application/x-vnd.Genio	1940528103
 (follow editor style)	TermView		(follow editor style)
 (follow system style)	TermView		(follow system style)
 Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
@@ -54,7 +54,7 @@ Show vertical ruler	SettingsWindow		Show vertical ruler
 Show whitespace	SettingsWindow		Show whitespace
 Source control	SettingsWindow		Source control
 Startup	SettingsWindow		Startup
-Tab width:	SettingsWindow		Tab width:  
+Tab width:	SettingsWindow		Tab width:
 These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	These are only applied if no .editorconfig is used:
 This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
 Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
@@ -67,146 +67,146 @@ Wrap lines in console	SettingsWindow		Wrap lines in console
 {0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
 {0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
 1 element replaced	Editor		1 element replaced
-Cancel	Editor		Cancel
-Do you want to set a starting index?	Editor		Do you want to set a starting index?
-Don't save	Editor		Don't save
+Cancel	Editor		Anulează
+Do you want to set a starting index?	Editor		Doriți să stabiliți un index de pornire?
+Don't save	Editor		Nu salva
 Index	Editor		Index
 No matches found.	Editor		No matches found.
-Rename	Editor		Rename
-Rename symbol '%symbol_name%':	Editor		Rename symbol '%symbol_name%':
-Save	Editor		Save
-Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
-Save dialog	Editor		Save dialog
-About…	GenioWindow		About…
-An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
-Appearance	GenioWindow		Appearance
-Autocomplete	GenioWindow		Autocomplete
-Bookmark	GenioWindow		Bookmark
-Bookmark all	GenioWindow		Bookmark all
+Rename	Editor		Redenumește
+Rename symbol '%symbol_name%':	Editor		Redenumește simbolul „%symbol_name%”:
+Save	Editor		Salvează
+Save changes to file \"%filename%\"?	Editor		Salvați modificările la fișierul \„%filename%\”?
+Save dialog	Editor		Dialog de salvare
+About…	GenioWindow		Despre…
+An error occurred while switching branch:	GenioWindow		A apărut o eroare în timpul comutării ramurei:
+Appearance	GenioWindow		Aspect
+Autocomplete	GenioWindow		Completare automată
+Bookmark	GenioWindow		Adaugă la favorite
+Bookmark all	GenioWindow		Adaugă la favorite toate
 Branch	GenioWindow	The git command	Branch
-Build log	GenioWindow		Build log
-Build mode	GenioWindow		Build mode
-Build project	GenioWindow		Build project
-Cancel	GenioWindow		Cancel
-Clean project	GenioWindow		Clean project
-Clear all	GenioWindow	Bookmark menu	Clear all
-Close	GenioWindow		Close
-Close active project	GenioWindow		Close active project
-Close all	GenioWindow		Close all
-Close file	GenioWindow		Close file
-Close other	GenioWindow		Close other
-Comment selected lines	GenioWindow		Comment selected lines
-Configure	GenioWindow		Configure
-Conflicts	GenioWindow		Conflicts
-Console I/O	GenioWindow		Console I/O
-Copy	GenioWindow		Copy
-Could not create a new file	GenioWindow		Could not create a new file
-Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
-CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
+Build log	GenioWindow		Istoric generare
+Build mode	GenioWindow		Mod de generare
+Build project	GenioWindow		Generează proiectul
+Cancel	GenioWindow		Anulează
+Clean project	GenioWindow		Curăță proiectul
+Clear all	GenioWindow	Bookmark menu	Curăță toate
+Close	GenioWindow		Închide
+Close active project	GenioWindow		Închide proiectul activ
+Close all	GenioWindow		Închide toate
+Close file	GenioWindow		Închide fișierul
+Close other	GenioWindow		Închide altele
+Comment selected lines	GenioWindow		Comentează liniile selectate
+Configure	GenioWindow		Configurează
+Conflicts	GenioWindow		Conflicte
+Console I/O	GenioWindow		I/O consolă
+Copy	GenioWindow		Lipește
+Could not create a new file	GenioWindow		Nu s-a putut crea un fișier nou
+Could not delete \"%name%\".\n\n	GenioWindow		Nu s-a putut șterge \„%name%\”.\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Mac OS clasic)
 CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
-Cut	GenioWindow		Cut
-Debug	GenioWindow		Debug
-Debug project	GenioWindow		Debug project
-Delete	GenioWindow		Delete
-Delete current line	GenioWindow		Delete current line
-Delete dialog	GenioWindow		Delete dialogue
+Cut	GenioWindow		Taie
+Debug	GenioWindow		Depanare
+Debug project	GenioWindow		Depanează proiectul
+Delete	GenioWindow		Șterge
+Delete current line	GenioWindow		Șterge linia curentă
+Delete dialog	GenioWindow		Dialog de ștergere
 Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Discard	GenioWindow		Discard
-Don't save	GenioWindow		Don't save
-Duplicate current line	GenioWindow		Duplicate current line
-Edit	GenioWindow		Edit
-Error creating folder	GenioWindow		Error creating folder
-File	GenioWindow		File
+Don't save	GenioWindow		Nu salva
+Duplicate current line	GenioWindow		Duplică linia curentă
+Edit	GenioWindow		Editează
+Error creating folder	GenioWindow		Eroare la crearea dosarului
+File	GenioWindow		Fișier
 File \"%file%\" was apparently modified, reload it?	GenioWindow		File \"%file%\" was apparently modified, reload it?
 File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
 File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
-Find	GenioWindow		Find
-Find in project	GenioWindow		Find in project
-Find next	GenioWindow		Find next
-Find previous	GenioWindow		Find previous
-Find:	GenioWindow		Find:
-Focus mode	GenioWindow		Focus mode
+Find	GenioWindow		Caută
+Find in project	GenioWindow		Caută în proiect
+Find next	GenioWindow		Caută următorul
+Find previous	GenioWindow		Caută anteriorul
+Find:	GenioWindow		Caută:
+Focus mode	GenioWindow		Mod focalizare
 Fold/Unfold all	GenioWindow		Fold/Unfold all
-Format	GenioWindow		Format
-Fullscreen	GenioWindow		Fullscreen
-Genio project…	GenioWindow		Genio project…
+Format	GenioWindow		Formatează
+Fullscreen	GenioWindow		Ecran complet
+Genio project…	GenioWindow		Proiect Genio…
 Git	GenioWindow		Git
 Go back	GenioWindow		Go back
 Go forward	GenioWindow		Go forward
-Go to declaration	GenioWindow		Go to declaration
-Go to definition	GenioWindow		Go to definition
-Go to implementation	GenioWindow		Go to implementation
-Go to line…	GenioWindow		Go to line…
+Go to declaration	GenioWindow		Navighează la declarație
+Go to definition	GenioWindow		Navighează la definiție
+Go to implementation	GenioWindow		Navighează la implementare
+Go to line…	GenioWindow		Navighează la linia…
 Go to next tab	GenioWindow		Go to next tab
 Go to previous tab	GenioWindow		Go to previous tab
-Help…	GenioWindow		Help…
-Ignore	GenioWindow		Ignore
-Import as RDEF array…	GenioWindow		Import as RDEF array…
-Invalid project folder	GenioWindow		Invalid project folder
-Keep	GenioWindow		Keep
-Language	GenioWindow		Language
+Help…	GenioWindow		Ajutor…
+Ignore	GenioWindow		Ignoră
+Import as RDEF array…	GenioWindow		Importă ca vector RDEF…
+Invalid project folder	GenioWindow		Dosar de proiect nevalid
+Keep	GenioWindow		Păstrează
+Language	GenioWindow		Limbaj
 LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
 Line endings	GenioWindow		Line endings
 Log	GenioWindow	The git command	Log
-Log (oneline)	GenioWindow	The git command	Log (oneline)
+Log (oneline)	GenioWindow	The git command	Log (o singură linie)
 Make bindcatalogs	GenioWindow		Make bindcatalogs
 Make catkeys	GenioWindow		Make catkeys
 Make file read-only	GenioWindow		Make file read-only
 Match case	GenioWindow	Short as possible.	Match case
-New	GenioWindow		New
-New file	GenioWindow		New file
-New folder	GenioWindow		New folder
-Next	GenioWindow	Bookmark menu	Next
-Open in Terminal	GenioWindow		Open in Terminal
-Open project…	GenioWindow		Open project…
-Open recent…	GenioWindow		Open recent…
-Open remote project…	GenioWindow		Open remote project…
-Open…	GenioWindow		Open…
-Overwrite	GenioWindow		Overwrite
-Paste	GenioWindow		Paste
-Previous	GenioWindow	Bookmark menu	Previous
-Project	GenioWindow		Project
-Project settings…	GenioWindow		Project settings…
-Project:	GenioWindow		Project:
+New	GenioWindow		Nou
+New file	GenioWindow		Fișier nou
+New folder	GenioWindow		Dosar nou
+Next	GenioWindow	Bookmark menu	Următorul
+Open in Terminal	GenioWindow		Deschide în Terminal
+Open project…	GenioWindow		Deschide proiectul…
+Open recent…	GenioWindow		Deschide recente…
+Open remote project…	GenioWindow		Deschide proiect la distanță…
+Open…	GenioWindow		Deschide…
+Overwrite	GenioWindow		Suprascrie
+Paste	GenioWindow		Lipește
+Previous	GenioWindow	Bookmark menu	Anteriorul
+Project	GenioWindow		Proiect
+Project settings…	GenioWindow		Configurări proiect…
+Project:	GenioWindow		Proiect:
 Pull	GenioWindow	The git command	Pull
 Pull (rebase)	GenioWindow	The git command	Pull (rebase)
-Quit	GenioWindow		Quit
-Read-only	GenioWindow		Read-only
-Redo	GenioWindow		Redo
+Quit	GenioWindow		Ieșire
+Read-only	GenioWindow		Doar citire
+Redo	GenioWindow		Repetă
 Release	GenioWindow		Release
-Reload	GenioWindow		Reload
-Reload .editorconfig	GenioWindow		Reload .editorconfig
-Rename symbol…	GenioWindow		Rename symbol…
-Replace	GenioWindow		Replace
-Replace all	GenioWindow		Replace all
+Reload	GenioWindow		Reîncarcă
+Reload .editorconfig	GenioWindow		Reîncarcă .editorconfig
+Rename symbol…	GenioWindow		Redenumește simbolul…
+Replace	GenioWindow		Înlocuiește
+Replace all	GenioWindow		Înlocuiește toate
 Replace and find next	GenioWindow		Replace and find next
 Replace and find previous	GenioWindow		Replace and find previous
-Replace selection	GenioWindow		Replace selection
-Replace:	GenioWindow		Replace:
-Reset zoom	GenioWindow		Reset zoom
-Run	GenioWindow		Run
-Run console program	GenioWindow		Run console program
-Run target	GenioWindow		Run target
+Replace selection	GenioWindow		Înlocuiește selecția
+Replace:	GenioWindow		Înlocuiește:
+Reset zoom	GenioWindow		Restabilește focalizarea
+Run	GenioWindow		Rulează
+Run console program	GenioWindow		Rulează programul de consolă
+Run target	GenioWindow		Rulează ținta
 Run:	GenioWindow		Run:
-Save	GenioWindow		Save
-Save all	GenioWindow		Save all
-Save all files	GenioWindow		Save all files
-Save as…	GenioWindow		Save as…
-Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
-Save current file	GenioWindow		Save current file
-Search	GenioWindow		Search
-Select all	GenioWindow		Select all
+Save	GenioWindow		Salvează
+Save all	GenioWindow		Salvează toate
+Save all files	GenioWindow		Salvează toate fișierele
+Save as…	GenioWindow		Salvează ca…
+Save changes to file \"%file%\"	GenioWindow		Salvează modificările la fișierul \„%file%\”
+Save current file	GenioWindow		Salvează fișierul curent
+Search	GenioWindow		Caută
+Select all	GenioWindow		Selectează toate
 Set active	GenioWindow		Set active
-Settings…	GenioWindow		Settings…
+Settings…	GenioWindow		Configurări…
 Show bottom pane	GenioWindow		Show bottom pane
 Show config	GenioWindow	The git command	Show config
-Show in projects browser	GenioWindow		Show in projects browser
-Show in Tracker	GenioWindow		Show in Tracker
+Show in projects browser	GenioWindow		Arată în navigatorul de proiecte
+Show in Tracker	GenioWindow		Arată în Tracker
 Show left pane	GenioWindow		Show left pane
 Show line endings	GenioWindow		Show line endings
 Show right pane	GenioWindow		Show right pane
 Show statusbar	GenioWindow		Show statusbar
-Show toolbar	GenioWindow		Show toolbar
+Show toolbar	GenioWindow		Arată bara de unelte
 Show whitespace	GenioWindow		Show whitespace
 Show whitespace and line endings	GenioWindow		Show whitespace and line endings
 Show/Hide bottom pane	GenioWindow		Show/Hide bottom pane
@@ -215,17 +215,17 @@ Show/Hide left pane	GenioWindow		Show/Hide left pane
 Show/Hide replace bar	GenioWindow		Show/Hide replace bar
 Show/Hide right pane	GenioWindow		Show/Hide right pane
 Status	GenioWindow	The git command	Status
-Status (short)	GenioWindow	The git command	Status (short)
+Status (short)	GenioWindow	The git command	Status (scurt)
 Switch source/header	GenioWindow		Switch source/header
-Switch to branch	GenioWindow		Switch to branch
+Switch to branch	GenioWindow		Comută la ramura
 Tag	GenioWindow	The git command	Tag
-Toggle	GenioWindow	Bookmark menu	Toggle
-Tools	GenioWindow		Tools
+Toggle	GenioWindow	Bookmark menu	Comută
+Tools	GenioWindow		Unelte
 Trim trailing whitespace	GenioWindow		Trim trailing whitespace
-Undo	GenioWindow		Undo
-View	GenioWindow		View
-Whole word	GenioWindow	Short as possible.	Whole word
-Window	GenioWindow		Window
+Undo	GenioWindow		Refă
+View	GenioWindow		Vizualizare
+Whole word	GenioWindow	Short as possible.	Cuvânt întreg
+Window	GenioWindow		Fereastră
 Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Wrap around
 Wrap lines	GenioWindow		Wrap lines
 Zoom in	GenioWindow		Zoom in
@@ -247,7 +247,7 @@ Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
 Delete dialog	SourceControlPanel		Delete dialog
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Do not create the initial commit	SourceControlPanel		Do not create the initial commit
-Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialise a repository without creating an initial commit?
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
 Enter a message for this stash	SourceControlPanel		Enter a message for this stash
 Fetch	SourceControlPanel		Fetch
 Fetch completed.	SourceControlPanel		Fetch completed.
@@ -273,16 +273,16 @@ Stashed changes popped.	SourceControlPanel		Stashed changes popped.
 Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
 Tags	SourceControlPanel		Tags
 The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
-This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialise it.
-Active	EditorTabManager		Active
-Project	EditorTabManager		Project
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
+Active	EditorTabManager		Activ
+Project	EditorTabManager		Proiect
 alpha	Utilities		alpha
 beta	Utilities		beta
 development	Utilities		development
 gamma	Utilities		gamma
 gold master	Utilities		gold master
 OK	Utilities		OK
-Version	Utilities		Version
+Version	Utilities		Versiune
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
 Build mode	ProjectsFolderBrowser		Build mode
 Build project	ProjectsFolderBrowser		Build project
@@ -306,14 +306,14 @@ Set active	ProjectsFolderBrowser		Set active
 Switch to branch	ProjectsFolderBrowser		Switch to branch
 The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
 The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
-Another command is running.	ConsoleIOView		Another command is running.
+Another command is running.	ConsoleIOView		Rulează o altă comandă.
 Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
-Clear	ConsoleIOView		Clear
-Restarting build…	ConsoleIOView		Restarting build…
+Clear	ConsoleIOView		Curăță
+Restarting build…	ConsoleIOView		Se repornește generarea…
 stderr	ConsoleIOView		stderr
 stdout	ConsoleIOView		stdout
-Stop	ConsoleIOView		Stop
-Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
+Stop	ConsoleIOView		Oprește
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Încadrează
 Array	FunctionsOutlineView		Array
 Boolean	FunctionsOutlineView		Boolean
 Class	FunctionsOutlineView		Class
@@ -362,11 +362,11 @@ Build command:	ProjectSettingsWindow		Build command:
 Build file path:	ProjectSettingsWindow		Build file path:
 Build mode:	ProjectSettingsWindow		Build mode:
 Clean command:	ProjectSettingsWindow		Clean command:
-Color:	ProjectSettingsWindow		colour:
+Color:	ProjectSettingsWindow		Color:
 Execute args:	ProjectSettingsWindow		Execute args:
 Release	ProjectSettingsWindow		Release
 Run	ProjectSettingsWindow		Run
-Run in terminal	ProjectSettingsWindow		Run in Terminal
+Run in terminal	ProjectSettingsWindow		Run in terminal
 Target:	ProjectSettingsWindow		Target:
 Building project '\"%project%\"'…	GlobalStatusView		Building project '\"%project%\"'…
 Cleaning project '\"%project%\"'…	GlobalStatusView		Cleaning project '\"%project%\"'…
@@ -403,13 +403,13 @@ Find in project	SearchResultTab		Find in project
 Match case	SearchResultTab	Short as possible.	Match case
 Project:	SearchResultTab		Project:
 Whole word	SearchResultTab	Short as possible.	Whole word
-Contributors:	GenioApp		Contributors:
-Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
-Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
-Made with love in Italy	GenioApp		Made with love in Italy
-See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
-Defaults	ConfigWindow		Defaults
-Settings	ConfigWindow		Settings
+Contributors:	GenioApp		Contribuitori:
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio este un fork a Ideam și este disponibil sub licența MIT.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio utilizează:\nLib Scintilla\nDrepturi de autor 1998-2003 de Neil Hodgson <neilh@scintilla.org>\n\nScintilla pentru Haiku\nDrepturi de autor 2011 de Andrea Anzani <andrea.anzani@gmail.com>\nDrepturi de autor 2014-2015 de Kacper Kasper <kacperkasper@gmail.com>\n\n
+Made with love in Italy	GenioApp		Fabricat cu dragoste în Italia
+See credits for a complete list.\n\n	GenioApp		Consultați creditele pentru o listă completă.\n\n
+Defaults	ConfigWindow		Implicite
+Settings	ConfigWindow		Configurări
 Edit user templates…	TemplatesMenu		Edit user templates…
 File deleted	GitRepository		File deleted
 File deleted from index	GitRepository		File deleted from index
@@ -418,9 +418,9 @@ File modified on index	GitRepository		File modified on index
 New file	GitRepository		New file
 New file staged	GitRepository		New file staged
 Genio	System name		Genio
-Global settings applied	EditorStatusView		Global settings applied
+Global settings applied	EditorStatusView		Configurările globale aplicate
 No LSP file status information	EditorStatusView		No LSP file status information
-Settings in .editorconfig applied	EditorStatusView		Settings in .editorconfig applied
+Settings in .editorconfig applied	EditorStatusView		Configurările în .editorconfig aplicate
 Loading project	ProjectOpenerWindow		Loading project
 Loading project '%project_name%'	ProjectOpenerWindow		Loading project '%project_name%'
 Location	SearchResultPanel		Location

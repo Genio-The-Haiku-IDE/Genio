@@ -1,0 +1,429 @@
+1	Dutch	application/x-vnd.Genio	1940528103
+(follow editor style)	TermView		(follow editor style)
+(follow system style)	TermView		(follow system style)
+Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
+Clear	TermView		Clear
+Stop	TermView		Stop
+Wrap	TermView	As in wrapping long lines. Short as possible.	Wrap
+(follow editor style)	SettingsWindow		(follow editor style)
+(follow system style)	SettingsWindow		(follow system style)
+Appearance	SettingsWindow		Appearance
+Auto collapse/expand projects	SettingsWindow		Auto collapse/expand projects
+Auto-Build on resource save	SettingsWindow		Auto-Build on resource save
+Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
+Build	SettingsWindow		Build
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Console banner
+Console style:	SettingsWindow		Console style:
+Convert tabs to spaces	SettingsWindow		Convert tabs to spaces
+Default font	SettingsWindow		Default font
+Default size	SettingsWindow		Standaard grootte
+Editor	SettingsWindow		Editor
+Editor style:	SettingsWindow		Editor style:
+Editor zoom:	SettingsWindow		Editor zoom:
+Enable brace matching	SettingsWindow		Enable brace matching
+Enable syntax highlighting	SettingsWindow		Schakel syntax benadruking in
+Exclude folders:	SettingsWindow		Exclude folders:
+Find	SettingsWindow		Find
+Font size:	SettingsWindow		Font grootte:
+Font:	SettingsWindow		Font:
+Force showing Build log panel when building	SettingsWindow		Force showing Build log panel when building
+General	SettingsWindow		General
+Ignore .editorconfig	SettingsWindow		Ignore .editorconfig
+Log destination:	SettingsWindow		Log bestemming:
+Log level:	SettingsWindow		Log level:
+Log size:	SettingsWindow		Log size:
+Mark caret line	SettingsWindow		Markeer de Caret Line
+Match case	SettingsWindow	Short as possible.	Match case
+Projects folder:	SettingsWindow		Project map:
+Reload files	SettingsWindow		Herlaad bestanden
+Reload projects	SettingsWindow		Herlaad projecten
+Save caret position	SettingsWindow		Caret positie opslaan
+Set ruler to column:	SettingsWindow		Set ruler to column:
+Show bottom pane	SettingsWindow		Show bottom pane
+Show comment margin	SettingsWindow		Toon commentaarmarge
+Show folding margin	SettingsWindow		Show folding margin
+Show full path in window title	SettingsWindow		Toon volledig pad in venster titel
+Show left pane	SettingsWindow		Show left pane
+Show line endings	SettingsWindow		Show line endings
+Show line numbers	SettingsWindow		Show line numbers
+Show repository outline	SettingsWindow		Show repository outline
+Show right pane	SettingsWindow		Show right pane
+Show statusbar	SettingsWindow		Show statusbar
+Show toolbar	SettingsWindow		Toon werkbalk
+Show vertical ruler	SettingsWindow		Show vertical ruler
+Show whitespace	SettingsWindow		Show whitespace
+Source control	SettingsWindow		Source control
+Startup	SettingsWindow		Startup
+Tab width:	SettingsWindow		Tab breedte:  
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	These are only applied if no .editorconfig is used:
+This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
+Trim trailing whitespace on save	SettingsWindow		Trim trailing witspatie bij opslaan
+Use smaller icons in toolbar	SettingsWindow		Use smaller icons in toolbar
+Visuals	SettingsWindow		Visuals
+Whole word	SettingsWindow	Short as possible.	Whole word
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Wrap around
+Wrap lines	SettingsWindow		Wrap lines
+Wrap lines in console	SettingsWindow		Wrap lines in console
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
+1 element replaced	Editor		1 element replaced
+Cancel	Editor		Annuleer
+Do you want to set a starting index?	Editor		Wil je een start index instellen?
+Don't save	Editor		Niet opslaan
+Index	Editor		Index
+No matches found.	Editor		No matches found.
+Rename	Editor		Hernoem
+Rename symbol '%symbol_name%':	Editor		Hernoem symbool '%symbol_name%':
+Save	Editor		Opslaan
+Save changes to file \"%filename%\"?	Editor		Veranderingen opslaan in  \"%filename%\"?
+Save dialog	Editor		Dialoog opslaan
+About…	GenioWindow		Over…
+An error occurred while switching branch:	GenioWindow		Een fout is opgetreden tijdens het wisselen van branch:
+Appearance	GenioWindow		Uiterlijk
+Autocomplete	GenioWindow		Autocomplete
+Bookmark	GenioWindow		Bladwijzer
+Bookmark all	GenioWindow		Bladwijzers voor allen
+Branch	GenioWindow	The git command	Branch
+Build log	GenioWindow		Bouwen log
+Build mode	GenioWindow		Bouwen modus
+Build project	GenioWindow		Bouw project
+Cancel	GenioWindow		Annuleer
+Clean project	GenioWindow		Project wissen
+Clear all	GenioWindow	Bookmark menu	Alles wissen
+Close	GenioWindow		Sluiten
+Close active project	GenioWindow		Aktief project sluiten
+Close all	GenioWindow		Alles sluiten
+Close file	GenioWindow		Bestand sluiten
+Close other	GenioWindow		Sluit ander
+Comment selected lines	GenioWindow		Commentaar toevoegen aan selectie
+Configure	GenioWindow		Configure
+Conflicts	GenioWindow		Conflicten
+Console I/O	GenioWindow		Console I/O
+Copy	GenioWindow		Kopiëer
+Could not create a new file	GenioWindow		Kan geen nieuw bestand aanmaken
+Could not delete \"%name%\".\n\n	GenioWindow		Verwijderen niet gelukt van \"%name%\".\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
+Cut	GenioWindow		Knip
+Debug	GenioWindow		Debug
+Debug project	GenioWindow		Debug project
+Delete	GenioWindow		Verwijder
+Delete current line	GenioWindow		Verwijder huidig bestand
+Delete dialog	GenioWindow		Verwijder dialoog
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Verwijder item: \"%name%\".\n\nNa verwijderen is het item verdwenen.\nWil je dit werkelijk verwijderen?
+Discard	GenioWindow		Negeren
+Don't save	GenioWindow		Niet opslaan
+Duplicate current line	GenioWindow		Dupliceer huidige lijn
+Edit	GenioWindow		Bewerk
+Error creating folder	GenioWindow		Fout aanmaken map
+File	GenioWindow		Bestand
+File \"%file%\" was apparently modified, reload it?	GenioWindow		Bestand \"%file%\" blijkt veranderd, herladen?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		Bestand \"%file%\" is blijkbaar verplaatst.\nWil je dit negeren, sluiten of herladen?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		Bestand \"%file%\" is blijkbaar verwijderd.\nWil je het bestand behouden of negeren?\nIndien behouden en aangepast, opslaan of het is verloren.
+Find	GenioWindow		Zoek
+Find in project	GenioWindow		Zoek in project
+Find next	GenioWindow		Zoek volgende
+Find previous	GenioWindow		Zoek vorige
+Find:	GenioWindow		Zoek:
+Focus mode	GenioWindow		Focus mode
+Fold/Unfold all	GenioWindow		Alles in/uitklappen
+Format	GenioWindow		Formatteer
+Fullscreen	GenioWindow		Volledig scherm
+Genio project…	GenioWindow		Genio project…
+Git	GenioWindow		Git
+Go back	GenioWindow		Ga terug
+Go forward	GenioWindow		Ga vooruit
+Go to declaration	GenioWindow		Ga naar declaratie
+Go to definition	GenioWindow		Ga naar definitie
+Go to implementation	GenioWindow		Ga naar implimentatie
+Go to line…	GenioWindow		Ga naar lijn...
+Go to next tab	GenioWindow		Ga naar volgende tab
+Go to previous tab	GenioWindow		Ga naar vorige tab
+Help…	GenioWindow		Help…
+Ignore	GenioWindow		Negeren
+Import as RDEF array…	GenioWindow		Import als RDEF reeks…
+Invalid project folder	GenioWindow		Ongeldige project map
+Keep	GenioWindow		Behouden
+Language	GenioWindow		Taal
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
+Line endings	GenioWindow		Lijn eindes
+Log	GenioWindow	The git command	Log
+Log (oneline)	GenioWindow	The git command	Log (oneline)
+Make bindcatalogs	GenioWindow		Make bindcatalogs
+Make catkeys	GenioWindow		Make catkeys
+Make file read-only	GenioWindow		Maar bestand alleen-lezen
+Match case	GenioWindow	Short as possible.	Match case
+New	GenioWindow		Nieuw
+New file	GenioWindow		Nieuw bestand
+New folder	GenioWindow		Nieuwe map
+Next	GenioWindow	Bookmark menu	Volgende
+Open in Terminal	GenioWindow		Open in Terminal
+Open project…	GenioWindow		Open project…
+Open recent…	GenioWindow		Open recent…
+Open remote project…	GenioWindow		Open project op afstand…
+Open…	GenioWindow		Open…
+Overwrite	GenioWindow		Overschrijven
+Paste	GenioWindow		Plakken
+Previous	GenioWindow	Bookmark menu	Vorige
+Project	GenioWindow		Project
+Project settings…	GenioWindow		Project instellingen…
+Project:	GenioWindow		Project:
+Pull	GenioWindow	The git command	Pull
+Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Quit	GenioWindow		Afsluiten
+Read-only	GenioWindow		Alleen-lezen
+Redo	GenioWindow		Overdoen
+Release	GenioWindow		Release
+Reload	GenioWindow		Herladen
+Reload .editorconfig	GenioWindow		Herlaad .editorconfig
+Rename symbol…	GenioWindow		Hernoem symbool…
+Replace	GenioWindow		Vervang
+Replace all	GenioWindow		Vervang alles
+Replace and find next	GenioWindow		Vervang en vind volgende
+Replace and find previous	GenioWindow		Vervang en vind vorige
+Replace selection	GenioWindow		Vervang selectie
+Replace:	GenioWindow		Vervang:
+Reset zoom	GenioWindow		Reset zoom
+Run	GenioWindow		Start bouwen
+Run console program	GenioWindow		Start console programma
+Run target	GenioWindow		Start doel
+Run:	GenioWindow		Start:
+Save	GenioWindow		Opslaan
+Save all	GenioWindow		Alles opslaan
+Save all files	GenioWindow		Alle bestanden opslaan
+Save as…	GenioWindow		Opslaan als...
+Save changes to file \"%file%\"	GenioWindow		Veranderingen opslaan in \"%file%\"
+Save current file	GenioWindow		Huidig bestand opslaan
+Search	GenioWindow		Zoek
+Select all	GenioWindow		Selecteer alles
+Set active	GenioWindow		Zet aktief
+Settings…	GenioWindow		Instellingen…
+Show bottom pane	GenioWindow		Toon onderste paneel
+Show config	GenioWindow	The git command	Toon configuratie
+Show in projects browser	GenioWindow		Toon in project beheerder
+Show in Tracker	GenioWindow		Toon in Tracker
+Show left pane	GenioWindow		Toon links paneel
+Show line endings	GenioWindow		Toon lijn eindes
+Show right pane	GenioWindow		Toon rechts paneel
+Show statusbar	GenioWindow		Toon statusbar
+Show toolbar	GenioWindow		Toon werkbalk
+Show whitespace	GenioWindow		Toon witspatie
+Show whitespace and line endings	GenioWindow		Toon witspatie en lijn eindes
+Show/Hide bottom pane	GenioWindow		Toon/verberg onderste paneel
+Show/Hide find bar	GenioWindow		Toon/verberg vind balk
+Show/Hide left pane	GenioWindow		Toon/verberg links paneel
+Show/Hide replace bar	GenioWindow		Toon/verberg vervang balk
+Show/Hide right pane	GenioWindow		Toon/verberg rechts paneel
+Status	GenioWindow	The git command	Status
+Status (short)	GenioWindow	The git command	Status (short)
+Switch source/header	GenioWindow		Wissel bron/header
+Switch to branch	GenioWindow		Switch to branch
+Tag	GenioWindow	The git command	Tag
+Toggle	GenioWindow	Bookmark menu	Schakelaar
+Tools	GenioWindow		Tools
+Trim trailing whitespace	GenioWindow		Trim trailing wit spatie
+Undo	GenioWindow		Ongedaan maken
+View	GenioWindow		Bekijk
+Whole word	GenioWindow	Short as possible.	Whole word
+Window	GenioWindow		Venster
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Wrap around
+Wrap lines	GenioWindow		Wrap lines
+Zoom in	GenioWindow		Inzoemen
+Zoom out	GenioWindow		Uitzoemen
+Actions	SourceControlPanel		Actions
+An unknown error occurred.	SourceControlPanel		An unknown error occurred.
+Cancel	SourceControlPanel		Cancel
+Changes stashed.	SourceControlPanel		Changes stashed.
+Choose branch…	SourceControlPanel		Choose branch…
+Choose project…	SourceControlPanel		Choose project…
+Conflicts	SourceControlPanel		Conflicts
+Copy name	SourceControlPanel		Copy name
+Create branch	SourceControlPanel		Create branch
+Create initial commit	SourceControlPanel		Create initial commit
+Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
+Current branch:	SourceControlPanel		Current branch:
+Delete	SourceControlPanel		Delete
+Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
+Delete dialog	SourceControlPanel		Delete dialog
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
+Do not create the initial commit	SourceControlPanel		Do not create the initial commit
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
+Enter a message for this stash	SourceControlPanel		Enter a message for this stash
+Fetch	SourceControlPanel		Fetch
+Fetch completed.	SourceControlPanel		Fetch completed.
+Fetch prune	SourceControlPanel		Fetch prune
+Fetch prune completed.	SourceControlPanel		Fetch prune completed.
+Init repository	SourceControlPanel		Init repository
+Local branches	SourceControlPanel		Local branches
+New branch name:	SourceControlPanel		New branch name:
+OK	SourceControlPanel		OK
+Project:	SourceControlPanel		Project:
+Remote branches	SourceControlPanel		Remote branches
+Remotes	SourceControlPanel		Remotes
+Rename \"%selected_branch%\"	SourceControlPanel		Rename \"%selected_branch%\"
+Rename branch	SourceControlPanel		Rename branch
+Rename branch:	SourceControlPanel		Rename branch:
+Repository	SourceControlPanel		Repository
+Source control	SourceControlPanel		Source control
+Stash apply changes	SourceControlPanel		Stash apply changes
+Stash changes	SourceControlPanel		Stash changes
+Stash pop changes	SourceControlPanel		Stash pop changes
+Stashed changes applied.	SourceControlPanel		Stashed changes applied.
+Stashed changes popped.	SourceControlPanel		Stashed changes popped.
+Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
+Tags	SourceControlPanel		Tags
+The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
+Active	EditorTabManager		Aktief
+Project	EditorTabManager		Project
+alpha	Utilities		alpha
+beta	Utilities		beta
+development	Utilities		development
+gamma	Utilities		gamma
+gold master	Utilities		gold master
+OK	Utilities		OK
+Version	Utilities		Version
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Een fout is opgetreden bij het hernoemen van het bestand
+Build mode	ProjectsFolderBrowser		Build mode
+Build project	ProjectsFolderBrowser		Bouw project
+Clean project	ProjectsFolderBrowser		Wissen project
+Close project	ProjectsFolderBrowser		Sluit project
+Current branch	ProjectsFolderBrowser		Current branch
+Debug	ProjectsFolderBrowser		Debug
+Delete file	ProjectsFolderBrowser		Verwijder bestand
+Delete folder	ProjectsFolderBrowser		Verwijder map
+Drop folder here	ProjectsFolderBrowser		Drop folder here
+New	ProjectsFolderBrowser		Nieuw
+OK	ProjectsFolderBrowser		OK
+Open file	ProjectsFolderBrowser		Open bestand
+Path	ProjectsFolderBrowser		Path
+Project	ProjectsFolderBrowser		Project
+Project settings…	ProjectsFolderBrowser		Project instellingen…
+Release	ProjectsFolderBrowser		Release
+Rename file	ProjectsFolderBrowser		Hernoem bestand
+Rename folder	ProjectsFolderBrowser		Hernoem map
+Set active	ProjectsFolderBrowser		Stel aktief
+Switch to branch	ProjectsFolderBrowser		Switch to branch
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		De project map is verwijderd of verplaatst naar een andere locatie en wordt gesloten en gelost van de werkplaats.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		De project map is hernoemd. Deze wordt gesloten en automatisch opnieuw geladen.
+Another command is running.	ConsoleIOView		Een ander commando draait al.
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
+Clear	ConsoleIOView		Wissen
+Restarting build…	ConsoleIOView		Herstarten bouwen...
+stderr	ConsoleIOView		stderr
+stdout	ConsoleIOView		stdout
+Stop	ConsoleIOView		Stop
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Omkader
+Array	FunctionsOutlineView		Reeks
+Boolean	FunctionsOutlineView		Boolean
+Class	FunctionsOutlineView		Class
+Constant	FunctionsOutlineView		Constant
+Constructor	FunctionsOutlineView		Constructor
+Creating outline	FunctionsOutlineView		Schets maken
+Enum	FunctionsOutlineView		Enum
+Enum member	FunctionsOutlineView		Enum lid
+Event	FunctionsOutlineView		Event
+Field	FunctionsOutlineView		Veld
+File	FunctionsOutlineView		Bestand
+Function	FunctionsOutlineView		Functie
+Go to symbol	FunctionsOutlineView		Ga naar symbool
+Interface	FunctionsOutlineView		Omgeving
+Key	FunctionsOutlineView		Sleutel
+Method	FunctionsOutlineView		Methode
+Module	FunctionsOutlineView		Module
+Namespace	FunctionsOutlineView		Namespace
+No outline available	FunctionsOutlineView		Geen omgeving beschikbaar
+Null	FunctionsOutlineView		Null
+Object	FunctionsOutlineView		Object
+Operator	FunctionsOutlineView		Operator
+Outline	FunctionsOutlineView		Omgeving
+Package	FunctionsOutlineView		Pakket
+Property	FunctionsOutlineView		Eigenschap
+Rename symbol…	FunctionsOutlineView		Hernoem symbool…
+Sort	FunctionsOutlineView		Sorteer
+String	FunctionsOutlineView		String
+Structure	FunctionsOutlineView		Structuur
+Type parameter	FunctionsOutlineView		Type parameter
+Variable	FunctionsOutlineView		Variable
+Base path:	RemoteProjectWindow		Basis pad:
+Browse…	RemoteProjectWindow		Browse…
+Cancel	RemoteProjectWindow		Annuleer
+Clone	RemoteProjectWindow		Clone
+Close	RemoteProjectWindow		Close
+Continue	RemoteProjectWindow		Verder gaan
+Destination folder:	RemoteProjectWindow		Destination folder:
+Do you want to stop cloning the repository?	RemoteProjectWindow		Wil je stoppen met het clonen van de repositorie?
+Open remote Git project	RemoteProjectWindow		Open Git project op afstand
+Stop	RemoteProjectWindow		Stop
+The local path is not valid or does not exist	RemoteProjectWindow		Het lokale pad is ongeldig of bestaat niet
+URL:	RemoteProjectWindow		URL:
+Build	ProjectSettingsWindow		Build
+Build command:	ProjectSettingsWindow		Build command:
+Build file path:	ProjectSettingsWindow		Build file path:
+Build mode:	ProjectSettingsWindow		Build mode:
+Clean command:	ProjectSettingsWindow		Clean command:
+Color:	ProjectSettingsWindow		Color:
+Execute args:	ProjectSettingsWindow		Execute args:
+Release	ProjectSettingsWindow		Release
+Run	ProjectSettingsWindow		Run
+Run in terminal	ProjectSettingsWindow		Start in Terminal
+Target:	ProjectSettingsWindow		Target:
+Building project '\"%project%\"'…	GlobalStatusView		Building project '\"%project%\"'…
+Cleaning project '\"%project%\"'…	GlobalStatusView		Cleaning project '\"%project%\"'…
+Failed building project '\"%project%\"'	GlobalStatusView		Failed building project '\"%project%\"'
+Failed cleaning project '\"%project%\"'	GlobalStatusView		Failed cleaning project '\"%project%\"'
+Finished building project '\"%project%\"'	GlobalStatusView		Finished building project '\"%project%\"'
+Finished cleaning project '\"%project%\"'	GlobalStatusView		Finished cleaning project '\"%project%\"'
+Cancel	GoToLineWindow		Annuleer
+Go to line	GoToLineWindow		Ga naar lijn
+Go to line:	GoToLineWindow		Ga naar lijn:
+OK	GoToLineWindow		OK
+Cancel	QuitAlert		Annuleer
+Don't save	QuitAlert		Niet opslaan
+Save all	QuitAlert		Alles opslaan
+Save selected	QuitAlert		Geselecteerde opslaan
+There are unsaved changes.\nSelect the files to save.	QuitAlert		Er zijn niet opgeslagen veranderingen.\nSelecteer de bestanden om op te slaan.
+Unsaved files	QuitAlert		Niet opgeslagen bestanden
+Cancel	GitCredentialsWindow		Cancel
+Git - User Credentials	GitCredentialsWindow		Git - User Credentials
+Git - Username	GitCredentialsWindow		Git - Username
+OK	GitCredentialsWindow		OK
+Password:	GitCredentialsWindow		Password:
+Username:	GitCredentialsWindow		Username:
+Cancel	GTextAlert		Cancel
+OK	GTextAlert		OK
+Category	ProblemsPanel		Categorie
+Line	ProblemsPanel		Line
+Message	ProblemsPanel		Boodschap
+No fix available	ProblemsPanel		No fix available
+Problems	ProblemsPanel		Problemen
+Source	ProblemsPanel		Bron
+Choose project…	SearchResultTab		Choose project…
+Find in project	SearchResultTab		Find in project
+Match case	SearchResultTab	Short as possible.	Match case
+Project:	SearchResultTab		Project:
+Whole word	SearchResultTab	Short as possible.	Whole word
+Contributors:	GenioApp		Ontwikkelaars:
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is een fork van Ideam en beschikbaar onder de MIT licentie.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio gebruikt:\nScintilla lib\nCopyright 1998-2003 door Neil Hodgson <neilh@scintilla.org>\n\nScintilla voor Haiku\nCopyright 2011 door Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 door Kacper Kasper <kacperkasper@gmail.com>\n\n
+Made with love in Italy	GenioApp		Met liefde gemaakt in Italië
+See credits for a complete list.\n\n	GenioApp		Bekijk credits voor een complete lijst.\n\n
+Defaults	ConfigWindow		Standaard
+Settings	ConfigWindow		Instellingen
+Edit user templates…	TemplatesMenu		Bewerk gebruiker templates…
+File deleted	GitRepository		File deleted
+File deleted from index	GitRepository		File deleted from index
+File modified	GitRepository		File modified
+File modified on index	GitRepository		File modified on index
+New file	GitRepository		New file
+New file staged	GitRepository		New file staged
+Genio	System name		Genio
+Global settings applied	EditorStatusView		Globale instellingen toegepast
+No LSP file status information	EditorStatusView		Geen LSP file status informatie
+Settings in .editorconfig applied	EditorStatusView		Instellingen in .editorconfig toegepast
+Loading project	ProjectOpenerWindow		Loading project
+Loading project '%project_name%'	ProjectOpenerWindow		Loading project '%project_name%'
+Location	SearchResultPanel		Locatie
+Search results	SearchResultPanel		Zoek resultaten
+New folder	TemplateManager		Nieuwe map
+OK	GitAlert		OK

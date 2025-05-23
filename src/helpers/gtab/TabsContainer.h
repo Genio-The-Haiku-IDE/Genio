@@ -35,6 +35,10 @@ public:
 
 	tab_affinity	GetAffinity() const { return fAffinity; }
 
+	float	TabMinWidth(GTab* tab);
+	float	TabMaxWidth(GTab* tab);
+	
+	// Hooks
 	void	OnDropTab(GTab* toTab, BMessage* message);
 	void	MouseDownOnTab(GTab* tab, BPoint where, const int32 buttons);
 

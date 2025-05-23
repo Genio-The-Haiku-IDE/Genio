@@ -153,6 +153,27 @@ TabsContainer::SetFrontTab(GTab* tab)
 }
 
 
+float
+TabsContainer::TabMinWidth(GTab* tab)
+{
+	if (fGTabView->ButtonWidth() == B_WIDTH_AS_USUAL)
+		return 100.0f;
+	
+	debugger("tab width mode not implemented!");
+	return 0;
+}
+
+
+float
+TabsContainer::TabMaxWidth(GTab* tab)
+{
+	if (fGTabView->ButtonWidth() == B_WIDTH_AS_USUAL)
+		return 150.0f;
+	debugger("tab width mode not implemented!");
+	return 0;
+}
+
+
 void
 TabsContainer::ShiftTabs(int32 delta, const char* src)
 {

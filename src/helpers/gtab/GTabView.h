@@ -25,6 +25,7 @@ class GTabView : public BGroupView {
 					GTabView(const char* name,
 							 tab_affinity affinity,
 							 orientation orientation = B_HORIZONTAL,
+							 button_width width = B_WIDTH_AS_USUAL,
 							 bool closeButton = false,
 							 bool menuButton = false);
 
@@ -38,6 +39,8 @@ class GTabView : public BGroupView {
 			void	MoveTabs(GTab* fromTab, GTab* toTab, TabsContainer* fromContainer);
 			void	SelectTab(GTab* tab);
 
+	button_width	ButtonWidth() const { return fWidth; }
+	
 	virtual void	OnMenuTabButton();
 
 	protected:
@@ -57,7 +60,6 @@ class GTabView : public BGroupView {
 			BCardView*	CardView() const { return fCardView;}
 		virtual BMenuItem* CreateMenuItem(GTab*);
 
-
 	private:
 		void	_Init(tab_affinity affinity);
 		void	_FixContentOrientation(BView* view);
@@ -68,7 +70,8 @@ class GTabView : public BGroupView {
 		GTabScrollRightButton*	fScrollRightTabButton;
 		GTabMenuTabButton*		fTabMenuTabButton;
 		BCardView*				fCardView;
-		bool					fCloseButton;
 		orientation				fContentOrientation;
+		button_width			fWidth;
+		bool					fCloseButton;
 		bool					fMenuButton;
 };

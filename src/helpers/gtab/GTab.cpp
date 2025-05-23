@@ -95,7 +95,7 @@ BSize
 GTab::MinSize()
 {
 	BSize size(MaxSize());
-	size.width = 100.0f;
+	size.width = Container()->TabMinWidth(this);
 	return size;
 }
 
@@ -103,8 +103,7 @@ GTab::MinSize()
 BSize
 GTab::MaxSize()
 {
-	float labelWidth = 150.0f;
-	return BSize(labelWidth, TabViewTools::DefaultTabHeight());
+	return BSize(Container()->TabMaxWidth(this), TabViewTools::DefaultTabHeight());
 }
 
 

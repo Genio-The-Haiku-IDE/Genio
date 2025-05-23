@@ -70,7 +70,6 @@ class GTabDropZone : Draggable {
 
 		bool				fTabDragging = false;
 		TabsContainer*		fTabsContainer;
-
 };
 
 

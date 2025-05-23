@@ -156,10 +156,15 @@ TabsContainer::SetFrontTab(GTab* tab)
 float
 TabsContainer::TabMinWidth(GTab* tab)
 {
-	if (fGTabView->ButtonWidth() == B_WIDTH_AS_USUAL)
-		return 100.0f;
-	
-	debugger("tab width mode not implemented!");
+	switch (fGTabView->ButtonWidth()) {
+		case B_WIDTH_AS_USUAL:
+			return 100.0f;
+		case B_WIDTH_FROM_LABEL:
+			return StringWidth(tab->Label());
+		default:
+			debugger("tab width mode not implemented!");
+			break;
+	}
 	return 0;
 }
 
@@ -167,9 +172,15 @@ TabsContainer::TabMinWidth(GTab* tab)
 float
 TabsContainer::TabMaxWidth(GTab* tab)
 {
-	if (fGTabView->ButtonWidth() == B_WIDTH_AS_USUAL)
-		return 150.0f;
-	debugger("tab width mode not implemented!");
+	switch (fGTabView->ButtonWidth()) {
+		case B_WIDTH_AS_USUAL:
+			return 150.0f;
+		case B_WIDTH_FROM_LABEL:
+			return StringWidth(tab->Label());
+		default:
+			debugger("tab width mode not implemented!");
+			break;
+	}
 	return 0;
 }
 

@@ -4,18 +4,16 @@
  */
 #pragma once
 
-
+#include <Archivable.h>
 #include <SupportDefs.h>
-#include "TermScrollView.h"
 
+enum {
+	TERMVIEW_CLEAR = 'clea'
+};
 
-class GenioTermView : public TermScrollView {
+class GenioTermView  {
 public:
-
 	static	BArchivable*		Instantiate(BMessage* data);
-
-private:
-
 };
 
 

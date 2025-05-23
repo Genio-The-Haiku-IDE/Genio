@@ -6,6 +6,7 @@
 
 #include "GenioTermView.h"
 #include "ShellInfo.h"
+#include "TermScrollView.h"
 #include "TermView.h"
 #include <ControlLook.h>
 #include <Messenger.h>
@@ -45,7 +46,7 @@ public:
 
 	TermView*	GetTermView() { return fTermView; }
 
-	void DefaultColors()
+	void DefaultSettings()
 	{
 		PrefHandler* handler = PrefHandler::Default();
 		rgb_color background = handler->getRGB(PREF_TEXT_BACK_COLOR);
@@ -80,8 +81,56 @@ public:
 			PREF_ANSI_WHITE_HCOLOR
 		};
 
-		for (uint i = 0; i < kANSIColorCount; i++)
+		for (uint i = 0; i < kANSIColorCount; i++) {
 			termView->SetTermColor(i, handler->getRGB(keys[i]), false);
+		}
+
+		uint colorIndex = kANSIColorCount;
+		// 16 - 231 are 6x6x6 color "cubes" in xterm color model
+		for (uint red = 0; red < 256; red += (red == 0) ? 95 : 40)
+			for (uint green = 0; green < 256; green += (green == 0) ? 95 : 40)
+				for (uint blue = 0; blue < 256; blue += (blue == 0) ? 95 : 40) {
+					termView->SetTermColor(colorIndex++,
+											rgb_color{static_cast<uint8>(red),
+													  static_cast<uint8>(green),
+													  static_cast<uint8>(blue)}, false);
+				}
+
+		// 232 - 255 are grayscale ramp in xterm color model
+		for (uint gray = 8; gray < 240; gray += 10)
+			termView->SetTermColor(colorIndex++,
+									rgb_color{static_cast<uint8>(gray),
+											  static_cast<uint8>(gray),
+											  static_cast<uint8>(gray)}, false);
+
+		//Setting font
+		font_family family;
+		font_style style;
+
+		const char *prefFamily = handler->getString(PREF_HALF_FONT_FAMILY);
+		int32 familiesCount = (prefFamily != NULL) ? count_font_families() : 0;
+
+		for (int32 i = 0; i < familiesCount; i++) {
+			if (get_font_family(i, &family) != B_OK
+				|| strcmp(family, prefFamily) != 0)
+				continue;
+
+			const char *prefStyle = handler->getString(PREF_HALF_FONT_STYLE);
+			int32 stylesCount = (prefStyle != NULL) ? count_font_styles(family) : 0;
+
+			for (int32 j = 0; j < stylesCount; j++) {
+				// check style if we can safely use this font
+				if (get_font_style(family, j, &style) == B_OK
+					&& strcmp(style, prefStyle) == 0) {
+						const char* size = handler->getString(PREF_HALF_FONT_SIZE);
+						BFont font;
+						font.SetFamilyAndStyle(family, style);
+						font.SetSize(::atof(size));
+						termView->SetTermFont(&font);
+					}
+			}
+		}
+
 	}
 private:
 	TermView*	fTermView;
@@ -125,7 +174,7 @@ public:
 	void	MessageReceived(BMessage* msg)
 	{
 		switch(msg->what) {
-			case 'clea':
+			case TERMVIEW_CLEAR:
 				TermView::Clear();
 			break;
 /*			case 'teme':
@@ -189,7 +238,7 @@ GenioTermView::Instantiate(BMessage* data)
 				->ResizeBy(0, -(be_control_look->GetScrollBarWidth(B_VERTICAL) - 1));
 
 
-		containerView->DefaultColors();
+		containerView->DefaultSettings();
 
 		return scrollView;
 	}

@@ -8,7 +8,7 @@ resource app_version {
 	middle = 0,
 	minor  = 0,
 
-	variety = B_APPV_DEVELOPMENT,
+	variety = B_APPV_FINAL,
 	internal = 1,
 
 	short_info = "An IDE for Haiku",

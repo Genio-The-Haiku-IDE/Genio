@@ -156,32 +156,59 @@ TabsContainer::SetFrontTab(GTab* tab)
 float
 TabsContainer::TabMinWidth(GTab* tab)
 {
+	float resultWidth = 0;
 	switch (fGTabView->ButtonWidth()) {
-		case B_WIDTH_AS_USUAL:
-			return 100.0f;
 		case B_WIDTH_FROM_LABEL:
-			return StringWidth(tab->Label());
+			resultWidth = StringWidth(tab->Label());
+			break;
+		case B_WIDTH_FROM_WIDEST:
+		{
+			// TODO: This has a huge performance hit since
+			// it calls StringWidth() on every tab on every call.
+			float maxWidth = 0;
+			for (int32 i = 0; i < CountTabs(); i++) {
+				float width = StringWidth(TabAt(i)->Label());
+				if (width > maxWidth)
+					maxWidth = width;
+			}
+			resultWidth = maxWidth;
+			break;
+		}
+		case B_WIDTH_AS_USUAL:
 		default:
-			debugger("tab width mode not implemented!");
+			resultWidth = 100.0f;
 			break;
 	}
-	return 0;
+	return resultWidth;
 }
 
 
 float
 TabsContainer::TabMaxWidth(GTab* tab)
 {
+	float resultWidth = 0;
 	switch (fGTabView->ButtonWidth()) {
-		case B_WIDTH_AS_USUAL:
-			return 150.0f;
 		case B_WIDTH_FROM_LABEL:
-			return StringWidth(tab->Label());
+			resultWidth = StringWidth(tab->Label());
+			break;
+		case B_WIDTH_FROM_WIDEST:
+		{
+			// TODO: See above
+			float maxWidth = 0;
+			for (int32 i = 0; i < CountTabs(); i++) {
+				float width = StringWidth(TabAt(i)->Label());
+				if (width > maxWidth)
+					maxWidth = width;
+			}
+			resultWidth = maxWidth;
+			break;
+		}
+		case B_WIDTH_AS_USUAL:
 		default:
-			debugger("tab width mode not implemented!");
+			resultWidth = 150.0f;
 			break;
 	}
-	return 0;
+	return resultWidth;
 }
 
 

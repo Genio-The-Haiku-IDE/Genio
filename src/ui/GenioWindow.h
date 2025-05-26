@@ -72,6 +72,8 @@ private:
 			status_t			_BuildProject();
 			status_t			_CleanProject();
 
+			status_t			_DoBuildOrCleanProject(const BString& cmd);
+
 			status_t			_DebugProject();
 			bool				_FileRequestClose(Editor* editor);
 			status_t			_RemoveTab(Editor* editor);

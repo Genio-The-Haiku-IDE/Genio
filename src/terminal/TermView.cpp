@@ -1695,7 +1695,7 @@ TermView::MessageReceived(BMessage *message)
 			// This message originates from the system clipboard. Overwrite
 			// the contents of the mouse clipboard with the ones from the
 			// system clipboard, in case it contains text data.
-			if (be_clipboard->Lock()) {
+			if (fMouseClipboard != be_clipboard && be_clipboard->Lock()) {
 				if (fMouseClipboard->Lock()) {
 					BMessage* clipMsgA = be_clipboard->Data();
 					const char* text;

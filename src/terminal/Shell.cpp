@@ -177,7 +177,8 @@ Shell::Close()
 		kill(-fShellInfo.ProcessID(), SIGHUP);
 		fShellInfo.SetProcessID(-1);
 		int status;
-		wait(&status);
+		waitpid(-fShellInfo.ProcessID(), &status, WNOHANG);
+		//wait(&status);
 		fFd = -1;
 	}
 }

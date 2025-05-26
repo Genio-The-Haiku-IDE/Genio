@@ -1,5 +1,5 @@
 
-resource app_signature "application/x-vnd.Haiku-Terminal";
+resource app_signature "application/x-vnd.Haiku-Terminal2";
 
 resource app_name_catalog_entry "x-vnd.Haiku-Terminal:System name:Terminal";
 

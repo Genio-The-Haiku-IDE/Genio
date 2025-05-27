@@ -82,7 +82,7 @@ If you would like to try a clang++ build:
 
 Execute `make deps && make` in Genio's top directory.
 The executable is created in `app` subdirectory.
-
+After building, copy the `genio_terminal_addon` from src/terminal into the `data` subdirectory.
 Genio can also be built within Genio itself.
 
 ## Contributions

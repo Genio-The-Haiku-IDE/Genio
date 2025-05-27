@@ -28,4 +28,3 @@ private:
 			BButton*			fStopButton;
 			ConsoleIOTab*		fConsoleIOTab;
 };
-

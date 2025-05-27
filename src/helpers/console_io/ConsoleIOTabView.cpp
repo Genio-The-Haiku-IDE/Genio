@@ -19,8 +19,11 @@ enum {
 	MSG_STOP_PROCESS	= 'stpr',
 };
 
+
 ConsoleIOTabView::ConsoleIOTabView(const BString& name, const BMessenger& target)
-	: BGroupView(B_VERTICAL, 0.0f), fWindowTarget(target)
+	:
+	BGroupView(B_VERTICAL, 0.0f),
+	fWindowTarget(target)
 {
 	SetName(name);
 
@@ -40,14 +43,12 @@ ConsoleIOTabView::~ConsoleIOTabView()
 }
 
 
-
 status_t
 ConsoleIOTabView::RunCommand(BMessage* cmd_message)
 {
 	fStopButton->SetEnabled(true);
 	return fConsoleIOTab->RunCommand(cmd_message);
 }
-
 
 
 void
@@ -57,16 +58,15 @@ ConsoleIOTabView::MessageReceived(BMessage* message)
 
 		case CONSOLEIOTHREAD_EXIT:
 			fStopButton->SetEnabled(false);
-
-			if (message->GetBool("internalStop", false) == false) {
+			if (!message->GetBool("internalStop", false)) {
 				fWindowTarget.SendMessage(message);
 			}
-		break;
+			break;
 		case MSG_STOP_PROCESS:
 		{
 			fConsoleIOTab->Stop();
+			break;
 		}
-		break;
 		case MSG_CLEAR_OUTPUT:
 		{
 			Clear();
@@ -103,7 +103,6 @@ void
 ConsoleIOTabView::_Init(const BMessenger& target)
 {
 	fConsoleIOTab = new ConsoleIOTab("nome", target);
-
 	fClearButton = new BButton(B_TRANSLATE("Clear"), new BMessage(MSG_CLEAR_OUTPUT));
 	fStopButton  = new BButton(B_TRANSLATE("Stop"), new BMessage(MSG_STOP_PROCESS));
 

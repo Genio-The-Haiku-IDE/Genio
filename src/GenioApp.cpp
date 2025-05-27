@@ -25,7 +25,7 @@
 #include "LSPServersManager.h"
 #include "Styler.h"
 #include "Utils.h"
-
+#include "PanelTabManager.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
@@ -503,39 +503,7 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig("Hidden", "run_without_buffering", "run_without_buffering", true);
 	GMessage log_limits = { {"min", 1024}, {"max", 4096} };
 	cfg.AddConfig("Hidden", "log_size", B_TRANSLATE("Log size:"), 1024, &log_limits);
-
-
-	BMessage tabConfig;
-	GMessage tab('TAB ');
-	tab.AddInt32("id", kTabProblems);
-	tab.AddString("panel_group", "bottom_panels");
-	tabConfig.AddMessage("tab", &tab);
-
-	tab.ReplaceInt32("id", kTabBuildLog);
-	tab.ReplaceString("panel_group", "bottom_panels");
-	tabConfig.AddMessage("tab", &tab);
-
-	tab.ReplaceInt32("id", kTabOutputLog);
-	tab.ReplaceString("panel_group", "bottom_panels");
-	tabConfig.AddMessage("tab", &tab);
-
-	tab.ReplaceInt32("id", kTabSearchResult);
-	tab.ReplaceString("panel_group", "bottom_panels");
-	tabConfig.AddMessage("tab", &tab);
-
-	tab.ReplaceInt32("id", kTabProjectBrowser);
-	tab.ReplaceString("panel_group", "left_panels");
-	tabConfig.AddMessage("tab", &tab);
-
-	tab.ReplaceInt32("id", kTabSourceControl);
-	tab.ReplaceString("panel_group", "left_panels");
-	tabConfig.AddMessage("tab", &tab);
-
-	tab.ReplaceInt32("id", kTabOutlineView);
-	tab.ReplaceString("panel_group", "right_panels");
-	tabConfig.AddMessage("tab", &tab);
-
-	cfg.AddConfig("Hidden", "tabviews", "tabviews", tabConfig);
+	cfg.AddConfig("Hidden", "tabviews", "tabviews", PanelTabManager::DefaultConfig());
 }
 
 

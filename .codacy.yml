@@ -8,4 +8,4 @@ exclude_paths:
   - "documentation/**"
   - "src/lexilla/**"
   - "src/scintilla/**"
-  
+  - "src/terminal/**" 

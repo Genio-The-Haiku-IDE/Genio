@@ -32,7 +32,9 @@ SRCS += src/config/GMessage.cpp
 SRCS += src/extensions/ExtensionManager.cpp
 SRCS += src/extensions/ToolsMenu.cpp
 SRCS += src/helpers/ActionManager.cpp
+SRCS += src/helpers/CircleColorMenuItem.cpp
 SRCS += src/helpers/FSUtils.cpp
+SRCS += src/helpers/JumpNavigator.cpp
 SRCS += src/helpers/Languages.cpp
 SRCS += src/helpers/Logger.cpp
 SRCS += src/helpers/MakeFileHandler.cpp
@@ -42,20 +44,16 @@ SRCS += src/helpers/PipeImage.cpp
 SRCS += src/helpers/ResourceImport.cpp
 SRCS += src/helpers/StatusView.cpp
 SRCS += src/helpers/Styler.cpp
+SRCS += src/helpers/TerminalManager.cpp
 SRCS += src/helpers/TextUtils.cpp
 SRCS += src/helpers/Utils.cpp
-SRCS += src/helpers/console_io/ConsoleIOView.cpp
+SRCS += src/helpers/console_io/ConsoleIOTab.cpp
+SRCS += src/helpers/console_io/ConsoleIOTabView.cpp
 SRCS += src/helpers/console_io/ConsoleIOThread.cpp
 SRCS += src/helpers/console_io/GenericThread.cpp
-SRCS += src/helpers/console_io/WordTextView.cpp
-SRCS += src/helpers/mterm/KeyTextViewScintilla.cpp
-SRCS += src/helpers/mterm/MTerm.cpp
-SRCS += src/helpers/mterm/MTermView.cpp
-SRCS += src/helpers/JumpNavigator.cpp
-SRCS += src/helpers/CircleColorMenuItem.cpp
+SRCS += src/helpers/gtab/GTab.cpp
 SRCS += src/helpers/gtab/GTabView.cpp
 SRCS += src/helpers/gtab/TabsContainer.cpp
-SRCS += src/helpers/gtab/GTab.cpp
 SRCS += src/lsp-client/CallTipContext.cpp
 SRCS += src/lsp-client/LSPEditorWrapper.cpp
 SRCS += src/lsp-client/LSPProjectWrapper.cpp
@@ -73,16 +71,18 @@ SRCS += src/git/RemoteProjectWindow.cpp
 SRCS += src/git/RepositoryView.cpp
 SRCS += src/git/SourceControlPanel.cpp
 SRCS += src/git/SwitchBranchMenu.cpp
-SRCS += src/editor/GTabEditor.cpp
-SRCS += src/editor/EditorStatusView.cpp
 SRCS += src/editor/Editor.cpp
+SRCS += src/editor/EditorStatusView.cpp
 SRCS += src/editor/EditorContextMenu.cpp
+SRCS += src/editor/EditorTabView.cpp
+SRCS += src/editor/GTabEditor.cpp
 SRCS += src/ui/FunctionsOutlineView.cpp
 SRCS += src/ui/GenioWindow.cpp
 SRCS += src/ui/GenioSecondaryWindow.cpp
 SRCS += src/ui/GlobalStatusView.cpp
 SRCS += src/ui/GoToLineWindow.cpp
 SRCS += src/ui/IconCache.cpp
+SRCS += src/ui/PanelTabManager.cpp
 SRCS += src/ui/ProblemsPanel.cpp
 SRCS += src/ui/ProjectBrowser.cpp
 SRCS += src/ui/ProjectOpenerWindow.cpp
@@ -90,9 +90,8 @@ SRCS += src/ui/QuitAlert.cpp
 SRCS += src/ui/SearchResultPanel.cpp
 SRCS += src/ui/SearchResultTab.cpp
 SRCS += src/ui/StyledItem.cpp
+SRCS += src/ui/TerminalTab.cpp
 SRCS += src/ui/ToolBar.cpp
-SRCS += src/ui/PanelTabManager.cpp
-SRCS += src/editor/EditorTabView.cpp
 SRCS += src/templates/IconMenuItem.cpp
 SRCS += src/templates/TemplateManager.cpp
 SRCS += src/templates/TemplatesMenu.cpp
@@ -146,6 +145,7 @@ $(OBJ_DIR)/%.rsrc : %.RDEF
 
 deps:
 	$(MAKE) -C src/scintilla/haiku
+	$(MAKE) -C src/terminal -f Makefile.addon DEBUGGER=$(DEBUGGER)
 
 .PHONY: clean deps
 

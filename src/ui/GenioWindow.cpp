@@ -36,7 +36,8 @@
 #include "argv_split.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
-#include "ConsoleIOView.h"
+#include "ConsoleIOTab.h"
+#include "ConsoleIOTabView.h"
 #include "EditorMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
 #include "EditorMessages.h"
@@ -57,7 +58,6 @@
 #include "Languages.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
-#include "MTermView.h"
 #include "PanelTabManager.h"
 #include "ProblemsPanel.h"
 #include "ProjectBrowser.h"
@@ -72,6 +72,7 @@
 #include "Task.h"
 #include "TemplateManager.h"
 #include "TemplatesMenu.h"
+#include "TerminalTab.h"
 #include "ToolsMenu.h"
 #include "Utils.h"
 
@@ -411,9 +412,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case kTermViewDone:
-			_UpdateProjectActivation(GetActiveProject() != nullptr);
-			break;
 		case CONSOLEIOTHREAD_EXIT:
 		{
 			BString cmdType = message->GetString("cmd_type", "");
@@ -3317,14 +3315,19 @@ GenioWindow::_InitTabViews()
 
 	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
-	fBuildLogView = new ConsoleIOView(B_TRANSLATE("Build log"));
-	fMTermView =  new MTermView(B_TRANSLATE("Console I/O"), BMessenger(this));
+
+	fBuildLogView = new ConsoleIOTabView(B_TRANSLATE("Build log"), BMessenger(this));
+	fMTermView 	  = new ConsoleIOTabView(B_TRANSLATE("Console I/O"), BMessenger(this));
+
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
+	fTerminalTab	= new TerminalTab();
 
 	fPanelTabManager->AddPanelByConfig(fProblemsPanel, kTabProblems);
 	fPanelTabManager->AddPanelByConfig(fBuildLogView, kTabBuildLog);
 	fPanelTabManager->AddPanelByConfig(fMTermView, kTabOutputLog);
 	fPanelTabManager->AddPanelByConfig(fSearchResultTab, kTabSearchResult);
+	fPanelTabManager->AddPanelByConfig(fTerminalTab, kTabTerminal);
+
 
 	//LEFT
 	fProjectsFolderBrowser = new ProjectBrowser();
@@ -4449,7 +4452,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	} else if (key.Compare("wrap_lines") == 0) {
 		ActionManager::SetPressed(MSG_WRAP_LINES, gCFG["wrap_lines"]);
 	} else if (key.Compare("wrap_console") == 0) {
-		fBuildLogView->SetWordWrap(gCFG["wrap_console"]);
+//		fBuildLogView->SetWordWrap(gCFG["wrap_console"]);
 	} else if (key.Compare("show_white_space") == 0) {
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		bool same = ((bool)gCFG["show_white_space"] && (bool)gCFG["show_line_endings"]);

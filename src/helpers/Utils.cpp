@@ -413,7 +413,15 @@ GetDataDirectory()
 	// TODO: Would be nice to check this before the other one
 	// but it's troubling when isntalled from packages,
 	// because it ends up in /system/data/ and not in /system/data/Genio/
-	app_info info;
+	return GetNearbyDataDirectory();
+}
+
+// Search for data directory nearby the Genio binary:
+// or in ./data or in ../data/
+BPath
+GetNearbyDataDirectory()
+{
+	BPath genioPath;
 	if (GetGenioDirectory(genioPath)) {
 		genioPath.Append("data");
 		// ./Genio
@@ -426,10 +434,8 @@ GetDataDirectory()
 			genioPath.Append("data");
 		}
 	}
-
 	return genioPath;
 }
-
 
 bool
 IsXMasPeriod()

@@ -196,8 +196,20 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 			return;
 		}
 	}
-
-	debugger("Cant! add a panel tab!");
+	BMessage defaults = DefaultConfig();
+	i=0;
+	while (defaults.FindMessage("tab", i++, &tab) == B_OK) {
+		tab_id tabid = tab.GetInt32("id", 0);
+//				printf("Check %d vs %d\n", tabid, id);
+		if (tabid == id) {
+			const char* panelName = tab.GetString("panel_group", "");
+			_AddPanel(panelName, panel, id, tab.GetInt32("index", -1), false);
+			return;
+		}
+	}
+	BString error("Cant! add a panel to tab! ");
+	error << id;
+	debugger(error.String());
 }
 
 
@@ -275,4 +287,45 @@ PanelTabManager::_GetPanelTabView(const char* sname)
 {
 	assert(fTVList.contains(sname) == true);
 	return fTVList[sname];
+}
+
+
+BMessage
+PanelTabManager::DefaultConfig()
+{
+	BMessage tabConfig;
+	BMessage tab('TAB ');
+	tab.AddInt32("id", kTabProblems);
+	tab.AddString("panel_group", "bottom_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabBuildLog);
+	tab.ReplaceString("panel_group", "bottom_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabOutputLog);
+	tab.ReplaceString("panel_group", "bottom_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabSearchResult);
+	tab.ReplaceString("panel_group", "bottom_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabTerminal);
+	tab.ReplaceString("panel_group", "bottom_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabProjectBrowser);
+	tab.ReplaceString("panel_group", "left_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabSourceControl);
+	tab.ReplaceString("panel_group", "left_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	tab.ReplaceInt32("id", kTabOutlineView);
+	tab.ReplaceString("panel_group", "right_panels");
+	tabConfig.AddMessage("tab", &tab);
+
+	return tabConfig;
 }

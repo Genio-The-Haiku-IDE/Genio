@@ -29,7 +29,7 @@ class BMenu;
 class BMenuField;
 class BTabView;
 class BTextControl;
-class ConsoleIOView;
+class ConsoleIOTab;
 class Editor;
 class FunctionsOutlineView;
 class GoToLineWindow;
@@ -43,7 +43,8 @@ class ToolBar;
 class MTermView;
 class PanelTabManager;
 class EditorTabView;
-
+class TerminalTab;
+class ConsoleIOTabView;
 
 class GenioWindow : public BWindow {
 public:
@@ -226,7 +227,7 @@ private:
 			FunctionsOutlineView* fFunctionsOutlineView;
 
 			// Editor group
-			EditorTabView*	fTabManager;
+			EditorTabView*		fTabManager;
 
 			ToolBar*			fFindGroup;
 			ToolBar*			fReplaceGroup;
@@ -252,10 +253,11 @@ private:
 
 			// Bottom panels
 			ProblemsPanel*		fProblemsPanel;
-			ConsoleIOView*		fBuildLogView;
-			MTermView*			fMTermView;
+			ConsoleIOTabView*	fBuildLogView;
+			ConsoleIOTabView*	fMTermView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultTab*	fSearchResultTab;
+			TerminalTab*		fTerminalTab;
 
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;

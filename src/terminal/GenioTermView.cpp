@@ -5,14 +5,16 @@
 
 
 #include "GenioTermView.h"
+
+#include <ControlLook.h>
+#include <Messenger.h>
+
+#include "Colors.h"
+#include "PrefHandler.h"
 #include "ShellInfo.h"
 #include "TermScrollView.h"
 #include "TermView.h"
-#include <ControlLook.h>
-#include <Messenger.h>
-#include <cstdio>
-#include "PrefHandler.h"
-#include "Colors.h"
+
 
 const static int32 kTermViewOffset = 3;
 #if B_HAIKU_VERSION > B_HAIKU_VERSION_1_BETA_5
@@ -36,7 +38,7 @@ public:
 		termView->SetResizingMode(B_FOLLOW_ALL);
 	}
 
-	virtual void GetPreferredSize(float* _width, float* _height)
+	void GetPreferredSize(float* _width, float* _height) override
 	{
 		float width, height;
 		fTermView->GetPreferredSize(&width, &height);
@@ -44,7 +46,7 @@ public:
 		*_height = height + 2 * kTermViewOffset;
 	}
 
-	TermView*	GetTermView() { return fTermView; }
+	TermView* GetTermView() const { return fTermView; }
 
 	void DefaultSettings()
 	{
@@ -103,80 +105,86 @@ public:
 											  static_cast<uint8>(gray),
 											  static_cast<uint8>(gray)}, false);
 
-		//Setting font
+		// Setting font
 		font_family family;
 		font_style style;
-
 		const char *prefFamily = handler->getString(PREF_HALF_FONT_FAMILY);
-		int32 familiesCount = (prefFamily != NULL) ? count_font_families() : 0;
-
+		const int32 familiesCount = (prefFamily != NULL) ? count_font_families() : 0;
 		for (int32 i = 0; i < familiesCount; i++) {
 			if (get_font_family(i, &family) != B_OK
 				|| strcmp(family, prefFamily) != 0)
 				continue;
 
 			const char *prefStyle = handler->getString(PREF_HALF_FONT_STYLE);
-			int32 stylesCount = (prefStyle != NULL) ? count_font_styles(family) : 0;
-
+			const int32 stylesCount = (prefStyle != NULL) ? count_font_styles(family) : 0;
 			for (int32 j = 0; j < stylesCount; j++) {
 				// check style if we can safely use this font
 				if (get_font_style(family, j, &style) == B_OK
-					&& strcmp(style, prefStyle) == 0) {
-						const char* size = handler->getString(PREF_HALF_FONT_SIZE);
-						BFont font;
-						font.SetFamilyAndStyle(family, style);
-						font.SetSize(::atof(size));
-						termView->SetTermFont(&font);
-					}
+						&& strcmp(style, prefStyle) == 0) {
+					const char* size = handler->getString(PREF_HALF_FONT_SIZE);
+					BFont font;
+					font.SetFamilyAndStyle(family, style);
+					font.SetSize(::atof(size));
+					termView->SetTermFont(&font);
+				}
 			}
 		}
-
 	}
 private:
-	TermView*	fTermView;
+	TermView* fTermView;
 };
+
 
 class GenioListener : public TermView::Listener {
 public:
-  GenioListener(BMessenger &msg) : fMessenger(msg) {};
-
-  virtual ~GenioListener() {};
-
-  // all hooks called in the window thread
-  virtual void NotifyTermViewQuit(TermView *view, int32 reason) {
-    BMessage msg('NOTM');
-	msg.AddInt32("reason", reason);
-	msg.AddPointer("term_view", view);
-	ShellInfo sinfo;
-	if (view->GetShellInfo(sinfo)) {
-		msg.AddInt32("pid", sinfo.ProcessID());
-	}
-	fMessenger.SendMessage(&msg);
-	TermView::Listener::NotifyTermViewQuit(view, reason);
-  }
-
-  BMessenger fMessenger;
-};
-
-class WrapTermView : public TermView
-{
-public:
-	WrapTermView(BMessage* data): TermView(data)
+	GenioListener(BMessenger &msg)
+		:
+		fMessenger(msg)
 	{
 	}
 
-	void	FrameResized(float width, float height)
+	virtual ~GenioListener()
+	{
+	}
+
+	// all hooks called in the window thread
+	void NotifyTermViewQuit(TermView *view, int32 reason) override
+	{
+		BMessage msg('NOTM');
+		msg.AddInt32("reason", reason);
+		msg.AddPointer("term_view", view);
+		ShellInfo sinfo;
+		if (view->GetShellInfo(sinfo)) {
+			msg.AddInt32("pid", sinfo.ProcessID());
+		}
+		fMessenger.SendMessage(&msg);
+		TermView::Listener::NotifyTermViewQuit(view, reason);
+	}
+
+	BMessenger fMessenger;
+};
+
+
+class WrapTermView : public TermView {
+public:
+	WrapTermView(BMessage* data)
+		:
+		TermView(data)
+	{
+	}
+
+	void FrameResized(float width, float height) override
 	{
 		DisableResizeView();
 		TermView::FrameResized(width, height);
 	}
 
-	void	MessageReceived(BMessage* msg)
+	void MessageReceived(BMessage* msg) override
 	{
 		switch(msg->what) {
 			case TERMVIEW_CLEAR:
 				TermView::Clear();
-			break;
+				break;
 /*			case 'teme':
 				if (gColorSchemes == nullptr ||
 					gColorSchemes->CountItems() == 0)
@@ -215,12 +223,13 @@ public:
 */
 			default:
 				TermView::MessageReceived(msg);
-		};
+				break;
+		}
 	}
-
 };
 
-/*static*/
+
+/* static */
 BArchivable*
 GenioTermView::Instantiate(BMessage* data)
 {
@@ -237,7 +246,6 @@ GenioTermView::Instantiate(BMessage* data)
 		scrollView->ScrollBar(B_VERTICAL)
 				->ResizeBy(0, -(be_control_look->GetScrollBarWidth(B_VERTICAL) - 1));
 
-
 		containerView->DefaultSettings();
 
 		return scrollView;
@@ -245,6 +253,3 @@ GenioTermView::Instantiate(BMessage* data)
 
 	return NULL;
 }
-
-
-

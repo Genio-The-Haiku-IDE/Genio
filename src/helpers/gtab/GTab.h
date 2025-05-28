@@ -19,7 +19,9 @@
 class GTab;
 class GTabDropZone : Draggable {
 	public:
-		 GTabDropZone() : fTabsContainer(nullptr)
+		 GTabDropZone()
+			:
+			fTabsContainer(nullptr)
 		 {
 		 }
 

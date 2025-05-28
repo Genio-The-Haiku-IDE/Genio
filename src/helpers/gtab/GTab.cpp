@@ -80,6 +80,7 @@ GTabDropZone::DropZoneMessageReceived(BMessage* message)
 GTab::GTab(const char* label)
 	:
 	BView("_tabView_", B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
+	fLayoutItem(nullptr),
 	fIsFront(false),
 	fLabel(label)
 {

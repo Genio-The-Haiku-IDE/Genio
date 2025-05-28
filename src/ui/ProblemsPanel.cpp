@@ -36,12 +36,15 @@ enum {
 };
 
 class RangeRow : public BRow {
-	public:
-		RangeRow(){};
+public:
+	RangeRow()
+		:
+		fEditor(nullptr)
+	{
+	}
 
-		GMessage	fRange;
-		Editor 		*fEditor;
-
+	GMessage	fRange;
+	Editor 		*fEditor;
 };
 
 #define ProblemLabel B_TRANSLATE("Problems")

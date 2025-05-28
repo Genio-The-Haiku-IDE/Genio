@@ -58,6 +58,10 @@ ExtensionManager::_ScanExtensions(BString directory)
 				}
 				extension.Ref = ref;
 				extension.Enabled = true;
+				// TODO: I added these two because otherwise they're uninitialized
+				// maybe it's better to have a constructor which does that
+				extension.ShowInToolsMenu = true;
+				extension.ShowInContextMenu = false;
 				fExtensions.emplace_back(std::move(extension));
 			}
 		}

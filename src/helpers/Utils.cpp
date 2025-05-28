@@ -223,7 +223,7 @@ struct property_type<B_REF_TYPE>
 // Used by the FIND_IN_ARRAY macro
 template<type_code BType>
 typename property_type<BType>::type
-find_value(BMessage* message, std::string name, int index) {
+find_value(BMessage* message, const std::string& name, int32 index) {
 	typename property_type<BType>::type typed_data;
 	ssize_t size;
 	const void* data;
@@ -237,7 +237,7 @@ find_value(BMessage* message, std::string name, int index) {
 
 template<>
 entry_ref
-find_value<B_REF_TYPE>(BMessage* message, std::string name, int index)
+find_value<B_REF_TYPE>(BMessage* message, const std::string& name, int32 index)
 {
 	entry_ref ref;
 	status_t status = message->FindRef(name.c_str(), index, &ref);

@@ -31,15 +31,15 @@ BPath	GetNearbyDataDirectory();
 BString	GetVersion();
 bool	IsXMasPeriod();
 
-std::string GetFileName(const std::string filename);
-std::string GetFileExtension(const std::string filename);
+std::string GetFileName(const std::string& filename);
+std::string GetFileExtension(const std::string& filename);
 // Gets an icon from executable's resources
-status_t GetVectorIcon(const std::string icon, BBitmap* bitmap);
+status_t GetVectorIcon(const std::string& icon, BBitmap* bitmap);
 
 // source code
 status_t FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef);
-bool IsCppSourceExtension(std::string extension);
-bool IsCppHeaderExtension(std::string extension);
+bool IsCppSourceExtension(const std::string& extension);
+bool IsCppHeaderExtension(const std::string& extension);
 
 // Notifications
 void ProgressNotification(const BString& group, const BString&  title, const BString&  messageID,

@@ -63,7 +63,7 @@ FakeMouseMovement(BView* view)
 
 
 std::string
-GetFileName(const std::string filename)
+GetFileName(const std::string& filename)
 {
 	size_t pos = filename.rfind('.');
 	// pos != 0 is for dotfiles
@@ -74,7 +74,7 @@ GetFileName(const std::string filename)
 
 
 std::string
-GetFileExtension(const std::string filename)
+GetFileExtension(const std::string& filename)
 {
 	size_t pos = filename.rfind('.');
 	// pos != 0 is for dotfiles
@@ -85,7 +85,7 @@ GetFileExtension(const std::string filename)
 
 
 status_t
-GetVectorIcon(const std::string icon, BBitmap* bitmap)
+GetVectorIcon(const std::string& icon, BBitmap* bitmap)
 {
 	if (bitmap == nullptr)
 		return B_ERROR;
@@ -307,14 +307,14 @@ std::string headerExt[] = {".h", ".hh", ".hpp", ".hxx"}; //, ".inc"};
 
 
 bool
-IsCppSourceExtension(std::string extension)
+IsCppSourceExtension(const std::string& extension)
 {
 	return FIND_IN_ARRAY(sourceExt, extension);
 }
 
 
 bool
-IsCppHeaderExtension(std::string extension)
+IsCppHeaderExtension(const std::string& extension)
 {
 	return FIND_IN_ARRAY(headerExt, extension);
 }

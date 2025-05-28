@@ -78,7 +78,7 @@ class GTabDropZone : Draggable {
 
 class GTab : public BView, public GTabDropZone {
 public:
-								GTab(const char* label);
+					explicit	GTab(const char* label);
 	virtual						~GTab();
 
 			BSize				MinSize() override;
@@ -139,7 +139,7 @@ public:
 protected:
 
 virtual		void		CloseButtonClicked();
-			const BHandler* 	Handler() { return fHandler; }
+			const BHandler* Handler() const { return fHandler; }
 
 
 private:
@@ -156,8 +156,8 @@ private:
 
 
 class Filler : public BView, public GTabDropZone {
-	public:
-				Filler(TabsContainer* tabsContainer);
+public:
+	explicit	Filler(TabsContainer* tabsContainer);
 
 		BSize	MinSize() override
 		{
@@ -219,7 +219,7 @@ public:
 		switch (message->what) {
 			case kRunnerTick:
 				if (fRunner != nullptr && IsEnabled()) {
-						Invoke();
+					Invoke();
 				} else {
 					if (fRunner != nullptr) {
 						delete fRunner;

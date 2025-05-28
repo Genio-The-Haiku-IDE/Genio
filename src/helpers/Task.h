@@ -59,7 +59,7 @@ namespace Genio::Task {
 			fName(name)
 		{
 		}
-		TaskResult(const BMessage &archive)
+		explicit TaskResult(const BMessage &archive)
 			:
 			fResult(nullptr),
 			fId(-1)

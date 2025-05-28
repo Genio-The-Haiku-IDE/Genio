@@ -46,10 +46,13 @@ class RangeRow : public BRow {
 
 #define ProblemLabel B_TRANSLATE("Problems")
 
-ProblemsPanel::ProblemsPanel(PanelTabManager* panelTabManager, tab_id id): BColumnListView(ProblemLabel,
-									B_NAVIGABLE, B_FANCY_BORDER, true)
-									, fPanelTabManager(panelTabManager), fTabId(id)
-
+ProblemsPanel::ProblemsPanel(PanelTabManager* panelTabManager, tab_id id)
+	:
+	BColumnListView(ProblemLabel, B_NAVIGABLE, B_FANCY_BORDER, true),
+	fPanelTabManager(panelTabManager),
+	fPopUpMenu(nullptr),
+	fQuickFixItem(nullptr),
+	fTabId(id)
 {
 	AddColumn(new BStringColumn( B_TRANSLATE("Category"),
 								200.0, 20.0, 800.0, 0), kCategoryColumn);

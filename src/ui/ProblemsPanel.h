@@ -5,6 +5,7 @@
 #pragma once
 
 #include <ColumnListView.h>
+
 #include "PanelTabManager.h"
 
 class BPopUpMenu;

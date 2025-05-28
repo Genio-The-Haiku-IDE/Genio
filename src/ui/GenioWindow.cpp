@@ -339,18 +339,18 @@ GenioWindow::MessageReceived(BMessage* message)
 			editor_id id;
 			if (message->FindUInt64(kEditorId, &id) == B_OK) {
 				Editor* editor = fTabManager->EditorById(id);
-				if (editor == nullptr)
+				if (editor == nullptr) {
+					// TODO: Should we call debugger if editor is nullptr here ?
 					return;
+				}
 
 				// add the ref also to the external message
 				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				notifyMessage.AddMessage("symbols", message);
 				notifyMessage.AddUInt64(kEditorId, id);
-				if (editor != nullptr) {
-					// TODO: Should we call debugger if editor is nullptr here ?
-					notifyMessage.AddRef("ref", editor->FileRef());
-					notifyMessage.AddInt32("caret_line", editor->GetCurrentLineNumber());
-				}
+				notifyMessage.AddRef("ref", editor->FileRef());
+				notifyMessage.AddInt32("caret_line", editor->GetCurrentLineNumber());
+
 				SendNotices(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED, &notifyMessage);
 			}
 			break;
@@ -1736,7 +1736,6 @@ GenioWindow::_FileOpen(BMessage* msg)
 
 	ActionManager::SetEnabled(MSG_JUMP_GO_BACK, JumpNavigator::getInstance()->HasPrev());
 	ActionManager::SetEnabled(MSG_JUMP_GO_FORWARD, JumpNavigator::getInstance()->HasNext());
-
 
 	if (firstAdded.directory != 0) {
 		fTabManager->SelectTab(&firstAdded);

@@ -616,15 +616,13 @@ namespace Genio::Git {
 	GitRepository::GetTags( size_t maxTags)
 	{
 		std::vector<BString> tags;
-
 		auto lambda = [](git_reference *ref, void *payload) -> int
 		{
-			auto* data = reinterpret_cast<std::pair<std::vector<BString>&, size_t>*>(payload);
-			auto& tags = data->first;
-			size_t maxTags = data->second;
-
 			BString ref_name(git_reference_name(ref));
 			if (!ref_name.IFindFirst("refs/tags/")) {
+				auto* data = reinterpret_cast<std::pair<std::vector<BString>&, size_t>*>(payload);
+				auto& tags = data->first;
+				size_t maxTags = data->second;
 				ref_name.RemoveAll("refs/tags/");
 				tags.push_back(ref_name);
 				if (tags.size() >= maxTags) {

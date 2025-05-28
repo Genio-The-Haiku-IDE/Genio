@@ -71,5 +71,3 @@ private:
 		TabViewList		fTVList;
 		BMessage 		fConfig;
 };
-
-

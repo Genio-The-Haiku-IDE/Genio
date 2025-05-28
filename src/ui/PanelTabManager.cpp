@@ -6,47 +6,46 @@
 
 #include "PanelTabManager.h"
 
-#include <cassert>
+#include <Debug.h>
 
 #include "GTab.h"
 #include "GTabView.h"
 
 
 class GTabID : public GTab {
-	public:
+public:
+	GTabID(tab_id id, const char* label)
+		:
+		GTab(label),
+		fId(id)
+	{
+	}
 
-		GTabID(tab_id id, const char* label)
-			:
-			GTab(label),
-			fId(id)
-		{
-		}
+	tab_id GetID() const { return fId; }
 
-		tab_id GetID() const { return fId; }
+	BSize	MinSize() override
+	{
+		return MaxSize();
+	}
 
-		BSize	MinSize() override
-		{
-			return MaxSize();
-		}
+	BSize	MaxSize() override
+	{
+		BSize min;
+		float w = StringWidth(Label().String());
+		float spacing = be_control_look->DefaultLabelSpacing();
+		min.width = w + spacing * 4;
+		min.height = TabViewTools::DefaultTabHeight();
+		return min;
+	}
 
-		BSize	MaxSize() override
-		{
-			BSize min;
-			float w = StringWidth(Label().String());
-			float spacing = be_control_look->DefaultLabelSpacing();
-			min.width = w + spacing * 4;
-			min.height = TabViewTools::DefaultTabHeight();
-			return min;
-		}
-
-		void SetLabel(const char* label) override
-		{
-			GTab::SetLabel(label);
-			InvalidateLayout();
-			Invalidate();
-		}
-	private:
-		tab_id	fId;
+	void SetLabel(const char* label) override
+	{
+		GTab::SetLabel(label);
+		InvalidateLayout();
+		Invalidate();
+	}
+private:
+	tab_id	fId;
 };
 
 struct tab_info {
@@ -82,13 +81,13 @@ public:
 
 	void SelectTab(tab_id id)
 	{
-		assert(fIdMap.contains(id) == true);
+		ASSERT(fIdMap.contains(id) == true);
 		GTabView::SelectTab(fIdMap[id].tab);
 	}
 
 	void SetLabelForTab(tab_id id, const char* label)
 	{
-		assert(fIdMap.contains(id) == true);
+		ASSERT(fIdMap.contains(id) == true);
 		fIdMap[id].tab->SetLabel(label);
 		fIdMap[id].tab->Invalidate();
 	}
@@ -114,14 +113,14 @@ protected:
 	void OnTabRemoved(GTab* _tab) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
-		assert(tab != nullptr && fIdMap.contains(tab->GetID()) == true);
+		ASSERT(tab != nullptr && fIdMap.contains(tab->GetID()) == true);
 		fIdMap.erase(tab->GetID());
 	}
 
 	void OnTabAdded(GTab* _tab, BView* panel) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
-		assert(tab != nullptr && fIdMap.contains(tab->GetID()) == false);
+		ASSERT(tab != nullptr && fIdMap.contains(tab->GetID()) == false);
 		fIdMap[tab->GetID()] = { tab, panel };
 	}
 
@@ -162,7 +161,7 @@ PanelTabManager::SaveConfiguration(BMessage& config)
 BView*
 PanelTabManager::CreatePanelTabView(const char* tabview_name, orientation orientation)
 {
-	assert(fTVList.contains(tabview_name) == false);
+	ASSERT(fTVList.contains(tabview_name) == false);
 
 	PanelTabView* tabView = new PanelTabView(this, tabview_name, 'GPAF', orientation);
 	fTVList[tabview_name] = tabView;
@@ -182,7 +181,6 @@ PanelTabManager::GetPanelTabView(const char* name)
 }
 
 
-
 void
 PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 {
@@ -197,7 +195,7 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 		}
 	}
 	BMessage defaults = DefaultConfig();
-	i=0;
+	i = 0;
 	while (defaults.FindMessage("tab", i++, &tab) == B_OK) {
 		tab_id tabid = tab.GetInt32("id", 0);
 //				printf("Check %d vs %d\n", tabid, id);
@@ -217,8 +215,7 @@ void
 PanelTabManager::_AddPanel(const char* tabview_name, BView* panel, tab_id id, int32 index, bool select)
 {
 	PanelTabView* tabview = _GetPanelTabView(tabview_name);
-	assert (tabview != nullptr);
-
+	ASSERT(tabview != nullptr);
 	tabview->AddTab(panel, id, index, select);
 }
 
@@ -273,7 +270,6 @@ PanelTabManager::ShowPanelTabView(const char* tabview_name, bool show)
 }
 
 
-
 bool
 PanelTabManager::IsPanelTabViewVisible(const char* tabview_name)
 {
@@ -281,11 +277,10 @@ PanelTabManager::IsPanelTabViewVisible(const char* tabview_name)
 }
 
 
-
 PanelTabView*
 PanelTabManager::_GetPanelTabView(const char* sname)
 {
-	assert(fTVList.contains(sname) == true);
+	ASSERT(fTVList.contains(sname) == true);
 	return fTVList[sname];
 }
 

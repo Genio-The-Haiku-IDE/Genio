@@ -31,6 +31,7 @@ ConsoleIOThread::ConsoleIOThread(BMessage* cmd_message, const BMessenger& consol
 	fExternalProcessId(-1),
 	fConsoleOutput(nullptr),
 	fConsoleError(nullptr),
+	fConsoleOutputBuffer(""),
 	fIsDone(false),
 	fFailed(false)
 {

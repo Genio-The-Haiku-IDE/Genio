@@ -1892,13 +1892,8 @@ GenioWindow::_FileSave(Editor* editor)
 
 	_PreFileSave(editor);
 
-	// Stop monitoring if needed
-	editor->StopMonitoring();
 
 	status_t saveStatus = editor->SaveToFile();
-
-	// Restart monitoring
-	editor->StartMonitoring();
 
 	if (saveStatus == B_OK)
 		LogInfoF("File saved! (%s)", editor->FilePath().String());
@@ -2017,6 +2012,9 @@ GenioWindow::_PreFileSave(Editor* editor)
 {
 	LogTrace("GenioWindow::_PreFileSave(%s)", editor->FilePath().String());
 
+	// Stop monitoring if needed
+	editor->StopMonitoring();
+
 	editor->TrimTrailingWhitespace();
 }
 
@@ -2026,7 +2024,12 @@ GenioWindow::_PostFileSave(Editor* editor)
 {
 	LogTrace("GenioWindow::_PostFileSave(%s)", editor->FilePath().String());
 
-	// TODO: Also handle cases where the file is saved from outside Genio ?
+	// Restart monitoring
+	editor->StartMonitoring();
+
+	// TODO: introduce a way to collapse these messages when we are called
+	// multiple times in a row, and only send the build message the on the last
+	// file save
 	ProjectFolder* project = editor->GetProjectFolder();
 	if (gCFG["build_on_save"] &&
 		project != nullptr && project == GetActiveProject()) {

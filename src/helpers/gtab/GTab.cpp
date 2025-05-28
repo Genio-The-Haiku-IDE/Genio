@@ -214,47 +214,43 @@ GTab::MessageReceived(BMessage* message)
 bool
 GTab::InitiateDrag(BPoint where)
 {
-	GTab* tab = this;
-	if (tab != nullptr) {
-		BMessage message(TAB_DRAG);
+	BMessage message(TAB_DRAG);
 
-		message.AddPointer("tab", this);
-		message.AddPointer("tab_container", Container());
+	message.AddPointer("tab", this);
+	message.AddPointer("tab_container", Container());
 
-		const BRect& updateRect = tab->Bounds();
+	const BRect& updateRect = Bounds();
 
-		BBitmap* dragBitmap = new BBitmap(updateRect, B_RGB32, true);
-		if (dragBitmap->IsValid()) {
-			BView* view = new BView(dragBitmap->Bounds(), "helper", B_FOLLOW_NONE, B_WILL_DRAW);
-			dragBitmap->AddChild(view);
-			dragBitmap->Lock();
-			tab->DrawTab(view, updateRect);
-			view->Sync();
-			uint8* bits = reinterpret_cast<uint8*>(dragBitmap->Bits());
-			int32 height = dragBitmap->Bounds().IntegerHeight() + 1;
-			int32 width = dragBitmap->Bounds().IntegerWidth() + 1;
-			int32 bpr = dragBitmap->BytesPerRow();
-			for (int32 y = 0; y < height; y++, bits += bpr) {
-				uint8* line = bits + 3;
-				for (uint8* end = line + 4 * width; line < end; line += 4)
-					*line = ALPHA;
-			}
-			dragBitmap->Unlock();
-		} else {
-			delete dragBitmap;
-			dragBitmap = nullptr;
+	BBitmap* dragBitmap = new BBitmap(updateRect, B_RGB32, true);
+	if (dragBitmap->IsValid()) {
+		BView* view = new BView(dragBitmap->Bounds(), "helper", B_FOLLOW_NONE, B_WILL_DRAW);
+		dragBitmap->AddChild(view);
+		dragBitmap->Lock();
+		DrawTab(view, updateRect);
+		view->Sync();
+		uint8* bits = reinterpret_cast<uint8*>(dragBitmap->Bits());
+		int32 height = dragBitmap->Bounds().IntegerHeight() + 1;
+		int32 width = dragBitmap->Bounds().IntegerWidth() + 1;
+		int32 bpr = dragBitmap->BytesPerRow();
+		for (int32 y = 0; y < height; y++, bits += bpr) {
+			uint8* line = bits + 3;
+			for (uint8* end = line + 4 * width; line < end; line += 4)
+				*line = ALPHA;
 		}
-		const BRect& frame = updateRect;
-		if (dragBitmap != nullptr) {
-			DragMessage(&message, dragBitmap, B_OP_ALPHA,
-				BPoint(where.x - frame.left, where.y - frame.top));
-		} else {
-			DragMessage(&message, frame, this);
-		}
-
-		return true;
+		dragBitmap->Unlock();
+	} else {
+		delete dragBitmap;
+		dragBitmap = nullptr;
 	}
-	return false;
+	const BRect& frame = updateRect;
+	if (dragBitmap != nullptr) {
+		DragMessage(&message, dragBitmap, B_OP_ALPHA,
+			BPoint(where.x - frame.left, where.y - frame.top));
+	} else {
+		DragMessage(&message, frame, this);
+	}
+
+	return true;
 }
 
 

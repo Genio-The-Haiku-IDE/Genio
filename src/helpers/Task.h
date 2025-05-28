@@ -24,11 +24,14 @@ namespace Genio::Task {
 	namespace Private {
 
 		struct ThreadData {
-			ThreadData(void* function, const BMessenger& srcMessenger, const BString& taskName) {
-				target_function = function;
-				messenger = srcMessenger;
-				name = taskName;
-			};
+			ThreadData(void* function, const BMessenger& srcMessenger,
+					const BString& taskName)
+				:
+				target_function(function),
+				messenger(srcMessenger),
+				name(taskName)
+			{
+			}
 			void *target_function;
 			BMessenger messenger;
 			thread_id id;
@@ -92,7 +95,7 @@ namespace Genio::Task {
 			fResult.reset();
 		}
 
-		ResultType	GetResult() const
+		ResultType GetResult() const
 		{
 			auto i = TaskExceptionMap.find(fId);
 			if (i != TaskExceptionMap.end()) {
@@ -188,7 +191,9 @@ namespace Genio::Task {
 			}
 		}
 
-		~Task() {}
+		~Task()
+		{
+		}
 
 		status_t Run()
 		{
@@ -196,6 +201,7 @@ namespace Genio::Task {
 				return resume_thread(fThreadHandle);
 			return B_ERROR;
 		}
+
 		status_t Stop()
 		{
 			if (fThreadHandle > 0)
@@ -224,7 +230,7 @@ namespace Genio::Task {
 				TaskExceptionMap[data->id] = current_exception();
 			}
 			TaskResult<ResultType> taskResult(data->name, anyResult, data->id);
-			BMessenger messenger = data->messenger;
+			const BMessenger messenger = data->messenger;
 
 			delete lambda;
 			delete data;
@@ -264,7 +270,6 @@ namespace Genio::Task {
 			{
 				return callable(std::move(std::get<indices>(args))...);
 			}
-
 		};
 	};
 }

@@ -8,12 +8,15 @@
 
 
 GrepThread::GrepThread(BMessage* cmd_message, const BMessenger& consoleTarget)
-	: ConsoleIOThread(cmd_message, consoleTarget)
+	:
+	ConsoleIOThread(cmd_message, consoleTarget)
 {
 	fCurrentMessage.MakeEmpty();
 	fCurrentFileName[0] = '\0';
+	fLine[0] = '\0';
 	fNextFileName[0] = '\0';
 }
+
 
 // Method freely derived from TextGrep by Matthijs Hollemans
 void

@@ -20,6 +20,7 @@
 
 #include "Editor.h"
 #include "ScintillaView.h"
+#include "ScintillaUtils.h"
 #include "Utils.h"
 
 

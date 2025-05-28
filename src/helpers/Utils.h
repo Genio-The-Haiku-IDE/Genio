@@ -78,11 +78,5 @@ private:
 			filter_result	fFilterResult;
 };
 
-// TODO: Move to ScintillaUtils.h ?
-int32 rgb_colorToSciColor(rgb_color color);
-bool CanScintillaViewCut(BScintillaView* scintilla);
-bool CanScintillaViewCopy(BScintillaView* scintilla);
-bool CanScintillaViewPaste(BScintillaView* scintilla);
-bool IsScintillaViewReadOnly(BScintillaView* scintilla);
 
 #endif // UTILS_H

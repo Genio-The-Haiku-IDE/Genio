@@ -67,6 +67,7 @@
 #include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
 #include "SearchResultTab.h"
+#include "ScintillaUtils.h"
 #include "SourceControlPanel.h"
 #include "SwitchBranchMenu.h"
 #include "Task.h"

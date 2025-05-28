@@ -123,4 +123,12 @@ private:
 }
 
 
+// Added later
+int32 rgb_colorToSciColor(rgb_color color);
+bool IsScintillaViewReadOnly(BScintillaView* scintilla);
+bool CanScintillaViewCut(BScintillaView* scintilla);
+bool CanScintillaViewCopy(BScintillaView* scintilla);
+bool CanScintillaViewPaste(BScintillaView* scintilla);
+
+
 #endif // SCINTILLAUTILS_H

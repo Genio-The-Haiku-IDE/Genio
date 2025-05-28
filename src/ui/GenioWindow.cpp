@@ -1637,8 +1637,9 @@ GenioWindow::_DebugProject()
 status_t
 GenioWindow::_RemoveTab(Editor* editor)
 {
-	if (!editor)
+	if (editor == nullptr)
 		return B_ERROR;
+
 	// notify listeners: file could have been modified, but user
 	// chose not to save
 	BMessage noticeMessage(MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
@@ -1652,7 +1653,6 @@ GenioWindow::_RemoveTab(Editor* editor)
 	SendNotices(MSG_NOTIFY_EDITOR_FILE_CLOSED, &noticeCloseMessage);
 
 	fTabManager->RemoveEditor(editor);
-	editor = nullptr;
 
 	// Was it the last one?
 	if (fTabManager->CountTabs() == 0)

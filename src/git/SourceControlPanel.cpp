@@ -325,30 +325,29 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						BPath gitFolder(projectPath);
 						gitFolder.Append(".git");
 
-						// TODO: Move the burst handler to a function
-						if (path.FindFirst(gitFolder.Path()) != B_ERROR) {
-							if (fBurstHandler == nullptr ||
-								fBurstHandler->SetInterval(kBurstTimeout) != B_OK) {
-								LogInfo("SourceControlPanel: fBurstHandler not valid");
-								if (fBurstHandler != nullptr)
-									delete fBurstHandler;
+						if (path.FindFirst(gitFolder.Path()) == B_ERROR)
+							break;
 
-								// create a message to update the project
-								BMessage message(MsgChangeProject);
-								message.AddPointer("value", selected);
-								message.AddString("sender", kSenderExternalEvent);
-								fBurstHandler = new BMessageRunner(BMessenger(this),
-									&message, kBurstTimeout, 1);
-								if (fBurstHandler->InitCheck() != B_OK) {
-									LogInfo("SourceControlPanel: Could not create "
-										"fBurstHandler. Deleting it");
-									if (fBurstHandler != nullptr) {
-										delete fBurstHandler;
-										fBurstHandler = nullptr;
-									}
-								} else {
-									LogInfo("SourceControlPanel: fBurstHandler instantiated.");
-								}
+						// TODO: Move the burst handler to a function
+						if (fBurstHandler == nullptr ||
+								fBurstHandler->SetInterval(kBurstTimeout) != B_OK) {
+							LogInfo("SourceControlPanel: fBurstHandler not valid");
+
+							delete fBurstHandler;
+
+							// create a message to update the project
+							BMessage message(MsgChangeProject);
+							message.AddPointer("value", selected);
+							message.AddString("sender", kSenderExternalEvent);
+							fBurstHandler = new (std::nothrow) BMessageRunner(BMessenger(this),
+								&message, kBurstTimeout, 1);
+							if (fBurstHandler == nullptr|| fBurstHandler->InitCheck() != B_OK) {
+								LogInfo("SourceControlPanel: Could not create "
+									"fBurstHandler. Deleting it");
+								delete fBurstHandler;
+								fBurstHandler = nullptr;
+							} else {
+								LogInfo("SourceControlPanel: fBurstHandler instantiated.");
 							}
 						}
 						break;
@@ -358,35 +357,40 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				}
 				break;
 			}
-			case MsgShowRepositoryPanel: {
+			case MsgShowRepositoryPanel:
+			{
 				LogInfo("MsgShowRepositoryPanel");
 				if (fPanelsLayout->VisibleIndex() != kPanelsIndexRepository)
 					fPanelsLayout->SetVisibleItem(kPanelsIndexRepository);
 				fToolBar->ToggleActionPressed(MsgShowRepositoryPanel);
 				break;
 			}
-			case MsgShowChangesPanel: {
+			case MsgShowChangesPanel:
+			{
 				LogInfo("MsgShowChangesPanel");
 				if (fPanelsLayout->VisibleIndex() != kPanelsIndexChanges)
 					fPanelsLayout->SetVisibleItem(kPanelsIndexChanges);
 				fToolBar->ToggleActionPressed(MsgShowChangesPanel);
 				break;
 			}
-			case MsgShowLogPanel: {
+			case MsgShowLogPanel:
+			{
 				LogInfo("MsgShowLogPanel");
 				if (fPanelsLayout->VisibleIndex() != kPanelsIndexLog)
 					fPanelsLayout->SetVisibleItem(kPanelsIndexLog);
 				fToolBar->ToggleActionPressed(MsgShowLogPanel);
 				break;
 			}
-			case MsgShowActionsMenu: {
+			case MsgShowActionsMenu:
+			{
 				auto button = fToolBar->FindButton(MsgShowActionsMenu);
 				auto where = button->Frame().LeftBottom();
 				LogInfo("MsgShowActionsMenu: p(%f, %f)", where.x, where.y);
 				_ShowOptionsMenu(where);
 				break;
 			}
-			case MsgFetch: {
+			case MsgFetch:
+			{
 				LogInfo("MsgFetch");
 				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
@@ -396,7 +400,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				_UpdateBranchListMenu();
 				break;
 			}
-			case MsgFetchPrune: {
+			case MsgFetchPrune:
+			{
 				LogInfo("MsgFetchPrune");
 				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
@@ -406,7 +411,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				_UpdateBranchListMenu();
 				break;
 			}
-			case MsgStashSave: {
+			case MsgStashSave:
+			{
 				LogInfo("MsgStashSave");
 				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
@@ -423,7 +429,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				}
 				break;
 			}
-			case MsgStashPop: {
+			case MsgStashPop:
+			{
 				LogInfo("MsgStashPop");
 				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
@@ -432,7 +439,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				_ShowGitNotification(B_TRANSLATE("Stashed changes popped."));
 				break;
 			}
-			case MsgStashApply: {
+			case MsgStashApply:
+			{
 				LogInfo("MsgStashApply");
 				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
@@ -441,15 +449,18 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				_ShowGitNotification(B_TRANSLATE("Stashed changes applied."));
 				break;
 			}
-			case MsgChangeProject: {
+			case MsgChangeProject:
+			{
 				_ChangeProject(message);
 				break;
 			}
-			case MsgSwitchBranch: {
+			case MsgSwitchBranch:
+			{
 				_SwitchBranch(message);
 				break;
 			}
-			case MsgRenameBranch: {
+			case MsgRenameBranch:
+			{
 				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
@@ -467,7 +478,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				}
 				break;
 			}
-			case MsgDeleteBranch: {
+			case MsgDeleteBranch:
+			{
 				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
@@ -493,7 +505,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				}
 				break;
 			}
-			case MsgNewBranch: {
+			case MsgNewBranch:
+			{
 				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
@@ -518,7 +531,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				}
 				break;
 			}
-			case MsgInitializeRepository: {
+			case MsgInitializeRepository:
+			{
 				const ProjectFolder* selectedProject = _SelectedProject();
 				if (selectedProject == nullptr)
 					break;
@@ -545,7 +559,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				}
 				break;
 			}
-			case MsgCopyRefName: {
+			case MsgCopyRefName:
+			{
 				const BString selectedBranch = message->GetString("value");
 				BMessage* clip = nullptr;
 				if (be_clipboard->Lock()) {

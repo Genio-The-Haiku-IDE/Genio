@@ -20,9 +20,11 @@ bool
 GTabDropZone::_ValidDragAndDrop(const BMessage* message)
 {
 	GTab* fromTab = (GTab*)message->GetPointer("tab", nullptr);
-	TabsContainer*	fromContainer = fromTab->Container();
+	if (fromTab == nullptr)
+		return false;
 
-	if (fromTab == nullptr || fromContainer == nullptr)
+	TabsContainer*	fromContainer = fromTab->Container();
+	if (fromContainer == nullptr)
 		return false;
 
 	if (this == fromTab)

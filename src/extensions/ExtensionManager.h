@@ -17,18 +17,23 @@ class ProjectItem;
 struct ExtensionInfo {
 	ExtensionInfo();
 
-	bool Enabled;
 	BString Name;
 	BString Signature;
 	BString ShortDescription;
 	BString LongDescription;
 	BString Version;
+	BString Type;
+
 	entry_ref Ref;
-	bool ShowInToolsMenu;
-	bool ShowInContextMenu;
+
 	uint32 Modifier;
 	char Shortcut;
-	BString Type;
+	
+	bool ShowInToolsMenu;
+	bool ShowInContextMenu;
+
+	bool Enabled;
+
 	std::vector<BString> Scope;
 	std::vector<BString> FileTypes;
 };

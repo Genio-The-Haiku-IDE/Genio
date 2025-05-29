@@ -98,11 +98,11 @@ ExtensionManager::GetExtensions()
 // ExtensionInfo
 ExtensionInfo::ExtensionInfo()
 	:
-	Enabled(true),
+	Modifier(0),
+	Shortcut(0),
 	ShowInToolsMenu(true),
 	ShowInContextMenu(true),
-	Modifier(0),
-	Shortcut(0)
+	Enabled(true)
 {
 }
 

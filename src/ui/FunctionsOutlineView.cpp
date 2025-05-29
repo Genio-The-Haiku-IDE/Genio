@@ -366,6 +366,7 @@ FunctionsOutlineView::AttachedToWindow()
 	fToolBar->SetTarget(this);
 	if (gMainWindow->LockLooper()) {
 		gMainWindow->StartWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+		gMainWindow->StartWatching(this, MSG_NOTIFY_EDITOR_POSITION_CHANGED);
 		gMainWindow->UnlockLooper();
 	}
 }
@@ -376,6 +377,7 @@ void
 FunctionsOutlineView::DetachedFromWindow()
 {
 	if (gMainWindow != nullptr && gMainWindow->LockLooper()) {
+		gMainWindow->StopWatching(this, MSG_NOTIFY_EDITOR_POSITION_CHANGED);
 		gMainWindow->StopWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 		gMainWindow->UnlockLooper();
 	}
@@ -393,6 +395,13 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 			int32 code;
 			msg->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
+				case MSG_NOTIFY_EDITOR_POSITION_CHANGED:
+				{
+					int32 line;
+					if (msg->FindInt32("line", &line) == B_OK)
+						SelectSymbolByCaretPosition(line);
+					break;
+				}
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
 				{
 					entry_ref newRef;

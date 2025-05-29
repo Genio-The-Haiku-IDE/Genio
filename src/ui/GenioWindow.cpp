@@ -448,8 +448,10 @@ GenioWindow::MessageReceived(BMessage* message)
 				if (editor == fTabManager->SelectedEditor()) {
 					// Enable Cut,Copy,Paste shortcuts
 					_UpdateSavepointChange(editor, "EDITOR_POSITION_CHANGED");
-					//update the OulineView according to the new position.
-					fFunctionsOutlineView->SelectSymbolByCaretPosition(message->GetInt32("line", -1));
+
+					BMessage notice(MSG_NOTIFY_EDITOR_POSITION_CHANGED);
+					notice.AddInt32("line", message->GetInt32("line", -1));
+					SendNotices(MSG_NOTIFY_EDITOR_POSITION_CHANGED, &notice);
 				}
 			}
 			break;
@@ -3339,8 +3341,8 @@ GenioWindow::_InitTabViews()
 	fPanelTabManager->AddPanelByConfig(fSourceControlPanel, kTabSourceControl);
 
 	//RIGHT
-	fFunctionsOutlineView = new FunctionsOutlineView();
-	fPanelTabManager->AddPanelByConfig(fFunctionsOutlineView, kTabOutlineView);
+	BView* functionsOutlineView = new FunctionsOutlineView();
+	fPanelTabManager->AddPanelByConfig(functionsOutlineView, kTabOutlineView);
 }
 
 

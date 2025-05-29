@@ -149,8 +149,14 @@ enum {
 
 // "notification" messages
 enum {
+	// editor
 	MSG_NOTIFY_EDITOR_FILE_OPENED 		= 'efop',	// file_name (string)
+
 	MSG_NOTIFY_EDITOR_FILE_CLOSED 		= 'efcx',	// file_name (string)
+
+	MSG_NOTIFY_EDITOR_POSITION_CHANGED	= 'epch',	// file_name (string)
+													// line (int32)
+
 	MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED = 'stch',	// file_name (string)
 													// needs_save (bool)
 
@@ -170,6 +176,7 @@ enum {
 	MSG_NOTIFY_PROJECT_SET_ACTIVE		= 'npsa',	// active_project_name (string)
 	MSG_NOTIFY_FIND_STATUS				= 'fist',
 
+	// workspace
 	MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED = 'wkps',
 	MSG_NOTIFY_WORKSPACE_PREPARATION_COMPLETED = 'wkpc'
 };

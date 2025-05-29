@@ -31,7 +31,6 @@ class BTabView;
 class BTextControl;
 class ConsoleIOTab;
 class Editor;
-class FunctionsOutlineView;
 class GoToLineWindow;
 class ProblemsPanel;
 class ProjectFolder;
@@ -222,9 +221,6 @@ private:
 			BScrollView*		fSourceControlPanelScroll;
 
 			ProjectFolder		*fActiveProject;
-
-			// Right panels
-			FunctionsOutlineView* fFunctionsOutlineView;
 
 			// Editor group
 			EditorTabView*		fTabManager;

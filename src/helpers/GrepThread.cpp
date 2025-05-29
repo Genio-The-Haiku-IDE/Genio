@@ -32,9 +32,9 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 	int textPos = -1;
 	sscanf(fLine, "%[^\n:]:%d:%n", fNextFileName, &lineNumber, &textPos);
 	if (textPos > 0) {
-		if (strcmp(fNextFileName, fCurrentFileName) != 0) {
+		if (::strcmp(fNextFileName, fCurrentFileName) != 0) {
 			fTarget.SendMessage(&fCurrentMessage);
-			strncpy(fCurrentFileName, fNextFileName, B_PATH_NAME_LENGTH);
+			::strlcpy(fCurrentFileName, fNextFileName, B_PATH_NAME_LENGTH);
 			BEntry entry(fNextFileName);
 			entry.GetRef(&fCurrentRef);
 
@@ -43,7 +43,7 @@ GrepThread::OnStdOutputLine(const BString& stdOut)
 			fCurrentMessage.AddString("filename", fCurrentFileName);
 		}
 
-		char* text = &fLine[strlen(fNextFileName) + 1];
+		char* text = &fLine[::strlen(fNextFileName) + 1];
 		BMessage lineMessage;
 		lineMessage.what = B_REFS_RECEIVED;
 		lineMessage.AddString("text", text);

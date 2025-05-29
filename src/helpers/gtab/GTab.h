@@ -221,10 +221,8 @@ public:
 				if (fRunner != nullptr && IsEnabled()) {
 					Invoke();
 				} else {
-					if (fRunner != nullptr) {
-						delete fRunner;
-						fRunner = nullptr;
-					}
+					delete fRunner;
+					fRunner = nullptr;
 				}
 				break;
 			default:
@@ -236,10 +234,9 @@ public:
 	void StopDragging(BView* view) override
 	{
 		GTabDropZone::StopDragging(view);
-		if (fRunner != nullptr) {
-			delete fRunner;
-			fRunner = nullptr;
-		}
+
+		delete fRunner;
+		fRunner = nullptr;
 	}
 
 	void StartDragging(BView* view) override
@@ -249,12 +246,10 @@ public:
 		// create a message to update the project
 		if (fRunner == nullptr) {
 			BMessage message(kRunnerTick);
-			fRunner = new BMessageRunner(BMessenger(this), &message, 500000);
-			if (fRunner->InitCheck() != B_OK) {
-				if (fRunner != nullptr) {
-					delete fRunner;
-					fRunner = nullptr;
-				}
+			fRunner = new (std::nothrow) BMessageRunner(BMessenger(this), &message, 500000);
+			if (fRunner == nullptr || fRunner->InitCheck() != B_OK) {
+				delete fRunner;
+				fRunner = nullptr;
 			}
 		}
 	}

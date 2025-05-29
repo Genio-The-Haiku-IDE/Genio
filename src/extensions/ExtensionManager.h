@@ -15,6 +15,8 @@ class Editor;
 class ProjectItem;
 
 struct ExtensionInfo {
+	ExtensionInfo();
+
 	bool Enabled;
 	BString Name;
 	BString Signature;

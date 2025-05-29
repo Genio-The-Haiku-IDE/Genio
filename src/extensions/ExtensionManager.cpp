@@ -7,12 +7,13 @@
 
 #include "ExtensionManager.h"
 
-#include <StringList.h>
 #include <filesystem>
 
 #include <Directory.h>
 #include <Entry.h>
 #include <Path.h>
+#include <StringList.h>
+
 #include "Utils.h"
 
 
@@ -49,7 +50,7 @@ ExtensionManager::_ScanExtensions(BString directory)
 					// dash.Append(extension.Shortcut, 1);
 					// extension.Name.RemoveLast(dash);
 				// }
-				int length = extension.Name.Length();
+				int32 length = extension.Name.Length();
 				if (extension.Name[length-2] == '-') {
 					extension.Shortcut = extension.Name[length-1];
 					extension.Name.Truncate(length-2);
@@ -58,10 +59,6 @@ ExtensionManager::_ScanExtensions(BString directory)
 				}
 				extension.Ref = ref;
 				extension.Enabled = true;
-				// TODO: I added these two because otherwise they're uninitialized
-				// maybe it's better to have a constructor which does that
-				extension.ShowInToolsMenu = true;
-				extension.ShowInContextMenu = false;
 				fExtensions.emplace_back(std::move(extension));
 			}
 		}
@@ -90,8 +87,22 @@ ExtensionManager::_GetUserDirectory()
 	return userPath.Path();
 }
 
+
 std::vector<ExtensionInfo>&
 ExtensionManager::GetExtensions()
 {
 	return fExtensions;
 }
+
+
+// ExtensionInfo
+ExtensionInfo::ExtensionInfo()
+	:
+	Enabled(true),
+	ShowInToolsMenu(true),
+	ShowInContextMenu(true),
+	Modifier(0),
+	Shortcut(0)
+{
+}
+

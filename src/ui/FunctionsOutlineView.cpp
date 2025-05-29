@@ -399,7 +399,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 				{
 					int32 line;
 					if (msg->FindInt32("line", &line) == B_OK)
-						SelectSymbolByCaretPosition(line);
+						_SelectSymbolByCaretPosition(line);
 					break;
 				}
 				case MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED:
@@ -425,7 +425,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 					LogTrace("FunctionsOutlineView: Symbols updated message received");
 
 					_UpdateDocumentSymbols(symbols, &newRef);
-					SelectSymbolByCaretPosition(msg->GetInt32("caret_line", -1));
+					_SelectSymbolByCaretPosition(msg->GetInt32("caret_line", -1));
 					break;
 				}
 				default:
@@ -475,7 +475,7 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 
 
 void
-FunctionsOutlineView::SelectSymbolByCaretPosition(int32 position)
+FunctionsOutlineView::_SelectSymbolByCaretPosition(int32 position)
 {
 	BListItem* sym = _RecursiveSymbolByCaretPosition(position, nullptr);
 	if (sym != nullptr && !sym->IsSelected()) {

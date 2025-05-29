@@ -48,7 +48,7 @@ public:
 
 	TermView* GetTermView() const { return fTermView; }
 
-	void DefaultSettings()
+	void SetDefaultSettings()
 	{
 		PrefHandler* handler = PrefHandler::Default();
 		rgb_color background = handler->getRGB(PREF_TEXT_BACK_COLOR);
@@ -246,7 +246,7 @@ GenioTermView::Instantiate(BMessage* data)
 		scrollView->ScrollBar(B_VERTICAL)
 				->ResizeBy(0, -(be_control_look->GetScrollBarWidth(B_VERTICAL) - 1));
 
-		containerView->DefaultSettings();
+		containerView->SetDefaultSettings();
 
 		return scrollView;
 	}

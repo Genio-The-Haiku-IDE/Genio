@@ -73,7 +73,6 @@ namespace Genio::Git {
 			git_oid branch_oid;
 		};
 
-
 										GitRepository(const BString path);
 										~GitRepository();
 
@@ -85,7 +84,7 @@ namespace Genio::Git {
 		bool							IsInitialized();
 		void							Init(bool createInitalCommit = true);
 
-		std::vector<BString>			GetTags( size_t maxTags = MAX_ELEMENTS) ;
+		std::vector<BString>			GetTags(size_t maxTags = MAX_ELEMENTS) ;
 
 		std::vector<BString>			GetBranches(git_branch_t type = GIT_BRANCH_LOCAL, size_t maxBranches = MAX_ELEMENTS) const;
 		int								SwitchBranch(const BString branch);

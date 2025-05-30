@@ -157,10 +157,7 @@ namespace Genio::Git {
 
 		BString branchName(name);
 		try {
-			int status = 0;
 			std::vector<BString> files;
-			BString remoteBranchName;
-
 			git_checkout_options opts;
 			check(git_checkout_init_options(&opts, GIT_CHECKOUT_OPTIONS_VERSION));
 			opts.notify_flags =	GIT_CHECKOUT_NOTIFY_CONFLICT;
@@ -172,11 +169,14 @@ namespace Genio::Git {
 
 			// if the target branch is remote and a corresponding local branch does not exist, we need
 			// to create a local branch first, set the remote tracking then checkout
+			int status = 0;
+			BString remoteBranchName;
 			if (branchName.StartsWith("origin")) {
 				remoteBranchName = branchName;
 				branchName.RemoveFirst("origin/");
 
-				status = git_branch_create(&ref, fRepository, branchName.String(), (git_commit*)tree, false);
+				status = git_branch_create(&ref, fRepository,
+									branchName.String(), (git_commit*)tree, false);
 				if (status >= 0) {
 					check(git_branch_set_upstream(ref, remoteBranchName.String()));
 				}
@@ -277,7 +277,6 @@ namespace Genio::Git {
 					tag.String()));
 			}
 
-
 			// Get the commit at the tip of the existing branch
 			git_oid commitId;
 			git_reference_name_to_id(&commitId, fRepository, git_reference_name(existing_branch_ref));
@@ -305,8 +304,7 @@ namespace Genio::Git {
 		}
 	}
 
-	// TODO: Use a typedef
-	std::vector<std::pair<BString, BString>>
+	GitRepository::RepoFiles
 	GitRepository::GetFiles() const
 	{
 		git_status_options statusopt;
@@ -316,7 +314,7 @@ namespace Genio::Git {
 		git_status_list *status = nullptr;
 		check(git_status_list_new(&status, fRepository, &statusopt));
 
-		std::vector<std::pair<BString, BString>> fileStatuses;
+		RepoFiles fileStatuses;
 		size_t maxi = git_status_list_entrycount(status);
 		for (size_t i = 0; i < maxi; ++i) {
 			const git_status_entry *s = git_status_byindex(status, i);
@@ -376,7 +374,6 @@ namespace Genio::Git {
 				git_repository_free(repo);
 			throw;
 		}
-
 	}
 
 	void
@@ -665,7 +662,6 @@ namespace Genio::Git {
 		git_reference *targetRef = nullptr;
 		git_reference *newTargetRef = nullptr;
 		git_object *target = nullptr;
-		int err = 0;
 
 		try {
 			if (is_unborn) {
@@ -703,13 +699,13 @@ namespace Genio::Git {
 			}
 
 			// Move the target reference to the target OID
-			check(git_reference_set_target(&newTargetRef, targetRef, target_oid,	NULL));
+			check(git_reference_set_target(&newTargetRef, targetRef, target_oid, NULL));
 
 			git_reference_free(targetRef);
 			git_reference_free(newTargetRef);
 			git_object_free(target);
 
-			return err;
+			return 0;
 		} catch (const GitException &e) {
 			if (targetRef != nullptr)
 				git_reference_free(targetRef);

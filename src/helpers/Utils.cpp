@@ -133,7 +133,6 @@ OKAlert(const char* title, const char* message, alert_type type)
 }
 
 
-
 KeyDownMessageFilter::KeyDownMessageFilter(uint32 commandToSend, char key,
 	uint32 modifiers, filter_result filterResult)
 	:
@@ -279,7 +278,7 @@ public:
 			return find_value<BType>(message_, prop_name_, index_);
 		}
 	};
-	message_property(BMessage* message, std::string prop_name)
+	message_property(BMessage* message, const std::string& prop_name)
 		: message_(message), prop_name_(prop_name) {}
 	iterator begin() { return iterator(message_, prop_name_, 0); }
 	iterator end() { return iterator(message_, prop_name_, size()); }
@@ -343,7 +342,7 @@ FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 	if (IsCppSourceExtension(extension)) {
 		// search if the file exists with the possible header extensions..
 		found = std::find_if(std::begin(headerExt), std::end(headerExt),
-			[&prefixname, &foundFile](std::string extension) {
+			[&prefixname, &foundFile](const std::string& extension) {
 				std::string fullFilename = prefixname + extension;
 				foundFile.SetTo(fullFilename.c_str());
 				return foundFile.Exists();
@@ -351,7 +350,7 @@ FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 	} else if (IsCppHeaderExtension(extension)) {
 		// search if the file exists with the possible source extensions..
 		found = std::find_if(std::begin(sourceExt), std::end(sourceExt),
-			[&prefixname, &foundFile](std::string extension) {
+			[&prefixname, &foundFile](const std::string& extension) {
 				std::string fullFilename = prefixname + extension;
 				foundFile.SetTo(fullFilename.c_str());
 				return foundFile.Exists();
@@ -410,6 +409,7 @@ GetDataDirectory()
 	return GetNearbyDataDirectory();
 }
 
+
 // Search for data directory nearby the Genio binary:
 // or in ./data or in ../data/
 BPath
@@ -430,6 +430,7 @@ GetNearbyDataDirectory()
 	}
 	return genioPath;
 }
+
 
 bool
 IsXMasPeriod()
@@ -527,4 +528,3 @@ GetVersion()
 
 	return NULL;
 }
-

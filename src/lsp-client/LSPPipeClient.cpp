@@ -13,6 +13,7 @@
 #include "Log.h"
 #include "LSPReaderThread.h"
 
+
 status_t
 LSPPipeClient::Start(const char **argv, int32 argc)
 {
@@ -97,10 +98,9 @@ bool
 LSPPipeClient::Write(std::string &in)
 {
 	ssize_t hasWritten = 0;
-	size_t writeSize = 0;
-	size_t totalSize = in.length();
-
 	if (fWriteLock.Lock()) { // for production code: WithTimeout(1000000) == B_OK)
+		size_t writeSize = 0;
+		size_t totalSize = in.length();
 		while ((hasWritten = fPipeImage.Write(&in[writeSize], totalSize)) != -1) {
 			writeSize += hasWritten;
 			if (writeSize >= totalSize || hasWritten == 0) {
@@ -148,7 +148,7 @@ LSPPipeClient::LSPPipeClient(uint32 what, BMessenger& msgr)
 
 
 pid_t
-LSPPipeClient::GetChildPid()
+LSPPipeClient::GetChildPid() const
 {
 	return fPipeImage.GetChildPid();
 }

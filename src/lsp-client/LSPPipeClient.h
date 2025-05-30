@@ -27,7 +27,7 @@ public:
 	bool 	readMessage(std::string &json) override;
 	bool 	writeMessage(std::string &json) override;
 
-	pid_t	GetChildPid();
+	pid_t	GetChildPid() const;
 
 	void	ForceQuit(); //quite the looper and the kill the thread
 	bool	HasQuitBeenRequested();

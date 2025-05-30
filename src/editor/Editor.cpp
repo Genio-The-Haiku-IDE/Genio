@@ -1831,11 +1831,11 @@ Editor::_MaintainIndentation(char ch)
 {
 	int eolMode = SendMessage(SCI_GETEOLMODE, 0, 0);
 	int currentLine = SendMessage(SCI_LINEFROMPOSITION, SendMessage(SCI_GETCURRENTPOS, 0, 0), 0);
-	int lastLine = currentLine - 1;
 
 	if (((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') ||
 		(eolMode == SC_EOL_CR && ch == '\r')) {
 		int indentAmount = 0;
+		int lastLine = currentLine - 1;
 		if (lastLine >= 0) {
 			indentAmount = SendMessage(SCI_GETLINEINDENTATION, lastLine, 0);
 		}
@@ -2144,18 +2144,15 @@ Editor::EvaluateIdleTime()
 {
 	if (fIdleHandler == nullptr || fIdleHandler->SetInterval(kIdleTimeout) != B_OK) {
 		LogInfo("EvaluateIdleTime: Re-arming IdleHandler...");
-		if (fIdleHandler != nullptr)
-			delete fIdleHandler;
+		delete fIdleHandler;
 
 		// create a message to update the project
 		BMessage message(kIdle);
-		fIdleHandler = new BMessageRunner(BMessenger(this), &message, kIdleTimeout, 1);
-		if (fIdleHandler->InitCheck() != B_OK) {
+		fIdleHandler = new (std::nothrow) BMessageRunner(BMessenger(this), &message, kIdleTimeout, 1);
+		if (fIdleHandler == nullptr || fIdleHandler->InitCheck() != B_OK) {
 			LogInfo("EvaluateIdleTime: Could not create fIdleHandler. Deleting it");
-			if (fIdleHandler != nullptr) {
-				delete fIdleHandler;
-				fIdleHandler = nullptr;
-			}
+			delete fIdleHandler;
+			fIdleHandler = nullptr;
 		} else {
 			LogInfo("EvaluateIdleTime: fIdleHandler re-armed.");
 		}

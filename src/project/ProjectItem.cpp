@@ -291,8 +291,6 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	circleRect.right = circleRect.left + owner->StringWidth(Text()) + 5;
 	owner->FillRoundRect(circleRect, 9, 10);
 
-	//
-
 	// TODO: this part is quite computationally intensive
 	// and shoud be moved away from the DrawItem.
 	BString branchName;
@@ -345,8 +343,8 @@ ProjectTitleItem::InitAnimationIcons()
 			name.Append("dark-");
 		name << i;
 		size_t size;
-		const uint8* rawData = (const uint8*)resources->LoadResource(
-			B_RAW_TYPE, name.String(), &size);
+		const uint8* rawData = reinterpret_cast<const uint8*>(resources->LoadResource(
+			B_RAW_TYPE, name.String(), &size));
 		if (rawData == nullptr) {
 			LogError("InitAnimationIcons: Cannot load resource");
 			break;

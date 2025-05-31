@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ * Copyright 2023-2025, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -39,9 +39,10 @@ template<class C, typename T>
 class GControl : public C {
 public:
 	GControl(GMessage& msg, T value, ConfigManager& cfg)
-	:
-	C("", "", nullptr),
-	fConfigManager(cfg) {
+		:
+		C("", "", nullptr),
+		fConfigManager(cfg)
+	{
 		C::SetName(msg["key"]);
 		C::SetLabel(msg["label"]);
 		LoadValue(value);
@@ -52,12 +53,14 @@ public:
 		C::SetMessage(invoke);
 	}
 
-	void AttachedToWindow() {
+	void AttachedToWindow()
+	{
 		C::AttachedToWindow();
 		C::SetTarget(this);
 	}
 
-	void MessageReceived(BMessage* msg) {
+	void MessageReceived(BMessage* msg)
+	{
 		GMessage& gsm = *(GMessage*)(msg);
 		if (msg->what == kOnNewValue) {
 			fConfigManager[gsm["key"]] = RetrieveValue();
@@ -67,11 +70,13 @@ public:
 			C::MessageReceived(msg);
 	}
 
-	T RetrieveValue() const {
+	T RetrieveValue() const
+	{
 		return (T)C::Value();
 	}
 
-	void LoadValue(T value) {
+	void LoadValue(T value)
+	{
 		C::SetValue(value);
 	}
 private:
@@ -214,9 +219,10 @@ ConfigWindow::QuitRequested()
 	// it could happen that the user changed a BTextControl
 	// without 'committing' it (by changing focus or by pressing enter)
 	// here we try detect this case and fix it
-	if (CurrentFocus() != nullptr &&
-	    CurrentFocus()->Parent() != nullptr) {
-		BTextControl* control = dynamic_cast<BTextControl*>(CurrentFocus()->Parent());
+	BView* focus = CurrentFocus();
+	if (focus != nullptr &&
+	    focus->Parent() != nullptr) {
+		BTextControl* control = dynamic_cast<BTextControl*>(focus->Parent());
 		if (control != nullptr && fConfigManager.HasKey(control->Name())) {
 			// let's avoid code duplications on how to invoke a config change.
 			// and let's do it syncronous to avoid messing up with the quit workflow!
@@ -288,7 +294,7 @@ ConfigWindow::_PopulateListView()
 	while (fConfigManager.FindConfigMessage("config", index++, &msg) == B_OK)  {
 		std::vector<GMessage>::iterator i = dividedByGroup.begin();
 		while (i != dividedByGroup.end()) {
-			if (strcmp((*i)["group"], (const char*)msg["group"]) == 0) {
+			if (strcmp((*i)["group"], msg["group"]) == 0) {
 				(*i).AddMessage("config", &msg);
 				break;
 			}
@@ -296,8 +302,9 @@ ConfigWindow::_PopulateListView()
 		}
 
 		if (i == dividedByGroup.end() &&
-			(fShowHidden || (strcmp((const char*)msg["group"], "Hidden") != 0)) ) {
-			GMessage first = {{ {"group", (const char*)msg["group"]} }};
+			(fShowHidden || (strcmp(msg["group"], "Hidden") != 0)) ) {
+			const char* group = msg["group"];
+			GMessage first = {{ {"group", group} }};
 			first.AddMessage("config", &msg);
 			dividedByGroup.push_back(first);
 		}
@@ -305,7 +312,7 @@ ConfigWindow::_PopulateListView()
 
 	std::vector<GMessage>::iterator iter = dividedByGroup.begin();
 	while (iter != dividedByGroup.end())  {
-		BString groupName = static_cast<const char*>((*iter)["group"]);
+		BString groupName = (*iter)["group"];
 		BView *groupView = MakeViewFor(groupName.String(), *iter);
 		if (groupView != NULL) {
 			groupView->SetName(groupName.String());
@@ -375,7 +382,7 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 BView*
 ConfigWindow::MakeNoteView(GMessage& config)
 {
-	BString name((const char*)config["key"]);
+	BString name(config["key"]);
 	name << "_note";
 	BStringView* view = new BStringView(name.String(), config["note"]);
 	return view;
@@ -396,7 +403,7 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		case B_INT32_TYPE:
 		{
 			if (config.Has("mode")) {
-				if (BString((const char*)config["mode"]).Compare("options") == 0) {
+				if (BString(config["mode"]).Compare("options") == 0) {
 					return _CreatePopUp<int32, BOptionPopUp>(config);
 				}
 			} else {
@@ -413,7 +420,7 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		case B_STRING_TYPE:
 		{
 			if (config.Has("mode")) {
-				if (BString((const char*)config["mode"]).Compare("options") == 0) {
+				if (BString(config["mode"]).Compare("options") == 0) {
 					return _CreatePopUp<const char*, OptionPopUpString>(config);
 				}
 			} else {
@@ -445,7 +452,8 @@ ConfigWindow::MakeControlFor(GMessage& config)
 		default:
 		{
 			BString label;
-			label.SetToFormat("Can't create control for setting [%s]\n", (const char*)config["key"]);
+			const char* setting = config["key"];
+			label.SetToFormat("Can't create control for setting [%s]\n", setting);
 			return new BStringView("view", label.String());
 		}
 	}

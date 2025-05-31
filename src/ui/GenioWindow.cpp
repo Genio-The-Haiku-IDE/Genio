@@ -1772,9 +1772,9 @@ GenioWindow::_HandleEditorZoom(int32 value)
 {
 	int32 zoom = gCFG["editor_zoom"];
 	if (value > 0) {
-		zoom = std::min(20, zoom + value);
+		zoom = std::min(int32(20), zoom + value);
 	} else if (value < 0) {
-		zoom = std::max(-10, zoom + value);
+		zoom = std::max(int32(-10), zoom + value);
 	} else {
 		// value == 0, reset zoom
 		zoom = 0;

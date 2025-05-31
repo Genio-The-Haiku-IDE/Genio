@@ -5,8 +5,6 @@
 
 #include "ConfigManager.h"
 
-#include <cassert>
-
 #include <File.h>
 #include <Path.h>
 
@@ -95,23 +93,26 @@ public:
 	AttributePSP()
 	{
 	}
+
 	virtual status_t Open(const BPath& attributeFilePath, kPSPMode mode)
 	{
 		return fNodeAttr.SetTo(attributeFilePath.Path());
 	}
+
 	virtual status_t Close()
 	{
 		return B_OK;
 	}
+
 	virtual status_t LoadKey(ConfigManager& manager, const char* key,
 		GMessage& storage, GMessage& paramerConfig)
 	{
-		BString attrName("genio:");
-		attrName.Append(key);
 		const void* data = nullptr;
 		ssize_t numBytes = 0;
 		type_code type = paramerConfig.Type("default_value");
 		if (paramerConfig.FindData("default_value", type, &data, &numBytes) == B_OK) {
+			BString attrName("genio:");
+			attrName.Append(key);
 			void* buffer = ::malloc(numBytes);
 			ssize_t readStatus = fNodeAttr.ReadAttr(attrName.String(), type, 0, buffer, numBytes);
 			if (readStatus <= 0) {
@@ -132,15 +133,16 @@ public:
 		}
 		return B_NAME_NOT_FOUND;
 	}
+
 	virtual status_t SaveKey(ConfigManager& manager, const char* key, GMessage& storage)
 	{
 		// save as attribute:
-		BString attrName("genio:");
-		attrName.Append(key);
 		const void* data = nullptr;
 		ssize_t numBytes = 0;
 		type_code type = storage.Type(key);
 		if (storage.FindData(key, type, &data, &numBytes) == B_OK) {
+			BString attrName("genio:");
+			attrName.Append(key);
 			if (fNodeAttr.WriteAttr(attrName.String(), type, 0, data, numBytes) <= 0) {
 				return B_ERROR;
 			}
@@ -151,6 +153,7 @@ private:
 	BNode fNodeAttr;
 };
 
+
 class NoStorePSP : public PermanentStorageProvider {
 public:
 						NoStorePSP() {}
@@ -159,7 +162,6 @@ public:
 	virtual status_t	Close() { return B_OK; }
 	virtual status_t	LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& parConfig) { return B_OK; }
 	virtual status_t	SaveKey(ConfigManager& manager, const char* key, GMessage& storage) { return B_OK; }
-
 };
 
 
@@ -169,7 +171,8 @@ ConfigManager::ConfigManager(const int32 messageWhat)
 	fLocker("ConfigManager lock")
 {
 	fNoticeMessage.what = messageWhat;
-	assert(fLocker.InitCheck() == B_OK);
+	if (fLocker.InitCheck() != B_OK)
+		throw std::runtime_error("ConfigManager: Failed initializing locker!");
 	for (int32 i = 0; i < kStorageTypeCountNb; i++)
 		fPSPList[i] = nullptr;
 }
@@ -367,7 +370,8 @@ ConfigManager::PrintValues() const
 bool
 ConfigManager::_CheckKeyIsValid(const char* key) const
 {
-	assert(fLocker.IsLocked());
+	if (!fLocker.IsLocked())
+		throw std::runtime_error("_CheckKeyIsValid(): Locker is not locked!");
 
 	type_code type;
 	if (fStorage.GetInfo(key, &type) != B_OK) {
@@ -375,7 +379,7 @@ ConfigManager::_CheckKeyIsValid(const char* key) const
 		detail << key;
 		debugger(detail.String());
 		LogFatal(detail.String());
-		throw new std::exception();
+		throw std::runtime_error(detail.String());
 	}
 	return true;
 }

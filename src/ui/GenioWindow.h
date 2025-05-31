@@ -67,15 +67,14 @@ private:
 			void				_PrepareWorkspace();
 
 			Editor*				_AddEditorTab(entry_ref* ref, BMessage* addInfo);
+			status_t			_RemoveTab(Editor* editor);
 
 			status_t			_BuildProject();
 			status_t			_CleanProject();
-
+			status_t			_DebugProject();
 			status_t			_DoBuildOrCleanProject(const BString& cmd);
 
-			status_t			_DebugProject();
 			bool				_FileRequestClose(Editor* editor);
-			status_t			_RemoveTab(Editor* editor);
 			void				_FileCloseAll();
 			bool				_FileRequestSaveList(std::vector<Editor*>& unsavedEditor);
 			bool				_FileRequestSaveAllModified();
@@ -83,24 +82,28 @@ private:
 			status_t			_FileOpen(BMessage* msg);
 			status_t			_FileOpenAtStartup(BMessage* msg);
 			status_t			_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred,  int32 be_line, int32 lsp_char);
-			status_t			_SelectEditorToPosition(Editor* editor, int32 be_line, int32 lsp_char);
-			void				_ApplyEditsToSelectedEditor(BMessage* msg);
-
-			bool				_FileIsSupported(const entry_ref* ref);
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
+			bool				_FileIsSupported(const entry_ref* ref);
+
 			status_t			_FileSave(Editor* editor);
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
 			status_t			_FileSaveAs(Editor* , BMessage* message);
 			int32				_FilesNeedSave();
+
 			void				_PreFileLoad(Editor* editor);
 			void				_PostFileLoad(Editor* editor);
 			void				_PreFileSave(Editor* editor);
 			void				_PostFileSave(Editor* editor);
+
 			void				_FindGroupShow(bool show);
 			void				_FindMarkAll(BMessage* message);
 			void				_FindNext(BMessage* message, bool backwards);
 			void				_FindInFiles();
 			void				_AddSearchFlags(BMessage* msg);
+
+			status_t			_SelectEditorToPosition(Editor* editor, int32 be_line, int32 lsp_char);
+			void				_ApplyEditsToSelectedEditor(BMessage* msg);
+			void 				_HandleEditorZoom(int32 changeValue);
 
 			void				_GetFocusAndSelection(BTextControl* control) const;
 			status_t			_Git(const BString& git_command);

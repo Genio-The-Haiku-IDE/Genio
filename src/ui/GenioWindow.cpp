@@ -560,24 +560,16 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_VIEW_ZOOMIN:
 		{
-			int32 zoom = gCFG["editor_zoom"];
-			if (zoom < 20) {
-				zoom++;
-				gCFG["editor_zoom"] = zoom;
-			}
+			_HandleEditorZoom(1);
 			break;
 		}
 		case MSG_VIEW_ZOOMOUT:
 		{
-			int32 zoom = gCFG["editor_zoom"];
-			if (zoom > -10) {
-				zoom--;
-				gCFG["editor_zoom"] = zoom;
-			}
+			_HandleEditorZoom(-1);
 			break;
 		}
 		case MSG_VIEW_ZOOMRESET:
-			gCFG["editor_zoom"] = 0;
+			_HandleEditorZoom(0);
 			break;
 		case MSG_WHEEL_WITH_COMMAND_KEY:
 		{
@@ -592,15 +584,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			if (deltaY == 0.0f)
 				deltaY = deltaX;
 
-			int32 zoom = gCFG["editor_zoom"];
-
-			if (deltaY < 0  && zoom < 20) {
-				zoom++;
-				gCFG["editor_zoom"] = zoom;
-			} else if (deltaY > 0 && zoom > -10) {
-				zoom--;
-				gCFG["editor_zoom"] = zoom;
-			}
+			_HandleEditorZoom(-deltaY);
 			break;
 		}
 		case MSG_FIND_GROUP_SHOW:
@@ -1780,6 +1764,23 @@ GenioWindow::_SelectEditorToPosition(Editor* editor, int32 be_line, int32 lsp_ch
 		selected->GrabFocus();
 	}
 	return B_OK;
+}
+
+
+void
+GenioWindow::_HandleEditorZoom(int32 value)
+{
+	int32 zoom = gCFG["editor_zoom"];
+	if (value > 0) {
+		zoom = std::min(20, zoom + value);
+	} else if (value < 0) {
+		zoom = std::max(-10, zoom + value);
+	} else {
+		// value == 0, reset zoom
+		zoom = 0;
+	}
+
+	gCFG["editor_zoom"] = zoom;
 }
 
 

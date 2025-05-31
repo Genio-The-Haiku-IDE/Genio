@@ -102,7 +102,7 @@ RDEFS := Genio.rdef Spinner.rdef
 LIBS  = be shared translation localestub $(STDCPPLIBS)
 LIBS += columnlistview tracker
 LIBS += git2
-LIBS += src/scintilla/bin/libscintilla.a
+LIBS += libs/scintilla/bin/libscintilla.a
 LIBS += yaml-cpp
 LIBS += editorconfig
 LIBS += game
@@ -114,8 +114,9 @@ SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY priva
 SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/tracker)
 SYSTEM_INCLUDE_PATHS += $(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/locale)
 SYSTEM_INCLUDE_PATHS += $(shell findpaths -a $(platform) -e B_FIND_PATH_HEADERS_DIRECTORY lexilla)
-SYSTEM_INCLUDE_PATHS += src/scintilla/haiku
-SYSTEM_INCLUDE_PATHS += src/scintilla/include
+SYSTEM_INCLUDE_PATHS += libs
+SYSTEM_INCLUDE_PATHS += libs/scintilla/haiku
+SYSTEM_INCLUDE_PATHS += libs/scintilla/include
 
 
 ## clang build flag ############################################################
@@ -145,13 +146,13 @@ $(OBJ_DIR)/%.rsrc : %.RDEF
 	cat $< | $(CC) -E $(INCLUDES)  - | grep -av '^#' | $(RESCOMP) -I $(dir $<) -o "$@" -
 
 deps:
-	$(MAKE) -C src/scintilla/haiku
+	$(MAKE) -C libs/scintilla/haiku
 	$(MAKE) -C src/terminal -f Makefile.addon DEBUGGER=$(DEBUGGER)
 
 .PHONY: clean deps
 
 cleanall: clean
-	$(MAKE) clean -C src/scintilla/haiku
+	$(MAKE) clean -C libs/scintilla/haiku
 	rm -f txt2header
 	rm -f Changelog.h
 

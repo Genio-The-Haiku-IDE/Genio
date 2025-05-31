@@ -6,6 +6,5 @@ engines:
 exclude_paths:
   - "data/templates/**"
   - "documentation/**"
-  - "src/lexilla/**"
-  - "src/scintilla/**"
+  - "libs/**"
   - "src/terminal/**" 

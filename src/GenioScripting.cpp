@@ -5,14 +5,14 @@
  * 		Nexus6 <nexus6@disroot.org>
  */
 
+// Contains the scripting part of the GenioApp class
 
-#include "GenioApp.h"
 
 #include <PropertyInfo.h>
 
+#include "GenioApp.h"
 #include "Editor.h"
 #include "EditorTabView.h"
-#include "GenioNamespace.h"
 #include "GenioWindow.h"
 
 

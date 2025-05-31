@@ -15,7 +15,7 @@
 #include <Message.h>
 #include <String.h>
 
-#include "GenioNamespace.h"
+#include "GenioApp.h"
 
 
 GSettings::GSettings(const BString& folderPath, const BString& fileName, uint32 command)

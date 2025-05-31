@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <string>
 
-#include "GenioNamespace.h"
+#include "GenioApp.h"
 #include "ScintillaView.h"
 
 

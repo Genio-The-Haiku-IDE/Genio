@@ -15,12 +15,11 @@
 #include <Path.h>
 
 #include "ConfigManager.h"
-#include "LSPProjectWrapper.h"
-#include "MakeFileHandler.h"
-#include "GenioNamespace.h"
+#include "GenioApp.h"
 #include "GitRepository.h"
 #include "GSettings.h"
-
+#include "LSPProjectWrapper.h"
+#include "MakeFileHandler.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"

@@ -17,7 +17,6 @@
 
 #include "ConfigManager.h"
 #include "ExtensionManager.h"
-#include "GenioNamespace.h"
 #include "GenioWindow.h"
 #include "Languages.h"
 #include "Log.h"

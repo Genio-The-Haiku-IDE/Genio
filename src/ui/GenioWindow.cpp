@@ -46,7 +46,6 @@
 #include "FSUtils.h"
 #include "FunctionsOutlineView.h"
 #include "GenioApp.h"
-#include "GenioNamespace.h"
 #include "GenioWindowMessages.h"
 #include "GitAlert.h"
 #include "GitRepository.h"

@@ -21,7 +21,6 @@
 
 #include <Catalog.h>
 #include <ControlLook.h>
-//#include <DirMenu.h>
 #include <MenuItem.h>
 #include <Message.h>
 #include <Messenger.h>
@@ -129,10 +128,12 @@ StatusView::_ValidatePreferredSize()
 		fPreferredSize.height = minHeight;
 
 	ResizeBy(fPreferredSize.width, 0);
-	float diff = scrollBar->Frame().left - fPreferredSize.width;
-	if (fabs(diff) > 0.5) {
-		scrollBar->ResizeBy(diff, 0);
-		scrollBar->MoveBy(-diff, 0);
+	if (scrollBar != NULL) {
+		float diff = scrollBar->Frame().left - fPreferredSize.width;
+		if (fabs(diff) > 0.5) {
+			scrollBar->ResizeBy(diff, 0);
+			scrollBar->MoveBy(-diff, 0);
+		}
 	}
 }
 

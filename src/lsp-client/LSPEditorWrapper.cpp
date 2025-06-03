@@ -1134,7 +1134,7 @@ LSPEditorWrapper::ApplyTextEdit(TextEdit &textEdit)
 void
 LSPEditorWrapper::OpenFileURI(std::string uri, int32 line, int32 character, BString edits)
 {
-	BUrl url(uri.c_str());
+	BUrl url = uri.c_str();
 	if (url.IsValid() && url.HasPath()) {
 		BEntry entry(url.Path().String());
 		entry_ref ref;

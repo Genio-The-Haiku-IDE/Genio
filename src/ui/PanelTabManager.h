@@ -17,6 +17,7 @@ class PanelTabView;
 #define kTabViewLeft 	"left_panels"
 #define kTabViewRight	"right_panels"
 #define kTabViewBottom	"bottom_panels"
+#define kTabViewHidden	"hidden_panels"
 
 enum {
 	kTabProblems 		= 'Tprb',

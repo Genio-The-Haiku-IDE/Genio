@@ -3317,6 +3317,7 @@ GenioWindow::_InitTabViews()
 	fPanelTabManager->CreatePanelTabView(kTabViewBottom, 	B_HORIZONTAL);
 	fPanelTabManager->CreatePanelTabView(kTabViewLeft,		B_VERTICAL);
 	fPanelTabManager->CreatePanelTabView(kTabViewRight, 	B_VERTICAL);
+	fPanelTabManager->CreatePanelTabView(kTabViewHidden,	B_HORIZONTAL);
 
 	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);

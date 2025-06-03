@@ -55,13 +55,12 @@ struct tab_info {
 
 typedef std::map<tab_id, tab_info> TabIdMap;
 
-
 class PanelTabView : public GTabView {
 public:
 	PanelTabView(PanelTabManager* manager, const char* name,
 			tab_affinity affinity, orientation orientation)
 		:
-		GTabView(name, affinity, orientation, true)
+		GTabView(name, affinity, orientation, true), fManager(manager)
 	{
 	}
 
@@ -130,8 +129,30 @@ protected:
 		return new GTabID(tab->GetID(), tab->Label().String(), this);
 	}
 
+	void MessageReceived(BMessage* message) override
+	{
+		switch(message->what) {
+			case GTabCloseButton::kTVCloseTab:
+			{
+				int32 fromIndex = message->GetInt32("index", -1);
+				if (fromIndex > -1 && fromIndex < Container()->CountTabs()) {
+					GTab* tab = Container()->TabAt(fromIndex);
+					if (tab != nullptr) {
+						GTabView* tabView = (GTabView*)fManager->GetPanelTabView(kTabViewHidden);
+						tabView->MoveTabs(tab, nullptr, Container());
+					}
+				}
+				break;
+			}
+			default:
+				GTabView::MessageReceived(message);
+				break;
+			}
+	}
+
 private:
 	TabIdMap fIdMap;
+	PanelTabManager* fManager;
 };
 
 

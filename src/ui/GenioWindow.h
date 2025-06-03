@@ -256,7 +256,6 @@ private:
 			ConsoleIOTabView*	fMTermView;
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultTab*	fSearchResultTab;
-			TerminalTab*		fTerminalTab;
 
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;

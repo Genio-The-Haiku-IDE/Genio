@@ -6,8 +6,7 @@
 
 #include "TabsContainer.h"
 
-#include <cassert>
-#include <cstdio>
+#include <Debug.h>
 
 #include "GTab.h"
 #include "GTabView.h"
@@ -26,7 +25,7 @@ TabsContainer::TabsContainer(GTabView* tabView,
 	fAffinity(affinity),
 	fFirstLayout(true)
 {
-	SetFlags(Flags()|B_FRAME_EVENTS);
+	SetFlags(Flags() | B_FRAME_EVENTS);
 	GroupLayout()->AddView(0, new Filler(this));
 	GroupLayout()->SetItemWeight(0, FILLER_WEIGHT);
 	SetExplicitMinSize(BSize(50, TabViewTools::DefaultTabHeight()));
@@ -37,6 +36,8 @@ TabsContainer::TabsContainer(GTabView* tabView,
 void
 TabsContainer::AddTab(GTab* tab, int32 index)
 {
+	ASSERT(tab != nullptr);
+
 	if (index == -1 || index > CountTabs())
 		index = CountTabs();
 
@@ -82,6 +83,8 @@ TabsContainer::IndexOfTab(GTab* tab) const
 GTab*
 TabsContainer::RemoveTab(GTab* tab)
 {
+	ASSERT(tab != nullptr);
+
 	int32 selectedIndex = IndexOfTab(tab);
 	tab->LayoutItem()->RemoveSelf();
 	tab->RemoveSelf();
@@ -220,8 +223,11 @@ void
 TabsContainer::OnDropTab(GTab* toTab, BMessage* message)
 {
 	GTab* fromTab = (GTab*)message->GetPointer("tab", nullptr);
-	TabsContainer*	fromContainer = fromTab->Container();
-	if (fromTab == nullptr || fromContainer == nullptr || toTab == fromTab)
+	if (fromTab == nullptr)
+		return;
+
+	TabsContainer* fromContainer = fromTab->Container();
+	if (fromContainer == nullptr || toTab == fromTab)
 		return;
 
 	fGTabView->MoveTabs(fromTab, toTab, fromContainer);

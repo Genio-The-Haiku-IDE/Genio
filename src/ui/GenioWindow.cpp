@@ -3325,13 +3325,12 @@ GenioWindow::_InitTabViews()
 	fMTermView 	  = new ConsoleIOTabView(B_TRANSLATE("Console I/O"), BMessenger(this));
 
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
-	fTerminalTab	= new TerminalTab();
 
 	fPanelTabManager->AddPanelByConfig(fProblemsPanel, kTabProblems);
 	fPanelTabManager->AddPanelByConfig(fBuildLogView, kTabBuildLog);
 	fPanelTabManager->AddPanelByConfig(fMTermView, kTabOutputLog);
 	fPanelTabManager->AddPanelByConfig(fSearchResultTab, kTabSearchResult);
-	fPanelTabManager->AddPanelByConfig(fTerminalTab, kTabTerminal);
+	fPanelTabManager->AddPanelByConfig(new TerminalTab(), kTabTerminal);
 
 
 	//LEFT
@@ -4159,7 +4158,7 @@ GenioWindow::_UpdateRecentCommands(const BString& text)
 status_t
 GenioWindow::_UpdateLabel(Editor* editor, bool isModified)
 {
-	// TODO: Would be nice to move this to GTabEditor 
+	// TODO: Would be nice to move this to GTabEditor
 	if (editor != nullptr) {
 		if (isModified) {
 			// Add '*' to file name

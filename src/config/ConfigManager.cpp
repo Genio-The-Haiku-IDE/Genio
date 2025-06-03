@@ -114,6 +114,8 @@ public:
 			BString attrName("genio:");
 			attrName.Append(key);
 			void* buffer = ::malloc(numBytes);
+			if (buffer == nullptr)
+				return B_NO_MEMORY;
 			ssize_t readStatus = fNodeAttr.ReadAttr(attrName.String(), type, 0, buffer, numBytes);
 			if (readStatus <= 0) {
 				::free(buffer);
@@ -342,7 +344,8 @@ ConfigManager::HasAllDefaultValues()
 	int32 i = 0;
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		if (fStorage[msg["key"]] != msg["default_value"]) {
-			LogDebug("Differs for key %s\n", (const char*)msg["key"]);
+			const char* key = msg["key"];
+			LogDebug("Differs for key %s\n", key);
 			return false;
 		}
 	}

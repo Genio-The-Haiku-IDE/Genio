@@ -2081,9 +2081,9 @@ Editor::SetProblems()
 	if (!Window()->IsLocked()) {
 		debugger("The looper must be locked !");
 	}
-	fProblems.what = EDITOR_UPDATE_DIAGNOSTICS;
-	fProblems.AddUInt64(kEditorId, Id());
-	Window()->PostMessage(&fProblems);
+	BMessage problems (EDITOR_UPDATE_DIAGNOSTICS);
+	problems.AddUInt64(kEditorId, Id());
+	Window()->PostMessage(&problems);
 }
 
 

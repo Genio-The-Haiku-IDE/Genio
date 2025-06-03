@@ -265,9 +265,7 @@ private:
 			ProjectFolder*		fProjectFolder;
 			editor::StatusView*	fStatusView;
 
-			BMessage			fProblems;
 			BMessage			fDocumentSymbols;
-			//symbols_status		fSymbolsStatus;
 			std::set<std::pair<std::string, int32> > fCollapsedSymbols;
 
 			// editorconfig

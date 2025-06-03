@@ -12,11 +12,11 @@
 #include "GTabView.h"
 
 
-class GTabID : public GTab {
+class GTabID : public GTabCloseButton {
 public:
-	GTabID(tab_id id, const char* label)
+	GTabID(tab_id id, const char* label, BHandler* handler)
 		:
-		GTab(label),
+		GTabCloseButton(label, handler),
 		fId(id)
 	{
 	}
@@ -33,7 +33,7 @@ public:
 		BSize min;
 		float w = StringWidth(Label().String());
 		float spacing = be_control_look->DefaultLabelSpacing();
-		min.width = w + spacing * 4;
+		min.width = w + spacing * 4 * 2;
 		min.height = TabViewTools::DefaultTabHeight();
 		return min;
 	}
@@ -61,13 +61,13 @@ public:
 	PanelTabView(PanelTabManager* manager, const char* name,
 			tab_affinity affinity, orientation orientation)
 		:
-		GTabView(name, affinity, orientation)
+		GTabView(name, affinity, orientation, true)
 	{
 	}
 
 	void AddTab(BView* panel, tab_id id, int32 index=-1, bool select = false)
 	{
-		GTabID* tab = new GTabID(id, panel->Name());
+		GTabID* tab = new GTabID(id, panel->Name(), this);
 		GTabView::AddTab(tab, panel, index);
 		if (select) {
 			GTabView::SelectTab(tab);
@@ -127,7 +127,7 @@ protected:
 	GTab* CreateTabView(GTab* clone) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(clone);
-		return new GTabID(tab->GetID(), tab->Label().String());;
+		return new GTabID(tab->GetID(), tab->Label().String(), this);
 	}
 
 private:

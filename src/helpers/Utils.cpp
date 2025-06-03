@@ -445,28 +445,27 @@ IsXMasPeriod()
 BString
 ReadFileContent(const char* filename, off_t maxSize)
 {
+	// TODO: Very simple, does not return
+	// an error if something goes wrong
+
 	BString read;
 	BPath destPath;
 	if (!GetGenioDirectory(destPath))
 		return read;
 	destPath.Append(filename);
-	status_t status;
 	BFile file;
-	if ((status = file.SetTo(destPath.Path(), B_READ_ONLY)) != B_OK)
+	if ((file.SetTo(destPath.Path(), B_READ_ONLY)) != B_OK)
 		return read;
-	if ((status = file.InitCheck()) != B_OK)
+	if ((file.InitCheck()) != B_OK)
 		return read;
 
 	off_t size;
 	file.GetSize(&size);
 
-	size_t maxlen = std::max(maxSize, size);
-
-	char* buffer = new char[size + 1];
+	char* buffer = read.LockBuffer(size + 1);
 	off_t len = file.Read(buffer, size);
 	buffer[len] = '\0';
-	read.SetTo(buffer, maxlen);
-	delete[] buffer;
+	read.UnlockBuffer();
 	return read;
 }
 

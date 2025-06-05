@@ -292,8 +292,5 @@ private:
 	GMessageReturn* fSyncParent;
 };
 
-// Heap Message, deprecated!
-#define SMSG(WHAT, LIST...) new GMessage({{"what",WHAT}, LIST})
-
 //BMessage wrapper
 #define BMSG(in, out) GMessage& out = *((GMessage*)in);

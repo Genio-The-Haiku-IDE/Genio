@@ -3240,7 +3240,8 @@ GenioWindow::_CreateLanguagesMenu()
 	for (size_t i = 0; i < Languages::GetCount(); ++i) {
 		std::string lang = Languages::GetLanguage(i);
 		std::string name = Languages::GetMenuItemName(lang);
-		fLanguageMenu->AddItem(new BMenuItem(name.c_str(), SMSG(MSG_SET_LANGUAGE, {"lang", lang.c_str()})));
+		GMessage* message = new GMessage({{ "what", MSG_SET_LANGUAGE }, { "lang", lang.c_str() }});
+		fLanguageMenu->AddItem(new BMenuItem(name.c_str(), message));
 	}
 	fLanguageMenu->SetRadioMode(true);
 	fLanguageMenu->SetEnabled(false);

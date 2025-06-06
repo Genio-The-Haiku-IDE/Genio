@@ -36,7 +36,6 @@
 #include "argv_split.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
-#include "ConsoleIOTab.h"
 #include "ConsoleIOTabView.h"
 #include "EditorMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
@@ -3368,7 +3367,10 @@ GenioWindow::_InitWindow()
 			.Add(fPanelTabManager->GetPanelTabView(kTabViewBottom), kOutputWeight)
 		.End() //  output split
 		.Add(fStatusView = new GlobalStatusView())
+		.Add(fPanelTabManager->GetPanelTabView(kTabViewHidden));
 	;
+
+	fPanelTabManager->GetPanelTabView(kTabViewHidden)->Hide();
 
 	// Panels
 	const char* projectsDirectory = gCFG["projects_directory"];

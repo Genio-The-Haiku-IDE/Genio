@@ -7,8 +7,9 @@
 #define MessageHandler_H
 
 
-#include "uri.h"
 #include "json_fwd.hpp"
+#include "uri.h"
+
 #include <string>
 
 using value = nlohmann::json;

@@ -11,11 +11,12 @@
 
 class LSPTextDocument : public MessageHandler {
 public:
-    LSPTextDocument(BPath filePath, BString fileType) {
-		fFilenameURI = BUrl(filePath);
-		fFilenameURI.SetAuthority("") ;
-		fFileStatus = "";
-		fFileType = fileType;
+    LSPTextDocument(BPath filePath, BString fileType)
+		:
+		fFilenameURI(BUrl(filePath)),
+		fFileType(fileType)
+	{
+		fFilenameURI.SetAuthority("");
 	}
 
     const BString	GetFilenameURI() const { return fFilenameURI.UrlString();}

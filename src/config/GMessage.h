@@ -252,12 +252,13 @@ public:
 	}
 
 	bool
-	operator!=(const GMessageReturn& n)
+	operator!=(const GMessageReturn& n) const
 	{
 		return !operator == (n);
 	}
 
-	bool operator==(const GMessageReturn& n)
+	bool
+	operator==(const GMessageReturn& n) const
 	{
 		type_code typeLeft;
 		type_code typeRight;

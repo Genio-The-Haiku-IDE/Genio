@@ -181,6 +181,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fScreenMode(kDefault)
 	, fDisableProjectNotifications(false)
 	, fPanelTabManager(nullptr)
+	, fPanelsMenu(nullptr)
 {
 	gMainWindow = this;
 
@@ -1142,6 +1143,9 @@ GenioWindow::MenusBeginning()
 			ActionManager::SetEnabled(B_COPY,  false);
 			ActionManager::SetEnabled(B_PASTE, false);
 	}
+
+	if(fPanelTabManager && fPanelsMenu)
+		fPanelTabManager->FillPanelsMenu(fPanelsMenu);
 }
 
 
@@ -1149,8 +1153,9 @@ GenioWindow::MenusBeginning()
 void
 GenioWindow::MenusEnded()
 {
-	BWindow::MenusEnded();
 	fSetActiveProjectMenuItem->RemoveItems(0, fSetActiveProjectMenuItem->CountItems(), true);
+	fPanelsMenu->RemoveItems(0, fPanelsMenu->CountItems(), true);
+	BWindow::MenusEnded();
 }
 
 
@@ -3212,8 +3217,8 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_TOGGLE_STATUSBAR, submenu);
 	windowMenu->AddItem(submenu);
 
-	BMenu* panels = fPanelTabManager->PanelsMenu();
-	windowMenu->AddItem(panels);
+	fPanelsMenu = new BMenu(B_TRANSLATE("Panels"));
+	windowMenu->AddItem(fPanelsMenu);
 
 	windowMenu->AddSeparatorItem();
 

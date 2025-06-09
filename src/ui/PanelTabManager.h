@@ -41,7 +41,6 @@ typedef std::map<std::string, PanelTabView*> TabViewList;
 class PanelTabManager {
 public:
 		 PanelTabManager();
-		//~PanelTabManager(){};
 
 		void	LoadConfiguration(const BMessage& config);
 		void	SaveConfiguration(BMessage& config);
@@ -62,7 +61,7 @@ public:
 
 		static BMessage	DefaultConfig();
 
-		BMenu*	PanelsMenu() { return fPanelsMenu; }
+		status_t	FillPanelsMenu(BMenu* menu);
 
 
 private:
@@ -72,10 +71,8 @@ private:
 								  int32 index=-1,
 								  bool select = false);
 
-		void			_RefreshPanelMenu();
-
 		PanelTabView*	_GetPanelTabView(const char* name);
 		TabViewList		fTVList;
 		BMessage 		fConfig;
-		BMenu*			fPanelsMenu;
+
 };

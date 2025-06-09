@@ -6,14 +6,11 @@
 
 #include "PanelTabManager.h"
 
-#include <Catalog.h>
 #include <Debug.h>
 
 #include "GTab.h"
 #include "GTabView.h"
 
-#undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "PanelTabManager"
 
 
 class GTabID : public GTabCloseButton {
@@ -120,6 +117,25 @@ public:
 		}
 	}
 
+	void	FillPanelsMenu(BMenu* menu) {
+		for (int32 i = 0;i < Container()->CountTabs(); i++) {
+			GTabID* tabid = dynamic_cast<GTabID*>(Container()->TabAt(i));
+			if (tabid != nullptr) {
+				BMessage* tab = new BMessage('SHPA'); //TODO define.
+				tab->AddInt32("id", tabid->GetID());
+				tab->AddString("panel_group", Name());
+				tab->AddInt32("index", i);
+				tab->AddBool("selected", tabid->IsFront());
+
+				BString label = tabid->Label();
+				BMenuItem*	menuItem = new BMenuItem(label.String(), tab);
+				menuItem->SetTarget(this);
+				menu->AddItem(menuItem);
+
+			}
+		}
+	}
+
 protected:
 	void OnTabRemoved(GTab* _tab) override
 	{
@@ -158,6 +174,42 @@ protected:
 				}
 				break;
 			}
+			case 'SHPA':
+			{
+				message->PrintToStream();
+				BString panel_group = message->GetString("panel_group", "");
+				if (panel_group.IsEmpty())
+					return;
+
+				bool isSelected = message->GetBool("selected", false);
+
+				if (IsHidden()) {
+					isSelected = false;
+					//TODO special case: where to move?
+
+					// if (panel_group.Compare(kTabViewHidden) == 0 ||
+				}
+
+				if (isSelected) {
+					//TODO
+				} else {
+					fManager->ShowTab(message->GetInt32("id", -1));
+					//FIX: sync with Toolbar status!!
+				}
+
+				//GetPanelTabView(
+				//PanelTabView* panelView =
+				//algo:
+				/*
+					1) Is the tab the selected one?
+					   -> NO:
+							-> ensure group is visible
+							-> ensure tab is selected
+					   -> YES:
+					        -> close the
+				*/
+			}
+			break;
 			default:
 				GTabView::MessageReceived(message);
 				break;
@@ -171,9 +223,8 @@ private:
 
 
 // PanelTabManager
-PanelTabManager::PanelTabManager() : fPanelsMenu(nullptr)
+PanelTabManager::PanelTabManager()
 {
-	_RefreshPanelMenu();
 }
 
 
@@ -254,16 +305,26 @@ PanelTabManager::_AddPanel(const char* tabview_name, BView* panel, tab_id id, in
 	ASSERT(tabview != nullptr);
 	tabview->AddTab(panel, id, index, select);
 
-	fPanelsMenu->AddItem(new BMenuItem(tabview->GetTab(id)->Label().String(), nullptr));
+/*
+	BMessage* showPanelMessage = new BMessage('SHPA'); //TODO define.
+	showPanelMessage->AddInt32("tab_id", id);
+	BMenuItem* menuItem = new BMenuItem(tabview->GetTab(id)->Label().String(), showPanelMessage);
+	menuItem->SetTarget(tabview); //Uhm..
+	fPanelsMenu->AddItem(menuItem);
+*/
+
 }
 
-void
-PanelTabManager::_RefreshPanelMenu()
+
+status_t
+PanelTabManager::FillPanelsMenu(BMenu* menu)
 {
-	if (fPanelsMenu == nullptr) {
-		fPanelsMenu = new BMenu(B_TRANSLATE("Panels"));
+	for (const auto& panel:fTVList) {
+		panel.second->FillPanelsMenu(menu);
 	}
+	return B_OK;
 }
+
 
 void
 PanelTabManager::SelectTab(tab_id id)

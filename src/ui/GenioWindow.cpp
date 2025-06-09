@@ -3212,6 +3212,9 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_TOGGLE_STATUSBAR, submenu);
 	windowMenu->AddItem(submenu);
 
+	BMenu* panels = fPanelTabManager->PanelsMenu();
+	windowMenu->AddItem(panels);
+
 	windowMenu->AddSeparatorItem();
 
 	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, windowMenu);

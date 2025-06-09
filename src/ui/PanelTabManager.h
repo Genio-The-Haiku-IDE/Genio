@@ -12,6 +12,7 @@
 
 class BView;
 class PanelTabView;
+class BMenu;
 
 
 #define kTabViewLeft 	"left_panels"
@@ -57,8 +58,11 @@ public:
 
 		void	ShowPanelTabView(const char* tabview_name, bool visible);
 		bool	IsPanelTabViewVisible(const char* tabview_name);
+		bool	IsPanelClosed(tab_id id);
 
 		static BMessage	DefaultConfig();
+
+		BMenu*	PanelsMenu() { return fPanelsMenu; }
 
 
 private:
@@ -68,7 +72,10 @@ private:
 								  int32 index=-1,
 								  bool select = false);
 
+		void			_RefreshPanelMenu();
+
 		PanelTabView*	_GetPanelTabView(const char* name);
 		TabViewList		fTVList;
 		BMessage 		fConfig;
+		BMenu*			fPanelsMenu;
 };

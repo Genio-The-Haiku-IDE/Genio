@@ -6,10 +6,14 @@
 
 #include "PanelTabManager.h"
 
+#include <Catalog.h>
 #include <Debug.h>
 
 #include "GTab.h"
 #include "GTabView.h"
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PanelTabManager"
 
 
 class GTabID : public GTabCloseButton {
@@ -78,6 +82,14 @@ public:
 		return fIdMap.contains(id);
 	}
 
+	GTabID*	GetTab(tab_id id)
+	{
+		if (!HasTab(id))
+			return nullptr;
+
+		return fIdMap[id].tab;
+	}
+
 	void SelectTab(tab_id id)
 	{
 		ASSERT(fIdMap.contains(id) == true);
@@ -138,8 +150,10 @@ protected:
 				if (fromIndex > -1 && fromIndex < Container()->CountTabs()) {
 					GTab* tab = Container()->TabAt(fromIndex);
 					if (tab != nullptr) {
-						GTabView* tabView = (GTabView*)fManager->GetPanelTabView(kTabViewHidden);
-						tabView->MoveTabs(tab, nullptr, Container());
+						PanelTabView* tabView = dynamic_cast<PanelTabView*>(fManager->GetPanelTabView(kTabViewHidden));
+						if (tabView) {
+							tabView->MoveTabs(tab, nullptr, Container());
+						}
 					}
 				}
 				break;
@@ -157,8 +171,9 @@ private:
 
 
 // PanelTabManager
-PanelTabManager::PanelTabManager()
+PanelTabManager::PanelTabManager() : fPanelsMenu(nullptr)
 {
+	_RefreshPanelMenu();
 }
 
 
@@ -238,8 +253,17 @@ PanelTabManager::_AddPanel(const char* tabview_name, BView* panel, tab_id id, in
 	PanelTabView* tabview = _GetPanelTabView(tabview_name);
 	ASSERT(tabview != nullptr);
 	tabview->AddTab(panel, id, index, select);
+
+	fPanelsMenu->AddItem(new BMenuItem(tabview->GetTab(id)->Label().String(), nullptr));
 }
 
+void
+PanelTabManager::_RefreshPanelMenu()
+{
+	if (fPanelsMenu == nullptr) {
+		fPanelsMenu = new BMenu(B_TRANSLATE("Panels"));
+	}
+}
 
 void
 PanelTabManager::SelectTab(tab_id id)
@@ -297,6 +321,12 @@ PanelTabManager::IsPanelTabViewVisible(const char* tabview_name)
 	return !_GetPanelTabView(tabview_name)->IsHidden();
 }
 
+bool
+PanelTabManager::IsPanelClosed(tab_id id)
+{
+	return fTVList[kTabViewHidden]->HasTab(id);
+}
+
 
 PanelTabView*
 PanelTabManager::_GetPanelTabView(const char* sname)
@@ -312,35 +342,35 @@ PanelTabManager::DefaultConfig()
 	BMessage tabConfig;
 	BMessage tab('TAB ');
 	tab.AddInt32("id", kTabProblems);
-	tab.AddString("panel_group", "bottom_panels");
+	tab.AddString("panel_group", kTabViewBottom);
 	tabConfig.AddMessage("tab", &tab);
 
 	tab.ReplaceInt32("id", kTabBuildLog);
-	tab.ReplaceString("panel_group", "bottom_panels");
+	tab.ReplaceString("panel_group", kTabViewBottom);
 	tabConfig.AddMessage("tab", &tab);
 
 	tab.ReplaceInt32("id", kTabOutputLog);
-	tab.ReplaceString("panel_group", "bottom_panels");
+	tab.ReplaceString("panel_group", kTabViewBottom);
 	tabConfig.AddMessage("tab", &tab);
 
 	tab.ReplaceInt32("id", kTabSearchResult);
-	tab.ReplaceString("panel_group", "bottom_panels");
+	tab.ReplaceString("panel_group", kTabViewBottom);
 	tabConfig.AddMessage("tab", &tab);
 
 	tab.ReplaceInt32("id", kTabTerminal);
-	tab.ReplaceString("panel_group", "bottom_panels");
+	tab.ReplaceString("panel_group", kTabViewBottom);
 	tabConfig.AddMessage("tab", &tab);
 
 	tab.ReplaceInt32("id", kTabProjectBrowser);
-	tab.ReplaceString("panel_group", "left_panels");
+	tab.ReplaceString("panel_group", kTabViewLeft);
 	tabConfig.AddMessage("tab", &tab);
 
 	tab.ReplaceInt32("id", kTabSourceControl);
-	tab.ReplaceString("panel_group", "left_panels");
+	tab.ReplaceString("panel_group", kTabViewLeft);
 	tabConfig.AddMessage("tab", &tab);
 
 	tab.ReplaceInt32("id", kTabOutlineView);
-	tab.ReplaceString("panel_group", "right_panels");
+	tab.ReplaceString("panel_group", kTabViewRight);
 	tabConfig.AddMessage("tab", &tab);
 
 	return tabConfig;

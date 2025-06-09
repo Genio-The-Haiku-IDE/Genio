@@ -51,7 +51,7 @@ LSPEditorWrapper::LSPEditorWrapper(BPath filenamePath, Editor* editor)
 void
 LSPEditorWrapper::ApplySettings()
 {
-	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, (255 | (0 << 8) | (0 << 16)));
+	fEditor->SendMessage(SCI_INDICSETFORE,  IND_DIAG, 0x0000ff);
 	fEditor->SendMessage(SCI_INDICSETSTYLE, IND_DIAG, INDIC_SQUIGGLE);
 
 #ifdef DOCUMENT_LINK

@@ -21,14 +21,14 @@ class BMenu;
 #define kTabViewHidden	"hidden_panels"
 
 enum {
-	kTabProblems 		= 'Tprb',
-	kTabBuildLog 		= 'Tbld',
-	kTabOutputLog 		= 'Tter',
+	kTabProblems		= 'Tprb',
+	kTabBuildLog		= 'Tbld',
+	kTabOutputLog		= 'Tter',
 	kTabSearchResult	= 'Tsea',
 	kTabTerminal		= 'Tshe',
 
-	kTabProjectBrowser  = 'Tprj',
-	kTabSourceControl   = 'Tsrc',
+	kTabProjectBrowser	= 'Tprj',
+	kTabSourceControl	= 'Tsrc',
 
 	kTabOutlineView		= 'Touv'
 
@@ -40,13 +40,13 @@ typedef std::map<std::string, PanelTabView*> TabViewList;
 
 class PanelTabManager {
 public:
-		 PanelTabManager();
+		PanelTabManager();
 
 		void	LoadConfiguration(const BMessage& config);
 		void	SaveConfiguration(BMessage& config);
 
 		BView*	CreatePanelTabView(const char* tabview_name, orientation orientation);
-		BView*  GetPanelTabView(const char* name);
+		BView*	GetPanelTabView(const char* name);
 
 		void	AddPanelByConfig(BView* panel, tab_id id);
 
@@ -59,7 +59,7 @@ public:
 		bool	IsPanelTabViewVisible(const char* tabview_name);
 		bool	IsPanelClosed(tab_id id);
 
-		static BMessage	DefaultConfig();
+		static	BMessage	DefaultConfig();
 
 		status_t	FillPanelsMenu(BMenu* menu);
 
@@ -68,6 +68,7 @@ private:
 		void			_AddPanel(const char* tabview_name,
 								  BView* panel,
 								  tab_id id,
+								  BString prevOwner,
 								  int32 index=-1,
 								  bool select = false);
 

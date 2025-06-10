@@ -10,19 +10,24 @@
 
 #include "GTab.h"
 #include "GTabView.h"
+#include "ConfigManager.h"
 
+extern ConfigManager gCFG;
 
 
 class GTabID : public GTabCloseButton {
 public:
-	GTabID(tab_id id, const char* label, BHandler* handler)
+	GTabID(tab_id id, const char* label, BString previousOwner, BHandler* handler)
 		:
 		GTabCloseButton(label, handler),
-		fId(id)
+		fId(id),
+		fPreviousOwner(previousOwner)
 	{
 	}
 
-	tab_id GetID() const { return fId; }
+	tab_id	GetID() const { return fId; }
+	BString	GetPreviousOwner() const { return fPreviousOwner; }
+	void	SetPreviousOwner(const char* owner) { fPreviousOwner.SetTo(owner); }
 
 	BSize	MinSize() override
 	{
@@ -47,6 +52,7 @@ public:
 	}
 private:
 	tab_id	fId;
+	BString	fPreviousOwner; //will become 'isHidden'?
 };
 
 struct tab_info {
@@ -65,9 +71,9 @@ public:
 	{
 	}
 
-	void AddTab(BView* panel, tab_id id, int32 index=-1, bool select = false)
+	void AddTab(BView* panel, tab_id id, BString prevOwner, int32 index=-1, bool select = false)
 	{
-		GTabID* tab = new GTabID(id, panel->Name(), this);
+		GTabID* tab = new GTabID(id, panel->Name(), prevOwner, this);
 		GTabView::AddTab(tab, panel, index);
 		if (select) {
 			GTabView::SelectTab(tab);
@@ -110,6 +116,7 @@ public:
 				BMessage tab('TAB ');
 				tab.AddInt32("id", tabid->GetID());
 				tab.AddString("panel_group", Name());
+				tab.AddString("previous_owner", tabid->GetPreviousOwner());
 				tab.AddInt32("index", i);
 				tab.AddBool("selected", tabid->IsFront());
 				config.AddMessage("tab", &tab);
@@ -154,7 +161,7 @@ protected:
 	GTab* CreateTabView(GTab* clone) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(clone);
-		return new GTabID(tab->GetID(), tab->Label().String(), this);
+		return new GTabID(tab->GetID(), tab->Label().String(), tab->GetPreviousOwner(), this);
 	}
 
 	void MessageReceived(BMessage* message) override
@@ -164,10 +171,11 @@ protected:
 			{
 				int32 fromIndex = message->GetInt32("index", -1);
 				if (fromIndex > -1 && fromIndex < Container()->CountTabs()) {
-					GTab* tab = Container()->TabAt(fromIndex);
+					GTabID* tab = dynamic_cast<GTabID*>(Container()->TabAt(fromIndex));
 					if (tab != nullptr) {
 						PanelTabView* tabView = dynamic_cast<PanelTabView*>(fManager->GetPanelTabView(kTabViewHidden));
 						if (tabView) {
+							tab->SetPreviousOwner(Name());
 							tabView->MoveTabs(tab, nullptr, Container());
 						}
 					}
@@ -176,29 +184,21 @@ protected:
 			}
 			case 'SHPA':
 			{
-				message->PrintToStream();
-				BString panel_group = message->GetString("panel_group", "");
-				if (panel_group.IsEmpty())
-					return;
-
 				bool isSelected = message->GetBool("selected", false);
 
-				if (IsHidden()) {
-					isSelected = false;
-					//TODO special case: where to move?
-
-					// if (panel_group.Compare(kTabViewHidden) == 0 ||
-				}
-
-				if (isSelected) {
-					//TODO
-				} else {
+				if (IsHidden() || isSelected == false) {
+					if (BString(Name()).Compare(kTabViewHidden) == 0) {
+						GTabID*	tab = GetTab(message->GetInt32("id", -1));
+						BString prevOwner = tab->GetPreviousOwner();
+						if (prevOwner.IsEmpty())
+							return;
+						PanelTabView* tabView = dynamic_cast<PanelTabView*>(fManager->GetPanelTabView(prevOwner.String()));
+						tab->SetPreviousOwner("");
+						tabView->MoveTabs(tab, nullptr, Container());
+					}
 					fManager->ShowTab(message->GetInt32("id", -1));
-					//FIX: sync with Toolbar status!!
 				}
 
-				//GetPanelTabView(
-				//PanelTabView* panelView =
 				//algo:
 				/*
 					1) Is the tab the selected one?
@@ -277,7 +277,8 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 		tab_id tabid = tab.GetInt32("id", 0);
 		if (tabid == id) {
 			const char* panelName = tab.GetString("panel_group", "");
-			_AddPanel(panelName, panel, id, tab.GetInt32("index", -1), tab.GetBool("selected", false));
+			BString	prevOwner = tab.GetString("previous_owner", "");
+			_AddPanel(panelName, panel, id, prevOwner, tab.GetInt32("index", -1), tab.GetBool("selected", false));
 			return;
 		}
 	}
@@ -288,7 +289,7 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 //				printf("Check %d vs %d\n", tabid, id);
 		if (tabid == id) {
 			const char* panelName = tab.GetString("panel_group", "");
-			_AddPanel(panelName, panel, id, tab.GetInt32("index", -1), false);
+			_AddPanel(panelName, panel, id, "", tab.GetInt32("index", -1), false);
 			return;
 		}
 	}
@@ -299,20 +300,14 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 
 
 void
-PanelTabManager::_AddPanel(const char* tabview_name, BView* panel, tab_id id, int32 index, bool select)
+PanelTabManager::_AddPanel(const char* tabview_name,
+							BView* panel, tab_id id,
+							BString prevOwner,
+							int32 index, bool select)
 {
 	PanelTabView* tabview = _GetPanelTabView(tabview_name);
 	ASSERT(tabview != nullptr);
-	tabview->AddTab(panel, id, index, select);
-
-/*
-	BMessage* showPanelMessage = new BMessage('SHPA'); //TODO define.
-	showPanelMessage->AddInt32("tab_id", id);
-	BMenuItem* menuItem = new BMenuItem(tabview->GetTab(id)->Label().String(), showPanelMessage);
-	menuItem->SetTarget(tabview); //Uhm..
-	fPanelsMenu->AddItem(menuItem);
-*/
-
+	tabview->AddTab(panel, id, prevOwner, index, select);
 }
 
 
@@ -343,8 +338,18 @@ PanelTabManager::ShowTab(tab_id id)
 {
 	for (const auto& panel:fTVList) {
 		if (panel.second->HasTab(id)) {
-			if (panel.second->IsHidden())
-				panel.second->Show();
+			if (panel.second->IsHidden()) {
+				if (panel.first.compare(kTabViewLeft) == 0) {
+					gCFG["show_projects"] = true;
+				} else if ( panel.first.compare(kTabViewRight) == 0) {
+					gCFG["show_outline"] = true;
+				} else if ( panel.first.compare(kTabViewBottom) == 0) {
+					gCFG["show_output"] = true;
+				}
+				else {
+					panel.second->Show();
+				}
+			}
 			panel.second->SelectTab(id);
 			return;
 		}

@@ -112,13 +112,13 @@ private:
 	void						_PrepareSettings();
 	status_t					_LoadOldSettings();
 
-	bool						fActive;
 	std::vector<LSPProjectWrapper*>	fLSPProjectWrappers;
 	ConfigManager*				fSettings;
 	BMessenger					fMessenger;
 	GitRepository*				fGitRepository;
-	bool						fIsBuilding;
 	BString						fFullPath;
+	bool						fActive;
+	bool						fIsBuilding;
 };
 
 typedef std::vector<ProjectFolder*> ProjectFolderList;

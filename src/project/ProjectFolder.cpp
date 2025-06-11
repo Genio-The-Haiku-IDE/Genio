@@ -87,10 +87,10 @@ SourceItem::UpdateEntryRef(const entry_ref& ref)
 ProjectFolder::ProjectFolder(const entry_ref& ref, const BMessenger& msgr)
 	:
 	SourceItem(ref),
-	fActive(false),
 	fSettings(nullptr),
 	fMessenger(msgr),
 	fGitRepository(nullptr),
+	fActive(false),
 	fIsBuilding(false)
 {
 	fProjectFolder = this;

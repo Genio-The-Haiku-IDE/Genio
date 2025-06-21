@@ -8,9 +8,9 @@
 
 #include <Debug.h>
 
+#include "ConfigManager.h"
 #include "GTab.h"
 #include "GTabView.h"
-#include "ConfigManager.h"
 
 extern ConfigManager gCFG;
 
@@ -170,7 +170,7 @@ protected:
 
 	void MessageReceived(BMessage* message) override
 	{
-		switch(message->what) {
+		switch (message->what) {
 			case GTabCloseButton::kTVCloseTab:
 			{
 				int32 fromIndex = message->GetInt32("index", -1);
@@ -212,12 +212,12 @@ protected:
 					   -> YES:
 					        -> close the
 				*/
+				break;
 			}
-			break;
 			default:
 				GTabView::MessageReceived(message);
 				break;
-			}
+		}
 	}
 
 private:
@@ -290,14 +290,13 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 	i = 0;
 	while (defaults.FindMessage("tab", i++, &tab) == B_OK) {
 		tab_id tabid = tab.GetInt32("id", 0);
-//				printf("Check %d vs %d\n", tabid, id);
 		if (tabid == id) {
 			const char* panelName = tab.GetString("panel_group", "");
 			_AddPanel(panelName, panel, id, "", tab.GetInt32("index", -1), false);
 			return;
 		}
 	}
-	BString error("Cant! add a panel to tab! ");
+	BString error("Can't add a panel to tab! ");
 	error << id;
 	debugger(error.String());
 }
@@ -390,6 +389,7 @@ PanelTabManager::IsPanelTabViewVisible(const char* tabview_name)
 {
 	return !_GetPanelTabView(tabview_name)->IsHidden();
 }
+
 
 bool
 PanelTabManager::IsPanelClosed(tab_id id)

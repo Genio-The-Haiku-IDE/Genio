@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024, The Genio Team
+ * Copyright 2023-2025, The Genio Team
  * All rights reserved. Distributed under the terms of the MIT license.
  * Authors:
  * 		Nexus6 <nexus6@disroot.org>
@@ -11,9 +11,9 @@
 #include <PropertyInfo.h>
 
 #include "GenioApp.h"
+#include "GenioWindow.h"
 #include "Editor.h"
 #include "EditorTabView.h"
-#include "GenioWindow.h"
 
 
 // Genio Scripting
@@ -183,22 +183,21 @@ GenioApp::_HandleScripting(BMessage* data)
 				break;
 
 			editor = fGenioWindow->TabManager()->SelectedEditor();
+			if (editor == nullptr)
+				break;
 
 			int32 imatch = editorPropertyInfo.FindMatch(data, index, &specifier, what, property);
 			switch (imatch) {
 				case Properties::EditorProperties::Selection:
 				{
 					if (data->what == B_GET_PROPERTY) {
-						if (editor != nullptr)
-							result = reply.AddString("result", editor->Selection());
+						result = reply.AddString("result", editor->Selection());
 					} else if (data->what == B_SET_PROPERTY) {
-						if (editor != nullptr) {
-							int32 start = specifier.GetInt32("index", -1);
-							int32 range = specifier.GetInt32("range", -1);
-							if (start != -1 && range != -1) {
-								editor->SetSelection(start, start + range);
-								result = B_OK;
-							}
+						int32 start = specifier.GetInt32("index", -1);
+						int32 range = specifier.GetInt32("range", -1);
+						if (start != -1 && range != -1) {
+							editor->SetSelection(start, start + range);
+							result = B_OK;
 						}
 					}
 					break;
@@ -206,24 +205,21 @@ GenioApp::_HandleScripting(BMessage* data)
 				case Properties::EditorProperties::Symbol:
 				{
 					if (data->what == B_GET_PROPERTY) {
-						if (editor != nullptr)
-							result = reply.AddString("result", editor->GetSymbol());
+						result = reply.AddString("result", editor->GetSymbol());
 					}
 					break;
 				}
 				case Properties::EditorProperties::Text:
 				{
-					if (editor != nullptr) {
-						if (data->what == B_SET_PROPERTY) {
-							BString text;
-							int32 start = -1;
-							if (data->FindString("data", &text) == B_OK) {
-								if (specifier.FindInt32("index", &start) != B_OK)
-									editor->Append(text);
-								else
-									editor->Insert(text, start);
-								result = B_OK;
-							}
+					if (data->what == B_SET_PROPERTY) {
+						BString text;
+						int32 start = -1;
+						if (data->FindString("data", &text) == B_OK) {
+							if (specifier.FindInt32("index", &start) != B_OK)
+								editor->Append(text);
+							else
+								editor->Insert(text, start);
+							result = B_OK;
 						}
 					}
 					break;
@@ -231,45 +227,38 @@ GenioApp::_HandleScripting(BMessage* data)
 				case Properties::EditorProperties::LineCount:
 				{
 					if (data->what == B_COUNT_PROPERTIES)
-						if (editor != nullptr)
-							result = reply.AddInt32("result", editor->CountLines());
+						result = reply.AddInt32("result", editor->CountLines());
 					break;
 				}
 				case Properties::EditorProperties::Line:
 				{
-					if (editor != nullptr) {
-						BString text;
-						int32 line = -1;
-						if (specifier.FindInt32("index", &line) == B_OK) {
-							if (data->what == B_SET_PROPERTY) {
-								if (data->FindString("data", &text) == B_OK) {
-									editor->InsertLine(text, line);
-									result = B_OK;
-								}
-							} else {
-								result = reply.AddString("result", editor->GetLine(line));
+					BString text;
+					int32 line = -1;
+					if (specifier.FindInt32("index", &line) == B_OK) {
+						if (data->what == B_SET_PROPERTY) {
+							if (data->FindString("data", &text) == B_OK) {
+								editor->InsertLine(text, line);
+								result = B_OK;
 							}
+						} else {
+							result = reply.AddString("result", editor->GetLine(line));
 						}
 					}
 					break;
 				}
 				case Properties::EditorProperties::Undo:
 				{
-					if (editor != nullptr) {
-						if (data->what == B_EXECUTE_PROPERTY) {
-							editor->Undo();
-							result = B_OK;
-						}
+					if (data->what == B_EXECUTE_PROPERTY) {
+						editor->Undo();
+						result = B_OK;
 					}
 					break;
 				}
 				case Properties::EditorProperties::Redo:
 				{
-					if (editor != nullptr) {
-						if (data->what == B_EXECUTE_PROPERTY) {
-							editor->Redo();
-							result = B_OK;
-						}
+					if (data->what == B_EXECUTE_PROPERTY) {
+						editor->Redo();
+						result = B_OK;
 					}
 					break;
 				}
@@ -291,7 +280,7 @@ GenioApp::_HandleScripting(BMessage* data)
 
 	if (result != B_OK) {
 		reply.what = B_MESSAGE_NOT_UNDERSTOOD;
-		reply.AddString("message", strerror(result));
+		reply.AddString("message", ::strerror(result));
 		reply.AddInt32("error", result);
 	}
 
@@ -329,4 +318,3 @@ GenioApp::ResolveSpecifier(BMessage* message, int32 index, BMessage* specifier,
 		return BApplication::ResolveSpecifier(message, index, specifier, what, property);
 	return this;
 }
-// Genio Scripting

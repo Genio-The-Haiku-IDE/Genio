@@ -241,7 +241,7 @@ RepositoryView::_BuildBranchTree(const BString &branch, uint32 branchType, const
 	uint32 lastIndex = parts.size() - 1;
 	uint32 i = 0;
 
-	BranchItem* lastItem = (BranchItem*)FullListLastItem();
+	BranchItem* lastItem = static_cast<BranchItem*>(FullListLastItem());
 	if (lastItem->OutlineLevel() > 0) {
 		path = lastItem->BranchName();
 		std::vector<std::string> lastItemParts(path.begin(), path.end());

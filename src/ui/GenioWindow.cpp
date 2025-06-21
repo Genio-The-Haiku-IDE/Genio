@@ -792,9 +792,11 @@ GenioWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case MSG_PROJECT_MENU_CLOSE: {
-			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project",
-									fProjectsFolderBrowser->GetProjectFromSelectedItem());
+		case MSG_PROJECT_MENU_CLOSE:
+		{
+			ProjectFolder* project = nullptr;
+			if (message->FindPointer("project", reinterpret_cast<void**>(&project)) != B_OK)
+				project = fProjectsFolderBrowser->GetProjectFromSelectedItem();
 			_ProjectFolderClose(project);
 			break;
 		}
@@ -811,8 +813,8 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_PROJECT_MENU_SET_ACTIVE:
 		{
-			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
-			if (project != nullptr)
+			ProjectFolder* project = nullptr;
+			if (message->FindPointer("project", reinterpret_cast<void**>(&project)) == B_OK)
 				_ProjectFolderActivate(project);
 			break;
 		}
@@ -850,7 +852,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_SETTINGS:
 		{
-			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", GetActiveProject());
+			ProjectFolder* project = nullptr;
+			if (message->FindPointer("project", reinterpret_cast<void**>(&project)) != B_OK)
+				project = GetActiveProject();
 			if (project != nullptr) {
 				ConfigWindow* window = new ConfigWindow(project->Settings(), false);
 				BString windowTitle(B_TRANSLATE("Project:"));
@@ -866,7 +870,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_PROJECT_OPEN_INITIATED:
 		{
-			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			ProjectFolder* project = nullptr;
+			if (message->FindPointer("project", reinterpret_cast<void**>(&project)) != B_OK)
+				break;
 			bool activate = message->GetBool("activate", false);
 			entry_ref ref;
 			message->FindRef("ref", &ref);
@@ -875,7 +881,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_OPEN_ABORTED:
 		{
-			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			ProjectFolder* project = nullptr;
+			if (message->FindPointer("project", reinterpret_cast<void**>(&project)) != B_OK)
+				break;
 			bool activate = message->GetBool("activate", false);
 			entry_ref ref;
 			message->FindRef("ref", &ref);
@@ -884,7 +892,9 @@ GenioWindow::MessageReceived(BMessage* message)
 		}
 		case MSG_PROJECT_OPEN_COMPLETED:
 		{
-			ProjectFolder* project = (ProjectFolder*)message->GetPointer("project", nullptr);
+			ProjectFolder* project = nullptr;
+			if (message->FindPointer("project", reinterpret_cast<void**>(&project)) != B_OK)
+				break;
 			bool activate = message->GetBool("activate", false);
 			entry_ref ref;
 			message->FindRef("ref", &ref);

@@ -140,6 +140,9 @@ public:
 				BMenuItem*	menuItem = new BMenuItem(label.String(), tab);
 				menuItem->SetTarget(this);
 				menu->AddItem(menuItem);
+
+				if (!fManager->IsPanelClosed(tabid->GetID()))
+					menuItem->SetMarked(true);
 			}
 		}
 	}

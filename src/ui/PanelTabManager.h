@@ -4,16 +4,16 @@
  */
 #pragma once
 
+
 #include <InterfaceDefs.h>
 #include <Message.h>
 
 #include <map>
 #include <string>
 
+class BMenu;
 class BView;
 class PanelTabView;
-class BMenu;
-
 
 #define kTabViewLeft 	"left_panels"
 #define kTabViewRight	"right_panels"
@@ -56,13 +56,12 @@ public:
 		void	SetLabelForTab(tab_id id, const char* label);
 
 		void	ShowPanelTabView(const char* tabview_name, bool visible);
-		bool	IsPanelTabViewVisible(const char* tabview_name);
-		bool	IsPanelClosed(tab_id id);
+		bool	IsPanelTabViewVisible(const char* tabview_name) const;
+		bool	IsPanelClosed(tab_id id) const;
 
 		static	BMessage	DefaultConfig();
 
 		status_t	FillPanelsMenu(BMenu* menu);
-
 
 private:
 		void			_AddPanel(const char* tabview_name,
@@ -72,8 +71,7 @@ private:
 								  int32 index=-1,
 								  bool select = false);
 
-		PanelTabView*	_GetPanelTabView(const char* name);
+		PanelTabView*	_GetPanelTabView(const char* name) const;
 		TabViewList		fTVList;
 		BMessage 		fConfig;
-
 };

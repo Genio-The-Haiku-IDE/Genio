@@ -385,24 +385,29 @@ PanelTabManager::ShowPanelTabView(const char* tabview_name, bool show)
 
 
 bool
-PanelTabManager::IsPanelTabViewVisible(const char* tabview_name)
+PanelTabManager::IsPanelTabViewVisible(const char* tabviewName) const
 {
-	return !_GetPanelTabView(tabview_name)->IsHidden();
+	return !_GetPanelTabView(tabviewName)->IsHidden();
 }
 
 
 bool
-PanelTabManager::IsPanelClosed(tab_id id)
+PanelTabManager::IsPanelClosed(tab_id id) const
 {
-	return fTVList[kTabViewHidden]->HasTab(id);
+	auto item = fTVList.find(kTabViewHidden);
+	if (item == fTVList.end())
+		return false;
+	return (*item).second->HasTab(id);
 }
 
 
 PanelTabView*
-PanelTabManager::_GetPanelTabView(const char* sname)
+PanelTabManager::_GetPanelTabView(const char* sname) const
 {
-	ASSERT(fTVList.contains(sname) == true);
-	return fTVList[sname];
+	auto item = fTVList.find(sname);
+	if (item == fTVList.end())
+		debugger("_GetPanelTabView() called but no panel found!");
+	return (*item).second;
 }
 
 

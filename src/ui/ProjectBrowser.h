@@ -1,12 +1,14 @@
 /*
- * Copyright 2023, Andrea Anzani <andrea.anzani@gmail.com>
+ * Copyright 2023-2025, Andrea Anzani <andrea.anzani@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #pragma once
 
 #include <View.h>
-#include "ProjectItem.h"
+
 #include "ProjectFolder.h"
+#include "ProjectItem.h"
+
 
 enum {
 	MSG_PROJECT_MENU_CLOSE				= 'pmcl',
@@ -28,6 +30,7 @@ class GenioWatchingFilter;
 class ProjectBrowser : public BView {
 public:
 					 ProjectBrowser();
+					 ProjectBrowser(const ProjectBrowser&) = delete;
 	virtual 		~ProjectBrowser();
 
 	virtual void	AttachedToWindow();

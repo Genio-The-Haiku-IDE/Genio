@@ -518,12 +518,14 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		}
 		case MSG_BROWSER_SELECT_ITEM:
 		{
-			ProjectItem* item = (ProjectItem*)message->GetPointer("parent_item", nullptr);
+			const BListItem* item = reinterpret_cast<const BListItem*>
+				(message->GetPointer("parent_item", nullptr));
 			entry_ref ref;
 			if (item != nullptr && message->FindRef("ref", &ref) == B_OK) {
-				int32 howMany = fOutlineListView->CountItemsUnder(item, true);
+				int32 howMany = fOutlineListView->CountItemsUnder(const_cast<BListItem*>(item), true);
 				for (int32 i = 0; i < howMany; i++) {
-					ProjectItem* subItem = (ProjectItem*)fOutlineListView->ItemUnderAt(item, true, i);
+					ProjectItem* subItem = static_cast<ProjectItem*>
+						(fOutlineListView->ItemUnderAt(const_cast<BListItem*>(item), true, i));
 					if (*subItem->GetSourceItem()->EntryRef() == ref) {
 						fOutlineListView->Select(fOutlineListView->IndexOf(subItem));
 						fOutlineListView->ScrollToSelection();

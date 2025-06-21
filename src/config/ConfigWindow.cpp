@@ -20,7 +20,6 @@
 #include <Spinner.h>
 #include <StringView.h>
 #include <TextControl.h>
-#include <Window.h>
 
 #include <vector>
 
@@ -61,7 +60,7 @@ public:
 
 	void MessageReceived(BMessage* msg)
 	{
-		GMessage& gsm = *(GMessage*)(msg);
+		GMessage& gsm = *reinterpret_cast<GMessage*>(msg);
 		if (msg->what == kOnNewValue) {
 			fConfigManager[gsm["key"]] = RetrieveValue();
 		} else if (msg->what == kSetValueNoUpdate) {
@@ -72,7 +71,7 @@ public:
 
 	T RetrieveValue() const
 	{
-		return (T)C::Value();
+		return T(C::Value());
 	}
 
 	void LoadValue(T value)
@@ -197,18 +196,15 @@ ConfigWindow::_Init(bool showDefaultButton)
 			.Add(fCardView, 3)
 		.End();
 
-	if (fDefaultsButton != nullptr)
-		theView->GetLayout()->AddView(fDefaultsButton);
-
 	fGroupList->MakeFocus();
-
 	fGroupList->Select(0);
 
 	be_app->StartWatching(this, fConfigManager.UpdateMessageWhat());
 
-	if (fDefaultsButton != nullptr)
+	if (fDefaultsButton != nullptr) {
+		theView->GetLayout()->AddView(fDefaultsButton);
 		fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());
-
+	}
 	return theView;
 }
 
@@ -294,7 +290,7 @@ ConfigWindow::_PopulateListView()
 	while (fConfigManager.FindConfigMessage("config", index++, &msg) == B_OK)  {
 		std::vector<GMessage>::iterator i = dividedByGroup.begin();
 		while (i != dividedByGroup.end()) {
-			if (strcmp((*i)["group"], msg["group"]) == 0) {
+			if (::strcmp((*i)["group"], msg["group"]) == 0) {
 				(*i).AddMessage("config", &msg);
 				break;
 			}
@@ -302,7 +298,7 @@ ConfigWindow::_PopulateListView()
 		}
 
 		if (i == dividedByGroup.end() &&
-			(fShowHidden || (strcmp(msg["group"], "Hidden") != 0)) ) {
+			(fShowHidden || (::strcmp(msg["group"], "Hidden") != 0)) ) {
 			const char* group = msg["group"];
 			GMessage first = {{ {"group", group} }};
 			first.AddMessage("config", &msg);

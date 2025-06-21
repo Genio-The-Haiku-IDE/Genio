@@ -1124,27 +1124,26 @@ GenioWindow::MenusBeginning()
 	BScintillaView* scintilla = nullptr;
 	BTextView* textView = nullptr;
 	if (view->Parent() != nullptr &&
-		(scintilla = dynamic_cast<BScintillaView*>(view->Parent())) != nullptr) {
-			ActionManager::SetEnabled(B_CUT,   CanScintillaViewCut(scintilla));
-			ActionManager::SetEnabled(B_COPY,  CanScintillaViewCopy(scintilla));
-			ActionManager::SetEnabled(B_PASTE, CanScintillaViewPaste(scintilla));
+			(scintilla = dynamic_cast<BScintillaView*>(view->Parent())) != nullptr) {
+		ActionManager::SetEnabled(B_CUT,   CanScintillaViewCut(scintilla));
+		ActionManager::SetEnabled(B_COPY,  CanScintillaViewCopy(scintilla));
+		ActionManager::SetEnabled(B_PASTE, CanScintillaViewPaste(scintilla));
 	} else if ((textView = (dynamic_cast<BTextView*>(view))) != nullptr) {
-			int32 start;
-			int32 finish;
-			textView->GetSelection(&start, &finish);
-			bool canEdit = textView->IsEditable();
+		int32 start;
+		int32 finish;
+		textView->GetSelection(&start, &finish);
+		bool canEdit = textView->IsEditable();
 
-			ActionManager::SetEnabled(B_CUT,   canEdit && start != finish);
-			ActionManager::SetEnabled(B_COPY,  start != finish);
-			ActionManager::SetEnabled(B_PASTE, canEdit && be_clipboard->SystemCount() > 0);
-
+		ActionManager::SetEnabled(B_CUT,   canEdit && start != finish);
+		ActionManager::SetEnabled(B_COPY,  start != finish);
+		ActionManager::SetEnabled(B_PASTE, canEdit && be_clipboard->SystemCount() > 0);
 	} else {
-			ActionManager::SetEnabled(B_CUT,   false);
-			ActionManager::SetEnabled(B_COPY,  false);
-			ActionManager::SetEnabled(B_PASTE, false);
+		ActionManager::SetEnabled(B_CUT,   false);
+		ActionManager::SetEnabled(B_COPY,  false);
+		ActionManager::SetEnabled(B_PASTE, false);
 	}
 
-	if(fPanelTabManager && fPanelsMenu)
+	if (fPanelTabManager && fPanelsMenu)
 		fPanelTabManager->FillPanelsMenu(fPanelsMenu);
 }
 

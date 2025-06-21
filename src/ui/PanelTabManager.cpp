@@ -14,6 +14,7 @@
 
 extern ConfigManager gCFG;
 
+const static uint32 kShowPanelMessage = 'SHPA';
 
 class GTabID : public GTabCloseButton {
 public:
@@ -124,11 +125,12 @@ public:
 		}
 	}
 
-	void	FillPanelsMenu(BMenu* menu) {
-		for (int32 i = 0;i < Container()->CountTabs(); i++) {
+	void FillPanelsMenu(BMenu* menu)
+	{
+		for (int32 i = 0; i < Container()->CountTabs(); i++) {
 			GTabID* tabid = dynamic_cast<GTabID*>(Container()->TabAt(i));
 			if (tabid != nullptr) {
-				BMessage* tab = new BMessage('SHPA'); //TODO define.
+				BMessage* tab = new BMessage(kShowPanelMessage);
 				tab->AddInt32("id", tabid->GetID());
 				tab->AddString("panel_group", Name());
 				tab->AddInt32("index", i);
@@ -138,7 +140,6 @@ public:
 				BMenuItem*	menuItem = new BMenuItem(label.String(), tab);
 				menuItem->SetTarget(this);
 				menu->AddItem(menuItem);
-
 			}
 		}
 	}
@@ -182,7 +183,7 @@ protected:
 				}
 				break;
 			}
-			case 'SHPA':
+			case kShowPanelMessage:
 			{
 				bool isSelected = message->GetBool("selected", false);
 

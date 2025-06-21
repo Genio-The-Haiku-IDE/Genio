@@ -16,6 +16,7 @@ extern ConfigManager gCFG;
 
 const static uint32 kShowPanelMessage = 'SHPA';
 
+// GTabCloseButton
 class GTabID : public GTabCloseButton {
 public:
 	GTabID(tab_id id, const char* label, BString previousOwner, BHandler* handler)
@@ -26,8 +27,8 @@ public:
 	{
 	}
 
-	tab_id	GetID() const { return fId; }
-	BString	GetPreviousOwner() const { return fPreviousOwner; }
+	tab_id	ID() const { return fId; }
+	BString	PreviousOwner() const { return fPreviousOwner; }
 	void	SetPreviousOwner(const char* owner) { fPreviousOwner.SetTo(owner); }
 
 	BSize	MinSize() override
@@ -63,6 +64,8 @@ struct tab_info {
 
 typedef std::map<tab_id, tab_info> TabIdMap;
 
+
+// PanelTabView
 class PanelTabView : public GTabView {
 public:
 	PanelTabView(PanelTabManager* manager, const char* name,
@@ -111,13 +114,13 @@ public:
 	{
 		// To maintain the right order, let's use
 		// the index interface (usually discouraged)
-		for (int32 i = 0;i < Container()->CountTabs(); i++) {
+		for (int32 i = 0; i < Container()->CountTabs(); i++) {
 			GTabID* tabid = dynamic_cast<GTabID*>(Container()->TabAt(i));
 			if (tabid != nullptr) {
 				BMessage tab('TAB ');
-				tab.AddInt32("id", tabid->GetID());
+				tab.AddInt32("id", tabid->ID());
 				tab.AddString("panel_group", Name());
-				tab.AddString("previous_owner", tabid->GetPreviousOwner());
+				tab.AddString("previous_owner", tabid->PreviousOwner());
 				tab.AddInt32("index", i);
 				tab.AddBool("selected", tabid->IsFront());
 				config.AddMessage("tab", &tab);
@@ -131,7 +134,7 @@ public:
 			GTabID* tabid = dynamic_cast<GTabID*>(Container()->TabAt(i));
 			if (tabid != nullptr) {
 				BMessage* tab = new BMessage(kShowPanelMessage);
-				tab->AddInt32("id", tabid->GetID());
+				tab->AddInt32("id", tabid->ID());
 				tab->AddString("panel_group", Name());
 				tab->AddInt32("index", i);
 				tab->AddBool("selected", tabid->IsFront());
@@ -141,7 +144,7 @@ public:
 				menuItem->SetTarget(this);
 				menu->AddItem(menuItem);
 
-				if (!fManager->IsPanelClosed(tabid->GetID()))
+				if (!fManager->IsPanelClosed(tabid->ID()))
 					menuItem->SetMarked(true);
 			}
 		}
@@ -152,20 +155,20 @@ protected:
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
 		ASSERT(tab != nullptr && fIdMap.contains(tab->GetID()) == true);
-		fIdMap.erase(tab->GetID());
+		fIdMap.erase(tab->ID());
 	}
 
 	void OnTabAdded(GTab* _tab, BView* panel) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
 		ASSERT(tab != nullptr && fIdMap.contains(tab->GetID()) == false);
-		fIdMap[tab->GetID()] = { tab, panel };
+		fIdMap[tab->ID()] = { tab, panel };
 	}
 
 	GTab* CreateTabView(GTab* clone) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(clone);
-		return new GTabID(tab->GetID(), tab->Label().String(), tab->GetPreviousOwner(), this);
+		return new GTabID(tab->ID(), tab->Label().String(), tab->PreviousOwner(), this);
 	}
 
 	void MessageReceived(BMessage* message) override
@@ -193,7 +196,7 @@ protected:
 				if (IsHidden() || isSelected == false) {
 					if (BString(Name()).Compare(kTabViewHidden) == 0) {
 						GTabID*	tab = GetTab(message->GetInt32("id", -1));
-						BString prevOwner = tab->GetPreviousOwner();
+						BString prevOwner = tab->PreviousOwner();
 						if (prevOwner.IsEmpty())
 							return;
 						PanelTabView* tabView = dynamic_cast<PanelTabView*>(fManager->GetPanelTabView(prevOwner.String()));

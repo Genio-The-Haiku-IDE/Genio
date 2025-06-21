@@ -28,32 +28,32 @@ class ExtensionManager;
 class GenioWindow;
 class GenioApp : public BApplication {
 public:
-							GenioApp();
-	virtual					~GenioApp();
+						GenioApp();
+	virtual				~GenioApp();
 
-	virtual	void			AboutRequested();
-	virtual	void			ArgvReceived(int32 agrc, char** argv);
-	virtual	void			MessageReceived(BMessage* message);
-	virtual	bool			QuitRequested();
-	virtual	void			ReadyToRun();
-	virtual	void			RefsReceived(BMessage* message);
+		void			AboutRequested() override;
+		void			ArgvReceived(int32 agrc, char** argv) override;
+		void			MessageReceived(BMessage* message) override;
+		bool			QuitRequested() override;
+		void			ReadyToRun() override;
+		void			RefsReceived(BMessage* message) override;
 
-	// Scripting
-	void					_HandleScripting(BMessage* data);
-	virtual status_t		GetSupportedSuites(BMessage* data);
-	virtual	BHandler*		ResolveSpecifier(BMessage* message, int32 index,
-								BMessage* specifier, int32 what, const char* property);
+		// Scripting
+		status_t		GetSupportedSuites(BMessage* data) override;
+		BHandler*		ResolveSpecifier(BMessage* message, int32 index,
+							BMessage* specifier, int32 what, const char* property) override;
 
-	ExtensionManager*		GetExtensionManager() { return fExtensionManager; }
+		ExtensionManager*	GetExtensionManager() const { return fExtensionManager; }
 
 private:
-	static BStringList		_SplitChangeLog(const char* changeLog);
-	int						_HandleArgs(int argc, char **argv);
-	static void				_PrepareConfig(ConfigManager& cfg);
+	int					_HandleArgs(int argc, char **argv);
+	void				_HandleScripting(BMessage* data);
+	static void			_PrepareConfig(ConfigManager& cfg);
+	static BStringList	_SplitChangeLog(const char* changeLog);
 
-	GenioWindow*			fGenioWindow;
-	BPath					fConfigurationPath;
-	ExtensionManager*		fExtensionManager;
+	GenioWindow*		fGenioWindow;
+	BPath				fConfigurationPath;
+	ExtensionManager*	fExtensionManager;
 };
 
 extern ConfigManager gCFG;

@@ -48,18 +48,19 @@ namespace Genio::Git {
 	class GitConflictException : public GitException {
 	public:
 		GitConflictException(int error, BString const& message,
-			const std::vector<BString> files)
+			const std::vector<BString>& files)
 			:
 			GitException(error, message),
 			fFiles(files)
 		{
-			LogError("GitConflictException %s, error = %d, files = %d" , message.String(), error, files.size());
+			LogError("GitConflictException %s, error = %d, files = %d",
+				message.String(), error, files.size());
 		}
 
 		std::vector<BString>	GetFiles() const noexcept { return fFiles; }
 
 	private:
-		std::vector<BString> 	fFiles;
+		std::vector<BString> fFiles;
 	};
 
 

@@ -2139,6 +2139,15 @@ Editor::GetDocumentSymbols(BMessage* symbols) const
 	}
 }
 
+
+void
+Editor::SetCommentBlockTokens(const std::string& startBlock, const std::string& endBlock)
+{
+	// TODO:
+	LogInfo("Not implemented!!!");
+}
+
+
 void
 Editor::EvaluateIdleTime()
 {

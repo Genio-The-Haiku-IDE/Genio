@@ -142,8 +142,9 @@ public:
 			void				SetDocumentSymbols(const BMessage* symbols, Editor::symbols_status status);
 			void				GetDocumentSymbols(BMessage* symbols) const;
 
-			void				SetCommentLineToken(std::string commenter){ fCommenter = commenter; }
-			void				SetCommentBlockTokens(std::string startBlock, std::string endBlock){ /*TODO! */}
+			void				SetCommentLineToken(const std::string& commenter) { fCommenter = commenter; }
+			void				SetCommentBlockTokens(const std::string& startBlock,
+												const std::string& endBlock);
 
 			LSPEditorWrapper*	GetLSPEditorWrapper() { return fLSPEditorWrapper; }
 			bool				HasLSPServer() const;

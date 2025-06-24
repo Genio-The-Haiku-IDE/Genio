@@ -19,11 +19,11 @@ enum {
 	MSG_PROJECT_SET_ACTIVE		= 'psac',	// TODO
 	MSG_PROJECT_SETTINGS		= 'prse',
 	MSG_PROJECT_FOLDER_OPEN		= 'pfop',
-	
+
 	MSG_PROJECT_OPEN_INITIATED	= 'pfoi',
 	MSG_PROJECT_OPEN_ABORTED	= 'pfoa',
 	MSG_PROJECT_OPEN_COMPLETED	= 'pfoc',
-	
+
 	MSG_RELOAD_EDITORCONFIG		= 'reec',
 
 	// File menu
@@ -124,8 +124,8 @@ enum {
 
 	MSG_REPLACE_GROUP_TOGGLED		= 'regt',
 	MSG_SHOW_HIDE_LEFT_PANE			= 'shpr',
-	MSG_SHOW_HIDE_RIGHT_PANE			= 'shol',
-	MSG_SHOW_HIDE_BOTTOM_PANE			= 'shou',
+	MSG_SHOW_HIDE_RIGHT_PANE		= 'shol',
+	MSG_SHOW_HIDE_BOTTOM_PANE		= 'shou',
 	MSG_FULLSCREEN					= 'fscr',
 	MSG_FOCUS_MODE					= 'focu',
 

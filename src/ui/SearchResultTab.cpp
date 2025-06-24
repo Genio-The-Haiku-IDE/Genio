@@ -74,6 +74,8 @@ SearchResultTab::SearchResultTab(PanelTabManager* panelTabManager, tab_id id)
 			.Add(fFindGroup)
 		.End()
 	.End();
+
+	SetName(fSearchResultPanel->Name());
 }
 
 

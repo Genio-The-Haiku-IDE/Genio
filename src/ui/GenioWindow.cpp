@@ -36,7 +36,6 @@
 #include "argv_split.h"
 #include "ConfigManager.h"
 #include "ConfigWindow.h"
-#include "ConsoleIOTab.h"
 #include "ConsoleIOTabView.h"
 #include "EditorMessageFilter.h"
 #include "EditorMouseWheelMessageFilter.h"
@@ -182,6 +181,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fScreenMode(kDefault)
 	, fDisableProjectNotifications(false)
 	, fPanelTabManager(nullptr)
+	, fPanelsMenu(nullptr)
 {
 	gMainWindow = this;
 
@@ -1134,25 +1134,27 @@ GenioWindow::MenusBeginning()
 	BScintillaView* scintilla = nullptr;
 	BTextView* textView = nullptr;
 	if (view->Parent() != nullptr &&
-		(scintilla = dynamic_cast<BScintillaView*>(view->Parent())) != nullptr) {
-			ActionManager::SetEnabled(B_CUT,   CanScintillaViewCut(scintilla));
-			ActionManager::SetEnabled(B_COPY,  CanScintillaViewCopy(scintilla));
-			ActionManager::SetEnabled(B_PASTE, CanScintillaViewPaste(scintilla));
+			(scintilla = dynamic_cast<BScintillaView*>(view->Parent())) != nullptr) {
+		ActionManager::SetEnabled(B_CUT,   CanScintillaViewCut(scintilla));
+		ActionManager::SetEnabled(B_COPY,  CanScintillaViewCopy(scintilla));
+		ActionManager::SetEnabled(B_PASTE, CanScintillaViewPaste(scintilla));
 	} else if ((textView = (dynamic_cast<BTextView*>(view))) != nullptr) {
-			int32 start;
-			int32 finish;
-			textView->GetSelection(&start, &finish);
-			bool canEdit = textView->IsEditable();
+		int32 start;
+		int32 finish;
+		textView->GetSelection(&start, &finish);
+		bool canEdit = textView->IsEditable();
 
-			ActionManager::SetEnabled(B_CUT,   canEdit && start != finish);
-			ActionManager::SetEnabled(B_COPY,  start != finish);
-			ActionManager::SetEnabled(B_PASTE, canEdit && be_clipboard->SystemCount() > 0);
-
+		ActionManager::SetEnabled(B_CUT,   canEdit && start != finish);
+		ActionManager::SetEnabled(B_COPY,  start != finish);
+		ActionManager::SetEnabled(B_PASTE, canEdit && be_clipboard->SystemCount() > 0);
 	} else {
-			ActionManager::SetEnabled(B_CUT,   false);
-			ActionManager::SetEnabled(B_COPY,  false);
-			ActionManager::SetEnabled(B_PASTE, false);
+		ActionManager::SetEnabled(B_CUT,   false);
+		ActionManager::SetEnabled(B_COPY,  false);
+		ActionManager::SetEnabled(B_PASTE, false);
 	}
+
+	if (fPanelTabManager && fPanelsMenu)
+		fPanelTabManager->FillPanelsMenu(fPanelsMenu);
 }
 
 
@@ -1160,8 +1162,9 @@ GenioWindow::MenusBeginning()
 void
 GenioWindow::MenusEnded()
 {
-	BWindow::MenusEnded();
 	fSetActiveProjectMenuItem->RemoveItems(0, fSetActiveProjectMenuItem->CountItems(), true);
+	fPanelsMenu->RemoveItems(0, fPanelsMenu->CountItems(), true);
+	BWindow::MenusEnded();
 }
 
 
@@ -3223,6 +3226,9 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_TOGGLE_STATUSBAR, submenu);
 	windowMenu->AddItem(submenu);
 
+	fPanelsMenu = new BMenu(B_TRANSLATE("Panels"));
+	windowMenu->AddItem(fPanelsMenu);
+
 	windowMenu->AddSeparatorItem();
 
 	ActionManager::AddItem(MSG_FILE_PREVIOUS_SELECTED, windowMenu);
@@ -3328,6 +3334,7 @@ GenioWindow::_InitTabViews()
 	fPanelTabManager->CreatePanelTabView(kTabViewBottom, 	B_HORIZONTAL);
 	fPanelTabManager->CreatePanelTabView(kTabViewLeft,		B_VERTICAL);
 	fPanelTabManager->CreatePanelTabView(kTabViewRight, 	B_VERTICAL);
+	fPanelTabManager->CreatePanelTabView(kTabViewHidden,	B_HORIZONTAL);
 
 	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
@@ -3378,7 +3385,10 @@ GenioWindow::_InitWindow()
 			.Add(fPanelTabManager->GetPanelTabView(kTabViewBottom), kOutputWeight)
 		.End() //  output split
 		.Add(fStatusView = new GlobalStatusView())
+		.Add(fPanelTabManager->GetPanelTabView(kTabViewHidden));
 	;
+
+	fPanelTabManager->GetPanelTabView(kTabViewHidden)->Hide();
 
 	// Panels
 	const char* projectsDirectory = gCFG["projects_directory"];

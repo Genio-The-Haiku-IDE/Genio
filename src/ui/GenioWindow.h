@@ -265,6 +265,7 @@ private:
 			BString				fTitlePrefix;
 #endif
 			PanelTabManager*	fPanelTabManager;
+			BMenu*				fPanelsMenu;
 
 };
 

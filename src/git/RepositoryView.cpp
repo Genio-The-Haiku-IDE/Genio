@@ -15,6 +15,7 @@
 #include "BranchItem.h"
 #include "ConfigManager.h"
 #include "GenioApp.h"
+#include "GenioWindow.h"
 #include "GitRepository.h"
 #include "GMessage.h"
 #include "ProjectFolder.h"
@@ -173,17 +174,50 @@ RepositoryView::SelectedItem() const
 	return item;
 }
 
+struct _thread_data {
+	RepositoryView* object;
+	const ProjectFolder* project;
+	BString branch;
+};
 
 void
 RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &currentBranch)
 {
-	fCurrentBranch = currentBranch;
+	struct _thread_data* data = new _thread_data;
+	
+	data->object = this;
+	data->project = project;
+	data->branch = currentBranch;
+	
+	thread_id thread = spawn_thread(_update_repository_starter, "foo",
+		B_NORMAL_PRIORITY, data);
+	resume_thread(thread);
+}
 
+
+/* static */
+int32
+RepositoryView::_update_repository_starter(void* castToData)
+{
+	struct _thread_data* data = reinterpret_cast<struct _thread_data*>(castToData);
+	
+	data->object->_UpdateRepositoryTask(data->project, data->branch);
+	
+	delete data;
+	return 0;
+}
+
+
+void
+RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BString& branch)
+{
 	auto const NullLambda = [](const auto& val){ return false; };
 
 	try {
 		auto repo = project->GetRepository();
 		auto current_branch = repo->GetCurrentBranch();
+
+		LockLooper();
 
 		MakeEmpty();
 
@@ -197,7 +231,9 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &cu
 					return (branchname == fCurrentBranch);
 				});
 		}
-
+		UnlockLooper();
+		
+		LockLooper();
 		// populate remote branches
 		_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
 		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
@@ -205,7 +241,9 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &cu
 		for(auto &branch : remote_branches) {
 			_BuildBranchTree(branch, kRemoteBranch, NullLambda);
 		}
-
+		UnlockLooper();
+		
+		LockLooper();
 		// populate tags
 		_InitEmptySuperItem(B_TRANSLATE("Tags"));
 		auto all_tags = repo->GetTags();
@@ -213,6 +251,7 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &cu
 		for(auto &tag : all_tags) {
 			_BuildBranchTree(tag, kTag, NullLambda);
 		}
+		UnlockLooper();
 	} catch (const GitException &ex) {
 		OKAlert("Git", ex.Message(), B_INFO_ALERT);
 		MakeEmpty();
@@ -220,6 +259,7 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &cu
 		_InitEmptySuperItem(B_TRANSLATE("Remotes"));
 		_InitEmptySuperItem(B_TRANSLATE("Tags"));
 	}
+
 }
 
 

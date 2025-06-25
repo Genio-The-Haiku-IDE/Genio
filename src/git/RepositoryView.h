@@ -41,8 +41,6 @@ public:
 
 	void			UpdateRepository(const ProjectFolder *project, const BString &currentBranch);
 private:
-	static int32	_update_repository_starter(void* castToThis);
-	
 	void			_UpdateRepositoryTask(const ProjectFolder* project, const BString& branch);
 	
 	BranchItem*		_InitEmptySuperItem(const BString &label);

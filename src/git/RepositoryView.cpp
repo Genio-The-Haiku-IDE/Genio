@@ -21,11 +21,14 @@
 #include "ProjectFolder.h"
 #include "SourceControlPanel.h"
 #include "StringFormatter.h"
+#include "Task.h"
 #include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
+
+using Genio::Task::Task;
 
 RepositoryView::RepositoryView()
 	:
@@ -174,38 +177,28 @@ RepositoryView::SelectedItem() const
 	return item;
 }
 
-struct _thread_data {
-	RepositoryView* object;
-	const ProjectFolder* project;
-	BString branch;
-};
 
 void
-RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &currentBranch)
+RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &branch)
 {
-	struct _thread_data* data = new _thread_data;
+	BString taskName;
+	taskName << "UpdateRepository (" << project->Name() << ") (" << branch << ")";
+	Task<status_t> task
+	(
+		taskName,
+		BMessenger(this),
+		std::bind
+		(
+			&RepositoryView::_UpdateRepositoryTask,
+			this,
+			project,
+			branch
+		)
+	);
 	
-	data->object = this;
-	data->project = project;
-	data->branch = currentBranch;
-	
-	thread_id thread = spawn_thread(_update_repository_starter, "foo",
-		B_NORMAL_PRIORITY, data);
-	resume_thread(thread);
+	task.Run();
 }
 
-
-/* static */
-int32
-RepositoryView::_update_repository_starter(void* castToData)
-{
-	struct _thread_data* data = reinterpret_cast<struct _thread_data*>(castToData);
-	
-	data->object->_UpdateRepositoryTask(data->project, data->branch);
-	
-	delete data;
-	return 0;
-}
 
 
 void

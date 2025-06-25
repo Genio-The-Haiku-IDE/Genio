@@ -1,18 +1,19 @@
 /*
  * Copyright 2017-2020, Andrew Lindesay <apl@lindesay.co.nz>.
- * Copyright 2023-2024 Genio
+ * Copyright 2023-2025 Genio
  * All rights reserved. Distributed under the terms of the MIT License.
  */
 #include "Logger.h"
-
-#include "ConfigManager.h"
-#include "GenioApp.h"
 
 #include <cctype>
 #include <stdarg.h>
 #include <syslog.h>
 
 #include "BeDC.h"
+
+#include "ConfigManager.h"
+#include "GenioApp.h"
+
 
 log_level Logger::sLevel = LOG_LEVEL_ERROR;
 int Logger::sDestination = LOGGER_DEST_STDOUT;
@@ -31,7 +32,7 @@ Logger::SetDestination(int destination)
 void
 Logger::LogFormat(const char* fmtString, ...)
 {
-	int32 logArraySize = (int32)gCFG["log_size"];
+	int32 logArraySize = int32(gCFG["log_size"]);
 	// Sanitize
 	if (logArraySize < 1024)
 		logArraySize = 1024;
@@ -58,7 +59,7 @@ Logger::LogFormat(const char* fmtString, ...)
 void
 Logger::LogFormat(log_level level, const char* fmtString, ...)
 {
-	int32 logArraySize = (int32)gCFG["log_size"];
+	int32 logArraySize = int32(gCFG["log_size"]);
 	// Sanitize
 	if (logArraySize < 1024)
 		logArraySize = 1024;
@@ -221,21 +222,21 @@ Logger::IsErrorEnabled()
 
 /*static*/
 void
-Logger::_DoLog(log_level level, const char* string)
+Logger::_DoLog(log_level level, const char* logString)
 {
 	switch (sDestination) {
 		case Logger::LOGGER_DEST_STDERR:
-			::fprintf(stderr, "%s\n", string);
+			::fprintf(stderr, "%s\n", logString);
 			break;
 		case Logger::LOGGER_DEST_SYSLOG:
-			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "Genio: %s", (const char* const)string);
+			::syslog(LOG_INFO|LOG_PID|LOG_CONS|LOG_USER, "Genio: %s", logString);
 			break;
 		case Logger::LOGGER_DEST_BEDC:
-			sBeDC.SendMessage(string, level == LOG_LEVEL_ERROR ? DC_ERROR : DC_MESSAGE);
+			sBeDC.SendMessage(logString, level == LOG_LEVEL_ERROR ? DC_ERROR : DC_MESSAGE);
 			break;
 		case Logger::LOGGER_DEST_STDOUT:
 		default:
-			::fprintf(stdout, "%s\n", string);
+			::fprintf(stdout, "%s\n", logString);
 			break;
 	}
 }

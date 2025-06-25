@@ -210,6 +210,7 @@ RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BStrin
 		auto repo = project->GetRepository();
 		auto current_branch = repo->GetCurrentBranch();
 
+		// TODO: Try to do more fine-grained locking
 		LockLooper();
 
 		MakeEmpty();
@@ -218,7 +219,7 @@ RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BStrin
 		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
 		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
 		std::sort(local_branches.begin(), local_branches.end());
-		for(auto &branch : local_branches) {
+		for (auto &branch : local_branches) {
 			_BuildBranchTree(branch, kLocalBranch,
 				[&](const auto &branchname) {
 					return (branchname == fCurrentBranch);
@@ -231,7 +232,7 @@ RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BStrin
 		_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
 		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
 		std::sort(remote_branches.begin(), remote_branches.end());
-		for(auto &branch : remote_branches) {
+		for (auto &branch : remote_branches) {
 			_BuildBranchTree(branch, kRemoteBranch, NullLambda);
 		}
 		UnlockLooper();
@@ -241,18 +242,21 @@ RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BStrin
 		_InitEmptySuperItem(B_TRANSLATE("Tags"));
 		auto all_tags = repo->GetTags();
 		std::sort(all_tags.begin(), all_tags.end());
-		for(auto &tag : all_tags) {
+		for (auto &tag : all_tags) {
 			_BuildBranchTree(tag, kTag, NullLambda);
 		}
+
 		UnlockLooper();
-	} catch (const GitException &ex) {
+	} catch (const GException &ex) {
+		// TODO: What if the exception was thrown
+		// with the looper locked ?
+		// I tried "if (Looper()->IsLocked()) UnlockLooper()" but doesn't work correctly
 		OKAlert("Git", ex.Message(), B_INFO_ALERT);
 		MakeEmpty();
 		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
 		_InitEmptySuperItem(B_TRANSLATE("Remotes"));
 		_InitEmptySuperItem(B_TRANSLATE("Tags"));
 	}
-
 }
 
 

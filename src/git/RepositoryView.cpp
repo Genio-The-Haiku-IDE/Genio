@@ -207,10 +207,10 @@ RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BStrin
 	auto const NullLambda = [](const auto& val){ return false; };
 
 	try {
+		// TODO: Try to do more fine-grained locking
 		auto repo = project->GetRepository();
 		auto current_branch = repo->GetCurrentBranch();
 
-		// TODO: Try to do more fine-grained locking
 		LockLooper();
 
 		MakeEmpty();
@@ -248,14 +248,17 @@ RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BStrin
 
 		UnlockLooper();
 	} catch (const GException &ex) {
-		// TODO: What if the exception was thrown
-		// with the looper locked ?
-		// I tried "if (Looper()->IsLocked()) UnlockLooper()" but doesn't work correctly
+		if (Looper()->IsLocked())
+			UnlockLooper();
 		OKAlert("Git", ex.Message(), B_INFO_ALERT);
-		MakeEmpty();
-		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
-		_InitEmptySuperItem(B_TRANSLATE("Remotes"));
-		_InitEmptySuperItem(B_TRANSLATE("Tags"));
+
+		if (LockLooper()) {
+			MakeEmpty();
+			_InitEmptySuperItem(B_TRANSLATE("Local branches"));
+			_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+			_InitEmptySuperItem(B_TRANSLATE("Tags"));
+			UnlockLooper();
+		}
 	}
 }
 

@@ -70,7 +70,6 @@ private:
 	BView*					fChangesView;
 	BView*					fLogView;
 	BView*					fRepositoryNotInitializedView;
-	const ProjectFolderList* 		fProjectList;
 	BString					fSelectedProjectPath;
 	BString					fCurrentBranch;
 	BButton*				fInitializeButton;
@@ -79,7 +78,7 @@ private:
 
 	const ProjectFolder*	_SelectedProject() const;
 
-	void					_UpdateProjectList();
+	void					_UpdateProjectMenu();
 	void					_UpdateBranchListMenu(bool invokeItemMessage = true);
 	void					_CheckProjectGitRepo(const ProjectFolder* project);
 

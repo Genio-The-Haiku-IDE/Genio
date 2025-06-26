@@ -21,6 +21,7 @@
 #include <SeparatorView.h>
 #include <ScrollView.h>
 #include <StringView.h>
+#include <iostream>
 
 #include "ConfigManager.h"
 #include "GenioApp.h"
@@ -60,15 +61,12 @@ SourceControlPanel::SourceControlPanel()
 	BView(B_TRANSLATE("Source control"), B_WILL_DRAW | B_FRAME_EVENTS ),
 	fProjectMenu(nullptr),
 	fBranchMenu(nullptr),
-	fProjectList(nullptr),
 	fSelectedProjectPath(),
 	fCurrentBranch(nullptr),
 	fInitializeButton(nullptr),
 	fDoNotCreateInitialCommitCheckBox(nullptr),
 	fBurstHandler(nullptr)
 {
-	fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
-
 	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
 		B_TRANSLATE("Project:"),
 		B_TRANSLATE("Choose project" B_UTF8_ELLIPSIS));
@@ -226,8 +224,6 @@ SourceControlPanel::AttachedToWindow()
 		Window()->UnlockLooper();
 	}
 
-	_UpdateProjectList();
-
 	fProjectMenu->SetTarget(this);
 	fBranchMenu->SetTarget(this);
 	fToolBar->SetTarget(this);
@@ -267,7 +263,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					BString key;
 					if (message->FindString("key", &key) == B_OK
 						&& key == "repository_outline") {
-						if (!fProjectList->empty()) {
+						const ProjectFolderList* projectList = gMainWindow->GetProjectBrowser()->GetProjectList();
+						if (!projectList->empty()) {
 							_UpdateBranchListMenu(false);
 							_UpdateRepositoryView();
 						}
@@ -278,8 +275,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
-						fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
-						if (fProjectList->empty()) {
+						const ProjectFolderList* projectList = gMainWindow->GetProjectBrowser()->GetProjectList();
+						if (projectList->empty()) {
 							fProjectMenu->MakeEmpty();
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
@@ -287,16 +284,19 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						} else {
 							ProjectFolder* project = gMainWindow->GetActiveProject();
 							fSelectedProjectPath = project ? project->Path() : "";
-							_UpdateProjectList();
+							_UpdateProjectMenu();
 						}
 						break;
 					}
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					{
+						LogError("MSG_NOTIFY_PROJECT_SET_ACTIVE");
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
 						fSelectedProjectPath = message->GetString("active_project_path");
+						std::cout << "project path: " << fSelectedProjectPath << std::endl;
 						BMenuItem* markedItem = fProjectMenu->Menu()->FindMarked();
 						const ProjectFolder* selectedProject = _SelectedProject();
+						std::cout << "name: " << selectedProject->Name() << std::endl;
 						bool changed = false;
 						if (selectedProject != nullptr) {
 							if (markedItem == nullptr || 
@@ -308,13 +308,16 @@ SourceControlPanel::MessageReceived(BMessage *message)
 								}
 							}
 						}
-						if (changed)
+						
+						if (changed) {
+							LogError("Changed");
 							_UpdateBranchListMenu(true);
+						}
 						break;
 					}
 					case B_PATH_MONITOR:
 					{
-						if (fProjectList->empty())
+						if (gMainWindow->GetProjectBrowser()->GetProjectList()->empty())
 							break;
 
 						const ProjectFolder* selected = _SelectedProject();
@@ -631,7 +634,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 		_UpdateBranchListMenu(false);
 	} catch (const GitException &ex) {
 		OKAlert("SourceControlPanel", ex.Message().String(), B_STOP_ALERT);
-		_UpdateProjectList();
+		_UpdateProjectMenu();
 	} catch (const std::exception &ex) {
 		OKAlert("SourceControlPanel", ex.what(), B_STOP_ALERT);
 	} catch (...) {
@@ -728,13 +731,54 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 
 
 void
-SourceControlPanel::_UpdateProjectList()
+SourceControlPanel::_UpdateProjectMenu()
 {
+	BMenu* projectMenu = fProjectMenu->Menu();
+
+	BString selectedProject;
+	BMenuItem* item = projectMenu->FindMarked();
+	if (item != NULL) {
+		selectedProject = item->Label();
+	}
+	Window()->BeginViewTransaction();
+
+	projectMenu->RemoveItems(0, projectMenu->CountItems(), true);
+
+	/*
+	BObjectList<media_codec_info> codecList(1, true);
+	if (app->GetCodecsList(codecList) == B_OK) {
+		for (int32 i = 0; i < codecList.CountItems(); i++) {
+			media_codec_info* codec = codecList.ItemAt(i);
+			BMenuItem* item = new BMenuItem(codec->pretty_name, new BMessage(kLocalCodecChanged));
+			codecsMenu->AddItem(item);
+			if (codec->pretty_name == currentCodecString)
+				item->SetMarked(true);
+		}
+		// Make the app object the menu's message target
+		fCodecMenu->Menu()->SetTargetForItems(this);
+	}
+
+	if (codecsMenu->FindMarked() == NULL) {
+		BMenuItem *item = codecsMenu->ItemAt(0);
+		if (item != NULL)
+			item->SetMarked(true);
+	}
+
+	Window()->EndViewTransaction();
+
+	if (codecsMenu->FindMarked() == NULL) {
+		codecsMenu->SetEnabled(false);
+	} else {
+		if (currentCodecString != codecsMenu->FindMarked()->Label())
+			app->SetMediaCodec(codecsMenu->FindMarked()->Label());
+		codecsMenu->SetEnabled(true);
+	}
 	if (fProjectList == nullptr) {
 		fSelectedProjectPath = "";
 		return;
 	}
 
+	LogError("UpdateProjectList()");
 	// The logic here: save the currently selected project, empty the list
 	// then rebuild the list and try to reselect the previously selected project.
 	// otherwise select the active project.
@@ -767,10 +811,11 @@ SourceControlPanel::_UpdateProjectList()
 			return (item->Path() == selected->Path());
 		}
 	);
-
+	*/
+/*
 	const ProjectFolder* project = _SelectedProject();
 	if (project != nullptr)
-		_CheckProjectGitRepo(project);
+		_CheckProjectGitRepo(project);*/
 }
 
 

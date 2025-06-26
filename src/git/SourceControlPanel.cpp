@@ -280,33 +280,30 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
 						} else {
-							//ProjectFolder* project = gMainWindow->GetActiveProject();
 							_UpdateProjectMenu();
 						}
 						break;
 					}
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					{
-						LogError("MSG_NOTIFY_PROJECT_SET_ACTIVE");
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-						//fSelectedProjectPath = message->GetString("active_project_path");
-						//std::cout << "project path: " << fSelectedProjectPath << std::endl;
-						BMenuItem* markedItem = fProjectMenu->Menu()->FindMarked();
-						const ProjectFolder* selectedProject = _SelectedProject();
+						BString selectedProjectName;
+						BMenuItem* item = fProjectMenu->Menu()->FindMarked();
+						if (item != nullptr) {
+							selectedProjectName = item->Label();
+						}
+
+						BString activeProjectName = message->GetString("active_project_name");
 						bool changed = false;
-						if (selectedProject != nullptr) {
-							if (markedItem == nullptr || 
-								::strcmp(markedItem->Label(), selectedProject->Name()) != 0) {
-								BMenuItem* item = fProjectMenu->Menu()->FindItem(selectedProject->Name());
-								if (item != nullptr) {
-									changed = !item->IsMarked();
-									item->SetMarked(true);
-								}
+						if (::strcmp(activeProjectName, selectedProjectName) != 0) {
+							BMenuItem* item = fProjectMenu->Menu()->FindItem(activeProjectName);
+							if (item != nullptr) {
+								changed = !item->IsMarked();
+								item->SetMarked(true);
 							}
 						}
 						
 						if (changed) {
-							LogError("Changed");
 							_UpdateBranchListMenu(true);
 						}
 						break;
@@ -739,6 +736,7 @@ SourceControlPanel::_UpdateProjectMenu()
 	// The logic here: save the currently selected project, empty the list
 	// then rebuild the list and try to reselect the previously selected project.
 	// otherwise select the active project.
+
 	BMenu* projectMenu = fProjectMenu->Menu();
 
 	BString selectedProject;
@@ -753,7 +751,6 @@ SourceControlPanel::_UpdateProjectMenu()
 
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
-	
 
 	const ProjectFolderList* projectList = gMainWindow->GetProjectBrowser()->GetProjectList();
 	for (size_t i = 0; i < projectList->size(); i++) {

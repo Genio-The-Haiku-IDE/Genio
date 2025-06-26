@@ -3485,8 +3485,6 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 	const ProjectFolder* activeProject = GetActiveProject();
 	if (activeProject != nullptr) {
-		if (!previousActive.IsEmpty())
-			noticeMessage.AddString("previous_active_project_name", previousActive);
 		noticeMessage.AddString("active_project_name", activeProject->Name());
 		noticeMessage.AddString("active_project_path", activeProject->Path());
 	}

@@ -642,7 +642,6 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 	const BString sender = message->GetString("sender");
 	const ProjectFolder* selectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);
 	if (selectedProject != nullptr) {
-		fSelectedProjectPath = selectedProject->Path();
 		// check if the project folder still exists
 		if (!BEntry(selectedProject->EntryRef()).Exists())
 			return;

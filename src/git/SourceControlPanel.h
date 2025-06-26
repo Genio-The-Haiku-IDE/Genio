@@ -70,7 +70,6 @@ private:
 	BView*					fChangesView;
 	BView*					fLogView;
 	BView*					fRepositoryNotInitializedView;
-	BString					fSelectedProjectPath;
 	BString					fCurrentBranch;
 	BButton*				fInitializeButton;
 	BCheckBox*				fDoNotCreateInitialCommitCheckBox;

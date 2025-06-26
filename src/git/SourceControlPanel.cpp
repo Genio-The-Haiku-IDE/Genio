@@ -672,11 +672,10 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 const ProjectFolder*
 SourceControlPanel::_SelectedProject() const
 {
-	GenioWindow* window = static_cast<GenioWindow*>(Window());
-	if (window == nullptr)
+	if (gMainWindow == nullptr)
 		return nullptr;
 
-	ProjectBrowser* projectBrowser = window->GetProjectBrowser();
+	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
 	if (projectBrowser == nullptr)
 		return nullptr;
 

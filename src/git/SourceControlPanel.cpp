@@ -754,6 +754,7 @@ SourceControlPanel::_UpdateProjectMenu()
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
 	
+
 	const ProjectFolderList* projectList = gMainWindow->GetProjectBrowser()->GetProjectList();
 	for (size_t i = 0; i < projectList->size(); i++) {
 		ProjectFolder* project = projectList->at(i);
@@ -763,9 +764,16 @@ SourceControlPanel::_UpdateProjectMenu()
 	}
 	
 	if (projectMenu->FindMarked() == nullptr) {
-		BMenuItem *item = projectMenu->ItemAt(0);
-		if (item != nullptr)
-			item->SetMarked(true);
+		const ProjectFolder* activeProject = gMainWindow->GetActiveProject();
+		if (activeProject != nullptr) {
+			BMenuItem* item = projectMenu->FindItem(activeProject->Name());
+			if (item != nullptr)
+				item->SetMarked(true);
+		} else {
+			BMenuItem *item = projectMenu->ItemAt(0);
+			if (item != nullptr)
+				item->SetMarked(true);
+		}
 	}
 
 	Window()->EndViewTransaction();

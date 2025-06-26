@@ -260,7 +260,6 @@ private:
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;
 
-			bool				fDisableProjectNotifications;
 #ifdef GDEBUG
 			BString				fTitlePrefix;
 #endif

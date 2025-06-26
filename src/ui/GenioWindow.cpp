@@ -179,7 +179,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultTab(nullptr)
 	, fScreenMode(kDefault)
-	, fDisableProjectNotifications(false)
 	, fPanelTabManager(nullptr)
 	, fPanelsMenu(nullptr)
 {
@@ -1208,7 +1207,6 @@ GenioWindow::_PrepareWorkspace()
 	// the workspace
 	// TODO: improve how projects are loaded and notices are sent over
 	if (gCFG["reopen_projects"]) {
-		fDisableProjectNotifications = true;
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
 		status_t status = B_OK;
 		if (!projects.IsEmpty()) {
@@ -1225,18 +1223,6 @@ GenioWindow::_PrepareWorkspace()
 		}
 		if (GetActiveProject() != nullptr)
 			GetProjectBrowser()->SelectProjectAndScroll(GetActiveProject());
-
-		fDisableProjectNotifications = false;
-		if (status == B_OK) {
-			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-			const ProjectFolder* activeProject = GetActiveProject();
-			if (activeProject != nullptr) {
-				noticeMessage.AddString("active_project_name", activeProject->Name());
-				noticeMessage.AddString("active_project_path", activeProject->Path());
-			}
-			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
-		}
 	}
 
 	// Reopen files
@@ -3477,6 +3463,7 @@ GenioWindow::_MakeCatkeys()
 void
 GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 {
+	BString previousActive;
 	// There is no active project
 	if (GetActiveProject() == nullptr) {
 		if (project != nullptr) {
@@ -3486,6 +3473,7 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		}
 	} else {
 		// There was an active project already
+		previousActive = GetActiveProject()->Name();
 		GetActiveProject()->SetActive(false);
 		if (project != nullptr) {
 			SetActiveProject(project);
@@ -3494,15 +3482,15 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		}
 	}
 
-	if (!fDisableProjectNotifications) {
-		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		const ProjectFolder* activeProject = GetActiveProject();
-		if (activeProject != nullptr) {
-			noticeMessage.AddString("active_project_name", activeProject->Name());
-			noticeMessage.AddString("active_project_path", activeProject->Path());
-		}
-		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
+	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+	const ProjectFolder* activeProject = GetActiveProject();
+	if (activeProject != nullptr) {
+		if (!previousActive.IsEmpty())
+			noticeMessage.AddString("previous_active_project_name", previousActive);
+		noticeMessage.AddString("active_project_name", activeProject->Name());
+		noticeMessage.AddString("active_project_path", activeProject->Path());
 	}
+	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 
 	// Update run command working directory tooltip too
 	BString tooltip;
@@ -3747,8 +3735,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	// Notify subscribers that the project list has changed
 	// Done here so the new active project is already set and subscribers
 	// know (SourceControlPanel for example)
-	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	project->Close();
 	delete project;
@@ -3862,8 +3849,7 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 
 	// Notify subscribers that project list has changed
 	// Done here so the active project is already set
-	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	BString projectPath = project->Path();
 	BString notification;

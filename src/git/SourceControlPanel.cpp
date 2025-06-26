@@ -349,7 +349,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 
 							// create a message to update the project
 							BMessage message(MsgChangeProject);
-							message.AddPointer("value", selected);
+							message.AddString("value", selected->Path());
 							message.AddString("sender", kSenderExternalEvent);
 							fBurstHandler = new (std::nothrow) BMessageRunner(BMessenger(this),
 								&message, kBurstTimeout, 1);
@@ -565,7 +565,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					selectedProject->InitRepository(createInitialCommit);
 					SetChecked<BCheckBox>(fDoNotCreateInitialCommitCheckBox, false);
 					BMessage message(MsgChangeProject);
-					message.AddPointer("value", selectedProject);
+					message.AddString("value", selectedProject->Path());
 					message.AddString("sender", kSenderInitializeRepositoryButton);
 					BMessenger(this).SendMessage(&message);
 				}
@@ -643,8 +643,8 @@ void
 SourceControlPanel::_ChangeProject(BMessage *message)
 {
 	BString projectPath = message->GetString("value");
-	const ProjectFolder* selectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);
 	const BString sender = message->GetString("sender");
+	const ProjectFolder* selectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);
 	if (selectedProject != nullptr) {
 		fSelectedProjectPath = selectedProject->Path();
 		// check if the project folder still exists
@@ -680,6 +680,7 @@ SourceControlPanel::_SelectedProject() const
 	GenioWindow* window = static_cast<GenioWindow*>(Window());
 	if (window == nullptr)
 		return nullptr;
+
 	ProjectBrowser* projectBrowser = window->GetProjectBrowser();
 	if (projectBrowser == nullptr)
 		return nullptr;
@@ -687,11 +688,10 @@ SourceControlPanel::_SelectedProject() const
 	BMenuItem* item = fProjectMenu->Menu()->FindMarked();
 	if (item == nullptr)
 		return nullptr;
-	
+
 	BString projectPath;
 	item->Message()->FindString("value", &projectPath);
-	
-	std::cout << "path: " << projectPath << std::endl;
+
 	return projectBrowser->ProjectByPath(projectPath);
 }
 
@@ -769,9 +769,7 @@ SourceControlPanel::_UpdateProjectMenu()
 	}
 
 	Window()->EndViewTransaction();
-	
-	LogError("UpdateProjectList()");
-	
+
 	const ProjectFolder* project = _SelectedProject();
 	if (project != nullptr)
 		_CheckProjectGitRepo(project);

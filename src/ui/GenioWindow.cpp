@@ -179,7 +179,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultTab(nullptr)
 	, fScreenMode(kDefault)
-	, fDisableProjectNotifications(false)
 	, fPanelTabManager(nullptr)
 	, fPanelsMenu(nullptr)
 {

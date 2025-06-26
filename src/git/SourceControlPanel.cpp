@@ -295,8 +295,21 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
 						fSelectedProjectPath = message->GetString("active_project_path");
-						if (!fProjectList->empty())
-							_UpdateProjectList();
+						BMenuItem* markedItem = fProjectMenu->Menu()->FindMarked();
+						const ProjectFolder* selectedProject = _SelectedProject();
+						bool changed = false;
+						if (selectedProject != nullptr) {
+							if (markedItem == nullptr || 
+								::strcmp(markedItem->Label(), selectedProject->Name()) != 0) {
+								BMenuItem* item = fProjectMenu->Menu()->FindItem(selectedProject->Name());
+								if (item != nullptr) {
+									changed = !item->IsMarked();
+									item->SetMarked(true);
+								}
+							}
+						}
+						if (changed)
+							_UpdateBranchListMenu(true);
 						break;
 					}
 					case B_PATH_MONITOR:
@@ -738,9 +751,12 @@ SourceControlPanel::_UpdateProjectList()
 		[&active = activeProject](auto item)
 		{
 			BString projectName = item ? item->Name() : "";
+#if 0
+			// TODO: Re-enable or implement differently
 			BString projectPath = item ? item->Path() : "";
 			if (active != nullptr && active->Path() == projectPath)
 				projectName.Append("*");
+#endif	
 			return projectName;
 		},
 		true,

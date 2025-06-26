@@ -60,7 +60,7 @@ public:
 
 private:
 
-	Genio::UI::OptionList<ProjectFolder *>* fProjectMenu;
+	Genio::UI::OptionList<BString>* fProjectMenu;
 	Genio::UI::OptionList<BString>*	fBranchMenu;
 	ToolBar*				fToolBar;
 	BCardLayout*			fPanelsLayout;

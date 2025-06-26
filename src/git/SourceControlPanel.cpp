@@ -21,7 +21,7 @@
 #include <SeparatorView.h>
 #include <ScrollView.h>
 #include <StringView.h>
-#include <iostream>
+
 
 #include "ConfigManager.h"
 #include "GenioApp.h"
@@ -213,9 +213,8 @@ SourceControlPanel::AttachedToWindow()
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		auto gwin = static_cast<GenioWindow *>(Window());
-		if (gwin != nullptr) {
-			auto projectBrowser = gwin->GetProjectBrowser();
+		if (gMainWindow != nullptr) {
+			auto projectBrowser = gMainWindow->GetProjectBrowser();
 			if (projectBrowser != nullptr)
 				projectBrowser->StartWatching(this, B_PATH_MONITOR);
 		}

@@ -57,7 +57,7 @@ namespace Genio::UI {
 		}
 
 
-		void AddItem(BString &name, T value, uint32 command,
+		void AddItem(const BString &name, T value, uint32 command,
 			bool invokeItemMessage = true, bool marked = false)
 		{
 			status_t status;

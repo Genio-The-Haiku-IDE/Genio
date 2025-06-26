@@ -733,6 +733,9 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_UpdateProjectMenu()
 {
+	// The logic here: save the currently selected project, empty the list
+	// then rebuild the list and try to reselect the previously selected project.
+	// otherwise select the active project.
 	BMenu* projectMenu = fProjectMenu->Menu();
 
 	BString selectedProject;
@@ -740,49 +743,31 @@ SourceControlPanel::_UpdateProjectMenu()
 	if (item != NULL) {
 		selectedProject = item->Label();
 	}
+
 	Window()->BeginViewTransaction();
 
 	projectMenu->RemoveItems(0, projectMenu->CountItems(), true);
 
-	/*
-	BObjectList<media_codec_info> codecList(1, true);
-	if (app->GetCodecsList(codecList) == B_OK) {
-		for (int32 i = 0; i < codecList.CountItems(); i++) {
-			media_codec_info* codec = codecList.ItemAt(i);
-			BMenuItem* item = new BMenuItem(codec->pretty_name, new BMessage(kLocalCodecChanged));
-			codecsMenu->AddItem(item);
-			if (codec->pretty_name == currentCodecString)
-				item->SetMarked(true);
-		}
-		// Make the app object the menu's message target
-		fCodecMenu->Menu()->SetTargetForItems(this);
+	const ProjectFolderList* projectList = gMainWindow->GetProjectBrowser()->GetProjectList();
+	for (size_t i = 0; i < projectList->size(); i++) {
+		ProjectFolder* project = projectList->at(i);
+		fProjectMenu->AddItem(project->Name(), project, MsgChangeProject);
+		if (project->Name() == selectedProject)
+			item->SetMarked(true);
 	}
-
-	if (codecsMenu->FindMarked() == NULL) {
-		BMenuItem *item = codecsMenu->ItemAt(0);
+	
+	if (projectMenu->FindMarked() == NULL) {
+		BMenuItem *item = projectMenu->ItemAt(0);
 		if (item != NULL)
 			item->SetMarked(true);
 	}
 
 	Window()->EndViewTransaction();
+	
 
-	if (codecsMenu->FindMarked() == NULL) {
-		codecsMenu->SetEnabled(false);
-	} else {
-		if (currentCodecString != codecsMenu->FindMarked()->Label())
-			app->SetMediaCodec(codecsMenu->FindMarked()->Label());
-		codecsMenu->SetEnabled(true);
-	}
-	if (fProjectList == nullptr) {
-		fSelectedProjectPath = "";
-		return;
-	}
-
+	
 	LogError("UpdateProjectList()");
-	// The logic here: save the currently selected project, empty the list
-	// then rebuild the list and try to reselect the previously selected project.
-	// otherwise select the active project.
-
+/*	
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
 	const ProjectFolder* selectedProject = _SelectedProject();

@@ -3475,11 +3475,10 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		// There was an active project already
 		previousActive = GetActiveProject()->Name();
 		GetActiveProject()->SetActive(false);
-		if (project != nullptr) {
-			SetActiveProject(project);
+		SetActiveProject(project);
+		if (project != nullptr)
 			project->SetActive(true);
-			_UpdateProjectActivation(true);
-		}
+		_UpdateProjectActivation(project != nullptr);
 	}
 
 	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);

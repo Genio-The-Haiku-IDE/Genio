@@ -279,9 +279,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							fProjectMenu->MakeEmpty();
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
-						} else {
-							_UpdateProjectMenu();
 						}
+						_UpdateProjectMenu();
 						break;
 					}
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
@@ -793,7 +792,7 @@ SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
 			fMainLayout->SetVisibleItem(kMainIndexInitialize);
 		}
 	} catch (const GitException &ex) {
-		// other fatal errors
+		LogError("_CheckProjectGitRepo(): %s", ex.Message());
 		throw;
 	}
 }

@@ -7,6 +7,7 @@
 #include "RepositoryView.h"
 
 #include <Catalog.h>
+#include <Debug.h>
 #include <Looper.h>
 
 #include <filesystem>
@@ -181,6 +182,8 @@ RepositoryView::SelectedItem() const
 void
 RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &branch)
 {
+	ASSERT(project != nullptr);
+
 	BString taskName;
 	taskName << "UpdateRepository (" << project->Name() << ") (" << branch << ")";
 	Task<status_t> task
@@ -195,7 +198,7 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &br
 			branch
 		)
 	);
-	
+
 	task.Run();
 }
 

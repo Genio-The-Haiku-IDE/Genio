@@ -279,6 +279,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							fProjectMenu->MakeEmpty();
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
+							fMainLayout->SetVisibleItem(kPanelsIndexRepository);
 						}
 						_UpdateProjectMenu();
 						break;

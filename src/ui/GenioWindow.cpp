@@ -3492,7 +3492,7 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 
 	// Update run command working directory tooltip too
 	BString tooltip;
-	tooltip << "cwd: " << activeProject ? activeProject->Path() : "";
+	tooltip << "cwd: " << (activeProject ? activeProject->Path() : "");
 	fRunConsoleProgramText->SetToolTip(tooltip);
 }
 

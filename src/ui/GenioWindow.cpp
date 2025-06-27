@@ -3463,7 +3463,6 @@ GenioWindow::_MakeCatkeys()
 void
 GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 {
-	BString previousActive;
 	// There is no active project
 	if (GetActiveProject() == nullptr) {
 		if (project != nullptr) {
@@ -3473,7 +3472,6 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 		}
 	} else {
 		// There was an active project already
-		previousActive = GetActiveProject()->Name();
 		GetActiveProject()->SetActive(false);
 		SetActiveProject(project);
 		if (project != nullptr)

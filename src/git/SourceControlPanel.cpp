@@ -621,6 +621,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 		}
 	} catch (const GitConflictException &ex) {
+		// TODO: This is not correct: we cannot translate a non-constant expression
 		auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
 			B_TRANSLATE(ex.Message().String()), ex.GetFiles());
 		alert->Go();
@@ -796,7 +797,7 @@ SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
 			fMainLayout->SetVisibleItem(kMainIndexInitialize);
 		}
 	} catch (const GitException &ex) {
-		LogError("_CheckProjectGitRepo(): %s", ex.Message());
+		LogError("_CheckProjectGitRepo(): %s", ex.Message().String());
 		throw;
 	}
 }

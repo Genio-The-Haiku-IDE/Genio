@@ -284,6 +284,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
 							fSelectedProjectPath = "";
+							fMainLayout->SetVisibleItem(kPanelsIndexRepository);
 						} else {
 							ProjectFolder* project = gMainWindow->GetActiveProject();
 							fSelectedProjectPath = project ? project->Path() : "";

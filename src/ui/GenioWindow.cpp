@@ -1175,7 +1175,14 @@ GenioWindow::GetActiveProject() const
 void
 GenioWindow::SetActiveProject(ProjectFolder *project)
 {
+	ASSERT(project != fActiveProject);
+	if (fActiveProject != nullptr)
+		fActiveProject->SetActive(false);
+
 	fActiveProject = project;
+
+	if (fActiveProject != nullptr)
+		fActiveProject->SetActive(true);
 }
 
 
@@ -3465,15 +3472,11 @@ GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 	if (GetActiveProject() == nullptr) {
 		if (project != nullptr) {
 			SetActiveProject(project);
-			project->SetActive(true);
 			_UpdateProjectActivation(true);
 		}
 	} else {
 		// There was an active project already
-		GetActiveProject()->SetActive(false);
 		SetActiveProject(project);
-		if (project != nullptr)
-			project->SetActive(true);
 		_UpdateProjectActivation(project != nullptr);
 	}
 

@@ -286,6 +286,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					}
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					{
+						// Almost same code path as case MsgChangeProject
+
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
 						BString selectedProjectName;
 						BMenuItem* item = fProjectMenu->Menu()->FindMarked();
@@ -305,8 +307,10 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						
 						if (changed) {
 							ASSERT(_SelectedProject() != nullptr);
-							_CheckProjectGitRepo(_SelectedProject());
-							_UpdateBranchListMenu(true);
+							BMessage changeMessage;
+							changeMessage.AddString("value", _SelectedProject()->Path());
+							changeMessage.AddString("sender", kSenderProjectOptionList);
+							_ChangeProject(&changeMessage);
 						}
 						break;
 					}

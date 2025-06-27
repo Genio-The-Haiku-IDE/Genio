@@ -93,4 +93,6 @@ private:
 
 	void					_ChangeProject(BMessage *message);
 	void					_SwitchBranch(BMessage *message);
+
+	void					_HandleProjectChangedExternalEvent(const ProjectFolder* project);
 };

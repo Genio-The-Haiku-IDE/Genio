@@ -339,28 +339,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						if (path.FindFirst(gitFolder.Path()) == B_ERROR)
 							break;
 
-						// TODO: Move the burst handler to a function
-						if (fBurstHandler == nullptr ||
-								fBurstHandler->SetInterval(kBurstTimeout) != B_OK) {
-							LogInfo("SourceControlPanel: fBurstHandler not valid");
-
-							delete fBurstHandler;
-
-							// create a message to update the project
-							BMessage message(MsgChangeProject);
-							message.AddString("value", selected->Path());
-							message.AddString("sender", kSenderExternalEvent);
-							fBurstHandler = new (std::nothrow) BMessageRunner(BMessenger(this),
-								&message, kBurstTimeout, 1);
-							if (fBurstHandler == nullptr|| fBurstHandler->InitCheck() != B_OK) {
-								LogInfo("SourceControlPanel: Could not create "
-									"fBurstHandler. Deleting it");
-								delete fBurstHandler;
-								fBurstHandler = nullptr;
-							} else {
-								LogInfo("SourceControlPanel: fBurstHandler instantiated.");
-							}
-						}
+						_HandleProjectChangedExternalEvent(selected);
 						break;
 					}
 					default:
@@ -878,4 +857,31 @@ SourceControlPanel::_ShowGitNotification(const BString &text)
 	ShowNotification("Genio", project->Path().String(),
 		project->Path().String(),
 		text);
+}
+
+
+void
+SourceControlPanel::_HandleProjectChangedExternalEvent(const ProjectFolder* project)
+{
+	if (fBurstHandler == nullptr ||
+			fBurstHandler->SetInterval(kBurstTimeout) != B_OK) {
+		LogInfo("SourceControlPanel: fBurstHandler not valid");
+
+		delete fBurstHandler;
+
+		// create a message to update the project
+		BMessage message(MsgChangeProject);
+		message.AddString("value", project->Path());
+		message.AddString("sender", kSenderExternalEvent);
+		fBurstHandler = new (std::nothrow) BMessageRunner(BMessenger(this),
+			&message, kBurstTimeout, 1);
+		if (fBurstHandler == nullptr|| fBurstHandler->InitCheck() != B_OK) {
+			LogInfo("SourceControlPanel: Could not create "
+				"fBurstHandler. Deleting it");
+			delete fBurstHandler;
+			fBurstHandler = nullptr;
+		} else {
+			LogInfo("SourceControlPanel: fBurstHandler instantiated.");
+		}
+	}
 }

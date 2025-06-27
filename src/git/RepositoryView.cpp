@@ -203,7 +203,6 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &br
 }
 
 
-
 void
 RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BString& branch)
 {

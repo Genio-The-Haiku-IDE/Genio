@@ -7,6 +7,7 @@
 #include <Alignment.h>
 #include <Autolock.h>
 #include <Button.h>
+#include <Debug.h>
 #include <MessageRunner.h>
 #include <ObjectList.h>
 #include <Catalog.h>
@@ -303,6 +304,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						}
 						
 						if (changed) {
+							ASSERT(_SelectedProject() != nullptr);
+							_CheckProjectGitRepo(_SelectedProject());
 							_UpdateBranchListMenu(true);
 						}
 						break;

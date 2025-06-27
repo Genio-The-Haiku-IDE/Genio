@@ -6,9 +6,6 @@
 
 #include "GenioWindow.h"
 
-#include <cassert>
-#include <string>
-
 #include <Alert.h>
 #include <Bitmap.h>
 #include <Button.h>
@@ -16,6 +13,7 @@
 #include <CheckBox.h>
 #include <Clipboard.h>
 #include <ControlLook.h>
+#include <Debug.h>
 #include <FilePanel.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>
@@ -3823,7 +3821,7 @@ void
 GenioWindow::_ProjectFolderOpenInitiated(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
-	// TODO:
+	ASSERT(project != nullptr);
 }
 
 
@@ -3831,6 +3829,8 @@ void
 GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
+	ASSERT(project != nullptr);
+
 	// ensure it's selected:
 	GetProjectBrowser()->SelectProjectAndScroll(project);
 
@@ -3881,6 +3881,8 @@ void
 GenioWindow::_ProjectFolderOpenAborted(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
+	ASSERT(project != nullptr);
+
 	BString notification;
 	notification << "Project open fail: " << project->Name();
 	LogInfo(notification.String());
@@ -4245,7 +4247,7 @@ GenioWindow::_UpdateReplaceMenuItems(const BString& text)
 void
 GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 {
-	assert (editor);
+	ASSERT(editor != nullptr);
 
 	// Menu Items
 

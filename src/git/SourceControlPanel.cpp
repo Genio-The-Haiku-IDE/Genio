@@ -784,6 +784,9 @@ void
 SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
 {
 	// Check if the selected project is a valid git repository
+	// TODO: Rename or split this method since it not only does a check
+	// but it also it changes the view as a side effect
+
 	try {
 		GitRepository* repo = project->GetRepository();
 		if (repo->IsInitialized()) {

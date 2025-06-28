@@ -62,7 +62,7 @@ SourceControlPanel::SourceControlPanel()
 	BView(B_TRANSLATE("Source control"), B_WILL_DRAW | B_FRAME_EVENTS ),
 	fProjectMenu(nullptr),
 	fBranchMenu(nullptr),
-	fCurrentBranch(nullptr),
+	fCurrentBranch(),
 	fInitializeButton(nullptr),
 	fDoNotCreateInitialCommitCheckBox(nullptr),
 	fBurstHandler(nullptr)

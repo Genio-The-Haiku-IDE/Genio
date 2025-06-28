@@ -33,8 +33,7 @@ using Genio::Task::Task;
 
 RepositoryView::RepositoryView()
 	:
-	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST),
-	fCurrentBranch(nullptr)
+	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST)
 {
 }
 
@@ -208,6 +207,8 @@ RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BStrin
 {
 	auto const NullLambda = [](const auto& val){ return false; };
 
+	// Used to show the current branch in RepositoryView
+	fCurrentBranch = branch;
 	try {
 		// TODO: Try to do more fine-grained locking
 		auto repo = project->GetRepository();

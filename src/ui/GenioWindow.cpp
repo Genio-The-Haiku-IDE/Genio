@@ -2471,7 +2471,8 @@ GenioWindow::_InitCommandRunToolbar()
 
 	// Update run command working directory tooltip too
 	BString tooltip("cwd: ");
-	tooltip << (const char*)gCFG["projects_directory"];
+	const char* projectsDirectory = gCFG["projects_directory"];
+	tooltip << projectsDirectory;
 	fRunConsoleProgramText->SetToolTip(tooltip);
 
 }
@@ -3698,7 +3699,8 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		closed = "Active project close:";
 		// Update run command working directory tooltip too
 		BString tooltip;
-		tooltip << "cwd: " << (const char*)gCFG["projects_directory"];
+		const char* projectsDirectory = gCFG["projects_directory"];
+		tooltip << "cwd: " << projectsDirectory;
 		fRunConsoleProgramText->SetToolTip(tooltip);
 	}
 
@@ -3962,7 +3964,7 @@ GenioWindow::_ShowInTracker(const entry_ref& ref, const node_ref* nref)
 		message.AddRef("refs", &ref);
 
 		if (nref != nullptr)
-			message.AddData("nodeRefToSelect", B_RAW_TYPE, (void*)nref, sizeof(node_ref));
+			message.AddData("nodeRefToSelect", B_RAW_TYPE, nref, sizeof(node_ref));
 
 		status = tracker.SendMessage(&message);
 	}

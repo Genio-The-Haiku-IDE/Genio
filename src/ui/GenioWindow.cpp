@@ -3471,19 +3471,18 @@ GenioWindow::_MakeCatkeys()
 void
 GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 {
+	ASSERT(project != nullptr);
+
 	SetActiveProject(project);
 
 	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-	const ProjectFolder* activeProject = GetActiveProject();
-	if (activeProject != nullptr) {
-		noticeMessage.AddString("active_project_name", activeProject->Name());
-		noticeMessage.AddString("active_project_path", activeProject->Path());
-	}
+	noticeMessage.AddString("active_project_name", project->Name());
+	noticeMessage.AddString("active_project_path", project->Path());
 	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 
 	// Update run command working directory tooltip too
 	BString tooltip;
-	tooltip << "cwd: " << (activeProject ? activeProject->Path() : "");
+	tooltip << "cwd: " << project->Path();
 	fRunConsoleProgramText->SetToolTip(tooltip);
 }
 

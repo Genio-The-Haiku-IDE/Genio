@@ -858,7 +858,11 @@ ProjectBrowser::CountProjects() const
 ProjectFolder*
 ProjectBrowser::ProjectAt(int32 index) const
 {
-	return fProjectList[index];
+	try {
+		return fProjectList.at(index);
+	} catch (...) {
+		return nullptr;
+	}	
 }
 
 

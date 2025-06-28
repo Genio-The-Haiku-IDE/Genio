@@ -1183,6 +1183,9 @@ GenioWindow::SetActiveProject(ProjectFolder *project)
 
 	if (fActiveProject != nullptr)
 		fActiveProject->SetActive(true);
+
+	// Update menu state
+	_UpdateProjectActivation(project != nullptr);
 }
 
 
@@ -3468,17 +3471,7 @@ GenioWindow::_MakeCatkeys()
 void
 GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 {
-	// There is no active project
-	if (GetActiveProject() == nullptr) {
-		if (project != nullptr) {
-			SetActiveProject(project);
-			_UpdateProjectActivation(true);
-		}
-	} else {
-		// There was an active project already
-		SetActiveProject(project);
-		_UpdateProjectActivation(project != nullptr);
-	}
+	SetActiveProject(project);
 
 	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
 	const ProjectFolder* activeProject = GetActiveProject();
@@ -3704,7 +3697,6 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		wasActive = true;
 		SetActiveProject(nullptr);
 		closed = "Active project close:";
-		_UpdateProjectActivation(false);
 		// Update run command working directory tooltip too
 		BString tooltip;
 		tooltip << "cwd: " << (const char*)gCFG["projects_directory"];
@@ -3723,9 +3715,9 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	// Select a new active project
 	if (wasActive) {
-		ProjectFolder* project = fProjectsFolderBrowser->ProjectAt(0);
-		if (project != nullptr)
-			_ProjectFolderActivate(project);
+		ProjectFolder* newActiveProject = fProjectsFolderBrowser->ProjectAt(0);
+		if (newActiveProject != nullptr)
+			SetActiveProject(newActiveProject);
 	}
 
 	// Notify subscribers that the project list has changed
@@ -4188,7 +4180,12 @@ GenioWindow::_UpdateLabel(Editor* editor, bool isModified)
 void
 GenioWindow::_UpdateProjectActivation(bool active)
 {
-	// TODO: Refactor here and _ProjectFolderActivate
+	// Enables/disables menu items based on the passed parameter
+	// (project being active or not)
+	// Does NOT do anything to the current project.
+
+	// TODO: Refactor/rename. Do we really need the parameter ?
+	// we could use GetActiveProject()->Active() instead
 	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, active);
 	fBuildModeItem->SetEnabled(active);
 	fMakeCatkeysItem->SetEnabled(active);

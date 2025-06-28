@@ -861,8 +861,9 @@ ProjectBrowser::ProjectAt(int32 index) const
 	try {
 		return fProjectList.at(index);
 	} catch (...) {
+		LogError("ProjectBrowser::ProjectAt() called with invalid index %ld!", index);
 		return nullptr;
-	}	
+	}
 }
 
 

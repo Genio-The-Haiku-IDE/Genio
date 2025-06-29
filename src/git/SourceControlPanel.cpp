@@ -770,7 +770,7 @@ SourceControlPanel::_UpdateProjectMenu()
 			fMainLayout->SetVisibleItem(kMainIndexInitialize);
 		}
 	} catch (const GitException &ex) {
-		LogError("_CheckProjectGitRepo(): %s", ex.Message().String());
+		LogError("_UpdateProjectMenu(): %s", ex.Message().String());
 	}
 }
 

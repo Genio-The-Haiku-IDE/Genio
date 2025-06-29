@@ -704,20 +704,9 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 			B_STOP_ALERT);
 	} else {
 		const BString branch = message->GetString("value");
-		const BString sender = message->GetString("sender");
-
 		auto repo = project->GetRepository();
 		repo->SwitchBranch(branch);
 		fCurrentBranch = repo->GetCurrentBranch();
-
-		if (sender == kSenderBranchOptionList) {
-			// we update the repository view
-			_UpdateRepositoryView();
-		} else if (sender == kSenderRepositoryPopupMenu || sender == kSenderExternalEvent) {
-			// we update the repository view and the branch option list
-			_UpdateBranchListMenu(false);
-			_UpdateRepositoryView();
-		}
 	}
 }
 

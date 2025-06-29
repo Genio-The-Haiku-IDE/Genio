@@ -433,7 +433,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				// to the correct project
 				GetActiveProject()->SetBuildingState(false);
 			}
-			_UpdateProjectActivation(GetActiveProject() != nullptr);
+			_UpdateProjectMenuItemsState(GetActiveProject() != nullptr);
 			break;
 		}
 		case EDITOR_POSITION_CHANGED:
@@ -485,13 +485,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BUILD_MODE_DEBUG:
 		{
 			GetActiveProject()->SetBuildMode(BuildMode::DebugMode);
-			_UpdateProjectActivation(GetActiveProject() != nullptr);
+			_UpdateProjectMenuItemsState(true);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE:
 		{
 			GetActiveProject()->SetBuildMode(BuildMode::ReleaseMode);
-			_UpdateProjectActivation(GetActiveProject() != nullptr);
+			_UpdateProjectMenuItemsState(true);
 			break;
 		}
 		case MSG_BUILD_PROJECT:
@@ -1185,7 +1185,7 @@ GenioWindow::SetActiveProject(ProjectFolder *project)
 		fActiveProject->SetActive(true);
 
 	// Update menu state
-	_UpdateProjectActivation(project != nullptr);
+	_UpdateProjectMenuItemsState(project != nullptr);
 }
 
 
@@ -1563,7 +1563,7 @@ GenioWindow::_DoBuildOrCleanProject(const BString& cmd)
 		return _AlertInvalidBuildConfig(message);
 	}
 
-	_UpdateProjectActivation(false);
+	_UpdateProjectMenuItemsState(false);
 
 	fBuildLogView->Clear();
 	if (gCFG["show_build_panel"])
@@ -2147,7 +2147,7 @@ GenioWindow::_Git(const BString& git_command)
 		return B_ERROR;
 
 	// Pretend building or running
-	_UpdateProjectActivation(false);
+	_UpdateProjectMenuItemsState(false);
 
 	//fConsoleIOView->Clear();
 	_ShowOutputTab(kTabOutputLog);
@@ -4080,7 +4080,7 @@ GenioWindow::_RunTarget()
 	// Differentiate terminal projects from window ones
 	if (GetActiveProject()->RunInTerminal()) {
 		// Don't do that in graphical mode
-		_UpdateProjectActivation(false);
+		_UpdateProjectMenuItemsState(false);
 
 		_ShowOutputTab(kTabOutputLog);
 
@@ -4179,23 +4179,21 @@ GenioWindow::_UpdateLabel(Editor* editor, bool isModified)
 
 
 void
-GenioWindow::_UpdateProjectActivation(bool active)
+GenioWindow::_UpdateProjectMenuItemsState(bool enable)
 {
-	// Enables/disables menu items based on the passed parameter
-	// (project being active or not)
+	// Enables/disables actions and menu items based on the passed parameter
 	// Does NOT do anything to the current project.
 
-	// TODO: Refactor/rename. Do we really need the parameter ?
-	// we could use GetActiveProject()->Active() instead
-	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, active);
-	fBuildModeItem->SetEnabled(active);
-	fMakeCatkeysItem->SetEnabled(active);
-	fMakeBindcatalogsItem->SetEnabled(active);
-	ActionManager::SetEnabled(MSG_BUILD_PROJECT, active);
+	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, enable);
+	fBuildModeItem->SetEnabled(enable);
+	fMakeCatkeysItem->SetEnabled(enable);
+	fMakeBindcatalogsItem->SetEnabled(enable);
+	ActionManager::SetEnabled(MSG_BUILD_PROJECT, enable);
+	ActionManager::SetEnabled(MSG_RUN_TARGET, enable);
 	fFileNewMenuItem->SetEnabled(true); // This menu should be always active!
 
-	if (active) {
-		// Is this a git project?
+	if (enable) {
+		// Is the active project a git project?
 		try {
 			if (GetActiveProject()->GetRepository()->IsInitialized())
 				fGitMenu->SetEnabled(true);
@@ -4210,14 +4208,11 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 
+		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
 		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, true);
 
-		ActionManager::SetEnabled(MSG_RUN_TARGET, true);
-		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
-
-	} else { // here project is inactive
+	} else {
 		fGitMenu->SetEnabled(false);
-		ActionManager::SetEnabled(MSG_RUN_TARGET, false);
 		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
 		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, false);
 		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
@@ -4514,7 +4509,7 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 
 	if (project == GetActiveProject() || GetActiveProject() == nullptr) {
 		// Update debug/release
-		_UpdateProjectActivation(GetActiveProject() != nullptr);
+		_UpdateProjectMenuItemsState(GetActiveProject() != nullptr);
 	}
 
 	// TODO: refactor

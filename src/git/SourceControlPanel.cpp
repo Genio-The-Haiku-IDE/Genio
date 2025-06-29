@@ -262,8 +262,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					BString key;
 					if (message->FindString("key", &key) == B_OK
 						&& key == "repository_outline") {
-						const ProjectFolderList* projectList = gMainWindow->GetProjectBrowser()->GetProjectList();
-						if (!projectList->empty()) {
+						if (gMainWindow->GetProjectBrowser()->CountProjects() > 0) {
 							_UpdateBranchListMenu(false);
 							_UpdateRepositoryView();
 						}
@@ -274,8 +273,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
-						const ProjectFolderList* projectList = gMainWindow->GetProjectBrowser()->GetProjectList();
-						if (projectList->empty()) {
+						if (gMainWindow->GetProjectBrowser()->CountProjects() == 0) {
 							fProjectMenu->MakeEmpty();
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
@@ -316,7 +314,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					}
 					case B_PATH_MONITOR:
 					{
-						if (gMainWindow->GetProjectBrowser()->GetProjectList()->empty())
+						if (gMainWindow->GetProjectBrowser()->CountProjects() == 0)
 							break;
 
 						const ProjectFolder* selected = _SelectedProject();
@@ -736,9 +734,9 @@ SourceControlPanel::_UpdateProjectMenu()
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
 
-	const ProjectFolderList* projectList = gMainWindow->GetProjectBrowser()->GetProjectList();
-	for (size_t i = 0; i < projectList->size(); i++) {
-		ProjectFolder* project = projectList->at(i);
+	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
+	for (int32 i = 0; i < projectBrowser->CountProjects(); i++) {
+		ProjectFolder* project = projectBrowser->ProjectAt(i);
 		fProjectMenu->AddItem(project->Name(), project->Path(), MsgChangeProject);
 		if (project->Name() == selectedProject)
 			item->SetMarked(true);

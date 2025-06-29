@@ -182,6 +182,10 @@ void
 RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &branch)
 {
 	ASSERT(project != nullptr);
+	ASSERT(project->GetRepository());
+
+	LogTrace("UpdateRepository(project: %s, branch: %s)",
+		project->Name().String(), branch.String());
 
 	BString taskName;
 	taskName << "UpdateRepository (" << project->Name() << ") (" << branch << ")";

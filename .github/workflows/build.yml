@@ -49,7 +49,7 @@ jobs:
               ssh user@localhost "pkgman update -y haiku_devel cmd:gcc libgit2_1.8_x86_devel lexilla_x86_devel yaml_cpp*_x86_devel editorconfig_core_c_x86_devel" &&
               setarch x86 make
             else
-              ssh user@localhost "pkgman update -y haiku_devel cmd:gcc libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel" &&
+              ssh user@localhost "pkgman update -y haiku_devel cmd:gcc gcc_syslibs_devel libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel" &&
               make
             fi
             

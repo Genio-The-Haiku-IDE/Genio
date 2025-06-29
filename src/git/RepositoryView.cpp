@@ -184,7 +184,7 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &br
 	ASSERT(project != nullptr);
 	ASSERT(project->GetRepository());
 
-	LogTrace("UpdateRepository(project: %s, branch: %s)",
+	LogInfo("UpdateRepository(project: %s, branch: %s)",
 		project->Name().String(), branch.String());
 
 	// TODO: we call this method also when current branch changes, and we rebuild
@@ -219,12 +219,21 @@ RepositoryView::_UpdateRepositoryTask(const GitRepository* repo, const BString& 
 		// Retrieve branches
 		auto localBranches = repo->GetBranches(GIT_BRANCH_LOCAL);
 		std::sort(localBranches.begin(), localBranches.end());
-		
+		int32 numLocalBranches = localBranches.size();
+
+		LogInfo("%ld local branches", numLocalBranches);
+
 		auto remoteBranches = repo->GetBranches(GIT_BRANCH_REMOTE);
 		std::sort(remoteBranches.begin(), remoteBranches.end());
-		
+		int32 numRemoteBranches = remoteBranches.size();
+
+		LogInfo("%ld remote branches", numRemoteBranches);
+
 		auto allTags = repo->GetTags();
 		std::sort(allTags.begin(), allTags.end());
+		int32 numTags = allTags.size();
+
+		LogInfo("%ld tags", numTags);
 
 		// populate Listview
 		// TODO: Try to do more fine-grained locking

@@ -214,43 +214,43 @@ RepositoryView::_UpdateRepositoryTask(const GitRepository* repo, const BString& 
 	// Used to show the current branch in RepositoryView
 	fCurrentBranch = branch;
 	try {
+		// Retrieve branches
+		auto localBranches = repo->GetBranches(GIT_BRANCH_LOCAL);
+		std::sort(localBranches.begin(), localBranches.end());
+		
+		auto remoteBranches = repo->GetBranches(GIT_BRANCH_REMOTE);
+		std::sort(remoteBranches.begin(), remoteBranches.end());
+		
+		auto allTags = repo->GetTags();
+		std::sort(allTags.begin(), allTags.end());
+
+		// populate Listview
 		// TODO: Try to do more fine-grained locking
-		LockLooper();
+		if (LockLooper()) {
+			MakeEmpty();
+			// local branches
+			_InitEmptySuperItem(B_TRANSLATE("Local branches"));
+			for (auto &branch : localBranches) {
+				_BuildBranchTree(branch, kLocalBranch,
+					[&](const auto &branchname) {
+						return (branchname == fCurrentBranch);
+					});
+			}
 
-		MakeEmpty();
+			// remote branches
+			_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+			for (auto &branch : remoteBranches) {
+				_BuildBranchTree(branch, kRemoteBranch, NullLambda);
+			}
 
-		// populate local branches
-		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
-		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
-		std::sort(local_branches.begin(), local_branches.end());
-		for (auto &branch : local_branches) {
-			_BuildBranchTree(branch, kLocalBranch,
-				[&](const auto &branchname) {
-					return (branchname == fCurrentBranch);
-				});
-		}
-		UnlockLooper();
-		
-		LockLooper();
-		// populate remote branches
-		_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
-		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
-		std::sort(remote_branches.begin(), remote_branches.end());
-		for (auto &branch : remote_branches) {
-			_BuildBranchTree(branch, kRemoteBranch, NullLambda);
-		}
-		UnlockLooper();
-		
-		LockLooper();
-		// populate tags
-		_InitEmptySuperItem(B_TRANSLATE("Tags"));
-		auto all_tags = repo->GetTags();
-		std::sort(all_tags.begin(), all_tags.end());
-		for (auto &tag : all_tags) {
-			_BuildBranchTree(tag, kTag, NullLambda);
-		}
+			// tags
+			_InitEmptySuperItem(B_TRANSLATE("Tags"));
+			for (auto &tag : allTags) {
+				_BuildBranchTree(tag, kTag, NullLambda);
+			}
 
-		UnlockLooper();
+			UnlockLooper();
+		}
 	} catch (const GException &ex) {
 		if (Looper()->IsLocked())
 			UnlockLooper();

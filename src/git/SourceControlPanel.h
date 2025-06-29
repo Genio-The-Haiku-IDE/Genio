@@ -79,7 +79,6 @@ private:
 
 	void					_UpdateProjectMenu();
 	void					_UpdateBranchListMenu(bool invokeItemMessage = true);
-	void					_CheckProjectGitRepo(const ProjectFolder* project);
 
 	void					_InitToolBar();
 	void					_InitRepositoryView();

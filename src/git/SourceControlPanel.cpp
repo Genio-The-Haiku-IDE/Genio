@@ -717,7 +717,6 @@ SourceControlPanel::_UpdateProjectMenu()
 	// The logic here: save the currently selected project, empty the list
 	// then rebuild the list and try to reselect the previously selected project.
 	// otherwise select the active project.
-
 	BMenu* projectMenu = fProjectMenu->Menu();
 
 	BString selectedProject;
@@ -736,6 +735,8 @@ SourceControlPanel::_UpdateProjectMenu()
 	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
 	for (int32 i = 0; i < projectBrowser->CountProjects(); i++) {
 		ProjectFolder* project = projectBrowser->ProjectAt(i);
+		if (project == nullptr)
+			break;
 		fProjectMenu->AddItem(project->Name(), project->Path(), MsgChangeProject);
 		if (project->Name() == selectedProject)
 			item->SetMarked(true);
@@ -757,18 +758,10 @@ SourceControlPanel::_UpdateProjectMenu()
 	Window()->EndViewTransaction();
 
 	const ProjectFolder* project = _SelectedProject();
-	if (project != nullptr)
-		_CheckProjectGitRepo(project);
-}
+	if (project == nullptr)
+		return;
 
-
-void
-SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
-{
-	// Check if the selected project is a valid git repository
-	// TODO: Rename or split this method since it not only does a check
-	// but it also it changes the view as a side effect
-
+	// Also update the branch list menu
 	try {
 		GitRepository* repo = project->GetRepository();
 		if (repo->IsInitialized()) {
@@ -778,7 +771,6 @@ SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
 		}
 	} catch (const GitException &ex) {
 		LogError("_CheckProjectGitRepo(): %s", ex.Message().String());
-		throw;
 	}
 }
 

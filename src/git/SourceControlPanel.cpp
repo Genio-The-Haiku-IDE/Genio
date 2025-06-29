@@ -314,6 +314,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					}
 					case B_PATH_MONITOR:
 					{
+						LogTrace("B_PATH_MONITOR");
+
 						if (gMainWindow->GetProjectBrowser()->CountProjects() == 0)
 							break;
 
@@ -321,7 +323,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						if (selected == nullptr || selected->IsBuilding())
 							break;
 
-						LogInfo("B_PATH_MONITOR");
 						BString watchedPath;
 						if (message->FindString("watched_path", &watchedPath) != B_OK)
 							break;
@@ -340,6 +341,15 @@ SourceControlPanel::MessageReceived(BMessage *message)
 
 						if (path.FindFirst(gitFolder.Path()) == B_ERROR)
 							break;
+
+						// Don't trigger an event when git locks its folder
+						// TODO: avoid hardcoding ?
+						BPath gitIndexLockPath(gitFolder);
+						gitIndexLockPath.Append("index.lock");
+						if (path == gitIndexLockPath.Path()) {
+							LogTrace("Got path monitor event for git index.lock: ignoring...");
+							break;
+						}
 
 						_HandleProjectChangedExternalEvent(selected);
 						break;

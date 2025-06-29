@@ -732,6 +732,34 @@ ProjectBrowser::DetachedFromWindow()
 
 
 void
+ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
+{
+	ASSERT(project != nullptr);
+
+	if (fOutlineListView->CountItems() == 0)
+		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(0));
+
+	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
+	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
+	fOutlineListView->SortItemsUnder(nullptr, false, ProjectOutlineListView::CompareProjectItems);
+
+	const BString projectPath = project->Path();
+	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
+
+	ASSERT(projectItem != nullptr);
+
+	fProjectList.push_back(project);
+	fProjectProjectItemList.push_back(projectItem);
+
+	Invalidate();
+	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
+			B_WATCH_RECURSIVELY, BMessenger(this));
+	if (status != B_OK)
+		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
+}
+
+
+void
 ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 {
 	const BString projectPath = project->Path();
@@ -759,34 +787,6 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(1));
 
 	Invalidate();
-}
-
-
-void
-ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
-{
-	ASSERT(project != nullptr);
-
-	if (fOutlineListView->CountItems() == 0)
-		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(0));
-
-	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
-	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
-	fOutlineListView->SortItemsUnder(nullptr, false, ProjectOutlineListView::CompareProjectItems);
-
-	const BString projectPath = project->Path();
-	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
-
-	ASSERT(projectItem != nullptr);
-
-	fProjectList.push_back(project);
-	fProjectProjectItemList.push_back(projectItem);
-
-	Invalidate();
-	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
-			B_WATCH_RECURSIVELY, BMessenger(this));
-	if (status != B_OK)
-		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
 }
 
 
@@ -858,7 +858,12 @@ ProjectBrowser::CountProjects() const
 ProjectFolder*
 ProjectBrowser::ProjectAt(int32 index) const
 {
-	return fProjectList[index];
+	try {
+		return fProjectList.at(index);
+	} catch (...) {
+		LogError("ProjectBrowser::ProjectAt() called with invalid index %ld!", index);
+		return nullptr;
+	}
 }
 
 

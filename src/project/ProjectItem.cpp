@@ -302,6 +302,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 			SetExtraText(extraText);
 		}
 	} catch (const Genio::Git::GitException &ex) {
+		LogDebug("ProjectTitleItem::DrawItem(): %s", ex.Message().String());
 	}
 
 	owner->SetHighColor(TextColorByLuminance(projectFolder->Color()));

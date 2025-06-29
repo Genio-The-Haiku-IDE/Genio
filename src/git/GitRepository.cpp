@@ -610,7 +610,7 @@ namespace Genio::Git {
 
 
 	std::vector<BString>
-	GitRepository::GetTags( size_t maxTags)
+	GitRepository::GetTags( size_t maxTags) const
 	{
 		std::vector<BString> tags;
 		auto lambda = [](git_reference *ref, void *payload) -> int

@@ -20,6 +20,10 @@ enum ItemType {
 	kTag
 };
 
+namespace Genio::Git {
+	class GitRepository;
+}
+
 class BranchItem;
 class ProjectFolder;
 class RepositoryView : public BOutlineListView {
@@ -41,7 +45,7 @@ public:
 
 	void			UpdateRepository(const ProjectFolder *project, const BString &currentBranch);
 private:
-	void			_UpdateRepositoryTask(const ProjectFolder* project, const BString& branch);
+	void			_UpdateRepositoryTask(const Genio::Git::GitRepository* repo, const BString& branch);
 	
 	BranchItem*		_InitEmptySuperItem(const BString &label);
 	void			_BuildBranchTree(const BString &branch, uint32 branchType, const auto& checker);

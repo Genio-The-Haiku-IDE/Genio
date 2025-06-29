@@ -193,7 +193,7 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &br
 		(
 			&RepositoryView::_UpdateRepositoryTask,
 			this,
-			project,
+			project->GetRepository(),
 			branch
 		)
 	);
@@ -203,7 +203,7 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &br
 
 
 void
-RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BString& branch)
+RepositoryView::_UpdateRepositoryTask(const GitRepository* repo, const BString& branch)
 {
 	auto const NullLambda = [](const auto& val){ return false; };
 
@@ -211,9 +211,6 @@ RepositoryView::_UpdateRepositoryTask(const ProjectFolder* project, const BStrin
 	fCurrentBranch = branch;
 	try {
 		// TODO: Try to do more fine-grained locking
-		auto repo = project->GetRepository();
-		auto current_branch = repo->GetCurrentBranch();
-
 		LockLooper();
 
 		MakeEmpty();

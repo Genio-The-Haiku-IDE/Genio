@@ -40,6 +40,8 @@ namespace Genio::Git {
 			:
 			GException(error, message)
 		{
+			// TODO: Move away from here and into the catcher
+			// otherwise it's harder to track where it happened
 			LogError("GitException %s, error = %d" , message.String(), error);
 		}
 	};
@@ -53,6 +55,8 @@ namespace Genio::Git {
 			GitException(error, message),
 			fFiles(files)
 		{
+			// TODO: Move away from here and into the catcher
+			// otherwise it's harder to track where it happened
 			LogError("GitConflictException %s, error = %d, files = %d",
 				message.String(), error, files.size());
 		}

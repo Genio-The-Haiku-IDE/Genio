@@ -222,8 +222,9 @@ TabsContainer::FrameResized(float w, float h)
 void
 TabsContainer::OnDropTab(GTab* toTab, BMessage* message)
 {
-	GTab* fromTab = (GTab*)message->GetPointer("tab", nullptr);
-	if (fromTab == nullptr)
+	GTab* fromTab = nullptr;
+	if (message->FindPointer("tab", reinterpret_cast<void**>(&fromTab)) != B_OK ||
+			fromTab == nullptr)
 		return;
 
 	TabsContainer* fromContainer = fromTab->Container();

@@ -612,9 +612,9 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 		}
 	} catch (const GitConflictException &ex) {
-		// TODO: This is not correct: we cannot translate a non-constant expression
+		// TODO: Too bad we cannot translate a non-constant expression
 		auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
-			B_TRANSLATE(ex.Message().String()), ex.GetFiles());
+			ex.Message().String(), ex.GetFiles());
 		alert->Go();
 		// in case of conflicts the branch will not change but the item in the OptionList will so
 		// we ask the OptionList to redraw

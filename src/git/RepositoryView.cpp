@@ -163,17 +163,6 @@ RepositoryView::SelectionChanged()
 }
 
 
-BListItem*
-RepositoryView::SelectedItem() const
-{
-	BListItem *item = nullptr;
-	const int32 selection = CurrentSelection();
-	if (selection >= 0)
-		item = ItemAt(selection);
-	return item;
-}
-
-
 void
 RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &currentBranch)
 {

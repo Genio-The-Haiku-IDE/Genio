@@ -36,9 +36,6 @@ public:
 	virtual void	MessageReceived(BMessage* message);
 	virtual void	SelectionChanged();
 
-	// TODO: Consider returning BranchItem* directly
-	BListItem*		SelectedItem() const;
-
 	void			UpdateRepository(const ProjectFolder *project, const BString &currentBranch);
 private:
 

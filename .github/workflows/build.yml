@@ -33,8 +33,8 @@ jobs:
           # https://github.com/cross-platform-actions/action/blob/master/changelog.md
           - { os: haiku, version: 'r1beta5', runner: 'ubuntu-latest', architecture: 'x86-64' }
           - { os: haiku, version: 'r1beta5',  runner: 'ubuntu-latest', architecture: 'x86' }
-          # - { os: haiku, version: 'hrev58647', runner: 'ubuntu-latest', architecture: 'x86-64' }
-          # - { os: haiku, version: 'hrev58647',  runner: 'ubuntu-latest', architecture: 'x86' }
+          - { os: haiku, version: 'nightly', runner: 'ubuntu-latest', architecture: 'x86-64' }
+          - { os: haiku, version: 'nightly',  runner: 'ubuntu-latest', architecture: 'x86' }
 
     steps:
       - uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
           architecture: ${{ matrix.config.architecture }}
           run: |
             if [[ `uname -m` == BePC ]]; then
-              ssh user@localhost "pkgman update -y haiku_devel cmd:gcc libgit2_1.8_x86_devel lexilla_x86_devel yaml_cpp*_x86_devel editorconfig_core_c_x86_devel" &&
+              ssh user@localhost "pkgman install -y haiku_devel cmd:gcc libgit2_1.8_x86_devel lexilla_x86_devel yaml_cpp*_x86_devel editorconfig_core_c_x86_devel" &&
               setarch x86 make
             else
               ssh user@localhost "pkgman install -y haiku_devel cmd:gcc libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel" &&

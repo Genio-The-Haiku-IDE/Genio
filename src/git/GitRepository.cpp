@@ -11,6 +11,7 @@
 
 #include <Application.h>
 #include <Catalog.h>
+#include <FindDirectory.h>
 #include <Path.h>
 
 #include "GitCredentialsWindow.h"
@@ -591,7 +592,7 @@ namespace Genio::Git {
 				git_signature_free(signature);
 			throw;
 		}
-
+		// TODO: Also catch generic exception
 	}
 
 	void
@@ -635,6 +636,8 @@ namespace Genio::Git {
 		return tags;
 	}
 
+	// Throw exception when something goes wrong.
+	// TODO: callers do not check for null
 	git_signature*
 	GitRepository::_GetSignature() const
 	{
@@ -642,7 +645,18 @@ namespace Genio::Git {
 		git_config* cfg = nullptr;
 		git_config* cfgSnapshot = nullptr;
 
-		git_config_open_ondisk(&cfg, "/boot/home/config/settings/git/config");
+		status_t status = B_OK;
+		BPath settingsPath;
+		status = find_directory(B_USER_SETTINGS_DIRECTORY, &settingsPath);
+		if (status != B_OK)
+			throw status;
+
+		settingsPath.Append("git/config");
+		status = settingsPath.InitCheck();
+		if (status != B_OK)
+			throw status;
+
+		git_config_open_ondisk(&cfg, settingsPath.Path());
 		git_config_snapshot(&cfgSnapshot, cfg);
 
 		const char* userName;
@@ -794,5 +808,6 @@ namespace Genio::Git {
 				git_tree_free(tree);
 			throw;
 		}
+		// TODO: Also catch generic exception
 	}
 }

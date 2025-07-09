@@ -132,7 +132,7 @@ FSCopyFile(BEntry *src, BEntry *dest, bool clobber)
 	char *buffer = new char[COPY_BUFFER_SIZE];
 	ssize_t bytes_read = 0;
 	do {
-		bytes_read = srcfile->Read((void*)buffer, COPY_BUFFER_SIZE);
+		bytes_read = srcfile->Read(buffer, COPY_BUFFER_SIZE);
 		destfile->Write(buffer, bytes_read);
 	} while (bytes_read > 0);
 

@@ -7,9 +7,11 @@
 #include "EditorContextMenu.h"
 
 #include <Autolock.h>
+#include <Debug.h>
 #include <Catalog.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
+#include <Window.h>
 
 #include "ActionManager.h"
 #include "Editor.h"
@@ -77,6 +79,8 @@ EditorContextMenu::_CreateMenu()
 void
 EditorContextMenu::Show(Editor* editor, BPoint point)
 {
+	ASSERT(editor != nullptr);
+
 	BAutolock l(editor->Looper());
 
 	if (!sMenu)
@@ -90,7 +94,7 @@ EditorContextMenu::Show(Editor* editor, BPoint point)
 	BPopUpMenu* menu = sMenu;
 	// NOTE: the target should always be editor (for all messages) but we need fist to move them
 	// from the window.
-	menu->SetTargetForItems((BHandler*)editor->Window());
+	menu->SetTargetForItems(editor->Window());
 
 	LSPEditorWrapper* lsp = editor->GetLSPEditorWrapper();
 	if (lsp != nullptr) {
@@ -106,7 +110,7 @@ EditorContextMenu::Show(Editor* editor, BPoint point)
 					new GMessage({{"what", kApplyFix}, {"index", index}, {"action", i}, {"quickFix", true}}));
 				sFixMenu->AddItem(item);
 				menu = sFixMenu;
-				menu->SetTargetForItems((BHandler*)editor);
+				menu->SetTargetForItems(editor);
 				lsp->EndHover();
 			}
 		}

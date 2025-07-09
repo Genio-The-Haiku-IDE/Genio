@@ -40,9 +40,6 @@ public:
 	virtual void	MessageReceived(BMessage* message);
 	virtual void	SelectionChanged();
 
-	// TODO: Consider returning BranchItem* directly
-	BListItem*		SelectedItem() const;
-
 	void			UpdateRepository(const ProjectFolder *project, const BString &currentBranch);
 private:
 	void			_UpdateRepositoryTask(const Genio::Git::GitRepository* repo, const BString& branch);

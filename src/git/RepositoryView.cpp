@@ -7,6 +7,7 @@
 #include "RepositoryView.h"
 
 #include <Catalog.h>
+#include <Debug.h>
 #include <Looper.h>
 
 #include <filesystem>
@@ -15,21 +16,24 @@
 #include "BranchItem.h"
 #include "ConfigManager.h"
 #include "GenioApp.h"
+#include "GenioWindow.h"
 #include "GitRepository.h"
 #include "GMessage.h"
 #include "ProjectFolder.h"
 #include "SourceControlPanel.h"
 #include "StringFormatter.h"
+#include "Task.h"
 #include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
 
+using Genio::Task::Task;
+
 RepositoryView::RepositoryView()
 	:
-	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST),
-	fCurrentBranch(nullptr)
+	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST)
 {
 }
 
@@ -164,50 +168,101 @@ RepositoryView::SelectionChanged()
 
 
 void
-RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &currentBranch)
+RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &branch)
 {
-	fCurrentBranch = currentBranch;
+	ASSERT(project != nullptr);
+	ASSERT(project->GetRepository());
 
+	LogInfo("UpdateRepository(project: %s, branch: %s)",
+		project->Name().String(), branch.String());
+
+	// TODO: we call this method also when current branch changes, and we rebuild
+	// the whole listview. Maybe we could avoid that
+	BString taskName;
+	taskName << "UpdateRepository (" << project->Name() << ") (" << branch << ")";
+	Task<status_t> task
+	(
+		taskName,
+		BMessenger(this),
+		std::bind
+		(
+			&RepositoryView::_UpdateRepositoryTask,
+			this,
+			project->GetRepository(),
+			branch
+		)
+	);
+
+	task.Run();
+}
+
+
+void
+RepositoryView::_UpdateRepositoryTask(const GitRepository* repo, const BString& branch)
+{
 	auto const NullLambda = [](const auto& val){ return false; };
 
+	// Used to show the current branch in RepositoryView
+	fCurrentBranch = branch;
 	try {
-		auto repo = project->GetRepository();
-		auto current_branch = repo->GetCurrentBranch();
+		// Retrieve branches
+		auto localBranches = repo->GetBranches(GIT_BRANCH_LOCAL);
+		std::sort(localBranches.begin(), localBranches.end());
+		int32 numLocalBranches = localBranches.size();
 
-		MakeEmpty();
+		LogInfo("%ld local branches", numLocalBranches);
 
-		// populate local branches
-		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
-		auto local_branches = repo->GetBranches(GIT_BRANCH_LOCAL);
-		std::sort(local_branches.begin(), local_branches.end());
-		for(auto &branch : local_branches) {
-			_BuildBranchTree(branch, kLocalBranch,
-				[&](const auto &branchname) {
-					return (branchname == fCurrentBranch);
-				});
+		auto remoteBranches = repo->GetBranches(GIT_BRANCH_REMOTE);
+		std::sort(remoteBranches.begin(), remoteBranches.end());
+		int32 numRemoteBranches = remoteBranches.size();
+
+		LogInfo("%ld remote branches", numRemoteBranches);
+
+		auto allTags = repo->GetTags();
+		std::sort(allTags.begin(), allTags.end());
+		int32 numTags = allTags.size();
+
+		LogInfo("%ld tags", numTags);
+
+		// populate Listview
+		// TODO: Try to do more fine-grained locking
+		if (LockLooper()) {
+			MakeEmpty();
+			// local branches
+			_InitEmptySuperItem(B_TRANSLATE("Local branches"));
+			for (auto &branch : localBranches) {
+				_BuildBranchTree(branch, kLocalBranch,
+					[&](const auto &branchname) {
+						return (branchname == fCurrentBranch);
+					});
+			}
+
+			// remote branches
+			_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+			for (auto &branch : remoteBranches) {
+				_BuildBranchTree(branch, kRemoteBranch, NullLambda);
+			}
+
+			// tags
+			_InitEmptySuperItem(B_TRANSLATE("Tags"));
+			for (auto &tag : allTags) {
+				_BuildBranchTree(tag, kTag, NullLambda);
+			}
+
+			UnlockLooper();
 		}
-
-		// populate remote branches
-		_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
-		auto remote_branches = repo->GetBranches(GIT_BRANCH_REMOTE);
-		std::sort(remote_branches.begin(), remote_branches.end());
-		for(auto &branch : remote_branches) {
-			_BuildBranchTree(branch, kRemoteBranch, NullLambda);
-		}
-
-		// populate tags
-		_InitEmptySuperItem(B_TRANSLATE("Tags"));
-		auto all_tags = repo->GetTags();
-		std::sort(all_tags.begin(), all_tags.end());
-		for(auto &tag : all_tags) {
-			_BuildBranchTree(tag, kTag, NullLambda);
-		}
-	} catch (const GitException &ex) {
+	} catch (const GException &ex) {
+		if (Looper()->IsLocked())
+			UnlockLooper();
 		OKAlert("Git", ex.Message(), B_INFO_ALERT);
-		MakeEmpty();
-		_InitEmptySuperItem(B_TRANSLATE("Local branches"));
-		_InitEmptySuperItem(B_TRANSLATE("Remotes"));
-		_InitEmptySuperItem(B_TRANSLATE("Tags"));
+
+		if (LockLooper()) {
+			MakeEmpty();
+			_InitEmptySuperItem(B_TRANSLATE("Local branches"));
+			_InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+			_InitEmptySuperItem(B_TRANSLATE("Tags"));
+			UnlockLooper();
+		}
 	}
 }
 

@@ -40,6 +40,8 @@ namespace Genio::Git {
 			:
 			GException(error, message)
 		{
+			// TODO: Move away from here and into the catcher
+			// otherwise it's harder to track where it happened
 			LogError("GitException %s, error = %d" , message.String(), error);
 		}
 	};
@@ -53,6 +55,8 @@ namespace Genio::Git {
 			GitException(error, message),
 			fFiles(files)
 		{
+			// TODO: Move away from here and into the catcher
+			// otherwise it's harder to track where it happened
 			LogError("GitConflictException %s, error = %d, files = %d",
 				message.String(), error, files.size());
 		}
@@ -85,7 +89,7 @@ namespace Genio::Git {
 		bool							IsInitialized();
 		void							Init(bool createInitalCommit = true);
 
-		std::vector<BString>			GetTags(size_t maxTags = MAX_ELEMENTS) ;
+		std::vector<BString>			GetTags(size_t maxTags = MAX_ELEMENTS) const;
 
 		std::vector<BString>			GetBranches(git_branch_t type = GIT_BRANCH_LOCAL, size_t maxBranches = MAX_ELEMENTS) const;
 		int								SwitchBranch(const BString branch);

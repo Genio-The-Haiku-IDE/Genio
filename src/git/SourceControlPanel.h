@@ -60,7 +60,7 @@ public:
 
 private:
 
-	Genio::UI::OptionList<ProjectFolder *>* fProjectMenu;
+	Genio::UI::OptionList<BString>* fProjectMenu;
 	Genio::UI::OptionList<BString>*	fBranchMenu;
 	ToolBar*				fToolBar;
 	BCardLayout*			fPanelsLayout;
@@ -70,8 +70,6 @@ private:
 	BView*					fChangesView;
 	BView*					fLogView;
 	BView*					fRepositoryNotInitializedView;
-	const ProjectFolderList* 		fProjectList;
-	BString					fSelectedProjectPath;
 	BString					fCurrentBranch;
 	BButton*				fInitializeButton;
 	BCheckBox*				fDoNotCreateInitialCommitCheckBox;
@@ -79,9 +77,8 @@ private:
 
 	const ProjectFolder*	_SelectedProject() const;
 
-	void					_UpdateProjectList();
+	void					_UpdateProjectMenu();
 	void					_UpdateBranchListMenu(bool invokeItemMessage = true);
-	void					_CheckProjectGitRepo(const ProjectFolder* project);
 
 	void					_InitToolBar();
 	void					_InitRepositoryView();
@@ -95,4 +92,6 @@ private:
 
 	void					_ChangeProject(BMessage *message);
 	void					_SwitchBranch(BMessage *message);
+
+	void					_HandleProjectChangedExternalEvent(const ProjectFolder* project);
 };

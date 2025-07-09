@@ -161,7 +161,7 @@ private:
 			void				_UpdateFindMenuItems(const BString& text);
 			void				_UpdateRecentCommands(const BString& text);
 			status_t			_UpdateLabel(Editor* editor, bool isModified);
-			void				_UpdateProjectActivation(bool active);
+			void				_UpdateProjectMenuItemsState(bool enable);
 			void				_UpdateReplaceMenuItems(const BString& text);
 			void				_UpdateSavepointChange(Editor*, const BString& caller = "");
 			void				_UpdateTabChange(Editor*, const BString& caller = "");
@@ -260,7 +260,6 @@ private:
 			scree_mode			fScreenMode;
 			GMessage			fScreenModeSettings;
 
-			bool				fDisableProjectNotifications;
 #ifdef GDEBUG
 			BString				fTitlePrefix;
 #endif

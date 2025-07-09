@@ -6,9 +6,6 @@
 
 #include "GenioWindow.h"
 
-#include <cassert>
-#include <string>
-
 #include <Alert.h>
 #include <Bitmap.h>
 #include <Button.h>
@@ -16,6 +13,7 @@
 #include <CheckBox.h>
 #include <Clipboard.h>
 #include <ControlLook.h>
+#include <Debug.h>
 #include <FilePanel.h>
 #include <IconUtils.h>
 #include <LayoutBuilder.h>
@@ -179,7 +177,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fGoToLineWindow(nullptr)
 	, fSearchResultTab(nullptr)
 	, fScreenMode(kDefault)
-	, fDisableProjectNotifications(false)
 	, fPanelTabManager(nullptr)
 	, fPanelsMenu(nullptr)
 {
@@ -436,7 +433,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				// to the correct project
 				GetActiveProject()->SetBuildingState(false);
 			}
-			_UpdateProjectActivation(GetActiveProject() != nullptr);
+			_UpdateProjectMenuItemsState(GetActiveProject() != nullptr);
 			break;
 		}
 		case EDITOR_POSITION_CHANGED:
@@ -488,13 +485,13 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_BUILD_MODE_DEBUG:
 		{
 			GetActiveProject()->SetBuildMode(BuildMode::DebugMode);
-			_UpdateProjectActivation(GetActiveProject() != nullptr);
+			_UpdateProjectMenuItemsState(true);
 			break;
 		}
 		case MSG_BUILD_MODE_RELEASE:
 		{
 			GetActiveProject()->SetBuildMode(BuildMode::ReleaseMode);
-			_UpdateProjectActivation(GetActiveProject() != nullptr);
+			_UpdateProjectMenuItemsState(true);
 			break;
 		}
 		case MSG_BUILD_PROJECT:
@@ -1178,7 +1175,17 @@ GenioWindow::GetActiveProject() const
 void
 GenioWindow::SetActiveProject(ProjectFolder *project)
 {
+	ASSERT(project != fActiveProject);
+	if (fActiveProject != nullptr)
+		fActiveProject->SetActive(false);
+
 	fActiveProject = project;
+
+	if (fActiveProject != nullptr)
+		fActiveProject->SetActive(true);
+
+	// Update menu state
+	_UpdateProjectMenuItemsState(project != nullptr);
 }
 
 
@@ -1208,7 +1215,6 @@ GenioWindow::_PrepareWorkspace()
 	// the workspace
 	// TODO: improve how projects are loaded and notices are sent over
 	if (gCFG["reopen_projects"]) {
-		fDisableProjectNotifications = true;
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
 		status_t status = B_OK;
 		if (!projects.IsEmpty()) {
@@ -1225,18 +1231,6 @@ GenioWindow::_PrepareWorkspace()
 		}
 		if (GetActiveProject() != nullptr)
 			GetProjectBrowser()->SelectProjectAndScroll(GetActiveProject());
-
-		fDisableProjectNotifications = false;
-		if (status == B_OK) {
-			SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
-			BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-			const ProjectFolder* activeProject = GetActiveProject();
-			if (activeProject != nullptr) {
-				noticeMessage.AddString("active_project_name", activeProject->Name());
-				noticeMessage.AddString("active_project_path", activeProject->Path());
-			}
-			SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
-		}
 	}
 
 	// Reopen files
@@ -1569,7 +1563,7 @@ GenioWindow::_DoBuildOrCleanProject(const BString& cmd)
 		return _AlertInvalidBuildConfig(message);
 	}
 
-	_UpdateProjectActivation(false);
+	_UpdateProjectMenuItemsState(false);
 
 	fBuildLogView->Clear();
 	if (gCFG["show_build_panel"])
@@ -2153,7 +2147,7 @@ GenioWindow::_Git(const BString& git_command)
 		return B_ERROR;
 
 	// Pretend building or running
-	_UpdateProjectActivation(false);
+	_UpdateProjectMenuItemsState(false);
 
 	//fConsoleIOView->Clear();
 	_ShowOutputTab(kTabOutputLog);
@@ -2477,7 +2471,8 @@ GenioWindow::_InitCommandRunToolbar()
 
 	// Update run command working directory tooltip too
 	BString tooltip("cwd: ");
-	tooltip << (const char*)gCFG["projects_directory"];
+	const char* projectsDirectory = gCFG["projects_directory"];
+	tooltip << projectsDirectory;
 	fRunConsoleProgramText->SetToolTip(tooltip);
 
 }
@@ -3477,36 +3472,18 @@ GenioWindow::_MakeCatkeys()
 void
 GenioWindow::_ProjectFolderActivate(ProjectFolder *project)
 {
-	// There is no active project
-	if (GetActiveProject() == nullptr) {
-		if (project != nullptr) {
-			SetActiveProject(project);
-			project->SetActive(true);
-			_UpdateProjectActivation(true);
-		}
-	} else {
-		// There was an active project already
-		GetActiveProject()->SetActive(false);
-		if (project != nullptr) {
-			SetActiveProject(project);
-			project->SetActive(true);
-			_UpdateProjectActivation(true);
-		}
-	}
+	ASSERT(project != nullptr);
 
-	if (!fDisableProjectNotifications) {
-		BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		const ProjectFolder* activeProject = GetActiveProject();
-		if (activeProject != nullptr) {
-			noticeMessage.AddString("active_project_name", activeProject->Name());
-			noticeMessage.AddString("active_project_path", activeProject->Path());
-		}
-		SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
-	}
+	SetActiveProject(project);
+
+	BMessage noticeMessage(MSG_NOTIFY_PROJECT_SET_ACTIVE);
+	noticeMessage.AddString("active_project_name", project->Name());
+	noticeMessage.AddString("active_project_path", project->Path());
+	SendNotices(MSG_NOTIFY_PROJECT_SET_ACTIVE, &noticeMessage);
 
 	// Update run command working directory tooltip too
 	BString tooltip;
-	tooltip << "cwd: " << GetActiveProject()->Path();
+	tooltip << "cwd: " << project->Path();
 	fRunConsoleProgramText->SetToolTip(tooltip);
 }
 
@@ -3720,10 +3697,10 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 		wasActive = true;
 		SetActiveProject(nullptr);
 		closed = "Active project close:";
-		_UpdateProjectActivation(false);
 		// Update run command working directory tooltip too
 		BString tooltip;
-		tooltip << "cwd: " << (const char*)gCFG["projects_directory"];
+		const char* projectsDirectory = gCFG["projects_directory"];
+		tooltip << "cwd: " << projectsDirectory;
 		fRunConsoleProgramText->SetToolTip(tooltip);
 	}
 
@@ -3739,16 +3716,15 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	// Select a new active project
 	if (wasActive) {
-		ProjectFolder* project = fProjectsFolderBrowser->ProjectAt(0);
-		if (project != nullptr)
-			_ProjectFolderActivate(project);
+		ProjectFolder* newActiveProject = fProjectsFolderBrowser->ProjectAt(0);
+		if (newActiveProject != nullptr)
+			SetActiveProject(newActiveProject);
 	}
 
 	// Notify subscribers that the project list has changed
 	// Done here so the new active project is already set and subscribers
 	// know (SourceControlPanel for example)
-	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	project->Close();
 	delete project;
@@ -3841,7 +3817,7 @@ void
 GenioWindow::_ProjectFolderOpenInitiated(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
-	// TODO:
+	ASSERT(project != nullptr);
 }
 
 
@@ -3849,6 +3825,8 @@ void
 GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
+	ASSERT(project != nullptr);
+
 	// ensure it's selected:
 	GetProjectBrowser()->SelectProjectAndScroll(project);
 
@@ -3862,8 +3840,7 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 
 	// Notify subscribers that project list has changed
 	// Done here so the active project is already set
-	if (!fDisableProjectNotifications)
-		SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
+	SendNotices(MSG_NOTIFY_PROJECT_LIST_CHANGED);
 
 	BString projectPath = project->Path();
 	BString notification;
@@ -3900,6 +3877,8 @@ void
 GenioWindow::_ProjectFolderOpenAborted(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
+	ASSERT(project != nullptr);
+
 	BString notification;
 	notification << "Project open fail: " << project->Name();
 	LogInfo(notification.String());
@@ -3985,7 +3964,7 @@ GenioWindow::_ShowInTracker(const entry_ref& ref, const node_ref* nref)
 		message.AddRef("refs", &ref);
 
 		if (nref != nullptr)
-			message.AddData("nodeRefToSelect", B_RAW_TYPE, (void*)nref, sizeof(node_ref));
+			message.AddData("nodeRefToSelect", B_RAW_TYPE, nref, sizeof(node_ref));
 
 		status = tracker.SendMessage(&message);
 	}
@@ -4101,7 +4080,7 @@ GenioWindow::_RunTarget()
 	// Differentiate terminal projects from window ones
 	if (GetActiveProject()->RunInTerminal()) {
 		// Don't do that in graphical mode
-		_UpdateProjectActivation(false);
+		_UpdateProjectMenuItemsState(false);
 
 		_ShowOutputTab(kTabOutputLog);
 
@@ -4200,18 +4179,21 @@ GenioWindow::_UpdateLabel(Editor* editor, bool isModified)
 
 
 void
-GenioWindow::_UpdateProjectActivation(bool active)
+GenioWindow::_UpdateProjectMenuItemsState(bool enable)
 {
-	// TODO: Refactor here and _ProjectFolderActivate
-	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, active);
-	fBuildModeItem->SetEnabled(active);
-	fMakeCatkeysItem->SetEnabled(active);
-	fMakeBindcatalogsItem->SetEnabled(active);
-	ActionManager::SetEnabled(MSG_BUILD_PROJECT, active);
+	// Enables/disables actions and menu items based on the passed parameter
+	// Does NOT do anything to the current project.
+
+	ActionManager::SetEnabled(MSG_CLEAN_PROJECT, enable);
+	fBuildModeItem->SetEnabled(enable);
+	fMakeCatkeysItem->SetEnabled(enable);
+	fMakeBindcatalogsItem->SetEnabled(enable);
+	ActionManager::SetEnabled(MSG_BUILD_PROJECT, enable);
+	ActionManager::SetEnabled(MSG_RUN_TARGET, enable);
 	fFileNewMenuItem->SetEnabled(true); // This menu should be always active!
 
-	if (active) {
-		// Is this a git project?
+	if (enable) {
+		// Is the active project a git project?
 		try {
 			if (GetActiveProject()->GetRepository()->IsInitialized())
 				fGitMenu->SetEnabled(true);
@@ -4226,14 +4208,11 @@ GenioWindow::_UpdateProjectActivation(bool active)
 		fDebugModeItem->SetMarked(!releaseMode);
 		fReleaseModeItem->SetMarked(releaseMode);
 
+		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
 		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, true);
 
-		ActionManager::SetEnabled(MSG_RUN_TARGET, true);
-		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, !releaseMode);
-
-	} else { // here project is inactive
+	} else {
 		fGitMenu->SetEnabled(false);
-		ActionManager::SetEnabled(MSG_RUN_TARGET, false);
 		ActionManager::SetEnabled(MSG_DEBUG_PROJECT, false);
 		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, false);
 		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
@@ -4264,7 +4243,7 @@ GenioWindow::_UpdateReplaceMenuItems(const BString& text)
 void
 GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 {
-	assert (editor);
+	ASSERT(editor != nullptr);
 
 	// Menu Items
 
@@ -4530,7 +4509,7 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 
 	if (project == GetActiveProject() || GetActiveProject() == nullptr) {
 		// Update debug/release
-		_UpdateProjectActivation(GetActiveProject() != nullptr);
+		_UpdateProjectMenuItemsState(GetActiveProject() != nullptr);
 	}
 
 	// TODO: refactor

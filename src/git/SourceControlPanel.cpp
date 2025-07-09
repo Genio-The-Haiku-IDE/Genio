@@ -7,6 +7,7 @@
 #include <Alignment.h>
 #include <Autolock.h>
 #include <Button.h>
+#include <Debug.h>
 #include <MessageRunner.h>
 #include <ObjectList.h>
 #include <Catalog.h>
@@ -21,6 +22,7 @@
 #include <SeparatorView.h>
 #include <ScrollView.h>
 #include <StringView.h>
+
 
 #include "ConfigManager.h"
 #include "GenioApp.h"
@@ -60,16 +62,12 @@ SourceControlPanel::SourceControlPanel()
 	BView(B_TRANSLATE("Source control"), B_WILL_DRAW | B_FRAME_EVENTS ),
 	fProjectMenu(nullptr),
 	fBranchMenu(nullptr),
-	fProjectList(nullptr),
-	fSelectedProjectPath(),
-	fCurrentBranch(nullptr),
+	fCurrentBranch(),
 	fInitializeButton(nullptr),
 	fDoNotCreateInitialCommitCheckBox(nullptr),
 	fBurstHandler(nullptr)
 {
-	fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
-
-	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
+	fProjectMenu = new OptionList<BString>("ProjectMenu",
 		B_TRANSLATE("Project:"),
 		B_TRANSLATE("Choose project" B_UTF8_ELLIPSIS));
 	fBranchMenu = new OptionList<BString>("BranchMenu",
@@ -216,17 +214,14 @@ SourceControlPanel::AttachedToWindow()
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		auto gwin = static_cast<GenioWindow *>(Window());
-		if (gwin != nullptr) {
-			auto projectBrowser = gwin->GetProjectBrowser();
+		if (gMainWindow != nullptr) {
+			auto projectBrowser = gMainWindow->GetProjectBrowser();
 			if (projectBrowser != nullptr)
 				projectBrowser->StartWatching(this, B_PATH_MONITOR);
 		}
 		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		Window()->UnlockLooper();
 	}
-
-	_UpdateProjectList();
 
 	fProjectMenu->SetTarget(this);
 	fBranchMenu->SetTarget(this);
@@ -267,7 +262,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					BString key;
 					if (message->FindString("key", &key) == B_OK
 						&& key == "repository_outline") {
-						if (!fProjectList->empty()) {
+						if (gMainWindow->GetProjectBrowser()->CountProjects() > 0) {
 							_UpdateBranchListMenu(false);
 							_UpdateRepositoryView();
 						}
@@ -278,37 +273,56 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
-						fProjectList = gMainWindow->GetProjectBrowser()->GetProjectList();
-						if (fProjectList->empty()) {
+						if (gMainWindow->GetProjectBrowser()->CountProjects() == 0) {
 							fProjectMenu->MakeEmpty();
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
-							fSelectedProjectPath = "";
-						} else {
-							ProjectFolder* project = gMainWindow->GetActiveProject();
-							fSelectedProjectPath = project ? project->Path() : "";
-							_UpdateProjectList();
+							fMainLayout->SetVisibleItem(kPanelsIndexRepository);
 						}
+						_UpdateProjectMenu();
 						break;
 					}
 					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					{
+						// Almost same code path as case MsgChangeProject
+
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-						fSelectedProjectPath = message->GetString("active_project_path");
-						if (!fProjectList->empty())
-							_UpdateProjectList();
+						BString selectedProjectName;
+						BMenuItem* item = fProjectMenu->Menu()->FindMarked();
+						if (item != nullptr) {
+							selectedProjectName = item->Label();
+						}
+
+						BString activeProjectName = message->GetString("active_project_name");
+						bool changed = false;
+						if (::strcmp(activeProjectName, selectedProjectName) != 0) {
+							BMenuItem* item = fProjectMenu->Menu()->FindItem(activeProjectName);
+							if (item != nullptr) {
+								changed = !item->IsMarked();
+								item->SetMarked(true);
+							}
+						}
+						
+						if (changed) {
+							ASSERT(_SelectedProject() != nullptr);
+							BMessage changeMessage;
+							changeMessage.AddString("value", _SelectedProject()->Path());
+							changeMessage.AddString("sender", kSenderProjectOptionList);
+							_ChangeProject(&changeMessage);
+						}
 						break;
 					}
 					case B_PATH_MONITOR:
 					{
-						if (fProjectList->empty())
+						LogTrace("B_PATH_MONITOR");
+
+						if (gMainWindow->GetProjectBrowser()->CountProjects() == 0)
 							break;
 
 						const ProjectFolder* selected = _SelectedProject();
 						if (selected == nullptr || selected->IsBuilding())
 							break;
 
-						LogInfo("B_PATH_MONITOR");
 						BString watchedPath;
 						if (message->FindString("watched_path", &watchedPath) != B_OK)
 							break;
@@ -328,28 +342,16 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						if (path.FindFirst(gitFolder.Path()) == B_ERROR)
 							break;
 
-						// TODO: Move the burst handler to a function
-						if (fBurstHandler == nullptr ||
-								fBurstHandler->SetInterval(kBurstTimeout) != B_OK) {
-							LogInfo("SourceControlPanel: fBurstHandler not valid");
-
-							delete fBurstHandler;
-
-							// create a message to update the project
-							BMessage message(MsgChangeProject);
-							message.AddPointer("value", selected);
-							message.AddString("sender", kSenderExternalEvent);
-							fBurstHandler = new (std::nothrow) BMessageRunner(BMessenger(this),
-								&message, kBurstTimeout, 1);
-							if (fBurstHandler == nullptr|| fBurstHandler->InitCheck() != B_OK) {
-								LogInfo("SourceControlPanel: Could not create "
-									"fBurstHandler. Deleting it");
-								delete fBurstHandler;
-								fBurstHandler = nullptr;
-							} else {
-								LogInfo("SourceControlPanel: fBurstHandler instantiated.");
-							}
+						// Don't trigger an event when git locks its folder
+						// TODO: avoid hardcoding ?
+						BPath gitIndexLockPath(gitFolder);
+						gitIndexLockPath.Append("index.lock");
+						if (path == gitIndexLockPath.Path()) {
+							LogTrace("Got path monitor event for git index.lock: ignoring...");
+							break;
 						}
+
+						_HandleProjectChangedExternalEvent(selected);
 						break;
 					}
 					default:
@@ -553,7 +555,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					selectedProject->InitRepository(createInitialCommit);
 					SetChecked<BCheckBox>(fDoNotCreateInitialCommitCheckBox, false);
 					BMessage message(MsgChangeProject);
-					message.AddPointer("value", selectedProject);
+					message.AddString("value", selectedProject->Path());
 					message.AddString("sender", kSenderInitializeRepositoryButton);
 					BMessenger(this).SendMessage(&message);
 				}
@@ -610,15 +612,16 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				break;
 		}
 	} catch (const GitConflictException &ex) {
+		// TODO: Too bad we cannot translate a non-constant expression
 		auto alert = new GitAlert(B_TRANSLATE("Conflicts"),
-			B_TRANSLATE(ex.Message().String()), ex.GetFiles());
+			ex.Message().String(), ex.GetFiles());
 		alert->Go();
 		// in case of conflicts the branch will not change but the item in the OptionList will so
 		// we ask the OptionList to redraw
 		_UpdateBranchListMenu(false);
 	} catch (const GitException &ex) {
 		OKAlert("SourceControlPanel", ex.Message().String(), B_STOP_ALERT);
-		_UpdateProjectList();
+		_UpdateProjectMenu();
 	} catch (const std::exception &ex) {
 		OKAlert("SourceControlPanel", ex.what(), B_STOP_ALERT);
 	} catch (...) {
@@ -630,13 +633,10 @@ SourceControlPanel::MessageReceived(BMessage *message)
 void
 SourceControlPanel::_ChangeProject(BMessage *message)
 {
-	const ProjectFolder* selectedProject =
-		reinterpret_cast<const ProjectFolder*>(message->GetPointer("value"));
-
-	fSelectedProjectPath = "";
+	BString projectPath = message->GetString("value");
 	const BString sender = message->GetString("sender");
+	const ProjectFolder* selectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);
 	if (selectedProject != nullptr) {
-		fSelectedProjectPath = selectedProject->Path();
 		// check if the project folder still exists
 		if (!BEntry(selectedProject->EntryRef()).Exists())
 			return;
@@ -667,14 +667,21 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 const ProjectFolder*
 SourceControlPanel::_SelectedProject() const
 {
-	GenioWindow* window = static_cast<GenioWindow*>(Window());
-	if (window == nullptr)
+	if (gMainWindow == nullptr)
 		return nullptr;
-	ProjectBrowser* projectBrowser = window->GetProjectBrowser();
+
+	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
 	if (projectBrowser == nullptr)
 		return nullptr;
 
-	return projectBrowser->ProjectByPath(fSelectedProjectPath);
+	BMenuItem* item = fProjectMenu->Menu()->FindMarked();
+	if (item == nullptr)
+		return nullptr;
+
+	BString projectPath;
+	item->Message()->FindString("value", &projectPath);
+
+	return projectBrowser->ProjectByPath(projectPath);
 }
 
 
@@ -682,7 +689,8 @@ void
 SourceControlPanel::_UpdateRepositoryView()
 {
 	const ProjectFolder* project = _SelectedProject();
-	fRepositoryView->UpdateRepository(project, fCurrentBranch);
+	if (project != nullptr)
+		fRepositoryView->UpdateRepository(project, fCurrentBranch);
 }
 
 
@@ -696,72 +704,64 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 			B_STOP_ALERT);
 	} else {
 		const BString branch = message->GetString("value");
-		const BString sender = message->GetString("sender");
-
 		auto repo = project->GetRepository();
 		repo->SwitchBranch(branch);
 		fCurrentBranch = repo->GetCurrentBranch();
-
-		if (sender == kSenderBranchOptionList) {
-			// we update the repository view
-			_UpdateRepositoryView();
-		} else if (sender == kSenderRepositoryPopupMenu || sender == kSenderExternalEvent) {
-			// we update the repository view and the branch option list
-			_UpdateBranchListMenu(false);
-			_UpdateRepositoryView();
-		}
 	}
 }
 
 
 void
-SourceControlPanel::_UpdateProjectList()
+SourceControlPanel::_UpdateProjectMenu()
 {
-	if (fProjectList == nullptr) {
-		fSelectedProjectPath = "";
-		return;
-	}
-
 	// The logic here: save the currently selected project, empty the list
 	// then rebuild the list and try to reselect the previously selected project.
 	// otherwise select the active project.
+	BMenu* projectMenu = fProjectMenu->Menu();
+
+	BString selectedProject;
+	BMenuItem* item = projectMenu->FindMarked();
+	if (item != nullptr) {
+		selectedProject = item->Label();
+	}
+
+	Window()->BeginViewTransaction();
+
+	projectMenu->RemoveItems(0, projectMenu->CountItems(), true);
 
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
-	const ProjectFolder* selectedProject = _SelectedProject();
-	fProjectMenu->MakeEmpty();
-	fSelectedProjectPath = "";
-	ProjectFolder* activeProject = gMainWindow->GetActiveProject();
-	// TODO: We should compare names instead of pointers
-	fProjectMenu->AddList(fProjectList,
-		MsgChangeProject,
-		[&active = activeProject](auto item)
-		{
-			BString projectName = item ? item->Name() : "";
-			BString projectPath = item ? item->Path() : "";
-			if (active != nullptr && active->Path() == projectPath)
-				projectName.Append("*");
-			return projectName;
-		},
-		true,
-		[&selected = selectedProject](auto item)
-		{
-			if (item == nullptr || selected == nullptr)
-				return false;
-			return (item->Path() == selected->Path());
+
+	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
+	for (int32 i = 0; i < projectBrowser->CountProjects(); i++) {
+		ProjectFolder* project = projectBrowser->ProjectAt(i);
+		if (project == nullptr)
+			break;
+		fProjectMenu->AddItem(project->Name(), project->Path(), MsgChangeProject);
+		if (project->Name() == selectedProject)
+			item->SetMarked(true);
+	}
+	
+	if (projectMenu->FindMarked() == nullptr) {
+		const ProjectFolder* activeProject = gMainWindow->GetActiveProject();
+		if (activeProject != nullptr) {
+			BMenuItem* item = projectMenu->FindItem(activeProject->Name());
+			if (item != nullptr)
+				item->SetMarked(true);
+		} else {
+			BMenuItem *item = projectMenu->ItemAt(0);
+			if (item != nullptr)
+				item->SetMarked(true);
 		}
-	);
+	}
+
+	Window()->EndViewTransaction();
 
 	const ProjectFolder* project = _SelectedProject();
-	if (project != nullptr)
-		_CheckProjectGitRepo(project);
-}
+	if (project == nullptr)
+		return;
 
-
-void
-SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
-{
-	// Check if the selected project is a valid git repository
+	// Also update the branch list menu
 	try {
 		GitRepository* repo = project->GetRepository();
 		if (repo->IsInitialized()) {
@@ -770,8 +770,7 @@ SourceControlPanel::_CheckProjectGitRepo(const ProjectFolder* project)
 			fMainLayout->SetVisibleItem(kMainIndexInitialize);
 		}
 	} catch (const GitException &ex) {
-		// other fatal errors
-		throw;
+		LogError("_UpdateProjectMenu(): %s", ex.Message().String());
 	}
 }
 
@@ -851,4 +850,31 @@ SourceControlPanel::_ShowGitNotification(const BString &text)
 	ShowNotification("Genio", project->Path().String(),
 		project->Path().String(),
 		text);
+}
+
+
+void
+SourceControlPanel::_HandleProjectChangedExternalEvent(const ProjectFolder* project)
+{
+	if (fBurstHandler == nullptr ||
+			fBurstHandler->SetInterval(kBurstTimeout) != B_OK) {
+		LogInfo("SourceControlPanel: fBurstHandler not valid");
+
+		delete fBurstHandler;
+
+		// create a message to update the project
+		BMessage message(MsgChangeProject);
+		message.AddString("value", project->Path());
+		message.AddString("sender", kSenderExternalEvent);
+		fBurstHandler = new (std::nothrow) BMessageRunner(BMessenger(this),
+			&message, kBurstTimeout, 1);
+		if (fBurstHandler == nullptr|| fBurstHandler->InitCheck() != B_OK) {
+			LogInfo("SourceControlPanel: Could not create "
+				"fBurstHandler. Deleting it");
+			delete fBurstHandler;
+			fBurstHandler = nullptr;
+		} else {
+			LogInfo("SourceControlPanel: fBurstHandler instantiated.");
+		}
+	}
 }

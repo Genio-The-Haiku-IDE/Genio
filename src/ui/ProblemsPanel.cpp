@@ -136,7 +136,7 @@ ProblemsPanel::MessageReceived(BMessage* msg)
 						item->SetEnabled(false);
 						fPopUpMenu->AddItem(item);
 					}
-					fPopUpMenu->SetTargetForItems((BHandler*)row->fEditor);
+					fPopUpMenu->SetTargetForItems(row->fEditor);
 					fPopUpMenu->Go(ConvertToScreen(where), true);
 					delete fPopUpMenu;
 				}

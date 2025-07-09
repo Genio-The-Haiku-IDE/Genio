@@ -43,7 +43,7 @@ ResourceImport::ResourceImport(entry_ref &ref, int32 index)
 		if (_Import(&fFile, size, &stringBuffer, ref.name, type, index) != B_OK)
 			LogError("Opening file for import failed with error %s", strerror(status));
 		else
-			fRdefArray.SetTo((const char*)stringBuffer.Buffer());
+			fRdefArray.SetTo(reinterpret_cast<const char*>(stringBuffer.Buffer()));
 	} else {
 		LogError("Opening file for import failed with error %s", strerror(status));
 	}

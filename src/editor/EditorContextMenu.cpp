@@ -7,6 +7,7 @@
 #include "EditorContextMenu.h"
 
 #include <Autolock.h>
+#include <Debug.h>
 #include <Catalog.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
@@ -78,6 +79,8 @@ EditorContextMenu::_CreateMenu()
 void
 EditorContextMenu::Show(Editor* editor, BPoint point)
 {
+	ASSERT(editor != nullptr);
+
 	BAutolock l(editor->Looper());
 
 	if (!sMenu)
@@ -107,7 +110,7 @@ EditorContextMenu::Show(Editor* editor, BPoint point)
 					new GMessage({{"what", kApplyFix}, {"index", index}, {"action", i}, {"quickFix", true}}));
 				sFixMenu->AddItem(item);
 				menu = sFixMenu;
-				menu->SetTargetForItems((BHandler*)editor);
+				menu->SetTargetForItems(editor);
 				lsp->EndHover();
 			}
 		}

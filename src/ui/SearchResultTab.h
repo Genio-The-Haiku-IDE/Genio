@@ -30,7 +30,7 @@ private:
 	void	_UpdateProjectList(const ProjectFolderList* list);
 	bool	_IsProjectInList(const ProjectFolderList* list, ProjectFolder* proj);
 
-	Genio::UI::OptionList<ProjectFolder*>* fProjectMenu;
+	Genio::UI::OptionList<BString>* fProjectMenu;
 	SearchResultPanel* fSearchResultPanel;
 	ProjectFolder* fSelectedProject;
 	ToolBar* fFindGroup;

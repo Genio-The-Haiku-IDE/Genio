@@ -15,6 +15,7 @@
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "ProjectBrowser.h"
+#include "ProjectMenuField.h"
 #include "SearchResultPanel.h"
 #include "TextUtils.h"
 #include "ToolBar.h"
@@ -38,9 +39,7 @@ SearchResultTab::SearchResultTab(PanelTabManager* panelTabManager, tab_id id)
 	fSearchResultPanel(nullptr),
 	fSelectedProject(nullptr)
 {
-	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
-		B_TRANSLATE("Project:"),
-		B_TRANSLATE("Choose project" B_UTF8_ELLIPSIS));
+	fProjectMenu = new Genio::UI::ProjectMenuField("ProjectMenu", kSelectProject);
 
 	fFindGroup = new ToolBar(this);
 	ActionManager::AddItem(MSG_FIND_IN_FILES, fFindGroup);
@@ -85,8 +84,8 @@ SearchResultTab::MessageReceived(BMessage *message)
 	switch (message->what) {
 		case kSelectProject:
 		{
-			fSelectedProject = const_cast<ProjectFolder*>(
-				reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
+			BString projectPath = message->GetString("value");
+			fSelectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);
 			break;
 		}
 		case MSG_FIND_IN_FILES:
@@ -140,39 +139,9 @@ SearchResultTab::AttachedToWindow()
 void
 SearchResultTab::_UpdateProjectList(const ProjectFolderList* list)
 {
-	if (list == nullptr) {
-		fProjectMenu->MakeEmpty();
-		return;
-	}
-
-	//Is the current selected project still in the new list?
-	bool found = _IsProjectInList(list, fSelectedProject);
-
-	fProjectMenu->MakeEmpty();
-	if (!found)
-		fSelectedProject = gMainWindow->GetActiveProject();
-
-	ProjectFolder* activeProject = gMainWindow->GetActiveProject();
-	ProjectFolder* selectedProject = fSelectedProject;
-
-	fProjectMenu->AddList(list,
-		kSelectProject,
-		[&active = activeProject](auto item)
-		{
-			BString projectName = item ? item->Name() : "";
-			BString projectPath = item ? item->Path() : "";
-			if (active != nullptr && active->Path() == projectPath)
-				projectName.Append("*");
-			return projectName;
-		},
-		true,
-		[&selected = selectedProject](auto item)
-		{
-			if (item == nullptr || selected == nullptr)
-				return false;
-			return (item->Path() == selected->Path());
-		}
-	);
+	// TODO: Set the active project
+	fProjectMenu->SetTarget(this);
+	fProjectMenu->SetSender("SearchResultTab");
 }
 
 
@@ -198,8 +167,9 @@ SearchResultTab::SetAndStartSearch(BString text, bool wholeWord, bool caseSensit
 	if (project != fSelectedProject) {
 		for (int32 i = 0; i < menu->CountItems(); i++) {
 			BMessage* msg = menu->ItemAt(i)->Message();
-			if (msg != nullptr && msg->GetPointer("value", nullptr) == project) {
-				fSelectedProject = project;
+			if (msg != nullptr) {
+				BString projectPath = msg->GetString("value");
+				fSelectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);
 				menu->ItemAt(i)->SetMarked(true);
 				break;
 			}

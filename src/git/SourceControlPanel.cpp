@@ -34,6 +34,7 @@
 #include "Log.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
+#include "ProjectMenuField.h"
 #include "RepositoryView.h"
 #include "StringFormatter.h"
 #include "Utils.h"
@@ -67,9 +68,7 @@ SourceControlPanel::SourceControlPanel()
 	fDoNotCreateInitialCommitCheckBox(nullptr),
 	fBurstHandler(nullptr)
 {
-	fProjectMenu = new OptionList<BString>("ProjectMenu",
-		B_TRANSLATE("Project:"),
-		B_TRANSLATE("Choose project" B_UTF8_ELLIPSIS));
+	fProjectMenu = new Genio::UI::ProjectMenuField("ProjectMenu", MsgChangeProject);
 	fBranchMenu = new OptionList<BString>("BranchMenu",
 		B_TRANSLATE("Current branch:"),
 		B_TRANSLATE("Choose branch" B_UTF8_ELLIPSIS));
@@ -714,6 +713,7 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_UpdateProjectMenu()
 {
+#if 0
 	// The logic here: save the currently selected project, empty the list
 	// then rebuild the list and try to reselect the previously selected project.
 	// otherwise select the active project.
@@ -756,7 +756,7 @@ SourceControlPanel::_UpdateProjectMenu()
 	}
 
 	Window()->EndViewTransaction();
-
+#endif
 	const ProjectFolder* project = _SelectedProject();
 	if (project == nullptr)
 		return;

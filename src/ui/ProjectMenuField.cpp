@@ -95,8 +95,6 @@ ProjectMenuField::_HandleProjectChanged()
 	Window()->BeginViewTransaction();
 
 	projectMenu->RemoveItems(0, projectMenu->CountItems(), true);
-	//SetTarget(this);
-	//SetSender(kSenderProjectOptionList);
 
 	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
 	for (int32 i = 0; i < projectBrowser->CountProjects(); i++) {

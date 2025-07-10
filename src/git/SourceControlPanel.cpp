@@ -713,50 +713,9 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_UpdateProjectMenu()
 {
-#if 0
-	// The logic here: save the currently selected project, empty the list
-	// then rebuild the list and try to reselect the previously selected project.
-	// otherwise select the active project.
-	BMenu* projectMenu = fProjectMenu->Menu();
-
-	BString selectedProject;
-	BMenuItem* item = projectMenu->FindMarked();
-	if (item != nullptr) {
-		selectedProject = item->Label();
-	}
-
-	Window()->BeginViewTransaction();
-
-	projectMenu->RemoveItems(0, projectMenu->CountItems(), true);
-
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender(kSenderProjectOptionList);
-
-	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
-	for (int32 i = 0; i < projectBrowser->CountProjects(); i++) {
-		ProjectFolder* project = projectBrowser->ProjectAt(i);
-		if (project == nullptr)
-			break;
-		fProjectMenu->AddItem(project->Name(), project->Path(), MsgChangeProject);
-		if (project->Name() == selectedProject)
-			item->SetMarked(true);
-	}
 	
-	if (projectMenu->FindMarked() == nullptr) {
-		const ProjectFolder* activeProject = gMainWindow->GetActiveProject();
-		if (activeProject != nullptr) {
-			BMenuItem* item = projectMenu->FindItem(activeProject->Name());
-			if (item != nullptr)
-				item->SetMarked(true);
-		} else {
-			BMenuItem *item = projectMenu->ItemAt(0);
-			if (item != nullptr)
-				item->SetMarked(true);
-		}
-	}
-
-	Window()->EndViewTransaction();
-#endif
 	const ProjectFolder* project = _SelectedProject();
 	if (project == nullptr)
 		return;

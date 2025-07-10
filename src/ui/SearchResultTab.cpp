@@ -101,7 +101,7 @@ SearchResultTab::MessageReceived(BMessage *message)
 				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
 				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 				{
-					_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());
+					_UpdateProjectList();
 					break;
 				}
 				default:
@@ -121,9 +121,7 @@ SearchResultTab::AttachedToWindow()
 {
 	BGroupView::AttachedToWindow();
 
-	fProjectMenu->SetTarget(this);
-	fProjectMenu->SetSender("SearchResultTab");
-	_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());
+	_UpdateProjectList();
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
@@ -137,7 +135,7 @@ SearchResultTab::AttachedToWindow()
 
 
 void
-SearchResultTab::_UpdateProjectList(const ProjectFolderList* list)
+SearchResultTab::_UpdateProjectList()
 {
 	// TODO: Set the active project
 	fProjectMenu->SetTarget(this);
@@ -222,17 +220,4 @@ SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, 
 
 	LogInfo("Find in file, executing: [%s]", grepCommand.String());
 	fSearchResultPanel->StartSearch(grepCommand, project->Path());
-}
-
-
-bool
-SearchResultTab::_IsProjectInList(const ProjectFolderList* list, ProjectFolder* proj)
-{
-	// Is the current selected project still in the new list?
-	for (ProjectFolder* element : *list) {
-		if (element == proj) {
-			return true;
-		}
-	}
-	return false;
 }

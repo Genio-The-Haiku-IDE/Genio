@@ -177,7 +177,8 @@ namespace Genio::Git {
 				branchName.RemoveFirst("origin/");
 
 				status = git_branch_create(&ref, fRepository,
-									branchName.String(), (git_commit*)tree, false);
+									branchName.String(),
+									reinterpret_cast<git_commit*>(tree), false);
 				if (status >= 0) {
 					check(git_branch_set_upstream(ref, remoteBranchName.String()));
 				}

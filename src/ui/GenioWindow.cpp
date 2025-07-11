@@ -3612,12 +3612,12 @@ GenioWindow::_TemplateNewFolder(BMessage* message)
 	status_t status = TemplateManager::CreateNewFolder(&ref, &refNew);
 	if (status != B_OK) {
 		BString error = B_TRANSLATE("Error creating folder");
-		error << "\n" << strerror(status);
+		error << "\n" << ::strerror(status);
 		OKAlert(B_TRANSLATE("New folder"), error, B_WARNING_ALERT);
 		LogError("Invalid destination directory [%s]", ref.name);
 	} else {
 		ProjectItem* item = nullptr;
-		if (message->FindPointer("sender", (void**)&item) == B_OK)
+		if (message->FindPointer("sender", reinterpret_cast<void**>(&item)) == B_OK)
 			GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
 	}
 }

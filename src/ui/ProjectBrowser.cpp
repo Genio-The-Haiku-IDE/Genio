@@ -821,7 +821,8 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 		fOutlineListView->AddItem(newItem);
 	}
 
-	BEntry entry(ref);
+	// resolve symlinks
+	BEntry entry(ref, true);
 	if (entry.IsDirectory()) {
 		BDirectory dir(&entry);
 		entry_ref nextRef;

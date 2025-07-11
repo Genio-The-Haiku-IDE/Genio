@@ -136,13 +136,16 @@ ProjectMenuField::_HandleActiveProjectChanged(const BMessage* message)
 	}
 
 	BString activeProjectName = message->GetString("active_project_name");
-	//bool changed = false;
+	bool changed = false;
 	if (::strcmp(activeProjectName, selectedProjectName) != 0) {
 		BMenuItem* item = Menu()->FindItem(activeProjectName);
 		if (item != nullptr) {
-			//changed = !item->IsMarked();
+			changed = !item->IsMarked();
 			item->SetMarked(true);
 		}
+	}
+	if (changed) {
+		// do something
 	}
 }
 

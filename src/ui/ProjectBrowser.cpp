@@ -648,7 +648,8 @@ ProjectBrowser::GetItemByRef(const ProjectFolder* project, const entry_ref& ref)
 		fullpath.Split("/", true, list);
 		for (int32 i = 0; i < list.CountStrings(); i++) {
 			for (int32 j = 0; j < fOutlineListView->CountItemsUnder(projectItem, true); j++) {
-				ProjectItem* pItem = (ProjectItem*)fOutlineListView->ItemUnderAt(projectItem, true, j);
+				ProjectItem* pItem = static_cast<ProjectItem*>(
+										fOutlineListView->ItemUnderAt(projectItem, true, j));
 				if (pItem->GetSourceItem()->Name().Compare(list.StringAt(i)) == 0) {
 					fOutlineListView->Expand(projectItem);
 					projectItem = pItem;

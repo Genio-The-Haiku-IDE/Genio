@@ -105,7 +105,9 @@ LSPProjectWrapper::_Create()
 
 	fLSPPipeClient = new LSPPipeClient(kLSPMessage, thisProject);
 
-	status_t started = fLSPPipeClient->Start((const char**)fServerConfig.Argv(), fServerConfig.Argc());
+	status_t started = fLSPPipeClient->Start(
+											const_cast<const char**>(fServerConfig.Argv()),
+											fServerConfig.Argc());
 	if (started != B_OK) {
 		// TODO: show an alert to the user. (but only once per session!)
 		// TODO: We usually never get here if the LSP server isn't installed

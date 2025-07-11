@@ -1084,7 +1084,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_HELP_GITHUB:
 		{
-			char *argv[2] = {(char*)"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
+			const char *argv[2] = {"https://github.com/Genio-The-Haiku-IDE/Genio", NULL};
 			be_roster->Launch("text/html", 1, argv);
 			break;
 		}
@@ -1216,17 +1216,17 @@ GenioWindow::_PrepareWorkspace()
 	// TODO: improve how projects are loaded and notices are sent over
 	if (gCFG["reopen_projects"]) {
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
-		status_t status = B_OK;
 		if (!projects.IsEmpty()) {
 			BString projectName;
 			BString activeProject = projects.GetString("active_project");
 			for (auto count = 0; projects.FindString("project_to_reopen",
 										count, &projectName) == B_OK; count++) {
 				entry_ref ref;
-				status = get_ref_for_path(projectName, &ref);
-				if (status == B_OK) {
+				status_t status = get_ref_for_path(projectName, &ref);
+				if (status == B_OK)
 					status = _ProjectFolderOpen(ref, projectName == activeProject);
-				}
+				if (status != B_OK)
+					LogError("Reloading project %s failed!", projectName.String());
 			}
 		}
 		if (GetActiveProject() != nullptr)
@@ -3594,7 +3594,7 @@ GenioWindow::_TemplateNewFile(BMessage* message)
 		LogError("Invalid destination directory [%s]", dest.name);
 	} else {
 		ProjectItem* item = nullptr;
-		if (message->FindPointer("sender", (void**)&item) == B_OK)
+		if (message->FindPointer("sender", reinterpret_cast<void**>(&item)) == B_OK)
 			GetProjectBrowser()->SelectNewItemAndScrollDelayed(item, refNew);
 	}
 }

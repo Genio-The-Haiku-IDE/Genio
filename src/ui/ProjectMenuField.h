@@ -18,7 +18,7 @@ public:
 	void MessageReceived(BMessage* message) override;
 
 private:
-	void _HandleProjectChanged(const BMessage* message);
+	void _HandleProjectListChanged(const BMessage* message);
 	void _HandleActiveProjectChanged(const BMessage* message);
 
 	int32 fWhat;

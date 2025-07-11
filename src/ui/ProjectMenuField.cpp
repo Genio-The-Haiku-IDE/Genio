@@ -6,8 +6,10 @@
 
 #include "ProjectMenuField.h"
 
+#include <algorithm>
+
 #include <Catalog.h>
-#include <iostream>
+#include <NaturalCompare.h>
 
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
@@ -65,12 +67,13 @@ ProjectMenuField::MessageReceived(BMessage* message)
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
 				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
-					_HandleProjectChanged(message);
+					_HandleProjectListChanged(message);
 					break;
 				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					_HandleActiveProjectChanged(message);
 					break;
 				default:
+					OptionList::MessageReceived(message);
 					break;
 			}
 			break;
@@ -81,9 +84,17 @@ ProjectMenuField::MessageReceived(BMessage* message)
 	}
 }
 
+// TODO: Cleanup
+struct {
+	bool operator()(ProjectFolder* A, ProjectFolder* B) const
+	{
+		return BPrivate::NaturalCompare(A->Name(), B->Name()) < 0;
+	}
+} CompareProjectsName;
+
 
 void
-ProjectMenuField::_HandleProjectChanged(const BMessage* message)
+ProjectMenuField::_HandleProjectListChanged(const BMessage* message)
 {
 	// The logic here: save the currently selected project, empty the list
 	// then rebuild the list and try to reselect the previously selected project.
@@ -101,10 +112,22 @@ ProjectMenuField::_HandleProjectChanged(const BMessage* message)
 	MakeEmpty();
 
 	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
-	for (int32 i = 0; i < projectBrowser->CountProjects(); i++) {
-		ProjectFolder* project = projectBrowser->ProjectAt(i);
+	// sort projects alphabetically before adding them to the menu
+	// TODO: The order returned by ProjectAt() could be different than
+	// the one used in the ProjectBrowser, since ProjectAt() returns
+	// Projects from the ProjectList, and not from the ProjectBrowser
+	// TODO: we could keep the ProjectList sorted instead
+	std::vector<ProjectFolder*> projectList;
+	for (int32 p = 0; p < projectBrowser->CountProjects(); p++) {
+		ProjectFolder* project = projectBrowser->ProjectAt(p);
 		if (project == nullptr)
 			break;
+		projectList.push_back(project);
+	}
+	std::sort(projectList.begin(), projectList.end(), CompareProjectsName);
+	for (std::vector<ProjectFolder*>::iterator i = projectList.begin();
+											i != projectList.end(); i++) {
+		ProjectFolder* project = *i;
 		bool marked = project->Name() == selectedProject;
 		AddItem(project->Name(), project->Path(), fWhat, true, marked);
 	}

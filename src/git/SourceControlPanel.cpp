@@ -272,12 +272,12 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
 						if (gMainWindow->GetProjectBrowser()->CountProjects() == 0) {
-							fProjectMenu->MakeEmpty();
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
 							fMainLayout->SetVisibleItem(kPanelsIndexRepository);
-						}
-						_UpdateProjectMenu();
+						} else
+							_UpdateProjectMenu();
+
 						break;
 					}
 					case B_PATH_MONITOR:
@@ -647,7 +647,8 @@ SourceControlPanel::_SelectedProject() const
 		return nullptr;
 
 	BString projectPath;
-	item->Message()->FindString("value", &projectPath);
+	if (item->Message()->FindString("value", &projectPath) != B_OK)
+		return nullptr;
 
 	return projectBrowser->ProjectByPath(projectPath);
 }

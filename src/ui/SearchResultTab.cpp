@@ -92,23 +92,6 @@ SearchResultTab::MessageReceived(BMessage *message)
 			_StartSearch(fFindTextControl->Text(), (bool)fFindWholeWordCheck->Value(),
 				(bool)fFindCaseSensitiveCheck->Value(), fSelectedProject);
 			break;
-		case B_OBSERVER_NOTICE_CHANGE:
-		{
-			int32 code;
-			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
-				break;
-			switch (code) {
-				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
-				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
-				{
-					_UpdateProjectList();
-					break;
-				}
-				default:
-					break;
-			}
-			break;
-		}
 		default:
 			BGroupView::MessageReceived(message);
 			break;
@@ -124,22 +107,9 @@ SearchResultTab::AttachedToWindow()
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender("SearchResultTab");
 
-	if (Window()->LockLooper()) {
-		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		Window()->UnlockLooper();
-	}
-
 	fFindGroup->SetTarget(this);
 	fFindTextControl->SetMessage(new BMessage(MSG_FIND_IN_FILES));
 	fFindTextControl->SetTarget(this);
-}
-
-
-void
-SearchResultTab::_UpdateProjectList()
-{
-	// TODO: Set the active project
 }
 
 

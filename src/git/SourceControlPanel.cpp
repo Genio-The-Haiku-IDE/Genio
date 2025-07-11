@@ -22,6 +22,7 @@
 #include <SeparatorView.h>
 #include <ScrollView.h>
 #include <StringView.h>
+#include <iostream>
 
 
 #include "ConfigManager.h"
@@ -223,6 +224,7 @@ SourceControlPanel::AttachedToWindow()
 	}
 
 	fProjectMenu->SetTarget(this);
+	fProjectMenu->SetSender(kSenderProjectOptionList);
 	fBranchMenu->SetTarget(this);
 	fToolBar->SetTarget(this);
 	fInitializeButton->SetTarget(this);
@@ -279,36 +281,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 							fMainLayout->SetVisibleItem(kPanelsIndexRepository);
 						}
 						_UpdateProjectMenu();
-						break;
-					}
-					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
-					{
-						// Almost same code path as case MsgChangeProject
-
-						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-						BString selectedProjectName;
-						BMenuItem* item = fProjectMenu->Menu()->FindMarked();
-						if (item != nullptr) {
-							selectedProjectName = item->Label();
-						}
-
-						BString activeProjectName = message->GetString("active_project_name");
-						bool changed = false;
-						if (::strcmp(activeProjectName, selectedProjectName) != 0) {
-							BMenuItem* item = fProjectMenu->Menu()->FindItem(activeProjectName);
-							if (item != nullptr) {
-								changed = !item->IsMarked();
-								item->SetMarked(true);
-							}
-						}
-						
-						if (changed) {
-							ASSERT(_SelectedProject() != nullptr);
-							BMessage changeMessage;
-							changeMessage.AddString("value", _SelectedProject()->Path());
-							changeMessage.AddString("sender", kSenderProjectOptionList);
-							_ChangeProject(&changeMessage);
-						}
 						break;
 					}
 					case B_PATH_MONITOR:
@@ -632,6 +604,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 void
 SourceControlPanel::_ChangeProject(BMessage *message)
 {
+	std::cout << "ChangeProject" << std::endl;
+	
 	BString projectPath = message->GetString("value");
 	const BString sender = message->GetString("sender");
 	const ProjectFolder* selectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);
@@ -713,9 +687,6 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_UpdateProjectMenu()
 {
-	fProjectMenu->SetTarget(this);
-	fProjectMenu->SetSender(kSenderProjectOptionList);
-	
 	const ProjectFolder* project = _SelectedProject();
 	if (project == nullptr)
 		return;

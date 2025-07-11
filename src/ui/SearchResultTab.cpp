@@ -121,7 +121,9 @@ SearchResultTab::AttachedToWindow()
 {
 	BGroupView::AttachedToWindow();
 
-	_UpdateProjectList();
+	fProjectMenu->SetTarget(this);
+	fProjectMenu->SetSender("SearchResultTab");
+
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
@@ -138,8 +140,6 @@ void
 SearchResultTab::_UpdateProjectList()
 {
 	// TODO: Set the active project
-	fProjectMenu->SetTarget(this);
-	fProjectMenu->SetSender("SearchResultTab");
 }
 
 

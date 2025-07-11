@@ -7,6 +7,7 @@
 #include "ProjectMenuField.h"
 
 #include <Catalog.h>
+#include <iostream>
 
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
@@ -97,16 +98,15 @@ ProjectMenuField::_HandleProjectChanged(const BMessage* message)
 
 	Window()->BeginViewTransaction();
 
-	projectMenu->RemoveItems(0, projectMenu->CountItems(), true);
+	MakeEmpty();
 
 	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
 	for (int32 i = 0; i < projectBrowser->CountProjects(); i++) {
 		ProjectFolder* project = projectBrowser->ProjectAt(i);
 		if (project == nullptr)
 			break;
-		AddItem(project->Name(), project->Path(), fWhat);
-		if (project->Name() == selectedProject)
-			item->SetMarked(true);
+		bool marked = project->Name() == selectedProject;
+		AddItem(project->Name(), project->Path(), fWhat, true, marked);
 	}
 	
 	if (projectMenu->FindMarked() == nullptr) {
@@ -138,14 +138,15 @@ ProjectMenuField::_HandleActiveProjectChanged(const BMessage* message)
 	BString activeProjectName = message->GetString("active_project_name");
 	bool changed = false;
 	if (::strcmp(activeProjectName, selectedProjectName) != 0) {
-		BMenuItem* item = Menu()->FindItem(activeProjectName);
+		item = Menu()->FindItem(activeProjectName);
 		if (item != nullptr) {
 			changed = !item->IsMarked();
 			item->SetMarked(true);
 		}
 	}
 	if (changed) {
-		// do something
+		if (item != nullptr)
+			item->Messenger().SendMessage(item->Message());
 	}
 }
 

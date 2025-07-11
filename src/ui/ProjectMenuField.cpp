@@ -111,14 +111,14 @@ ProjectMenuField::_HandleProjectChanged(const BMessage* message)
 	
 	if (projectMenu->FindMarked() == nullptr) {
 		const ProjectFolder* activeProject = gMainWindow->GetActiveProject();
-		if (activeProject != nullptr) {
-			BMenuItem* item = projectMenu->FindItem(activeProject->Name());
-			if (item != nullptr)
-				item->SetMarked(true);
-		} else {
-			BMenuItem *item = projectMenu->ItemAt(0);
-			if (item != nullptr)
-				item->SetMarked(true);
+		BMenuItem* item = nullptr;
+		if (activeProject != nullptr)
+			item = projectMenu->FindItem(activeProject->Name());
+		else
+			item = projectMenu->ItemAt(0);
+		if (item != nullptr) {
+			item->SetMarked(true);
+			item->Messenger().SendMessage(item->Message());
 		}
 	}
 

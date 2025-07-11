@@ -64,7 +64,10 @@ ProjectMenuField::MessageReceived(BMessage* message)
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			switch (code) {
 				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
-					_HandleProjectChanged();	
+					_HandleProjectChanged(message);
+					break;
+				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
+					_HandleActiveProjectChanged(message);
 					break;
 				default:
 					break;
@@ -79,7 +82,7 @@ ProjectMenuField::MessageReceived(BMessage* message)
 
 
 void
-ProjectMenuField::_HandleProjectChanged()
+ProjectMenuField::_HandleProjectChanged(const BMessage* message)
 {
 	// The logic here: save the currently selected project, empty the list
 	// then rebuild the list and try to reselect the previously selected project.
@@ -121,3 +124,25 @@ ProjectMenuField::_HandleProjectChanged()
 
 	Window()->EndViewTransaction();
 }
+
+
+void
+ProjectMenuField::_HandleActiveProjectChanged(const BMessage* message)
+{
+	BString selectedProjectName;
+	BMenuItem* item = Menu()->FindMarked();
+	if (item != nullptr) {
+		selectedProjectName = item->Label();
+	}
+
+	BString activeProjectName = message->GetString("active_project_name");
+	//bool changed = false;
+	if (::strcmp(activeProjectName, selectedProjectName) != 0) {
+		BMenuItem* item = Menu()->FindItem(activeProjectName);
+		if (item != nullptr) {
+			//changed = !item->IsMarked();
+			item->SetMarked(true);
+		}
+	}
+}
+

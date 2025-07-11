@@ -165,7 +165,7 @@ LSPEditorWrapper::didOpen()
 	if (!IsInitialized())
 		return;
 
-	const char* text = (const char*) fEditor->SendMessage(SCI_GETCHARACTERPOINTER);
+	const char* text = reinterpret_cast<const char*>(fEditor->SendMessage(SCI_GETCHARACTERPOINTER));
 
 	fLSPProjectWrapper->DidOpen(this, text, FileType().String());
 	// fLSPProjectWrapper->Sync();

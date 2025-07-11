@@ -116,7 +116,7 @@ GenioApp::AboutRequested()
 	}
 	charArray[stringCount] = NULL;
 
-	window->AddVersionHistory((const char**)charArray);
+	window->AddVersionHistory(const_cast<const char**>(charArray));
 	delete[] charArray;
 
 	BString extraInfo;

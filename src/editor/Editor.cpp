@@ -437,7 +437,7 @@ Editor::ApplySettings()
 
 
 void
-Editor::ApplyEdit(std::string info)
+Editor::ApplyEdit(const std::string& info)
 {
 	fLSPEditorWrapper->ApplyEdit(info);
 }

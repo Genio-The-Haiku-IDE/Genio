@@ -115,13 +115,13 @@ public:
 			status_t			StartMonitoring();
 			status_t			StopMonitoring();
 			std::string			FileType() const { return fFileType; }
-			void				SetFileType(std::string fileType) { fFileType = fileType; }
+			void				SetFileType(const std::string& fileType) { fFileType = fileType; }
 			status_t			SetSavedCaretPosition();
 
 			//
 			void				LoadEditorConfig();
 			void				ApplySettings();
-			void				ApplyEdit(std::string info);
+			void				ApplyEdit(const std::string& info);
 			void				TrimTrailingWhitespace();
 
 			void				GoToLine(int32 line);

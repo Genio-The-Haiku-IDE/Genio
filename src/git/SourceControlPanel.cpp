@@ -286,23 +286,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 						// Almost same code path as case MsgChangeProject
 
 						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-						BString selectedProjectName;
-						BMenuItem* item = fProjectMenu->Menu()->FindMarked();
-						if (item != nullptr) {
-							selectedProjectName = item->Label();
-						}
-
-						BString activeProjectName = message->GetString("active_project_name");
-						bool changed = false;
-						if (::strcmp(activeProjectName, selectedProjectName) != 0) {
-							BMenuItem* item = fProjectMenu->Menu()->FindItem(activeProjectName);
-							if (item != nullptr) {
-								changed = !item->IsMarked();
-								item->SetMarked(true);
-							}
-						}
-						
-						if (changed) {
+						if (true) {
 							ASSERT(_SelectedProject() != nullptr);
 							BMessage changeMessage;
 							changeMessage.AddString("value", _SelectedProject()->Path());

@@ -93,10 +93,10 @@ std::vector<std::unique_ptr<LexerLibrary>> sLexerLibraries;
 }
 
 /* static */ bool
-Languages::GetLanguageForExtension(const std::string ext, std::string& lang)
+Languages::GetLanguageForExtension(const std::string& ext, std::string& lang)
 {
 	lang = "text";
-	if(sExtensions.count(ext) > 0) {
+	if (sExtensions.count(ext) > 0) {
 		lang = sExtensions[ext];
 		return true;
 	}

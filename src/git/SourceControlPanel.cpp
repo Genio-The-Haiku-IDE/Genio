@@ -213,7 +213,6 @@ SourceControlPanel::AttachedToWindow()
 
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		if (gMainWindow != nullptr) {
 			auto projectBrowser = gMainWindow->GetProjectBrowser();
 			if (projectBrowser != nullptr)
@@ -236,8 +235,6 @@ SourceControlPanel::DetachedFromWindow()
 {
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-
 		if (gMainWindow != nullptr) {
 			auto projectBrowser = gMainWindow->GetProjectBrowser();
 			if (projectBrowser != nullptr)
@@ -604,8 +601,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 void
 SourceControlPanel::_ChangeProject(BMessage *message)
 {
-	std::cout << "ChangeProject" << std::endl;
-	
 	BString projectPath = message->GetString("value");
 	const BString sender = message->GetString("sender");
 	const ProjectFolder* selectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);

@@ -8,14 +8,15 @@
 #include <GroupView.h>
 #include <TextControl.h>
 
-#include "OptionList.h"
-#include "SearchResultPanel.h"
 #include "PanelTabManager.h"
+#include "SearchResultPanel.h"
+
+
+namespace Genio::UI {
+	class ProjectMenuField;
+};
 
 class ToolBar;
-
-using Genio::UI::OptionList;
-
 class SearchResultTab : public BGroupView {
 public:
 					SearchResultTab(PanelTabManager* panelTabManager, tab_id id);
@@ -29,7 +30,7 @@ private:
 	void 	_StartSearch(BString text, bool wholeWord,
 							bool caseSensitive, const BString& projectPath);
 
-	Genio::UI::OptionList<BString>* fProjectMenu;
+	Genio::UI::ProjectMenuField* fProjectMenu;
 	SearchResultPanel* fSearchResultPanel;
 	ToolBar* fFindGroup;
 	BTextControl* fFindTextControl;

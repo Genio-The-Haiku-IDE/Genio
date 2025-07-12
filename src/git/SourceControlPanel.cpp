@@ -22,6 +22,7 @@
 #include <SeparatorView.h>
 #include <ScrollView.h>
 #include <StringView.h>
+#include <iostream>
 
 
 #include "ConfigManager.h"
@@ -34,6 +35,7 @@
 #include "Log.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
+#include "ProjectMenuField.h"
 #include "RepositoryView.h"
 #include "StringFormatter.h"
 #include "Utils.h"
@@ -67,9 +69,7 @@ SourceControlPanel::SourceControlPanel()
 	fDoNotCreateInitialCommitCheckBox(nullptr),
 	fBurstHandler(nullptr)
 {
-	fProjectMenu = new OptionList<BString>("ProjectMenu",
-		B_TRANSLATE("Project:"),
-		B_TRANSLATE("Choose project" B_UTF8_ELLIPSIS));
+	fProjectMenu = new Genio::UI::ProjectMenuField("ProjectMenu", MsgChangeProject);
 	fBranchMenu = new OptionList<BString>("BranchMenu",
 		B_TRANSLATE("Current branch:"),
 		B_TRANSLATE("Choose branch" B_UTF8_ELLIPSIS));
@@ -213,7 +213,6 @@ SourceControlPanel::AttachedToWindow()
 
 	if (Window()->LockLooper()) {
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
 		if (gMainWindow != nullptr) {
 			auto projectBrowser = gMainWindow->GetProjectBrowser();
 			if (projectBrowser != nullptr)
@@ -224,6 +223,7 @@ SourceControlPanel::AttachedToWindow()
 	}
 
 	fProjectMenu->SetTarget(this);
+	fProjectMenu->SetSender(kSenderProjectOptionList);
 	fBranchMenu->SetTarget(this);
 	fToolBar->SetTarget(this);
 	fInitializeButton->SetTarget(this);
@@ -235,8 +235,6 @@ SourceControlPanel::DetachedFromWindow()
 {
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-
 		if (gMainWindow != nullptr) {
 			auto projectBrowser = gMainWindow->GetProjectBrowser();
 			if (projectBrowser != nullptr)
@@ -274,42 +272,12 @@ SourceControlPanel::MessageReceived(BMessage *message)
 					{
 						LogInfo("MSG_NOTIFY_PROJECT_LIST_CHANGED");
 						if (gMainWindow->GetProjectBrowser()->CountProjects() == 0) {
-							fProjectMenu->MakeEmpty();
 							fBranchMenu->MakeEmpty();
 							fRepositoryView->MakeEmpty();
 							fMainLayout->SetVisibleItem(kPanelsIndexRepository);
-						}
-						_UpdateProjectMenu();
-						break;
-					}
-					case MSG_NOTIFY_PROJECT_SET_ACTIVE:
-					{
-						// Almost same code path as case MsgChangeProject
+						} else
+							_UpdateProjectMenu();
 
-						LogInfo("MSG_NOTIFY_PROJECT_SET_ACTIVE");
-						BString selectedProjectName;
-						BMenuItem* item = fProjectMenu->Menu()->FindMarked();
-						if (item != nullptr) {
-							selectedProjectName = item->Label();
-						}
-
-						BString activeProjectName = message->GetString("active_project_name");
-						bool changed = false;
-						if (::strcmp(activeProjectName, selectedProjectName) != 0) {
-							BMenuItem* item = fProjectMenu->Menu()->FindItem(activeProjectName);
-							if (item != nullptr) {
-								changed = !item->IsMarked();
-								item->SetMarked(true);
-							}
-						}
-						
-						if (changed) {
-							ASSERT(_SelectedProject() != nullptr);
-							BMessage changeMessage;
-							changeMessage.AddString("value", _SelectedProject()->Path());
-							changeMessage.AddString("sender", kSenderProjectOptionList);
-							_ChangeProject(&changeMessage);
-						}
 						break;
 					}
 					case B_PATH_MONITOR:
@@ -679,7 +647,8 @@ SourceControlPanel::_SelectedProject() const
 		return nullptr;
 
 	BString projectPath;
-	item->Message()->FindString("value", &projectPath);
+	if (item->Message()->FindString("value", &projectPath) != B_OK)
+		return nullptr;
 
 	return projectBrowser->ProjectByPath(projectPath);
 }
@@ -714,49 +683,6 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_UpdateProjectMenu()
 {
-	// The logic here: save the currently selected project, empty the list
-	// then rebuild the list and try to reselect the previously selected project.
-	// otherwise select the active project.
-	BMenu* projectMenu = fProjectMenu->Menu();
-
-	BString selectedProject;
-	BMenuItem* item = projectMenu->FindMarked();
-	if (item != nullptr) {
-		selectedProject = item->Label();
-	}
-
-	Window()->BeginViewTransaction();
-
-	projectMenu->RemoveItems(0, projectMenu->CountItems(), true);
-
-	fProjectMenu->SetTarget(this);
-	fProjectMenu->SetSender(kSenderProjectOptionList);
-
-	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
-	for (int32 i = 0; i < projectBrowser->CountProjects(); i++) {
-		ProjectFolder* project = projectBrowser->ProjectAt(i);
-		if (project == nullptr)
-			break;
-		fProjectMenu->AddItem(project->Name(), project->Path(), MsgChangeProject);
-		if (project->Name() == selectedProject)
-			item->SetMarked(true);
-	}
-	
-	if (projectMenu->FindMarked() == nullptr) {
-		const ProjectFolder* activeProject = gMainWindow->GetActiveProject();
-		if (activeProject != nullptr) {
-			BMenuItem* item = projectMenu->FindItem(activeProject->Name());
-			if (item != nullptr)
-				item->SetMarked(true);
-		} else {
-			BMenuItem *item = projectMenu->ItemAt(0);
-			if (item != nullptr)
-				item->SetMarked(true);
-		}
-	}
-
-	Window()->EndViewTransaction();
-
 	const ProjectFolder* project = _SelectedProject();
 	if (project == nullptr)
 		return;

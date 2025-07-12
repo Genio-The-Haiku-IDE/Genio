@@ -2118,7 +2118,7 @@ GenioWindow::_FindInFiles()
 
 	fSearchResultTab->SetAndStartSearch(text, (bool)fFindWholeWordCheck->Value(),
 											  (bool)fFindCaseSensitiveCheck->Value(),
-											  GetActiveProject());
+											  GetActiveProject()->Path());
 	_ShowOutputTab(kTabSearchResult);
 	_UpdateFindMenuItems(fFindTextControl->Text());
 }

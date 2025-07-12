@@ -21,16 +21,17 @@ class SearchResultTab : public BGroupView {
 public:
 					SearchResultTab(PanelTabManager* panelTabManager, tab_id id);
 				   ~SearchResultTab();
-			void 	SetAndStartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project);
+			void 	SetAndStartSearch(BString text, bool wholeWord,
+										bool caseSensitive, const BString& projectPath);
 			void	AttachedToWindow() override;
 			void	MessageReceived(BMessage *message) override;
 
 private:
-	void 	_StartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project);
+	void 	_StartSearch(BString text, bool wholeWord,
+							bool caseSensitive, const BString& projectPath);
 
 	Genio::UI::OptionList<BString>* fProjectMenu;
 	SearchResultPanel* fSearchResultPanel;
-	ProjectFolder* fSelectedProject;
 	ToolBar* fFindGroup;
 	BTextControl* fFindTextControl;
 	BCheckBox* fFindCaseSensitiveCheck;

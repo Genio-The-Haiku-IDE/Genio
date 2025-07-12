@@ -36,8 +36,7 @@ static constexpr uint32 kSelectProject ='PRJX';
 SearchResultTab::SearchResultTab(PanelTabManager* panelTabManager, tab_id id)
 	:
 	BGroupView(B_VERTICAL, 0.0f),
-	fSearchResultPanel(nullptr),
-	fSelectedProject(nullptr)
+	fSearchResultPanel(nullptr)
 {
 	fProjectMenu = new Genio::UI::ProjectMenuField("ProjectMenu", kSelectProject);
 
@@ -84,14 +83,22 @@ SearchResultTab::MessageReceived(BMessage *message)
 	switch (message->what) {
 		case kSelectProject:
 		{
-			BString projectPath = message->GetString("value");
-			fSelectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);
+			// TODO: Remove ?
 			break;
 		}
 		case MSG_FIND_IN_FILES:
+		{
+			BMenuItem* item = fProjectMenu->Menu()->FindMarked();
+			if (item == nullptr)
+				break;
+			BString projectPath;
+			if (item->Message()->FindString("value", &projectPath) != B_OK)
+				break;
+
 			_StartSearch(fFindTextControl->Text(), (bool)fFindWholeWordCheck->Value(),
-				(bool)fFindCaseSensitiveCheck->Value(), fSelectedProject);
+				(bool)fFindCaseSensitiveCheck->Value(), projectPath);
 			break;
+		}
 		default:
 			BGroupView::MessageReceived(message);
 			break;
@@ -120,46 +127,24 @@ SearchResultTab::~SearchResultTab()
 
 
 void
-SearchResultTab::SetAndStartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project)
+SearchResultTab::SetAndStartSearch(BString text, bool wholeWord,
+	bool caseSensitive, const BString& projectPath)
 {
-	if (project == nullptr)
-		return;
-
 	if (text.IsEmpty())
-		return;
-
-	BMenu* menu = fProjectMenu->Menu();
-	if (menu == nullptr)
-		return;
-
-	if (project != fSelectedProject) {
-		for (int32 i = 0; i < menu->CountItems(); i++) {
-			BMessage* msg = menu->ItemAt(i)->Message();
-			if (msg != nullptr) {
-				BString projectPath = msg->GetString("value");
-				fSelectedProject = gMainWindow->GetProjectBrowser()->ProjectByPath(projectPath);
-				menu->ItemAt(i)->SetMarked(true);
-				break;
-			}
-		}
-	}
-	if (project != fSelectedProject)
 		return;
 
 	fFindCaseSensitiveCheck->SetValue((bool)caseSensitive);
 	fFindWholeWordCheck->SetValue((bool)wholeWord);
 	fFindTextControl->SetText(text.String());
 
-	_StartSearch(text, wholeWord, caseSensitive, project);
+	_StartSearch(text, wholeWord, caseSensitive, projectPath);
 }
 
 
 void
-SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project)
+SearchResultTab::_StartSearch(BString text, bool wholeWord,
+	bool caseSensitive, const BString& projectPath)
 {
-	if (project == nullptr)
-		return;
-
 	if (text.IsEmpty())
 		return;
 
@@ -186,8 +171,8 @@ SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, 
 	grepCommand += " -- ";
 	grepCommand += EscapeQuotesWrap(text);
 	grepCommand += " ";
-	grepCommand += EscapeQuotesWrap(project->Path());
+	grepCommand += EscapeQuotesWrap(projectPath);
 
 	LogInfo("Find in file, executing: [%s]", grepCommand.String());
-	fSearchResultPanel->StartSearch(grepCommand, project->Path());
+	fSearchResultPanel->StartSearch(grepCommand, projectPath);
 }

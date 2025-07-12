@@ -4338,7 +4338,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		ActionManager::SetEnabled(MSG_GOTO_LINE, false);
 		fBookmarksMenu->SetEnabled(false);
 
-		_UpdateWindowTitle(nullptr);
+		_UpdateWindowTitle(nullptr, nullptr);
 
 		fProblemsPanel->ClearProblems();
 
@@ -4418,7 +4418,12 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	fBookmarksMenu->SetEnabled(true);
 
-	_UpdateWindowTitle(editor->FilePath().String());
+	BString currentBranch;
+	try {
+		currentBranch = editor->GetProjectFolder()->GetRepository()->GetCurrentBranch();
+	} catch (...) {
+	}
+	_UpdateWindowTitle(editor->FilePath().String(), currentBranch.String());
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
@@ -4489,7 +4494,14 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	}
 
 	Editor* selected = fTabManager->SelectedEditor();
-	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr);
+	BString currentBranch;
+	if (selected != nullptr) {
+		try {
+			currentBranch = selected->GetProjectFolder()->GetRepository()->GetCurrentBranch();
+		} catch (...) {
+		}
+	}
+	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr, currentBranch.String());
 }
 
 
@@ -4533,7 +4545,7 @@ GenioWindow::UpdateMenu(const void* sender, const entry_ref* ref)
 
 
 void
-GenioWindow::_UpdateWindowTitle(const char* filePath)
+GenioWindow::_UpdateWindowTitle(const char* filePath, const char* branch)
 {
 	BString title;
 
@@ -4545,5 +4557,7 @@ GenioWindow::_UpdateWindowTitle(const char* filePath)
 	// File full path in window title
 	if (gCFG["fullpath_title"] && filePath != nullptr)
 		title << ": " << filePath;
+	if (branch != nullptr)
+		title << " [" << branch << "]";
 	SetTitle(title.String());
 }

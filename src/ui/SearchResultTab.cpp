@@ -14,7 +14,6 @@
 #include "ConfigManager.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
-#include "ProjectBrowser.h"
 #include "ProjectMenuField.h"
 #include "SearchResultPanel.h"
 #include "TextUtils.h"

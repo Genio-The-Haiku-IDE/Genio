@@ -9,7 +9,6 @@
 #include <TextControl.h>
 
 #include "OptionList.h"
-#include "ProjectFolder.h"
 #include "SearchResultPanel.h"
 #include "PanelTabManager.h"
 

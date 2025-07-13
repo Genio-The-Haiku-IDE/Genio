@@ -84,14 +84,6 @@ ProjectMenuField::MessageReceived(BMessage* message)
 	}
 }
 
-// TODO: Cleanup
-struct {
-	bool operator()(ProjectFolder* A, ProjectFolder* B) const
-	{
-		return BPrivate::NaturalCompare(A->Name(), B->Name()) < 0;
-	}
-} CompareProjectsName;
-
 
 void
 ProjectMenuField::_HandleProjectListChanged(const BMessage* message)
@@ -112,26 +104,14 @@ ProjectMenuField::_HandleProjectListChanged(const BMessage* message)
 	MakeEmpty();
 
 	ProjectBrowser* projectBrowser = gMainWindow->GetProjectBrowser();
-	// sort projects alphabetically before adding them to the menu
-	// TODO: The order returned by ProjectAt() could be different than
-	// the one used in the ProjectBrowser, since ProjectAt() returns
-	// Projects from the ProjectList, and not from the ProjectBrowser
-	// TODO: we could keep the ProjectList sorted instead
-	std::vector<ProjectFolder*> projectList;
 	for (int32 p = 0; p < projectBrowser->CountProjects(); p++) {
 		ProjectFolder* project = projectBrowser->ProjectAt(p);
 		if (project == nullptr)
 			break;
-		projectList.push_back(project);
-	}
-	std::sort(projectList.begin(), projectList.end(), CompareProjectsName);
-	for (std::vector<ProjectFolder*>::iterator i = projectList.begin();
-											i != projectList.end(); i++) {
-		ProjectFolder* project = *i;
 		bool marked = project->Name() == selectedProject;
 		AddItem(project->Name(), project->Path(), fWhat, true, marked);
 	}
-	
+
 	if (projectMenu->FindMarked() == nullptr) {
 		const ProjectFolder* activeProject = gMainWindow->GetActiveProject();
 		BMenuItem* item = nullptr;

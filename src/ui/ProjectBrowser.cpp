@@ -6,10 +6,11 @@
 
 #include "ProjectBrowser.h"
 
-#include <cassert>
 #include <cstdio>
 #include <algorithm>
+
 #include <Catalog.h>
+#include <Debug.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
 #include <MessageRunner.h>
@@ -590,7 +591,7 @@ ProjectBrowser::GetSelectedProjectItem() const
 ProjectItem*
 ProjectBrowser::GetProjectItemForProject(const ProjectFolder* folder) const
 {
-	assert(fProjectProjectItemList.size() == (size_t)CountProjects());
+	ASSERT(fProjectProjectItemList.size() == (size_t)CountProjects());
 
 	for (int32 i = 0; i < CountProjects(); i++) {
 		if (ProjectAt(i) == folder)
@@ -728,6 +729,46 @@ ProjectBrowser::DetachedFromWindow()
 }
 
 
+// TODO: Cleanup
+struct {
+	bool operator()(ProjectFolder* A, ProjectFolder* B) const
+	{
+		return BPrivate::NaturalCompare(A->Name(), B->Name()) < 0;
+	}
+} CompareProjectsName;
+
+
+void
+ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
+{
+	ASSERT(project != nullptr);
+
+	if (fOutlineListView->CountItems() == 0)
+		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(0));
+
+	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
+	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
+	fOutlineListView->SortItemsUnder(nullptr, false, ProjectOutlineListView::CompareProjectItems);
+
+	const BString projectPath = project->Path();
+	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
+
+	ASSERT(projectItem != nullptr);
+
+	fProjectList.push_back(project);
+	fProjectProjectItemList.push_back(projectItem);
+
+	// Sort project list alphabetically
+	std::sort(fProjectList.begin(), fProjectList.end(), CompareProjectsName);
+
+	Invalidate();
+	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
+			B_WATCH_RECURSIVELY, BMessenger(this));
+	if (status != B_OK)
+		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
+}
+
+
 void
 ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 {
@@ -756,32 +797,6 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(1));
 
 	Invalidate();
-}
-
-
-void
-ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
-{
-	if (fOutlineListView->CountItems() == 0)
-		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(0));
-
-	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
-	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
-	fOutlineListView->SortItemsUnder(nullptr, false, ProjectOutlineListView::CompareProjectItems);
-
-	const BString projectPath = project->Path();
-	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
-
-	assert(projectItem && project);
-
-	fProjectList.push_back(project);
-	fProjectProjectItemList.push_back(projectItem);
-
-	Invalidate();
-	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
-			B_WATCH_RECURSIVELY, BMessenger(this));
-	if (status != B_OK)
-		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
 }
 
 

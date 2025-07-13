@@ -706,8 +706,17 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 		const BString branch = message->GetString("value");
 		auto repo = project->GetRepository();
 		repo->SwitchBranch(branch);
-		fCurrentBranch = repo->GetCurrentBranch();
+		_SetCurrentBranch(repo->GetCurrentBranch());
 	}
+}
+
+
+void
+SourceControlPanel::_SetCurrentBranch(const BString& branch)
+{
+	fCurrentBranch = branch;
+
+	// TODO: Send notices
 }
 
 
@@ -784,7 +793,7 @@ SourceControlPanel::_UpdateBranchListMenu(bool invokeItemMessage)
 			auto repo = selectedProject->GetRepository();
 			if (repo->IsInitialized()) {
 				auto branches = repo->GetBranches();
-				fCurrentBranch = repo->GetCurrentBranch();
+				_SetCurrentBranch(repo->GetCurrentBranch());
 				LogInfo("current branch is set to %s", fCurrentBranch.String());
 				fBranchMenu->SetTarget(this);
 				fBranchMenu->SetSender(kSenderBranchOptionList);
@@ -797,9 +806,9 @@ SourceControlPanel::_UpdateBranchListMenu(bool invokeItemMessage)
 				);
 			}
 		}
-	} catch(const GitException &ex) {
+	} catch (const GitException &ex) {
 		fBranchMenu->MakeEmpty();
-		fCurrentBranch = "";
+		_SetCurrentBranch("");
 	}
 }
 

@@ -1120,7 +1120,8 @@ GenioWindow::MenusBeginning()
 		setActiveMessage->AddPointer("project", project);
 		BMenuItem* item = new BMenuItem(project->Name(), setActiveMessage);
 		if (project->Active())
-			item->SetEnabled(false);
+			item->SetMarked(true);
+
 		fSetActiveProjectMenuItem->AddItem(item);
 	}
 

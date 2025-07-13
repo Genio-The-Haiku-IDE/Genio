@@ -178,7 +178,10 @@ enum {
 
 	// workspace
 	MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED = 'wkps',
-	MSG_NOTIFY_WORKSPACE_PREPARATION_COMPLETED = 'wkpc'
+	MSG_NOTIFY_WORKSPACE_PREPARATION_COMPLETED = 'wkpc',
+
+	// git / source control
+	MSG_NOTIFY_GIT_BRANCH_CHANGED = 'gbch'
 };
 
 #endif // GenioWindowMessages_H

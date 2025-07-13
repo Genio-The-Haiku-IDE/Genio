@@ -302,6 +302,11 @@ GenioWindow::MessageReceived(BMessage* message)
 				_HandleConfigurationChanged(message);
 			} else if (code == kMsgProjectSettingsUpdated) {
 				_HandleProjectConfigurationChanged(message);
+			} else if (code == MSG_NOTIFY_GIT_BRANCH_CHANGED) {
+				BString currentBranch = message->GetString("current_branch");
+				Editor* selected = fTabManager->SelectedEditor();
+				_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr,
+										currentBranch.String());
 			}
 			break;
 		}
@@ -3349,6 +3354,7 @@ GenioWindow::_InitTabViews()
 	//LEFT
 	fProjectsFolderBrowser = new ProjectBrowser();
 	fSourceControlPanel = new SourceControlPanel();
+	fSourceControlPanel->StartWatching(this, MSG_NOTIFY_GIT_BRANCH_CHANGED);
 	fPanelTabManager->AddPanelByConfig(fProjectsFolderBrowser, kTabProjectBrowser);
 	fPanelTabManager->AddPanelByConfig(fSourceControlPanel, kTabSourceControl);
 

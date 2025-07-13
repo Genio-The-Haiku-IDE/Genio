@@ -714,9 +714,14 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_SetCurrentBranch(const BString& branch)
 {
+	if (branch == fCurrentBranch)
+		return;
+
 	fCurrentBranch = branch;
 
-	// TODO: Send notices
+	BMessage message(MSG_NOTIFY_GIT_BRANCH_CHANGED);
+	message.AddString("current_branch", branch);
+	SendNotices(MSG_NOTIFY_GIT_BRANCH_CHANGED, &message);
 }
 
 

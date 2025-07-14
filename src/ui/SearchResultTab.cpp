@@ -14,7 +14,7 @@
 #include "ConfigManager.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
-#include "ProjectBrowser.h"
+#include "ProjectMenuField.h"
 #include "SearchResultPanel.h"
 #include "TextUtils.h"
 #include "ToolBar.h"
@@ -35,12 +35,9 @@ static constexpr uint32 kSelectProject ='PRJX';
 SearchResultTab::SearchResultTab(PanelTabManager* panelTabManager, tab_id id)
 	:
 	BGroupView(B_VERTICAL, 0.0f),
-	fSearchResultPanel(nullptr),
-	fSelectedProject(nullptr)
+	fSearchResultPanel(nullptr)
 {
-	fProjectMenu = new OptionList<ProjectFolder *>("ProjectMenu",
-		B_TRANSLATE("Project:"),
-		B_TRANSLATE("Choose project" B_UTF8_ELLIPSIS));
+	fProjectMenu = new Genio::UI::ProjectMenuField("ProjectMenu", kSelectProject);
 
 	fFindGroup = new ToolBar(this);
 	ActionManager::AddItem(MSG_FIND_IN_FILES, fFindGroup);
@@ -85,29 +82,20 @@ SearchResultTab::MessageReceived(BMessage *message)
 	switch (message->what) {
 		case kSelectProject:
 		{
-			fSelectedProject = const_cast<ProjectFolder*>(
-				reinterpret_cast<const ProjectFolder*>(message->GetPointer("value")));
+			// TODO: Remove ?
 			break;
 		}
 		case MSG_FIND_IN_FILES:
-			_StartSearch(fFindTextControl->Text(), (bool)fFindWholeWordCheck->Value(),
-				(bool)fFindCaseSensitiveCheck->Value(), fSelectedProject);
-			break;
-		case B_OBSERVER_NOTICE_CHANGE:
 		{
-			int32 code;
-			if (message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code) != B_OK)
+			BMenuItem* item = fProjectMenu->Menu()->FindMarked();
+			if (item == nullptr)
 				break;
-			switch (code) {
-				case MSG_NOTIFY_PROJECT_LIST_CHANGED:
-				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
-				{
-					_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());
-					break;
-				}
-				default:
-					break;
-			}
+			BString projectPath;
+			if (item->Message()->FindString("value", &projectPath) != B_OK)
+				break;
+
+			_StartSearch(fFindTextControl->Text(), (bool)fFindWholeWordCheck->Value(),
+				(bool)fFindCaseSensitiveCheck->Value(), projectPath);
 			break;
 		}
 		default:
@@ -124,55 +112,10 @@ SearchResultTab::AttachedToWindow()
 
 	fProjectMenu->SetTarget(this);
 	fProjectMenu->SetSender("SearchResultTab");
-	_UpdateProjectList(gMainWindow->GetProjectBrowser()->GetProjectList());
-	if (Window()->LockLooper()) {
-		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
-		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
-		Window()->UnlockLooper();
-	}
 
 	fFindGroup->SetTarget(this);
 	fFindTextControl->SetMessage(new BMessage(MSG_FIND_IN_FILES));
 	fFindTextControl->SetTarget(this);
-}
-
-
-void
-SearchResultTab::_UpdateProjectList(const ProjectFolderList* list)
-{
-	if (list == nullptr) {
-		fProjectMenu->MakeEmpty();
-		return;
-	}
-
-	//Is the current selected project still in the new list?
-	bool found = _IsProjectInList(list, fSelectedProject);
-
-	fProjectMenu->MakeEmpty();
-	if (!found)
-		fSelectedProject = gMainWindow->GetActiveProject();
-
-	ProjectFolder* activeProject = gMainWindow->GetActiveProject();
-	ProjectFolder* selectedProject = fSelectedProject;
-
-	fProjectMenu->AddList(list,
-		kSelectProject,
-		[&active = activeProject](auto item)
-		{
-			BString projectName = item ? item->Name() : "";
-			BString projectPath = item ? item->Path() : "";
-			if (active != nullptr && active->Path() == projectPath)
-				projectName.Append("*");
-			return projectName;
-		},
-		true,
-		[&selected = selectedProject](auto item)
-		{
-			if (item == nullptr || selected == nullptr)
-				return false;
-			return (item->Path() == selected->Path());
-		}
-	);
 }
 
 
@@ -183,45 +126,24 @@ SearchResultTab::~SearchResultTab()
 
 
 void
-SearchResultTab::SetAndStartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project)
+SearchResultTab::SetAndStartSearch(BString text, bool wholeWord,
+	bool caseSensitive, const BString& projectPath)
 {
-	if (project == nullptr)
-		return;
-
 	if (text.IsEmpty())
-		return;
-
-	BMenu* menu = fProjectMenu->Menu();
-	if (menu == nullptr)
-		return;
-
-	if (project != fSelectedProject) {
-		for (int32 i = 0; i < menu->CountItems(); i++) {
-			BMessage* msg = menu->ItemAt(i)->Message();
-			if (msg != nullptr && msg->GetPointer("value", nullptr) == project) {
-				fSelectedProject = project;
-				menu->ItemAt(i)->SetMarked(true);
-				break;
-			}
-		}
-	}
-	if (project != fSelectedProject)
 		return;
 
 	fFindCaseSensitiveCheck->SetValue((bool)caseSensitive);
 	fFindWholeWordCheck->SetValue((bool)wholeWord);
 	fFindTextControl->SetText(text.String());
 
-	_StartSearch(text, wholeWord, caseSensitive, project);
+	_StartSearch(text, wholeWord, caseSensitive, projectPath);
 }
 
 
 void
-SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, ProjectFolder* project)
+SearchResultTab::_StartSearch(BString text, bool wholeWord,
+	bool caseSensitive, const BString& projectPath)
 {
-	if (project == nullptr)
-		return;
-
 	if (text.IsEmpty())
 		return;
 
@@ -248,21 +170,8 @@ SearchResultTab::_StartSearch(BString text, bool wholeWord, bool caseSensitive, 
 	grepCommand += " -- ";
 	grepCommand += EscapeQuotesWrap(text);
 	grepCommand += " ";
-	grepCommand += EscapeQuotesWrap(project->Path());
+	grepCommand += EscapeQuotesWrap(projectPath);
 
 	LogInfo("Find in file, executing: [%s]", grepCommand.String());
-	fSearchResultPanel->StartSearch(grepCommand, project->Path());
-}
-
-
-bool
-SearchResultTab::_IsProjectInList(const ProjectFolderList* list, ProjectFolder* proj)
-{
-	// Is the current selected project still in the new list?
-	for (ProjectFolder* element : *list) {
-		if (element == proj) {
-			return true;
-		}
-	}
-	return false;
+	fSearchResultPanel->StartSearch(grepCommand, projectPath);
 }

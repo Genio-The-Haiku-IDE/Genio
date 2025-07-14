@@ -4563,9 +4563,9 @@ GenioWindow::_UpdateWindowTitle(const char* filePath, const char* branch)
 #endif
 	title << GenioNames::kApplicationName;
 	// File full path in window title
-	if (gCFG["fullpath_title"] && filePath != nullptr)
+	if (gCFG["fullpath_title"] && !BString(filePath).IsEmpty())
 		title << ": " << filePath;
-	if (branch != nullptr)
+	if (!BString(branch).IsEmpty())
 		title << " [" << branch << "]";
 	SetTitle(title.String());
 }

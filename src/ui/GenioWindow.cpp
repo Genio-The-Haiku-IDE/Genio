@@ -4426,7 +4426,8 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	BString currentBranch;
 	try {
-		currentBranch = editor->GetProjectFolder()->GetRepository()->GetCurrentBranch();
+		ProjectFolder* project = editor->GetProjectFolder();
+		currentBranch = project ? project->GetRepository()->GetCurrentBranch() : "";
 	} catch (...) {
 	}
 	_UpdateWindowTitle(editor->FilePath().String(), currentBranch.String());
@@ -4503,7 +4504,8 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	BString currentBranch;
 	if (selected != nullptr) {
 		try {
-			currentBranch = selected->GetProjectFolder()->GetRepository()->GetCurrentBranch();
+			ProjectFolder* project = selected->GetProjectFolder();
+			currentBranch = project ? project->GetRepository()->GetCurrentBranch() : "";
 		} catch (...) {
 		}
 	}

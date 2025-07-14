@@ -3499,8 +3499,10 @@ GenioWindow::_TryAssociateEditorWithProject(Editor* editor, ProjectFolder* proje
 	if (editor->GetProjectFolder() == nullptr) {
 		// TODO: This isn't perfect: if we open a subfolder of
 		// an existing project as new project, the two would clash
-		if (editor->FilePath().StartsWith(projectPath))
+		if (editor->FilePath().StartsWith(projectPath)) {
 			editor->SetProjectFolder(project);
+			fTabManager->SetTabColor(editor, project->Color());
+		}
 	}
 }
 

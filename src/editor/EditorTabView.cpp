@@ -233,7 +233,7 @@ EditorTabView::_GetTab_(const entry_ref* ref)
 	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
 		if (tab != nullptr && BEntry(tab->GetEditor()->FileRef(), true) == entry) {
-				return tab;
+			return tab;
 		}
 	}
 	return nullptr;
@@ -246,7 +246,7 @@ EditorTabView::_GetTab(Editor* editor)
 	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
 		if (tab != nullptr && editor == tab->GetEditor()) {
-				return tab;
+			return tab;
 		}
 	}
 	return nullptr;
@@ -259,7 +259,7 @@ EditorTabView::_GetTab(editor_id id)
 	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
 		if (tab != nullptr && tab->GetEditor()->Id() == id) {
-				return tab;
+			return tab;
 		}
 	}
 	return nullptr;

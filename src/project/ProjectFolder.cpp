@@ -35,7 +35,7 @@ SourceItem::SourceItem(const BString& path)
 		// TODO: What to do ?
 		LogError("Failed to get ref for path %s: %s", path.String(), ::strerror(status));
 	}
-	BEntry entry(&fEntryRef);
+	BEntry entry(&fEntryRef, true);
 	if (entry.IsDirectory())
 		fType = SourceItemType::FolderItem;
 	else
@@ -49,7 +49,7 @@ SourceItem::SourceItem(const entry_ref& ref)
 	fType(SourceItemType::FileItem),
 	fProjectFolder(nullptr)
 {
-	BEntry entry(&fEntryRef);
+	BEntry entry(&fEntryRef, true);
 	if (entry.IsDirectory())
 		fType = SourceItemType::FolderItem;
 	else

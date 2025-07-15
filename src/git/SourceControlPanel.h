@@ -92,7 +92,7 @@ private:
 
 	void					_ChangeProject(BMessage *message);
 	void					_SwitchBranch(BMessage *message);
-	void					_SetCurrentBranch(const BString& branch);
+	void					_SetCurrentBranch(const ProjectFolder* project, const BString& branch);
 
 	void					_HandleProjectChangedExternalEvent(const ProjectFolder* project);
 };

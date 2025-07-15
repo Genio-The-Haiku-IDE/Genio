@@ -706,13 +706,13 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 		const BString branch = message->GetString("value");
 		auto repo = project->GetRepository();
 		repo->SwitchBranch(branch);
-		_SetCurrentBranch(repo->GetCurrentBranch());
+		_SetCurrentBranch(project, repo->GetCurrentBranch());
 	}
 }
 
 
 void
-SourceControlPanel::_SetCurrentBranch(const BString& branch)
+SourceControlPanel::_SetCurrentBranch(const ProjectFolder* project, const BString& branch)
 {
 	if (branch == fCurrentBranch)
 		return;
@@ -721,6 +721,10 @@ SourceControlPanel::_SetCurrentBranch(const BString& branch)
 
 	BMessage message(MSG_NOTIFY_GIT_BRANCH_CHANGED);
 	message.AddString("current_branch", branch);
+	if (project != nullptr) {
+		message.AddString("project_name", project->Name());
+		message.AddString("project_path", project->Path());
+	}
 	SendNotices(MSG_NOTIFY_GIT_BRANCH_CHANGED, &message);
 }
 
@@ -798,7 +802,7 @@ SourceControlPanel::_UpdateBranchListMenu(bool invokeItemMessage)
 			auto repo = selectedProject->GetRepository();
 			if (repo->IsInitialized()) {
 				auto branches = repo->GetBranches();
-				_SetCurrentBranch(repo->GetCurrentBranch());
+				_SetCurrentBranch(selectedProject, repo->GetCurrentBranch());
 				LogInfo("current branch is set to %s", fCurrentBranch.String());
 				fBranchMenu->SetTarget(this);
 				fBranchMenu->SetSender(kSenderBranchOptionList);
@@ -813,7 +817,7 @@ SourceControlPanel::_UpdateBranchListMenu(bool invokeItemMessage)
 		}
 	} catch (const GitException &ex) {
 		fBranchMenu->MakeEmpty();
-		_SetCurrentBranch("");
+		_SetCurrentBranch(nullptr, "");
 	}
 }
 

@@ -7,6 +7,7 @@
 #define LSP_TRANSPORT_H
 
 #include "MessageHandler.h"
+
 #include <Looper.h>
 #include <Messenger.h>
 
@@ -29,19 +30,16 @@ public:
     void notify(string_ref method, value &params) override;
     void request(string_ref method, value &params, RequestID &id) override;
 
-
-	bool  readStep() override;
+	bool readStep() override;
 
 	void MessageReceived(BMessage* msg) override;
 
 private:
 
-
 	bool writeJson(value& value);
 
 	uint32			fWhat;
 	BMessenger		fMessenger;
-
 };
 
 #endif //LSP_TRANSPORT_H

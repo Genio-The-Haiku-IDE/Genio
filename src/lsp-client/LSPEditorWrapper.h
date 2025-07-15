@@ -10,12 +10,13 @@
 
 #include <vector>
 
+#include "CallTipContext.h"
+#include "LSPCapabilities.h"
 #include "LSPProjectWrapper.h"
 #include "LSPTextDocument.h"
-#include "Sci_Position.h"
 #include "protocol_objects.h"
-#include "LSPCapabilities.h"
-#include "CallTipContext.h"
+#include "Sci_Position.h"
+
 
 //#define DOCUMENT_LINK
 
@@ -31,8 +32,9 @@ struct LSPDiagnostic {
 	std::string fixTitle;
 };
 
-class LSPProjectWrapper;
 class Editor;
+class LSPProjectWrapper;
+
 class LSPEditorWrapper : public LSPTextDocument {
 public:
 	enum GoToType {
@@ -85,10 +87,11 @@ public:
 public:
 	//still experimental
 	//std::string		fID;
-	void onNotify(std::string method, value &params);
-	void onResponse(RequestID ID, value &result);
-	void onError(RequestID ID, value &error);
-	void onRequest(std::string method, value &params, value &ID);
+	void onNotify(std::string method, value &params) override;
+	void onResponse(RequestID ID, value &result) override;
+	void onError(RequestID ID, value &error) override;
+	void onRequest(std::string method, value &params, value &ID) override;
+
 	int32 DiagnosticFromPosition(Sci_Position p, LSPDiagnostic& dia);
 	int32 DiagnosticFromRange(Range& range, LSPDiagnostic& dia);
 
@@ -111,7 +114,6 @@ private:
 	void				_ShowToolTip(const char* text);
 	void				_RemoveAllDiagnostics();
 	void				_RemoveAllDocumentLinks();
-
 
 private:
 	//callbacks:
@@ -145,8 +147,6 @@ private:
 	std::string 	GetCurrentLine();
 	bool			IsStatusValid();
 	std::vector<TextDocumentContentChangeEvent> fChanges;
-
-
 };
 
 #endif // LSPEditorWrapper_H

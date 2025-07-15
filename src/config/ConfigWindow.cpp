@@ -71,7 +71,7 @@ public:
 
 	T RetrieveValue() const
 	{
-		return T(C::Value());
+		return C::Value();
 	}
 
 	void LoadValue(T value)
@@ -284,6 +284,7 @@ ConfigWindow::MessageReceived(BMessage* message)
 void
 ConfigWindow::_PopulateListView()
 {
+	// TODO: Cleanup
 	std::vector<GMessage> dividedByGroup;
 	GMessage msg;
 	int32 index = 0;

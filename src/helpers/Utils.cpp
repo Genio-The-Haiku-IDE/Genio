@@ -260,7 +260,7 @@ public:
 		BMessage* message_;
 		std::string prop_name_;
 	public:
-		iterator(BMessage* message, std::string prop_name, int index = 0)
+		iterator(BMessage* message, const std::string& prop_name, int index = 0)
 			: message_(message), prop_name_(prop_name), index_(index) {}
 		bool operator==(iterator &rhs) {
 			return index_ == rhs.index_ &&
@@ -284,7 +284,7 @@ public:
 	iterator end() { return iterator(message_, prop_name_, size()); }
 	size_t size() {
 		int32 count;
-		if(message_->GetInfo(prop_name_.c_str(), nullptr, &count) == B_OK) {
+		if (message_->GetInfo(prop_name_.c_str(), nullptr, &count) == B_OK) {
 			return static_cast<size_t>(count);
 		}
 		return 0; // FIXME: throw an exception here
@@ -316,7 +316,7 @@ IsCppHeaderExtension(const std::string& extension)
 status_t
 FindSourceOrHeader(const entry_ref* editorRef, entry_ref* foundRef)
 {
-	//TODO this is not language specific!
+	// TODO this is not language specific!
 
 	status_t status;
 	BEntry entry;

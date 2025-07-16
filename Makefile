@@ -15,6 +15,9 @@ endif
 
 ifeq ($(strip $(DEBUGGER)), TRUE)
 	NAME := Genio_debug
+	# for ASSERT()
+	COMPILER_FLAGS += -DDEBUG=1
+	# for scintilla
 	COMPILER_FLAGS += -DGDEBUG
 else
 	NAME := Genio

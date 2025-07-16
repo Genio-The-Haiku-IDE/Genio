@@ -17,8 +17,10 @@
 #include <StringView.h>
 #include <Window.h>
 
+#include "ConfigManager.h"
 #include "Editor.h"
 #include "EditorTabView.h"
+#include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "Log.h"
@@ -367,6 +369,11 @@ FunctionsOutlineView::AttachedToWindow()
 		gMainWindow->StartWatching(this, MSG_NOTIFY_EDITOR_POSITION_CHANGED);
 		gMainWindow->UnlockLooper();
 	}
+
+	// TODO: We do not handle the "setting change" notice,
+	// but it isn't so important, since the setting is hidden
+	sSortedByName = gCFG["outline_sort_symbols"];
+	fToolBar->SetActionPressed(kMsgSort, sSortedByName);
 }
 
 
@@ -448,6 +455,8 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 		case kMsgSort:
 		{
 			sSortedByName = !sSortedByName;
+			gCFG["outline_sort_symbols"] = sSortedByName;
+
 			fToolBar->SetActionPressed(kMsgSort, sSortedByName);
 			if (sSortedByName)
 				fListView->FullListSortItems(&CompareItemsText);

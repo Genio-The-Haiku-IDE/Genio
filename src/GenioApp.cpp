@@ -503,6 +503,9 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	GMessage log_limits = { {"min", 1024}, {"max", 4096} };
 	cfg.AddConfig("Hidden", "log_size", B_TRANSLATE("Log size:"), 1024, &log_limits);
 	cfg.AddConfig("Hidden", "tabviews", "tabviews", PanelTabManager::DefaultConfig());
+
+	// TODO: Move to another, visible, section
+	cfg.AddConfig("Hidden", "outline_sort_symbols", "outline_sort_symbols", false);
 }
 
 

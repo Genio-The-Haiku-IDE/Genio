@@ -1125,6 +1125,9 @@ GenioWindow::MenusBeginning()
 		fSetActiveProjectMenuItem->AddItem(item);
 	}
 
+	if (fPanelTabManager && fPanelsMenu)
+		fPanelTabManager->FillPanelsMenu(fPanelsMenu);
+
 	BView* view = CurrentFocus();
 	if (view == nullptr)
 		return;
@@ -1150,9 +1153,6 @@ GenioWindow::MenusBeginning()
 		ActionManager::SetEnabled(B_COPY,  false);
 		ActionManager::SetEnabled(B_PASTE, false);
 	}
-
-	if (fPanelTabManager && fPanelsMenu)
-		fPanelTabManager->FillPanelsMenu(fPanelsMenu);
 }
 
 

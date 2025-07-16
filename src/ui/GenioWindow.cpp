@@ -1125,6 +1125,7 @@ GenioWindow::MenusBeginning()
 		fSetActiveProjectMenuItem->AddItem(item);
 	}
 
+	// Build panels menu
 	if (fPanelTabManager && fPanelsMenu)
 		fPanelTabManager->FillPanelsMenu(fPanelsMenu);
 

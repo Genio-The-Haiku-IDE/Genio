@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, The Genio team
+ * Copyright 2024-2025, The Genio team
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -36,7 +36,7 @@ const int32 kMsgSort			= 'sort';
 const int32 kMsgCollapseAll		= 'coll';
 const int32 kMsgRenameSymbol	= 'rens';
 
-static bool sSorted = false;
+static bool sSortedByName = false;
 static bool sCollapsed = false;
 
 class SymbolListItem: public StyledItem {
@@ -216,9 +216,9 @@ SymbolListItem::_SetIconAndTooltip()
 }
 
 
-// Sort by line
+// sort by line
 static int
-CompareItems(const BListItem* itemA, const BListItem* itemB)
+CompareItemsLine(const BListItem* itemA, const BListItem* itemB)
 {
 	const SymbolListItem* A = static_cast<const SymbolListItem*>(itemA);
 	const SymbolListItem* B = static_cast<const SymbolListItem*>(itemB);
@@ -230,6 +230,7 @@ CompareItems(const BListItem* itemA, const BListItem* itemB)
 }
 
 
+// sort by name
 static int
 CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 {
@@ -252,18 +253,15 @@ public:
 	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override
 	{
 		BOutlineListView::MouseMoved(point, transit, message);
-		if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
+		if (transit == B_ENTERED_VIEW || transit == B_INSIDE_VIEW) {
+			BString toolTipText;
 			auto index = IndexOf(point);
 			if (index >= 0) {
 				SymbolListItem *item = dynamic_cast<SymbolListItem*>(ItemAt(index));
-				if (item != nullptr) {
-					if (item->HasToolTip())
-						SetToolTip(item->GetToolTipText());
-					else
-						SetToolTip("");
-				}
-			} else
-				SetToolTip("");
+				if (item != nullptr && item->HasToolTip())
+					toolTipText = item->GetToolTipText();
+			}
+			SetToolTip(toolTipText);
 		}
 	}
 
@@ -440,12 +438,12 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 		}
 		case kMsgSort:
 		{
-			sSorted = !sSorted;
-			fToolBar->SetActionPressed(kMsgSort, sSorted);
-			if (sSorted)
+			sSortedByName = !sSortedByName;
+			fToolBar->SetActionPressed(kMsgSort, sSortedByName);
+			if (sSortedByName)
 				fListView->FullListSortItems(&CompareItemsText);
 			else
-				fListView->FullListSortItems(&CompareItems);
+				fListView->FullListSortItems(&CompareItemsLine);
 			break;
 		}
 		case kMsgCollapseAll:
@@ -561,8 +559,11 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 		}
 		i++;
 	}
-	if (sSorted)
+	fToolBar->SetActionPressed(kMsgSort, sSortedByName);
+	if (sSortedByName)
 		fListView->FullListSortItems(&CompareItemsText);
+	else
+		fListView->FullListSortItems(&CompareItemsLine);
 
 	// same document, don't reset the vertical scrolling value
 	if (*newRef == fCurrentRef) {

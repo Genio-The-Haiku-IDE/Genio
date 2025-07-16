@@ -154,14 +154,14 @@ protected:
 	void OnTabRemoved(GTab* _tab) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
-		ASSERT(tab != nullptr && fIdMap.contains(tab->GetID()) == true);
+		ASSERT(tab != nullptr && fIdMap.contains(tab->ID()) == true);
 		fIdMap.erase(tab->ID());
 	}
 
 	void OnTabAdded(GTab* _tab, BView* panel) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(_tab);
-		ASSERT(tab != nullptr && fIdMap.contains(tab->GetID()) == false);
+		ASSERT(tab != nullptr && fIdMap.contains(tab->ID()) == false);
 		fIdMap[tab->ID()] = { tab, panel };
 	}
 

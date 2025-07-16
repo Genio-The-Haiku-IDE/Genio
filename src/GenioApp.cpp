@@ -319,7 +319,7 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(general.String(), "fullpath_title",
 		B_TRANSLATE("Show full path in window title"), true);
 	cfg.AddConfig(general.String(), "branch_title",
-		B_TRANSLATE("Show branch name in window title"), true);
+		B_TRANSLATE("Show branch name in window title"), false);
 
 	GMessage loggers = {
 		{"mode", "options"},

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Nexus6 <nexus6.haiku@icloud.com>
+ * Copyright 2023-2025, Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #include "SourceControlPanel.h"
@@ -22,8 +22,6 @@
 #include <SeparatorView.h>
 #include <ScrollView.h>
 #include <StringView.h>
-#include <iostream>
-
 
 #include "ConfigManager.h"
 #include "GenioApp.h"
@@ -199,7 +197,7 @@ SourceControlPanel::_InitRepositoryNotInitializedView()
 		.AddGlue()
 		.View();
 
-	// TODO: These should not be needed but without them, the splitview which separates
+	// TODO: These should not be needed but, without them, the splitview which separates
 	// the editor from the left pane doesn't move at all
 	fRepositoryNotInitializedView->SetExplicitMinSize(BSize(0, B_SIZE_UNSET));
 	fRepositoryNotInitializedView->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNSET));
@@ -532,10 +530,9 @@ SourceControlPanel::MessageReceived(BMessage *message)
 			case MsgCopyRefName:
 			{
 				const BString selectedBranch = message->GetString("value");
-				BMessage* clip = nullptr;
 				if (be_clipboard->Lock()) {
 					be_clipboard->Clear();
-					clip = be_clipboard->Data();
+					BMessage* clip = be_clipboard->Data();
 					if (clip != nullptr) {
 						clip->AddData("text/plain", B_MIME_TYPE, selectedBranch,
 									selectedBranch.Length());
@@ -617,7 +614,7 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 				try {
 					_UpdateBranchListMenu(false);
 					_UpdateRepositoryView();
-				} catch(const GitException &ex) {
+				} catch (const GitException &ex) {
 					LogInfo(" %s repository has no valid info", selectedProject->Name().String());
 				}
 				fMainLayout->SetVisibleItem(kMainIndexRepository);
@@ -723,7 +720,7 @@ SourceControlPanel::_UpdateBranchListMenu(bool invokeItemMessage)
 				);
 			}
 		}
-	} catch(const GitException &ex) {
+	} catch (const GitException &ex) {
 		fBranchMenu->MakeEmpty();
 		fCurrentBranch = "";
 	}

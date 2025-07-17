@@ -61,7 +61,7 @@ namespace Genio::Git {
 				message.String(), error, files.size());
 		}
 
-		std::vector<BString>	GetFiles() const noexcept { return fFiles; }
+		std::vector<BString> GetFiles() const noexcept { return fFiles; }
 
 	private:
 		std::vector<BString> fFiles;

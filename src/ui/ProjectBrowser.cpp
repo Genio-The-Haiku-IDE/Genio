@@ -50,6 +50,7 @@ public:
 	virtual ~ProjectOutlineListView();
 
 	void MouseDown(BPoint where) override;
+	void MouseUp(BPoint where) override;
 	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override;
 	void AttachedToWindow() override;
 	void DetachedFromWindow() override;
@@ -64,6 +65,8 @@ public:
 
 private:
 	void _ShowProjectItemPopupMenu(BPoint where);
+
+	int32 fButtons;
 };
 
 
@@ -950,7 +953,8 @@ ProjectBrowser::GetProjectList() const
 // ProjectOutlineListView
 ProjectOutlineListView::ProjectOutlineListView()
 	:
-	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST)
+	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST),
+	fButtons(0)
 {
 }
 
@@ -965,14 +969,22 @@ ProjectOutlineListView::~ProjectOutlineListView()
 void
 ProjectOutlineListView::MouseDown(BPoint where)
 {
-	int32 buttons = -1;
 	BMessage* message = Looper()->CurrentMessage();
 	if (message != NULL)
-		message->FindInt32("buttons", &buttons);
+		message->FindInt32("buttons", &fButtons);
 
 	BOutlineListView::MouseDown(where);
-	if (buttons == B_MOUSE_BUTTON(2))
+}
+
+
+/* virtual */
+void
+ProjectOutlineListView::MouseUp(BPoint where)
+{
+	BOutlineListView::MouseUp(where);
+	if (fButtons == B_MOUSE_BUTTON(2))
 		_ShowProjectItemPopupMenu(where);
+	fButtons = 0;
 }
 
 

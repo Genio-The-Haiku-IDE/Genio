@@ -980,8 +980,7 @@ ProjectOutlineListView::MouseDown(BPoint where)
 void
 ProjectOutlineListView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 {
-	BOutlineListView::MouseMoved(point, transit, message);
-
+	// Don't call inherited MouseMoved
 	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
 		auto index = IndexOf(point);
 		if (index >= 0) {

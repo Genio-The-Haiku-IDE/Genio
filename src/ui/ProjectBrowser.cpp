@@ -970,9 +970,15 @@ ProjectOutlineListView::MouseDown(BPoint where)
 	if (message != NULL)
 		message->FindInt32("buttons", &buttons);
 
-	BOutlineListView::MouseDown(where);
-	if (buttons == B_MOUSE_BUTTON(2))
-		_ShowProjectItemPopupMenu(where);
+	if (buttons == B_MOUSE_BUTTON(1)) {
+		return BOutlineListView::MouseDown(where);
+	} else  if ( buttons == B_MOUSE_BUTTON(2)) {
+		int32 index = IndexOf(where);
+		if (index >= 0) {
+			Select(index);
+			_ShowProjectItemPopupMenu(where);
+		}
+	}
 }
 
 

@@ -63,6 +63,8 @@ public:
 
 		status_t	FillPanelsMenu(BMenu* menu);
 
+		void		ShowPanelByTab(tab_id id);
+
 private:
 		void			_AddPanel(const char* tabview_name,
 								  BView* panel,

@@ -203,18 +203,8 @@ protected:
 						tab->SetPreviousOwner("");
 						tabView->MoveTabs(tab, nullptr, Container());
 					}
-					fManager->ShowTab(message->GetInt32("id", -1));
+					fManager->ShowPanelByTab(message->GetInt32("id", -1));
 				}
-
-				//algo:
-				/*
-					1) Is the tab the selected one?
-					   -> NO:
-							-> ensure group is visible
-							-> ensure tab is selected
-					   -> YES:
-					        -> close the
-				*/
 				break;
 			}
 			default:
@@ -340,7 +330,7 @@ PanelTabManager::SelectTab(tab_id id)
 
 
 void
-PanelTabManager::ShowTab(tab_id id)
+PanelTabManager::ShowPanelByTab(tab_id id)
 {
 	for (const auto& panel:fTVList) {
 		if (panel.second->HasTab(id)) {
@@ -352,11 +342,25 @@ PanelTabManager::ShowTab(tab_id id)
 				} else if ( panel.first.compare(kTabViewBottom) == 0) {
 					gCFG["show_output"] = true;
 				}
-				else {
-					panel.second->Show();
-				}
 			}
 			panel.second->SelectTab(id);
+			return;
+		}
+	}
+}
+
+
+void
+PanelTabManager::ShowTab(tab_id id)
+{
+	for (const auto& panel:fTVList) {
+		if (panel.second->HasTab(id)) {
+			BMessage tab(kShowPanelMessage);
+			tab.AddInt32("id", id);
+
+			BMessenger s(panel.second);
+			s.SendMessage(&tab, panel.second);
+
 			return;
 		}
 	}

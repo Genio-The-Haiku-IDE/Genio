@@ -11,7 +11,6 @@
 #include <ControlLook.h>
 #include <LayoutBuilder.h>
 #include <NaturalCompare.h>
-#include <OutlineListView.h>
 #include <PopUpMenu.h>
 #include <ScrollView.h>
 #include <StringView.h>
@@ -23,6 +22,7 @@
 #include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
+#include "GOutlineListView.h"
 #include "Log.h"
 #include "protocol_objects.h"
 #include "StyledItem.h"
@@ -244,17 +244,17 @@ CompareItemsText(const BListItem* itemA, const BListItem* itemB)
 
 
 // SymbolOutlineListView
-class SymbolOutlineListView: public BOutlineListView {
+class SymbolOutlineListView: public GOutlineListView {
 public:
 	SymbolOutlineListView(const char* name)
 		:
-		BOutlineListView(name)
+		GOutlineListView(name)
 	{
 	}
 
 	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override
 	{
-		BOutlineListView::MouseMoved(point, transit, message);
+		GOutlineListView::MouseMoved(point, transit, message);
 		if (transit == B_ENTERED_VIEW || transit == B_INSIDE_VIEW) {
 			BString toolTipText;
 			auto index = IndexOf(point);
@@ -267,22 +267,10 @@ public:
 		}
 	}
 
-	void MouseDown(BPoint where) override
-	{
-		int32 buttons = -1;
-		const BMessage* message = Looper()->CurrentMessage();
-		if (message != NULL)
-			message->FindInt32("buttons", &buttons);
-
-		BOutlineListView::MouseDown(where);
-		if (buttons == B_MOUSE_BUTTON(2))
-			_ShowPopupMenu(where);
-	}
-
 protected:
 	void ExpandOrCollapse(BListItem* superItem, bool expand) override
 	{
-		BOutlineListView::ExpandOrCollapse(superItem, expand);
+		GOutlineListView::ExpandOrCollapse(superItem, expand);
 		SymbolListItem* item = dynamic_cast<SymbolListItem*>(superItem);
 		if (item != nullptr) {
 			BMessage message = item->Details();
@@ -293,7 +281,7 @@ protected:
 	}
 
 private:
-	void _ShowPopupMenu(BPoint where)
+	void ShowPopupMenu(BPoint where) override
 	{
 		auto index = IndexOf(where);
 		if (index >= 0) {

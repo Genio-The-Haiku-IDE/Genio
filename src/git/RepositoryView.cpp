@@ -33,40 +33,13 @@ using Genio::Task::Task;
 
 RepositoryView::RepositoryView()
 	:
-	BOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST)
+	GOutlineListView("RepositoryView", B_SINGLE_SELECTION_LIST)
 {
 }
 
 
 RepositoryView::~RepositoryView()
 {
-}
-
-
-void
-RepositoryView::MouseUp(BPoint where)
-{
-	BOutlineListView::MouseUp(where);
-}
-
-
-void
-RepositoryView::MouseDown(BPoint where)
-{
-	int32 buttons = -1;
-	BMessage* message = Looper()->CurrentMessage();
-	if (message != NULL)
-		message->FindInt32("buttons", &buttons);
-
-	if (buttons == B_MOUSE_BUTTON(1)) {
-		return BOutlineListView::MouseDown(where);
-	} else  if ( buttons == B_MOUSE_BUTTON(2)) {
-		int32 index = IndexOf(where);
-		if (index >= 0) {
-			Select(index);
-			_ShowPopupMenu(where);
-		}
-	}
 }
 
 
@@ -83,7 +56,6 @@ RepositoryView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
 				SetToolTip("");
 			}
 		}
-	} else {
 	}
 }
 
@@ -91,7 +63,7 @@ RepositoryView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
 void
 RepositoryView::AttachedToWindow()
 {
-	BOutlineListView::AttachedToWindow();
+	GOutlineListView::AttachedToWindow();
 	SetTarget(this);
 	if (Target()->LockLooper()) {
 		Target()->StartWatching(this, MsgChangeProject);
@@ -107,7 +79,7 @@ RepositoryView::AttachedToWindow()
 void
 RepositoryView::DetachedFromWindow()
 {
-	BOutlineListView::DetachedFromWindow();
+	GOutlineListView::DetachedFromWindow();
 	if (Target()->LockLooper()) {
 		Target()->StopWatching(this, MsgChangeProject);
 		Target()->StopWatching(this, MsgSwitchBranch);
@@ -156,7 +128,7 @@ RepositoryView::MessageReceived(BMessage* message)
 		default:
 			break;
 	}
-	BOutlineListView::MessageReceived(message);
+	GOutlineListView::MessageReceived(message);
 }
 
 
@@ -312,8 +284,9 @@ RepositoryView::_BuildBranchTree(const BString &branch, uint32 branchType, const
 }
 
 
+/* virtual */
 void
-RepositoryView::_ShowPopupMenu(BPoint where)
+RepositoryView::ShowPopupMenu(BPoint where)
 {
 	auto optionsMenu = new BPopUpMenu("Options", false, false);
 	auto index = IndexOf(where);

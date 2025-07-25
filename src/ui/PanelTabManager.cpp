@@ -279,8 +279,8 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 			// if a tab is in hidden panels group, but doesn't have a "previous owner",
 			// reattach it to the bottom panels (#523)
 			// this fixes my window layout after it got broken
-			if (prevOwner.IsEmpty() && BString(panelName) == "hidden_panels")
-				prevOwner = "bottom_panels";
+			if (prevOwner.IsEmpty() && BString(panelName) == kTabViewHidden)
+				prevOwner = kTabViewBottom;
 			_AddPanel(panelName, panel, id, prevOwner, tab.GetInt32("index", -1), tab.GetBool("selected", false));
 			return;
 		}

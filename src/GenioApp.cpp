@@ -1,6 +1,6 @@
 /*
  * Copyright 2017 A. Mosca <amoscaster@gmail.com>
- * Copyright 2023-2024, The Genio Team
+ * Copyright 2023-2025, The Genio Team
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -22,9 +22,9 @@
 #include "Log.h"
 #include "LSPLogLevels.h"
 #include "LSPServersManager.h"
+#include "PanelTabManager.h"
 #include "Styler.h"
 #include "Utils.h"
-#include "PanelTabManager.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
@@ -373,7 +373,8 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(generalAppearance.String(), "show_output", B_TRANSLATE("Show bottom pane"), true);
 	cfg.AddConfig(generalAppearance.String(), "show_toolbar", B_TRANSLATE("Show toolbar"), true);
 	cfg.AddConfig(generalAppearance.String(), "show_statusbar", B_TRANSLATE("Show statusbar"), true);
-	cfg.AddConfig(generalAppearance.String(), "use_small_icons", B_TRANSLATE("Use smaller icons in toolbar"), false);
+	cfg.AddConfig(generalAppearance.String(), "use_small_icons",
+		B_TRANSLATE("Use smaller icons in toolbar"), false);
 
 	GMessage sizes;
 	sizes = { {"mode","options"},
@@ -394,9 +395,9 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	};
 	c = 2;
 	int32 numFamilies = count_font_families();
-	for(int32 i = 0; i < numFamilies; i++) {
+	for (int32 i = 0; i < numFamilies; i++) {
 		font_family family;
-		if(get_font_family(i, &family) == B_OK) {
+		if (get_font_family(i, &family) == B_OK) {
 			BString key("option_");
 			key << c;
 			fontCfg[key.String()] = { {"value", family}, {"label", family } };
@@ -411,10 +412,12 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(editor.String(), "save_caret", B_TRANSLATE("Save caret position"), true);
 	cfg.AddConfig(editor.String(), "ignore_editorconfig", B_TRANSLATE("Ignore .editorconfig"), false);
 
-	cfg.AddConfigSeparator(editor.String(), "banner_ignore_editorconfig", B_TRANSLATE_COMMENT("These are only applied if no .editorconfig is used:",
+	cfg.AddConfigSeparator(editor.String(), "banner_ignore_editorconfig",
+		B_TRANSLATE_COMMENT("These are only applied if no .editorconfig is used:",
 		"The translation shouldn't be much longer than the English original"));
 
-	cfg.AddConfig(editor.String(), "trim_trailing_whitespace", B_TRANSLATE("Trim trailing whitespace on save"), false);
+	cfg.AddConfig(editor.String(), "trim_trailing_whitespace",
+		B_TRANSLATE("Trim trailing whitespace on save"), false);
 	// TODO: change to "indent_style" to be coherent with editorconfig
 	cfg.AddConfig(editor.String(), "tab_to_space", B_TRANSLATE("Convert tabs to spaces"), false);
 
@@ -461,7 +464,8 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 		console_styles[opt.String()] = { {"value", style_index - 1}, {"label", style.c_str() } };
 		style_index++;
 	}
-	cfg.AddConfig("Console", "console_style", B_TRANSLATE("Console style:"), B_TRANSLATE("(follow system style)"), &console_styles);
+	cfg.AddConfig("Console", "console_style", B_TRANSLATE("Console style:"),
+		B_TRANSLATE("(follow system style)"), &console_styles);
 
 	BString build(B_TRANSLATE("Build"));
 	cfg.AddConfig(build.String(), "wrap_console", B_TRANSLATE("Wrap lines in console"), false);
@@ -515,14 +519,14 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 int
 main(int argc, char* argv[])
 {
+	GenioApp* app = nullptr;
 	try {
-		GenioApp *app = new GenioApp();
+		app = new GenioApp();
 		app->Run();
-
-		delete app;
 	} catch (...) {
 		debugger("Exception caught.");
 	}
+	delete app;
 
 	return 0;
 }

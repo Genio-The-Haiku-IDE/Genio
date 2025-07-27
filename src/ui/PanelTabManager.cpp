@@ -273,7 +273,7 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 	while (fConfig.FindMessage("tab", i++, &tab) == B_OK) {
 		tab_id tabid = tab.GetInt32("id", 0);
 		if (tabid == id) {
-			const char* panelName = tab.GetString("panel_group");
+			BString panelName = tab.GetString("panel_group");
 			BString	prevOwner = tab.GetString("previous_owner");
 			// This should never happen, but it happened due to a bug which is probably fixed:
 			// if a tab is in hidden panels group, but doesn't have a "previous owner",
@@ -281,7 +281,8 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 			// this fixes my window layout after it got broken
 			if (prevOwner.IsEmpty() && BString(panelName) == kTabViewHidden)
 				prevOwner = kTabViewBottom;
-			_AddPanel(panelName, panel, id, prevOwner, tab.GetInt32("index", -1), tab.GetBool("selected", false));
+			_AddPanel(panelName.String(), panel, id, prevOwner.String(),
+				tab.GetInt32("index", -1), tab.GetBool("selected", false));
 			return;
 		}
 	}
@@ -290,8 +291,8 @@ PanelTabManager::AddPanelByConfig(BView* panel, tab_id id)
 	while (defaults.FindMessage("tab", i++, &tab) == B_OK) {
 		tab_id tabid = tab.GetInt32("id", 0);
 		if (tabid == id) {
-			const char* panelName = tab.GetString("panel_group", "");
-			_AddPanel(panelName, panel, id, "", tab.GetInt32("index", -1), false);
+			BString panelName = tab.GetString("panel_group");
+			_AddPanel(panelName.String(), panel, id, "", tab.GetInt32("index", -1), false);
 			return;
 		}
 	}

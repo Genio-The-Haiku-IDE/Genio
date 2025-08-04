@@ -16,7 +16,6 @@
 #include <MessageRunner.h>
 #include <Mime.h>
 #include <NaturalCompare.h>
-#include <OutlineListView.h>
 #include <PopUpMenu.h>
 #include <ScrollView.h>
 #include <StringList.h>
@@ -28,6 +27,7 @@
 #include "GenioWatchingFilter.h"
 #include "GenioWindowMessages.h"
 #include "GenioWindow.h"
+#include "GOutlineListView.h"
 #include "Log.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
@@ -44,12 +44,11 @@ const uint32 kTick = 'tick';
 
 static BMessageRunner* sAnimationTickRunner;
 
-class ProjectOutlineListView : public BOutlineListView {
+class ProjectOutlineListView : public GOutlineListView {
 public:
 			ProjectOutlineListView();
 	virtual ~ProjectOutlineListView();
 
-	void MouseDown(BPoint where) override;
 	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override;
 	void AttachedToWindow() override;
 	void DetachedFromWindow() override;
@@ -63,7 +62,7 @@ public:
 	static int CompareProjectItems(const BListItem* a, const BListItem* b);
 
 private:
-	void _ShowProjectItemPopupMenu(BPoint where);
+	void ShowPopupMenu(BPoint where) override;
 };
 
 
@@ -950,7 +949,7 @@ ProjectBrowser::GetProjectList() const
 // ProjectOutlineListView
 ProjectOutlineListView::ProjectOutlineListView()
 	:
-	BOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST)
+	GOutlineListView("ProjectBrowserOutline", B_SINGLE_SELECTION_LIST)
 {
 }
 
@@ -958,27 +957,6 @@ ProjectOutlineListView::ProjectOutlineListView()
 /* virtual */
 ProjectOutlineListView::~ProjectOutlineListView()
 {
-}
-
-
-/* virtual */
-void
-ProjectOutlineListView::MouseDown(BPoint where)
-{
-	int32 buttons = -1;
-	BMessage* message = Looper()->CurrentMessage();
-	if (message != NULL)
-		message->FindInt32("buttons", &buttons);
-
-	if (buttons == B_MOUSE_BUTTON(1)) {
-		return BOutlineListView::MouseDown(where);
-	} else  if ( buttons == B_MOUSE_BUTTON(2)) {
-		int32 index = IndexOf(where);
-		if (index >= 0) {
-			Select(index);
-			_ShowProjectItemPopupMenu(where);
-		}
-	}
 }
 
 
@@ -1005,8 +983,8 @@ ProjectOutlineListView::MouseMoved(BPoint point, uint32 transit, const BMessage*
 void
 ProjectOutlineListView::AttachedToWindow()
 {
-	BOutlineListView::AttachedToWindow();
-	BOutlineListView::SetTarget(Window());
+	GOutlineListView::AttachedToWindow();
+	GOutlineListView::SetTarget(Window());
 }
 
 
@@ -1014,7 +992,7 @@ ProjectOutlineListView::AttachedToWindow()
 void
 ProjectOutlineListView::DetachedFromWindow()
 {
-	BOutlineListView::DetachedFromWindow();
+	GOutlineListView::DetachedFromWindow();
 }
 
 
@@ -1022,7 +1000,7 @@ ProjectOutlineListView::DetachedFromWindow()
 void
 ProjectOutlineListView::MessageReceived(BMessage* message)
 {
-	BOutlineListView::MessageReceived(message);
+	GOutlineListView::MessageReceived(message);
 }
 
 
@@ -1047,7 +1025,7 @@ ProjectOutlineListView::KeyDown(const char* bytes, int32 numBytes)
 void
 ProjectOutlineListView::SelectionChanged()
 {
-	BOutlineListView::SelectionChanged();
+	GOutlineListView::SelectionChanged();
 	ProjectItem* selected = GetSelectedProjectItem();
 	if (selected != nullptr) {
 		GenioWindow *window = gMainWindow;
@@ -1126,8 +1104,9 @@ ProjectOutlineListView::CompareProjectItems(const BListItem* a, const BListItem*
 }
 
 
+/* virtual */
 void
-ProjectOutlineListView::_ShowProjectItemPopupMenu(BPoint where)
+ProjectOutlineListView::ShowPopupMenu(BPoint where)
 {
 	// TODO: This duplicates some code in ProjectBrowser and in GenioWindow.
 	// Refactor!

@@ -740,6 +740,15 @@ struct {
 } CompareProjectsName;
 
 
+// TODO: Cleanup
+struct {
+	bool operator()(ProjectItem* A, ProjectItem* B) const
+	{
+		return BPrivate::NaturalCompare(A->Text(), B->Text()) < 0;
+	}
+} CompareProjectsItemName;
+
+
 void
 ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
@@ -762,6 +771,7 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 
 	// Sort project list alphabetically
 	std::sort(fProjectList.begin(), fProjectList.end(), CompareProjectsName);
+	std::sort(fProjectProjectItemList.begin(), fProjectProjectItemList.end(), CompareProjectsItemName);
 
 	Invalidate();
 	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,

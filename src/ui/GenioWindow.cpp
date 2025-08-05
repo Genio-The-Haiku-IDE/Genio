@@ -4227,6 +4227,9 @@ GenioWindow::_UpdateProjectMenuItemsState(bool enable)
 		ActionManager::SetEnabled(MSG_PROJECT_SETTINGS, false);
 		fFileNewMenuItem->SetViewMode(TemplatesMenu::ViewMode::SHOW_ALL_VIEW_MODE);
 	}
+	// TODO: without this, the "Git" menuitem is drawn deactivated on start
+	// but gets drawn correctly once we click on it
+	fMenuBar->Invalidate();
 }
 
 
@@ -4531,9 +4534,10 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 	if (key.IsEmpty())
 		return;
 
-	if (project == GetActiveProject() || GetActiveProject() == nullptr) {
+	bool isActive = project == GetActiveProject();
+	if (isActive || GetActiveProject() == nullptr) {
 		// Update debug/release
-		_UpdateProjectMenuItemsState(GetActiveProject() != nullptr);
+		_UpdateProjectMenuItemsState(isActive);
 	}
 
 	// TODO: refactor

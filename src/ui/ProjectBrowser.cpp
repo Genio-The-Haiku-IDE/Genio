@@ -6,7 +6,6 @@
 
 #include "ProjectBrowser.h"
 
-#include <cstdio>
 #include <algorithm>
 
 #include <Catalog.h>
@@ -946,13 +945,6 @@ ProjectBrowser::SelectItemByRef(const ProjectFolder* project, const entry_ref& r
 		fOutlineListView->Select(fOutlineListView->IndexOf(projectItem));
 		fOutlineListView->ScrollToSelection();
 	}
-}
-
-
-const ProjectFolderList*
-ProjectBrowser::GetProjectList() const
-{
-	return &fProjectList;
 }
 
 

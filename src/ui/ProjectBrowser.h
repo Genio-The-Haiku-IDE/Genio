@@ -51,8 +51,6 @@ public:
 	ProjectFolder*	ProjectAt(int32 index) const;
 	ProjectFolder*	ProjectByPath(const BString& fullPath) const;
 
-	const 			ProjectFolderList* GetProjectList() const;
-
 	void			SelectProjectAndScroll(const ProjectFolder*);
 
 	void			SelectItemByRef(const ProjectFolder* project, const entry_ref& ref);

@@ -1,11 +1,9 @@
 /*
- * Copyright 2023, Nexus6
+ * Copyright 2023-2025, Nexus6
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
 #include "ProjectFolder.h"
-
-#include <iostream>
 
 #include <Catalog.h>
 #include <Directory.h>
@@ -100,7 +98,7 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, const BMessenger& msgr)
 
 	try {
 		fGitRepository = new GitRepository(fFullPath);
-	} catch(const GitException &ex) {
+	} catch (const GitException &ex) {
 		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
 			fFullPath.String(), ex.Error(), ex.what());
 	}
@@ -244,8 +242,8 @@ ProjectFolder::GuessBuildCommand()
 			// builder: make
 			SetBuildCommand("make", BuildMode::ReleaseMode);
 			SetCleanCommand("make clean", BuildMode::ReleaseMode);
-			SetBuildCommand("make DEBUGGER=1", BuildMode::DebugMode);
-			SetCleanCommand("make DEBUGGER=1 clean", BuildMode::DebugMode);
+			SetBuildCommand("make DEBUGGER=TRUE", BuildMode::DebugMode);
+			SetCleanCommand("make DEBUGGER=TRUE clean", BuildMode::DebugMode);
 			LogInfo("Guessed builder: make");
 			BPath makeFilePath;
 			if (entry.GetPath(&makeFilePath) == B_OK) {

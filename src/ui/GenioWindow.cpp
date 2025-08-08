@@ -92,8 +92,6 @@ static float kProjectsWeight  = 1.0f;
 static float kEditorWeight  = 3.14f;
 static float kOutputWeight  = 0.4f;
 
-BRect dirtyFrameHack;
-
 static float kDefaultIconSizeSmall = 20.0;
 static float kDefaultIconSize = 32.0;
 
@@ -1076,13 +1074,13 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_FIND_WRAP:
-			gCFG["find_wrap"] = (bool)fFindWrapCheck->Value();
+			gCFG["find_wrap"] = fFindWrapCheck->Value() == B_CONTROL_ON;
 			break;
 		case MSG_FIND_WHOLE_WORD:
-			gCFG["find_whole_word"] = (bool)fFindWholeWordCheck->Value();
+			gCFG["find_whole_word"] = fFindWholeWordCheck->Value() == B_CONTROL_ON;
 			break;
 		case MSG_FIND_MATCH_CASE:
-			gCFG["find_match_case"] = (bool)fFindCaseSensitiveCheck->Value();
+			gCFG["find_match_case"] = fFindCaseSensitiveCheck->Value() == B_CONTROL_ON;
 			break;
 		case MSG_SET_LANGUAGE:
 			_ForwardToSelectedEditor(message);
@@ -2082,7 +2080,7 @@ GenioWindow::_FindMarkAll(BMessage* message)
 
 	_AddSearchFlags(message);
 	message->SetString("text", textToFind);
-	message->SetBool("wrap", fFindWrapCheck->Value());
+	message->SetBool("wrap", fFindWrapCheck->Value() == B_CONTROL_ON);
 	_ForwardToSelectedEditor(message);
 	_UpdateFindMenuItems(textToFind);
 
@@ -2092,8 +2090,8 @@ GenioWindow::_FindMarkAll(BMessage* message)
 void
 GenioWindow::_AddSearchFlags(BMessage* msg)
 {
-	msg->SetBool("match_case", fFindCaseSensitiveCheck->Value());
-	msg->SetBool("whole_word", fFindWholeWordCheck->Value());
+	msg->SetBool("match_case", fFindCaseSensitiveCheck->Value() == B_CONTROL_ON);
+	msg->SetBool("whole_word", fFindWholeWordCheck->Value() == B_CONTROL_ON);
 }
 
 
@@ -2106,7 +2104,7 @@ GenioWindow::_FindNext(BMessage* message, bool backwards)
 
 	_AddSearchFlags(message);
 	message->SetString("text", textToFind);
-	message->SetBool("wrap", fFindWrapCheck->Value());
+	message->SetBool("wrap", fFindWrapCheck->Value() == B_CONTROL_ON);
 	message->SetBool("backward", backwards);
 	_ForwardToSelectedEditor(message);
 	_UpdateFindMenuItems(textToFind);
@@ -2123,8 +2121,8 @@ GenioWindow::_FindInFiles()
 	if (text.IsEmpty())
 		return;
 
-	fSearchResultTab->SetAndStartSearch(text, (bool)fFindWholeWordCheck->Value(),
-											  (bool)fFindCaseSensitiveCheck->Value(),
+	fSearchResultTab->SetAndStartSearch(text, fFindWholeWordCheck->Value() == B_CONTROL_ON,
+											  fFindCaseSensitiveCheck->Value() == B_CONTROL_ON,
 											  GetActiveProject()->Path());
 	_ShowOutputTab(kTabSearchResult);
 	_UpdateFindMenuItems(fFindTextControl->Text());
@@ -2137,7 +2135,7 @@ GenioWindow::_GetFocusAndSelection(BTextControl* control) const
 	control->MakeFocus(true);
 	// If some text is selected, use that
 	Editor* editor = fTabManager->SelectedEditor();
-	if (editor) {
+	if (editor != nullptr) {
 		BString selection = editor->Selection();
 		if (selection.IsEmpty() == false) {
 			control->SetText(selection.String());
@@ -2500,7 +2498,6 @@ GenioWindow::_InitCentralSplit()
 						BSize(charWidth * kFindReplaceMinBytes + 10.0f,
 						B_SIZE_UNSET));
 	fFindTextControl->SetExplicitMaxSize(fFindTextControl->MinSize());
-
 
 	fFindCaseSensitiveCheck = new BCheckBox(B_TRANSLATE_COMMENT("Match case", "Short as possible."),
 		new BMessage(MSG_FIND_MATCH_CASE));
@@ -3994,7 +3991,7 @@ GenioWindow::_Replace(BMessage* message, int32 kind)
 	_AddSearchFlags(message);
 	message->SetString("text", text);
 	message->SetString("replace", replace);
-	message->SetBool("wrap", fFindWrapCheck->Value());
+	message->SetBool("wrap", fFindWrapCheck->Value() == B_CONTROL_ON);
 	message->SetInt32("kind", kind);
 	_ForwardToSelectedEditor(message);
 	_UpdateFindMenuItems(text);

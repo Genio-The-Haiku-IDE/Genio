@@ -243,6 +243,17 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 		}
 	}
 
+	type_code typeFound;
+	int32 countFound = 0;
+	if (fConfiguration.GetInfo("config", &typeFound, &countFound) != B_OK) {
+		LogError("LoadFromFile: no config configured!");
+		return B_OK;
+	}
+
+	// TODO: Unify "context" with ResetToDefault one and rename it to "stage" (start/end) ?
+	fNoticeMessage.RemoveData("context");
+	fNoticeMessage.AddString("context", "load_from_file");
+
 	status_t status = B_OK;
 	GMessage msg;
 	int32 i = 0;
@@ -254,6 +265,10 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 			LogErrorF("Invalid  PermanentStorageProvider (%d)", storageType);
 			return B_ERROR;
 		}
+
+		if (countFound == i)
+			fNoticeMessage.ReplaceString("context", "load_from_file_end");
+
 		status = provider->LoadKey(*this, key, fStorage, msg);
 		if (status == B_OK) {
 			LogInfo("Config file: loaded value for key [%s] (StorageType %d)", key, storageType);
@@ -262,6 +277,9 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 				key, ::strerror(status), storageType);
 		}
 	}
+
+	fNoticeMessage.RemoveData("context");
+
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr)
 			fPSPList[i]->Close();

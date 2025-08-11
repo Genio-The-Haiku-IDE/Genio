@@ -47,5 +47,7 @@ private:
 	BranchItem*		_InitEmptySuperItem(const BString &label);
 	void			_BuildBranchTree(const BString &branch, uint32 branchType, const auto& checker);
 
+	// TODO: both RepositoryView and SourceControlPanel keeps track of current branch.
+	// Refactor to avoid this if possible
 	BString			fCurrentBranch;
 };

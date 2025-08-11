@@ -301,10 +301,14 @@ GenioWindow::MessageReceived(BMessage* message)
 			} else if (code == kMsgProjectSettingsUpdated) {
 				_HandleProjectConfigurationChanged(message);
 			} else if (code == MSG_NOTIFY_GIT_BRANCH_CHANGED) {
-				BString currentBranch = message->GetString("current_branch");
+				const BString currentBranch = message->GetString("current_branch");
+				const BString projectPath = message->GetString("project_path");
 				Editor* selected = fTabManager->SelectedEditor();
-				_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr,
-										currentBranch.String());
+				if (selected->GetProjectFolder() == nullptr
+					|| selected->GetProjectFolder()->Path() == projectPath) {
+					_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr,
+											currentBranch.String());
+				}
 			}
 			break;
 		}

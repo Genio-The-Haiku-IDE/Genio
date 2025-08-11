@@ -621,6 +621,8 @@ SourceControlPanel::_ChangeProject(BMessage *message)
 			}
 		} else {
 			fMainLayout->SetVisibleItem(kMainIndexInitialize);
+			// Set current branch to "" otherwise fCurrenBranch is set to previous project's branch
+			_SetCurrentBranch(selectedProject, "");
 		}
 		LogInfo("Project changed to %s", selectedProject->Name().String());
 	} else {
@@ -655,7 +657,7 @@ void
 SourceControlPanel::_UpdateRepositoryView()
 {
 	const ProjectFolder* project = _SelectedProject();
-	if (project != nullptr)
+	if (project != nullptr && !fCurrentBranch.IsEmpty())
 		fRepositoryView->UpdateRepository(project, fCurrentBranch);
 }
 

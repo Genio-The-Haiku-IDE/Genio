@@ -144,6 +144,7 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &br
 {
 	ASSERT(project != nullptr);
 	ASSERT(project->GetRepository());
+	ASSERT(!branch.IsEmpty());
 
 	LogInfo("UpdateRepository(project: %s, branch: %s)",
 		project->Name().String(), branch.String());

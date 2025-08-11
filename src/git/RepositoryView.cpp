@@ -152,7 +152,7 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &br
 	// TODO: we call this method also when current branch changes, and we rebuild
 	// the whole listview. Maybe we could avoid that
 	BString taskName;
-	taskName << "UpdateRepository (" << project->Name() << ") (" << branch << ")";
+	taskName << "UpdateRepository-" << project->Name() << "-" << branch;
 	Task<status_t> task
 	(
 		taskName,

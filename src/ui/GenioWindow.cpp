@@ -304,7 +304,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				const BString currentBranch = message->GetString("current_branch");
 				const BString projectPath = message->GetString("project_path");
 				Editor* selected = fTabManager->SelectedEditor();
-				if (selected->GetProjectFolder() == nullptr
+				if (selected == nullptr || selected->GetProjectFolder() == nullptr
 					|| selected->GetProjectFolder()->Path() == projectPath) {
 					_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr,
 											currentBranch.String());

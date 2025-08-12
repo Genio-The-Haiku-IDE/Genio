@@ -251,8 +251,8 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 	}
 
 	// TODO: Unify "context" with ResetToDefault one and rename it to "stage" (start/end) ?
-	fNoticeMessage.RemoveData("context");
-	fNoticeMessage.AddString("context", "load_from_file");
+	fNoticeMessage.RemoveData(kContext);
+	fNoticeMessage.AddString(kContext, "load_from_file");
 
 	status_t status = B_OK;
 	GMessage msg;
@@ -267,7 +267,7 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 		}
 
 		if (countFound == i)
-			fNoticeMessage.ReplaceString("context", "load_from_file_end");
+			fNoticeMessage.ReplaceString(kContext, "load_from_file_end");
 
 		status = provider->LoadKey(*this, key, fStorage, msg);
 		if (status == B_OK) {
@@ -278,7 +278,7 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 		}
 	}
 
-	fNoticeMessage.RemoveData("context");
+	fNoticeMessage.RemoveData(kContext);
 
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr)
@@ -340,17 +340,17 @@ ConfigManager::ResetToDefaults()
 		return;
 	}
 
-	fNoticeMessage.RemoveData("context");
-	fNoticeMessage.AddString("context", "reset_to_defaults");
+	fNoticeMessage.RemoveData(kContext);
+	fNoticeMessage.AddString(kContext, "reset_to_defaults");
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		if (countFound == i)
-			fNoticeMessage.ReplaceString("context", "reset_to_defaults_end");
+			fNoticeMessage.ReplaceString(kContext, "reset_to_defaults_end");
 
 		fStorage[msg["key"]] = msg["default_value"]; //to force the key creation
 		(*this)[msg["key"]] = msg["default_value"]; //to force the update
 	}
 
-	fNoticeMessage.RemoveData("context");
+	fNoticeMessage.RemoveData(kContext);
 }
 
 

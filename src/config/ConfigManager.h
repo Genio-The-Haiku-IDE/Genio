@@ -19,6 +19,8 @@ class PermanentStorageProvider;
 class ConfigManagerReturn;
 class ConfigManager {
 public:
+		static constexpr const char* const kContext = "context";
+
 		explicit ConfigManager(const int32 messageWhat);
 				 ~ConfigManager();
 

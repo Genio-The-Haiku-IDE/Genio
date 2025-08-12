@@ -266,7 +266,7 @@ ConfigWindow::MessageReceived(BMessage* message)
 					}
 				}
 
-				BString context = message->GetString("context", "");
+				const BString context = message->GetString(ConfigManager::kContext);
 				if (context.IsEmpty() || context.Compare("reset_to_defaults_end") == 0) {
 					if (fDefaultsButton != nullptr)
 						fDefaultsButton->SetEnabled(!fConfigManager.HasAllDefaultValues());

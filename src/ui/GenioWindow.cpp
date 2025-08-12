@@ -4538,7 +4538,8 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 
 	bool isActive = project == GetActiveProject();
 	const BString context = message->GetString("context");
-	if (context == "load_from_file_end" && (isActive || GetActiveProject() == nullptr)) {
+	if ((context.IsEmpty() || context == "load_from_file_end")
+		&& (isActive || GetActiveProject() == nullptr)) {
 		// Update debug/release
 		_UpdateProjectMenuItemsState(isActive);
 	}

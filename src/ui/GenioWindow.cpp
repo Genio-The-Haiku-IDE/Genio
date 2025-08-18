@@ -780,6 +780,11 @@ GenioWindow::MessageReceived(BMessage* message)
 				LogError("TemplateManager: could create %s from %s to %s",
 							name.String(), templateRef.name, destRef.name);
 			}
+
+			BFilePanel* filePanel = nullptr;
+			if (message->FindPointer("source", reinterpret_cast<void**>(&filePanel)) == B_OK) {
+				delete filePanel;
+			}
 			break;
 		}
 		case MSG_FILE_NEW:
@@ -3416,11 +3421,6 @@ GenioWindow::_InitWindow()
 	fOpenProjectFolderPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this),
 												&ref, B_DIRECTORY_NODE, false,
 												openProjectFolderMessage);
-
-	fCreateNewProjectPanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this),
-										&ref, B_DIRECTORY_NODE, false,
-										new BMessage(MSG_CREATE_NEW_PROJECT),
-										NULL, true, true);
 }
 
 
@@ -3648,8 +3648,16 @@ GenioWindow::_TemplateNewProject(BMessage* message)
 	if (message->FindRef("refs", &template_ref) == B_OK) {
 		BMessage *msg = new BMessage(MSG_CREATE_NEW_PROJECT);
 		msg->AddRef("template_ref", &template_ref);
-		fCreateNewProjectPanel->SetMessage(msg);
-		fCreateNewProjectPanel->Show();
+		const char* projectsDirectory = gCFG["projects_directory"];
+		const BEntry entry(projectsDirectory, true);
+		entry_ref ref;
+		entry.GetRef(&ref);
+		BFilePanel* createNewProjectPanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this),
+										&ref, B_DIRECTORY_NODE, false,
+										new BMessage(MSG_CREATE_NEW_PROJECT),
+										NULL, true, true);
+		createNewProjectPanel->SetMessage(msg);
+		createNewProjectPanel->Show();
 	}
 }
 

@@ -247,7 +247,6 @@ private:
 			BFilePanel*			fSavePanel;
 			BFilePanel*			fOpenProjectPanel;
 			BFilePanel*			fOpenProjectFolderPanel;
-			BFilePanel*			fCreateNewProjectPanel;
 
 			// Bottom panels
 			ProblemsPanel*		fProblemsPanel;

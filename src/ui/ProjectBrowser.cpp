@@ -486,6 +486,18 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					fOutlineListView->Invalidate();
 					break;
 				}
+				case MSG_NOTIFY_GIT_BRANCH_CHANGED:
+				{
+					message->PrintToStream();
+					const BString branch = message->GetString("current_branch");
+					const BString projectPath = message->GetString("project_path");
+					ProjectItem* item = GetProjectItemByPath(projectPath);
+					BString extraText;
+					if (!branch.IsEmpty())
+						extraText << "  [" << branch << "]";
+					item->SetExtraText(extraText.String());
+					break;
+				}
 				case kMsgProjectSettingsUpdated:
 				{
 					const ProjectFolder* project

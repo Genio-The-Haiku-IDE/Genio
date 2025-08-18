@@ -213,8 +213,12 @@ SourceControlPanel::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_LIST_CHANGED);
 		if (gMainWindow != nullptr) {
 			auto projectBrowser = gMainWindow->GetProjectBrowser();
-			if (projectBrowser != nullptr)
+			if (projectBrowser != nullptr) {
 				projectBrowser->StartWatching(this, B_PATH_MONITOR);
+				// TODO: This should be done in ProjectBrowser, but that
+				// requires getting a pointer to us, so for now do this
+				this->StartWatching(projectBrowser, MSG_NOTIFY_GIT_BRANCH_CHANGED);
+			}
 		}
 		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		Window()->UnlockLooper();
@@ -682,9 +686,7 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_SetCurrentBranch(const ProjectFolder* project, const BString& branch)
 {
-	if (branch == fCurrentBranch)
-		return;
-
+	LogError("_SetCurrentBranch: %s", branch);
 	fCurrentBranch = branch;
 
 	BMessage message(MSG_NOTIFY_GIT_BRANCH_CHANGED);

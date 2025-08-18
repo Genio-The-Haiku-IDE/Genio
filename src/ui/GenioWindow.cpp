@@ -3646,17 +3646,16 @@ GenioWindow::_TemplateNewProject(BMessage* message)
 	LogTrace("new_folder_template");
 	entry_ref template_ref;
 	if (message->FindRef("refs", &template_ref) == B_OK) {
-		BMessage *msg = new BMessage(MSG_CREATE_NEW_PROJECT);
-		msg->AddRef("template_ref", &template_ref);
+		BMessage *message = new BMessage(MSG_CREATE_NEW_PROJECT);
+		message->AddRef("template_ref", &template_ref);
 		const char* projectsDirectory = gCFG["projects_directory"];
 		const BEntry entry(projectsDirectory, true);
 		entry_ref ref;
 		entry.GetRef(&ref);
 		BFilePanel* createNewProjectPanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this),
 										&ref, B_DIRECTORY_NODE, false,
-										new BMessage(MSG_CREATE_NEW_PROJECT),
+										message,
 										NULL, true, true);
-		createNewProjectPanel->SetMessage(msg);
 		createNewProjectPanel->Show();
 	}
 }

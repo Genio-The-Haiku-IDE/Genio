@@ -248,7 +248,6 @@ private:
 			BFilePanel*			fOpenProjectPanel;
 			BFilePanel*			fOpenProjectFolderPanel;
 			BFilePanel*			fCreateNewProjectPanel;
-			BFilePanel*			fImportResourcePanel;
 
 			// Bottom panels
 			ProblemsPanel*		fProblemsPanel;

@@ -233,7 +233,7 @@ GenioWindow::Show()
 	}
 
 	BMessage message(MSG_PREPARE_WORKSPACE);
-	BMessageRunner::StartSending(this, &message, 30000, 1);
+	BMessageRunner::StartSending(this, &message, 100000, 1);
 }
 
 

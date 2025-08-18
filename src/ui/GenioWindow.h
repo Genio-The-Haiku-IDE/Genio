@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include <ObjectList.h>
 #include <String.h>
 #include <Window.h>
 

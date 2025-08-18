@@ -1232,18 +1232,15 @@ void
 GenioWindow::_PrepareWorkspace()
 {
 	// Load workspace - reopen projects
-
 	BMessage started(MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED);
 	SendNotices(MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED, &started);
 
-	// Disable MSG_NOTIFY_PROJECT_SET_ACTIVE and MSG_NOTIFY_PROJECT_LIST_CHANGE while we populate
-	// the workspace
 	// TODO: improve how projects are loaded and notices are sent over
 	if (gCFG["reopen_projects"]) {
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
 		if (!projects.IsEmpty()) {
 			BString projectName;
-			BString activeProject = projects.GetString("active_project");
+			const BString activeProject = projects.GetString("active_project");
 			for (auto count = 0; projects.FindString("project_to_reopen",
 										count, &projectName) == B_OK; count++) {
 				entry_ref ref;

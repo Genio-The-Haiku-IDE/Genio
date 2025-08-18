@@ -710,10 +710,12 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_GOTOIMPLEMENTATION:
 		case MSG_RENAME:
 		case MSG_SWITCHSOURCE:
+			_ForwardToSelectedEditor(message);
+			break;
 		case MSG_LOAD_RESOURCE:
 		{
-			BFilePanel* panel = nullptr;
 			_ForwardToSelectedEditor(message);
+			BFilePanel* panel = nullptr;
 			if (message->FindPointer("source", reinterpret_cast<void**>(&panel)) == B_OK) {
 				delete panel;
 			}

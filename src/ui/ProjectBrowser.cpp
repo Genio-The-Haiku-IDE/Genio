@@ -62,6 +62,8 @@ public:
 
 private:
 	void ShowPopupMenu(BPoint where) override;
+
+	void _AddProjectFolderMenuItems(BMenu* projectMenu, ProjectFolder* project);
 };
 
 
@@ -1125,76 +1127,14 @@ ProjectOutlineListView::ShowPopupMenu(BPoint where)
 
 	fileNewProjectMenuItem->SetEnabled(true);
 
-	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem) {
-		BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
-		closePrj->AddPointer("project", project);
-		BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"), closePrj);
-
-		BMessage* setActive = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
-		setActive->AddPointer("project", project);
-		BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"), setActive);
-
-		BMessage* projSettings = new BMessage(MSG_PROJECT_SETTINGS);
-		projSettings->AddPointer("project", project);
-		BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
-			projSettings);
-
-		projectMenu->AddItem(closeProjectMenuItem);
-		projectMenu->AddItem(setActiveProjectMenuItem);
-		projectMenu->AddItem(projectSettingsMenuItem);
-		closeProjectMenuItem->SetEnabled(true);
-		projectMenu->AddSeparatorItem();
-		BMenu* switchBranchMenu = new SwitchBranchMenu(Window(), B_TRANSLATE("Switch to branch"),
-												new BMessage(MSG_GIT_SWITCH_BRANCH),
-												project->Path());
-		projectMenu->AddItem(switchBranchMenu);
-		projectMenu->AddSeparatorItem();
-		BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),
-			new BMessage(MSG_BUILD_PROJECT));
-		BMenuItem* cleanMenuItem = new BMenuItem(B_TRANSLATE("Clean project"),
-			new BMessage(MSG_CLEAN_PROJECT));
-		projectMenu->AddItem(buildMenuItem);
-		projectMenu->AddItem(cleanMenuItem);
-
-		projectMenu->AddSeparatorItem();
-
-		BMenu* buildModeItem = new BMenu(B_TRANSLATE("Build mode"));
-		buildModeItem->SetRadioMode(true);
-		BMenuItem* release = new BMenuItem(B_TRANSLATE("Release"), new BMessage(MSG_BUILD_MODE_RELEASE));
-		BMenuItem* debug   = new BMenuItem(B_TRANSLATE("Debug"), new BMessage(MSG_BUILD_MODE_DEBUG));
-
-		buildModeItem->AddItem(release);
-		buildModeItem->AddItem(debug);
-
-		buildModeItem->SetTargetForItems(Window());
-
-		projectMenu->AddItem(buildModeItem);
-
-		const bool releaseMode = project->GetBuildMode() == BuildMode::ReleaseMode;
-		release->SetMarked(releaseMode);
-		debug->SetMarked(!releaseMode);
-
-		projectMenu->AddSeparatorItem();
-
-		ProjectFolder* activeProject = dynamic_cast<GenioWindow*>(Window())->GetActiveProject();
-		setActiveProjectMenuItem->SetEnabled(!project->Active() && !activeProject->IsBuilding());
-
-		if (project->IsBuilding())
-			switchBranchMenu->SetEnabled(false);
-
-		if (project->IsBuilding() || !project->Active()) {
-			buildMenuItem->SetEnabled(false);
-			cleanMenuItem->SetEnabled(false);
-			buildModeItem->SetEnabled(false);
-		}
-	}
+	if (projectItem->GetSourceItem()->Type() == SourceItemType::ProjectFolderItem)
+		_AddProjectFolderMenuItems(projectMenu, project);
 
 	SelectionChanged();
 
-	const entry_ref* itemRef = projectItem->GetSourceItem()->EntryRef();
-
 	projectMenu->AddItem(fileNewProjectMenuItem);
 
+	const entry_ref* itemRef = projectItem->GetSourceItem()->EntryRef();
 	BEntry entry(itemRef);
 	if (entry.IsFile()) {
 		entry.GetParent(&entry);
@@ -1251,4 +1191,71 @@ ProjectOutlineListView::ShowPopupMenu(BPoint where)
 	menuPoint.x += 1;
 	menuPoint.y += 1;
 	projectMenu->Go(menuPoint, true, false, true);
+}
+
+
+void
+ProjectOutlineListView::_AddProjectFolderMenuItems(BMenu* projectMenu, ProjectFolder* project)
+{
+	BMessage* closePrj = new BMessage(MSG_PROJECT_MENU_CLOSE);
+	closePrj->AddPointer("project", project);
+	BMenuItem* closeProjectMenuItem = new BMenuItem(B_TRANSLATE("Close project"), closePrj);
+
+	BMessage* setActive = new BMessage(MSG_PROJECT_MENU_SET_ACTIVE);
+	setActive->AddPointer("project", project);
+	BMenuItem* setActiveProjectMenuItem = new BMenuItem(B_TRANSLATE("Set active"), setActive);
+
+	BMessage* projSettings = new BMessage(MSG_PROJECT_SETTINGS);
+	projSettings->AddPointer("project", project);
+	BMenuItem* projectSettingsMenuItem = new BMenuItem(B_TRANSLATE("Project settings" B_UTF8_ELLIPSIS),
+		projSettings);
+
+	projectMenu->AddItem(closeProjectMenuItem);
+	projectMenu->AddItem(setActiveProjectMenuItem);
+	projectMenu->AddItem(projectSettingsMenuItem);
+	closeProjectMenuItem->SetEnabled(true);
+	projectMenu->AddSeparatorItem();
+	BMenu* switchBranchMenu = new SwitchBranchMenu(Window(), B_TRANSLATE("Switch to branch"),
+											new BMessage(MSG_GIT_SWITCH_BRANCH),
+											project->Path());
+	projectMenu->AddItem(switchBranchMenu);
+	projectMenu->AddSeparatorItem();
+	BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),
+		new BMessage(MSG_BUILD_PROJECT));
+	BMenuItem* cleanMenuItem = new BMenuItem(B_TRANSLATE("Clean project"),
+		new BMessage(MSG_CLEAN_PROJECT));
+	projectMenu->AddItem(buildMenuItem);
+	projectMenu->AddItem(cleanMenuItem);
+
+	projectMenu->AddSeparatorItem();
+
+	BMenu* buildModeItem = new BMenu(B_TRANSLATE("Build mode"));
+	buildModeItem->SetRadioMode(true);
+	BMenuItem* release = new BMenuItem(B_TRANSLATE("Release"), new BMessage(MSG_BUILD_MODE_RELEASE));
+	BMenuItem* debug   = new BMenuItem(B_TRANSLATE("Debug"), new BMessage(MSG_BUILD_MODE_DEBUG));
+
+	buildModeItem->AddItem(release);
+	buildModeItem->AddItem(debug);
+
+	buildModeItem->SetTargetForItems(Window());
+
+	projectMenu->AddItem(buildModeItem);
+
+	const bool releaseMode = project->GetBuildMode() == BuildMode::ReleaseMode;
+	release->SetMarked(releaseMode);
+	debug->SetMarked(!releaseMode);
+
+	projectMenu->AddSeparatorItem();
+
+	ProjectFolder* activeProject = dynamic_cast<GenioWindow*>(Window())->GetActiveProject();
+	setActiveProjectMenuItem->SetEnabled(!project->Active() && !activeProject->IsBuilding());
+
+	if (project->IsBuilding())
+		switchBranchMenu->SetEnabled(false);
+
+	if (project->IsBuilding() || !project->Active()) {
+		buildMenuItem->SetEnabled(false);
+		cleanMenuItem->SetEnabled(false);
+		buildModeItem->SetEnabled(false);
+	}
 }

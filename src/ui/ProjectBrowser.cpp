@@ -1220,6 +1220,10 @@ ProjectOutlineListView::_AddProjectFolderMenuItems(BMenu* projectMenu, ProjectFo
 											project->Path());
 	projectMenu->AddItem(switchBranchMenu);
 	projectMenu->AddSeparatorItem();
+
+	// TODO: we could use ActionManager::AddItem() here to avoid duplication,
+	// but unfortunately it will cause a crash, since ActionManager keeps pointers
+	// to added items, but this menu autodestructs itself
 	BMenuItem* buildMenuItem = new BMenuItem(B_TRANSLATE("Build project"),
 		new BMessage(MSG_BUILD_PROJECT));
 	BMenuItem* cleanMenuItem = new BMenuItem(B_TRANSLATE("Clean project"),

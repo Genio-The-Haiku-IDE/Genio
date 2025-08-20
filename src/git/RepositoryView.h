@@ -9,7 +9,6 @@
 
 
 enum RepositoryViewMessages {
-	kUndefinedMessage,
 	kInvocationMessage = '9231'
 };
 
@@ -43,4 +42,5 @@ public:
 private:
 	void	ShowPopupMenu(BPoint where) override;
 	
+	BString	fCurrentBranch;
 };

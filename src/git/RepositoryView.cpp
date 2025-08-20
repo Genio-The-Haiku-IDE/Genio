@@ -16,14 +16,11 @@
 #include "BranchItem.h"
 #include "ConfigManager.h"
 #include "GenioApp.h"
-#include "GenioWindow.h"
-#include "GitRepository.h"
 #include "GMessage.h"
 #include "ProjectFolder.h"
 #include "SourceControlPanel.h"
 #include "StringFormatter.h"
 
-#include "Utils.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
@@ -90,7 +87,25 @@ RepositoryView::DetachedFromWindow()
 void
 RepositoryView::MessageReceived(BMessage* message)
 {
-	GOutlineListView::MessageReceived(message);
+	switch (message->what) {
+		case B_OBSERVER_NOTICE_CHANGE:
+		{
+			int32 code;
+			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
+			switch (code) {
+				case MsgSwitchBranch:
+					fCurrentBranch = message->GetString("value");
+					break;
+				default:
+					GOutlineListView::MessageReceived(message);
+					break;
+			}
+			break;
+		}
+		default:
+			GOutlineListView::MessageReceived(message);
+			break;	
+	}
 }
 
 
@@ -178,7 +193,7 @@ RepositoryView::ShowPopupMenu(BPoint where)
 
 		switch (itemType) {
 			case kLocalBranch: {
-				/*if (selectedBranch != fCurrentBranch) {
+				if (selectedBranch != fCurrentBranch) {
 					optionsMenu->AddItem(
 						new BMenuItem(
 							fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
@@ -187,7 +202,7 @@ RepositoryView::ShowPopupMenu(BPoint where)
 								{"value", selectedBranch},
 								{"type", GIT_BRANCH_LOCAL},
 								{"sender", kSenderRepositoryPopupMenu}}));
-				}*/
+				}
 
 				optionsMenu->AddItem(
 					new BMenuItem(
@@ -226,9 +241,8 @@ RepositoryView::ShowPopupMenu(BPoint where)
 			}
 			case kRemoteBranch:
 			{
-				BString currentBranch = "CURRENT";
-				fmt.Substitutions["%current_branch%"] = currentBranch;
-				LogInfo("fmt.Substitutions[%current_branch%] = %s", currentBranch.String());
+				fmt.Substitutions["%current_branch%"] = fCurrentBranch;
+				LogInfo("fmt.Substitutions[%current_branch%] = %s", fCurrentBranch.String());
 
 				optionsMenu->AddItem(
 					new BMenuItem(

@@ -255,7 +255,8 @@ SourceControlPanel::MessageReceived(BMessage *message)
 {
 	try {
 		switch (message->what) {
-			case B_OBSERVER_NOTICE_CHANGE: {
+			case B_OBSERVER_NOTICE_CHANGE:
+			{
 				int32 code;
 				message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 				if (code == gCFG.UpdateMessageWhat()) {

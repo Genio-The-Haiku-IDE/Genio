@@ -327,6 +327,6 @@ RepositoryView::ShowPopupMenu(BPoint where)
 	}
 
 	optionsMenu->SetTargetForItems(Target());
-	optionsMenu->Go(ConvertToScreen(where), true);
-	delete optionsMenu;
+	optionsMenu->SetAsyncAutoDestruct(true);
+	optionsMenu->Go(ConvertToScreen(where), true, false, true);
 }

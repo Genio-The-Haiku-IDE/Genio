@@ -146,7 +146,6 @@ SourceControlPanel::_InitRepositoryView()
 	fRepositoryView = new RepositoryView();
 	fRepositoryViewScroll = new BScrollView("Repository scroll view",
 		fRepositoryView, B_FRAME_EVENTS | B_WILL_DRAW, true, true, border_style::B_NO_BORDER);
-	fRepositoryView->SetTarget(this);
 }
 
 
@@ -228,6 +227,7 @@ SourceControlPanel::AttachedToWindow()
 	fProjectMenu->SetSender(kSenderProjectOptionList);
 	fBranchMenu->SetTarget(this);
 	fToolBar->SetTarget(this);
+	fRepositoryView->SetTarget(this);
 	fInitializeButton->SetTarget(this);
 }
 

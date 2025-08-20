@@ -8,9 +8,7 @@
 #include "GOutlineListView.h"
 
 
-enum RepositoryViewMessages {
-	kInvocationMessage = '9231'
-};
+const uint32 kRepositoryViewInvocationMessage = '9231';
 
 enum ItemType {
 	kHeader,

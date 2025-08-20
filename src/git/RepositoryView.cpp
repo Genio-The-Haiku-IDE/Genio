@@ -66,7 +66,7 @@ RepositoryView::AttachedToWindow()
 		UnlockLooper();
 	}
 
-	SetInvocationMessage(new BMessage(kInvocationMessage));
+	SetInvocationMessage(nullptr);
 }
 
 
@@ -91,7 +91,7 @@ RepositoryView::SelectionChanged()
 	if (item == nullptr || item->BranchName() == fCurrentBranch){
 		SetInvocationMessage(nullptr);
 	} else {
-		BMessage* message = new BMessage(kInvocationMessage);
+		BMessage* message = new BMessage(kRepositoryViewInvocationMessage);
 		message->AddString("value", item->BranchName());
 		message->AddInt32("type", item->BranchType());
 		SetInvocationMessage(message);

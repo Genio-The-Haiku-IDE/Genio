@@ -23,6 +23,7 @@
 #include <ScrollView.h>
 #include <StringView.h>
 
+#include "BranchItem.h"
 #include "ConfigManager.h"
 #include "GenioApp.h"
 #include "GenioWindow.h"
@@ -36,6 +37,7 @@
 #include "ProjectMenuField.h"
 #include "RepositoryView.h"
 #include "StringFormatter.h"
+#include "Task.h"
 #include "Utils.h"
 
 
@@ -43,6 +45,7 @@
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
 using Genio::UI::OptionList;
+using Genio::Task::Task;
 
 enum PanelsIndex {
 	kPanelsIndexRepository = 0,
@@ -143,6 +146,7 @@ SourceControlPanel::_InitRepositoryView()
 	fRepositoryView = new RepositoryView();
 	fRepositoryViewScroll = new BScrollView("Repository scroll view",
 		fRepositoryView, B_FRAME_EVENTS | B_WILL_DRAW, true, true, border_style::B_NO_BORDER);
+	fRepositoryView->SetTarget(this);
 }
 
 
@@ -572,6 +576,40 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				// LogInfo("MsgPullRebase: %s", selectedBranch.String());
 				// break;
 			// }
+			case kInvocationMessage:
+			{
+				// TODO: Improve
+				auto item = dynamic_cast<BranchItem*>(fRepositoryView->ItemAt(fRepositoryView->CurrentSelection()));
+				if (item == nullptr)
+					break;
+				if (item->BranchName() == fCurrentBranch)
+					break;
+				switch (item->BranchType()) {
+					case kRemoteBranch: {
+						GMessage switchMessage = {
+							{"what", MsgSwitchBranch},
+							{"value", item->BranchName()},
+							{"type", GIT_BRANCH_REMOTE},
+							{"sender", kSenderRepositoryPopupMenu}};
+							BMessenger messenger(this);
+							messenger.SendMessage(&switchMessage);
+						break;
+					}
+					case kLocalBranch:
+					default:
+					{
+						GMessage switchMessage = {
+							{"what", MsgSwitchBranch},
+							{"value", item->BranchName()},
+							{"type", GIT_BRANCH_LOCAL},
+							{"sender", kSenderRepositoryPopupMenu}};
+							BMessenger messenger(this);
+							messenger.SendMessage(&switchMessage);
+						break;
+					}
+				}
+				break;
+			}
 			default:
 				BView::MessageReceived(message);
 				break;
@@ -657,8 +695,99 @@ void
 SourceControlPanel::_UpdateRepositoryView()
 {
 	const ProjectFolder* project = _SelectedProject();
-	if (project != nullptr && !fCurrentBranch.IsEmpty())
-		fRepositoryView->UpdateRepository(project, fCurrentBranch);
+	const BString branch = fCurrentBranch;
+	
+	ASSERT(project != nullptr);
+	ASSERT(project->GetRepository());
+	ASSERT(!branch.IsEmpty());
+
+	LogInfo("UpdateRepository(project: %s, branch: %s)",
+		project->Name().String(), branch.String());
+
+	// TODO: we call this method also when current branch changes, and we rebuild
+	// the whole listview. Maybe we could avoid that
+	BString taskName;
+	taskName << "UpdateRepository-" << project->Name() << "-" << branch;
+	Task<status_t> task
+	(
+		taskName,
+		BMessenger(this),
+		std::bind
+		(
+			&SourceControlPanel::_UpdateRepositoryTask,
+			this,
+			project->GetRepository(),
+			branch
+		)
+	);
+
+	task.Run();
+}
+
+
+void
+SourceControlPanel::_UpdateRepositoryTask(const GitRepository* repo, const BString& branch)
+{
+	// Used to show the current branch in RepositoryView
+	fCurrentBranch = branch;
+	try {
+		// Retrieve branches
+		auto localBranches = repo->GetBranches(GIT_BRANCH_LOCAL);
+		std::sort(localBranches.begin(), localBranches.end());
+		int32 numLocalBranches = localBranches.size();
+
+		LogInfo("%ld local branches", numLocalBranches);
+
+		auto remoteBranches = repo->GetBranches(GIT_BRANCH_REMOTE);
+		std::sort(remoteBranches.begin(), remoteBranches.end());
+		int32 numRemoteBranches = remoteBranches.size();
+
+		LogInfo("%ld remote branches", numRemoteBranches);
+
+		auto allTags = repo->GetTags();
+		std::sort(allTags.begin(), allTags.end());
+		int32 numTags = allTags.size();
+
+		LogInfo("%ld tags", numTags);
+
+		// populate Listview
+		// TODO: Try to do more fine-grained locking
+		if (LockLooper()) {
+			const BString currentBranch = fCurrentBranch;
+			fRepositoryView->MakeEmpty();
+			// local branches
+			fRepositoryView->InitEmptySuperItem(B_TRANSLATE("Local branches"));
+			for (auto &branch : localBranches) {
+				fRepositoryView->BuildBranchTree(branch, kLocalBranch, branch == fCurrentBranch);
+			}
+
+			// remote branches
+			fRepositoryView->InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+			for (auto &branch : remoteBranches) {
+				fRepositoryView->BuildBranchTree(branch, kRemoteBranch, false);
+			}
+
+			// tags
+			fRepositoryView->InitEmptySuperItem(B_TRANSLATE("Tags"));
+			for (auto &tag : allTags) {
+				fRepositoryView->BuildBranchTree(tag, kTag, false);
+			}
+
+			UnlockLooper();
+		}
+	} catch (const GException &ex) {
+		if (Looper()->IsLocked())
+			UnlockLooper();
+		OKAlert("Git", ex.Message(), B_INFO_ALERT);
+
+		if (LockLooper()) {
+			fRepositoryView->MakeEmpty();
+			fRepositoryView->InitEmptySuperItem(B_TRANSLATE("Local branches"));
+			fRepositoryView->InitEmptySuperItem(B_TRANSLATE("Remote branches"));
+			fRepositoryView->InitEmptySuperItem(B_TRANSLATE("Tags"));
+			UnlockLooper();
+		}
+	}
 }
 
 

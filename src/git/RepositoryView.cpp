@@ -85,6 +85,22 @@ RepositoryView::DetachedFromWindow()
 
 /* virtual */
 void
+RepositoryView::SelectionChanged()
+{
+	auto item = dynamic_cast<BranchItem*>(ItemAt(CurrentSelection()));
+	if (item == nullptr || item->BranchName() == fCurrentBranch){
+		SetInvocationMessage(nullptr);
+	} else {
+		BMessage* message = new BMessage(kInvocationMessage);
+		message->AddString("value", item->BranchName());
+		message->AddInt32("type", item->BranchType());
+		SetInvocationMessage(message);
+	}
+}
+
+
+/* virtual */
+void
 RepositoryView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {

@@ -427,6 +427,7 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				_ChangeProject(message);
 				break;
 			}
+			case kInvocationMessage:
 			case MsgSwitchBranch:
 			{
 				_SwitchBranch(message);
@@ -577,40 +578,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				// LogInfo("MsgPullRebase: %s", selectedBranch.String());
 				// break;
 			// }
-			case kInvocationMessage:
-			{
-				// TODO: Improve
-				auto item = dynamic_cast<BranchItem*>(fRepositoryView->ItemAt(fRepositoryView->CurrentSelection()));
-				if (item == nullptr)
-					break;
-				if (item->BranchName() == fCurrentBranch)
-					break;
-				switch (item->BranchType()) {
-					case kRemoteBranch: {
-						GMessage switchMessage = {
-							{"what", MsgSwitchBranch},
-							{"value", item->BranchName()},
-							{"type", GIT_BRANCH_REMOTE},
-							{"sender", kSenderRepositoryPopupMenu}};
-							BMessenger messenger(this);
-							messenger.SendMessage(&switchMessage);
-						break;
-					}
-					case kLocalBranch:
-					default:
-					{
-						GMessage switchMessage = {
-							{"what", MsgSwitchBranch},
-							{"value", item->BranchName()},
-							{"type", GIT_BRANCH_LOCAL},
-							{"sender", kSenderRepositoryPopupMenu}};
-							BMessenger messenger(this);
-							messenger.SendMessage(&switchMessage);
-						break;
-					}
-				}
-				break;
-			}
 			default:
 				BView::MessageReceived(message);
 				break;

@@ -35,6 +35,7 @@ public:
 			void	AttachedToWindow() override;
 			void	DetachedFromWindow() override;
 			void	MessageReceived(BMessage* message) override;
+			void	SelectionChanged() override;
 
 			void	BuildBranchTree(const BString &branch, uint32 branchType, const bool highlight);
 			BranchItem*	InitEmptySuperItem(const BString &label);

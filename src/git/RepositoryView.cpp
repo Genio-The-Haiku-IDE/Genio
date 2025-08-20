@@ -60,10 +60,10 @@ void
 RepositoryView::AttachedToWindow()
 {
 	GOutlineListView::AttachedToWindow();
-	if (Target()->LockLooper()) {
-		Target()->StartWatching(this, MsgChangeProject);
-		Target()->StartWatching(this, MsgSwitchBranch);
-		Target()->UnlockLooper();
+	if (LockLooper()) {
+		StartWatching(this, MsgChangeProject);
+		StartWatching(this, MsgSwitchBranch);
+		UnlockLooper();
 	}
 
 	SetInvocationMessage(new BMessage(kInvocationMessage));
@@ -75,10 +75,10 @@ void
 RepositoryView::DetachedFromWindow()
 {
 	GOutlineListView::DetachedFromWindow();
-	if (Target()->LockLooper()) {
-		Target()->StopWatching(this, MsgChangeProject);
-		Target()->StopWatching(this, MsgSwitchBranch);
-		Target()->UnlockLooper();
+	if (LockLooper()) {
+		StopWatching(this, MsgChangeProject);
+		StopWatching(this, MsgSwitchBranch);
+		UnlockLooper();
 	}
 }
 
@@ -106,13 +106,6 @@ RepositoryView::MessageReceived(BMessage* message)
 			GOutlineListView::MessageReceived(message);
 			break;	
 	}
-}
-
-
-/* virtual */
-void
-RepositoryView::SelectionChanged()
-{
 }
 
 

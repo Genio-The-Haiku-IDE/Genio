@@ -7,7 +7,6 @@
 #include "RepositoryView.h"
 
 #include <Catalog.h>
-#include <Debug.h>
 #include <Looper.h>
 
 #include <filesystem>
@@ -17,7 +16,6 @@
 #include "ConfigManager.h"
 #include "GenioApp.h"
 #include "GMessage.h"
-#include "ProjectFolder.h"
 #include "SourceControlPanel.h"
 #include "StringFormatter.h"
 
@@ -178,7 +176,6 @@ RepositoryView::InitEmptySuperItem(const BString &label)
 	AddItem(item);
 	return item;
 }
-
 
 
 /* virtual */

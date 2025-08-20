@@ -160,7 +160,7 @@ RepositoryView::InitEmptySuperItem(const BString &label)
 /* virtual */
 void
 RepositoryView::ShowPopupMenu(BPoint where)
-{/*
+{
 	auto optionsMenu = new BPopUpMenu("Options", false, false);
 	auto index = IndexOf(where);
 	if (index >= 0) {
@@ -178,8 +178,7 @@ RepositoryView::ShowPopupMenu(BPoint where)
 
 		switch (itemType) {
 			case kLocalBranch: {
-
-				if (selectedBranch != fCurrentBranch) {
+				/*if (selectedBranch != fCurrentBranch) {
 					optionsMenu->AddItem(
 						new BMenuItem(
 							fmt << B_TRANSLATE("Switch to \"%selected_branch%\""),
@@ -188,7 +187,7 @@ RepositoryView::ShowPopupMenu(BPoint where)
 								{"value", selectedBranch},
 								{"type", GIT_BRANCH_LOCAL},
 								{"sender", kSenderRepositoryPopupMenu}}));
-				}
+				}*/
 
 				optionsMenu->AddItem(
 					new BMenuItem(
@@ -225,10 +224,11 @@ RepositoryView::ShowPopupMenu(BPoint where)
 
 				break;
 			}
-			case kRemoteBranch: {
-
-				fmt.Substitutions["%current_branch%"] = fCurrentBranch;
-				LogInfo("fmt.Substitutions[%current_branch%] = %s", fCurrentBranch.String());
+			case kRemoteBranch:
+			{
+				BString currentBranch = "CURRENT";
+				fmt.Substitutions["%current_branch%"] = currentBranch;
+				LogInfo("fmt.Substitutions[%current_branch%] = %s", currentBranch.String());
 
 				optionsMenu->AddItem(
 					new BMenuItem(
@@ -305,5 +305,5 @@ RepositoryView::ShowPopupMenu(BPoint where)
 
 	optionsMenu->SetTargetForItems(Target());
 	optionsMenu->Go(ConvertToScreen(where), true);
-	delete optionsMenu;*/
+	delete optionsMenu;
 }

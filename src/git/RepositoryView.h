@@ -8,8 +8,6 @@
 #include "GOutlineListView.h"
 
 
-const uint32 kRepositoryViewInvocationMessage = '9231';
-
 enum ItemType {
 	kHeader,
 	kLocalBranch,
@@ -17,12 +15,7 @@ enum ItemType {
 	kTag
 };
 
-namespace Genio::Git {
-	class GitRepository;
-}
-
 class BranchItem;
-class ProjectFolder;
 class RepositoryView : public GOutlineListView {
 public:
 

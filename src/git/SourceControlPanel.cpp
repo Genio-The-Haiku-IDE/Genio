@@ -427,7 +427,6 @@ SourceControlPanel::MessageReceived(BMessage *message)
 				_ChangeProject(message);
 				break;
 			}
-			case kRepositoryViewInvocationMessage:
 			case MsgSwitchBranch:
 			{
 				_SwitchBranch(message);

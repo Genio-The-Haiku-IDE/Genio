@@ -420,7 +420,7 @@ RepositoryView::ShowPopupMenu(BPoint where)
 		}
 		default:
 		{
-			return;
+			break;
 		}
 	}
 

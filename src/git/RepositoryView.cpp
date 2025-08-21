@@ -58,10 +58,10 @@ void
 RepositoryView::AttachedToWindow()
 {
 	GOutlineListView::AttachedToWindow();
-	if (LockLooper()) {
-		StartWatching(this, MsgChangeProject);
-		StartWatching(this, MsgSwitchBranch);
-		UnlockLooper();
+	if (Target()->LockLooper()) {
+		Target()->StartWatching(this, MsgChangeProject);
+		Target()->StartWatching(this, MsgSwitchBranch);
+		Target()->UnlockLooper();
 	}
 
 	SetInvocationMessage(nullptr);
@@ -73,10 +73,10 @@ void
 RepositoryView::DetachedFromWindow()
 {
 	GOutlineListView::DetachedFromWindow();
-	if (LockLooper()) {
-		StopWatching(this, MsgChangeProject);
-		StopWatching(this, MsgSwitchBranch);
-		UnlockLooper();
+	if (Target()->LockLooper()) {
+		Target()->StopWatching(this, MsgChangeProject);
+		Target()->StopWatching(this, MsgSwitchBranch);
+		Target()->UnlockLooper();
 	}
 }
 

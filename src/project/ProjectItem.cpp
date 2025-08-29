@@ -294,7 +294,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	// TODO: this part is quite computationally intensive
 	// and shoud be moved away from the DrawItem.
 	BString branchName;
-	try {
+	/*try {
 		if (projectFolder->GetRepository()) {
 			branchName = projectFolder->GetRepository()->GetCurrentBranch();
 			BString extraText;
@@ -303,7 +303,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 		}
 	} catch (const Genio::Git::GitException &ex) {
 		LogDebug("ProjectTitleItem::DrawItem(): %s", ex.Message().String());
-	}
+	}*/
 
 	owner->SetHighColor(TextColorByLuminance(projectFolder->Color()));
 	DrawText(owner, Text(), ExtraText(), textPoint);

@@ -11,12 +11,6 @@
 #include <vector>
 
 
-namespace Genio::Git {
-	class GitRepository;
-}
-
-using namespace Genio::Git;
-
 class ConfigManager;
 class LSPProjectWrapper;
 class LSPTextDocument;
@@ -36,6 +30,8 @@ enum BuildMode {
 
 
 class ProjectFolder;
+class SourceControlManager;
+
 class SourceItem {
 public:
 					explicit	SourceItem(const BString& path);
@@ -101,7 +97,7 @@ public:
 	void						SetRunInTerminal(bool enabled);
 	bool						RunInTerminal() const;
 
-	GitRepository*				GetRepository() const;
+	SourceControlManager*		GetRepository() const;
 	void						InitRepository(bool createInitialCommit = true) const;
 
 	const rgb_color				Color() const;
@@ -115,7 +111,7 @@ private:
 	std::vector<LSPProjectWrapper*>	fLSPProjectWrappers;
 	ConfigManager*				fSettings;
 	BMessenger					fMessenger;
-	GitRepository*				fGitRepository;
+	SourceControlManager*		fGitRepository;
 	BString						fFullPath;
 	bool						fActive;
 	bool						fIsBuilding;

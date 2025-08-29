@@ -35,6 +35,7 @@
 #include "ProjectFolder.h"
 #include "ProjectMenuField.h"
 #include "RepositoryView.h"
+#include "SourceControlManager.h"
 #include "StringFormatter.h"
 #include "Utils.h"
 
@@ -42,6 +43,8 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
+using Genio::Git::GitException;
+using Genio::Git::GitConflictException;
 using Genio::UI::OptionList;
 
 enum PanelsIndex {
@@ -706,7 +709,7 @@ SourceControlPanel::_UpdateProjectMenu()
 
 	// Also update the branch list menu
 	try {
-		GitRepository* repo = project->GetRepository();
+		SourceControlManager* repo = project->GetRepository();
 		if (repo->IsInitialized()) {
 			_UpdateBranchListMenu();
 		} else {

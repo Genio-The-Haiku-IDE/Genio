@@ -4217,13 +4217,13 @@ GenioWindow::_UpdateProjectMenuItemsState(bool enable)
 
 	if (enable) {
 		// Is the active project a git project?
-		try {
+		/*try {
 			if (GetActiveProject()->GetRepository()->IsInitialized())
 				fGitMenu->SetEnabled(true);
 			else
 				fGitMenu->SetEnabled(false);
 		} catch (const GitException &ex) {
-		}
+		}*/
 
 		// Build mode
 		bool releaseMode = (GetActiveProject()->GetBuildMode() == BuildMode::ReleaseMode);
@@ -4446,11 +4446,11 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 	fBookmarksMenu->SetEnabled(true);
 
 	BString currentBranch;
-	try {
+	/*try {
 		ProjectFolder* project = editor->GetProjectFolder();
 		currentBranch = project ? project->GetRepository()->GetCurrentBranch() : "";
 	} catch (...) {
-	}
+	}*/
 	_UpdateWindowTitle(editor->FilePath().String(), currentBranch.String());
 
 	// editor is modified by _FilesNeedSave so it should be the last
@@ -4524,11 +4524,11 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	Editor* selected = fTabManager->SelectedEditor();
 	BString currentBranch;
 	if (selected != nullptr) {
-		try {
+		/*try {
 			ProjectFolder* project = selected->GetProjectFolder();
 			currentBranch = project ? project->GetRepository()->GetCurrentBranch() : "";
 		} catch (...) {
-		}
+		}*/
 	}
 	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr, currentBranch.String());
 }

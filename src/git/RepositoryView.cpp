@@ -29,6 +29,7 @@
 #define B_TRANSLATION_CONTEXT "SourceControlPanel"
 
 
+using Genio::Git::GitRepository;
 using Genio::Task::Task;
 
 RepositoryView::RepositoryView()
@@ -148,7 +149,7 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &br
 
 	LogInfo("UpdateRepository(project: %s, branch: %s)",
 		project->Name().String(), branch.String());
-
+#if 0
 	// TODO: we call this method also when current branch changes, and we rebuild
 	// the whole listview. Maybe we could avoid that
 	BString taskName;
@@ -167,12 +168,14 @@ RepositoryView::UpdateRepository(const ProjectFolder *project, const BString &br
 	);
 
 	task.Run();
+#endif
 }
 
 
 void
 RepositoryView::_UpdateRepositoryTask(const GitRepository* repo, const BString& branch)
 {
+#if 0
 	auto const NullLambda = [](const auto& val){ return false; };
 
 	// Used to show the current branch in RepositoryView
@@ -237,6 +240,7 @@ RepositoryView::_UpdateRepositoryTask(const GitRepository* repo, const BString& 
 			UnlockLooper();
 		}
 	}
+#endif
 }
 
 

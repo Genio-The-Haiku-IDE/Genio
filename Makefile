@@ -73,6 +73,7 @@ SRCS += src/git/GitCredentialsWindow.cpp
 SRCS += src/git/GitRepository.cpp
 SRCS += src/git/RemoteProjectWindow.cpp
 SRCS += src/git/RepositoryView.cpp
+SRCS += src/git/SourceControlManager.cpp
 SRCS += src/git/SourceControlPanel.cpp
 SRCS += src/git/SwitchBranchMenu.cpp
 SRCS += src/editor/Editor.cpp

@@ -14,13 +14,15 @@
 
 #include "ConfigManager.h"
 #include "GenioApp.h"
-#include "GitRepository.h"
 #include "GSettings.h"
 #include "LSPProjectWrapper.h"
 #include "MakeFileHandler.h"
+#include "SourceControlManager.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectSettingsWindow"
+
+using Genio::Git::GitException;
 
 SourceItem::SourceItem(const BString& path)
 	:
@@ -97,7 +99,7 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, const BMessenger& msgr)
 	fFullPath = BPath(EntryRef()).Path();
 
 	try {
-		fGitRepository = new GitRepository(fFullPath);
+		fGitRepository = new SourceControlManager(fFullPath);
 	} catch (const GitException &ex) {
 		LogError("Could not create a GitRepository instance on project %s with error %d: %s",
 			fFullPath.String(), ex.Error(), ex.what());
@@ -378,7 +380,7 @@ ProjectFolder::RunInTerminal() const
 }
 
 
-GitRepository*
+SourceControlManager*
 ProjectFolder::GetRepository() const
 {
 	return fGitRepository;

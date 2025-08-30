@@ -8,7 +8,6 @@
 
 #include <Messenger.h>
 
-#include <cassert>
 #include <cstdio>
 #include <sys/wait.h>
 
@@ -43,8 +42,8 @@ TerminalTab::AttachedToWindow()
 	if (fTermView == nullptr) {
 		fTermView = TerminalManager::CreateNewTerminal(BRect(0, 0, 100,100), BMessenger(this), fCommand);
 		fTermView->SetResizingMode(B_FOLLOW_NONE);
-		fTermView->SetExplicitMinSize(BSize(100,100));
-		fTermView->SetExplicitPreferredSize(BSize(100,100));
+		fTermView->SetExplicitMinSize(BSize(100, 100));
+		fTermView->SetExplicitPreferredSize(BSize(100, 100));
 		fTermView->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, B_SIZE_UNLIMITED));
 		AddChild(fTermView);
 	}

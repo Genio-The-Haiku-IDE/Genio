@@ -5,14 +5,11 @@
 
 #include "StyledItem.h"
 
-
 #include <ControlLook.h>
 #include <Font.h>
 #include <NodeInfo.h>
 #include <View.h>
 #include <Window.h>
-
-#include "Utils.h"
 
 
 StyledItem::StyledItem(const char* text,

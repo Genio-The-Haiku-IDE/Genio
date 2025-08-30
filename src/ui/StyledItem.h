@@ -7,7 +7,7 @@
 
 #include <StringItem.h>
 
-#include <Font.h>
+#include <String.h>
 
 class StyledItem : public BStringItem {
 public:

@@ -51,6 +51,9 @@ namespace Genio::Git {
 	bool
 	GitRepository::IsInitialized()
 	{
+		// TODO: This method does not only check if the repository is initialized
+		// but it also has a collateral action. Rework so it does not.
+
 		// If the repository gets corrupted or the .git folder is deleted, we need to check the
 		// status again and put the repository in an uninitialized state.
 		// If it was not initialized but it is valid now, it may have been initialized externally.
@@ -341,7 +344,7 @@ namespace Genio::Git {
 
 			else if (s->status & GIT_STATUS_WT_DELETED)
 				fileStatus = B_TRANSLATE("File deleted");
-//
+
 			else if (s->status & GIT_STATUS_INDEX_DELETED)
 				fileStatus = B_TRANSLATE("File deleted from index");
 
@@ -381,7 +384,7 @@ namespace Genio::Git {
 	void
 	GitRepository::Fetch(bool prune)
 	{
-		git_remote *remote = nullptr;
+		git_remote* remote = nullptr;
 		git_fetch_options fetch_opts = GIT_FETCH_OPTIONS_INIT;
 		fetch_opts.callbacks.credentials = GitCredentialsWindow::authentication_callback;
 		if (prune)
@@ -536,16 +539,16 @@ namespace Genio::Git {
 	BString
 	GitRepository::_ConfigGet(git_config *cfg, const char *key) const
 	{
-	  git_config_entry *entry = nullptr;
+		git_config_entry *entry = nullptr;
 
-	  check(git_config_get_entry(&entry, cfg, key), nullptr,
+		check(git_config_get_entry(&entry, cfg, key), nullptr,
 			[](const int x) { return (x != GIT_ENOTFOUND); });
 
-	  const BString ret = entry->value;
+		const BString ret = entry->value;
 
-	  git_config_entry_free(entry);
+		git_config_entry_free(entry);
 
-	  return ret;
+		return ret;
 	}
 
 	void
@@ -643,9 +646,6 @@ namespace Genio::Git {
 	GitRepository::_GetSignature() const
 	{
 		// TODO - Put this into Genio Prefs
-		git_config* cfg = nullptr;
-		git_config* cfgSnapshot = nullptr;
-
 		status_t status = B_OK;
 		BPath settingsPath;
 		status = find_directory(B_USER_SETTINGS_DIRECTORY, &settingsPath);
@@ -657,6 +657,8 @@ namespace Genio::Git {
 		if (status != B_OK)
 			throw status;
 
+		git_config* cfg = nullptr;
+		git_config* cfgSnapshot = nullptr;
 		git_config_open_ondisk(&cfg, settingsPath.Path());
 		git_config_snapshot(&cfgSnapshot, cfg);
 

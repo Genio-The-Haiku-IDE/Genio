@@ -5,14 +5,11 @@
  */
 #pragma once
 
-#include <optional>
 
 #include <DataIO.h>
-#include <File.h>
-#include <FilePanel.h>
 #include <String.h>
-#include <SupportDefs.h>
 
+struct entry_ref;
 class ResourceImport {
 public:
 				ResourceImport(entry_ref &ref, int32 index = -1);
@@ -23,7 +20,6 @@ private:
 	status_t 	_Import(BDataIO* const source, size_t sourceSize, BPositionIO* stream,
 					BString name, BString type, int32 index) const;
 	BString		fRdefArray;
-	BFile		fFile;
 };
 
 

@@ -11,6 +11,7 @@
 
 #include <DataIO.h>
 #include <Entry.h>
+#include <File.h>
 #include <Node.h>
 #include <NodeInfo.h>
 #include <String.h>
@@ -19,34 +20,43 @@
 
 ResourceImport::ResourceImport(entry_ref &ref, int32 index)
 {
-	status_t status = fFile.SetTo(&ref, B_READ_ONLY);
-	if (status == B_OK) {
-		off_t size;
-		if (fFile.GetSize(&size) != B_OK)
-			return;
-		BMallocIO stringBuffer;
-		stringBuffer.SetSize(size);
-
-		BString type;
-		BNode node(&ref);
-		BNodeInfo nodeInfo;
-		nodeInfo.SetTo(&node);
-		if (nodeInfo.InitCheck() == B_OK) {
-			char mimeType[B_MIME_TYPE_LENGTH];
-			if (nodeInfo.GetType(mimeType) == B_OK) {
-				BString mimeTypeString(mimeType);
-				if (mimeTypeString == "image/x-hvif")
-					type = "#'VICN'";
-			}
-		}
-
-		if (_Import(&fFile, size, &stringBuffer, ref.name, type, index) != B_OK)
-			LogError("Opening file for import failed with error %s", strerror(status));
-		else
-			fRdefArray.SetTo(reinterpret_cast<const char*>(stringBuffer.Buffer()));
-	} else {
+	// TODO: Since we can't return anything from the constructor
+	// maybe we should throw ? Or have an InitCheck() method to 
+	// check if the object initialized correctly, otherwise we cannot
+	// report an error to the caller (and to the user)
+	BFile file;
+	status_t status = file.SetTo(&ref, B_READ_ONLY);
+	if (status != B_OK) {
 		LogError("Opening file for import failed with error %s", strerror(status));
+		return;
 	}
+
+	off_t size;
+	if (file.GetSize(&size) != B_OK)
+		return;
+
+	BMallocIO stringBuffer;
+	stringBuffer.SetSize(size);
+
+	BString type;
+	BNode node(&ref);
+	BNodeInfo nodeInfo;
+	nodeInfo.SetTo(&node);
+	if (nodeInfo.InitCheck() == B_OK) {
+		char mimeType[B_MIME_TYPE_LENGTH];
+		if (nodeInfo.GetType(mimeType) == B_OK) {
+			BString mimeTypeString(mimeType);
+			if (mimeTypeString == "image/x-hvif")
+				type = "#'VICN'";
+		}
+	}
+
+	// TODO: it seems we should return here if the above InitCheck() is != B_OK ?
+
+	if (_Import(&file, size, &stringBuffer, ref.name, type, index) != B_OK)
+		LogError("Opening file for import failed with error %s", strerror(status));
+	else
+		fRdefArray.SetTo(reinterpret_cast<const char*>(stringBuffer.Buffer()));
 }
 
 
@@ -67,10 +77,10 @@ ResourceImport::_Import(BDataIO* const source, size_t sourceSize, BPositionIO* s
 		indexString << "<your resource id here>";
 
 	char buffer[2048];
-	snprintf(buffer, sizeof(buffer), "\nresource(%s, \"%s\") %s array {\n",
+	::snprintf(buffer, sizeof(buffer), "\nresource(%s, \"%s\") %s array {\n",
 		indexString.String(),
 		name.String(), type.String());
-	size_t size = strnlen(buffer, sizeof(buffer));
+	size_t size = ::strnlen(buffer, sizeof(buffer));
 
 	ssize_t written = stream->Write(buffer, size);
 	if (written < 0)
@@ -84,7 +94,7 @@ ResourceImport::_Import(BDataIO* const source, size_t sourceSize, BPositionIO* s
 	while (sourceSize >= 32) {
 		uint8 b[32];
 		source->Read(b, 32);
-		snprintf(buffer, sizeof(buffer),
+		::snprintf(buffer, sizeof(buffer),
 					"	$\"%.2X%.2X%.2X%.2X"
 						"%.2X%.2X%.2X%.2X"
 						"%.2X%.2X%.2X%.2X"
@@ -102,7 +112,7 @@ ResourceImport::_Import(BDataIO* const source, size_t sourceSize, BPositionIO* s
 						b[24], b[25], b[26], b[27],
 						b[28], b[29], b[30], b[31]);
 
-		size = strnlen(buffer, sizeof(buffer));
+		size = ::strnlen(buffer, sizeof(buffer));
 		written = stream->Write(buffer, size);
 		if (written != (ssize_t)size) {
 			if (written >= 0)
@@ -116,8 +126,8 @@ ResourceImport::_Import(BDataIO* const source, size_t sourceSize, BPositionIO* s
 	}
 	// beginning of last line
 	if (ret >= B_OK && sourceSize > 0) {
-		snprintf(buffer, sizeof(buffer), "	$\"");
-		size = strnlen(buffer, sizeof(buffer));
+		::snprintf(buffer, sizeof(buffer), "	$\"");
+		size = ::strnlen(buffer, sizeof(buffer));
 		written = stream->Write(buffer, size);
 		if (written != (ssize_t)size) {
 			if (written >= 0)
@@ -132,8 +142,8 @@ ResourceImport::_Import(BDataIO* const source, size_t sourceSize, BPositionIO* s
 		for (size_t i = 0; i < sourceSize; i++) {
 			uint8 b;
 			source->Read(&b, sizeof(b));
-			snprintf(buffer, sizeof(buffer), "%.2X", b);
-			size = strnlen(buffer, sizeof(buffer));
+			::snprintf(buffer, sizeof(buffer), "%.2X", b);
+			size = ::strnlen(buffer, sizeof(buffer));
 			written = stream->Write(buffer, size);
 			if (written != (ssize_t)size) {
 				if (written >= 0)
@@ -146,8 +156,8 @@ ResourceImport::_Import(BDataIO* const source, size_t sourceSize, BPositionIO* s
 	}
 	if (ret >= B_OK) {
 		// finish
-		snprintf(buffer, sizeof(buffer), endQuotes ? "\"\n};\n" : "};\n");
-		size = strnlen(buffer, sizeof(buffer));
+		::snprintf(buffer, sizeof(buffer), endQuotes ? "\"\n};\n" : "};\n");
+		size = ::strnlen(buffer, sizeof(buffer));
 		written = stream->Write(buffer, size);
 		if (written != (ssize_t)size) {
 			if (written >= 0)

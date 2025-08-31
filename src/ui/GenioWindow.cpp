@@ -1818,7 +1818,7 @@ GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32
 	if (!BEntry(ref).Exists())
 		return B_ERROR;
 
-	if (!_FileIsSupported(ref)) {
+	if (!IsFileSupported(ref)) {
 		if (openWithPreferred)
 			_FileOpenWithPreferredApp(ref); // TODO: make this optional?
 		return B_ERROR;
@@ -1854,44 +1854,6 @@ GenioWindow::_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred, int32
 }
 
 
-bool
-GenioWindow::_FileIsSupported(const entry_ref* ref)
-{
-	//what files are supported?
-	//a bit of heuristic!
-
-	BNode entry(ref);
-	if (entry.InitCheck() != B_OK || entry.IsDirectory())
-		return false;
-
-	BPath path(ref);
-	std::string fileType = "";
-	if (Languages::GetLanguageForExtension(GetFileExtension(path.Path()), fileType))
-		return true;
-
-	BNodeInfo info(&entry);
-	if (info.InitCheck() == B_OK) {
-		char mime[B_MIME_TYPE_LENGTH + 1];
-		if (info.GetType(mime) != B_OK) {
-			LogError("Error in getting mime type from file [%s]", path.Path());
-			mime[0] = '\0';
-		}
-		if (mime[0] == '\0' || strcmp(mime, "application/octet-stream") == 0) {
-			if (update_mime_info(path.Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
-				if (info.GetType(mime) != B_OK) {
-					LogError("Error in getting mime type from file [%s]", path.Path());
-					mime[0] = '\0';
-				}
-			}
-		}
-
-		if (strncmp(mime, "text/", 5) == 0)
-			return true;
-	}
-	return false;
-}
-
-
 status_t
 GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 {
@@ -1904,7 +1866,6 @@ GenioWindow::_FileOpenWithPreferredApp(const entry_ref* ref)
 
 	return be_roster->Launch(ref);
 }
-
 
 
 status_t
@@ -1923,9 +1884,7 @@ GenioWindow::_FileSave(Editor* editor)
 
 	_PreFileSave(editor);
 
-
 	status_t saveStatus = editor->SaveToFile();
-
 	if (saveStatus == B_OK)
 		LogInfoF("File saved! (%s)", editor->FilePath().String());
 	else

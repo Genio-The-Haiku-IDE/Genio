@@ -82,7 +82,6 @@ private:
 			status_t			_FileOpenAtStartup(BMessage* msg);
 			status_t			_FileOpenWithPosition(entry_ref* ref, bool openWithPreferred,  int32 be_line, int32 lsp_char);
 			status_t            _FileOpenWithPreferredApp(const entry_ref* ref);
-			bool				_FileIsSupported(const entry_ref* ref);
 
 			status_t			_FileSave(Editor* editor);
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);

@@ -31,8 +31,11 @@ BPath	GetNearbyDataDirectory();
 BString	GetVersion();
 bool	IsXMasPeriod();
 
+bool	IsFileSupported(const entry_ref* ref);
+
 std::string GetFileName(const std::string& filename);
 std::string GetFileExtension(const std::string& filename);
+
 // Gets an icon from executable's resources
 status_t GetVectorIcon(const std::string& icon, BBitmap* bitmap);
 

@@ -27,7 +27,8 @@
 #include <string>
 
 #include "GenioApp.h"
-#include "ScintillaView.h"
+#include "Languages.h"
+#include "Log.h"
 
 
 using BPrivate::gSystemCatalog;
@@ -59,6 +60,44 @@ FakeMouseMovement(BView* view)
 	view->GetMouse(&location, &buttons);
 	view->ConvertToScreen(&location);
 	set_mouse_position(location.x, location.y);
+}
+
+
+bool
+IsFileSupported(const entry_ref* ref)
+{
+	//what files are supported?
+	//a bit of heuristic!
+
+	BNode entry(ref);
+	if (entry.InitCheck() != B_OK || entry.IsDirectory())
+		return false;
+
+	BPath path(ref);
+	std::string fileType = "";
+	if (Languages::GetLanguageForExtension(GetFileExtension(path.Path()), fileType))
+		return true;
+
+	BNodeInfo info(&entry);
+	if (info.InitCheck() == B_OK) {
+		char mime[B_MIME_TYPE_LENGTH + 1];
+		if (info.GetType(mime) != B_OK) {
+			LogError("Error in getting mime type from file [%s]", path.Path());
+			mime[0] = '\0';
+		}
+		if (mime[0] == '\0' || ::strcmp(mime, "application/octet-stream") == 0) {
+			if (update_mime_info(path.Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL) == B_OK) {
+				if (info.GetType(mime) != B_OK) {
+					LogError("Error in getting mime type from file [%s]", path.Path());
+					mime[0] = '\0';
+				}
+			}
+		}
+
+		if (::strncmp(mime, "text/", 5) == 0)
+			return true;
+	}
+	return false;
 }
 
 

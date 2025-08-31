@@ -39,10 +39,7 @@ IconCache::GetIcon(const entry_ref *ref)
 	LogTrace("IconCache: [%s] - [%s]", mimeTypePtr, ref->name);
 
 	auto it = sInstance.fCache.find(mimeTypePtr);
-	if (it != sInstance.fCache.end()) {
-		LogTrace("IconCache: return icon from cache for %s", mimeTypePtr);
-		return it->second;
-	} else {
+	if (it == sInstance.fCache.end()) {
 		LogTrace("IconCache: could not find an icon in cache for %s", mimeTypePtr);
 		// TODO: we calculate icon size here, but we should pass it as a parameter
 		// to GetIcon(), because it's done in StyledItem::DrawIcon, too
@@ -62,7 +59,9 @@ IconCache::GetIcon(const entry_ref *ref)
 		sInstance.fCache.emplace(mimeTypePtr, icon);
 		return icon;
 	}
-	return nullptr;
+
+	LogTrace("IconCache: return icon from cache for %s", mimeTypePtr);
+	return it->second;
 }
 
 

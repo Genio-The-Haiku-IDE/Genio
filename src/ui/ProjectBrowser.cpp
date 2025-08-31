@@ -482,10 +482,14 @@ ProjectBrowser::MessageReceived(BMessage* message)
 				}
 				case MSG_NOTIFY_BUILDING_PHASE:
 				{
-					// TODO: no longer needed
 					bool building = false;
 					message->FindBool("building", &building);
-					fOutlineListView->Invalidate();
+					const BString projectPath = message->GetString("project_path");
+					ProjectFolder* project = ProjectByPath(projectPath);
+					if (project != nullptr) {
+						project->SetBuildingState(building);
+						fOutlineListView->Invalidate();
+					}
 					break;
 				}
 				case kMsgProjectSettingsUpdated:

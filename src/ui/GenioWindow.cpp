@@ -428,15 +428,9 @@ GenioWindow::MessageReceived(BMessage* message)
 				noticeMessage.AddBool("building", false);
 				noticeMessage.AddString("cmd_type", cmdType.String());
 				noticeMessage.AddString("project_name", message->GetString("project_name"));
+				noticeMessage.AddString("project_path", message->GetString("project_path"));
 				noticeMessage.AddInt32("status", message->GetInt32("status", B_OK));
 				SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
-
-				// TODO: this is not correct: if we start building a project, then
-				// change the active project while building, the notification will go to
-				// the wrong project (the currently active one)
-				// Since we have the project_name here, send the notification
-				// to the correct project
-				GetActiveProject()->SetBuildingState(false);
 			}
 			_UpdateProjectMenuItemsState(GetActiveProject() != nullptr);
 			break;
@@ -1570,6 +1564,7 @@ GenioWindow::_DoBuildOrCleanProject(const BString& cmd)
 		return B_ERROR;
 
 	const BString projectName = GetActiveProject()->Name();
+	const BString projectPath = GetActiveProject()->Path();
 	BString command;
 	if (cmd == "build")
 		command	<< GetActiveProject()->GetBuildCommand();
@@ -1602,9 +1597,8 @@ GenioWindow::_DoBuildOrCleanProject(const BString& cmd)
 	noticeMessage.AddBool("building", true);
 	noticeMessage.AddString("cmd_type", cmd.String());
 	noticeMessage.AddString("project_name", projectName);
+	noticeMessage.AddString("project_path", projectPath);
 	SendNotices(MSG_NOTIFY_BUILDING_PHASE, &noticeMessage);
-
-	GetActiveProject()->SetBuildingState(true);
 
 	BString claim;
 	claim << cmd << " ";
@@ -1616,6 +1610,7 @@ GenioWindow::_DoBuildOrCleanProject(const BString& cmd)
 	GMessage message = {{"cmd", command},
 						{"cmd_type", cmd.String()},
 						{"project_name", projectName},
+						{"project_path", projectPath},
 						{"banner_claim", claim }};
 
 	// Go to appropriate directory
@@ -2140,6 +2135,7 @@ GenioWindow::_Git(const BString& git_command)
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", command);
 	message.AddString("project_name", GetActiveProject()->Name());
+	message.AddString("project_path", GetActiveProject()->Path());
 
 	// Go to appropriate directory
 	chdir(GetActiveProject()->Path());
@@ -3400,6 +3396,7 @@ GenioWindow::_MakeBindcatalogs()
 		message.AddString("cmd", "make bindcatalogs");
 	message.AddString("cmd_type", "bindcatalogs");
 	message.AddString("project_name", GetActiveProject()->Name());
+	message.AddString("project_path", GetActiveProject()->Path());
 
 	// Go to appropriate directory
 	chdir(GetActiveProject()->Path());
@@ -3425,6 +3422,7 @@ GenioWindow::_MakeCatkeys()
 	message.AddString("cmd", "make catkeys");
 	message.AddString("cmd_type", "catkeys");
 	message.AddString("project_name", GetActiveProject()->Name());
+	message.AddString("project_path", GetActiveProject()->Path());
 
 	// Go to appropriate directory
 	chdir(GetActiveProject()->Path());
@@ -4029,6 +4027,7 @@ GenioWindow::_RunInConsole(const BString& command)
 	message.AddString("cmd", command);
 	message.AddString("cmd_type", command);
 	message.AddString("project_name", activeProject ? activeProject->Name() : "");
+	message.AddString("project_path", activeProject ? activeProject->Path() : "");
 
 	return fMTermView->RunCommand(&message);
 }
@@ -4074,6 +4073,7 @@ GenioWindow::_RunTarget()
 		// chdir(...);
 
 		const BString projectName = GetActiveProject()->Name();
+		const BString projectPath = GetActiveProject()->Path();
 		BString claim("Run ");
 		claim << projectName;
 		claim << " (";
@@ -4083,6 +4083,7 @@ GenioWindow::_RunTarget()
 		GMessage message = {{"cmd", command},
 							{"cmd_type", "build"},
 							{"project_name", projectName},
+							{"project_path", projectPath},
 							{"banner_claim", claim }};
 
 		fMTermView->MakeFocus(true);

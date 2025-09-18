@@ -344,8 +344,7 @@ ProjectTitleItem::InitAnimationIcons()
 			name.Append("dark-");
 		name << i;
 		size_t size;
-		const uint8* rawData = reinterpret_cast<const uint8*>(resources->LoadResource(
-			B_RAW_TYPE, name.String(), &size));
+		const void* rawData = resources->LoadResource(B_RAW_TYPE, name.String(), &size);
 		if (rawData == nullptr) {
 			LogError("InitAnimationIcons: Cannot load resource");
 			break;

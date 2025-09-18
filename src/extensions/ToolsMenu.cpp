@@ -50,7 +50,7 @@ ToolsMenu::_BuildMenu()
 {
 	RemoveItems(0, CountItems(), true);
 
-	auto app = reinterpret_cast<GenioApp *>(be_app);
+	auto app = dynamic_cast<GenioApp *>(be_app);
 	auto extManager = app->GetExtensionManager();
 	auto extensions = extManager->GetExtensions();
 	if (extensions.size() > 0) {

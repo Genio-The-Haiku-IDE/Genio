@@ -14,6 +14,7 @@
 #include <FindDirectory.h>
 #include <Path.h>
 
+#include "GenioWindowMessages.h"
 #include "GitCredentialsWindow.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -120,7 +121,6 @@ namespace Genio::Git {
 		}
 	}
 
-
 	int
 	checkout_notify(git_checkout_notify_t why, const char *path,
 									const git_diff_file *baseline,
@@ -198,6 +198,11 @@ namespace Genio::Git {
 			check(git_repository_set_head(fRepository, sref.String()));
 
 			git_reference_free(ref);
+			if (branchName != fCurrentBranch) {
+				fCurrentBranch = branchName;
+				_NotifyBranchChanged();
+			}
+
 			return status;
 		} catch (const GitException &e) {
 			if (ref != nullptr)
@@ -217,6 +222,14 @@ namespace Genio::Git {
 			branch = git_reference_shorthand(head);
 			BString branchText((branch) ? branch : "");
 			git_reference_free(head);
+
+			// TODO: We do it here, on Get() until we rewrite
+			// this part
+			if (branchText != fCurrentBranch) {
+				fCurrentBranch = branchText;
+				_NotifyBranchChanged();
+			}
+
 			return branchText;
 		} catch (const GitException &e) {
 			if (head != nullptr)
@@ -354,6 +367,13 @@ namespace Genio::Git {
 		git_status_list_free(status);
 
 		return fileStatuses;
+	}
+
+	BLooper*
+	GitRepository::Looper() const
+	{
+		// TODO: using the BApplication looper for now
+		return be_app;
 	}
 
 	/* static */
@@ -812,5 +832,14 @@ namespace Genio::Git {
 			throw;
 		}
 		// TODO: Also catch generic exception
+	}
+
+	void
+	GitRepository::_NotifyBranchChanged() const
+	{
+		BMessage message;
+		message.AddString("project_path", fRepositoryPath);
+		message.AddString("current_branch", fCurrentBranch);
+		Looper()->SendNotices(MSG_NOTIFY_GIT_BRANCH_CHANGED, &message);
 	}
 }

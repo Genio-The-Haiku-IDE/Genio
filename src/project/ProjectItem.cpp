@@ -291,20 +291,6 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	circleRect.right = circleRect.left + owner->StringWidth(Text()) + 5;
 	owner->FillRoundRect(circleRect, 9, 10);
 
-	// TODO: this part is quite computationally intensive
-	// and shoud be moved away from the DrawItem.
-	BString branchName;
-	try {
-		if (projectFolder->GetRepository()) {
-			branchName = projectFolder->GetRepository()->GetCurrentBranch();
-			BString extraText;
-			extraText << "  [" << branchName << "]";
-			SetExtraText(extraText);
-		}
-	} catch (const Genio::Git::GitException &ex) {
-		LogDebug("ProjectTitleItem::DrawItem(): %s", ex.Message().String());
-	}
-
 	owner->SetHighColor(TextColorByLuminance(projectFolder->Color()));
 	DrawText(owner, Text(), ExtraText(), textPoint);
 
@@ -322,7 +308,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 	toolTipText.SetToFormat("%s: %s\n%s: %s\n%s: %s",
 								B_TRANSLATE("Project"), projectName.String(),
 								B_TRANSLATE("Path"), projectPath.String(),
-								B_TRANSLATE("Current branch"), branchName.String());
+								B_TRANSLATE("Current branch"), ExtraText());
 	SetToolTipText(toolTipText);
 }
 

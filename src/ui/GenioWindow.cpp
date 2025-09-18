@@ -3325,7 +3325,8 @@ GenioWindow::_InitTabViews()
 	//LEFT
 	fProjectsFolderBrowser = new ProjectBrowser();
 	fSourceControlPanel = new SourceControlPanel();
-	fSourceControlPanel->StartWatching(this, MSG_NOTIFY_GIT_BRANCH_CHANGED);
+	// TODO: See GitRepository::Looper()
+	be_app->StartWatching(this, MSG_NOTIFY_GIT_BRANCH_CHANGED);
 	fPanelTabManager->AddPanelByConfig(fProjectsFolderBrowser, kTabProjectBrowser);
 	fPanelTabManager->AddPanelByConfig(fSourceControlPanel, kTabSourceControl);
 

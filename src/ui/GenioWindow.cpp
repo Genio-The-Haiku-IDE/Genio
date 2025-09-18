@@ -3321,7 +3321,6 @@ GenioWindow::_InitTabViews()
 	fPanelTabManager->AddPanelByConfig(fSearchResultTab, kTabSearchResult);
 	fPanelTabManager->AddPanelByConfig(new TerminalTab(), kTabTerminal);
 
-
 	//LEFT
 	fProjectsFolderBrowser = new ProjectBrowser();
 	fSourceControlPanel = new SourceControlPanel();

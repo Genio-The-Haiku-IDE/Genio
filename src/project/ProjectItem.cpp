@@ -18,8 +18,8 @@
 #include <TranslationUtils.h>
 #include <Window.h>
 
-#include "GitRepository.h"
 #include "IconCache.h"
+#include "Log.h"
 #include "ProjectFolder.h"
 #include "Utils.h"
 

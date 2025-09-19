@@ -6,8 +6,6 @@
 
 #include "ProjectMenuField.h"
 
-#include <algorithm>
-
 #include <Catalog.h>
 #include <NaturalCompare.h>
 
@@ -138,9 +136,10 @@ ProjectMenuField::_HandleActiveProjectChanged(const BMessage* message)
 		selectedProjectName = item->Label();
 	}
 
-	BString activeProjectName = message->GetString("active_project_name");
+	// TODO: use project path, since name could be duplicated
+	const BString activeProjectName = message->GetString("active_project_name");
 	bool changed = false;
-	if (::strcmp(activeProjectName, selectedProjectName) != 0) {
+	if (activeProjectName != selectedProjectName) {
 		item = Menu()->FindItem(activeProjectName);
 		if (item != nullptr) {
 			changed = !item->IsMarked();
@@ -152,4 +151,3 @@ ProjectMenuField::_HandleActiveProjectChanged(const BMessage* message)
 			item->Messenger().SendMessage(item->Message());
 	}
 }
-

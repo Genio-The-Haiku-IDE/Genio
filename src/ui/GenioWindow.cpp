@@ -344,11 +344,11 @@ GenioWindow::MessageReceived(BMessage* message)
 					// TODO: Should we call debugger if editor is nullptr here ?
 					return;
 				}
-
 				// add the ref also to the external message
 				BMessage notifyMessage(MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 				notifyMessage.AddMessage("symbols", message);
 				notifyMessage.AddUInt64(kEditorId, id);
+				notifyMessage.AddBool("is_selected", fTabManager->SelectedEditor() == editor);
 				notifyMessage.AddRef("ref", editor->FileRef());
 				notifyMessage.AddInt32("caret_line", editor->GetCurrentLineNumber());
 
@@ -1038,6 +1038,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				BMessage symbols;
 				editor->GetDocumentSymbols(&symbols);
 				symbolsChanged.AddUInt64(kEditorId, id);
+				symbolsChanged.AddBool("is_selected", fTabManager->SelectedEditor() == editor);
 				symbolsChanged.AddRef("ref", editor->FileRef());
 				symbolsChanged.AddMessage("symbols", &symbols);
 				symbolsChanged.AddInt32("caret_line", editor->GetCurrentLineNumber());

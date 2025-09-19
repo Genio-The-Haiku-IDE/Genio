@@ -166,7 +166,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fConsoleStdinLine("")
 	, fOpenPanel(nullptr)
 	, fSavePanel(nullptr)
-	, fOpenProjectFolderPanel(nullptr)
+	, fOpenProjectPanel(nullptr)
 	, fProblemsPanel(nullptr)
 	, fBuildLogView(nullptr)
 	, fMTermView(nullptr)
@@ -240,7 +240,7 @@ GenioWindow::~GenioWindow()
 {
 	delete fOpenPanel;
 	delete fSavePanel;
-	delete fOpenProjectFolderPanel;
+	delete fOpenProjectPanel;
 	delete fPanelTabManager;
 	gMainWindow = nullptr;
 }
@@ -850,7 +850,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		case MSG_PROJECT_OPEN:
-			fOpenProjectFolderPanel->Show();
+			fOpenProjectPanel->Show();
 			break;
 		case MSG_PROJECT_OPEN_REMOTE:
 		{
@@ -3371,7 +3371,7 @@ GenioWindow::_InitWindow()
 	fSavePanel = new BFilePanel(B_SAVE_PANEL, new BMessenger(this), &ref, B_FILE_NODE, false);
 
 	BMessage *openProjectFolderMessage = new BMessage(MSG_PROJECT_FOLDER_OPEN);
-	fOpenProjectFolderPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this),
+	fOpenProjectPanel = new BFilePanel(B_OPEN_PANEL, new BMessenger(this),
 												&ref, B_DIRECTORY_NODE, false,
 												openProjectFolderMessage);
 }

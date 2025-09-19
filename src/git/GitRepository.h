@@ -18,6 +18,7 @@
 #include "Log.h"
 
 
+class BLooper;
 class BPath;
 
 namespace Genio::Git {
@@ -114,9 +115,12 @@ namespace Genio::Git {
 
 		RepoFiles						GetFiles() const;
 
+		static BLooper*					Looper();
+
 	private:
 		git_repository 					*fRepository;
 		BString							fRepositoryPath;
+		mutable BString					fCurrentBranch;
 		bool							fInitialized;
 
 		void							_Open();
@@ -133,5 +137,7 @@ namespace Genio::Git {
 		int 							_FastForward(const git_oid *target_oid, int is_unborn);
 		int								_CreateCommit(git_index* index, const char* message);
 		void							_CreateInitialCommit();
+
+		void							_NotifyBranchChanged() const;
 	};
 }

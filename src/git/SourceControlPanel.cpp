@@ -682,18 +682,7 @@ SourceControlPanel::_SwitchBranch(BMessage *message)
 void
 SourceControlPanel::_SetCurrentBranch(const ProjectFolder* project, const BString& branch)
 {
-	if (branch == fCurrentBranch)
-		return;
-
 	fCurrentBranch = branch;
-
-	BMessage message(MSG_NOTIFY_GIT_BRANCH_CHANGED);
-	message.AddString("current_branch", branch);
-	if (project != nullptr) {
-		message.AddString("project_name", project->Name());
-		message.AddString("project_path", project->Path());
-	}
-	SendNotices(MSG_NOTIFY_GIT_BRANCH_CHANGED, &message);
 }
 
 

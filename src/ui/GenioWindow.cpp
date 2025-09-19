@@ -1355,7 +1355,7 @@ GenioWindow::_CloseMultipleTabs(std::vector<Editor*>& editors)
 	if (!_FileRequestSaveList(unsavedEditor))
 		return;
 
-	for(Editor* editor:editors) {
+	for (Editor* editor:editors) {
 		_RemoveTab(editor);
 	}
 }
@@ -1727,7 +1727,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		if (editor != nullptr) {
 			_SelectEditorToPosition(editor, be_line, lsp_char);
 		} else {
-			if(_FileOpenWithPosition(&ref , openWithPreferred, be_line, lsp_char) != B_OK)
+			if (_FileOpenWithPosition(&ref , openWithPreferred, be_line, lsp_char) != B_OK)
 				continue;
 		}
 
@@ -1954,7 +1954,7 @@ GenioWindow::_FileSaveAs(Editor* editor, BMessage* message)
 
 
 int32
-GenioWindow::_FilesNeedSave()
+GenioWindow::_FilesNeedSaveCount() const
 {
 	int32 count = 0;
 	for (int32 index = 0; index < fTabManager->CountTabs(); index++) {
@@ -1970,30 +1970,31 @@ GenioWindow::_FilesNeedSave()
 void
 GenioWindow::_PreFileLoad(Editor* editor)
 {
+	ASSERT(editor != nullptr);
 }
 
 
 void
 GenioWindow::_PostFileLoad(Editor* editor)
 {
-	if (editor != nullptr) {
-		// Assign the right project to the Editor
-		for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
-			ProjectFolder* project = GetProjectBrowser()->ProjectAt(cycleIndex);
-			_TryAssociateEditorWithProject(editor, project);
-		}
-		editor->ApplySettings();
-		editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
-		BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
-		noticeMessage.AddString("file_name", editor->FilePath());
-		SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
+	ASSERT(editor != nullptr);
+	// Assign the right project to the Editor
+	for (int32 cycleIndex = 0; cycleIndex < GetProjectBrowser()->CountProjects(); cycleIndex++) {
+		ProjectFolder* project = GetProjectBrowser()->ProjectAt(cycleIndex);
+		_TryAssociateEditorWithProject(editor, project);
 	}
+	editor->ApplySettings();
+	editor->GetLSPEditorWrapper()->RequestDocumentSymbols();
+	BMessage noticeMessage(MSG_NOTIFY_EDITOR_FILE_OPENED);
+	noticeMessage.AddString("file_name", editor->FilePath());
+	SendNotices(MSG_NOTIFY_EDITOR_FILE_OPENED, &noticeMessage);
 }
 
 
 void
 GenioWindow::_PreFileSave(Editor* editor)
 {
+	ASSERT(editor != nullptr);
 	LogTrace("GenioWindow::_PreFileSave(%s)", editor->FilePath().String());
 
 	// Stop monitoring if needed
@@ -2006,6 +2007,7 @@ GenioWindow::_PreFileSave(Editor* editor)
 void
 GenioWindow::_PostFileSave(Editor* editor)
 {
+	ASSERT(editor != nullptr);
 	LogTrace("GenioWindow::_PostFileSave(%s)", editor->FilePath().String());
 
 	// Restart monitoring
@@ -4247,7 +4249,7 @@ GenioWindow::_UpdateSavepointChange(Editor* editor, const BString& caller)
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
-	bool filesNeedSave = (_FilesNeedSave() > 0 ? true : false);
+	bool filesNeedSave = (_FilesNeedSaveCount() > 0 ? true : false);
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 
 	// Avoid notifiying listeners for every position change
@@ -4414,7 +4416,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
-	bool filesNeedSave = _FilesNeedSave();
+	bool filesNeedSave = _FilesNeedSaveCount();
 	ActionManager::SetEnabled(MSG_FILE_SAVE_ALL, filesNeedSave);
 
 	fProblemsPanel->UpdateProblems(editor);

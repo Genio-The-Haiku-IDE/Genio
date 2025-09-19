@@ -84,7 +84,7 @@ private:
 			status_t			_FileSave(Editor* editor);
 			void				_FileSaveAll(ProjectFolder* onlyThisProject = NULL);
 			status_t			_FileSaveAs(Editor* , BMessage* message);
-			int32				_FilesNeedSave();
+			int32				_FilesNeedSaveCount() const;
 
 			void				_PreFileLoad(Editor* editor);
 			void				_PostFileLoad(Editor* editor);

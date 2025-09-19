@@ -18,7 +18,6 @@
 
 #include "ConfigManager.h"
 #include "Editor.h"
-#include "EditorTabView.h"
 #include "GenioApp.h"
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
@@ -399,14 +398,11 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 				{
 					entry_ref newRef;
 					msg->FindRef("ref", &newRef);
-
-					// TODO: Find a way to avoid this call: if we ever manage to
-					// implement undockable tabs, this call would need to lock the main window
-					// and it's not nice
-					Editor* editor = gMainWindow->TabManager()->SelectedEditor();
+					bool isSelected = false;
+					msg->FindBool("is_selected", &isSelected);
 					// Got a message from an unselected editor: ignore.
-					if (editor != nullptr && *editor->FileRef() != newRef) {
-						LogTrace("Outline view got a message from an unselected editor. Ignoring...");
+					if (!isSelected) {
+						LogTrace("OutlineView: message from unselected editor (%s)...", newRef.name);
 						return;
 					}
 

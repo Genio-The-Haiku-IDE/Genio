@@ -646,11 +646,15 @@ GenioWindow::MessageReceived(BMessage* message)
 		case MSG_GIT_SWITCH_BRANCH:
 		{
 			try {
-				BString project_path = message->GetString("project_path", GetActiveProject()->Path().String());
-				Genio::Git::GitRepository repo(project_path.String());
-				BString new_branch = message->GetString("branch", nullptr);
-				if (new_branch != nullptr)
-					repo.SwitchBranch(new_branch);
+				const BString projectPath = message->GetString("project_path");
+				ProjectFolder* project = nullptr;
+				if (projectPath.IsEmpty())
+					project = GetActiveProject();
+				else
+					project = GetProjectBrowser()->ProjectByPath(projectPath);
+				const BString newBranch = message->GetString("branch");
+				if (project != nullptr && !newBranch.IsEmpty())
+					project->GetRepository()->SwitchBranch(newBranch);
 			} catch (const Genio::Git::GitConflictException &ex) {
 				BString message;
 				message << B_TRANSLATE("An error occurred while switching branch:")

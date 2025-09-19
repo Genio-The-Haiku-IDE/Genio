@@ -13,13 +13,6 @@
 #include "PanelTabManager.h"
 
 
-enum scree_mode {
-	kDefault = 0,
-	kFullscreen,
-	kFocus
-};
-
-
 class ActionManager;
 class BCheckBox;
 class BFilePanel;
@@ -46,6 +39,11 @@ class ConsoleIOTabView;
 
 class GenioWindow : public BWindow {
 public:
+	enum screen_mode {
+		kDefault = 0,
+		kFullscreen,
+		kFocus
+	};
 								GenioWindow(BRect frame);
 	virtual						~GenioWindow();
 
@@ -252,7 +250,7 @@ private:
 			GoToLineWindow*		fGoToLineWindow;
 			SearchResultTab*	fSearchResultTab;
 
-			scree_mode			fScreenMode;
+			screen_mode			fScreenMode;
 			GMessage			fScreenModeSettings;
 
 #ifdef GDEBUG

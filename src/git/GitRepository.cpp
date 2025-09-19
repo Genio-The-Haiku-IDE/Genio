@@ -369,8 +369,9 @@ namespace Genio::Git {
 		return fileStatuses;
 	}
 
+	/* static */
 	BLooper*
-	GitRepository::Looper() const
+	GitRepository::Looper()
 	{
 		// TODO: using the BApplication looper for now
 		return be_app;

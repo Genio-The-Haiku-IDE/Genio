@@ -115,7 +115,7 @@ namespace Genio::Git {
 
 		RepoFiles						GetFiles() const;
 
-		BLooper*						Looper() const;
+		static BLooper*					Looper();
 
 	private:
 		git_repository 					*fRepository;

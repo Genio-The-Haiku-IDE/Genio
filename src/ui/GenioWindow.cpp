@@ -226,6 +226,7 @@ GenioWindow::Show()
 		ActionManager::SetEnabled(MSG_JUMP_GO_BACK, false);
 		ActionManager::SetEnabled(MSG_JUMP_GO_FORWARD, false);
 
+		GitRepository::Looper()->StartWatching(this, MSG_NOTIFY_GIT_BRANCH_CHANGED);
 		be_app->StartWatching(this, gCFG.UpdateMessageWhat());
 		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		UnlockLooper();
@@ -3327,11 +3328,9 @@ GenioWindow::_InitTabViews()
 	fPanelTabManager->AddPanelByConfig(fSearchResultTab, kTabSearchResult);
 	fPanelTabManager->AddPanelByConfig(new TerminalTab(), kTabTerminal);
 
-
 	//LEFT
 	fProjectsFolderBrowser = new ProjectBrowser();
 	fSourceControlPanel = new SourceControlPanel();
-	fSourceControlPanel->StartWatching(this, MSG_NOTIFY_GIT_BRANCH_CHANGED);
 	fPanelTabManager->AddPanelByConfig(fProjectsFolderBrowser, kTabProjectBrowser);
 	fPanelTabManager->AddPanelByConfig(fSourceControlPanel, kTabSourceControl);
 

@@ -185,7 +185,6 @@ enum {
 
 	// git / source control
 	MSG_NOTIFY_GIT_BRANCH_CHANGED = 'gbch'			// current_branch (string)
-													// project_name (string)
 													// project_path (string)
 };
 

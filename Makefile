@@ -46,6 +46,7 @@ SRCS += src/helpers/GrepThread.cpp
 SRCS += src/helpers/PipeImage.cpp
 SRCS += src/helpers/ResourceImport.cpp
 SRCS += src/helpers/ScintillaUtils.cpp
+SRCS += src/helpers/SpinningAnimation.cpp
 SRCS += src/helpers/StatusView.cpp
 SRCS += src/helpers/Styler.cpp
 SRCS += src/helpers/TerminalManager.cpp

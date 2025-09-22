@@ -51,14 +51,7 @@ public:
 
 	void 			DrawItem(BView* owner, BRect bounds, bool complete) override;
 
-	static status_t	InitAnimationIcons();
-	static status_t DisposeAnimationIcons();
-	static void		TickAnimation();
-
 private:
-	static int32	sBuildAnimationIndex;
-	static std::vector<BBitmap*> sBuildAnimationFrames;
-
 	BRect			DrawIcon(BView* owner, const BRect& bounds,
 							const float& iconSize) override;
 

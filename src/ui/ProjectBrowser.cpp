@@ -454,7 +454,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					ProjectItem* item = GetProjectItemByPath(fileName);
 					if (item != nullptr) {
 						item->SetOpenedInEditor(open);
-						fOutlineListView->Invalidate();
+						fOutlineListView->InvalidateItem(fOutlineListView->IndexOf(item));
 					}
 					break;
 				}
@@ -477,7 +477,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					ProjectItem* item = GetProjectItemByPath(fileName);
 					if (item != nullptr) {
 						item->SetNeedsSave(needsSave);
-						fOutlineListView->Invalidate();
+						fOutlineListView->InvalidateItem(fOutlineListView->IndexOf(item));
 					}
 					break;
 				}
@@ -490,6 +490,21 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					if (project != nullptr) {
 						project->SetBuildingState(building);
 						fOutlineListView->Invalidate();
+					}
+					break;
+				}
+				case MSG_NOTIFY_GIT_BRANCH_CHANGED:
+				{
+					const BString projectPath = message->GetString("project_path");
+					ProjectItem* item = GetProjectItemByPath(projectPath);
+					if (item != nullptr) {
+						BString branch = message->GetString("current_branch");
+						BString text;
+						if (!branch.IsEmpty()) {
+							text << " [" << branch << "]";
+						}
+						item->SetExtraText(text);
+						fOutlineListView->InvalidateItem(fOutlineListView->IndexOf(item));
 					}
 					break;
 				}
@@ -699,6 +714,7 @@ ProjectBrowser::AttachedToWindow()
 		Window()->StartWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StartWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->StartWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		be_app->StartWatching(this, MSG_NOTIFY_GIT_BRANCH_CHANGED);
 		be_app->StartWatching(this, kMsgProjectSettingsUpdated);
 		Window()->UnlockLooper();
 	}
@@ -730,6 +746,7 @@ ProjectBrowser::DetachedFromWindow()
 		Window()->StopWatching(this, MSG_NOTIFY_FILE_SAVE_STATUS_CHANGED);
 		Window()->StopWatching(this, MSG_NOTIFY_BUILDING_PHASE);
 		Window()->StopWatching(this, MSG_NOTIFY_PROJECT_SET_ACTIVE);
+		be_app->StopWatching(this, MSG_NOTIFY_GIT_BRANCH_CHANGED);
 		be_app->StopWatching(this, kMsgProjectSettingsUpdated);
 		Window()->UnlockLooper();
 	}

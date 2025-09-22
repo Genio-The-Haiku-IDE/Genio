@@ -439,7 +439,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 				case MSG_NOTIFY_PROJECT_SET_ACTIVE:
 					if (gCFG["auto_expand_collapse_projects"]) {
 						// Expand active project, collapse other
-						BString activeProject = message->GetString("active_project_name", nullptr);
+						const BString activeProject = message->GetString("active_project_name");
 						ExpandProjectCollapseOther(activeProject);
 					}
 					fOutlineListView->Invalidate();

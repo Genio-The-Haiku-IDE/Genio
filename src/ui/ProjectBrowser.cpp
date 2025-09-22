@@ -30,6 +30,7 @@
 #include "Log.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
+#include "SpinningAnimation.h"
 #include "SwitchBranchMenu.h"
 #include "TemplateManager.h"
 #include "TemplatesMenu.h"
@@ -422,7 +423,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		}
 		case kTick:
 		{
-			ProjectTitleItem::TickAnimation();
+			SpinningAnimation::TickAnimation();
 			for (ProjectItem* titleItem: fProjectProjectItemList) {
 				if (titleItem->GetSourceItem()->GetProjectFolder()->IsBuilding()) {
 					int32 itemIndex = fOutlineListView->IndexOf(titleItem);
@@ -718,7 +719,7 @@ ProjectBrowser::AttachedToWindow()
 		Window()->UnlockLooper();
 	}
 
-	ProjectTitleItem::InitAnimationIcons();
+	SpinningAnimation::InitAnimationIcons("waiting-", 6);
 
 	BMessage message(kTick);
 	if (sAnimationTickRunner == nullptr)
@@ -736,7 +737,7 @@ ProjectBrowser::DetachedFromWindow()
 	delete sAnimationTickRunner;
 	sAnimationTickRunner = nullptr;
 
-	ProjectTitleItem::DisposeAnimationIcons();
+	SpinningAnimation::DisposeAnimationIcons();
 
 	if (Window()->LockLooper()) {
 		Window()->StopWatching(this, MSG_NOTIFY_EDITOR_FILE_OPENED);

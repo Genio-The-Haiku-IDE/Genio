@@ -21,6 +21,7 @@
 #include "IconCache.h"
 #include "Log.h"
 #include "ProjectFolder.h"
+#include "SpinningAnimation.h"
 #include "Utils.h"
 
 
@@ -238,11 +239,6 @@ ProjectItem::_DestroyTextWidget()
 
 
 // ProjectTitleItem
-
-int32 ProjectTitleItem::sBuildAnimationIndex = 0;
-std::vector<BBitmap*> ProjectTitleItem::sBuildAnimationFrames;
-
-
 ProjectTitleItem::ProjectTitleItem(SourceItem *sourceFile)
 	:
 	ProjectItem(sourceFile)
@@ -313,60 +309,6 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 }
 
 
-/* static */
-status_t
-ProjectTitleItem::InitAnimationIcons()
-{
-	// TODO: icon names are "waiting-N" where N is the index
-	// 1 to 6
-	BResources* resources = BApplication::AppResources();
-	for (int32 i = 1; i < 7; i++) {
-		BString name("waiting-");
-		const int32 kBrightnessBreakValue = 126;
-		const rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
-		if (base.Brightness() >= kBrightnessBreakValue)
-			name.Append("light-");
-		else
-			name.Append("dark-");
-		name << i;
-		size_t size;
-		const void* rawData = resources->LoadResource(B_RAW_TYPE, name.String(), &size);
-		if (rawData == nullptr) {
-			LogError("InitAnimationIcons: Cannot load resource");
-			break;
-		}
-		BMemoryIO mem(rawData, size);
-		BBitmap* frame = BTranslationUtils::GetBitmap(&mem);
-
-		sBuildAnimationFrames.push_back(frame);
-	}
-	return B_OK;
-}
-
-
-/* static */
-status_t
-ProjectTitleItem::DisposeAnimationIcons()
-{
-	for (std::vector<BBitmap*>::iterator i = sBuildAnimationFrames.begin();
-		i != sBuildAnimationFrames.end(); i++) {
-		delete *i;
-	}
-	sBuildAnimationFrames.clear();
-
-	return B_OK;
-}
-
-
-/* static */
-void
-ProjectTitleItem::TickAnimation()
-{
-	if (++ProjectTitleItem::sBuildAnimationIndex >= (int32)sBuildAnimationFrames.size())
-		ProjectTitleItem::sBuildAnimationIndex = 0;
-}
-
-
 /* virtual */
 BRect
 ProjectTitleItem::DrawIcon(BView* owner, const BRect& itemBounds,
@@ -381,16 +323,5 @@ ProjectTitleItem::DrawIcon(BView* owner, const BRect& itemBounds,
 void
 ProjectTitleItem::_DrawBuildIndicator(BView* owner, BRect bounds)
 {
-	try {
-		const BBitmap* frame = sBuildAnimationFrames.at(sBuildAnimationIndex);
-		if (frame != nullptr) {
-			owner->SetDrawingMode(B_OP_ALPHA);
-			bounds.left = owner->PenLocation().x + 5;
-			bounds.right = bounds.left + bounds.Height();
-			bounds.OffsetBy(-1, 1);
-			owner->DrawBitmap(frame, frame->Bounds(), bounds);
-		}
-	} catch (...) {
-		// nothing to do
-	}
+	SpinningAnimation::Draw(owner, bounds);
 }

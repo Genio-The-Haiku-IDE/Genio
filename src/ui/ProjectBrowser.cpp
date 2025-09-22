@@ -423,7 +423,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 		case kTick:
 		{
 			ProjectTitleItem::TickAnimation();
-			for(ProjectItem* titleItem: fProjectProjectItemList) {
+			for (ProjectItem* titleItem: fProjectProjectItemList) {
 				if (titleItem->GetSourceItem()->GetProjectFolder()->IsBuilding()) {
 					int32 itemIndex = fOutlineListView->IndexOf(titleItem);
 					fOutlineListView->InvalidateItem(itemIndex);
@@ -453,7 +453,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					ProjectItem* item = GetProjectItemByPath(fileName);
 					if (item != nullptr) {
 						item->SetOpenedInEditor(open);
-						fOutlineListView->Invalidate();
+						fOutlineListView->InvalidateItem(fOutlineListView->IndexOf(item));
 					}
 					break;
 				}
@@ -476,7 +476,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					ProjectItem* item = GetProjectItemByPath(fileName);
 					if (item != nullptr) {
 						item->SetNeedsSave(needsSave);
-						fOutlineListView->Invalidate();
+						fOutlineListView->InvalidateItem(fOutlineListView->IndexOf(item));
 					}
 					break;
 				}
@@ -503,7 +503,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 							text << " [" << branch << "]";
 						}
 						item->SetExtraText(text);
-						fOutlineListView->Invalidate();
+						fOutlineListView->InvalidateItem(fOutlineListView->IndexOf(item));
 					}
 					break;
 				}

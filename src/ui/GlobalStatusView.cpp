@@ -16,8 +16,7 @@
 #include <StringView.h>
 #include <Window.h>
 
-#include "GenioWindowMessages.h"
-
+#include "NoticeMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GlobalStatusView"

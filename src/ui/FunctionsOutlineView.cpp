@@ -23,6 +23,7 @@
 #include "GenioWindowMessages.h"
 #include "GOutlineListView.h"
 #include "Log.h"
+#include "NoticeMessages.h"
 #include "protocol_objects.h"
 #include "StyledItem.h"
 #include "ToolBar.h"

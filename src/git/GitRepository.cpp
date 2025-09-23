@@ -14,8 +14,8 @@
 #include <FindDirectory.h>
 #include <Path.h>
 
-#include "GenioWindowMessages.h"
 #include "GitCredentialsWindow.h"
+#include "NoticeMessages.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GitRepository"

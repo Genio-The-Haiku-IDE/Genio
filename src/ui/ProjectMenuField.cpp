@@ -10,7 +10,7 @@
 #include <NaturalCompare.h>
 
 #include "GenioWindow.h"
-#include "GenioWindowMessages.h"
+#include "NoticeMessages.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
 

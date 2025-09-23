@@ -54,6 +54,7 @@
 #include "Languages.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
+#include "NoticeMessages.h"
 #include "PanelTabManager.h"
 #include "ProblemsPanel.h"
 #include "ProjectBrowser.h"

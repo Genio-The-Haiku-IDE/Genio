@@ -39,6 +39,7 @@
 #include "Languages.h"
 #include "Log.h"
 #include "LSPEditorWrapper.h"
+#include "NoticeMessages.h"
 #include "ProjectFolder.h"
 #include "ScintillaUtils.h"
 #include "Styler.h"

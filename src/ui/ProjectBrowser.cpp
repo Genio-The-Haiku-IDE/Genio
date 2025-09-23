@@ -28,6 +28,7 @@
 #include "GenioWindow.h"
 #include "GOutlineListView.h"
 #include "Log.h"
+#include "NoticeMessages.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
 #include "SpinningAnimation.h"

@@ -62,7 +62,10 @@ protected:
 class ProjectFolder : public SourceItem {
 public:
 								ProjectFolder(const entry_ref& ref, const BMessenger& msgr);
+								ProjectFolder(const ProjectFolder&) = delete;
 								~ProjectFolder();
+
+	ProjectFolder&				operator=(const ProjectFolder&) = delete;
 
 	status_t					Open();
 	status_t					Close();

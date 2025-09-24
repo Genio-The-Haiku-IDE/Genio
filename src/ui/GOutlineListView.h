@@ -8,7 +8,9 @@
 
 
 // Implements a listview which can show a popup menu on right click
+// and handles tooltips for StyledItem(s)
 // inherited class should reimplement ShowPopUpMenu()
+
 class GOutlineListView: public BOutlineListView {
 public:
 	GOutlineListView(const char* name, list_view_type type = B_SINGLE_SELECTION_LIST,

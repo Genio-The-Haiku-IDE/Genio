@@ -255,16 +255,6 @@ public:
 	void MouseMoved(BPoint point, uint32 transit, const BMessage* message) override
 	{
 		GOutlineListView::MouseMoved(point, transit, message);
-		if (transit == B_ENTERED_VIEW || transit == B_INSIDE_VIEW) {
-			BString toolTipText;
-			auto index = IndexOf(point);
-			if (index >= 0) {
-				SymbolListItem *item = dynamic_cast<SymbolListItem*>(ItemAt(index));
-				if (item != nullptr && item->HasToolTip())
-					toolTipText = item->GetToolTipText();
-			}
-			SetToolTip(toolTipText);
-		}
 	}
 
 protected:

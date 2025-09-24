@@ -8,6 +8,9 @@
 
 #include <Looper.h>
 
+#include "StyledItem.h"
+
+
 GOutlineListView::GOutlineListView(const char* name, list_view_type type, uint32 flags)
 	:
 	BOutlineListView(name, type, flags)
@@ -18,7 +21,19 @@ GOutlineListView::GOutlineListView(const char* name, list_view_type type, uint32
 void
 GOutlineListView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 {
-	BOutlineListView::MouseMoved(point, transit, message);
+	if (transit == B_ENTERED_VIEW || transit == B_INSIDE_VIEW) {
+		const auto index = IndexOf(point);
+		if (index >= 0) {
+			BString toolTipText;
+			StyledItem *item = dynamic_cast<StyledItem*>(ItemAt(index));
+			if (item != nullptr && item->HasToolTip()) {
+				toolTipText = item->GetToolTipText();
+			}
+			SetToolTip(toolTipText);
+		}
+	}
+
+	// We don't call inherited MouseMoved()
 }
 
 

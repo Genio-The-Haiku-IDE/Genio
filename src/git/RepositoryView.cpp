@@ -46,17 +46,7 @@ RepositoryView::~RepositoryView()
 void
 RepositoryView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 {
-	if ((transit == B_ENTERED_VIEW) || (transit == B_INSIDE_VIEW)) {
-		auto index = IndexOf(point);
-		if (index >= 0) {
-			BranchItem *item = dynamic_cast<BranchItem*>(ItemAt(index));
-			if (item->HasToolTip()) {
-				SetToolTip(item->GetToolTipText());
-			} else {
-				SetToolTip("");
-			}
-		}
-	}
+	GOutlineListView::MouseMoved(point, transit, message);
 }
 
 

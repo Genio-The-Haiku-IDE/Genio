@@ -192,7 +192,6 @@ GenioApp::MessageReceived(BMessage* message)
 				} else {
 					LogInfo("Configuration updated! (updating %s)", message->GetString("key", "ERROR!"));
 				}
-
 			}
 			break;
 		}

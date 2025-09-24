@@ -121,9 +121,9 @@ EditorTabView::SetTabLabel(Editor* editor, const char* label)
 
 
 BString
-EditorTabView::TabLabel(Editor* editor)
+EditorTabView::TabLabel(Editor* editor) const
 {
-	GTabEditor* tab = _GetTab(editor);
+	const GTabEditor* tab = _GetTab(editor);
 	return tab ? tab->Label() : "";
 }
 
@@ -219,7 +219,7 @@ EditorTabView::MessageReceived(BMessage* message)
 
 
 Editor*
-EditorTabView::_GetEditor_(const entry_ref* ref)
+EditorTabView::_GetEditor_(const entry_ref* ref) const
 {
 	GTabEditor* tab = _GetTab_(ref);
 	return tab ? tab->GetEditor() : nullptr;
@@ -227,7 +227,7 @@ EditorTabView::_GetEditor_(const entry_ref* ref)
 
 
 GTabEditor*
-EditorTabView::_GetTab_(const entry_ref* ref)
+EditorTabView::_GetTab_(const entry_ref* ref) const
 {
 	BEntry entry(ref, true);
 	for (int32 i = 0; i < Container()->CountTabs(); i++) {
@@ -241,7 +241,7 @@ EditorTabView::_GetTab_(const entry_ref* ref)
 
 
 GTabEditor*
-EditorTabView::_GetTab(Editor* editor)
+EditorTabView::_GetTab(Editor* editor) const
 {
 	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));
@@ -254,7 +254,7 @@ EditorTabView::_GetTab(Editor* editor)
 
 
 GTabEditor*
-EditorTabView::_GetTab(editor_id id)
+EditorTabView::_GetTab(editor_id id) const
 {
 	for (int32 i = 0; i < Container()->CountTabs(); i++) {
 		GTabEditor* tab = dynamic_cast<GTabEditor*>(Container()->TabAt(i));

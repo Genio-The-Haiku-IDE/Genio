@@ -35,7 +35,7 @@ public:
 
 	void	SetTabColor(Editor*, const rgb_color& color);
 	void	SetTabLabel(Editor*, const char* label);
-	BString	TabLabel(Editor* editor);
+	BString	TabLabel(Editor* editor) const;
 
 	void	SelectTab(const entry_ref* ref, BMessage* selInfo = nullptr);
 
@@ -77,10 +77,10 @@ private:
 			GTab*	CreateTabView(const char* label) override;
 			BMenuItem* CreateMenuItem(GTab* tab) override;
 
-			Editor*		_GetEditor_(const entry_ref* ref);
-			deprecated_ GTabEditor*	_GetTab_(const entry_ref* ref);
-			GTabEditor* _GetTab(Editor* editor);
-			GTabEditor* _GetTab(editor_id id);
+			Editor*		_GetEditor_(const entry_ref* ref) const;
+			deprecated_ GTabEditor*	_GetTab_(const entry_ref* ref) const;
+			GTabEditor* _GetTab(Editor* editor) const;
+			GTabEditor* _GetTab(editor_id id) const;
 
 			BMessenger	fTarget;
 			BPopUpMenu* fPopUpMenu;

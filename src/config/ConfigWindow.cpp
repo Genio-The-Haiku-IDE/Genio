@@ -311,7 +311,7 @@ ConfigWindow::_PopulateListView()
 	while (iter != dividedByGroup.end())  {
 		BString groupName = (*iter)["group"];
 		BView *groupView = MakeViewFor(groupName.String(), *iter);
-		if (groupView != NULL) {
+		if (groupView != nullptr) {
 			groupView->SetName(groupName.String());
 			fCardView->AddChild(groupView);
 
@@ -357,7 +357,7 @@ ConfigWindow::MakeViewFor(const char* groupName, GMessage& list)
 	int32 i = 0;
 	while (list.FindMessage("config", i++, &msg) == B_OK)  {
 		BView *parameterView = MakeControlFor(msg);
-		if (parameterView == NULL)
+		if (parameterView == nullptr)
 			return nullptr;
 		BColorControl* colorControl = dynamic_cast<BColorControl*>(parameterView);
 		if (colorControl != nullptr) {
@@ -454,7 +454,7 @@ ConfigWindow::MakeControlFor(GMessage& config)
 			return new BStringView("view", label.String());
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -469,7 +469,7 @@ ConfigWindow::_CreatePopUp(GMessage& config)
 		key << c;
 		if (!config.Has(key.String()))
 			break;
-		popUp->AddOption(config[key.String()]["label"], (T)config[key.String()]["value"]);
+		popUp->AddOption(config[key.String()]["label"], config[key.String()]["value"]);
 		c++;
 	}
 	popUp->LoadValue(fConfigManager[config["key"]]);

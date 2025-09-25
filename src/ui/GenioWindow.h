@@ -171,7 +171,7 @@ private:
 			BMenu*				_CreateLanguagesMenu();
 			void				_ToogleScreenMode(int32 action);
 			void				_ForwardToSelectedEditor(BMessage* msg);
-			void				_UpdateWindowTitle(const char* filePath, const char* currentBranch);
+			void				_UpdateWindowTitle(Editor* editor, const char* currentBranch);
 
 private:
 			BMenuBar*			fMenuBar;

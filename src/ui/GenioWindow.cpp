@@ -305,8 +305,7 @@ GenioWindow::MessageReceived(BMessage* message)
 				Editor* selected = fTabManager->SelectedEditor();
 				if (selected == nullptr || selected->GetProjectFolder() == nullptr
 					|| selected->GetProjectFolder()->Path() == projectPath) {
-					_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr,
-											currentBranch.String());
+					_UpdateWindowTitle(selected, currentBranch.String());
 				}
 			}
 			break;
@@ -4417,7 +4416,7 @@ GenioWindow::_UpdateTabChange(Editor* editor, const BString& caller)
 		currentBranch = project ? project->GetRepository()->GetCurrentBranch() : "";
 	} catch (...) {
 	}
-	_UpdateWindowTitle(editor->FilePath().String(), currentBranch.String());
+	_UpdateWindowTitle(editor, currentBranch.String());
 
 	// editor is modified by _FilesNeedSave so it should be the last
 	// or reload editor pointer
@@ -4496,7 +4495,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		} catch (...) {
 		}
 	}
-	_UpdateWindowTitle(selected ? selected->FilePath().String() : nullptr, currentBranch.String());
+	_UpdateWindowTitle(selected, currentBranch.String());
 }
 
 
@@ -4543,9 +4542,12 @@ GenioWindow::UpdateMenu(const void* sender, const entry_ref* ref)
 
 
 void
-GenioWindow::_UpdateWindowTitle(const char* filePath, const char* branch)
+GenioWindow::_UpdateWindowTitle(Editor* editor, const char* branch)
 {
 	BString title;
+	BString filePath;
+	if (editor != nullptr)
+		filePath = editor->FilePath();
 
 #ifdef GDEBUG
 	if (!fTitlePrefix.IsEmpty())
@@ -4553,7 +4555,7 @@ GenioWindow::_UpdateWindowTitle(const char* filePath, const char* branch)
 #endif
 
 	// Only show application name if no file is opened
-	if (BString(filePath).IsEmpty()) {
+	if (filePath.IsEmpty()) {
 		title << GenioNames::kApplicationName;
 	} else {
 		if (gCFG["fullpath_title"])

@@ -34,13 +34,13 @@ jobs:
           - { os: haiku, version: 'r1beta5', runner: 'ubuntu-latest', architecture: 'x86-64', compiler: 'gcc' }
           - { os: haiku, version: 'r1beta5',  runner: 'ubuntu-latest', architecture: 'x86', compiler: 'gcc' }
           - { os: haiku, version: 'nightly', runner: 'ubuntu-latest', architecture: 'x86-64', compiler: 'gcc' }
-          - { os: haiku, version: 'nightly',  runner: 'ubuntu-latest', architecture: 'x86', compiler: 'gcc'  }
+          - { os: haiku, version: 'nightly',  runner: 'ubuntu-latest', architecture: 'x86', compiler: 'gcc' }
           - { os: haiku, version: 'r1beta5', runner: 'ubuntu-latest', architecture: 'x86-64', compiler: 'clang' }
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Build
         uses: korli/action@v0.25.0-haiku3
         with:
@@ -57,4 +57,4 @@ jobs:
               else ${{ matrix.config.compiler == 'clang' }}
                 ssh user@localhost "pkgman update -y haiku_devel cmd:gcc gcc_syslibs_devel llvm17_clang llvm17_lld libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel" &&
                 make BUILD_WITH_CLANG=1
-              fi            
+              fi

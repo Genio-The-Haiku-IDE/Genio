@@ -23,7 +23,7 @@ jobs:
   build-haiku:
     timeout-minutes: 60
     runs-on: ${{ matrix.config.runner }}
-    name: build-${{ matrix.config.os }}-${{ matrix.config.version }}-${{ matrix.config.architecture }}
+    name: build-${{ matrix.config.os }}-${{ matrix.config.version }}-${{ matrix.config.architecture }}-${{ matrix.config.compiler }}
 
     strategy:
       fail-fast: false

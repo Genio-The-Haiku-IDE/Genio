@@ -23,7 +23,7 @@ jobs:
   build-haiku:
     timeout-minutes: 60
     runs-on: ${{ matrix.config.runner }}
-    name: build-${{ matrix.config.os }}-${{ matrix.config.version }}-${{ matrix.config.architecture }}
+    name: build-${{ matrix.config.os }}-${{ matrix.config.version }}-${{ matrix.config.architecture }}-${{ matrix.config.compiler }}
 
     strategy:
       fail-fast: false
@@ -31,25 +31,30 @@ jobs:
         config:
           # The OS versions supported are specific to the version of the action
           # https://github.com/cross-platform-actions/action/blob/master/changelog.md
-          - { os: haiku, version: 'r1beta5', runner: 'ubuntu-latest', architecture: 'x86-64' }
-          - { os: haiku, version: 'r1beta5',  runner: 'ubuntu-latest', architecture: 'x86' }
-          - { os: haiku, version: 'nightly', runner: 'ubuntu-latest', architecture: 'x86-64' }
-          - { os: haiku, version: 'nightly',  runner: 'ubuntu-latest', architecture: 'x86' }
+          - { os: haiku, version: 'r1beta5', runner: 'ubuntu-latest', architecture: 'x86-64', compiler: 'gcc' }
+          - { os: haiku, version: 'r1beta5',  runner: 'ubuntu-latest', architecture: 'x86', compiler: 'gcc' }
+          - { os: haiku, version: 'nightly', runner: 'ubuntu-latest', architecture: 'x86-64', compiler: 'gcc' }
+          - { os: haiku, version: 'nightly',  runner: 'ubuntu-latest', architecture: 'x86', compiler: 'gcc'  }
+          - { os: haiku, version: 'r1beta5', runner: 'ubuntu-latest', architecture: 'x86-64', compiler: 'clang' }
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: korli/action@v0.25.0-haiku3
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build
+        uses: korli/action@v0.25.0-haiku3
         with:
-          operating_system: ${{ matrix.config.os }}
-          version: ${{ matrix.config.version }}
-          architecture: ${{ matrix.config.architecture }}
-          run: |
-            if [[ `uname -m` == BePC ]]; then
-              ssh user@localhost "pkgman install -y haiku_devel cmd:gcc libgit2_1.8_x86_devel lexilla_x86_devel yaml_cpp*_x86_devel editorconfig_core_c_x86_devel" &&
-              setarch x86 make
-            else
-              ssh user@localhost "pkgman install -y haiku_devel cmd:gcc libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel" &&
-              make
-            fi
-            
+            operating_system: ${{ matrix.config.os }}
+            version: ${{ matrix.config.version }}
+            architecture: ${{ matrix.config.architecture }} 
+            run: |
+              if ${{ matrix.config.architecture == 'x86' }} && ${{ matrix.config.compiler == 'gcc' }} ; then
+                ssh user@localhost "pkgman install -y haiku_devel cmd:gcc libgit2_1.8_x86_devel lexilla_x86_devel yaml_cpp*_x86_devel editorconfig_core_c_x86_devel" &&
+                setarch x86 make
+              elif ${{ matrix.config.architecture == 'x86-64' }} && ${{ matrix.config.compiler == 'gcc' }} ; then
+                ssh user@localhost "pkgman install -y haiku_devel cmd:gcc libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel" &&
+                make
+              else ${{ matrix.config.compiler == 'clang' }}
+                ssh user@localhost "pkgman update -y haiku_devel cmd:gcc gcc_syslibs_devel llvm17_clang llvm17_lld libgit2_1.8_devel lexilla_devel yaml_cpp*_devel editorconfig_core_c_devel" &&
+                make BUILD_WITH_CLANG=1
+              fi            

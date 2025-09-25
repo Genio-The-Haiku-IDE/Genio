@@ -1340,11 +1340,12 @@ GenioWindow::_ToogleScreenMode(int32 action)
 
 
 void
-GenioWindow::_ForwardToSelectedEditor(BMessage* msg)
+GenioWindow::_ForwardToSelectedEditor(BMessage* message)
 {
+	ASSERT(message != nullptr);
 	Editor* editor = fTabManager->SelectedEditor();
 	if (editor != nullptr) {
-		PostMessage(msg, editor);
+		PostMessage(message, editor);
 	}
 }
 
@@ -1384,15 +1385,13 @@ GenioWindow::_FileRequestSaveAllModified()
 bool
 GenioWindow::_FileRequestClose(Editor* editor)
 {
-	if (editor != nullptr) {
-		if (editor->IsModified()) {
-			std::vector<Editor*> unsavedEditor { editor };
-			if (!_FileRequestSaveList(unsavedEditor))
-				return false;
-
-		}
-		_RemoveTab(editor);
+	ASSERT(editor != nullptr);
+	if (editor->IsModified()) {
+		std::vector<Editor*> unsavedEditor { editor };
+		if (!_FileRequestSaveList(unsavedEditor))
+			return false;
 	}
+	_RemoveTab(editor);
 
 	return true;
 }
@@ -4074,8 +4073,6 @@ GenioWindow::_RunTarget()
 		command << GetActiveProject()->GetTarget();
 		if (!args.IsEmpty())
 			command << " " << args;
-		// TODO: Go to appropriate directory
-		// chdir(...);
 
 		const BString projectName = GetActiveProject()->Name();
 		const BString projectPath = GetActiveProject()->Path();
@@ -4433,7 +4430,7 @@ void
 GenioWindow::_HandleConfigurationChanged(BMessage* message)
 {
 	// TODO: Should editors handle these things on their own ?
-	BString key ( message->GetString("key", "") );
+	BString key(message->GetString("key", ""));
 	if (key.IsEmpty())
 		return;
 

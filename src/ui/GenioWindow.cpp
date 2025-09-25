@@ -4551,10 +4551,11 @@ GenioWindow::_UpdateWindowTitle(const char* filePath, const char* branch)
 	if (!fTitlePrefix.IsEmpty())
 		title << fTitlePrefix << " ";
 #endif
-	title << GenioNames::kApplicationName;
 
-	if (!BString(filePath).IsEmpty()) {
-		title << ": ";
+	// Only show application name if no file is opened
+	if (BString(filePath).IsEmpty()) {
+		title << GenioNames::kApplicationName;
+	} else {
 		if (gCFG["fullpath_title"])
 			title << filePath;
 		else

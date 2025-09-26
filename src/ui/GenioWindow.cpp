@@ -4537,19 +4537,24 @@ void
 GenioWindow::_UpdateWindowTitle(Editor* editor, const char* branch)
 {
 	BString title;
-	BString filePath;
-	if (editor != nullptr)
-		filePath = editor->FilePath();
-
 #ifdef GDEBUG
 	if (!fTitlePrefix.IsEmpty())
 		title << fTitlePrefix << " ";
 #endif
-
+	BString filePath;
+	BString projectName;
+	if (editor != nullptr) {
+		filePath = editor->FilePath();
+		if (editor->GetProjectFolder() != nullptr)
+			projectName = editor->GetProjectFolder()->Name();
+	}
 	// Only show application name if no file is opened
 	if (filePath.IsEmpty()) {
 		title << GenioNames::kApplicationName;
 	} else {
+		if (gCFG["project_title"] && !projectName.IsEmpty())
+			title << projectName << " - ";
+
 		if (gCFG["fullpath_title"])
 			title << filePath;
 		else

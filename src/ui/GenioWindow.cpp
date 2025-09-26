@@ -2238,7 +2238,6 @@ GenioWindow::_HandleExternalRemoveModification(Editor* editor)
 	alert->SetShortcut(0, B_ESCAPE);
 
 	int32 choice = alert->Go();
-
 	if (choice == 0) {
 	 	// If not modified save it or it will be lost, if modified let
 	 	// the user decide
@@ -2287,17 +2286,14 @@ GenioWindow::_CheckEntryRemoved(BMessage *msg)
 	node_ref nref;
 	BString name;
 	int64 dir;
-
 	if (msg->FindInt32("device", &nref.device) != B_OK
 		|| msg->FindString("name", &name) != B_OK
 		|| msg->FindInt64("directory", &dir) != B_OK
 		|| msg->FindInt64("node", &nref.node) != B_OK)
-			return;
-
+		return;
 
 	// Let's check if the path exists, if the file is loaded in Genio
 	// and if the current genio node_ref is the same as the one of the path received.
-
 	node_ref dirRef;
 	dirRef.device = nref.device;
 	dirRef.node = dir;
@@ -2353,19 +2349,19 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 	}
 
 	switch (opcode) {
-		case B_ENTRY_MOVED: {
+		case B_ENTRY_MOVED:
+		{
 			int32 device;
 			int64 srcDir;
 			int64 dstDir;
 			BString name;
 			BString oldName;
-
 			if (msg->FindInt32("device", &device) != B_OK
 				|| msg->FindInt64("to directory", &dstDir) != B_OK
 				|| msg->FindInt64("from directory", &srcDir) != B_OK
 				|| msg->FindString("name", &name) != B_OK
 				|| msg->FindString("from name", &oldName) != B_OK)
-					break;
+				break;
 
 			entry_ref oldRef(device, srcDir, oldName.String());
 			entry_ref newRef(device, dstDir, name.String());
@@ -2374,7 +2370,8 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 
 			break;
 		}
-		case B_ENTRY_REMOVED: {
+		case B_ENTRY_REMOVED:
+		{
 			// This message can be triggered by different use cases
 
 			// Some git commands generate a B_ENTRY_REMOVED
@@ -2392,32 +2389,32 @@ GenioWindow::_HandleNodeMonitorMsg(BMessage* msg)
 
 			msg->what = kCheckEntryRemoved;
 			BMessageRunner::StartSending(this, msg, 1500, 1);
+			break;
 		}
-		break;
-		case B_STAT_CHANGED: {
+		case B_STAT_CHANGED:
+		{
 			node_ref nref;
 			int32 fields;
-
 			if (msg->FindInt32("device", &nref.device) != B_OK
 				|| msg->FindInt64("node", &nref.node) != B_OK
 				|| msg->FindInt32("fields", &fields) != B_OK)
-					break;
+				break;
 
 			if ((fields & (B_STAT_MODE | B_STAT_UID | B_STAT_GID)) != 0)
 				break; 			// TODO recheck permissions
 
 			if (((fields & B_STAT_MODIFICATION_TIME)  != 0)
-			// Do not reload if the file just got touched
+				// Do not reload if the file just got touched
 				&& ((fields & B_STAT_ACCESS_TIME)  == 0)) {
 				_HandleExternalStatModification(fTabManager->EditorBy(&nref));
 			}
-
 			break;
 		}
 		default:
 			break;
 	}
 }
+
 
 void
 GenioWindow::_InitCommandRunToolbar()

@@ -89,36 +89,21 @@ RepositoryView::MessageReceived(BMessage* message)
 				break;
 			if (item->BranchName() == fCurrentBranch)
 				break;
-			switch (item->BranchType()) {
-				case kLocalBranch: {
-					GMessage switchMessage = {
-						{"what", MsgSwitchBranch},
-						{"value", item->BranchName()},
-						{"type", GIT_BRANCH_LOCAL},
-						{"sender", kSenderRepositoryPopupMenu}};
-						BMessenger messenger(Target());
-						messenger.SendMessage(&switchMessage);
-					break;
-				}
-				case kRemoteBranch: {
-					GMessage switchMessage = {
-						{"what", MsgSwitchBranch},
-						{"value", item->BranchName()},
-						{"type", GIT_BRANCH_REMOTE},
-						{"sender", kSenderRepositoryPopupMenu}};
-						BMessenger messenger(Target());
-						messenger.SendMessage(&switchMessage);
-					break;
-				}
-				default:
-					break;
-			}
+
+			GMessage switchMessage = {
+				{"what", MsgSwitchBranch},
+				{"value", item->BranchName()},
+				{"type", (item->BranchType() == kLocalBranch) ? GIT_BRANCH_LOCAL : GIT_BRANCH_REMOTE },
+				{"sender", kSenderRepositoryPopupMenu}
+			};
+			BMessenger messenger(Target());
+			messenger.SendMessage(&switchMessage);
 			break;
 		}
 		default:
+			GOutlineListView::MessageReceived(message);
 			break;
 	}
-	GOutlineListView::MessageReceived(message);
 }
 
 

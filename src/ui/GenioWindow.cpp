@@ -841,7 +841,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				_ShowItemInTracker(&ref);
-				return;
 			}
 			break;
 		}
@@ -850,7 +849,6 @@ GenioWindow::MessageReceived(BMessage* message)
 			entry_ref ref;
 			if (message->FindRef("ref", &ref) == B_OK) {
 				_OpenTerminalWorkingDirectory(&ref);
-				return;
 			}
 			break;
 		}

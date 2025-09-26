@@ -128,7 +128,7 @@ EditorContextMenu::Show(Editor* editor, BPoint point)
 	bool isFindInBrowserEnable = ActionManager::IsEnabled(MSG_FIND_IN_BROWSER);
 	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, (editor->GetProjectFolder() != nullptr));
 
-	menu->Go(point, true);
+	menu->Go(point, true, false, true);
 
 	ActionManager::SetEnabled(MSG_FIND_IN_BROWSER, isFindInBrowserEnable);
 }

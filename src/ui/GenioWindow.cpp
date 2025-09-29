@@ -4552,16 +4552,23 @@ GenioWindow::_UpdateWindowTitle(Editor* editor, const char* branch)
 	if (filePath.IsEmpty()) {
 		title << GenioNames::kApplicationName;
 	} else {
-		if (gCFG["project_title"] && !projectName.IsEmpty())
-			title << projectName << " - ";
-
 		if (gCFG["fullpath_title"])
 			title << filePath;
 		else
 			title << BPath(filePath).Leaf();
 
-		if (gCFG["branch_title"] && !BString(branch).IsEmpty())
-			title << " [" << branch << "]";
+		const bool projectInTitle = gCFG["project_title"] && !projectName.IsEmpty();
+		const bool branchInTitle = gCFG["branch_title"] && !BString(branch).IsEmpty();
+		if (projectInTitle || branchInTitle) {
+			title << " [ ";
+			if (projectInTitle)
+				title << projectName;
+			if (projectInTitle && branchInTitle)
+				title << " - ";
+			if (branchInTitle)
+				title << branch;
+			title << " ]";
+		}
 	}
 
 	SetTitle(title.String());

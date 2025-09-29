@@ -1232,6 +1232,8 @@ GenioWindow::_PrepareWorkspace()
 	BMessage started(MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED);
 	SendNotices(MSG_NOTIFY_WORKSPACE_PREPARATION_STARTED, &started);
 
+	// TODO: Drop GSettings and put these into the "global" settings
+
 	// TODO: improve how projects are loaded and notices are sent over
 	if (gCFG["reopen_projects"]) {
 		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');

@@ -113,7 +113,6 @@ public:
 
 private:
 	void						_PrepareSettings();
-	status_t					_LoadOldSettings();
 
 	std::vector<LSPProjectWrapper*>	fLSPProjectWrappers;
 	ConfigManager*				fSettings;

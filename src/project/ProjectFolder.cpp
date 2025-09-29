@@ -15,7 +15,6 @@
 #include "ConfigManager.h"
 #include "GenioApp.h"
 #include "GitRepository.h"
-#include "GSettings.h"
 #include "LSPProjectWrapper.h"
 #include "MakeFileHandler.h"
 
@@ -177,12 +176,6 @@ ProjectFolder::LoadSettings()
 	BPath path(Path());
 	path.Append(GenioNames::kProjectSettingsFile);
 	status_t status = fSettings->LoadFromFile({ path.Path(), BPath(Path()) });
-	if (status != B_OK) {
-		// Try to load old style settings
-		status = _LoadOldSettings();
-		if (status == B_OK)
-			LogTraceF("%s", "Loaded old style settings");
-	}
 
 	return status;
 }
@@ -451,30 +444,4 @@ ProjectFolder::_PrepareSettings()
 		B_TRANSLATE("Run in terminal"), false);
 
 	fSettings->NoticeMessage()->AddPointer("project_folder", this);
-}
-
-
-status_t
-ProjectFolder::_LoadOldSettings()
-{
-	GSettings oldSettings(Path(), GenioNames::kProjectSettingsFile, 'LOPR');
-	status_t status = oldSettings.GetStatus();
-	if (status != B_OK)
-		return status;
-
-	LogTraceF("%s", "Loading old style settings");
-
-	// Load old style settins into new
-	(*fSettings)["build_mode"] = int32(oldSettings.GetInt32("build_mode", BuildMode::ReleaseMode));
-	(*fSettings)["project_release_build_command"] = oldSettings.GetString("project_release_build_command", "");
-	(*fSettings)["project_debug_build_command"] = oldSettings.GetString("project_debug_build_command", "");
-	(*fSettings)["project_release_clean_command"] = oldSettings.GetString("project_release_clean_command", "");
-	(*fSettings)["project_debug_clean_command"] = oldSettings.GetString("project_debug_clean_command", "");
-	(*fSettings)["project_release_execute_args"] = oldSettings.GetString("project_release_execute_args", "");
-	(*fSettings)["project_debug_execute_args"] = oldSettings.GetString("project_debug_execute_args", "");
-	(*fSettings)["project_release_target"] = oldSettings.GetString("project_release_target", "");
-	(*fSettings)["project_debug_target"] = oldSettings.GetString("project_debug_target", "");
-	(*fSettings)["project_run_in_terminal"] = oldSettings.GetBool("project_run_in_terminal", false);
-
-	return B_OK;
 }

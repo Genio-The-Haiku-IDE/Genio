@@ -4564,7 +4564,7 @@ GenioWindow::_UpdateWindowTitle(Editor* editor, const char* branch)
 			if (projectInTitle)
 				title << projectName;
 			if (projectInTitle && branchInTitle)
-				title << " - ";
+				title << " : ";
 			if (branchInTitle)
 				title << branch;
 			title << " ]";

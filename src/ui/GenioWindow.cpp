@@ -1664,6 +1664,7 @@ GenioWindow::_RemoveTab(Editor* editor)
 	// notify listeners:
 	BMessage noticeCloseMessage(MSG_NOTIFY_EDITOR_FILE_CLOSED);
 	noticeCloseMessage.AddString("file_name", editor->FilePath());
+	noticeCloseMessage.AddRef("file_ref", editor->FileRef());
 	SendNotices(MSG_NOTIFY_EDITOR_FILE_CLOSED, &noticeCloseMessage);
 
 	fTabManager->RemoveEditor(editor);

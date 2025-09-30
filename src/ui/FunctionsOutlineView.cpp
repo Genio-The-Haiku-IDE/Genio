@@ -345,6 +345,7 @@ FunctionsOutlineView::AttachedToWindow()
 	if (gMainWindow->LockLooper()) {
 		gMainWindow->StartWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
 		gMainWindow->StartWatching(this, MSG_NOTIFY_EDITOR_POSITION_CHANGED);
+		gMainWindow->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
 		gMainWindow->UnlockLooper();
 	}
 
@@ -362,6 +363,7 @@ FunctionsOutlineView::DetachedFromWindow()
 	if (gMainWindow != nullptr && gMainWindow->LockLooper()) {
 		gMainWindow->StopWatching(this, MSG_NOTIFY_EDITOR_POSITION_CHANGED);
 		gMainWindow->StopWatching(this, MSG_NOTIFY_EDITOR_SYMBOLS_UPDATED);
+		gMainWindow->StartWatching(this, MSG_NOTIFY_EDITOR_FILE_CLOSED);
 		gMainWindow->UnlockLooper();
 	}
 	BView::DetachedFromWindow();
@@ -406,6 +408,16 @@ FunctionsOutlineView::MessageReceived(BMessage* msg)
 
 					_UpdateDocumentSymbols(symbols, &newRef);
 					_SelectSymbolByCaretPosition(msg->GetInt32("caret_line", -1));
+					break;
+				}
+				case MSG_NOTIFY_EDITOR_FILE_CLOSED:
+				{
+					entry_ref ref;
+					msg->FindRef("file_ref", &ref);
+					if (ref == fCurrentRef) {
+						fListView->MakeEmpty();
+						fListView->AddItem(new BStringItem(B_TRANSLATE("No outline available")));
+					}
 					break;
 				}
 				default:
@@ -495,6 +507,10 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 {
 	LogTrace("FunctionsOutlineView::_UpdateDocumentSymbol()");
 
+	bool sameDocument = fCurrentRef == *newRef;
+
+	fCurrentRef = *newRef;
+
 	const int32 status = msg.GetInt32("status", Editor::STATUS_UNKNOWN);
 	switch (status) {
 		case Editor::STATUS_UNKNOWN:
@@ -514,7 +530,7 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 
 	// Save selected item
 	SymbolListItem* selected = dynamic_cast<SymbolListItem*>(fListView->ItemAt(fListView->CurrentSelection()));
-	if (selected != nullptr && *newRef == fCurrentRef) {
+	if (selected != nullptr && sameDocument) {
 		fSelectedSymbol.name = selected->Details().GetString("name");
 		fSelectedSymbol.kind = selected->Details().GetInt32("kind", -1);
 	} else {
@@ -555,14 +571,12 @@ FunctionsOutlineView::_UpdateDocumentSymbols(const BMessage& msg, const entry_re
 		fListView->FullListSortItems(&CompareItemsLine);
 
 	// same document, don't reset the vertical scrolling value
-	if (*newRef == fCurrentRef) {
+	if (sameDocument) {
 		if (vertScrollBar->Value() != scrolledValue)
 			vertScrollBar->SetValue(scrolledValue);
 	}
 
 	Window()->EnableUpdates();
-
-	fCurrentRef = *newRef;
 
 	fListView->SetInvocationMessage(new BMessage(kMsgGoToSymbol));
 	fListView->SetTarget(this);

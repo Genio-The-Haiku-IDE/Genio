@@ -7,6 +7,4 @@ exclude_paths:
   - "data/templates/**"
   - "documentation/**"
   - "libs/**"
-  - "src/lsp-client/json.hpp"
-  - "src/lsp-client/json_fwd.hpp"
   - "src/terminal/**"

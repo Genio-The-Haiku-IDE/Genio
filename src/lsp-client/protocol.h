@@ -9,14 +9,17 @@
 
 #ifndef LSP_PROTOCOL_H
 #define LSP_PROTOCOL_H
+
 #include <string>
 #include <vector>
 #include <tuple>
 #include <map>
 #include <memory>
+
+#include <json.hpp>
+
 #include "LSPProjectWrapper.h"
 #include "uri.h"
-#include "json.hpp"
 
 #define MAP_JSON(...) {j = {__VA_ARGS__};}
 #define MAP_KEY(KEY) {#KEY, value.KEY}

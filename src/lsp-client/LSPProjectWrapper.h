@@ -13,9 +13,10 @@
 #include <Messenger.h>
 #include <Url.h>
 
+#include <json_fwd.hpp>
+
 #include "LSPServersManager.h"
 #include "MessageHandler.h"
-#include "json_fwd.hpp"
 #include "LSPCapabilities.h"
 #include "protocol_objects.h"
 

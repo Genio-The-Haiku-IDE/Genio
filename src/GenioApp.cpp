@@ -176,15 +176,12 @@ GenioApp::MessageReceived(BMessage* message)
 			int32 code;
 			message->FindInt32(B_OBSERVE_WHAT_CHANGE, &code);
 			if (code == gCFG.UpdateMessageWhat()) {
-				// TODO: Long list of strcmp
-				const char* key = NULL;
-				message->FindString("key", &key);
-				if (key != NULL) {
-					if (::strcmp(key, "log_destination") == 0)
-						Logger::SetDestination(gCFG["log_destination"]);
-					else if (::strcmp(key, "log_level") == 0)
-						Logger::SetLevel(log_level(int32(gCFG["log_level"])));
-				}
+				BString key = message->GetString("key");
+				if (key == "log_destination")
+					Logger::SetDestination(gCFG["log_destination"]);
+				else if (key == "log_level")
+					Logger::SetLevel(log_level(int32(gCFG["log_level"])));
+
 				BString context = message->GetString(ConfigManager::kContext);
 				if (context.IsEmpty() || context.Compare("reset_to_defaults_end") == 0) {
 					gCFG.SaveToFile({fConfigurationPath});
@@ -278,8 +275,7 @@ GenioApp::_HandleArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = ::getopt_long(argc, argv, "l:",
-			sLongOptions, &optIndex)) != -1) {
+	while ((c = ::getopt_long(argc, argv, "l:", sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'l':
 				Logger::SetLevelByChar(optarg[0]);

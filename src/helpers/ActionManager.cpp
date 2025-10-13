@@ -9,7 +9,6 @@
 #include <Button.h>
 #include <vector>
 
-#include "ObjectList.h"
 #include "ToolBar.h"
 
 ActionManager ActionManager::sInstance;

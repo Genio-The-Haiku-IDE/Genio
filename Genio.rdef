@@ -21,6 +21,7 @@ resource file_types message {
 	"types" = "text/x-source-code",
 	"types" = "text/x-makefile",
 	"types" = "text/x-jamfile",
+	"types" = "application/xhtml+xml",
 	"types" = "application/x-vnd.Be-directory"
 };
 

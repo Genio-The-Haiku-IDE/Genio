@@ -46,6 +46,9 @@ makefile:
 markdown:
     name: Markdown
     extensions: [ md, markdown ]
+nim:
+    name: Nim
+    extensions: [ nim, nims, nimble, nim.cfg ]
 ocaml:
     name: OCaml
     extensions: [ ml, mli, sml, thy ]

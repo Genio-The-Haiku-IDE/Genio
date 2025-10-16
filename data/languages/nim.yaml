@@ -1,0 +1,33 @@
+# Nim - COMPLETE keyword list
+lexer: nim
+properties:
+    fold: 1
+    fold.compact: 1
+keywords:
+    # Core keywords (0) - ALL Nim keywords
+    0: addr and as asm bind block break case cast concept const continue converter defer discard distinct div do elif else end enum except export finally for from func if import in include interface is isnot iterator let macro method mixin mod nil not notin object of or out proc ptr raise ref return shl shr static template try tuple type using var when while with without yield
+    # Built-in types (1)
+    1: int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 float float32 float64 bool char string cstring pointer byte seq array set Table OrderedTable CountTable auto any untyped typed void openarray varargs range Ordinal RootObj
+    # Built-in functions and common stdlib (2)
+    2: echo len high low new newSeq add del insert repr dollar abs min max clamp succ pred inc dec swap sizeof assert system
+comments:
+    line: "#"
+    block_start: "#["
+    block_end: "]#"
+styles:
+    0: 32
+    1: 101
+    2: 101
+    3: 103
+    4: 104
+    5: 105
+    6: 106
+    7: 106
+    8: 106
+    9: 109
+    10: 110
+    11: 32
+    13: 120
+    14: 119
+    15: 121
+    20: 32

@@ -41,7 +41,6 @@ SRCS += src/helpers/JumpNavigator.cpp
 SRCS += src/helpers/Languages.cpp
 SRCS += src/helpers/Logger.cpp
 SRCS += src/helpers/MakeFileHandler.cpp
-SRCS += src/helpers/GSettings.cpp
 SRCS += src/helpers/GrepThread.cpp
 SRCS += src/helpers/PipeImage.cpp
 SRCS += src/helpers/ResourceImport.cpp

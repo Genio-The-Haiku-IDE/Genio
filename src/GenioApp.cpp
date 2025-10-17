@@ -510,6 +510,12 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 
 	// TODO: Move to another, visible, section
 	cfg.AddConfig("Hidden", "outline_sort_symbols", "outline_sort_symbols", false);
+	
+	BMessage dummy;
+	cfg.AddConfig("Hidden", GenioNames::kSettingsProjectsToReopen,
+							GenioNames::kSettingsProjectsToReopen, dummy);
+	cfg.AddConfig("Hidden", GenioNames::kSettingsFilesToReopen,
+							GenioNames::kSettingsFilesToReopen, dummy);
 }
 
 

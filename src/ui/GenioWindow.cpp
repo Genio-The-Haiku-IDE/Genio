@@ -48,7 +48,6 @@
 #include "GitRepository.h"
 #include "GlobalStatusView.h"
 #include "GoToLineWindow.h"
-#include "GSettings.h"
 #include "IconMenuItem.h"
 #include "JumpNavigator.h"
 #include "Languages.h"
@@ -1236,7 +1235,7 @@ GenioWindow::_PrepareWorkspace()
 
 	// TODO: improve how projects are loaded and notices are sent over
 	if (gCFG["reopen_projects"]) {
-		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
+		const BMessage projects = gCFG[GenioNames::kSettingsProjectsToReopen];
 		if (!projects.IsEmpty()) {
 			BString projectName;
 			const BString activeProject = projects.GetString("active_project");
@@ -1256,7 +1255,7 @@ GenioWindow::_PrepareWorkspace()
 
 	// Reopen files
 	if (gCFG["reopen_files"]) {
-		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
+		const BMessage files = gCFG[GenioNames::kSettingsFilesToReopen];
 		if (!files.IsEmpty()) {
 			entry_ref ref;
 			int32 index = -1;
@@ -1471,13 +1470,9 @@ GenioWindow::QuitRequested()
 
 	// Files to reopen
 	if (gCFG["reopen_files"]) {
-		GSettings files(GenioNames::kSettingsFilesToReopen, 'FIRE');
-		// Just empty it for now TODO check if equal
-		files.MakeEmpty();
-
 		// Save if there is an opened file
 		int32 index = fTabManager->SelectedTabIndex();
-
+		BMessage files;
 		if (index > -1 && index < fTabManager->CountTabs()) {
 			files.AddInt32("opened_index", index);
 
@@ -1486,7 +1481,7 @@ GenioWindow::QuitRequested()
 				files.AddRef("file_to_reopen", editor->FileRef());
 			}
 		}
-		files.Save();
+		gCFG[GenioNames::kSettingsFilesToReopen] = files;
 	}
 
 	// remove link between all editors and all projects
@@ -1496,10 +1491,7 @@ GenioWindow::QuitRequested()
 
 	// Projects to reopen
 	if (gCFG["reopen_projects"]) {
-		GSettings projects(GenioNames::kSettingsProjectsToReopen, 'PRRE');
-
-		projects.MakeEmpty();
-
+		BMessage projects;
 		for (int32 index = 0; index < GetProjectBrowser()->CountProjects(); index++) {
 			ProjectFolder *project = GetProjectBrowser()->ProjectAt(index);
 			projects.AddString("project_to_reopen", project->Path());
@@ -1509,7 +1501,7 @@ GenioWindow::QuitRequested()
 			//TODO:---> _ProjectOutlineDepopulate(project);
 			delete project;
 		}
-		projects.Save();
+		gCFG[GenioNames::kSettingsProjectsToReopen] = projects;
 	}
 
 	if (fGoToLineWindow != nullptr) {
@@ -1741,7 +1733,7 @@ GenioWindow::_FileOpen(BMessage* msg)
 		if (firstAdded.directory == 0)
 			firstAdded = ref;
 
-		if (refsCount == 1){
+		if (refsCount == 1) {
 			entry_ref fromRef;
 			if (msg->FindRef("jumpFrom", 0, &fromRef) == B_OK) {
 				JumpNavigator::getInstance()->JumpingTo(ref, fromRef);

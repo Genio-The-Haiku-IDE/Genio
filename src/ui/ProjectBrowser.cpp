@@ -1045,7 +1045,8 @@ ProjectOutlineListView::SelectionChanged()
 	ProjectItem* selected = GetSelectedProjectItem();
 	if (selected != nullptr) {
 		GenioWindow *window = gMainWindow;
-		BEntry entry(selected->GetSourceItem()->EntryRef());
+		// traverse symlink
+		BEntry entry(selected->GetSourceItem()->EntryRef(), true);
 		if (entry.IsFile()) {
 			entry_ref fileRef;
 			entry.GetRef(&fileRef);

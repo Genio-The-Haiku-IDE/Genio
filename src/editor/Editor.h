@@ -167,6 +167,7 @@ public:
 			BMessage			GetVisibleLines();
 			BMessage			GetScrollPosition();
 			void				SetScrollPosition(int32 line);
+			BMessage			GetModifiedState();
 
 protected:
 			virtual	void 		MessageReceived(BMessage* message);

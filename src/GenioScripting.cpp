@@ -37,7 +37,8 @@ namespace Properties {
 		CaretPosition,
 		SelectionRange,
 		VisibleLines,
-		ScrollPosition
+		ScrollPosition,
+		Modified
 	};
 }
 
@@ -150,6 +151,13 @@ const property_info sEditorProperties[] = {
 		"ScrollPosition", {B_GET_PROPERTY, B_SET_PROPERTY, 0},
 		{B_DIRECT_SPECIFIER, 0},
 		"Get/Set the scroll position (x_offset, first_visible_line).",
+		0,
+		{B_MESSAGE_TYPE, 0}
+	},
+	{
+		"Modified", {B_GET_PROPERTY, 0},
+		{B_DIRECT_SPECIFIER, 0},
+		"Return whether the document has unsaved changes (modified, can_undo, can_redo).",
 		0,
 		{B_MESSAGE_TYPE, 0}
 	},
@@ -336,6 +344,14 @@ GenioApp::_HandleScripting(BMessage* data)
 							editor->SetScrollPosition(line);
 							result = B_OK;
 						}
+					}
+					break;
+				}
+				case Properties::EditorProperties::Modified:
+				{
+					if (data->what == B_GET_PROPERTY) {
+						BMessage modifiedInfo = editor->GetModifiedState();
+						result = reply.AddMessage("result", &modifiedInfo);
 					}
 					break;
 				}

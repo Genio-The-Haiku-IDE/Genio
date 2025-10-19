@@ -869,6 +869,23 @@ Editor::SetScrollPosition(int32 line)
 }
 
 
+BMessage
+Editor::GetModifiedState()
+{
+	// Get modified status from Scintilla
+	bool isModified = SendMessage(SCI_GETMODIFY, 0, 0);
+	bool canUndo = SendMessage(SCI_CANUNDO, 0, 0);
+	bool canRedo = SendMessage(SCI_CANREDO, 0, 0);
+
+	BMessage state;
+	state.AddBool("modified", isModified);
+	state.AddBool("can_undo", canUndo);
+	state.AddBool("can_redo", canRedo);
+
+	return state;
+}
+
+
 /*
  * Mind that first line is 0!
  */

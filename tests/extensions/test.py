@@ -420,6 +420,39 @@ def ScrollPosition():
         return False
 
 
+def Modified():
+    message = BMessage(B_GET_PROPERTY)
+    message.AddSpecifier("Modified")
+    message.AddSpecifier("SelectedEditor")
+    reply = BMessage()
+    genio.SendMessage(message, reply)
+
+    modifiedInfo = BMessage()
+    rez = reply.FindMessage("result", modifiedInfo)
+    error = reply.GetInt32("error", 0)
+
+    if error != 0:
+        print(f"test *Modified* FAILED! Error: {error}")
+        return False
+
+    if rez == 0:
+        modified = modifiedInfo.GetBool("modified", False)
+        can_undo = modifiedInfo.GetBool("can_undo", False)
+        can_redo = modifiedInfo.GetBool("can_redo", False)
+
+        # Since we've made changes in previous tests, the document should be modified
+        # and should have undo capability
+        if modified and can_undo:
+            print(f"test *Modified* PASSED! Modified: {modified}, Can undo: {can_undo}, Can redo: {can_redo}")
+            return True
+        else:
+            print(f"test *Modified* FAILED! Expected modified=True and can_undo=True, got modified={modified}, can_undo={can_undo}, can_redo={can_redo}")
+            return False
+    else:
+        print(f"test *Modified* FAILED! FindMessage returned: {rez}")
+        return False
+
+
 def main():
     print("=" * 70)
     print("GENIO SCRIPTING TEST SUITE")
@@ -449,6 +482,20 @@ def main():
     test_results["SelectionRange"] = SelectionRange()
     test_results["VisibleLines"] = VisibleLines()
     test_results["ScrollPosition"] = ScrollPosition()
+
+    # Make a modification to test the Modified property
+    SetSelection(0, 0)
+    message = BMessage(B_SET_PROPERTY)
+    message.AddSpecifier("Text", 0)
+    message.AddSpecifier("SelectedEditor")
+    message.AddString("data", "TEST ")
+    genio.SendMessage(message, None)
+    time.sleep(0.1)  # Give the editor time to register the modification
+
+    test_results["Modified"] = Modified()
+
+    # Undo the test modification to clean up
+    Undo()
 
     # Print summary
     print("\n" + "=" * 70)

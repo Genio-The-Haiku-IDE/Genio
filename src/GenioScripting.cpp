@@ -38,7 +38,8 @@ namespace Properties {
 		SelectionRange,
 		VisibleLines,
 		ScrollPosition,
-		Modified
+		Modified,
+		DocumentInfo
 	};
 }
 
@@ -158,6 +159,13 @@ const property_info sEditorProperties[] = {
 		"Modified", {B_GET_PROPERTY, 0},
 		{B_DIRECT_SPECIFIER, 0},
 		"Return whether the document has unsaved changes (modified, can_undo, can_redo).",
+		0,
+		{B_MESSAGE_TYPE, 0}
+	},
+	{
+		"DocumentInfo", {B_GET_PROPERTY, 0},
+		{B_DIRECT_SPECIFIER, 0},
+		"Return document statistics (length, line_count, text_length).",
 		0,
 		{B_MESSAGE_TYPE, 0}
 	},
@@ -352,6 +360,14 @@ GenioApp::_HandleScripting(BMessage* data)
 					if (data->what == B_GET_PROPERTY) {
 						BMessage modifiedInfo = editor->GetModifiedState();
 						result = reply.AddMessage("result", &modifiedInfo);
+					}
+					break;
+				}
+				case Properties::EditorProperties::DocumentInfo:
+				{
+					if (data->what == B_GET_PROPERTY) {
+						BMessage docInfo = editor->GetDocumentInfo();
+						result = reply.AddMessage("result", &docInfo);
 					}
 					break;
 				}

@@ -453,6 +453,38 @@ def Modified():
         return False
 
 
+def DocumentInfo():
+    message = BMessage(B_GET_PROPERTY)
+    message.AddSpecifier("DocumentInfo")
+    message.AddSpecifier("SelectedEditor")
+    reply = BMessage()
+    genio.SendMessage(message, reply)
+
+    docInfo = BMessage()
+    rez = reply.FindMessage("result", docInfo)
+    error = reply.GetInt32("error", 0)
+
+    if error != 0:
+        print(f"test *DocumentInfo* FAILED! Error: {error}")
+        return False
+
+    if rez == 0:
+        length = docInfo.GetInt32("length", -1)
+        line_count = docInfo.GetInt32("line_count", -1)
+        text_length = docInfo.GetInt32("text_length", -1)
+
+        # Verify that we got valid values (all should be > 0 for a non-empty document)
+        if length > 0 and line_count > 0 and text_length > 0:
+            print(f"test *DocumentInfo* PASSED! Length: {length} chars, Line count: {line_count}, Text length: {text_length}")
+            return True
+        else:
+            print(f"test *DocumentInfo* FAILED! Invalid values - Length: {length}, Line count: {line_count}, Text length: {text_length}")
+            return False
+    else:
+        print(f"test *DocumentInfo* FAILED! FindMessage returned: {rez}")
+        return False
+
+
 def main():
     print("=" * 70)
     print("GENIO SCRIPTING TEST SUITE")
@@ -482,6 +514,7 @@ def main():
     test_results["SelectionRange"] = SelectionRange()
     test_results["VisibleLines"] = VisibleLines()
     test_results["ScrollPosition"] = ScrollPosition()
+    test_results["DocumentInfo"] = DocumentInfo()
 
     # Make a modification to test the Modified property
     SetSelection(0, 0)

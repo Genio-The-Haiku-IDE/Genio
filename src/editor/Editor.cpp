@@ -886,6 +886,24 @@ Editor::GetModifiedState()
 }
 
 
+BMessage
+Editor::GetDocumentInfo()
+{
+	// Get document statistics
+	// Note: Reuse existing CountLines() method to avoid duplication
+	int32 lineCount = CountLines();
+	int32 docLength = SendMessage(SCI_GETLENGTH, 0, 0);
+	int32 textLength = SendMessage(SCI_GETTEXTLENGTH, 0, 0);
+
+	BMessage info;
+	info.AddInt32("length", docLength);
+	info.AddInt32("line_count", lineCount);
+	info.AddInt32("text_length", textLength);
+
+	return info;
+}
+
+
 /*
  * Mind that first line is 0!
  */

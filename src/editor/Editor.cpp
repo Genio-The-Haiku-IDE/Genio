@@ -747,16 +747,41 @@ Editor::FindPrevious(const BString& search, int flags, bool wrap)
 	return position;
 }
 
+
+int32
+Editor::GetCurrentColumnNumber()
+{
+	return SendMessage(SCI_GETCOLUMN, GetCurrentPosition(), 0);
+}
+
+
 int32
 Editor::GetCurrentLineNumber()
 {
-	return SendMessage(SCI_LINEFROMPOSITION, SendMessage(SCI_GETCURRENTPOS, 0, 0), 0);
+	return SendMessage(SCI_LINEFROMPOSITION, GetCurrentPosition(), 0);
 }
+
 
 int32
 Editor::GetCurrentPosition()
 {
 	return SendMessage(SCI_GETCURRENTPOS, UNSET, UNSET);
+}
+
+
+BMessage
+Editor::GetCaretPositionInfo()
+{
+	int32 offset = GetCurrentPosition();
+	int32 line = GetCurrentLineNumber() + 1;
+	int32 column = GetCurrentColumnNumber() + 1;
+
+	BMessage position;
+	position.AddInt32("line", line);
+	position.AddInt32("column", column);
+	position.AddInt32("offset", offset);
+
+	return position;
 }
 
 

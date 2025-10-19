@@ -14,6 +14,7 @@
 #include "GenioWindow.h"
 #include "Editor.h"
 #include "EditorTabView.h"
+#include "editor/Editor.h"
 
 
 // Genio Scripting
@@ -32,7 +33,8 @@ namespace Properties {
 		Line,
 		Undo,
 		Redo,
-		Ref
+		Ref,
+		CaretPosition
 	};
 }
 
@@ -119,6 +121,13 @@ const property_info sEditorProperties[] = {
 		"Return the entry_ref of the document.",
 		0,
 		{B_REF_TYPE, 0}
+	},
+	{
+		"CaretPosition", {B_GET_PROPERTY, 0},
+		{B_DIRECT_SPECIFIER, 0},
+		"Return the current caret position (line, column, offset).",
+		0,
+		{B_MESSAGE_TYPE, 0}
 	},
 	{ 0 }
 };
@@ -266,6 +275,15 @@ GenioApp::_HandleScripting(BMessage* data)
 				{
 					if (data->what == B_GET_PROPERTY && editor != nullptr)
 						result = reply.AddRef("result", editor->FileRef());
+					break;
+				}
+				case Properties::EditorProperties::CaretPosition:
+				{
+					if (data->what == B_GET_PROPERTY) {
+						BMessage caretInfo = editor->GetCaretPositionInfo();
+						caretInfo.PrintToStream();
+						result = reply.AddMessage("result", &caretInfo);
+					}
 					break;
 				}
 			}

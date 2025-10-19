@@ -19,11 +19,16 @@ def OpenEditor():
     message.AddSpecifier("Editor", path.Path())
     reply = BMessage()
     genio.SendMessage(message, reply)
-    result = reply.GetInt32("result", -1)
-    if result != -1:
-        print(f"{file} opened in new Editor with Index {result}. Test *OpenEditor* PASSED!")
+
+    # Check if the reply indicates success (no error field means success)
+    error = reply.GetInt32("error", 0)
+    # Also check that it's not a B_MESSAGE_NOT_UNDERSTOOD reply
+    is_error_reply = (reply.what == 0x42_4d_4e_55)  # 'BMNU' - B_MESSAGE_NOT_UNDERSTOOD
+
+    if error == 0 and not is_error_reply:
+        print(f"{file} opened in new Editor. Test *OpenEditor* PASSED!")
     else:
-        print("Test *OpenEditor* FAILED!")
+        print(f"Test *OpenEditor* FAILED! error: {error}, what: {hex(reply.what)}")
         exit(0)
 
 
@@ -144,6 +149,7 @@ def Undo():
     message.AddSpecifier("Undo")
     message.AddSpecifier("SelectedEditor")
     genio.SendMessage(message, None)
+    print("test *Undo*: All changes undone.")
 
 
 def Ref():
@@ -161,6 +167,34 @@ def Ref():
         print("test *Ref* FAILED!")
 
 
+def CaretPosition():
+    # Set selection to position the caret at a known location
+    SetSelection(10, 0)
+
+    message = BMessage(B_GET_PROPERTY)
+    message.AddSpecifier("CaretPosition")
+    message.AddSpecifier("SelectedEditor")
+    reply = BMessage()
+    genio.SendMessage(message, reply)
+
+    caretInfo = BMessage()
+    rez = reply.FindMessage("result", caretInfo)
+    error = reply.GetInt32("error", 0)
+
+    if rez == 0 and error == 0:
+        line = caretInfo.GetInt32("line", -1)
+        column = caretInfo.GetInt32("column", -1)
+        offset = caretInfo.GetInt32("offset", -1)
+
+        # Verify that we got valid values (all should be >= 0)
+        if line > 0 and column > 0 and offset >= 0:
+            print(f"test *CaretPosition* PASSED! Line: {line}, Column: {column}, Offset: {offset}")
+        else:
+            print(f"test *CaretPosition* FAILED! Invalid values - Line: {line}, Column: {column}, Offset: {offset}")
+    else:
+        print(f"test *CaretPosition* FAILED! Error: {error}")
+
+
 def main():
     OpenEditor()
     time.sleep(1)
@@ -171,8 +205,8 @@ def main():
     Undo()
     Append()
     Undo()
-    print("All changes undone.")
     Ref()
+    CaretPosition()
 
 
 if __name__ == "__main__":

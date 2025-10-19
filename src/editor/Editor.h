@@ -164,6 +164,7 @@ public:
 			int32				GetCurrentPosition();
 			BMessage			GetCaretPositionInfo();
 			BMessage			GetSelectionRange();
+			BMessage			GetVisibleLines();
 
 protected:
 			virtual	void 		MessageReceived(BMessage* message);

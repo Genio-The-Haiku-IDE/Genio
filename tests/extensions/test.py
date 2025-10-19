@@ -228,6 +228,30 @@ def SelectionRange():
         print(f"test *SelectionRange* FAILED! Error: {error}")
 
 
+def VisibleLines():
+    message = BMessage(B_GET_PROPERTY)
+    message.AddSpecifier("VisibleLines")
+    message.AddSpecifier("SelectedEditor")
+    reply = BMessage()
+    genio.SendMessage(message, reply)
+
+    visibleInfo = BMessage()
+    rez = reply.FindMessage("result", visibleInfo)
+    error = reply.GetInt32("error", 0)
+
+    if rez == 0 and error == 0:
+        first_line = visibleInfo.GetInt32("first_line", -1)
+        last_line = visibleInfo.GetInt32("last_line", -1)
+
+        # Verify that we got valid values
+        if first_line > 0 and last_line >= first_line:
+            print(f"test *VisibleLines* PASSED! Visible range: L{first_line} to L{last_line} ({last_line - first_line + 1} lines)")
+        else:
+            print(f"test *VisibleLines* FAILED! Invalid values - first_line: {first_line}, last_line: {last_line}")
+    else:
+        print(f"test *VisibleLines* FAILED! Error: {error}")
+
+
 def main():
     OpenEditor()
     time.sleep(1)
@@ -241,6 +265,7 @@ def main():
     Ref()
     CaretPosition()
     SelectionRange()
+    VisibleLines()
 
 
 if __name__ == "__main__":

@@ -35,7 +35,8 @@ namespace Properties {
 		Redo,
 		Ref,
 		CaretPosition,
-		SelectionRange
+		SelectionRange,
+		VisibleLines
 	};
 }
 
@@ -134,6 +135,13 @@ const property_info sEditorProperties[] = {
 		"SelectionRange", {B_GET_PROPERTY, 0},
 		{B_DIRECT_SPECIFIER, 0},
 		"Return the selection range (start_line, start_column, start_offset, end_line, end_column, end_offset).",
+		0,
+		{B_MESSAGE_TYPE, 0}
+	},
+	{
+		"VisibleLines", {B_GET_PROPERTY, 0},
+		{B_DIRECT_SPECIFIER, 0},
+		"Return the visible line range in the viewport (first_line, last_line).",
 		0,
 		{B_MESSAGE_TYPE, 0}
 	},
@@ -298,6 +306,14 @@ GenioApp::_HandleScripting(BMessage* data)
 					if (data->what == B_GET_PROPERTY) {
 						BMessage selectionInfo = editor->GetSelectionRange();
 						result = reply.AddMessage("result", &selectionInfo);
+					}
+					break;
+				}
+				case Properties::EditorProperties::VisibleLines:
+				{
+					if (data->what == B_GET_PROPERTY) {
+						BMessage visibleInfo = editor->GetVisibleLines();
+						result = reply.AddMessage("result", &visibleInfo);
 					}
 					break;
 				}

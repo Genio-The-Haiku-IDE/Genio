@@ -812,6 +812,27 @@ Editor::GetSelectionRange()
 }
 
 
+BMessage
+Editor::GetVisibleLines()
+{
+	// Get the first visible line (0-based in Scintilla)
+	int32 firstVisibleLine = SendMessage(SCI_GETFIRSTVISIBLELINE, 0, 0);
+
+	// Get the number of lines visible on screen
+	int32 linesOnScreen = SendMessage(SCI_LINESONSCREEN, 0, 0);
+
+	// Calculate the last visible line (0-based in Scintilla)
+	int32 lastVisibleLine = firstVisibleLine + linesOnScreen - 1;
+
+	// Convert to 1-based for user-facing API
+	BMessage visibleLines;
+	visibleLines.AddInt32("first_line", firstVisibleLine + 1);
+	visibleLines.AddInt32("last_line", lastVisibleLine + 1);
+
+	return visibleLines;
+}
+
+
 /*
  * Mind that first line is 0!
  */

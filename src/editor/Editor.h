@@ -163,6 +163,7 @@ public:
 			int32				GetCurrentLineNumber();
 			int32				GetCurrentPosition();
 			BMessage			GetCaretPositionInfo();
+			BMessage			GetSelectionRange();
 
 protected:
 			virtual	void 		MessageReceived(BMessage* message);

@@ -785,6 +785,33 @@ Editor::GetCaretPositionInfo()
 }
 
 
+BMessage
+Editor::GetSelectionRange()
+{
+	// Get selection start and end offsets
+	int32 startOffset = SendMessage(SCI_GETSELECTIONSTART, 0, 0);
+	int32 endOffset = SendMessage(SCI_GETSELECTIONEND, 0, 0);
+
+	// Convert start offset to line and column
+	int32 startLine = SendMessage(SCI_LINEFROMPOSITION, startOffset, 0) + 1;
+	int32 startColumn = SendMessage(SCI_GETCOLUMN, startOffset, 0) + 1;
+
+	// Convert end offset to line and column
+	int32 endLine = SendMessage(SCI_LINEFROMPOSITION, endOffset, 0) + 1;
+	int32 endColumn = SendMessage(SCI_GETCOLUMN, endOffset, 0) + 1;
+
+	BMessage selection;
+	selection.AddInt32("start_line", startLine);
+	selection.AddInt32("start_column", startColumn);
+	selection.AddInt32("start_offset", startOffset);
+	selection.AddInt32("end_line", endLine);
+	selection.AddInt32("end_column", endColumn);
+	selection.AddInt32("end_offset", endOffset);
+
+	return selection;
+}
+
+
 /*
  * Mind that first line is 0!
  */

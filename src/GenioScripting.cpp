@@ -34,7 +34,8 @@ namespace Properties {
 		Undo,
 		Redo,
 		Ref,
-		CaretPosition
+		CaretPosition,
+		SelectionRange
 	};
 }
 
@@ -126,6 +127,13 @@ const property_info sEditorProperties[] = {
 		"CaretPosition", {B_GET_PROPERTY, 0},
 		{B_DIRECT_SPECIFIER, 0},
 		"Return the current caret position (line, column, offset).",
+		0,
+		{B_MESSAGE_TYPE, 0}
+	},
+	{
+		"SelectionRange", {B_GET_PROPERTY, 0},
+		{B_DIRECT_SPECIFIER, 0},
+		"Return the selection range (start_line, start_column, start_offset, end_line, end_column, end_offset).",
 		0,
 		{B_MESSAGE_TYPE, 0}
 	},
@@ -281,8 +289,15 @@ GenioApp::_HandleScripting(BMessage* data)
 				{
 					if (data->what == B_GET_PROPERTY) {
 						BMessage caretInfo = editor->GetCaretPositionInfo();
-						caretInfo.PrintToStream();
 						result = reply.AddMessage("result", &caretInfo);
+					}
+					break;
+				}
+				case Properties::EditorProperties::SelectionRange:
+				{
+					if (data->what == B_GET_PROPERTY) {
+						BMessage selectionInfo = editor->GetSelectionRange();
+						result = reply.AddMessage("result", &selectionInfo);
 					}
 					break;
 				}

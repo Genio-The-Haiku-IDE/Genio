@@ -195,6 +195,39 @@ def CaretPosition():
         print(f"test *CaretPosition* FAILED! Error: {error}")
 
 
+def SelectionRange():
+    # Set a known selection range
+    SetSelection(10, 20)
+
+    message = BMessage(B_GET_PROPERTY)
+    message.AddSpecifier("SelectionRange")
+    message.AddSpecifier("SelectedEditor")
+    reply = BMessage()
+    genio.SendMessage(message, reply)
+
+    selectionInfo = BMessage()
+    rez = reply.FindMessage("result", selectionInfo)
+    error = reply.GetInt32("error", 0)
+
+    if rez == 0 and error == 0:
+        start_line = selectionInfo.GetInt32("start_line", -1)
+        start_column = selectionInfo.GetInt32("start_column", -1)
+        start_offset = selectionInfo.GetInt32("start_offset", -1)
+        end_line = selectionInfo.GetInt32("end_line", -1)
+        end_column = selectionInfo.GetInt32("end_column", -1)
+        end_offset = selectionInfo.GetInt32("end_offset", -1)
+
+        # Verify that we got valid values (all should be >= 0)
+        if (start_line > 0 and start_column > 0 and start_offset >= 0 and
+            end_line > 0 and end_column > 0 and end_offset >= 0 and
+            start_offset == 10 and end_offset == 30):  # start + length
+            print(f"test *SelectionRange* PASSED! Start: L{start_line}:C{start_column}({start_offset}), End: L{end_line}:C{end_column}({end_offset})")
+        else:
+            print(f"test *SelectionRange* FAILED! Invalid values - Start: L{start_line}:C{start_column}({start_offset}), End: L{end_line}:C{end_column}({end_offset})")
+    else:
+        print(f"test *SelectionRange* FAILED! Error: {error}")
+
+
 def main():
     OpenEditor()
     time.sleep(1)
@@ -207,6 +240,7 @@ def main():
     Undo()
     Ref()
     CaretPosition()
+    SelectionRange()
 
 
 if __name__ == "__main__":

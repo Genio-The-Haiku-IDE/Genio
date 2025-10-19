@@ -36,7 +36,8 @@ namespace Properties {
 		Ref,
 		CaretPosition,
 		SelectionRange,
-		VisibleLines
+		VisibleLines,
+		ScrollPosition
 	};
 }
 
@@ -142,6 +143,13 @@ const property_info sEditorProperties[] = {
 		"VisibleLines", {B_GET_PROPERTY, 0},
 		{B_DIRECT_SPECIFIER, 0},
 		"Return the visible line range in the viewport (first_line, last_line).",
+		0,
+		{B_MESSAGE_TYPE, 0}
+	},
+	{
+		"ScrollPosition", {B_GET_PROPERTY, B_SET_PROPERTY, 0},
+		{B_DIRECT_SPECIFIER, 0},
+		"Get/Set the scroll position (x_offset, first_visible_line).",
 		0,
 		{B_MESSAGE_TYPE, 0}
 	},
@@ -314,6 +322,20 @@ GenioApp::_HandleScripting(BMessage* data)
 					if (data->what == B_GET_PROPERTY) {
 						BMessage visibleInfo = editor->GetVisibleLines();
 						result = reply.AddMessage("result", &visibleInfo);
+					}
+					break;
+				}
+				case Properties::EditorProperties::ScrollPosition:
+				{
+					if (data->what == B_GET_PROPERTY) {
+						BMessage scrollInfo = editor->GetScrollPosition();
+						result = reply.AddMessage("result", &scrollInfo);
+					} else if (data->what == B_SET_PROPERTY) {
+						int32 line = -1;
+						if (data->FindInt32("data", &line) == B_OK && line > 0) {
+							editor->SetScrollPosition(line);
+							result = B_OK;
+						}
 					}
 					break;
 				}

@@ -833,6 +833,42 @@ Editor::GetVisibleLines()
 }
 
 
+BMessage
+Editor::GetScrollPosition()
+{
+	// Get horizontal scroll offset
+	int32 xOffset = SendMessage(SCI_GETXOFFSET, 0, 0);
+
+	// Get first visible line (0-based in Scintilla)
+	int32 firstVisibleLine = SendMessage(SCI_GETFIRSTVISIBLELINE, 0, 0);
+
+	// Add to message (convert line to 1-based for consistency with other APIs)
+	BMessage scroll;
+	scroll.AddInt32("x_offset", xOffset);
+	scroll.AddInt32("first_visible_line", firstVisibleLine + 1);
+
+	return scroll;
+}
+
+
+void
+Editor::SetScrollPosition(int32 line)
+{
+	// Convert from 1-based to 0-based line number
+	int32 scintillaLine = line - 1;
+
+	// Ensure the line is within valid range
+	int32 lineCount = SendMessage(SCI_GETLINECOUNT, 0, 0);
+	if (scintillaLine < 0)
+		scintillaLine = 0;
+	else if (scintillaLine >= lineCount)
+		scintillaLine = lineCount - 1;
+
+	// Set the first visible line
+	SendMessage(SCI_SETFIRSTVISIBLELINE, scintillaLine, 0);
+}
+
+
 /*
  * Mind that first line is 0!
  */

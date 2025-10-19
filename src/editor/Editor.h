@@ -165,6 +165,8 @@ public:
 			BMessage			GetCaretPositionInfo();
 			BMessage			GetSelectionRange();
 			BMessage			GetVisibleLines();
+			BMessage			GetScrollPosition();
+			void				SetScrollPosition(int32 line);
 
 protected:
 			virtual	void 		MessageReceived(BMessage* message);

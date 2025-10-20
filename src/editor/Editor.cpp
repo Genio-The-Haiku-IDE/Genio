@@ -175,7 +175,7 @@ Editor::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case editor::StatusView::UPDATE_STATUS:
 			UpdateStatusBar();
-		break;
+			break;
 		case kIdle:
 			fLSPEditorWrapper->flushChanges();
 			break;
@@ -410,7 +410,7 @@ Editor::ApplySettings()
 
 	_HighlightBraces();
 
-	if((bool)gCFG["wrap_lines"] == true) {
+	if(gCFG["wrap_lines"]) {
 		SendMessage(SCI_SETWRAPMODE, SC_WRAP_WORD, 0);
 	} else {
 		SendMessage(SCI_SETWRAPMODE, SC_WRAP_NONE, 0);
@@ -1146,7 +1146,8 @@ Editor::NotificationReceived(SCNotification* notification)
 			break;
 
 		}
-		case SCN_MARGINCLICK: {
+		case SCN_MARGINCLICK:
+		{
 			if (notification->margin == sci_BOOKMARK_MARGIN)
 				// Bookmark toggle
 				BookmarkToggle(notification->position);
@@ -1163,7 +1164,8 @@ Editor::NotificationReceived(SCNotification* notification)
 			fLSPEditorWrapper->SelectedCompletion(notification->text);
 			break;
 		}
-		case SCN_MODIFIED: {
+		case SCN_MODIFIED:
+		{
 			if (notification->modificationType & SC_MOD_INSERTTEXT) {
 				fLSPEditorWrapper->didChange(notification->text, notification->length, notification->position, 0);
 				EvaluateIdleTime();
@@ -1180,33 +1182,40 @@ Editor::NotificationReceived(SCNotification* notification)
 					_RedrawNumberMargin(false);
 			break;
 		}
-		case SCN_CALLTIPCLICK: {
+		case SCN_CALLTIPCLICK:
+		{
 			GMessage click = {{"what",kCallTipClick},{"position", (int32)notification->position}};
 			Looper()->PostMessage(&click, this);
 			break;
 		}
-		case SCN_DWELLSTART: {
+		case SCN_DWELLSTART:
+		{
 			if (Window()->IsActive())
 				fLSPEditorWrapper->StartHover(notification->position);
 			break;
 		}
-		case SCN_DWELLEND: {
+		case SCN_DWELLEND:
+		{
 			fLSPEditorWrapper->EndHover();
 			break;
 		}
-		case SCN_INDICATORRELEASE: {
+		case SCN_INDICATORRELEASE:
+		{
 			fLSPEditorWrapper->IndicatorClick(notification->position);
 			break;
 		}
-		case SCN_SAVEPOINTLEFT: {
+		case SCN_SAVEPOINTLEFT:
+		{
 			_UpdateSavePoint(true);
 			break;
 		}
-		case SCN_SAVEPOINTREACHED: {
+		case SCN_SAVEPOINTREACHED:
+		{
 			_UpdateSavePoint(false);
 			break;
 		}
-		case SCN_UPDATEUI: {
+		case SCN_UPDATEUI:
+		{
 			if (notification->updated &
 				(SC_UPDATE_H_SCROLL | SC_UPDATE_V_SCROLL | SC_UPDATE_SELECTION)) {
 

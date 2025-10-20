@@ -32,8 +32,7 @@ GOutlineListView::MouseMoved(BPoint point, uint32 transit, const BMessage* messa
 			SetToolTip(toolTipText);
 		}
 	}
-
-	// We don't call inherited MouseMoved()
+	// We don't call inherited MouseMoved(): it's not an error
 }
 
 

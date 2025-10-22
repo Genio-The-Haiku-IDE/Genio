@@ -13,16 +13,21 @@
 #include <SeparatorView.h>
 #include <StatusBar.h>
 #include <StringView.h>
+#include <functional>
 
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
+#include "Task.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectOpenerWindow"
 
 const uint32 kCancel = 'canc';
+
+using Genio::Task::Task;
+using Genio::Task::TaskResult;
 
 ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 	const BMessenger& messenger, bool activate)
@@ -35,7 +40,8 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 			B_NOT_RESIZABLE |
 			B_AVOID_FRONT |
 			B_AUTO_UPDATE_SIZE_LIMITS),
-	fTarget(messenger)
+	fTarget(messenger),
+	fProject(nullptr)
 {
 	fBarberPole = new BarberPole("barber pole");
 	fProgressBar = new BStatusBar("progress bar");
@@ -83,6 +89,21 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 
 			PostMessage(new BMessage(B_QUIT_REQUESTED));
 			break;
+		case Genio::Task::TASK_RESULT_MESSAGE:
+		{
+			Lock();
+			fBarberPole->Stop();
+			Unlock();
+
+			BMessage openCompletedMessage(MSG_PROJECT_OPEN_COMPLETED);
+			openCompletedMessage.AddPointer("project", fProject);
+			openCompletedMessage.AddRef("ref", fProject->EntryRef());
+			openCompletedMessage.AddBool("activate", true);
+			fTarget.SendMessage(&openCompletedMessage);
+	
+			PostMessage(new BMessage(B_QUIT_REQUESTED));
+			break;
+		}
 		default:
 			BWindow::MessageReceived(message);
 			break;
@@ -93,22 +114,22 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 void
 ProjectOpenerWindow::_OpenProject(const entry_ref* ref, bool activate)
 {
-	ProjectFolder* newProject = new ProjectFolder(*ref, fTarget);
+	fProject = new ProjectFolder(*ref, fTarget);
 
 	BString text(B_TRANSLATE("Loading project '%project_name%'"));
-	text.ReplaceFirst("%project_name%", newProject->Name());
+	text.ReplaceFirst("%project_name%", fProject->Name());
 	Lock();
 	fStatusText->SetText(text);
 	Unlock();
 
 	BMessage message(MSG_PROJECT_OPEN_INITIATED);
-	message.AddPointer("project", newProject);
+	message.AddPointer("project", fProject);
 	message.AddRef("ref", ref);
 	message.AddBool("activate", activate);
 	
 	fTarget.SendMessage(&message);
 	
-	status_t status = newProject->Open();
+	status_t status = fProject->Open();
 	if (status != B_OK) {
 		Lock();
 		fBarberPole->Stop();
@@ -123,16 +144,19 @@ ProjectOpenerWindow::_OpenProject(const entry_ref* ref, bool activate)
 	Lock();
 	fBarberPole->Start();
 	Unlock();
-
-	// TODO: Locking ?
-	gMainWindow->GetProjectBrowser()->ProjectFolderPopulate(newProject);
-
-	Lock();
-	fBarberPole->Stop();
-	Unlock();
-
-	message.what = MSG_PROJECT_OPEN_COMPLETED;
-	fTarget.SendMessage(&message);
+	BString taskName;
+	taskName << fProject->Name() << "OpenerTask";
+	Task<void> task
+	(
+		taskName,
+		BMessenger(this),
+		std::bind
+		(
+			&ProjectBrowser::ProjectFolderPopulate,
+			gMainWindow->GetProjectBrowser(),
+			fProject
+		)
+	);
 	
-	PostMessage(new BMessage(B_QUIT_REQUESTED));
+	task.Run();
 }

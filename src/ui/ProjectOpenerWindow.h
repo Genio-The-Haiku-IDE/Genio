@@ -15,6 +15,7 @@ class BCardLayout;
 class BStatusBar;
 class BString;
 class BStringView;
+class ProjectFolder;
 class ProjectOpenerWindow : public BWindow {
 public:
 	ProjectOpenerWindow(const entry_ref*, const BMessenger& messenger, bool activate);
@@ -30,4 +31,5 @@ private:
 	BCardLayout*				fProgressLayout;
 	BView*						fProgressView;
 	BStringView*				fStatusText;
+	ProjectFolder*				fProject;
 };

@@ -32,4 +32,5 @@ private:
 	BView*						fProgressView;
 	BStringView*				fStatusText;
 	ProjectFolder*				fProject;
+	bool						fActivate;
 };

@@ -41,7 +41,8 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 			B_AVOID_FRONT |
 			B_AUTO_UPDATE_SIZE_LIMITS),
 	fTarget(messenger),
-	fProject(nullptr)
+	fProject(nullptr),
+	fActivate(activate)
 {
 	fBarberPole = new BarberPole("barber pole");
 	fProgressBar = new BStatusBar("progress bar");
@@ -65,6 +66,7 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 			.Add(fStatusText)
 			.Add(fProgressLayout)
 		.End()
+		.Add(new BButton(B_TRANSLATE("Cancel"), new BMessage(kCancel)))
 	.End();
 
 	fProgressLayout->SetVisibleItem(int32(0));
@@ -82,23 +84,23 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kCancel:
+		{
 			fBarberPole->Stop();
-
-			// TODO: Interrupt loading:
-			// TODO: Send the MSG_PROJECT_OPEN_ABORTED message
-
+			BMessage openCompletedMessage(MSG_PROJECT_OPEN_ABORTED);
+			openCompletedMessage.AddPointer("project", fProject);
+			openCompletedMessage.AddRef("ref", fProject->EntryRef());
+			openCompletedMessage.AddBool("activate", fActivate);
+			fTarget.SendMessage(&openCompletedMessage);	
 			PostMessage(new BMessage(B_QUIT_REQUESTED));
 			break;
+		}
 		case Genio::Task::TASK_RESULT_MESSAGE:
 		{
-			Lock();
 			fBarberPole->Stop();
-			Unlock();
-
 			BMessage openCompletedMessage(MSG_PROJECT_OPEN_COMPLETED);
 			openCompletedMessage.AddPointer("project", fProject);
 			openCompletedMessage.AddRef("ref", fProject->EntryRef());
-			openCompletedMessage.AddBool("activate", true);
+			openCompletedMessage.AddBool("activate", fActivate);
 			fTarget.SendMessage(&openCompletedMessage);
 	
 			PostMessage(new BMessage(B_QUIT_REQUESTED));

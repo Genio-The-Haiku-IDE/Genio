@@ -13,12 +13,9 @@
 #include <SeparatorView.h>
 #include <StatusBar.h>
 #include <StringView.h>
-#include <functional>
 
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
-#include "ProjectBrowser.h"
-#include "ProjectFolder.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectOpenerWindow"
@@ -41,8 +38,7 @@ private:
 
 ProjectOpenerWindow::ProjectOpenerWindow(const BMessenger& messenger)
 	:
-	BWindow(BRect(0, 0, 400, 200), B_TRANSLATE("Loading project"),
-			B_MODAL_WINDOW,
+	BWindow(BRect(0, 0, 400, 200), B_TRANSLATE("Loading project"), B_FLOATING_WINDOW,
 			B_ASYNCHRONOUS_CONTROLS |
 			B_NOT_CLOSABLE |
 			B_NOT_ZOOMABLE |
@@ -52,7 +48,6 @@ ProjectOpenerWindow::ProjectOpenerWindow(const BMessenger& messenger)
 	fTarget(messenger)
 {
 	SetLayout(new BGroupLayout(B_VERTICAL));
-	CenterOnScreen();
 	Show();
 }
 
@@ -72,6 +67,12 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 		
 		case '0002':
 		{
+			const char* name;
+			message->FindString("project_name", &name);
+			BGroupLayout* layout = dynamic_cast<BGroupLayout*>(GetLayout());
+			BView* view = FindView(name);
+			if (view != nullptr)
+				layout->RemoveView(view);
 			break;
 		}
 		case kCancel:

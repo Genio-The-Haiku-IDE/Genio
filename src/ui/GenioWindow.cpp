@@ -255,7 +255,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case Genio::Task::TASK_RESULT_MESSAGE:
 		{
 			try {
-			// TODO: how to distinguish between various task result? 
+				// TODO: how to distinguish between various task result? 
 				TaskResult<ProjectFolder*> *result = TaskResult<ProjectFolder*>::Instantiate(message);
 				ProjectFolder* project = result->GetResult();
 				delete result;
@@ -3794,7 +3794,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	// Now open the project for real
 	BMessenger msgr(this);
-#if 0
+#if 1
 	if (fProjectOpenerWindow == nullptr)
 		fProjectOpenerWindow = new ProjectOpenerWindow(msgr);
 #endif	
@@ -3835,7 +3835,7 @@ GenioWindow::_ProjectFolderOpenInitiated(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
 	ASSERT(project != nullptr);
-#if 0
+#if 1
 	BMessage openMessage('0001');
 	openMessage.AddString("project_name", project->Name());
 	fProjectOpenerWindow->PostMessage(&openMessage);
@@ -3848,7 +3848,7 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
 	ASSERT(project != nullptr);
-#if 0
+#if 1
 	BMessage message('0002');
 	message.AddString("project_name", project->Name());
 	fProjectOpenerWindow->PostMessage(&message);

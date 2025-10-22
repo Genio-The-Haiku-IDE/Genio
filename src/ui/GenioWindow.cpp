@@ -3795,8 +3795,10 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	// Now open the project for real
 	BMessenger msgr(this);
 #if 1
-	if (fProjectOpenerWindow == nullptr)
+	if (fProjectOpenerWindow == nullptr) {
 		fProjectOpenerWindow = new ProjectOpenerWindow(msgr);
+		fProjectOpenerWindow->Show();
+	}
 #endif	
 	ProjectFolder* project = new ProjectFolder(ref, msgr);
 	

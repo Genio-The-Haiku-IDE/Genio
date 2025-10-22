@@ -11,6 +11,7 @@
 #include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
+#include <Screen.h>
 #include <StatusBar.h>
 #include <StringView.h>
 
@@ -48,7 +49,6 @@ ProjectOpenerWindow::ProjectOpenerWindow(const BMessenger& messenger)
 	fTarget(messenger)
 {
 	SetLayout(new BGroupLayout(B_VERTICAL));
-	Show();
 }
 
 
@@ -62,6 +62,7 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 			const char* name;
 			message->FindString("project_name", &name);			
 			dynamic_cast<BGroupLayout*>(GetLayout())->AddView(new ProjectProgressView(name));
+			_MoveAndResize();
 			if (IsHidden())
 				Show();
 			break;
@@ -75,6 +76,7 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 			BView* view = FindView(name);
 			if (view != nullptr)
 				layout->RemoveView(view);
+			_MoveAndResize();
 			if (CountChildren() <= 0)
 				Hide();
 			break;
@@ -98,10 +100,18 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 }
 
 
+void
+ProjectOpenerWindow::_MoveAndResize()
+{
+	const BRect screenFrame(BScreen().Frame());
+	MoveTo(screenFrame.right - Frame().Width(), screenFrame.bottom - Frame().Height());
+}
+
+
 // ProjectProgressView
 ProjectProgressView::ProjectProgressView(const char* name)
 	:
-	BGroupView(name)
+	BGroupView(name, B_VERTICAL, B_WILL_DRAW)
 {
 	fBarberPole = new BarberPole("barber pole");
 	fProgressBar = new BStatusBar("progress bar");

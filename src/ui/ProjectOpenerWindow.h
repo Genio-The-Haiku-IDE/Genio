@@ -22,7 +22,6 @@ public:
 	
 	void MessageReceived(BMessage* message) override;
 private:
-	void	_OpenProject(const entry_ref* ref, bool activate);
-
+	void _MoveAndResize();
 	const BMessenger			fTarget;
 };

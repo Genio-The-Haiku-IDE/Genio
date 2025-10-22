@@ -4,8 +4,11 @@ v5.0
 	- Added ability to close all tabs to further customize workspace.
 	- Replaced homegrown termview (used for build log and console I/O) with the Haiku Terminal.
 	- Added Terminal tab.
+	- Implement more scripting properties.
 	- Sort the project list alphabetically.
 	- Save outline sorting in settings.
+	- Added syntax highlighting for Nim.
+	- Added XHTML as supported file type (Humdinger).
 	- Mark the active project instead of disabling the menuitem in the project menu.
 	- Greatly improved the code which handles project activation, making it less crash prone.
 	- Made code more robust by checking for NULL in some more places, and use C++ casts (mostly found with Codacy).
@@ -17,6 +20,8 @@ v5.0
 	- Fixed rebuilding Source Control tab multiple times for a single event.
 	- Fixed accidental item invocation when left clicking plus right clicking on a project listitem.
 	- Fixed window title when not showing full path.
+	- Fixed opening symlinks in ProjectBrowser.
+	- Updated nlohmann's json library to version 3.12.0.
 ---
 v4.0
 	- Folders can now be dropped in the project browser to open them as a project.

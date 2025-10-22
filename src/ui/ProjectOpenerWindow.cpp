@@ -11,24 +11,35 @@
 #include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <SeparatorView.h>
+#include <Screen.h>
 #include <StatusBar.h>
 #include <StringView.h>
 
 #include "GenioWindow.h"
 #include "GenioWindowMessages.h"
-#include "ProjectBrowser.h"
-#include "ProjectFolder.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ProjectOpenerWindow"
 
 const uint32 kCancel = 'canc';
 
-ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
-	const BMessenger& messenger, bool activate)
+class ProjectProgressView : public BGroupView {
+public:
+	ProjectProgressView(const char* name);
+private:
+	BButton* 					fCancel;
+	BStatusBar*					fProgressBar;
+	BarberPole*					fBarberPole;
+	BCardLayout*				fProgressLayout;
+	BView*						fProgressView;
+	BStringView*				fStatusText;
+};
+
+
+
+ProjectOpenerWindow::ProjectOpenerWindow(const BMessenger& messenger)
 	:
-	BWindow(BRect(0, 0, 400, 200), B_TRANSLATE("Loading project"),
-			B_MODAL_WINDOW,
+	BWindow(BRect(0, 0, 400, 200), B_TRANSLATE("Loading project"), B_FLOATING_WINDOW,
 			B_ASYNCHRONOUS_CONTROLS |
 			B_NOT_CLOSABLE |
 			B_NOT_ZOOMABLE |
@@ -36,6 +47,71 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 			B_AVOID_FRONT |
 			B_AUTO_UPDATE_SIZE_LIMITS),
 	fTarget(messenger)
+{
+	SetLayout(new BGroupLayout(B_VERTICAL));
+}
+
+
+/* virtual */
+void
+ProjectOpenerWindow::MessageReceived(BMessage* message)
+{
+	switch (message->what) {
+		case '0001':
+		{
+			const char* name;
+			message->FindString("project_name", &name);			
+			dynamic_cast<BGroupLayout*>(GetLayout())->AddView(new ProjectProgressView(name));
+			_MoveAndResize();
+			if (IsHidden())
+				Show();
+			break;
+		}
+		
+		case '0002':
+		{
+			const char* name;
+			message->FindString("project_name", &name);
+			BGroupLayout* layout = dynamic_cast<BGroupLayout*>(GetLayout());
+			BView* view = FindView(name);
+			if (view != nullptr)
+				layout->RemoveView(view);
+			_MoveAndResize();
+			if (CountChildren() <= 0)
+				Hide();
+			break;
+		}
+		case kCancel:
+		{
+			/*fBarberPole->Stop();
+			BMessage openAbortedMessage(MSG_PROJECT_OPEN_ABORTED);
+			openAbortedMessage.AddPointer("project", fProject);
+			openAbortedMessage.AddRef("ref", fProject->EntryRef());
+			openAbortedMessage.AddBool("activate", fActivate);
+			fTarget.SendMessage(&openAbortedMessage);
+			*/
+			PostMessage(new BMessage(B_QUIT_REQUESTED));
+			break;
+		}
+		default:
+			BWindow::MessageReceived(message);
+			break;
+	}
+}
+
+
+void
+ProjectOpenerWindow::_MoveAndResize()
+{
+	const BRect screenFrame(BScreen().Frame());
+	MoveTo(screenFrame.right - Frame().Width(), screenFrame.bottom - Frame().Height());
+}
+
+
+// ProjectProgressView
+ProjectProgressView::ProjectProgressView(const char* name)
+	:
+	BGroupView(name, B_VERTICAL, B_WILL_DRAW)
 {
 	fBarberPole = new BarberPole("barber pole");
 	fProgressBar = new BStatusBar("progress bar");
@@ -58,81 +134,14 @@ ProjectOpenerWindow::ProjectOpenerWindow(const entry_ref* ref,
 		.AddGroup(B_HORIZONTAL)
 			.Add(fStatusText)
 			.Add(fProgressLayout)
+			//.Add(new BButton(B_TRANSLATE("Cancel"), new BMessage(kCancel)))
 		.End()
 	.End();
 
 	fProgressLayout->SetVisibleItem(int32(0));
-
-	CenterOnScreen();
-	Show();
 	
-	_OpenProject(ref, activate);
-}
-
-
-/* virtual */
-void
-ProjectOpenerWindow::MessageReceived(BMessage* message)
-{
-	switch (message->what) {
-		case kCancel:
-			fBarberPole->Stop();
-
-			// TODO: Interrupt loading:
-			// TODO: Send the MSG_PROJECT_OPEN_ABORTED message
-
-			PostMessage(new BMessage(B_QUIT_REQUESTED));
-			break;
-		default:
-			BWindow::MessageReceived(message);
-			break;
-	}
-}
-
-
-void
-ProjectOpenerWindow::_OpenProject(const entry_ref* ref, bool activate)
-{
-	ProjectFolder* newProject = new ProjectFolder(*ref, fTarget);
-
 	BString text(B_TRANSLATE("Loading project '%project_name%'"));
-	text.ReplaceFirst("%project_name%", newProject->Name());
-	Lock();
+	text.ReplaceFirst("%project_name%", name);
 	fStatusText->SetText(text);
-	Unlock();
-
-	BMessage message(MSG_PROJECT_OPEN_INITIATED);
-	message.AddPointer("project", newProject);
-	message.AddRef("ref", ref);
-	message.AddBool("activate", activate);
-	
-	fTarget.SendMessage(&message);
-	
-	status_t status = newProject->Open();
-	if (status != B_OK) {
-		Lock();
-		fBarberPole->Stop();
-		Unlock();
-
-		// GenioWindow will delete the allocated project
-		message.what = MSG_PROJECT_OPEN_ABORTED;
-		fTarget.SendMessage(&message);
-		return;
-	}
-
-	Lock();
 	fBarberPole->Start();
-	Unlock();
-
-	// TODO: Locking ?
-	gMainWindow->GetProjectBrowser()->ProjectFolderPopulate(newProject);
-
-	Lock();
-	fBarberPole->Stop();
-	Unlock();
-
-	message.what = MSG_PROJECT_OPEN_COMPLETED;
-	fTarget.SendMessage(&message);
-	
-	PostMessage(new BMessage(B_QUIT_REQUESTED));
 }

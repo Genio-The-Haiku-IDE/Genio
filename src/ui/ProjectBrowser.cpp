@@ -773,22 +773,28 @@ struct {
 } CompareProjectsItemName;
 
 
-void
+ProjectFolder*
 ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
 	ASSERT(project != nullptr);
 
-	if (fOutlineListView->CountItems() == 0)
-		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(0));
+	if (LockLooper()) {
+		if (fOutlineListView->CountItems() == 0)
+			static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(0));
+		UnlockLooper();
+	}
 
 	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
-	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
-	fOutlineListView->SortItemsUnder(nullptr, false, ProjectOutlineListView::CompareProjectItems);
-
-	const BString projectPath = project->Path();
-	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
 
 	ASSERT(projectItem != nullptr);
+
+	LockLooper();
+
+	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
+	fOutlineListView->SortItemsUnder(nullptr, false, ProjectOutlineListView::CompareProjectItems);
+	
+	const BString projectPath = project->Path();
+	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
 
 	fProjectList.push_back(project);
 	fProjectProjectItemList.push_back(projectItem);
@@ -798,10 +804,15 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 	std::sort(fProjectProjectItemList.begin(), fProjectProjectItemList.end(), CompareProjectsItemName);
 
 	Invalidate();
+
+	UnlockLooper();
+
 	status_t status = BPrivate::BPathMonitor::StartWatching(projectPath,
 			B_WATCH_RECURSIVELY, BMessenger(this));
 	if (status != B_OK)
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
+	
+	return project;
 }
 
 
@@ -853,6 +864,8 @@ ProjectBrowser::ExpandProjectCollapseOther(const BString& project)
 ProjectItem*
 ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder)
 {
+	LockLooper();
+
 	ProjectItem *newItem;
 	if (item != nullptr) {
 		SourceItem *sourceItem = new SourceItem(*ref);
@@ -865,6 +878,7 @@ ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, Proj
 		newItem = new ProjectTitleItem(projectFolder);
 		fOutlineListView->AddItem(newItem);
 	}
+	UnlockLooper();
 
 	BEntry entry(ref);
 	if (entry.IsDirectory()) {

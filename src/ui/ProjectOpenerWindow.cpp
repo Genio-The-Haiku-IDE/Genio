@@ -62,6 +62,8 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 			const char* name;
 			message->FindString("project_name", &name);			
 			dynamic_cast<BGroupLayout*>(GetLayout())->AddView(new ProjectProgressView(name));
+			if (IsHidden())
+				Show();
 			break;
 		}
 		
@@ -73,6 +75,8 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 			BView* view = FindView(name);
 			if (view != nullptr)
 				layout->RemoveView(view);
+			if (CountChildren() <= 0)
+				Hide();
 			break;
 		}
 		case kCancel:
@@ -87,28 +91,10 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 			PostMessage(new BMessage(B_QUIT_REQUESTED));
 			break;
 		}
-		/*case Genio::Task::TASK_RESULT_MESSAGE:
-		{
-			fBarberPole->Stop();
-			BMessage openCompletedMessage(MSG_PROJECT_OPEN_COMPLETED);
-			openCompletedMessage.AddPointer("project", fProject);
-			openCompletedMessage.AddRef("ref", fProject->EntryRef());
-			openCompletedMessage.AddBool("activate", fActivate);
-			fTarget.SendMessage(&openCompletedMessage);
-	
-			PostMessage(new BMessage(B_QUIT_REQUESTED));
-			break;
-		}*/
 		default:
 			BWindow::MessageReceived(message);
 			break;
 	}
-}
-
-
-void
-ProjectOpenerWindow::_OpenProject(const entry_ref* ref, bool activate)
-{
 }
 
 
@@ -138,7 +124,7 @@ ProjectProgressView::ProjectProgressView(const char* name)
 		.AddGroup(B_HORIZONTAL)
 			.Add(fStatusText)
 			.Add(fProgressLayout)
-			.Add(new BButton(B_TRANSLATE("Cancel"), new BMessage(kCancel)))
+			//.Add(new BButton(B_TRANSLATE("Cancel"), new BMessage(kCancel)))
 		.End()
 	.End();
 

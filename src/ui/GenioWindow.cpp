@@ -96,7 +96,7 @@ static float kDefaultIconSizeSmall = 20.0;
 static float kDefaultIconSize = 32.0;
 
 using Genio::Task::Task;
-
+using Genio::Task::TaskResult;
 
 static bool
 AcceptsCopyPaste(BView* view)
@@ -175,6 +175,7 @@ GenioWindow::GenioWindow(BRect frame)
 	, fScreenMode(kDefault)
 	, fPanelTabManager(nullptr)
 	, fPanelsMenu(nullptr)
+	, fProjectOpenerWindow(nullptr)
 {
 	gMainWindow = this;
 
@@ -251,6 +252,20 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case Genio::Task::TASK_RESULT_MESSAGE:
+		{
+			try {
+			// TODO: how to distinguish between various task result? 
+				TaskResult<ProjectFolder*> *result = TaskResult<ProjectFolder*>::Instantiate(message);
+				ProjectFolder* project = result->GetResult();
+				delete result;
+				const entry_ref* ref = project->EntryRef();
+				_ProjectFolderOpenCompleted(project, *ref, false);
+			} catch (...) {
+				break;
+			}
+			break;
+		}
 		case MSG_PREPARE_WORKSPACE:
 			_PrepareWorkspace();
 			break;
@@ -3779,9 +3794,37 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	// Now open the project for real
 	BMessenger msgr(this);
+#if 0
+	if (fProjectOpenerWindow == nullptr)
+		fProjectOpenerWindow = new ProjectOpenerWindow(msgr);
+#endif	
+	ProjectFolder* project = new ProjectFolder(ref, msgr);
+	
+	_ProjectFolderOpenInitiated(project, ref, activate);
+		
+	status = project->Open();
+	if (status != B_OK) {
+		// GenioWindow will delete the allocated project
+		//message.what = MSG_PROJECT_OPEN_ABORTED;
+		//fTarget.SendMessage(&message);
+		return status;
+	}
 
-	// TODO: This shows a modal window
-	new ProjectOpenerWindow(&resolved_ref, msgr, activate);
+	BString taskName;
+	taskName << project->Name() << "OpenerTask";
+	Task<ProjectFolder*> task
+	(
+		taskName,
+		BMessenger(this),
+		std::bind
+		(
+			&ProjectBrowser::ProjectFolderPopulate,
+			GetProjectBrowser(),
+			project
+		)
+	);
+	
+	task.Run();
 
 	return B_OK;
 }
@@ -3792,6 +3835,11 @@ GenioWindow::_ProjectFolderOpenInitiated(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
 	ASSERT(project != nullptr);
+#if 0
+	BMessage openMessage('0001');
+	openMessage.AddString("project_name", project->Name());
+	fProjectOpenerWindow->PostMessage(&openMessage);
+#endif
 }
 
 
@@ -3800,7 +3848,11 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
 	ASSERT(project != nullptr);
-
+#if 0
+	BMessage message('0002');
+	message.AddString("project_name", project->Name());
+	fProjectOpenerWindow->PostMessage(&message);
+#endif
 	// ensure it's selected:
 	GetProjectBrowser()->SelectProjectAndScroll(project);
 

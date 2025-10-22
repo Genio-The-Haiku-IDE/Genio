@@ -56,7 +56,7 @@ public:
 	void			SelectItemByRef(const ProjectFolder* project, const entry_ref& ref);
 	void			SelectNewItemAndScrollDelayed(const ProjectItem* parent, const entry_ref ref); //ugly name..
 
-	void			ProjectFolderPopulate(ProjectFolder* project);
+	ProjectFolder* 	ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 
 	void			ExpandProjectCollapseOther(const BString& projectName);

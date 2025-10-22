@@ -259,6 +259,7 @@ private:
 			PanelTabManager*	fPanelTabManager;
 			BMenu*				fPanelsMenu;
 
+			BWindow*			fProjectOpenerWindow;
 };
 
 extern GenioWindow *gMainWindow;

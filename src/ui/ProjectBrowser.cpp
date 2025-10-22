@@ -773,7 +773,7 @@ struct {
 } CompareProjectsItemName;
 
 
-void
+ProjectFolder*
 ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
 	ASSERT(project != nullptr);
@@ -811,6 +811,8 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 			B_WATCH_RECURSIVELY, BMessenger(this));
 	if (status != B_OK)
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
+	
+	return project;
 }
 
 

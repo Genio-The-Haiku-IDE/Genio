@@ -18,19 +18,11 @@ class BStringView;
 class ProjectFolder;
 class ProjectOpenerWindow : public BWindow {
 public:
-	ProjectOpenerWindow(const entry_ref*, const BMessenger& messenger, bool activate);
+	ProjectOpenerWindow(const BMessenger& messenger);
 	
 	void MessageReceived(BMessage* message) override;
 private:
 	void	_OpenProject(const entry_ref* ref, bool activate);
 
 	const BMessenger			fTarget;
-	BButton* 					fCancel;
-	BStatusBar*					fProgressBar;
-	BarberPole*					fBarberPole;
-	BCardLayout*				fProgressLayout;
-	BView*						fProgressView;
-	BStringView*				fStatusText;
-	ProjectFolder*				fProject;
-	bool						fActivate;
 };

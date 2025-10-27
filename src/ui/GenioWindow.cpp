@@ -3673,6 +3673,11 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	if (project == nullptr)
 		return;
 
+	// Don't close anything if tasks are running
+	// TODO: improve this
+	if (!fTaskIDs.empty())
+		return;
+
 	std::vector<Editor*> unsavedEditor;
 	fTabManager->ForEachEditor([&](Editor* editor){
 		if (editor->IsModified() && editor->GetProjectFolder() == project)

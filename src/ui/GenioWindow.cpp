@@ -257,12 +257,10 @@ GenioWindow::MessageReceived(BMessage* message)
 			try {
 				// TODO: how to distinguish between various task result? 
 				TaskResult<ProjectFolder*> *result = TaskResult<ProjectFolder*>::Instantiate(message);
-				ProjectFolder* project = result->GetResult();
 				std::set<thread_id>::iterator i = fTaskIDs.find(result->TaskID());
 				delete result;
-				const entry_ref* ref = project->EntryRef();
-				_ProjectFolderOpenCompleted(project, *ref, false);
-				fTaskIDs.erase(i);
+				if (i != fTaskIDs.end())
+					fTaskIDs.erase(i);
 			} catch (...) {
 				break;
 			}
@@ -3829,9 +3827,10 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		BMessenger(this),
 		std::bind
 		(
-			&ProjectBrowser::ProjectFolderPopulate,
-			GetProjectBrowser(),
-			project
+			&GenioWindow::_ProjectFolderOpenerRunner,
+			this,
+			project,
+			activate
 		)
 	);
 	
@@ -3840,6 +3839,19 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	task.Run();
 
 	return B_OK;
+}
+
+
+ProjectFolder*
+GenioWindow::_ProjectFolderOpenerRunner(ProjectFolder* project, bool activate)
+{
+	ProjectFolder* result = GetProjectBrowser()->ProjectBrowser::ProjectFolderPopulate(project);
+
+	LockLooper();
+	_ProjectFolderOpenCompleted(result, *result->EntryRef(), activate);
+	UnlockLooper();
+
+	return result;
 }
 
 
@@ -3924,6 +3936,7 @@ GenioWindow::_ProjectFolderOpenAborted(ProjectFolder* project,
 
 	delete project;
 }
+
 
 
 status_t

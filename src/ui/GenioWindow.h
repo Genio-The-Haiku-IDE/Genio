@@ -133,6 +133,9 @@ private:
 			status_t			_ProjectFolderOpen(BMessage *message);
 			status_t			_ProjectFolderOpen(const entry_ref& ref, bool activate = false);
 
+			ProjectFolder*		_ProjectFolderOpenerRunner(ProjectFolder* project, bool activate);
+
+			// These must be called with the looper locked
 			void				_ProjectFolderOpenInitiated(ProjectFolder* project,
 															const entry_ref& ref, bool activate);
 			void				_ProjectFolderOpenCompleted(ProjectFolder* project,

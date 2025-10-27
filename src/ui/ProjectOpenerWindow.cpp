@@ -27,7 +27,7 @@ class ProjectProgressView : public BGroupView {
 public:
 	ProjectProgressView(const char* name);
 private:
-	BButton* 					fCancel;
+	//BButton* 					fCancel;
 	BStatusBar*					fProgressBar;
 	BarberPole*					fBarberPole;
 	BCardLayout*				fProgressLayout;

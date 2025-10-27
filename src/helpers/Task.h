@@ -193,6 +193,11 @@ namespace Genio::Task {
 		{
 		}
 
+		thread_id ThreadID() const
+		{
+			return fThreadHandle;
+		}
+
 		status_t Run()
 		{
 			if (fThreadHandle > 0)

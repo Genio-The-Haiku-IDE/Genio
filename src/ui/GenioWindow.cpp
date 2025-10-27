@@ -258,9 +258,11 @@ GenioWindow::MessageReceived(BMessage* message)
 				// TODO: how to distinguish between various task result? 
 				TaskResult<ProjectFolder*> *result = TaskResult<ProjectFolder*>::Instantiate(message);
 				ProjectFolder* project = result->GetResult();
+				std::set<thread_id>::iterator i = fTaskIDs.find(result->TaskID());
 				delete result;
 				const entry_ref* ref = project->EntryRef();
 				_ProjectFolderOpenCompleted(project, *ref, false);
+				fTaskIDs.erase(i);
 			} catch (...) {
 				break;
 			}
@@ -1469,6 +1471,13 @@ GenioWindow::_FileRequestSaveList(std::vector<Editor*>& unsavedEditor)
 bool
 GenioWindow::QuitRequested()
 {
+	if (fTaskIDs.size() > 0) {
+		// Don't quit if there are tasks running
+		// TODO: improve this
+		// TODO: show some alert or something
+		return false;
+	}
+
 	if (!_FileRequestSaveAllModified())
 		return false;
 
@@ -3826,6 +3835,8 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		)
 	);
 	
+	fTaskIDs.insert(task.ThreadID());
+
 	task.Run();
 
 	return B_OK;

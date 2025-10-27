@@ -7,6 +7,7 @@
 #include <String.h>
 #include <Window.h>
 
+#include <set>
 #include <vector>
 
 #include "GMessage.h"
@@ -260,6 +261,7 @@ private:
 			BMenu*				fPanelsMenu;
 
 			BWindow*			fProjectOpenerWindow;
+			std::set<thread_id>	fTaskIDs;
 };
 
 extern GenioWindow *gMainWindow;

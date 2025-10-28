@@ -12,6 +12,7 @@
 #include <Debug.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
+#include <Locker.h>
 #include <MessageRunner.h>
 #include <Mime.h>
 #include <NaturalCompare.h>
@@ -124,7 +125,8 @@ public:
 // ProjectBrowser
 ProjectBrowser::ProjectBrowser()
 	:
-	BView("Project browser", B_WILL_DRAW|B_FRAME_EVENTS)
+	BView("Project browser", B_WILL_DRAW|B_FRAME_EVENTS),
+	fBatchLock("ProjectBrowser batch lock")
 {
 	fOutlineListView = new ProjectOutlineListView();
 	ProjectDropView* projectDropView = new ProjectDropView();
@@ -286,7 +288,12 @@ ProjectBrowser::_HandleEntryMoved(BMessage* message)
 						// recursive parsing!
 						entry_ref entryRef;
 						newPathEntry.GetRef(&entryRef);
-						_ProjectFolderScan(parentItem, &entryRef, parentItem->GetSourceItem()->GetProjectFolder());
+						ProjectFolder* projectFolder = parentItem->GetSourceItem()->GetProjectFolder();
+						// Flush any existing batch before adding new items
+						_FlushItemBatch(projectFolder, true);
+						_ProjectFolderScan(&entryRef, parentItem, projectFolder);
+						// Flush the new items
+						_FlushItemBatch(projectFolder, true);
 						fOutlineListView->SortItemsUnder(parentItem, false,
 								ProjectOutlineListView::CompareProjectItems);
 					} else {
@@ -560,6 +567,18 @@ ProjectBrowser::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case MSG_PROJECT_ADD_ITEMS_BATCH:
+		{
+			// Process a batch of items to add to the tree
+			_ProcessItemBatch(message);
+			break;
+		}
+		case MSG_PROJECT_BATCH_SYNC:
+		{
+			// Synchronization message - just reply to confirm processing
+			// This ensures all previous batches have been processed
+			break;
+		}
 		case B_SIMPLE_DATA:
 		{
 			entry_ref ref;
@@ -778,21 +797,39 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 {
 	ASSERT(project != nullptr);
 
+	// Start timing
+	bigtime_t startTime = system_time();
+
 	if (LockLooper()) {
 		if (fOutlineListView->CountItems() == 0)
 			static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(0));
 		UnlockLooper();
 	}
 
-	ProjectItem *projectItem = _ProjectFolderScan(nullptr, project->EntryRef(), project);
+	// Scan the project tree - this collects items in batches
+	// Pass nullptr as parent for the root item (project title)
+	bigtime_t scanStartTime = system_time();
+	ProjectItem *projectItem = _ProjectFolderScan(project->EntryRef(), nullptr, project);
+	bigtime_t scanEndTime = system_time();
 
 	ASSERT(projectItem != nullptr);
+
+	// Flush any remaining items in the batch for this specific project
+	_FlushItemBatch(project, false);
+
+	// Wait for all batch messages to be processed before continuing
+	// This ensures all items are in the tree before we sort
+	BMessage syncMessage(MSG_PROJECT_BATCH_SYNC);
+	BMessage syncReply;
+	bigtime_t syncStartTime = system_time();
+	BMessenger(this).SendMessage(&syncMessage, &syncReply);
+	bigtime_t syncEndTime = system_time();
 
 	LockLooper();
 
 	// TODO: here we are ordering ALL the elements (maybe and option could prevent ordering the projects)
 	fOutlineListView->SortItemsUnder(nullptr, false, ProjectOutlineListView::CompareProjectItems);
-	
+
 	const BString projectPath = project->Path();
 	update_mime_info(projectPath, true, false, B_UPDATE_MIME_INFO_NO_FORCE);
 
@@ -811,7 +848,21 @@ ProjectBrowser::ProjectFolderPopulate(ProjectFolder* project)
 			B_WATCH_RECURSIVELY, BMessenger(this));
 	if (status != B_OK)
 		LogErrorF("Can't StartWatching! path [%s] error[%s]", projectPath.String(), ::strerror(status));
-	
+
+	// Report timing
+	bigtime_t endTime = system_time();
+	bigtime_t totalTime = endTime - startTime;
+	bigtime_t scanTime = scanEndTime - scanStartTime;
+	bigtime_t syncTime = syncEndTime - syncStartTime;
+	int32 itemCount = fOutlineListView->FullListCountItems();
+
+	LogInfoF("Project '%s' loaded: %d items in %.2f ms (scan: %.2f ms, sync: %.2f ms)",
+		project->Name().String(),
+		itemCount,
+		totalTime / 1000.0,
+		scanTime / 1000.0,
+		syncTime / 1000.0);
+
 	return project;
 }
 
@@ -843,6 +894,10 @@ ProjectBrowser::ProjectFolderDepopulate(ProjectFolder* project)
 	if (fOutlineListView->CountItems() == 0)
 		static_cast<BCardLayout*>(GetLayout())->SetVisibleItem(int32(1));
 
+	// Clean up any batch associated with this project
+	BAutolock lock(fBatchLock);
+	fItemBatches.erase(project);
+
 	Invalidate();
 }
 
@@ -862,34 +917,149 @@ ProjectBrowser::ExpandProjectCollapseOther(const BString& project)
 
 
 ProjectItem*
-ProjectBrowser::_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder)
+ProjectBrowser::_ProjectFolderScan(const entry_ref* ref, ProjectItem* parentItem, ProjectFolder *projectFolder)
 {
-	LockLooper();
-
+	// Create the item WITHOUT adding it to the tree yet
 	ProjectItem *newItem;
-	if (item != nullptr) {
+	if (parentItem != nullptr) {
+		// Regular file/folder item
 		SourceItem *sourceItem = new SourceItem(*ref);
 		sourceItem->SetProjectFolder(projectFolder);
 		newItem = new ProjectItem(sourceItem);
-		fOutlineListView->AddUnder(newItem, item);
-		fOutlineListView->Collapse(newItem);
 	} else {
-		// Add project title
+		// Project title item (root level)
 		newItem = new ProjectTitleItem(projectFolder);
-		fOutlineListView->AddItem(newItem);
 	}
-	UnlockLooper();
 
+	// Record the command to add this item with its parent
+	// This replicates the exact sequence: AddUnder(newItem, parentItem) or AddItem(newItem)
+	_AddItemCommandToBatch(newItem, parentItem, projectFolder);
+
+	// Recursively scan subdirectories
 	BEntry entry(ref);
 	if (entry.IsDirectory()) {
 		BDirectory dir(&entry);
 		entry_ref nextRef;
 		while (dir.GetNextRef(&nextRef) != B_ENTRY_NOT_FOUND) {
-			_ProjectFolderScan(newItem, &nextRef, projectFolder);
+			// Pass this item as the parent for children
+			_ProjectFolderScan(&nextRef, newItem, projectFolder);
 		}
 	}
 
 	return newItem;
+}
+
+
+void
+ProjectBrowser::_AddItemCommandToBatch(ProjectItem* item, ProjectItem* parent, ProjectFolder* project)
+{
+	// Thread-safe: multiple scanner threads may call this concurrently
+	BAutolock lock(fBatchLock);
+
+	// Get or create the batch for this project
+	std::vector<AddItemCommand>& projectBatch = fItemBatches[project];
+
+	// Reserve space on first use to avoid reallocations
+	if (projectBatch.empty()) {
+		projectBatch.reserve(kProjectItemBatchSize);
+	}
+
+	// Record the command: this replicates what the old code did
+	AddItemCommand cmd;
+	cmd.item = item;
+	cmd.parent = parent;
+	cmd.shouldCollapse = (parent != nullptr);  // Collapse all non-root items
+
+	projectBatch.push_back(cmd);
+
+	// Flush when batch reaches threshold
+	if (projectBatch.size() >= kProjectItemBatchSize) {
+		_FlushItemBatchLocked(project, false);  // Lock is already held
+	}
+}
+
+
+void
+ProjectBrowser::_FlushItemBatch(ProjectFolder* project, bool synchronous)
+{
+	BAutolock lock(fBatchLock);
+	_FlushItemBatchLocked(project, synchronous);
+}
+
+
+void
+ProjectBrowser::_FlushItemBatchLocked(ProjectFolder* project, bool synchronous)
+{
+	// Assumes fBatchLock is already held
+	auto it = fItemBatches.find(project);
+	if (it == fItemBatches.end() || it->second.empty())
+		return;
+
+	std::vector<AddItemCommand>& projectBatch = it->second;
+
+	// Create a message with all commands in the batch
+	BMessage batchMessage(MSG_PROJECT_ADD_ITEMS_BATCH);
+
+	// Add project pointer so we know which project these commands belong to
+	batchMessage.AddPointer("project", project);
+
+	// Serialize the commands into the message
+	for (const AddItemCommand& cmd : projectBatch) {
+		batchMessage.AddPointer("item", cmd.item);
+		batchMessage.AddPointer("parent", cmd.parent);
+		batchMessage.AddBool("collapse", cmd.shouldCollapse);
+	}
+
+	// Clear the batch before sending
+	projectBatch.clear();
+
+	// Send to our own looper for processing
+	if (synchronous) {
+		// Synchronous: wait for processing to complete
+		BMessage reply;
+		BMessenger(this).SendMessage(&batchMessage, &reply);
+	} else {
+		// Asynchronous: queue for processing
+		// Messages will be processed in FIFO order, maintaining sequence
+		BMessenger(this).SendMessage(&batchMessage);
+	}
+}
+
+
+void
+ProjectBrowser::_ProcessItemBatch(BMessage* message)
+{
+	// This is called from MessageReceived on the looper thread
+	// We must already have the looper locked
+	ASSERT(Window() != nullptr && Window()->IsLocked());
+
+	ProjectItem* item;
+	ProjectItem* parent;
+	bool shouldCollapse;
+	int32 index = 0;
+
+	// Replay commands in order - this replicates the exact sequence the old code did
+	while (message->FindPointer("item", index, (void**)&item) == B_OK &&
+	       message->FindPointer("parent", index, (void**)&parent) == B_OK &&
+	       message->FindBool("collapse", index, &shouldCollapse) == B_OK) {
+
+		if (parent != nullptr) {
+			// Replicate: fOutlineListView->AddUnder(newItem, parent)
+			fOutlineListView->AddUnder(item, parent);
+			if (shouldCollapse) {
+				// Replicate: fOutlineListView->Collapse(newItem)
+				fOutlineListView->Collapse(item);
+			}
+		} else {
+			// Replicate: fOutlineListView->AddItem(newItem) for root items
+			fOutlineListView->AddItem(item);
+		}
+
+		index++;
+	}
+
+	// Note: We deliberately don't call Invalidate() here
+	// The list view will invalidate as items are added
 }
 
 

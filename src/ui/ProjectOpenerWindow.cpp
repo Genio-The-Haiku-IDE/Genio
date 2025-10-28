@@ -23,15 +23,13 @@
 
 const uint32 kCancel = 'canc';
 
-class ProjectProgressView : public BGroupView {
+class ProjectProgressView : public BView {
 public:
 	ProjectProgressView(const char* name);
 private:
 	//BButton* 					fCancel;
 	BStatusBar*					fProgressBar;
 	BarberPole*					fBarberPole;
-	BCardLayout*				fProgressLayout;
-	BView*						fProgressView;
 	BStringView*				fStatusText;
 };
 
@@ -45,7 +43,7 @@ ProjectOpenerWindow::ProjectOpenerWindow(const BMessenger& messenger)
 			B_NOT_ZOOMABLE |
 			B_NOT_RESIZABLE |
 			B_AVOID_FRONT |
-			B_AUTO_UPDATE_SIZE_LIMITS),
+			B_AUTO_UPDATE_SIZE_LIMITS|B_PULSE_NEEDED),
 	fTarget(messenger)
 {
 	SetLayout(new BGroupLayout(B_VERTICAL));
@@ -111,17 +109,11 @@ ProjectOpenerWindow::_MoveAndResize()
 // ProjectProgressView
 ProjectProgressView::ProjectProgressView(const char* name)
 	:
-	BGroupView(name, B_VERTICAL, B_WILL_DRAW)
+	BView(name, B_WILL_DRAW)
 {
 	fBarberPole = new BarberPole("barber pole");
 	fProgressBar = new BStatusBar("progress bar");
-	fProgressLayout = new BCardLayout();
-	fProgressView = new BView("progress view", 0);
 	fStatusText = new BStringView("status text", nullptr);
-
-	fProgressView->SetLayout(fProgressLayout);
-	fProgressLayout->AddView(0, fBarberPole);
-	fProgressLayout->AddView(1, fProgressBar);
 
 	fStatusText->SetDrawingMode(B_OP_ALPHA);
 
@@ -133,15 +125,14 @@ ProjectProgressView::ProjectProgressView(const char* name)
 		.SetInsets(10)
 		.AddGroup(B_HORIZONTAL)
 			.Add(fStatusText)
-			.Add(fProgressLayout)
+			.Add(fBarberPole)
 			//.Add(new BButton(B_TRANSLATE("Cancel"), new BMessage(kCancel)))
 		.End()
 	.End();
 
-	fProgressLayout->SetVisibleItem(int32(0));
-	
 	BString text(B_TRANSLATE("Loading project '%project_name%'"));
 	text.ReplaceFirst("%project_name%", name);
 	fStatusText->SetText(text);
+
 	fBarberPole->Start();
 }

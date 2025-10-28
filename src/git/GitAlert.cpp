@@ -56,9 +56,11 @@ GitAlert::_InitInterface()
 {
 	fMessageString = new BStringView("message", fMessage);
 	fOK = new BButton(B_TRANSLATE("OK"), new BMessage(B_QUIT_REQUESTED));
+
 	BGroupView* filesView = new BGroupView(B_VERTICAL, 0);
 	filesView->SetViewUIColor(B_CONTROL_BACKGROUND_COLOR);
 	fScrollView = new BScrollView("files", filesView, 0, false, true);
+
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 		.Add(fMessageString)
 		.Add(fScrollView)
@@ -79,10 +81,13 @@ GitAlert::_InitInterface()
 
 	BGroupLayout* files = filesView->GroupLayout();
 	files->SetInsets(B_USE_SMALL_INSETS);
-	for (size_t i = 0; i < fFiles.size(); ++i) {
-		fFileStringView[i] = new BStringView("file", fFiles[i].String());
-		files->AddView(fFileStringView[i]);
-	}
+	if (fFiles.size() > 0) {
+		for (size_t i = 0; i < fFiles.size(); ++i) {
+			fFileStringView[i] = new BStringView("file", fFiles[i].String());
+			files->AddView(fFileStringView[i]);
+		}
+	} else
+		fScrollView->Hide();
 }
 
 

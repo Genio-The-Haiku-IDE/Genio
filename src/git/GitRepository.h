@@ -39,7 +39,7 @@ namespace Genio::Git {
 	public:
 		GitException(int error, BString const& message)
 			:
-			GException(error, message)
+			GException(error, BString(message).Prepend("Git: "))
 		{
 			// TODO: Move away from here and into the catcher
 			// otherwise it's harder to track where it happened

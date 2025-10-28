@@ -1044,14 +1044,11 @@ ProjectBrowser::_ProcessItemBatch(BMessage* message)
 	       message->FindBool("collapse", index, &shouldCollapse) == B_OK) {
 
 		if (parent != nullptr) {
-			// Replicate: fOutlineListView->AddUnder(newItem, parent)
 			fOutlineListView->AddUnder(item, parent);
 			if (shouldCollapse) {
-				// Replicate: fOutlineListView->Collapse(newItem)
 				fOutlineListView->Collapse(item);
 			}
 		} else {
-			// Replicate: fOutlineListView->AddItem(newItem) for root items
 			fOutlineListView->AddItem(item);
 		}
 

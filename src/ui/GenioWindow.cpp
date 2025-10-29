@@ -59,7 +59,6 @@
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
-#include "ProjectOpenerWindow.h"
 #include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
 #include "SearchResultTab.h"
@@ -175,7 +174,6 @@ GenioWindow::GenioWindow(BRect frame)
 	, fScreenMode(kDefault)
 	, fPanelTabManager(nullptr)
 	, fPanelsMenu(nullptr)
-	, fProjectOpenerWindow(nullptr)
 {
 	gMainWindow = this;
 
@@ -3806,12 +3804,6 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	// Now open the project for real
 	BMessenger msgr(this);
-#if 1
-	if (fProjectOpenerWindow == nullptr) {
-		fProjectOpenerWindow = new ProjectOpenerWindow(msgr);
-		fProjectOpenerWindow->Show();
-	}
-#endif	
 	ProjectFolder* project = new ProjectFolder(ref, msgr);
 	
 	_ProjectFolderOpenInitiated(project, ref, activate);
@@ -3865,12 +3857,6 @@ GenioWindow::_ProjectFolderOpenInitiated(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
 	ASSERT(project != nullptr);
-#if 1
-	// TODO: Use a constant
-	BMessage openMessage('0aa1');
-	openMessage.AddString("project_name", project->Name());
-	fProjectOpenerWindow->PostMessage(&openMessage);
-#endif
 }
 
 
@@ -3879,12 +3865,9 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
 	ASSERT(project != nullptr);
-#if 1
-	// TODO: Use a constant
-	BMessage message('0aa2');
-	message.AddString("project_name", project->Name());
-	fProjectOpenerWindow->PostMessage(&message);
-#endif
+
+	project->SetLoadingCompleted();
+
 	// ensure it's selected:
 	GetProjectBrowser()->SelectProjectAndScroll(project);
 

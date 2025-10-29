@@ -111,6 +111,9 @@ public:
 
 	LSPProjectWrapper*			GetLSPServer(const BString& fileType);
 
+	bool						IsLoading() const;
+	void						SetLoadingCompleted();
+
 private:
 	void						_PrepareSettings();
 
@@ -121,6 +124,7 @@ private:
 	BString						fFullPath;
 	bool						fActive;
 	bool						fIsBuilding;
+	bool						fLoadingCompleted;
 };
 
 typedef std::vector<ProjectFolder*> ProjectFolderList;

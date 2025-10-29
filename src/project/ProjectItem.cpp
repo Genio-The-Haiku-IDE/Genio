@@ -292,7 +292,7 @@ ProjectTitleItem::DrawItem(BView* owner, BRect bounds, bool complete)
 
 	owner->SetHighColor(oldColor);
 
-	if (projectFolder->IsBuilding()) {
+	if (projectFolder->IsBuilding() || projectFolder->IsLoading()) {
 		_DrawBuildIndicator(owner, bounds);
 	}
 	owner->Sync();

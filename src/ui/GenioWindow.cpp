@@ -3866,7 +3866,8 @@ GenioWindow::_ProjectFolderOpenInitiated(ProjectFolder* project,
 {
 	ASSERT(project != nullptr);
 #if 1
-	BMessage openMessage('0001');
+	// TODO: Use a constant
+	BMessage openMessage('0aa1');
 	openMessage.AddString("project_name", project->Name());
 	fProjectOpenerWindow->PostMessage(&openMessage);
 #endif
@@ -3879,7 +3880,8 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 {
 	ASSERT(project != nullptr);
 #if 1
-	BMessage message('0002');
+	// TODO: Use a constant
+	BMessage message('0aa2');
 	message.AddString("project_name", project->Name());
 	fProjectOpenerWindow->PostMessage(&message);
 #endif

@@ -28,7 +28,6 @@ public:
 	ProjectProgressView(const char* name);
 private:
 	//BButton* 					fCancel;
-	BStatusBar*					fProgressBar;
 	BarberPole*					fBarberPole;
 	BStringView*				fStatusText;
 };
@@ -43,7 +42,7 @@ ProjectOpenerWindow::ProjectOpenerWindow(const BMessenger& messenger)
 			B_NOT_ZOOMABLE |
 			B_NOT_RESIZABLE |
 			B_AVOID_FRONT |
-			B_AUTO_UPDATE_SIZE_LIMITS|B_PULSE_NEEDED),
+			B_AUTO_UPDATE_SIZE_LIMITS),
 	fTarget(messenger)
 {
 	SetLayout(new BGroupLayout(B_VERTICAL));
@@ -55,7 +54,7 @@ void
 ProjectOpenerWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case '0001':
+		case '0aa1':
 		{
 			const char* name;
 			message->FindString("project_name", &name);			
@@ -66,7 +65,7 @@ ProjectOpenerWindow::MessageReceived(BMessage* message)
 			break;
 		}
 		
-		case '0002':
+		case '0aa2':
 		{
 			const char* name;
 			message->FindString("project_name", &name);
@@ -109,11 +108,12 @@ ProjectOpenerWindow::_MoveAndResize()
 // ProjectProgressView
 ProjectProgressView::ProjectProgressView(const char* name)
 	:
-	BView(name, B_WILL_DRAW)
+	BView(name, B_WILL_DRAW),
+	fBarberPole(nullptr),
+	fStatusText(nullptr)
 {
 	fBarberPole = new BarberPole("barber pole");
-	fProgressBar = new BStatusBar("progress bar");
-	fStatusText = new BStringView("status text", nullptr);
+	fStatusText = new BStringView("status text", "");
 
 	fStatusText->SetDrawingMode(B_OP_ALPHA);
 

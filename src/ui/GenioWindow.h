@@ -263,7 +263,6 @@ private:
 			PanelTabManager*	fPanelTabManager;
 			BMenu*				fPanelsMenu;
 
-			BWindow*			fProjectOpenerWindow;
 			std::set<thread_id>	fTaskIDs;
 };
 

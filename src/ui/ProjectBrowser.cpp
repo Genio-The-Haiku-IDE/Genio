@@ -1039,8 +1039,8 @@ ProjectBrowser::_ProcessItemBatch(BMessage* message)
 	int32 index = 0;
 
 	// Replay commands in order - this replicates the exact sequence the old code did
-	while (message->FindPointer("item", index, (void**)&item) == B_OK &&
-	       message->FindPointer("parent", index, (void**)&parent) == B_OK &&
+	while (message->FindPointer("item", index, reinterpret_cast<void**>(&item)) == B_OK &&
+	       message->FindPointer("parent", index, reinterpret_cast<void**>(&parent)) == B_OK &&
 	       message->FindBool("collapse", index, &shouldCollapse) == B_OK) {
 
 		if (parent != nullptr) {

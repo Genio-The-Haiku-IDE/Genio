@@ -4,11 +4,12 @@
  */
 #pragma once
 
-#include <String.h>
-#include <Window.h>
-
 #include <set>
 #include <vector>
+
+#include <Locker.h>
+#include <String.h>
+#include <Window.h>
 
 #include "GMessage.h"
 #include "PanelTabManager.h"
@@ -45,22 +46,23 @@ public:
 		kFullscreen,
 		kFocus
 	};
-								GenioWindow(BRect frame);
-	virtual						~GenioWindow();
+							GenioWindow(BRect frame);
+	virtual					~GenioWindow();
 
-	virtual void				MessageReceived(BMessage* message);
-	virtual void				MenusBeginning();
-	virtual void				MenusEnded();
-	virtual bool				QuitRequested();
-	virtual void				Show();
+	virtual void			MessageReceived(BMessage* message);
+	virtual void			MenusBeginning();
+	virtual void			MenusEnded();
+	virtual bool			QuitRequested();
+	virtual void			Show();
 
-	void						UpdateMenu(const void* sender, const entry_ref* ref);
-	ProjectFolder*				GetActiveProject() const;
-	void						SetActiveProject(ProjectFolder *project);
-	ProjectBrowser*		GetProjectBrowser() const;
+	void					UpdateMenu(const void* sender, const entry_ref* ref);
+	ProjectFolder*			GetActiveProject() const;
+	void					SetActiveProject(ProjectFolder *project);
+	ProjectBrowser*			GetProjectBrowser() const;
 
 	EditorTabView*			TabManager() const;
 
+	bool					AreTasksRunning() const;
 private:
 			void				_PrepareWorkspace();
 
@@ -263,6 +265,7 @@ private:
 			PanelTabManager*	fPanelTabManager;
 			BMenu*				fPanelsMenu;
 
+			mutable BLocker		fTasksLock;
 			std::set<thread_id>	fTaskIDs;
 };
 

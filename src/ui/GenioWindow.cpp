@@ -255,6 +255,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			try {
 				// TODO: how to distinguish between various task result? 
 				TaskResult<ProjectFolder*> *result = TaskResult<ProjectFolder*>::Instantiate(message);
+				BAutolock lock(fTasksLock);
 				std::set<thread_id>::iterator i = fTaskIDs.find(result->TaskID());
 				delete result;
 				if (i != fTaskIDs.end())
@@ -1237,6 +1238,14 @@ GenioWindow::TabManager() const
 }
 
 
+bool
+GenioWindow::AreTasksRunning() const
+{
+	BAutolock lock(fTasksLock);
+	return fTaskIDs.size() > 0;
+}
+
+
 void
 GenioWindow::_PrepareWorkspace()
 {
@@ -1467,7 +1476,7 @@ GenioWindow::_FileRequestSaveList(std::vector<Editor*>& unsavedEditor)
 bool
 GenioWindow::QuitRequested()
 {
-	if (fTaskIDs.size() > 0) {
+	if (AreTasksRunning()) {
 		// Don't quit if there are tasks running
 		// TODO: improve this
 		// TODO: show some alert or something
@@ -3673,7 +3682,7 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 
 	// Don't close anything if tasks are running
 	// TODO: improve this
-	if (!fTaskIDs.empty())
+	if (AreTasksRunning())
 		return;
 
 	std::vector<Editor*> unsavedEditor;
@@ -3831,7 +3840,9 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 		)
 	);
 	
+	fTasksLock.Lock();
 	fTaskIDs.insert(task.ThreadID());
+	fTasksLock.Unlock();
 
 	task.Run();
 

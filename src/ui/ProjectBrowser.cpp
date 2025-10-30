@@ -1446,9 +1446,10 @@ ProjectOutlineListView::_AddProjectFolderMenuItems(BMenu* projectMenu, ProjectFo
 	projectMenu->AddSeparatorItem();
 
 	GenioWindow* window = dynamic_cast<GenioWindow*>(Window());
-	ProjectFolder* activeProject = window->GetActiveProject();
-	setActiveProjectMenuItem->SetEnabled(!project->Active() && !activeProject->IsBuilding());
-
+	if (window != nullptr) {
+		ProjectFolder* activeProject = window->GetActiveProject();
+		setActiveProjectMenuItem->SetEnabled(!project->Active() && !activeProject->IsBuilding());
+	}
 	if (project->IsBuilding())
 		switchBranchMenu->SetEnabled(false);
 

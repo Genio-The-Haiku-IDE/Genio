@@ -4,6 +4,7 @@ v5.0
 	- Added ability to close all tabs to further customize workspace.
 	- Replaced homegrown termview (used for build log and console I/O) with the Haiku Terminal.
 	- Added Terminal tab.
+	- Improved project loading and made it asynchronous.
 	- Implement more scripting properties.
 	- Sort the project list alphabetically.
 	- Save outline sorting in settings.

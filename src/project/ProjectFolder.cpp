@@ -88,7 +88,8 @@ ProjectFolder::ProjectFolder(const entry_ref& ref, const BMessenger& msgr)
 	fMessenger(msgr),
 	fGitRepository(nullptr),
 	fActive(false),
-	fIsBuilding(false)
+	fIsBuilding(false),
+	fLoadingCompleted(false)
 {
 	fProjectFolder = this;
 	fType = SourceItemType::ProjectFolderItem;
@@ -389,6 +390,20 @@ const rgb_color
 ProjectFolder::Color() const
 {
 	return (*fSettings)["color"];
+}
+
+
+bool
+ProjectFolder::IsLoading() const
+{
+	return !fLoadingCompleted;
+}
+
+
+void
+ProjectFolder::SetLoadingCompleted()
+{
+	fLoadingCompleted = true;
 }
 
 

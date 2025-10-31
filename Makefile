@@ -91,7 +91,6 @@ SRCS += src/ui/PanelTabManager.cpp
 SRCS += src/ui/ProblemsPanel.cpp
 SRCS += src/ui/ProjectBrowser.cpp
 SRCS += src/ui/ProjectMenuField.cpp
-SRCS += src/ui/ProjectOpenerWindow.cpp
 SRCS += src/ui/QuitAlert.cpp
 SRCS += src/ui/SearchResultPanel.cpp
 SRCS += src/ui/SearchResultTab.cpp

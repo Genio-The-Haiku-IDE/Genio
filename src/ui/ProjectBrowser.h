@@ -4,6 +4,9 @@
  */
 #pragma once
 
+#include <map>
+
+#include <Locker.h>
 #include <View.h>
 
 #include "ProjectFolder.h"
@@ -21,8 +24,13 @@ enum {
 	MSG_PROJECT_MENU_RENAME_FILE		= 'pmrf',
 	MSG_PROJECT_MENU_DO_RENAME_FILE		= 'pmdr',
 
-	MSG_BROWSER_SELECT_ITEM				= 'sele'
+	MSG_BROWSER_SELECT_ITEM				= 'sele',
+	MSG_PROJECT_ADD_ITEMS_BATCH			= 'paib',
+	MSG_PROJECT_BATCH_SYNC				= 'pbsy'
 };
+
+// Batch size for adding items - tuned for performance vs responsiveness
+constexpr int32 kProjectItemBatchSize = 100;
 
 class ProjectOutlineListView;
 class GenioWatchingFilter;
@@ -56,7 +64,7 @@ public:
 	void			SelectItemByRef(const ProjectFolder* project, const entry_ref& ref);
 	void			SelectNewItemAndScrollDelayed(const ProjectItem* parent, const entry_ref ref); //ugly name..
 
-	void			ProjectFolderPopulate(ProjectFolder* project);
+	ProjectFolder* 	ProjectFolderPopulate(ProjectFolder* project);
 	void			ProjectFolderDepopulate(ProjectFolder* project);
 
 	void			ExpandProjectCollapseOther(const BString& projectName);
@@ -66,7 +74,7 @@ private:
 
 	ProjectItem*	GetProjectItemByPath(const BString& path) const;
 
-	ProjectItem*	_ProjectFolderScan(ProjectItem* item, const entry_ref* ref, ProjectFolder *projectFolder = NULL);
+	ProjectItem*	_ProjectFolderScan(const entry_ref* ref, ProjectItem* parentItem, ProjectFolder *projectFolder = NULL);
 
 	void			_ShowProjectItemPopupMenu(BPoint where);
 
@@ -79,10 +87,28 @@ private:
 
 	ProjectItem*	_CreateNewProjectItem(ProjectItem* parentItem, BPath path);
 
+	// Command pattern for batched item insertion
+	struct AddItemCommand {
+		ProjectItem* item;
+		ProjectItem* parent;  // nullptr for root items
+		bool shouldCollapse;
+	};
+
+	// Batch processing helpers
+	void			_AddItemCommandToBatch(ProjectItem* item, ProjectItem* parent, ProjectFolder* project);
+	void			_FlushItemBatch(ProjectFolder* project, bool synchronous = false);
+	void			_FlushItemBatchLocked(ProjectFolder* project, bool synchronous);
+	void			_ProcessItemBatch(BMessage* message);
+
 private:
 	ProjectOutlineListView*	fOutlineListView;
 	GenioWatchingFilter*	fGenioWatchingFilter;
 
 	ProjectFolderList	fProjectList;
 	ProjectItemList		fProjectProjectItemList;
+
+	// Batch processing state (protected by fBatchLock for thread safety)
+	// Each project has its own batch of commands to prevent mixing
+	BLocker					fBatchLock;
+	std::map<ProjectFolder*, std::vector<AddItemCommand>>	fItemBatches;
 };

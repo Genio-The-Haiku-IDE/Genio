@@ -59,7 +59,6 @@
 #include "ProjectBrowser.h"
 #include "ProjectFolder.h"
 #include "ProjectItem.h"
-#include "ProjectOpenerWindow.h"
 #include "QuitAlert.h"
 #include "RemoteProjectWindow.h"
 #include "SearchResultTab.h"
@@ -96,7 +95,7 @@ static float kDefaultIconSizeSmall = 20.0;
 static float kDefaultIconSize = 32.0;
 
 using Genio::Task::Task;
-
+using Genio::Task::TaskResult;
 
 static bool
 AcceptsCopyPaste(BView* view)
@@ -251,6 +250,21 @@ void
 GenioWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case Genio::Task::TASK_RESULT_MESSAGE:
+		{
+			try {
+				// TODO: how to distinguish between various task result? 
+				TaskResult<ProjectFolder*> *result = TaskResult<ProjectFolder*>::Instantiate(message);
+				BAutolock lock(fTasksLock);
+				std::set<thread_id>::iterator i = fTaskIDs.find(result->TaskID());
+				delete result;
+				if (i != fTaskIDs.end())
+					fTaskIDs.erase(i);
+			} catch (...) {
+				break;
+			}
+			break;
+		}
 		case MSG_PREPARE_WORKSPACE:
 			_PrepareWorkspace();
 			break;
@@ -1224,6 +1238,14 @@ GenioWindow::TabManager() const
 }
 
 
+bool
+GenioWindow::AreTasksRunning() const
+{
+	BAutolock lock(fTasksLock);
+	return fTaskIDs.size() > 0;
+}
+
+
 void
 GenioWindow::_PrepareWorkspace()
 {
@@ -1454,6 +1476,13 @@ GenioWindow::_FileRequestSaveList(std::vector<Editor*>& unsavedEditor)
 bool
 GenioWindow::QuitRequested()
 {
+	if (AreTasksRunning()) {
+		// Don't quit if there are tasks running
+		// TODO: improve this
+		// TODO: show some alert or something
+		return false;
+	}
+
 	if (!_FileRequestSaveAllModified())
 		return false;
 
@@ -3651,6 +3680,11 @@ GenioWindow::_ProjectFolderClose(ProjectFolder *project)
 	if (project == nullptr)
 		return;
 
+	// Don't close anything if tasks are running
+	// TODO: improve this
+	if (AreTasksRunning())
+		return;
+
 	std::vector<Editor*> unsavedEditor;
 	fTabManager->ForEachEditor([&](Editor* editor){
 		if (editor->IsModified() && editor->GetProjectFolder() == project)
@@ -3779,11 +3813,53 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 
 	// Now open the project for real
 	BMessenger msgr(this);
+	ProjectFolder* project = new ProjectFolder(ref, msgr);
+	
+	_ProjectFolderOpenInitiated(project, ref, activate);
+		
+	status = project->Open();
+	if (status != B_OK) {
+		// GenioWindow will delete the allocated project
+		//message.what = MSG_PROJECT_OPEN_ABORTED;
+		//fTarget.SendMessage(&message);
+		return status;
+	}
 
-	// TODO: This shows a modal window
-	new ProjectOpenerWindow(&resolved_ref, msgr, activate);
+	BString taskName;
+	taskName << project->Name() << "OpenerTask";
+	Task<ProjectFolder*> task
+	(
+		taskName,
+		BMessenger(this),
+		std::bind
+		(
+			&GenioWindow::_ProjectFolderOpenerRunner,
+			this,
+			project,
+			activate
+		)
+	);
+	
+	fTasksLock.Lock();
+	fTaskIDs.insert(task.ThreadID());
+	fTasksLock.Unlock();
+
+	task.Run();
 
 	return B_OK;
+}
+
+
+ProjectFolder*
+GenioWindow::_ProjectFolderOpenerRunner(ProjectFolder* project, bool activate)
+{
+	ProjectFolder* result = GetProjectBrowser()->ProjectBrowser::ProjectFolderPopulate(project);
+
+	LockLooper();
+	_ProjectFolderOpenCompleted(result, *result->EntryRef(), activate);
+	UnlockLooper();
+
+	return result;
 }
 
 
@@ -3800,6 +3876,8 @@ GenioWindow::_ProjectFolderOpenCompleted(ProjectFolder* project,
 	const entry_ref& ref, bool activate)
 {
 	ASSERT(project != nullptr);
+
+	project->SetLoadingCompleted();
 
 	// ensure it's selected:
 	GetProjectBrowser()->SelectProjectAndScroll(project);
@@ -3859,6 +3937,7 @@ GenioWindow::_ProjectFolderOpenAborted(ProjectFolder* project,
 
 	delete project;
 }
+
 
 
 status_t

@@ -4,10 +4,12 @@
  */
 #pragma once
 
+#include <set>
+#include <vector>
+
+#include <Locker.h>
 #include <String.h>
 #include <Window.h>
-
-#include <vector>
 
 #include "GMessage.h"
 #include "PanelTabManager.h"
@@ -44,22 +46,23 @@ public:
 		kFullscreen,
 		kFocus
 	};
-								GenioWindow(BRect frame);
-	virtual						~GenioWindow();
+							GenioWindow(BRect frame);
+	virtual					~GenioWindow();
 
-	virtual void				MessageReceived(BMessage* message);
-	virtual void				MenusBeginning();
-	virtual void				MenusEnded();
-	virtual bool				QuitRequested();
-	virtual void				Show();
+	virtual void			MessageReceived(BMessage* message);
+	virtual void			MenusBeginning();
+	virtual void			MenusEnded();
+	virtual bool			QuitRequested();
+	virtual void			Show();
 
-	void						UpdateMenu(const void* sender, const entry_ref* ref);
-	ProjectFolder*				GetActiveProject() const;
-	void						SetActiveProject(ProjectFolder *project);
-	ProjectBrowser*		GetProjectBrowser() const;
+	void					UpdateMenu(const void* sender, const entry_ref* ref);
+	ProjectFolder*			GetActiveProject() const;
+	void					SetActiveProject(ProjectFolder *project);
+	ProjectBrowser*			GetProjectBrowser() const;
 
 	EditorTabView*			TabManager() const;
 
+	bool					AreTasksRunning() const;
 private:
 			void				_PrepareWorkspace();
 
@@ -132,6 +135,9 @@ private:
 			status_t			_ProjectFolderOpen(BMessage *message);
 			status_t			_ProjectFolderOpen(const entry_ref& ref, bool activate = false);
 
+			ProjectFolder*		_ProjectFolderOpenerRunner(ProjectFolder* project, bool activate);
+
+			// These must be called with the looper locked
 			void				_ProjectFolderOpenInitiated(ProjectFolder* project,
 															const entry_ref& ref, bool activate);
 			void				_ProjectFolderOpenCompleted(ProjectFolder* project,
@@ -259,6 +265,8 @@ private:
 			PanelTabManager*	fPanelTabManager;
 			BMenu*				fPanelsMenu;
 
+			mutable BLocker		fTasksLock;
+			std::set<thread_id>	fTaskIDs;
 };
 
 extern GenioWindow *gMainWindow;

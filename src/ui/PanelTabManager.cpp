@@ -174,6 +174,23 @@ protected:
 	void MessageReceived(BMessage* message) override
 	{
 		switch (message->what) {
+			case kShowPanelMessage:
+			{
+				if (IsHidden() ) {
+					if (BString(Name()).Compare(kTabViewHidden) == 0) {
+						GTabID*	tab = GetTab(message->GetInt32("id", -1));
+						BString prevOwner = tab->PreviousOwner();
+						if (prevOwner.IsEmpty())
+							return;
+						PanelTabView* tabView = dynamic_cast<PanelTabView*>(fManager->GetPanelTabView(prevOwner.String()));
+						tab->SetPreviousOwner("");
+						tabView->MoveTabs(tab, nullptr, Container());
+					}
+					fManager->ShowPanelByTab(message->GetInt32("id", -1));
+					break;
+				}
+				// Else, fall through to close the panel
+			}
 			case GTabCloseButton::kTVCloseTab:
 			{
 				int32 fromIndex = message->GetInt32("index", -1);
@@ -186,24 +203,6 @@ protected:
 							tabView->MoveTabs(tab, nullptr, Container());
 						}
 					}
-				}
-				break;
-			}
-			case kShowPanelMessage:
-			{
-				bool isSelected = message->GetBool("selected", false);
-
-				if (IsHidden() || isSelected == false) {
-					if (BString(Name()).Compare(kTabViewHidden) == 0) {
-						GTabID*	tab = GetTab(message->GetInt32("id", -1));
-						BString prevOwner = tab->PreviousOwner();
-						if (prevOwner.IsEmpty())
-							return;
-						PanelTabView* tabView = dynamic_cast<PanelTabView*>(fManager->GetPanelTabView(prevOwner.String()));
-						tab->SetPreviousOwner("");
-						tabView->MoveTabs(tab, nullptr, Container());
-					}
-					fManager->ShowPanelByTab(message->GetInt32("id", -1));
 				}
 				break;
 			}

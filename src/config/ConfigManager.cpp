@@ -37,6 +37,18 @@ public:
 					} \
 					return status; \
 				}
+
+#define _yaml_case_string(TYPE, Name) \
+				case TYPE: \
+				{ \
+					const char* value; \
+					status_t status = storage.Find ## Name (key, keyIndex, &value); \
+					if ( status == B_OK) { \
+						BString safeValue(value); \
+						yaml[key] = safeValue.String(); \
+					} \
+					return status; \
+				}
 #define _yaml_load(TYPE, pod) \
 				case TYPE: \
 				{ 	storage[key] = node.as<pod>(); return B_OK; }
@@ -51,38 +63,52 @@ public:
 
 		virtual status_t Open(const BPath& _dest, kPSPMode mode)
 		{
-			yaml.reset();
 			//workaround.
 			BPath dest;
 			dest.SetTo(BString(_dest.Path()).Append(".yaml").String());
 
 			uint32 fileMode = mode == PermanentStorageProvider::kPSPReadMode ? B_READ_ONLY : (B_WRITE_ONLY | B_CREATE_FILE);
-			status_t status = fFile.SetTo(dest.Path(), fileMode);
-			if (status == B_OK && fFile.IsReadable()) {
+			
+			// Always try to load existing content first, even in write mode
+			// to preserve existing data when updating configurations
+			BEntry entry(dest.Path());
+			if (entry.Exists()) {
 				try {
 					yaml = YAML::LoadFile(dest.Path());
 					LogInfo("YAML file loaded successfully: %s", dest.Path());
 				} catch(const YAML::ParserException& e) {
 					LogError("YAML Parser Error in file %s at line %zu, column %zu: %s",
 						dest.Path(), e.mark.line + 1, e.mark.column + 1, e.msg.c_str());
-					return B_ERROR;
+					yaml.reset(); // Reset to empty on parse error
+					if (mode == kPSPReadMode) return B_ERROR;
 				} catch(const YAML::BadFile& e) {
 					LogError("YAML Bad File Error: Cannot open file %s: %s",
 						dest.Path(), e.msg.c_str());
-					return B_ERROR;
+					yaml.reset(); // Reset to empty on file error
+					if (mode == kPSPReadMode) return B_ERROR;
 				} catch(const YAML::Exception& e) {
 					LogError("YAML General Error in file %s: %s",
 						dest.Path(), e.msg.c_str());
-					return B_ERROR;
+					yaml.reset(); // Reset to empty on YAML error
+					if (mode == kPSPReadMode) return B_ERROR;
 				} catch(const std::exception& e) {
 					LogError("Standard Exception while loading YAML file %s: %s",
 						dest.Path(), e.what());
-					return B_ERROR;
+					yaml.reset(); // Reset to empty on standard exception
+					if (mode == kPSPReadMode) return B_ERROR;
 				} catch(...) {
 					LogError("Unknown exception while loading YAML file %s", dest.Path());
-					return B_ERROR;
+					yaml.reset(); // Reset to empty on unknown exception
+					if (mode == kPSPReadMode) return B_ERROR;
 				}
-			} else if (status != B_OK) {
+			} else {
+				// File doesn't exist, start with empty YAML
+				yaml.reset();
+			}
+
+			// Now open the file for the requested operation
+			status_t status = fFile.SetTo(dest.Path(), fileMode);
+			if (status != B_OK) {
 				LogError("Failed to open file %s with mode %s: %s",
 					dest.Path(),
 					(mode == kPSPReadMode) ? "READ" : "WRITE",
@@ -95,17 +121,37 @@ public:
 		{
 			status_t status = fFile.InitCheck();
 			if (status == B_OK && fFile.IsWritable()) {
+				try {
+					YAML::Emitter out;
+					out << yaml;
+					BString bout(out.c_str());
 
-				YAML::Emitter out;
-				out << yaml;
-				BString bout(out.c_str());
+					// Ensure we're at the beginning of the file for complete rewrite
+					fFile.Seek(0, SEEK_SET);
+					
+					ssize_t written = fFile.Write(bout.String(), bout.Length());
+					if (written < 0) {
+						LogError("Failed to write YAML data: %s", strerror(written));
+						return (status_t)written;
+					}
+					
+					// Truncate file to the exact size we wrote (in case file was larger before)
+					fFile.SetSize(written);
 
-				fFile.Write(bout.String(), bout.Length());
-
-				status = fFile.Flush();
-				fFile.Unset();
-				return status;
+					status = fFile.Flush();
+					fFile.Unset();
+					return status;
+				} catch (const YAML::Exception& e) {
+					LogError("YAML emission error: %s", e.what());
+					fFile.Unset();
+					return B_ERROR;
+				} catch (...) {
+					LogError("Unknown exception during YAML emission");
+					fFile.Unset();
+					return B_ERROR;
+				}
 			}
+			fFile.Unset(); // Always unset the file
 			return status;
 		}
 
@@ -114,8 +160,11 @@ public:
 		{
 			const YAML::Node fromFile = yaml[key];
 			if (!fromFile) {
+				LogError("LoadKey: Name not found for key [%s]", key);
 				return B_NAME_NOT_FOUND;
 			}
+
+			LogDebug("LoadKey: Loading key [%s]", key);
 
 			// Get the expected type from the parameter config
 			type_code expectedType = parameterConfig.Type("default_value");
@@ -127,26 +176,8 @@ public:
 			// Remove any existing data for this key
 			storage.RemoveName(key);
 
-			status_t status = B_OK;
-
-			/*if (fromFile.IsSequence()) {
-				// Handle arrays/sequences
-				for (size_t i = 0; i < fromFile.size(); i++) {
-					debugger("Sequence");
-					LogError("Sequence array for key [%s]", key);
-					status = _LoadSingleValue(fromFile[i], key, storage, expectedType);
-					if (status != B_OK) {
-						LogError("LoadKey: Failed to load array element %zu for key [%s]", i, key);
-						break;
-					}
-				}
-			} else {*/
-				// Handle single values
-				status = _LoadSingleValue(fromFile, key, storage, expectedType);
-			//}
-
-
-			LogError("->Loaded key %s", key);
+			status_t status =  _LoadSingleValue(fromFile, key, storage, expectedType);
+			LogInfo("Done with loading key %s (%s)", key, strerror(status));
 			return status;
 		}
 
@@ -181,6 +212,57 @@ private:
 		status_t _LoadSingleValue(const YAML::Node& node, const char* key, GMessage& storage, type_code expectedType)
 		{
 			try {
+				// Handle null values first for all types
+				if (node.IsNull()) {
+					switch (expectedType) {
+						case B_STRING_TYPE:
+							storage[key] = "";
+							return B_OK;
+						case B_MESSAGE_TYPE:
+							storage[key] = GMessage();
+							return B_OK;
+						case B_BOOL_TYPE:
+							storage[key] = false;
+							return B_OK;
+						case B_INT32_TYPE:
+							storage[key] = (int32)0;
+							return B_OK;
+						case B_UINT32_TYPE:
+							storage[key] = (uint32)0;
+							return B_OK;
+						case B_INT64_TYPE:
+							storage[key] = (int64)0;
+							return B_OK;
+						case B_UINT64_TYPE:
+							storage[key] = (uint64)0;
+							return B_OK;
+						case B_INT16_TYPE:
+							storage[key] = (int16)0;
+							return B_OK;
+						case B_UINT16_TYPE:
+							storage[key] = (uint16)0;
+							return B_OK;
+						case B_INT8_TYPE:
+							storage[key] = (int8)0;
+							return B_OK;
+						case B_UINT8_TYPE:
+							storage[key] = (uint8)0;
+							return B_OK;
+						case B_FLOAT_TYPE:
+							storage[key] = (float)0.0;
+							return B_OK;
+						case B_DOUBLE_TYPE:
+							storage[key] = (double)0.0;
+							return B_OK;
+						case B_RECT_TYPE:
+							storage[key] = BRect(0,0,0,0);
+							return B_OK;
+						default:
+							LogError("_LoadSingleValue: Null value not supported for type code: %ld", expectedType);
+							return B_ERROR;
+					}
+				}
+
 				switch (expectedType) {
 
 					case B_STRING_TYPE:
@@ -218,31 +300,45 @@ private:
 					}
 					case B_MESSAGE_TYPE:
 					{
-						if (node.IsNull() == false && node.IsMap()) {
+						if (node.IsMap()) {
 							GMessage subMessage;
-							LogError("Message for key %s\n", key);
+							LogInfo("Loading BMessage for key %s\n", key);
 							status_t status = _LoadMessage(node, subMessage);
 							if (status == B_OK) {
 								storage[key] = subMessage;
-								subMessage.PrintToStream();
+								LogInfo("Successfully loaded BMessage for key %s with %d fields", key, subMessage.CountNames(B_ANY_TYPE));
 								return B_OK;
 							}
 							return status;
 						}
-						storage[key] = GMessage();
-						LogError("_LoadSingleValue: Expected map for B_MESSAGE_TYPE null:%d map:%d", node.IsNull(), node.IsMap());
+						LogError("_LoadSingleValue: Expected map for B_MESSAGE_TYPE, got null:%d map:%d", node.IsNull(), node.IsMap());
 						return B_ERROR;
 					}
 					case B_REF_TYPE:
 					{
 						std::string pathStr = node.as<std::string>();
-						entry_ref ref;
-						if (get_ref_for_path(pathStr.c_str(), &ref) == B_OK) {
-							storage[key] = ref;
-							return B_OK;
+						
+						// Check if it's a ref:// prefixed string
+						if (pathStr.substr(0, 6) == "ref://") {
+							// Remove the ref:// prefix
+							std::string actualPath = pathStr.substr(6);
+							entry_ref ref;
+							if (get_ref_for_path(actualPath.c_str(), &ref) == B_OK) {
+								storage[key] = ref;
+								return B_OK;
+							}
+							LogError("_LoadSingleValue: Failed to create entry_ref for path: %s", actualPath.c_str());
+							return B_ERROR;
+						} else {
+							// Legacy format without prefix - try to handle it anyway
+							entry_ref ref;
+							if (get_ref_for_path(pathStr.c_str(), &ref) == B_OK) {
+								storage[key] = ref;
+								return B_OK;
+							}
+							LogError("_LoadSingleValue: Failed to create entry_ref for legacy path: %s", pathStr.c_str());
+							return B_ERROR;
 						}
-						LogError("_LoadSingleValue: Failed to create entry_ref for path: %s", pathStr.c_str());
-						return B_ERROR;
 					}
 					default:
 						LogError("_LoadSingleValue: Unsupported type code: %ld", expectedType);
@@ -320,12 +416,15 @@ private:
 			try {
 				if (node.IsSequence()) {
 					// Handle arrays - add each element
+					LogInfo("Loading array for key '%s' with %zu elements", key, node.size());
 					for (size_t i = 0; i < node.size(); i++) {
 						status_t status = _LoadMessageValue(key, node[i], message);
 						if (status != B_OK) {
+							LogError("Failed to load array element %zu for key '%s'", i, key);
 							return status;
 						}
 					}
+					LogInfo("Successfully loaded array for key '%s'", key);
 					return B_OK;
 				} else if (node.IsMap()) {
 					// Nested message
@@ -338,6 +437,16 @@ private:
 				} else if (node.IsScalar()) {
 					// Try to determine the type from the content
 					std::string strValue = node.as<std::string>();
+
+					// Check if it's an entry_ref (ref:// prefixed)
+					if (strValue.length() > 6 && strValue.substr(0, 6) == "ref://") {
+						std::string actualPath = strValue.substr(6);
+						entry_ref ref;
+						if (get_ref_for_path(actualPath.c_str(), &ref) == B_OK) {
+							return message.AddRef(key, &ref);
+						}
+						// If failed to create ref, fall through to treat as string
+					}
 
 					// Check if it's a rectangle format
 					if (strValue.length() > 2 && strValue[0] == '[' && strValue[strValue.length()-1] == ']') {
@@ -394,7 +503,7 @@ private:
 		{
 			switch(storage.Type(key)){
 				_yaml_case(B_BOOL_TYPE, bool, Bool)
-				_yaml_case(B_STRING_TYPE,   const char*,  String)
+				_yaml_case_string(B_STRING_TYPE, String)
 				_yaml_case(B_INT32_TYPE,   int32,  Int32)
 				_yaml_case(B_UINT32_TYPE, uint32, UInt32)
 				_yaml_case(B_INT64_TYPE,   int64,  Int64)
@@ -421,7 +530,7 @@ private:
 				{
 					GMessage msg;
 					YAML::Node subnode;
-					LogError("_SaveKey(MESSAGE, %s, Index %ld)", key, keyIndex);
+					LogInfo("_SaveKey(MESSAGE, %s, Index %ld) - Message has %d fields", key, keyIndex, msg.CountNames(B_ANY_TYPE));
 					status_t st = storage.FindMessage(key, keyIndex, &msg);
 					if ( st == B_OK) {
 						//parse all the values
@@ -433,9 +542,11 @@ private:
 
 						while(msg.GetInfo(B_ANY_TYPE, index++, &name, &type, &count) == B_OK) {
 							hasFields = true;
-							LogError("Index %ld Name [%s][%s] Count %ld", index, key, name, count);
+							LogInfo("Processing field %ld: Name [%s] in message [%s], Count %ld", index, name, key, count);
 
-							std::string subkey(name);
+							// Create a safe copy of the field name to avoid issues with recursive calls
+							BString safeName(name);
+							std::string subkey(safeName.String());
 							if (count > 1) {
 								// Multiple values - create YAML sequence
 								YAML::Node sequenceNode(YAML::NodeType::Sequence);
@@ -468,7 +579,7 @@ private:
 							yaml[key] = subnode;
 						}
 
-						LogError("Count %ld %s", count, key);
+						LogInfo("Finished processing BMessage %s", key);
 						//msg.PrintToStream();
 					}
 					return st;
@@ -478,7 +589,9 @@ private:
 					entry_ref ref;
 					if (storage.FindRef(key, keyIndex, &ref) == B_OK) {
 						BPath path(&ref);
-						yaml[key] = path.Path();
+						BString refString("ref://");
+						refString << path.Path();
+						yaml[key] = refString.String();
 					}
 					break;
 				}
@@ -706,7 +819,10 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 	for (int32 i = 0; i < kStorageTypeCountNb; i++) {
 		if (fPSPList[i] != nullptr &&
 			fPSPList[i]->Open(paths[i], PermanentStorageProvider::kPSPReadMode) != B_OK) {
+			LogErrorF("Failed to open PermanentStorageProvider (%d)!", i);
 			return B_ERROR;
+		} else {
+			LogInfoF("PermanentStorageProvider (%d) opened successfully.", i);
 		}
 	}
 
@@ -727,6 +843,7 @@ ConfigManager::LoadFromFile(std::array<BPath, kStorageTypeCountNb> paths)
 	while (fConfiguration.FindMessage("config", i++, &msg) == B_OK) {
 		const char* key = msg["key"];
 		StorageType storageType = (StorageType)((int32)msg["storage_type"]);
+		LogDebug("Loading key [%s] from configuration setting (%d/%d) for provider %d", key,i,countFound, storageType);
 		PermanentStorageProvider* provider = fPSPList[storageType];
 		if (provider == nullptr) {
 			LogErrorF("Invalid  PermanentStorageProvider (%d)", storageType);

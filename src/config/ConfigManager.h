@@ -4,6 +4,7 @@
 #include <Application.h>
 #include <Path.h>
 #include <array>
+#include "Log.h"
 
 #include "GMessage.h"
 
@@ -42,7 +43,10 @@ public:
 
 			if (fPSPList[(int32)kStorageTypeNoStore] == nullptr)
 				fPSPList[(int32)kStorageTypeNoStore] = CreatePSPByType(kStorageTypeNoStore);
-		}
+		
+			LogDebug("Configured config separator [%s]", key);
+			
+			}
 
 		template<typename T>
 		void AddConfig(const char* group,
@@ -69,6 +73,8 @@ public:
 
 			if (fPSPList[(int32)storageType] == nullptr)
 				fPSPList[(int32)storageType] = CreatePSPByType(storageType);
+
+			LogDebug("Configured config key [%s]", key);
 		}
 
 		status_t	SaveToFile(std::array<BPath, kStorageTypeCountNb> paths);

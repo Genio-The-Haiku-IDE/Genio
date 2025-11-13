@@ -9,7 +9,7 @@
 #include "GMessage.h"
 
 enum StorageType {
-	kStorageTypeBMessage  = 0,
+	kStorageTypeYaml      = 0,
 	kStorageTypeAttribute = 1,
 	kStorageTypeNoStore	  = 2,
 
@@ -54,7 +54,7 @@ public:
 					   const char* label,
 					   T defaultValue,
 					   GMessage* cfg = nullptr,
-					   StorageType storageType = kStorageTypeBMessage) {
+					   StorageType storageType = kStorageTypeYaml) {
 
 			GMessage configKey;
 			if (cfg)

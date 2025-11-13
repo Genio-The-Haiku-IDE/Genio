@@ -590,7 +590,7 @@ ProjectBrowser::MessageReceived(BMessage* message)
 					Window()->PostMessage(&openProjectMessage);
 				}
 			}
-			// TODO: is falling-through correct ?
+			break;
 		}
 		default:
 			BView::MessageReceived(message);

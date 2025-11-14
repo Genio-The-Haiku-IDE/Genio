@@ -1,0 +1,11 @@
+build_mode: 0
+build_file_path: ""
+project_release_build_command: make
+project_release_clean_command: make clean
+project_release_execute_args: ""
+project_release_target: app/Genio_debug
+project_debug_build_command: make DEBUGGER=TRUE
+project_debug_clean_command: make DEBUGGER=TRUE clean
+project_debug_execute_args: ""
+project_debug_target: app/Genio_debug
+project_run_in_terminal: false

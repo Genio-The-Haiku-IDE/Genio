@@ -4,11 +4,12 @@
 #include <Application.h>
 #include <Path.h>
 #include <array>
+#include "Log.h"
 
 #include "GMessage.h"
 
 enum StorageType {
-	kStorageTypeBMessage  = 0,
+	kStorageTypeYaml      = 0,
 	kStorageTypeAttribute = 1,
 	kStorageTypeNoStore	  = 2,
 
@@ -42,7 +43,10 @@ public:
 
 			if (fPSPList[(int32)kStorageTypeNoStore] == nullptr)
 				fPSPList[(int32)kStorageTypeNoStore] = CreatePSPByType(kStorageTypeNoStore);
-		}
+		
+			LogDebug("Configured config separator [%s]", key);
+			
+			}
 
 		template<typename T>
 		void AddConfig(const char* group,
@@ -50,7 +54,7 @@ public:
 					   const char* label,
 					   T defaultValue,
 					   GMessage* cfg = nullptr,
-					   StorageType storageType = kStorageTypeBMessage) {
+					   StorageType storageType = kStorageTypeYaml) {
 
 			GMessage configKey;
 			if (cfg)
@@ -69,6 +73,8 @@ public:
 
 			if (fPSPList[(int32)storageType] == nullptr)
 				fPSPList[(int32)storageType] = CreatePSPByType(storageType);
+
+			LogDebug("Configured config key [%s]", key);
 		}
 
 		status_t	SaveToFile(std::array<BPath, kStorageTypeCountNb> paths);

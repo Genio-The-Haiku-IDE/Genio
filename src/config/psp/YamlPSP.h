@@ -16,16 +16,16 @@ class BMessagePSP;
 class YamlPSP : public PermanentStorageProvider {
 public:
 	YamlPSP();
-	
-	virtual status_t Open(const BPath& _dest, kPSPMode mode) override;
-	virtual status_t Close() override;
-	virtual status_t LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& parameterConfig) override;
-	virtual status_t SaveKey(ConfigManager& manager, const char* key, GMessage& storage) override;
+
+	status_t Open(const BPath& _dest, kPSPMode mode) override;
+	status_t Close() override;
+	status_t LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& parameterConfig) override;
+	status_t SaveKey(ConfigManager& manager, const char* key, GMessage& storage) override;
 
 private:
 	YAML::Node yaml;
 	BFile fFile;
-    
+
     BMessagePSP* fBMsgPSP; //pointer to BMessagePSP for legacy format handling. To be removed in future versions
 
 	status_t _LoadSingleValue(const YAML::Node& node, const char* key, GMessage& storage, type_code expectedType);

@@ -11,11 +11,11 @@
 class NoStorePSP : public PermanentStorageProvider {
 public:
 	NoStorePSP();
-	
-	virtual status_t Open(const BPath& destination, kPSPMode mode) override;
-	virtual status_t Close() override;
-	virtual status_t LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& parConfig) override;
-	virtual status_t SaveKey(ConfigManager& manager, const char* key, GMessage& storage) override;
+
+	status_t Open(const BPath& destination, kPSPMode mode) override;
+	status_t Close() override;
+	status_t LoadKey(ConfigManager& manager, const char* key, GMessage& storage, GMessage& parConfig) override;
+	status_t SaveKey(ConfigManager& manager, const char* key, GMessage& storage) override;
 };
 
 #endif // NO_STORE_PSP_H

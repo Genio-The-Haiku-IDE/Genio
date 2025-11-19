@@ -64,14 +64,14 @@ Whole word	SettingsWindow	Short as possible.	Celé slovo
 Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Zabalit se\n
 Wrap lines	SettingsWindow		Zabalit čáry\n
 Wrap lines in console	SettingsWindow		Zabalit řádky do konzoly\n
-{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
-{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
-1 element replaced	Editor		1 element replaced
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element nalezen}other{# elementů nalezeno}}
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element nahrazen}other{# elementů nahrazeno}}
+1 element replaced	Editor		1 element nahrazen
 Cancel	Editor		Zrušit
 Do you want to set a starting index?	Editor		Chcete nastavit počáteční index?
 Don't save	Editor		Neukládat
 Index	Editor		Index
-No matches found.	Editor		No matches found.
+No matches found.	Editor		Nenalezeny žádné shody.\n
 Rename	Editor		Přejmenovat
 Rename symbol '%symbol_name%':	Editor		Přejmenovat symbol '%symbol_name%':
 Save	Editor		Uložit

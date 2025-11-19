@@ -1,0 +1,429 @@
+1	English	application/x-vnd.Genio	1940528103
+Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
+Enable brace matching	SettingsWindow		Enable brace matching
+Clear	ConsoleIOView		Clear
+CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
+Match case	SearchResultTab	Short as possible.	Match case
+Project	ProjectsFolderBrowser		Project
+Wrap lines in console	SettingsWindow		Wrap lines in console
+Show toolbar	GenioWindow		Show toolbar
+Project settings…	ProjectsFolderBrowser		Project settings…
+development	Utilities		development
+Show/Hide replace bar	GenioWindow		Show/Hide replace bar
+Replace selection	GenioWindow		Replace selection
+Focus mode	GenioWindow		Focus mode
+URL:	RemoteProjectWindow		URL:
+Show vertical ruler	SettingsWindow		Show vertical ruler
+Open file	ProjectsFolderBrowser		Open file
+Window	GenioWindow		Window
+Cancel	SourceControlPanel		Cancel
+Projects folder:	SettingsWindow		Projects folder:
+File modified on index	GitRepository		File modified on index
+Set active	ProjectsFolderBrowser		Set active
+Fetch prune	SourceControlPanel		Fetch prune
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio is a fork of Ideam and available under the MIT license.
+Settings	ConfigWindow		Settings
+Rename symbol…	FunctionsOutlineView		Rename symbol…
+Save all	GenioWindow		Save all
+Go to line…	GenioWindow		Go to line…
+Log (oneline)	GenioWindow	The git command	Log (oneline)
+Delete \"%selected_branch%\"	SourceControlPanel		Delete \"%selected_branch%\"
+Select all	GenioWindow		Select all
+Auto collapse/expand projects	SettingsWindow		Auto collapse/expand projects
+Destination folder:	RemoteProjectWindow		Destination folder:
+Make catkeys	GenioWindow		Make catkeys
+New file	GitRepository		New file
+Show/Hide find bar	GenioWindow		Show/Hide find bar
+Status	GenioWindow	The git command	Status
+Build mode	ProjectsFolderBrowser		Build mode
+Choose project…	SearchResultTab		Choose project…
+Build log	GenioWindow		Build log
+Show left pane	SettingsWindow		Show left pane
+Switch to \"%selected_branch%\"	SourceControlPanel		Switch to \"%selected_branch%\"
+Editor style:	SettingsWindow		Editor style:
+beta	Utilities		beta
+Redo	GenioWindow		Redo
+Find	SettingsWindow		Find
+Reload	GenioWindow		Reload
+Project	GenioWindow		Project
+Replace	GenioWindow		Replace
+Stashed changes applied.	SourceControlPanel		Stashed changes applied.
+Cancel	GenioWindow		Cancel
+Log level:	SettingsWindow		Log level:
+Function	FunctionsOutlineView		Function
+Clone	RemoteProjectWindow		Clone
+String	FunctionsOutlineView		String
+Keep	GenioWindow		Keep
+Use smaller icons in toolbar	SettingsWindow		Use smaller icons in toolbar
+OK	GitCredentialsWindow		OK
+Open recent…	GenioWindow		Open recent…
+Open in Terminal	GenioWindow		Open in Terminal
+Log size:	SettingsWindow		Log size:
+Autocomplete	GenioWindow		Autocomplete
+Structure	FunctionsOutlineView		Structure
+Project:	SearchResultTab		Project:
+Conflicts	SourceControlPanel		Conflicts
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	These are only applied if no .editorconfig is used:
+Delete file	ProjectsFolderBrowser		Delete file
+Read-only	GenioWindow		Read-only
+Help…	GenioWindow		Help…
+Fetch	SourceControlPanel		Fetch
+Show right pane	SettingsWindow		Show right pane
+Wrap	TermView	As in wrapping long lines. Short as possible.	Wrap
+Color:	ProjectSettingsWindow		Color:
+Release	ProjectSettingsWindow		Release
+Go forward	GenioWindow		Go forward
+Go back	GenioWindow		Go back
+Find	GenioWindow		Find
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
+Discard	GenioWindow		Discard
+Mark caret line	SettingsWindow		Mark caret line
+Build mode	GenioWindow		Build mode
+Whole word	GenioWindow	Short as possible.	Whole word
+Git - Username	GitCredentialsWindow		Git - Username
+Delete dialog	SourceControlPanel		Delete dialog
+OK	GitAlert		OK
+Rename	Editor		Rename
+Local branches	SourceControlPanel		Local branches
+Debug project	GenioWindow		Debug project
+Loading project	ProjectOpenerWindow		Loading project
+stderr	ConsoleIOView		stderr
+Project:	GenioWindow		Project:
+Replace:	GenioWindow		Replace:
+Whole word	SearchResultTab	Short as possible.	Whole word
+Trim trailing whitespace	GenioWindow		Trim trailing whitespace
+New folder	GenioWindow		New folder
+Rename branch	SourceControlPanel		Rename branch
+Operator	FunctionsOutlineView		Operator
+OK	GTextAlert		OK
+Open remote Git project	RemoteProjectWindow		Open remote Git project
+Show/Hide bottom pane	GenioWindow		Show/Hide bottom pane
+General	SettingsWindow		General
+Browse…	RemoteProjectWindow		Browse…
+Show right pane	GenioWindow		Show right pane
+Delete	GenioWindow		Delete
+Message	ProblemsPanel		Message
+Rename \"%selected_branch%\"	SourceControlPanel		Rename \"%selected_branch%\"
+Go to line	GoToLineWindow		Go to line
+There are unsaved changes.\nSelect the files to save.	QuitAlert		There are unsaved changes.\nSelect the files to save.
+Show repository outline	SettingsWindow		Show repository outline
+Save	GenioWindow		Save
+Constructor	FunctionsOutlineView		Constructor
+Enum	FunctionsOutlineView		Enum
+Run	ProjectSettingsWindow		Run
+Log destination:	SettingsWindow		Log destination:
+Go to previous tab	GenioWindow		Go to previous tab
+Reload projects	SettingsWindow		Reload projects
+Package	FunctionsOutlineView		Package
+Overwrite	GenioWindow		Overwrite
+Stop	RemoteProjectWindow		Stop
+Save dialog	Editor		Save dialog
+OK	SourceControlPanel		OK
+Cancel	QuitAlert		Cancel
+Stash apply changes	SourceControlPanel		Stash apply changes
+Version	Utilities		Version
+Finished building project '\"%project%\"'	GlobalStatusView		Finished building project '\"%project%\"'
+Open remote project…	GenioWindow		Open remote project…
+Show left pane	GenioWindow		Show left pane
+Search	GenioWindow		Search
+Creating outline	FunctionsOutlineView		Creating outline
+Save changes to file \"%file%\"	GenioWindow		Save changes to file \"%file%\"
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# element replaced}other{# elements replaced}}
+Reset zoom	GenioWindow		Reset zoom
+Show bottom pane	SettingsWindow		Show bottom pane
+Stop	ConsoleIOView		Stop
+Show line endings	SettingsWindow		Show line endings
+Variable	FunctionsOutlineView		Variable
+Contributors:	GenioApp		Contributors:
+File modified	GitRepository		File modified
+Fetch prune completed.	SourceControlPanel		Fetch prune completed.
+Made with love in Italy	GenioApp		Made with love in Italy
+Default size	SettingsWindow		Default size
+Show comment margin	SettingsWindow		Show comment margin
+File \"%file%\" was apparently modified, reload it?	GenioWindow		File \"%file%\" was apparently modified, reload it?
+Configure	GenioWindow		Configure
+Bookmark all	GenioWindow		Bookmark all
+Auto-Build on resource save	SettingsWindow		Auto-Build on resource save
+Visuals	SettingsWindow		Visuals
+Cancel	Editor		Cancel
+Init repository	SourceControlPanel		Init repository
+Rename folder	ProjectsFolderBrowser		Rename folder
+Close other	GenioWindow		Close other
+Delete current line	GenioWindow		Delete current line
+Tools	GenioWindow		Tools
+Do you want to set a starting index?	Editor		Do you want to set a starting index?
+Do not create the initial commit	SourceControlPanel		Do not create the initial commit
+Password:	GitCredentialsWindow		Password:
+Build mode:	ProjectSettingsWindow		Build mode:
+Ignore .editorconfig	SettingsWindow		Ignore .editorconfig
+Boolean	FunctionsOutlineView		Boolean
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		The project folder has been renamed. It will be closed and reopened automatically.
+Cut	GenioWindow		Cut
+Finished cleaning project '\"%project%\"'	GlobalStatusView		Finished cleaning project '\"%project%\"'
+Type parameter	FunctionsOutlineView		Type parameter
+Exclude folders:	SettingsWindow		Exclude folders:
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Do you really want to initialize a repository without creating an initial commit?
+No outline available	FunctionsOutlineView		No outline available
+Save as…	GenioWindow		Save as…
+Show config	GenioWindow	The git command	Show config
+Reload .editorconfig	GenioWindow		Reload .editorconfig
+No fix available	ProblemsPanel		No fix available
+New branch name:	SourceControlPanel		New branch name:
+Class	FunctionsOutlineView		Class
+Run target	GenioWindow		Run target
+Line	ProblemsPanel		Line
+New	ProjectsFolderBrowser		New
+Could not create a new file	GenioWindow		Could not create a new file
+Source control	SourceControlPanel		Source control
+Show whitespace	GenioWindow		Show whitespace
+Delete folder	ProjectsFolderBrowser		Delete folder
+Enable syntax highlighting	SettingsWindow		Enable syntax highlighting
+Wrap lines	SettingsWindow		Wrap lines
+Actions	SourceControlPanel		Actions
+Defaults	ConfigWindow		Defaults
+Close active project	GenioWindow		Close active project
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		This project does not have a git repository.\nClick below to initialize it.
+Set ruler to column:	SettingsWindow		Set ruler to column:
+Zoom in	GenioWindow		Zoom in
+Show in Tracker	GenioWindow		Show in Tracker
+Fold/Unfold all	GenioWindow		Fold/Unfold all
+gold master	Utilities		gold master
+Show whitespace	SettingsWindow		Show whitespace
+Do you want to stop cloning the repository?	RemoteProjectWindow		Do you want to stop cloning the repository?
+Clear all	GenioWindow	Bookmark menu	Clear all
+Debug	ProjectsFolderBrowser		Debug
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.
+Delete dialog	GenioWindow		Delete dialog
+Convert tabs to spaces	SettingsWindow		Convert tabs to spaces
+Project:	SourceControlPanel		Project:
+Show bottom pane	GenioWindow		Show bottom pane
+About…	GenioWindow		About…
+Create initial commit	SourceControlPanel		Create initial commit
+Loading project '%project_name%'	ProjectOpenerWindow		Loading project '%project_name%'
+Close	GenioWindow		Close
+Tags	SourceControlPanel		Tags
+Drop folder here	ProjectsFolderBrowser		Drop folder here
+Remotes	SourceControlPanel		Remotes
+Choose project…	SourceControlPanel		Choose project…
+Copy name	SourceControlPanel		Copy name
+An error occurred while switching branch:	GenioWindow		An error occurred while switching branch:
+Edit	GenioWindow		Edit
+Find:	GenioWindow		Find:
+Git	GenioWindow		Git
+Enter a message for this stash	SourceControlPanel		Enter a message for this stash
+Project settings…	GenioWindow		Project settings…
+(follow system style)	SettingsWindow		(follow system style)
+Choose branch…	SourceControlPanel		Choose branch…
+Don't save	QuitAlert		Don't save
+alpha	Utilities		alpha
+Constant	FunctionsOutlineView		Constant
+Close	RemoteProjectWindow		Close
+Copy	GenioWindow		Copy
+Settings in .editorconfig applied	EditorStatusView		Settings in .editorconfig applied
+Project	EditorTabManager		Project
+Comment selected lines	GenioWindow		Comment selected lines
+Switch source/header	GenioWindow		Switch source/header
+Global settings applied	EditorStatusView		Global settings applied
+Make file read-only	GenioWindow		Make file read-only
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# element found}other{# elements found}}
+Stashed changes popped.	SourceControlPanel		Stashed changes popped.
+Git - User Credentials	GitCredentialsWindow		Git - User Credentials
+Font:	SettingsWindow		Font:
+Path	ProjectsFolderBrowser		Path
+Rename symbol '%symbol_name%':	Editor		Rename symbol '%symbol_name%':
+Switch to branch	GenioWindow		Switch to branch
+Problems	ProblemsPanel		Problems
+Tab width:	SettingsWindow		Tab width:
+Line endings	GenioWindow		Line endings
+Show/Hide left pane	GenioWindow		Show/Hide left pane
+Building project '\"%project%\"'…	GlobalStatusView		Building project '\"%project%\"'…
+Editor zoom:	SettingsWindow		Editor zoom:
+OK	GoToLineWindow		OK
+New folder	TemplateManager		New folder
+Show/Hide right pane	GenioWindow		Show/Hide right pane
+Continue	RemoteProjectWindow		Continue
+Startup	SettingsWindow		Startup
+Close file	GenioWindow		Close file
+Namespace	FunctionsOutlineView		Namespace
+Find previous	GenioWindow		Find previous
+Active	EditorTabManager		Active
+Failed building project '\"%project%\"'	GlobalStatusView		Failed building project '\"%project%\"'
+Console I/O	GenioWindow		Console I/O
+Run	GenioWindow		Run
+Save current file	GenioWindow		Save current file
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
+Stash changes	SourceControlPanel		Stash changes
+Genio	System name		Genio
+OK	ProjectsFolderBrowser		OK
+(follow editor style)	TermView		(follow editor style)
+Release	GenioWindow		Release
+Unsaved files	QuitAlert		Unsaved files
+Debug	GenioWindow		Debug
+Event	FunctionsOutlineView		Event
+Username:	GitCredentialsWindow		Username:
+Undo	GenioWindow		Undo
+Module	FunctionsOutlineView		Module
+Save	Editor		Save
+Cleaning project '\"%project%\"'…	GlobalStatusView		Cleaning project '\"%project%\"'…
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?
+Rename branch:	SourceControlPanel		Rename branch:
+Import as RDEF array…	GenioWindow		Import as RDEF array…
+New file	GenioWindow		New file
+Previous	GenioWindow	Bookmark menu	Previous
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Wrap
+The local path is not valid or does not exist	RemoteProjectWindow		The local path is not valid or does not exist
+Cancel	GitCredentialsWindow		Cancel
+Field	FunctionsOutlineView		Field
+Match case	SettingsWindow	Short as possible.	Match case
+Show line numbers	SettingsWindow		Show line numbers
+Build file path:	ProjectSettingsWindow		Build file path:
+Invalid project folder	GenioWindow		Invalid project folder
+Fullscreen	GenioWindow		Fullscreen
+Match case	GenioWindow	Short as possible.	Match case
+Toggle	GenioWindow	Bookmark menu	Toggle
+Replace and find previous	GenioWindow		Replace and find previous
+Replace all	GenioWindow		Replace all
+Run:	GenioWindow		Run:
+Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Banner
+Genio project…	GenioWindow		Genio project…
+Outline	FunctionsOutlineView		Outline
+Go to line:	GoToLineWindow		Go to line:
+1 element replaced	Editor		1 element replaced
+Conflicts	GenioWindow		Conflicts
+Ignore	GenioWindow		Ignore
+Tag	GenioWindow	The git command	Tag
+Show whitespace and line endings	GenioWindow		Show whitespace and line endings
+Run console program	GenioWindow		Run console program
+Remote branches	SourceControlPanel		Remote branches
+Branch	GenioWindow	The git command	Branch
+Failed cleaning project '\"%project%\"'	GlobalStatusView		Failed cleaning project '\"%project%\"'
+Could not delete \"%name%\".\n\n	GenioWindow		Could not delete \"%name%\".\n\n
+No matches found.	Editor		No matches found.
+Build	SettingsWindow		Build
+Property	FunctionsOutlineView		Property
+Another command is running.	ConsoleIOView		Another command is running.
+Duplicate current line	GenioWindow		Duplicate current line
+Clean project	GenioWindow		Clean project
+File	FunctionsOutlineView		File
+Settings…	GenioWindow		Settings…
+Enum member	FunctionsOutlineView		Enum member
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
+Pull (rebase)	GenioWindow	The git command	Pull (rebase)
+Pull	GenioWindow	The git command	Pull
+Restarting build…	ConsoleIOView		Restarting build…
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.
+Quit	GenioWindow		Quit
+Go to declaration	GenioWindow		Go to declaration
+Execute args:	ProjectSettingsWindow		Execute args:
+Method	FunctionsOutlineView		Method
+Find in project	SearchResultTab		Find in project
+stdout	ConsoleIOView		stdout
+Save all files	GenioWindow		Save all files
+Clear	TermView		Clear
+Save selected	QuitAlert		Save selected
+Search results	SearchResultPanel		Search results
+New file staged	GitRepository		New file staged
+Edit user templates…	TemplatesMenu		Edit user templates…
+Open…	GenioWindow		Open…
+Changes stashed.	SourceControlPanel		Changes stashed.
+Go to definition	GenioWindow		Go to definition
+Key	FunctionsOutlineView		Key
+Index	Editor		Index
+Console style:	SettingsWindow		Console style:
+Clean command:	ProjectSettingsWindow		Clean command:
+Cancel	RemoteProjectWindow		Cancel
+Rename file	ProjectsFolderBrowser		Rename file
+Build	ProjectSettingsWindow		Build
+Make bindcatalogs	GenioWindow		Make bindcatalogs
+File deleted	GitRepository		File deleted
+Status (short)	GenioWindow	The git command	Status (short)
+Don't save	GenioWindow		Don't save
+Editor	SettingsWindow		Editor
+Build command:	ProjectSettingsWindow		Build command:
+Error creating folder	GenioWindow		Error creating folder
+Delete	SourceControlPanel		Delete
+Replace and find next	GenioWindow		Replace and find next
+Create branch	SourceControlPanel		Create branch
+Target:	ProjectSettingsWindow		Target:
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Wrap around
+Current branch:	SourceControlPanel		Current branch:
+Source	ProblemsPanel		Source
+Show full path in window title	SettingsWindow		Show full path in window title
+Go to symbol	FunctionsOutlineView		Go to symbol
+See credits for a complete list.\n\n	GenioApp		See credits for a complete list.\n\n
+Build project	GenioWindow		Build project
+View	GenioWindow		View
+Don't save	Editor		Don't save
+Show statusbar	SettingsWindow		Show statusbar
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Wrap around
+Show toolbar	SettingsWindow		Show toolbar
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
+Force showing Build log panel when building	SettingsWindow		Force showing Build log panel when building
+(follow editor style)	SettingsWindow		(follow editor style)
+Cancel	GoToLineWindow		Cancel
+Appearance	GenioWindow		Appearance
+Array	FunctionsOutlineView		Array
+Show in projects browser	GenioWindow		Show in projects browser
+Switch to branch	ProjectsFolderBrowser		Switch to branch
+File	GenioWindow		File
+Go to next tab	GenioWindow		Go to next tab
+Show folding margin	SettingsWindow		Show folding margin
+Reload files	SettingsWindow		Reload files
+Whole word	SettingsWindow	Short as possible.	Whole word
+Wrap lines	GenioWindow		Wrap lines
+Appearance	SettingsWindow		Appearance
+Font size:	SettingsWindow		Font size:
+Zoom out	GenioWindow		Zoom out
+Base path:	RemoteProjectWindow		Base path:
+Fetch completed.	SourceControlPanel		Fetch completed.
+Log	GenioWindow	The git command	Log
+Go to implementation	GenioWindow		Go to implementation
+Language	GenioWindow		Language
+Show line endings	GenioWindow		Show line endings
+Set active	GenioWindow		Set active
+Save all	QuitAlert		Save all
+gamma	Utilities		gamma
+Close project	ProjectsFolderBrowser		Close project
+Format	GenioWindow		Format
+Default font	SettingsWindow		Default font
+This setting will be updated on restart.	SettingsWindow		This setting will be updated on restart.
+Auto-Save changed files when building	SettingsWindow		Auto-Save changed files when building
+Trim trailing whitespace on save	SettingsWindow		Trim trailing whitespace on save
+New	GenioWindow		New
+Bookmark	GenioWindow		Bookmark
+Close all	GenioWindow		Close all
+Next	GenioWindow	Bookmark menu	Next
+Stop	TermView		Stop
+Repository	SourceControlPanel		Repository
+Sort	FunctionsOutlineView		Sort
+An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
+Show statusbar	GenioWindow		Show statusbar
+(follow system style)	TermView		(follow system style)
+Find in project	GenioWindow		Find in project
+Category	ProblemsPanel		Category
+Release	ProjectsFolderBrowser		Release
+Save changes to file \"%filename%\"?	Editor		Save changes to file \"%filename%\"?
+Current branch	ProjectsFolderBrowser		Current branch
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n
+Null	FunctionsOutlineView		Null
+Clean project	ProjectsFolderBrowser		Clean project
+Rename symbol…	GenioWindow		Rename symbol…
+Object	FunctionsOutlineView		Object
+Open project…	GenioWindow		Open project…
+Run in terminal	ProjectSettingsWindow		Run in terminal
+Interface	FunctionsOutlineView		Interface
+Build project	ProjectsFolderBrowser		Build project
+File deleted from index	GitRepository		File deleted from index
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Console banner
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
+Find next	GenioWindow		Find next
+No LSP file status information	EditorStatusView		No LSP file status information
+The project is building, changing branch not allowed.	SourceControlPanel		The project is building, changing branch not allowed.
+OK	Utilities		OK
+Location	SearchResultPanel		Location
+Paste	GenioWindow		Paste
+Cancel	GTextAlert		Cancel
+Source control	SettingsWindow		Source control
+Stash pop changes	SourceControlPanel		Stash pop changes
+An unknown error occurred.	SourceControlPanel		An unknown error occurred.
+Save caret position	SettingsWindow		Save caret position

@@ -1,0 +1,429 @@
+1	French	application/x-vnd.Genio	1940528103
+(follow editor style)	TermView		(Suivre le style de l'éditeur)
+(follow system style)	TermView		(Suivre le style du système)
+Banner	TermView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Bannière
+Clear	TermView		Effacer
+Stop	TermView		Arrêter
+Wrap	TermView	As in wrapping long lines. Short as possible.	Retour à la ligne
+(follow editor style)	SettingsWindow		(Suivre le style de l'éditeur)
+(follow system style)	SettingsWindow		(Suivre le style du système)
+Appearance	SettingsWindow		Apparence
+Auto collapse/expand projects	SettingsWindow		Réduction/Déploiement automatique des projets
+Auto-Build on resource save	SettingsWindow		Construction automatique à la sauvegarde de ressource
+Auto-Save changed files when building	SettingsWindow		Sauvegarde automatique des fichiers modifiés lors de la construction
+Build	SettingsWindow		Construction
+Console banner	SettingsWindow	A separating line inserted at the start and end of a command output in the console. Short as possible.	Bannière de console
+Console style:	SettingsWindow		Style de la console :
+Convert tabs to spaces	SettingsWindow		Convertir les tabulations en espaces
+Default font	SettingsWindow		Police par défaut
+Default size	SettingsWindow		Taille par défaut
+Editor	SettingsWindow		Éditeur
+Editor style:	SettingsWindow		Style de l'éditeur :
+Editor zoom:	SettingsWindow		Zoom de l'éditeur :
+Enable brace matching	SettingsWindow		Activer la concordance des accolades
+Enable syntax highlighting	SettingsWindow		Activer la coloration syntaxique
+Exclude folders:	SettingsWindow		Dossiers exclus :
+Find	SettingsWindow		Chercher
+Font size:	SettingsWindow		Taille de la police :
+Font:	SettingsWindow		Police :
+Force showing Build log panel when building	SettingsWindow		Forcer l'affichage du panneau du journal de construction lors de la construction
+General	SettingsWindow		Général
+Ignore .editorconfig	SettingsWindow		Ignorer .editorconfig
+Log destination:	SettingsWindow		Destination des journaux :
+Log level:	SettingsWindow		Niveau de journalisation :
+Log size:	SettingsWindow		Taille des journaux :
+Mark caret line	SettingsWindow		Marquer la ligne du caret
+Match case	SettingsWindow	Short as possible.	Respecter la casse
+Projects folder:	SettingsWindow		Dossier des projets :
+Reload files	SettingsWindow		Recharger les fichiers
+Reload projects	SettingsWindow		Recharger les projets
+Save caret position	SettingsWindow		Sauvegarder la position du caret
+Set ruler to column:	SettingsWindow		Placer la règle à la colonne :
+Show bottom pane	SettingsWindow		Afficher le panneau du bas
+Show comment margin	SettingsWindow		Afficher la marge de commentaires
+Show folding margin	SettingsWindow		Afficher la marge de pliage
+Show full path in window title	SettingsWindow		Afficher le chemin complet dans le titre de la fenêtre
+Show left pane	SettingsWindow		Afficher le panneau de gauche
+Show line endings	SettingsWindow		Afficher les fins de lignes
+Show line numbers	SettingsWindow		Afficher les numéros de lignes
+Show repository outline	SettingsWindow		Afficher l'aperçu du dépôt
+Show right pane	SettingsWindow		Afficher le panneau de droite
+Show statusbar	SettingsWindow		Afficher la barre de statut
+Show toolbar	SettingsWindow		Afficher la barre d’outils
+Show vertical ruler	SettingsWindow		Afficher la règle verticale
+Show whitespace	SettingsWindow		Afficher les espaces
+Source control	SettingsWindow		Contrôle de source
+Startup	SettingsWindow		Démarrage
+Tab width:	SettingsWindow		Largeur de tabulation :
+These are only applied if no .editorconfig is used:	SettingsWindow	The translation shouldn't be much longer than the English original	Appliqués seulement si .editorconfig est utilisé :
+This setting will be updated on restart.	SettingsWindow		Ce paramètre sera pris en compte après redémarrage.
+Trim trailing whitespace on save	SettingsWindow		Éliminer les espaces de fin de ligne à la sauvegarde
+Use smaller icons in toolbar	SettingsWindow		Utiliser des icones plus petites dans la barre d'outils
+Visuals	SettingsWindow		Visuels
+Whole word	SettingsWindow	Short as possible.	Mot entier
+Wrap around	SettingsWindow	Continue searching from the beginning when reaching the end of the file	Recherche circulaire
+Wrap lines	SettingsWindow		Retour à la ligne
+Wrap lines in console	SettingsWindow		Retour à la ligne dans la console
+{0, plural,one{# element found}other{# elements found}}	Editor		{0, plural,one{# élément trouvé}other{# éléments trouvés}}
+{0, plural,one{# element replaced}other{# elements replaced}}	Editor		{0, plural,one{# élément remplacé}other{# éléments remplacés}}
+1 element replaced	Editor		1 élément remplacé
+Cancel	Editor		Annuler
+Do you want to set a starting index?	Editor		Voulez-vous définir un index de départ ?
+Don't save	Editor		Ne pas sauvegarder
+Index	Editor		Index
+No matches found.	Editor		Aucune correspondance trouvée
+Rename	Editor		Renommer
+Rename symbol '%symbol_name%':	Editor		Renommer le symbole '%symbol_name%' :
+Save	Editor		Sauvegarder
+Save changes to file \"%filename%\"?	Editor		Sauvegarder les modifications du fichier « %filename% » ?
+Save dialog	Editor		Dialogue de sauvegarde
+About…	GenioWindow		À propos de…
+An error occurred while switching branch:	GenioWindow		Une erreur est survenue pendant le changement de branche :
+Appearance	GenioWindow		Apparence
+Autocomplete	GenioWindow		Complétion automatique
+Bookmark	GenioWindow		Signet
+Bookmark all	GenioWindow		Tout mettre en signet
+Branch	GenioWindow	The git command	Brancher
+Build log	GenioWindow		Journal de construction
+Build mode	GenioWindow		Mode de construction
+Build project	GenioWindow		Construire le projet
+Cancel	GenioWindow		Annuler
+Clean project	GenioWindow		Nettoyer le projet
+Clear all	GenioWindow	Bookmark menu	Supprimer tous les signets
+Close	GenioWindow		Fermer
+Close active project	GenioWindow		Fermer le projet actif
+Close all	GenioWindow		Tout fermer
+Close file	GenioWindow		Fermer le fichier
+Close other	GenioWindow		Fermer l'autre / les autres
+Comment selected lines	GenioWindow		Commenter les lignes sélectionnées
+Configure	GenioWindow		Configurer
+Conflicts	GenioWindow		Conflits
+Console I/O	GenioWindow		Console E/S
+Copy	GenioWindow		Copier
+Could not create a new file	GenioWindow		Impossible de créer un nouveau fichier
+Could not delete \"%name%\".\n\n	GenioWindow		Impossible de supprimer « %name% ».\n\n
+CR (Classic Mac OS)	GenioWindow		CR (Classic Mac OS)
+CRLF (Windows, Dos)	GenioWindow		CRLF (Windows, Dos)
+Cut	GenioWindow		Couper
+Debug	GenioWindow		Déverminage
+Debug project	GenioWindow		Projet de déverminage
+Delete	GenioWindow		Supprimer
+Delete current line	GenioWindow		Supprimer la ligne courante
+Delete dialog	GenioWindow		Dialogue de suppression
+Deleting item: \"%name%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	GenioWindow		Suppression de l’élément : « %name% ».\n\n.\n\nAprès suppression, l’élément sera perdu.\nVoulez-vous vraiment le supprimer?
+Discard	GenioWindow		Abandonner
+Don't save	GenioWindow		Ne pas sauvegarder
+Duplicate current line	GenioWindow		Dupliquer la ligne courante
+Edit	GenioWindow		Éditer
+Error creating folder	GenioWindow		Erreur à la création du dossier
+File	GenioWindow		Fichier
+File \"%file%\" was apparently modified, reload it?	GenioWindow		Le fichier « %file% » a visiblement été modifié. Voulez vous le recharger ?
+File \"%file%\" was apparently moved.\nDo you want to ignore, close or reload it?	GenioWindow		Le fichier « %file% » a apparemment été déplacé.\nVoulez-vous l’ignorer, le fermer ou le recharger ?
+File \"%file%\" was apparently removed.\nDo you want to keep the file or discard it?\nIf kept and modified, save it or it will be lost.	GenioWindow		Le fichier « %file% » a apparemment été supprimé.\nVoulez-vous conserver le fichier ou le jeter ?\n Si vous le conservez et le modifiez, sauvegardez-le ou il sera perdu.
+Find	GenioWindow		Chercher
+Find in project	GenioWindow		Chercher dans le projet
+Find next	GenioWindow		Chercher l’occurrence suivante
+Find previous	GenioWindow		Chercher l’occurrence précédente
+Find:	GenioWindow		Chercher :
+Focus mode	GenioWindow		Mode concentration
+Fold/Unfold all	GenioWindow		Replier/Déplier tout
+Format	GenioWindow		Format
+Fullscreen	GenioWindow		Plein écran
+Genio project…	GenioWindow		Projet Genio…
+Git	GenioWindow		Git
+Go back	GenioWindow		Revenir en arrière
+Go forward	GenioWindow		Avancer
+Go to declaration	GenioWindow		Aller à la déclaration
+Go to definition	GenioWindow		Aller à la définition
+Go to implementation	GenioWindow		Aller à l’implémentation
+Go to line…	GenioWindow		Aller à la ligne…
+Go to next tab	GenioWindow		Aller à l'onglet suivant
+Go to previous tab	GenioWindow		Aller à l'onglet précédant
+Help…	GenioWindow		Aide…
+Ignore	GenioWindow		Ignorer
+Import as RDEF array…	GenioWindow		Importer comme stockage RDEF…
+Invalid project folder	GenioWindow		Dossier de projet invalide
+Keep	GenioWindow		Conserver
+Language	GenioWindow		Langage
+LF (Haiku, Unix, macOS)	GenioWindow		LF (Haiku, Unix, macOS)
+Line endings	GenioWindow		Fins de lignes
+Log	GenioWindow	The git command	Journal
+Log (oneline)	GenioWindow	The git command	Journal (en ligne)
+Make bindcatalogs	GenioWindow		Make bindcatalogs
+Make catkeys	GenioWindow		Make catkeys
+Make file read-only	GenioWindow		Mettre le fichier en lecture seule
+Match case	GenioWindow	Short as possible.	Respecter la casse
+New	GenioWindow		Nouveau
+New file	GenioWindow		Nouveau fichier
+New folder	GenioWindow		Nouveau dossier
+Next	GenioWindow	Bookmark menu	Suivant
+Open in Terminal	GenioWindow		Ouvrir dans Terminal
+Open project…	GenioWindow		Ouvrir un projet…
+Open recent…	GenioWindow		Récemment ouvert…
+Open remote project…	GenioWindow		Ouvrir un projet distant…
+Open…	GenioWindow		Ouvrir…
+Overwrite	GenioWindow		Écraser
+Paste	GenioWindow		Coller
+Previous	GenioWindow	Bookmark menu	Précédent
+Project	GenioWindow		Projet
+Project settings…	GenioWindow		Paramètres du projet…
+Project:	GenioWindow		Projet:
+Pull	GenioWindow	The git command	Tirer
+Pull (rebase)	GenioWindow	The git command	Tirer (adapter)
+Quit	GenioWindow		Quitter
+Read-only	GenioWindow		Lecture seule
+Redo	GenioWindow		Refaire
+Release	GenioWindow		Diffusion
+Reload	GenioWindow		Recharger
+Reload .editorconfig	GenioWindow		Recharger .editorconfig
+Rename symbol…	GenioWindow		Renommer le symbole…
+Replace	GenioWindow		Remplacer
+Replace all	GenioWindow		Remplacer tout
+Replace and find next	GenioWindow		Remplacer et chercher l’occurrence suivante
+Replace and find previous	GenioWindow		Remplacer et chercher l’occurrence précédente
+Replace selection	GenioWindow		Remplacer la sélection
+Replace:	GenioWindow		Remplacer :
+Reset zoom	GenioWindow		Réinitialiser le zoom
+Run	GenioWindow		Lancer
+Run console program	GenioWindow		Lancer un programme dans la console
+Run target	GenioWindow		Lancer la cible
+Run:	GenioWindow		Lancer :
+Save	GenioWindow		Sauvegarder
+Save all	GenioWindow		Sauvegarder tout
+Save all files	GenioWindow		Sauvegarder tous les fichiers
+Save as…	GenioWindow		Enregistrer sous…
+Save changes to file \"%file%\"	GenioWindow		Sauvegarder les modifications du fichier « %file% »
+Save current file	GenioWindow		Sauvegarder le fichier courant
+Search	GenioWindow		Recherche
+Select all	GenioWindow		Sélectionner tout
+Set active	GenioWindow		Rendre actif
+Settings…	GenioWindow		Paramètres…
+Show bottom pane	GenioWindow		Afficher le panneau du bas
+Show config	GenioWindow	The git command	Afficher la configuration
+Show in projects browser	GenioWindow		Afficher dans le navigateur de projets
+Show in Tracker	GenioWindow		Afficher dans le Tracker
+Show left pane	GenioWindow		Afficher le panneau de gauche
+Show line endings	GenioWindow		Afficher les fins de lignes
+Show right pane	GenioWindow		Afficher le panneau de droite
+Show statusbar	GenioWindow		Afficher la barre de statut
+Show toolbar	GenioWindow		Afficher la barre d’outils
+Show whitespace	GenioWindow		Afficher les espaces
+Show whitespace and line endings	GenioWindow		Afficher les espaces et les fins de lignes
+Show/Hide bottom pane	GenioWindow		Afficher/Masquer le panneau du bas
+Show/Hide find bar	GenioWindow		Afficher/Masquer la barre de recherche
+Show/Hide left pane	GenioWindow		Afficher/Masquer le panneau de gauche
+Show/Hide replace bar	GenioWindow		Afficher/Masquer la barre de remplacement
+Show/Hide right pane	GenioWindow		Afficher/Masquer le panneau de droite
+Status	GenioWindow	The git command	Statut
+Status (short)	GenioWindow	The git command	Statut (court)
+Switch source/header	GenioWindow		Basculer source/en-tête
+Switch to branch	GenioWindow		Basculer vers la branche
+Tag	GenioWindow	The git command	Étiquetter
+Toggle	GenioWindow	Bookmark menu	Basculer
+Tools	GenioWindow		Outils
+Trim trailing whitespace	GenioWindow		Supprimer les espaces en fin de ligne
+Undo	GenioWindow		Défaire
+View	GenioWindow		Visualisation
+Whole word	GenioWindow	Short as possible.	Mot entier
+Window	GenioWindow		Fenêtre
+Wrap around	GenioWindow	Continue searching from the beginning when reaching the end of the file. Short as possible.	Recherche circulaire
+Wrap lines	GenioWindow		Retour à la ligne
+Zoom in	GenioWindow		Zoomer
+Zoom out	GenioWindow		Dézoomer
+Actions	SourceControlPanel		Actions
+An unknown error occurred.	SourceControlPanel		Une erreur inconnue est survenue.
+Cancel	SourceControlPanel		Annuler
+Changes stashed.	SourceControlPanel		Changements mis en réserve.
+Choose branch…	SourceControlPanel		Choisir une branche…
+Choose project…	SourceControlPanel		Choisir un projet…
+Conflicts	SourceControlPanel		Conflits
+Copy name	SourceControlPanel		Copier le nom
+Create branch	SourceControlPanel		Créer une branche
+Create initial commit	SourceControlPanel		Créer la transaction initiale
+Create new branch from \"%selected_branch%\"	SourceControlPanel		Créer une nouvelle branche depuis \"%selected_branch%\"
+Current branch:	SourceControlPanel		Branche actuelle :
+Delete	SourceControlPanel		Supprimer
+Delete \"%selected_branch%\"	SourceControlPanel		Supprimer \"%selected_branch%\"
+Delete dialog	SourceControlPanel		Dialogue de suppression
+Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Suppression de la branche : \"%branch%\".\n\nAprès suppression, l'élément sera perdu.\nVoulez-vous vraiment le supprimer ?
+Do not create the initial commit	SourceControlPanel		Ne pas créer la transaction initiale
+Do you really want to initialize a repository without creating an initial commit?	SourceControlPanel		Voulez-vous vraiment initialiser un dépôt sans créer de transaction initiale ?
+Enter a message for this stash	SourceControlPanel		Entrez un message pour cette réserve
+Fetch	SourceControlPanel		Fetch
+Fetch completed.	SourceControlPanel		Fetch completed.
+Fetch prune	SourceControlPanel		Fetch prune
+Fetch prune completed.	SourceControlPanel		Fetch prune completed.
+Init repository	SourceControlPanel		Initialiser le dépôt
+Local branches	SourceControlPanel		Branches locales
+New branch name:	SourceControlPanel		Nom de la nouvelle branche :
+OK	SourceControlPanel		D'accord
+Project:	SourceControlPanel		Projet :
+Remote branches	SourceControlPanel		Branches distantes
+Remotes	SourceControlPanel		Distantes
+Rename \"%selected_branch%\"	SourceControlPanel		Renommer \"%selected_branch%\"
+Rename branch	SourceControlPanel		Renommer une branche
+Rename branch:	SourceControlPanel		Renommer la branche :
+Repository	SourceControlPanel		Dépôt
+Source control	SourceControlPanel		Contrôle des sources
+Stash apply changes	SourceControlPanel		Mettre en réserve applique les changements
+Stash changes	SourceControlPanel		Mettre en réserve les changements
+Stash pop changes	SourceControlPanel		Mettre en réserve suggère les changements
+Stashed changes applied.	SourceControlPanel		Changements en réserve appliqués.
+Stashed changes popped.	SourceControlPanel		Changements en réserve suggérés.
+Switch to \"%selected_branch%\"	SourceControlPanel		Basculer vers \"%selected_branch%\"
+Tags	SourceControlPanel		Étiquettes
+The project is building, changing branch not allowed.	SourceControlPanel		Ce projet est en construction, changer de branche n'est pas autorisé.
+This project does not have a git repository.\nClick below to initialize it.	SourceControlPanel		Ce projet ne possède pas de dépôt git.\nCliquez ci-dessous pour l'initialiser.
+Active	EditorTabManager		Actif
+Project	EditorTabManager		Projet
+alpha	Utilities		alpha
+beta	Utilities		bêta
+development	Utilities		développement
+gamma	Utilities		gamma
+gold master	Utilities		étalon
+OK	Utilities		D'accord
+Version	Utilities		Version
+An error occurred attempting to rename file 	ProjectsFolderBrowser		Une erreur est survenue lors de la tentative de renommage du fichier.
+Build mode	ProjectsFolderBrowser		Mode de construction
+Build project	ProjectsFolderBrowser		Construire le projet
+Clean project	ProjectsFolderBrowser		Nettoyer le projet
+Close project	ProjectsFolderBrowser		Fermer le projet
+Current branch	ProjectsFolderBrowser		Branche actuelle
+Debug	ProjectsFolderBrowser		Déverminer
+Delete file	ProjectsFolderBrowser		Supprimer le fichier
+Delete folder	ProjectsFolderBrowser		Supprimer le dossier
+Drop folder here	ProjectsFolderBrowser		Déposer un dossier ici
+New	ProjectsFolderBrowser		Nouveau
+OK	ProjectsFolderBrowser		D'accord
+Open file	ProjectsFolderBrowser		Ouvrir un fichier
+Path	ProjectsFolderBrowser		Chemin
+Project	ProjectsFolderBrowser		Projet
+Project settings…	ProjectsFolderBrowser		Paramètres du projet
+Release	ProjectsFolderBrowser		Diffusion
+Rename file	ProjectsFolderBrowser		Renommer le fichier
+Rename folder	ProjectsFolderBrowser		Renommer le dossier
+Set active	ProjectsFolderBrowser		Rendre actif
+Switch to branch	ProjectsFolderBrowser		Basculer vers la branche
+The project folder has been deleted or moved to another location and it will be closed and unloaded from the workspace.	ProjectsFolderBrowser		Le dossier du projet a été supprimé ou déplacé vers un autre emplacement et il sera fermé et déchargé de l’espace de travail.
+The project folder has been renamed. It will be closed and reopened automatically.	ProjectsFolderBrowser		Le dossier du projet a été renommé. Il sera fermé et rouvert automatiquement.
+Another command is running.	ConsoleIOView		Une autre commande est en cours.
+Banner	ConsoleIOView	A separating line inserted at the start and end of a command output in the console. Short as possible.	Bannière
+Clear	ConsoleIOView		Nettoyer
+Restarting build…	ConsoleIOView		Relance de la construction…
+stderr	ConsoleIOView		stderr
+stdout	ConsoleIOView		stdout
+Stop	ConsoleIOView		Arrêter
+Wrap	ConsoleIOView	As in wrapping long lines. Short as possible.	Retour à la ligne
+Array	FunctionsOutlineView		Stockage
+Boolean	FunctionsOutlineView		Booléen
+Class	FunctionsOutlineView		Classe
+Constant	FunctionsOutlineView		Constante
+Constructor	FunctionsOutlineView		Constructeur
+Creating outline	FunctionsOutlineView		Création de l'aperçu
+Enum	FunctionsOutlineView		Énumérer
+Enum member	FunctionsOutlineView		Membre d'énumération
+Event	FunctionsOutlineView		Évènement
+Field	FunctionsOutlineView		Champ
+File	FunctionsOutlineView		Fichier
+Function	FunctionsOutlineView		Fonction
+Go to symbol	FunctionsOutlineView		Aller au symbole
+Interface	FunctionsOutlineView		Interface
+Key	FunctionsOutlineView		Clé
+Method	FunctionsOutlineView		Méthode
+Module	FunctionsOutlineView		Module
+Namespace	FunctionsOutlineView		Espace de noms
+No outline available	FunctionsOutlineView		Pas d'aperçu disponible
+Null	FunctionsOutlineView		Nul
+Object	FunctionsOutlineView		Objet
+Operator	FunctionsOutlineView		Opérateur
+Outline	FunctionsOutlineView		Aperçu
+Package	FunctionsOutlineView		Paquet
+Property	FunctionsOutlineView		Propriété
+Rename symbol…	FunctionsOutlineView		Renommer le symbole…
+Sort	FunctionsOutlineView		Trier
+String	FunctionsOutlineView		Chaine
+Structure	FunctionsOutlineView		Structure
+Type parameter	FunctionsOutlineView		Saisir le paramètre / Paramètre de type
+Variable	FunctionsOutlineView		Variable
+Base path:	RemoteProjectWindow		Chemin de base :
+Browse…	RemoteProjectWindow		Parcourir…
+Cancel	RemoteProjectWindow		Annuler
+Clone	RemoteProjectWindow		Cloner
+Close	RemoteProjectWindow		Fermer
+Continue	RemoteProjectWindow		Continuer
+Destination folder:	RemoteProjectWindow		Dossier de destination :
+Do you want to stop cloning the repository?	RemoteProjectWindow		Voulez-vous arrêter de cloner le dépôt ?
+Open remote Git project	RemoteProjectWindow		Ouvrir un projet Git distant
+Stop	RemoteProjectWindow		Arrêter
+The local path is not valid or does not exist	RemoteProjectWindow		Le chemin local n'est pas valide ou inexistant.
+URL:	RemoteProjectWindow		URL :
+Build	ProjectSettingsWindow		Construire
+Build command:	ProjectSettingsWindow		Commande de construction :
+Build file path:	ProjectSettingsWindow		Chemin des fichiers de construction :
+Build mode:	ProjectSettingsWindow		Mode de construction :
+Clean command:	ProjectSettingsWindow		Commande de nettoyage :
+Color:	ProjectSettingsWindow		Couleur :
+Execute args:	ProjectSettingsWindow		Arguments d'exécution :
+Release	ProjectSettingsWindow		Parution
+Run	ProjectSettingsWindow		Lancer
+Run in terminal	ProjectSettingsWindow		Lancer dans le terminal
+Target:	ProjectSettingsWindow		Cible :
+Building project '\"%project%\"'…	GlobalStatusView		Construction du projet '\"%project%\"'…
+Cleaning project '\"%project%\"'…	GlobalStatusView		Nettoyage du projet '\"%project%\"'…
+Failed building project '\"%project%\"'	GlobalStatusView		Échec de la construction du projet '\"%project%\"'
+Failed cleaning project '\"%project%\"'	GlobalStatusView		Échec du nettoyage du projet '\"%project%\"'
+Finished building project '\"%project%\"'	GlobalStatusView		Construction du projet '\"%project%\"' achevée
+Finished cleaning project '\"%project%\"'	GlobalStatusView		Nettoyage du projet '\"%project%\"' achevé
+Cancel	GoToLineWindow		Annuler
+Go to line	GoToLineWindow		Aller à la ligne
+Go to line:	GoToLineWindow		Aller à la ligne :
+OK	GoToLineWindow		D'accord
+Cancel	QuitAlert		Annuler
+Don't save	QuitAlert		Ne pas sauvegarder
+Save all	QuitAlert		Sauvegarder tout
+Save selected	QuitAlert		Sauvegarder la sélection
+There are unsaved changes.\nSelect the files to save.	QuitAlert		Il y a des modifications non sauvegardées.\NSélectionnez les fichiers à enregistrer.
+Unsaved files	QuitAlert		Fichiers non sauvegardés
+Cancel	GitCredentialsWindow		Annuler
+Git - User Credentials	GitCredentialsWindow		Git - Identifiants de l'utilisateur
+Git - Username	GitCredentialsWindow		Git - Nom d'utilisateur
+OK	GitCredentialsWindow		D'accord
+Password:	GitCredentialsWindow		Mot de passe :
+Username:	GitCredentialsWindow		Nom d'utilisateur :
+Cancel	GTextAlert		Annuler
+OK	GTextAlert		D'accord
+Category	ProblemsPanel		Catégorie
+Line	ProblemsPanel		Ligne
+Message	ProblemsPanel		Message
+No fix available	ProblemsPanel		Pas de correction disponible
+Problems	ProblemsPanel		Problèmes
+Source	ProblemsPanel		Source
+Choose project…	SearchResultTab		Choisir le projet…
+Find in project	SearchResultTab		Chercher dans le projet
+Match case	SearchResultTab	Short as possible.	Sensible à la casse
+Project:	SearchResultTab		Projet :
+Whole word	SearchResultTab	Short as possible.	Mot entier
+Contributors:	GenioApp		Contributeurs :
+Genio is a fork of Ideam and available under the MIT license.	GenioApp		Genio est un dérivé d’Ideam et est disponible sous licence MIT.
+Genio uses:\nScintilla lib\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\nScintilla for Haiku\nCopyright 2011 by Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015 by Kacper Kasper <kacperkasper@gmail.com>\n\n	GenioApp		Genio utilise : \nla librairie Scintilla\nCopyright 1998-2003, Neil Hodgson <neilh@scintilla.org>\n\nScintilla pour Haiku\nCopyright 2011, Andrea Anzani <andrea.anzani@gmail.com>\nCopyright 2014-2015, Kacper Kasper <kacperkasper@gmail.com>\n\n
+Made with love in Italy	GenioApp		Réalisé en Italie avec amour
+See credits for a complete list.\n\n	GenioApp		Consultez les remerciements pour une liste complète.\n\n
+Defaults	ConfigWindow		Par défaut
+Settings	ConfigWindow		Paramètres
+Edit user templates…	TemplatesMenu		Éditer les modèles utilisateurs…
+File deleted	GitRepository		Fichier supprimé
+File deleted from index	GitRepository		Fichier supprimé de l'index
+File modified	GitRepository		Fichier modifié
+File modified on index	GitRepository		Fichier modifié dans l'index
+New file	GitRepository		Nouveau fichier
+New file staged	GitRepository		Nouveau fichier mis en réserve
+Genio	System name		Genio
+Global settings applied	EditorStatusView		Paramètres globaux appliqués
+No LSP file status information	EditorStatusView		Pas d'information de statut du fichier LSP
+Settings in .editorconfig applied	EditorStatusView		Paramètres dans .editorconfig appliqués
+Loading project	ProjectOpenerWindow		Chargement du projet
+Loading project '%project_name%'	ProjectOpenerWindow		Chargement du projet '%project_name%'
+Location	SearchResultPanel		Emplacement
+Search results	SearchResultPanel		Résultats de la recherche
+New folder	TemplateManager		Nouveau dossier
+OK	GitAlert		D'accord

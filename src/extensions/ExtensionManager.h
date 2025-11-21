@@ -1,8 +1,8 @@
 /*
- * Copyright 2024, The Genio Team
+ * Copyright The Genio Contributors
  * All rights reserved. Distributed under the terms of the MIT license.
- * Author: Nexus6 <nexus6@disroot.org>
  */
+
 #pragma once
 
 #include <Entry.h>
@@ -28,7 +28,7 @@ struct ExtensionInfo {
 
 	uint32 Modifier;
 	char Shortcut;
-	
+
 	bool ShowInToolsMenu;
 	bool ShowInContextMenu;
 

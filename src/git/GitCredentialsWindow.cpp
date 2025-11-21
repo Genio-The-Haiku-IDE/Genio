@@ -1,6 +1,6 @@
 /*
+ * Copyright The Genio Contributors
  * Copyright Hrishikesh Hiraskar <hrishihiraskar@gmail.com>
- * Copyright 2023 Nexus6 <nexus6.haiku@icloud.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 

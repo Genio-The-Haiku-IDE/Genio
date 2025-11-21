@@ -1,8 +1,6 @@
 /*
- * Copyright 2023-2025, The Genio Team
+ * Copyright The Genio Contributors
  * All rights reserved. Distributed under the terms of the MIT license.
- * Authors:
- * 		Nexus6 <nexus6@disroot.org>
  */
 
 // Contains the scripting part of the GenioApp class

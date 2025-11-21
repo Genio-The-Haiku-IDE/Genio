@@ -1,7 +1,8 @@
 /*
- * Copyright 2023, Nexus6 <nexus6.haiku@icloud.com>
+ * Copyright The Genio Contributors
  * All rights reserved. Distributed under the terms of the MIT license.
  */
+
 #pragma once
 
 
@@ -43,7 +44,7 @@ private:
 	void			ShowPopupMenu(BPoint where) override;
 
 	void			_UpdateRepositoryTask(const Genio::Git::GitRepository* repo, const BString& branch);
-	
+
 	BranchItem*		_InitEmptySuperItem(const BString &label);
 	void			_BuildBranchTree(const BString &branch, uint32 branchType, const auto& checker);
 

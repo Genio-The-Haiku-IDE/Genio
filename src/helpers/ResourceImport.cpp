@@ -1,7 +1,6 @@
 /*
- * Copyright 2024, The Genio team
+ * Copyright The Genio Contributors
  * All rights reserved. Distributed under the terms of the MIT license.
- * Author: Nexus6 <nexus6.haiku@icloud.com>
  */
 
 #include "ResourceImport.h"
@@ -21,7 +20,7 @@
 ResourceImport::ResourceImport(entry_ref &ref, int32 index)
 {
 	// TODO: Since we can't return anything from the constructor
-	// maybe we should throw ? Or have an InitCheck() method to 
+	// maybe we should throw ? Or have an InitCheck() method to
 	// check if the object initialized correctly, otherwise we cannot
 	// report an error to the caller (and to the user)
 	BFile file;

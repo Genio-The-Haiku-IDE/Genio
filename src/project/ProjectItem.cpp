@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nexus6
+ * Copyright The Genio Contributors
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 

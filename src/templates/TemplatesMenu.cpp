@@ -1,6 +1,7 @@
 /*
- * Copyright 2023 Nexus6 <nexus6.haiku@icloud.com>
+ * Copyright The Genio Contributors
  * All rights reserved. Distributed under the terms of the MIT license.
+ *
  * Parts are taken from the TemplatesMenu class from Haiku (Tracker) under the
  * Open Tracker Licence
  * Copyright (c) 1991-2000, Be Incorporated. All rights reserved.

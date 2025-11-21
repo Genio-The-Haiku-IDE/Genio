@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 Nexus6 <nexus6@disroot.org>
+ * Copyright The Genio Contributors
  * Copyright 2017..2018 A. Mosca <amoscaster@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
@@ -253,7 +253,7 @@ GenioWindow::MessageReceived(BMessage* message)
 		case Genio::Task::TASK_RESULT_MESSAGE:
 		{
 			try {
-				// TODO: how to distinguish between various task result? 
+				// TODO: how to distinguish between various task result?
 				TaskResult<ProjectFolder*> *result = TaskResult<ProjectFolder*>::Instantiate(message);
 				BAutolock lock(fTasksLock);
 				std::set<thread_id>::iterator i = fTaskIDs.find(result->TaskID());
@@ -3814,9 +3814,9 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 	// Now open the project for real
 	BMessenger msgr(this);
 	ProjectFolder* project = new ProjectFolder(ref, msgr);
-	
+
 	_ProjectFolderOpenInitiated(project, ref, activate);
-		
+
 	status = project->Open();
 	if (status != B_OK) {
 		// GenioWindow will delete the allocated project
@@ -3839,7 +3839,7 @@ GenioWindow::_ProjectFolderOpen(const entry_ref& ref, bool activate)
 			activate
 		)
 	);
-	
+
 	fTasksLock.Lock();
 	fTaskIDs.insert(task.ThreadID());
 	fTasksLock.Unlock();

@@ -1,7 +1,8 @@
 /*
- * Copyright 2023-2024, Nexus6 <nexus6.haiku@icloud.com>
+ * Copyright The Genio Contributors
  * All rights reserved. Distributed under the terms of the MIT license.
  */
+
 #pragma once
 
 #include <string>

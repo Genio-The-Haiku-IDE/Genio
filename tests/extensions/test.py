@@ -1,7 +1,6 @@
 #!python3
-# Copyright 2024, The Genio Team
+# Copyright The Genio Contributors
 # All rights reserved. Distributed under the terms of the MIT license.
-# Author: Nexus6 <nexus6@disroot.org>
 
 import time
 from Be import BMessenger, BMessage, BEntry, BPath, entry_ref, \

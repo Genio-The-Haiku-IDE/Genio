@@ -1,9 +1,8 @@
 /*
- * Copyright 2023-2024, The Genio team
+ * Copyright The Genio Contributors
  * All rights reserved. Distributed under the terms of the MIT license.
- * Author: Nexus6 <nexus6.haiku@icloud.com>
  */
- 
+
 #include "FSUtils.h"
 
 #include <Alert.h>

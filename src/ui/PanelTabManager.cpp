@@ -17,11 +17,11 @@ extern ConfigManager gCFG;
 const static uint32 kShowPanelMessage = 'SHPA';
 
 // GTabCloseButton
-class GTabID : public GTabCloseButton {
+class GTabID : public GTab {
 public:
-	GTabID(tab_id id, const char* label, BString previousOwner, BHandler* handler)
+	GTabID(tab_id id, const char* label, BString previousOwner)
 		:
-		GTabCloseButton(label, handler),
+		GTab(label),
 		fId(id),
 		fPreviousOwner(previousOwner)
 	{
@@ -77,7 +77,7 @@ public:
 
 	void AddTab(BView* panel, tab_id id, BString prevOwner, int32 index=-1, bool select = false)
 	{
-		GTabID* tab = new GTabID(id, panel->Name(), prevOwner, this);
+		GTabID* tab = new GTabID(id, panel->Name(), prevOwner);
 		GTabView::AddTab(tab, panel, index);
 		if (select) {
 			GTabView::SelectTab(tab);
@@ -168,7 +168,7 @@ protected:
 	GTab* CreateTabView(GTab* clone) override
 	{
 		GTabID* tab = dynamic_cast<GTabID*>(clone);
-		return new GTabID(tab->ID(), tab->Label().String(), tab->PreviousOwner(), this);
+		return new GTabID(tab->ID(), tab->Label().String(), tab->PreviousOwner());
 	}
 
 	void MessageReceived(BMessage* message) override

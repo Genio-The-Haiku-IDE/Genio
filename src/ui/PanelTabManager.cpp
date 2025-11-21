@@ -14,7 +14,7 @@
 
 extern ConfigManager gCFG;
 
-const static uint32 kShowPanelMessage = 'SHPA';
+const static uint32  kShowPanelMessage = 'SHPA';
 
 // GTabCloseButton
 class GTabID : public GTab {
@@ -133,7 +133,9 @@ public:
 		for (int32 i = 0; i < Container()->CountTabs(); i++) {
 			GTabID* tabid = dynamic_cast<GTabID*>(Container()->TabAt(i));
 			if (tabid != nullptr) {
-				BMessage* tab = new BMessage(kShowPanelMessage);
+				bool isMarked = !fManager->IsPanelClosed(tabid->ID());
+
+				BMessage* tab = new BMessage(isMarked ? GTabCloseButton::kTVCloseTab : kShowPanelMessage);
 				tab->AddInt32("id", tabid->ID());
 				tab->AddString("panel_group", Name());
 				tab->AddInt32("index", i);
@@ -142,10 +144,8 @@ public:
 				BString label = tabid->Label();
 				BMenuItem*	menuItem = new BMenuItem(label.String(), tab);
 				menuItem->SetTarget(this);
+				menuItem->SetMarked(isMarked);
 				menu->AddItem(menuItem);
-
-				if (!fManager->IsPanelClosed(tabid->ID()))
-					menuItem->SetMarked(true);
 			}
 		}
 	}

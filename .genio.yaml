@@ -1,4 +1,4 @@
-build_mode: 0
+build_mode: 1
 build_file_path: ""
 project_release_build_command: make
 project_release_clean_command: make clean

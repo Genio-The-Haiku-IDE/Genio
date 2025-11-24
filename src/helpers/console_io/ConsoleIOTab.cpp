@@ -32,6 +32,17 @@ ConsoleIOTab::Clear()
 	Looper()->PostMessage(&msg, target, this);
 };
 
+void
+ConsoleIOTab::SetTheme(BString theme)
+{
+	BView*	target = _FindTarget();
+	if (target == nullptr)
+		return;
+	BMessage msg('teme');
+	msg.AddString("theme", theme);
+	Looper()->PostMessage(&msg, target, this);
+};
+
 
 status_t
 ConsoleIOTab::Stop()

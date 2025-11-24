@@ -18,6 +18,7 @@ public:
 	virtual	void				AttachedToWindow();
 
 			void				Clear();
+			void				SetTheme(BString theme);
 			status_t			RunCommand(BMessage* cmd_message);
 
 private:

@@ -4553,6 +4553,10 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		fFindGroup->ChangeIconSize(iconSize);
 		fReplaceGroup->ChangeIconSize(iconSize);
 		fRunGroup->ChangeIconSize(iconSize);
+	} else if(key.Compare("build_theme") == 0) {
+		fBuildLogView->SetTheme((BString)gCFG["build_theme"]);
+	} else if(key.Compare("console_theme") == 0) {
+		fMTermView->SetTheme((BString)gCFG["console_theme"]);
 	}
 
 	Editor* selected = fTabManager->SelectedEditor();

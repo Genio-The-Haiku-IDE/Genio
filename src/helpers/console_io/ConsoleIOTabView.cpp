@@ -100,6 +100,12 @@ ConsoleIOTabView::Clear()
 	fConsoleIOTab->Clear();
 }
 
+void
+ConsoleIOTabView::SetTheme(BString theme)
+{
+	fConsoleIOTab->SetTheme(theme);
+}
+
 
 void
 ConsoleIOTabView::_Init(const BMessenger& target, const BString& theme)

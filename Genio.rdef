@@ -4,12 +4,12 @@ resource app_signature "application/x-vnd.Genio";
 resource app_flags B_SINGLE_LAUNCH;
 
 resource app_version {
-	major  = 4,
-	middle = 9,
-	minor  = 9,
+	major  = 5,
+	middle = 0,
+	minor  = 0,
 
 	variety = B_APPV_DEVELOPMENT,
-	internal = 2,
+	internal = 1,
 
 	short_info = "An IDE for Haiku",
 	long_info  = "An open source development environment for Haiku"

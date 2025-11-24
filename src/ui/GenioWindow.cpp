@@ -1000,7 +1000,7 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_FULLSCREEN:
 		case MSG_FOCUS_MODE:
-			_ToogleScreenMode(message->what);
+			_ToggleScreenMode(message->what);
 			break;
 		case MSG_TEXT_OVERWRITE:
 			_ForwardToSelectedEditor(message);
@@ -1302,7 +1302,7 @@ GenioWindow::_PrepareWorkspace()
 
 //Freely inspired by the haiku Terminal fullscreen function.
 void
-GenioWindow::_ToogleScreenMode(int32 action)
+GenioWindow::_ToggleScreenMode(int32 action)
 {
 	if (fScreenMode == kDefault) { // go fullscreen
 		fScreenModeSettings.MakeEmpty();
@@ -1487,7 +1487,7 @@ GenioWindow::QuitRequested()
 		return false;
 
 	if (fScreenMode != kDefault)
-		_ToogleScreenMode(-1);
+		_ToggleScreenMode(-1);
 
 	gCFG["show_projects"] = fPanelTabManager->IsPanelTabViewVisible(kTabViewLeft);
 	gCFG["show_output"]   = fPanelTabManager->IsPanelTabViewVisible(kTabViewBottom);

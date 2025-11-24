@@ -175,7 +175,7 @@ private:
 			void				_HandleConfigurationChanged(BMessage* msg);
 			void				_HandleProjectConfigurationChanged(BMessage* message);
 			BMenu*				_CreateLanguagesMenu();
-			void				_ToogleScreenMode(int32 action);
+			void				_ToggleScreenMode(int32 action);
 			void				_ForwardToSelectedEditor(BMessage* msg);
 			void				_UpdateWindowTitle(Editor* editor, const char* currentBranch);
 

@@ -20,7 +20,9 @@ enum {
 };
 
 
-ConsoleIOTabView::ConsoleIOTabView(const BString& name, const BMessenger& target)
+ConsoleIOTabView::ConsoleIOTabView(const BString& name,
+								   const BMessenger& target,
+								   const BString& theme)
 	:
 	BGroupView(B_VERTICAL, 0.0f),
 	fWindowTarget(target)
@@ -28,7 +30,7 @@ ConsoleIOTabView::ConsoleIOTabView(const BString& name, const BMessenger& target
 	SetName(name);
 
 	try {
-		_Init(BMessenger(this));
+		_Init(BMessenger(this), theme);
 	} catch (...) {
 		throw;
 	}
@@ -100,9 +102,9 @@ ConsoleIOTabView::Clear()
 
 
 void
-ConsoleIOTabView::_Init(const BMessenger& target)
+ConsoleIOTabView::_Init(const BMessenger& target, const BString& theme)
 {
-	fConsoleIOTab = new ConsoleIOTab("nome", target);
+	fConsoleIOTab = new ConsoleIOTab("nome", target, theme);
 	fClearButton = new BButton(B_TRANSLATE("Clear"), new BMessage(MSG_CLEAR_OUTPUT));
 	fStopButton  = new BButton(B_TRANSLATE("Stop"), new BMessage(MSG_STOP_PROCESS));
 

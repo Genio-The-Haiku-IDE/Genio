@@ -10,7 +10,8 @@ class ConsoleIOTab;
 
 class ConsoleIOTabView : public BGroupView {
 public:
-								ConsoleIOTabView(const BString& name, const BMessenger& target);
+								ConsoleIOTabView(const BString& name, const BMessenger& target,
+								                 const BString& theme);
 								~ConsoleIOTabView();
 
 	virtual	void				MessageReceived(BMessage* message);
@@ -20,7 +21,7 @@ public:
 			status_t			RunCommand(BMessage* cmd_message);
 
 private:
-			void				_Init(const BMessenger& target);
+			void				_Init(const BMessenger& target, const BString& theme);
 
 private:
 			BMessenger			fWindowTarget;

@@ -29,17 +29,43 @@ TerminalManager::TerminalManager()
 	LogInfo("TerminalManager, loading addon at [%s] -> %d\n", genioPath.Path(), fId);
 }
 
+/* static */
+TerminalManager&
+TerminalManager::GetInstance()
+{
+	static TerminalManager manager;
+	return manager;
+}
+
+/* static */
+void	  
+TerminalManager::GetThemes(BMessage* themes)
+{
+	TerminalManager& manager = GetInstance();
+	if (manager.IsValid()) {
+ 		void (*_GetThemes)(BMessage*);
+		status_t err = get_image_symbol(manager.fId, "GetThemes", B_SYMBOL_TYPE_ANY, (void**)&_GetThemes);
+		if (err != B_OK) {
+			LogError("Can't find GetThemes in terminal addon\n");
+			return;
+		}
+		_GetThemes(themes);
+	}
+}
+
+
 
 /* static */
 BView*
-TerminalManager::CreateNewTerminal(BRect frame, BMessenger listener, BString command)
+TerminalManager::CreateNewTerminal(BRect frame, BMessenger listener, BString command, BString theme)
 {
-	static TerminalManager manager;
+	TerminalManager& manager = GetInstance();
 	BView* view = nullptr;
 	if (manager.IsValid()) {
 		BMessage message;
 		message.AddString("class", "GenioTermView");
 		message.AddBool("use_rect", true);
+		message.AddString("theme", theme);
 		if (!command.IsEmpty()) {
 			argv_split parser;
 			parser.parse(command.String());

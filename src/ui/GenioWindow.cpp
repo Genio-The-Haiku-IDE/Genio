@@ -3335,8 +3335,11 @@ GenioWindow::_InitTabViews()
 	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
 
-	fBuildLogView = new ConsoleIOTabView(B_TRANSLATE("Build log"), BMessenger(this));
-	fMTermView 	  = new ConsoleIOTabView(B_TRANSLATE("Console I/O"), BMessenger(this));
+	BString theme = (BString)gCFG["build_theme"];
+	fBuildLogView = new ConsoleIOTabView(B_TRANSLATE("Build log"), BMessenger(this), theme);
+
+	theme = (BString)gCFG["console_theme"];
+	fMTermView 	  = new ConsoleIOTabView(B_TRANSLATE("Console I/O"), BMessenger(this), theme);
 
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
 

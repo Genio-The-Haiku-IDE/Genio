@@ -13,11 +13,12 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ConsoleIOView"
 
-ConsoleIOTab::ConsoleIOTab(const char* name, BMessenger messenger):
+ConsoleIOTab::ConsoleIOTab(const char* name, BMessenger messenger, BString theme):
 	TerminalTab(), fMessenger(messenger)
 {
 	SetName(name);
 	SetInitialCommand("/bin/sh -c \":\"");
+	SetInitialTheme(theme);
 }
 
 

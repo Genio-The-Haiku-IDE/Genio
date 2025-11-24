@@ -11,7 +11,7 @@
 
 class ConsoleIOTab : public TerminalTab {
 public:
-	ConsoleIOTab(const char* name, BMessenger messenger);
+	ConsoleIOTab(const char* name, BMessenger messenger, BString theme);
 
 	void 		Clear();
 	status_t	RunCommand(BMessage* , bool clean = true, bool notifyMessage = true);

@@ -25,6 +25,7 @@
 #include "PanelTabManager.h"
 #include "Styler.h"
 #include "Utils.h"
+#include "TerminalManager.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "GenioApp"
@@ -450,19 +451,19 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	GMessage zooms = { {"min", -9}, {"max", 19} };
 	cfg.AddConfig(editorVisual.String(), "editor_zoom", B_TRANSLATE("Editor zoom:"), 0, &zooms);
 
+	BMessage themes;
+	TerminalManager::GetThemes(&themes);
+	themes.PrintToStream();
 	GMessage console_styles = { {"mode", "options"} };
-	console_styles["option_1"] = { {"value", 0}, {"label", B_TRANSLATE("(follow system style)") } };
-	console_styles["option_2"] = { {"value", 1}, {"label", B_TRANSLATE("(follow editor style)") } };
-	style_index = 3;
-	for (auto style : allStyles) {
+	int32 i=0;
+	BString theme;
+	while(themes.FindString("theme", i++, &theme) == B_OK) {
 		BString opt("option_");
-		opt << style_index;
-
-		console_styles[opt.String()] = { {"value", style_index - 1}, {"label", style.c_str() } };
-		style_index++;
+		opt << i;
+		console_styles[opt.String()] = { {"value", theme.String()}, {"label", theme.String() } };
 	}
-	cfg.AddConfig("Console", "console_style", B_TRANSLATE("Console style:"),
-		B_TRANSLATE("(follow system style)"), &console_styles);
+	cfg.AddConfig("Console", "console_theme", B_TRANSLATE("Console theme:"),
+		themes.GetString("selected", "Default"), &console_styles);
 
 	BString build(B_TRANSLATE("Build"));
 	cfg.AddConfig(build.String(), "wrap_console", B_TRANSLATE("Wrap lines in console"), false);
@@ -471,6 +472,8 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 	cfg.AddConfig(build.String(), "build_on_save", B_TRANSLATE("Auto-Build on resource save"), false);
 	cfg.AddConfig(build.String(), "save_on_build", B_TRANSLATE("Auto-Save changed files when building"), false);
 	cfg.AddConfig(build.String(), "show_build_panel", B_TRANSLATE("Force showing Build log panel when building"), true);
+	cfg.AddConfig(build.String(), "build_theme", B_TRANSLATE("Console theme:"),
+		themes.GetString("selected", "Default"), &console_styles);
 
 	BString editorFind = editor;
 	editorFind.Append("/").Append(B_TRANSLATE("Find"));

@@ -456,7 +456,11 @@ ThemeView::_SetCurrentColorScheme()
 {
 	PrefHandler* pref = PrefHandler::Default();
 
+	printf("gCustomColorScheme before load: %s\n", gCustomColorScheme.name);
+
 	pref->LoadColorScheme(&gCustomColorScheme);
+
+	printf("gCustomColorScheme after load: %s\n", gCustomColorScheme.name);
 
 	const char* currentSchemeName = NULL;
 
@@ -464,8 +468,9 @@ ThemeView::_SetCurrentColorScheme()
 	while (i < gColorSchemes->CountItems()) {
 		const color_scheme *item = gColorSchemes->ItemAt(i);
 		i++;
-
+		printf("Comparing with scheme: %s\n", item->name);
 		if (gCustomColorScheme == *item) {
+			printf("Found matching scheme: %s\n", item->name);
 			currentSchemeName = item->name;
 			break;
 		}
@@ -479,6 +484,7 @@ ThemeView::_SetCurrentColorScheme()
 		BMenuItem* item = fColorSchemeField->Menu()->ItemAt(i);
 		if (strcmp(item->Label(), currentSchemeName) == 0) {
 			item->SetMarked(true);
+			printf("Marked item: %s\n", item->Label());
 			break;
 		}
 	}

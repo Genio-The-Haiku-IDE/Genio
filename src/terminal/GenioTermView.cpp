@@ -77,9 +77,44 @@ public:
 
 	TermView* GetTermView() const { return fTermView; }
 
-	void SetDefaultSettings()
+	void SetDefaultSettings(const char* theme)
 	{
 		PrefHandler* handler = PrefHandler::Default();
+
+		printf("Setting default theme: %s\n", theme);
+
+		if (gColorSchemes) {
+			for (int32 i = 0; i < gColorSchemes->CountItems(); i++) {
+
+				const color_scheme* scheme = gColorSchemes->ItemAt(i);
+				if (BString(theme).Compare(scheme->name) == 0) {
+
+					handler->setRGB(PREF_TEXT_FORE_COLOR, scheme->text_fore_color);
+					handler->setRGB(PREF_TEXT_BACK_COLOR, scheme->text_back_color);
+					handler->setRGB(PREF_SELECT_FORE_COLOR, scheme->select_fore_color);
+					handler->setRGB(PREF_SELECT_BACK_COLOR, scheme->select_back_color);
+					handler->setRGB(PREF_CURSOR_FORE_COLOR, scheme->cursor_fore_color);
+					handler->setRGB(PREF_CURSOR_BACK_COLOR, scheme->cursor_back_color);
+					handler->setRGB(PREF_ANSI_BLACK_COLOR, scheme->ansi_colors.black);
+					handler->setRGB(PREF_ANSI_RED_COLOR, scheme->ansi_colors.red);
+					handler->setRGB(PREF_ANSI_GREEN_COLOR, scheme->ansi_colors.green);
+					handler->setRGB(PREF_ANSI_YELLOW_COLOR, scheme->ansi_colors.yellow);
+					handler->setRGB(PREF_ANSI_BLUE_COLOR, scheme->ansi_colors.blue);
+					handler->setRGB(PREF_ANSI_MAGENTA_COLOR, scheme->ansi_colors.magenta);
+					handler->setRGB(PREF_ANSI_CYAN_COLOR, scheme->ansi_colors.cyan);
+					handler->setRGB(PREF_ANSI_WHITE_COLOR, scheme->ansi_colors.white);
+					handler->setRGB(PREF_ANSI_BLACK_HCOLOR, scheme->ansi_colors_h.black);
+					handler->setRGB(PREF_ANSI_RED_HCOLOR, scheme->ansi_colors_h.red);
+					handler->setRGB(PREF_ANSI_GREEN_HCOLOR, scheme->ansi_colors_h.green);
+					handler->setRGB(PREF_ANSI_YELLOW_HCOLOR, scheme->ansi_colors_h.yellow);
+					handler->setRGB(PREF_ANSI_BLUE_HCOLOR, scheme->ansi_colors_h.blue);
+					handler->setRGB(PREF_ANSI_MAGENTA_HCOLOR, scheme->ansi_colors_h.magenta);
+					handler->setRGB(PREF_ANSI_CYAN_HCOLOR, scheme->ansi_colors_h.cyan);
+					handler->setRGB(PREF_ANSI_WHITE_HCOLOR, scheme->ansi_colors_h.white);
+				}
+			}
+		}
+
 		rgb_color background = handler->getRGB(PREF_TEXT_BACK_COLOR);
 
 		SetViewColor(background);
@@ -214,42 +249,14 @@ public:
 			case TERMVIEW_CLEAR:
 				TermView::Clear();
 				break;
-/*			case 'teme':
-				if (gColorSchemes == nullptr ||
-					gColorSchemes->CountItems() == 0)
-					return;
-
-				for (int32 i=0;i<gColorSchemes->CountItems();i++) {
-					printf("%d %s\n", i , gColorSchemes->ItemAt(i)->name);
-				}
-				msg->SendReply('teme');
-			break;*/
-/*
-	PrefHandler* pref = PrefHandler::Default();
-
-	pref->setRGB(PREF_TEXT_FORE_COLOR, scheme->text_fore_color);
-	pref->setRGB(PREF_TEXT_BACK_COLOR, scheme->text_back_color);
-	pref->setRGB(PREF_SELECT_FORE_COLOR, scheme->select_fore_color);
-	pref->setRGB(PREF_SELECT_BACK_COLOR, scheme->select_back_color);
-	pref->setRGB(PREF_CURSOR_FORE_COLOR, scheme->cursor_fore_color);
-	pref->setRGB(PREF_CURSOR_BACK_COLOR, scheme->cursor_back_color);
-	pref->setRGB(PREF_ANSI_BLACK_COLOR, scheme->ansi_colors.black);
-	pref->setRGB(PREF_ANSI_RED_COLOR, scheme->ansi_colors.red);
-	pref->setRGB(PREF_ANSI_GREEN_COLOR, scheme->ansi_colors.green);
-	pref->setRGB(PREF_ANSI_YELLOW_COLOR, scheme->ansi_colors.yellow);
-	pref->setRGB(PREF_ANSI_BLUE_COLOR, scheme->ansi_colors.blue);
-	pref->setRGB(PREF_ANSI_MAGENTA_COLOR, scheme->ansi_colors.magenta);
-	pref->setRGB(PREF_ANSI_CYAN_COLOR, scheme->ansi_colors.cyan);
-	pref->setRGB(PREF_ANSI_WHITE_COLOR, scheme->ansi_colors.white);
-	pref->setRGB(PREF_ANSI_BLACK_HCOLOR, scheme->ansi_colors_h.black);
-	pref->setRGB(PREF_ANSI_RED_HCOLOR, scheme->ansi_colors_h.red);
-	pref->setRGB(PREF_ANSI_GREEN_HCOLOR, scheme->ansi_colors_h.green);
-	pref->setRGB(PREF_ANSI_YELLOW_HCOLOR, scheme->ansi_colors_h.yellow);
-	pref->setRGB(PREF_ANSI_BLUE_HCOLOR, scheme->ansi_colors_h.blue);
-	pref->setRGB(PREF_ANSI_MAGENTA_HCOLOR, scheme->ansi_colors_h.magenta);
-	pref->setRGB(PREF_ANSI_CYAN_HCOLOR, scheme->ansi_colors_h.cyan);
-	pref->setRGB(PREF_ANSI_WHITE_HCOLOR, scheme->ansi_colors_h.white);
-*/
+			case TERMVIEW_THEME:
+			{
+				BString theme = msg->GetString("theme", "");
+				if (theme.IsEmpty())
+					theme = gPreferred.name;
+				// SetDefaultSettings(theme.String());
+				break;
+			}
 			default:
 				TermView::MessageReceived(msg);
 				break;
@@ -269,13 +276,17 @@ GenioTermView::Instantiate(BMessage* data)
 			view->SetListener(new GenioListener(messenger));
 		}
 		GenioTermViewContainerView* containerView = new (std::nothrow) GenioTermViewContainerView(view);
-		TermScrollView* scrollView = new (std::nothrow) TermScrollView("scrollView",
-			containerView, view, true);
+		TermScrollView* scrollView
+			= new (std::nothrow) TermScrollView("scrollView", containerView, view, true);
 
 		scrollView->ScrollBar(B_VERTICAL)
-				->ResizeBy(0, -(be_control_look->GetScrollBarWidth(B_VERTICAL) - 1));
+			->ResizeBy(0, -(be_control_look->GetScrollBarWidth(B_VERTICAL) - 1));
 
-		containerView->SetDefaultSettings();
+		// set default theme
+		BString theme = data->GetString("theme", "");
+		if (theme.IsEmpty())
+			theme = gPreferred.name;
+		containerView->SetDefaultSettings(theme.String());
 
 		return scrollView;
 	}

@@ -8,6 +8,7 @@
 
 #include <ControlLook.h>
 #include <Messenger.h>
+#include <cstdio>
 
 #include "Colors.h"
 #include "PrefHandler.h"
@@ -23,6 +24,34 @@ extern BObjectList<const color_scheme, true> *gColorSchemes;
 extern BObjectList<const color_scheme> *gColorSchemes;
 #endif
 
+static color_scheme gPreferred = { "" };
+
+extern "C" void GetThemes(BMessage* msg) {
+       //force loading color schemes and store current one.
+
+       PrefHandler* pref = PrefHandler::Default();
+       const char* preferredName = NULL;
+       if (BString(gPreferred.name).IsEmpty()) {
+               pref->LoadColorScheme(&gPreferred);
+       }
+
+       if (gColorSchemes == nullptr ||
+               gColorSchemes->CountItems() == 0)
+               return;
+
+       for (int32 i=0;i<gColorSchemes->CountItems();i++) {
+               const color_scheme* item = gColorSchemes->ItemAt(i);
+               msg->AddString("theme", item->name);
+               if (gPreferred == *item) {
+                       preferredName = item->name;
+                       break;
+               }
+       }
+       if (!BString(preferredName).IsEmpty()) {
+               gPreferred.name = preferredName;
+               msg->AddString("selected", gPreferred.name);
+       }
+}
 
 class GenioTermViewContainerView : public BView {
 public:

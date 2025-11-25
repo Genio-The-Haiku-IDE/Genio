@@ -40,7 +40,7 @@ TerminalManager::GetInstance()
 
 
 /* static */
-void	  
+void
 TerminalManager::GetThemes(BMessage* themes)
 {
 	TerminalManager& manager = GetInstance();

@@ -31,15 +31,43 @@ TerminalManager::TerminalManager()
 
 
 /* static */
-BView*
-TerminalManager::CreateNewTerminal(BRect frame, BMessenger listener, BString command)
+TerminalManager&
+TerminalManager::GetInstance()
 {
 	static TerminalManager manager;
+	return manager;
+}
+
+
+/* static */
+void
+TerminalManager::GetThemes(BMessage* themes)
+{
+	TerminalManager& manager = GetInstance();
+	if (manager.IsValid()) {
+ 		void (*_GetThemes)(BMessage*);
+		status_t err = get_image_symbol(manager.fId, "GetThemes",
+			B_SYMBOL_TYPE_ANY, reinterpret_cast<void**>(&_GetThemes));
+		if (err != B_OK) {
+			LogError("Can't find GetThemes in terminal addon\n");
+			return;
+		}
+		_GetThemes(themes);
+	}
+}
+
+
+/* static */
+BView*
+TerminalManager::CreateNewTerminal(BRect frame, BMessenger listener, BString command, BString theme)
+{
+	TerminalManager& manager = GetInstance();
 	BView* view = nullptr;
 	if (manager.IsValid()) {
 		BMessage message;
 		message.AddString("class", "GenioTermView");
 		message.AddBool("use_rect", true);
+		message.AddString("theme", theme);
 		if (!command.IsEmpty()) {
 			argv_split parser;
 			parser.parse(command.String());

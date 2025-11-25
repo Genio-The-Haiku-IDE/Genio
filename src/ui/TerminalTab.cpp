@@ -18,7 +18,8 @@ TerminalTab::TerminalTab()
 	:
 	BView("Terminal", B_FRAME_EVENTS),
 	fTermView(nullptr),
-	fCommand("")
+	fCommand(""),
+	fThemeName("")
 {
 	SetInitialCommand("/bin/sh -c \"while :; /bin/clear; do /bin/sh -l ;  done\"");
 	SetResizingMode(B_FOLLOW_ALL);
@@ -40,7 +41,7 @@ TerminalTab::AttachedToWindow()
 {
 	BView::AttachedToWindow();
 	if (fTermView == nullptr) {
-		fTermView = TerminalManager::CreateNewTerminal(BRect(0, 0, 100,100), BMessenger(this), fCommand);
+		fTermView = TerminalManager::CreateNewTerminal(BRect(0, 0, 100,100), BMessenger(this), fCommand, fThemeName);
 		fTermView->SetResizingMode(B_FOLLOW_NONE);
 		fTermView->SetExplicitMinSize(BSize(100, 100));
 		fTermView->SetExplicitPreferredSize(BSize(100, 100));
@@ -84,4 +85,10 @@ void
 TerminalTab::SetInitialCommand(const char* command)
 {
 	fCommand = command;
+}
+
+void
+TerminalTab::SetInitialTheme(const char* theme)
+{
+	fThemeName = theme;
 }

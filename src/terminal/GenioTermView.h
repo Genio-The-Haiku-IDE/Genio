@@ -8,7 +8,8 @@
 #include <SupportDefs.h>
 
 enum {
-	TERMVIEW_CLEAR = 'clea'
+	TERMVIEW_CLEAR = 'clea',
+	TERMVIEW_THEME = 'teme'
 };
 
 class GenioTermView  {

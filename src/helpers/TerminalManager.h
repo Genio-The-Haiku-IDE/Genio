@@ -13,8 +13,11 @@
 class BView;
 class TerminalManager {
 public:
-	static BView* CreateNewTerminal(BRect frame, BMessenger listener, BString command = "");
+	static BView* CreateNewTerminal(BRect frame, BMessenger listener, BString command = "", BString theme = "");
+	static void	  GetThemes(BMessage* themes);
+
 private:
+	static TerminalManager& GetInstance();
 			TerminalManager();
 	bool	IsValid() const { return fId > -1; }
 	image_id fId;

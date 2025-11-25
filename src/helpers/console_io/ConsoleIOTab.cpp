@@ -13,11 +13,12 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ConsoleIOView"
 
-ConsoleIOTab::ConsoleIOTab(const char* name, BMessenger messenger):
+ConsoleIOTab::ConsoleIOTab(const char* name, BMessenger messenger, BString theme):
 	TerminalTab(), fMessenger(messenger)
 {
 	SetName(name);
 	SetInitialCommand("/bin/sh -c \":\"");
+	SetInitialTheme(theme);
 }
 
 
@@ -28,6 +29,17 @@ ConsoleIOTab::Clear()
 	if (target == nullptr)
 		return;
 	BMessage msg('clea');
+	Looper()->PostMessage(&msg, target, this);
+};
+
+void
+ConsoleIOTab::SetTheme(BString theme)
+{
+	BView*	target = _FindTarget();
+	if (target == nullptr)
+		return;
+	BMessage msg('teme');
+	msg.AddString("theme", theme);
 	Looper()->PostMessage(&msg, target, this);
 };
 

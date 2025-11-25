@@ -16,10 +16,12 @@ public:
 		void	AttachedToWindow() override;
 
 		void	SetInitialCommand(const char* command);
+		void	SetInitialTheme(const char* themeName);
 
 virtual	void 	NotifyCommandQuit(bool exitNormal, int exitStatus);
 
 protected:
 	BView*	fTermView;
 	BString fCommand;
+	BString fThemeName;
 };

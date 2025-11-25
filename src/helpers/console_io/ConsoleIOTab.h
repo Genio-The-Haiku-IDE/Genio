@@ -11,23 +11,16 @@
 
 class ConsoleIOTab : public TerminalTab {
 public:
-	ConsoleIOTab(const char* name, BMessenger messenger);
+	ConsoleIOTab(const char* name, BMessenger messenger, BString theme);
 
 	void 		Clear();
 	status_t	RunCommand(BMessage* , bool clean = true, bool notifyMessage = true);
 	status_t	Stop();
 	void		SetMessenger(BMessenger messenger) { fMessenger = messenger; }
 
-	void 	NotifyCommandQuit(bool exitNormal, int exitStatus) override;
+	void 		NotifyCommandQuit(bool exitNormal, int exitStatus) override;
+	void		SetTheme(BString theme);
 
-	/*void	MessageReceived(BMessage* msg) override {
-		switch(msg->what) {
-			case 'teme':
-				debugger("RETe");
-			default:
-				TerminalTab::MessageReceived(msg);
-		};
-	}*/
 private:
 
 	BView*		_FindTarget();

@@ -3348,8 +3348,11 @@ GenioWindow::_InitTabViews()
 	//Bottom
 	fProblemsPanel = new ProblemsPanel(fPanelTabManager, kTabProblems);
 
-	fBuildLogView = new ConsoleIOTabView(B_TRANSLATE("Build log"), BMessenger(this));
-	fMTermView 	  = new ConsoleIOTabView(B_TRANSLATE("Console I/O"), BMessenger(this));
+	BString theme = (BString)gCFG["build_theme"];
+	fBuildLogView = new ConsoleIOTabView(B_TRANSLATE("Build log"), BMessenger(this), theme);
+
+	theme = (BString)gCFG["console_theme"];
+	fMTermView 	  = new ConsoleIOTabView(B_TRANSLATE("Console I/O"), BMessenger(this), theme);
 
 	fSearchResultTab = new SearchResultTab(fPanelTabManager, kTabSearchResult);
 
@@ -4554,6 +4557,10 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 		_ShowView(fStatusView, bool(gCFG["show_statusbar"]), MSG_TOGGLE_STATUSBAR);
 	} else if (key.Compare("use_small_icons") == 0) {
 		_ChangeIconSize(message->GetBool("value", false));
+	} else if(key.Compare("build_theme") == 0) {
+		fBuildLogView->SetTheme((BString)gCFG["build_theme"]);
+	} else if(key.Compare("console_theme") == 0) {
+		fMTermView->SetTheme((BString)gCFG["console_theme"]);
 	}
 
 	Editor* selected = fTabManager->SelectedEditor();

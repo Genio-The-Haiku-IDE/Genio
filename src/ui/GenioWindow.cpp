@@ -1,4 +1,4 @@
-/*
+  /*
  * Copyright The Genio Contributors
  * Copyright 2017..2018 A. Mosca <amoscaster@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
@@ -1591,10 +1591,14 @@ GenioWindow::_DoBuildOrCleanProject(const BString& cmd)
 	const BString projectName = GetActiveProject()->Name();
 	const BString projectPath = GetActiveProject()->Path();
 	BString command;
-	if (cmd == "build")
+	if (cmd == "build") {
 		command	<< GetActiveProject()->GetBuildCommand();
-	else if (cmd == "clean")
+		// TODO: Should ask if the user wants to save
+		if (gCFG["save_on_build"])
+			_FileSaveAll(GetActiveProject());
+	} else if (cmd == "clean")
 		command	<< GetActiveProject()->GetCleanCommand();
+
 	if (command.IsEmpty()) {
 		LogInfoF("Empty %s command for project [%s]", cmd.String(), projectName.String());
 

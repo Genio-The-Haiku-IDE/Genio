@@ -453,7 +453,6 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 
 	BMessage themes;
 	TerminalManager::GetThemes(&themes);
-	themes.PrintToStream();
 	GMessage console_styles = { {"mode", "options"} };
 	int32 i=0;
 	BString theme;

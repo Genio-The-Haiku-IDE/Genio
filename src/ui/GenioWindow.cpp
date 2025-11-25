@@ -215,6 +215,8 @@ GenioWindow::Show()
 		_ShowView(fToolBar, gCFG["show_toolbar"],	MSG_TOGGLE_TOOLBAR);
 		_ShowView(fStatusView, gCFG["show_statusbar"],	MSG_TOGGLE_STATUSBAR);
 
+		ActionManager::SetPressed(MSG_TOGGLE_ICON_SIZE, gCFG["use_small_icons"]);
+
 		ActionManager::SetPressed(MSG_WHITE_SPACES_TOGGLE, gCFG["show_white_space"]);
 		ActionManager::SetPressed(MSG_LINE_ENDINGS_TOGGLE, gCFG["show_line_endings"]);
 		ActionManager::SetPressed(MSG_WRAP_LINES, gCFG["wrap_lines"]);
@@ -997,6 +999,9 @@ GenioWindow::MessageReceived(BMessage* message)
 			break;
 		case MSG_TOGGLE_STATUSBAR:
 			gCFG["show_statusbar"] = !bool(gCFG["show_statusbar"]);
+			break;
+		case MSG_TOGGLE_ICON_SIZE:
+			gCFG["use_small_icons"] = !bool(gCFG["use_small_icons"]);
 			break;
 		case MSG_FULLSCREEN:
 		case MSG_FOCUS_MODE:
@@ -2804,6 +2809,9 @@ GenioWindow::_InitActions()
 	ActionManager::RegisterAction(MSG_TOGGLE_STATUSBAR,
 									B_TRANSLATE("Show statusbar"));
 
+	ActionManager::RegisterAction(MSG_TOGGLE_ICON_SIZE,
+									B_TRANSLATE("Use smaller icons in statusbar"));
+
 	ActionManager::RegisterAction(MSG_BUILD_PROJECT,
 									B_TRANSLATE("Build project"),
 									B_TRANSLATE("Build project"),
@@ -3224,6 +3232,7 @@ GenioWindow::_InitMenu()
 	ActionManager::AddItem(MSG_SHOW_HIDE_BOTTOM_PANE, submenu);
 	ActionManager::AddItem(MSG_TOGGLE_TOOLBAR, submenu);
 	ActionManager::AddItem(MSG_TOGGLE_STATUSBAR, submenu);
+	ActionManager::AddItem(MSG_TOGGLE_ICON_SIZE, submenu);
 	windowMenu->AddItem(submenu);
 
 	fPanelsMenu = new BMenu(B_TRANSLATE("Panels"));
@@ -4544,16 +4553,7 @@ GenioWindow::_HandleConfigurationChanged(BMessage* message)
 	} else if (key.Compare("show_statusbar") == 0) {
 		_ShowView(fStatusView, bool(gCFG["show_statusbar"]), MSG_TOGGLE_STATUSBAR);
 	} else if (key.Compare("use_small_icons") == 0) {
-		float iconSize = 0;
-		if (message->GetBool("value", false))
-			iconSize = be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width();
-		else
-			iconSize = be_control_look->ComposeIconSize(kDefaultIconSize).Width();
-
-		fToolBar->ChangeIconSize(iconSize);
-		fFindGroup->ChangeIconSize(iconSize);
-		fReplaceGroup->ChangeIconSize(iconSize);
-		fRunGroup->ChangeIconSize(iconSize);
+		_ChangeIconSize(message->GetBool("value", false));
 	}
 
 	Editor* selected = fTabManager->SelectedEditor();
@@ -4601,6 +4601,24 @@ GenioWindow::_HandleProjectConfigurationChanged(BMessage* message)
 			}
 		}
 	}
+}
+
+
+void
+GenioWindow::_ChangeIconSize(bool small)
+{
+	float iconSize;
+	if (small)
+		iconSize = be_control_look->ComposeIconSize(kDefaultIconSizeSmall).Width();
+	else
+		iconSize = be_control_look->ComposeIconSize(kDefaultIconSize).Width();
+
+	fToolBar->ChangeIconSize(iconSize);
+	fFindGroup->ChangeIconSize(iconSize);
+	fReplaceGroup->ChangeIconSize(iconSize);
+	fRunGroup->ChangeIconSize(iconSize);
+
+	ActionManager::SetPressed(MSG_TOGGLE_ICON_SIZE, small);
 }
 
 

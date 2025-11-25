@@ -27,31 +27,32 @@ extern BObjectList<const color_scheme> *gColorSchemes;
 static color_scheme gPreferred = { "" };
 
 extern "C" void GetThemes(BMessage* msg) {
-       //force loading color schemes and store current one.
+	//force loading color schemes and store current one.
 
-       PrefHandler* pref = PrefHandler::Default();
-       const char* preferredName = NULL;
-       if (BString(gPreferred.name).IsEmpty()) {
-               pref->LoadColorScheme(&gPreferred);
-       }
+	PrefHandler* pref = PrefHandler::Default();
+	const char* preferredName = NULL;
+	if (BString(gPreferred.name).IsEmpty()) {
+		pref->LoadColorScheme(&gPreferred);
+	}
 
-       if (gColorSchemes == nullptr ||
-               gColorSchemes->CountItems() == 0)
-               return;
+	if (gColorSchemes == nullptr ||
+		gColorSchemes->CountItems() == 0)
+		return;
 
-       for (int32 i=0;i<gColorSchemes->CountItems();i++) {
-               const color_scheme* item = gColorSchemes->ItemAt(i);
-               msg->AddString("theme", item->name);
-               if (gPreferred == *item) {
-                       preferredName = item->name;
-                       break;
-               }
-       }
-       if (!BString(preferredName).IsEmpty()) {
-               gPreferred.name = preferredName;
-               msg->AddString("selected", gPreferred.name);
-       }
+	for (int32 i = 0; i < gColorSchemes->CountItems(); i++) {
+		const color_scheme* item = gColorSchemes->ItemAt(i);
+		msg->AddString("theme", item->name);
+		if (gPreferred == *item) {
+			preferredName = item->name;
+			break;
+		}
+	}
+	if (!BString(preferredName).IsEmpty()) {
+		gPreferred.name = preferredName;
+		msg->AddString("selected", gPreferred.name);
+	}
 }
+
 
 class GenioTermViewContainerView : public BView {
 public:
@@ -155,10 +156,8 @@ public:
 
 		if (gColorSchemes) {
 			for (int32 i = 0; i < gColorSchemes->CountItems(); i++) {
-
 				const color_scheme* scheme = gColorSchemes->ItemAt(i);
 				if (BString(theme).Compare(scheme->name) == 0) {
-
 					handler->setRGB(PREF_TEXT_FORE_COLOR, scheme->text_fore_color);
 					handler->setRGB(PREF_TEXT_BACK_COLOR, scheme->text_back_color);
 					handler->setRGB(PREF_SELECT_FORE_COLOR, scheme->select_fore_color);
@@ -188,7 +187,6 @@ public:
 		rgb_color background = handler->getRGB(PREF_TEXT_BACK_COLOR);
 
 		Parent()->SetViewColor(background);
-
 
 		SetTextColor(handler->getRGB(PREF_TEXT_FORE_COLOR), background);
 

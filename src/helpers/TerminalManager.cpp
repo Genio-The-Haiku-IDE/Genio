@@ -29,6 +29,7 @@ TerminalManager::TerminalManager()
 	LogInfo("TerminalManager, loading addon at [%s] -> %d\n", genioPath.Path(), fId);
 }
 
+
 /* static */
 TerminalManager&
 TerminalManager::GetInstance()
@@ -37,6 +38,7 @@ TerminalManager::GetInstance()
 	return manager;
 }
 
+
 /* static */
 void	  
 TerminalManager::GetThemes(BMessage* themes)
@@ -44,7 +46,8 @@ TerminalManager::GetThemes(BMessage* themes)
 	TerminalManager& manager = GetInstance();
 	if (manager.IsValid()) {
  		void (*_GetThemes)(BMessage*);
-		status_t err = get_image_symbol(manager.fId, "GetThemes", B_SYMBOL_TYPE_ANY, (void**)&_GetThemes);
+		status_t err = get_image_symbol(manager.fId, "GetThemes",
+			B_SYMBOL_TYPE_ANY, reinterpret_cast<void**>(&_GetThemes));
 		if (err != B_OK) {
 			LogError("Can't find GetThemes in terminal addon\n");
 			return;
@@ -52,7 +55,6 @@ TerminalManager::GetThemes(BMessage* themes)
 		_GetThemes(themes);
 	}
 }
-
 
 
 /* static */

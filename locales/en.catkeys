@@ -1,4 +1,4 @@
-1	English	application/x-vnd.Genio	787855542
+1	English	application/x-vnd.Genio	1731694220
 Create new branch from \"%selected_branch%\"	SourceControlPanel		Create new branch from \"%selected_branch%\"
 Enable brace matching	SettingsWindow		Enable brace matching
 Clear	ConsoleIOView		Clear
@@ -206,7 +206,6 @@ Find:	GenioWindow		Find:
 Git	GenioWindow		Git
 Enter a message for this stash	SourceControlPanel		Enter a message for this stash
 Project settings…	GenioWindow		Project settings…
-(follow system style)	SettingsWindow		(follow system style)
 Show branch name in window title	SettingsWindow		Show branch name in window title
 Choose branch…	SourceControlPanel		Choose branch…
 Don't save	QuitAlert		Don't save
@@ -253,6 +252,7 @@ Release	GenioWindow		Release
 Unsaved files	QuitAlert		Unsaved files
 Debug	GenioWindow		Debug
 Event	FunctionsOutlineView		Event
+Use smaller icons in statusbar	GenioWindow		Use smaller icons in statusbar
 Username:	GitCredentialsWindow		Username:
 Undo	GenioWindow		Undo
 Module	FunctionsOutlineView		Module
@@ -317,7 +317,6 @@ Changes stashed.	SourceControlPanel		Changes stashed.
 Go to definition	GenioWindow		Go to definition
 Key	FunctionsOutlineView		Key
 Index	Editor		Index
-Console style:	SettingsWindow		Console style:
 Clean command:	ProjectSettingsWindow		Clean command:
 Cancel	RemoteProjectWindow		Cancel
 Rename file	ProjectsFolderBrowser		Rename file
@@ -347,7 +346,6 @@ Wrap around	SettingsWindow	Continue searching from the beginning when reaching t
 Show toolbar	SettingsWindow		Show toolbar
 Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?	SourceControlPanel		Deleting branch: \"%branch%\".\n\nAfter deletion, the item will be lost.\nDo you really want to delete it?
 Force showing Build log panel when building	SettingsWindow		Force showing Build log panel when building
-(follow editor style)	SettingsWindow		(follow editor style)
 Cancel	GoToLineWindow		Cancel
 Appearance	GenioWindow		Appearance
 Array	FunctionsOutlineView		Array
@@ -383,6 +381,7 @@ Close all	GenioWindow		Close all
 Next	GenioWindow	Bookmark menu	Next
 Repository	SourceControlPanel		Repository
 Sort	FunctionsOutlineView		Sort
+Console theme:	SettingsWindow		Console theme:
 An error occurred attempting to rename file 	ProjectsFolderBrowser		An error occurred attempting to rename file 
 Show statusbar	GenioWindow		Show statusbar
 Find in project	GenioWindow		Find in project

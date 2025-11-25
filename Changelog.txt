@@ -1,11 +1,11 @@
 v5.0
-	- Made getting the git infomation asynchronous.
 	- Added ability to show branch name in window title.
 	- Added ability to close all tabs to further customize workspace.
 	- Replaced homegrown termview (used for build log and console I/O) with the Haiku Terminal.
 	- Added Terminal tab.
 	- Changed the settings format to yaml so it's human readable/writable.
 	- Improved project loading and made it asynchronous.
+	- Made getting git infomation asynchronous.
 	- Implement more scripting properties.
 	- Sort the project list alphabetically.
 	- Save outline sorting in settings.

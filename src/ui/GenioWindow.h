@@ -174,8 +174,9 @@ private:
 			void				_CloseMultipleTabs(std::vector<Editor*>& editors);
 			void				_HandleConfigurationChanged(BMessage* msg);
 			void				_HandleProjectConfigurationChanged(BMessage* message);
+			void				_ChangeIconSize(bool small);
 			BMenu*				_CreateLanguagesMenu();
-			void				_ToogleScreenMode(int32 action);
+			void				_ToggleScreenMode(int32 action);
 			void				_ForwardToSelectedEditor(BMessage* msg);
 			void				_UpdateWindowTitle(Editor* editor, const char* currentBranch);
 

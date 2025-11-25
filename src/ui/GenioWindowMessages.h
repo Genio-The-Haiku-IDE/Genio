@@ -109,6 +109,7 @@ enum {
 	MSG_WINDOW_SETTINGS			= 'wise',
 	MSG_TOGGLE_TOOLBAR			= 'toto',
 	MSG_TOGGLE_STATUSBAR		= 'tost',
+	MSG_TOGGLE_ICON_SIZE		= 'tois',
 
 	// Toolbar
 	MSG_BUFFER_LOCK					= 'bulo',

@@ -461,17 +461,16 @@ GenioApp::_PrepareConfig(ConfigManager& cfg)
 		opt << i;
 		console_styles[opt.String()] = { {"value", theme.String()}, {"label", theme.String() } };
 	}
-	cfg.AddConfig("Console", "console_theme", B_TRANSLATE("Console theme:"),
+	cfg.AddConfig("Console", "console_theme", B_TRANSLATE("Theme:"),
 		themes.GetString("selected", "Default"), &console_styles);
 
 	BString build(B_TRANSLATE("Build"));
-	cfg.AddConfig(build.String(), "wrap_console", B_TRANSLATE("Wrap lines in console"), false);
 	cfg.AddConfig(build.String(), "console_banner", B_TRANSLATE_COMMENT("Console banner",
 		"A separating line inserted at the start and end of a command output in the console. Short as possible."), true);
 	cfg.AddConfig(build.String(), "build_on_save", B_TRANSLATE("Auto-Build on resource save"), false);
 	cfg.AddConfig(build.String(), "save_on_build", B_TRANSLATE("Auto-Save changed files when building"), false);
 	cfg.AddConfig(build.String(), "show_build_panel", B_TRANSLATE("Force showing Build log panel when building"), true);
-	cfg.AddConfig(build.String(), "build_theme", B_TRANSLATE("Console theme:"),
+	cfg.AddConfig(build.String(), "build_theme", B_TRANSLATE("Theme:"),
 		themes.GetString("selected", "Default"), &console_styles);
 
 	BString editorFind = editor;

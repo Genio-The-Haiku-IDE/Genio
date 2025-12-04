@@ -1,5 +1,7 @@
 # Genio
 
+Genio has moved to [Codeberg](https://codeberg.org/Genio/Genio)
+
 [![Build](https://github.com/Genio-The-Haiku-IDE/Genio/actions/workflows/build.yml/badge.svg)](https://github.com/Genio-The-Haiku-IDE/Genio/actions/workflows/build.yml)
 [![Codacy Security Scan](https://github.com/Genio-The-Haiku-IDE/Genio/actions/workflows/codacy.yml/badge.svg)](https://github.com/Genio-The-Haiku-IDE/Genio/actions/workflows/codacy.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/26f32bc4ecf2440d89c1932000405a4d)](https://app.codacy.com/gh/Genio-The-Haiku-IDE/Genio/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)

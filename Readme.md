@@ -1,6 +1,6 @@
 # Genio
 
-Genio has moved to [Codeberg](https://codeberg.org/Genio/Genio)
+## Genio has moved to [Codeberg](https://codeberg.org/Genio/Genio)
 
 [![Build](https://github.com/Genio-The-Haiku-IDE/Genio/actions/workflows/build.yml/badge.svg)](https://github.com/Genio-The-Haiku-IDE/Genio/actions/workflows/build.yml)
 [![Codacy Security Scan](https://github.com/Genio-The-Haiku-IDE/Genio/actions/workflows/codacy.yml/badge.svg)](https://github.com/Genio-The-Haiku-IDE/Genio/actions/workflows/codacy.yml)
